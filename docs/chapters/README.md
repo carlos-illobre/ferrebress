@@ -5,8 +5,8 @@ fijo y sigue el orden en que se construye ([roadmap](../project/roadmap.md)); un
 al final.
 
 Cada uno tiene `summary.md` (se lee primero), `rules.md` (las reglas vigentes, con sus
-escenarios), `screens.md` (qué se tiene que poder hacer en cada pantalla y la maqueta elegida),
-`mockups/` y `changes/` (la historia de sus cambios).
+escenarios), `screens.md` (qué se tiene que poder hacer en cada pantalla y qué maqueta de
+[docs/design](../design/README.md) se eligió) y `changes/` (la historia de sus cambios).
 
 Los capítulos se escriben de a uno, cuando le toca a su módulo. El analista de negocio parte de
 lo que había en la primera versión, le pregunta a Carlos todo lo que falte y dice qué se tomó, qué

@@ -186,8 +186,7 @@ Cada módulo del negocio es un capítulo en `docs/chapters/`, con un número fij
 |---|---|
 | `summary.md` | Una página para entrar rápido: cada regla en una línea, lo que más pesa y lo que falta decidir. Es lo primero que se lee |
 | `rules.md` | Las reglas vigentes, con sus escenarios numerados (`E01`, `E02`…) en forma *dado / cuando / entonces*, incluidos los de error, de borde y de seguridad |
-| `screens.md` | Qué tiene que poder hacer cada rol en cada pantalla y la maqueta elegida |
-| `mockups/` | Las maquetas del director de arte: las tres versiones y la elegida |
+| `screens.md` | Qué tiene que poder hacer cada rol en cada pantalla y qué maqueta de `docs/design/mockups/` se eligió |
 | `changes/AAAA-MM-DD-nombre/` | La historia: cada cambio con su pedido y sus decisiones |
 
 `rules.md` tiene siempre lo vigente: cada cambio lo actualiza en el mismo commit. No hay otro
@@ -203,12 +202,12 @@ programó no puede revisarse.
 | Paso | Rol | Qué hace | Deja | Aprueba Carlos |
 |---|---|---|---|---|
 | 1 | Analista de negocio | Parte de lo que había en la primera versión y le pregunta a Carlos **todo** lo que haga falta para cubrir la funcionalidad completa: cada caso, cada borde, cada error, cada permiso. Dice qué se tomó, qué se descarta por desactualizado y qué propone mejorar. Las preguntas van todas juntas, en tandas, hasta que no quede nada sin respuesta: lo que Carlos no contestó o no quedó claro se vuelve a preguntar | `rules.md` y `summary.md`, con los escenarios | Sí |
-| 2 | Director de arte | Tres versiones de cada pantalla, para que Carlos elija. La interfaz es lo más importante: va antes que todo lo técnico | `mockups/` y `screens.md` | Sí: elige una |
+| 2 | Director de arte (skill `art-director`) | Tres versiones de cada pantalla, para que Carlos elija. La interfaz es lo más importante: va antes que todo lo técnico | `docs/design/mockups/<pantalla>/` y `screens.md` | Sí: elige una |
 | 3 | Arquitecto | Entidades, API, eventos, permisos, conexiones, la sección «Seguridad», las **metas de performance** (consultas por pedido, milisegundos, bytes) y las tareas con sus dependencias; un ADR si hay una decisión técnica | `docs/technical/modules/<module>.md` | — |
-| 4 | Revisor del diseño | Busca puntos débiles y mejoras al diseño técnico, contra la constitución y las restricciones de Carlos | `docs/technical/modules/<module>-design-review.md` | — |
+| 4 | Revisor del diseño (agente `design-reviewer`) | Busca puntos débiles y mejoras al diseño técnico, contra la constitución y las restricciones de Carlos | `docs/technical/modules/<module>-design-review.md` | — |
 | 5 | Arquitecto | Corrige el diseño con lo que encontró el revisor y se lo presenta a Carlos | El diseño final | Sí |
 | 6 | Desarrollador | Primero las pruebas: una por escenario y las que cuentan las consultas de cada pedido, todas fallando. Después el código que las hace pasar, con cobertura total; `pnpm check` en verde | Pruebas y código | — |
-| 7 | Revisor del código | Compara el código con las reglas, las pantallas y el diseño; lo que encuentra se arregla | `docs/technical/modules/<module>-code-review.md` | — |
+| 7 | Revisor del código (agente `code-reviewer`) | Compara el código con las reglas, las pantallas y el diseño; lo que encuentra se arregla | `docs/technical/modules/<module>-code-review.md` | — |
 | 8 | Carlos | Lo prueba en el ambiente de pruebas; los ajustes vuelven al paso que corresponda | — | Sí: cierra el módulo |
 | 9 | Redactor | El manual del módulo: capturas, texto para quien atiende la ferretería sin saber de informática y un clip solo si la funcionalidad es lo bastante grande para verla en video | `docs/manual/` y la pantalla del manual | — |
 

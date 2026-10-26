@@ -21,7 +21,7 @@ usa solo para leer: no se modifica.
 |---|---|
 | Índice de requerimientos | `specs/README.md` |
 | Decisiones de Carlos (1 a 167) | `docs/decisiones-de-negocio.md` |
-| Preguntas abiertas | `specs/preguntas-abiertas.md` |
+| Preguntas abiertas (el analista las hace de nuevo al llegar a cada módulo; por ejemplo, P9 de Acceso: ¿se puede salir sin conexión?) | `specs/preguntas-abiertas.md` |
 | Requerimientos no funcionales | `specs/001-base-del-sistema/spec.md` |
 | Lenguaje visual «Mostrador» | `docs/lenguaje-mostrador/` |
 | Maquetas (v1 a v4) | `microservices/web/public/maquetas/`, publicadas en https://carlos-illobre.github.io/ferre/pruebas/v2/ |

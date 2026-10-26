@@ -41,12 +41,14 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 
 ## Tareas pendientes de la base
 
-- [ ] T001 [agente] Traer de la primera versión, sin nombrarla, el director de arte y el revisor;
-  el revisor se divide en dos: el del diseño y el del código (guía de migración).
-- [ ] T002 [agente] Pasar a `docs/design/` el lenguaje visual «Mostrador», la pantalla de entrada
-  y las maquetas v2 que sirvan de referencia (guía de migración).
+- [x] T001 [agente] Traer de la primera versión el director de arte (`.claude/skills/art-director/`)
+  y el revisor, dividido en dos: `design-reviewer` y `code-reviewer` (`.claude/agents/`).
+- [x] T002 [agente] Pasar a `docs/design/` el lenguaje visual «Mostrador», las capturas de la
+  pantalla de entrada y las maquetas v2 de cada pantalla.
 - [ ] T003 [agente] Armar el esqueleto: workspace de pnpm, `pnpm check`, el `.env` de ejemplo, el
-  compose (Caddy, servidor, PostgreSQL) y la CI que despliega `main` en el ambiente de pruebas.
+  compose (Caddy, servidor, PostgreSQL) y la CI que despliega `main` en el ambiente de pruebas. Va
+  en el paso 6 del módulo 00: sus límites y su configuración son parte del diseño técnico de ese
+  módulo, que Carlos aprueba antes. Hasta entonces no hay `pnpm check`.
 
 ## Tareas futuras
 

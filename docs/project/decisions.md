@@ -185,6 +185,8 @@ cambia, sin depender de documentos que no están en este repositorio.
     después el diseño técnico, después las pruebas y por último el código, que se escribe para
     pasar las pruebas ya armadas (constitución, principio I).
 
-34. **Sin `spec.md`** (2026-10-26). Cada módulo tiene un solo documento vivo de reglas
+34. **Sin `spec.md` ni lista aparte de preguntas abiertas** (2026-10-26). Cada módulo tiene un solo documento vivo de reglas
     (`rules.md`), sus pantallas (`screens.md`) y su diseño técnico; la historia de cada cambio va
-    en `changes/`. No se usan las plantillas de Spec Kit.
+    en `changes/`. No se usan las plantillas de Spec Kit. Lo que falta decidir de un módulo está en
+    su `summary.md`, no en una lista general: las preguntas se hacen hasta que se contestan
+    (decisión 30).

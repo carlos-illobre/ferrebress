@@ -17,8 +17,8 @@ rehacerse desde la documentación: si se borra `src/`, no se pierde ninguna regl
 | [docs/project/glossary.md](docs/project/glossary.md) | Las palabras del negocio y cómo se dicen en el código |
 | [docs/project/decisions.md](docs/project/decisions.md) | Lo que decidió Carlos, numerado y con fecha |
 | [docs/project/roadmap.md](docs/project/roadmap.md) | Las etapas, el orden de los módulos y las tareas |
-| [docs/project/open-questions.md](docs/project/open-questions.md) | Lo que falta decidir |
 | [docs/chapters/](docs/chapters/README.md) | Un capítulo por módulo: sus reglas, sus pantallas y la historia de sus cambios |
+| [docs/design/](docs/design/README.md) | El lenguaje visual y las maquetas de cada pantalla |
 | [docs/technical/](docs/technical/architecture.md) | La arquitectura, las decisiones técnicas (ADR) y el diseño de cada módulo |
 | `src/shared/` | Lo que usan el servidor y la aplicación: precios, dinero, contratos de la API |
 | `src/server/` | El servidor: un proceso, un módulo por capítulo |
