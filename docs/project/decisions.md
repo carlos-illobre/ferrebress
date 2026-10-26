@@ -3,6 +3,10 @@
 Lo que Carlos decidió sobre qué tiene que hacer el sistema y cómo se trabaja, por fecha. Una
 decisión no se reescribe: si cambia, se agrega una nueva que dice a cuál reemplaza.
 
+Esta lista es para lo que vale para todo el proyecto. Las decisiones de un solo módulo, desde la
+57, van en su capítulo (`docs/chapters/NN-<module>/decisions.md`), con el prefijo del módulo
+(`09-D03`).
+
 Cada decisión se entiende sola. Cuando cambia algo de la primera versión del sistema, dice qué
 cambia, sin depender de documentos que no están en este repositorio.
 
@@ -300,3 +304,10 @@ cambia, sin depender de documentos que no están en este repositorio.
 
 56. **El aviso de «Algo salió mal» lleva captura y últimos pasos** (2026-10-26), sin datos de
     clientes ni la sesión de la persona. Precisa la 49.
+
+57. **Varias sesiones a la vez, sin pisarse** (2026-10-26). Varias sesiones pueden trabajar en
+    módulos distintos al mismo tiempo, con las reglas de la constitución («Trabajo en paralelo»):
+    cada módulo se toma en el plan antes de empezar, solo se toman módulos cuyos previos están
+    cerrados, el código común tiene un dueño por vez, las decisiones de cada módulo van en su
+    capítulo con el prefijo del módulo, y en los archivos compartidos cada módulo toca solo lo suyo.
+    Desde acá, esta lista es solo para lo que vale para todo el proyecto.

@@ -1,0 +1,55 @@
+/* Marco de la aplicación: piezas compartidas por las seis variantes.
+   Lo que cambia entre variantes (la marca, el menú, la luz) va en cada index.html. */
+
+/* ---- Escena: un marco de 1366 × 768 (o un celular) que se puede repetir en states.html ---- */
+.escena { position: relative; width: 1366px; height: 768px; overflow: hidden; background: var(--fondo); }
+.escena .app { height: 768px; min-height: 0; }
+.escena .contenido { height: 768px; }
+.escenas { display: grid; gap: 40px; padding: 32px; background: #D9D5CB; width: max-content; }
+.escenas > figure { margin: 0; display: grid; gap: 12px; }
+.escenas figcaption { font-weight: 750; font-size: 18px; color: var(--tinta); }
+.escenas figcaption small { display: block; font-weight: 500; font-size: 15px; color: var(--texto-2); max-width: 1000px; }
+.escenas.celus { grid-auto-flow: column; }
+.escenas.celus figcaption small { max-width: 390px; }
+.escenas .celu { border-radius: 28px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.35); }
+
+/* ---- Ambiente de pruebas (R10): no sigue el lenguaje, igual en todas las variantes ---- */
+.prueba { position: absolute; inset: var(--prueba-top, 0) 0 0 0; border: 5px solid #D10E86; pointer-events: none; z-index: 90; }
+.prueba .cartel { position: absolute; top: -1px; left: 50%; transform: translateX(-50%); background: #D10E86; color: #fff; font: 700 14px/20px var(--letra); padding: 3px 14px 6px; border-radius: 0 0 10px 10px; white-space: nowrap; letter-spacing: .01em; }
+.celu .prueba { --prueba-top: 44px; border-width: 4px; }
+
+/* ---- «Pronto»: existe en el menú, no se abre (R1.3) ---- */
+.pronto { color: var(--texto-3) !important; cursor: default; }
+.pronto .i { opacity: .6; }
+.p-pronto { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 99px; border: 1px dashed var(--borde-fuerte); background: transparent; color: var(--texto-3); font-size: 14px; font-weight: 650; line-height: 1; white-space: nowrap; }
+
+/* ---- Teclas a la vista: solo con Alt apretado (R2.9) ---- */
+[data-key] { position: relative; }
+.tecla { display: none; }
+.alt .tecla { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 6px; background: var(--tinta); color: #fff; font: 800 14px/1 var(--letra); box-shadow: 0 2px 0 rgba(0,0,0,.35), var(--sombra-2); animation: tecla-entra var(--t-micro) var(--curva); z-index: 30; }
+@keyframes tecla-entra { from { opacity: 0; transform: translateY(3px) scale(.9); } }
+
+/* ---- Conexión: tres estados (R4.1) ---- */
+.luz { --c: var(--logro); --cs: var(--logro-suave); --ct: var(--logro-texto); }
+.luz.sin { --c: var(--urgente); --cs: var(--urgente-suave); --ct: var(--urgente-texto); }
+.luz.enviando { --c: var(--mp); --cs: var(--mp-suave); --ct: var(--mp); }
+.luz .foco-luz { width: 10px; height: 10px; border-radius: 99px; background: var(--c); box-shadow: 0 0 0 4px var(--cs); flex: none; }
+.luz.enviando .foco-luz { animation: late 1.2s var(--curva) infinite; }
+@keyframes late { 50% { opacity: .35; } }
+
+/* ---- Lo pendiente (R4.2): qué, de cuándo, quién ---- */
+.pend { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; }
+.pend + .pend { border-top: 1px solid var(--borde); }
+.pend .ic { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--hundido); color: var(--texto-2); }
+.pend b { display: block; font-size: 15px; line-height: 20px; font-weight: 700; }
+.pend small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+.pend .cuando { font-size: 14px; font-weight: 650; color: var(--texto-2); text-align: right; }
+
+/* ---- Sin conexión: se lee, no se toca (R4.4) ---- */
+.gris { filter: grayscale(1); opacity: .55; pointer-events: none; }
+
+/* ---- Lo que se abre encima ---- */
+[data-capa] { display: none; }
+[data-capa].abierto { display: block; animation: capa-entra var(--t) var(--curva); }
+@keyframes capa-entra { from { opacity: 0; transform: translateY(6px); } }
+.velo { position: absolute; inset: 0; background: rgba(26, 29, 27, .3); z-index: 40; }

@@ -229,6 +229,32 @@ tamaño y se le dice a Carlos en una línea:
 
 Ante la duda, vale el más grande.
 
+### Trabajo en paralelo
+
+Varias sesiones pueden trabajar a la vez en módulos distintos (decisión 57). Para que no hagan lo
+mismo ni se pisen:
+
+- **Se toma la tarea antes de empezar.** La sesión cambia el estado del módulo en el
+  [plan](roadmap.md) a «En curso: paso N (fecha)», hace commit y sube, **antes de tocar nada
+  más**. Si al subir otra sesión ya lo había tomado, el push falla: se trae `main` y se elige otro.
+  Al cerrar el módulo, el estado pasa a «Cerrado (fecha)».
+- **Solo se toma un módulo libre cuyos módulos previos estén cerrados** (columna «Depende de» del
+  plan). Dos módulos donde uno depende del otro no van a la vez.
+- **El código común tiene un dueño por vez.** Cambiar `src/shared/`, `src/server/platform/`,
+  `src/app/platform/`, `src/app/ui/` o `src/app/styles/` es una tarea propia del plan, que se toma
+  igual que un módulo. Quien lo necesita y no lo tiene, lo anota y espera, o trabaja en otra parte.
+- **Las decisiones de un módulo van en su capítulo,** en `docs/chapters/NN-<module>/decisions.md`,
+  numeradas con el prefijo del módulo (`09-D03`). La lista general
+  ([decisions.md](decisions.md)) es solo para lo que vale para todo el proyecto, y se toca como el
+  código común: con la tarea «Documentos del proyecto» tomada.
+- **En los archivos compartidos cada módulo toca solo lo suyo:** en el
+  [glosario](glossary.md), su sección; en [qué necesita internet](../chapters/what-needs-internet.md),
+  sus filas. No se editan las líneas de otro módulo.
+- **Antes de subir,** siempre: traer `main` (`git pull --rebase`), volver a correr `pnpm check` y
+  recién entonces subir.
+- **Carlos atiende una cosa por vez:** cada sesión le dice en qué módulo y en qué paso está, al
+  principio de cada mensaje.
+
 ### Antes de subir
 
 `pnpm check` corre los tipos, los límites de tamaño y complejidad, qué puede importar a qué,
@@ -239,7 +265,7 @@ sube nada que no lo pase. Las pruebas de punta a punta corren antes de cerrar un
 
 Se enmienda con la aprobación de Carlos, anotando qué cambió y por qué, y subiendo la versión.
 
-**Version**: 2.1.0 | **Ratified**: 2026-10-26 | **Last Amended**: 2026-10-26
+**Version**: 2.2.0 | **Ratified**: 2026-10-26 | **Last Amended**: 2026-10-26
 
 **Enmienda 2.0.0 (2026-10-26):** toda la aplicación, no solo el servidor; una sola versión de
 cada pantalla; la base guarda el presente y la auditoría la historia; la hora es la del servidor;
@@ -249,3 +275,5 @@ independientes (decisiones 1 a 34).
 **Enmienda 2.1.0 (2026-10-26):** el orden de autoridad (reglas, maquetas, diseño, pruebas,
 código) y las pruebas antes que el código; las preguntas sin respuesta se vuelven a hacer; cada
 tecnología tiene su ADR; sin `spec.md` (decisiones 30 a 34).
+
+**Enmienda 2.2.0 (2026-10-26):** trabajo en paralelo entre sesiones (decisión 57).
