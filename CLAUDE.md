@@ -31,16 +31,19 @@ secundario.**
   requerimiento: casos, bordes, errores y permisos, todas juntas y en tandas hasta que no quede
   nada sin respuesta.
 - **Las pantallas salen del director de arte**, siempre tres versiones para que Carlos elija. La
-  referencia actual es la v2 de `ferre`, salvo la entrada, que es la actual de `ferre`.
-- **`ferre` se usa solo para leer** (https://github.com/carlos-illobre/ferre). No se modifica.
-  Todo lo de `ferre` se puede cuestionar y mejorar, pero lo que se toma de ahí se confirma con
-  Carlos.
+  referencia actual es la v2, salvo la entrada, que se ve como la de la primera versión.
+- **La primera versión (`ferre`) se usa solo para leer** y se va a borrar: la documentación no la
+  nombra, salvo la [guía de migración](docs/project/migration-from-ferre.md), que dice cómo
+  usarla. Todo lo de ahí se puede cuestionar y mejorar, y lo que se toma se confirma con Carlos.
+- **El orden de autoridad:** reglas, maquetas, diseño técnico, pruebas y código. Las pruebas se
+  escriben antes que el código y no se cambian para que el código pase.
 - **Antes de subir, `pnpm check`.** Todo directo a `main`, sin ramas ni pull requests. En una
   sesión en la nube que arranca en una rama `claude/…`, se sube igual a `main`
   (`git push origin HEAD:main`).
-- **Internet:** los sitios externos se consultan directamente, sin pedir permiso (decisión 171).
+- **Internet:** los sitios externos se consultan directamente, sin pedir permiso (decisión 4).
 
 ## Qué no decide el agente
 
 El alcance, las fechas y las prioridades. Un requerimiento nuevo, o uno que cambia, se le
-pregunta a Carlos. Si descarta una pregunta, no se insiste: se anota como pregunta abierta.
+pregunta a Carlos. Si Carlos no contestó una pregunta, o la respuesta no quedó clara, se le
+vuelve a preguntar: nada queda supuesto (decisión 30).

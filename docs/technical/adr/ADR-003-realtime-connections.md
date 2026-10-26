@@ -1,13 +1,13 @@
 # ADR-003: Las conexiones en un solo módulo, con cuatro formas
 
-**Estado:** aceptado (2026-10-26, decisiones 179 y 180)
+**Estado:** aceptado (2026-10-26, decisiones 12 y 13)
 
 ## Contexto
 
 Hay cosas que tienen que llegar sin que la persona pida nada: que hay una versión nueva, que la
 sesión se cerró, que el celular leyó un código, que la otra pantalla cambió. Cada una tiene un
-equilibrio distinto entre tiempo real y consumo. En `ferre` se resolvieron una por una y se llegó
-a un diseño parecido a este (ADR-030 y ADR-027 de `ferre`), pero repartido en varios servicios.
+equilibrio distinto entre tiempo real y consumo. La primera versión las resolvió una por una y llegó
+a un diseño parecido a este, pero repartido en varios servicios.
 
 Carlos quiere minimizar el consumo de datos y la carga del servidor, y poder sumar más casos en
 el futuro sin rediseñar.

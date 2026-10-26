@@ -1,6 +1,6 @@
 # ADR-006: Entrar sin contraseñas
 
-**Estado:** aceptado (2026-10-26, decisión 178)
+**Estado:** aceptado (2026-10-26, decisión 11)
 
 ## Decisión
 
@@ -16,7 +16,7 @@
   - Si no, un QR propio que vence a los 60 segundos y sirve una sola vez. El celular muestra qué
     computadora pide la entrada y pide la huella.
 - **Sesiones opacas** guardadas en la base y en la memoria del servidor: comprobar una no consulta
-  la base, y cerrarla a distancia se nota al instante (decisión 195).
+  la base, y cerrarla a distancia se nota al instante (decisión 28).
 
 ## Riesgos considerados
 

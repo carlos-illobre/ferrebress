@@ -2,7 +2,7 @@
 
 Lo previsto, por etapa y por módulo. Cada módulo se construye entero (reglas, pantallas, diseño,
 código, pruebas y manual) y se cierra cuando Carlos lo prueba; recién entonces empieza el
-siguiente (decisiones 172 y 192). Este archivo es la fuente de verdad de las tareas: los issues de
+siguiente (decisiones 5 y 25). Este archivo es la fuente de verdad de las tareas: los issues de
 GitHub no se usan.
 
 ## Etapas
@@ -28,7 +28,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | 04 | `audit-log` | Quién hizo qué: guardarlo y consultarlo | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba |
 | 05 | `administration` | Los ajustes que fija un Administrador para todos (redondeo, márgenes rápidos, días del vínculo) y la pantalla de anomalías, a la que cada módulo le suma las suyas | El catálogo necesita el redondeo y los márgenes; mejor editarlos de entrada que dejar valores fijos |
 | 06 | `catalog` | Productos, proveedores, costo, margen, precio, búsqueda, código de barras, foto y duplicados | La base de vender |
-| 07 | `price-lists` | Subir la lista de un proveedor, ver qué cambia y aplicarla; un lector por proveedor | Todo producto sale de una lista (decisión 182) |
+| 07 | `price-lists` | Subir la lista de un proveedor, ver qué cambia y aplicarla; un lector por proveedor | Todo producto sale de una lista (decisión 15) |
 | 08 | `stock` | Cuánto hay de cada producto, correcciones a mano y las anomalías de stock | Vender lo descuenta |
 | 09 | `sales` | Vender, cobrar, ventas del día, corregir, anular, cambio de producto, consultas no satisfechas | El corazón del mostrador |
 | 10 | `purchases` | Ingreso de mercadería y pedidos a proveedores | Atender proveedores |
@@ -41,17 +41,16 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 
 ## Tareas pendientes de la base
 
-- [ ] T001 [agente] Traer de `ferre` y adaptar al inglés de los nombres el director de arte (la
-  skill `director-de-arte`) y el revisor (el agente `revisor`), en dos revisores: el del diseño y
-  el del código.
-- [ ] T002 [agente] Pasar a `docs/design/` el lenguaje visual «Mostrador» de `ferre`
-  (`docs/lenguaje-mostrador/`) y las maquetas v2 que sirvan de referencia.
+- [ ] T001 [agente] Traer de la primera versión, sin nombrarla, el director de arte y el revisor;
+  el revisor se divide en dos: el del diseño y el del código (guía de migración).
+- [ ] T002 [agente] Pasar a `docs/design/` el lenguaje visual «Mostrador», la pantalla de entrada
+  y las maquetas v2 que sirvan de referencia (guía de migración).
 - [ ] T003 [agente] Armar el esqueleto: workspace de pnpm, `pnpm check`, el `.env` de ejemplo, el
   compose (Caddy, servidor, PostgreSQL) y la CI que despliega `main` en el ambiente de pruebas.
 
 ## Tareas futuras
 
-No se construyen ahora; el diseño no les cierra la puerta (decisión 196).
+No se construyen ahora; el diseño no les cierra la puerta (decisión 29).
 
 - [ ] T100 [carlos] Factura electrónica de ARCA.
 - [ ] T101 [carlos] Venta online, con devoluciones.
@@ -59,7 +58,7 @@ No se construyen ahora; el diseño no les cierra la puerta (decisión 196).
 - [ ] T103 [carlos] Buscar un producto sacándole una foto.
 - [ ] T104 [carlos] Devoluciones con reintegro o saldo a favor.
 - [ ] T105 [carlos] Productos propios y combos armados por la ferretería, con su código y su
-  precio, cuando haya datos de producción (decisión 182).
+  precio, cuando haya datos de producción (decisión 15).
 - [ ] T106 [carlos] Análisis de los datos guardados (rotación, combos), con una herramienta de
   análisis que lea la auditoría (ADR-004).
-- [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales (decisión 192).
+- [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales (decisión 25).

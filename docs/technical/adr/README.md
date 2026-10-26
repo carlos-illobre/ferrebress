@@ -3,9 +3,8 @@
 Una decisión técnica que afecta a más de un módulo, con las opciones consideradas y el porqué.
 Un ADR no se reescribe: si cambia, se agrega una enmienda o uno nuevo que lo reemplaza.
 
-Los ADR de `ferre` son antecedente
-([docs/adr](https://github.com/carlos-illobre/ferre/tree/master/docs/adr)) y se pueden
-cuestionar; los que valgan acá se reescriben como ADR de este repositorio.
+Cada tecnología elegida tiene su ADR, con las opciones, los pros, los contras y el porqué
+(decisión 32).
 
 | ADR | Decisión | Estado |
 |---|---|---|
@@ -16,3 +15,10 @@ cuestionar; los que valgan acá se reescriben como ADR de este repositorio.
 | [ADR-005](ADR-005-fast-tests.md) | Pruebas rápidas, sin Docker y con cobertura total | Aceptado |
 | [ADR-006](ADR-006-sign-in-without-passwords.md) | Entrar sin contraseñas | Aceptado |
 | [ADR-007](ADR-007-offline-and-server-time.md) | Sin conexión, solo para atender, y la hora del servidor | Aceptado |
+| [ADR-008](ADR-008-typescript-and-node.md) | TypeScript sobre Node, con pnpm | Aceptado |
+| [ADR-009](ADR-009-postgresql.md) | PostgreSQL para el estado actual | Aceptado |
+| [ADR-010](ADR-010-docker-compose.md) | Contenedores con Docker Compose, solo para correr el sistema | Aceptado |
+| [ADR-011](ADR-011-caddy.md) | Caddy como puerta de entrada | Aceptado |
+| [ADR-012](ADR-012-server-libraries.md) | Hono, Kysely y Zod en el servidor | Aceptado |
+| [ADR-013](ADR-013-app-libraries.md) | Preact, Vite y CSS sin herramientas en la aplicación | A confirmar |
+| [ADR-014](ADR-014-hosting-and-deployment.md) | Dónde corre y cómo se despliega | Aceptado |

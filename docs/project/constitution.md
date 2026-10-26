@@ -4,9 +4,9 @@ Lo que no se negocia. Todo capítulo, diseño, tarea y línea de código se revi
 documento; si algo lo contradice, se cambia ese algo o se enmienda la constitución con la
 aprobación de Carlos.
 
-Viene de la constitución de `ferre` (versión 2.0.0), revisada desde cero el 2026-10-26: la
-documentación vive aparte del código, el código va en inglés, un solo servidor y una sola
-aplicación partidos en módulos, y un ciclo de nueve pasos por módulo (decisiones 168 a 196).
+Se escribió el 2026-10-26, al rehacer el sistema desde cero: la documentación vive aparte del
+código, el código va en inglés, un solo servidor y una sola aplicación partidos en módulos, y un
+ciclo de nueve pasos por módulo ([decisiones](decisions.md) 1 a 34).
 
 ## Principios
 
@@ -16,6 +16,15 @@ Lo fijo son las reglas de negocio; el código puede rehacerse en cualquier momen
 documentación tiene que alcanzar para que alguien que nunca vio el código construya de nuevo
 un sistema que cumpla todas las reglas, funcionales y no funcionales.
 
+- **El orden de autoridad.** Ante una diferencia, manda lo de más arriba y se corrige lo de abajo:
+  1. Las reglas (`docs/chapters/`).
+  2. Las maquetas aprobadas, en cómo se ve y cómo se usa.
+  3. El diseño técnico (`docs/technical/`).
+  4. Las pruebas, que se escriben desde los escenarios y antes que el código.
+  5. El código, que se escribe para pasar las pruebas ya armadas.
+
+  Una prueba nunca se cambia para que pase el código; si una prueba está mal, se corrige contra
+  la regla.
 - **La documentación principal está en `docs/`, fuera de `src/`.** Si se borra `src/`, no se
   pierde nada del negocio ni del diseño técnico. Dentro de `src/` puede haber documentación que
   ayude a entender el código, nunca una regla que no esté también en `docs/`.
@@ -74,7 +83,11 @@ que midió el cronómetro; si eso no se puede saber, lleva la hora del dispositi
 
 ### VII. Primero la prueba, y «hecho» solo con evidencia
 
-- Cada escenario de un capítulo tiene una prueba que lo nombra (`sales-E05`).
+- Cada escenario de un capítulo tiene una prueba que lo nombra (`sales-E05`), escrita antes que
+  el código.
+- **Las pruebas usan el módulo como lo usa el resto del sistema:** el servidor por su API y su
+  fachada, la aplicación por lo que ve y toca la persona. No prueban cómo está hecho por dentro,
+  así un refactor no rompe ninguna prueba.
 - **Pruebas unitarias rápidas:** todas juntas en menos de 30 segundos, sin Docker.
 - **Cobertura del 100 % de líneas y ramas.** Una línea que ninguna prueba necesita, sobra. La
   única excepción es lo que solo habla con el hardware del navegador, en una lista corta que se
@@ -150,6 +163,9 @@ Además:
 
 ## Restricciones técnicas
 
+- **Cada tecnología elegida tiene su ADR**, con las opciones, sus pros y contras, y el porqué.
+  Sumar una tecnología nueva (lenguaje, base, biblioteca de peso, servicio) necesita su ADR antes
+  de usarla.
 - **Un solo servidor y una sola aplicación, todo en TypeScript**, partidos en los mismos módulos
   (ADR-001, ADR-002). Otro lenguaje solo con un ADR que muestre una ventaja que TypeScript no
   da.
@@ -174,7 +190,9 @@ Cada módulo del negocio es un capítulo en `docs/chapters/`, con un número fij
 | `mockups/` | Las maquetas del director de arte: las tres versiones y la elegida |
 | `changes/AAAA-MM-DD-nombre/` | La historia: cada cambio con su pedido y sus decisiones |
 
-`rules.md` tiene siempre lo vigente: cada cambio lo actualiza en el mismo commit.
+`rules.md` tiene siempre lo vigente: cada cambio lo actualiza en el mismo commit. No hay otro
+documento de requerimientos (ni `spec.md` ni plantillas de Spec Kit): una regla está en un solo
+lugar.
 
 ### Los nueve pasos de un módulo
 
@@ -184,12 +202,12 @@ programó no puede revisarse.
 
 | Paso | Rol | Qué hace | Deja | Aprueba Carlos |
 |---|---|---|---|---|
-| 1 | Analista de negocio | Lee lo que había en `ferre` y le pregunta a Carlos **todo** lo que haga falta para cubrir la funcionalidad completa: cada caso, cada borde, cada error, cada permiso. Dice qué se tomó, qué se descarta por desactualizado y qué propone mejorar. Las preguntas van todas juntas, en tandas, hasta que no quede nada sin respuesta | `rules.md` y `summary.md`, con los escenarios | Sí |
+| 1 | Analista de negocio | Parte de lo que había en la primera versión y le pregunta a Carlos **todo** lo que haga falta para cubrir la funcionalidad completa: cada caso, cada borde, cada error, cada permiso. Dice qué se tomó, qué se descarta por desactualizado y qué propone mejorar. Las preguntas van todas juntas, en tandas, hasta que no quede nada sin respuesta: lo que Carlos no contestó o no quedó claro se vuelve a preguntar | `rules.md` y `summary.md`, con los escenarios | Sí |
 | 2 | Director de arte | Tres versiones de cada pantalla, para que Carlos elija. La interfaz es lo más importante: va antes que todo lo técnico | `mockups/` y `screens.md` | Sí: elige una |
 | 3 | Arquitecto | Entidades, API, eventos, permisos, conexiones, la sección «Seguridad», las **metas de performance** (consultas por pedido, milisegundos, bytes) y las tareas con sus dependencias; un ADR si hay una decisión técnica | `docs/technical/modules/<module>.md` | — |
 | 4 | Revisor del diseño | Busca puntos débiles y mejoras al diseño técnico, contra la constitución y las restricciones de Carlos | `docs/technical/modules/<module>-design-review.md` | — |
 | 5 | Arquitecto | Corrige el diseño con lo que encontró el revisor y se lo presenta a Carlos | El diseño final | Sí |
-| 6 | Desarrollador | El código, con una prueba por escenario, cobertura total y pruebas que cuentan las consultas de cada pedido; `pnpm check` en verde | Código | — |
+| 6 | Desarrollador | Primero las pruebas: una por escenario y las que cuentan las consultas de cada pedido, todas fallando. Después el código que las hace pasar, con cobertura total; `pnpm check` en verde | Pruebas y código | — |
 | 7 | Revisor del código | Compara el código con las reglas, las pantallas y el diseño; lo que encuentra se arregla | `docs/technical/modules/<module>-code-review.md` | — |
 | 8 | Carlos | Lo prueba en el ambiente de pruebas; los ajustes vuelven al paso que corresponda | — | Sí: cierra el módulo |
 | 9 | Redactor | El manual del módulo: capturas, texto para quien atiende la ferretería sin saber de informática y un clip solo si la funcionalidad es lo bastante grande para verla en video | `docs/manual/` y la pantalla del manual | — |
@@ -222,9 +240,13 @@ sube nada que no lo pase. Las pruebas de punta a punta corren antes de cerrar un
 
 Se enmienda con la aprobación de Carlos, anotando qué cambió y por qué, y subiendo la versión.
 
-**Version**: 2.0.0 | **Ratified**: 2026-10-26 | **Last Amended**: 2026-10-26
+**Version**: 2.1.0 | **Ratified**: 2026-10-26 | **Last Amended**: 2026-10-26
 
 **Enmienda 2.0.0 (2026-10-26):** toda la aplicación, no solo el servidor; una sola versión de
 cada pantalla; la base guarda el presente y la auditoría la historia; la hora es la del servidor;
 pruebas sin Docker y con cobertura total; nueve pasos por módulo con dos revisiones
-independientes (decisiones 171 a 196).
+independientes (decisiones 1 a 34).
+
+**Enmienda 2.1.0 (2026-10-26):** el orden de autoridad (reglas, maquetas, diseño, pruebas,
+código) y las pruebas antes que el código; las preguntas sin respuesta se vuelven a hacer; cada
+tecnología tiene su ADR; sin `spec.md` (decisiones 30 a 34).

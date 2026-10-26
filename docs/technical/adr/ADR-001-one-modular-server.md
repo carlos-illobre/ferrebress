@@ -1,10 +1,10 @@
 # ADR-001: Un solo servidor partido en módulos
 
-**Estado:** aceptado (2026-10-26, decisión 169)
+**Estado:** aceptado (2026-10-26, decisión 2)
 
 ## Contexto
 
-En `ferre` el backend terminó en seis servicios: Comercial, Acceso, Tickets, Auditoría, Procesos y
+La primera versión terminó con el backend partido en seis servicios: Comercial, Acceso, Tickets, Auditoría, Procesos y
 la lectura de listas (en Python), con una puerta que reparte por ruta y una base por servicio.
 Para una ferretería con tres personas, una sola máquina y una persona que decide, eso trajo
 costos sin beneficio visible en el mostrador:
@@ -55,7 +55,7 @@ PostgreSQL con un **esquema por módulo**.
   servidor tumba todos los módulos. Lo que puede colgarse (leer una planilla rara) corre con un
   tiempo límite.
 
-## Enmienda (2026-10-26, decisiones 172 y 188)
+## Enmienda (2026-10-26, decisiones 5 y 21)
 
 - La aplicación sigue la misma partición: un módulo de la aplicación por cada módulo del servidor,
   con el mismo nombre (ADR-002).

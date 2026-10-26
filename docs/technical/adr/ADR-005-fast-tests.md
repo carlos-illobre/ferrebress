@@ -1,6 +1,6 @@
 # ADR-005: Pruebas rápidas, sin Docker y con cobertura total
 
-**Estado:** aceptado (2026-10-26, decisión 175)
+**Estado:** aceptado (2026-10-26, decisión 8)
 
 ## Contexto
 
@@ -8,7 +8,7 @@ Las pruebas sirven para refactorizar sin riesgo y para que no sobren líneas: un
 necesita ninguna prueba, no hace falta. Tienen que correr rápido y probar toda la funcionalidad.
 El código de las pruebas y el de producción tiene que ser el mismo.
 
-En `ferre` las pruebas de la capa de datos necesitaban Docker con PostgreSQL, que tarda en
+En la primera versión las pruebas de la capa de datos necesitaban Docker con PostgreSQL, que tarda en
 arrancar, y las de punta a punta levantaban dos stacks completos.
 
 ## Decisión

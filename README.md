@@ -26,7 +26,7 @@ rehacerse desde la documentación: si se borra `src/`, no se pierde ninguna regl
 
 ## De dónde viene
 
-Ferrebress se construyó primero en el repositorio [`ferre`](https://github.com/carlos-illobre/ferre).
-Este repositorio lo rehace desde cero con la documentación ordenada por capítulos, un solo
-servidor y una sola aplicación partidos en los mismos módulos. Cada capítulo dice qué tomó de
-`ferre`, qué dejó por desactualizado y qué se le preguntó a Carlos.
+Ferrebress se rehace desde cero a partir de una primera versión, con la documentación ordenada
+por capítulos, un solo servidor y una sola aplicación partidos en los mismos módulos. Mientras
+dure la migración, cómo se usa la primera versión está en la
+[guía de migración](docs/project/migration-from-ferre.md).
