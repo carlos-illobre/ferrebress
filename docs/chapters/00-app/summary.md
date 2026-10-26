@@ -1,0 +1,47 @@
+# 00 · La aplicación: resumen
+
+Lo que vale para toda la aplicación. Reglas completas en [rules.md](rules.md).
+
+**Estado:** esperando la aprobación de Carlos.
+
+## Cada regla en una línea
+
+- **Marco:** menú Vender · Catálogo · Depósito · Negocio · Más, con pestañas por parte; lo que falta
+  dice «Pronto»; siempre abre en la primera opción y no recuerda nada (R1).
+- **Una sola aplicación** que se adapta a cualquier pantalla (R1.5).
+- **Teclado (solo computadora):** cursor con Tab, marca con las flechas; ← → pestañas y menú, ↑ ↓
+  menú y listas; Enter activa, Esc cierra; atajos con Alt + letra, visibles solo mientras Alt está
+  apretado y válidos solo en la pantalla que se ve (R2).
+- **Celular:** el cursor nunca arranca en una caja de texto (R2.12).
+- **Textos:** largo en la computadora, corto en el celular y en pantallas angostas (R3).
+- **Conexión:** una luz con tres estados y el detalle de lo pendiente; sin conexión, lo que no
+  anda se pone gris y solo deja salir; sin consultas propias (R4).
+- **Versión nueva:** recién abierta se actualiza sola; en uso avisa y se puede cerrar; si el
+  servidor ya no la entiende, se bloquea con «Actualizar» (R5).
+- **Manual:** desde la entrada de la computadora y desde Más → Manual; selector de dispositivo,
+  buscador, «pronto» para lo que falta; necesita internet (R6).
+- **Esperas:** nada antes de 300 ms, marca de espera después, barra pasados 2 s; búsquedas con 150
+  ms de espera y cancelando la anterior (R7).
+- **Formatos:** «AR$ 45.500» sin decimales por omisión; cantidades con su unidad; la hora del
+  servidor, mostrada como elige cada persona; el día del negocio, uno para todos (R8).
+- **Si algo falla:** «Algo salió mal» con un botón para avisarlo (R9).
+- **Ambiente de pruebas:** marco magenta fijo y cartel (R10).
+
+## Lo que se tomó de la primera versión
+
+El menú de la v2 y sus partes, la luz de conexión sin consultas, la versión nueva sin
+temporizador, el manual con selector y buscador, las unidades de las cantidades y el marco del
+ambiente de pruebas.
+
+## Lo que se dejó
+
+- El teclado de antes (Alt + número a la vista, teclas de función, reglas de flechas que
+  cambiaban por pantalla): se rehízo (decisión 36).
+- El menú que recordaba cómo quedó y la última parte usada.
+- El manual solo en la computadora.
+- El marco de pruebas que titilaba.
+- La regla fija de letra y de confirmaciones: las decide el director de arte (decisión 43).
+
+## Lo que falta decidir
+
+- Las mejoras que se le ofrecieron a Carlos el 2026-10-26 (ver la conversación de aprobación).

@@ -29,3 +29,16 @@
 
 - **Contraseñas:** Carlos no las quiere.
 - **Google en el celular:** más pasos; la huella alcanza.
+
+## Enmienda (2026-10-26, decisión 35)
+
+El celular también entra con Google. Las formas de entrar quedan así, siempre con una cuenta
+autorizada:
+
+| Dónde | Con Google | Con la huella |
+|---|---|---|
+| Celular | Sí | Sí, si el celular está vinculado a la cuenta |
+| Computadora | Sí | Sí, con la del celular: lee el QR y pone la huella en el celular (o la entrada con un celular cercano del navegador, si hay Bluetooth) |
+
+El celular se vincula a la cuenta para entrar con la huella después de entrar con Google en él, o
+desde una computadora con la sesión abierta.

@@ -63,7 +63,7 @@ cambia, sin depender de documentos que no están en este repositorio.
     Administrador. La pantalla para crear roles, darles permisos y asignarlos a las personas
     existe desde el principio. Cada módulo define solo los permisos que justifica.
 
-11. **Cómo se entra** (2026-10-26). Sin contraseñas:
+11. **Cómo se entra** (2026-10-26; precisada por la 35). Sin contraseñas:
     - La computadora entra con una cuenta de Google autorizada.
     - Ya adentro, la computadora puede habilitar un celular de la misma persona para entrar con la
       huella, sin volver a pasar por Google. El celular no entra con Google.
@@ -190,3 +190,93 @@ cambia, sin depender de documentos que no están en este repositorio.
     en `changes/`. No se usan las plantillas de Spec Kit. Lo que falta decidir de un módulo está en
     su `summary.md`, no en una lista general: las preguntas se hacen hasta que se contestan
     (decisión 30).
+
+35. **Google también en el celular** (2026-10-26). Precisa la 11, que lo había sacado por un
+    malentendido. Solo entran cuentas de Google autorizadas por un Administrador, y cada una puede
+    entrar así:
+    - **En el celular:** con Google, o con la huella si el celular está vinculado a esa cuenta.
+    - **En la computadora:** con Google, o con la huella del celular: se lee con el celular el QR
+      de la computadora y se pone la huella en el celular.
+
+36. **El teclado, rehecho** (2026-10-26). El teclado de la primera versión estaba mal elegido; se
+    diseña de nuevo y se agrega a las pantallas sin invadirlas. Vale solo en la computadora:
+    - **Dos focos.** El cursor, que se mueve solo con Tab o con el mouse y arranca siempre en la caja
+      de texto principal de la pantalla; y la marca, que se mueve con las flechas y nunca mueve el
+      cursor.
+    - **Las flechas.** ← → recorren las pestañas de la parte (el submenú) y llegan al menú; ↑ ↓
+      recorren el menú y los renglones de listas y grillas. Con el cursor en una caja con texto, ←
+      sale hacia el submenú solo si el cursor está al principio del texto (o la caja está vacía), y →
+      solo si está al final; si no, mueven el cursor dentro del texto.
+    - **La marca** se ve igual en todas las pantallas; aparece al usar una flecha y se esconde al
+      usar el mouse.
+    - **Enter** abre o activa lo marcado; en la caja principal, hace la acción principal de la
+      pantalla. **Esc** cierra lo que está encima.
+    - **Atajos:** todo botón tiene una tecla, de preferencia una letra de su nombre; si no está
+      libre, un número. Se usan manteniendo apretado Alt; las teclas se ven sobre los botones solo
+      mientras Alt está apretado. Valen solo en la pantalla que se ve: dos pantallas pueden usar la
+      misma tecla. Sin teclas de función.
+    - **En el celular** el cursor nunca arranca en una caja de texto, para que no se abra el
+      teclado.
+
+37. **Dos formas de cada texto** (2026-10-26). Cada texto de la pantalla tiene una forma larga, que
+    explica cómo funciona, y una corta, para quien ya sabe usarla. La computadora usa la larga; el
+    celular y los anchos chicos, la corta.
+
+38. **El marco y el menú** (2026-10-26). El menú es Vender · Catálogo · Depósito · Negocio · Más.
+    Depósito tiene Stock · Compras · Contar; Negocio, Resumen · Usuarios · Quién hizo qué; Más,
+    Anomalías, Procesos, Mejoras y errores, Configuración, Administración y Manual. Lo que todavía
+    no existe se muestra con «Pronto». Al entrar se abre siempre la primera opción del menú. Nada se
+    recuerda de una vez a la otra: ni la última parte usada ni cómo quedó el menú.
+
+39. **Sin conexión, la pantalla lo dice** (2026-10-26). La luz de conexión dice si está en línea,
+    sin conexión o enviando, y cuánto hay por enviar; al tocarla muestra el detalle de lo pendiente.
+    Sin conexión, lo que no puede andar se pone gris, dice «Sin conexión» y solo deja salir. Si el
+    dispositivo trabaja sin conexión, atender clientes y proveedores sigue andando.
+
+40. **La versión nueva** (2026-10-26). Recién abierta, la aplicación se actualiza sola. Si se está
+    usando, avisa y no se recarga sola; el aviso tiene «Actualizar» y se puede cerrar sin
+    actualizar, y no vuelve a aparecer hasta la próxima vez que se abra, que se actualiza sola. Si
+    el servidor ya no entiende la versión vieja, la aplicación se bloquea con un solo botón:
+    «Actualizar».
+
+41. **El manual, también adentro** (2026-10-26). Se abre desde la entrada de la computadora y desde
+    Más → Manual; en el celular, solo desde Más → Manual. Arriba se elige el dispositivo
+    (Computadora o Celular) y tiene buscador. Los capítulos que faltan dicen «pronto».
+
+42. **Un documento dice qué necesita internet** (2026-10-26). Un solo lugar dice qué funciona sin
+    conexión y qué no, y se mantiene al día con cada módulo.
+
+43. **Lo que decide el director de arte** (2026-10-26). El tamaño de la letra, cuándo se confirma
+    algo y cómo se muestra de dónde sale un número. Lo obligatorio es que todo número calculado deje
+    ver su cálculo fácilmente desde la misma pantalla.
+
+44. **Pantallas y navegadores** (2026-10-26). La aplicación se adapta a cualquier tamaño de pantalla
+    o, al menos, a los más comunes. Chrome y Firefox en la computadora, Chrome en Android. iPhone y
+    modo oscuro, mucho más adelante.
+
+45. **El ambiente de pruebas** (2026-10-26). Se distingue con un marco magenta fijo y el cartel
+    «Ambiente de prueba · nada de esto es real». La aplicación y el servidor se sirven desde la
+    misma dirección: `ferrebress-pruebas.duckdns.org` para pruebas y `ferrebress.duckdns.org` para
+    producción.
+
+46. **Las esperas y las búsquedas** (2026-10-26). Lo que responde en menos de 300 ms no muestra
+    nada; pasado ese tiempo, una marca de espera en lo que se tocó; pasados 2 segundos, una barra
+    que dice qué está haciendo. Toda búsqueda espera 150 ms sin tipear antes de buscar y cancela la
+    búsqueda anterior.
+
+47. **Instalar la aplicación** (2026-10-26). Configuración tiene «Instalar en este dispositivo»,
+    solo donde el navegador lo permite. Se desinstala desde el sistema.
+
+48. **Cómo se ven la hora y los importes** (2026-10-26). Cada persona elige en Configuración su zona
+    horaria y su formato; por omisión, los del sistema. El día del negocio («las ventas de hoy», el
+    cierre de caja) es uno solo para todos y lo fija un Administrador. Los importes van con «AR$» y,
+    por omisión, sin decimales; cada persona puede elegir verlos. Las cantidades, siempre con su
+    unidad.
+
+49. **Si algo falla** (2026-10-26). La aplicación muestra «Algo salió mal» con un botón para
+    avisarlo, que se conecta con Mejoras y errores cuando exista ese módulo. Más adelante se van a
+    sumar ideas de las versiones v3 y v4 de las maquetas.
+
+50. **Cada regla de Carlos se analiza en busca de mejoras** (2026-10-26). Toda decisión o regla
+    que Carlos formula, el agente la analiza y, si encuentra una opción superadora, se la ofrece
+    con sus pros y contras. Carlos decide.

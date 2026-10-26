@@ -14,7 +14,7 @@ se dejó y qué propone mejorar (constitución, paso 1).
 
 | Capítulo | Qué cubre | Estado |
 |---|---|---|
-| 00 · La aplicación (`00-app`) | El marco, el menú, la luz de conexión, la versión nueva, la pantalla del manual | Por escribir |
+| 00 · La aplicación ([`00-app`](00-app/summary.md)) | El marco, el menú, el teclado, la luz de conexión, la versión nueva, el manual | Reglas esperando la aprobación de Carlos |
 | 01 · Acceso (`01-access`) | Entrar, sesiones, personas, roles y permisos | Por escribir |
 | 02 · Celular y computadora (`02-device-link`) | Vincular, espejo, lector de códigos, fotos | Por escribir |
 | 03 · Configuración del dispositivo (`03-device-settings`) | Lo que cada persona elige para su dispositivo | Por escribir |
@@ -31,6 +31,8 @@ se dejó y qué propone mejorar (constitución, paso 1).
 | 14 · Sin conexión (`14-offline`) | Atender sin internet y lo que llega de alguien dado de baja | Por escribir |
 | 15 · Conteos (`15-stock-counts`) | Contar por sector | Por escribir |
 | 16 · Procesos (`16-processes`) | Los procesos del negocio, dibujados | Por escribir |
+
+Qué funciona sin internet y qué no, en toda la aplicación: [what-needs-internet.md](what-needs-internet.md).
 
 Los requerimientos no funcionales generales (disponibilidad, seguridad, ambientes, performance)
 están en la [constitución](../project/constitution.md) y en [docs/technical](../technical/architecture.md).

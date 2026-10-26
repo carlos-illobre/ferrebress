@@ -27,6 +27,8 @@ secundario.**
 - **Un módulo a la vez, entero:** reglas, pantallas, diseño técnico, código, pruebas y manual, en
   los nueve pasos de la constitución. No se programa sin las reglas, las pantallas y el diseño
   técnico aprobados por Carlos.
+- **Toda regla de Carlos se analiza en busca de mejoras:** si hay una opción superadora, se le
+  ofrece con sus pros y contras, y decide él (decisión 50).
 - **El analista de negocio pregunta todo.** Sin las preguntas, Carlos no puede describir bien el
   requerimiento: casos, bordes, errores y permisos, todas juntas y en tandas hasta que no quede
   nada sin respuesta.
