@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estados de la aplicación · 1 · En el marco de siempre (computadora)</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../background.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../icons-extra.js"></script>
+<script src="../../background.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* Variante 1 · cada estado aparece donde ya se mira: la luz del lateral, una franja bajo las
+     pestañas, el propio botón tocado. Nada tapa la venta salvo el bloqueo y el error. */
+  [data-capa] { display: none; }
+  [data-estado="offline"] [data-capa="offline"], [data-estado="version"] [data-capa="version"],
+  [data-estado="block"] [data-capa="block"], [data-estado="error"] [data-capa="error"] { display: flex; }
+
+  /* ---- Sin conexión ---- */
+  .luz { transition: background-color var(--t), color var(--t); }
+  [data-estado="offline"] .luz { background: var(--urgente-suave); color: var(--urgente-texto); cursor: pointer; }
+  [data-estado="offline"] .luz .punto { animation: late 1.6s ease-in-out infinite; }
+  @keyframes late { 50% { opacity: .35; } }
+  .corte { align-items: center; gap: 16px; margin: 16px 32px 0; padding: 12px 12px 12px 16px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-1); }
+  .corte .ico { width: 40px; height: 40px; border-radius: 99px; background: var(--hundido); color: var(--texto-2); display: grid; place-items: center; flex: none; }
+  .corte .txt { flex: 1; font-size: 15px; line-height: 21px; color: var(--texto-2); }
+  .corte .txt b { color: var(--tinta); font-weight: 800; }
+  [data-estado="offline"] .pantalla { padding-top: 16px; }
+  [data-estado="offline"] :is(.btn, .m, .campo, .cantidad, .segmentos, .item .menu, .nav-item, .pestanas a, .vinculo):not([data-sigue]):not([data-sigue] *) {
+    filter: grayscale(1); opacity: .42; cursor: not-allowed; box-shadow: none;
+  }
+  [data-estado="offline"] .item.foco { border-color: var(--borde); box-shadow: var(--sombra-1); }
+  .sin-con { display: none; align-items: center; gap: 8px; }
+  [data-estado="offline"] .sin-con { display: inline-flex; }
+  [data-estado="offline"] :is(.ph, .ayuda, .cobrar-txt, .cobrar .kbd) { display: none !important; }
+  [data-estado="offline"] .cobrar { justify-content: center; background: var(--hundido-2); border-color: var(--hundido-2); color: var(--tinta); opacity: .7 !important; }
+
+  /* ---- Versión nueva ---- */
+  .nuevo { position: fixed; left: 264px; bottom: 24px; width: 690px; align-items: center; gap: 16px; padding: 16px 16px 16px 20px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-3); z-index: 20; }
+  [data-estado="version"] .nuevo { animation: sube var(--t-nav) var(--curva); }
+  @keyframes sube { from { opacity: 0; transform: translateY(16px); } }
+  .nuevo .ico { width: 44px; height: 44px; border-radius: 99px; background: var(--pino-suave); color: var(--pino-texto); display: grid; place-items: center; flex: none; }
+  .nuevo .txt { flex: 1; }
+  .nuevo .txt b { display: block; white-space: nowrap; font-size: 16px; font-weight: 800; }
+  .nuevo .txt span { font-size: 14px; color: var(--texto-2); }
+  .actualizando-txt { display: none; }
+  .actualizando [data-actualizar] .actualizar-txt { display: none; }
+  .actualizando [data-actualizar] .actualizando-txt { display: inline-flex; align-items: center; gap: 8px; }
+
+  /* ---- Bloqueo ---- */
+  .velo { position: fixed; inset: 0; z-index: 30; align-items: center; justify-content: center; background: rgba(244, 242, 236, .72); backdrop-filter: blur(6px) saturate(.6); }
+  .dialogo { width: 480px; padding: 32px; border-radius: var(--r-hoja); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-3); }
+  [data-estado="block"] .dialogo, [data-estado="error"] .dialogo { animation: aparece var(--t-nav) var(--curva); }
+  @keyframes aparece { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+  .dialogo .ico-g { width: 64px; height: 64px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino-texto); margin-bottom: 20px; }
+  .dialogo .t-cuerpo { color: var(--texto-2); margin: 8px 0 24px; }
+  .dialogo .ver { display: flex; align-items: center; gap: 8px; margin-top: 16px; justify-content: center; }
+
+  /* ---- Esperas ---- */
+  .esperando, .registrada { display: none; align-items: center; gap: 10px; }
+  .e-marca .cobrar .esperando { display: inline-flex; }
+  .e-marca .cobrar { cursor: progress; background: var(--accion-fuerte); box-shadow: none; }
+  .e-marca .cobrar :is(.cobrar-txt, .kbd), .e-listo .cobrar :is(.cobrar-txt, .kbd) { display: none; }
+  .e-marca .cobrar, .e-listo .cobrar { justify-content: center; }
+  .e-listo .cobrar { background: var(--logro); border-color: var(--logro); box-shadow: none; }
+  .e-listo .cobrar .registrada { display: inline-flex; }
+  .progreso { display: none; gap: 8px; flex-direction: column; padding: 12px 14px; border-radius: var(--r); background: var(--hundido); margin-top: -4px; }
+  .e-barra .progreso { display: flex; animation: aparece var(--t) var(--curva); }
+  .e-barra .otras { display: none; }
+  .progreso .fila { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
+  .progreso .fila span:last-child { margin-left: auto; color: var(--texto-2); font-weight: 600; }
+  .progreso .barra-p { height: 6px; border-radius: 99px; background: var(--hundido-2); overflow: hidden; }
+  .progreso .barra-p b { display: block; height: 100%; background: var(--pino); border-radius: 99px; transform-origin: left; transform: scaleX(.62); }
+  body:not(.captura).e-barra .progreso .barra-p b { animation: avanza 3.2s linear both; }
+  @keyframes avanza { from { transform: scaleX(.35); } to { transform: scaleX(1); } }
+  .e-marca .medios, .e-marca .cliente, .e-marca .item .cantidad, .e-marca .segmentos { pointer-events: none; }
+
+  /* ---- Algo salió mal ---- */
+  .velo.oscuro { background: rgba(26, 29, 27, .3); backdrop-filter: none; }
+  .error-d { width: 600px; padding: 28px 28px 24px; position: relative; }
+  .error-d .x { position: absolute; top: 16px; right: 16px; }
+  .error-d .cab { display: flex; gap: 16px; align-items: center; }
+  .error-d .ico-e { width: 56px; height: 56px; border-radius: 99px; background: var(--error-suave); color: var(--error-texto); display: grid; place-items: center; flex: none; }
+  .error-d .t-cuerpo { margin: 0; }
+  .salvo { display: flex; align-items: center; gap: 12px; margin: 20px 0 16px; padding: 12px 16px; border-radius: var(--r); background: var(--logro-suave); color: var(--logro-texto); font-weight: 700; font-size: 15px; }
+  .salvo b { margin-left: auto; font-size: 18px; color: var(--tinta); }
+  .pasos-q { margin: 0 0 20px; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .pasos-q li { display: flex; gap: 12px; font-size: 15px; line-height: 21px; }
+  .pasos-q li span { width: 24px; height: 24px; border-radius: 99px; background: var(--hundido); font-weight: 800; font-size: 14px; display: grid; place-items: center; flex: none; }
+  .manda { display: flex; gap: 14px; align-items: center; padding: 12px; border-radius: var(--r); border: 1px dashed var(--borde-fuerte); margin-bottom: 20px; }
+  .manda img { width: 112px; height: 63px; border-radius: 8px; object-fit: cover; box-shadow: var(--sombra-1); border: 1px solid var(--borde); }
+  .manda .t-detalle b { color: var(--tinta); }
+  .pie-d { display: flex; gap: 8px; align-items: center; }
+  .pie-d .codigo { white-space: nowrap; color: var(--texto-3); font-size: 14px; font-weight: 600; margin-right: auto; }
+  [data-avisar].hecho { background: var(--logro-suave); color: var(--logro-texto); border-color: transparent; box-shadow: none; }
+  .tostada-flota { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 50; }
+</style>
+</head>
+<body class="desktop">
+<div id="fondo"></div>
+<script>ponerFondo('desktop');</script>
+
+<!-- Sin conexión: franja bajo las pestañas -->
+<div class="corte" data-capa="offline" data-senal="offline">
+  <span class="ico"><i class="i" data-i="wifi-off"></i></span>
+  <div class="txt"><b>Sin conexión.</b> Lo que ves es de las 10:42 y se puede leer; para tocar algo hace falta internet. Cuando vuelva, todo anda solo, sin perder la venta.</div>
+  <button class="btn" data-sigue data-salir><i class="i i-s" data-i="log-out"></i>Salir <span class="kbd">Alt S</span></button>
+</div>
+
+<!-- Versión nueva: tarjeta abajo, sin tapar el cobro -->
+<div class="nuevo" data-capa="version">
+  <span class="ico"><i class="i" data-i="sparkles"></i></span>
+  <div class="txt"><b>Hay una versión nueva</b><span>Tarda unos segundos y volvés a esta venta, como está.</span></div>
+  <button class="btn btn-fantasma chico" data-cerrar>Ahora no <span class="kbd">Esc</span></button>
+  <button class="btn btn-oscuro chico" data-actualizar><span class="actualizar-txt" style="display:inline-flex;gap:8px;align-items:center"><i class="i i-s" data-i="download"></i>Actualizar <span class="kbd">Alt A</span></span><span class="actualizando-txt"><i class="i i-s gira" data-i="loader-circle"></i>Actualizando…</span></button>
+</div>
+
+<!-- Hay que actualizar para seguir -->
+<div class="velo" data-capa="block">
+  <div class="dialogo" style="text-align:center" data-senal="block">
+    <div class="ico-g" style="margin:0 auto 20px"><i class="i i-xl" data-i="download"></i></div>
+    <div class="t-titulo">Hay que actualizar para seguir</div>
+    <p class="t-cuerpo">Esta versión de Ferrebress quedó vieja y el servidor ya no la entiende. Actualizar tarda unos segundos.</p>
+    <button class="btn btn-accion grande" style="width:100%" data-sigue data-actualizar><span class="actualizar-txt" style="display:inline-flex;gap:10px;align-items:center">Actualizar <span class="kbd">Enter</span></span><span class="actualizando-txt"><i class="i gira" data-i="loader-circle"></i>Actualizando…</span></button>
+    <div class="ver t-detalle">Tenés la 1.8 · la nueva es la 1.9</div>
+  </div>
+</div>
+
+<!-- Algo salió mal -->
+<div class="velo oscuro" data-capa="error">
+  <div class="dialogo error-d">
+    <button class="btn btn-fantasma btn-icono chico x" data-cerrar aria-label="Cerrar"><i class="i" data-i="x"></i></button>
+    <div class="cab">
+      <span class="ico-e"><i class="i i-l" data-i="circle-alert"></i></span>
+      <div><div class="t-titulo">Algo salió mal</div><p class="t-cuerpo" style="color:var(--texto-2)">No se pudo registrar la venta. No es por algo que hiciste.</p></div>
+    </div>
+    <div class="salvo"><i class="i" data-i="shield-check"></i>Tu venta sigue acá · 5 productos<b class="num"><span class="peso">$</span>45.500</b></div>
+    <div class="t-etiqueta" style="margin-bottom:10px">Qué hacer para seguir</div>
+    <ol class="pasos-q">
+      <li><span>1</span><div><b>Probá de nuevo.</b> Casi siempre alcanza.</div></li>
+      <li><span>2</span><div><b>Si vuelve a pasar, avisalo</b> y seguí con otra cosa: la venta te espera en Vender.</div></li>
+    </ol>
+    <div class="manda">
+      <img src="../../screen-desktop.webp" alt="Captura de la pantalla">
+      <div class="t-detalle">El aviso lleva <b>esta captura</b> y <b>tus últimos 8 pasos</b> (qué tocaste y en qué pantalla). Sin datos de clientes ni tu sesión.</div>
+    </div>
+    <div class="pie-d">
+      <span class="codigo">E-4127 · 10:42</span>
+      <button class="btn" data-avisar><i class="i i-s" data-i="bug"></i>Avisar el error <span class="kbd">Alt V</span></button>
+      <button class="btn btn-accion" data-reintentar><i class="i i-s" data-i="rotate-ccw"></i>Probar de nuevo <span class="kbd">Enter</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Ubica las piezas de esta variante dentro del marco y prepara los textos de «Sin conexión».
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  $('.contenido').insertBefore($('.corte'), $('.pantalla'));
+  $('[data-cobrar]').insertAdjacentHTML('beforeend', '<span class="sin-con"><i class="i i-s" data-i="wifi-off"></i>Sin conexión</span><span class="esperando"><i class="i gira" data-i="loader-circle"></i>Cobrando…</span><span class="registrada"><i class="i" data-i="circle-check"></i>Venta registrada</span>');
+  $('[data-buscar]').insertAdjacentHTML('beforeend', '<span class="sin-con" style="color:var(--texto-2);font-weight:600"><i class="i i-s" data-i="wifi-off"></i>Sin conexión: se puede mirar, no buscar</span>');
+  $('.otras').insertAdjacentHTML('afterend', '<div class="progreso"><div class="fila"><i class="i i-s gira" data-i="loader-circle"></i><span>Registrando la venta</span><span>faltan 3 s</span></div><div class="barra-p"><b></b></div></div>');
+  var luz = $('.luz'); luz.setAttribute('data-sigue', '');
+  window.alEstado = function (k) {
+    luz.querySelector('.luz-txt').textContent = k === 'offline' ? 'Sin conexión · 2 por enviar' : 'En línea · todo enviado';
+    luz.classList.toggle('logro', k !== 'offline');
+  };
+})();
+</script>
+<script src="../../states.js"></script>
+</body>
+</html>

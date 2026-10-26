@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estados de la aplicación · 3 · Papel y sello (celular)</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../background.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../icons-extra.js"></script>
+<script src="../../background.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* Variante 3 · celular, la audaz: sello sobre el cobro y el menú de abajo cambiado por «Salir»;
+     la nota pegada; el bloqueo y el error a pantalla entera; Cobrar se llena como barra. */
+
+  /* ---- Sin conexión ---- */
+  [data-estado="offline"] :is(.btn-vinculo, .celu-pestanas, .buscar, .cab-lista .btn, .cantidad, .margen-p, .tacho, .medios-c, .cobrar) { filter: grayscale(1); opacity: .4; }
+  [data-estado="offline"] .nav-inferior { display: none; }
+  [data-estado="offline"] .luz { color: var(--urgente-texto); }
+  [data-estado="offline"] .luz .punto { background: var(--urgente); }
+  .sello { display: none; position: absolute; z-index: 5; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-7deg); padding: 8px 16px 6px; border: 3px solid var(--tinta); border-radius: 12px; color: var(--tinta); text-align: center; pointer-events: none; white-space: nowrap; background: rgba(255,255,255,.7); box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px var(--tinta); }
+  .sello b { display: block; font-size: 26px; line-height: 30px; font-weight: 800; letter-spacing: .02em; }
+  .sello span { font-size: 14px; font-weight: 700; }
+  [data-estado="offline"] .sello { display: block; }
+  body:not(.captura)[data-estado="offline"] .sello { animation: sella 360ms var(--rebote); }
+  @keyframes sella { from { opacity: 0; transform: translate(-50%, -50%) rotate(-7deg) scale(1.6); } }
+  .cinta { display: none; flex: none; height: 76px; padding: 0 16px 14px; align-items: center; gap: 12px; background: var(--superficie); border-top: 1px solid var(--borde); }
+  [data-estado="offline"] .cinta { display: flex; }
+  .cinta .ico { width: 36px; height: 36px; border-radius: 99px; background: var(--urgente-suave); color: var(--urgente-texto); display: grid; place-items: center; flex: none; }
+  .cinta .txt { flex: 1; font-size: 14px; line-height: 19px; color: var(--texto-2); font-weight: 600; }
+  .cinta .txt b { display: block; color: var(--tinta); font-weight: 800; font-size: 15px; }
+
+  /* ---- Versión nueva: la nota pegada ---- */
+  .nota { display: none; position: absolute; z-index: 20; right: 14px; top: 96px; width: 246px; padding: 16px 16px 14px; background: #FFF1C9; border-radius: 4px 4px 4px 20px; transform: rotate(2.5deg); box-shadow: 0 18px 30px -18px rgba(132,84,0,.5), 0 2px 4px rgba(132,84,0,.12); }
+  .nota::before { content: ""; position: absolute; top: -10px; left: 50%; width: 80px; height: 20px; margin-left: -40px; background: rgba(236,233,225,.9); transform: rotate(-3deg); }
+  [data-estado="version"] .nota { display: block; }
+  body:not(.captura)[data-estado="version"] .nota { animation: pega 420ms var(--rebote); }
+  @keyframes pega { from { opacity: 0; transform: rotate(10deg) translateY(-30px) scale(1.05); } }
+  .nota b { display: block; font-size: 18px; line-height: 23px; font-weight: 800; padding-right: 28px; }
+  .nota p { margin: 4px 0 12px; font-size: 14px; line-height: 19px; color: #5C4A1C; font-weight: 600; }
+  .nota .x { position: absolute; top: 6px; right: 6px; color: #7A6431; }
+  .nota .btn-oscuro { width: 100%; }
+
+  /* ---- Pantalla entera ---- */
+  .toma { display: none; position: absolute; inset: 0; z-index: 30; flex-direction: column; }
+  [data-estado="block"] .toma-b, [data-estado="error"] .toma-e { display: flex; }
+  body:not(.captura) .toma > * { animation: entra var(--t-nav) var(--curva) both; }
+  @keyframes entra { from { opacity: 0; transform: translateY(16px); } }
+  .toma-b { background: var(--pino); color: #fff; padding: 64px 24px 40px; }
+  .toma-b .pausa { margin: 8px auto 0; width: 190px; border-radius: 22px; overflow: hidden; transform: rotate(-3deg); box-shadow: 0 30px 60px -24px rgba(0,0,0,.7); position: relative; }
+  .toma-b .pausa img { width: 100%; display: block; filter: saturate(.4) brightness(.9); }
+  .toma-b .pausa .etq { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; gap: 6px; align-items: center; justify-content: center; padding: 6px 10px; border-radius: 999px; background: rgba(18,56,47,.92); font-weight: 700; font-size: 14px; }
+  .toma-b h1 { margin: auto 0 0; font-size: 34px; line-height: 40px; font-weight: 800; letter-spacing: -.02em; }
+  .toma-b p { margin: 10px 0 24px; font-size: 16px; line-height: 24px; color: rgba(255,255,255,.75); }
+  .toma-b .btn { width: 100%; }
+
+  .toma-e { background: var(--fondo); padding: 56px 20px 34px; }
+  .toma-e .x { position: absolute; top: 48px; right: 12px; }
+  .toma-e .ico-e { width: 52px; height: 52px; border-radius: 99px; background: var(--error-suave); color: var(--error-texto); display: grid; place-items: center; margin-bottom: 14px; }
+  .toma-e h1 { margin: 0; font-size: 34px; line-height: 40px; font-weight: 800; letter-spacing: -.02em; }
+  .toma-e .sub { font-size: 16px; line-height: 23px; color: var(--texto-2); margin: 6px 0 16px; }
+  .recibo { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-1); }
+  .recibo .ico { width: 36px; height: 36px; border-radius: 99px; background: var(--logro-suave); color: var(--logro-texto); display: grid; place-items: center; flex: none; }
+  .recibo b { font-size: 15px; display: block; } .recibo .total { margin-left: auto; font-size: 20px; font-weight: 800; }
+  .polaroid { margin: 16px 0 0; background: #fff; padding: 10px; border-radius: 6px; box-shadow: var(--sombra-2); transform: rotate(-1.2deg); display: flex; gap: 12px; }
+  .polaroid img { width: 54px; height: 116px; object-fit: cover; border-radius: 3px; border: 1px solid var(--borde); }
+  .polaroid .cap { font-size: 14px; font-weight: 750; color: var(--tinta); margin-bottom: 4px; }
+  .polaroid ol { margin: 0; padding: 0; list-style: none; font-size: 14px; line-height: 21px; color: var(--texto-2); font-weight: 600; }
+  .polaroid li span { color: var(--texto-3); margin-right: 6px; }
+  .polaroid li:last-child { color: var(--error-texto); }
+  .polaroid .priv { font-size: 14px; color: var(--texto-3); margin-top: 4px; font-weight: 600; }
+  .toma-e .botones { margin-top: auto; display: grid; gap: 8px; }
+  .toma-e .botones .btn { width: 100%; }
+  [data-avisar].hecho { background: var(--logro-suave); color: var(--logro-texto); border-color: transparent; box-shadow: none; }
+
+  /* ---- Espera: Cobrar es la barra ---- */
+  .cobrar .relleno { position: absolute; inset: 0; background: #A93A0C; transform-origin: left; transform: scaleX(0); opacity: 0; }
+  .cobrar > span:not(.relleno) { position: relative; }
+  .esperando, .registrada, .haciendo { display: none !important; align-items: center; gap: 10px; }
+  .e-marca .cobrar .esperando { display: inline-flex !important; }
+  .e-barra .cobrar .esperando { display: none !important; }
+  .e-barra .cobrar .haciendo { display: inline-flex !important; }
+  .e-listo .cobrar .registrada { display: inline-flex !important; }
+  .e-marca .cobrar, .e-listo .cobrar { justify-content: center; box-shadow: none; }
+  .e-marca .cobrar :is(.cobrar-txt, .num), .e-listo .cobrar :is(.cobrar-txt, .num) { display: none; }
+  .e-barra .cobrar .relleno { opacity: 1; transform: scaleX(.62); }
+  body:not(.captura).e-barra .cobrar .relleno { animation: llena 3.2s linear both; }
+  @keyframes llena { from { transform: scaleX(.3); } to { transform: scaleX(1); } }
+  .e-listo .cobrar { background: var(--logro); border-color: var(--logro); }
+  .tramos { display: none; justify-content: space-between; font-size: 14px; font-weight: 700; color: var(--texto-3); height: 40px; align-items: center; margin-bottom: 10px; padding: 0 4px; }
+  .e-barra .tramos { display: flex; }
+  .e-barra .medios-c { display: none; }
+  .tramos .hecho { color: var(--logro-texto); } .tramos .ahora { color: var(--tinta); }
+
+  .actualizando-txt { display: none; }
+  .actualizando [data-actualizar] .actualizar-txt { display: none; }
+  .actualizando [data-actualizar] .actualizando-txt { display: inline-flex; align-items: center; gap: 8px; }
+  .tostada-flota { position: absolute; left: 16px; right: 16px; bottom: 210px; z-index: 50; }
+</style>
+</head>
+<body class="phone">
+<div id="fondo"></div>
+<script>ponerFondo('phone');</script>
+
+<div class="sello" data-senal="offline"><b>SIN CONEXIÓN</b><span>Se mira · no se cobra</span></div>
+<div class="cinta" data-capa="offline">
+  <span class="ico"><i class="i i-s" data-i="wifi-off"></i></span>
+  <div class="txt"><b>Desde las 10:40</b>2 por enviar · vuelve sola</div>
+  <button class="btn" data-sigue data-salir><i class="i i-s" data-i="log-out"></i>Salir</button>
+</div>
+
+<div class="nota" data-capa="version">
+  <button class="btn btn-fantasma btn-icono chico x" data-cerrar aria-label="Cerrar"><i class="i" data-i="x"></i></button>
+  <b>Hay una versión nueva</b>
+  <p>Tarda unos segundos y volvés a esta venta.</p>
+  <button class="btn btn-oscuro chico" data-actualizar><span class="actualizar-txt">Actualizar</span><span class="actualizando-txt"><i class="i i-s gira" data-i="loader-circle"></i>Actualizando…</span></button>
+</div>
+
+<div class="toma toma-b" data-capa="block">
+  <div class="pausa"><img src="../../screen-phone.webp" alt=""><span class="etq"><i class="i i-s" data-i="hourglass"></i>En pausa</span></div>
+  <h1 data-senal="block">Hay que actualizar para seguir</h1>
+  <p>Esta versión quedó vieja. Tarda unos segundos.</p>
+  <button class="btn btn-accion grande" data-sigue data-actualizar><span class="actualizar-txt" style="display:inline-flex;gap:10px;align-items:center"><i class="i" data-i="download"></i>Actualizar</span><span class="actualizando-txt"><i class="i gira" data-i="loader-circle"></i>Actualizando…</span></button>
+</div>
+
+<div class="toma toma-e" data-capa="error">
+  <button class="btn btn-fantasma btn-icono x" data-cerrar aria-label="Cerrar"><i class="i" data-i="x"></i></button>
+  <div class="ico-e"><i class="i i-l" data-i="circle-alert"></i></div>
+  <h1>Algo salió mal</h1>
+  <div class="sub">No se pudo registrar la venta. Probá de nuevo; si vuelve a pasar, avisalo.</div>
+  <div class="recibo"><span class="ico"><i class="i i-s" data-i="shield-check"></i></span><div><b>Tu venta está a salvo</b><span class="t-detalle">5 productos</span></div><span class="total num">$45.500</span></div>
+  <div class="polaroid">
+    <img src="../../screen-phone.webp" alt="">
+    <div><div class="cap">Lo que va en el aviso</div>
+      <ol><li><span>10:41</span>Sumó Cinta métrica</li><li><span>10:42</span>Eligió Efectivo</li><li><span>10:42</span>Tocó Cobrar</li></ol>
+      <div class="priv">Sin datos de clientes</div></div>
+  </div>
+  <div class="botones">
+    <button class="btn btn-accion grande" data-reintentar><i class="i" data-i="rotate-ccw"></i>Probar de nuevo</button>
+    <button class="btn" style="min-height:48px" data-avisar><i class="i i-s" data-i="bug"></i>Avisar el error</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var celu = $('.celu');
+  $('.barra-accion').appendChild($('.sello'));
+  celu.insertBefore($('.cinta'), $('.home-ind'));
+  celu.appendChild($('.nota')); celu.appendChild($('.toma-b')); celu.appendChild($('.toma-e'));
+  celu.setAttribute('data-tostadas', '');
+  $('[data-cobrar]').insertAdjacentHTML('afterbegin', '<span class="relleno"></span>');
+  $('[data-cobrar]').insertAdjacentHTML('beforeend', '<span class="esperando"><i class="i gira" data-i="loader-circle"></i>Cobrando…</span><span class="haciendo" style="width:100%;justify-content:space-between"><span style="display:inline-flex;gap:10px;align-items:center"><i class="i gira" data-i="loader-circle"></i>Registrando</span><span style="font-size:15px;font-weight:650">faltan 3 s</span></span><span class="registrada"><i class="i" data-i="circle-check"></i>Venta registrada</span>');
+  $('.barra-accion').insertAdjacentHTML('afterbegin', '<div class="tramos"><span class="hecho">✓ Venta</span><span class="ahora">Stock</span><span>Caja</span><span>Comprobante</span></div>');
+  var luz = $('.luz');
+  window.alEstado = function (k) { luz.querySelector('.luz-txt').textContent = k === 'offline' ? 'Sin conexión · 2 por enviar' : 'En línea · todo enviado'; };
+})();
+</script>
+<script src="../../states.js"></script>
+</body>
+</html>

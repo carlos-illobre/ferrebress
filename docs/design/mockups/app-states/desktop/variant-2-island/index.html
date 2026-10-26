@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estados de la aplicación · 2 · La isla (computadora)</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../background.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../icons-extra.js"></script>
+<script src="../../background.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* Variante 2 · la isla: la luz de conexión sube al centro de la cabecera y es el único lugar
+     donde la aplicación habla de sí misma. Crece para cada estado y vuelve a ser la luz. */
+  .lateral .luz { display: none; }
+  .contenido { position: relative; }
+
+  .isla { position: absolute; z-index: 40; top: 14px; left: 50%; transform: translateX(-50%); color: #fff; background: var(--pino); border-radius: 26px; box-shadow: var(--sombra-3); overflow: hidden; }
+  .isla > div { display: none; }
+  .isla .compacta { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; font-size: 14px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+  .isla .punto { width: 8px; height: 8px; border-radius: 99px; background: #5BD69A; }
+  body:not([data-estado="normal"]) .isla .compacta { display: none; }
+  [data-estado="offline"] .isla .s-offline, [data-estado="version"] .isla .s-version,
+  [data-estado="error"] .isla .s-error { display: flex; }
+  /* En la espera, la isla sigue compacta hasta los 2 s; ahí crece y dice qué está haciendo */
+  body[data-estado="wait"] .isla .compacta { display: flex; }
+  body.e-barra .isla .compacta { display: none; }
+  body.e-barra .isla .s-wait { display: flex; }
+  body:not(.captura):not([data-estado="normal"]) .isla > div { animation: crece var(--t-nav) var(--curva); }
+  @keyframes crece { from { opacity: 0; transform: scale(.94); } }
+
+  .isla .fila { align-items: center; gap: 14px; padding: 10px 10px 10px 12px; white-space: nowrap; }
+  .isla .ico { width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; flex: none; background: rgba(255,255,255,.12); }
+  .isla .ico.ambar { background: var(--urgente); color: var(--tinta); }
+  .isla .ico.rojo { background: var(--error); color: #fff; }
+  .isla .t b { display: block; font-size: 16px; font-weight: 800; line-height: 22px; }
+  .isla .t span { font-size: 14px; line-height: 20px; color: rgba(255,255,255,.72); font-weight: 600; }
+  .isla .btn { border-color: transparent; }
+  .btn-claro { background: #fff; color: var(--pino); box-shadow: none; }
+  .btn-velado { background: rgba(255,255,255,.12); color: #fff; box-shadow: none; }
+  .isla .kbd { background: rgba(26,29,27,.06); }
+  .btn-velado .kbd { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); color: #fff; }
+  .isla .x { width: 36px; color: rgba(255,255,255,.75); }
+  .isla .pendientes { margin-left: 8px; padding-left: 14px; border-left: 1px solid rgba(255,255,255,.16); font-size: 14px; color: rgba(255,255,255,.72); font-weight: 600; line-height: 20px; }
+  .isla .pendientes b { color: #fff; }
+
+  .isla .s-wait { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 18px 14px; width: 420px; }
+  .isla .s-wait .arriba { display: flex; align-items: center; gap: 10px; font-weight: 750; font-size: 15px; }
+  .isla .s-wait .arriba span:last-child { margin-left: auto; color: rgba(255,255,255,.72); font-weight: 600; font-size: 14px; }
+  .isla .s-wait .barra-p { height: 6px; border-radius: 99px; background: rgba(255,255,255,.16); overflow: hidden; }
+  .isla .s-wait .barra-p b { display: block; height: 100%; width: 100%; background: #5BD69A; border-radius: 99px; transform-origin: left; transform: scaleX(.62); }
+  body:not(.captura).e-barra .isla .barra-p b { animation: avanza 3.2s linear both; }
+  @keyframes avanza { from { transform: scaleX(.35); } to { transform: scaleX(1); } }
+  .isla .pasos { display: flex; gap: 6px; font-size: 14px; color: rgba(255,255,255,.72); font-weight: 600; }
+  .isla .pasos i { font-style: normal; }
+  .isla .pasos .hecho { color: #5BD69A; }
+  .isla .pasos .ahora { color: #fff; }
+
+  /* Error: la isla baja y se vuelve tarjeta */
+  .isla .s-error { flex-direction: column; width: 560px; padding: 20px 20px 18px; white-space: normal; }
+  .isla .s-error .cab { display: flex; gap: 14px; align-items: center; }
+  .isla .s-error .cab b { font-size: 22px; line-height: 28px; }
+  .isla .s-error .que { margin: 14px 0 0; font-size: 15px; line-height: 22px; color: rgba(255,255,255,.86); }
+  .isla .s-error .que b { color: #fff; }
+  .isla .rastro { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,.07); display: grid; grid-template-columns: 120px 1fr; gap: 14px; }
+  .isla .rastro img { width: 120px; height: 68px; border-radius: 8px; object-fit: cover; }
+  .isla .rastro ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; font-size: 14px; line-height: 19px; color: rgba(255,255,255,.8); font-weight: 600; }
+  .isla .rastro ol li span { color: rgba(255,255,255,.55); margin-right: 6px; }
+  .isla .rastro .nota { grid-column: 1 / -1; font-size: 14px; color: rgba(255,255,255,.62); font-weight: 600; display: flex; gap: 6px; align-items: center; }
+  .isla .s-error .pie { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+  [data-avisar].hecho { background: rgba(91,214,154,.18); color: #9EEBC4; }
+
+  /* Bloqueo: la isla ocupa el centro */
+  .velo { display: none; position: fixed; inset: 0; z-index: 35; background: rgba(244, 242, 236, .7); backdrop-filter: blur(6px) saturate(.5); }
+  [data-estado="block"] .velo, [data-estado="error"] .velo { display: block; }
+  [data-estado="error"] .velo { background: rgba(26,29,27,.22); backdrop-filter: none; }
+  .bloqueo { display: none; position: fixed; z-index: 45; left: 50%; top: 50%; width: 520px; transform: translate(-50%, -50%); background: var(--pino); color: #fff; border-radius: 28px; padding: 36px; text-align: center; box-shadow: var(--sombra-3); }
+  [data-estado="block"] .bloqueo { display: block; }
+  body:not(.captura)[data-estado="block"] .bloqueo { animation: crece-b var(--t-nav) var(--curva); }
+  @keyframes crece-b { from { opacity: 0; transform: translate(-50%, -50%) scale(.9); } }
+  .bloqueo .ico { width: 64px; height: 64px; border-radius: 99px; background: rgba(255,255,255,.12); display: grid; place-items: center; margin: 0 auto 20px; }
+  .bloqueo .t-titulo { color: #fff; }
+  .bloqueo p { color: rgba(255,255,255,.75); margin: 8px 0 24px; font-size: 16px; line-height: 24px; }
+  .bloqueo .btn { width: 100%; }
+
+  /* Sin conexión: gris y con la razón en cada botón grande */
+  [data-estado="offline"] :is(.btn, .m, .campo, .cantidad, .segmentos, .item .menu, .nav-item, .pestanas a, .vinculo):not([data-sigue]):not([data-sigue] *) { filter: grayscale(1); opacity: .42; box-shadow: none; }
+  [data-estado="offline"] .item.foco { border-color: var(--borde); box-shadow: var(--sombra-1); }
+  .sin-con { display: none; align-items: center; gap: 8px; }
+  [data-estado="offline"] .sin-con { display: inline-flex; }
+  [data-estado="offline"] :is(.ph, .ayuda, .cobrar-txt, .cobrar .kbd) { display: none !important; }
+  [data-estado="offline"] .cobrar { justify-content: center; background: var(--hundido-2); border-color: var(--hundido-2); color: var(--tinta); opacity: .7 !important; }
+
+  /* Esperas: la marca en lo tocado */
+  .esperando, .registrada { display: none; align-items: center; gap: 10px; }
+  .e-marca .cobrar .esperando, .e-listo .cobrar .registrada { display: inline-flex; }
+  .e-marca .cobrar, .e-listo .cobrar { justify-content: center; }
+  .e-marca .cobrar { background: var(--accion-fuerte); box-shadow: none; cursor: progress; }
+  .e-marca .cobrar :is(.cobrar-txt, .kbd), .e-listo .cobrar :is(.cobrar-txt, .kbd) { display: none; }
+  .e-listo .cobrar { background: var(--logro); border-color: var(--logro); box-shadow: none; }
+
+  .actualizando-txt { display: none; }
+  .actualizando [data-actualizar] .actualizar-txt { display: none; }
+  .actualizando [data-actualizar] .actualizando-txt { display: inline-flex; align-items: center; gap: 8px; }
+  .tostada-flota { position: fixed; left: calc(50% + 116px); top: 14px; transform: translateX(-50%); z-index: 50; height: 40px; border-radius: 26px; }
+</style>
+</head>
+<body class="desktop">
+<div id="fondo"></div>
+<script>ponerFondo('desktop');</script>
+
+<div class="isla" data-senal="offline">
+  <div class="compacta" data-sigue><span class="punto"></span>En línea · todo enviado</div>
+
+  <div class="fila s-offline" data-capa="offline">
+    <span class="ico ambar"><i class="i" data-i="wifi-off"></i></span>
+    <div class="t"><b>Sin conexión</b><span>Se puede leer; para tocar, hace falta internet</span></div>
+    <div class="pendientes"><b>2 por enviar</b><br>Salen solas al volver</div>
+    <button class="btn chico btn-claro" data-sigue data-salir style="margin-left:8px"><i class="i i-s" data-i="log-out"></i>Salir <span class="kbd">Alt S</span></button>
+  </div>
+
+  <div class="fila s-version" data-capa="version">
+    <span class="ico"><i class="i" data-i="sparkles"></i></span>
+    <div class="t"><b>Hay una versión nueva</b><span>Volvés a esta venta, como está</span></div>
+    <button class="btn chico btn-claro" data-actualizar style="margin-left:12px"><span class="actualizar-txt" style="display:inline-flex;gap:8px;align-items:center">Actualizar <span class="kbd">Alt A</span></span><span class="actualizando-txt"><i class="i i-s gira" data-i="loader-circle"></i>Actualizando…</span></button>
+    <button class="btn btn-fantasma chico x" data-cerrar aria-label="Cerrar"><i class="i" data-i="x"></i></button>
+  </div>
+
+  <div class="s-wait">
+    <div class="arriba"><i class="i i-s gira" data-i="loader-circle"></i><span>Registrando la venta</span><span>faltan 3 s</span></div>
+    <div class="barra-p"><b></b></div>
+    <div class="pasos"><i class="hecho">✓ Venta</i>·<i class="ahora">Stock</i>·<i>Caja</i></div>
+  </div>
+
+  <div class="s-error" data-capa="error">
+    <div class="cab"><span class="ico rojo"><i class="i" data-i="circle-alert"></i></span><div class="t"><b>Algo salió mal</b><span>No se pudo registrar la venta · E-4127</span></div>
+      <button class="btn btn-fantasma chico x" data-cerrar aria-label="Cerrar" style="margin-left:auto;align-self:flex-start"><i class="i" data-i="x"></i></button></div>
+    <p class="que"><b>Tu venta sigue acá</b> (5 productos, $45.500). Probá de nuevo; si vuelve a pasar, avisalo y seguí con otra cosa.</p>
+    <div class="rastro">
+      <img src="../../screen-desktop.webp" alt="Captura">
+      <ol>
+        <li><span>10:41</span>Vender · sumó Cinta métrica</li>
+        <li><span>10:41</span>Vender · eligió margen 50 %</li>
+        <li><span>10:42</span>Vender · eligió Efectivo (F5)</li>
+        <li><span>10:42</span>Vender · tocó Cobrar (F2)</li>
+      </ol>
+      <div class="nota"><i class="i i-s" data-i="shield-check"></i>Esto es lo que va en el aviso. Sin datos de clientes ni tu sesión.</div>
+    </div>
+    <div class="pie">
+      <button class="btn btn-velado" data-avisar><i class="i i-s" data-i="bug"></i>Avisar <span class="kbd">Alt V</span></button>
+      <button class="btn btn-accion" data-reintentar><i class="i i-s" data-i="rotate-ccw"></i>Probar de nuevo <span class="kbd">Enter</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="velo"></div>
+<div class="bloqueo" data-capa="block" data-senal="block">
+  <div class="ico"><i class="i i-xl" data-i="download"></i></div>
+  <div class="t-titulo">Hay que actualizar para seguir</div>
+  <p>Esta versión quedó vieja y el servidor ya no la entiende. Tarda unos segundos.</p>
+  <button class="btn btn-accion grande" data-sigue data-actualizar><span class="actualizar-txt" style="display:inline-flex;gap:10px;align-items:center">Actualizar <span class="kbd">Enter</span></span><span class="actualizando-txt"><i class="i gira" data-i="loader-circle"></i>Actualizando…</span></button>
+</div>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  $('.contenido').appendChild($('.isla'));
+  $('[data-cobrar]').insertAdjacentHTML('beforeend', '<span class="sin-con"><i class="i i-s" data-i="wifi-off"></i>Sin conexión</span><span class="esperando"><i class="i gira" data-i="loader-circle"></i>Cobrando…</span><span class="registrada"><i class="i" data-i="circle-check"></i>Venta registrada</span>');
+  $('[data-buscar]').insertAdjacentHTML('beforeend', '<span class="sin-con" style="color:var(--texto-2);font-weight:600"><i class="i i-s" data-i="wifi-off"></i>Sin conexión: se puede mirar, no buscar</span>');
+  // La isla compacta abre el detalle de lo pendiente (R4.2): acá, solo lo dice.
+  $('.isla .compacta').addEventListener('click', function () { window.tostada && window.tostada('Nada por enviar', 'circle-check'); });
+})();
+</script>
+<script src="../../states.js"></script>
+</body>
+</html>
