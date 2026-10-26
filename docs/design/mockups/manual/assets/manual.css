@@ -2,7 +2,7 @@
 
 /* Estados por # (manual.js): lo que solo se ve buscando */
 .solo-buscar { display: none !important; }
-body[data-estado="buscar"] .solo-buscar { display: block !important; }
+body[data-estado="buscar"] .solo-buscar { display: var(--d, block) !important; }
 body[data-estado="buscar"] .sin-buscar { display: none !important; }
 
 /* Barra de arriba del manual (computadora): fuera del marco de la aplicación */
@@ -43,8 +43,8 @@ body[data-estado="buscar"] .sin-buscar { display: none !important; }
 /* Clip: quieto hasta que se lo pide, sin sonido */
 .clip { position: relative; border-radius: var(--r); overflow: hidden; background: var(--hundido); }
 .clip img { width: 100%; height: 100%; object-fit: cover; object-position: right top; filter: saturate(.9); }
-.clip::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(26,29,27,0) 40%, rgba(26,29,27,.55)); }
-.clip .play { position: absolute; z-index: 1; left: 50%; top: 44%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 99px; background: rgba(255,255,255,.94); color: var(--pino); display: grid; place-items: center; box-shadow: var(--sombra-3); }
+.clip::after { content: ""; position: absolute; inset: 0; background: rgba(26,29,27,.28); }
+.clip .play { position: absolute; z-index: 1; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 99px; background: rgba(255,255,255,.94); color: var(--pino); display: grid; place-items: center; box-shadow: var(--sombra-3); }
 .clip .play .i { margin-left: 3px; fill: currentColor; }
 .clip .pie-clip { position: absolute; z-index: 1; left: 12px; right: 12px; bottom: 10px; display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 700; }
 .clip .pie-clip .sp { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; }
@@ -52,3 +52,8 @@ body[data-estado="buscar"] .sin-buscar { display: none !important; }
 mark { background: var(--urgente-suave); color: var(--urgente-texto); border-radius: 4px; padding: 0 2px; font-weight: 750; }
 .scroll-oculto { scrollbar-width: none; }
 .scroll-oculto::-webkit-scrollbar { display: none; }
+.clip-pie { display: flex; align-items: center; gap: 6px; margin-top: var(--e2); font-size: 14px; font-weight: 650; color: var(--texto-2); }
+/* Referencia en el texto a una marca de la captura */
+.ref { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 99px; background: var(--accion); color: #fff; font-size: 14px; font-weight: 800; vertical-align: 1px; }
+.solo-indice { display: none !important; }
+body[data-estado="indice"] .solo-indice { display: var(--d, block) !important; }

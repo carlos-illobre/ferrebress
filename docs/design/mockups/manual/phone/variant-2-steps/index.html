@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual · celular · 2 · Paso a paso</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../assets/manual.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../assets/icons-extra.js"></script>
+<script src="../../assets/manual.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; }
+  .arriba { display: flex; align-items: center; gap: var(--e2); padding: 0 var(--e4) 0 var(--e2); height: 52px; }
+  .arriba .tit { flex: 1; min-width: 0; }
+  .arriba .tit b { display: block; font-size: 16px; line-height: 20px; font-weight: 800; }
+  .arriba .tit span { font-size: 14px; color: var(--texto-2); font-weight: 600; }
+  .avance { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 0 var(--e4); margin-top: 4px; }
+  .avance b { height: 4px; border-radius: 99px; background: var(--hundido-2); }
+  .avance b.hecho { background: var(--pino); }
+  .avance b.ahora { background: var(--accion); }
+  .disp { margin: var(--e3) var(--e4) 0; display: flex; }
+  .disp > * { flex: 1; justify-content: center; min-height: 36px; }
+  .escena { flex: 1; min-height: 0; display: grid; place-items: center; padding: var(--e3) 0 0; }
+  .telefono { width: 236px; height: 400px; border-radius: 30px; padding: 6px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-2); }
+  .ventana { width: 100%; height: 100%; border-radius: 24px; overflow: hidden; position: relative; }
+  .ventana .captura { position: absolute; left: 0; right: 0; bottom: 0; border: 0; border-radius: 0; }
+  .ventana .tocar { border-radius: 10px; }
+  .tarjeta-paso { background: var(--superficie); border-radius: var(--r-hoja) var(--r-hoja) 0 0; box-shadow: var(--sombra-3); padding: var(--e5) var(--e4) 34px; margin-top: var(--e4); }
+  .tarjeta-paso h2 { margin: 2px 0 6px; }
+  .tarjeta-paso p { margin: 0 0 var(--e4); color: var(--texto-2); font-size: 16px; line-height: 23px; }
+  .tarjeta-paso .fila { display: flex; gap: var(--e2); }
+  .tarjeta-paso .btn-accion { flex: 1; }
+  .med { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: var(--tinta); white-space: nowrap; }
+  .med i { width: 8px; height: 8px; border-radius: 99px; background: var(--c); display: inline-block; }
+
+  /* Buscar */
+  .buscar { flex: 1; padding: var(--e3) var(--e4) 0; overflow: hidden; }
+  .buscar h5 { margin: var(--e4) 0 var(--e2); font-size: 14px; font-weight: 700; color: var(--texto-3); }
+  .tarea { display: grid; grid-template-columns: 96px 1fr; gap: var(--e3); padding: var(--e3); background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); margin-bottom: var(--e2); align-items: center; }
+  .tarea .mini { height: 64px; border-radius: 10px; overflow: hidden; background: var(--hundido); }
+  .tarea .mini img { width: 100%; height: 100%; object-fit: cover; }
+  .tarea .donde { font-size: 14px; font-weight: 700; color: var(--pino-texto); }
+  .tarea .que { font-size: 16px; font-weight: 750; line-height: 22px; }
+  .temas { display: flex; flex-wrap: wrap; gap: var(--e2); }
+  .temas .chip { height: 40px; font-size: 15px; }
+  .temas .chip.es-pronto { border-style: dashed; color: var(--texto-3); background: transparent; }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+
+  <div class="arriba sin-buscar" style="--d:flex">
+    <button class="btn btn-fantasma btn-icono" data-ir="more" aria-label="Volver"><i class="i i-l" data-i="x"></i></button>
+    <div class="tit"><b>Cobrar una venta</b><span>Vender · capítulo 3</span></div>
+    <button class="btn btn-icono" aria-label="Buscar"><i class="i" data-i="search"></i></button>
+  </div>
+  <div class="arriba solo-buscar" style="--d:flex;padding-left:var(--e4)">
+    <div class="campo foco" style="flex:1;height:44px"><i class="i" data-i="search"></i><span class="escrito">cobrar con tarjeta</span><span class="cursor"></span></div>
+    <button class="btn btn-fantasma" style="color:var(--pino);padding:0 6px">Cancelar</button>
+  </div>
+  <div class="avance sin-buscar" style="--d:grid"><b class="hecho"></b><b class="hecho"></b><b class="ahora"></b><b></b></div>
+  <div class="segmentos disp" role="tablist" aria-label="Dispositivo">
+    <button><i class="i i-s" data-i="monitor"></i>Computadora</button>
+    <button class="elegido"><i class="i i-s" data-i="smartphone"></i>Celular</button>
+  </div>
+
+  <div class="escena sin-buscar" style="--d:grid">
+    <div class="telefono"><div class="ventana">
+      <div class="captura" data-size="780,1688">
+        <img src="../../assets/phone-sale.webp" alt="Vender en el celular">
+        <span class="tocar foco" data-box="26,1294,754,1386"><span class="n">3</span></span>
+      </div>
+    </div></div>
+  </div>
+
+  <section class="tarjeta-paso sin-buscar">
+    <div class="t-etiqueta">Paso 3 de 4</div>
+    <h2 class="t-seccion">Elegí cómo paga</h2>
+    <p>Tocá uno abajo: <span class="med" style="--c:var(--efectivo)"><i></i>Efectivo</span>, <span class="med" style="--c:var(--mp)"><i></i>M. Pago</span>, <span class="med" style="--c:var(--tarjeta)"><i></i>Tarjeta</span> o <span class="med" style="--c:var(--cuenta)"><i></i>Cta. cte.</span>, que es el fiado.</p>
+    <div class="fila">
+      <button class="btn grande btn-icono" style="width:56px" aria-label="Paso anterior"><i class="i i-l" data-i="arrow-left"></i></button>
+      <button class="btn grande btn-icono" style="width:56px" aria-label="Ver el clip, sin sonido"><i class="i i-l" data-i="play"></i></button>
+      <button class="btn btn-accion grande">Siguiente</button>
+    </div>
+  </section>
+
+  <div class="buscar solo-buscar">
+    <h5 style="margin-top:var(--e2)">Te lleva al paso justo</h5>
+    <div class="tarea">
+      <span class="mini"><img src="../../assets/phone-pay.webp" alt="" style="object-position:left 45%"></span>
+      <div><div class="donde">Cobrar una venta · paso 3</div><div class="que">Elegí cómo paga: tocá <mark>Tarjeta</mark></div></div>
+    </div>
+    <div class="tarea">
+      <span class="mini"><img src="../../assets/phone-pay.webp" alt="" style="object-position:left 100%"></span>
+      <div><div class="donde">Cobrar una venta · paso 4</div><div class="que">Tocá <mark>Cobrar</mark>, abajo de todo</div></div>
+    </div>
+    <h5>Todos los temas</h5>
+    <div class="temas">
+      <span class="chip">Entrar</span><span class="chip">Celular y computadora</span><span class="chip elegido">Vender</span>
+      <span class="chip es-pronto">Clientes · pronto</span><span class="chip es-pronto">Catálogo · pronto</span><span class="chip es-pronto">Listas de precios · pronto</span><span class="chip es-pronto">Stock · pronto</span><span class="chip es-pronto">Compras · pronto</span><span class="chip es-pronto">Conteos · pronto</span><span class="chip es-pronto">y 6 más · pronto</span>
+    </div>
+  </div>
+  <span class="home-ind"></span>
+</div>
+</body>
+</html>

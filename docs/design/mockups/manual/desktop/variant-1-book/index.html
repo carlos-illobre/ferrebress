@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual · computadora · 1 · El libro</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../assets/manual.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../assets/icons-extra.js"></script>
+<script src="../../assets/manual.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 1366px; height: 768px; overflow: hidden; }
+  .cuerpo { display: grid; grid-template-columns: 296px 1fr 272px; height: 704px; }
+
+  /* Índice */
+  .indice { background: var(--superficie); border-right: 1px solid var(--borde); padding: var(--e5) var(--e3) var(--e5); overflow: hidden; }
+  .indice h4 { margin: var(--e4) var(--e3) var(--e1); font-size: 14px; font-weight: 700; color: var(--texto-3); }
+  .indice h4:first-child { margin-top: 0; }
+  .cap { display: flex; align-items: center; gap: 10px; height: 36px; white-space: nowrap; padding: 0 10px; border-radius: 10px; font-size: 15px; font-weight: 650; color: var(--texto-2); position: relative; }
+  .cap .i { color: var(--texto-3); }
+  .cap .pronto { margin-left: auto; }
+  .cap.activo { background: var(--pino-suave); color: var(--pino); font-weight: 800; }
+  .cap.activo .i { color: var(--pino); }
+  .cap.activo::before { content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 4px; border-radius: 0 4px 4px 0; background: var(--accion); }
+  .subcap { display: grid; margin: 2px 0 4px 40px; }
+  .subcap a { height: 32px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: var(--texto-2); padding: 0 10px; border-radius: 8px; }
+  .subcap a.activo { background: var(--hundido); color: var(--pino); font-weight: 800; }
+  .dos-col { columns: 1; }
+
+  /* Capítulo */
+  .capitulo { overflow: hidden; padding: var(--e8) var(--e10) 0; position: relative; }
+  .miga { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .capitulo h1 { margin: var(--e2) 0 var(--e2); }
+  .entrada { max-width: 640px; color: var(--texto-2); margin: 0 0 var(--e4); }
+  .metas { display: flex; gap: var(--e2); margin-bottom: var(--e6); }
+  .paso { display: grid; grid-template-columns: 32px 1fr; gap: var(--e4); padding: var(--e5); background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); margin-bottom: var(--e4); align-items: start; }
+  .paso h3 { margin: 2px 0 var(--e2); font-size: 18px; line-height: 24px; font-weight: 800; }
+  .paso p { margin: 0 0 var(--e3); max-width: 600px; font-size: 15px; line-height: 22px; color: var(--texto-2); }
+  .paso .captura { margin-top: var(--e1); }
+  .paso .kbds { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 14px; color: var(--texto-2); font-weight: 600; }
+  .fundido { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; background: linear-gradient(180deg, rgba(244,242,236,0), var(--fondo)); }
+
+  /* Columna derecha */
+  .lado { padding: var(--e8) var(--e6) 0 0; min-width: 0; display: grid; gap: var(--e4); align-content: start; }
+  .lado .tarjeta { padding: var(--e4); }
+  .lado h5 { margin: 0 0 var(--e3); font-size: 14px; font-weight: 700; color: var(--texto-2); }
+  .toc a { display: flex; align-items: center; gap: 10px; height: 36px; font-size: 15px; font-weight: 650; color: var(--texto-2); }
+  .toc a.activo { color: var(--tinta); font-weight: 800; }
+  .toc .paso-n { width: 24px; height: 24px; font-size: 14px; }
+  .clip { height: 124px; margin-top: var(--e3); }
+  .atajos { display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; align-items: center; font-size: 14px; font-weight: 600; color: var(--texto-2); }
+
+  /* Buscar */
+  .resultados { position: absolute; top: 58px; left: 296px; width: 560px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-3); padding: var(--e2); z-index: 10; }
+  .resultados .cab { display: flex; justify-content: space-between; padding: var(--e2) var(--e3); font-size: 14px; font-weight: 700; color: var(--texto-2); }
+  .res { display: grid; grid-template-columns: 40px 1fr auto; gap: var(--e3); align-items: center; padding: var(--e3); border-radius: var(--r); }
+  .res.marcado { background: var(--pino-suave); box-shadow: inset 0 0 0 2px var(--pino); }
+  .res .foto-icono { width: 40px; height: 40px; border-radius: 10px; }
+  .res .donde { font-size: 14px; font-weight: 700; color: var(--pino-texto); }
+  .res .que { font-size: 15px; line-height: 21px; color: var(--texto-2); }
+  .res .que b { color: var(--tinta); }
+  .res-pie { border-top: 1px solid var(--borde); margin-top: var(--e2); padding: var(--e3); font-size: 14px; color: var(--texto-2); font-weight: 600; display: flex; gap: 8px; align-items: center; }
+  .velo { position: absolute; inset: 64px 0 0 0; background: rgba(26,29,27,.18); z-index: 4; }
+</style>
+</head>
+<body>
+<header class="m-barra">
+  <div class="m-marca"><span class="logo"><i class="i" data-i="book-open"></i></span>Manual <small>de Ferrebress</small></div>
+  <div class="campo sin-buscar" style="width:440px;margin-left:var(--e6)"><i class="i" data-i="search"></i><span>Buscá: cobrar, fiado, precio, escanear…</span><span class="kbd" style="margin-left:auto">Alt B</span></div>
+  <div class="campo foco solo-buscar" style="width:440px;margin-left:var(--e6);--d:flex"><i class="i" data-i="search"></i><span class="escrito">fiado</span><span class="cursor"></span><span class="kbd" style="margin-left:auto">Esc</span></div>
+  <div class="segmentos" style="margin-left:auto" role="tablist" aria-label="Dispositivo">
+    <button class="elegido"><i class="i i-s" data-i="monitor"></i>Computadora</button>
+    <button><i class="i i-s" data-i="smartphone"></i>Celular</button>
+  </div>
+  <button class="btn chico" data-ir="more"><i class="i i-s" data-i="arrow-left"></i>Volver <span class="kbd">Alt V</span></button>
+</header>
+
+<div class="cuerpo">
+  <nav class="indice" aria-label="Capítulos">
+    <h4>Para empezar</h4>
+    <a class="cap"><i class="i" data-i="log-in"></i>Entrar</a>
+    <a class="cap"><i class="i" data-i="monitor"></i>Celular y computadora</a>
+    <h4>Vender</h4>
+    <a class="cap activo"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <div class="subcap"><a class="activo">Cobrar una venta</a><a>Cuando falta el precio</a><a>A pedido y presupuesto</a></div>
+    <a class="cap es-pronto"><i class="i" data-i="users"></i>Clientes<span class="pronto">pronto</span></a>
+    <h4>Catálogo · Depósito</h4>
+    <a class="cap es-pronto"><i class="i" data-i="tags"></i>Catálogo<span class="pronto">pronto</span></a>
+    <a class="cap es-pronto"><i class="i" data-i="percent"></i>Listas de precios<span class="pronto">pronto</span></a>
+    <a class="cap es-pronto"><i class="i" data-i="package"></i>Stock<span class="pronto">pronto</span></a>
+    <a class="cap es-pronto"><i class="i" data-i="truck"></i>Compras<span class="pronto">pronto</span></a>
+    <a class="cap es-pronto"><i class="i" data-i="list-checks"></i>Conteos<span class="pronto">pronto</span></a>
+    <h4>Negocio · Más</h4>
+    <a class="cap es-pronto"><i class="i" data-i="chart-column"></i>Números del negocio<span class="pronto">pronto</span></a>
+    <a class="cap es-pronto"><i class="i" data-i="history"></i>Quién hizo qué<span class="pronto">pronto</span></a>
+    <a class="cap es-pronto"><i class="i" data-i="workflow"></i>Procesos<span class="pronto">pronto</span></a>
+  </nav>
+
+  <article class="capitulo">
+    <div class="miga"><i class="i i-s" data-i="shopping-cart"></i>Vender <i class="i i-s" data-i="chevron-right"></i> Capítulo 3</div>
+    <h1 class="t-titulo">Cobrar una venta</h1>
+    <p class="t-cuerpo entrada">Sumá lo que lleva el cliente, elegí cómo paga y tocá «Cobrar». Si el cliente espera, se hace en menos de un minuto y con el teclado solo.</p>
+    <div class="metas"><span class="pastilla pino"><i class="i i-s" data-i="list-ordered"></i>4 pasos</span><span class="pastilla"><i class="i i-s" data-i="clock"></i>2 minutos de lectura</span><span class="pastilla"><i class="i i-s" data-i="play"></i>Con clip</span></div>
+
+    <section class="paso">
+      <span class="paso-n">1</span>
+      <div>
+        <h3>Buscá lo que lleva</h3>
+        <p>Escribí el nombre, la marca o el código en la caja de arriba <span class="ref">1</span>, o pasá el producto por el lector. <span class="kbd">Enter</span> lo suma a la venta. Si el lector no lo lee, tocá «Escanear con el celular» <span class="ref">2</span>.</p>
+        <div class="captura" data-size="724,212">
+        <img src="../../assets/desktop-search.webp" alt="La caja de búsqueda de Vender, con la venta abajo">
+        <span class="tocar" data-box="16,14,459,70"><span class="n">1</span></span>
+        <span class="tocar" data-box="471,14,710,70" style="border-style:dashed"><span class="n">2</span></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="paso">
+      <span class="paso-n">2</span>
+      <div>
+        <h3>Revisá cantidades y precios</h3>
+        <p>Con − y + cambiás la cantidad. Si un producto dice «Sin precio», elegí el margen con las teclas 1 a 5 o tocá «Precio a mano».</p>
+        <div class="captura" data-size="724,140">
+        <img src="../../assets/desktop-noprice.webp" alt="Un producto sin precio, con los márgenes para elegir">
+        <span class="tocar" data-box="295,85,522,121"><span class="n">1</span></span>
+        </div>
+      </div>
+    </section>
+    <div class="fundido"></div>
+  </article>
+
+  <aside class="lado">
+    <div class="tarjeta">
+      <h5>En este capítulo</h5>
+      <div class="toc">
+        <a class="activo"><span class="paso-n">1</span>Buscá lo que lleva</a>
+        <a><span class="paso-n luego">2</span>Revisá cantidades y precios</a>
+        <a><span class="paso-n luego">3</span>Elegí cómo paga</a>
+        <a><span class="paso-n luego">4</span>Cobrá</a>
+      </div>
+      <div class="clip">
+        <img src="../../assets/desktop-sale.webp" alt="">
+        <span class="play"><i class="i i-l" data-i="play"></i></span>
+      </div>
+      <div class="clip-pie"><i class="i i-s" data-i="play"></i>Clip · 0:24 <i class="i i-s" data-i="volume-x" style="margin-left:auto"></i>sin sonido</div>
+    </div>
+    <div class="tarjeta">
+      <h5>Las teclas de esta pantalla</h5>
+      <div class="atajos">
+        <span class="kbd">F2</span>Cobrar
+        <span style="display:flex;gap:4px"><span class="kbd">F5</span><span class="kbd">F8</span></span>Cómo paga
+        <span class="kbd">F9</span>Cliente
+        <span class="kbd">Esc</span>No llevó
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="velo solo-buscar"></div>
+<div class="resultados solo-buscar">
+  <div class="cab"><span>2 resultados en Computadora</span><span>↑ ↓ y Enter</span></div>
+  <div class="res marcado">
+    <span class="foto-icono"><i class="i" data-i="shopping-cart"></i></span>
+    <div><div class="donde">Vender › Cobrar una venta · paso 3</div><div class="que"><b>Elegí cómo paga.</b> Cuenta corriente (F8) es el <mark>fiado</mark>: queda anotado a nombre del cliente.</div></div>
+    <i class="i" data-i="corner-down-left" style="color:var(--pino)"></i>
+  </div>
+  <div class="res">
+    <span class="foto-icono"><i class="i" data-i="shopping-cart"></i></span>
+    <div><div class="donde">Vender › A pedido y presupuesto</div><div class="que">Lo que se lleva <mark>fiado</mark> y no está en el local se anota «A pedido».</div></div>
+    <span></span>
+  </div>
+  <div class="res-pie"><i class="i i-s" data-i="smartphone"></i>1 resultado más en Celular <span class="kbd" style="margin-left:auto">Alt L</span></div>
+  <div class="res-pie" style="margin-top:0;border-top:0;padding-top:0"><i class="i i-s" data-i="clock"></i>El capítulo «Clientes» habla de esto y todavía no está escrito (pronto).</div>
+</div>
+</body>
+</html>

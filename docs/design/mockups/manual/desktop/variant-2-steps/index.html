@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual · computadora · 2 · Paso a paso</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../assets/manual.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../assets/icons-extra.js"></script>
+<script src="../../assets/manual.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 1366px; height: 768px; overflow: hidden; }
+  .cuerpo { display: grid; grid-template-columns: 448px 1fr; height: 704px; }
+  .guia { padding: var(--e6) var(--e8) var(--e6); display: flex; flex-direction: column; background: var(--superficie); border-right: 1px solid var(--borde); }
+  .tema { display: flex; align-items: center; gap: var(--e2); }
+  .tema .btn { margin-left: auto; padding: 0 4px 0 8px; }
+  .avance { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: var(--e5) 0 var(--e3); }
+  .avance b { height: 6px; border-radius: 99px; background: var(--hundido-2); }
+  .avance b.hecho { background: var(--pino); }
+  .avance b.ahora { background: linear-gradient(90deg, var(--accion) 55%, var(--hundido-2) 55%); }
+  .guia h1 { margin: 6px 0 var(--e2); }
+  .guia .t-cuerpo { color: var(--texto-2); margin: 0 0 var(--e4); }
+  .medios { display: grid; gap: var(--e2); }
+  .med { display: grid; grid-template-columns: 12px 1fr auto; gap: var(--e3); align-items: center; height: 44px; padding: 0 var(--e3); border-radius: var(--r); border: 1px solid var(--borde); font-weight: 700; font-size: 15px; }
+  .med .p { width: 12px; height: 12px; border-radius: 99px; background: var(--c); }
+  .med small { font-size: 14px; color: var(--texto-2); font-weight: 600; }
+  .botones { margin-top: auto; display: flex; gap: var(--e2); align-items: center; }
+  .botones .btn-accion { flex: 1; }
+
+  .escenario { padding: var(--e6) var(--e8); display: flex; flex-direction: column; gap: var(--e3); min-width: 0; }
+  .marco-captura { position: relative; border-radius: var(--r-tarjeta); padding: 12px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-2); }
+  .marco-captura .captura { border-radius: 10px; }
+  .pie-esc { display: flex; align-items: center; gap: var(--e3); }
+  .pie-esc .t-detalle { display: flex; align-items: center; gap: 6px; }
+  .pasos-mini { display: flex; gap: var(--e2); margin-left: auto; }
+  .pm { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px 0 6px; border-radius: 999px; background: var(--superficie); border: 1px solid var(--borde); font-size: 14px; font-weight: 700; color: var(--texto-2); }
+  .pm .paso-n { width: 24px; height: 24px; font-size: 14px; }
+  .pm.ahora { border-color: var(--accion); color: var(--tinta); box-shadow: 0 0 0 3px var(--accion-suave); }
+
+  /* Buscar: ¿Qué querés hacer? */
+  .velo { position: absolute; inset: 0; background: rgba(26,29,27,.38); z-index: 20; }
+  .paleta { position: absolute; z-index: 21; left: 50%; top: 84px; width: 720px; margin-left: -360px; background: var(--superficie); border-radius: var(--r-hoja); box-shadow: var(--sombra-3); overflow: hidden; }
+  .paleta .campo { border: 0; box-shadow: none; height: 64px; font-size: 20px; border-bottom: 1px solid var(--borde); border-radius: 0; padding: 0 var(--e6); }
+  .paleta .lista { padding: var(--e3); }
+  .paleta h5 { margin: var(--e2) var(--e3); font-size: 14px; font-weight: 700; color: var(--texto-3); }
+  .tarea { display: grid; grid-template-columns: 120px 1fr auto; gap: var(--e4); align-items: center; padding: var(--e3); border-radius: var(--r); }
+  .tarea.marcado { background: var(--pino-suave); box-shadow: inset 0 0 0 2px var(--pino); }
+  .tarea .mini { height: 68px; border-radius: 8px; overflow: hidden; border: 1px solid var(--borde); background: var(--hundido); }
+  .tarea .mini img { width: 100%; height: 100%; object-fit: cover; }
+  .tarea .donde { font-size: 14px; font-weight: 700; color: var(--pino-texto); }
+  .tarea .que { font-size: 16px; font-weight: 750; }
+  .tarea .det { font-size: 14px; color: var(--texto-2); }
+  .paleta .pie { display: flex; gap: var(--e4); padding: var(--e3) var(--e6); border-top: 1px solid var(--borde); font-size: 14px; color: var(--texto-2); font-weight: 600; align-items: center; background: var(--fondo); }
+</style>
+</head>
+<body>
+<header class="m-barra">
+  <div class="m-marca"><span class="logo"><i class="i" data-i="book-open"></i></span>Manual <small>de Ferrebress</small></div>
+  <div class="campo" style="width:440px;margin-left:var(--e6)"><i class="i" data-i="search"></i><span>¿Qué querés hacer?</span><span class="kbd" style="margin-left:auto">Alt B</span></div>
+  <div class="segmentos" style="margin-left:auto" role="tablist" aria-label="Dispositivo">
+    <button class="elegido"><i class="i i-s" data-i="monitor"></i>Computadora</button>
+    <button><i class="i i-s" data-i="smartphone"></i>Celular</button>
+  </div>
+  <button class="btn chico" data-ir="more"><i class="i i-s" data-i="arrow-left"></i>Volver <span class="kbd">Alt V</span></button>
+</header>
+
+<div class="cuerpo">
+  <section class="guia">
+    <div class="tema">
+      <span class="pastilla pino"><i class="i i-s" data-i="shopping-cart"></i>Cobrar una venta</span>
+      <button class="btn btn-fantasma chico"><i class="i i-s" data-i="list-ordered"></i>Todos los temas <span class="kbd">Alt T</span></button>
+    </div>
+    <div class="avance"><b class="hecho"></b><b class="hecho"></b><b class="ahora"></b><b></b></div>
+    <div class="t-etiqueta">Paso 3 de 4</div>
+    <h1 class="t-titulo">Elegí cómo paga</h1>
+    <p class="t-cuerpo">Tocá cómo paga el cliente, en el panel de la derecha de Vender. O apretá su tecla, sin soltar el teclado:</p>
+    <div class="medios">
+      <div class="med medio efectivo"><span class="p"></span>Efectivo<span class="kbd">F5</span></div>
+      <div class="med medio mp"><span class="p"></span>Mercado Pago<span class="kbd">F6</span></div>
+      <div class="med medio tarjeta"><span class="p"></span>Tarjeta<span class="kbd">F7</span></div>
+      <div class="med medio cuenta"><span class="p"></span><span>Cuenta corriente <small>· el fiado</small></span><span class="kbd">F8</span></div>
+    </div>
+    <div class="botones">
+      <button class="btn grande" style="padding:0 16px"><i class="i" data-i="arrow-left"></i>Anterior</button>
+      <button class="btn btn-accion grande">Siguiente <span class="kbd">Enter</span></button>
+    </div>
+  </section>
+
+  <section class="escenario">
+    <div class="marco-captura">
+      <div class="captura" data-size="1366,768">
+        <img src="../../assets/desktop-sale.webp" alt="La pantalla Vender en la computadora">
+        <span class="tocar foco" data-box="1000,326,1316,446"><span class="n">3</span></span>
+        <span class="globo" data-at="540,386" style="transform:translateY(-50%)"><i class="i i-s" data-i="mouse-pointer-2"></i>Tocá cómo paga<span class="kbd">F5</span>–<span class="kbd">F8</span></span>
+      </div>
+    </div>
+    <div class="pie-esc">
+      <span class="t-detalle"><i class="i i-s" data-i="monitor"></i>Así se ve Vender en la computadora</span>
+      <button class="btn chico"><i class="i i-s" data-i="play"></i>Verlo en un clip · 0:24 <i class="i i-s" data-i="volume-x"></i></button>
+    </div>
+    <div class="pasos-mini">
+      <span class="pm"><span class="paso-n hecho"><i class="i i-s" data-i="check"></i></span>Buscá lo que lleva</span>
+      <span class="pm"><span class="paso-n hecho"><i class="i i-s" data-i="check"></i></span>Revisá</span>
+      <span class="pm ahora"><span class="paso-n" style="background:var(--accion)">3</span>Elegí cómo paga</span>
+      <span class="pm"><span class="paso-n luego">4</span>Cobrá</span>
+    </div>
+  </section>
+</div>
+
+<div class="velo solo-buscar"></div>
+<div class="paleta solo-buscar">
+  <div class="campo foco"><i class="i i-l" data-i="search"></i><span class="escrito">cobrar con tarjeta</span><span class="cursor"></span><span class="kbd" style="margin-left:auto">Esc</span></div>
+  <div class="lista">
+    <h5>Te lleva al paso justo · Computadora</h5>
+    <div class="tarea marcado">
+      <span class="mini"><img src="../../assets/desktop-pay.webp" alt="" style="object-position:center 35%"></span>
+      <div><div class="donde">Vender › Cobrar una venta · paso 3 de 4</div><div class="que">Elegí cómo paga: <mark>Tarjeta</mark> es F7</div><div class="det">Empieza en este paso; los anteriores quedan a mano.</div></div>
+      <span class="kbd">Enter</span>
+    </div>
+    <div class="tarea">
+      <span class="mini"><img src="../../assets/desktop-pay.webp" alt="" style="object-position:center 92%"></span>
+      <div><div class="donde">Vender › Cobrar una venta · paso 4 de 4</div><div class="que"><mark>Cobrá</mark> con F2</div><div class="det">La venta queda registrada y Vender queda listo para la siguiente.</div></div>
+      <span></span>
+    </div>
+  </div>
+  <div class="pie"><span><span class="kbd">↑</span> <span class="kbd">↓</span> elegir</span><span><span class="kbd">Enter</span> ir al paso</span><span style="margin-left:auto;display:flex;gap:6px;align-items:center"><i class="i i-s" data-i="clock"></i>«Clientes» también habla de esto: pronto</span></div>
+</div>
+</body>
+</html>
