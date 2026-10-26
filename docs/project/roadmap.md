@@ -63,4 +63,6 @@ No se construyen ahora; el diseño no les cierra la puerta (decisión 29).
   precio, cuando haya datos de producción (decisión 15).
 - [ ] T106 [carlos] Análisis de los datos guardados (rotación, combos), con una herramienta de
   análisis que lea la auditoría (ADR-004).
+- [ ] T108 [carlos] Productos que se venden en dólares: cómo se muestran y se cobran los importes
+  en otra moneda (decisión 54).
 - [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales (decisión 25).

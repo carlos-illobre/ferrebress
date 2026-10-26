@@ -280,3 +280,23 @@ cambia, sin depender de documentos que no están en este repositorio.
 50. **Cada regla de Carlos se analiza en busca de mejoras** (2026-10-26). Toda decisión o regla
     que Carlos formula, el agente la analiza y, si encuentra una opción superadora, se la ofrece
     con sus pros y contras. Carlos decide.
+
+51. **«Pronto» solo en pruebas** (2026-10-26). En el ambiente de pruebas, lo que todavía no existe
+    aparece en el menú y en el manual con «Pronto»; en producción no aparece hasta que existe.
+    Precisa la 38 y la 41.
+
+52. **Sin conexión, se lee pero no se toca** (2026-10-26). Lo gris sigue legible: se puede mirar lo
+    que ya estaba en pantalla, pero no cambiar nada. Precisa la 39.
+
+53. **La versión nueva se aplica en segundo plano** (2026-10-26). Si la aplicación pasa a segundo
+    plano con una versión nueva esperando y nada a medio hacer, se actualiza sola. Precisa la 40.
+
+54. **Los importes con «$»** (2026-10-26). Reemplaza el «AR$» de la 48. Más adelante habrá
+    productos en dólares; cómo se muestran se resuelve entonces (tarea T108).
+
+55. **La zona horaria la fija un Administrador** (2026-10-26). Reemplaza la zona horaria por
+    persona de la 48: la hora se muestra en la zona del negocio, igual para todos. Cada persona
+    elige solo el formato de la hora y de la fecha.
+
+56. **El aviso de «Algo salió mal» lleva captura y últimos pasos** (2026-10-26), sin datos de
+    clientes ni la sesión de la persona. Precisa la 49.

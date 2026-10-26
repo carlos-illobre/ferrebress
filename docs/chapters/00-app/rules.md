@@ -4,9 +4,9 @@ Lo que vale para toda la aplicación, sea cual sea el módulo: el marco y el men
 textos, la conexión, la versión nueva, el manual, las esperas, los formatos, los errores y el
 ambiente de pruebas.
 
-**Estado:** esperando la aprobación de Carlos.
+**Estado:** aprobado por Carlos el 2026-10-26.
 
-## 1. El marco y el menú (decisión 38)
+## 1. El marco y el menú (decisiones 38 y 51)
 
 - **R1.1** El menú tiene cinco partes, en este orden: Vender · Catálogo · Depósito · Negocio · Más.
   En la computadora va a la izquierda; en el celular, abajo.
@@ -16,7 +16,8 @@ ambiente de pruebas.
   - Depósito: Stock · Compras · Contar.
   - Negocio: Resumen · Usuarios · Quién hizo qué.
   - Más: Anomalías · Procesos · Mejoras y errores · Configuración · Administración · Manual.
-- **R1.3** Lo que todavía no existe aparece en el menú con la marca «Pronto» y no se puede abrir.
+- **R1.3** En el ambiente de pruebas, lo que todavía no existe aparece en el menú con la marca
+  «Pronto» y no se puede abrir. En producción no aparece hasta que existe (decisión 51).
 - **R1.4** Al abrir la aplicación se abre siempre la primera opción del menú que exista. No se
   recuerda la última parte usada ni cómo quedó el menú.
 - **R1.5** La aplicación es una sola para la computadora y el celular: la misma funcionalidad, con
@@ -60,7 +61,7 @@ Vale solo en la computadora.
   ancho en que cambia la disposición), usa la corta.
 - **R3.3** Todo en castellano, con las palabras del mostrador y el rol, no la persona.
 
-## 4. La conexión (decisiones 13, 14 y 39)
+## 4. La conexión (decisiones 13, 14, 39 y 52)
 
 - **R4.1** Una luz de conexión, siempre a la vista, dice uno de tres estados: «En línea · todo
   enviado», «Sin conexión · N por enviar» o «Enviando…».
@@ -68,14 +69,15 @@ Vale solo en la computadora.
   hizo.
 - **R4.3** La luz no consulta nada por su cuenta: dice lo que muestran las respuestas del servidor y
   los avisos del navegador. Ningún temporizador consulta la red.
-- **R4.4** Sin conexión, lo que no puede andar se pone gris, dice «Sin conexión» y no se puede usar.
-  Solo queda disponible salir de la aplicación.
+- **R4.4** Sin conexión, lo que no puede andar se pone gris y dice «Sin conexión»: se puede leer lo
+  que ya estaba en pantalla, pero no tocar nada. Solo queda disponible salir de la aplicación
+  (decisión 52).
 - **R4.5** Si el dispositivo tiene habilitado trabajar sin conexión, lo de atender clientes y
   proveedores sigue andando; lo demás se pone gris. Qué anda sin conexión está en
   [qué necesita internet](../what-needs-internet.md).
 - **R4.6** Cuando vuelve la conexión, lo gris vuelve a andar solo, sin recargar.
 
-## 5. La versión nueva (decisión 40)
+## 5. La versión nueva (decisiones 40 y 53)
 
 - **R5.1** La aplicación se entera de una versión nueva por las respuestas del servidor, sin
   consultas propias.
@@ -84,6 +86,9 @@ Vale solo en la computadora.
   una forma de cerrarlo sin actualizar.
 - **R5.4** Cerrado el aviso, no vuelve a aparecer hasta la próxima vez que se abra la aplicación, que
   se actualiza sola.
+- **R5.6** Si la aplicación pasa a segundo plano (otra pestaña, otra aplicación, la pantalla
+  apagada) con una versión nueva esperando y nada a medio hacer, se actualiza sola, sin gastar
+  datos de más y sin interrumpir a nadie (decisión 53).
 - **R5.5** Si el servidor ya no entiende la versión que tiene el dispositivo, la aplicación se
   bloquea con «Hay que actualizar para seguir» y un solo botón: «Actualizar».
 
@@ -94,8 +99,8 @@ Vale solo en la computadora.
 - **R6.2** Se abre sin haber entrado: no muestra datos del negocio.
 - **R6.3** Arriba se elige el dispositivo: Computadora o Celular. Arranca en el que se está usando.
   Todo el manual (índice, capítulos, capturas) muestra solo lo del dispositivo elegido.
-- **R6.4** Tiene un capítulo por módulo, en el orden del menú. Los que todavía no están escritos
-  dicen «pronto» y no se abren.
+- **R6.4** Tiene un capítulo por módulo, en el orden del menú. En el ambiente de pruebas, los que
+  todavía no están escritos dicen «pronto» y no se abren; en producción no aparecen (decisión 51).
 - **R6.5** Cada capítulo tiene texto simple, para quien atiende una ferretería sin saber de
   informática, pasos y capturas de la aplicación de verdad. Un clip solo donde la funcionalidad es
   lo bastante grande para verla en video; arranca cuando se lo pide, sin sonido.
@@ -112,23 +117,26 @@ Vale solo en la computadora.
 - **R7.4** Toda búsqueda espera 150 ms sin que se tipee antes de buscar, y deja sin efecto la
   búsqueda anterior si todavía no había terminado.
 
-## 8. Los números y los formatos (decisiones 43 y 48)
+## 8. Los números y los formatos (decisiones 43, 48, 54 y 55)
 
 - **R8.1** Todo número calculado deja ver cómo se calculó, con los números de origen, desde la misma
   pantalla donde se muestra. La forma la decide el director de arte.
-- **R8.2** Los importes van con «AR$» y punto de miles: «AR$ 45.500». Por omisión, sin decimales;
-  cada persona puede elegir verlos en Configuración.
+- **R8.2** Los importes van con «$» y punto de miles: «$ 45.500». Por omisión, sin decimales; cada
+  persona puede elegir verlos en Configuración (decisión 54).
 - **R8.3** Las cantidades van siempre con su unidad, abreviada igual en todas partes: «3 un.»,
   «1,5 kg», «2 m», «0,5 L».
-- **R8.4** Las fechas y horas las pone el servidor (decisión 22) y se muestran con la zona horaria y
-  el formato que elige cada persona en Configuración; por omisión, los del sistema del dispositivo.
-- **R8.5** El día del negocio («hoy» para las ventas, el cierre de caja) es uno solo para todos y
-  lo fija un Administrador.
+- **R8.4** Las fechas y horas las pone el servidor (decisión 22) y se muestran en la zona horaria
+  del negocio, que fija un Administrador y es la misma para todos. El día del negocio («hoy» para
+  las ventas, el cierre de caja) sale de esa zona (decisión 55).
+- **R8.5** Cada persona elige en Configuración solo el formato de la hora (24 horas o a. m./p. m.)
+  y de la fecha; por omisión, los del sistema del dispositivo.
 
-## 9. Si algo falla (decisión 49)
+## 9. Si algo falla (decisiones 49 y 56)
 
 - **R9.1** Si algo de la aplicación falla sin que la persona pueda hacer nada, se muestra «Algo
   salió mal», con qué hacer para seguir y un botón para avisarlo.
+- **R9.4** El aviso lleva una captura de la pantalla y los últimos pasos que se hicieron (qué se
+  tocó y en qué pantalla), sin datos de clientes ni la sesión de la persona (decisión 56).
 - **R9.2** Mientras no exista el módulo de mejoras y errores, el aviso guarda qué pasó para mandarlo
   cuando exista.
 - **R9.3** Lo que se estaba haciendo no se pierde por el error: la venta en curso, por ejemplo,
@@ -148,8 +156,10 @@ Vale solo en la computadora.
 - **E01** **Dado** que la aplicación se abre, **cuando** carga, **entonces** muestra el menú con
   Vender · Catálogo · Depósito · Negocio · Más, a la izquierda en la computadora y abajo en el
   celular, y abre la primera opción que exista.
-- **E02** **Dado** el menú, **cuando** se mira una opción que todavía no existe, **entonces** dice
-  «Pronto» y al tocarla no pasa nada.
+- **E02** **Dado** el menú en el ambiente de pruebas, **cuando** se mira una opción que todavía no
+  existe, **entonces** dice «Pronto» y al tocarla no pasa nada.
+- **E02b** **Dado** el menú en producción, **cuando** se lo mira, **entonces** solo están las opciones
+  que existen.
 - **E03** **Dado** que se usó la aplicación en otra parte y se la cerró, **cuando** se la vuelve a
   abrir, **entonces** abre la primera opción del menú, no la última usada.
 - **E04** **Dado** una pantalla de 1366 px, una de 1920 px, una de 390 px y una de 768 px de ancho,
@@ -203,7 +213,8 @@ Vale solo en la computadora.
 - **E23** **Dado** la aplicación abierta sin usarse, **cuando** pasa cualquier tiempo, **entonces** no
   hace ningún pedido al servidor.
 - **E24** **Dado** un dispositivo sin trabajo sin conexión, **cuando** se corta la conexión,
-  **entonces** la pantalla se pone gris, dice «Sin conexión» y solo deja salir.
+  **entonces** la pantalla se pone gris, dice «Sin conexión», lo que ya estaba se sigue leyendo y
+  solo deja salir.
 - **E25** **Dado** un dispositivo con trabajo sin conexión, **cuando** se corta la conexión,
   **entonces** lo de atender clientes y proveedores sigue andando y lo demás se pone gris.
 - **E26** **Dado** la pantalla gris por falta de conexión, **cuando** vuelve la conexión, **entonces**
@@ -220,6 +231,11 @@ Vale solo en la computadora.
   vuelve hasta la próxima vez que se abra la aplicación.
 - **E30** **Dado** el aviso, **cuando** se toca «Actualizar», **entonces** la aplicación se actualiza y
   vuelve a la misma parte.
+- **E30b** **Dado** una versión nueva esperando y nada a medio hacer, **cuando** la aplicación pasa a
+  segundo plano, **entonces** se actualiza sola y, al volver, ya está en la versión nueva, en la
+  misma parte.
+- **E30c** **Dado** una versión nueva esperando y una venta a medio armar, **cuando** la aplicación
+  pasa a segundo plano, **entonces** no se actualiza.
 - **E31** **Dado** una versión que el servidor ya no entiende, **cuando** la aplicación le hace un
   pedido, **entonces** se bloquea con «Hay que actualizar para seguir» y solo deja tocar
   «Actualizar».
@@ -233,8 +249,9 @@ Vale solo en la computadora.
 - **E34** **Dado** el manual abierto en el celular, **cuando** se mira el selector, **entonces** está
   elegido Celular, y todo lo que se ve es del celular; al elegir Computadora, todo cambia a lo de la
   computadora.
-- **E35** **Dado** el índice, **cuando** se lo mira, **entonces** están todos los capítulos en el orden
-  del menú; los que no están escritos dicen «pronto» y no se abren.
+- **E35** **Dado** el índice en el ambiente de pruebas, **cuando** se lo mira, **entonces** están
+  todos los capítulos en el orden del menú; los que no están escritos dicen «pronto» y no se abren.
+  En producción solo están los escritos.
 - **E36** **Dado** el buscador, **cuando** se escribe «huella», **entonces** muestra lo encontrado del
   dispositivo elegido, con su capítulo, y al elegir un resultado lleva a esa parte.
 - **E37** **Dado** el manual abierto desde la aplicación, **cuando** se toca «Volver», **entonces**
@@ -259,12 +276,13 @@ Vale solo en la computadora.
 
 ### Los formatos
 
-- **E45** **Dado** un importe de 45500, **cuando** se lo muestra, **entonces** dice «AR$ 45.500»; con
-  los decimales elegidos en Configuración, «AR$ 45.500,00».
+- **E45** **Dado** un importe de 45500, **cuando** se lo muestra, **entonces** dice «$ 45.500»; con
+  los decimales elegidos en Configuración, «$ 45.500,00».
 - **E46** **Dado** una cantidad de 1,5 kg, **cuando** se la muestra, **entonces** dice «1,5 kg», y 3
   unidades dicen «3 un.».
-- **E47** **Dado** dos personas con zonas horarias distintas, **cuando** miran la misma hora,
-  **entonces** cada una la ve en la suya, pero «hoy» es el mismo día del negocio para las dos.
+- **E47** **Dado** dos personas, una con formato de 24 horas y otra con a. m./p. m., **cuando** miran
+  la misma venta, **entonces** las dos ven la misma hora del negocio, cada una en su formato, y
+  «hoy» es el mismo día para las dos.
 - **E48** **Dado** un número calculado, **cuando** se lo mira, **entonces** se puede ver cómo se
   calculó desde la misma pantalla.
 
@@ -286,7 +304,7 @@ Vale solo en la computadora.
 
 - **E53** **Dado** el manual abierto sin haber entrado, **cuando** se lo recorre entero, **entonces**
   no muestra ningún dato del negocio.
-- **E54** **Dado** el aviso de «Algo salió mal», **cuando** se lo manda, **entonces** no lleva datos de
-  clientes ni la sesión de la persona, solo qué pasó y dónde.
+- **E54** **Dado** el aviso de «Algo salió mal», **cuando** se lo manda, **entonces** lleva la captura
+  y los últimos pasos, y no lleva datos de clientes ni la sesión de la persona.
 - **E55** **Dado** cualquier pantalla, **cuando** la aplicación pide algo al servidor, **entonces** lo
   hace por HTTPS, a la misma dirección de la que se bajó la aplicación.
