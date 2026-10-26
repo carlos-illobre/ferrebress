@@ -195,6 +195,10 @@ lugar.
 
 ### Los nueve pasos de un módulo
 
+**Antes del paso 1, el alcance.** Antes de empezar un módulo, el agente le lista a Carlos todo lo
+que abarca, para que evalúe si se puede dividir en módulos más chicos (decisión 59). Se empieza
+recién con su respuesta.
+
 Los hace el mismo agente en la misma sesión, en este orden; el código se escribe recién en el
 sexto. Solo las revisiones las hace un subagente con el contexto limpio, porque quien diseñó o
 programó no puede revisarse.

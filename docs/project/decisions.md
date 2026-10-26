@@ -316,3 +316,6 @@ cambia, sin depender de documentos que no están en este repositorio.
     primer módulo es solo entrar y salir (01 · `sign-in`), con la base y el marco vacío; el primer
     Administrador sale del `.env`. Personas, roles, permisos y sesiones van en el 02 (`users`).
     Los demás módulos se corren un lugar.
+
+59. **Antes de cada módulo, su alcance** (2026-10-26). Antes de empezar a trabajar en un módulo,
+    el agente le lista a Carlos todo lo que abarca, para que evalúe si se puede dividir.

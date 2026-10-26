@@ -29,6 +29,8 @@ secundario.**
   técnico aprobados por Carlos.
 - **Toda regla de Carlos se analiza en busca de mejoras:** si hay una opción superadora, se le
   ofrece con sus pros y contras, y decide él (decisión 50).
+- **Antes de empezar un módulo, se le lista a Carlos todo lo que abarca,** para que decida si se
+  divide (decisión 59).
 - **El analista de negocio pregunta todo.** Sin las preguntas, Carlos no puede describir bien el
   requerimiento: casos, bordes, errores y permisos, todas juntas y en tandas hasta que no quede
   nada sin respuesta.
