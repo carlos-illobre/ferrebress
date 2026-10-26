@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marco · Riel (computadora)</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../app-frame.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+
+
+.lateral { position: relative; }
+.nav-item { text-decoration: none; cursor: pointer; }
+.nav-item .off { margin-left: auto; color: var(--texto-3); }
+.nav-sub { display: none; margin: 2px 0 6px 20px; padding-left: 12px; border-left: 2px solid var(--borde); }
+.nav-sub.abierto { display: grid; gap: 2px; }
+.nav-sub a { height: 36px; justify-content: space-between; gap: 8px; cursor: pointer; }
+.nav-sub a .pastilla { height: 22px; padding: 0 8px; }
+.luz-v1 { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border-radius: var(--r); border: 1px solid transparent; background: var(--cs); color: var(--ct); text-align: left; }
+.luz-v1 b { display: block; font-size: 14px; line-height: 18px; font-weight: 750; }
+.luz-v1 small { display: block; font-size: 14px; line-height: 18px; color: var(--texto-2); font-weight: 500; }
+.luz-v1 .ch { margin-left: auto; color: var(--texto-3); }
+.usuario .btn { margin-left: auto; }
+.cabecera .fecha { font-size: 15px; color: var(--texto-2); font-weight: 600; }
+.pestanas a { cursor: pointer; }
+.pestanas a.pronto { gap: 8px; }
+/* Las teclas, en la esquina de cada cosa */
+.alt .tecla { position: absolute; top: -8px; right: -8px; }
+.alt .nav-item > .tecla, .alt .nav-sub a > .tecla { top: 50%; right: 8px; margin-top: -12px; }
+.alt .nav-item > .insignia, .alt .nav-item > .pastilla, .alt .nav-sub a > .pastilla { visibility: hidden; }
+.alt .pestanas a > .tecla { top: -10px; right: -18px; }
+.alt .luz-v1 > .tecla { top: 50%; right: 8px; margin-top: -12px; }
+.alt .luz-v1 .ch { visibility: hidden; }
+.ayuda-alt { display: none; }
+.alt .ayuda-alt { display: flex; position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 60; }
+/* La marca: un anillo de tinta afuera; el cursor es el brillo pino adentro de la caja */
+body:not(.sin-marca) .marcado { outline: 3px solid var(--tinta); outline-offset: 3px; z-index: 2; }
+/* Lo pendiente: una tarjeta que sale de la luz */
+.pop-pend { position: absolute; left: 244px; bottom: 70px; width: 420px; z-index: 50; padding: 20px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-hoja); box-shadow: var(--sombra-3); }
+.pop-pend::before { content: ""; position: absolute; left: -7px; bottom: 40px; width: 14px; height: 14px; background: var(--superficie); border-left: 1px solid var(--borde); border-bottom: 1px solid var(--borde); transform: rotate(45deg); }
+.pop-pend .cab { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.pop-pend .nota { margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--borde); font-size: 14px; line-height: 20px; color: var(--texto-2); display: flex; gap: 8px; }
+.sin-con { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 20; }
+
+</style>
+</head>
+<body>
+<div class="escena">
+<div class="app">
+  <nav class="lateral">
+    <div class="marca"><span class="logo"><i class="i" data-i="store"></i></span><b>Ferrebress</b></div>
+    <a class="nav-item activo" data-m="menu" data-key="V" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></a><a class="nav-item" data-m="menu" data-key="C" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a><a class="nav-item" data-m="menu" data-key="D" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a><a class="nav-item" data-m="menu" data-key="N" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a><a class="nav-item" data-m="menu" data-key="M" data-abre="mas-sub"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span><span class="pastilla urgente" style="margin-left:auto;height:24px">3</span></a><div class="nav-sub" id="mas-sub" data-capa><a data-m="menu" data-key="A" data-ir="anomalies">Anomalías<span class="pastilla urgente">3</span></a><a class="pronto" data-pronto data-m="menu">Procesos<span class="p-pronto">Pronto</span></a><a data-m="menu" data-key="E" data-ir="tickets">Mejoras y errores<span class="pastilla ">2</span></a><a data-m="menu" data-key="F" data-ir="device-settings">Configuración</a><a class="pronto" data-pronto data-m="menu">Administración<span class="p-pronto">Pronto</span></a><a class="pronto" data-pronto data-m="menu">Manual<span class="p-pronto">Pronto</span></a></div>
+    <div class="pie">
+      <div class="vinculo"><i class="i" data-i="smartphone"></i><div class="txt">Celular en espejo<small>Moto G54 del mostrador</small></div></div>
+      <button class="luz-v1 luz" data-key="L" data-abre="pend-d1"><span class="foco-luz"></span><span><b>En línea</b><small>Todo enviado</small></span><i class="i i-s ch" data-i="chevron-right"></i></button>
+      <div class="usuario"><span class="avatar">RS</span><div class="txt"><div style="font-weight:750;font-size:15px">Rubén Sosa</div><div class="t-detalle">Administrador</div></div><button class="btn btn-fantasma btn-icono chico" data-key="S" data-ir="sign-in" aria-label="Salir"><i class="i" data-i="log-out"></i></button></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <header class="cabecera">
+      <div class="t-titulo">Vender</div><span class="fecha">Lunes 26 de octubre · 10:42</span>
+      <div class="acciones"><button class="btn" data-key="P" data-m="main"><i class="i" data-i="clipboard-list"></i>Pedidos y presupuestos</button></div>
+    </header>
+    <nav class="pestanas"><a class="activa" data-m="tabs" data-key="1">Vender</a><a class="pronto" data-pronto data-m="tabs">Ventas de hoy <span class="p-pronto">Pronto</span></a></nav>
+    <section class="pantalla"><div class="vv">
+  <div class="vv-izq">
+    <div class="buscar"><div class="campo foco"><i class="i" data-i="search"></i><span style="flex:1;color:var(--texto-3)"><span class="cursor"></span>Buscá por nombre o código, o escaneá</span><span class="kbd">Enter</span></div>
+    <button class="btn btn-oscuro" data-key="E" data-m="main"><i class="i" data-i="scan-barcode"></i>Escanear con el celular</button></div>
+    <div class="vacio tarjeta">
+      <div class="hola"><span class="circ"><i class="i i-xl" data-i="shopping-cart"></i></span><div><div class="t-seccion">La venta está vacía</div><div class="t-detalle">Escaneá un producto o buscalo por nombre. Lo que escanees con el celular aparece acá solo.</div></div></div>
+      <div class="t-etiqueta">Lo más vendido hoy · tocá uno para sumarlo</div>
+      <div class="masvend"><a class="prod" data-m="main"><span class="foto chica"><img src="../../../../common/photos/drill-bit.webp" alt=""></span><span style="min-width:0"><span class="n">Mecha acero rápido HSS 8 mm</span><span class="p num"><span class="peso">$</span>7.000</span></span></a><a class="prod" data-m="main"><span class="foto chica"><img src="../../../../common/photos/measuring-tape.webp" alt=""></span><span style="min-width:0"><span class="n">Cinta métrica PowerLock 5 m</span><span class="p num"><span class="peso">$</span>17.000</span></span></a><a class="prod" data-m="main"><span class="foto chica"><img src="../../../../common/photos/wall-plugs.webp" alt=""></span><span style="min-width:0"><span class="n">Tarugos nylon S8 con tope × 100</span><span class="p num"><span class="peso">$</span>6.000</span></span></a><a class="prod" data-m="main"><span class="foto chica"><img src="../../../../common/photos/screws.webp" alt=""></span><span style="min-width:0"><span class="n">Tornillos madera 8 × 1" × 100</span><span class="p num"><span class="peso">$</span>9.000</span></span></a><a class="prod" data-m="main"><span class="foto chica"><img src="../../../../common/photos/hammer.webp" alt=""></span><span style="min-width:0"><span class="n">Martillo carpintero 27 mm</span><span class="p num"><span class="peso">$</span>21.000</span></span></a><a class="prod" data-m="main"><span class="foto chica"><img src="../../../../common/photos/paint.webp" alt=""></span><span style="min-width:0"><span class="n">Látex interior mate blanco 4 L</span><span class="p num"><span class="peso">$</span>38.000</span></span></a></div>
+    </div>
+  </div>
+  <aside class="cobro tarjeta-2">
+    <div class="t-etiqueta">Total</div>
+    <div class="t-total num" style="color:var(--texto-3)"><span class="peso">$</span>0</div>
+    <div class="t-detalle" style="margin-top:-8px">Sin productos todavía</div>
+    <div class="t-etiqueta">Cómo paga</div>
+    <div class="medios"><span class="medio efectivo"><i class="i" data-i="banknote"></i>Efectivo</span><span class="medio mp"><i class="i" data-i="qr-code"></i>Mercado Pago</span><span class="medio tarjeta"><i class="i" data-i="credit-card"></i>Tarjeta</span><span class="medio cuenta"><i class="i" data-i="notebook-pen"></i>Cuenta corriente</span></div>
+    <button class="btn btn-accion grande" disabled style="margin-top:auto;width:100%">Cobrar</button>
+  </aside>
+</div></section>
+  </main>
+</div>
+<div class="pop-pend" id="pend-d1" data-capa>
+    <div class="cab"><span class="t-seccion" style="flex:1">Lo que falta enviar</span><button class="btn btn-fantasma btn-icono chico" data-cierra aria-label="Cerrar"><i class="i" data-i="x"></i></button></div>
+    <div style="margin-bottom:8px"><span class="pastilla logro"><span class="punto"></span>En línea · todo enviado</span></div>
+    
+    <div class="t-detalle" style="padding:8px 0">No hay nada por enviar. Lo último salió a las 10:41.</div>
+    <div class="nota"><i class="i i-s" data-i="info" style="margin-top:2px"></i>La luz no pregunta nada por su cuenta: dice lo que contestó el servidor la última vez y lo que avisa el navegador.</div>
+  </div>
+<div class="ayuda-alt tostada"><i class="i" data-i="keyboard"></i>Tocá la letra con Alt apretado · soltá Alt para esconderlas</div>
+<div class="prueba"><span class="cartel">Ambiente de prueba · nada de esto es real</span></div>
+</div>
+<script src="../../app-frame.js"></script>
+</body>
+</html>

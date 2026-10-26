@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marco · Pulgar (celular)</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../app-frame.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+body { width: 390px; }
+
+.celu-pantalla { padding-bottom: 100px; }
+.puntos { display: flex; gap: 6px; padding: 6px 16px 0; align-items: center; font-size: 14px; color: var(--texto-3); font-weight: 600; }
+.puntos i { width: 18px; height: 6px; border-radius: 99px; background: var(--pino); display: inline-block; }
+.puntos i.no { width: 6px; background: var(--hundido-2); }
+.base { position: absolute; left: 0; right: 0; bottom: 0; height: 88px; background: var(--superficie); z-index: 30; display: grid; grid-template-columns: 1fr 88px 1fr; align-items: center; padding: 0 16px 14px; box-shadow: 0 -8px 24px -16px rgba(26,29,27,.2); }
+.base::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--c); }
+.base.sin::before { background: repeating-linear-gradient(90deg, var(--urgente) 0 60px, var(--urgente-suave) 60px 68px); }
+.base .estado { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--ct); }
+.base .foco-luz { width: 8px; height: 8px; box-shadow: 0 0 0 3px var(--cs); }
+.pulgar { justify-self: center; width: 72px; height: 72px; margin-top: -40px; border-radius: 99px; background: var(--pino); color: #fff; display: grid; place-items: center; box-shadow: var(--sombra-3); border: 4px solid var(--fondo); position: relative; }
+.pulgar .i { width: 30px; height: 30px; }
+.pulgar .pastilla { position: absolute; top: -4px; right: -6px; height: 24px; padding: 0 7px; border: 2px solid var(--superficie); }
+.pulgar-txt { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); font-size: 14px; font-weight: 800; color: var(--pino); }
+.base .derecha { justify-self: end; display: flex; gap: 8px; }
+.redondo { width: 44px; height: 44px; border-radius: 99px; display: grid; place-items: center; background: var(--logro-suave); color: var(--logro-texto); }
+/* El abanico: las cinco partes en arco, sobre el pulgar */
+.abanico { position: absolute; inset: 44px 0 0 0; z-index: 35; }
+.abanico:not(.abierto) { display: none; }
+.abanico .fondo { position: absolute; inset: 0; background: rgba(244, 242, 236, .86); backdrop-filter: blur(6px); }
+.boton-a { position: absolute; width: 76px; display: grid; justify-items: center; gap: 6px; font-weight: 750; font-size: 14px; color: var(--tinta); text-decoration: none; transform: translateX(-50%); }
+.boton-a span.c { position: relative; width: 64px; height: 64px; border-radius: 99px; background: var(--superficie); box-shadow: var(--sombra-2); border: 1px solid var(--borde); display: grid; place-items: center; color: var(--texto-2); }
+.boton-a span.c .i { width: 28px; height: 28px; }
+.boton-a.activo span.c { background: var(--accion); border-color: var(--accion); color: #fff; box-shadow: var(--sombra-accion); }
+.boton-a .pastilla { position: absolute; top: -4px; right: -8px; height: 22px; padding: 0 7px; }
+.abanico .pulgar { position: absolute; left: 50%; bottom: 30px; margin: 0 0 0 -36px; background: var(--tinta); }
+.abanico .ayuda { position: absolute; left: 0; right: 0; top: 200px; text-align: center; color: var(--texto-2); font-weight: 600; font-size: 15px; }
+/* Más a pantalla completa */
+.mas3 { position: absolute; inset: 0; z-index: 36; background: var(--fondo); display: flex; flex-direction: column; }
+.mas3:not(.abierto) { display: none; }
+.mas3 .grilla { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px; }
+.card3 { position: relative; display: grid; gap: 8px; padding: 14px; border-radius: 20px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-1); color: inherit; text-decoration: none; min-height: 132px; align-content: start; }
+.card3 b { font-size: 16px; line-height: 22px; }
+.card3 small { font-size: 14px; line-height: 18px; color: var(--texto-2); }
+.card3 .pastilla { position: absolute; top: 12px; right: 12px; height: 24px; }
+.card3.pronto { background: transparent; border-style: dashed; box-shadow: none; }
+.card3.pronto b, .card3.pronto small { color: var(--texto-3); }
+.card3.pronto .ico-op { opacity: .5; }
+.card3 .p-pronto { position: absolute; top: 12px; right: 12px; }
+.hoja3 { position: absolute; left: 0; right: 0; bottom: 0; z-index: 41; background: var(--superficie); border-radius: var(--r-hoja) var(--r-hoja) 0 0; box-shadow: var(--sombra-3); padding: 8px 16px 28px; }
+.hoja3:not(.abierto) { display: none; }
+.hoja3 .asa { width: 40px; height: 5px; border-radius: 99px; background: var(--hundido-2); margin: 4px auto 12px; }
+.celu:has(.hoja3.abierto)::after { content: ""; position: absolute; inset: 0; background: rgba(26, 29, 27, .3); z-index: 40; }
+
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div><div class="prueba-lugar"></div>
+  <div class="celu-cabecera"><span class="t-titulo">Vender</span></div>
+  <div class="puntos"><i></i><i class="no"></i><span style="margin-left:6px">Ventas de hoy · pronto</span></div>
+  <div class="celu-pantalla" style="padding-top:14px"><div class="vc">
+  <div class="campo"><i class="i" data-i="search"></i>Buscá o escaneá</div>
+  <button class="btn btn-oscuro grande" style="width:100%"><i class="i i-l" data-i="scan-barcode"></i>Escanear</button>
+  <div class="t-etiqueta" style="margin-top:4px">Lo más vendido hoy</div>
+  <div class="masvend"><a class="prod"><span class="foto chica"><img src="../../../../common/photos/drill-bit.webp" alt=""></span><span style="min-width:0"><span class="n">Mecha acero rápido HSS 8 mm</span><span class="p num"><span class="peso">$</span>7.000</span></span></a><a class="prod"><span class="foto chica"><img src="../../../../common/photos/measuring-tape.webp" alt=""></span><span style="min-width:0"><span class="n">Cinta métrica PowerLock 5 m</span><span class="p num"><span class="peso">$</span>17.000</span></span></a><a class="prod"><span class="foto chica"><img src="../../../../common/photos/wall-plugs.webp" alt=""></span><span style="min-width:0"><span class="n">Tarugos nylon S8 con tope × 100</span><span class="p num"><span class="peso">$</span>6.000</span></span></a><a class="prod"><span class="foto chica"><img src="../../../../common/photos/screws.webp" alt=""></span><span style="min-width:0"><span class="n">Tornillos madera 8 × 1" × 100</span><span class="p num"><span class="peso">$</span>9.000</span></span></a></div>
+</div></div>
+  <div class="base luz"><span class="estado" data-abre="pend-p3"><span class="foco-luz"></span>Todo enviado</span><span class="pulgar" data-abre="abanico-p3"><i class="i" data-i="shopping-cart"></i></span><span class="derecha"><span class="redondo" aria-label="En espejo"><i class="i" data-i="monitor"></i></span></span><span class="pulgar-txt">Vender</span></div>
+  <span class="home-ind" style="z-index:31"></span>
+  <div class="abanico" id="abanico-p3" data-capa><div class="fondo" data-cierra></div><div class="ayuda">Deslizá el pulgar hasta una y soltá</div><a class="boton-a activo" style="left:50px;bottom:106px" data-cierra><span class="c"><i class="i" data-i="shopping-cart"></i></span>Vender</a><a class="boton-a" style="left:100px;bottom:195px" data-ir="products"><span class="c"><i class="i" data-i="tags"></i></span>Catálogo</a><a class="boton-a" style="left:195px;bottom:230px" data-ir="stock"><span class="c"><i class="i" data-i="package"></i></span>Depósito</a><a class="boton-a" style="left:290px;bottom:195px" data-ir="business-overview"><span class="c"><i class="i" data-i="chart-column"></i></span>Negocio</a><a class="boton-a" style="left:340px;bottom:106px" data-abre="mas-p3"><span class="c"><i class="i" data-i="menu"></i><span class="pastilla urgente">3</span></span>Más</a><span class="pulgar" data-cierra><i class="i" data-i="x"></i></span></div>
+  <div class="mas3" id="mas-p3" data-capa>
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div><div class="prueba-lugar"></div>
+  <div class="celu-cabecera"><span class="t-titulo">Más</span><button class="btn btn-icono" data-cierra aria-label="Cerrar"><i class="i" data-i="x"></i></button></div>
+  <div class="grilla"><a class="card3" data-ir="anomalies"><span class="ico-op grande urgente"><i class="i i-l" data-i="triangle-alert"></i></span><b>Anomalías</b><small>Lo que no coincide</small><span class="pastilla urgente">3</span></a><a class="card3 pronto" data-pronto><span class="ico-op grande "><i class="i i-l" data-i="workflow"></i></span><b>Procesos</b><small>Paso a paso</small><span class="p-pronto">Pronto</span></a><a class="card3" data-ir="tickets"><span class="ico-op grande "><i class="i i-l" data-i="bug"></i></span><b>Mejoras y errores</b><small>Avisá algo que falla</small><span class="pastilla ">2</span></a><a class="card3" data-ir="device-settings"><span class="ico-op grande neutro"><i class="i i-l" data-i="settings"></i></span><b>Configuración</b><small>Lo tuyo, en este celular</small></a><a class="card3 pronto" data-pronto><span class="ico-op grande "><i class="i i-l" data-i="sliders-horizontal"></i></span><b>Administración</b><small>Para todos</small><span class="p-pronto">Pronto</span></a><a class="card3 pronto" data-pronto><span class="ico-op grande neutro"><i class="i i-l" data-i="book-open"></i></span><b>Manual</b><small>Cómo se usa</small><span class="p-pronto">Pronto</span></a></div>
+  <div style="margin:4px 16px 0" class="tarjeta"><div style="display:flex;align-items:center;gap:10px;padding:12px"><span class="avatar">RS</span><span style="flex:1;font-weight:750">Rubén Sosa<br><span class="t-detalle">Administrador</span></span><button class="btn btn-peligro chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div></div>
+</div>
+  <div class="hoja3" id="pend-p3" data-capa>
+  <div class="asa"></div>
+  <div style="display:flex;align-items:center;gap:8px"><span class="t-seccion" style="flex:1">Cola de envío</span><span class="pastilla urgente"><span class="punto"></span>Sin conexión</span></div>
+  <div class="t-detalle" style="margin:2px 0 4px">3 cosas. Salen solas cuando vuelva.</div>
+  <div class="pend"><span class="ic"><i class="i" data-i="receipt"></i></span><div><b>Venta $45.500 · efectivo</b><small>Lucía</small></div><div class="cuando">10:38</div></div><div class="pend"><span class="ic"><i class="i" data-i="package"></i></span><div><b>Stock: Mecha HSS 8 mm, −2 un.</b><small>Rubén</small></div><div class="cuando">10:31</div></div><div class="pend"><span class="ic"><i class="i" data-i="pencil"></i></span><div><b>Precio a mano: Tarugos S8 × 100</b><small>Lucía</small></div><div class="cuando">10:29</div></div>
+</div>
+  <div class="prueba"><span class="cartel">Ambiente de prueba · nada de esto es real</span></div>
+</div>
+<script src="../../app-frame.js"></script>
+</body>
+</html>

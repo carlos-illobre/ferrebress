@@ -13,8 +13,8 @@
     });
   }
   function marcables(g) { return Array.prototype.filter.call(document.querySelectorAll(g ? '[data-m="' + g + '"]' : "[data-m]"), function (el) { return el.offsetParent !== null; }); }
-  function actual() { return document.querySelector(".marca"); }
-  function marcar(el) { var a = actual(); if (a) a.classList.remove("marca"); if (el) { el.classList.add("marca"); el.scrollIntoView({ block: "nearest" }); } body.classList.remove("sin-marca"); }
+  function actual() { return document.querySelector(".marcado"); }
+  function marcar(el) { var a = actual(); if (a) a.classList.remove("marcado"); if (el) { el.classList.add("marcado"); el.scrollIntoView({ block: "nearest" }); } body.classList.remove("sin-marca"); }
   function activoDe(g) { var l = marcables(g); return l.filter(function (e) { return e.matches(".activo, .activa"); })[0] || l[0]; }
   function cerrarTodo() { var a = document.querySelectorAll("[data-capa].abierto"); a.forEach(function (c) { c.classList.remove("abierto"); }); return a.length > 0; }
 
