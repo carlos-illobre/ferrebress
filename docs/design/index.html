@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Maquetas de Ferrebress</title>
+<!-- Visor de maquetas: lista las pantallas de mockups/index.json y muestra cada variante funcionando,
+     en el tamaño de la computadora o del celular. La dirección guarda lo elegido: #<pantalla>/<dispositivo>/<n>. -->
+<style>
+  @font-face { font-family: "Manrope"; src: url("common/fonts/manrope-latin.woff2") format("woff2"); font-weight: 200 800; }
+  :root { --papel: #F4F2EC; --tinta: #1A1D1B; --suave: #545955; --linea: #E6E2D8; --pino: #12382F; --accion: #E8541C; }
+  * { box-sizing: border-box }
+  html, body { height: 100%; margin: 0 }
+  body { font: 15px/1.4 Manrope, system-ui, sans-serif; color: var(--tinta); background: var(--papel); display: grid; grid-template-columns: 260px 1fr; }
+  aside { background: #fff; border-right: 1px solid var(--linea); overflow: auto; padding: 16px 12px }
+  aside h1 { font-size: 17px; margin: 0 8px 12px }
+  aside h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); margin: 16px 8px 6px }
+  aside button { display: block; width: 100%; text-align: left; border: 0; background: none; font: inherit; padding: 8px; border-radius: 10px; cursor: pointer }
+  aside button[aria-current="true"] { background: var(--pino); color: #fff }
+  main { display: grid; grid-template-rows: auto 1fr; min-width: 0 }
+  header { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--linea); background: #fff }
+  .grupo { display: inline-flex; background: #ECE9E1; border-radius: 999px; padding: 3px }
+  .grupo button { border: 0; background: none; font: 600 14px Manrope, sans-serif; padding: 6px 12px; border-radius: 999px; cursor: pointer }
+  .grupo button[aria-pressed="true"] { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.12) }
+  header a { margin-left: auto; color: var(--pino); font-weight: 700 }
+  .escenario { overflow: auto; display: grid; place-items: start center; padding: 24px }
+  .marco { background: #fff; box-shadow: 0 12px 40px rgba(18,56,47,.18); transform-origin: top center }
+  .marco.phone { border: 8px solid var(--tinta); border-radius: 36px; overflow: hidden }
+  iframe, .marco img { display: block; border: 0; width: 100%; height: 100% }
+  .vacio { color: var(--suave); padding: 48px }
+  @media (max-width: 700px) { body { grid-template-columns: 1fr; grid-template-rows: auto 1fr } aside { max-height: 35vh } }
+</style>
+</head>
+<body>
+<aside><h1>Maquetas de Ferrebress</h1><nav id="lista"></nav></aside>
+<main>
+  <header>
+    <div class="grupo" id="dispositivos" aria-label="Dispositivo"></div>
+    <div class="grupo" id="variantes" aria-label="Variante"></div>
+    <a id="abrir" target="_blank" rel="noopener">Abrir sola</a>
+  </header>
+  <div class="escenario" id="escenario"><p class="vacio">Elegí una pantalla.</p></div>
+</main>
+<script>
+(function () {
+  var SIZE = { desktop: [1366, 768], phone: [390, 844] };
+  var DEVICE = { desktop: "Computadora", phone: "Celular" };
+  var data, state = { screen: null, device: "desktop", n: 0 };
+
+  function el(tag, text, attrs) { var e = document.createElement(tag); if (text) e.textContent = text; for (var k in attrs || {}) e.setAttribute(k, attrs[k]); return e; }
+  function screen() { return data.screens.find(function (s) { return s.id === state.screen; }); }
+  function variants() { var s = screen(); return s ? s.variants.filter(function (v) { return v.device === state.device; }) : []; }
+
+  function render() {
+    var lista = document.getElementById("lista"); lista.textContent = "";
+    var modules = [];
+    data.screens.forEach(function (s) { if (modules.indexOf(s.module) < 0) modules.push(s.module); });
+    modules.forEach(function (m) {
+      lista.appendChild(el("h2", m));
+      data.screens.filter(function (s) { return s.module === m; }).forEach(function (s) {
+        var b = el("button", s.title, { "aria-current": String(s.id === state.screen) });
+        b.onclick = function () { state.screen = s.id; state.n = 0; go(); };
+        lista.appendChild(b);
+      });
+    });
+    var devs = document.getElementById("dispositivos"); devs.textContent = "";
+    ["desktop", "phone"].forEach(function (d) {
+      var b = el("button", DEVICE[d], { "aria-pressed": String(d === state.device) });
+      b.onclick = function () { state.device = d; state.n = 0; go(); };
+      devs.appendChild(b);
+    });
+    var vs = variants(), vars = document.getElementById("variantes"); vars.textContent = "";
+    vs.forEach(function (v, i) {
+      var b = el("button", v.name, { "aria-pressed": String(i === state.n) });
+      b.onclick = function () { state.n = i; go(); };
+      vars.appendChild(b);
+    });
+    var esc = document.getElementById("escenario"), abrir = document.getElementById("abrir"); esc.textContent = "";
+    var v = vs[state.n];
+    if (!v) { esc.appendChild(el("p", screen() ? "Esta pantalla no tiene variantes para este dispositivo." : "Elegí una pantalla.", { "class": "vacio" })); abrir.hidden = true; return; }
+    abrir.hidden = false; abrir.href = v.path;
+    var size = SIZE[state.device], marco = el("div", null, { "class": "marco " + state.device });
+    marco.style.width = size[0] + "px"; marco.style.height = size[1] + "px";
+    var scale = Math.min(1, (esc.clientWidth - 48) / (size[0] + 16));
+    marco.style.transform = "scale(" + scale + ")"; marco.style.marginBottom = (size[1] * (scale - 1)) + "px";
+    marco.appendChild(/\.(png|webp|jpg)$/.test(v.path) ? el("img", null, { src: v.path, alt: screen().title }) : el("iframe", null, { src: v.path, title: screen().title }));
+    esc.appendChild(marco);
+  }
+
+  function go() { location.hash = [state.screen, state.device, state.n + 1].join("/"); }
+  function read() {
+    var p = location.hash.slice(1).split("/");
+    if (p[0]) state.screen = p[0];
+    if (SIZE[p[1]]) state.device = p[1];
+    state.n = Math.max(0, (parseInt(p[2], 10) || 1) - 1);
+    render();
+  }
+  window.addEventListener("hashchange", read);
+  window.addEventListener("resize", render);
+  fetch("mockups/index.json").then(function (r) { return r.json(); }).then(function (d) { data = d; read(); });
+})();
+</script>
+</body>
+</html>

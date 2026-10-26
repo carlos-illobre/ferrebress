@@ -15,8 +15,8 @@ se dejó y qué propone mejorar (constitución, paso 1).
 
 | Capítulo | Qué cubre | Estado |
 |---|---|---|
-| 00 · La aplicación ([`00-app`](00-app/summary.md)) | El marco, el menú, el teclado, la luz de conexión, la versión nueva, el manual | Reglas aprobadas; pantallas por elegir |
-| 01 · Acceso (`01-access`) | Entrar, sesiones, personas, roles y permisos | Por escribir |
+| 00 · La aplicación ([`00-app`](00-app/summary.md)) | El marco, el menú, el teclado, la luz de conexión, la versión nueva, el manual | Reglas aprobadas; sus pantallas se diseñan con el módulo que las necesita |
+| 01 · Acceso (`01-access`) | Entrar, salir, sesiones, personas, roles y permisos | Paso 1: preguntas a Carlos |
 | 02 · Celular y computadora (`02-device-link`) | Vincular, espejo, lector de códigos, fotos | Por escribir |
 | 03 · Configuración del dispositivo (`03-device-settings`) | Lo que cada persona elige para su dispositivo | Por escribir |
 | 04 · Quién hizo qué (`04-audit-log`) | El registro de cada acción y cómo se consulta | Por escribir |

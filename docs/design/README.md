@@ -8,6 +8,7 @@ tocar las reglas.
 | [visual-language.md](visual-language.md) | El lenguaje visual «Mostrador»: paleta, letra, íconos, piezas, movimiento y marco |
 | [common/](common/) | Lo que usan todas las maquetas: `common.css`, los íconos, las fuentes, las fotos de producto, el marco de la computadora y del celular, y la navegación entre maquetas |
 | [mockups/](mockups/) | Las maquetas, una carpeta por pantalla |
+| [index.html](index.html) | El visor: muestra cada pantalla funcionando, con sus variantes, en la computadora y en el celular. Se publica en https://carlos-illobre.github.io/ferrebress/ con cada subida a `main` |
 
 ## Las maquetas
 
@@ -20,6 +21,7 @@ Cada pantalla tiene su carpeta en `mockups/<pantalla>/`, con `desktop/` y `phone
 - **`art-director-notes.md`** es lo que el director de arte le dijo a Carlos de esa pantalla, con
   el catálogo de ideas.
 - **La versión elegida** queda escrita en el `screens.md` del capítulo, con su carpeta.
+- **`mockups/index.json`** es el índice del visor: cada pantalla con su módulo y sus variantes.
 
 La pantalla de entrada (`mockups/sign-in/`) no tiene v2: se ve como la de la primera versión, que
 está en sus capturas `current-desktop.png` y `current-phone.png`. Ojo: en esa primera versión el

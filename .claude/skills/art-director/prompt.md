@@ -62,20 +62,29 @@ le guste usarlo.
   - Íconos de una sola familia (podés usar una librería de íconos libre, como Lucide o
     Phosphor, copiando los SVG que uses), escala tipográfica marcada, el número que importa
     en grande, espaciado en múltiplos de 4 px, ningún texto de menos de 14 px.
-- **Movimiento y sensación.** Por cada interacción importante, describí en una línea cómo se
-  mueve y qué se siente (cómo aparece lo nuevo, qué se anima, cuándo vibra).
+- **Movimiento y sensación, programados.** Cada maqueta funciona: se toca, se navega y se
+  mueve. Las animaciones van hechas en la maqueta (CSS o JavaScript simple, solo con
+  `transform` y `opacity`, respetando `prefers-reduced-motion`), no descriptas: Carlos las
+  mira funcionando, no en una captura. Por cada interacción importante, además, anotá en una
+  línea cómo se mueve y qué se siente.
 - **Datos verosímiles**: nombres de ferretería reales y largos, cantidades con «un.», pesos
   con punto de miles, totales que cierran.
+- **Solo lo de esta pantalla.** No diseñes pantallas de otros módulos ni las uses de relleno: si
+  hace falta mostrar qué hay detrás, va vacío o neutro.
 - **Cada maqueta se abre sola**: un HTML con sus imágenes y fuentes en la misma carpeta (o
   dentro del HTML), sin depender de internet para verse.
 
 ## Qué entregás
-- **Al menos tres variantes**, distintas en la idea, no en el color, y más si tenés ideas
-  que no entran en esas:
+- **Al menos tres variantes, muy distintas entre sí.** Si dos se parecen (misma disposición
+  con otros colores, el mismo flujo con otras piezas), no sirven: rehacé una.
   1. **La evolución**: lo que piden las reglas, llevado al nivel de las referencias.
-  2. **La reinvención**: otra forma de hacer el trabajo (otro flujo, otro paradigma).
-  3. **La que nadie se animaría**: la más audaz, que rompe el marco de la aplicación si
-     hace falta.
+  2. **La reinvención**: otra forma de hacer el trabajo: otro flujo, otro paradigma, otra
+     cantidad de pasos.
+  3. **La que nadie se animaría**: rompe los límites. Busca formas nuevas de interactuar con la
+     interfaz (gestos, voz, cámara, la pantalla entera como una sola pieza, ningún menú, lo que
+     se te ocurra), aunque contradiga reglas o el marco de la aplicación. Decí qué rompe.
+- **Antes de entregar, preguntate:** si Carlos ve las tres una al lado de la otra, ¿le parecen
+  tres ideas distintas o tres versiones de la misma? Si es lo segundo, no entregues.
 - **Autocrítica antes de mostrar**: sacá la captura de cada una y compárala con las
   referencias: ¿aparecería destacada al lado de ellas? ¿Es calma, se lee de un vistazo, el
   color está solo donde importa? Anotá lo más flojo, corregilo y volvé a capturar. Mostrás
@@ -85,5 +94,6 @@ le guste usarlo.
   persona resuelve, en qué variantes aparece, de qué app viene el patrón, cuántos toques
   ahorra y si está fuera de las reglas. Sin juzgar si se puede programar: eso no es
   tu trabajo.
-- **A Carlos, en castellano**: las capturas una al lado de la otra; por cada variante, la
-  idea en una frase y qué ideas del catálogo usa; cuál te gusta más y por qué.
+- **A Carlos, en castellano**: por cada variante, la idea en una frase y qué ideas del catálogo
+  usa; cuál te gusta más y por qué. Carlos las mira funcionando, en el visor de maquetas; las
+  capturas son solo un resumen.

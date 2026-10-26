@@ -1,0 +1,361 @@
+{
+ "screens": [
+  {
+   "id": "sign-in",
+   "title": "Entrar (la de la primera versión)",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "actual",
+     "path": "mockups/sign-in/current-desktop.png"
+    },
+    {
+     "device": "phone",
+     "name": "actual",
+     "path": "mockups/sign-in/current-phone.png"
+    }
+   ]
+  },
+  {
+   "id": "sales",
+   "title": "Vender",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/sales/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/sales/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "today-sales",
+   "title": "Ventas de hoy",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/today-sales/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/today-sales/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "products",
+   "title": "Productos",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/products/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/products/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "price-lists",
+   "title": "Listas de precios",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/price-lists/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/price-lists/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "duplicates",
+   "title": "Duplicados",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/duplicates/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/duplicates/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "stock",
+   "title": "Stock",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/stock/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/stock/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "purchases",
+   "title": "Compras",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/purchases/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/purchases/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "goods-receipt",
+   "title": "Ingreso de mercadería",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/goods-receipt/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/goods-receipt/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "purchase-orders",
+   "title": "Pedidos a proveedores",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/purchase-orders/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/purchase-orders/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "stock-count",
+   "title": "Contar",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/stock-count/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/stock-count/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "business-overview",
+   "title": "Resumen del negocio",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/business-overview/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/business-overview/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "users",
+   "title": "Usuarios",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/users/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/users/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "audit-log",
+   "title": "Quién hizo qué",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/audit-log/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/audit-log/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "more",
+   "title": "Más",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/more/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/more/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "anomalies",
+   "title": "Anomalías",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/anomalies/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/anomalies/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "processes",
+   "title": "Procesos",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/processes/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/processes/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "tickets",
+   "title": "Mejoras y errores",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/tickets/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/tickets/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "device-settings",
+   "title": "Configuración",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/device-settings/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/device-settings/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "system-settings",
+   "title": "Administración",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/system-settings/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/system-settings/phone/v2/index.html"
+    }
+   ]
+  },
+  {
+   "id": "device-link",
+   "title": "Vincular el celular",
+   "module": "referencia",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "v2 (referencia)",
+     "path": "mockups/device-link/desktop/v2/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "v2 (referencia)",
+     "path": "mockups/device-link/phone/v2/index.html"
+    }
+   ]
+  }
+ ]
+}

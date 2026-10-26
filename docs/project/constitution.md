@@ -202,14 +202,14 @@ programó no puede revisarse.
 | Paso | Rol | Qué hace | Deja | Aprueba Carlos |
 |---|---|---|---|---|
 | 1 | Analista de negocio | Parte de lo que había en la primera versión y le pregunta a Carlos **todo** lo que haga falta para cubrir la funcionalidad completa: cada caso, cada borde, cada error, cada permiso. Dice qué se tomó, qué se descarta por desactualizado y qué propone mejorar. Cada regla o decisión que formula Carlos la analiza en busca de mejoras y, si encuentra una opción superadora, se la ofrece (decisión 50). Las preguntas van todas juntas, en tandas, hasta que no quede nada sin respuesta: lo que Carlos no contestó o no quedó claro se vuelve a preguntar | `rules.md` y `summary.md`, con los escenarios | Sí |
-| 2 | Director de arte (skill `art-director`) | Tres versiones de cada pantalla, para que Carlos elija. La interfaz es lo más importante: va antes que todo lo técnico | `docs/design/mockups/<pantalla>/` y `screens.md` | Sí: elige una |
+| 2 | Director de arte (skill `art-director`) | Tres versiones muy distintas de cada pantalla, una pantalla por vez y en el orden en que se usan, funcionando y con sus animaciones, en el visor de maquetas. Carlos elige una antes de pasar a la siguiente. Solo pantallas de este módulo. La interfaz es lo más importante: va antes que todo lo técnico | `docs/design/mockups/<pantalla>/` y `screens.md` | Sí: elige una |
 | 3 | Arquitecto | Entidades, API, eventos, permisos, conexiones, la sección «Seguridad», las **metas de performance** (consultas por pedido, milisegundos, bytes) y las tareas con sus dependencias; un ADR si hay una decisión técnica | `docs/technical/modules/<module>.md` | — |
 | 4 | Revisor del diseño (agente `design-reviewer`) | Busca puntos débiles y mejoras al diseño técnico, contra la constitución y las restricciones de Carlos | `docs/technical/modules/<module>-design-review.md` | — |
 | 5 | Arquitecto | Corrige el diseño con lo que encontró el revisor y se lo presenta a Carlos | El diseño final | Sí |
 | 6 | Desarrollador | Primero las pruebas: una por escenario y las que cuentan las consultas de cada pedido, todas fallando. Después el código que las hace pasar, con cobertura total; `pnpm check` en verde | Pruebas y código | — |
 | 7 | Revisor del código (agente `code-reviewer`) | Compara el código con las reglas, las pantallas y el diseño; lo que encuentra se arregla | `docs/technical/modules/<module>-code-review.md` | — |
 | 8 | Carlos | Lo prueba en el ambiente de pruebas; los ajustes vuelven al paso que corresponda | — | Sí: cierra el módulo |
-| 9 | Redactor | El manual del módulo: capturas, texto para quien atiende la ferretería sin saber de informática y un clip solo si la funcionalidad es lo bastante grande para verla en video | `docs/manual/` y la pantalla del manual | — |
+| 9 | Redactor | El manual del módulo (la pantalla del manual se diseña en el paso 9 del primer módulo, no antes): capturas, texto para quien atiende la ferretería sin saber de informática y un clip solo si la funcionalidad es lo bastante grande para verla en video | `docs/manual/` y la pantalla del manual | — |
 
 La sección «Seguridad» del diseño contesta siempre: qué datos toca, quién puede hacer cada cosa,
 qué entra de afuera y cómo se valida, qué secretos usa y qué queda en la auditoría.

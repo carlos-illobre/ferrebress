@@ -32,6 +32,9 @@
   el menú, la barra de abajo y las pestañas que llevan a otra pantalla (leé `navigate.js`). Los
   demás botones quedan quietos: se hacen andar después, solo en la variante que Carlos elija.
 - **Sin pruebas:** no escribas pruebas ni compares capturas píxel a píxel.
+- **Funcionando:** cada variante se puede tocar: botones, campos, lo que se abre y se cierra, y
+  las animaciones. Datos ficticios, sin lógica de verdad.
+- **Solo la pantalla pedida:** nada de otros módulos, ni de relleno.
 - **Teclado:** en la computadora, todo con el teclado y las teclas a la vista. Un gesto nuevo se
   suma, no lo reemplaza.
 - **Peso:** fotos recortadas y comprimidas (menos de 150 KB cada una), sin videos.

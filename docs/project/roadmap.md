@@ -21,8 +21,8 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 
 | # | Módulo | Qué cubre | Por qué en este lugar | Depende de | Estado |
 |---|---|---|---|---|---|
-| 00 | `app` | El servidor, la aplicación vacía con su marco y su menú, las piezas del lenguaje visual, las cuatro formas de conectarse (`realtime`), la luz de conexión, la versión nueva y la pantalla del manual | Todo lo demás se apoya en esto | — | En curso: paso 2 (2026-10-26) |
-| 01 | `access` | Entrar con Google y con la huella, la entrada a la computadora con el celular, sesiones, personas, roles y permisos | Sin entrar no hay nada | 00 | Libre |
+| 00 | `app` | Las reglas generales de la aplicación: el marco, el menú, el teclado, la conexión, la versión nueva, el manual, las esperas, los formatos | No se construye solo: cada regla se construye con el primer módulo que la necesita | — | Reglas aprobadas (2026-10-26) |
+| 01 | `access` | La entrada (Google, huella, entrar a la computadora con el celular), salir, sesiones, personas, roles y permisos. Con él nace la base: el servidor, la aplicación y el marco al que se llega al entrar | Sin entrar no hay nada que probar: es lo primero | 00 | En curso: paso 1 (2026-10-26) |
 | 02 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para entrar con el celular y para leer los códigos del catálogo | 01 | Libre |
 | 03 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
 | 04 | `audit-log` | Quién hizo qué: guardarlo y consultarlo | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba | 01 | Libre |
@@ -62,8 +62,10 @@ paralelo»).
   pantalla de entrada y las maquetas v2 de cada pantalla.
 - [ ] T003 [agente] Armar el esqueleto: workspace de pnpm, `pnpm check`, el `.env` de ejemplo, el
   compose (Caddy, servidor, PostgreSQL) y la CI que despliega `main` en el ambiente de pruebas. Va
-  en el paso 6 del módulo 00: sus límites y su configuración son parte del diseño técnico de ese
-  módulo, que Carlos aprueba antes. Hasta entonces no hay `pnpm check`.
+  en el paso 6 del módulo 01, el primero que se programa: sus límites y su configuración son parte
+  de su diseño técnico, que Carlos aprueba antes. Hasta entonces no hay `pnpm check`.
+- [ ] T004 [carlos] Habilitar GitHub Pages en el repositorio (Settings → Pages → Source: «GitHub
+  Actions»), para que se publique el visor de maquetas.
 
 ## Tareas futuras
 

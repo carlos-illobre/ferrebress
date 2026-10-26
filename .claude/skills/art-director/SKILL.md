@@ -13,6 +13,15 @@ encargo.
 **Cuándo corre:** en el paso 2 de cada módulo, con las reglas del paso 1 ya aprobadas, o cuando
 Carlos lo pide con `/art-director`. Propone; Carlos elige.
 
+**Una pantalla por vez.** Se diseña una pantalla, Carlos la elige, y recién entonces la siguiente,
+en el orden en que la persona las usa. Nunca pantallas de otro módulo, ni pantallas que todavía no
+hacen falta para lo que se está construyendo (el manual, por ejemplo, va en el paso 9).
+
+**Se miran funcionando, no en capturas.** Cada variante se navega y tiene sus animaciones. Se
+publican en el visor de maquetas (`docs/design/index.html`, en GitHub Pages:
+https://carlos-illobre.github.io/ferrebress/), que muestra las tres variantes de cada pantalla,
+en la computadora y en el celular. A Carlos se le pasa el enlace.
+
 Argumentos: la pantalla o las pantallas, y el dispositivo (`desktop`, `phone` o los dos; si no lo
 dice, los dos). Ejemplo: `/art-director stock, phone`.
 
@@ -31,9 +40,13 @@ dice, los dos). Ejemplo: `/art-director stock, phone`.
    - que cada variante se abra sola (rutas relativas a `docs/design/common/`) y tenga su
      `screenshot.png`, y que la pantalla tenga `desktop-comparison.png`, `phone-comparison.png` y
      `art-director-notes.md`;
-   - commit y push a `main`.
-4. **A Carlos:** las comparaciones con `SendUserFile` y, por pantalla, la idea de cada variante,
-   la preferida del agente y lo que contradice una regla o queda fuera del capítulo.
+   - que la pantalla esté en `docs/design/mockups/index.json` (el índice del visor), con sus
+     variantes;
+   - commit y push a `main`; el visor se publica solo.
+4. **A Carlos:** el enlace del visor y, por variante, la idea en una frase, la preferida del agente
+   y lo que contradice una regla o queda fuera del capítulo. Antes de pasárselo, quien lanzó al
+   agente abre las tres y comprueba que de verdad son tres ideas distintas y que la audaz rompe
+   algo; si no, la devuelve.
 5. **Cuando Carlos elige,** se anota la variante en el `screens.md` del capítulo.
 
 ## Hacer navegable una variante
