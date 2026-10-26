@@ -22,26 +22,27 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | # | Módulo | Qué cubre | Por qué en este lugar | Depende de | Estado |
 |---|---|---|---|---|---|
 | 00 | `app` | Las reglas generales de la aplicación: el marco, el menú, el teclado, la conexión, la versión nueva, el manual, las esperas, los formatos | No se construye solo: cada regla se construye con el primer módulo que la necesita | — | Reglas aprobadas (2026-10-26) |
-| 01 | `access` | La entrada (Google, huella, entrar a la computadora con el celular), salir, sesiones, personas, roles y permisos. Con él nace la base: el servidor, la aplicación y el marco al que se llega al entrar | Sin entrar no hay nada que probar: es lo primero | 00 | En curso: paso 1 (2026-10-26) |
-| 02 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para entrar con el celular y para leer los códigos del catálogo | 01 | Libre |
-| 03 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
-| 04 | `audit-log` | Quién hizo qué: guardarlo y consultarlo | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba | 01 | Libre |
-| 05 | `administration` | Los ajustes que fija un Administrador para todos (redondeo, márgenes rápidos, días del vínculo) y la pantalla de anomalías, a la que cada módulo le suma las suyas | El catálogo necesita el redondeo y los márgenes; mejor editarlos de entrada que dejar valores fijos | 01, 04 | Libre |
-| 06 | `catalog` | Productos, proveedores, costo, margen, precio, búsqueda, código de barras, foto y duplicados | La base de vender | 05 | Libre |
-| 07 | `price-lists` | Subir la lista de un proveedor, ver qué cambia y aplicarla; un lector por proveedor | Todo producto sale de una lista (decisión 15) | 06 | Libre |
-| 08 | `stock` | Cuánto hay de cada producto, correcciones a mano y las anomalías de stock | Vender lo descuenta | 06 | Libre |
-| 09 | `sales` | Vender, cobrar, ventas del día, corregir, anular, cambio de producto, consultas no satisfechas | El corazón del mostrador | 06, 08 | Libre |
-| 10 | `purchases` | Ingreso de mercadería y pedidos a proveedores | Atender proveedores | 06, 08 | Libre |
-| 11 | `tickets` | Avisar de un error o pedir una mejora | Listo para la etapa de pruebas reales | 01 | Libre |
-| 12 | `customers` | Clientes importantes y su cuenta corriente | | 09 | Libre |
-| 13 | `business-overview` | Los números del negocio y el cierre de caja | | 09, 10 | Libre |
-| 14 | `offline` | Trabajar sin conexión al atender clientes y proveedores; lo que hace alguien dado de baja pasa a revisión | Desde el módulo 09 todo se programa para poder sumarlo sin rehacer nada | 09, 10 | Libre |
-| 15 | `stock-counts` | Contar por sector | | 08 | Libre |
-| 16 | `processes` | Los procesos del negocio, dibujados | Muy importante, pero puede ir al final | 01 | Libre |
+| 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | En curso: paso 1 (2026-10-26) |
+| 02 | `users` | Personas (autorizar, dar de baja), roles y permisos, y las sesiones abiertas de cada dispositivo | Para que entre alguien más que el primer Administrador | 01 | Libre |
+| 03 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para leer los códigos del catálogo | 01 | Libre |
+| 04 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo, formatos) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
+| 05 | `audit-log` | Quién hizo qué: guardarlo y consultarlo | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba | 01 | Libre |
+| 06 | `administration` | Los ajustes que fija un Administrador para todos (redondeo, márgenes rápidos, zona horaria, días del vínculo) y la pantalla de anomalías, a la que cada módulo le suma las suyas | El catálogo necesita el redondeo y los márgenes; mejor editarlos de entrada que dejar valores fijos | 02, 05 | Libre |
+| 07 | `catalog` | Productos, proveedores, costo, margen, precio, búsqueda, código de barras, foto y duplicados | La base de vender | 06 | Libre |
+| 08 | `price-lists` | Subir la lista de un proveedor, ver qué cambia y aplicarla; un lector por proveedor | Todo producto sale de una lista (decisión 15) | 07 | Libre |
+| 09 | `stock` | Cuánto hay de cada producto, correcciones a mano y las anomalías de stock | Vender lo descuenta | 07 | Libre |
+| 10 | `sales` | Vender, cobrar, ventas del día, corregir, anular, cambio de producto, consultas no satisfechas | El corazón del mostrador | 07, 09 | Libre |
+| 11 | `purchases` | Ingreso de mercadería y pedidos a proveedores | Atender proveedores | 07, 09 | Libre |
+| 12 | `tickets` | Avisar de un error o pedir una mejora | Listo para la etapa de pruebas reales | 01 | Libre |
+| 13 | `customers` | Clientes importantes y su cuenta corriente | | 10 | Libre |
+| 14 | `business-overview` | Los números del negocio y el cierre de caja | | 10, 11 | Libre |
+| 15 | `offline` | Trabajar sin conexión al atender clientes y proveedores; lo que hace alguien dado de baja pasa a revisión | Desde el módulo 10 todo se programa para poder sumarlo sin rehacer nada | 10, 11 | Libre |
+| 16 | `stock-counts` | Contar por sector | | 09 | Libre |
+| 17 | `processes` | Los procesos del negocio, dibujados | Muy importante, pero puede ir al final | 02 | Libre |
 
 Se pueden hacer a la vez dos módulos cuando ninguno depende del otro, ni directa ni
-indirectamente, y los dos tienen terminados los módulos de los que dependen. Por ejemplo, con 01 y
-04 cerrados, pueden ir a la vez 02, 03, 05, 11 y 16. Cómo se trabaja en paralelo está en la
+indirectamente, y los dos tienen terminados los módulos de los que dependen. Por ejemplo, con 01 cerrado,
+pueden ir a la vez 02, 03, 04, 05 y 12. Cómo se trabaja en paralelo está en la
 constitución, «Trabajo en paralelo».
 
 ## Partes compartidas

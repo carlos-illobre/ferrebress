@@ -34,22 +34,23 @@ usa solo para leer: no se modifica.
 | Capítulo | Carpetas de `specs/` |
 |---|---|
 | 00 · La aplicación | 001, 012, 020 |
-| 01 · Acceso | 007, 029 |
-| 02 · Celular y computadora | 002 (RF-08, RF-09), 007 (RF-77), 023, 025 |
-| 03 · Configuración del dispositivo | 009 |
-| 04 · Quién hizo qué | 007 (RF-71), 027 |
-| 05 · Administración | 020, 005 (RF-59), 014 |
-| 06 · Catálogo | 002, 015, 016 |
-| 07 · Listas de precios | 002 (RF-01 a RF-04) |
-| 08 · Stock | 005 (RF-53, RF-59) |
-| 09 · Vender | 003, 017, 019 |
-| 10 · Compras | 005 (RF-50 a RF-56) |
-| 11 · Mejoras y errores | 008, 028 |
-| 12 · Clientes | 004 |
-| 13 · Números del negocio | 006, 013 |
-| 14 · Sin conexión | 018, 014 |
-| 15 · Conteos | 005 (RF-52, RF-58) |
-| 16 · Procesos | 011 |
+| 01 · Entrar | 007 (RF-70, RF-70b, RF-76), 029 |
+| 02 · Personas | 007 (RF-72, RF-74, RF-75), 029 |
+| 03 · Celular y computadora | 002 (RF-08, RF-09), 007 (RF-77), 023, 025 |
+| 04 · Configuración del dispositivo | 009 |
+| 05 · Quién hizo qué | 007 (RF-71), 027 |
+| 06 · Administración | 020, 005 (RF-59), 014 |
+| 07 · Catálogo | 002, 015, 016 |
+| 08 · Listas de precios | 002 (RF-01 a RF-04) |
+| 09 · Stock | 005 (RF-53, RF-59) |
+| 10 · Vender | 003, 017, 019 |
+| 11 · Compras | 005 (RF-50 a RF-56) |
+| 12 · Mejoras y errores | 008, 028 |
+| 13 · Clientes | 004 |
+| 14 · Números del negocio | 006, 013 |
+| 15 · Sin conexión | 018, 014 |
+| 16 · Conteos | 005 (RF-52, RF-58) |
+| 17 · Procesos | 011 |
 
 ## Lo que ya se sabe que está desactualizado
 

@@ -311,3 +311,8 @@ cambia, sin depender de documentos que no están en este repositorio.
     cerrados, el código común tiene un dueño por vez, las decisiones de cada módulo van en su
     capítulo con el prefijo del módulo, y en los archivos compartidos cada módulo toca solo lo suyo.
     Desde acá, esta lista es solo para lo que vale para todo el proyecto.
+
+58. **Acceso se parte en dos módulos** (2026-10-26). Para ver algo funcionando cuanto antes, el
+    primer módulo es solo entrar y salir (01 · `sign-in`), con la base y el marco vacío; el primer
+    Administrador sale del `.env`. Personas, roles, permisos y sesiones van en el 02 (`users`).
+    Los demás módulos se corren un lugar.
