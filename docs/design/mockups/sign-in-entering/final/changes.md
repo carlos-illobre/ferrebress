@@ -28,9 +28,8 @@ Lo demás es la entrada aprobada (`../../sign-in/adapted/`, versión de computad
   - «Conexión segura» (la pastilla del título): **se sacó**.
   - «No hace falta tocar nada: cuando la sesión esté abierta, aparece el menú de Ferrebress.»:
     **se sacó**.
-  - «Computadora del mostrador» y «En línea», arriba a la derecha: **se sacaron**. Ojo: la entrada
-    aprobada sí los muestra en ese lugar, así que al pasar de la entrada a la espera esas dos
-    pastillas desaparecen (ver «Para confirmar con Carlos»).
+  - «Computadora del mostrador» y «En línea», arriba a la derecha: **quedan**, porque son parte de
+    la entrada de siempre y la escena no cambia (lo decidió Carlos al aprobarla).
   - El pie de la tarjeta («Tus datos están protegidos» y el logotipo): **se sacó**; el celular no lo
     tiene en la espera.
   - Los rótulos debajo de cada círculo del camino («Google · Confirmó tu cuenta» o «Tu celular ·
@@ -62,8 +61,3 @@ Lo demás es la entrada aprobada (`../../sign-in/adapted/`, versión de computad
   en curso, y un punto naranja viaja de la F al local; al terminar, la tarjeta baja a 98 % y la
   entrada se funde (320 ms). Con «reducir movimiento», nada se mueve ni gira.
 - La foto del celular y el fondo son copias de los de la entrada, para que la carpeta se abra sola.
-
-## Para confirmar con Carlos
-
-- **«Computadora del mostrador» y «En línea»:** el encargo pedía sacarlos, pero son parte de la
-  entrada de siempre. Si se quiere que nada de la escena cambie, vuelven sin tocar el panel.

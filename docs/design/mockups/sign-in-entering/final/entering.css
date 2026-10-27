@@ -189,3 +189,9 @@ img { display: block; }
 .mock-tools kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 6px; border: 1px solid rgb(255 255 255 / 0.3); background: rgb(255 255 255 / 0.14); font: 700 12px/1 "Manrope", sans-serif; }
 
 @media (max-height: 700px) { body { overflow-y: auto; } .sign-in { overflow-y: auto; min-height: 720px; } }
+
+/* Esta computadora y la conexión, arriba a la derecha, como en la entrada. */
+.status { position: absolute; top: calc(30 * var(--u)); right: calc(46 / 1536 * 100%); z-index: 2; display: flex; gap: 8px; font-size: 14px; font-weight: 600; }
+.status > span { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #fff; border: 1px solid var(--borde); color: var(--tinta); }
+.status > .status-net { background: #E2F4EA; border-color: #E2F4EA; color: #11764A; }
+.status-net::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
