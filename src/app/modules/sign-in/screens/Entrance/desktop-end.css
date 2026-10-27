@@ -1,0 +1,68 @@
+/* La entrada en la computadora: «o», el lugar de Google, la nota y el pie de la tarjeta. */
+@layer screens {
+  @media (min-width: 900px) {
+    .or {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-2);
+      font-size: max(14px, calc(15 * var(--u)));
+    }
+    .or::before,
+    .or::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .google {
+      min-height: calc(60 * var(--u));
+    }
+    .note {
+      display: flex;
+      align-items: flex-start;
+      gap: calc(16 * var(--u));
+      font-size: max(14px, calc(16 * var(--u)));
+      line-height: 1.42;
+      color: var(--text-2);
+    }
+    .note .icon {
+      width: calc(28 * var(--u));
+      height: calc(28 * var(--u));
+      color: #2d6b55;
+    }
+    .card-foot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: calc(24 * var(--u));
+      margin: calc(6 * var(--u)) calc(-51 * var(--u)) 0;
+      min-height: calc(80 * var(--u));
+      background: #f4f6f5;
+      border-top: 1px solid #e9eeea;
+      color: var(--text-2);
+      font-size: max(14px, calc(15 * var(--u)));
+    }
+    .card-foot > span:first-child {
+      display: flex;
+      align-items: center;
+      gap: calc(10 * var(--u));
+    }
+    .card-foot .bar {
+      width: 1px;
+      height: calc(26 * var(--u));
+      background: #cfd6d1;
+    }
+    .card-foot img {
+      height: calc(19 * var(--u));
+      width: auto;
+      opacity: 0.85;
+    }
+    @media (max-height: 700px) {
+      .sign-in {
+        overflow-y: auto;
+        min-height: 720px;
+      }
+    }
+  }
+}

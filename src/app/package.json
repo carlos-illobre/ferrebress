@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "@ferrebress/shared": "workspace:*",
+    "@zxing/library": "0.23.0",
     "preact": "11.0.2",
+    "qrcode-generator": "2.0.4",
     "zod": "4.6.7"
   },
   "devDependencies": {

@@ -1,0 +1,141 @@
+/* La entrada en el celular: la huella, «Escanear», «Sin contraseñas», para qué sirve y la ola. */
+@layer screens {
+  @media (max-width: 899px) {
+    .finger,
+    .scan {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      border: 0;
+      border-radius: 16px;
+      text-align: left;
+      cursor: pointer;
+      transition:
+        transform 120ms ease-out,
+        opacity 200ms;
+    }
+    .finger:active,
+    .scan:active {
+      transform: scale(0.985);
+    }
+    .finger {
+      gap: 20px;
+      min-height: 72px;
+      padding: 10px 20px 10px 26px;
+      background: var(--sign-in-orange);
+      box-shadow: 0 6px 18px rgb(143 42 8 / 0.28);
+      color: #fff;
+    }
+    .finger:active {
+      background: var(--sign-in-orange-strong);
+    }
+    .finger .icon {
+      width: 34px;
+      height: 34px;
+    }
+    .finger strong {
+      display: block;
+      font-size: 19px;
+      font-weight: 700;
+    }
+    .finger small {
+      display: block;
+      font-size: 15px;
+    }
+    .scan {
+      gap: 18px;
+      min-height: 68px;
+      padding: 10px 20px 10px 24px;
+      background: var(--surface);
+      box-shadow:
+        0 0 0 1.5px var(--sign-in-green),
+        0 6px 18px rgb(23 49 43 / 0.1);
+      color: var(--sign-in-green);
+    }
+    .scan .icon {
+      width: 30px;
+      height: 30px;
+    }
+    .scan strong {
+      display: block;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .scan small {
+      display: block;
+      font-size: 14.5px;
+      color: var(--text-2);
+    }
+    .no-password {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      border-radius: 16px;
+      background: var(--sunken);
+      color: var(--sign-in-text-mid);
+      font-size: 15.5px;
+      line-height: 1.4;
+    }
+    .no-password .icon {
+      width: 26px;
+      height: 26px;
+      color: var(--sign-in-green);
+    }
+    .no-password strong {
+      display: block;
+      color: var(--sign-in-green);
+    }
+
+    .what-for {
+      order: 3;
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+    .what-for li {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 14.5px;
+      line-height: 1.3;
+      color: var(--text-2);
+    }
+    .what-for strong {
+      color: var(--sign-in-green);
+      font-size: 15.5px;
+    }
+    .round {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      margin-bottom: 8px;
+      border-radius: 50%;
+      background: var(--sunken);
+      color: var(--sign-in-green);
+    }
+    .round .icon {
+      width: 26px;
+      height: 26px;
+    }
+    .wave {
+      order: 4;
+      position: relative;
+      flex: 1;
+      min-height: 130px;
+      max-width: none;
+      width: calc(100% + 44px);
+      margin: 0 -22px;
+    }
+    .wave svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}

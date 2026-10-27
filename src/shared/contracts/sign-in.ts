@@ -22,6 +22,8 @@ export type StartResponse = {
   environment: Environment;
   version: string;
   googleClientId: string;
+  // El script del botón de Google; en las pruebas de punta a punta, uno de prueba.
+  googleScriptUrl: string;
   googleNonce?: string;
   person?: Person;
 };

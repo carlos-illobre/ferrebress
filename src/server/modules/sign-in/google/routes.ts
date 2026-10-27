@@ -26,6 +26,7 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
       environment: config.ENVIRONMENT,
       version: config.VERSION,
       googleClientId: config.GOOGLE_CLIENT_ID,
+      googleScriptUrl: config.GOOGLE_SCRIPT_URL,
     };
     const token = readSessionCookie(c);
     const resolved = token ? await ctx.store.resolve(token) : undefined;

@@ -1,0 +1,108 @@
+// Los textos de la entrada y de las hojas del celular (01 · R7.1, desde su maqueta), con su forma
+// larga y corta donde cambian (00 · R3).
+export const texts = {
+  entrance: 'Entrar',
+  motto: 'Vendé, contá y cobrá desde el mostrador o el depósito.',
+  kicker: 'El sistema del mostrador',
+  title: ['Precios al día,', 'ventas y stock', 'de la ferretería.'],
+  lead: 'Ferrebress es el sistema del mostrador: se usa desde el celular y desde la computadora, con los mismos datos.',
+  points: [
+    ['Buscás el producto,', 'decís el precio y cobrás.'],
+    ['Los precios se actualizan', 'con las listas de los proveedores.'],
+    ['Lo que se vende baja del stock;', 'lo que se compra, sube.'],
+  ],
+  device: 'Esta computadora',
+  online: 'En línea',
+  offline: 'Sin conexión',
+  cardTitle: 'Entrá con tu celular',
+  fastest: 'La forma más rápida',
+  cardSub: 'Entra con tu usuario, sin contraseñas, en cuanto ponés tu huella.',
+  qrLabel: 'Código para entrar con el celular',
+  read: 'Leído',
+  waitingFinger: 'Esperando la huella',
+  changesIn: 'Cambia en',
+  usedOnce: 'y sirve una vez',
+  steps: [
+    [
+      'Apuntá el celular a este código',
+      'Con la cámara o con «Escanear» en la entrada de Ferrebress.',
+    ],
+    [
+      'Poné la huella en el celular',
+      'Esta pantalla entra sola. Si el celular no tiene la sesión abierta, entrás ahí con Google o con la huella.',
+    ],
+  ],
+  nearby: 'Tu celular está cerca',
+  nearbyDetail:
+    'El navegador lo encuentra por Bluetooth: tocá el botón, mirá el celular y poné la huella.',
+  withPhone: 'Entrar con el celular',
+  or: 'o',
+  finger: 'Entrar con la huella',
+  fingerDetail: 'Rápido y seguro',
+  scan: 'Escanear el código de la computadora',
+  scanDetail: 'Para entrar en los dos de una vez',
+  note: 'Solo entran las personas que un Administrador del negocio autorizó. Si es tu primera vez, pedile que agregue tu correo de Google.',
+  noPassword: 'Sin contraseñas.',
+  noPasswordDetail: 'Entrá de forma simple y segura.',
+  protectedData: 'Tus datos están protegidos',
+  seals: [
+    ['Una vez dentro, resiste', 'cortes de internet'],
+    ['Busca productos', 'por código de barras'],
+    ['Maneja la computadora', 'desde el celular'],
+  ],
+  whatFor: [
+    ['Vendé', 'más rápido'],
+    ['Controlá', 'tu stock'],
+    ['Hacé crecer', 'tu negocio'],
+  ],
+  notAuthorized: (email: string) =>
+    `Esta cuenta (${email}) no está autorizada. Pedile a un Administrador que agregue tu correo.`,
+  needsInternet: 'Para entrar hace falta internet',
+  needsInternetDetail: 'Cuando vuelva la conexión, los botones se prenden solos.',
+  tooMany: 'Demasiados intentos seguidos',
+  tryAgainIn: 'Podés volver a probar en',
+  closedElsewhere: 'Tu sesión se cerró desde otro dispositivo',
+  closedExpired: 'Tu sesión venció',
+  closedDetail: 'Entrá de nuevo para seguir donde estabas.',
+  signingIn: 'Entrando',
+  entering: 'Entrando…',
+  cancel: 'Cancelar',
+  camera: {
+    title: 'Escanear el código',
+    tip: 'Apuntá al código de la computadora',
+    close: 'Cerrar',
+    unavailable: 'No se pudo abrir la cámara. Podés leer el código con la cámara del celular.',
+  },
+  offer: {
+    title: '¿Entrar con la huella la próxima vez?',
+    detail: (email: string) =>
+      `Este celular queda vinculado a ${email} y la próxima vez entrás sin Google.`,
+    yes: 'Sí, usar la huella',
+    no: 'Ahora no',
+    done: 'Listo',
+    doneDetail:
+      'La próxima vez entrás con la huella. Podés quitar este celular desde Configuración.',
+    ok: 'Entendido',
+    otherAccount:
+      'Este celular ya tiene la huella de otra cuenta. Para cambiarla, hay que quitar la anterior.',
+  },
+  code: {
+    ask: (label: string) => `¿Entrar en ${label}?`,
+    askDetail:
+      'Una computadora pide entrar con tu usuario. Si no la tenés adelante, no pongas la huella.',
+    touch: 'Poné la huella para entrar en los dos',
+    touchLabel: 'Poner la huella para entrar en la computadora',
+    notMe: 'No soy yo, cancelar',
+    linkTitle: 'Vinculá tu huella para entrar a la computadora',
+    linkDetail: (email: string) =>
+      `Este celular queda vinculado a ${email}: con la huella entra la computadora, y la próxima vez entrás sin Google.`,
+    signInFirst: 'Entrá en este celular para que entre la computadora',
+    done: 'La computadora entró',
+    doneDetail: (label: string) => `${label} ya tiene tu sesión. Este celular también.`,
+    ready: 'Listo',
+    otherNetwork: 'Para entrar a la computadora, conectá este celular al mismo Wi-Fi',
+    ok: 'Entendido',
+    expired: 'Ese código ya no sirve: leé el que muestra la computadora ahora.',
+    noPasskey: 'Sin la huella no entra la computadora. En la computadora podés entrar con Google.',
+  },
+} as const;

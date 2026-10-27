@@ -9,14 +9,23 @@ const all = { ...shapes, ...menuShapes };
 export type IconName = keyof typeof all;
 
 // Decorativo: lo que significa lo dice el texto de al lado, así que el lector de pantalla lo saltea.
-export function Icon({ name, size }: { name: IconName; size?: 'small' | 'large' | 'huge' }) {
+// stroke: el trazo, si la maqueta lo pide más fino que el de siempre.
+export function Icon({
+  name,
+  size,
+  stroke = 2,
+}: {
+  name: IconName;
+  size?: 'small' | 'large' | 'huge';
+  stroke?: number;
+}) {
   return (
     <svg
       class={size ? `icon icon-${size}` : 'icon'}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
+      stroke-width={stroke}
       stroke-linecap="round"
       stroke-linejoin="round"
       aria-hidden="true"

@@ -147,7 +147,7 @@ Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`
 
 | Ruta | Qué hace | Sesión |
 |---|---|---|
-| `GET /api/start` | El primer pedido al abrir: ambiente, versión, identificador de cliente de Google, un `nonce` de Google y, si hay cookie válida, quién es | Opcional |
+| `GET /api/start` | El primer pedido al abrir: ambiente, versión, identificador de cliente de Google, la dirección del script de Google (en las pruebas de punta a punta, uno de prueba), un `nonce` de Google y, si hay cookie válida, quién es | Opcional |
 | `POST /api/sign-in/google` | Recibe el pase de Google, lo verifica, crea la sesión. Devuelve la persona y si es un celular sin huella vinculada | No |
 | `POST /api/sign-in/passkey/options` | Un desafío para entrar con la huella | No |
 | `POST /api/sign-in/passkey` | Verifica la huella y crea la sesión | No |

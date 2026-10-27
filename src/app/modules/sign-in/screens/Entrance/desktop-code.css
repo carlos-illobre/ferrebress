@@ -1,0 +1,206 @@
+/* La entrada en la computadora: el código QR con sus dos pasos, el celular cercano, Google, la
+   nota y el pie de la tarjeta. */
+@layer screens {
+  @media (min-width: 900px) {
+    .qr-block,
+    .nearby-block {
+      display: flex;
+      align-items: center;
+      gap: calc(30 * var(--u));
+      margin-left: calc(8 * var(--u));
+    }
+    .qr-col {
+      flex: none;
+    }
+    .qr {
+      position: relative;
+      width: calc(200 * var(--u));
+      height: calc(200 * var(--u));
+      padding: calc(12 * var(--u));
+      border-radius: 16px;
+      background: #fff;
+      box-shadow:
+        0 4px 16px rgb(0 0 0 / 0.08),
+        0 0 0 1px #e3e8e4;
+      overflow: hidden;
+      transition:
+        opacity 300ms,
+        filter 300ms;
+    }
+    .qr > svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .qr-logo {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 22%;
+      aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      padding: 3px;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .qr-read {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      background: rgb(255 255 255 / 0.94);
+      color: var(--sign-in-green);
+      font-size: 15px;
+      opacity: 0;
+      transform: scale(1.04);
+      transition:
+        opacity 240ms var(--sign-in-enter),
+        transform 240ms var(--sign-in-enter);
+      pointer-events: none;
+    }
+    .qr-read .icon {
+      width: 32px;
+      height: 32px;
+      color: var(--sign-in-orange);
+      margin-bottom: 4px;
+    }
+    .qr-read small {
+      font-size: 14px;
+      color: var(--text-2);
+    }
+    .qr.read .qr-read {
+      opacity: 1;
+      transform: none;
+    }
+    .qr-count {
+      display: grid;
+      justify-items: center;
+      width: calc(200 * var(--u));
+      margin-top: calc(10 * var(--u));
+      color: var(--text-2);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .qr-count > span:first-child {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .qr-count b {
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+    .ring {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: conic-gradient(var(--success) calc(var(--part, 1) * 360deg), var(--pine-soft) 0);
+      mask: radial-gradient(circle 4px, transparent 98%, #000 100%);
+    }
+    .offline .qr {
+      opacity: 0.35;
+      filter: grayscale(1);
+    }
+    .offline .qr-count {
+      visibility: hidden;
+    }
+    .steps {
+      list-style: none;
+      counter-reset: step;
+      display: flex;
+      flex-direction: column;
+      gap: calc(18 * var(--u));
+      font-size: max(14px, calc(17 * var(--u)));
+      line-height: 1.4;
+      color: var(--text-2);
+    }
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      align-items: flex-start;
+      gap: calc(19 * var(--u));
+    }
+    .steps li::before {
+      content: counter(step);
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: calc(38 * var(--u));
+      height: calc(38 * var(--u));
+      border-radius: 50%;
+      background: #2d8a5c;
+      color: #fff;
+      font-weight: 600;
+      font-size: max(14px, calc(19 * var(--u)));
+    }
+    .steps b,
+    .nearby-text b {
+      display: block;
+      color: var(--ink);
+      font-size: max(15px, calc(19 * var(--u)));
+    }
+
+    .nearby-art {
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: calc(200 * var(--u));
+      height: calc(200 * var(--u));
+      padding: 0 calc(18 * var(--u));
+      border-radius: 16px;
+      background: var(--sign-in-background-2);
+      box-shadow: 0 0 0 1px #e3e8e4;
+      color: var(--sign-in-green);
+    }
+    .nearby-device {
+      display: grid;
+      place-items: center;
+      width: calc(56 * var(--u));
+      height: calc(56 * var(--u));
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+    }
+    .nearby-waves {
+      display: flex;
+      gap: 6px;
+    }
+    .nearby-waves i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #1a73e8;
+      opacity: 0.25;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .nearby-waves i {
+        animation: nearby-dot 1.4s ease-in-out infinite;
+      }
+      .nearby-waves i:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .nearby-waves i:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+    }
+    @keyframes nearby-dot {
+      40% {
+        opacity: 1;
+        transform: scale(1.3);
+      }
+    }
+    .nearby-text {
+      display: flex;
+      flex-direction: column;
+      gap: calc(18 * var(--u));
+      font-size: max(14px, calc(17 * var(--u)));
+      line-height: 1.4;
+      color: var(--text-2);
+    }
+  }
+}

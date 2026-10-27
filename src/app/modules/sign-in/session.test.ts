@@ -1,0 +1,88 @@
+import 'fake-indexeddb/auto';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createProofKey } from '../../platform/proof-key.ts';
+import { readStored } from '../../platform/storage.ts';
+import { fakeServer } from '../../testing/fake-server.ts';
+import {
+  confirmed,
+  hasPasskey,
+  offered,
+  passkeyLinked,
+  person,
+  sendPendingSignOut,
+  signedIn,
+  signOut,
+  wasOffered,
+} from './session.ts';
+
+const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', role: 'Administrador' };
+const sessionId = '0190a000-0000-7000-8000-000000000001';
+
+describe('la sesión en la aplicación', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('al entrar guarda quién es, para mostrarlo sin conexión', () => {
+    signedIn({ person: ana, sessionId, offerPasskey: false });
+    expect(person.get()).toEqual(ana);
+    expect(readStored('session')).toEqual({ sessionId, person: ana });
+  });
+
+  it('al abrir, lo que dice el servidor manda: otra persona, la misma o nadie', () => {
+    signedIn({ person: ana, sessionId, offerPasskey: false });
+    confirmed({ ...ana, name: 'Ana G.' });
+    expect(readStored('session')).toEqual({ sessionId, person: { ...ana, name: 'Ana G.' } });
+    confirmed({ ...ana, userId: 'u2' });
+    expect(readStored('session')).toEqual({ person: { ...ana, userId: 'u2' } });
+    confirmed(undefined);
+    expect(readStored('session')).toBeUndefined();
+    expect(person.get()).toBeUndefined();
+    confirmed(ana);
+    expect(readStored('session')).toEqual({ person: ana });
+  });
+
+  it('01-E35: salir con conexión cierra la sesión en el servidor y no deja nada pendiente', async () => {
+    const server = fakeServer({ '/api/sign-out': { body: { ok: true } } });
+    signedIn({ person: ana, sessionId, offerPasskey: false });
+    await signOut();
+    expect(person.get()).toBeUndefined();
+    expect(server.bodies('/api/sign-out')).toEqual([{}]);
+    expect(readStored('pending-sign-out')).toBeUndefined();
+  });
+
+  it('01-E36: sin conexión sale al instante y deja la salida firmada, que se manda al volver', async () => {
+    await createProofKey();
+    fakeServer({ '/api/sign-out': 'offline' });
+    signedIn({ person: ana, sessionId, offerPasskey: false });
+    await signOut();
+    const pending = readStored<{ sessionId: string; signature: string }>('pending-sign-out');
+    expect(pending?.sessionId).toBe(sessionId);
+    await sendPendingSignOut();
+    expect(readStored('pending-sign-out')).toEqual(pending);
+    const server = fakeServer({ '/api/sign-out': { body: { ok: true } } });
+    await sendPendingSignOut();
+    expect(server.bodies('/api/sign-out')).toEqual([{ pending }]);
+    expect(readStored('pending-sign-out')).toBeUndefined();
+    await sendPendingSignOut();
+    expect(server.sent).toHaveLength(1);
+  });
+
+  it('sin conexión y sin la sesión guardada, o sin la llave, no queda nada pendiente', async () => {
+    fakeServer({ '/api/sign-out': 'offline' });
+    confirmed(ana);
+    await signOut();
+    expect(readStored('pending-sign-out')).toBeUndefined();
+    signedIn({ person: ana, sessionId, offerPasskey: false });
+    await signOut();
+    expect(readStored('pending-sign-out')).toBeUndefined();
+  });
+
+  it('recuerda si el celular tiene huella y si ya se le ofreció', () => {
+    expect(hasPasskey()).toBe(false);
+    expect(wasOffered()).toBe(false);
+    passkeyLinked();
+    offered();
+    expect(hasPasskey()).toBe(true);
+    expect(wasOffered()).toBe(true);
+  });
+});

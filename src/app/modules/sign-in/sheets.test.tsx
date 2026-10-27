@@ -1,0 +1,157 @@
+import 'fake-indexeddb/auto';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fakeServer } from '../../testing/fake-server.ts';
+import { Camera, CodeSheet, OfferSheet, usePhoneCode } from './index.ts';
+import { scan } from './scanner.ts';
+import { hasPasskey, offerPasskey, person, wasOffered } from './session.ts';
+import { ana, fakePasskeys } from './sign-in-test-kit.ts';
+
+vi.mock('./scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
+
+const reading = {
+  secret: 's',
+  computer: { label: 'Chrome en Windows' },
+  holdSeconds: 120,
+  authentication: {},
+};
+
+function Code({ code }: { code: string }) {
+  const phone = usePhoneCode();
+  return (
+    <>
+      <button type="button" onClick={() => void phone.scanned(code)}>
+        leer
+      </button>
+      <CodeSheet code={phone} />
+    </>
+  );
+}
+
+describe('las hojas del celular', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    person.set(ana);
+    offerPasskey.set(false);
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('01-E13: pregunta qué computadora pide entrar y, con la huella, dice que entró', async () => {
+    fakePasskeys();
+    fakeServer({ '/api/sign-in/codes/read': { body: reading }, '/api/sign-in/codes/approve': {} });
+    render(<Code code="c1" />);
+    fireEvent.click(screen.getByText('leer'));
+    expect(await screen.findByText('¿Entrar en Chrome en Windows?')).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Poner la huella para entrar en la computadora' }),
+    );
+    expect(await screen.findByText('La computadora entró')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Listo' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('01-E16b: si hay que vincular la huella, lo dice con el correo de la cuenta', async () => {
+    fakeServer({
+      '/api/sign-in/codes/read': { body: { ...reading, registration: {} } },
+      '/api/sign-in/codes/cancel': {},
+    });
+    render(<Code code="c1" />);
+    fireEvent.click(screen.getByText('leer'));
+    expect(await screen.findByText('Vinculá tu huella para entrar a la computadora')).toBeTruthy();
+    expect(screen.getByText(/ana@example.com/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'No soy yo, cancelar' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('01-E13b, E14, E16c: otra red, código vencido o sin huella, cada uno con su texto', async () => {
+    fakeServer({
+      '/api/sign-in/codes/read': [
+        { status: 409, body: { error: 'other-network' } },
+        { status: 410, body: { error: 'code-used' } },
+      ],
+    });
+    render(<Code code="c1" />);
+    fireEvent.click(screen.getByText('leer'));
+    expect(
+      await screen.findByText('Para entrar a la computadora, conectá este celular al mismo Wi-Fi'),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Entendido' }));
+    fireEvent.click(screen.getByText('leer'));
+    expect(await screen.findByText(/Ese código ya no sirve/)).toBeTruthy();
+    fakePasskeys({ cancel: true });
+    fakeServer({ '/api/sign-in/codes/read': { body: reading }, '/api/sign-in/codes/cancel': {} });
+    fireEvent.click(screen.getByText('leer'));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Poner la huella para entrar en la computadora' }),
+    );
+    expect(await screen.findByText(/Sin la huella no entra la computadora/)).toBeTruthy();
+  });
+
+  it('01-E06, E07: ofrece la huella una vez; al aceptar la vincula', async () => {
+    fakePasskeys();
+    fakeServer({ '/api/passkeys/options': { body: {} }, '/api/passkeys': {} });
+    render(<OfferSheet />);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    act(() => offerPasskey.set(true));
+    expect(screen.getByText(/ana@example.com/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Sí, usar la huella' }));
+    expect(await screen.findByText('Listo')).toBeTruthy();
+    expect(hasPasskey()).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Entendido' }));
+    expect(wasOffered()).toBe(true);
+    expect(offerPasskey.get()).toBe(false);
+  });
+
+  it('01-E08, E09: «Ahora no» no la vuelve a ofrecer; si el celular es de otra cuenta, lo dice', async () => {
+    fakePasskeys();
+    const server = fakeServer({
+      '/api/passkeys/options': [{ status: 401, body: { error: 'session-closed' } }, { body: {} }],
+      '/api/passkeys': [
+        { status: 400, body: { error: 'bad-request' } },
+        { status: 409, body: { error: 'phone-has-other-account' } },
+      ],
+    });
+    offerPasskey.set(true);
+    render(<OfferSheet />);
+    const yes = screen.getByRole('button', { name: 'Sí, usar la huella' });
+    const again = async (sent: number) => {
+      fireEvent.click(yes);
+      await waitFor(() => expect(server.sent).toHaveLength(sent));
+      await waitFor(() => expect(yes.getAttribute('aria-busy')).toBe('false'));
+    };
+    await again(1);
+    await again(3);
+    fakePasskeys({ cancel: true });
+    await again(4);
+    fakePasskeys();
+    fireEvent.click(yes);
+    expect(await screen.findByText(/ya tiene la huella de otra cuenta/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Entendido' }));
+    act(() => offerPasskey.set(true));
+    fireEvent.click(screen.getByRole('button', { name: 'Ahora no' }));
+    expect(wasOffered()).toBe(true);
+  });
+
+  it('la cámara lee un código de esta aplicación y se cierra con la ×; sin cámara, lo dice', async () => {
+    let read = (_: string) => {};
+    const stop = vi.fn();
+    const spy = vi.mocked(scan).mockImplementation(async (_video, onText, onFail) => {
+      read = onText;
+      if (spy.mock.calls.length > 1) onFail();
+      return stop;
+    });
+    const onCode = vi.fn();
+    const onClose = vi.fn();
+    const { unmount } = render(<Camera onCode={onCode} onClose={onClose} />);
+    await waitFor(() => expect(spy).toHaveBeenCalled());
+    read('https://otro.sitio/link#x');
+    read(`${location.origin}/link#abc`);
+    expect(onCode).toHaveBeenCalledWith('abc');
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }));
+    expect(onClose).toHaveBeenCalled();
+    unmount();
+    await waitFor(() => expect(stop).toHaveBeenCalledTimes(2));
+    render(<Camera onCode={onCode} onClose={onClose} />);
+    expect(await screen.findByText(/No se pudo abrir la cámara/)).toBeTruthy();
+  });
+});
