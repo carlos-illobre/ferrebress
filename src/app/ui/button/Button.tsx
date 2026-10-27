@@ -11,7 +11,7 @@ export type ButtonProps = {
   // Qué hace, en palabras, para la barra de espera de 2 segundos.
   doing: string;
   onPress: () => unknown;
-  look?: 'common' | 'action' | 'dark' | 'plain';
+  look?: 'common' | 'action' | 'dark' | 'plain' | 'danger';
   size?: 'small' | 'large';
   icon?: IconName;
   // Alt más esta tecla lo aprieta en la computadora (una letra o un número).
@@ -42,7 +42,7 @@ export function Button(props: ButtonProps) {
         void run(props.doing, async () => props.onPress());
       }}
     >
-      {props.icon && <Icon name={props.icon} />}
+      {props.icon && <Icon name={props.icon} {...(props.size === 'small' && { size: 'small' })} />}
       <span>{props.children}</span>
       {props.shortcut && <kbd>{props.shortcut.toUpperCase()}</kbd>}
     </button>

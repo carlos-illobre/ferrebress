@@ -1,0 +1,167 @@
+/* El pie del menú (la luz y la persona) y lo que se abre al costado: Más, la tarjeta de la persona
+   minimizada y lo pendiente. */
+@layer screens {
+  .side-footer {
+    margin-top: auto;
+    display: grid;
+    gap: 8px;
+    padding-top: 12px;
+  }
+  /* El texto largo de la luz puede ir en dos renglones. */
+  .light {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    padding: 6px 12px;
+    line-height: 18px;
+    border-radius: var(--radius);
+    border: 0;
+    background: var(--success-soft);
+    color: var(--success-text);
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    transition: transform var(--time-micro) var(--ease);
+  }
+  .light:active {
+    transform: scale(0.98);
+  }
+  .light .light-text {
+    flex: 1;
+  }
+  [data-net="offline"] .light {
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+  }
+
+  .person {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 12px;
+    display: grid;
+    gap: 10px;
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .person-who {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .person-who b {
+    display: block;
+    font-size: 15px;
+    font-weight: 750;
+    line-height: 20px;
+  }
+  .person-who small {
+    display: block;
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 18px;
+  }
+  .person .button {
+    width: 100%;
+  }
+  .person-mini {
+    display: none;
+    position: relative;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius);
+    background: transparent;
+    place-items: center;
+    cursor: pointer;
+  }
+  .person-mini:hover {
+    background: var(--background);
+  }
+  .person-mini[aria-expanded="true"] {
+    background: var(--pine-soft);
+  }
+
+  .side-panel {
+    position: fixed;
+    z-index: 30;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-3);
+  }
+  .more-options {
+    width: 264px;
+    padding: 8px;
+  }
+  .more-options .part {
+    height: 40px;
+    font-size: 14px;
+    gap: 10px;
+  }
+  .more-options .part .icon {
+    width: 18px;
+    height: 18px;
+  }
+  .collapsed .person.open {
+    display: grid;
+    bottom: 16px;
+    left: calc(var(--side-mini) + 8px);
+    width: 264px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .side-panel {
+      animation: side-panel-in var(--time) var(--ease) both;
+    }
+    .more-options li {
+      animation: menu-in 240ms var(--ease) backwards;
+    }
+  }
+  @keyframes side-panel-in {
+    from {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+  }
+
+  .pending-panel {
+    position: fixed;
+    z-index: 30;
+    bottom: 24px;
+    width: 440px;
+    padding: 16px;
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-3);
+    transform-origin: 0 100%;
+  }
+  .pending-panel > .button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    padding: 0;
+  }
+  .show-keys.pending-panel > .button {
+    width: auto;
+    padding: 0 6px 0 8px;
+  }
+  .pending-panel .pending-head {
+    padding-right: 44px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pending-panel {
+      animation: pending-in 220ms var(--ease) both;
+    }
+  }
+  @keyframes pending-in {
+    from {
+      opacity: 0;
+      transform: scale(0.94) translateX(-8px);
+    }
+  }
+}

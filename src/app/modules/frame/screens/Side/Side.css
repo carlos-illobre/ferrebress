@@ -1,0 +1,218 @@
+/* El menú de la computadora (docs/design/mockups/app-frame/final/): 216 px agrandado, 64 minimizado.
+   El fondo y el borde son piezas aparte para animar el minimizado solo con transform y opacity. */
+@layer screens {
+  .side {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 0;
+    padding: 20px 8px 16px;
+  }
+  .side-background {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--surface);
+    transform-origin: 0 50%;
+  }
+  .side-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  /* Agrandado, el logotipo; minimizado, solo la F, en el mismo lugar. */
+  .side-brand {
+    position: relative;
+    height: 36px;
+    margin: 4px 0 21px 8px;
+  }
+  .collapsed .side-brand {
+    height: 76px;
+    margin-bottom: 10px;
+  }
+  .side-logo {
+    display: block;
+    height: 36px;
+    width: auto;
+  }
+  .side-isotype {
+    position: absolute;
+    left: -3.6px;
+    top: -1.35px;
+    width: 38.4px;
+    height: 38.4px;
+  }
+
+  .menu,
+  .more-options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .part {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 44px;
+    padding: 0 10px 0 14px;
+    border: 0;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-2);
+    font-weight: 650;
+    font-size: 15px;
+    text-align: left;
+    white-space: nowrap;
+    cursor: default;
+    transition: background var(--time-micro);
+  }
+  .part .icon {
+    color: var(--text-3);
+  }
+  .part-name {
+    flex: 1;
+  }
+  .part.opens {
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .part.opens .icon {
+    color: var(--text-2);
+  }
+  .part:hover {
+    background: var(--background);
+  }
+  .coming-soon-mini {
+    display: none;
+    position: absolute;
+    left: 27px;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 99px;
+    background: var(--surface);
+    box-shadow: 0 0 0 1px var(--border-strong);
+    color: var(--text-2);
+    place-items: center;
+  }
+  .coming-soon-mini > :where(.icon) {
+    width: 11px;
+    height: 11px;
+  }
+  .side .marked {
+    outline-offset: -3px;
+  }
+
+  /* La opción abierta: verde claro, con el nombre y el ícono en verde oscuro, sin raya. */
+  .part[aria-current="page"],
+  .part[aria-current="page"]:hover {
+    isolation: isolate;
+    background: transparent;
+    color: var(--pine);
+    font-weight: 750;
+  }
+  .part[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--pine-soft);
+    transform-origin: 0 50%;
+  }
+  .part[aria-current="page"] .icon,
+  .part.more[aria-expanded="true"] .icon {
+    color: var(--pine);
+  }
+  .part.more[aria-expanded="true"] {
+    background: var(--pine-soft);
+    color: var(--pine);
+    font-weight: 750;
+  }
+  .part.more[aria-expanded="true"]::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: 10px;
+    bottom: 10px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--action);
+  }
+
+  /* El botón de minimizar: a la derecha del logotipo; minimizado, debajo de la F. */
+  .collapse {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-3);
+    cursor: pointer;
+    transition: background var(--time-micro);
+  }
+  .collapse:hover {
+    background: var(--background);
+    color: var(--text-2);
+  }
+  .collapsed .collapse {
+    top: 40px;
+    right: auto;
+    left: -8px;
+    width: 48px;
+  }
+  /* Donde no hay texto, la tecla va arriba a la derecha del ícono. */
+  :where(.collapse, .collapsed .menu > li > .part, .collapsed .light, .person-mini) kbd {
+    position: absolute;
+    z-index: 5;
+    right: -6px;
+    top: -4px;
+    box-shadow: 0 0 0 2px var(--surface);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .menu > li {
+      animation: menu-in 320ms var(--ease) backwards;
+    }
+    .menu > li:nth-child(2) {
+      animation-delay: 30ms;
+    }
+    .menu > li:nth-child(3) {
+      animation-delay: 60ms;
+    }
+    .menu > li:nth-child(4) {
+      animation-delay: 90ms;
+    }
+    .menu > li:nth-child(5) {
+      animation-delay: 120ms;
+    }
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+  /* Con Alt, la tecla ocupa el lugar de «Pronto». */
+  .show-keys .part .coming-soon,
+  .show-keys.collapsed .menu > li > .part .coming-soon-mini {
+    display: none;
+  }
+}

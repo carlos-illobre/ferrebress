@@ -1,21 +1,23 @@
 /* Los tamaños de los íconos: 20 en la computadora, 16 dentro de botones chicos, 24 en el celular
    y el menú, 32 cuando el ícono es el protagonista. */
-.icon {
-  width: 20px;
-  height: 20px;
-  flex: none;
-  display: inline-block;
-  vertical-align: middle;
-}
-.icon-small {
-  width: 16px;
-  height: 16px;
-}
-.icon-large {
-  width: 24px;
-  height: 24px;
-}
-.icon-huge {
-  width: 32px;
-  height: 32px;
+@layer pieces {
+  .icon {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .icon-small {
+    width: 16px;
+    height: 16px;
+  }
+  .icon-large {
+    width: 24px;
+    height: 24px;
+  }
+  .icon-huge {
+    width: 32px;
+    height: 32px;
+  }
 }

@@ -1,0 +1,79 @@
+/* La luz y lo pendiente (docs/design/mockups/app-frame/final/): verde en línea, ámbar sin conexión
+   con un latido. El color lo da [data-net] del marco. */
+@layer screens {
+  .light-dot {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 99px;
+    background: var(--success);
+    flex: none;
+  }
+  .light-dot::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 99px;
+    background: currentColor;
+    opacity: 0;
+  }
+  [data-net="offline"] .light-dot {
+    background: var(--urgent);
+    color: var(--urgent);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-net="offline"] .light-dot::after {
+      animation: light-beat 1.8s var(--ease) infinite;
+    }
+  }
+  @keyframes light-beat {
+    0% {
+      opacity: 0.35;
+      transform: scale(0.5);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.4);
+    }
+  }
+
+  .pending-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+  }
+  .pending-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 99px;
+    display: grid;
+    place-items: center;
+    background: var(--success-soft);
+    color: var(--success-text);
+    flex: none;
+  }
+  [data-net="offline"] .pending-icon {
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+  }
+  .pending-head b {
+    display: block;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 22px;
+  }
+  .pending-head small {
+    display: block;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  .pending-note {
+    margin: 12px 0 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-2);
+  }
+}

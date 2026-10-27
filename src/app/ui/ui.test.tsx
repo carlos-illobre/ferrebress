@@ -112,4 +112,27 @@ describe('las piezas', () => {
       '<p><span class="long">En línea · todo enviado</span><span class="short">En línea</span>Salir</p>',
     );
   });
+
+  it('la hoja se cierra al deslizarla hacia abajo, no con un toque ni si se estaba desplazando', () => {
+    const onClose = vi.fn();
+    render(
+      <Sheet title="Más" onClose={onClose}>
+        <p>adentro</p>
+      </Sheet>,
+    );
+    const sheet = screen.getByRole('dialog');
+    fireEvent.pointerDown(sheet, { clientY: 100 });
+    fireEvent.pointerUp(sheet, { clientY: 120 });
+    fireEvent.pointerUp(sheet, { clientY: 300 });
+    expect(onClose).not.toHaveBeenCalled();
+    sheet.scrollTop = 40;
+    fireEvent.pointerDown(sheet, { clientY: 100 });
+    fireEvent.pointerUp(sheet, { clientY: 300 });
+    expect(onClose).not.toHaveBeenCalled();
+    sheet.scrollTop = 0;
+    fireEvent.pointerDown(sheet, { clientY: 100 });
+    fireEvent.pointerUp(sheet, { clientY: 200 });
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(sheet.className).toBe('sheet');
+  });
 });

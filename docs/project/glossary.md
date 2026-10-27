@@ -94,6 +94,15 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Castellano | Qué es | En el código |
 |---|---|---|
 | Marco | El menú, la luz de conexión y la tarjeta de la persona, alrededor de cada pantalla | `frame` |
+| Parte del menú | Vender, Catálogo, Depósito, Negocio o Más | `part` (`sell`, `catalog`, `warehouse`, `business`, `more`) |
+| Opción del menú | Lo que se abre desde una parte: una pestaña, o una opción de Más | `option` |
+| Pronto | La marca de lo que todavía no existe, en el ambiente de pruebas | `comingSoon` |
+| Minimizar el menú | Dejarlo con solo sus íconos, en la computadora | `collapse` |
+| Luz de conexión | Lo que dice si hay conexión y si queda algo por enviar | `connectionLight` |
+| Lo pendiente | Lo que queda guardado en el dispositivo por enviar | `pending` |
+| Tarjeta de la persona | Quién entró, con su rol y «Salir» | `personCard` |
+| Mejoras y errores | Donde se ven los tickets | `tickets` |
+| Manual | La ayuda de la aplicación | `manual` |
 | Ambiente | Pruebas o producción | `environment` (`testing` / `production`) |
 | Versión nueva | Una versión de la aplicación que ya está en el servidor | `update` |
 | Algo salió mal | El aviso de un error inesperado, con la captura y los últimos pasos | `crashReport` |

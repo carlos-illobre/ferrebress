@@ -1,5 +1,21 @@
 /* Lo que vale para toda la aplicación: la letra, el fondo, el tamaño de los íconos y la escala de
-   textos de «Mostrador». Nada de menos de 14 px. */
+   textos de «Mostrador». Nada de menos de 14 px. El orden de las capas decide qué gana: lo de una
+   pantalla gana a una pieza, y lo que solo va en un ancho gana a todo. */
+@layer base, pieces, screens, widths;
+
+@layer widths {
+  @media (min-width: 900px) {
+    .phone-only {
+      display: none;
+    }
+  }
+  @media (max-width: 899px) {
+    .desktop-only {
+      display: none;
+    }
+  }
+}
+
 @layer base {
   *,
   *::before,
@@ -50,6 +66,26 @@
   :focus-visible {
     outline: 3px solid var(--pine-2);
     outline-offset: 2px;
+  }
+
+  /* La tecla de un atajo: se ve solo con Alt, y solo en la capa de arriba, que es la que lleva
+     .show-keys (00 · R2.9 y R2.10). */
+  kbd {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 2px;
+    background: var(--surface);
+    color: var(--text-2);
+    font: 700 14px / 1 var(--font);
+  }
+  .show-keys kbd {
+    display: inline-flex;
   }
 
   /* Los textos largos en la computadora, los cortos en lo angosto (00 · R3.2). */

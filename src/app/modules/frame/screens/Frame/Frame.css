@@ -1,0 +1,193 @@
+/* El marco (docs/design/mockups/app-frame/final/): la grilla de los dos anchos, el área de trabajo,
+   las piezas que comparten la computadora y el celular, y los avisos chicos. */
+@layer screens {
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    overflow: hidden;
+  }
+
+  .frame {
+    --side-width: 216px;
+    --side-mini: 64px;
+    display: grid;
+    grid-template-columns: var(--side-width) 1fr;
+    height: 100vh;
+  }
+  .frame.collapsed {
+    --side-width: var(--side-mini);
+  }
+  .work-area {
+    min-width: 0;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .show-keys kbd {
+      animation: keys-in 120ms var(--ease);
+    }
+  }
+  @keyframes keys-in {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 99px;
+    background: var(--action-soft);
+    color: var(--action-text);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 14px;
+    flex: none;
+  }
+
+  /* «Pronto» (00 · R1.3) y la sacudida de lo que todavía no está. */
+  .coming-soon {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--sunken);
+    color: var(--text-2);
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .not-here {
+      animation: not-here 360ms var(--ease);
+    }
+  }
+  @keyframes not-here {
+    20% {
+      transform: translateX(-5px);
+    }
+    45% {
+      transform: translateX(4px);
+    }
+    70% {
+      transform: translateX(-2px);
+    }
+  }
+
+  /* El globo y el rótulo, al costado del menú: el mismo dibujo. */
+  .tip {
+    position: fixed;
+    z-index: 20;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 320px;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    background: var(--pine);
+    color: #fff;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    box-shadow: var(--shadow-3);
+    pointer-events: none;
+  }
+  .tip.label {
+    display: block;
+    padding: 8px 12px;
+    white-space: nowrap;
+    max-width: none;
+    transform: translateY(-50%);
+  }
+  .tip::before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 16px;
+    width: 12px;
+    height: 12px;
+    background: var(--pine);
+    transform: rotate(45deg);
+    border-radius: 2px;
+  }
+  .tip.label::before {
+    top: 50%;
+    margin-top: -6px;
+  }
+  .tip b {
+    font-weight: 800;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .tip {
+      animation: tip-in 240ms var(--ease) both;
+    }
+    .tip.label {
+      animation-duration: 160ms;
+    }
+  }
+  @keyframes tip-in {
+    from {
+      opacity: 0;
+      translate: -8px 0;
+    }
+  }
+
+  /* La tostada: un aviso corto que se va solo. */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: var(--toast-bottom, 32px);
+    z-index: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s3);
+    max-width: min(560px, calc(100vw - 48px));
+    padding: 10px 16px 10px 12px;
+    border-radius: 14px;
+    background: var(--pine);
+    color: #fff;
+    font-weight: 650;
+    font-size: 15px;
+    line-height: 20px;
+    box-shadow: var(--shadow-3);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .toast {
+      animation: toast-in 280ms var(--bounce) both;
+    }
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 16px) scale(0.96);
+    }
+  }
+
+  @media (max-width: 899px) {
+    :root {
+      --toast-bottom: 108px;
+    }
+    .frame {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+    .work-area {
+      flex: 1;
+    }
+  }
+}

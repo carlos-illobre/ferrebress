@@ -1,0 +1,181 @@
+/* El marco del celular (docs/design/mockups/app-frame/final/, debajo de 900 px): la cabecera, la luz,
+   el menú de abajo con la elegida en naranja, sin fondo ni raya, y las hojas de Más y lo pendiente,
+   que suben por encima del menú. */
+@layer screens {
+  @media (max-width: 899px) {
+    .phone-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 40px 16px 0;
+    }
+    .phone-logo {
+      height: 28px;
+      width: auto;
+      margin-right: auto;
+    }
+    .phone-avatar {
+      border: 0;
+      padding: 0;
+      background: none;
+    }
+    .phone-light {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 16px 0;
+      height: 36px;
+      padding: 0 12px;
+      align-self: flex-start;
+      border: 0;
+      border-radius: 999px;
+      background: var(--success-soft);
+      color: var(--success-text);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    [data-net="offline"] .phone-light {
+      background: var(--urgent-soft);
+      color: var(--urgent-text);
+    }
+    .phone-nav {
+      display: grid;
+      flex: none;
+      grid-template-columns: repeat(5, 1fr);
+      height: 92px;
+      padding: 4px 4px 14px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+  }
+
+  .phone-part {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 2px;
+    border: 0;
+    background: none;
+    color: var(--text-2);
+    font-size: 14px;
+    font-weight: 650;
+    padding: 0;
+    cursor: default;
+  }
+  .phone-part .icon {
+    width: 26px;
+    height: 26px;
+  }
+  .phone-part .coming-soon {
+    height: auto;
+    padding: 0;
+    background: none;
+    color: var(--text-3);
+    line-height: 16px;
+  }
+  .phone-part .coming-soon.empty {
+    visibility: hidden;
+  }
+  .phone-part-name {
+    line-height: 18px;
+  }
+  .phone-part-icon {
+    display: inline-block;
+  }
+  .phone-part.opens {
+    cursor: pointer;
+  }
+  .phone-part[aria-current="page"],
+  .phone-part[aria-expanded="true"] {
+    color: var(--action);
+    font-weight: 800;
+  }
+  /* Con Más abierto, la elegida es Más: una sola en naranja. */
+  .more-open .phone-part[aria-current="page"] {
+    color: var(--text-2);
+    font-weight: 650;
+  }
+
+  .sheet.frame-sheet,
+  .sheet-scrim.frame-sheet {
+    bottom: 92px;
+  }
+  .sheet.frame-sheet {
+    max-width: none;
+    max-height: calc(100% - 120px);
+    overflow: auto;
+    gap: 0;
+    padding: 8px 16px 20px;
+    border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+    background: var(--background);
+    text-align: left;
+  }
+  .sheet-scrim.frame-sheet {
+    background: rgb(26 29 27 / 0.3);
+  }
+  .frame-sheet .sheet-grabber {
+    margin: 4px auto 12px;
+  }
+  .sheet-person {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .sheet-person b {
+    display: block;
+    font-size: 16px;
+    font-weight: 800;
+  }
+  .sheet-person small {
+    display: block;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .sheet-options {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .sheet-options li + li {
+    border-top: 1px solid var(--border);
+  }
+  .sheet-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    padding: 8px 12px;
+    border: 0;
+    background: none;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 650;
+    color: var(--text-2);
+  }
+  .sheet-option-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-small);
+    background: var(--sunken);
+    display: grid;
+    place-items: center;
+    color: var(--text-3);
+  }
+  .sheet-option-name {
+    flex: 1;
+  }
+  .frame-sheet > .button {
+    margin-top: 16px;
+    width: 100%;
+  }
+}

@@ -1,0 +1,126 @@
+/* El menú minimizado (00 · R1.6): 64 px, solo íconos; los nombres siguen en la página para el
+   lector de pantalla. La animación cambia el ancho de golpe y lo que se ve es el fondo que se achica,
+   el borde que se corre y los nombres que se apagan: solo transform y opacity, en 240 ms. */
+@layer screens {
+  .collapsed :where(.menu > li > .part .icon-small, .light .light-text, .light > .icon-small) {
+    display: none;
+  }
+  .collapsed .menu > li > .part {
+    width: 48px;
+    padding: 0 14px;
+  }
+  .collapsed .side-logo,
+  .collapsed .menu > li > .part .part-name,
+  .collapsed .menu > li > .part .coming-soon {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .collapsed .menu > li > .part .coming-soon-mini,
+  .collapsed .person-mini {
+    display: grid;
+  }
+  .collapsed .light {
+    width: 48px;
+    padding: 0;
+    justify-content: center;
+  }
+  .collapsed .person:not(.open) {
+    display: none;
+  }
+
+  .closing .side,
+  .opening .side {
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .closing .side-background {
+      animation: background-close 240ms var(--ease) forwards;
+    }
+    .closing .side-line {
+      animation: line-close 240ms var(--ease) forwards;
+    }
+    .closing .menu {
+      animation: menu-down 240ms var(--ease) forwards;
+    }
+    .closing .menu > li > .part[aria-current="page"]::after {
+      animation: current-close 240ms var(--ease) forwards;
+    }
+    .closing :is(.side-logo, .part-name, .coming-soon, .part .icon-small, .collapse, .side-footer) {
+      animation: fade-out 120ms var(--ease-out) forwards;
+    }
+    .opening .side-background {
+      animation: background-open 240ms var(--ease) both;
+    }
+    .opening .side-line {
+      animation: line-open 240ms var(--ease) both;
+    }
+    .opening .menu {
+      animation: menu-up 240ms var(--ease) both;
+    }
+    .opening .menu > li > .part[aria-current="page"]::after {
+      animation: current-open 240ms var(--ease) both;
+    }
+    .opening :is(.side-logo, .part-name, .coming-soon, .part .icon-small, .collapse, .side-footer) {
+      animation: fade-in 160ms var(--ease) 100ms both;
+    }
+    .collapsed :is(.coming-soon-mini, .collapse, .side-footer) {
+      animation: fade-in 160ms var(--ease) both;
+    }
+  }
+  /* 64 / 216 = .2963; 216 − 64 = 152 px; la cabecera minimizada mide 29 px más; la opción abierta
+     pasa de 200 a 48 px (.24). */
+  @keyframes background-close {
+    to {
+      transform: scaleX(0.2963);
+    }
+  }
+  @keyframes background-open {
+    from {
+      transform: scaleX(0.2963);
+    }
+  }
+  @keyframes line-close {
+    to {
+      transform: translateX(-152px);
+    }
+  }
+  @keyframes line-open {
+    from {
+      transform: translateX(-152px);
+    }
+  }
+  @keyframes menu-down {
+    to {
+      transform: translateY(29px);
+    }
+  }
+  @keyframes menu-up {
+    from {
+      transform: translateY(29px);
+    }
+  }
+  @keyframes current-close {
+    to {
+      transform: scaleX(0.24);
+    }
+  }
+  @keyframes current-open {
+    from {
+      transform: scaleX(0.24);
+    }
+  }
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+}
