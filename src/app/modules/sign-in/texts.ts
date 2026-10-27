@@ -16,7 +16,7 @@ export const texts = {
   offline: 'Sin conexión',
   cardTitle: 'Entrá con tu celular',
   fastest: 'La forma más rápida',
-  cardSub: 'Entra con tu usuario, sin contraseñas, en cuanto ponés tu huella.',
+  cardSub: 'Entra con tu usuario, sin contraseñas, usando tu huella.',
   qrLabel: 'Código para entrar con el celular',
   read: 'Leído',
   waitingFinger: 'Esperando la huella',
