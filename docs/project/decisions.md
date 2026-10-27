@@ -345,3 +345,7 @@ cambia, sin depender de documentos que no están en este repositorio.
 65. **Los perfiles del director de arte y del maquetador** (2026-10-27). El director de arte tiene
     un perfil artístico, de diseño, innovador. El maquetador es un desarrollador frontend que
     adapta las ideas exóticas del director a la tecnología disponible. Precisa la 64.
+
+66. **El despliegue, como en la primera versión, simplificado** (2026-10-27). La CI publica las
+    imágenes y manda un aviso vacío; la máquina, que no abre puertos hacia adentro, le pregunta a
+    GitHub qué desplegar, despliega y vuelve atrás si algo falla (ADR-014, enmienda).

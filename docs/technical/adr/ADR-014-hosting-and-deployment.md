@@ -1,6 +1,6 @@
 # ADR-014: Dónde corre y cómo se despliega
 
-**Estado:** aceptado (2026-10-26, decisiones 25 y 32)
+**Estado:** aceptado (2026-10-26, decisiones 25 y 32; enmendado por la 66)
 
 ## Contexto
 
@@ -31,3 +31,28 @@ secretos ni datos de proveedores entran en él.
 
 - La máquina no publica más que el puerto de Caddy; el servidor y PostgreSQL quedan en la red
   interna de Docker.
+
+## Enmienda (2026-10-27, decisión 66): cómo se entera la máquina
+
+La CI no entra a la máquina. Se toma el mecanismo de la primera versión, simplificado:
+
+1. La CI publica las imágenes en GHCR con la etiqueta del commit y manda un **aviso vacío** a un
+   canal de ntfy.sh (servicio gratuito de notificaciones). El aviso no dice qué desplegar.
+2. En la máquina, un servicio de usuario de systemd (sin permisos de administrador) tiene **una
+   sola conexión saliente** abierta a ese canal. No abre ningún puerto hacia adentro.
+3. Al recibir un aviso, corre `deploy.sh`, que **le pregunta a GitHub** cuál es el último commit de
+   la rama de su ambiente (`main` para pruebas; `production`, en la tercera etapa), verifica que
+   sus imágenes estén publicadas, baja el `compose.yml` de ese commit, fija la etiqueta, levanta
+   los contenedores y espera a que estén sanos; si no lo están, vuelve a la etiqueta anterior.
+4. Un candado evita dos despliegues a la vez. Al arrancar la máquina, `deploy.sh` corre una vez,
+   por si se perdió un aviso. Opcionalmente, el resultado se manda a otro canal de ntfy.
+
+Simplificaciones respecto de la primera versión: un solo ambiente hasta la tercera etapa, tres
+servicios fijos (Caddy, servidor, PostgreSQL) y un solo script.
+
+| | Aviso y la máquina pregunta (elegida) | SSH con una llave limitada (descartada) |
+|---|---|---|
+| Entrada a la máquina desde afuera | Ninguna | La CI entra por SSH |
+| Secreto en GitHub | Solo el nombre del canal | Una llave SSH |
+| Aviso falso | Solo provoca una consulta a GitHub: despliega lo que ya está en la rama | Con la llave robada, se puede pedir desplegar cualquier etiqueta publicada |
+| Dependencia externa | ntfy.sh; si se cae, se despliega a mano o al reiniciar | Ninguna |
