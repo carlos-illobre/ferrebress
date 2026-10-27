@@ -27,3 +27,15 @@ export type StartResponse = {
 };
 
 export type SignInResponse = { person: Person; sessionId: string; offerPasskey: boolean };
+
+// Lo que devuelve el navegador al crear o usar una huella; su forma la valida el servidor.
+const webAuthnResponse = z.record(z.string(), z.unknown());
+
+export const linkPasskeyBody = z.object({ response: webAuthnResponse });
+
+export const passkeySignInBody = z.object({
+  response: webAuthnResponse,
+  proofPublicKey: base64url(256),
+});
+
+export type PasskeySignInBody = z.infer<typeof passkeySignInBody>;

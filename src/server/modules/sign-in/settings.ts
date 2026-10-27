@@ -24,3 +24,6 @@ export const signInSettings = {
     throttledAudit: { max: 1, windowMs: minute },
   },
 };
+
+// Vincular la huella solo en los minutos siguientes a haber entrado con Google (diseño de 01, § 5).
+export const linkPasskeyWithinMs = 5 * minute;

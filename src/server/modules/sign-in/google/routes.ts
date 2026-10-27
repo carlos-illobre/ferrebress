@@ -7,7 +7,7 @@ import {
 import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
-import { deviceLabel } from '../device.ts';
+import { deviceLabel, isPhone } from '../device.ts';
 import { readSessionCookie, writeSessionCookie } from '../sessions/cookie.ts';
 import { isProofKey } from '../sessions/proof.ts';
 import { signInSettings } from '../settings.ts';
@@ -84,15 +84,18 @@ async function signInWithGoogle(
   const { token, session } = await ctx.store.create({
     userId: match.user.id,
     ...device,
-    deviceLabel: deviceLabel(c.req.header('User-Agent') ?? ''),
+    deviceLabel: deviceLabel(c.req.header('User-Agent')),
     ipAddress: c.get('ipAddress'),
     googleAt: ctx.platform.clock.now(),
   });
   writeSessionCookie(c, token);
   ctx.record(c, 'sign-in.succeeded', { userId: match.user.id, data: { method: 'google' } });
+  // Se ofrece la huella a un celular sin huella vinculada (R2.2); la computadora nunca (R2.4).
+  const phone = isPhone(c.req.header('User-Agent'), c.req.header('Sec-CH-UA-Mobile'));
+  const offerPasskey = phone && !(await ctx.passkeys.findActiveByDevice(device.deviceId));
   return c.json<SignInResponse>({
     person: ctx.person(match.user),
     sessionId: session.id,
-    offerPasskey: false,
+    offerPasskey,
   });
 }

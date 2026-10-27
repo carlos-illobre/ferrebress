@@ -6,6 +6,8 @@ import type { Users } from '../users/index.ts';
 import { createContext } from './context.ts';
 import { registerGoogleRoutes } from './google/routes.ts';
 import { createSignIn } from './migrations/001-sign-in.ts';
+import { registerLinkRoutes } from './passkeys/link-routes.ts';
+import { registerPasskeySignInRoutes } from './passkeys/sign-in-routes.ts';
 import { registerSessionRoutes } from './sessions/routes.ts';
 import { signInSettings } from './settings.ts';
 
@@ -29,6 +31,8 @@ export function createSignInModule({ users, googleKeys }: SignInOptions): Server
       });
       registerGoogleRoutes(ctx);
       registerSessionRoutes(ctx);
+      registerLinkRoutes(ctx);
+      registerPasskeySignInRoutes(ctx);
       platform.events.on('user.deactivated', ({ userId }, trx) =>
         ctx.store.closeForUser(trx, userId, 'deactivated'),
       );

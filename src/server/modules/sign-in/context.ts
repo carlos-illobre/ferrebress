@@ -2,12 +2,14 @@
 // memoria y las formas de anotar en la auditoría y de frenar por límite de intentos.
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
+import type { Kysely } from 'kysely';
 import { fail } from '../../platform/http.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { createOneUse } from '../../platform/one-use.ts';
 import type { Window } from '../../platform/rate-limit.ts';
 import type { User, Users } from '../users/index.ts';
 import type { GoogleSettings } from './google/verify.ts';
+import { type PasskeysTables, passkeysData } from './passkeys/data.ts';
 import { createSessionStore } from './sessions/store.ts';
 import { signInSettings } from './settings.ts';
 
@@ -60,6 +62,16 @@ export function createContext(platform: Platform, users: Users, google: GoogleSe
     google,
     store: createSessionStore(platform.db, platform.clock),
     nonces: createOneUse<true>(platform.clock, signInSettings.nonce),
+    // Los desafíos de la huella: para entrar, o para vincular la huella de una sesión.
+    challenges: createOneUse<{ purpose: 'sign-in' } | { purpose: 'link'; sessionId: string }>(
+      platform.clock,
+      signInSettings.challenge,
+    ),
+    passkeys: passkeysData(platform.db as Kysely<PasskeysTables>),
+    relyingParty: {
+      id: new URL(platform.config.PUBLIC_ORIGIN).hostname,
+      origin: platform.config.PUBLIC_ORIGIN,
+    },
     ...createGuards(platform),
     person,
   };

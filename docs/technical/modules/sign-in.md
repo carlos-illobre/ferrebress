@@ -466,8 +466,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   | Cualquiera con la sesión ya en memoria | 0 |
   | El primero de una sesión después de reiniciar | 1 |
   | Entrar con Google | hasta 3 (buscar la cuenta, guardar `google_subject` la primera vez, crear la sesión) |
-  | Entrar con la huella | hasta 3 (la credencial, la persona, crear la sesión) |
-  | Aprobar un código | hasta 4 (las de la huella y la sesión de la computadora) |
+  | Entrar con la huella | 4 (la credencial, su contador, la persona, crear la sesión) |
+  | Aprobar un código | hasta 5 (las de la huella y la sesión de la computadora) |
 
 - **Cobertura del 100 %.** Fuera de la cuenta, solo lo que habla con el hardware del navegador
   (`navigator.credentials`, la cámara), que se prueba de punta a punta.

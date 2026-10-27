@@ -15,15 +15,15 @@ const systems: [RegExp, string][] = [
   [/Linux|CrOS/, 'Linux'],
 ];
 
-const find = (list: [RegExp, string][], agent: string) =>
+const find = (list: [RegExp, string][], agent = '') =>
   list.find(([pattern]) => pattern.test(agent))?.[1];
 
-export function deviceLabel(userAgent: string): string {
+export function deviceLabel(userAgent: string | undefined): string {
   const browser = find(browsers, userAgent);
   const system = find(systems, userAgent);
   return browser && system ? `${browser} en ${system}` : 'Otro navegador';
 }
 
 // Un celular según el navegador (Client Hints) o, donde no los manda, si es Android o iPhone.
-export const isPhone = (userAgent: string, mobileHint: string | undefined): boolean =>
-  mobileHint === '?1' || /Android|iPhone/.test(userAgent);
+export const isPhone = (userAgent: string | undefined, mobileHint: string | undefined): boolean =>
+  mobileHint === '?1' || /Android|iPhone/.test(userAgent ?? '');
