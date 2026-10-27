@@ -39,6 +39,10 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   - Antes de pedir la huella, el celular muestra qué computadora pide entrar y desde qué ciudad
     aproximada (por ejemplo, «Chrome en Windows · Buenos Aires»), para notar un código copiado desde
     una página falsa en otro lado.
+  - Si la ciudad aproximada de la computadora no coincide con la del celular, el celular avisa en
+    grande antes de pedir la huella: «Esta computadora está en Córdoba y vos en Buenos Aires. Si no
+    la tenés adelante, no pongas la huella». Las dos ciudades son aproximadas: solo avisa, nunca
+    bloquea.
   - La computadora se entera en el momento, sin preguntar a ritmo fijo: espera por un canal
     abierto solo mientras el código está en pantalla (capítulo 00, R4.3).
 - **R2.6** Si el navegador de la computadora puede usar un celular cercano para entrar (passkeys
@@ -150,6 +154,9 @@ enviar es «Salir» (R5.2).
   QR que cambia cada 60 segundos.
 - **E13** **Dado** un celular con sesión, **cuando** lee el código, **entonces** muestra qué computadora
   pide entrar y desde qué ciudad aproximada, y pide la huella; puesta la huella, la computadora entra sola, sin tocar nada en ella.
+- **E13b** **Dado** una computadora en Córdoba y un celular en Buenos Aires, **cuando** el celular lee
+  el código, **entonces** avisa en grande que las ciudades no coinciden y que no ponga la huella si
+  no tiene la computadora adelante; si igual pone la huella, la computadora entra.
 - **E14** **Dado** un código ya usado, **cuando** otro celular lo lee, **entonces** no sirve.
 - **E15** **Dado** un código de hace más de 60 segundos, **cuando** se lo lee, **entonces** no sirve.
 - **E16** **Dado** un celular sin sesión, **cuando** lee el código, **entonces** primero entra el celular

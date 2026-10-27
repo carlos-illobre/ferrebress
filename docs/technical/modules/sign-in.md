@@ -193,9 +193,11 @@ computadora                         servidor                          celular
 - **El canal temporal** (SSE) está abierto solo mientras la entrada está a la vista; se cierra al
   entrar, al ocultar la pestaña o a los 10 minutos (con un botón «Mostrar el código de nuevo»).
 - **La ciudad aproximada** sale de la dirección de internet de la computadora, consultada una vez
-  cuando pide la semilla (§ 7, decisión pendiente).
+  cuando pide la semilla (§ 7). Al leer el código, el servidor consulta también la del celular y
+  devuelve las dos; si no coinciden, el celular muestra el aviso (R2.5).
 - **El permiso de un uso** que viaja por el SSE no es la sesión: dura 30 segundos y solo sirve para
-  que la propia computadora pida su cookie. Así la cookie la pone una respuesta a la computadora,
+  que la propia computadora pida su cookie, mandando el permiso **y su semilla**: quien no tiene la
+  semilla no puede usarlo. Así la cookie la pone una respuesta a la computadora,
   que es la única forma de que quede protegida.
 - **Celular sin sesión** (R2.7): la dirección del QR abre la aplicación en el celular, que muestra
   la entrada; al entrar, sigue con el mismo código.
@@ -242,7 +244,7 @@ Con varias copias del servidor, estas piezas pasan a PostgreSQL (`LISTEN/NOTIFY`
 chica), sin tocar las reglas (ADR-015).
 
 **La ciudad aproximada:** la da un servicio gratuito por internet (por ejemplo, ipwho.is), con una
-consulta por semilla, desde el servidor. **Lo único que se le manda es la dirección de internet de
+consulta por semilla y otra por cada lectura del código (la del celular), desde el servidor. **Lo único que se le manda es la dirección de internet de
 la computadora, en la dirección del pedido:** sin cookies, sin el navegador de la persona, sin
 correo ni nombre, y con las cabeceras mínimas que pone el propio servidor. Si no responde en un
 segundo, el celular dice «ubicación desconocida». Se descartó una base de ciudades dentro del
