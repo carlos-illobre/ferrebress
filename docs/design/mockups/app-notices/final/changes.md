@@ -11,22 +11,15 @@ mal» con Alt apretado). El selector de la maqueta (la lengüeta con la campana)
 
 ## Por directivas de Carlos
 
-- Ninguna: Carlos eligió la variante 1 tal cual («me gusta más 1. Evolución»). La idea, los
-  lugares, los colores y el movimiento son los del director.
-
-## Fuera del capítulo, se dejan y los decide Carlos
-
+- **La variante 1 · Evolución**, con su idea, sus lugares, sus colores y su movimiento.
 - **«Avisar y seguir» en un solo botón:** avisa y vuelve a lo que se estaba haciendo; «Seguir sin
-  avisar» es el secundario. R9.1 pide «un botón para avisarlo»; juntarlo con volver es del director.
-- **El código del error** («Código F-4821 · 10:41»): no está en R9. La hora va en el formato de cada
-  persona (R8.5).
-- **Las versiones en el bloqueo:** R5.5 pide solo «Hay que actualizar para seguir» y «Actualizar».
-  Como la versión de la aplicación es el commit y no un número como «1.14», la propuesta es mostrar
-  el comienzo del commit (siete letras) y la fecha en que se publicó, que es lo que una persona
-  puede leer y comparar: en la computadora «Tenés la versión 3f9c2a1, del 12/10 · la del servidor
-  es la 8b04e7d, del 27/10»; en el celular «Tenés la 3f9c2a1 · el servidor, la 8b04e7d». La fecha
-  va en el formato de cada persona (R8.5). Si Carlos no quiere versiones en el bloqueo, se saca el
-  renglón entero.
+  avisar» es el secundario.
+- **El código del error** («Código F-4821 · 10:41»), con la hora en el formato de cada persona
+  (R8.5).
+- **El bloqueo no muestra versiones:** solo «Hay que actualizar para seguir», qué pasa y
+  «Actualizar».
+- **«Qué hacer» nombra el botón que existe:** «Tocá «Seguir sin avisar» y probá de nuevo lo que
+  estabas haciendo».
 
 ## Por las reglas aprobadas
 

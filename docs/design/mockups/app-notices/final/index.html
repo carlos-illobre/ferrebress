@@ -52,7 +52,6 @@
   .bloqueo-titulo { margin: 0 0 8px; }
   .bloqueo-texto { margin: 0 0 24px; color: var(--texto-2); }
   .bloqueo-boton { width: 100%; }
-  .bloqueo-version { margin: 16px 0 0; font-size: 14px; line-height: 20px; color: var(--texto-3); }
 
   /* =================== 4 · Algo salió mal (00 · R9): diálogo que muestra qué se manda =================== */
   .error-dialogo { position: fixed; z-index: 31; left: 50%; top: 50%; width: 600px; margin: -282px 0 0 -300px; padding: 28px; border-radius: var(--r-hoja); background: var(--superficie); box-shadow: var(--sombra-3); }
@@ -161,7 +160,6 @@
   <p class="t-cuerpo bloqueo-texto" id="bloqueo-d"><span class="largo">Esta versión ya no se entiende con el servidor. Actualizar tarda unos segundos y lo que hiciste sigue ahí.</span><span class="corto">Esta versión ya no sirve. Lo que hiciste sigue ahí.</span></p>
   <button type="button" class="btn btn-accion grande bloqueo-boton" id="bloqueo-si" data-key="a" data-enter><span class="gira-ic"><i class="i" data-i="refresh-cw"></i></span>Actualizar<span class="kbd">A</span></button>
   <!-- La versión es el commit: su comienzo (7 letras) y la fecha en que se publicó, en el formato de fecha de cada persona (00 · R8.5). -->
-  <p class="bloqueo-version"><span class="largo">Tenés la versión <data value="3f9c2a1">3f9c2a1</data>, del 12/10 · la del servidor es la <data value="8b04e7d">8b04e7d</data>, del 27/10</span><span class="corto">Tenés la 3f9c2a1 · el servidor, la 8b04e7d</span></p>
 </section>
 
 <!-- 4 · Algo salió mal -->
@@ -175,7 +173,7 @@
   </div>
   <p class="t-etiqueta error-rotulo">Qué hacer</p>
   <ol class="error-hacer">
-    <li class="error-hacer-paso"><span class="largo">Tocá «Seguir» y probá de nuevo lo que estabas haciendo.</span><span class="corto">Tocá «Seguir» y probá de nuevo.</span></li>
+    <li class="error-hacer-paso"><span class="largo">Tocá «Seguir sin avisar» y probá de nuevo lo que estabas haciendo.</span><span class="corto">Tocá «Seguir sin avisar» y probá de nuevo.</span></li>
     <li class="error-hacer-paso"><span class="largo">Si vuelve a pasar, avisalo: así se arregla.</span><span class="corto">Si vuelve a pasar, avisalo.</span></li>
   </ol>
   <p class="t-etiqueta error-rotulo">Lo que va en el aviso</p>

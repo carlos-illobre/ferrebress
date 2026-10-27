@@ -139,6 +139,9 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 
 - **R9.1** Si algo de la aplicación falla sin que la persona pueda hacer nada, se muestra «Algo
   salió mal», con qué hacer para seguir y un botón para avisarlo.
+- **R9.5** «Algo salió mal» tiene dos botones: «Avisar y seguir», que guarda el aviso y vuelve a lo
+  que se estaba haciendo, y «Seguir sin avisar». Muestra un código del error y la hora, para
+  nombrarlo si alguien pregunta.
 - **R9.4** El aviso lleva una captura de la pantalla y los últimos pasos que se hicieron (qué se
   tocó y en qué pantalla), sin datos de clientes ni la sesión de la persona.
 - **R9.2** Mientras no exista el módulo de mejoras y errores, el aviso guarda qué pasó para mandarlo
