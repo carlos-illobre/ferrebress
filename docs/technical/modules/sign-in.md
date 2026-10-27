@@ -44,7 +44,7 @@ ferrebress/
 │       └── modules/
 │           ├── frame/               el marco (capítulo 00): menú, luz, tarjeta de la persona
 │           └── sign-in/             la entrada, las hojas del celular, salir
-├── tests/e2e/                       Playwright: los caminos principales, en los dos anchos
+├── tests/e2e/                       Playwright: lo que una unitaria no puede probar (§ 12)
 ├── tools/                           los controles propios de pnpm check (enlaces de docs/)
 ├── deploy/                          las imágenes, el Caddyfile y el compose: sirven en cualquier lado
 │   └── oracle/                      solo de la VM de Oracle: install.sh, deploy.sh, listen.sh, el
@@ -489,15 +489,22 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
      Google; la política estricta en la aplicación, la excepción de estilos solo en el marco y las
      demás cabeceras de seguridad.
 
-  **Para que tarden lo mínimo:**
-  - El servidor, Caddy y la base se levantan una sola vez para todas, y el navegador también; cada
-    prueba abre su propio contexto, que es lo que tarda milisegundos.
-  - Las tres corren en paralelo, cada una con su cuenta, sin depender de lo que dejó otra.
+  **Cómo corren:** `pnpm e2e` (`tests/e2e/`) arma la aplicación, levanta el servidor con la base en
+  memoria (`DATABASE_URL=memory://`, `ENVIRONMENT=e2e`) y un emisor de Google de prueba, y pone
+  delante Caddy en Docker, con la imagen y el `Caddyfile` de producción. El script de Google es
+  uno de prueba servido por la propia aplicación: dibuja el botón como Google y la prueba le pasa
+  un pase firmado por el emisor de prueba, con el `nonce` que le dio la entrada. Hace falta Docker
+  prendido.
+
+  **Para que tarden lo mínimo** (todas juntas, unos 10 s):
+  - Todo se levanta una sola vez para todas, y el servidor arranca mientras se arma la aplicación.
+    Cada prueba abre sus propios contextos del navegador, que tardan milisegundos.
+  - Las cuatro corren en paralelo. Usan la misma cuenta, cada una desde sus propios dispositivos,
+    sin depender de lo que dejó otra.
   - Nada de esperas fijas: se espera lo que tiene que aparecer, con un tope corto.
-  - Lo que no es lo que se prueba se prepara por la API y no por la pantalla: la 2 y la 3 entran
-    con Google por pedido directo y recién ahí usan la pantalla para lo suyo.
-  - Sin imágenes ni letras de afuera, sin animaciones (`reducedMotion`) y sin capturas salvo
-    cuando una falla.
+  - El QR no se fotografía: la prueba lee el código del canal en tiempo real de la computadora, que
+    es lo mismo que dibuja el QR, y el celular abre la dirección que el QR lleva.
+  - Sin animaciones (`reducedMotion`), sin reintentos y sin capturas, salvo cuando una falla.
   - La 4 es un pedido común, sin abrir el navegador.
 - **Una prueba por ataque:** cada riesgo de § 13 y de la revisión de seguridad tiene una prueba que
   lo intenta y falla: un correo reasignado, un código cancelado sin el secreto de la reserva, una

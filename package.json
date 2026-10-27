@@ -18,14 +18,17 @@
     "sizes": "node tools/cli.ts sizes",
     "headers": "node tools/cli.ts headers",
     "links": "node tools/cli.ts links",
-    "test": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "e2e": "playwright test -c tests/e2e/playwright.config.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",
+    "@playwright/test": "1.56.1",
     "@secretlint/secretlint-rule-preset-recommend": "13.1.0",
     "@types/node": "24.19.2",
     "@vitest/coverage-v8": "5.0.5",
     "dependency-cruiser": "18.7.0",
+    "jose": "6.2.13",
     "jscpd": "5.4.2",
     "secretlint": "13.1.0",
     "typescript": "6.0.3",
