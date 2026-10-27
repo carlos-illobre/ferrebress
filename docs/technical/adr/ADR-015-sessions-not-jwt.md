@@ -1,6 +1,6 @@
 # ADR-015: Sesiones propias guardadas en el servidor, no JWT
 
-**Estado:** aceptado (2026-10-27, decisión 60). Precisa la parte de sesiones del ADR-006.
+**Estado:** aceptado (2026-10-27, decisiones 60 y 61). Precisa la parte de sesiones del ADR-006.
 
 ## Contexto
 
@@ -51,9 +51,10 @@ de la aplicación.
   del pase (SHA-256), la persona, el dispositivo, cuándo se entró y cuándo se usó por última vez.
   La memoria del servidor tiene una copia de las sesiones ya vistas: comprobar un pase no consulta
   la base. El último uso se escribe en la base por tandas.
-- **Vencimiento:** 8 horas por omisión, configurable por un Administrador desde Administración
-  (decisión 60). Hasta que exista ese módulo, sale de la configuración. Lo cuenta el reloj del
-  servidor.
+- **Vencimiento por falta de uso:** la sesión vence después de 60 minutos sin pedidos al servidor;
+  cada pedido vuelve a contar desde cero (decisiones 60 y 61). Un Administrador cambia ese tiempo
+  desde Administración; hasta que exista ese módulo, sale de la configuración. Lo cuenta el reloj
+  del servidor.
 - **Se termina** al salir, al vencer, cuando alguien la cierra a distancia o cuando la persona es
   dada de baja.
 - **Con varias copias del servidor:** cada una busca en la base el pase que no tiene en memoria,

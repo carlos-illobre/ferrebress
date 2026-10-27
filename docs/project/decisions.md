@@ -323,3 +323,7 @@ cambia, sin depender de documentos que no están en este repositorio.
 60. **Sesiones propias que vencen a las 8 horas** (2026-10-27). La sesión es un pase propio sin
     datos, guardado en el servidor y en una cookie protegida; no JWT (ADR-015). Vence a las 8 horas
     por omisión, y un Administrador puede cambiar ese tiempo desde Administración.
+
+61. **La sesión vence a los 60 minutos sin uso** (2026-10-27). Precisa la 60: el tiempo se cuenta
+    desde el último uso, no desde que se entró, y por omisión es de 60 minutos. Un Administrador
+    lo cambia desde Administración.
