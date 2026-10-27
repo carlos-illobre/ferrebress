@@ -63,9 +63,7 @@ async function createSession(data: Data, memory: Memory, clock: Clock, fields: N
 
 // Quién es el dueño del pase, y anota el uso. Una cookie inventada no queda en memoria.
 async function resolveSession(
-  data: Data,
-  memory: Memory,
-  clock: Clock,
+  { data, memory, clock, onEnded }: Deps,
   token: string,
 ): Promise<Resolved> {
   const key = keyOf(token);
@@ -79,13 +77,21 @@ async function resolveSession(
     return { kind: 'open', session };
   }
   memory.forget([session.id]);
-  if (!session.closedReason) await data.close(session.id, reason, now);
+  if (!session.closedReason) {
+    await data.close(session.id, reason, now);
+    onEnded(session, reason);
+  }
   return { kind: 'closed', reason };
 }
 
-export function createSessionStore(db: Kysely<unknown>, clock: Clock) {
+// Avisa cuándo una sesión venció o la cerraron sin que la persona saliera, para la auditoría.
+export type OnEnded = (session: { id: string; userId: string }, reason: ClosedReason) => void;
+type Deps = { data: Data; memory: Memory; clock: Clock; onEnded: OnEnded };
+
+export function createSessionStore(db: Kysely<unknown>, clock: Clock, onEnded: OnEnded) {
   const data = sessionsData(db as Kysely<SessionsTables>);
   const memory = createMemory();
+  const deps = { data, memory, clock, onEnded };
   const flush = async () => {
     const entries = memory.drain();
     if (entries.length > 0) await data.writeLastUsed(entries);
@@ -93,7 +99,7 @@ export function createSessionStore(db: Kysely<unknown>, clock: Clock) {
 
   return {
     create: (fields: NewSession) => createSession(data, memory, clock, fields),
-    resolve: (token: string) => resolveSession(data, memory, clock, token),
+    resolve: (token: string) => resolveSession(deps, token),
     findById: (id: string) => data.findById(id),
 
     async close(id: string, reason: ClosedReason): Promise<void> {
@@ -102,9 +108,14 @@ export function createSessionStore(db: Kysely<unknown>, clock: Clock) {
     },
 
     async closeForUser(trx: Kysely<unknown>, userId: string, reason: ClosedReason): Promise<void> {
-      memory.forget(
-        await data.closeForUser(trx as Kysely<SessionsTables>, userId, reason, clock.now()),
+      const ids = await data.closeForUser(
+        trx as Kysely<SessionsTables>,
+        userId,
+        reason,
+        clock.now(),
       );
+      memory.forget(ids);
+      for (const id of ids) onEnded({ id, userId }, reason);
     },
 
     flush,

@@ -108,6 +108,12 @@ describe('la sesión', () => {
       closed_reason: string;
     }>`select distinct closed_reason from sign_in.sessions`.execute(server.platform.db);
     expect(reasons.rows.map((row) => row.closed_reason)).toContain('deactivated');
+    const ended = server.platform.audit
+      .read(2026)
+      .filter((event) => event.type === 'session.ended');
+    expect(ended.map((event) => (event.data as { reason: string }).reason)).toEqual(
+      expect.arrayContaining(['idle', 'max-age', 'deactivated']),
+    );
     await sql`update users.users set active = true`.execute(server.platform.db);
   });
 

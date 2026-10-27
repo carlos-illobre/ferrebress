@@ -74,7 +74,14 @@ export function createContext(
     platform,
     users,
     google,
-    store: createSessionStore(platform.db, platform.clock),
+    store: createSessionStore(platform.db, platform.clock, (session, reason) =>
+      platform.audit.record({
+        type: 'session.ended',
+        at: platform.clock.now(),
+        userId: session.userId,
+        data: { sessionId: session.id, reason },
+      }),
+    ),
     nonces: createOneUse<true>(platform.clock, signInSettings.nonce),
     // Los desafíos de la huella: para entrar, o para vincular la huella de una sesión.
     challenges: createOneUse<{ purpose: 'sign-in' } | { purpose: 'link'; sessionId: string }>(
