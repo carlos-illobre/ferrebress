@@ -14,8 +14,7 @@ tocar las reglas.
 
 Cada pantalla tiene su carpeta en `mockups/<pantalla>/`, con `desktop/` y `phone/`:
 
-- **`v2/`** es la referencia de partida: la versión que Carlos eligió para cada pantalla
- . Se abre sola, desde su `index.html`, y navega a las demás pantallas.
+- **`v2/`** es la referencia de partida: la versión que Carlos eligió para cada pantalla. Se abre sola, desde su `index.html`, y navega a las demás pantallas.
 - **`variant-1-<idea>/`, `variant-2-<idea>/`, `variant-3-<idea>/`** son las tres versiones que hace
   el director de arte en el paso 2 de cada módulo (constitución, «Los nueve pasos»).
 - **`art-director-notes.md`** es lo que el director de arte le dijo a Carlos de esa pantalla, con

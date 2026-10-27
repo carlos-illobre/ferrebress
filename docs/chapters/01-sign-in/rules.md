@@ -72,8 +72,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 - **R3.5** Si la sesión la cerró otro dispositivo, la entrada dice «Tu sesión se cerró desde otro
   dispositivo».
 - **R3.6** Sin conexión, la sesión no vence en el dispositivo: ni por los 60 minutos sin uso ni por
-  el tope de 8 horas, porque sin internet no se podría volver a entrar y el mostrador se frenaría
- . Cuando vuelve la conexión, el servidor la revisa: si sigue vigente, todo sigue; si
+  el tope de 8 horas, porque sin internet no se podría volver a entrar y el mostrador se frenaría.
+  Cuando vuelve la conexión, el servidor la revisa: si sigue vigente, todo sigue; si
   venció, aparece la entrada encima de lo que había, sin perder nada, y lo pendiente se manda con
   la prueba de quien lo hizo (R4).
 
@@ -105,8 +105,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 
 ## 7. La entrada
 
-- **R7.1** Se ve como su maqueta aprobada (`docs/design/mockups/sign-in/adapted/`), en una sola pantalla que se adapta al
-  ancho. En el celular también está «Entrar con Google».
+- **R7.1** Se ve como su maqueta aprobada (`docs/design/mockups/sign-in/adapted/`), en una sola
+  pantalla que se adapta al ancho. En el celular también está «Entrar con Google».
 - **R7.2** «Ver el manual» aparece recién cuando exista el manual.
 
 ## Escenarios
