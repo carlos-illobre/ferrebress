@@ -1,3 +1,4 @@
+// Las pruebas unitarias y su cobertura del 100 % (ADR-005, ADR-016).
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({

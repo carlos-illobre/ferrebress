@@ -1,10 +1,10 @@
+// Quién hizo qué (ADR-004): SQLite, un archivo por año, lo de cada evento comprimido y escrito
+// por tandas. La aplicación solo agrega eventos: no hay forma de cambiarlos ni borrarlos.
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
 
-// Quién hizo qué (ADR-004): SQLite, un archivo por año, lo de cada evento comprimido y escrito
-// por tandas. La aplicación solo agrega eventos: no hay forma de cambiarlos ni borrarlos.
 export type AuditEvent = {
   type: string;
   at: Date;

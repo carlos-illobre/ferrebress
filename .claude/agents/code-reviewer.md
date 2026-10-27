@@ -16,16 +16,20 @@ Buscá, en este orden:
 
 1. **Escenarios sin cumplir.** Cada escenario de `rules.md`: ¿el código hace eso? ¿Hay una prueba
    que lo nombra y que de verdad lo comprueba, o pasa siempre?
-2. **Pruebas que miran por dentro.** Pruebas que dependen de cómo está hecho el código en vez de
+2. **Comentarios de cabecera.** Cada archivo empieza con un comentario que dice de qué se
+   encarga y por qué existe (constitución, XII). ¿Sigue siendo cierto con el código de hoy?
+   ¿Repite el nombre en vez de explicar? Y cada carpeta de más de unos pocos archivos: ¿hay
+   archivos con un concepto en común que deberían ir juntos en una subcarpeta?
+3. **Pruebas que miran por dentro.** Pruebas que dependen de cómo está hecho el código en vez de
    usarlo desde afuera (la API, la fachada, lo que ve la persona): rompen en cualquier refactor.
-3. **El diseño.** Lo que el código hace distinto del diseño técnico: tablas, rutas, eventos,
+4. **El diseño.** Lo que el código hace distinto del diseño técnico: tablas, rutas, eventos,
    permisos, conexiones, metas de performance (¿la prueba que cuenta las consultas existe y pasa?).
-4. **Seguridad.** Cada punto de la sección «Seguridad» del diseño: ¿está hecho como dice?
-5. **Reglas inventadas.** Comportamiento que ninguna regla pide.
-6. **Simpleza y repetición.** Código que sobra, nombres que no dicen lo que hacen, lógica repetida.
-7. **Documentación que quedó atrás.** Algo que el código hace y que otro agente no podría
+5. **Seguridad.** Cada punto de la sección «Seguridad» del diseño: ¿está hecho como dice?
+6. **Reglas inventadas.** Comportamiento que ninguna regla pide.
+7. **Simpleza y repetición.** Código que sobra, nombres que no dicen lo que hacen, lógica repetida.
+8. **Documentación que quedó atrás.** Algo que el código hace y que otro agente no podría
    reconstruir leyendo solo `docs/`.
-8. **Pantallas.** Diferencias visibles con la maqueta elegida, en la computadora y en el celular.
+9. **Pantallas.** Diferencias visibles con la maqueta elegida, en la computadora y en el celular.
 
 No arregles nada y no toques el código. Escribí `docs/technical/modules/<module>-code-review.md`
 con una lista: cada punto con dónde está (archivo y línea), qué dicen los documentos, qué hace el

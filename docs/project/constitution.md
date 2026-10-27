@@ -152,6 +152,12 @@ Además:
 
 - **Organizado por funcionalidad, no por capa técnica.** Un módulo tiene el mismo nombre en el
   capítulo, en el servidor y en la aplicación.
+- **Carpetas chicas, agrupadas por concepto.** Siempre que varios archivos comparten un concepto,
+  van juntos en una subcarpeta con ese nombre. Como mucho 20 archivos por carpeta, sin contar las
+  pruebas. Vale para el código, no para la documentación.
+- **Cada archivo se explica solo.** Empieza con un comentario que dice de qué se encarga y por qué
+  existe, sin repetir lo que ya dice su nombre. Quien cambia el código, cambia ese comentario si
+  deja de ser cierto. Las pruebas no lo llevan: su primer `describe` dice qué prueban.
 - **La regla de negocio nunca está en el mismo archivo que la tecnología.** El archivo de reglas
   no importa el framework web, la base ni el navegador.
 - **Patrones solo donde sacan acoplamiento real**, de esta lista: fachada por módulo, estrategia

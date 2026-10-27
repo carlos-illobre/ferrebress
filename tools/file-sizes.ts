@@ -1,3 +1,4 @@
+// El máximo de líneas por archivo de código (ADR-016).
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { listFiles, readText } from './files.ts';
@@ -5,7 +6,6 @@ import { listFiles, readText } from './files.ts';
 export const maxLinesPerFile = 250;
 const codeFolders = ['src', 'tools', 'tests'];
 
-// Los archivos de código de más de `maxLinesPerFile` líneas (ADR-016).
 export function findLongFiles(root: string): string[] {
   return codeFolders
     .filter((dir) => existsSync(join(root, dir)))

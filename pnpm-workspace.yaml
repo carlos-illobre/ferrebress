@@ -1,3 +1,4 @@
+# Los tres paquetes del repositorio: lo compartido, el servidor y la aplicación (ADR-008).
 packages:
   - src/shared
   - src/server

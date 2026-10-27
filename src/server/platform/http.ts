@@ -1,3 +1,5 @@
+// Lo que vale para todos los pedidos de /api (diseño de 01, § 4 y § 13): la cabecera con la
+// versión y la hora, la dirección real, y el rechazo de lo que no viene de la aplicación.
 import type { IncomingMessage } from 'node:http';
 import {
   appVersionHeaderName,
@@ -39,7 +41,6 @@ const nodeRemoteAddress = (c: Context): string | undefined =>
 export const fail = (c: Context, status: ContentfulStatusCode, error: ErrorCode, extra = {}) =>
   c.json({ error, ...extra }, status);
 
-// El servidor HTTP y lo que vale para todos los pedidos de /api (diseño de 01, § 4 y § 13).
 export function createHttp(options: HttpOptions): Http {
   const http: Http = new Hono();
   const reject = rejecter(options);

@@ -1,3 +1,5 @@
+// La configuración del .env (diseño de 01, § 11): la valida al arrancar y frena si falta algo,
+// así un error de configuración se ve antes de atender el primer pedido.
 import { environments } from '@ferrebress/shared/contracts/server-header';
 import * as z from 'zod/mini';
 
@@ -5,7 +7,7 @@ const text = z.string().check(z.minLength(1));
 const googleIssuer = 'https://accounts.google.com';
 const googleScript = 'https://accounts.google.com/gsi/client';
 
-// Lo que cambia entre ambientes, del .env (diseño de 01, § 11). Sin valores por omisión.
+// Sin valores por omisión: lo que cambia entre ambientes tiene que estar escrito.
 const configSchema = z.object({
   ENVIRONMENT: z.enum(environments),
   VERSION: text,

@@ -1,9 +1,11 @@
+// La base de datos (ADR-009): abre PostgreSQL, o PGlite en las pruebas (ADR-005), y corre las
+// migraciones de cada módulo en su esquema.
 import { Kysely, PostgresDialect, sql } from 'kysely';
 import { type Migration, Migrator } from 'kysely/migration';
 import pg from 'pg';
 
-// La base de cada módulo: su esquema y sus migraciones, que corren en el orden en que se
-// registran los módulos. Cada módulo lleva su propia tabla de migraciones en su esquema.
+// Cada módulo lleva su propia tabla de migraciones en su esquema, y migra en el orden en que se
+// registra.
 export type ModuleSchema = { schema: string; migrations: Record<string, Migration> };
 
 export const inMemoryUrl = 'memory://';

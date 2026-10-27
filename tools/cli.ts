@@ -2,11 +2,14 @@
 // (vitest.config.ts): solo elige el control y sale con su resultado; los controles se prueban.
 import { findBrokenLinks } from './doc-links.ts';
 import { findLongFiles } from './file-sizes.ts';
+import { findCrowdedFolders } from './folder-sizes.ts';
+import { findFilesWithoutHeader } from './header-comments.ts';
 
 const root = process.cwd();
 const checks: Record<string, () => string[]> = {
   links: () => findBrokenLinks(root, ['.']),
-  sizes: () => findLongFiles(root),
+  sizes: () => [...findLongFiles(root), ...findCrowdedFolders(root)],
+  headers: () => findFilesWithoutHeader(root),
 };
 
 const problems = checks[process.argv[2] ?? '']?.() ?? [`control desconocido: ${process.argv[2]}`];

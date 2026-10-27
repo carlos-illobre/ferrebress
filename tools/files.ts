@@ -1,3 +1,4 @@
+// Recorrer y leer los archivos del repositorio para los controles propios de pnpm check.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 

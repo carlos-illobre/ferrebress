@@ -1,6 +1,6 @@
+// Una configuración completa para las pruebas del servidor: base y auditoría en memoria.
 import type { Config } from '../platform/config.ts';
 
-// Una configuración completa para las pruebas: base y auditoría en memoria.
 export const testConfig: Config = {
   ENVIRONMENT: 'testing',
   VERSION: 'test',

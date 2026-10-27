@@ -22,9 +22,13 @@ y la misma configuración en la máquina de quien programa y en GitHub.
 | Pruebas y cobertura | Vitest | 100 % de líneas y ramas (ADR-005) |
 | Peso de la aplicación | Un control propio sobre lo que construye Vite | Lo que diga el diseño de cada módulo |
 | Enlaces de `docs/` | Un control propio en `tools/`, sin dependencias | Ninguno roto |
+| Archivos por carpeta | Un control propio, sobre el código | 20, sin contar las pruebas |
+| Comentario de cabecera | Un control propio, sobre el código: que cada archivo empiece con un comentario | Todos, salvo las pruebas y los JSON (no admiten comentarios) |
 | Dependencias con fallas conocidas | `pnpm audit --prod` | Ninguna alta o crítica |
 | Secretos en lo que se sube | secretlint, con sus reglas recomendadas | Ninguno |
 
+- **Que el comentario de cabecera siga siendo cierto** no lo puede comprobar una herramienta: lo
+  mira el revisor del código.
 - **Las pruebas de punta a punta** no son parte de `pnpm check`: corren antes de cerrar un módulo.
 - **GitHub corre lo mismo** en cada subida (`check.yml`).
 - **Una excepción** a un límite se escribe en la configuración con un comentario que dice por qué;

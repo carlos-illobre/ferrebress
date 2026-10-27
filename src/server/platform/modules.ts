@@ -1,3 +1,5 @@
+// El contrato entre la plataforma y cada módulo del servidor (ADR-001): lo que un módulo recibe
+// al registrarse y lo que tiene que dar.
 import type { Kysely } from 'kysely';
 import type { AuditLog } from './audit.ts';
 import type { Clock } from './clock.ts';

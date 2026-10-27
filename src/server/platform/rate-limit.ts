@@ -1,6 +1,7 @@
+// Cuenta pedidos por clave en ventanas fijas, en memoria (diseño de 01, § 8). Con varias copias
+// del servidor pasa a PostgreSQL sin tocar a quien lo usa (ADR-015).
 import type { Clock } from './clock.ts';
 
-// Cuenta pedidos por clave en ventanas fijas, en memoria (diseño de 01, § 8).
 export type Window = { max: number; windowMs: number };
 
 export type Hit = {

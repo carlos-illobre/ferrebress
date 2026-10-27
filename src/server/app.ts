@@ -1,3 +1,5 @@
+// Arma el servidor a partir de la configuración: abre la base y la auditoría, migra cada módulo
+// y registra sus rutas. Separado de main.ts para que se pueda probar sin abrir un puerto.
 import { sql } from 'kysely';
 import { openAuditLog } from './platform/audit.ts';
 import { type Clock, systemClock } from './platform/clock.ts';
@@ -7,7 +9,6 @@ import { createHttp } from './platform/http.ts';
 import type { Platform, ServerModule } from './platform/modules.ts';
 import { createRateLimiter } from './platform/rate-limit.ts';
 
-// Arma el servidor: la plataforma, las migraciones de cada módulo y sus rutas.
 export async function createServer(
   config: Config,
   modules: ServerModule[],
