@@ -242,10 +242,12 @@ computadora                         servidor                          celular
 - **El canal y el permiso están atados a la computadora** por la cookie `__Host-sign-in-screen`
   (`HttpOnly`, al azar, nunca va en el QR). Quien vea el QR no puede escuchar el canal ni usar el
   permiso. El permiso dura 30 segundos y sirve una vez.
-- **Las ciudades:** al leer el código, el servidor busca la ciudad aproximada de la computadora y
-  la del celular (§ 8) y las devuelve; si no coinciden, el celular muestra el aviso (R2.5). **Si
-  alguna de las dos es desconocida, cuenta como que no coinciden** (el atacante podría elegir una
-  dirección sin ciudad para apagar el aviso), con su propio texto: es la pregunta 1 de § 15.
+- **La red y las ciudades (R2.5):** al leer el código, el servidor compara la dirección de internet
+  de la computadora (la del canal) con la del celular. Si es la misma (en IPv6, el mismo `/64`),
+  responde «misma red». Si no, busca las dos ciudades aproximadas (§ 8): si son distintas, o si
+  alguna es desconocida, el celular muestra el aviso que corresponde; una ciudad desconocida cuenta
+  como que no coinciden, porque si no, quien arma una página falsa elegiría una dirección sin
+  ciudad.
 - **Celular sin sesión (R2.7):** se llega al código por la cámara del sistema (abre la dirección
   del QR) o por «Escanear el código de la computadora» en la entrada. Con la huella vinculada,
   **una sola huella** hace entrar a los dos: `approve` sin sesión verifica la huella, crea la
@@ -328,7 +330,9 @@ identificador del dispositivo lo puede cambiar cualquiera). Una dirección IPv6 
 `/64`, porque una sola conexión tiene millones de direcciones. El límite por cuenta (R2.10) cuenta
 solo lo que demuestra algo de esa cuenta: un pase de Google válido de una cuenta no autorizada, o
 una firma que no verifica para una credencial que existe; así nadie puede bloquear a otro con solo
-saber su correo. Los pedidos sin sesión (abrir una pantalla con QR, leer un código, pedir desafíos)
+saber su correo. Google y la huella se cuentan aparte, y cada límite frena solo su forma de entrar:
+quien conozca el identificador de una huella puede gastar el de la huella, pero la persona sigue
+entrando con Google. Los pedidos sin sesión (abrir una pantalla con QR, leer un código, pedir desafíos)
 también tienen límite por dirección:
 
 | Qué | Por dirección |
@@ -536,7 +540,7 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   enable-linger` para que el servicio arranque solo; lo dice `deploy/README.md`.
 - **Los puertos 80 y 443 no los tenía el proyecto anterior:** los tiene un proxy de la máquina, que
   atiende a todas sus aplicaciones y le pasaba los pedidos por puertos locales. Cómo entra
-  Ferrebress, la pregunta 3 de § 15.
+  Ferrebress, la pregunta 1 de § 15.
 - **La dirección real:** sea cual sea la respuesta, una prueba en la máquina entra desde una
   dirección conocida y comprueba que la auditoría anota esa. Docker sin privilegios, con su forma
   de abrir puertos por omisión, la pierde y anota la misma para todos: eso apagaría el aviso de
@@ -556,21 +560,13 @@ Lo que decidió Carlos:
   tocar el resto (§ 8).
 - **Celular sin huella ante el QR:** se le pide vincularla en ese momento (R2.7, § 5).
 - **Las huellas que se copian:** se acepta (§ 13, ADR-006).
+- **La red y la ciudad:** «misma red que este celular» cuando salen por la misma dirección, y la
+  ciudad desconocida cuenta como que no coinciden (R2.5).
+- **El límite por cuenta:** Google y la huella se cuentan aparte (R2.10).
 
 Lo que falta decidir:
 
-1. **La ciudad desconocida.** Si la ciudad de la computadora o la del celular no se encuentra,
-   ¿cuenta como que no coinciden, con su propio aviso? Propuesta de texto: «No se pudo saber desde
-   dónde pide entrar esta computadora. Si no la tenés adelante, no pongas la huella». Si no, quien
-   arma una página falsa puede elegir una dirección sin ciudad y el celular no avisa. Como mejora:
-   cuando el celular y la computadora salen a internet por la misma dirección (los dos en el Wi-Fi
-   del local), el aviso podría decir «misma red que este celular», una señal más fuerte que la
-   ciudad.
-2. **El bloqueo de una cuenta por fallos (R2.10).** Quien conozca el identificador de una huella
-   (no es secreto: viaja en cada entrada) puede mandar 20 firmas falsas desde direcciones distintas
-   y dejar a esa persona una hora sin entrar, también con Google. ¿El bloqueo por fallos de la
-   huella frena solo la huella de esa cuenta y deja entrar con Google?
-3. **Los puertos 80 y 443.** El proxy de la máquina:
+1. **Los puertos 80 y 443.** El proxy de la máquina:
    - **A (recomiendo):** Ferrebress hace lo mismo que hacía el proyecto anterior: su Caddy escucha
      solo en un puerto local (8090 en pruebas, 8091 en producción) y el proxy de la máquina le pasa
      los dominios de Ferrebress, con HTTPS y la dirección real en una cabecera. Así no hay que tocar
@@ -611,7 +607,7 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
   `https://ferrebress-pruebas.duckdns.org`. Mientras la pantalla de consentimiento siga en
   «Prueba», cada cuenta que entre tiene que estar en su lista de usuarios de prueba.
 - **La máquina:** correr en la VM `deployment/oracle-single/maquina/desinstalar.sh` del proyecto
-  anterior (sus pasos están en su `ORACLE.md`, paso 15). Con la opción A de la pregunta 3, agregar
+  anterior (sus pasos están en su `ORACLE.md`, paso 15). Con la opción A de la pregunta 1, agregar
   al proxy de la máquina las rutas de `ferrebress-pruebas.duckdns.org`.
 - **ntfy:** nada; el agente crea el canal con un nombre al azar y lo guarda como secreto de GitHub
   y en la máquina.

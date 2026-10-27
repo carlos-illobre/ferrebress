@@ -39,10 +39,16 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   - Antes de pedir la huella, el celular muestra qué computadora pide entrar y desde qué ciudad
     aproximada (por ejemplo, «Chrome en Windows · Buenos Aires»), para notar un código copiado desde
     una página falsa en otro lado.
-  - Si la ciudad aproximada de la computadora no coincide con la del celular, el celular avisa en
-    grande antes de pedir la huella: «Esta computadora está en Córdoba y vos en Buenos Aires. Si no
-    la tenés adelante, no pongas la huella». Las dos ciudades son aproximadas: solo avisa, nunca
-    bloquea.
+  - Si el celular y la computadora salen a internet por la misma red (los dos en el Wi-Fi del
+    local), el celular lo dice en lugar de la ciudad: «Chrome en Windows · misma red que este
+    celular».
+  - Si no, y la ciudad aproximada de la computadora no coincide con la del celular, el celular avisa
+    en grande antes de pedir la huella: «Esta computadora está en Córdoba y vos en Buenos Aires. Si
+    no la tenés adelante, no pongas la huella».
+  - Si no se sabe la ciudad de alguno de los dos, cuenta como que no coinciden, con su texto: «No se
+    pudo saber desde dónde pide entrar esta computadora. Si no la tenés adelante, no pongas la
+    huella».
+  - Las ciudades son aproximadas: los avisos solo avisan, nunca bloquean.
   - La computadora se entera en el momento, sin preguntar a ritmo fijo: espera por un canal
     abierto solo mientras el código está en pantalla (capítulo 00, R4.3).
 - **R2.6** Si el navegador de la computadora puede usar un celular cercano para entrar (passkeys
@@ -63,8 +69,9 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 - **R2.9** Como mucho 10 intentos por minuto con Google y 20 con la huella, por dispositivo. Pasado
   eso, la entrada dice cuánto falta para volver a intentar.
 - **R2.10** Además, como mucho 20 intentos fallidos por hora por cuenta, desde cualquier
-  dispositivo. Pasado eso, esa cuenta espera hasta que se cumpla la hora, y queda anotado para la
-  auditoría.
+  dispositivo, contados aparte para Google y para la huella. Pasado eso, esa cuenta espera hasta que
+  se cumpla la hora solo con esa forma de entrar: si se pasó con la huella, igual puede entrar con
+  Google. Queda anotado para la auditoría.
 
 ## 3. La sesión (ADR-015)
 
@@ -165,6 +172,11 @@ enviar es «Salir» (R5.2).
 - **E13b** **Dado** una computadora en Córdoba y un celular en Buenos Aires, **cuando** el celular lee
   el código, **entonces** avisa en grande que las ciudades no coinciden y que no ponga la huella si
   no tiene la computadora adelante; si igual pone la huella, la computadora entra.
+- **E13c** **Dado** una computadora y un celular en el mismo Wi-Fi, **cuando** el celular lee el código,
+  **entonces** muestra «misma red que este celular» y ningún aviso.
+- **E13d** **Dado** una computadora cuya ciudad no se puede saber, **cuando** el celular lee el código,
+  **entonces** avisa en grande que no se pudo saber desde dónde pide entrar; si igual pone la huella,
+  la computadora entra.
 - **E14** **Dado** un código ya usado, **cuando** otro celular lo lee, **entonces** no sirve.
 - **E15** **Dado** un código de hace más de 60 segundos, **cuando** se lo lee, **entonces** no sirve.
 - **E16** **Dado** un celular sin sesión y con la huella vinculada, **cuando** lee el código y pone la
@@ -186,8 +198,10 @@ enviar es «Salir» (R5.2).
   vez, **entonces** no se intenta y la entrada dice cuánto falta para volver a probar.
 
 - **E20b** **Dado** 20 intentos fallidos en una hora con una misma cuenta, desde dispositivos
-  distintos, **cuando** se intenta de nuevo con esa cuenta, **entonces** no se intenta, la entrada dice
-  cuánto falta y queda anotado para la auditoría.
+  distintos, **cuando** se intenta de nuevo con esa cuenta y la misma forma de entrar, **entonces** no
+  se intenta, la entrada dice cuánto falta y queda anotado para la auditoría.
+- **E20c** **Dado** 20 firmas de huella fallidas en una hora para una cuenta, **cuando** esa persona entra
+  con Google, **entonces** entra.
 
 ### La sesión
 
