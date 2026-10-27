@@ -7,12 +7,7 @@ import {
   passkeySignInBody,
   type SignInResponse,
 } from '@ferrebress/shared/contracts/sign-in';
-import {
-  type AuthenticationResponseJSON,
-  generateAuthenticationOptions,
-  verifyAuthenticationResponse,
-} from '@simplewebauthn/server';
-import { decodeClientDataJSON } from '@simplewebauthn/server/helpers';
+import type { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
@@ -20,7 +15,7 @@ import { deviceLabel } from '../device.ts';
 import { writeSessionCookie } from '../sessions/cookie.ts';
 import { isProofKey } from '../sessions/proof.ts';
 import { signInSettings } from '../settings.ts';
-import type { Passkey } from './data.ts';
+import { authenticationOptions, challengeOf, verifyAssertion } from './webauthn.ts';
 
 const { limits } = signInSettings;
 
@@ -38,13 +33,7 @@ export function registerPasskeySignInRoutes(ctx: SignInContext): void {
     if (blocked) return blocked;
     const challenge = ctx.challenges.issue(c.get('ipAddress'), { purpose: 'sign-in' });
     if (!challenge) return ctx.tooMany(c, signInSettings.challenge.ttlMs);
-    return c.json(
-      await generateAuthenticationOptions({
-        rpID: ctx.relyingParty.id,
-        challenge: Buffer.from(challenge, 'base64url'),
-        userVerification: 'required',
-      }),
-    );
+    return c.json(await authenticationOptions(ctx, challenge));
   });
 
   http.post('/api/sign-in/passkey', async (c) => {
@@ -62,15 +51,11 @@ export function registerPasskeySignInRoutes(ctx: SignInContext): void {
 
 // La huella que firmó, si existe y el desafío es uno que dio el servidor para entrar.
 async function findPasskey(ctx: SignInContext, response: AuthenticationResponseJSON) {
-  try {
-    const { challenge } = decodeClientDataJSON(response.response.clientDataJSON);
-    const issued = ctx.challenges.take(challenge);
-    const passkey =
-      issued?.purpose === 'sign-in' ? await ctx.passkeys.findActive(response.id) : undefined;
-    return passkey && { passkey, challenge };
-  } catch {
-    return undefined;
-  }
+  const challenge = challengeOf(response);
+  const issued = challenge && ctx.challenges.take(challenge);
+  const passkey =
+    issued && issued.purpose === 'sign-in' && (await ctx.passkeys.findActive(response.id));
+  return passkey ? { passkey, challenge: challenge as string } : undefined;
 }
 
 async function signInWithPasskey(ctx: SignInContext, c: Context, body: PasskeySignInBody) {
@@ -88,7 +73,7 @@ async function signInWithPasskey(ctx: SignInContext, c: Context, body: PasskeySi
   if (ctx.platform.limiter.exceeded(accountKey, limits.failedPerAccount)) {
     return ctx.throttle(c, [accountKey], limits.failedPerAccount) as Response;
   }
-  const counter = await verify(ctx, response, found.passkey, found.challenge);
+  const counter = await verifyAssertion(ctx, response, found.passkey, found.challenge);
   if (counter === undefined) {
     ctx.platform.limiter.hit(accountKey, limits.failedPerAccount);
     return reject('invalid-signature', found.passkey.userId);
@@ -111,30 +96,4 @@ async function signInWithPasskey(ctx: SignInContext, c: Context, body: PasskeySi
     sessionId: session.id,
     offerPasskey: false,
   });
-}
-
-// El contador nuevo, o undefined si la firma, el origen o la verificación no cierran.
-async function verify(
-  ctx: SignInContext,
-  response: AuthenticationResponseJSON,
-  passkey: Passkey,
-  challenge: string,
-) {
-  try {
-    const result = await verifyAuthenticationResponse({
-      response,
-      expectedChallenge: challenge,
-      expectedOrigin: ctx.relyingParty.origin,
-      expectedRPID: ctx.relyingParty.id,
-      requireUserVerification: true,
-      credential: {
-        id: passkey.id,
-        publicKey: new Uint8Array(passkey.publicKey),
-        counter: passkey.counter,
-      },
-    });
-    return result.verified ? result.authenticationInfo.newCounter : undefined;
-  } catch {
-    return undefined;
-  }
 }
