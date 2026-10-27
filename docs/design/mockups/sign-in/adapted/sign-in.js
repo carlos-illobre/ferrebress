@@ -22,7 +22,10 @@
     { id: "sesion-cerrada", label: "Sesión cerrada desde otro dispositivo", on: "both" },
     { id: "ofrecer-huella", label: "¿Entrar con la huella la próxima vez?", on: "phone" },
     { id: "leer-codigo", label: "Leyó el QR de una computadora", on: "phone" },
-    { id: "otra-red", label: "Leyó el QR desde otra red", on: "phone" }
+    { id: "otra-red", label: "Leyó el QR desde otra red", on: "phone" },
+    { id: "entrando-google", label: "Entrando con Google", on: "both" },
+    { id: "entrando-huella", label: "Entrando con la huella", on: "phone" },
+    { id: "entrando-celular", label: "Entrando con el celular", on: "desktop" }
   ];
   var DENIED_EMAIL = "cuenta.prueba@gmail.com";
   var state = "normal";
@@ -53,7 +56,7 @@
     closeAll(true);
     clearInterval(limitTimer);
     state = id;
-    var bodyState = (id === "ofrecer-huella" || id === "leer-codigo" || id === "otra-red") ? "normal" : id;
+    var bodyState = (id === "ofrecer-huella" || id === "leer-codigo" || id === "otra-red" || id.indexOf("entrando-") === 0) ? "normal" : id;
     document.body.dataset.state = bodyState;
     select.value = id;
 
@@ -82,6 +85,7 @@
     if (id === "ofrecer-huella") openOffer();
     if (id === "leer-codigo") openQrSheet();
     if (id === "otra-red") openQrSheet("other-network");
+    if (id.indexOf("entrando-") === 0) showEntering(id.slice(9));
     clearMark();
   }
 
@@ -166,13 +170,26 @@
 
   function step(layer, name) { $$("[data-step]", layer).forEach(function (s) { s.classList.toggle("on", s.dataset.step === name); }); }
 
-  // Entrando…: la espera mientras entra. Sin aviso de «Entraste»: en la aplicación se ve solo, porque
-  // aparece el marco. Acá vuelve a la entrada.
-  function signedIn(then) {
-    var d = $("#done");
-    $("#done-text").textContent = "Entrando…";
-    open(d, { scrim: false });
-    setTimeout(function () { close(d); if (then) then(); }, wait(1000));
+  // Entrando: reemplaza la entrada mientras se abre la sesión. Sin aviso de «Entraste»: en la
+  // aplicación se ve solo, porque aparece el marco. Acá vuelve a la entrada.
+  var G = '<svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>';
+  var WAYS = {
+    google: { from: G, title: "Conectando tu cuenta de Google", sub: "Google confirmó tu cuenta. Ahora Ferrebress abre tu sesión; tarda unos segundos.", step: "Cuenta de Google verificada", stepSub: "Google confirmó que sos vos." },
+    huella: { from: icon("fingerprint"), title: "Entrando con tu huella", sub: "Tu celular confirmó tu huella. Ahora Ferrebress abre tu sesión; tarda unos segundos.", step: "Huella confirmada", stepSub: "Tu celular confirmó que sos vos." },
+    celular: { from: icon("smartphone"), title: "Entrando con tu celular", sub: "Tu celular confirmó tu huella. Ahora Ferrebress abre tu sesión en esta computadora.", step: "Huella confirmada en el celular", stepSub: "Tu celular confirmó que sos vos." }
+  };
+  function showEntering(way) {
+    var w = WAYS[way];
+    $("#entering-from").innerHTML = w.from;
+    $("#entering-title").textContent = w.title;
+    $("#entering-sub").textContent = w.sub;
+    $("#entering-step").textContent = w.step;
+    $("#entering-step-sub").textContent = w.stepSub;
+    open($("#done"), { scrim: false });
+  }
+  function signedIn(way, then) {
+    showEntering(way);
+    setTimeout(function () { close($("#done")); if (then) then(); }, wait(2600));
   }
 
   // ---------- Google ----------
@@ -185,8 +202,8 @@
       if (state === "no-autorizada" || state === "sesion-cerrada") setState("normal", true);
       if (isPhone()) {
         // Primera vez con Google en este celular: se ofrece la huella, una sola vez (R2.2).
-        signedIn(function () { setState("ofrecer-huella", true); });
-      } else signedIn();
+        signedIn("google", function () { setState("ofrecer-huella", true); });
+      } else signedIn("google");
     });
   });
 
@@ -201,7 +218,7 @@
       };
     });
   }
-  $("#finger").addEventListener("click", function () { signedIn(); });
+  $("#finger").addEventListener("click", function () { signedIn("huella"); });
 
   function openOffer() {
     var s = $("#sheet-offer");
@@ -236,7 +253,7 @@
     var q = $("#qr");
     q.classList.add("read");
     setTimeout(function () {
-      signedIn(function () { q.classList.remove("read"); drawQr(); restartQr(); });
+      signedIn("celular", function () { q.classList.remove("read"); drawQr(); restartQr(); });
     }, wait(1800));
   });
 

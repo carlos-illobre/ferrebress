@@ -1,7 +1,8 @@
 # Entrar · maqueta adaptada: el logotipo
 
 Capturas: `screenshot-desktop.png` y `screenshot-phone.png`; en el celular, las hojas del código de
-la computadora: `screenshot-phone-qr-ask.png` y `screenshot-phone-other-network.png`.
+la computadora: `screenshot-phone-qr-ask.png` y `screenshot-phone-other-network.png`. Entrando:
+`screenshot-phone-entering.png` (con Google) y `screenshot-desktop-entering.png` (con el celular).
 
 ## Por directivas de Carlos
 
@@ -23,6 +24,14 @@ la computadora: `screenshot-phone-qr-ask.png` y `screenshot-phone-other-network.
     porque preguntan algo que el sistema no dice: si se quiere usar la huella y qué computadora
     pide entrar. Su botón naranja abre directo el lector, sin el círculo de la huella que imitaba
     al del sistema. Además, el navegador solo abre el lector después de un toque.
+- **Entrando, como en la primera versión:** mientras se abre la sesión, la entrada se reemplaza por
+  una pantalla propia, en los dos anchos, en lugar del giro sobre la entrada apagada. El logotipo, el
+  título según cómo entra («Conectando tu cuenta de Google», «Entrando con tu huella» o «Entrando con
+  tu celular») y qué pasa; un camino de lo que confirmó quién es (la G de Google, la huella o el
+  celular) a la F de Ferrebress, que gira mientras abre la sesión, y al local, adonde se llega; y dos
+  pasos: el ya hecho («Cuenta de Google verificada», «Huella confirmada»…) y «Abriendo tu sesión».
+  Solo giran el anillo y la marca del paso en curso (`transform`); con «reducir movimiento», nada
+  gira. Se ve con los estados «Entrando con…» del selector.
 - **Solo el código QR de Ferrebress (R2.6):** sin el estado «Con Bluetooth» ni la ventana del
   navegador que pedía el celular cercano.
 

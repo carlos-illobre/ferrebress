@@ -193,11 +193,26 @@
   <button type="button" class="camera-close" data-close aria-label="Cerrar"><i class="i i-l" data-i="x"></i></button>
 </section>
 
-<!-- Entrando / entró. En la aplicación se llega al marco (capítulo 00); acá vuelve a la entrada. -->
-<section class="layer done" id="done" role="status" hidden>
-  <span class="done-spin" aria-hidden="true"></span>
-  <p id="done-text">Entrando…</p>
-  <small>En la aplicación, acá se llega al marco.</small>
+<!-- Entrando (R2.11): reemplaza la entrada mientras se abre la sesión, como la de la primera versión.
+     El camino va de lo que confirmó quién es (Google, la huella o el celular) a Ferrebress, que abre
+     la sesión, y al local, adonde se llega. En la aplicación, al terminar aparece el marco. -->
+<section class="layer entering" id="done" role="status" aria-live="polite" aria-labelledby="entering-title" hidden>
+  <div class="entering-box">
+    <img class="entering-logo" src="../../../common/brand/logo-on-light.png" alt="Ferrebress" width="812" height="208">
+    <h2 id="entering-title">Conectando tu cuenta de Google</h2>
+    <p class="entering-sub" id="entering-sub">Google confirmó tu cuenta. Ahora Ferrebress abre tu sesión; tarda unos segundos.</p>
+    <div class="entering-path" aria-hidden="true">
+      <span class="entering-ball" id="entering-from"></span>
+      <span class="entering-dot"></span><span class="entering-check"><i class="i" data-i="check" data-trazo="3.2"></i></span><span class="entering-dot"></span>
+      <span class="entering-ball big"><span class="entering-ring"></span><img src="../../../common/brand/isotype.svg" alt="" width="46" height="46"></span>
+      <span class="entering-dot todo"></span><span class="entering-dot todo"></span>
+      <span class="entering-ball shop"><i class="i" data-i="store" data-trazo="1.8"></i></span>
+    </div>
+    <ol class="entering-steps">
+      <li><span class="entering-mark done"><i class="i" data-i="check" data-trazo="3.2"></i></span><span><b id="entering-step">Cuenta de Google verificada</b><small id="entering-step-sub">Google confirmó que sos vos.</small></span></li>
+      <li><span class="entering-mark now"></span><span><b>Abriendo tu sesión</b><small>Ferrebress revisa que tu cuenta esté autorizada…</small></span></li>
+    </ol>
+  </div>
 </section>
 
 <!-- Selector de estado: fuera del diseño. -->
