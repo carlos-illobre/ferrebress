@@ -14,7 +14,7 @@ y la misma configuración en la máquina de quien programa y en GitHub.
 | Qué | Con qué | Límite |
 |---|---|---|
 | Tipos | `tsc --build`, modo estricto | Sin errores |
-| Formato y reglas del código | Biome (un solo programa, escrito en Rust) | Sin avisos |
+| Formato y reglas del código | Biome (un solo programa, escrito en Rust) | Sin avisos; entre sus reglas, nada de `dangerouslySetInnerHTML` |
 | Tamaño | Biome: líneas por función; un control propio para las líneas por archivo | 40 líneas por función, 250 por archivo |
 | Complejidad | Biome, `noExcessiveCognitiveComplexity` | 10 por función |
 | Qué puede importar a qué | dependency-cruiser | Las reglas de la arquitectura: un módulo solo usa la fachada de otro, `platform` no importa módulos, `app` y `server` solo comparten `shared`, ningún módulo importa un adaptador, sin ciclos |

@@ -112,7 +112,8 @@ necesita y el módulo elige cómo (ADR-003):
 - **En el dispositivo**, solo si habilitó trabajar sin conexión: lo justo para atender y la cola
   de lo pendiente, en IndexedDB (ADR-007). Si no lo habilitó, solo lo que no es del negocio ni
   secreto, en `localStorage`: el identificador del dispositivo, sus preferencias, el nombre y rol de
-  quien entró y una salida pendiente.
+  quien entró, una salida pendiente y el último aviso de «Algo salió mal»; y, en IndexedDB, la llave
+  de prueba de la sesión, que no se puede exportar (ADR-015).
 - **Los identificadores** los genera quien crea el dato (UUID v7, ordenables por tiempo), así lo
   que se repite no se duplica.
 - **La hora** la pone el servidor (ADR-007).

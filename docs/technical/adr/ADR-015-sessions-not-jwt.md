@@ -48,9 +48,11 @@ de la aplicación.
   aplicación y el servidor están en la misma dirección, con el prefijo `__Host-` y una duración
   igual al tope. Lo que la pantalla necesita mostrar sin conexión (nombre y rol) se guarda aparte
   en el dispositivo, porque no es secreto.
-- **Una llave de prueba** por sesión, aparte del pase y que la página sí puede leer: es la que se
-  adjunta a lo hecho sin conexión y a una salida pendiente, porque el pase de la cookie no se puede
-  leer desde la página. El servidor guarda solo su huella (SHA-256).
+- **Una llave de prueba** por sesión, aparte del pase: un par de llaves de WebCrypto que la
+  aplicación crea al entrar y que no se pueden exportar. La privada queda en el dispositivo
+  (IndexedDB) y firma lo hecho sin conexión y una salida pendiente, porque el pase de la cookie no se
+  puede leer desde la página; el servidor guarda la pública. Un código malicioso en la página la
+  podría usar mientras está abierta, pero no copiarla.
 - **En el servidor,** la tabla de sesiones de PostgreSQL es la fuente de verdad y guarda la huella
   del pase (SHA-256), la persona, el dispositivo, cuándo se entró y cuándo se usó por última vez.
   La memoria del servidor tiene una copia de las sesiones ya vistas: comprobar un pase no consulta
@@ -62,8 +64,8 @@ de la aplicación.
 - **Tope:** la sesión vence a las 8 horas de haber entrado, aunque se esté usando; ningún pedido lo
   extiende. Así, una sesión robada o mantenida viva con pedidos automáticos dura
   como mucho 8 horas. También se cambia desde Administración.
-- **Lo hecho sin conexión** se guarda junto con la llave de prueba de quien lo hizo. El servidor lo
-  acepta a nombre de esa persona solo si la llave es de su sesión y su sesión no fue cerrada a mano ni la
+- **Lo hecho sin conexión** se guarda firmado con la llave de prueba de quien lo hizo. El servidor lo
+  acepta a nombre de esa persona solo si la firma es de la llave de su sesión y su sesión no fue cerrada a mano ni la
   persona dada de baja; que la sesión haya vencido no importa, porque la llave solo prueba quién lo hizo. El
   cronómetro del dispositivo solo decide cuándo mostrar la entrada; nunca qué acepta el servidor.
 - **Sin conexión, la sesión no vence en el dispositivo**: sin internet no se puede volver a

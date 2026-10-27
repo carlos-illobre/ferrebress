@@ -56,10 +56,14 @@ ferrebress/
 - **`frame` es, en la aplicación, el módulo del capítulo 00 (`00-app`):** el marco y el menú. Las
   reglas del capítulo que no son una pantalla (teclado, conexión, versión nueva) viven en
   `app/platform/`, porque las usan todos los módulos.
-- **Qué se guarda en el dispositivo aunque no trabaje sin conexión:** solo lo que no es del negocio
-  ni secreto, en `localStorage`: el identificador del dispositivo, si ya se le ofreció la huella,
-  «salir pendiente» y el nombre y rol de quien entró (para mostrarlos sin conexión). Nada de
-  IndexedDB hasta el módulo 15. La arquitectura lo dice como excepción.
+- **Qué se guarda en el dispositivo aunque no trabaje sin conexión** (la arquitectura lo dice como
+  excepción):
+  - En `localStorage`, lo que no es del negocio ni secreto: el identificador del dispositivo, si ya
+    se le ofreció la huella, «salir pendiente», el nombre y rol de quien entró (para mostrarlos sin
+    conexión; se borran al salir) y el último aviso de «Algo salió mal» (uno solo; se borra al
+    salir y al mandarlo).
+  - En IndexedDB, solo la llave de prueba de la sesión (§ 6): una llave de WebCrypto que no se
+    puede exportar, y que el navegador solo guarda ahí.
 
 ## 3. Entidades
 
@@ -86,10 +90,10 @@ existe.
 |---|---|---|
 | `id` | `uuid` PK | |
 | `token_hash` | `bytea` | SHA-256 del pase; nunca el pase |
-| `proof_key_hash` | `bytea` | SHA-256 de la llave de prueba (§ 6); la usa el módulo 15 |
+| `proof_public_key` | `bytea` | La parte pública de la llave de prueba (§ 6) |
 | `user_id` | `uuid` | Quién |
 | `device_id` | `uuid` | El dispositivo |
-| `device_label` | `text` | «Chrome en Windows» |
+| `device_label` | `text` | «Chrome en Windows», armado por el servidor (§ 5) |
 | `ip_address` | `inet` | Desde dónde se entró |
 | `created_at` | `timestamptz` | Para el tope de 8 horas |
 | `last_used_at` | `timestamptz` | Para los 60 minutos sin uso; se escribe por tandas |
@@ -122,6 +126,15 @@ servidor (§ 8) y duran segundos o minutos.
 
 Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`.
 
+- **Tamaño máximo:** 64 KB por cuerpo, en Caddy y en Hono (`bodyLimit`), y un largo máximo para cada
+  campo en su contrato (el pase de Google, 4 KB; una respuesta de la huella, 8 KB; el código, 32
+  caracteres). `X-Device-Id` tiene que ser un UUID y `X-App-Version` una versión; si no, el pedido
+  se rechaza.
+- **Pedidos desde otros sitios:** todo pedido que no es `GET`, con o sin sesión, exige `Origin`
+  igual a `PUBLIC_ORIGIN` (sin `Origin`, se rechaza) y `Content-Type: application/json`, también
+  los que no llevan cuerpo. Es una comprobación propia de `platform/http`. Ninguna respuesta lleva
+  cabeceras CORS, y todas las de `/api` llevan `Cache-Control: no-store`.
+
 - **La cookie de sesión:** `__Host-session`, `HttpOnly`, `Secure`, `SameSite=Strict`, `Path=/`,
   `Max-Age` igual al tope de la sesión. Así sobrevive a que se cierre la aplicación, pero no al
   tope.
@@ -149,8 +162,8 @@ Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`
 
 **Errores**, con un código y el texto que muestra la pantalla: `not-authorized` (con el correo;
 R1.3), `too-many-attempts` (con los segundos que faltan; R2.9, R2.10), `code-expired`,
-`code-used`, `phone-has-other-account` (R2.3, E09), `session-closed` (con el motivo; R3.5) y
-`update-required` (00 · R5.5).
+`code-used`, `phone-has-other-account` (R2.3, E09), `session-closed` (con el motivo; R3.5),
+`update-required` (00 · R5.5) y `bad-request` (forma, tamaño u origen).
 
 **Versión incompatible:** el servidor tiene en su configuración la versión mínima de la aplicación
 que entiende; sube cuando un contrato cambia de forma incompatible. Un pedido con una versión menor
@@ -173,13 +186,20 @@ recibe `update-required` (código 426) y la aplicación muestra el bloqueo.
 2. El servidor verifica el pase de Google con `jose`: firma con las llaves de Google, emisor,
    público (nuestro identificador de cliente), vencimiento, correo verificado y que el `nonce` sea
    uno que dio y no se haya usado.
-3. Busca la cuenta por `google_subject`; si no lo tiene todavía, por correo en minúsculas, y guarda
-   el `google_subject`. Si no está o está dada de baja: `not-authorized`, el mismo mensaje (R1.3).
+3. Busca la cuenta por `google_subject`. Si no hay ninguna con ese identificador, busca por correo
+   en minúsculas **solo entre las cuentas que todavía no tienen `google_subject`**, y le guarda el
+   identificador. Si la cuenta de ese correo ya tiene otro identificador (un correo que Google le
+   dio a otra persona), es `not-authorized` y la auditoría guarda los dos identificadores. Si no
+   está o está dada de baja: `not-authorized`, el mismo mensaje (R1.3).
 4. Crea la sesión (§ 6) y pone la cookie. Responde si el dispositivo es un celular sin huella
    vinculada; la aplicación decide si ofrece la huella según lo que tiene guardado (R2.2).
 
 ### La huella en el celular
 
+- **El nombre de cada dispositivo** («Chrome en Windows») lo arma el servidor con una lista cerrada
+  de navegadores (Chrome, Edge, Firefox, Safari) y sistemas (Windows, macOS, Linux, Android, iPhone),
+  a partir de lo que dice el navegador. Lo que no está en la lista es «Otro navegador». Así una
+  computadora no puede mostrar en el celular un texto que elija ella.
 - **Es un celular** si `navigator.userAgentData.mobile` lo dice o, donde no existe, si el navegador
   es de Android. La computadora nunca registra huella (R2.4).
 - **Vincular:** solo en los 5 minutos siguientes a haber entrado con Google en esa sesión (la
@@ -213,13 +233,19 @@ computadora                         servidor                          celular
 - **El QR lleva** `https://<origen>/link#<código>`: después del `#`, para que el código no quede en
   los registros de Caddy. La aplicación del celular lo lee de ahí y lo manda en el cuerpo.
 - **Leer el código lo reserva:** desde ese momento nadie más lo puede leer y el celular tiene 2
-  minutos para aprobar (5 si antes tiene que entrar). La computadora recibe «leído» y muestra
+  minutos para aprobar (5 si antes tiene que entrar). `read` le devuelve al celular, y solo a él, un
+  secreto de la reserva y el desafío de la huella para esa computadora; `approve` y `cancel` exigen
+  el secreto, y `approve` solo acepta una firma de ese desafío. Así nadie más puede cancelar la
+  reserva, y la huella queda firmada para esa computadora y no para otra. Apenas lee el código, la
+  aplicación lo borra de la dirección (`history.replaceState`). La computadora recibe «leído» y muestra
   «Leído · Esperando la huella»; si el celular toca «No soy yo» o vence el plazo, vuelve al QR.
 - **El canal y el permiso están atados a la computadora** por la cookie `__Host-sign-in-screen`
   (`HttpOnly`, al azar, nunca va en el QR). Quien vea el QR no puede escuchar el canal ni usar el
   permiso. El permiso dura 30 segundos y sirve una vez.
 - **Las ciudades:** al leer el código, el servidor busca la ciudad aproximada de la computadora y
-  la del celular (§ 8) y las devuelve; si no coinciden, el celular muestra el aviso (R2.5).
+  la del celular (§ 8) y las devuelve; si no coinciden, el celular muestra el aviso (R2.5). **Si
+  alguna de las dos es desconocida, cuenta como que no coinciden** (el atacante podría elegir una
+  dirección sin ciudad para apagar el aviso), con su propio texto: es la pregunta 1 de § 15.
 - **Celular sin sesión (R2.7):** se llega al código por la cámara del sistema (abre la dirección
   del QR) o por «Escanear el código de la computadora» en la entrada. Con la huella vinculada,
   **una sola huella** hace entrar a los dos: `approve` sin sesión verifica la huella, crea la
@@ -245,12 +271,15 @@ si la persona está activa. Si no lo dice (Firefox, hoy), el QR propio.
 
 ## 6. La sesión (ADR-015)
 
-- **Al crearla:** el pase (32 bytes al azar) va en la cookie y su hash a la base. Además se crea una
-  **llave de prueba**, también al azar, que la aplicación sí puede leer: es la que el módulo 15 va a
-  adjuntar a lo que se haga sin conexión, porque el pase no se puede leer desde la página. Hoy solo
-  se guarda su hash.
+- **Al crearla:** el pase (32 bytes al azar) va en la cookie y su hash a la base.
+- **La llave de prueba:** al entrar, la aplicación crea con WebCrypto un par de llaves ECDSA P-256
+  **que no se pueden exportar**, guarda la privada en IndexedDB y manda la pública, que el servidor
+  guarda con la sesión. Con ella la aplicación firma lo que manda cuando la cookie no sirve: hoy, la
+  salida pendiente (§ 7); en el módulo 15, lo hecho sin conexión. Un código malicioso en la página
+  podría usarla mientras está abierta, pero no llevársela. Se borra al salir.
 - **Cada pedido con cookie:** `sign-in` registra en `platform/http` la función que responde «quién
-  es»: busca el hash en memoria (si no está, una consulta y lo guarda), aplica los dos límites
+  es»: busca el hash en memoria (si no está, una consulta que trae también si la persona sigue
+  activa, y lo guarda solo si la sesión es válida: una cookie inventada no ocupa memoria), aplica los dos límites
   (`rules.ts` del módulo: dos restas, ADR-015) y anota el último uso en memoria. Una vez por minuto
   escribe juntos en la base los últimos usos que cambiaron. La plataforma no conoce la regla.
 - **Vencida o cerrada:** `session-closed` con el motivo; la aplicación muestra la entrada encima de
@@ -261,16 +290,23 @@ si la persona está activa. Si no lo dice (Firefox, hoy), el QR propio.
   hacer.
 - **Sin conexión (R3.6):** la aplicación no muestra la entrada por vencimiento mientras no hay
   conexión; el servidor aplica los límites en el próximo pedido.
-- **Dar de baja** (módulo 02): `users` publica `user.deactivated` y `sign-in`, que lo escucha,
-  cierra sus sesiones. `users` no conoce a `sign-in`.
+- **Dar de baja** (módulo 02): `users` publica `user.deactivated` **dentro de la misma transacción**
+  de la baja, y `sign-in`, que lo escucha, cierra sus sesiones en esa transacción y las saca de la
+  memoria. Si el servidor se cae en el medio, no queda una baja con sesiones abiertas. `users` no
+  conoce a `sign-in`.
+- **Hasta el módulo 02** no hay pantallas para cerrar una sesión ni quitar una huella:
+  `deploy/README.md` tiene las dos sentencias para hacerlo en la base si se pierde un celular, y
+  después se reinicia el servidor.
 
 ## 7. Salir
 
-- **Con conexión:** `POST /api/sign-out` cierra la sesión y borra la cookie.
+- **Con conexión:** `POST /api/sign-out` cierra la sesión y borra la cookie. La aplicación borra la
+  llave de prueba, el nombre y el rol, y el aviso de «Algo salió mal» si había.
 - **Sin conexión (R5.2):** la aplicación vuelve a la entrada al instante y anota en el dispositivo
   «salir de la sesión X». Al abrir la aplicación o al volver la red, **antes de cualquier otro
-  pedido**, manda `POST /api/sign-out` con el identificador de esa sesión y su llave de prueba, que
-  vale aunque la cookie ya sea de otra persona. Entrar con otra cuenta en ese dispositivo también
+  pedido**, manda `POST /api/sign-out` con el identificador de esa sesión, firmado con su llave de
+  prueba, que vale aunque la cookie ya sea de otra persona. La hora en que se tocó «Salir» sale del
+  dispositivo: la auditoría la guarda como hora no confirmada. Entrar con otra cuenta en ese dispositivo también
   la cierra. Si nunca llega, vence sola.
 
 ## 8. Lo que vive en memoria del servidor, los límites y la ciudad
@@ -288,14 +324,27 @@ Con varias copias del servidor, estas piezas pasan a PostgreSQL (`LISTEN/NOTIFY`
 chica), sin tocar las reglas (ADR-015).
 
 **Los límites de intentos** se cuentan por dispositivo **y** por dirección de internet (el
-identificador del dispositivo lo puede cambiar cualquiera). El límite por cuenta (R2.10) cuenta
+identificador del dispositivo lo puede cambiar cualquiera). Una dirección IPv6 se cuenta por su
+`/64`, porque una sola conexión tiene millones de direcciones. El límite por cuenta (R2.10) cuenta
 solo lo que demuestra algo de esa cuenta: un pase de Google válido de una cuenta no autorizada, o
 una firma que no verifica para una credencial que existe; así nadie puede bloquear a otro con solo
 saber su correo. Los pedidos sin sesión (abrir una pantalla con QR, leer un código, pedir desafíos)
-también tienen límite por dirección.
+también tienen límite por dirección:
+
+| Qué | Por dirección |
+|---|---|
+| `GET /api/start` (da un `nonce`) | 30 por minuto, y como mucho 10 `nonce` vivos |
+| Desafíos de la huella | 20 por minuto, y como mucho 10 vivos |
+| Abrir una pantalla con QR | 10 por minuto, y como mucho 3 abiertas |
+| Leer un código | 10 por minuto |
+
+Al llegar a un tope, se rechaza lo nuevo con `too-many-attempts`; nunca se saca lo que ya estaba.
+Con topes por dirección, llenar los topes totales de la tabla de arriba exige muchas direcciones.
+Los números están en el archivo de configuración.
 
 **La dirección de internet** sale de la cabecera que pone Caddy, que pisa la que mande el
-navegador; el servidor solo la acepta si el pedido viene de Caddy.
+navegador; el servidor solo la acepta si el pedido viene de Caddy. Para que Caddy vea la dirección
+real hace falta que nada en el medio la pierda (§ 14).
 
 **La ciudad aproximada** se pide por una interfaz de una sola función que define `sign-in`:
 
@@ -324,8 +373,9 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 | Evento | Cuándo |
 |---|---|
 | `sign-in.succeeded` | Entró, con cómo (Google, huella, QR, Bluetooth) |
-| `sign-in.rejected` | Cuenta no autorizada o dada de baja, huella inválida, código vencido, usado o de otra pantalla, permiso rechazado |
-| `sign-in.throttled` | Llegó a un límite de intentos |
+| `sign-in.rejected` | Cuenta no autorizada o dada de baja, correo de otro identificador de Google, huella inválida, código vencido, usado o de otra pantalla, permiso vencido o de otra pantalla |
+| `sign-in.throttled` | Llegó a un límite de intentos: una fila por ventana y por clave (dispositivo, dirección o cuenta), con cuántos pedidos rechazó, para que insistir no llene la auditoría |
+| `request.rejected` | Origen, forma, tamaño o versión rechazados, con la misma regla de una fila por ventana |
 | `sign-out` | Salió (si fue sin conexión, con la hora en que tocó y la hora en que llegó) |
 | `session.ended` | Venció o se cerró, con el motivo |
 | `passkey.linked`, `passkey.rejected` | Vinculó la huella de un celular, o no pudo (otra cuenta) |
@@ -348,11 +398,18 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 - **`platform/device`:** el identificador, si es celular, si tiene cámara, si puede entrar por
   Bluetooth, y el nombre «Chrome en Windows» (de `navigator.userAgentData`, sin bibliotecas).
 - **La versión nueva (00 · R5):** el service worker guarda solo el esqueleto de la aplicación y la
-  pantalla que se abre; el resto, cuando se usa. Cuando la cabecera dice otra versión, la baja; se
+  pantalla que se abre; el resto, cuando se usa. Nunca guarda ni contesta nada de `/api`. Cuando la cabecera dice otra versión, la baja; se
   aplica como dice R5.
 - **«Algo salió mal» (00 · R9):** muestra qué hacer y guarda el aviso, con la captura y los últimos
   pasos, para mandarlo cuando exista el módulo 12. La captura se saca con `html-to-image` (unos
   10 KB), que se baja recién cuando hace falta.
+- **El script de Google** se carga solo cuando se muestra la entrada. Si la aplicación abre con
+  sesión, no se carga.
+- **Nada de HTML armado a mano:** Preact escapa todo texto, y `pnpm check` prohíbe
+  `dangerouslySetInnerHTML` (regla de Biome).
+- **«Algo salió mal»:** las piezas que muestran datos personales llevan la marca `data-private`, y
+  la captura las tapa (00 · R9.4).
+- **Todas las bibliotecas se sirven desde el propio origen**, empaquetadas; ninguna desde un CDN.
 - **El QR:** se dibuja con `qrcode-generator` (unos 20 KB); se lee con `BarcodeDetector` y, donde
   no existe, con ZXing, que se baja recién al tocar «Escanear».
 - **Las pantallas:** la entrada, desde `docs/design/mockups/sign-in/adapted/`; el marco, desde
@@ -366,7 +423,7 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 
 | Variable | Para qué |
 |---|---|
-| `ENVIRONMENT` | `testing` o `production` |
+| `ENVIRONMENT` | `testing` o `production` en la máquina; `e2e` en las pruebas de punta a punta |
 | `PUBLIC_ORIGIN` | La dirección pública; el origen que valida la huella |
 | `DATABASE_URL` | PostgreSQL; en las pruebas, `memory://` (PGlite) |
 | `AUDIT_PATH` | El archivo de la auditoría; en las pruebas, `:memory:` |
@@ -376,6 +433,14 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 | `GEO_DATABASE_PATH` | La base de ciudades del adaptador `geo-dbip` |
 | `INITIAL_ADMIN_EMAIL` | El primer Administrador |
 | `TRUSTED_PROXY` | La dirección de Caddy, la única de la que se acepta la dirección de internet |
+
+- **Si falta una variable,** el servidor no arranca y dice su nombre, nunca un valor.
+- **Con `testing` o `production`,** el servidor no arranca si `GOOGLE_ISSUER` no es
+  `https://accounts.google.com` o si `GOOGLE_SCRIPT_URL` no es el de Google. El emisor de prueba
+  solo existe con `e2e`, y su llave se genera al arrancar cada corrida y no se guarda en ningún
+  lado.
+- **`DATABASE_URL` es un secreto** (lleva la contraseña): el `.env` de la máquina tiene permisos
+  `600`.
 
 **En un archivo de configuración del repositorio** (igual en todos los ambientes): los 60 minutos y
 las 8 horas (hasta que exista Administración), los límites de intentos, los plazos de los códigos,
@@ -404,13 +469,20 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   desde el `.env`), vincular la huella y entrar con ella (autenticador virtual de Chromium), entrar
   a la computadora leyendo el QR desde un segundo navegador, salir, sesión vencida, sin conexión,
   y las cabeceras de seguridad que pone Caddy.
+- **Una prueba por ataque:** cada riesgo de § 13 y de la revisión de seguridad tiene una prueba que
+  lo intenta y falla: un correo reasignado, un código cancelado sin el secreto de la reserva, una
+  firma de otro desafío, un pedido sin `Origin` o sin cuerpo, un cuerpo de más de 64 KB, un emisor
+  de prueba con `ENVIRONMENT=testing`, una cookie inventada que no queda en memoria, los topes por
+  dirección.
   Que Google pida elegir la cuenta después de salir (E11) se prueba comprobando que se llamó a
   `disableAutoSelect()`; que el botón se vea como el real, a mano.
 
 ## 13. Seguridad
 
 - **Datos que toca:** correo, nombre e identificador de Google de cada persona; la llave pública de
-  cada celular; la dirección de internet en las sesiones y la auditoría. Nada de contraseñas.
+  cada celular; la dirección de internet en las sesiones y la auditoría; el correo de quien intentó
+  entrar sin estar autorizado, que queda en la auditoría lo que dura su archivo. Nada de
+  contraseñas.
 - **Quién puede hacer cada cosa:** entrar, cualquier cuenta autorizada y activa (también con la
   huella y con el QR); vincular una huella, solo con la sesión abierta, desde un celular y habiendo
   pasado por Google en los últimos 5 minutos; aprobar un código, solo con la huella.
@@ -419,15 +491,21 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   - La huella: desafío, origen, `rpId`, la marca de verificación y el contador como dice § 5.
   - El código QR: que exista, que no se haya reservado ni usado, y su plazo. El canal y el permiso,
     con la cookie de la pantalla.
-  - Todo cuerpo de pedido, con su contrato.
+  - Todo cuerpo de pedido, con su contrato y su tamaño máximo (§ 4).
   - Pedidos desde otros sitios: la cookie `SameSite=Strict` y la comprobación del origen en todo
-    pedido que cambia algo.
-- **Cabeceras de Caddy:** HTTPS siempre y `Strict-Transport-Security`; una política de contenido que
-  solo permite el propio origen y lo que pide el botón de Google (`accounts.google.com` en scripts,
-  marcos, conexiones y estilos), con `frame-ancestors 'none'` y `X-Frame-Options: DENY` (la entrada
-  no se puede meter en otra página); `Permissions-Policy` con la cámara y la huella solo para el
-  propio origen.
-- **Secretos:** ninguno nuevo; el identificador de Google no es secreto. Los pases, solo como hash.
+    pedido que no es `GET` (§ 4).
+- **Cabeceras de Caddy:**
+  - HTTPS siempre y `Strict-Transport-Security`.
+  - Una política de contenido que solo permite el propio origen y lo que pide el botón de Google
+    (`accounts.google.com` en scripts, marcos, conexiones y estilos), con `object-src 'none'`,
+    `base-uri 'none'`, `worker-src 'self'`, `img-src 'self' data: blob:` y
+    `frame-ancestors 'none'`.
+  - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: same-origin` y
+    `Cross-Origin-Opener-Policy: same-origin-allow-popups` (el botón de Google abre una ventana).
+  - `Permissions-Policy` con la cámara y la huella solo para el propio origen.
+- **Secretos:** la contraseña de la base (`DATABASE_URL`) y el canal de ntfy, que se guarda como
+  secreto de GitHub para que no aparezca en los registros públicos de Actions. El identificador de
+  Google no es secreto. Los pases, solo como hash.
 - **Límites:** § 8.
 - **Lo que no se puede garantizar (aceptado):** las huellas de Google se copian a los
   otros dispositivos de la misma cuenta de Google, también a Chrome en una computadora. El servidor
@@ -444,18 +522,33 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
 - **Las migraciones** corren al arrancar el servidor, antes de atender. Cada una es compatible con
   la versión anterior del código (primero se agrega; lo que se quita, en una versión posterior),
   porque el despliegue puede volver atrás.
-- **En la máquina:** Docker sin privilegios necesita permitir los puertos 80 y 443
-  (`net.ipv4.ip_unprivileged_port_start=80`) y `loginctl enable-linger` para que el servicio
-  arranque solo. Lo dice `deploy/README.md`.
-- **Workflows:** `check.yml` en cada subida (`pnpm check`); `deploy.yml` en `main` (imágenes, GHCR,
-  aviso a ntfy). Las pruebas de punta a punta, con el compose, antes de cerrar el módulo.
+- **Workflows:** `check.yml` en cada subida (`pnpm check`); `deploy.yml` solo en `push` a `main`
+  (imágenes, GHCR, aviso a ntfy). Como el repositorio es público: ningún `pull_request_target`,
+  `permissions:` mínimos en cada workflow (`contents: read`; `packages: write` solo en el que publica)
+  y las acciones de terceros fijadas por su commit.
+- **En la máquina, `deploy.sh`** corre como mucho una vez por minuto (un aviso falso solo provoca una
+  consulta a GitHub), baja las imágenes por su huella (`@sha256:`) y no solo por la etiqueta, y baja
+  la base de ciudades por HTTPS comprobando su suma antes de reemplazar la anterior.
+- **Las pruebas de punta a punta**, con el compose, antes de cerrar el módulo.
 - **La máquina:** la misma VM de Oracle del proyecto anterior. Antes del primer despliegue se
-  apaga y se desinstala en ella todo lo del proyecto anterior, también su producción: contenedores,
-  imágenes, volúmenes, servicios y su carpeta. Ferrebress queda solo en la máquina, con los puertos
-  80 y 443 para su Caddy. Lo hace `deploy/uninstall-previous.sh` (§ 17), que primero guarda una
-  copia de la base de producción del proyecto anterior fuera de la máquina.
+  desinstala todo lo suyo, también su producción, con el script que está en el propio proyecto
+  anterior (§ 17). Ferrebress corre con su propio usuario y Docker sin privilegios, y `loginctl
+  enable-linger` para que el servicio arranque solo; lo dice `deploy/README.md`.
+- **Los puertos 80 y 443 no los tenía el proyecto anterior:** los tiene un proxy de la máquina, que
+  atiende a todas sus aplicaciones y le pasaba los pedidos por puertos locales. Cómo entra
+  Ferrebress, la pregunta 3 de § 15.
+- **La dirección real:** sea cual sea la respuesta, una prueba en la máquina entra desde una
+  dirección conocida y comprueba que la auditoría anota esa. Docker sin privilegios, con su forma
+  de abrir puertos por omisión, la pierde y anota la misma para todos: eso apagaría el aviso de
+  ciudad y juntaría los límites de todo el mundo en uno.
+- **Las versiones:** exactas en `package.json`. Hono 4.6.5 o más nueva (las anteriores tienen
+  fallas conocidas en su control de origen) y `jose` reciente.
+- **Si se pierde un celular** antes del módulo 02: `deploy/README.md` dice cómo cerrar sus sesiones
+  y quitar su huella en la base.
 
-## 15. Lo que decidió Carlos
+## 15. Decisiones
+
+Lo que decidió Carlos:
 
 - **La máquina:** se desinstala todo lo del proyecto anterior, también su producción, y Ferrebress
   queda solo en ella (§ 14).
@@ -463,6 +556,31 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   tocar el resto (§ 8).
 - **Celular sin huella ante el QR:** se le pide vincularla en ese momento (R2.7, § 5).
 - **Las huellas que se copian:** se acepta (§ 13, ADR-006).
+
+Lo que falta decidir:
+
+1. **La ciudad desconocida.** Si la ciudad de la computadora o la del celular no se encuentra,
+   ¿cuenta como que no coinciden, con su propio aviso? Propuesta de texto: «No se pudo saber desde
+   dónde pide entrar esta computadora. Si no la tenés adelante, no pongas la huella». Si no, quien
+   arma una página falsa puede elegir una dirección sin ciudad y el celular no avisa. Como mejora:
+   cuando el celular y la computadora salen a internet por la misma dirección (los dos en el Wi-Fi
+   del local), el aviso podría decir «misma red que este celular», una señal más fuerte que la
+   ciudad.
+2. **El bloqueo de una cuenta por fallos (R2.10).** Quien conozca el identificador de una huella
+   (no es secreto: viaja en cada entrada) puede mandar 20 firmas falsas desde direcciones distintas
+   y dejar a esa persona una hora sin entrar, también con Google. ¿El bloqueo por fallos de la
+   huella frena solo la huella de esa cuenta y deja entrar con Google?
+3. **Los puertos 80 y 443.** El proxy de la máquina:
+   - **A (recomiendo):** Ferrebress hace lo mismo que hacía el proyecto anterior: su Caddy escucha
+     solo en un puerto local (8090 en pruebas, 8091 en producción) y el proxy de la máquina le pasa
+     los dominios de Ferrebress, con HTTPS y la dirección real en una cabecera. Así no hay que tocar
+     la red de Docker y no se pierde la dirección. Las cabeceras de seguridad igual las pone el
+     Caddy de Ferrebress. Desventaja: el certificado y las rutas viven en el proxy de la máquina,
+     fuera del repositorio.
+   - **B:** si en la máquina no queda ninguna otra aplicación, se saca ese proxy y el Caddy de
+     Ferrebress toma el 80 y el 443. Todo queda en el repositorio, pero hay que cambiar la red de
+     Docker sin privilegios (`pasta`) para no perder la dirección real, y eso no se pudo probar
+     todavía.
 
 ## 16. Tareas
 
@@ -492,8 +610,8 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
   el cliente web, agregar a «Orígenes de JavaScript autorizados»
   `https://ferrebress-pruebas.duckdns.org`. Mientras la pantalla de consentimiento siga en
   «Prueba», cada cuenta que entre tiene que estar en su lista de usuarios de prueba.
-- **La máquina:** correr `deploy/uninstall-previous.sh` en la VM (§ 14), que guarda la copia de la
-  base de producción del proyecto anterior y desinstala todo lo suyo; se lo prepara el agente con
-  los pasos.
-- **ntfy:** nada; el agente crea el canal con un nombre al azar y lo guarda como variable de GitHub
+- **La máquina:** correr en la VM `deployment/oracle-single/maquina/desinstalar.sh` del proyecto
+  anterior (sus pasos están en su `ORACLE.md`, paso 15). Con la opción A de la pregunta 3, agregar
+  al proxy de la máquina las rutas de `ferrebress-pruebas.duckdns.org`.
+- **ntfy:** nada; el agente crea el canal con un nombre al azar y lo guarda como secreto de GitHub
   y en la máquina.
