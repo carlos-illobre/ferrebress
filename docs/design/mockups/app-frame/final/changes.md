@@ -5,9 +5,10 @@ variantes: tiene su copia de `shared.css`, `shared.js`, del isotipo (`isotype.sv
 logotipo de la entrada (`logo-on-light.png`, de `../../sign-in/adapted/`), y `extra-icons.js`
 con los dos íconos de Lucide que `common/icons.js` no tiene. Lo del director quedó sin tocar.
 
-Capturas: `screenshot.png` (computadora, menú agrandado), `screenshot-collapsed.png` (menú
-minimizado, con el nombre de Catálogo al pasar el mouse), `screenshot-alt.png` (con Alt
-apretado: las teclas a la derecha) y `screenshot-phone.png` (celular).
+Capturas: `screenshot.png` (computadora, menú agrandado, con el rótulo del botón de minimizar al
+pasar el mouse), `screenshot-collapsed.png` (menú minimizado, con el nombre de Catálogo al pasar
+el mouse), `screenshot-alt.png` y `screenshot-alt-collapsed.png` (con Alt apretado, agrandado y
+minimizado) y `screenshot-phone.png` (celular).
 
 ## Por pedido de Carlos
 
@@ -16,7 +17,7 @@ apretado: las teclas a la derecha) y `screenshot-phone.png` (celular).
    la computadora y en el celular. El área es la pantalla de la primera opción del menú: mientras
    no exista ningún módulo, queda vacía, con el fondo de la aplicación.
 2. **El menú se minimiza a solo íconos** (00 · R1.6, E03b), solo en la computadora:
-   - Un botón lo achica y lo vuelve a agrandar (cómo es, en la segunda vuelta). Atajo **Alt E**
+   - Un botón lo achica y lo vuelve a agrandar (cómo es y dónde está, en la segunda y la tercera vuelta). Atajo **Alt E**
      (de «m**e**nú»: la M ya es de Más), que se ve solo con Alt apretado, como los demás.
    - Minimizado: la F, los cinco íconos, la luz como un punto de color y la persona como sus
      iniciales.
@@ -66,6 +67,38 @@ apretado: las teclas a la derecha) y `screenshot-phone.png` (celular).
    se apaga la palabra y la F no se mueve. En el celular la cabecera decía también «F Ferrebress»:
    se cambió por el mismo logotipo, para que diga lo mismo en los dos (00 · consistencia).
 
+## Tercera vuelta: lo que pidió Carlos al verla (2026-10-27)
+
+1. **«El ícono me gusta, pero no quiero que esté en un renglón aparte, tiene que estar a la
+   derecha del logo.»** El botón de minimizar deja el pie y va a la cabecera del menú, a la
+   derecha del logotipo: un ícono solo (`panel-left-close`, 36 px), sin texto; su nombre
+   («Minimizar el menú» / «Agrandar el menú») sale en el rótulo pino al pasar el mouse o al llegar
+   con la marca del teclado, agrandado y minimizado. **Minimizado** va **debajo de la F**, dentro
+   de la misma cabecera, con `panel-left-open` y el ancho de los demás íconos (48 px, en su misma
+   columna). Para que el menú no salte, la cabecera tiene el mismo alto en los dos estados (76 px:
+   la F y, debajo, el botón); el costo es que agrandado quedan unos 30 px más de aire entre el
+   logotipo y Vender. Al minimizar y al agrandar, el botón se apaga junto con los nombres y se
+   enciende en su lugar nuevo (solo `opacity`). Sigue siendo el primero del recorrido con ↑ ↓ y su
+   atajo sigue siendo Alt E.
+2. **«Lo del Alt no me gusta… quiero que ocurra [como en Salir] pero con los ítems del menú.»** Con
+   Alt, la tecla ya no flota afuera del menú: aparece **dentro de cada renglón, a la derecha del
+   texto**, con la misma pieza `.kbd` que «Salir».
+   - En las opciones con «Pronto» no entran las dos: mientras Alt está apretado, la tecla ocupa el
+     lugar de «Pronto», y al soltarlo vuelve «Pronto». Igual en el panel de Más.
+   - Más: la tecla a la derecha de «Más», antes de la flecha. La luz: a la derecha de su texto,
+     antes de la flecha. «Salir» y la × de lo pendiente ya estaban así.
+   - **Lo que no tiene texto** (el botón de minimizar, agrandado y minimizado, y todo el menú
+     minimizado: los íconos, la luz y las iniciales): la tecla va **dentro del renglón, en la
+     esquina de arriba a la derecha del ícono**, con un borde del color del menú para que se
+     despegue del dibujo. Minimizado ocupa el lugar de la marca de «Pronto» (el reloj), que se
+     apaga mientras Alt está apretado, como «Pronto» agrandado. No entra en un renglón de 48 px al
+     lado del ícono sin agrandar el menú; arriba a la derecha es lo más parecido a «a la derecha»
+     y tapa solo la punta del ícono. En el botón de minimizar agrandado tampoco entra a su derecha
+     sin montarse sobre el logotipo, así que va en la misma esquina que minimizado.
+   - Con un panel abierto encima, como antes, solo se ven las teclas del panel (00 · R2.10), y el
+     menú de atrás conserva sus «Pronto».
+3. Nada más cambió.
+
 ## Por las reglas aprobadas
 
 - **00 · R2.8 (todo botón tiene su atajo):** la × del panel de lo pendiente no tenía. Ahora es
@@ -90,7 +123,7 @@ apretado: las teclas a la derecha) y `screenshot-phone.png` (celular).
   para animarlo sin tocar el ancho. Las entradas al cargar usan `backwards` en vez de
   `both`, para que un `transform` que queda puesto no cambie dónde se ubican los paneles fijos que
   se abren dentro del lateral.
-- **Una clase por pieza:** `.plegar`, `.pronto-mini`, `.persona-mini`, `.persona-quien`,
+- **Una clase por pieza:** `.plegar` (el botón de ícono de la cabecera), `.pronto-mini`, `.persona-mini`, `.persona-quien`,
   `.panel-costado`, `.rotulo`, `.lado-logo`, `.lado-isotipo`, `.p-logo`, `.luz-texto`, `.pop-cerrar`, `.p-nav-parte`, `.grupo-opcion`,
   `.hoja-asa`; los anchos del menú en variables (`--lado-ancho`, `--lado-mini`). Se sacaron el
   estilo en línea del celular (`.pronto.vacio`) y los selectores por etiqueta.
