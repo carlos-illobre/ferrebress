@@ -20,7 +20,8 @@ services:
       TRUSTED_PROXY: 172.30.0.10
     volumes:
       - audit-data:/data/audit
-      - geo-data:/data/geo:ro
+      # GEO_DIR: una carpeta de la máquina con la base de ciudades; si no, un volumen.
+      - ${GEO_DIR:-geo-data}:/data/geo:ro
     depends_on:
       db: { condition: service_healthy }
     networks: [internal]

@@ -534,7 +534,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   y las acciones de terceros fijadas por su commit.
 - **En la máquina, `deploy.sh`** corre como mucho una vez por minuto (un aviso falso solo provoca una
   consulta a GitHub), baja las imágenes por su huella (`@sha256:`) y no solo por la etiqueta, y baja
-  la base de ciudades por HTTPS comprobando su suma antes de reemplazar la anterior.
+  la base de ciudades una vez por mes por HTTPS, y la reemplaza solo si es una base válida (tamaño
+  y marca del formato; DB-IP no publica sumas).
 - **Las pruebas de punta a punta**, con el compose, antes de cerrar el módulo.
 - **La máquina:** una VM de Oracle que comparte con otras aplicaciones. Ferrebress corre con su
   propio usuario y Docker sin privilegios, y `loginctl enable-linger` para que el servicio arranque
