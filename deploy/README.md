@@ -5,46 +5,25 @@ sin privilegios y con su propio Docker; su Caddy escucha solo en `127.0.0.1:8090
 la máquina le pasa sus dominios (ADR-011). Estos pasos se hacen una sola vez; los puede hacer el
 agente de la máquina.
 
-## 1. Con un usuario administrador
+## Instalar o poner al día
+
+Con un usuario administrador, desde una copia del repositorio:
 
 ```bash
-sudo useradd --create-home --shell /bin/bash ferrebress
-sudo loginctl enable-linger ferrebress          # sus servicios corren sin sesión abierta
-grep ferrebress /etc/subuid /etc/subgid         # tiene que tener un rango en los dos
+git clone https://github.com/carlos-illobre/ferrebress.git && cd ferrebress
+GOOGLE_CLIENT_ID=<el cliente OAuth web> ADMIN_EMAIL=<el primer Administrador> \
+  NTFY_TOPIC=<el mismo valor que el secreto NTFY_TOPIC de GitHub> bash deploy/install.sh
 ```
 
-## 2. Con el usuario `ferrebress` (`sudo -iu ferrebress`)
+`install.sh` crea el usuario `ferrebress` con su Docker sin privilegios, copia los scripts y el
+compose, arma el `.env` (genera la contraseña de la base sin mostrarla), arranca el servicio que
+escucha los avisos, instala `machine-proxy/ferrebress.caddy` en el proxy de la máquina y comprueba
+que `https://ferrebress-pruebas.duckdns.org/api/health` responda con las cabeceras de seguridad. Se
+puede volver a correr: no pisa lo que ya está configurado en el `.env`. Los datos van como
+variables al correrlo: el repositorio es público y no los guarda.
 
-```bash
-dockerd-rootless-setuptool.sh install && docker context use rootless
-docker buildx version                           # deploy.sh lo usa para leer las huellas
-git clone https://github.com/carlos-illobre/ferrebress.git ~/ferrebress-repo
-mkdir -p ~/ferrebress ~/.config/systemd/user
-cp ~/ferrebress-repo/deploy/{deploy.sh,listen.sh,compose.yml} ~/ferrebress/
-cp ~/ferrebress-repo/deploy/ferrebress-deploy.service ~/.config/systemd/user/
-cp ~/ferrebress-repo/.env.example ~/ferrebress/.env && chmod 600 ~/ferrebress/.env
-```
-
-- **`~/ferrebress/.env`:** completar lo que está entre `<…>`. `WEB_IMAGE` y `SERVER_IMAGE` quedan
-  vacías: las completa `deploy.sh`.
-- **`~/ferrebress/deploy.env`:** una línea `NTFY_TOPIC=<el canal>`, el mismo nombre que el secreto
-  `NTFY_TOPIC` de GitHub. Permisos `600`.
-
-```bash
-systemctl --user daemon-reload
-systemctl --user enable --now ferrebress-deploy
-journalctl --user -u ferrebress-deploy -f       # tiene que decir «corre <sha>»
-```
-
-## 3. El proxy de la máquina, con un usuario administrador
-
-```bash
-sudo cp ~ferrebress/ferrebress-repo/deploy/machine-proxy/ferrebress.caddy /etc/caddy/sitios/
-sudo caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile && sudo systemctl reload caddy
-curl -s https://ferrebress-pruebas.duckdns.org/api/health   # {"ok":true,"version":"<sha>"}
-```
-
-Y anotar la fila de Ferrebress en `/etc/caddy/sitios/README.md`.
+Si es la primera vez, al final hay que anotar la fila de Ferrebress en
+`/etc/caddy/sitios/README.md`.
 
 ## Fuera de la máquina
 
@@ -62,5 +41,5 @@ Y anotar la fila de Ferrebress en `/etc/caddy/sitios/README.md`.
 cd ~/ferrebress && docker compose ps && docker compose logs -f --tail 100 server
 ```
 
-Cuando cambian `deploy.sh`, `listen.sh` o el servicio en el repositorio, se vuelven a copiar
-(`git -C ~/ferrebress-repo pull` y los `cp` del paso 2) y se reinicia el servicio.
+Cuando cambian `deploy.sh`, `listen.sh`, el compose o el servicio en el repositorio, se hace
+`git pull` en la copia y se vuelve a correr `install.sh` con las mismas variables.
