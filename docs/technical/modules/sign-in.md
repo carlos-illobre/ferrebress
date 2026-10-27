@@ -43,7 +43,8 @@ ferrebress/
 │           └── sign-in/             la entrada, las hojas del celular, salir
 ├── tests/e2e/                       Playwright: los caminos principales, en los dos anchos
 ├── tools/                           los controles propios de pnpm check (enlaces de docs/)
-├── deploy/                          compose.yml, Caddyfile, deploy.sh, listen.sh, el servicio
+├── deploy/                          compose.yml, Caddyfile, deploy.sh, listen.sh, el servicio,
+│                                    machine-proxy/ (el archivo para el proxy de la máquina)
 ├── .github/workflows/               check.yml, deploy.yml, mockups.yml
 └── package.json · pnpm-workspace.yaml · tsconfig.base.json · biome.json · .env.example
 ```
@@ -499,7 +500,7 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   - Pedidos desde otros sitios: la cookie `SameSite=Strict` y la comprobación del origen en todo
     pedido que no es `GET` (§ 4).
 - **Cabeceras de Caddy:**
-  - HTTPS siempre y `Strict-Transport-Security`.
+  - HTTPS siempre (lo atiende el proxy de la máquina) y `Strict-Transport-Security`.
   - Una política de contenido que solo permite el propio origen y lo que pide el botón de Google
     (`accounts.google.com` en scripts, marcos, conexiones y estilos), con `object-src 'none'`,
     `base-uri 'none'`, `worker-src 'self'`, `img-src 'self' data: blob:` y
@@ -521,8 +522,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
 
 - **Imágenes:** el servidor (Node) y Caddy con la aplicación adentro, para ARM, construidas en un
   runner ARM de GitHub (gratis en repositorios públicos).
-- **Volúmenes:** la base, la auditoría, la base de ciudades y los certificados de Caddy (si no,
-  pediría uno nuevo en cada despliegue y Let's Encrypt los limita).
+- **Volúmenes:** la base, la auditoría y la base de ciudades. Los certificados los guarda el proxy
+  de la máquina.
 - **Las migraciones** corren al arrancar el servidor, antes de atender. Cada una es compatible con
   la versión anterior del código (primero se agrega; lo que se quita, en una versión posterior),
   porque el despliegue puede volver atrás.
@@ -538,13 +539,27 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   desinstala todo lo suyo, también su producción, con el script que está en el propio proyecto
   anterior (§ 17). Ferrebress corre con su propio usuario y Docker sin privilegios, y `loginctl
   enable-linger` para que el servicio arranque solo; lo dice `deploy/README.md`.
-- **Los puertos 80 y 443 no los tenía el proyecto anterior:** los tiene un proxy de la máquina, que
-  atiende a todas sus aplicaciones y le pasaba los pedidos por puertos locales. Cómo entra
-  Ferrebress, la pregunta 1 de § 15.
-- **La dirección real:** sea cual sea la respuesta, una prueba en la máquina entra desde una
+- **Los puertos 80 y 443** los tiene el proxy de la máquina (ADR-011), que comparten las
+  aplicaciones de la VM. Ferrebress corre con el usuario `ferrebress`, sin privilegios y con su
+  Docker; su Caddy escucha solo en `127.0.0.1:8090` (pruebas; producción, `8091`). El archivo que
+  va en el proxy está en el repositorio (`deploy/machine-proxy/ferrebress.caddy`) y lo instala una
+  vez un administrador:
+
+  ```
+  ferrebress-pruebas.duckdns.org {
+      reverse_proxy 127.0.0.1:8090
+  }
+  ```
+
+  El proxy pone la dirección de quien se conecta en `X-Forwarded-For` y pisa la que mande el
+  navegador. El Caddy de Ferrebress solo la toma si el pedido viene de la red local
+  (`trusted_proxies`), y el servidor solo la toma del Caddy de Ferrebress (`TRUSTED_PROXY`, una
+  dirección fija en la red interna del compose).
+- **La dirección real:** una prueba en la máquina entra desde una
   dirección conocida y comprueba que la auditoría anota esa. Docker sin privilegios, con su forma
   de abrir puertos por omisión, la pierde y anota la misma para todos: eso apagaría el aviso de
-  ciudad y juntaría los límites de todo el mundo en uno.
+  ciudad y juntaría los límites de todo el mundo en uno; pasando por el proxy de la máquina no
+  hace falta tocar la red de Docker.
 - **Las versiones:** exactas en `package.json`. Hono 4.6.5 o más nueva (las anteriores tienen
   fallas conocidas en su control de origen) y `jose` reciente.
 - **Si se pierde un celular** antes del módulo 02: `deploy/README.md` dice cómo cerrar sus sesiones
@@ -564,19 +579,8 @@ Lo que decidió Carlos:
   ciudad desconocida cuenta como que no coinciden (R2.5).
 - **El límite por cuenta:** Google y la huella se cuentan aparte (R2.10).
 
-Lo que falta decidir:
-
-1. **Los puertos 80 y 443.** El proxy de la máquina:
-   - **A (recomiendo):** Ferrebress hace lo mismo que hacía el proyecto anterior: su Caddy escucha
-     solo en un puerto local (8090 en pruebas, 8091 en producción) y el proxy de la máquina le pasa
-     los dominios de Ferrebress, con HTTPS y la dirección real en una cabecera. Así no hay que tocar
-     la red de Docker y no se pierde la dirección. Las cabeceras de seguridad igual las pone el
-     Caddy de Ferrebress. Desventaja: el certificado y las rutas viven en el proxy de la máquina,
-     fuera del repositorio.
-   - **B:** si en la máquina no queda ninguna otra aplicación, se saca ese proxy y el Caddy de
-     Ferrebress toma el 80 y el 443. Todo queda en el repositorio, pero hay que cambiar la red de
-     Docker sin privilegios (`pasta`) para no perder la dirección real, y eso no se pudo probar
-     todavía.
+- **Los puertos:** el proxy de la máquina atiende HTTPS y le pasa los dominios de Ferrebress a su
+  Caddy, que sigue siendo propio (§ 14, ADR-011).
 
 ## 16. Tareas
 
@@ -607,7 +611,10 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
   `https://ferrebress-pruebas.duckdns.org`. Mientras la pantalla de consentimiento siga en
   «Prueba», cada cuenta que entre tiene que estar en su lista de usuarios de prueba.
 - **La máquina:** correr en la VM `deployment/oracle-single/maquina/desinstalar.sh` del proyecto
-  anterior (sus pasos están en su `ORACLE.md`, paso 15). Con la opción A de la pregunta 1, agregar
-  al proxy de la máquina las rutas de `ferrebress-pruebas.duckdns.org`.
+  anterior (sus pasos están en su `ORACLE.md`, paso 15).
+- **El usuario y el proxy:** crear el usuario `ferrebress` con Docker sin privilegios y `linger`, y
+  copiar `deploy/machine-proxy/ferrebress.caddy` a `/etc/caddy/sitios/`; los pasos los tiene
+  `deploy/README.md`, y los puede hacer el agente de la VM.
+- **DuckDNS:** crear `ferrebress-pruebas` apuntando a la IP pública de la VM.
 - **ntfy:** nada; el agente crea el canal con un nombre al azar y lo guarda como secreto de GitHub
   y en la máquina.

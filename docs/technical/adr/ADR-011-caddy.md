@@ -23,11 +23,26 @@
 
 ## Decisión
 
-Caddy, con un `Caddyfile` mínimo: HTTPS, los archivos de la aplicación con compresión y caché
-larga (los nombres llevan su huella), `/api/*` hacia el servidor, y SSE sin acumular respuestas
-(ADR-003). Nada de lógica en Caddy: ni sesiones ni permisos, que los resuelve el servidor.
+- **Un Caddy propio de Ferrebress**, en su compose, con un `Caddyfile` mínimo: los archivos de la
+  aplicación con compresión y caché larga (los nombres llevan su huella), `/api/*` hacia el
+  servidor, SSE sin acumular respuestas (ADR-003), las cabeceras de seguridad y el tamaño máximo de
+  los pedidos. Nada de lógica: ni sesiones ni permisos, que los resuelve el servidor.
+- **HTTPS lo atiende el proxy de la máquina**, otro Caddy que comparten todas las aplicaciones de
+  la VM y que tiene los puertos 80 y 443. Ferrebress le agrega un archivo con sus dominios
+  (`/etc/caddy/sitios/ferrebress.caddy`), que solo pasa cada dominio al puerto local de su ambiente
+  y la dirección real de quien se conecta en `X-Forwarded-For`. El Caddy de Ferrebress solo
+  escucha en `127.0.0.1` y confía en esa cabecera solo si viene del proxy.
+- **Por qué no alcanza con el proxy de la máquina:** la configuración del Caddy propio cambia con el
+  código y se despliega con cada commit; la aplicación viaja en su imagen, así que volver atrás es
+  cambiar de versión; y las pruebas de punta a punta usan la misma configuración que la máquina.
+  En el proxy de la máquina, cada cambio necesitaría que un administrador escriba en `/etc/caddy`,
+  y el despliegue de Ferrebress no tiene, ni debe tener, permisos sobre el proxy que atiende a las
+  otras aplicaciones.
 
 ## Consecuencias
 
-- Si algún día se quiere no abrir puertos, Cloudflare Tunnel se pone delante de Caddy sin cambiar
-  nada más.
+- Si algún día se quiere no abrir puertos, Cloudflare Tunnel se pone delante del proxy de la
+  máquina sin cambiar nada más.
+- Un dominio nuevo (el de producción) es una línea en el archivo de Ferrebress del proxy de la
+  máquina, que agrega un administrador una vez.
+- Cuesta un contenedor de unos 40 MB de memoria y un salto local más por pedido.

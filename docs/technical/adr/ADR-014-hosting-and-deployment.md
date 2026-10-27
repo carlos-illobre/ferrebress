@@ -29,8 +29,11 @@ secretos ni datos de proveedores entran en él.
 
 ## Consecuencias
 
-- La máquina no publica más que el puerto de Caddy; el servidor y PostgreSQL quedan en la red
-  interna de Docker.
+- Ferrebress no publica nada hacia internet: su Caddy escucha en un puerto local (8090 en pruebas,
+  8091 en producción) y el proxy de la máquina le pasa sus dominios (ADR-011). El servidor y
+  PostgreSQL quedan en la red interna de Docker.
+- Ferrebress corre con su propio usuario de la máquina, sin privilegios y con su propio Docker, como
+  las otras aplicaciones de la VM.
 
 ## Cómo se entera la máquina
 

@@ -8,9 +8,15 @@ tiene reglas del negocio: esas están en los [capítulos](../chapters/README.md)
 
 ```
                     ┌──────────────────────────────┐
-  celular ─┐        │  Caddy (HTTPS, una sola      │
-           ├─HTTP──▶│  puerta, sirve la aplicación)│
-  compu  ──┘        └──────────────┬───────────────┘
+  celular ─┐        │  proxy de la máquina (HTTPS, │
+           ├─HTTPS─▶│  certificado, un dominio por │
+  compu  ──┘        │  aplicación)                 │
+                    └──────────────┬───────────────┘
+                                   │ puerto local
+                    ┌──────────────▼───────────────┐
+                    │  Caddy (sirve la aplicación, │
+                    │  cabeceras, /api al servidor)│
+                    └──────────────┬───────────────┘
      ▲                             │
      │ conexión directa            ▼
      │ (Wi-Fi del local)   ┌───────────────┐    ┌──────────────┐
@@ -21,7 +27,9 @@ tiene reglas del negocio: esas están en los [capítulos](../chapters/README.md)
                            └───────────────┘    └──────────────┘
 ```
 
-Tres contenedores: Caddy, el servidor y PostgreSQL. La auditoría es un archivo del servidor.
+Tres contenedores: Caddy, el servidor y PostgreSQL. La auditoría es un archivo del servidor. El
+proxy de la máquina no es parte de Ferrebress: lo comparten las aplicaciones de la VM, y Ferrebress
+le agrega un archivo con sus dominios (ADR-011).
 
 ## El código
 
