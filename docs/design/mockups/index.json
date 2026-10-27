@@ -11,9 +11,11 @@
   },
   {
    "id": "app-frame",
-   "title": "El marco vacío",
+   "title": "El marco",
    "module": "01 · Entrar",
    "variants": [
+    { "device": "desktop", "name": "Final", "path": "mockups/app-frame/final/index.html" },
+    { "device": "phone", "name": "Final", "path": "mockups/app-frame/final/index.html" },
     { "device": "desktop", "name": "1 · Evolución", "path": "mockups/app-frame/variant-1-evolution/index.html" },
     { "device": "desktop", "name": "2 · El tablero", "path": "mockups/app-frame/variant-2-pegboard/index.html" },
     { "device": "desktop", "name": "3 · Una sola puerta", "path": "mockups/app-frame/variant-3-one-door/index.html" },
