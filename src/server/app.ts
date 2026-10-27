@@ -10,10 +10,17 @@ import { createHttp } from './platform/http.ts';
 import type { Platform, ServerModule } from './platform/modules.ts';
 import { createRateLimiter } from './platform/rate-limit.ts';
 
+// Cómo se programa un trabajo periódico; las pruebas pasan uno que corre cuando ellas quieren.
+export type Schedule = (ms: number, run: () => void) => () => void;
+const intervals: Schedule = (ms, run) => {
+  const timer = setInterval(run, ms).unref();
+  return () => clearInterval(timer);
+};
+
 export async function createServer(
   config: Config,
   modules: ServerModule[],
-  clock: Clock = systemClock,
+  { clock = systemClock, schedule = intervals }: { clock?: Clock; schedule?: Schedule } = {},
 ) {
   const db = await openDatabase<unknown>(config.DATABASE_URL);
   await migrate(
@@ -31,7 +38,16 @@ export async function createServer(
     audit,
     limiter,
   });
-  const platform: Platform = { config, db, audit, clock, limiter, events: createEvents(), http };
+  const stops: (() => void)[] = [];
+  const closing: (() => Promise<void>)[] = [];
+  const platform: Platform = {
+    ...{ config, db, audit, clock, limiter, events: createEvents(), http },
+    every(ms, job) {
+      const run = () => job().catch((error: unknown) => console.error(error));
+      stops.push(schedule(ms, run));
+    },
+    onClose: (job) => void closing.push(job),
+  };
 
   http.get('/api/health', async (c) => {
     await sql`select 1`.execute(db);
@@ -40,6 +56,8 @@ export async function createServer(
   for (const module of modules) await module.register(platform);
 
   const close = async () => {
+    for (const stop of stops) stop();
+    for (const job of closing) await job();
     audit.close();
     await db.destroy();
   };

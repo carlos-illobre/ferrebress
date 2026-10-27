@@ -39,9 +39,9 @@ export function createUsersModule() {
         subject,
         email,
       );
-      if (match.kind === 'found' && match.link)
-        await data().linkGoogle(match.user.id, subject, name);
-      return match;
+      if (match.kind !== 'found' || !match.link) return match;
+      await data().linkGoogle(match.user.id, subject, name);
+      return { ...match, user: { ...match.user, googleSubject: subject, name } };
     },
 
     deactivate: (id: string): Promise<void> =>

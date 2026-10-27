@@ -33,8 +33,9 @@ y la misma configuración en la máquina de quien programa y en GitHub.
 - **GitHub corre lo mismo** en cada subida (`check.yml`).
 - **Una excepción** a un límite se escribe en la configuración con un comentario que dice por qué;
   el revisor de código las mira todas.
-- **Las pruebas no tienen límite de líneas por función:** un `describe` junta todas las pruebas
-  de un tema y crece con ellas. Los demás límites valen igual.
+- **El límite de líneas por función vale para el código de `src/`:** no para las pruebas (un
+  `describe` junta todas las pruebas de un tema y crece con ellas), ni para los controles de
+  `tools/` ni para los scripts de `deploy/`. Los demás límites valen igual.
 
 ## Opciones descartadas
 

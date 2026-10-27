@@ -18,6 +18,10 @@ export type Platform = {
   limiter: RateLimiter;
   events: Events;
   http: Http;
+  // Un trabajo que corre cada tanto, sin frenar el cierre del proceso.
+  every(ms: number, job: () => Promise<void>): void;
+  // Lo que hay que hacer antes de cerrar (escribir lo que quedó en memoria).
+  onClose(job: () => Promise<void>): void;
 };
 
 // Un módulo del servidor: su esquema, si guarda algo, y sus rutas.

@@ -45,4 +45,15 @@ describe('los límites de pedidos', () => {
       retryAfterMs: 0,
     });
   });
+
+  it('dice si una clave ya se pasó sin contar el pedido', () => {
+    const clock = fakeClock();
+    const limiter = createRateLimiter(clock);
+    const window = { max: 1, windowMs: 1_000 };
+    expect(limiter.exceeded('k', window)).toBe(false);
+    limiter.hit('k', window);
+    expect(limiter.exceeded('k', window)).toBe(true);
+    clock.advance(1_000);
+    expect(limiter.exceeded('k', window)).toBe(false);
+  });
 });

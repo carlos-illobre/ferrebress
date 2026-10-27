@@ -37,8 +37,13 @@ running_version() { curl -sf "$HEALTH_URL" | sed -n 's/.*"version":"\([^"]*\)".*
 current=$(running_version || true)
 [ "$current" != "$sha" ] || { say "ya corre $sha"; exit 0; }
 
-web=$(digest_of "ghcr.io/$REPO-web:$sha") && server=$(digest_of "ghcr.io/$REPO-server:$sha")
-[ -n "$web" ] && [ -n "$server" ] || { say "las imágenes de $sha todavía no están en GHCR"; exit 0; }
+web=$(digest_of "ghcr.io/$REPO-web:$sha" || true)
+server=$(digest_of "ghcr.io/$REPO-server:$sha" || true)
+if [ -z "$web" ] || [ -z "$server" ]; then
+    # Puede ser que la CI todavía no las publicó; si no, el error dice por qué no se pudo leer.
+    say "no pude leer las imágenes de $sha en GHCR: $(docker buildx imagetools inspect "ghcr.io/$REPO-server:$sha" 2>&1 | tail -1)"
+    exit 0
+fi
 
 cp "$ENV_FILE" "$ENV_FILE.previous"
 cp "$DIR/compose.yml" "$DIR/compose.yml.previous" 2>/dev/null || true

@@ -1,6 +1,7 @@
 import type { Migration } from 'kysely/migration';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createServer } from './app.ts';
+import type { Platform } from './platform/modules.ts';
 import { testConfig } from './testing/config.ts';
 
 describe('el servidor', () => {
@@ -37,5 +38,26 @@ describe('el servidor', () => {
   it('dice que está sano si la base responde', async () => {
     const response = await server.http.request('/api/health');
     expect(await response.json()).toEqual({ ok: true, version: 'test' });
+  });
+
+  it('corre los trabajos periódicos y los de cierre, y un trabajo que falla no tira el servidor', async () => {
+    const runs: string[] = [];
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const jobs = {
+      name: 'jobs',
+      register: (platform: Platform) => {
+        platform.every(1_000, async () => void runs.push('cada segundo'));
+        platform.every(1_000, () => Promise.reject(new Error('falló')));
+        platform.onClose(async () => void runs.push('al cerrar'));
+      },
+    };
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    const withJobs = await createServer(testConfig, [jobs]);
+    await vi.advanceTimersByTimeAsync(1_000);
+    await withJobs.close();
+    vi.useRealTimers();
+    expect(runs).toEqual(['cada segundo', 'al cerrar']);
+    expect(errors).toHaveBeenCalled();
+    errors.mockRestore();
   });
 });

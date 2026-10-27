@@ -22,6 +22,12 @@ export function createRateLimiter(clock: Clock) {
   };
 
   return {
+    // Si la clave ya pasó el máximo en su ventana, sin contar este pedido.
+    exceeded(key: string, { max, windowMs }: Window): boolean {
+      const current = windows.get(key);
+      return !!current && clock.now().getTime() - current.start < windowMs && current.count >= max;
+    },
+
     hit(key: string, { max, windowMs }: Window): Hit {
       const now = clock.now().getTime();
       const current = windows.get(key);

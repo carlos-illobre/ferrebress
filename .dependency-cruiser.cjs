@@ -19,7 +19,7 @@ module.exports = {
       name: 'shared-sin-nada-de-afuera',
       severity: 'error',
       from: { path: '^src/shared/' },
-      to: { dependencyTypes: ['npm', 'core'], pathNot: '^node_modules/zod/' },
+      to: { dependencyTypes: ['npm', 'core'], pathNot: '/node_modules/zod/' },
     },
     {
       name: 'platform-sin-negocio',
