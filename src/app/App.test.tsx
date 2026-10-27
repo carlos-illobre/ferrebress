@@ -31,9 +31,6 @@ describe('la aplicación al abrir', () => {
     person.set(undefined);
     navigate('/', { replace: true });
     googleScript();
-    vi.stubGlobal('PublicKeyCredential', {
-      getClientCapabilities: async () => ({ hybridTransport: true }),
-    });
   });
   afterEach(() => {
     vi.unstubAllGlobals();

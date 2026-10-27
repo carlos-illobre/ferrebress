@@ -2,7 +2,6 @@ import 'fake-indexeddb/auto';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { online, sessionClosed } from '../../platform/api.ts';
-import { startKeyboard } from '../../platform/keyboard.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { later } from '../../testing/later.ts';
 import { Entrance } from './index.ts';
@@ -11,7 +10,6 @@ import {
   ana,
   fakePasskeys,
   googleScript,
-  nearby,
   phone,
   signInReply,
   startReply,
@@ -37,7 +35,6 @@ describe('la entrada en la computadora', () => {
   });
 
   it('01-E38, E12: muestra el código QR con sus pasos, Google y la nota, en el ambiente de pruebas', async () => {
-    nearby(false);
     googleScript();
     fakeServer({
       '/api/sign-in/codes': {},
@@ -61,29 +58,20 @@ describe('la entrada en la computadora', () => {
     expect(screen.getByText('En línea')).toBeTruthy();
   });
 
-  it('01-E17: si el navegador puede usar el celular cercano, lo muestra en lugar del QR', async () => {
-    nearby(true);
+  it('01-E17: muestra el QR de Ferrebress y nunca la entrada del navegador con un celular cercano', async () => {
     googleScript();
-    fakePasskeys();
-    const server = fakeServer({
-      '/api/sign-in/passkey/options': { body: {} },
-      '/api/sign-in/passkey': signInReply(),
+    const credentials = fakePasskeys();
+    fakeServer({
+      '/api/sign-in/codes': {},
+      '/api/realtime/sign-in-codes': { stream: 'event: code\ndata: {"code":"c1"}\n\n' },
     });
-    const stop = startKeyboard();
     const { card } = open();
-    const button = await within(card).findByRole('button', { name: /Entrar con el celular/ });
-    expect(card.querySelector('.qr')).toBeNull();
-    act(() => {
-      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'c', code: 'KeyC', altKey: true }));
-    });
-    await waitFor(() => expect(person.get()).toEqual(ana));
-    expect(server.bodies('/api/sign-in/passkey')).toHaveLength(1);
-    expect(button).toBeTruthy();
-    stop();
+    await waitFor(() => expect(card.querySelector('.qr svg path')).not.toBeNull());
+    expect(within(card).queryByRole('button', { name: /Entrar con el celular/ })).toBeNull();
+    expect(credentials.get).not.toHaveBeenCalled();
   });
 
   it('01-E05: Google dibuja su botón y, con el pase, entra', async () => {
-    nearby(false);
     const google = googleScript();
     fakeServer({
       '/api/sign-in/codes': {},
@@ -98,7 +86,6 @@ describe('la entrada en la computadora', () => {
   });
 
   it('01-E02: una cuenta no autorizada ve por qué, y la nota se va', async () => {
-    nearby(false);
     const google = googleScript();
     fakeServer({
       '/api/sign-in/codes': {},
@@ -116,8 +103,7 @@ describe('la entrada en la computadora', () => {
     ).toBeTruthy();
   });
 
-  it('01-E19: sin conexión los botones se apagan, también el del celular cercano', async () => {
-    nearby(true);
+  it('01-E19: sin conexión los botones se apagan y dice que hace falta internet', () => {
     googleScript();
     fakeServer({ '/api/sign-in/codes': 'offline', '/api/realtime/sign-in-codes': 'offline' });
     online.set(false);
@@ -125,13 +111,9 @@ describe('la entrada en la computadora', () => {
     expect(screen.getByText('Para entrar hace falta internet')).toBeTruthy();
     expect(document.querySelector('.google')?.classList.contains('off')).toBe(true);
     expect(screen.getByText('Sin conexión')).toBeTruthy();
-    expect((await screen.findByRole('button', { name: /Entrar con el celular/ })).className).toBe(
-      'button-primary off',
-    );
   });
 
   it('R3.4: si la sesión se cerró, lo dice arriba; si venció, dice que venció', async () => {
-    nearby(false);
     googleScript();
     const server = fakeServer({});
     sessionClosed.set('revoked');

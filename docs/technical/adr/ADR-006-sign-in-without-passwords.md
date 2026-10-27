@@ -8,12 +8,12 @@
 - **El celular también entra con la huella** (passkey), si está vinculado a la cuenta. Se vincula
   después de entrar con Google en él; un celular, una cuenta. La computadora no registra huella
   propia.
-- **La computadora puede entrar con el celular:**
-  - Si el navegador puede usar la entrada con un celular cercano (passkeys entre dispositivos, por
-    Bluetooth), se usa esa: la computadora muestra el QR del navegador y el celular pone la
-    huella. Es el estándar, no se puede usar desde una página falsa y no hay que programarlo. Se
-    detecta con `PublicKeyCredential.getClientCapabilities()`.
-  - Si no, un QR propio: el servidor genera el código y se lo manda a la computadora por un canal
+- **La computadora puede entrar con el celular, solo con el QR de Ferrebress:**
+  - No se usa la entrada entre dispositivos del navegador (passkeys por Bluetooth), aunque es el
+    estándar y no se puede usar desde una página falsa: obliga a vincular el celular con el
+    navegador o el sistema de la computadora, que queda sabiendo de él. Con el QR propio el celular
+    habla solo con Ferrebress, y la computadora no guarda nada del celular.
+  - El QR propio: el servidor genera el código y se lo manda a la computadora por un canal
     abierto mientras la entrada está a la vista; cambia cada 60 segundos y sirve una sola vez.
     Leerlo lo reserva; el celular solo aprueba si está en la misma red que la computadora, muestra qué computadora pide la entrada y
     pide la huella. El permiso solo lo puede usar la computadora que abrió el canal.
@@ -43,7 +43,7 @@ Siempre con una cuenta autorizada:
 | Dónde | Con Google | Con la huella |
 |---|---|---|
 | Celular | Sí | Sí, si el celular está vinculado a la cuenta |
-| Computadora | Sí | Sí, con la del celular: lee el QR y pone la huella en el celular (o la entrada con un celular cercano del navegador, si hay Bluetooth) |
+| Computadora | Sí | Sí, con la del celular: lee el QR de Ferrebress y pone la huella en el celular |
 
 El celular se vincula a la cuenta para entrar con la huella en los minutos siguientes a entrar con
 Google en él.

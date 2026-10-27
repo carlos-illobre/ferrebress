@@ -66,9 +66,3 @@ export function googleScript(): { id: GoogleId; load: () => void } {
     },
   };
 }
-
-// El navegador puede, o no, usar un celular cercano por Bluetooth (R2.6).
-export const nearby = (can: boolean) =>
-  vi.stubGlobal('PublicKeyCredential', {
-    getClientCapabilities: async () => ({ hybridTransport: can }),
-  });

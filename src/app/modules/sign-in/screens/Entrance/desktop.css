@@ -218,9 +218,6 @@
       font-size: 14px;
       font-weight: 700;
     }
-    .card-title.nearby .pill {
-      visibility: hidden;
-    }
     .card-sub {
       margin: calc(-14 * var(--u)) 0 calc(8 * var(--u)) calc(8 * var(--u));
       font-size: max(15px, calc(19 * var(--u)));

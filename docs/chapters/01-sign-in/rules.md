@@ -45,9 +45,9 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
     Windows?».
   - La computadora se entera en el momento, sin preguntar a ritmo fijo: espera por un canal
     abierto solo mientras el código está en pantalla (capítulo 00, R4.3).
-- **R2.6** Si el navegador de la computadora puede usar un celular cercano para entrar (passkeys
-  entre dispositivos, por Bluetooth), esa forma reemplaza al código QR propio: la computadora
-  muestra la del navegador. Se detecta solo.
+- **R2.6** La computadora entra con el celular solo leyendo el código QR de Ferrebress. No se usa la
+  entrada entre dispositivos del navegador o del sistema (passkeys por Bluetooth): la computadora
+  no se vincula con el celular ni guarda nada de él, y el celular habla solo con Ferrebress.
 - **R2.7** Si el celular no tiene la sesión abierta y lee el código de la computadora, primero
   entra el celular y con eso entran los dos:
   - Con la huella vinculada, una sola huella hace entrar al celular y a la computadora.
@@ -176,7 +176,8 @@ enviar es «Salir» (R5.2).
 - **E16c** **Dado** un celular sin huella vinculada, **cuando** lee el código y no vincula la huella,
   **entonces** la computadora no entra y el celular dice que puede entrar con Google en ella.
 - **E17** **Dado** una computadora cuyo navegador puede usar un celular cercano por Bluetooth,
-  **cuando** se abre la entrada, **entonces** muestra esa forma en lugar del código QR propio.
+  **cuando** se abre la entrada, **entonces** muestra igual el código QR de Ferrebress y no ofrece la
+  entrada del navegador.
 - **E18** **Dado** el código QR en pantalla, **cuando** no pasa nada, **entonces** la computadora no
   hace pedidos al servidor a ritmo fijo.
 

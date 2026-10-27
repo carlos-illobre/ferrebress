@@ -1,5 +1,5 @@
-// La computadora: el código QR propio con los dos pasos (R2.5), o, si el navegador puede usar un
-// celular cercano por Bluetooth, su botón en lugar del QR (R2.6). El QR cambia cuando el servidor
+// La computadora: el código QR de Ferrebress con los dos pasos (R2.5), la única forma de entrar con
+// el celular (R2.6). El QR cambia cuando el servidor
 // manda otro; la cuenta regresiva solo lo muestra.
 import { useEffect, useState } from 'preact/hooks';
 import isotype from '../../../../styles/brand/isotype.svg';

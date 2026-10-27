@@ -1,6 +1,6 @@
-// Las formas de entrar desde la entrada: Google (R2.1), la huella del celular (R2.3) y el celular
-// cercano por Bluetooth (R2.6). Cada una crea antes la llave de prueba de la sesión nueva (ADR-015)
-// y, si sale bien, deja la sesión guardada: la aplicación pasa sola al marco.
+// Las formas de entrar desde la entrada: Google (R2.1) y la huella del celular (R2.3). Cada una crea
+// antes la llave de prueba de la sesión nueva (ADR-015) y, si sale bien, deja la sesión guardada: la
+// aplicación pasa sola al marco.
 import type { SignInResponse } from '@ferrebress/shared/contracts/sign-in';
 import type { ApiResult } from '../../platform/api.ts';
 import { isPhone } from '../../platform/device.ts';
@@ -25,7 +25,7 @@ export async function withGoogle(credential: string): Promise<Notice | undefined
   return finish(result);
 }
 
-// La huella de este celular, o la de un celular cercano en la computadora: la misma ruta.
+// La huella de este celular.
 export async function withPasskey(): Promise<Notice | undefined> {
   const options = await signInApi.passkeyOptions();
   if (!options.ok) return noticeOf(options);

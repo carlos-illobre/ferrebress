@@ -8,11 +8,6 @@ export const shapes = {
       <path d="m4.9 4.9 14.2 14.2" />
     </>
   ),
-  bluetooth: (
-    <>
-      <path d="m7 7 10 10-5 5V2l5 5L7 17" />
-    </>
-  ),
   check: (
     <>
       <path d="M20 6 9 17l-5-5" />

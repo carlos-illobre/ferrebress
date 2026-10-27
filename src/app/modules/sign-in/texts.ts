@@ -32,10 +32,6 @@ export const texts = {
       'Esta pantalla entra sola. Si el celular no tiene la sesión abierta, entrás ahí con Google o con la huella.',
     ],
   ],
-  nearby: 'Tu celular está cerca',
-  nearbyDetail:
-    'El navegador lo encuentra por Bluetooth: tocá el botón, mirá el celular y poné la huella.',
-  withPhone: 'Entrar con el celular',
   or: 'o',
   finger: 'Entrar con la huella',
   fingerDetail: 'Rápido y seguro',

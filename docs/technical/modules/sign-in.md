@@ -266,12 +266,11 @@ computadora                         servidor                          celular
   navegador dice que hay red, como mucho tres veces con espera creciente; después espera a que
   vuelva la red o la pestaña.
 
-### Con Bluetooth (R2.6)
+### Sin la entrada del navegador (R2.6)
 
-Si `PublicKeyCredential.getClientCapabilities()` dice `hybridTransport`, la entrada muestra
-«Entrar con el celular» en lugar del QR: `navigator.credentials.get()` sin credenciales indicadas,
-y el navegador muestra su propio QR. El servidor verifica igual que la huella del celular, también
-si la persona está activa. Si no lo dice (Firefox, hoy), el QR propio.
+La computadora nunca llama a `navigator.credentials.get()`: así el navegador no ofrece su propia
+entrada con un celular cercano (passkeys por Bluetooth), que vincularía el celular con el sistema de
+la computadora. Solo el celular usa la huella.
 
 ## 6. La sesión (ADR-015)
 
@@ -360,7 +359,7 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 
 | Evento | Cuándo |
 |---|---|
-| `sign-in.succeeded` | Entró, con cómo (Google, huella, QR, Bluetooth) |
+| `sign-in.succeeded` | Entró, con cómo (Google, huella, QR) |
 | `sign-in.rejected` | Cuenta no autorizada o dada de baja, correo de otro identificador de Google, huella inválida, código vencido, usado o de otra pantalla, permiso vencido o de otra pantalla |
 | `sign-in.throttled` | Llegó a un límite de intentos: una fila por ventana y por clave (dispositivo, dirección o cuenta), con cuántos pedidos rechazó, para que insistir no llene la auditoría |
 | `request.rejected` | Origen, forma, tamaño o versión rechazados, con la misma regla de una fila por ventana |
@@ -388,8 +387,7 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
   Cada tema declara qué permiso hace falta para escucharlo. La conexión directa entre dispositivos
   llega con el módulo 03; no se arma una interfaz de estrategias hasta que haya una segunda forma.
 - **`platform/clock`:** la hora del servidor más el cronómetro (ADR-007).
-- **`platform/device`:** el identificador, si es celular, si tiene cámara, si puede entrar por
-  Bluetooth, y el nombre «Chrome en Windows» (de `navigator.userAgentData`, sin bibliotecas).
+- **`platform/device`:** el identificador, si es celular, si tiene cámara, y el nombre «Chrome en Windows» (de `navigator.userAgentData`, sin bibliotecas).
 - **La versión nueva (00 · R5):** el service worker guarda solo el esqueleto de la aplicación y la
   pantalla que se abre; el resto, cuando se usa. Nunca guarda ni contesta nada de `/api`. Cuando la cabecera dice otra versión, la baja; se
   aplica como dice R5.
@@ -583,7 +581,7 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
 7. `frame`: el marco desde su maqueta, con la luz, la tarjeta de la persona, «Algo salió mal» y la
    versión nueva.
 8. `sign-in` de la aplicación: la entrada desde su maqueta, las hojas del celular, el lector, el QR,
-   Bluetooth, salir.
+   salir.
 9. Las pruebas de punta a punta.
 10. La revisión independiente del código (paso 7).
 
