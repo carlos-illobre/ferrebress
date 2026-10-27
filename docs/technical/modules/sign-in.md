@@ -21,8 +21,8 @@ de todo el sistema. Lo aprueba Carlos antes de programar (constitución, pasos 3
 **Lo que no resuelve todavía:** lo que se hace sin conexión y queda pendiente (R4 del 01, escenarios
 E29 a E33). Hoy no hay nada que se pueda hacer sin conexión: la única cosa que puede quedar sin
 enviar es «Salir», y se resuelve aparte (§ 6). El mecanismo general de lo pendiente, con la
-prueba del pase de quien lo hizo, se construye con el módulo 15 (Sin conexión); sus escenarios
-pasan a ese módulo. **A confirmar por Carlos.**
+prueba del pase de quien lo hizo, se construye con el módulo 15 (Sin conexión), y sus escenarios
+se prueban ahí.
 
 ## 2. El repositorio
 
@@ -241,14 +241,12 @@ la huella del celular. Si el navegador no lo dice (Firefox, hoy), se usa el QR p
 Con varias copias del servidor, estas piezas pasan a PostgreSQL (`LISTEN/NOTIFY` y una tabla
 chica), sin tocar las reglas (ADR-015).
 
-**La ciudad aproximada — decisión pendiente de Carlos:**
-
-| Opción | A favor | En contra |
-|---|---|---|
-| **A. Un servicio gratuito por internet** (por ejemplo, ipwho.is), una consulta por semilla | Cero mantenimiento, casi nada de peso | Manda la dirección de internet de la computadora a un tercero; si no responde, el celular dice «ubicación desconocida» |
-| B. Una base de ciudades dentro del servidor (DB-IP Lite) | No sale nada del servidor; responde al instante | Unos 130 MB más en la imagen y actualizarla cada mes |
-
-Recomiendo la **A**: con una consulta por cada vez que se abre la entrada, el costo es nulo.
+**La ciudad aproximada:** la da un servicio gratuito por internet (por ejemplo, ipwho.is), con una
+consulta por semilla, desde el servidor. **Lo único que se le manda es la dirección de internet de
+la computadora, en la dirección del pedido:** sin cookies, sin el navegador de la persona, sin
+correo ni nombre, y con las cabeceras mínimas que pone el propio servidor. Si no responde en un
+segundo, el celular dice «ubicación desconocida». Se descartó una base de ciudades dentro del
+servidor: suma unos 130 MB a la imagen y hay que actualizarla cada mes.
 
 ## 8. Eventos y auditoría
 
@@ -385,9 +383,13 @@ En orden; las que llevan `[P]` se pueden hacer en paralelo con la anterior.
 
 ## 16. Lo que tiene que hacer Carlos antes de programar
 
-- Crear en Google Cloud un identificador de cliente OAuth («Aplicación web») con el origen
-  `https://ferrebress-pruebas.duckdns.org`, y pasar el identificador (no es secreto).
-- Confirmar en qué máquina va: la misma VM de Oracle del proyecto anterior (un proyecto de compose
-  aparte, sin tocar el otro) o una nueva.
-- Crear el canal de ntfy (o dejar que lo cree el agente con un nombre al azar).
-- Decidir la ciudad aproximada (§ 7) y que lo pendiente sin conexión pase al módulo 15 (§ 1).
+- **Google:** se usa el mismo cliente OAuth del proyecto anterior. En Google Cloud → Credenciales
+  → el cliente web, agregar a «Orígenes de JavaScript autorizados»
+  `https://ferrebress-pruebas.duckdns.org`. El identificador se copia del `.env` del proyecto
+  anterior en la máquina al `.env` de Ferrebress. Mientras la pantalla de consentimiento siga en
+  estado «Prueba», cada cuenta que entre tiene que estar también en su lista de usuarios de prueba.
+- **La máquina:** la misma VM de Oracle del proyecto anterior, con un proyecto de compose aparte;
+  cuando el proyecto anterior se dé de baja, sus contenedores se apagan y Ferrebress toma sus
+  puertos.
+- **ntfy:** el agente crea un canal con un nombre al azar y lo guarda como variable de GitHub y en
+  la máquina.

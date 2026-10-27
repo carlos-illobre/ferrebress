@@ -79,6 +79,10 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 
 ## 4. Lo que quedó sin enviar
 
+Estas reglas valen desde el módulo 15 (Sin conexión), que es el primero que deja hacer algo sin
+conexión; sus escenarios (E29 a E33) se prueban ahí. Mientras tanto, lo único que puede quedar sin
+enviar es «Salir» (R5.2).
+
 - **R4.1** Lo que se hizo sin conexión y no se envió queda guardado en el dispositivo, también al
   salir y al vencer la sesión.
 - **R4.2** Se manda apenas entra cualquier persona en ese dispositivo, siempre a nombre de quien lo
