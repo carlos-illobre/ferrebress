@@ -338,6 +338,6 @@ cambia, sin depender de documentos que no están en este repositorio.
     es la elección de hoy, y puede cambiar si propone algo mejor.
 
 64. **El director de arte diseña sin límites; el maquetador los pone** (2026-10-27). El director de
-    arte va más allá de las reglas y no ajusta sus maquetas. Cuando Carlos elige una variante, el
-    maquetador (agente `mockup-builder`) la copia y la adapta a lo que Carlos pidió y a las reglas
-    aprobadas. Carlos aprueba la adaptada.
+    arte va más allá de las reglas y no ajusta sus maquetas. El maquetador (agente
+    `mockup-builder`) construye la maqueta final: toma como base lo que hizo el director, le suma
+    las directivas de Carlos y la ajusta a las reglas aprobadas. Carlos aprueba la final.

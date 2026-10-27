@@ -6,7 +6,7 @@ funcionando en el [visor](https://carlos-illobre.github.io/ferrebress/).
 | # | Pantalla | Qué se tiene que poder hacer | Maqueta |
 |---|---|---|---|
 | 1 | La entrada | Entrar con Google; con la huella en el celular; en la computadora, ver el QR (o la entrada del navegador si hay Bluetooth); ver los mensajes de no autorizada, sin conexión, intentos y sesión cerrada | **Aprobada** (2026-10-27): `mockups/sign-in/adapted/`, con el naranja de la primera versión (01-D11) |
-| 2 | El marco vacío | Ver el menú con «Pronto», minimizarlo a íconos, la luz de conexión y la tarjeta de la persona; salir; el área de trabajo en blanco | **Elegida** (2026-10-27): `mockups/app-frame/variant-1-evolution/`; el maquetador la adapta en `mockups/app-frame/chosen/`, con el área en blanco y el botón para minimizar el menú (01-D13) |
+| 2 | El marco vacío | Ver el menú con «Pronto», minimizarlo a íconos, la luz de conexión y la tarjeta de la persona; salir; el área de trabajo en blanco | **Elegida** (2026-10-27): `mockups/app-frame/variant-1-evolution/`; el maquetador construye la final en `mockups/app-frame/final/`, con el área en blanco y el botón para minimizar el menú (01-D13) |
 
 Lo que se abre encima, en el celular, también es parte de estas pantallas: «¿Entrar con la huella
 la próxima vez?» y, al leer el QR, «¿Entrar en Chrome en Windows?».
