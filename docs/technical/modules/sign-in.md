@@ -43,8 +43,9 @@ ferrebress/
 │           └── sign-in/             la entrada, las hojas del celular, salir
 ├── tests/e2e/                       Playwright: los caminos principales, en los dos anchos
 ├── tools/                           los controles propios de pnpm check (enlaces de docs/)
-├── deploy/                          compose.yml, Caddyfile, deploy.sh, listen.sh, el servicio,
-│                                    machine-proxy/ (el archivo para el proxy de la máquina)
+├── deploy/                          las imágenes, el Caddyfile y el compose: sirven en cualquier lado
+│   └── oracle/                      solo de la VM de Oracle: install.sh, deploy.sh, listen.sh, el
+│                                    servicio y el archivo para el proxy de la máquina
 ├── .github/workflows/               check.yml, deploy.yml, mockups.yml
 └── package.json · pnpm-workspace.yaml · tsconfig.base.json · biome.json · .env.example
 ```
@@ -298,7 +299,7 @@ si la persona está activa. Si no lo dice (Firefox, hoy), el QR propio.
   memoria. Si el servidor se cae en el medio, no queda una baja con sesiones abiertas. `users` no
   conoce a `sign-in`.
 - **Hasta el módulo 02** no hay pantallas para cerrar una sesión ni quitar una huella:
-  `deploy/README.md` tiene las dos sentencias para hacerlo en la base si se pierde un celular, y
+  `deploy/oracle/README.md` tiene las dos sentencias para hacerlo en la base si se pierde un celular, y
   después se reinicia el servidor.
 
 ## 7. Salir
@@ -537,11 +538,11 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
 - **Las pruebas de punta a punta**, con el compose, antes de cerrar el módulo.
 - **La máquina:** una VM de Oracle que comparte con otras aplicaciones. Ferrebress corre con su
   propio usuario y Docker sin privilegios, y `loginctl enable-linger` para que el servicio arranque
-  solo; lo dice `deploy/README.md`.
+  solo; lo dice `deploy/oracle/README.md`.
 - **Los puertos 80 y 443** los tiene el proxy de la máquina (ADR-011), que comparten las
   aplicaciones de la VM. Ferrebress corre con el usuario `ferrebress`, sin privilegios y con su
   Docker; su Caddy escucha solo en `127.0.0.1:8090` (pruebas; producción, `8091`). El archivo que
-  va en el proxy está en el repositorio (`deploy/machine-proxy/ferrebress.caddy`) y lo instala una
+  va en el proxy está en el repositorio (`deploy/oracle/machine-proxy/ferrebress.caddy`) y lo instala una
   vez un administrador:
 
   ```
@@ -561,7 +562,7 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   hace falta tocar la red de Docker.
 - **Las versiones:** exactas en `package.json`. Hono 4.6.5 o más nueva (las anteriores tienen
   fallas conocidas en su control de origen) y `jose` reciente.
-- **Si se pierde un celular** antes del módulo 02: `deploy/README.md` dice cómo cerrar sus sesiones
+- **Si se pierde un celular** antes del módulo 02: `deploy/oracle/README.md` dice cómo cerrar sus sesiones
   y quitar su huella en la base.
 
 ## 15. Decisiones
@@ -608,8 +609,8 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
   `https://ferrebress-pruebas.duckdns.org`. Mientras la pantalla de consentimiento siga en
   «Prueba», cada cuenta que entre tiene que estar en su lista de usuarios de prueba.
 - **El usuario y el proxy:** crear el usuario `ferrebress` con Docker sin privilegios y `linger`, y
-  copiar `deploy/machine-proxy/ferrebress.caddy` a `/etc/caddy/sitios/`; los pasos los tiene
-  `deploy/README.md`, y los puede hacer el agente de la VM.
+  copiar `deploy/oracle/machine-proxy/ferrebress.caddy` a `/etc/caddy/sitios/`; los pasos los tiene
+  `deploy/oracle/README.md`, y los puede hacer el agente de la VM.
 - **DuckDNS:** crear `ferrebress-pruebas` apuntando a la IP pública de la VM.
 - **ntfy:** nada; el agente crea el canal con un nombre al azar y lo guarda como secreto de GitHub
   y en la máquina.

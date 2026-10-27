@@ -1,4 +1,9 @@
-# Instalar Ferrebress en la máquina
+# Instalar Ferrebress en la VM de Oracle
+
+Todo lo de esta carpeta es solo de esta VM: el proxy compartido, el servicio de usuario que
+escucha los avisos y el despliegue que le pregunta a GitHub. Lo que sirve en cualquier lado (las
+imágenes, el Caddy de Ferrebress y el compose) está en `deploy/`. Para llevar Ferrebress a otro
+lado, esta carpeta se reemplaza; lo demás no cambia.
 
 Ferrebress corre en la VM de Oracle junto a otras aplicaciones (ADR-014): con su propio usuario,
 sin privilegios y con su propio Docker; su Caddy escucha solo en `127.0.0.1:8090` y el proxy de
@@ -12,7 +17,7 @@ Con un usuario administrador, desde una copia del repositorio:
 ```bash
 git clone https://github.com/carlos-illobre/ferrebress.git && cd ferrebress
 GOOGLE_CLIENT_ID=<el cliente OAuth web> ADMIN_EMAIL=<el primer Administrador> \
-  NTFY_TOPIC=<el mismo valor que el secreto NTFY_TOPIC de GitHub> bash deploy/install.sh
+  NTFY_TOPIC=<el mismo valor que el secreto NTFY_TOPIC de GitHub> bash deploy/oracle/install.sh
 ```
 
 `install.sh` crea el usuario `ferrebress` con su Docker sin privilegios, copia los scripts y el

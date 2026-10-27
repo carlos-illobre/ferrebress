@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# Instala Ferrebress en la máquina, o lo pone al día si ya está (ADR-014): el usuario sin
+# Instala Ferrebress en la VM de Oracle, o lo pone al día si ya está (ADR-014): el usuario sin
 # privilegios con su Docker, los scripts de despliegue, el .env, el servicio que escucha los
 # avisos y el sitio en el proxy de la máquina. Se puede volver a correr: no pisa lo que ya está
 # configurado (el .env y su contraseña quedan como estaban).
 #
 # Lo corre un administrador con sudo, desde una copia del repositorio:
 #
-#   GOOGLE_CLIENT_ID=... ADMIN_EMAIL=... NTFY_TOPIC=... bash deploy/install.sh
+#   GOOGLE_CLIENT_ID=... ADMIN_EMAIL=... NTFY_TOPIC=... bash deploy/oracle/install.sh
 set -euo pipefail
 
 USER_NAME=ferrebress
@@ -60,7 +60,7 @@ home=$(getent passwd "$USER_NAME" | cut -d: -f6)
 sudo install -d -o "$USER_NAME" -m 700 "$home/ferrebress"
 sudo install -d -o "$USER_NAME" "$home/.config" "$home/.config/systemd" "$home/.config/systemd/user"
 sudo install -o "$USER_NAME" -m 755 "$HERE/deploy.sh" "$HERE/listen.sh" "$home/ferrebress/"
-sudo install -o "$USER_NAME" -m 644 "$HERE/compose.yml" "$home/ferrebress/"
+sudo install -o "$USER_NAME" -m 644 "$HERE/../compose.yml" "$home/ferrebress/"
 sudo install -o "$USER_NAME" -m 644 "$HERE/ferrebress-deploy.service" "$home/.config/systemd/user/"
 ok "copiados"
 
@@ -68,7 +68,7 @@ step "La configuración"
 # Parte del .env que haya (o de .env.example) y completa solo lo que sigue sin valor (<…>): lo
 # ya configurado no se pisa. La contraseña de la base se genera acá y no se muestra.
 env_file="$home/ferrebress/.env"
-current=$(sudo cat "$env_file" 2>/dev/null || cat "$HERE/../.env.example")
+current=$(sudo cat "$env_file" 2>/dev/null || cat "$HERE/../../.env.example")
 unset_value() { grep -q "^$1=.*<" <<<"$current"; }
 fill() { unset_value "$1" && current=$(sed "s|^$1=.*|$1=$2|" <<<"$current") || true; }
 if unset_value POSTGRES_PASSWORD; then

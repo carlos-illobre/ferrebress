@@ -34,6 +34,10 @@ secretos ni datos de proveedores entran en él.
   PostgreSQL quedan en la red interna de Docker.
 - Ferrebress corre con su propio usuario de la máquina, sin privilegios y con su propio Docker, como
   las otras aplicaciones de la VM.
+- **Lo que depende de esta VM va aparte, en `deploy/oracle/`:** la instalación, el despliegue que
+  escucha los avisos y el archivo del proxy de la máquina. Las imágenes, el Caddy de Ferrebress y
+  el compose (`deploy/`) sirven en cualquier lado: llevar Ferrebress a otra nube (AWS, por
+  ejemplo) es reemplazar esa carpeta y el último paso de `deploy.yml`, el aviso a ntfy.
 
 ## Cómo se entera la máquina
 
