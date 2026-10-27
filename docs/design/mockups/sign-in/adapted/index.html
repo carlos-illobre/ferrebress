@@ -221,12 +221,13 @@
   </div>
 </section>
 
-<!-- Celular: leyó el código de una computadora (R2.5). Sin paso de confirmar: la huella es la confirmación. -->
+<!-- Celular: leyó el código de una computadora (R2.5). Sin paso de confirmar: la huella es la confirmación.
+     Solo si los dos están en la misma red; si no, el paso «other-network». -->
 <section class="layer sheet" id="sheet-qr" role="dialog" aria-modal="true" aria-labelledby="sq-title" hidden>
   <div class="grabber" aria-hidden="true"></div>
   <div class="sheet-step" data-step="ask">
     <span class="sheet-icon pc"><i class="i" data-i="monitor" data-trazo="1.8"></i></span>
-    <h2 id="sq-title">¿Entrar en Chrome en Windows · Buenos Aires?</h2>
+    <h2 id="sq-title">¿Entrar en Chrome en Windows?</h2>
     <p class="sheet-sub">Una computadora pide entrar con tu usuario. Si no la tenés adelante, no pongas la huella.</p>
     <button type="button" class="touch" data-touch aria-label="Poner la huella para entrar en la computadora"><i class="i" data-i="fingerprint" data-trazo="1.6"></i></button>
     <p class="touch-hint">Poné la huella para entrar en los dos</p>
@@ -235,8 +236,14 @@
   <div class="sheet-step" data-step="done">
     <span class="sheet-icon ok"><i class="i" data-i="check" data-trazo="3"></i></span>
     <h2>La computadora entró</h2>
-    <p class="sheet-sub">Chrome en Windows · Buenos Aires ya tiene tu sesión. Este celular también.</p>
+    <p class="sheet-sub">Chrome en Windows ya tiene tu sesión. Este celular también.</p>
     <button type="button" class="btn-green" data-close>Listo</button>
+  </div>
+  <!-- En otra red que la computadora: no pide la huella y la computadora sigue con su código (R2.5, E13b). -->
+  <div class="sheet-step" data-step="other-network">
+    <span class="sheet-icon"><i class="i" data-i="wifi" data-trazo="1.8"></i></span>
+    <h2>Para entrar a la computadora, conectá este celular al mismo Wi-Fi</h2>
+    <button type="button" class="btn-green" data-close data-key="e">Entendido<kbd>E</kbd></button>
   </div>
 </section>
 

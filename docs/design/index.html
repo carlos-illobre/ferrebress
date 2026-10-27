@@ -100,8 +100,12 @@
     render();
   }
   window.addEventListener("hashchange", read);
-  window.addEventListener("resize", render);
-  fetch("mockups/index.json").then(function (r) { return r.json(); }).then(function (d) { data = d; read(); });
+  // Se escucha el cambio de tamaño recién con el índice cargado: antes no hay nada que dibujar.
+  fetch("mockups/index.json").then(function (r) { return r.json(); }).then(function (d) {
+    data = d;
+    read();
+    window.addEventListener("resize", render);
+  });
 })();
 </script>
 </body>

@@ -22,7 +22,8 @@
     { id: "intentos", label: "Demasiados intentos", on: "both" },
     { id: "sesion-cerrada", label: "Sesión cerrada desde otro dispositivo", on: "both" },
     { id: "ofrecer-huella", label: "¿Entrar con la huella la próxima vez?", on: "phone" },
-    { id: "leer-codigo", label: "Leyó el QR de una computadora", on: "phone" }
+    { id: "leer-codigo", label: "Leyó el QR de una computadora", on: "phone" },
+    { id: "otra-red", label: "Leyó el QR desde otra red", on: "phone" }
   ];
   var DENIED_EMAIL = "cuenta.prueba@gmail.com";
   var state = "normal";
@@ -53,7 +54,7 @@
     closeAll(true);
     clearInterval(limitTimer);
     state = id;
-    var bodyState = (id === "ofrecer-huella" || id === "leer-codigo") ? "normal" : id;
+    var bodyState = (id === "ofrecer-huella" || id === "leer-codigo" || id === "otra-red") ? "normal" : id;
     document.body.dataset.state = bodyState;
     select.value = id;
 
@@ -81,6 +82,7 @@
 
     if (id === "ofrecer-huella") openOffer();
     if (id === "leer-codigo") openQrSheet();
+    if (id === "otra-red") openQrSheet("other-network");
     clearMark();
   }
 
@@ -154,7 +156,7 @@
     if (instant) finish(); else setTimeout(finish, wait(220));
     var needScrim = stack.some(function (l) { return l.dataset.scrim !== "no"; });
     if (!needScrim) { scrim.classList.remove("open"); if (instant) scrim.hidden = true; else setTimeout(function () { if (!scrim.classList.contains("open")) scrim.hidden = true; }, wait(220)); }
-    if (el.id === "sheet-offer" || el.id === "sheet-qr") { if (state === "ofrecer-huella" || state === "leer-codigo") { state = "normal"; select.value = "normal"; var u = new URL(location.href); u.searchParams.delete("estado"); history.replaceState(null, "", u); } }
+    if (el.id === "sheet-offer" || el.id === "sheet-qr") { if (state === "ofrecer-huella" || state === "leer-codigo" || state === "otra-red") { state = "normal"; select.value = "normal"; var u = new URL(location.href); u.searchParams.delete("estado"); history.replaceState(null, "", u); } }
   }
   function closeAll(instant) { stack.slice().reverse().forEach(function (l) { close(l, instant); }); $("#qr").classList.remove("read"); }
   function top() { return stack[stack.length - 1] || null; }
@@ -220,9 +222,10 @@
   }
 
   // ---------- Escanear el código de la computadora (celular) ----------
-  function openQrSheet() {
+  // En otra red que la computadora, no hay huella: solo el aviso del Wi-Fi.
+  function openQrSheet(name) {
     var s = $("#sheet-qr");
-    step(s, "ask");
+    step(s, name || "ask");
     touchReader(s, function () { step(s, "done"); });
     open(s);
   }
