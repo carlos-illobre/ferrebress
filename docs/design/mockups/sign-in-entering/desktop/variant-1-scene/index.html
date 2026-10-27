@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrando · Ferrebress</title>
+<!-- Variante 1 · La escena. La espera se queda en la escena de la entrada: el verde con la marca a la
+     izquierda y la tarjeta blanca a la derecha, en el mismo lugar donde la persona estaba mirando.
+     Cambia lo que dice la tarjeta: el camino, grande, y los dos pasos. -->
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { background: #03110E; }
+  :root { --u: calc(min(100vw, 100vh * 16 / 9) / 1536); }
+
+  .scene { position: fixed; z-index: 2; top: 0; bottom: 0; left: 50%; width: min(100vw, 100vh * 16 / 9); transform: translateX(-50%); background: #0B3A30 url("../../assets/background.jpg") center / 100% 100% no-repeat; transition: opacity var(--t-nav) var(--curva-salida); }
+  [data-phase="done"] .scene { opacity: 0; pointer-events: none; }
+
+  /* La marca y el título, sobre el verde. */
+  .brand { position: absolute; left: calc(80 * var(--u)); top: calc(86 * var(--u)); width: calc(620 * var(--u)); color: #fff; }
+  .brand-logo { height: calc(69 * var(--u)); width: auto; margin-bottom: calc(52 * var(--u)); }
+  .kicker { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 calc(14 * var(--u)); font-size: 14px; font-weight: 650; letter-spacing: 0.3em; text-transform: uppercase; color: #7FAE98; }
+  .kicker::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #86D0A2; }
+  @media (prefers-reduced-motion: no-preference) { .kicker::before { animation: pulse 1.6s ease-in-out infinite; } }
+  @keyframes pulse { 50% { opacity: 0.35; transform: scale(0.7); } }
+  h1 { margin: 0 0 calc(28 * var(--u)); font-size: calc(54 * var(--u)); line-height: 1.1; white-space: nowrap; font-weight: 800; letter-spacing: -0.015em; }
+  h1 em { display: block; font-style: normal; color: #86D0A2; }
+  .lead { margin: 0; max-width: calc(440 * var(--u)); font-size: max(16px, calc(19 * var(--u))); line-height: 1.55; color: #C4D4CD; }
+
+  /* La computadora y la conexión, arriba a la derecha, como en la entrada. */
+  .status { position: absolute; top: calc(30 * var(--u)); right: calc(46 * var(--u)); display: flex; gap: 8px; margin: 0; font-size: 14px; font-weight: 650; }
+  .status span { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #fff; border: 1px solid var(--borde); }
+  .status .net { background: var(--logro-suave); border-color: var(--logro-suave); color: var(--logro-texto); }
+  .status .net::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  /* La tarjeta: el mismo lugar y la misma forma que la de la entrada. */
+  .card { position: absolute; right: calc(46 * var(--u)); top: calc(100 * var(--u)); width: max(540px, calc(650 * var(--u))); display: flex; flex-direction: column; border-radius: 18px; background: rgb(255 255 255 / 0.97); box-shadow: 0 30px 70px rgb(23 49 43 / 0.14), 0 0 0 1px rgb(223 229 224 / 0.8); overflow: hidden; }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-phase="arrive"] .card { animation: card-in 420ms var(--curva) both; }
+    [data-phase="done"] .card { transform: scale(0.98); transition: transform var(--t-nav) var(--curva-salida); }
+  }
+  @keyframes card-in { from { transform: scale(0.985); } }
+  .card-body { display: flex; flex-direction: column; gap: 24px; padding: calc(40 * var(--u)) calc(48 * var(--u)) 28px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .card-head h2 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 800; color: var(--verde); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--verde-suave); color: var(--verde-texto); font-size: 14px; font-weight: 650; white-space: nowrap; }
+  .pill svg { width: 16px; height: 16px; }
+
+  /* El camino, grande: lo que confirmó → Ferrebress → el local. */
+  .path { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; padding: 16px 0 4px; }
+  .node { display: grid; grid-template-rows: 124px auto; justify-items: center; align-items: center; gap: 14px; text-align: center; }
+  .node > span:last-child { align-self: start; }
+  .node b { display: block; font-size: 16px; font-weight: 750; color: var(--tinta); }
+  .node small { display: block; font-size: 14px; color: var(--texto-2); }
+  .path .ball { width: 84px; height: 84px; }
+  .path .ball-f { width: 124px; height: 124px; }
+  .path .ball-f img { width: 62px; height: 62px; }
+  .link { position: relative; width: 48px; height: 3px; margin-bottom: 64px; border-radius: 2px; background: var(--logro); }
+  .link .tick { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%; background: var(--logro); color: #fff; box-shadow: 0 0 0 4px #fff; }
+  .link .tick svg { width: 14px; height: 14px; }
+  .link.todo { background: repeating-linear-gradient(90deg, var(--borde-fuerte) 0 6px, transparent 6px 12px); overflow: hidden; }
+  .link.todo i { position: absolute; top: -2px; left: 0; width: 7px; height: 7px; border-radius: 50%; background: var(--naranja); opacity: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-phase="opening"] .link.todo i { animation: travel 1.3s var(--curva) infinite; }
+    [data-phase="arrive"] .link:not(.todo) { animation: grow 420ms var(--curva) 160ms both; transform-origin: left; }
+  }
+  @keyframes travel { 0% { opacity: 0; transform: translateX(0); } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(41px); } }
+  @keyframes grow { from { transform: scaleX(0); } }
+
+  /* Los dos pasos. */
+  .steps { position: relative; display: flex; flex-direction: column; gap: 16px; margin: 0; padding: 20px 0 0; list-style: none; border-top: 1px solid var(--borde); }
+  .steps::before { content: ""; position: absolute; left: 11px; top: 40px; height: 44px; width: 2px; background: var(--borde); }
+  .steps li { display: flex; gap: 16px; align-items: flex-start; }
+  .steps b { display: block; font-size: 16px; font-weight: 750; color: var(--verde); }
+  .steps small { display: block; font-size: 14px; line-height: 1.45; color: var(--texto-2); }
+
+  .hint { display: flex; align-items: center; gap: 10px; margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--fondo); color: var(--texto-2); font-size: 14px; line-height: 1.4; }
+  .hint svg { flex: none; width: 20px; height: 20px; color: var(--texto-3); }
+
+  .card-foot { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 0; padding: 14px 24px; background: #F7F6F2; border-top: 1px solid var(--borde); color: var(--texto-2); font-size: 14px; }
+  .card-foot span { display: inline-flex; align-items: center; gap: 8px; }
+  .card-foot svg { width: 18px; height: 18px; }
+  .card-foot .bar { width: 1px; height: 18px; background: var(--borde-fuerte); }
+  .card-foot img { height: 18px; width: auto; }
+</style>
+</head>
+<body>
+
+<div class="test-frame" aria-hidden="true">
+  <div class="test-border"></div>
+  <div class="test-banner">Ambiente de prueba · nada de esto es real</div>
+</div>
+
+<!-- Adonde se llega: el marco, neutro (su maqueta es otra). -->
+<div class="ghost-frame" aria-hidden="true">
+  <aside class="ghost-side">
+    <img src="../../../../common/brand/logo-on-light.png" alt="">
+    <span class="ghost-row" style="--w:64px"></span><span class="ghost-row" style="--w:76px"></span><span class="ghost-row" style="--w:70px"></span><span class="ghost-row" style="--w:66px"></span><span class="ghost-row" style="--w:40px"></span>
+    <div class="ghost-foot"><span></span><span></span></div>
+  </aside>
+  <div class="ghost-main"></div>
+</div>
+
+<main class="scene" role="status" aria-live="polite" aria-labelledby="title">
+  <section class="brand">
+    <img class="brand-logo in" src="../../../../common/brand/logo-on-dark.png" alt="Ferrebress" width="812" height="208">
+    <p class="kicker in" style="--d:1">Un momento</p>
+    <h1 id="title" class="in" style="--d:2"><span data-t="titleA">Conectando tu cuenta</span> <em data-t="titleB">de Google</em></h1>
+    <p class="lead in" style="--d:3" data-t="sub">Google confirmó tu cuenta. Ahora Ferrebress abre tu sesión; tarda unos segundos.</p>
+  </section>
+
+  <p class="status in" style="--d:1"><span><i class="i i-s" data-i="monitor"></i>Computadora del mostrador</span><span class="net">En línea</span></p>
+
+  <section class="card" aria-label="Cómo va la entrada">
+    <div class="card-body">
+      <div class="card-head in" style="--d:2">
+        <h2>Abriendo tu sesión</h2>
+        <span class="pill"><i class="i" data-i="lock"></i>Conexión segura</span>
+      </div>
+
+      <div class="path in" style="--d:3" aria-hidden="true">
+        <div class="node"><span class="ball"><span class="from" data-t="from"></span></span><span><b data-t="fromName">Google</b><small data-t="fromWhat">Confirmó tu cuenta</small></span></div>
+        <span class="link"><span class="tick" data-i-check></span></span>
+        <div class="node"><span class="ball ball-f"><span class="ring"></span><img src="../../../../common/brand/isotype.svg" alt=""></span><span><b>Ferrebress</b><small>Abre tu sesión</small></span></div>
+        <span class="link todo"><i></i></span>
+        <div class="node"><span class="ball ball-shop" data-i-shop></span><span><b>Tu local</b><small>Adonde llegás</small></span></div>
+      </div>
+
+      <ol class="steps in" style="--d:4">
+        <li><span class="mark done" data-i-check></span><span><b data-t="step">Cuenta de Google verificada</b><small data-t="stepSub">Google confirmó que sos vos.</small></span></li>
+        <li><span class="mark now"></span><span><b data-t="open-step">Abriendo tu sesión</b><small data-t="open-sub">Ferrebress revisa que tu cuenta esté autorizada…</small></span></li>
+      </ol>
+
+      <p class="hint in" style="--d:5"><i class="i" data-i="info"></i>No hace falta tocar nada: cuando la sesión esté abierta, aparece el menú de Ferrebress.</p>
+    </div>
+    <p class="card-foot"><span><i class="i" data-i="lock"></i>Tus datos están protegidos</span><span class="bar" aria-hidden="true"></span><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress"></p>
+  </section>
+</main>
+
+<script src="../../shared.js"></script>
+</body>
+</html>

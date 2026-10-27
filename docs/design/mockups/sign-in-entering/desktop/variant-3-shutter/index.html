@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrando · Ferrebress</title>
+<!-- Variante 3 · La persiana. Toda la pantalla es la persiana del local, con la marca pintada y un
+     cartel colgado con los dos pasos. Cuando Google o el celular confirman quién es, la persiana se
+     destraba y sube un poco; al abrirse la sesión, sube entera y detrás está el marco: se abre el local. -->
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* La persiana: chapa pino con sus listones. Sube con transform. */
+  .shutter { position: fixed; z-index: 2; inset: 0 0 0 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 72px 32px 72px; color: #fff;
+    background:
+      radial-gradient(120% 70% at 50% 40%, rgb(255 255 255 / 0.06), transparent 70%),
+      repeating-linear-gradient(180deg, #1A3A32 0 26px, #234A40 26px 28px, #10291F 28px 31px, #1A3A32 31px 34px);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.35);
+    transform: translateY(0); transition: transform 900ms cubic-bezier(.5, 0, .2, 1); }
+  /* Se destraba: sube 28 px y deja ver la luz del local. */
+  [data-phase="opening"] .shutter { transform: translateY(-28px); transition: transform 600ms var(--rebote); }
+  [data-phase="done"] .shutter { transform: translateY(-100%); }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-phase="opening"] .shutter-inner { animation: hum 2.4s ease-in-out 600ms infinite; }
+  }
+  @keyframes hum { 50% { transform: translateY(-3px); } }
+  .shutter-inner { display: flex; flex-direction: column; align-items: center; gap: 20px; width: min(100%, 1000px); }
+
+  /* La barra de abajo, con sus dos manijas. */
+  .bottom-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: linear-gradient(180deg, #2B564B, #12302A); border-top: 2px solid #3A6A5D; }
+  .bottom-bar::before, .bottom-bar::after { content: ""; position: absolute; top: 12px; width: 72px; height: 12px; border-radius: 6px; background: #0A1E19; box-shadow: inset 0 2px 3px rgb(0 0 0 / 0.5), 0 1px 0 rgb(255 255 255 / 0.12); }
+  .bottom-bar::before { left: 22%; } .bottom-bar::after { right: 22%; }
+
+  .logo { height: 48px; width: auto; }
+  .head { text-align: center; }
+  h1 { margin: 0; font-size: 48px; line-height: 1.1; font-weight: 800; letter-spacing: -0.015em; }
+  .sub { margin: 10px auto 0; max-width: 720px; font-size: 18px; line-height: 1.5; color: #C4D4CD; }
+
+  /* El camino, pintado de lado a lado. */
+  .road { display: grid; grid-template-columns: 220px 1fr 220px 1fr 220px; grid-template-rows: 168px auto; align-items: center; justify-items: center; row-gap: 14px; width: 100%; }
+  .road .ball { z-index: 1; width: 104px; height: 104px; box-shadow: 0 12px 30px rgb(0 0 0 / 0.35); }
+  .road .ball .from { width: 44px; height: 44px; }
+  .road .ball-f { width: 168px; height: 168px; }
+  .road .ball-f img { width: 84px; height: 84px; }
+  .road .ball-f .ring { inset: -10px; border-width: 5px; }
+  .road .ball-shop { background: #DDF0E6; }
+  .road .ball-shop svg { width: 44px; height: 44px; }
+  .cap { grid-row: 2; text-align: center; }
+  .cap b { display: block; font-size: 16px; font-weight: 750; }
+  .cap small { display: block; font-size: 14px; color: #A9C2B8; }
+  .lane { position: relative; justify-self: stretch; height: 4px; border-radius: 2px; }
+  .lane.ok { margin: 0 -26px 0 -58px; background: #3CC283; transform-origin: left; }
+  .lane.ok .tick { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: var(--logro); color: #fff; box-shadow: 0 0 0 5px #1A3A32; }
+  .lane.ok .tick svg { width: 16px; height: 16px; }
+  .lane.todo { margin: 0 -58px 0 -26px; background: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.35) 0 10px, transparent 10px 20px); overflow: hidden; }
+  .lane.todo i { position: absolute; top: -3px; left: 0; width: 10px; height: 10px; border-radius: 50%; background: #FF7A45; box-shadow: 0 0 12px 2px rgb(255 122 69 / 0.7); opacity: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-phase="arrive"] .lane.ok { animation: grow 520ms var(--curva) 240ms both; }
+    [data-phase="opening"] .lane.todo i { animation: travel 1.4s var(--curva) infinite; }
+  }
+  @keyframes grow { from { transform: scaleX(0); } }
+  @keyframes travel { 0% { opacity: 0; transform: translateX(0); } 15%, 85% { opacity: 1; } 100% { opacity: 0; transform: translateX(var(--far, 200px)); } }
+
+  /* El cartel colgado, con los dos pasos. Se hamaca apenas mientras espera. */
+  .sign-wrap { position: relative; padding-top: 20px; transform-origin: 50% 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-phase="arrive"] .sign-wrap { animation: swing-in 900ms var(--rebote) 300ms both; }
+    [data-phase="opening"] .sign-wrap { animation: swing 3.2s ease-in-out infinite; }
+  }
+  @keyframes swing-in { from { transform: rotate(-6deg); opacity: 0; } 40% { opacity: 1; } }
+  @keyframes swing { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
+  .sign-wrap::before, .sign-wrap::after { content: ""; position: absolute; top: -6px; width: 2px; height: 46px; background: #9BB3AA; }
+  .sign-wrap::before { left: 77px; }
+  .sign-wrap::after { right: 77px; }
+  .sign { position: relative; display: flex; flex-direction: column; gap: 14px; width: 500px; padding: 20px 24px; border-radius: 16px; background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra-3); }
+  .sign::before, .sign::after { content: ""; position: absolute; z-index: 1; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--borde-fuerte); }
+  .sign::before { left: 74px; } .sign::after { right: 74px; }
+  .sign ol { position: relative; display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .sign ol::before { content: ""; position: absolute; left: 11px; top: 26px; height: 30px; width: 2px; background: var(--borde); }
+  .sign li { display: flex; gap: 14px; align-items: flex-start; }
+  .sign b { display: block; font-size: 16px; font-weight: 750; color: var(--verde); }
+  .sign small { display: block; font-size: 14px; line-height: 1.4; color: var(--texto-2); }
+
+  .status { position: absolute; top: 48px; right: 32px; display: flex; gap: 8px; margin: 0; font-size: 14px; font-weight: 650; }
+  .status span { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 999px; background: rgb(255 255 255 / 0.1); color: #DCE8E2; }
+  .status svg { width: 16px; height: 16px; }
+  .status .net { background: rgb(60 194 131 / 0.18); color: #8FE0B6; }
+  .status .net::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  /* La luz del local que se ve abajo cuando la persiana se destraba. */
+  .light { position: fixed; z-index: 1; left: 0; right: 0; bottom: 0; height: 60px; background: linear-gradient(0deg, rgb(255 214 150 / 0.55), transparent); pointer-events: none; opacity: 0; transition: opacity 600ms var(--curva); }
+  [data-phase="opening"] .light { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="test-frame" aria-hidden="true">
+  <div class="test-border"></div>
+  <div class="test-banner">Ambiente de prueba · nada de esto es real</div>
+</div>
+
+<!-- Detrás de la persiana: el marco, neutro (su maqueta es otra). -->
+<div class="ghost-frame" aria-hidden="true">
+  <aside class="ghost-side">
+    <img src="../../../../common/brand/logo-on-light.png" alt="">
+    <span class="ghost-row" style="--w:64px"></span><span class="ghost-row" style="--w:76px"></span><span class="ghost-row" style="--w:70px"></span><span class="ghost-row" style="--w:66px"></span><span class="ghost-row" style="--w:40px"></span>
+    <div class="ghost-foot"><span></span><span></span></div>
+  </aside>
+  <div class="ghost-main"></div>
+</div>
+<div class="light" aria-hidden="true"></div>
+
+<main class="shutter" role="status" aria-live="polite" aria-labelledby="title">
+  <p class="status"><span><i class="i" data-i="monitor"></i>Computadora del mostrador</span><span class="net">En línea</span></p>
+
+  <div class="shutter-inner">
+    <img class="logo in" src="../../../../common/brand/logo-on-dark.png" alt="Ferrebress" width="812" height="208">
+    <div class="head in" style="--d:1">
+      <h1 id="title" data-t="title">Conectando tu cuenta de Google</h1>
+      <p class="sub" data-t="sub">Google confirmó tu cuenta. Ahora Ferrebress abre tu sesión; tarda unos segundos.</p>
+    </div>
+
+    <div class="road in" style="--d:2" aria-hidden="true">
+      <span class="ball"><span class="from" data-t="from"></span></span>
+      <span class="lane ok"><span class="tick" data-i-check></span></span>
+      <span class="ball ball-f"><span class="ring"></span><img src="../../../../common/brand/isotype.svg" alt=""></span>
+      <span class="lane todo"><i></i></span>
+      <span class="ball ball-shop" data-i-shop></span>
+      <span class="cap" style="grid-column:1"><b data-t="fromName">Google</b><small data-t="fromWhat">Confirmó tu cuenta</small></span>
+      <span class="cap" style="grid-column:3"><b>Ferrebress</b><small>Abre tu sesión</small></span>
+      <span class="cap" style="grid-column:5"><b>Tu local</b><small>Adonde llegás</small></span>
+    </div>
+
+    <div class="sign-wrap">
+      <div class="sign">
+        <ol>
+          <li><span class="mark done" data-i-check></span><span><b data-t="step">Cuenta de Google verificada</b><small data-t="stepSub">Google confirmó que sos vos.</small></span></li>
+          <li><span class="mark now"></span><span><b data-t="open-step">Abriendo tu sesión</b><small data-t="open-sub">Ferrebress revisa que tu cuenta esté autorizada…</small></span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar" aria-hidden="true"></div>
+</main>
+
+<script>
+  // Lo que recorre la luz naranja: el largo del tramo entre la F y el local.
+  window.addEventListener("load", function () {
+    var lane = document.querySelector(".lane.todo");
+    if (lane) lane.style.setProperty("--far", (lane.offsetWidth - 10) + "px");
+  });
+</script>
+<script src="../../shared.js"></script>
+</body>
+</html>

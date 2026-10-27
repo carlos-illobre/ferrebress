@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrando · Ferrebress</title>
+<!-- Variante 2 · El marco que se arma. La espera ya es el lugar adonde se llega: el lateral del marco
+     está, todavía sin nada, con el logotipo donde va a quedar, y en el área de trabajo se ve el camino
+     de punta a punta. Al abrirse la sesión, lo de la espera se va y queda el marco: no hay salto. -->
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* El brillo que recorre el lateral vacío mientras espera: solo transform. */
+  .shine { position: fixed; z-index: 2; left: 0; top: 80px; bottom: 0; width: 216px; overflow: hidden; pointer-events: none; transition: opacity var(--t) var(--curva-salida); }
+  .shine::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / 0.85) 50%, transparent 80%); transform: translateX(-100%); }
+  @media (prefers-reduced-motion: no-preference) { .shine::before { animation: shine 1.6s ease-in-out infinite; } }
+  @keyframes shine { to { transform: translateX(100%); } }
+  [data-phase="done"] .shine { opacity: 0; }
+
+  .stage { position: fixed; z-index: 2; top: 0; right: 0; bottom: 0; left: 216px; display: grid; place-items: center; padding: 40px 32px; transition: opacity var(--t-nav) var(--curva-salida), transform var(--t-nav) var(--curva-salida); }
+  [data-phase="done"] .stage { opacity: 0; transform: translateY(8px); pointer-events: none; }
+  .column { width: min(100%, 900px); display: flex; flex-direction: column; gap: 24px; }
+
+  .top { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .kicker svg { width: 16px; height: 16px; }
+  h1 { margin: 0; font-size: 36px; line-height: 1.15; font-weight: 800; letter-spacing: -0.01em; color: var(--verde); }
+  .sub { margin: 8px 0 0; max-width: 640px; font-size: 16px; line-height: 1.5; color: var(--texto-2); }
+  .net { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 650; white-space: nowrap; }
+  .net::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  /* El camino, de punta a punta del área de trabajo. */
+  .track { display: grid; grid-template-columns: 200px 1fr 200px 1fr 200px; grid-template-rows: 144px auto; align-items: center; justify-items: center; row-gap: 16px; padding: 40px 24px 32px; border-radius: 16px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-2); }
+  .track .ball { width: 96px; height: 96px; box-shadow: 0 0 0 1px var(--borde), 0 8px 22px rgb(23 49 43 / 0.08); }
+  .track .ball .from { width: 40px; height: 40px; }
+  .track .ball-f { width: 144px; height: 144px; }
+  .track .ball-f img { width: 72px; height: 72px; }
+  .track .ball-shop svg { width: 40px; height: 40px; }
+  .cap { grid-row: 2; text-align: center; }
+  .cap b { display: block; font-size: 16px; font-weight: 750; }
+  .cap small { display: block; font-size: 14px; color: var(--texto-2); }
+  .rail { position: relative; justify-self: stretch; height: 6px; margin: 0 -24px 0 -48px; border-radius: 3px; background: var(--hundido); overflow: hidden; }
+  .rail.todo { margin: 0 -48px 0 -24px; }
+  .track .ball { z-index: 1; }
+  .rail.ok { overflow: visible; background: var(--logro); transform-origin: left; }
+  .rail.ok .tick { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; background: var(--logro); color: #fff; box-shadow: 0 0 0 5px var(--superficie); }
+  .rail.ok .tick svg { width: 16px; height: 16px; }
+  .rail .run { position: absolute; inset: 0; width: 40%; border-radius: 3px; background: var(--naranja); transform: translateX(-100%); opacity: 0; }
+  [data-phase="opening"] .rail .run { opacity: 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-phase="opening"] .rail .run { animation: run 1.4s cubic-bezier(.45, 0, .55, 1) infinite; }
+    [data-phase="arrive"] .rail.ok { animation: grow 480ms var(--curva) 200ms both; }
+  }
+  @media (prefers-reduced-motion: reduce) { [data-phase="opening"] .rail .run { transform: none; } }
+  @keyframes run { to { transform: translateX(250%); } }
+  @keyframes grow { from { transform: scaleX(0); } }
+
+  /* Los dos pasos, uno al lado del otro. */
+  .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0; padding: 0; list-style: none; }
+  .steps li { display: flex; gap: 16px; align-items: flex-start; padding: 16px 20px; border-radius: 16px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-1); }
+  .steps .mark { margin-top: 2px; }
+  .steps .mark.now { background: var(--superficie); }
+  .steps b { display: block; font-size: 16px; font-weight: 750; color: var(--verde); }
+  .steps small { display: block; font-size: 14px; line-height: 1.45; color: var(--texto-2); }
+  .steps .num { margin-left: auto; white-space: nowrap; align-self: center; font-size: 14px; font-weight: 650; color: var(--texto-3); }
+
+  .hint { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--texto-3); font-size: 14px; }
+  .hint svg { width: 16px; height: 16px; }
+</style>
+</head>
+<body>
+
+<div class="test-frame" aria-hidden="true">
+  <div class="test-border"></div>
+  <div class="test-banner">Ambiente de prueba · nada de esto es real</div>
+</div>
+
+<!-- El marco, todavía vacío: el logotipo ya está donde va a quedar. -->
+<div class="ghost-frame">
+  <aside class="ghost-side" aria-hidden="true">
+    <img src="../../../../common/brand/logo-on-light.png" alt="">
+    <span class="ghost-row" style="--w:64px"></span><span class="ghost-row" style="--w:76px"></span><span class="ghost-row" style="--w:70px"></span><span class="ghost-row" style="--w:66px"></span><span class="ghost-row" style="--w:40px"></span>
+    <div class="ghost-foot"><span></span><span></span></div>
+  </aside>
+  <div class="ghost-main"></div>
+</div>
+<div class="shine" aria-hidden="true"></div>
+
+<main class="stage" role="status" aria-live="polite" aria-labelledby="title">
+  <div class="column">
+    <div class="top in">
+      <div>
+        <p class="kicker"><i class="i" data-i="monitor"></i>Computadora del mostrador</p>
+        <h1 id="title" data-t="title">Conectando tu cuenta de Google</h1>
+        <p class="sub" data-t="sub">Google confirmó tu cuenta. Ahora Ferrebress abre tu sesión; tarda unos segundos.</p>
+      </div>
+      <span class="net">En línea</span>
+    </div>
+
+    <div class="track in" style="--d:1" aria-hidden="true">
+      <span class="ball"><span class="from" data-t="from"></span></span>
+      <span class="rail ok"><span class="tick" data-i-check></span></span>
+      <span class="ball ball-f"><span class="ring"></span><img src="../../../../common/brand/isotype.svg" alt=""></span>
+      <span class="rail todo"><span class="run"></span></span>
+      <span class="ball ball-shop" data-i-shop></span>
+      <span class="cap" style="grid-column:1"><b data-t="fromName">Google</b><small data-t="fromWhat">Confirmó tu cuenta</small></span>
+      <span class="cap" style="grid-column:3"><b>Ferrebress</b><small>Abre tu sesión</small></span>
+      <span class="cap" style="grid-column:5"><b>Tu local</b><small>Adonde llegás</small></span>
+    </div>
+
+    <ol class="steps in" style="--d:2">
+      <li><span class="mark done" data-i-check></span><span><b data-t="step">Cuenta de Google verificada</b><small data-t="stepSub">Google confirmó que sos vos.</small></span><span class="num">1 de 2</span></li>
+      <li><span class="mark now"></span><span><b data-t="open-step">Abriendo tu sesión</b><small data-t="open-sub">Ferrebress revisa que tu cuenta esté autorizada…</small></span><span class="num">2 de 2</span></li>
+    </ol>
+
+    <p class="hint in" style="--d:3"><i class="i" data-i="info"></i>No hace falta tocar nada: en cuanto la sesión esté abierta, el menú de la izquierda se completa.</p>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+</body>
+</html>
