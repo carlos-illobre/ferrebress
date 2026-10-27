@@ -25,7 +25,7 @@
   .grupo button[aria-pressed="true"] { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.12) }
   header a { margin-left: auto; color: var(--pino); font-weight: 700 }
   .escenario { overflow: auto; display: grid; place-items: start center; padding: 24px }
-  .marco { background: #fff; box-shadow: 0 12px 40px rgba(18,56,47,.18); transform-origin: top center }
+  .marco { background: #fff; box-shadow: 0 12px 40px rgba(18,56,47,.18); transform-origin: top left }
   .marco.phone { border: 8px solid var(--tinta); border-radius: 36px; overflow: hidden }
   iframe, .marco img { display: block; border: 0; width: 100%; height: 100% }
   .vacio { color: var(--suave); padding: 48px }
@@ -80,12 +80,15 @@
     var v = vs[state.n];
     if (!v) { esc.appendChild(el("p", screen() ? "Esta pantalla no tiene variantes para este dispositivo." : "Elegí una pantalla.", { "class": "vacio" })); abrir.hidden = true; return; }
     abrir.hidden = false; abrir.href = v.path;
-    var size = SIZE[state.device], marco = el("div", null, { "class": "marco " + state.device });
-    marco.style.width = size[0] + "px"; marco.style.height = size[1] + "px";
-    var scale = Math.min(1, (esc.clientWidth - 48) / (size[0] + 16));
-    marco.style.transform = "scale(" + scale + ")"; marco.style.marginBottom = (size[1] * (scale - 1)) + "px";
+    // El marco se achica con transform; el contenedor ocupa el tamaño ya achicado, así no se corta.
+    var size = SIZE[state.device], border = state.device === "phone" ? 16 : 0;
+    var scale = Math.min(1, (esc.clientWidth - 48) / (size[0] + border));
+    var holder = el("div"), marco = el("div", null, { "class": "marco " + state.device });
+    holder.style.width = (size[0] + border) * scale + "px"; holder.style.height = (size[1] + border) * scale + "px";
+    marco.style.width = size[0] + border + "px"; marco.style.height = size[1] + border + "px";
+    marco.style.transform = "scale(" + scale + ")";
     marco.appendChild(/\.(png|webp|jpg)$/.test(v.path) ? el("img", null, { src: v.path, alt: screen().title }) : el("iframe", null, { src: v.path, title: screen().title }));
-    esc.appendChild(marco);
+    holder.appendChild(marco); esc.appendChild(holder);
   }
 
   function go() { location.hash = [state.screen, state.device, state.n + 1].join("/"); }
