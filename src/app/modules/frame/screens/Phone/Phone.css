@@ -42,8 +42,9 @@
       display: grid;
       flex: none;
       grid-template-columns: repeat(5, 1fr);
-      height: 92px;
-      padding: 4px 4px 14px;
+      /* Instalada en un iPhone, la barra de inicio va encima del borde de abajo. */
+      height: calc(92px + env(safe-area-inset-bottom));
+      padding: 4px 4px calc(14px + env(safe-area-inset-bottom));
       background: var(--surface);
       border-top: 1px solid var(--border);
     }

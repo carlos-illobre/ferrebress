@@ -145,10 +145,15 @@
   }
 
   @media (max-width: 899px) {
+    /* Ocupa la ventana con su propio borde y no con 100dvh: instalada como aplicación, Android
+       calcula esa altura al abrir con la de la pantalla de bienvenida, y el menú de abajo quedaba
+       cortado hasta que algo hacía recalcular la pantalla. */
     .frame {
+      position: fixed;
+      inset: 0;
       display: flex;
       flex-direction: column;
-      height: 100dvh;
+      height: auto;
     }
     .work-area {
       flex: 1;
