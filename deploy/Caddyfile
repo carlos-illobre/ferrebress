@@ -13,7 +13,8 @@
 :80 {
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
-		Content-Security-Policy "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' https://accounts.google.com/gsi/style; frame-src https://accounts.google.com/gsi/; connect-src 'self' https://accounts.google.com/gsi/; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+		# Los estilos en línea son una excepción aprobada para el botón de Google, que se dibuja con ellos.
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; frame-src https://accounts.google.com/gsi/; connect-src 'self' https://accounts.google.com/gsi/; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
 		X-Frame-Options DENY
 		X-Content-Type-Options nosniff
 		# Google necesita ver de qué sitio viene el pedido del botón: a otros sitios va solo el origen.
@@ -38,7 +39,9 @@
 		encode zstd gzip
 		@hashed path /assets/*
 		header @hashed Cache-Control "public, max-age=31536000, immutable"
-		header /index.html Cache-Control "no-cache"
+		# La página, el service worker y el manifiesto se revisan siempre: así llega cada versión.
+		@fresh path /index.html /sw.js /manifest.webmanifest
+		header @fresh Cache-Control "no-cache"
 		try_files {path} /index.html
 		file_server
 	}

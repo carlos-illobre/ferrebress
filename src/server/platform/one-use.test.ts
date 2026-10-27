@@ -30,4 +30,22 @@ describe('los valores de un solo uso', () => {
     clock.advance(1_000);
     expect(once.issue('c', 6)).toBeDefined();
   });
+
+  it('con replaceOldest, el dueño en su tope descarta el más viejo suyo y no el de otro', () => {
+    const clock = fakeClock();
+    const once = createOneUse<number>(clock, {
+      ttlMs: 1_000,
+      maxTotal: 4,
+      maxPerOwner: 2,
+      replaceOldest: true,
+    });
+    const first = once.issue('a', 1) as string;
+    const second = once.issue('a', 2) as string;
+    const other = once.issue('b', 3) as string;
+    const third = once.issue('a', 5) as string;
+    expect(once.take(first)).toBeUndefined();
+    expect(once.take(second)).toBe(2);
+    expect(once.take(third)).toBe(5);
+    expect(once.take(other)).toBe(3);
+  });
 });

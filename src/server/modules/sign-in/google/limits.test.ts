@@ -61,4 +61,23 @@ describe('los límites de intentos con Google', () => {
     expect(statuses.slice(0, 10).every((status) => status === 200)).toBe(true);
     expect(statuses.at(-1)).toBe(429);
   });
+
+  it('recargar la entrada no gasta el nonce: pasado el tope, se descarta el más viejo', async () => {
+    const device = createDevice(server, { ip: '203.0.0.1' });
+    const nonces = [];
+    for (let i = 0; i < 11; i++)
+      nonces.push(
+        ((await device.request('/api/start')).body as { googleNonce?: string }).googleNonce,
+      );
+    expect(nonces.every(Boolean)).toBe(true);
+  });
+
+  it('con la memoria llena de nonces, /api/start frena hasta que vencen', async () => {
+    let last = 0;
+    for (let ip = 0; ip < 34; ip++) {
+      const device = createDevice(server, { ip: `204.0.${ip}.1` });
+      for (let i = 0; i < 30; i++) last = (await device.request('/api/start')).status;
+    }
+    expect(last).toBe(429);
+  });
 });

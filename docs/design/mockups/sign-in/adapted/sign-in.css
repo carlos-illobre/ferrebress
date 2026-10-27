@@ -232,7 +232,7 @@ body[data-state="intentos"] #notice { display: flex; }
   .card { position: relative; z-index: 1; align-self: stretch; display: flex; flex-direction: column; gap: calc(20 * var(--u)); padding: calc(36 * var(--u)) calc(51 * var(--u)) 0; border-radius: 18px; background: rgb(255 255 255 / 0.96); box-shadow: 0 30px 70px rgb(23 49 43 / 0.14), 0 0 0 1px rgb(223 229 224 / 0.8); overflow: hidden; }
   .card-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap; }
   .card-title h2 { margin-left: calc(8 * var(--u)); font-size: max(24px, calc(30 * var(--u))); font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; }
-  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: var(--pino-suave); color: var(--pino-texto); font-size: 14px; font-weight: 700; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: var(--pino-suave); color: var(--pino-texto); font-size: 14px; font-weight: 700; transform: translateY(-1px); }
   .card-sub { margin: calc(-14 * var(--u)) 0 calc(8 * var(--u)) calc(8 * var(--u)); font-size: max(15px, calc(19 * var(--u))); color: var(--texto-2); }
   body[data-state="sesion-cerrada"] .card-sub { display: none; }
   .notice-top { margin-top: calc(-8 * var(--u)); }

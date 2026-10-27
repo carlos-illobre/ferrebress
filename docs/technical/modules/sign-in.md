@@ -35,7 +35,9 @@ ferrebress/
 │   └── app/
 │       ├── main.tsx                 arma la aplicación y registra los módulos
 │       ├── platform/                api, realtime, proof-key, clock, device, keyboard, router,
-│       │                            storage, waiting
+│       │                            storage, waiting, offline (el service worker)
+│       ├── sw.ts                    los eventos del service worker; se arma como /sw.js
+│       ├── public/                  el manifiesto y los íconos para instalarla
 │       ├── ui/                      piezas del lenguaje visual
 │       ├── styles/                  tokens de «Mostrador», el marco de pruebas
 │       └── modules/
@@ -341,7 +343,7 @@ también tienen límite por dirección:
 
 | Qué | Por dirección |
 |---|---|
-| `GET /api/start` (da un `nonce`) | 30 por minuto, y como mucho 10 `nonce` vivos |
+| `GET /api/start` (da un `nonce`) | 30 por minuto, y como mucho 100 `nonce` vivos: al llegar, se descarta el más viejo de esa dirección en lugar de negarse, porque se pide uno con cada carga de la entrada, no es un intento, y en el local todos los dispositivos salen por la misma dirección |
 | Desafíos de la huella | 20 por minuto, y como mucho 10 vivos |
 | Abrir una pantalla con QR | 10 por minuto, y como mucho 3 abiertas |
 | Leer un código | 10 por minuto |
@@ -391,9 +393,17 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
   llega con el módulo 03; no se arma una interfaz de estrategias hasta que haya una segunda forma.
 - **`platform/clock`:** la hora del servidor más el cronómetro (ADR-007).
 - **`platform/device`:** el identificador, si es celular, si tiene cámara, y el nombre «Chrome en Windows» (de `navigator.userAgentData`, sin bibliotecas).
-- **La versión nueva (00 · R5):** el service worker guarda solo el esqueleto de la aplicación y la
-  pantalla que se abre; el resto, cuando se usa. Nunca guarda ni contesta nada de `/api`. Cuando la cabecera dice otra versión, la baja; se
-  aplica como dice R5.
+- **La versión nueva (00 · R5) y la instalación:** un service worker escrito a mano, sin
+  bibliotecas (`platform/offline`), que Vite arma aparte como `/sw.js`, con una dirección que no
+  cambia. Con él y el manifiesto (`public/manifest.webmanifest`, con los íconos de la F), el
+  celular puede instalar la aplicación (04 · «Instalar en este dispositivo»).
+  - Al instalarse guarda solo el esqueleto: la página y los archivos que ella carga de entrada. El
+    resto (las pantallas, las imágenes, las letras) lo guarda la primera vez que se usa.
+  - La página se pide siempre primero a la red, así que recargar trae la versión nueva, como dice
+    R5. Sin conexión, abre la guardada (R3.6).
+  - Si la página que llega es de otra versión, borra lo guardado de la anterior.
+  - Nunca guarda ni contesta nada de `/api`, ni de otros sitios.
+  - Caddy sirve la página, `/sw.js` y el manifiesto sin que el navegador los guarde.
 - **«Algo salió mal» (00 · R9):** muestra qué hacer y guarda el aviso, con la captura y los últimos
   pasos, para mandarlo cuando exista el módulo 12. La captura se saca con `html-to-image` (unos
   10 KB), que se baja recién cuando hace falta.
@@ -492,7 +502,11 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   - Una política de contenido que solo permite el propio origen y lo que pide el botón de Google
     (`accounts.google.com` en scripts, marcos, conexiones y estilos), con `object-src 'none'`,
     `base-uri 'none'`, `worker-src 'self'`, `img-src 'self' data: blob:` y
-    `frame-ancestors 'none'`.
+    `frame-ancestors 'none'`. Los estilos admiten además los escritos en la página
+    (`'unsafe-inline'`), una excepción aprobada por Carlos para el botón de Google: se mide y se
+    dibuja con estilos propios en línea, y sin ellos se ve un instante como una G enorme con el
+    texto repetido. Los scripts siguen solo del propio origen y de Google: un estilo inyectado no
+    corre código, y la aplicación no arma HTML a mano.
   - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
     `Referrer-Policy: strict-origin-when-cross-origin` (Google comprueba el origen del botón por esa
     cabecera; a otros sitios va solo el origen, nunca la ruta) y

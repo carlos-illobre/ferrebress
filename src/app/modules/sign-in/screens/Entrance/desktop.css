@@ -217,6 +217,8 @@
       color: var(--pine-text);
       font-size: 14px;
       font-weight: 700;
+      /* Un píxel más arriba, para que respire con el texto de abajo. */
+      transform: translateY(-1px);
     }
     .card-sub {
       margin: calc(-14 * var(--u)) 0 calc(8 * var(--u)) calc(8 * var(--u));

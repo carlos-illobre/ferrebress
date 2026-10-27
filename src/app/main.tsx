@@ -1,4 +1,5 @@
-// Monta la aplicación en la página y prende el teclado de la computadora.
+// Monta la aplicación en la página, prende el teclado de la computadora y registra el service worker
+// (platform/offline), que permite instalarla y abrirla sin conexión. En desarrollo no hay sw.js.
 import { render } from 'preact';
 import './styles/tokens.css';
 import './styles/base.css';
@@ -7,3 +8,5 @@ import { startKeyboard } from './platform/keyboard.ts';
 
 startKeyboard();
 render(<App />, document.getElementById('app') as HTMLElement);
+if (import.meta.env.PROD && 'serviceWorker' in navigator)
+  void navigator.serviceWorker.register('/sw.js');

@@ -10,7 +10,9 @@ export const signInSettings = {
   lastUsedFlushMs: minute,
   closedRetentionMs: 30 * 24 * hour,
   cleanupEveryMs: 24 * hour,
-  nonce: { ttlMs: 10 * minute, maxTotal: 1_000, maxPerOwner: 10 },
+  // Cada carga de la entrada pide uno: en el local todos salen por la misma dirección, así que el
+  // tope por dirección es alto y, al llegar, se descarta el más viejo en lugar de negarse.
+  nonce: { ttlMs: 10 * minute, maxTotal: 1_000, maxPerOwner: 100, replaceOldest: true },
   challenge: { ttlMs: 5 * minute, maxTotal: 1_000, maxPerOwner: 10 },
   limits: {
     // Por dispositivo y por dirección de internet (R2.9).
