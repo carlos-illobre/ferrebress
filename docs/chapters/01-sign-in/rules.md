@@ -49,7 +49,15 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   entre dispositivos, por Bluetooth), esa forma reemplaza al código QR propio: la computadora
   muestra la del navegador. Se detecta solo.
 - **R2.7** Si el celular no tiene la sesión abierta y lee el código de la computadora, primero
-  entra el celular (con Google o con la huella) y con eso entran los dos.
+  entra el celular y con eso entran los dos:
+  - Con la huella vinculada, una sola huella hace entrar al celular y a la computadora.
+  - Sin huella vinculada, entra con Google y en ese momento se le pide vincular la huella (la misma
+    hoja de R2.2, que dice que es para entrar a la computadora); con esa huella entra la
+    computadora. Entrar con Google en el celular no alcanza para aprobar una computadora.
+  - Lo mismo si el celular ya tenía la sesión abierta pero no tiene huella vinculada.
+  - Si el celular no puede vincular la huella (no tiene lector ni bloqueo de pantalla, o dice que
+    no), la computadora no entra con él: el celular lo dice y la computadora sigue pudiendo entrar
+    con Google.
 - **R2.8** Sin conexión no se puede entrar. Los botones se apagan y la entrada dice «Para entrar
   hace falta internet».
 - **R2.9** Como mucho 10 intentos por minuto con Google y 20 con la huella, por dispositivo. Pasado
@@ -159,8 +167,12 @@ enviar es «Salir» (R5.2).
   no tiene la computadora adelante; si igual pone la huella, la computadora entra.
 - **E14** **Dado** un código ya usado, **cuando** otro celular lo lee, **entonces** no sirve.
 - **E15** **Dado** un código de hace más de 60 segundos, **cuando** se lo lee, **entonces** no sirve.
-- **E16** **Dado** un celular sin sesión, **cuando** lee el código, **entonces** primero entra el celular
-  con Google o con la huella, y con eso entran los dos.
+- **E16** **Dado** un celular sin sesión y con la huella vinculada, **cuando** lee el código y pone la
+  huella, **entonces** entran el celular y la computadora.
+- **E16b** **Dado** un celular sin huella vinculada, **cuando** lee el código, **entonces** entra con
+  Google si no tenía sesión, se le pide vincular la huella y, al ponerla, entra la computadora.
+- **E16c** **Dado** un celular sin huella vinculada, **cuando** lee el código y no vincula la huella,
+  **entonces** la computadora no entra y el celular dice que puede entrar con Google en ella.
 - **E17** **Dado** una computadora cuyo navegador puede usar un celular cercano por Bluetooth,
   **cuando** se abre la entrada, **entonces** muestra esa forma en lugar del código QR propio.
 - **E18** **Dado** el código QR en pantalla, **cuando** no pasa nada, **entonces** la computadora no

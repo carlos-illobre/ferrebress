@@ -211,10 +211,10 @@ programó no puede revisarse.
 | 2 | Director de arte (skill `art-director`), un perfil artístico e innovador | Tres versiones muy distintas de cada pantalla, una pantalla por vez y en el orden en que se usan, funcionando y con sus animaciones, en el visor de maquetas. Carlos elige una antes de pasar a la siguiente. Solo pantallas de este módulo. La interfaz es lo más importante: va antes que todo lo técnico | `docs/design/mockups/<pantalla>/` y `screens.md` | Sí: las ve y da sus comentarios, con los que trabaja el maquetador |
 | 2b | Maquetador (agente `mockup-builder`), un desarrollador frontend | Lleva las ideas del director, por exóticas que sean, a la tecnología disponible, y construye la maqueta final: toma como base lo que hizo el director de arte (la variante elegida y lo que Carlos quiera de las otras), le suma las directivas de Carlos y la ajusta a las reglas aprobadas. El director diseña sin límites; el maquetador pone los límites. Nunca modifica lo del director | `docs/design/mockups/<pantalla>/final/` | Sí: la evalúa; si pide cambios, vuelve el maquetador |
 | 3 | Arquitecto | Entidades, API, eventos, permisos, conexiones, la sección «Seguridad», las **metas de performance** (consultas por pedido, milisegundos, bytes) y las tareas con sus dependencias; un ADR si hay una decisión técnica | `docs/technical/modules/<module>.md` | — |
-| 4 | Revisor del diseño (agente `design-reviewer`) | Busca puntos débiles y mejoras al diseño técnico, contra la constitución y las restricciones de Carlos | `docs/technical/modules/<module>-design-review.md` | — |
-| 5 | Arquitecto | Corrige el diseño con lo que encontró el revisor y se lo presenta a Carlos | El diseño final | Sí |
+| 4 | Revisor del diseño (agente `design-reviewer`) y revisor de seguridad (agente `security-reviewer`), por separado | El primero busca puntos débiles y mejoras al diseño técnico, contra la constitución y las restricciones de Carlos. El segundo lo mira como un atacante: entrar sin permiso, ver o cambiar lo ajeno, lo que entra de afuera, datos personales, abuso, despliegue y dependencias | `docs/technical/modules/<module>-design-review.md` y `<module>-security-review.md` | — |
+| 5 | Arquitecto | Corrige el diseño con lo que encontraron los dos revisores y se lo presenta a Carlos | El diseño final | Sí |
 | 6 | Desarrollador | Primero las pruebas: una por escenario y las que cuentan las consultas de cada pedido, todas fallando. Después el código que las hace pasar, con cobertura total; `pnpm check` en verde | Pruebas y código | — |
-| 7 | Revisor del código (agente `code-reviewer`) | Compara el código con las reglas, las pantallas y el diseño; lo que encuentra se arregla | `docs/technical/modules/<module>-code-review.md` | — |
+| 7 | Revisor del código (agente `code-reviewer`) y revisor de seguridad (agente `security-reviewer`), por separado | El primero compara el código con las reglas, las pantallas y el diseño. El segundo busca cómo atacarlo y que cada riesgo cubierto tenga una prueba que lo intente. Lo que encuentran se arregla | `docs/technical/modules/<module>-code-review.md` y la sección del código de `<module>-security-review.md` | — |
 | 8 | Carlos | Lo prueba en el ambiente de pruebas; los ajustes vuelven al paso que corresponda | — | Sí: cierra el módulo |
 | 9 | Redactor | El manual del módulo (la pantalla del manual se diseña en el paso 9 del primer módulo, no antes): capturas, texto para quien atiende la ferretería sin saber de informática y un clip solo si la funcionalidad es lo bastante grande para verla en video | `docs/manual/` y la pantalla del manual | — |
 
@@ -264,7 +264,8 @@ mismo ni se pisen:
 ### Antes de subir
 
 `pnpm check` corre los tipos, los límites de tamaño y complejidad, qué puede importar a qué,
-las pruebas unitarias con su cobertura y que los enlaces de la documentación funcionen. No se
+las pruebas unitarias con su cobertura, las dependencias con fallas conocidas y que los enlaces de
+la documentación funcionen (ADR-016). No se
 sube nada que no lo pase. Las pruebas de punta a punta corren antes de cerrar un módulo.
 
 ## Cómo se cambia

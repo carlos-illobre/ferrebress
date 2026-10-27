@@ -35,6 +35,8 @@ src/
 │   ├── main.ts      arma el servidor: registra cada módulo
 │   ├── platform/    tecnología sin negocio: db, audit, http, session, permissions,
 │   │                events, realtime, config, clock
+│   ├── adapters/    lo que habla con un proveedor que se puede cambiar (la ciudad de una
+│   │                dirección de internet); cumple una interfaz que define el módulo que lo usa
 │   └── modules/<module>/
 └── app/
     ├── main.tsx     arma la aplicación: registra cada módulo
@@ -126,8 +128,8 @@ escritor).
 
 - Tipos de TypeScript estrictos.
 - Qué puede importar a qué: entre módulos solo por la fachada; `rules.ts` sin tecnología;
-  `platform/` sin negocio; `shared/` sin nada de afuera.
-- Complejidad, tamaño de archivo y de función, y código repetido, como aviso con límites que se
-  fijan al armar la base.
+  `platform/` sin negocio; `shared/` sin nada de afuera; ningún módulo importa un adaptador
+  (solo `main.ts` los conecta).
+- Complejidad, tamaño de archivo y de función, y código repetido, con los límites del ADR-016.
 - Pruebas unitarias con cobertura del 100 % (ADR-005).
 - Los enlaces de `docs/` funcionan.

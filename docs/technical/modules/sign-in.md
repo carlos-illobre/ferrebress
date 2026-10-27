@@ -28,7 +28,8 @@ ferrebress/
 │   ├── shared/contracts/            la forma de la API, con zod/mini
 │   ├── server/
 │   │   ├── main.ts                  arma el servidor y registra los módulos
-│   │   ├── platform/                config, db, audit, http, realtime, clock, rate-limit, geo
+│   │   ├── platform/                config, db, audit, http, realtime, clock, rate-limit
+│   │   ├── adapters/geo-dbip/       la ciudad, con la base local DB-IP Lite
 │   │   └── modules/
 │   │       ├── users/               personas: lo mínimo que necesita entrar
 │   │       └── sign-in/             entrar, salir, sesiones, huellas, códigos QR
@@ -48,6 +49,8 @@ ferrebress/
 ```
 
 - **Un workspace de pnpm** con tres paquetes: `src/shared`, `src/server` y `src/app`.
+- **`adapters/`** tiene lo que habla con un proveedor que se puede cambiar. Cada uno cumple una
+  interfaz que define quien lo usa, y solo `main.ts` sabe cuál se usa.
 - **`users` arranca acá con lo mínimo:** la tabla y su fachada. Las pantallas y las reglas de
   personas, roles y permisos llegan con el módulo 02, en la misma carpeta.
 - **`frame` es, en la aplicación, el módulo del capítulo 00 (`00-app`):** el marco y el menú. Las
@@ -220,7 +223,11 @@ computadora                         servidor                          celular
 - **Celular sin sesión (R2.7):** se llega al código por la cámara del sistema (abre la dirección
   del QR) o por «Escanear el código de la computadora» en la entrada. Con la huella vinculada,
   **una sola huella** hace entrar a los dos: `approve` sin sesión verifica la huella, crea la
-  sesión del celular y aprueba la computadora. Sin huella vinculada, ver la pregunta 3 de § 15.
+  sesión del celular y aprueba la computadora. Sin huella vinculada (con o sin sesión), entra con
+  Google si hace falta y la aplicación le pide vincular la huella en ese momento; la huella recién
+  creada aprueba el código en el mismo paso (`approve` recibe la credencial nueva). Entrar con
+  Google no alcanza para aprobar. Si no puede vincularla, el celular dice que la computadora puede
+  entrar con Google y suelta el código (`cancel`).
 - **El canal está abierto mientras la entrada está a la vista.** Se cierra al entrar o al ocultar
   la pestaña, y se vuelve a abrir al volver a la vista. No hay tiempo máximo ni botón para pedir
   otro código.
@@ -290,10 +297,23 @@ también tienen límite por dirección.
 **La dirección de internet** sale de la cabecera que pone Caddy, que pisa la que mande el
 navegador; el servidor solo la acepta si el pedido viene de Caddy.
 
-**La ciudad aproximada:** una base de ciudades dentro de la máquina (DB-IP Lite, licencia CC BY
-4.0, que permite el uso comercial), en un volumen que `deploy.sh` actualiza una vez por mes. La
-consulta es local: ninguna dirección de internet sale de la máquina. Si no se encuentra, «ubicación
-desconocida». Es la pregunta 2 de § 15.
+**La ciudad aproximada** se pide por una interfaz de una sola función que define `sign-in`:
+
+```ts
+// sign-in/geo.ts: lo único que sign-in sabe de la ciudad
+export type FindCity = (ipAddress: string) => Promise<string | undefined>;
+```
+
+- **Hoy la cumple `adapters/geo-dbip`:** una base de ciudades dentro de la máquina (DB-IP Lite,
+  licencia CC BY 4.0, que permite el uso comercial), en un volumen que `deploy.sh` actualiza una vez
+  por mes. La consulta es local: ninguna dirección de internet sale de la máquina.
+- **Cambiarla por un servicio externo** es escribir otro adaptador con la misma función, cambiar
+  una línea de `main.ts` y borrar la carpeta, la variable del `.env` y el paso de `deploy.sh`. Nada
+  de `sign-in` cambia. dependency-cruiser controla que ningún módulo importe un adaptador.
+- **Si falla o tarda más de 200 ms**, o no encuentra la dirección, la ciudad es «ubicación
+  desconocida» y la entrada sigue: la ciudad es un aviso, nunca frena.
+- **Las pruebas de `sign-in`** usan una función de prueba; el adaptador tiene las suyas, con una
+  base chica de prueba.
 
 ## 9. Eventos y auditoría
 
@@ -353,7 +373,7 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 | `GOOGLE_CLIENT_ID` | El cliente OAuth |
 | `GOOGLE_ISSUER`, `GOOGLE_JWKS_URL` | Quién emite el pase de Google y dónde están sus llaves; en las pruebas, un emisor de prueba |
 | `GOOGLE_SCRIPT_URL` | El script del botón de Google; en las pruebas de punta a punta, uno de prueba |
-| `GEO_DATABASE_PATH` | La base de ciudades |
+| `GEO_DATABASE_PATH` | La base de ciudades del adaptador `geo-dbip` |
 | `INITIAL_ADMIN_EMAIL` | El primer Administrador |
 | `TRUSTED_PROXY` | La dirección de Caddy, la única de la que se acepta la dirección de internet |
 
@@ -382,7 +402,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   (`navigator.credentials`, la cámara), que se prueba de punta a punta.
 - **De punta a punta (Playwright, en los dos anchos):** entrar con Google (botón y emisor de prueba,
   desde el `.env`), vincular la huella y entrar con ella (autenticador virtual de Chromium), entrar
-  a la computadora leyendo el QR desde un segundo navegador, salir, sesión vencida, sin conexión.
+  a la computadora leyendo el QR desde un segundo navegador, salir, sesión vencida, sin conexión,
+  y las cabeceras de seguridad que pone Caddy.
   Que Google pida elegir la cuenta después de salir (E11) se prueba comprobando que se llamó a
   `disableAutoSelect()`; que el botón se vea como el real, a mano.
 
@@ -408,7 +429,7 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   propio origen.
 - **Secretos:** ninguno nuevo; el identificador de Google no es secreto. Los pases, solo como hash.
 - **Límites:** § 8.
-- **Lo que no se puede garantizar (pregunta 4 de § 15):** las huellas de Google se copian a los
+- **Lo que no se puede garantizar (aceptado):** las huellas de Google se copian a los
   otros dispositivos de la misma cuenta de Google, también a Chrome en una computadora. El servidor
   no puede saber en qué aparato se usó. Por eso «un celular, una cuenta» y «la computadora no tiene
   huella propia» se cumplen en la aplicación, no como garantía.
@@ -428,42 +449,18 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   arranque solo. Lo dice `deploy/README.md`.
 - **Workflows:** `check.yml` en cada subida (`pnpm check`); `deploy.yml` en `main` (imágenes, GHCR,
   aviso a ntfy). Las pruebas de punta a punta, con el compose, antes de cerrar el módulo.
-- **La máquina:** la misma VM de Oracle del proyecto anterior, con un proyecto de compose aparte.
-  Cómo comparten los puertos 80 y 443, la pregunta 1 de § 15.
+- **La máquina:** la misma VM de Oracle del proyecto anterior. Ferrebress toma los puertos 80 y 443
+  con su Caddy; antes del primer despliegue se apaga el proyecto anterior en esa máquina, porque
+  solo un programa puede tener esos puertos.
 
-## 15. Preguntas para Carlos
+## 15. Lo que decidió Carlos
 
-1. **Los puertos 80 y 443 en la misma máquina.** El proyecto anterior ya los usa con su Caddy, y
-   solo un programa puede tenerlos. Opciones:
-   - **A.** El Caddy de Ferrebress toma los puertos y atiende también los dominios del proyecto
-     anterior, pasándole los pedidos a su servidor por un puerto interno. Se cambia una vez la
-     configuración del proyecto anterior en la máquina (no su repositorio); el día que se apaga,
-     se borran esas líneas.
-   - **B.** Al revés: el Caddy del proyecto anterior atiende también los dominios de Ferrebress.
-     Ferrebress depende del proyecto anterior hasta que se apague, y ese día hay que mover los
-     certificados.
-   - **C.** Apagar ya el ambiente de pruebas del proyecto anterior. Solo sirve si su producción
-     también se apaga o se mueve; si no, sigue teniendo los puertos.
-
-   Recomiendo la **A**: Ferrebress queda dueño de los puertos desde el principio y apagar el
-   proyecto anterior es borrar dos bloques.
-2. **La ciudad aproximada.** Los servicios gratuitos que dan la ciudad suelen prohibir el uso
-   comercial sin pagar. Propongo la base DB-IP Lite dentro de la máquina (§ 8): permite el uso
-   comercial, no manda ninguna dirección a terceros (cumple «nada de datos personales en los
-   pedidos») y responde al instante. Ocupa unos 130 MB en un volumen, no en la imagen. Desventaja:
-   la ciudad de una dirección de celular suele ser la de la antena o la de la empresa, y puede
-   decir otra ciudad aunque estén juntos; el aviso es solo un aviso.
-3. **Celular con Google pero sin huella vinculada, ante el QR de la computadora.** La regla dice
-   que la computadora entra con la huella del celular. Si el celular entró con Google y nunca
-   vinculó la huella:
-   - **A.** Se le pide vincularla en ese momento; con la huella, entran los dos. (Recomendado: la
-     computadora siempre queda atada a una huella.)
-   - **B.** Alcanza con haber entrado con Google en el celular. Más rápido, pero cualquiera con la
-     cuenta de Google abierta en un celular aprueba una computadora.
-4. **Las huellas se copian.** Lo de § 13: una computadora con Chrome conectado a la misma cuenta de
-   Google puede entrar con la huella guardada en esa cuenta, sin el celular. ¿Se acepta como está?
-   La alternativa es rechazar la huella cuando el navegador dice que se usó en la misma computadora,
-   pero eso lo dice el navegador y se puede falsear: suma código sin dar una garantía.
+- **Los puertos:** Ferrebress se queda con el 80 y el 443; el proyecto anterior se apaga en la
+  máquina antes del primer despliegue (§ 14).
+- **La ciudad:** la base local, en un adaptador que se puede cambiar por un servicio externo sin
+  tocar el resto (§ 8).
+- **Celular sin huella ante el QR:** se le pide vincularla en ese momento (R2.7, § 5).
+- **Las huellas que se copian:** se acepta (§ 13, ADR-006).
 
 ## 16. Tareas
 
@@ -493,6 +490,6 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
   el cliente web, agregar a «Orígenes de JavaScript autorizados»
   `https://ferrebress-pruebas.duckdns.org`. Mientras la pantalla de consentimiento siga en
   «Prueba», cada cuenta que entre tiene que estar en su lista de usuarios de prueba.
-- **La máquina:** según la pregunta 1.
+- **La máquina:** apagar el proyecto anterior en la VM antes del primer despliegue (§ 14).
 - **ntfy:** nada; el agente crea el canal con un nombre al azar y lo guarda como variable de GitHub
   y en la máquina.
