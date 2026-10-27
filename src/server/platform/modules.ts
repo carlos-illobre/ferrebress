@@ -5,6 +5,7 @@ import type { AuditLog } from './audit.ts';
 import type { Clock } from './clock.ts';
 import type { Config } from './config.ts';
 import type { ModuleSchema } from './db.ts';
+import type { Events } from './events.ts';
 import type { Http } from './http.ts';
 import type { RateLimiter } from './rate-limit.ts';
 
@@ -15,6 +16,7 @@ export type Platform = {
   audit: AuditLog;
   clock: Clock;
   limiter: RateLimiter;
+  events: Events;
   http: Http;
 };
 
@@ -22,5 +24,5 @@ export type Platform = {
 export type ServerModule = {
   name: string;
   schema?: ModuleSchema;
-  register(platform: Platform): void;
+  register(platform: Platform): void | Promise<void>;
 };

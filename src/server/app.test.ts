@@ -7,7 +7,12 @@ describe('el servidor', () => {
   let server: Awaited<ReturnType<typeof createServer>>;
   const registered: string[] = [];
   beforeAll(async () => {
-    const plain = { name: 'demo', register: () => registered.push('demo') };
+    const plain = {
+      name: 'demo',
+      register: () => {
+        registered.push('demo');
+      },
+    };
     const createNotes: Migration = {
       up: (db) =>
         db.schema.withSchema('notes').createTable('notes').addColumn('text', 'text').execute(),
@@ -15,7 +20,9 @@ describe('el servidor', () => {
     const withSchema = {
       name: 'notes',
       schema: { schema: 'notes', migrations: { '001': createNotes } },
-      register: () => registered.push('notes'),
+      register: () => {
+        registered.push('notes');
+      },
     };
     server = await createServer(testConfig, [plain, withSchema]);
   });
