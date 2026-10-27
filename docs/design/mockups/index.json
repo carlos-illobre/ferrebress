@@ -29,6 +29,8 @@
    "title": "Los avisos del marco",
    "module": "01 · Entrar",
    "variants": [
+    { "device": "desktop", "name": "Final", "path": "mockups/app-notices/final/index.html" },
+    { "device": "phone", "name": "Final", "path": "mockups/app-notices/final/index.html" },
     { "device": "desktop", "name": "1 · Evolución", "path": "mockups/app-notices/variant-1-evolution/index.html" },
     { "device": "desktop", "name": "2 · La isla", "path": "mockups/app-notices/variant-2-island/index.html" },
     { "device": "desktop", "name": "3 · La persiana", "path": "mockups/app-notices/variant-3-shutter/index.html" },

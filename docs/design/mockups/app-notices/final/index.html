@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Los avisos · Final</title>
+<!-- Los avisos del marco · maqueta final. Parte de la variante 1 (Evolución) del director: cada
+     aviso es una pieza conocida del lenguaje «Mostrador», en su lugar de siempre. La espera es una
+     línea arriba del área y una tarjeta chica abajo; la versión nueva, una tarjeta en la esquina;
+     el bloqueo, un diálogo que no se cierra; «Algo salió mal», un diálogo que muestra qué se manda.
+     Una sola página: desde 900 px es la computadora; debajo, el celular. El marco de fondo es
+     ../../app-frame/final/, sin tocar. Lo que cambia respecto de la variante, en changes.md. -->
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="shared.css">
+<script src="../../../common/icons.js"></script>
+<script src="../../../common/navigate.js" defer></script>
+<style>
+  /* =================== 1 · La espera (00 · R7.3): línea arriba del área + tarjeta chica abajo =================== */
+  /* El avance es una variable (--avance, de 0 a 1) que pinta scaleX: solo transform. La barra es la
+     pieza .barra del lenguaje, en pino mientras espera y en verde al terminar. */
+  .espera-linea { position: fixed; z-index: 20; left: var(--area-izq); right: var(--area-der); top: var(--area-arriba); height: 3px; overflow: hidden; background: rgb(18 56 47 / .08); }
+  .espera-linea-avance { position: absolute; inset: 0; background: var(--pino); transform-origin: 0 50%; transform: scaleX(var(--avance, 0)); }
+  .espera-linea.sin-medida .espera-linea-avance { width: 30%; transform: none; }
+
+  .espera-aviso { position: fixed; z-index: 21; left: calc((100vw + var(--area-izq) - var(--area-der)) / 2); bottom: calc(var(--area-abajo) + 24px); width: 440px; margin-left: -220px; display: grid; grid-template-columns: 40px 1fr; gap: 4px 12px; align-items: center; padding: 14px 16px; border: 1px solid var(--borde); border-radius: var(--r-tarjeta); background: var(--superficie); box-shadow: var(--sombra-3); }
+  .espera-icono { grid-row: span 2; width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino-texto); }
+  .espera-icono-listo { display: none; }
+  .espera-aviso.hecho .espera-icono { background: var(--logro-suave); color: var(--logro-texto); }
+  .espera-aviso.hecho .espera-icono .gira { display: none; }
+  .espera-aviso.hecho .espera-icono-listo { display: block; }
+  .espera-que { font-size: 16px; font-weight: 750; line-height: 22px; display: flex; justify-content: space-between; gap: 12px; }
+  .espera-falta { font-size: 14px; font-weight: 650; color: var(--texto-2); white-space: nowrap; }
+  .espera-barra { margin: 0; }
+  .espera-barra > .espera-barra-avance { width: 100%; background: var(--pino); transform-origin: 0 50%; transform: scaleX(var(--avance, 0)); }
+  .espera-aviso.sin-medida .espera-barra > .espera-barra-avance { width: 30%; transform: none; }
+  .espera-aviso.hecho .espera-barra > .espera-barra-avance { background: var(--logro); }
+
+  /* =================== 2 · La versión nueva (00 · R5.3): tarjeta en la esquina =================== */
+  .version-aviso { position: fixed; z-index: 22; right: calc(var(--area-der) + 24px); bottom: calc(var(--area-abajo) + 24px); width: 380px; display: grid; grid-template-columns: 40px 1fr; gap: 12px; padding: 16px; border: 1px solid var(--borde); border-radius: var(--r-tarjeta); background: var(--superficie); box-shadow: var(--sombra-3); }
+  .version-icono { width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino-texto); }
+  .version-titulo { margin: 0; font-size: 16px; font-weight: 800; line-height: 22px; }
+  .version-texto { margin: 2px 0 0; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .version-acciones { grid-column: 2; display: flex; justify-content: flex-end; gap: 8px; }
+  .version-actualizando { display: none; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--pino-texto); }
+  .version-aviso.actualizando .version-acciones .btn { display: none; }
+  .version-aviso.actualizando .version-actualizando { display: inline-flex; }
+
+  /* =================== 3 · El bloqueo (00 · R5.5): un diálogo sin forma de cerrarlo =================== */
+  .velo { position: fixed; inset: 0; z-index: 30; background: rgb(26 29 27 / .3); }
+  .bloqueo-dialogo { position: fixed; z-index: 31; left: 50%; top: 50%; width: 460px; margin: -190px 0 0 -230px; padding: 32px; border-radius: var(--r-hoja); background: var(--superficie); box-shadow: var(--sombra-3); text-align: center; }
+  .bloqueo-icono { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino); }
+  .bloqueo-titulo { margin: 0 0 8px; }
+  .bloqueo-texto { margin: 0 0 24px; color: var(--texto-2); }
+  .bloqueo-boton { width: 100%; }
+  .bloqueo-version { margin: 16px 0 0; font-size: 14px; line-height: 20px; color: var(--texto-3); }
+
+  /* =================== 4 · Algo salió mal (00 · R9): diálogo que muestra qué se manda =================== */
+  .error-dialogo { position: fixed; z-index: 31; left: 50%; top: 50%; width: 600px; margin: -282px 0 0 -300px; padding: 28px; border-radius: var(--r-hoja); background: var(--superficie); box-shadow: var(--sombra-3); }
+  .error-cabecera { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px; }
+  .error-icono { flex: none; width: 48px; height: 48px; border-radius: 99px; display: grid; place-items: center; background: var(--error-suave); color: var(--error-texto); }
+  .error-titulo { margin: 0 0 4px; }
+  .error-texto { margin: 0; color: var(--texto-2); }
+  .error-rotulo { margin: 0 0 8px; }
+  .error-hacer { margin: 0 0 20px; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: hacer; }
+  .error-hacer-paso { display: flex; gap: 12px; align-items: center; font-weight: 600; counter-increment: hacer; }
+  .error-hacer-paso::before { content: counter(hacer); flex: none; width: 28px; height: 28px; border-radius: 99px; display: grid; place-items: center; background: var(--hundido); font-size: 14px; font-weight: 800; }
+  .error-contenido { display: flex; gap: 16px; padding: 12px; border-radius: var(--r); background: var(--hundido); }
+  .error-pasos { align-content: start; list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 14px; line-height: 20px; min-width: 0; }
+  .error-paso { display: flex; gap: 8px; }
+  .error-paso-hora { color: var(--texto-3); font-weight: 600; flex: none; }
+  .error-paso.fallo { color: var(--error-texto); font-weight: 700; }
+  .error-nota { display: flex; gap: 8px; align-items: flex-start; margin: 12px 0 0; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .error-nota .i { color: var(--logro-texto); }
+  .error-pie { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 20px; }
+  .error-codigo { font-size: 14px; color: var(--texto-3); font-weight: 600; white-space: nowrap; }
+  .error-botones { display: flex; gap: 8px; }
+  /* El tilde de «Aviso guardado»: se dibuja de izquierda a derecha con dos traslados opuestos
+     (la ventana entra y el tilde se queda quieto), solo transform. */
+  .error-tilde { display: none; overflow: hidden; }
+  .error-tilde-trazo { display: block; }
+  .error-dialogo.avisado .error-avisar-icono, .error-dialogo.avisado .btn-accion .kbd { display: none; }
+  .error-dialogo.avisado .error-tilde { display: inline-block; }
+
+  /* =================== Celular: lo mismo, abajo y bajo el pulgar =================== */
+  @media (max-width: 899px) {
+    .espera-aviso { left: 16px; right: 16px; width: auto; margin: 0; bottom: calc(var(--area-abajo) + 12px); }
+    .version-aviso { left: 12px; right: 12px; width: auto; bottom: calc(var(--area-abajo) + 12px); }
+    .version-acciones { grid-column: 1 / -1; }
+    /* En el celular, el mínimo táctil es 44 px: los botones de la tarjeta dejan de ser chicos. */
+    .version-acciones .btn { flex: 1; min-height: 44px; font-size: 16px; }
+    .bloqueo-dialogo, .error-dialogo { left: 0; right: 0; top: auto; bottom: 0; width: auto; max-height: calc(100dvh - 24px); overflow-y: auto; margin: 0; padding: 24px 16px calc(24px + env(safe-area-inset-bottom)); border-radius: var(--r-hoja) var(--r-hoja) 0 0; }
+    .bloqueo-dialogo { padding-top: 32px; }
+    .error-cabecera { margin-bottom: 16px; }
+    .error-icono { width: 40px; height: 40px; }
+    .error-contenido { gap: 12px; }
+    .error-paso:nth-child(n+3) { display: none; }
+    .error-paso-hora { display: none; }
+    .error-pie { flex-direction: column-reverse; align-items: stretch; }
+    .error-botones { flex-direction: column-reverse; }
+    .error-botones .btn { width: 100%; }
+    .error-codigo { text-align: center; }
+  }
+
+  /* =================== Movimiento: solo transform y opacity; con «reducir movimiento», nada =================== */
+  @media (prefers-reduced-motion: no-preference) {
+    .espera-linea-avance, .espera-barra-avance { transition: transform 250ms linear; }
+    .espera-linea.sin-medida .espera-linea-avance, .espera-aviso.sin-medida .espera-barra-avance { transition: none; animation: barrido 1.3s var(--curva) infinite; }
+    .espera-aviso.entra { animation: sube 240ms var(--curva) both; }
+    .espera-linea.entra { animation: fundido 200ms var(--curva) both; }
+    .version-aviso.entra { animation: desliza 320ms var(--rebote) both; }
+    .velo.entra { animation: fundido 200ms var(--curva) both; }
+    .bloqueo-dialogo.entra, .error-dialogo.entra { animation: aparece 260ms var(--curva) both; }
+    .espera-aviso.sale, .espera-linea.sale, .version-aviso.sale, .velo.sale, .bloqueo-dialogo.sale, .error-dialogo.sale { animation: se-va 200ms var(--curva-salida) both; }
+    .error-dialogo.avisado .error-tilde { animation: tilde-ventana 300ms var(--curva) both; }
+    .error-dialogo.avisado .error-tilde-trazo { animation: tilde-trazo 300ms var(--curva) both; }
+  }
+  @media (prefers-reduced-motion: no-preference) and (max-width: 899px) {
+    .version-aviso.entra { animation: sube-hoja 320ms var(--rebote) both; }
+    .bloqueo-dialogo.entra, .error-dialogo.entra { animation: sube-hoja 320ms var(--curva) both; }
+  }
+  @keyframes barrido { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+  @keyframes fundido { from { opacity: 0; } }
+  @keyframes sube { from { opacity: 0; transform: translateY(8px); } }
+  @keyframes desliza { from { opacity: 0; transform: translateX(24px); } }
+  @keyframes sube-hoja { from { transform: translateY(100%); } }
+  @keyframes aparece { from { opacity: 0; transform: scale(.96); } }
+  @keyframes se-va { to { opacity: 0; transform: translateY(6px); } }
+  @keyframes tilde-ventana { from { transform: translateX(-100%); } }
+  @keyframes tilde-trazo { from { transform: translateX(100%); } }
+</style>
+</head>
+<body>
+
+<!-- 1 · La espera -->
+<div class="espera-linea" id="linea" hidden aria-hidden="true"><span class="espera-linea-avance"></span></div>
+<div class="espera-aviso" id="espera" role="status" hidden>
+  <span class="espera-icono"><span class="gira"><i class="i" data-i="refresh-cw"></i></span><i class="i espera-icono-listo" data-i="check"></i></span>
+  <span class="espera-que"><span id="espera-que">Guardando los cambios</span><span class="espera-falta" id="espera-falta">Faltan 5 s</span></span>
+  <div class="barra espera-barra"><b class="espera-barra-avance"></b></div>
+</div>
+
+<!-- 2 · Hay una versión nueva -->
+<aside class="version-aviso" id="version" role="status" aria-labelledby="version-t" hidden>
+  <span class="version-icono"><i class="i" data-i="sparkles"></i></span>
+  <div>
+    <p class="version-titulo" id="version-t">Hay una versión nueva</p>
+    <p class="version-texto"><span class="largo">Actualizá cuando termines: tarda unos segundos y volvés a la misma parte, sin perder nada.</span><span class="corto">Tarda unos segundos y no perdés nada.</span></p>
+  </div>
+  <div class="version-acciones">
+    <button type="button" class="btn btn-fantasma chico" id="version-no" data-key="n">Ahora no<span class="kbd">N</span></button>
+    <button type="button" class="btn btn-oscuro chico" id="version-si" data-key="a" data-enter>Actualizar<span class="kbd">A</span></button>
+    <span class="version-actualizando"><span class="gira"><i class="i i-s" data-i="refresh-cw"></i></span>Actualizando…</span>
+  </div>
+</aside>
+
+<!-- 3 · Hay que actualizar para seguir -->
+<div class="velo" id="velo" hidden></div>
+<section class="bloqueo-dialogo" id="bloqueo" role="alertdialog" aria-modal="true" aria-labelledby="bloqueo-t" aria-describedby="bloqueo-d" hidden>
+  <div class="bloqueo-icono" data-sacude><i class="i i-xl" data-i="refresh-cw"></i></div>
+  <h2 class="t-titulo bloqueo-titulo" id="bloqueo-t">Hay que actualizar para seguir</h2>
+  <p class="t-cuerpo bloqueo-texto" id="bloqueo-d"><span class="largo">Esta versión ya no se entiende con el servidor. Actualizar tarda unos segundos y lo que hiciste sigue ahí.</span><span class="corto">Esta versión ya no sirve. Lo que hiciste sigue ahí.</span></p>
+  <button type="button" class="btn btn-accion grande bloqueo-boton" id="bloqueo-si" data-key="a" data-enter><span class="gira-ic"><i class="i" data-i="refresh-cw"></i></span>Actualizar<span class="kbd">A</span></button>
+  <!-- La versión es el commit: su comienzo (7 letras) y la fecha en que se publicó, en el formato de fecha de cada persona (00 · R8.5). -->
+  <p class="bloqueo-version"><span class="largo">Tenés la versión <data value="3f9c2a1">3f9c2a1</data>, del 12/10 · la del servidor es la <data value="8b04e7d">8b04e7d</data>, del 27/10</span><span class="corto">Tenés la 3f9c2a1 · el servidor, la 8b04e7d</span></p>
+</section>
+
+<!-- 4 · Algo salió mal -->
+<section class="error-dialogo" id="error" role="alertdialog" aria-modal="true" aria-labelledby="error-t" hidden>
+  <div class="error-cabecera">
+    <span class="error-icono"><i class="i i-l" data-i="triangle-alert"></i></span>
+    <div>
+      <h2 class="t-titulo error-titulo" id="error-t">Algo salió mal</h2>
+      <p class="error-texto"><span class="largo">No fue por algo que hiciste. Lo que estabas haciendo sigue ahí, tal cual.</span><span class="corto">Lo que estabas haciendo sigue ahí.</span></p>
+    </div>
+  </div>
+  <p class="t-etiqueta error-rotulo">Qué hacer</p>
+  <ol class="error-hacer">
+    <li class="error-hacer-paso"><span class="largo">Tocá «Seguir» y probá de nuevo lo que estabas haciendo.</span><span class="corto">Tocá «Seguir» y probá de nuevo.</span></li>
+    <li class="error-hacer-paso"><span class="largo">Si vuelve a pasar, avisalo: así se arregla.</span><span class="corto">Si vuelve a pasar, avisalo.</span></li>
+  </ol>
+  <p class="t-etiqueta error-rotulo">Lo que va en el aviso</p>
+  <div class="error-contenido">
+    <div id="error-mini"></div>
+    <ul class="error-pasos" id="error-pasos"></ul>
+  </div>
+  <p class="error-nota"><i class="i i-s" data-i="lock"></i><span><span class="largo">Sin datos de clientes ni tu sesión. Queda guardado en este dispositivo y se manda solo cuando esté Mejoras y errores.</span><span class="corto">Sin datos de clientes. Se manda solo más adelante.</span></span></p>
+  <div class="error-pie">
+    <span class="error-codigo">Código F-4821 · 10:41</span>
+    <div class="error-botones">
+      <button type="button" class="btn" id="error-seguir" data-key="s">Seguir sin avisar<span class="kbd">S</span></button>
+      <button type="button" class="btn btn-accion" id="error-avisar" data-key="v" data-enter><i class="i error-avisar-icono" data-i="send"></i><span class="error-tilde" aria-hidden="true"><svg class="i error-tilde-trazo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span id="error-avisar-txt">Avisar y seguir</span><span class="kbd">V</span></button>
+    </div>
+  </div>
+</section>
+
+<script src="shared.js"></script>
+<script>
+(function () {
+  var A = Avisos, $ = function (id) { return document.getElementById(id); };
+  var linea = $("linea"), espera = $("espera"), version = $("version"), velo = $("velo"), bloqueo = $("bloqueo"), error = $("error");
+
+  // Los pasos del aviso y la captura en chico.
+  $("error-mini").innerHTML = A.MINI;
+  $("error-pasos").innerHTML = A.PASOS.map(function (p) {
+    return '<li class="error-paso' + (p.fallo ? " fallo" : "") + '"><time class="error-paso-hora">' + p.hora.slice(0, 5) + "</time><span>" + p.donde + " · " + p.que + "</span></li>";
+  }).join("");
+
+  // El avance de la espera, de 0 a 1, en la línea y en la barra.
+  function avance(frac) { linea.style.setProperty("--avance", frac); espera.style.setProperty("--avance", frac); }
+
+  A.variante = {
+    limpiar: function () {
+      [linea, espera, version, velo, bloqueo, error].forEach(function (el) { el.hidden = true; el.classList.remove("entra", "sale"); });
+      version.classList.remove("actualizando"); error.classList.remove("avisado");
+      $("error-avisar-txt").textContent = "Avisar y seguir";
+    },
+    espera: {
+      mostrar: function (info) {
+        espera.classList.toggle("sin-medida", !info.sabe); linea.classList.toggle("sin-medida", !info.sabe); espera.classList.remove("hecho");
+        $("espera-que").textContent = A.angosto() ? info.queCorto : info.que;
+        avance(info.sabe ? 0.28 : 0);
+        mostrar(linea); mostrar(espera);
+      },
+      avanzar: function (frac, faltan, info) {
+        $("espera-falta").textContent = info.sabe ? "Faltan " + faltan + " s" : (A.angosto() ? "Un momento" : "Puede tardar un poco");
+        if (info.sabe) avance(frac);
+      },
+      terminar: function () {
+        espera.classList.remove("sin-medida"); espera.classList.add("hecho");
+        $("espera-que").textContent = "Listo"; $("espera-falta").textContent = "";
+        avance(1);
+        setTimeout(function () { A.ocultar(espera); A.ocultar(linea); }, 900);
+      }
+    },
+    version: function () {
+      mostrar(version);
+      A.abrirCapa(version, cerrarVersion);
+    },
+    bloqueo: function () {
+      document.body.classList.add("tapa-todo");
+      A.modal(true);
+      mostrar(velo); mostrar(bloqueo);
+      A.abrirCapa(bloqueo, null);   // Esc no lo cierra: se sacude (00 · R5.5)
+      if (!A.angosto()) $("bloqueo-si").focus({ preventScroll: true });
+    },
+    error: function () {
+      document.body.classList.add("tapa-todo");   // el marco magenta sigue arriba (00 · R10.1)
+      A.modal(true);
+      mostrar(velo); mostrar(error);
+      A.abrirCapa(error, seguir);
+      if (!A.angosto()) $("error-avisar").focus({ preventScroll: true });
+    }
+  };
+
+  var mostrar = A.mostrar;
+
+  function cerrarVersion() {
+    A.cerrarCapa(version);
+    A.ocultar(version);
+    A.tostada('<span class="largo">No vuelve a aparecer: se actualiza sola la próxima vez que abras la aplicación.</span><span class="corto">Se actualiza sola la próxima vez.</span>', "clock");
+  }
+  $("version-no").addEventListener("click", cerrarVersion);
+  $("version-si").addEventListener("click", function () {
+    version.classList.add("actualizando");
+    setTimeout(function () { A.recargar(); }, 600);
+  });
+
+  $("bloqueo-si").addEventListener("click", function () {
+    var b = $("bloqueo-si"); b.classList.add("esperando");
+    setTimeout(function () { b.classList.remove("esperando"); A.recargar(); }, 700);
+  });
+  // Tocar fuera del bloqueo no hace nada: se sacude para decir que hay que actualizar.
+  velo.addEventListener("click", function () { if (!bloqueo.hidden) A.sacudir(bloqueo); });
+
+  function seguir() {
+    A.cerrarCapa(error);
+    document.body.classList.remove("tapa-todo"); A.modal(false);
+    A.ocultar(error); A.ocultar(velo, function () {
+      A.atras.classList.remove("sigue"); void A.atras.offsetWidth; A.atras.classList.add("sigue");
+    });
+  }
+  $("error-seguir").addEventListener("click", seguir);
+  $("error-avisar").addEventListener("click", function () {
+    error.classList.add("avisado");
+    $("error-avisar-txt").textContent = "Aviso guardado";
+    setTimeout(function () {
+      seguir();
+      A.tostada('<b>Aviso guardado.</b> <span class="largo">Se manda solo cuando esté Mejoras y errores.</span><span class="corto">Se manda más adelante.</span>', "check");
+    }, 700);
+  });
+
+  A.empezar();
+})();
+</script>
+</body>
+</html>
