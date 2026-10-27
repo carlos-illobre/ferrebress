@@ -39,7 +39,8 @@ secundario.**
   nada sin respuesta.
 - **Las pantallas salen del director de arte**, siempre tres versiones para que Carlos elija. La
   referencia de partida son las maquetas v2 de `docs/design/mockups/`.
-- **El proyecto anterior (`ferre`) se usa solo para leer** y se va a borrar: la documentación no
+- **El proyecto anterior (`ferre`) se usa solo para leer** y se deja de usar cuando el último
+  capítulo tenga sus reglas aprobadas (T006): la documentación no
   lo nombra, salvo la [guía de migración](docs/project/migration-from-ferre.md), que dice cómo
   usarla. Todo lo de ahí se puede cuestionar y mejorar, y lo que se toma se confirma con Carlos.
 - **El orden de autoridad:** reglas, maquetas, diseño técnico, pruebas y código. Las pruebas se

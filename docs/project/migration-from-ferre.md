@@ -1,7 +1,8 @@
 # Guía de migración desde el proyecto anterior
 
-**Este archivo se borra cuando Ferrebress esté terminado,** junto con el proyecto anterior. Es el
-único documento que la nombra (decisión 31): el resto de la documentación se entiende sin ella.
+**Este archivo se borra cuando el último capítulo tenga sus reglas aprobadas,** y con él toda
+mención del proyecto anterior en la documentación. Es el único documento que lo nombra: el resto de
+la documentación se entiende sin él.
 
 El proyecto anterior está en el repositorio [`ferre`](https://github.com/carlos-illobre/ferre). Se
 usa solo para leer: no se modifica.
