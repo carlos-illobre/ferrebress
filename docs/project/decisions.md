@@ -332,3 +332,7 @@ cambia, sin depender de documentos que no están en este repositorio.
     uso, vence a las 8 horas de haber entrado, aunque se esté usando. Un Administrador lo cambia
     desde Administración. Solo cuentan como uso los pedidos al servidor, y lo hecho sin conexión
     se prueba con el pase de quien lo hizo (ADR-015).
+
+63. **El menú a la izquierda, por ahora** (2026-10-27). En la computadora el menú va a la izquierda,
+    con un botón para minimizarlo a solo íconos. No es una regla que limite al director de arte:
+    es la elección de hoy, y puede cambiar si propone algo mejor.

@@ -98,9 +98,10 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 ## 6. A dónde se llega
 
 - **R6.1** Al entrar se llega al marco (capítulo 00): el menú, la luz de conexión y la tarjeta de
-  la persona con su nombre, su rol y «Salir».
-- **R6.2** Mientras no exista ningún otro módulo, el marco está vacío: en el ambiente de pruebas
-  todas las opciones del menú dicen «Pronto».
+  la persona con su nombre, su rol y «Salir»; el área de trabajo, en blanco.
+- **R6.2** Al entrar se abre la pantalla de la primera opción del menú. Mientras no exista ningún
+  otro módulo, esa pantalla está en blanco y, en el ambiente de pruebas, todas las opciones del
+  menú dicen «Pronto» (01-D13).
 
 ## 7. La entrada
 
@@ -210,8 +211,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 - **E36** **Dado** que no hay conexión, **cuando** se toca «Salir», **entonces** se vuelve a la entrada
   al instante, y el servidor cierra la sesión cuando vuelve la conexión.
 - **E37** **Dado** que se entró en el ambiente de pruebas, **cuando** se llega al marco, **entonces**
-  se ven el menú con todo en «Pronto», la luz de conexión y la tarjeta con el nombre, el rol y
-  «Salir».
+  se ven el menú con todo en «Pronto», la luz de conexión, la tarjeta con el nombre, el rol y
+  «Salir», y el área de trabajo en blanco.
 
 ### La entrada
 

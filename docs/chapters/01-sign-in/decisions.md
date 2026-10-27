@@ -23,3 +23,6 @@ Las que solo tocan este módulo. Las que valen para todo el proyecto están en
   resto de la aplicación use el de «Mostrador».
 - **01-D12** (2026-10-27) Sin conexión, la sesión no vence en el dispositivo; el servidor la revisa
   cuando vuelve la conexión.
+- **01-D13** (2026-10-27) Para el marco vacío se eligió la variante 1 (Evolución). Al entrar se ve la
+  pantalla de la primera opción del menú; mientras no exista, en blanco. Se le suma el botón para
+  minimizar el menú a solo íconos.

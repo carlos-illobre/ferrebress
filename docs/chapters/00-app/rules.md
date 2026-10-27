@@ -6,10 +6,11 @@ ambiente de pruebas.
 
 **Estado:** aprobado por Carlos el 2026-10-26.
 
-## 1. El marco y el menú (decisiones 38 y 51)
+## 1. El marco y el menú (decisiones 38, 51 y 63)
 
 - **R1.1** El menú tiene cinco partes, en este orden: Vender · Catálogo · Depósito · Negocio · Más.
-  En la computadora va a la izquierda; en el celular, abajo.
+  En la computadora va a la izquierda; en el celular, abajo. Dónde va el menú no es una regla que
+  limite al director de arte: es la elección de hoy (decisión 63).
 - **R1.2** Cada parte tiene sus pestañas (el submenú):
   - Vender: Vender · Ventas de hoy.
   - Catálogo: Productos · Listas · Duplicados.
@@ -20,6 +21,9 @@ ambiente de pruebas.
   «Pronto» y no se puede abrir. En producción no aparece hasta que existe (decisión 51).
 - **R1.4** Al abrir la aplicación se abre siempre la primera opción del menú que exista. No se
   recuerda la última parte usada ni cómo quedó el menú.
+- **R1.6** En la computadora, un botón minimiza el menú a solo sus íconos y lo vuelve a agrandar.
+  Minimizado, cada ícono dice su nombre al pasar el mouse o al llegar con la marca del teclado.
+  Cada vez que se abre la aplicación, el menú arranca agrandado (R1.4, decisión 63).
 - **R1.5** La aplicación es una sola para la computadora y el celular: la misma funcionalidad, con
   otra disposición (decisión 6). Se adapta a cualquier tamaño de pantalla, o al menos a los más
   comunes (decisión 44).
@@ -162,6 +166,9 @@ Vale solo en la computadora.
   que existen.
 - **E03** **Dado** que se usó la aplicación en otra parte y se la cerró, **cuando** se la vuelve a
   abrir, **entonces** abre la primera opción del menú, no la última usada.
+- **E03b** **Dado** el menú agrandado en la computadora, **cuando** se toca el botón de minimizar,
+  **entonces** el menú queda con solo sus íconos, cada uno dice su nombre al pasar el mouse, y al
+  tocar el botón otra vez vuelve a agrandarse; al volver a abrir la aplicación, arranca agrandado.
 - **E04** **Dado** una pantalla de 1366 px, una de 1920 px, una de 390 px y una de 768 px de ancho,
   **cuando** se abre la aplicación en cada una, **entonces** todo se ve entero, sin desplazarse hacia
   el costado.
