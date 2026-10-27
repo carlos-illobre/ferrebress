@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrando · Ferrebress</title>
+<!-- Entrando (01 · Entrar, R2.11), computadora: la maqueta final. Alrededor, la entrada de siempre;
+     en el lugar de su tarjeta blanca, el panel de la espera de la variante 1 del director.
+     Cómo entra: ?estado=entrando-google (por defecto) o ?estado=entrando-celular. -->
+<link rel="stylesheet" href="entering.css">
+<script src="../../../common/icons.js"></script>
+<script src="extra-icons.js"></script>
+<script src="entering.js" defer></script>
+</head>
+<body>
+
+<!-- Ambiente de prueba: marco magenta fijo, sin titilar. -->
+<div class="test-frame" aria-hidden="true">
+  <div class="test-border"></div>
+  <div class="test-banner">Ambiente de prueba · nada de esto es real</div>
+</div>
+
+<!-- Adonde se llega: el marco, neutro (su maqueta es otra). -->
+<div class="ghost-frame" aria-hidden="true">
+  <aside class="ghost-side">
+    <img src="../../../common/brand/logo-on-light.png" alt="">
+    <span class="ghost-row" style="--w:64px"></span><span class="ghost-row" style="--w:76px"></span><span class="ghost-row" style="--w:70px"></span><span class="ghost-row" style="--w:66px"></span><span class="ghost-row" style="--w:40px"></span>
+    <div class="ghost-foot"><span></span><span></span></div>
+  </aside>
+</div>
+
+<main class="sign-in">
+  <div class="scene">
+    <div class="scene-bg" aria-hidden="true"></div>
+
+    <!-- La marca y el lema, sobre el verde: los de la entrada, sin cambios. -->
+    <section class="brand">
+      <h1 class="brand-logo"><img src="../../../common/brand/logo-on-dark.png" alt="Ferrebress" width="812" height="208"></h1>
+      <p class="brand-kicker">El sistema del mostrador</p>
+      <p class="brand-title">Precios al día,<br>ventas y stock<br><em>de la ferretería.</em></p>
+      <p class="brand-lead">Ferrebress es el sistema del mostrador: se usa desde el celular y desde la computadora, con los mismos datos.</p>
+      <ul class="brand-points">
+        <li><span><i class="i" data-i="shopping-cart"></i></span><span>Buscás el producto,<br>decís el precio y cobrás.</span></li>
+        <li><span><i class="i" data-i="file-text"></i></span><span>Los precios se actualizan<br>con las listas de los proveedores.</span></li>
+        <li><span><i class="i" data-i="package"></i></span><span>Lo que se vende baja del stock;<br>lo que se compra, sube.</span></li>
+      </ul>
+    </section>
+
+    <img class="phone-shot" src="phone-selling.webp" alt="" aria-hidden="true">
+
+    <div class="right">
+      <section class="card" role="status" aria-live="polite" aria-labelledby="wait-title">
+        <!-- Lo de la entrada, invisible: solo da el tamaño, para que la tarjeta no cambie. -->
+        <div class="card-sizer" aria-hidden="true" inert>
+          <div class="card-title"><h2>Entrá con tu celular</h2><span class="pill"><i class="i i-s" data-i="smartphone"></i>La forma más rápida</span></div>
+          <p class="card-sub">Entra con tu usuario, sin contraseñas, usando tu huella.</p>
+          <div class="qr-block">
+            <div><div class="qr"></div><p class="qr-count"><span>Cambia en 1:00</span><span>y sirve una vez</span></p></div>
+            <ol class="qr-steps">
+              <li><span><b>Apuntá el celular a este código</b>Con la cámara o con «Escanear» en la entrada de Ferrebress.</span></li>
+              <li><span><b>Poné la huella en el celular</b>Esta pantalla entra sola. Si el celular no tiene la sesión abierta, entrás ahí con Google o con la huella.</span></li>
+            </ol>
+          </div>
+          <p class="or">o</p>
+          <p class="google"></p>
+          <p class="note">Solo entran las personas que un Administrador del negocio autorizó. Si es tu primera vez, pedile que agregue tu correo de Google.</p>
+          <p class="card-foot"></p>
+        </div>
+
+        <!-- La espera: el título según cómo entra, la bajada, el camino y los dos pasos. -->
+        <div class="wait">
+          <div class="wait-head in">
+            <h2 class="wait-title" id="wait-title" data-t="title">Conectando tu cuenta de Google</h2>
+            <p class="wait-sub" data-t="sub">Google confirmó tu cuenta. Ahora Ferrebress abre tu sesión; tarda unos segundos.</p>
+          </div>
+
+          <div class="wait-path in" style="--d:1" aria-hidden="true">
+            <div class="wait-node">
+              <span class="wait-ball" data-t="from"></span>
+              <span><b class="wait-name" data-t="fromName">Google</b><small class="wait-what" data-t="fromWhat">Confirmó tu cuenta</small></span>
+            </div>
+            <span class="wait-link"><span class="wait-tick"><i class="i" data-i="check" data-trazo="3.2"></i></span></span>
+            <div class="wait-node">
+              <span class="wait-ball is-brand"><span class="wait-ring"></span><img src="../../../common/brand/isotype.svg" alt=""></span>
+              <span><b class="wait-name">Ferrebress</b><small class="wait-what">Abre tu sesión</small></span>
+            </div>
+            <span class="wait-link is-todo"><i class="wait-travel"></i></span>
+            <div class="wait-node">
+              <span class="wait-ball is-shop"><i class="i" data-i="store" data-trazo="1.8"></i></span>
+              <span><b class="wait-name">Tu local</b><small class="wait-what">Adonde llegás</small></span>
+            </div>
+          </div>
+
+          <ol class="wait-steps in" style="--d:2">
+            <li class="wait-step"><span class="wait-mark is-done"><i class="i" data-i="check" data-trazo="3.2"></i></span><span><b data-t="step">Cuenta de Google verificada</b><small data-t="stepSub">Google confirmó que sos vos.</small></span></li>
+            <li class="wait-step"><span class="wait-mark is-now"></span><span><b>Abriendo tu sesión</b><small>Ferrebress revisa que tu cuenta esté autorizada…</small></span></li>
+          </ol>
+        </div>
+      </section>
+
+      <ul class="seals">
+        <li><i class="i" data-i="wifi-off" data-trazo="1.7"></i><span>Una vez dentro, resiste<br>cortes de internet</span></li>
+        <li><i class="i" data-i="scan-barcode" data-trazo="1.7"></i><span>Busca productos<br>por código de barras</span></li>
+        <li><i class="i" data-i="monitor-smartphone" data-trazo="1.7"></i><span>Maneja la computadora<br>desde el celular</span></li>
+      </ul>
+    </div>
+  </div>
+</main>
+</body>
+</html>

@@ -14,6 +14,7 @@
    "title": "Entrando (computadora)",
    "module": "01 · Entrar",
    "variants": [
+    { "device": "desktop", "name": "Final", "path": "mockups/sign-in-entering/final/index.html" },
     { "device": "desktop", "name": "1 · La escena", "path": "mockups/sign-in-entering/desktop/variant-1-scene/index.html" },
     { "device": "desktop", "name": "2 · El marco que se arma", "path": "mockups/sign-in-entering/desktop/variant-2-frame/index.html" },
     { "device": "desktop", "name": "3 · La persiana", "path": "mockups/sign-in-entering/desktop/variant-3-shutter/index.html" }
