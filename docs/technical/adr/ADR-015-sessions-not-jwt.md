@@ -45,8 +45,12 @@ de la aplicación.
 
 - **Pase opaco** de 32 bytes al azar, creado al entrar.
 - **En el navegador,** en una cookie `HttpOnly`, `Secure`, `SameSite=Strict`. Funciona porque la
-  aplicación y el servidor están en la misma dirección. Lo que la pantalla necesita
-  mostrar sin conexión (nombre y rol) se guarda aparte en el dispositivo, porque no es secreto.
+  aplicación y el servidor están en la misma dirección, con el prefijo `__Host-` y una duración
+  igual al tope. Lo que la pantalla necesita mostrar sin conexión (nombre y rol) se guarda aparte
+  en el dispositivo, porque no es secreto.
+- **Una llave de prueba** por sesión, aparte del pase y que la página sí puede leer: es la que se
+  adjunta a lo hecho sin conexión y a una salida pendiente, porque el pase de la cookie no se puede
+  leer desde la página. El servidor guarda solo su huella (SHA-256).
 - **En el servidor,** la tabla de sesiones de PostgreSQL es la fuente de verdad y guarda la huella
   del pase (SHA-256), la persona, el dispositivo, cuándo se entró y cuándo se usó por última vez.
   La memoria del servidor tiene una copia de las sesiones ya vistas: comprobar un pase no consulta
@@ -58,16 +62,17 @@ de la aplicación.
 - **Tope:** la sesión vence a las 8 horas de haber entrado, aunque se esté usando; ningún pedido lo
   extiende. Así, una sesión robada o mantenida viva con pedidos automáticos dura
   como mucho 8 horas. También se cambia desde Administración.
-- **Lo hecho sin conexión** se guarda junto con la huella del pase de quien lo hizo. El servidor lo
-  acepta a nombre de esa persona solo si el pase es suyo y su sesión no fue cerrada a mano ni la
-  persona dada de baja; que el pase haya vencido no importa, porque solo prueba quién lo hizo. El
+- **Lo hecho sin conexión** se guarda junto con la llave de prueba de quien lo hizo. El servidor lo
+  acepta a nombre de esa persona solo si la llave es de su sesión y su sesión no fue cerrada a mano ni la
+  persona dada de baja; que la sesión haya vencido no importa, porque la llave solo prueba quién lo hizo. El
   cronómetro del dispositivo solo decide cuándo mostrar la entrada; nunca qué acepta el servidor.
 - **Sin conexión, la sesión no vence en el dispositivo**: sin internet no se puede volver a
   entrar. Al volver la conexión, el servidor aplica los dos límites.
 - **Se termina** al salir, al vencer, cuando alguien la cierra a distancia o cuando la persona es
-  dada de baja.
+  dada de baja. La sesión terminada se guarda 30 días con su motivo (para decir por qué se cerró y
+  para saber si se cerró a mano) y después se borra.
 - **Con varias copias del servidor:** cada una busca en la base el pase que no tiene en memoria,
-  una sola vez. Al cerrar una sesión, la copia que la cierra la borra de la base y avisa a las
+  una sola vez. Al cerrar una sesión, la copia que la cierra la marca en la base y avisa a las
   demás con `LISTEN/NOTIFY` de PostgreSQL, que la sacan de su memoria al instante. No hace falta que
   una persona caiga siempre en la misma copia, ni sumar Redis.
 

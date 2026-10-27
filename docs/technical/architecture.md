@@ -99,7 +99,7 @@ necesita y el módulo elige cómo (ADR-003):
 |---|---|---|---|
 | `request` | Todo lo normal | HTTP | — |
 | `piggyback` | Lo continuo: versión nueva, luz de conexión, sesión cerrada, avisos pendientes | En una cabecera de las respuestas que ya se hacen; sin conexión abierta | Bajo consumo |
-| `temporary` | Esperar algo puntual: el QR de entrada, la foto del celular, el avance de una lista | SSE abierto solo mientras se espera, con un tiempo máximo | Tiempo real |
+| `temporary` | Esperar algo puntual: el QR de entrada, la foto del celular, el avance de una lista | SSE abierto solo mientras se espera y la pantalla está a la vista | Tiempo real |
 | `peer` | Celular y computadora vinculados | Conexión directa por el Wi-Fi (WebRTC); el servidor solo los presenta y hace de respaldo | Tiempo real sin servidor |
 
 ## Los datos
@@ -108,7 +108,9 @@ necesita y el módulo elige cómo (ADR-003):
   se borra. Cada módulo es dueño de su esquema.
 - **SQLite para la auditoría**, un archivo por año, escrito por tandas (ADR-004).
 - **En el dispositivo**, solo si habilitó trabajar sin conexión: lo justo para atender y la cola
-  de lo pendiente, en IndexedDB (ADR-007). Si no lo habilitó, nada.
+  de lo pendiente, en IndexedDB (ADR-007). Si no lo habilitó, solo lo que no es del negocio ni
+  secreto, en `localStorage`: el identificador del dispositivo, sus preferencias, el nombre y rol de
+  quien entró y una salida pendiente.
 - **Los identificadores** los genera quien crea el dato (UUID v7, ordenables por tiempo), así lo
   que se repite no se duplica.
 - **La hora** la pone el servidor (ADR-007).

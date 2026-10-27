@@ -89,6 +89,15 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Cierre de caja | El efectivo contado contra las ventas en efectivo | `cashClosing` |
 | Ticket promedio | Lo que se vende en promedio por venta | `averageTicket` |
 
+## La aplicación
+
+| Castellano | Qué es | En el código |
+|---|---|---|
+| Marco | El menú, la luz de conexión y la tarjeta de la persona, alrededor de cada pantalla | `frame` |
+| Ambiente | Pruebas o producción | `environment` (`testing` / `production`) |
+| Versión nueva | Una versión de la aplicación que ya está en el servidor | `update` |
+| Algo salió mal | El aviso de un error inesperado, con la captura y los últimos pasos | `crashReport` |
+
 ## Usuarios y acceso
 
 | Castellano | Qué es | En el código |
@@ -101,10 +110,13 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Sesión | Un dispositivo en el que alguien está adentro | `session` |
 | Entrar / salir | Abrir o cerrar la propia sesión | `signIn` / `signOut` |
 | Cerrar a distancia | Cerrar la sesión de otro dispositivo | `revoke` |
+| Llave de prueba | Lo que prueba, sin conexión, de qué sesión salió algo | `proofKey` |
+| Dispositivo | Un navegador en un celular o una computadora, con su identificador | `device` |
 | Huella | Entrar con el lector del celular, sin contraseña | `passkey` |
 | Celular con huella | Un celular vinculado para entrar con la huella | `passkey` |
 | Entrar con el celular | Entrar a la computadora leyendo su código con el celular | `phoneSignIn` |
 | Código de entrada | El código QR que muestra la computadora para entrar | `signInCode` |
+| Leer / aprobar / «No soy yo» | Lo que hace el celular con un código de entrada | `read` / `approve` / `cancel` |
 | Lo apartado | Lo que hizo sin conexión alguien a quien dieron de baja, a la espera de que un Administrador lo revise | `heldChange` |
 | Aprobar / rechazar | Aplicar lo apartado o dejarlo sin efecto | `approve` / `reject` |
 | Administración | Los ajustes que fija un Administrador y cumplen todos los dispositivos | `administration` |

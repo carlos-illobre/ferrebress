@@ -22,7 +22,7 @@ declara **qué necesita** (un tema, cuánto importa el tiempo real, cuánto dura
 |---|---|---|
 | `request` | Todo lo normal | HTTP |
 | `piggyback` | Avisos continuos donde importa el consumo: versión nueva, luz de conexión, sesión cerrada, avisos pendientes | El servidor guarda el aviso en un buzón chico por sesión y lo manda en una cabecera de la próxima respuesta. Sin conexión abierta y sin temporizadores |
-| `temporary` | Esperar algo puntual donde importa el tiempo real: el QR de entrada, la foto del celular, el avance de una lista | Un canal SSE que se abre solo mientras se espera y se cierra solo, con un tiempo máximo |
+| `temporary` | Esperar algo puntual donde importa el tiempo real: el QR de entrada, la foto del celular, el avance de una lista | Un canal SSE que se abre solo mientras se espera y la pantalla está a la vista, y se cierra solo |
 | `peer` | Celular y computadora vinculados | WebRTC por el Wi-Fi del local. El servidor solo los presenta, con un canal `temporary`; después no pasa nada por él |
 
 - **Del lado del servidor**, una central de avisos por tema, en memoria. Si el dispositivo tiene
