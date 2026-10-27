@@ -208,9 +208,7 @@
     .p-nav-parte .lbl { line-height: 18px; }
     .p-nav-parte.abre { cursor: pointer; }
     /* La elegida: ícono y nombre en naranja, sin fondo ni raya (la imagen de Carlos) */
-    .p-nav-parte[aria-current="page"], .p-nav-parte.activo { color: var(--accion); font-weight: 800; }
-    /* Con Más abierto, la elegida es Más: una sola en naranja */
-    .p-nav.mas-abierto .p-nav-parte[aria-current="page"] { color: var(--texto-2); font-weight: 650; }
+    .p-nav-parte[aria-current="page"] { color: var(--accion); font-weight: 800; }
     .p-nav-parte .ico-mov { display: inline-block; }
   }
 
@@ -225,15 +223,50 @@
   }
   @keyframes fundido { from { opacity: 0; } }
   @keyframes sube { from { transform: translateY(100%); } }
-  .h-persona { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); }
-  .h-persona b { display: block; font-size: 16px; font-weight: 800; }
-  .h-persona small { display: block; font-size: 14px; color: var(--texto-2); }
-  .grupo { list-style: none; margin: 16px 0 0; padding: 0; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); overflow: hidden; }
-  .grupo li + li { border-top: 1px solid var(--borde); }
-  .grupo-opcion { width: 100%; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 12px; border: 0; background: none; text-align: left; font-size: 16px; font-weight: 650; color: var(--texto-2); }
-  .grupo-opcion .ic { width: 36px; height: 36px; border-radius: var(--r-chico); background: var(--hundido); display: grid; place-items: center; color: var(--texto-3); }
-  .grupo-opcion .n { flex: 1; }
-  .h-salir { margin-top: 16px; width: 100%; }
+  /* ---------- Celular: Más es una pantalla entera, no una hoja ----------
+     Reemplaza la cabecera y el área de trabajo; el menú de abajo sigue a la vista, con Más en
+     naranja. Título grande, la luz, la persona, las opciones en dos grupos y Salir aparte. */
+  .p-mas[hidden] { display: none !important; }
+  .vista.con-mas .p-cab, .vista.con-mas .p-luz, .vista.con-mas .area { display: none !important; }
+  @media (max-width: 899px) {
+    .p-mas:not([hidden]) { display: flex !important; flex-direction: column; flex: 1; min-height: 0; overflow: auto; padding: 40px 16px 24px; }
+  }
+  .p-mas > * { flex: none; }
+  .p-mas-cab { display: grid; gap: 4px; }
+  .p-mas-titulo { margin: 0; font-size: 28px; line-height: 34px; font-weight: 800; letter-spacing: -.02em; color: var(--tinta); }
+  /* La luz, como una línea bajo el título; al tocarla, lo pendiente (00 · R4.2). */
+  .p-mas-luz { justify-self: start; display: flex; align-items: center; gap: 8px; min-height: 32px; padding: 0; border: 0; background: none; color: var(--texto-2); font-size: 14px; font-weight: 650; }
+  .p-mas-luz .luz-punto { width: 8px; height: 8px; }
+  body[data-net="offline"] .p-mas-luz { color: var(--urgente-texto); }
+  body[data-net="sending"] .p-mas-luz { color: var(--pino-texto); }
+  .p-mas-tarjeta { margin-top: 12px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); }
+  .p-mas-persona { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+  .p-mas-persona .avatar { width: 48px; height: 48px; font-size: 16px; }
+  .p-mas-persona b { display: block; font-size: 16px; line-height: 22px; font-weight: 700; }
+  .p-mas-persona small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .p-mas-grupo-titulo { margin: 20px 4px 0; font-size: 14px; line-height: 20px; font-weight: 650; color: var(--texto-2); }
+  .p-mas-grupo { list-style: none; margin: 8px 0 0; padding: 0; overflow: hidden; }
+  .p-mas-grupo li + li { border-top: 1px solid var(--borde); }
+  .p-mas-opcion { width: 100%; display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 12px 12px 12px 16px; border: 0; background: none; color: var(--tinta); text-align: left; cursor: pointer; transition: background var(--t-micro); }
+  .p-mas-opcion:active { background: var(--fondo); }
+  .p-mas-opcion .flecha { color: var(--texto-3); }
+  /* El ícono en un cuadrado de color suave: ámbar lo que avisa, pino lo del negocio, neutro lo propio. */
+  .p-mas-ic { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: var(--r-chico); background: var(--pino-suave); color: var(--pino-texto); }
+  .p-mas-ic.urgente { background: var(--urgente-suave); color: var(--urgente-texto); }
+  .p-mas-ic.neutro { background: var(--hundido); color: var(--texto-2); }
+  .p-mas-ic.error { background: var(--error-suave); color: var(--error-texto); }
+  .p-mas-texto { flex: 1; min-width: 0; }
+  .p-mas-texto b { display: block; font-size: 16px; line-height: 22px; font-weight: 700; }
+  .p-mas-texto small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .p-mas-salir { margin-top: 20px; background: var(--superficie); }
+  .p-mas-salir:active { background: var(--fondo); }
+  .p-mas-salir .p-mas-texto b { color: var(--error-texto); }
+  @media (prefers-reduced-motion: no-preference) {
+    .p-mas:not([hidden]) > * { animation: entra-mas var(--t) var(--curva) backwards; }
+    .p-mas > :nth-child(2) { animation-delay: 30ms; } .p-mas > :nth-child(3), .p-mas > :nth-child(4) { animation-delay: 60ms; }
+    .p-mas > :nth-child(5), .p-mas > :nth-child(6) { animation-delay: 90ms; } .p-mas > :nth-child(7) { animation-delay: 120ms; }
+  }
+  @keyframes entra-mas { from { opacity: 0; transform: translateY(8px); } }
 </style>
 </head>
 <body>
@@ -289,6 +322,28 @@
   <!-- ======== El área de trabajo: la pantalla de la primera opción del menú; mientras no exista, en blanco ======== -->
   <main class="area" aria-label="Área de trabajo"></main>
 
+  <!-- ======== Celular: Más, una pantalla entera en lugar del área de trabajo ======== -->
+  <section class="p-mas p-only" id="p-mas-pantalla" hidden aria-labelledby="p-mas-titulo" data-no-ir>
+    <header class="p-mas-cab">
+      <h1 class="p-mas-titulo" id="p-mas-titulo">Más</h1>
+      <button type="button" class="p-mas-luz" id="p-mas-luz"><span class="luz-punto"></span><span data-luz></span></button>
+    </header>
+    <section class="p-mas-tarjeta p-mas-persona" aria-label="Tu sesión"><span class="avatar">RP</span><div><b>Rubén Paredes</b><small>Administrador</small></div></section>
+    <h2 class="p-mas-grupo-titulo" id="p-mas-negocio">Del negocio</h2>
+    <ul class="p-mas-tarjeta p-mas-grupo" aria-labelledby="p-mas-negocio">
+      <li><button type="button" class="p-mas-opcion" data-p="Anomalías"><span class="p-mas-ic urgente"><i class="i" data-i="triangle-alert"></i></span><span class="p-mas-texto"><b>Anomalías</b><small>Lo que no coincide</small></span><span class="pronto">Pronto</span><i class="i flecha" data-i="chevron-right"></i></button></li>
+      <li><button type="button" class="p-mas-opcion" data-p="Procesos"><span class="p-mas-ic"><i class="i" data-i="workflow"></i></span><span class="p-mas-texto"><b>Procesos</b><small>Cómo se trabaja, paso a paso</small></span><span class="pronto">Pronto</span><i class="i flecha" data-i="chevron-right"></i></button></li>
+      <li><button type="button" class="p-mas-opcion" data-p="Mejoras y errores"><span class="p-mas-ic"><i class="i" data-i="bug"></i></span><span class="p-mas-texto"><b>Mejoras y errores</b><small>Avisá algo que falla o una idea</small></span><span class="pronto">Pronto</span><i class="i flecha" data-i="chevron-right"></i></button></li>
+    </ul>
+    <h2 class="p-mas-grupo-titulo" id="p-mas-ajustes">Ajustes</h2>
+    <ul class="p-mas-tarjeta p-mas-grupo" aria-labelledby="p-mas-ajustes">
+      <li><button type="button" class="p-mas-opcion" data-p="Configuración"><span class="p-mas-ic neutro"><i class="i" data-i="settings"></i></span><span class="p-mas-texto"><b>Configuración</b><small>Lo tuyo, en este celular</small></span><span class="pronto">Pronto</span><i class="i flecha" data-i="chevron-right"></i></button></li>
+      <li><button type="button" class="p-mas-opcion" data-p="Administración"><span class="p-mas-ic"><i class="i" data-i="sliders-horizontal"></i></span><span class="p-mas-texto"><b>Administración</b><small>Ajustes para todos</small></span><span class="pronto">Pronto</span><i class="i flecha" data-i="chevron-right"></i></button></li>
+      <li><button type="button" class="p-mas-opcion" data-p="El manual"><span class="p-mas-ic"><i class="i" data-i="book-open"></i></span><span class="p-mas-texto"><b>Manual</b><small>Cómo se usa Ferrebress</small></span><span class="pronto">Pronto</span><i class="i flecha" data-i="chevron-right"></i></button></li>
+    </ul>
+    <button type="button" class="p-mas-tarjeta p-mas-opcion p-mas-salir" id="p-salir"><span class="p-mas-ic error"><i class="i" data-i="log-out"></i></span><span class="p-mas-texto"><b>Salir</b><small>Cerrar la sesión en este celular</small></span><i class="i flecha" data-i="chevron-right"></i></button>
+  </section>
+
   <!-- ======== Celular: el menú de abajo ======== -->
   <nav class="p-nav p-only" aria-label="Menú" data-no-ir>
     <button type="button" class="p-nav-parte" data-p="Vender" aria-current="page"><span class="ico-mov"><i class="i" data-i="shopping-cart"></i></span><span class="lbl">Vender</span><span class="pronto">Pronto</span></button>
@@ -308,21 +363,8 @@
   <p class="pend-nota">La luz dice lo que contestó el servidor la última vez; no consulta nada por su cuenta.</p>
 </section>
 
-<!-- Celular: las hojas -->
+<!-- Celular: la hoja de lo pendiente -->
 <div class="fondo-hoja" id="fondo-hoja" hidden></div>
-<section class="hoja" id="hoja-mas" hidden role="dialog" aria-label="Más" data-no-ir>
-  <div class="hoja-asa"></div>
-  <div class="h-persona"><span class="avatar">RP</span><div><b>Rubén Paredes</b><small>Administrador</small></div></div>
-  <ul class="grupo">
-    <li><button type="button" class="grupo-opcion" data-p="Anomalías"><span class="ic"><i class="i" data-i="triangle-alert"></i></span><span class="n">Anomalías</span><span class="pronto">Pronto</span></button></li>
-    <li><button type="button" class="grupo-opcion" data-p="Procesos"><span class="ic"><i class="i" data-i="workflow"></i></span><span class="n">Procesos</span><span class="pronto">Pronto</span></button></li>
-    <li><button type="button" class="grupo-opcion" data-p="Mejoras y errores"><span class="ic"><i class="i" data-i="bug"></i></span><span class="n">Mejoras y errores</span><span class="pronto">Pronto</span></button></li>
-    <li><button type="button" class="grupo-opcion" data-p="Configuración"><span class="ic"><i class="i" data-i="settings"></i></span><span class="n">Configuración</span><span class="pronto">Pronto</span></button></li>
-    <li><button type="button" class="grupo-opcion" data-p="Administración"><span class="ic"><i class="i" data-i="sliders-horizontal"></i></span><span class="n">Administración</span><span class="pronto">Pronto</span></button></li>
-    <li><button type="button" class="grupo-opcion" data-p="El manual"><span class="ic"><i class="i" data-i="book-open"></i></span><span class="n">Manual</span><span class="pronto">Pronto</span></button></li>
-  </ul>
-  <button type="button" class="btn btn-peligro grande h-salir" id="p-salir"><i class="i" data-i="log-out"></i>Salir</button>
-</section>
 <section class="hoja" id="hoja-luz" hidden role="dialog" aria-label="Lo que está por enviar">
   <div class="hoja-asa"></div>
   <div data-pendiente></div>
@@ -493,35 +535,53 @@
   });
 
   // ---------- Celular ----------
-  var fondo = $("fondo-hoja"), abierta = null;
-  function abrirHoja(h) {
+  // Más es una pantalla: reemplaza la cabecera y el área de trabajo, y la elegida del menú de abajo
+  // pasa a ser Más. Se vuelve tocando la parte abierta (Vender).
+  // La elegida (aria-current, que es lo que la pinta de naranja) pasa a Más y vuelve a la parte abierta.
+  var pMas = $("p-mas"), pantallaMas = $("p-mas-pantalla"), parteAbierta = document.querySelector(".p-nav [aria-current]");
+  function verMas(si) {
+    if (si === !pantallaMas.hidden) return;
     cerrarHoja();
-    abierta = h; h.hidden = false; fondo.hidden = false; h.classList.add("capa-arriba");
-    if (h.id === "hoja-mas") { $("p-mas").classList.add("activo"); $("p-mas").parentNode.classList.add("mas-abierto"); }
+    pantallaMas.hidden = !si;
+    vista.classList.toggle("con-mas", si);
+    (si ? parteAbierta : pMas).removeAttribute("aria-current");
+    (si ? pMas : parteAbierta).setAttribute("aria-current", "page");
+    if (si) pantallaMas.scrollTop = 0;
+  }
+  pMas.addEventListener("click", function () { verMas(true); });
+  $("p-avatar").addEventListener("click", function () { verMas(true); });
+
+  // La hoja de lo pendiente, que sale de la luz.
+  var fondo = $("fondo-hoja"), hojaLuz = $("hoja-luz"), abierta = null;
+  function abrirHoja() {
+    abierta = hojaLuz; hojaLuz.hidden = false; fondo.hidden = false; hojaLuz.classList.add("capa-arriba");
     M.abrirCapa(cerrarHoja);
   }
   function cerrarHoja() {
     if (!abierta) return;
-    abierta.hidden = true; abierta.classList.remove("capa-arriba"); fondo.hidden = true;
-    $("p-mas").classList.remove("activo"); $("p-mas").parentNode.classList.remove("mas-abierto"); abierta = null; M.cerrarCapa(cerrarHoja);
+    hojaLuz.hidden = true; hojaLuz.classList.remove("capa-arriba"); fondo.hidden = true;
+    abierta = null; M.cerrarCapa(cerrarHoja);
   }
   fondo.addEventListener("click", cerrarHoja);
-  $("p-mas").addEventListener("click", function () { abierta && abierta.id === "hoja-mas" ? cerrarHoja() : abrirHoja($("hoja-mas")); });
-  $("p-avatar").addEventListener("click", function () { abrirHoja($("hoja-mas")); });
-  $("p-luz").addEventListener("click", function () { abrirHoja($("hoja-luz")); });
+  $("p-luz").addEventListener("click", abrirHoja);
+  $("p-mas-luz").addEventListener("click", abrirHoja);
   document.querySelectorAll(".p-nav [data-p]").forEach(function (b) {
-    b.addEventListener("click", function () { M.noEsta(b.querySelector(".ico-mov"), b.dataset.p, "· pronto. Todavía no está."); });
+    b.addEventListener("click", function () {
+      // Con Más a la vista, la parte abierta vuelve a su pantalla; lo demás todavía no está.
+      if (!pantallaMas.hidden && b === parteAbierta) { verMas(false); return; }
+      M.noEsta(b.querySelector(".ico-mov"), b.dataset.p, "· pronto. Todavía no está.");
+    });
   });
-  document.querySelectorAll(".hoja [data-p]").forEach(function (b) {
+  pantallaMas.querySelectorAll("[data-p]").forEach(function (b) {
     b.addEventListener("click", function () { M.noEsta(b, b.dataset.p, "· pronto. Todavía no está."); });
   });
   // Deslizar la hoja hacia abajo la cierra.
-  document.querySelectorAll(".hoja").forEach(function (h) {
+  (function () {
     var y0 = null;
-    h.addEventListener("pointerdown", function (e) { if (h.scrollTop <= 0) y0 = e.clientY; });
-    h.addEventListener("pointerup", function (e) { if (y0 !== null && e.clientY - y0 > 60) cerrarHoja(); y0 = null; });
-  });
-  window.addEventListener("resize", function () { cerrarHoja(); cerrarPop(); abrirMas(false); cerrarPersona(); globo.hidden = true; ocultarRotulo(); });
+    hojaLuz.addEventListener("pointerdown", function (e) { if (hojaLuz.scrollTop <= 0) y0 = e.clientY; });
+    hojaLuz.addEventListener("pointerup", function (e) { if (y0 !== null && e.clientY - y0 > 60) cerrarHoja(); y0 = null; });
+  })();
+  window.addEventListener("resize", function () { if (!M.angosto()) verMas(false); cerrarHoja(); cerrarPop(); abrirMas(false); cerrarPersona(); globo.hidden = true; ocultarRotulo(); });
 })();
 </script>
 </body>

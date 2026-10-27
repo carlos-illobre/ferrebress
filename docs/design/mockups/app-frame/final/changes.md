@@ -6,7 +6,8 @@ tiene. El logotipo y el isotipo no son copias: son los de `common/brand/`, el ú
 todas las maquetas.
 
 Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
-`screenshot-alt.png` y `screenshot-alt-collapsed.png` (con Alt apretado) y `screenshot-phone.png`.
+`screenshot-alt.png` y `screenshot-alt-collapsed.png` (con Alt apretado), `screenshot-phone.png` y
+`screenshot-phone-more.png` (Más abierto en el celular).
 
 ## Por directivas de Carlos
 
@@ -37,8 +38,28 @@ Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
   naranja (`--accion`) y en negrita, sin fondo, y las demás en gris oscuro (`--texto-2`), como en
   la imagen de Carlos; no lleva la raya naranja de arriba de la variante del director, porque
   la imagen no la tiene. No usa el verde claro de la computadora: Carlos pidió que quede como en su
-  imagen. «Pronto» sigue debajo, como estaba. Con la hoja de Más abierta, la naranja es Más y
+  imagen. «Pronto» sigue debajo, como estaba. Con Más a la vista, la naranja es Más y
   Vender vuelve a gris, para que haya una sola elegida.
+- **Más en el celular es una pantalla entera, no una hoja que sube** (como en la imagen de Carlos):
+  reemplaza la cabecera y el área de trabajo, y el menú de abajo queda a la vista con Más en
+  naranja. Se vuelve tocando la parte abierta (Vender); las otras siguen diciendo «pronto». De
+  arriba abajo:
+  - El título grande «Más» (28/800) en lugar del logotipo, y debajo la luz de conexión como una
+    línea con su punto; al tocarla, sube la hoja de lo pendiente, como desde la cabecera. Sin el
+    botón «En espejo» de la imagen: llega con el módulo 03.
+  - La tarjeta de la persona: iniciales, nombre y rol, sin la pastilla «Ves todo».
+  - Las seis opciones de 00 · R1.2 en dos tarjetas, «Del negocio» (Anomalías, Procesos, Mejoras y
+    errores) y «Ajustes» (Configuración, Administración, Manual). Cada renglón: el ícono en un
+    cuadrado de 40 px de color suave, el nombre (16/700), el subtítulo (14, `--texto-2`), «Pronto»
+    a la derecha (en el lugar del número o del dato de la imagen) y la flecha. Los íconos son los
+    mismos del panel de Más de la computadora. Colores: Anomalías en ámbar (`--urgente-suave` y
+    `--urgente-texto`), Configuración neutra (`--hundido` y `--texto-2`) y las demás en pino
+    (`--pino-suave` y `--pino-texto`), como en la imagen; Manual, que la imagen no tiene, va en
+    pino como Administración, su vecina. Tocar una dice «… · pronto. Todavía no está.».
+  - «Salir» como un renglón aparte al final, en rojo suave (cuadrado `--error-suave`, nombre en
+    `--error-texto`), con «Cerrar la sesión en este celular».
+  - Entra con un fundido y 8 px de subida escalonado (200 ms, `transform` y `opacity`); con
+    «reducir movimiento», aparece sin animar. Si no entra en la pantalla, se desplaza adentro.
 - **Minimizado:** los cinco íconos, la luz como un punto de color y la persona como sus iniciales,
   que abren la misma tarjeta con «Salir». Cada ícono dice su nombre en un rótulo; «Pronto» es un
   reloj chico sobre el ícono.
@@ -61,6 +82,8 @@ Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
   solo las suyas.
 - **Sin conexión (00 · R4.4):** como el área está vacía, lo dicen la luz y su panel; «Salir» sigue
   andando.
+- **La luz de Más, con el texto corto en el celular (00 · R3.2):** dice «En línea» (y «Sin conexión
+  · 3»), como la de la cabecera del celular, en lugar de «En línea · todo enviado» de la imagen.
 - **Sin Ctrl B:** el lenguaje visual decía «Plegable con Ctrl B», pero los atajos son con Alt y no
   pisan los del navegador (00 · R2.11; Ctrl B es el de favoritos en Firefox).
 
@@ -69,11 +92,13 @@ Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
 - El lateral está separado en piezas (`.lado-fondo`, `.lado-linea`) para animarlo sin tocar el
   ancho; el fondo de la opción abierta es su `::after`, por lo mismo.
 - La opción abierta se marca con `aria-current="page"`, que es también lo que la pinta, en el
-  lateral y en el menú de abajo; con Más abierto, el menú de abajo lleva `.mas-abierto`.
+  lateral y en el menú de abajo; en el celular, con Más a la vista, pasa a Más y al volver, a la
+  parte abierta. Más es su propia pantalla (`.p-mas`, una `section` con su `h1`); mientras se ve,
+  `.vista.con-mas` esconde la cabecera y el área.
 - Una clase por pieza (`.plegar`, `.pronto-mini`, `.persona-mini`, `.panel-costado`, `.rotulo`,
   `.lado-logo`, `.lado-isotipo`…) y los anchos del menú en variables (`--lado-ancho`,
   `--lado-mini`). Sin estilos en línea ni selectores por etiqueta.
 - HTML semántico: la tarjeta de la persona es una `section` con nombre, las opciones de Más en el
-  celular son una lista, el botón de minimizar usa `aria-expanded`, y minimizado los nombres siguen
+  celular son dos listas con su título (`h2`), el botón de minimizar usa `aria-expanded`, y minimizado los nombres siguen
   en la página para el lector de pantalla.
 - `shared.js` suma `Marco.alMarcar(fn)`, para que el rótulo siga a la marca del teclado.
