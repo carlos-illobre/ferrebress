@@ -15,3 +15,13 @@ export async function requireSession(ctx: SignInContext, c: Context): Promise<Se
     ? resolved.session
     : fail(c, 401, 'session-closed', { reason: resolved.reason });
 }
+
+// La sesión abierta del pedido, si tiene; para lo que se puede hacer con o sin sesión.
+export async function optionalSession(
+  ctx: SignInContext,
+  c: Context,
+): Promise<Session | undefined> {
+  const token = readSessionCookie(c);
+  const resolved = token ? await ctx.store.resolve(token) : undefined;
+  return resolved?.kind === 'open' ? resolved.session : undefined;
+}

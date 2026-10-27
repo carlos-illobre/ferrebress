@@ -2,6 +2,7 @@
 // aplicación: el origen, el dispositivo, la llave de prueba y la cookie de la sesión.
 import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
 import { createServer } from '../app.ts';
+import type { FindCity } from '../modules/sign-in/geo.ts';
 import { createSignInModule } from '../modules/sign-in/index.ts';
 import { createUsersModule } from '../modules/users/index.ts';
 import type { Clock } from '../platform/clock.ts';
@@ -11,7 +12,9 @@ import { createTestGoogle } from './google.ts';
 export const chromeWindows =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36';
 
-export async function createSignInServer(clock?: Clock) {
+export type SignInServerOptions = { findCity?: FindCity; wait?: (ms: number) => Promise<void> };
+
+export async function createSignInServer(clock?: Clock, options: SignInServerOptions = {}) {
   const google = await createTestGoogle(testConfig.GOOGLE_CLIENT_ID);
   const { module: usersModule, users } = createUsersModule();
   const jobs: (() => void)[] = [];
@@ -19,7 +22,7 @@ export async function createSignInServer(clock?: Clock) {
     jobs.push(run);
     return () => {};
   };
-  const modules = [usersModule, createSignInModule({ users, googleKeys: google.keys })];
+  const modules = [usersModule, createSignInModule({ users, googleKeys: google.keys, ...options })];
   const server = await createServer(testConfig, modules, { ...(clock && { clock }), schedule });
   // Corre ya los trabajos periódicos, como si hubiera pasado su tiempo.
   const runJobs = async () => {

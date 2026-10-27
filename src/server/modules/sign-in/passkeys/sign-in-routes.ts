@@ -15,7 +15,7 @@ import { deviceLabel } from '../device.ts';
 import { writeSessionCookie } from '../sessions/cookie.ts';
 import { isProofKey } from '../sessions/proof.ts';
 import { signInSettings } from '../settings.ts';
-import { authenticationOptions, challengeOf, verifyAssertion } from './webauthn.ts';
+import { authenticationOptions, challengeOf, checkAssertion } from './webauthn.ts';
 
 const { limits } = signInSettings;
 
@@ -61,26 +61,12 @@ async function findPasskey(ctx: SignInContext, response: AuthenticationResponseJ
 async function signInWithPasskey(ctx: SignInContext, c: Context, body: PasskeySignInBody) {
   const response = body.response as unknown as AuthenticationResponseJSON;
   const found = await findPasskey(ctx, response);
-  const reject = (reason: string, userId?: string) => {
-    ctx.record(c, 'sign-in.rejected', {
-      ...(userId && { userId }),
-      data: { method: 'passkey', reason },
-    });
+  if (!found) {
+    ctx.record(c, 'sign-in.rejected', { data: { method: 'passkey', reason: 'unknown-passkey' } });
     return fail(c, 401, 'not-authorized');
-  };
-  if (!found) return reject('unknown-passkey');
-  const accountKey = `failed:passkey:${found.passkey.userId}`;
-  if (ctx.platform.limiter.exceeded(accountKey, limits.failedPerAccount)) {
-    return ctx.throttle(c, [accountKey], limits.failedPerAccount) as Response;
   }
-  const counter = await verifyAssertion(ctx, response, found.passkey, found.challenge);
-  if (counter === undefined) {
-    ctx.platform.limiter.hit(accountKey, limits.failedPerAccount);
-    return reject('invalid-signature', found.passkey.userId);
-  }
-  await ctx.passkeys.markUsed(found.passkey.id, counter, ctx.platform.clock.now());
-  const user = await ctx.users.findById(found.passkey.userId);
-  if (!user?.active) return reject('inactive', found.passkey.userId);
+  const user = await checkAssertion(ctx, c, found.passkey, response, found.challenge);
+  if (user instanceof Response) return user;
   const { token, session } = await ctx.store.create({
     userId: user.id,
     deviceId: c.get('deviceId'),

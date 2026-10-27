@@ -1,0 +1,111 @@
+// Aprobar la entrada de la computadora desde el celular (R2.5, R2.7; diseño de 01, § 5): siempre
+// con la huella, firmada para el desafío de esta reserva. Con la huella ya vinculada, una sola
+// huella hace entrar también al celular si no tenía sesión (E16); sin huella vinculada, el
+// celular que entró con Google la vincula en ese momento y esa huella aprueba (E16b). Entrar con
+// Google no alcanza para aprobar.
+import { approveCodeBody } from '@ferrebress/shared/contracts/sign-in';
+import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
+import type { Context } from 'hono';
+import { fail } from '../../../platform/http.ts';
+import type { SignInContext } from '../context.ts';
+import { deviceLabel } from '../device.ts';
+import {
+  cannotLink,
+  challengeOf,
+  checkAssertion,
+  savePasskey,
+  verifyRegistration,
+} from '../passkeys/webauthn.ts';
+import { writeSessionCookie } from '../sessions/cookie.ts';
+import { isProofKey } from '../sessions/proof.ts';
+import { optionalSession } from '../sessions/require.ts';
+import type { Screen } from './screens.ts';
+
+type Approval = { userId: string } | Response;
+
+export function registerApproveRoute(ctx: SignInContext): void {
+  ctx.platform.http.post('/api/sign-in/codes/approve', async (c) => {
+    const body = approveCodeBody.safeParse(await c.req.json());
+    if (!body.success) return fail(c, 400, 'bad-request');
+    const screen = ctx.screens.byReservation(body.data.secret);
+    if (!screen) return fail(c, 410, 'code-expired');
+    const { reservation } = screen as Required<Screen>;
+    if (challengeOf(body.data.response as never) !== reservation.challenge)
+      return fail(c, 401, 'not-authorized');
+    const approval =
+      body.data.kind === 'registration'
+        ? await withNewPasskey(ctx, c, body.data.response as never, reservation.challenge)
+        : await withPasskey(
+            ctx,
+            c,
+            body.data.response as never,
+            reservation.challenge,
+            body.data.proofPublicKey,
+          );
+    return approval instanceof Response ? approval : grant(ctx, c, screen, approval.userId);
+  });
+}
+
+// La computadora recibe por su canal el permiso de un uso, que cambia por su sesión.
+function grant(ctx: SignInContext, c: Context, screen: Screen, userId: string) {
+  ctx.screens.release(screen);
+  const permit = ctx.permits.issue(screen.id, { screenId: screen.id, userId }) as string;
+  screen.notify?.({ type: 'approved', permit });
+  ctx.record(c, 'code.approved', { userId });
+  return c.json({ ok: true });
+}
+
+// E16b: el celular entró con Google y vincula la huella ahora; esa huella aprueba.
+async function withNewPasskey(
+  ctx: SignInContext,
+  c: Context,
+  response: RegistrationResponseJSON,
+  challenge: string,
+): Promise<Approval> {
+  const session = await optionalSession(ctx, c);
+  if (!session) return fail(c, 401, 'session-closed', { reason: 'unknown' });
+  const refused = cannotLink(ctx, c, session);
+  if (refused) return refused;
+  const credential = await verifyRegistration(ctx, response, challenge);
+  if (!credential) return fail(c, 401, 'not-authorized');
+  return (await savePasskey(ctx, c, session, credential)) ?? { userId: session.userId };
+}
+
+// E13, E16: la huella ya vinculada. Si el celular no tenía sesión, entra también.
+async function withPasskey(
+  ctx: SignInContext,
+  c: Context,
+  response: AuthenticationResponseJSON,
+  challenge: string,
+  proofPublicKey: string | undefined,
+): Promise<Approval> {
+  const passkey = await ctx.passkeys.findActive(response.id);
+  if (!passkey) return fail(c, 401, 'not-authorized');
+  const user = await checkAssertion(ctx, c, passkey, response, challenge);
+  if (user instanceof Response) return user;
+  return (await optionalSession(ctx, c))
+    ? { userId: user.id }
+    : signInPhone(ctx, c, user.id, proofPublicKey);
+}
+
+async function signInPhone(
+  ctx: SignInContext,
+  c: Context,
+  userId: string,
+  proofPublicKey: string | undefined,
+): Promise<Approval> {
+  const key = proofPublicKey && Buffer.from(proofPublicKey, 'base64url');
+  const deviceId = c.get('deviceId');
+  if (!key || !isProofKey(key) || !deviceId) return fail(c, 400, 'bad-request');
+  const { token } = await ctx.store.create({
+    userId,
+    deviceId,
+    deviceLabel: deviceLabel(c.req.header('User-Agent')),
+    ipAddress: c.get('ipAddress'),
+    proofPublicKey: key,
+    googleAt: null,
+  });
+  writeSessionCookie(c, token);
+  ctx.record(c, 'sign-in.succeeded', { userId, data: { method: 'passkey', via: 'qr' } });
+  return { userId };
+}

@@ -39,3 +39,36 @@ export const passkeySignInBody = z.object({
 });
 
 export type PasskeySignInBody = z.infer<typeof passkeySignInBody>;
+
+// Entrar a la computadora con el celular (diseño de 01, § 5).
+export const readCodeBody = z.object({ code: base64url(32) });
+
+export const approveCodeBody = z.object({
+  secret: base64url(64),
+  // La huella ya vinculada, o una que se vincula en ese momento (R2.7).
+  kind: z.enum(['assertion', 'registration']),
+  response: webAuthnResponse,
+  proofPublicKey: z.optional(base64url(256)),
+});
+
+export const cancelCodeBody = z.object({ secret: base64url(64) });
+
+export const claimCodeBody = z.object({ permit: base64url(64), proofPublicKey: base64url(256) });
+
+export type CodePlace =
+  | { kind: 'same-network' }
+  | { kind: 'same-city'; city: string }
+  | { kind: 'different-cities'; computerCity: string; phoneCity: string }
+  | { kind: 'unknown-city' };
+
+export type ReadCodeResponse = {
+  secret: string;
+  computer: { label: string };
+  place: CodePlace;
+  holdSeconds: number;
+  authentication: unknown;
+  // Solo si el celular entró con Google hace poco y todavía no tiene huella.
+  registration?: unknown;
+};
+
+export type ScreenEventName = 'code' | 'read' | 'cancelled' | 'approved';

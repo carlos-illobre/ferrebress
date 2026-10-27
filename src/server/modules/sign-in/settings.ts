@@ -27,3 +27,17 @@ export const signInSettings = {
 
 // Vincular la huella solo en los minutos siguientes a haber entrado con Google (diseño de 01, § 5).
 export const linkPasskeyWithinMs = 5 * minute;
+
+// Entrar a la computadora con el celular (R2.5, R2.7; diseño de 01, § 5).
+export const codeSettings = {
+  codeTtlMs: minute,
+  // Cuánto espera la computadora la huella después de leído el código; más si el celular
+  // primero tiene que entrar.
+  holdMs: 2 * minute,
+  holdWithSignInMs: 5 * minute,
+  permitTtlMs: 30_000,
+  maxScreens: 100,
+  maxScreensPerIp: 3,
+  openPerIp: { max: 10, windowMs: minute },
+  readPerIp: { max: 10, windowMs: minute },
+};

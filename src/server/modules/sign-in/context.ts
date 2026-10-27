@@ -8,10 +8,12 @@ import type { Platform } from '../../platform/modules.ts';
 import { createOneUse } from '../../platform/one-use.ts';
 import type { Window } from '../../platform/rate-limit.ts';
 import type { User, Users } from '../users/index.ts';
+import { createScreens } from './codes/screens.ts';
+import type { FindCity } from './geo.ts';
 import type { GoogleSettings } from './google/verify.ts';
 import { type PasskeysTables, passkeysData } from './passkeys/data.ts';
 import { createSessionStore } from './sessions/store.ts';
-import { signInSettings } from './settings.ts';
+import { codeSettings, signInSettings } from './settings.ts';
 
 // Anota en la auditoría y frena por límite de intentos, con lo que trae cada pedido.
 function createGuards({ audit, clock, limiter }: Platform) {
@@ -55,7 +57,19 @@ const person = (user: User): Person => ({
   role: 'Administrador',
 });
 
-export function createContext(platform: Platform, users: Users, google: GoogleSettings) {
+// Lo que viene de afuera del módulo: las personas, Google, la ciudad y cómo esperar (las pruebas
+// cambian las tres últimas).
+export type SignInDependencies = {
+  users: Users;
+  google: GoogleSettings;
+  findCity: FindCity;
+  wait: (ms: number) => Promise<void>;
+};
+
+export function createContext(
+  platform: Platform,
+  { users, google, findCity, wait }: SignInDependencies,
+) {
   return {
     platform,
     users,
@@ -74,6 +88,15 @@ export function createContext(platform: Platform, users: Users, google: GoogleSe
     },
     ...createGuards(platform),
     person,
+    findCity,
+    wait,
+    screens: createScreens(platform.clock),
+    // El permiso que la computadora cambia por su sesión, una vez y por 30 segundos.
+    permits: createOneUse<{ screenId: string; userId: string }>(platform.clock, {
+      ttlMs: codeSettings.permitTtlMs,
+      maxTotal: codeSettings.maxScreens,
+      maxPerOwner: 1,
+    }),
   };
 }
 

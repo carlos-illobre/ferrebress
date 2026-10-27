@@ -1,11 +1,7 @@
 // Qué le dice el celular sobre dónde está la computadora que pide entrar (R2.5): la misma red,
 // la misma ciudad, ciudades distintas o una ciudad desconocida, que cuenta como distinta. Sin
 // tecnología: las ciudades llegan ya buscadas.
-export type Place =
-  | { kind: 'same-network' }
-  | { kind: 'same-city'; city: string }
-  | { kind: 'different-cities'; computerCity: string; phoneCity: string }
-  | { kind: 'unknown-city' };
+import type { CodePlace as Place } from '@ferrebress/shared/contracts/sign-in';
 
 // La red de una dirección: IPv4 entera (también escrita como IPv6, ::ffff:a.b.c.d); IPv6 por su
 // /64, porque cada aparato de una misma red tiene la suya.

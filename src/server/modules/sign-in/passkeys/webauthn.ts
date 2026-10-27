@@ -16,7 +16,7 @@ import type { User } from '../../users/index.ts';
 import type { SignInContext } from '../context.ts';
 import { isPhone } from '../device.ts';
 import type { Session } from '../sessions/store.ts';
-import { linkPasskeyWithinMs } from '../settings.ts';
+import { linkPasskeyWithinMs, signInSettings } from '../settings.ts';
 import type { Passkey } from './data.ts';
 
 const es256 = -7;
@@ -91,7 +91,7 @@ export async function verifyRegistration(
 }
 
 // El contador nuevo, o undefined si la firma, el origen o la verificación no cierran.
-export async function verifyAssertion(
+async function verifyAssertion(
   ctx: SignInContext,
   response: AuthenticationResponseJSON,
   passkey: Passkey,
@@ -134,4 +134,36 @@ export async function savePasskey(
   }
   ctx.record(c, 'passkey.linked', { userId: session.userId });
   return undefined;
+}
+
+// La huella firmó este desafío y la persona sigue activa: devuelve la persona, o la respuesta
+// que corresponde. Las firmas que no cierran cuentan para el límite de esa cuenta, que frena
+// solo la huella (R2.10, E20c).
+export async function checkAssertion(
+  ctx: SignInContext,
+  c: Context,
+  passkey: Passkey,
+  response: AuthenticationResponseJSON,
+  challenge: string,
+): Promise<User | Response> {
+  const { failedPerAccount } = signInSettings.limits;
+  const accountKey = `failed:passkey:${passkey.userId}`;
+  const reject = (reason: string) => {
+    ctx.record(c, 'sign-in.rejected', {
+      userId: passkey.userId,
+      data: { method: 'passkey', reason },
+    });
+    return fail(c, 401, 'not-authorized');
+  };
+  if (ctx.platform.limiter.exceeded(accountKey, failedPerAccount)) {
+    return ctx.throttle(c, [accountKey], failedPerAccount) as Response;
+  }
+  const counter = await verifyAssertion(ctx, response, passkey, challenge);
+  if (counter === undefined) {
+    ctx.platform.limiter.hit(accountKey, failedPerAccount);
+    return reject('invalid-signature');
+  }
+  await ctx.passkeys.markUsed(passkey.id, counter, ctx.platform.clock.now());
+  const user = await ctx.users.findById(passkey.userId);
+  return user?.active ? user : reject('inactive');
 }
