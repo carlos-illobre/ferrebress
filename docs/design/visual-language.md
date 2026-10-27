@@ -32,6 +32,14 @@ partí de `desktop-frame.html` o `phone-frame.html`.
 Las rutas son desde una maqueta en `docs/design/mockups/<pantalla>/<dispositivo>/<versión>/index.html`.
 No copies colores sueltos: usá siempre `var(--nombre)`.
 
+**En la aplicación** las variables y las piezas tienen su nombre en inglés, como todo el código, y
+los valores son los mismos: `--fondo` es `--background`, `--hundido` `--sunken`, `--superficie`
+`--surface`, `--borde` `--border` (`-fuerte` es `-strong`), `--tinta` `--ink`, `--texto-2` `--text-2`,
+`--pino` `--pine`, `--accion` `--action`, `--urgente` `--urgent`, `--logro` `--success` (`-suave` es
+`-soft` y `-texto` es `-text`), `--e1`… `--s1`…, `--r` `--radius`, `--sombra-1` `--shadow-1`, `--curva`
+`--ease` y `--t` `--time`. Las piezas: `.btn` es `.button` (`-accion` `-action`, `-oscuro` `-dark`,
+`-fantasma` `-plain`), `.i` es `.icon` y la hoja, `.sheet`.
+
 ## Paleta (cada color tiene un trabajo)
 
 | Uso | Variable | Valor | Cuándo |

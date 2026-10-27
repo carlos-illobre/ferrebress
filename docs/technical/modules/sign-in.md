@@ -34,7 +34,8 @@ ferrebress/
 │   │       └── sign-in/             entrar, salir, sesiones, huellas, códigos QR
 │   └── app/
 │       ├── main.tsx                 arma la aplicación y registra los módulos
-│       ├── platform/                api, realtime, clock, device, actions, keyboard, router, storage
+│       ├── platform/                api, realtime, proof-key, clock, device, keyboard, router,
+│       │                            storage, waiting
 │       ├── ui/                      piezas del lenguaje visual
 │       ├── styles/                  tokens de «Mostrador», el marco de pruebas
 │       └── modules/
@@ -371,13 +372,18 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 ## 10. La aplicación
 
 - **Preact, Vite y CSS común** (ADR-013), una sola aplicación para los dos anchos (ADR-002).
-- **`platform/actions`:** el único punto por donde pasan las acciones con nombre (botones, teclado;
-  mañana el espejo y lo pendiente).
+- **Las acciones con nombre llegan con el módulo 03:** recién ahí hay una segunda forma de
+  dispararlas (el espejo del celular y la cola sin conexión). Hasta entonces el teclado aprieta el
+  botón mismo, y la entrada no necesita más.
 - **`platform/keyboard`:** las reglas del capítulo 00 (R2). Cada pantalla declara sus acciones con
   su tecla; el motor muestra las teclas con Alt, dentro del botón a la derecha, y las ejecuta. Las
   pantallas no escuchan teclas.
-- **`platform/api`:** un `fetch` que pone las cabeceras, lee `X-Ferrebress`, traduce los errores y
-  maneja las esperas (300 ms y 2 s).
+- **`platform/api`:** un `fetch` que pone las cabeceras, lee `X-Ferrebress` y traduce los errores.
+- **`platform/waiting`:** las esperas (00 · R7) de lo que se toca: nada antes de 300 ms, la marca
+  después y la barra a los 2 s, que muestra el marco. El botón de `ui/` la usa sola; mientras
+  espera, volver a tocarlo no hace nada. Las búsquedas (R7.4) llegan con la primera que haya.
+- **`platform/router`:** la dirección es un valor compartido; cada módulo registra sus direcciones y
+  el marco muestra la que coincide. Atrás y adelante del navegador funcionan.
 - **`platform/realtime`:** el canal temporal (SSE con `fetch`, § 5) y la lectura de la cabecera.
   Cada tema declara qué permiso hace falta para escucharlo. La conexión directa entre dispositivos
   llega con el módulo 03; no se arma una interfaz de estrategias hasta que haya una segunda forma.
@@ -570,8 +576,8 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
 4. `users`: la tabla, la fachada, el primer Administrador y el evento de baja.
 5. `sign-in` del servidor: sesiones y sus límites, Google, la huella, los códigos QR con su canal,
    salir, los límites de intentos, los eventos.
-6. `platform` de la aplicación `[P]`: api, clock, device, actions, keyboard, realtime, router,
-   storage; `ui` y `styles`.
+6. `platform` de la aplicación `[P]`: api, clock, device, keyboard, realtime, proof-key, router, storage,
+   waiting; `ui` y `styles`.
 7. `frame`: el marco desde su maqueta, con la luz, la tarjeta de la persona, «Algo salió mal» y la
    versión nueva.
 8. `sign-in` de la aplicación: la entrada desde su maqueta, las hojas del celular, el lector, el QR,

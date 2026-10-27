@@ -1,0 +1,117 @@
+/* Los botones de «Mostrador» (docs/design/visual-language.md, «Botones»): común, la acción
+   principal en naranja, el oscuro para la herramienta fuerte y el que es solo texto. La tecla se
+   ve solo con Alt apretado, dentro del botón a la derecha. */
+@layer pieces {
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s2);
+    min-height: 44px;
+    padding: 0 var(--s4);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 16px;
+    box-shadow: var(--shadow-1);
+    white-space: nowrap;
+    transition:
+      transform var(--time-micro) var(--ease),
+      background var(--time-micro);
+  }
+  .button:active {
+    transform: scale(0.97);
+  }
+  .button[disabled] {
+    opacity: 0.45;
+    box-shadow: none;
+  }
+  .button[aria-busy="true"] {
+    pointer-events: none;
+  }
+  .button-small {
+    min-height: 36px;
+    padding: 0 var(--s3);
+    font-size: 14px;
+    border-radius: 10px;
+  }
+  .button-large {
+    min-height: 56px;
+    padding: 0 var(--s6);
+    font-size: 18px;
+    border-radius: 14px;
+  }
+  .button-action {
+    background: var(--action);
+    border-color: var(--action);
+    color: #fff;
+    box-shadow: var(--shadow-action);
+  }
+  .button-action:active {
+    background: var(--action-strong);
+  }
+  .button-dark {
+    background: var(--pine);
+    border-color: var(--pine);
+    color: #fff;
+    box-shadow: var(--shadow-2);
+  }
+  .button-plain {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--text-2);
+  }
+
+  /* La marca de espera (00 · R7.2): el texto se apaga y gira un aro en su lugar. */
+  .button[data-wait] > span {
+    opacity: 0.5;
+  }
+  .button[data-wait]::after {
+    content: "";
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    animation: button-spin 700ms linear infinite;
+  }
+  @keyframes button-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  .button kbd {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    margin-left: auto;
+    padding: 0 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 2px;
+    background: var(--surface);
+    color: var(--text-2);
+    font: 700 14px / 1 var(--font);
+  }
+  .button-action kbd,
+  .button-dark kbd {
+    background: rgb(255 255 255 / 0.16);
+    border-color: rgb(255 255 255 / 0.35);
+    color: #fff;
+  }
+  .show-keys .button kbd {
+    display: inline-flex;
+  }
+
+  /* Lo que marcan las flechas (00 · R2.4). */
+  .marked {
+    outline: 3px solid var(--action);
+    outline-offset: 3px;
+  }
+}

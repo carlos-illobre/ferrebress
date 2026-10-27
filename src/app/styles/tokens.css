@@ -1,0 +1,88 @@
+/* Los valores del lenguaje visual «Mostrador» (docs/design/visual-language.md), con su nombre en
+   inglés. Las piezas usan solo estas variables: cambiar la estética es cambiar este archivo. */
+@font-face {
+  font-family: "Manrope";
+  src: url("./fonts/manrope-latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: block;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F,
+    U+20AC, U+2122, U+2191-2193, U+2212, U+2215;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("./fonts/manrope-latin-ext.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: block;
+  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  /* Neutros cálidos */
+  --background: #f4f2ec;
+  --sunken: #ece9e1;
+  --sunken-2: #e3dfd5;
+  --surface: #ffffff;
+  --border: #e6e2d8;
+  --border-strong: #cec8ba;
+  --ink: #1a1d1b;
+  --text-2: #545955;
+  --text-3: #6b706b;
+
+  /* Pino: dónde estoy, lo elegido */
+  --pine: #12382f;
+  --pine-2: #1d4b40;
+  --pine-soft: #e3eee8;
+  --pine-text: #17614e;
+
+  /* Acción: una sola principal por pantalla */
+  --action: #e8541c;
+  --action-strong: #c8450f;
+  --action-soft: #fdede4;
+  --action-text: #b23e0e;
+
+  /* Señales */
+  --urgent: #f0a20f;
+  --urgent-soft: #fff3d8;
+  --urgent-text: #845400;
+  --error: #d7372a;
+  --error-soft: #fceae7;
+  --error-text: #ae281d;
+  --success: #1e9e62;
+  --success-soft: #e2f4ea;
+  --success-text: #11764a;
+
+  --font: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Espacios: múltiplos de 4 */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s8: 32px;
+  --s10: 40px;
+  --s12: 48px;
+
+  --radius-small: 8px;
+  --radius: 12px;
+  --radius-card: 16px;
+  --radius-sheet: 24px;
+
+  /* Relieve: tres niveles */
+  --shadow-1: 0 1px 2px rgb(26 29 27 / 0.05), 0 1px 1px rgb(26 29 27 / 0.03);
+  --shadow-2: 0 6px 20px -8px rgb(26 29 27 / 0.14), 0 1px 3px rgb(26 29 27 / 0.06);
+  --shadow-3: 0 24px 48px -16px rgb(18 56 47 / 0.28), 0 4px 12px rgb(18 56 47 / 0.08);
+  --shadow-action: 0 8px 20px -8px rgb(232 84 28 / 0.55);
+
+  /* Movimiento */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out: cubic-bezier(0.4, 0, 1, 1);
+  --bounce: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --time-micro: 120ms;
+  --time: 200ms;
+  --time-nav: 320ms;
+}

@@ -10,5 +10,6 @@ export default defineProject({
     environment: 'happy-dom',
     include: ['**/*.test.{ts,tsx}'],
     exclude: ['node_modules/**'],
+    setupFiles: ['testing/setup.ts'],
   },
 });

@@ -1,0 +1,45 @@
+/* La hoja (docs/design/visual-language.md, «Movimiento»): sube en 320 ms y el fondo se oscurece. */
+@layer pieces {
+  .sheet-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgb(14 22 19 / 0.45);
+    animation: sheet-fade var(--time-nav) var(--ease);
+  }
+  .sheet {
+    position: fixed;
+    z-index: 600;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0 auto;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: var(--s2) 22px var(--s6);
+    border-radius: 28px 28px 0 0;
+    background: var(--surface);
+    box-shadow: var(--shadow-3);
+    text-align: center;
+    animation: sheet-rise var(--time-nav) var(--ease);
+  }
+  .sheet-grabber {
+    width: 40px;
+    height: 5px;
+    margin: 0 auto var(--s1);
+    border-radius: 99px;
+    background: var(--border-strong);
+  }
+  @keyframes sheet-rise {
+    from {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes sheet-fade {
+    from {
+      opacity: 0;
+    }
+  }
+}

@@ -1,0 +1,35 @@
+/* El marco magenta y el cartel del ambiente de pruebas (00 · R10): no siguen «Mostrador» a
+   propósito, para que nadie confunda pruebas con el negocio de verdad. */
+.test-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  pointer-events: none;
+}
+.test-border {
+  position: absolute;
+  inset: 0;
+  border: 7px solid #d6007a;
+  box-shadow: inset 0 0 22px rgb(214 0 122 / 0.45);
+  opacity: 0.85;
+}
+.test-banner {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 16px 5px;
+  border-radius: 0 0 12px 12px;
+  background: #d6007a;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+}
+@media (max-width: 899px) {
+  .test-banner span {
+    display: none;
+  }
+}
