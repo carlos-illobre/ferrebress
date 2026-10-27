@@ -20,6 +20,8 @@ Cada pantalla tiene su carpeta en `mockups/<pantalla>/`, con `desktop/` y `phone
   el director de arte en el paso 2 de cada módulo (constitución, «Los nueve pasos»).
 - **`art-director-notes.md`** es lo que el director de arte le dijo a Carlos de esa pantalla, con
   el catálogo de ideas.
+- **`chosen/`** es la elegida, adaptada por el maquetador a lo que pidió Carlos y a las reglas, con
+  `changes.md`. Es la que vale para programar. Las variantes del director no se modifican.
 - **La versión elegida** queda escrita en el `screens.md` del capítulo, con su carpeta.
 - **`mockups/index.json`** es el índice del visor: solo las pantallas del módulo en curso, con sus
   variantes. Las v2 no figuran en el visor: son material de consulta para el director de arte.

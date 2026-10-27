@@ -336,3 +336,8 @@ cambia, sin depender de documentos que no están en este repositorio.
 63. **El menú a la izquierda, por ahora** (2026-10-27). En la computadora el menú va a la izquierda,
     con un botón para minimizarlo a solo íconos. No es una regla que limite al director de arte:
     es la elección de hoy, y puede cambiar si propone algo mejor.
+
+64. **El director de arte diseña sin límites; el maquetador los pone** (2026-10-27). El director de
+    arte va más allá de las reglas y no ajusta sus maquetas. Cuando Carlos elige una variante, el
+    maquetador (agente `mockup-builder`) la copia y la adapta a lo que Carlos pidió y a las reglas
+    aprobadas. Carlos aprueba la adaptada.

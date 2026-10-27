@@ -47,7 +47,9 @@ dice, los dos). Ejemplo: `/art-director stock, phone`.
    y lo que contradice una regla o queda fuera del capítulo. Antes de pasárselo, quien lanzó al
    agente abre las tres y comprueba que de verdad son tres ideas distintas y que la audaz rompe
    algo; si no, la devuelve.
-5. **Cuando Carlos elige,** se anota la variante en el `screens.md` del capítulo.
+5. **Cuando Carlos elige,** se anota la variante en el `screens.md` del capítulo. **El director de
+   arte no ajusta su maqueta:** diseña sin restricciones. Lo que Carlos pida cambiar y lo que las
+   reglas exijan lo aplica el maquetador (agente `mockup-builder`), en una copia en `chosen/`.
 
 ## Hacer navegable una variante
 
