@@ -97,7 +97,7 @@ body[data-state="intentos"] #notice { display: flex; }
 .btn-orange { background: var(--naranja); box-shadow: 0 6px 18px rgb(143 42 8 / 0.28); }
 .btn-green { background: var(--verde); }
 .btn-primary { background: var(--naranja); box-shadow: 0 8px 20px -6px rgb(143 42 8 / 0.5); min-height: 52px; border-radius: 999px; padding: 0 26px; }
-.btn-primary kbd, .btn-green kbd { background: rgb(255 255 255 / 0.18); border-color: rgb(255 255 255 / 0.4); color: #fff; }
+.btn-primary kbd { background: rgb(255 255 255 / 0.18); border-color: rgb(255 255 255 / 0.4); color: #fff; }
 .btn-orange:active, .btn-green:active, .btn-primary:active { transform: scale(0.98); }
 
 /* Las hojas del celular: suben desde abajo. */

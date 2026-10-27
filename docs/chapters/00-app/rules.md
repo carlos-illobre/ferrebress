@@ -30,7 +30,7 @@ ambiente de pruebas.
 
 ## 2. El teclado
 
-Vale solo en la computadora.
+Vale solo en la computadora: en el celular no hay atajos ni marca.
 
 - **R2.1** Hay dos focos: el **cursor**, que se mueve con Tab o con el mouse, y la **marca**, que se
   mueve con las flechas. Las flechas nunca mueven el cursor a otro lugar.

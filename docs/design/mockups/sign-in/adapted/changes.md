@@ -21,6 +21,6 @@ la computadora: `screenshot-phone-qr-ask.png`, `screenshot-phone-qr-done.png` y
   Chrome en Windows?» y la de confirmación «Chrome en Windows ya tiene tu sesión…».
 - **Celular y computadora en la misma red:** si el celular lee el código desde otra red, no pide la
   huella. La misma hoja muestra un ícono de Wi-Fi, «Para entrar a la computadora, conectá este
-  celular al mismo Wi-Fi» y el botón «Entendido» (atajo Alt+E, capítulo 00, R2.8); la computadora
+  celular al mismo Wi-Fi» y el botón «Entendido», sin atajo: en el celular no hay atajos (capítulo 00, R2); la computadora
   sigue con su código. Se ve con el estado «Leyó el QR desde otra red» del selector
   (`?estado=otra-red`).
