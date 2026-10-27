@@ -19,3 +19,5 @@ Las que solo tocan este módulo. Las que valen para todo el proyecto están en
   hora por cuenta.
 - **01-D10** (2026-10-27) Al leer el QR, el celular muestra también la ciudad aproximada de la
   computadora, sacada de su dirección de internet.
+- **01-D11** (2026-10-27) La entrada conserva el naranja de la primera versión (#D83F0E), aunque el
+  resto de la aplicación use el de «Mostrador».
