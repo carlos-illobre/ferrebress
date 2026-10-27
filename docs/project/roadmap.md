@@ -67,8 +67,6 @@ paralelo»).
   de su diseño técnico, que Carlos aprueba antes. Hasta entonces no hay `pnpm check`.
 - [ ] T004 [carlos] Habilitar GitHub Pages en el repositorio (Settings → Pages → Source: «GitHub
   Actions»), para que se publique el visor de maquetas.
-- [ ] T006 [carlos] Antes del primer despliegue de Ferrebress, correr en la VM el script que
-  desinstala el proyecto anterior, también su producción (está en ese proyecto: `ORACLE.md`, paso 15).
 - [x] T005 [agente] El revisor de seguridad (`.claude/agents/security-reviewer.md`), en los pasos 4
   y 7 de cada módulo.
 

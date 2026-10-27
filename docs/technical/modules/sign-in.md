@@ -535,10 +535,9 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   consulta a GitHub), baja las imágenes por su huella (`@sha256:`) y no solo por la etiqueta, y baja
   la base de ciudades por HTTPS comprobando su suma antes de reemplazar la anterior.
 - **Las pruebas de punta a punta**, con el compose, antes de cerrar el módulo.
-- **La máquina:** la misma VM de Oracle del proyecto anterior. Antes del primer despliegue se
-  desinstala todo lo suyo, también su producción, con el script que está en el propio proyecto
-  anterior (§ 17). Ferrebress corre con su propio usuario y Docker sin privilegios, y `loginctl
-  enable-linger` para que el servicio arranque solo; lo dice `deploy/README.md`.
+- **La máquina:** una VM de Oracle que comparte con otras aplicaciones. Ferrebress corre con su
+  propio usuario y Docker sin privilegios, y `loginctl enable-linger` para que el servicio arranque
+  solo; lo dice `deploy/README.md`.
 - **Los puertos 80 y 443** los tiene el proxy de la máquina (ADR-011), que comparten las
   aplicaciones de la VM. Ferrebress corre con el usuario `ferrebress`, sin privilegios y con su
   Docker; su Caddy escucha solo en `127.0.0.1:8090` (pruebas; producción, `8091`). El archivo que
@@ -569,8 +568,6 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
 
 Lo que decidió Carlos:
 
-- **La máquina:** se desinstala todo lo del proyecto anterior, también su producción, y Ferrebress
-  queda solo en ella (§ 14).
 - **La ciudad:** la base local, en un adaptador que se puede cambiar por un servicio externo sin
   tocar el resto (§ 8).
 - **Celular sin huella ante el QR:** se le pide vincularla en ese momento (R2.7, § 5).
@@ -606,12 +603,10 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
 
 ## 17. Lo que tiene que hacer Carlos antes de programar
 
-- **Google:** se usa el mismo cliente OAuth del proyecto anterior. En Google Cloud → Credenciales →
-  el cliente web, agregar a «Orígenes de JavaScript autorizados»
+- **Google:** se usa el cliente OAuth web que ya existe en Google Cloud. En Credenciales → ese
+  cliente, agregar a «Orígenes de JavaScript autorizados»
   `https://ferrebress-pruebas.duckdns.org`. Mientras la pantalla de consentimiento siga en
   «Prueba», cada cuenta que entre tiene que estar en su lista de usuarios de prueba.
-- **La máquina:** correr en la VM `deployment/oracle-single/maquina/desinstalar.sh` del proyecto
-  anterior (sus pasos están en su `ORACLE.md`, paso 15).
 - **El usuario y el proxy:** crear el usuario `ferrebress` con Docker sin privilegios y `linger`, y
   copiar `deploy/machine-proxy/ferrebress.caddy` a `/etc/caddy/sitios/`; los pasos los tiene
   `deploy/README.md`, y los puede hacer el agente de la VM.

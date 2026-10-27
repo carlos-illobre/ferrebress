@@ -23,7 +23,7 @@ de un uso viaja por un canal al que se puede suscribir cualquiera que vea el QR.
 la huella no revisa si la persona está dada de baja (E03) ni exige la verificación del usuario;
 faltan los límites y las herramientas de `pnpm check`, que el plan (T003) pone en este diseño; la
 aplicación no tiene cómo saber el ambiente (R10, E37) ni cómo decirle al servidor su versión
-(R5.5); hay un ciclo entre `users` y `sign-in`; y el despliegue en la VM del proyecto anterior
+(R5.5); hay un ciclo entre `users` y `sign-in`; y el despliegue en la VM compartida
 choca por el puerto 443. Hay también dos ADR que contradicen las reglas (ADR-006 y la prueba de lo
 hecho sin conexión del ADR-015).
 
@@ -78,7 +78,7 @@ hecho sin conexión del ADR-015).
 | 8.x | Mejoras de fondo (código por el canal, ventana del código atada a la lectura, despliegue antes) | Mejora |
 | 9.1 | Los límites y las herramientas de `pnpm check` no están | Frena |
 | 9.2 | El `.env` está incompleto para que el código de pruebas y producción sea el mismo | Frena |
-| 9.3 | La misma VM que el proyecto anterior: dos Caddy en el 443 | Frena |
+| 9.3 | La VM compartida: dos Caddy en el 443 | Frena |
 | 9.4 | Los certificados de Caddy y la auditoría, sin volumen | Mejora importante |
 | 9.5 | Las migraciones y la vuelta atrás del despliegue | Mejora importante |
 | 9.6 | Docker sin privilegios y el puerto 443 | Mejora |
@@ -514,7 +514,7 @@ no puede ser el de Google). § 10 no las lista. También falta decir que el serv
 falta una.
 
 **9.3 · La máquina (§ 16) — Frena.**
-«La misma VM del proyecto anterior, un proyecto de compose aparte»: los dos Caddy quieren el puerto
+«La misma VM, un proyecto de compose aparte»: los dos Caddy quieren el puerto
 443, y solo uno puede tenerlo. Si se usa la misma máquina, hace falta un solo Caddy para los dos
 dominios (y eso toca el otro proyecto) o una máquina nueva. Es una pregunta para Carlos, pero el
 diseño tiene que decir la consecuencia.
