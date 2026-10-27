@@ -26,8 +26,9 @@ unitarias y tarda en arrancar; levantar el sistema completo para cada prueba la 
 - **Pruebas que cuentan las consultas:** cada pedido importante tiene una prueba que comprueba
   cuántas consultas hace, para que no aparezcan consultas dentro de un bucle.
 - **Meta:** todas las unitarias en menos de 30 segundos.
-- **De punta a punta, con Playwright,** pocas: los caminos principales, en los dos anchos. Corren
-  antes de cerrar un módulo, no en cada subida.
+- **De punta a punta, con Playwright,** pocas: los caminos principales y lo que una unitaria no
+  puede probar, cada uno en el ancho donde pasa, armadas para tardar lo mínimo. Corren antes de
+  cerrar un módulo, no en cada subida.
 
 ## Opciones descartadas
 

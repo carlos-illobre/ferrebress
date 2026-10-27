@@ -473,10 +473,32 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
 
 - **Cobertura del 100 %.** Fuera de la cuenta, solo lo que habla con el hardware del navegador
   (`navigator.credentials`, la cámara), que se prueba de punta a punta.
-- **De punta a punta (Playwright, en los dos anchos):** entrar con Google (botón y emisor de prueba,
-  desde el `.env`), vincular la huella y entrar con ella (autenticador virtual de Chromium), entrar
-  a la computadora leyendo el QR desde un segundo navegador, salir, sesión vencida, sin conexión,
-  y las cabeceras de seguridad que pone Caddy.
+- **De punta a punta (Playwright):** solo lo que una unitaria no puede probar, cada camino en el
+  ancho donde pasa. Lo demás (sesión vencida, sin conexión, «Entrando», los avisos, Más en el
+  celular, el service worker) ya lo cubren las unitarias.
+  1. **Entrar con Google y salir, en la computadora:** con el emisor de prueba, el botón en su
+     marco con su política de contenido y los mensajes entre las dos páginas, la cookie y la llave
+     de la sesión contra el servidor, y «Salir», que la cierra y pide un `nonce` nuevo.
+  2. **Vincular la huella y entrar con ella, en el celular:** con el autenticador virtual de
+     Chromium; Google, «¿Entrar con la huella la próxima vez?», vincular, salir y entrar solo con
+     la huella.
+  3. **Entrar a la computadora con el QR, con dos navegadores:** la computadora muestra el código,
+     el celular con la huella lo lee y la computadora entra sola; prueba el canal en tiempo real,
+     la misma red y la reserva del código.
+  4. **Las cabeceras de Caddy, sin navegador:** un pedido a la aplicación y otro al marco de
+     Google; la política estricta en la aplicación, la excepción de estilos solo en el marco y las
+     demás cabeceras de seguridad.
+
+  **Para que tarden lo mínimo:**
+  - El servidor, Caddy y la base se levantan una sola vez para todas, y el navegador también; cada
+    prueba abre su propio contexto, que es lo que tarda milisegundos.
+  - Las tres corren en paralelo, cada una con su cuenta, sin depender de lo que dejó otra.
+  - Nada de esperas fijas: se espera lo que tiene que aparecer, con un tope corto.
+  - Lo que no es lo que se prueba se prepara por la API y no por la pantalla: la 2 y la 3 entran
+    con Google por pedido directo y recién ahí usan la pantalla para lo suyo.
+  - Sin imágenes ni letras de afuera, sin animaciones (`reducedMotion`) y sin capturas salvo
+    cuando una falla.
+  - La 4 es un pedido común, sin abrir el navegador.
 - **Una prueba por ataque:** cada riesgo de § 13 y de la revisión de seguridad tiene una prueba que
   lo intenta y falla: un correo reasignado, un código cancelado sin el secreto de la reserva, una
   firma de otro desafío, un pedido sin `Origin` o sin cuerpo, un cuerpo de más de 64 KB, un emisor

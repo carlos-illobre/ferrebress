@@ -90,8 +90,10 @@ que midió el cronómetro; si eso no se puede saber, lleva la hora del dispositi
   prueba de punta a punta (ADR-005).
 - **El código de las pruebas y el de producción es el mismo.** Lo que cambia entre ambientes sale
   del `.env`.
-- Las pruebas de punta a punta cubren los caminos principales, en el ancho del celular y en el
-  de la computadora.
+- Las pruebas de punta a punta son pocas, porque tardan: solo los caminos principales y lo que una
+  unitaria no puede probar (el navegador de verdad con el servidor y Caddy, varios dispositivos, el
+  hardware). Cada camino corre en el ancho donde pasa (el celular, la computadora o los dos), y
+  todas juntas tienen que tardar lo mínimo posible.
 
 ### VIII. Seguro por defecto
 
