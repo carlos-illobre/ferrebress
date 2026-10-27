@@ -159,8 +159,8 @@ Entrar va fuera del marco, a pantalla completa. Cada parte abre en su primera pe
 
 **Computadora (1366 × 768)** — `desktop-frame.html`
 - Lateral blanco de 216 px (`.lateral`): el logotipo con el botón de minimizar a su derecha, las
-  cinco partes (44 px, ícono + nombre). La
-  elegida va en `--pino-suave` con una raya naranja a la izquierda; Vender lleva la insignia con
+  cinco partes (44 px, ícono + nombre), a 21 px del logotipo. La elegida va con fondo
+  `--pino-suave`, bordes redondeados y el nombre y el ícono en `--pino`, sin raya; Vender lleva la insignia con
   los renglones de la venta en curso; Más, una pastilla ámbar si hay anomalías.
 - Al pie del lateral: el espejo con el celular (`.vinculo`, verde si están juntos), la conexión
   («En línea · todo enviado» / ámbar «Sin conexión · 2 por enviar») y la persona.
