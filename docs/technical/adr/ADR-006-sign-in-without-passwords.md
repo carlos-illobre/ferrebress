@@ -16,7 +16,8 @@
   - Si no, un QR propio que vence a los 60 segundos y sirve una sola vez. El celular muestra qué
     computadora pide la entrada y pide la huella.
 - **Sesiones opacas** guardadas en la base y en la memoria del servidor: comprobar una no consulta
-  la base, y cerrarla a distancia se nota al instante (decisión 28).
+  la base, y cerrarla a distancia se nota al instante (decisión 28). El detalle, y por qué no JWT,
+  está en el ADR-015.
 
 ## Riesgos considerados
 

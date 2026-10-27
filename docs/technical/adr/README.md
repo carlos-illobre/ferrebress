@@ -22,3 +22,4 @@ Cada tecnología elegida tiene su ADR, con las opciones, los pros, los contras y
 | [ADR-012](ADR-012-server-libraries.md) | Hono, Kysely y Zod en el servidor | Aceptado |
 | [ADR-013](ADR-013-app-libraries.md) | Preact, Vite y CSS sin herramientas en la aplicación | A confirmar |
 | [ADR-014](ADR-014-hosting-and-deployment.md) | Dónde corre y cómo se despliega | Aceptado |
+| [ADR-015](ADR-015-sessions-not-jwt.md) | Sesiones propias guardadas en el servidor, no JWT | Aceptado |

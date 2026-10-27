@@ -319,3 +319,7 @@ cambia, sin depender de documentos que no están en este repositorio.
 
 59. **Antes de cada módulo, su alcance** (2026-10-26). Antes de empezar a trabajar en un módulo,
     el agente le lista a Carlos todo lo que abarca, para que evalúe si se puede dividir.
+
+60. **Sesiones propias que vencen a las 8 horas** (2026-10-27). La sesión es un pase propio sin
+    datos, guardado en el servidor y en una cookie protegida; no JWT (ADR-015). Vence a las 8 horas
+    por omisión, y un Administrador puede cambiar ese tiempo desde Administración.
