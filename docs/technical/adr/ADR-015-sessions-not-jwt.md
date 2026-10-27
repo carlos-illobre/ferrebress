@@ -1,6 +1,6 @@
 # ADR-015: Sesiones propias guardadas en el servidor, no JWT
 
-**Estado:** aceptado (2026-10-27, decisiones 60 y 61). Precisa la parte de sesiones del ADR-006.
+**Estado:** aceptado (2026-10-27, decisiones 60, 61 y 62). Precisa la parte de sesiones del ADR-006.
 
 ## Contexto
 
@@ -54,13 +54,28 @@ de la aplicación.
 - **Vencimiento por falta de uso:** la sesión vence después de 60 minutos sin pedidos al servidor;
   cada pedido vuelve a contar desde cero (decisiones 60 y 61). Un Administrador cambia ese tiempo
   desde Administración; hasta que exista ese módulo, sale de la configuración. Lo cuenta el reloj
-  del servidor.
+  del servidor. Solo cuentan los pedidos al servidor: no se mira si la persona toca la pantalla.
+- **Tope:** la sesión vence a las 8 horas de haber entrado, aunque se esté usando; ningún pedido lo
+  extiende (decisión 62). Así, una sesión robada o mantenida viva con pedidos automáticos dura
+  como mucho 8 horas. También se cambia desde Administración.
+- **Lo hecho sin conexión** se guarda junto con la huella del pase de quien lo hizo. El servidor lo
+  acepta a nombre de esa persona solo si el pase es suyo y su sesión no fue cerrada a mano ni la
+  persona dada de baja; que el pase haya vencido no importa, porque solo prueba quién lo hizo. El
+  cronómetro del dispositivo solo decide cuándo mostrar la entrada; nunca qué acepta el servidor.
 - **Se termina** al salir, al vencer, cuando alguien la cierra a distancia o cuando la persona es
   dada de baja.
 - **Con varias copias del servidor:** cada una busca en la base el pase que no tiene en memoria,
   una sola vez. Al cerrar una sesión, la copia que la cierra la borra de la base y avisa a las
   demás con `LISTEN/NOTIFY` de PostgreSQL, que la sacan de su memoria al instante. No hace falta que
   una persona caiga siempre en la misma copia, ni sumar Redis.
+
+## Por qué los dos tiempos no van en un JWT
+
+El tope cabría en el vencimiento de un JWT, pero los 60 minutos sin uso no: el pase no sabe cuándo
+se usó por última vez. Habría que guardarlo en el servidor (y ya sería una lista de sesiones) o
+emitir pases de minutos con un segundo pase de renovación que también hay que guardar y poder
+anular. Con sesiones, los dos tiempos son dos restas sobre una fila (`created_at`,
+`last_used_at`, `closed_at`), en el archivo de reglas, y se prueban con fechas fijas.
 
 ## Consecuencias
 

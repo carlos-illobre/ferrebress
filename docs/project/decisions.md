@@ -327,3 +327,8 @@ cambia, sin depender de documentos que no están en este repositorio.
 61. **La sesión vence a los 60 minutos sin uso** (2026-10-27). Precisa la 60: el tiempo se cuenta
     desde el último uso, no desde que se entró, y por omisión es de 60 minutos. Un Administrador
     lo cambia desde Administración.
+
+62. **La sesión tiene un tope de 8 horas** (2026-10-27). Además de vencer a los 60 minutos sin
+    uso, vence a las 8 horas de haber entrado, aunque se esté usando. Un Administrador lo cambia
+    desde Administración. Solo cuentan como uso los pedidos al servidor, y lo hecho sin conexión
+    se prueba con el pase de quien lo hizo (ADR-015).
