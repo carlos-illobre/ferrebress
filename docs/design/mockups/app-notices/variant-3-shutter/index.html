@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Los avisos · 3 · La persiana</title>
+<!-- Los avisos del marco · variante 3, La persiana: nada flota sobre el trabajo. Avisa el propio
+     marco, como avisa un local: la espera corre por el borde del menú y habla desde la luz; la
+     versión nueva es una etiqueta que cuelga del logotipo; el bloqueo es la persiana del negocio
+     que baja (y se sube para actualizar); «Algo salió mal» corre la pantalla a un costado, tal
+     cual estaba, y esa pantalla en chico es la captura que va en el aviso. Rompe a propósito la
+     calma del lenguaje en el bloqueo. Una sola página: desde 900 px es la computadora. El marco
+     de fondo es ../../app-frame/final/, sin tocar. -->
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="../shared.css">
+<script src="../../../common/icons.js"></script>
+<script src="../../../common/navigate.js" defer></script>
+<style>
+  /* =================== 1 · La espera: corre por el borde del menú y habla desde la luz =================== */
+  .borde-espera { position: fixed; z-index: 20; left: 213px; top: 7px; bottom: 7px; width: 4px; overflow: hidden; border-radius: 4px; background: rgb(18 56 47 / .08); }
+  .borde-espera b { position: absolute; inset: 0; background: var(--accion); transform-origin: 50% 0; transform: scaleY(0); transition: transform 250ms linear; }
+  .borde-espera.sin b { height: 30%; transform: none; transition: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .borde-espera.sin b { animation: p-baja 1.4s var(--curva) infinite; }
+  }
+  @keyframes p-baja { from { transform: translateY(-100%); } to { transform: translateY(340%); } }
+  .borde-espera.hecho b { background: var(--logro); }
+
+  /* La luz habla: en su lugar, qué se está haciendo y cuánto falta. */
+  .luz-habla { position: fixed; z-index: 21; left: 8px; bottom: 134px; width: 200px; min-height: 48px; display: grid; grid-template-columns: 24px 1fr; gap: 0 8px; align-items: center; padding: 6px 12px 6px 10px; border-radius: var(--r); background: var(--accion-suave); color: var(--accion-texto); box-shadow: 0 0 0 2px var(--superficie); }
+  .luz-habla .gira, .luz-habla .ok { grid-row: span 2; width: 24px; height: 24px; display: grid; place-items: center; }
+  .luz-habla .ok { display: none; }
+  .luz-habla b { font-size: 14px; font-weight: 800; line-height: 18px; }
+  .luz-habla small { font-size: 14px; font-weight: 600; line-height: 18px; opacity: .85; }
+  .luz-habla.hecho { background: var(--logro-suave); color: var(--logro-texto); }
+  .luz-habla.hecho .gira { display: none; } .luz-habla.hecho .ok { display: grid; }
+
+  /* =================== 2 · La versión nueva: una etiqueta que cuelga del logotipo =================== */
+  .etiqueta-pos { position: fixed; z-index: 22; left: 150px; top: 56px; width: 0; height: 0; }
+  .etiqueta { position: absolute; left: -16px; top: 0; transform-origin: 16px 0; touch-action: none; cursor: grab; }
+  .etiqueta .hilo { position: absolute; left: 15px; top: -4px; width: 2px; height: 30px; background: var(--texto-3); border-radius: 2px; }
+  .etiqueta .hilo::before { content: ""; position: absolute; left: -3px; top: -4px; width: 8px; height: 8px; border-radius: 99px; background: var(--texto-2); }
+  .etiqueta .cartelito { position: relative; margin-top: 24px; width: 232px; padding: 22px 14px 12px; border-radius: 6px 6px 14px 14px; background: var(--urgente-suave); border: 1px solid #ecd49c; box-shadow: var(--sombra-3); color: var(--urgente-texto); clip-path: polygon(16% 0, 84% 0, 100% 14px, 100% 100%, 0 100%, 0 14px); }
+  .etiqueta .ojal { position: absolute; left: 10px; top: 21px; width: 12px; height: 12px; border-radius: 99px; background: var(--fondo); border: 2px solid #ecd49c; }
+  .etiqueta b { display: block; font-size: 16px; font-weight: 800; line-height: 22px; color: var(--tinta); padding-left: 16px; }
+  .etiqueta p { margin: 2px 0 10px; font-size: 14px; line-height: 20px; }
+  .etiqueta .acciones { display: flex; gap: 8px; }
+  .etiqueta .acciones .btn-oscuro { flex: 1; }
+  .etiqueta .cerrar { position: absolute; right: 6px; top: 12px; width: 32px; height: 32px; min-height: 32px; padding: 0; border: 0; background: transparent; color: var(--urgente-texto); box-shadow: none; }
+  .etiqueta .gesto { margin: 8px 0 0; font-size: 14px; color: var(--urgente-texto); opacity: .8; }
+  .etiqueta.va .acciones { opacity: .5; pointer-events: none; }
+
+  /* =================== 3 · La persiana: baja sobre todo; se sube para actualizar =================== */
+  .persiana { position: fixed; inset: 0; z-index: 935; display: grid; place-items: center; touch-action: none;
+    background:
+      linear-gradient(180deg, rgb(0 0 0 / .18), transparent 18%, transparent 80%, rgb(0 0 0 / .22)),
+      repeating-linear-gradient(180deg, #7f8682 0 2px, #b9beb9 2px 5px, #cfd3ce 5px 15px, #a4aaa5 15px 18px, #8b918d 18px 20px);
+    box-shadow: 0 12px 30px rgb(0 0 0 / .35); }
+  .persiana .chapa { width: 460px; padding: 28px 28px 24px; border-radius: 10px; background: var(--superficie); border: 3px solid var(--tinta); box-shadow: 0 10px 0 -4px rgb(0 0 0 / .18), var(--sombra-3); text-align: center; }
+  .persiana .chapa .tornillo { position: absolute; width: 10px; height: 10px; border-radius: 99px; background: var(--borde-fuerte); }
+  .persiana .chapa { position: relative; }
+  .persiana .chapa .t1 { left: 10px; top: 10px; } .persiana .chapa .t2 { right: 10px; top: 10px; } .persiana .chapa .t3 { left: 10px; bottom: 10px; } .persiana .chapa .t4 { right: 10px; bottom: 10px; }
+  .persiana h2 { margin: 0 0 8px; }
+  .persiana p { margin: 0 0 20px; color: var(--texto-2); }
+  .persiana .btn { width: 100%; }
+  .persiana .pie { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: flex; align-items: center; justify-content: center; gap: 12px; background: linear-gradient(180deg, #5f6662, #474d4a); color: #fff; font-weight: 700; font-size: 15px; cursor: grab; }
+  .persiana .manija { width: 120px; height: 12px; border-radius: 99px; background: #2c312f; box-shadow: inset 0 2px 3px rgb(0 0 0 / .5), 0 1px 0 rgb(255 255 255 / .2); }
+  .persiana .pie .flecha { display: inline-grid; transform: rotate(-90deg); }
+
+  /* =================== 4 · Algo salió mal: la pantalla da un paso al costado =================== */
+  .escena { transition: transform 420ms var(--curva); }
+  body.aparte .escena { transform: translate(-306px, -40px) scale(.5); box-shadow: 0 0 0 1px var(--borde-fuerte), var(--sombra-3); border-radius: 12px; overflow: hidden; cursor: pointer; }
+  body.aparte .escena > * { pointer-events: none; }
+  .rotulo-captura { position: fixed; z-index: 25; left: 40px; top: 112px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--texto-2); }
+  .rotulo-captura .pastilla { height: 28px; }
+  .rotulo-abajo { position: fixed; z-index: 25; left: 40px; top: 552px; width: 560px; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .rotulo-abajo .btn { margin-top: 8px; }
+  .panel-error { position: fixed; z-index: 26; right: 40px; top: 50%; width: 560px; margin-top: -300px; max-height: calc(100vh - 32px); overflow: auto; padding: 28px; border-radius: var(--r-hoja); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-3); }
+  .panel-error .cab { display: flex; gap: 14px; align-items: center; margin-bottom: 16px; }
+  .panel-error .cab .ico { flex: none; width: 48px; height: 48px; border-radius: 99px; display: grid; place-items: center; background: var(--error-suave); color: var(--error-texto); }
+  .panel-error h2 { margin: 0; }
+  .panel-error .cab p { margin: 0; color: var(--texto-2); font-size: 15px; }
+  .panel-error .hacer { margin: 0 0 16px; padding: 12px 14px; border-radius: var(--r); background: var(--logro-suave); color: var(--logro-texto); font-weight: 650; font-size: 15px; line-height: 22px; display: flex; gap: 10px; }
+  .panel-error .t-etiqueta { margin: 0 0 8px; }
+  .linea-tiempo { list-style: none; margin: 0 0 16px; padding: 0; }
+  .linea-tiempo li { position: relative; display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; min-height: 36px; font-size: 14px; font-weight: 600; }
+  .linea-tiempo li::before { content: ""; position: absolute; left: 13px; top: 28px; bottom: -8px; width: 2px; background: var(--borde); }
+  .linea-tiempo li:last-child::before { display: none; }
+  .linea-tiempo .p { width: 28px; height: 28px; border-radius: 99px; display: grid; place-items: center; background: var(--hundido); color: var(--texto-2); position: relative; z-index: 1; }
+  .linea-tiempo li.fallo .p { background: var(--error); color: #fff; }
+  .linea-tiempo li.fallo { color: var(--error-texto); font-weight: 750; }
+  .linea-tiempo time { color: var(--texto-3); }
+  .voz { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px dashed var(--borde-fuerte); border-radius: var(--r); margin-bottom: 16px; }
+  .voz .btn { flex: none; }
+  .voz span.txt { font-size: 14px; line-height: 20px; color: var(--texto-2); flex: 1; }
+  .voz .onda { display: none; align-items: center; gap: 3px; height: 24px; flex: 1; }
+  .voz .onda i { width: 4px; height: 24px; border-radius: 4px; background: var(--error); transform: scaleY(.3); }
+  .voz.graba .onda { display: flex; } .voz.graba span.txt { display: none; }
+  .voz.graba .btn { background: var(--error); border-color: var(--error); color: #fff; }
+  @media (prefers-reduced-motion: no-preference) { .voz.graba .onda i { animation: p-onda 700ms ease-in-out infinite alternate; } }
+  .voz .onda i:nth-child(2n) { animation-delay: -.2s !important; } .voz .onda i:nth-child(3n) { animation-delay: -.45s !important; } .voz .onda i:nth-child(5n) { animation-delay: -.1s !important; }
+  @keyframes p-onda { to { transform: scaleY(1); } }
+  .panel-error .nota { margin: 0 0 16px; font-size: 14px; line-height: 20px; color: var(--texto-2); display: flex; gap: 8px; }
+  .panel-error .botones { display: flex; justify-content: flex-end; gap: 8px; }
+  .gesto-celu { display: none; }
+
+  /* =================== Celular =================== */
+  @media (max-width: 899px) {
+    .borde-espera { left: 7px; right: 7px; top: auto; bottom: 90px; width: auto; height: 4px; }
+    .borde-espera b { transform-origin: 0 50%; transform: scaleX(0); }
+    .borde-espera.sin b { width: 30%; height: auto; }
+    @media (prefers-reduced-motion: no-preference) { .borde-espera.sin b { animation-name: p-corre; } }
+    .luz-habla { left: 16px; top: 82px; bottom: auto; width: auto; min-height: 40px; grid-template-columns: 20px auto auto; gap: 8px; padding: 0 14px 0 10px; border-radius: 999px; }
+    .luz-habla .gira, .luz-habla .ok { grid-row: auto; width: 20px; height: 20px; }
+    .luz-habla small { white-space: nowrap; }
+    .etiqueta-pos { left: 118px; top: 66px; }
+    .etiqueta .cartelito { width: 208px; }
+    .persiana .chapa { width: calc(100vw - 48px); padding: 24px 18px 20px; }
+    .persiana .pie { height: 76px; }
+    body.aparte .escena { transform: translate(0, -212px) scale(.34); }
+    .rotulo-captura { left: 16px; top: 30px; }
+    .rotulo-abajo { display: none; }
+    .panel-error { left: 0; right: 0; top: auto; bottom: 0; width: auto; margin: 0; max-height: 72vh; padding: 20px 16px 24px; border-radius: var(--r-hoja) var(--r-hoja) 0 0; }
+    .panel-error .cab .ico { width: 40px; height: 40px; }
+    .linea-tiempo li:nth-child(n+3) { display: none; }
+    .linea-tiempo time { display: none; }
+    .panel-error .botones { flex-direction: column-reverse; }
+    .panel-error .botones .btn { width: 100%; }
+    .gesto-celu { display: flex; justify-content: center; gap: 6px; margin: 12px 0 0; font-size: 14px; color: var(--texto-3); }
+  }
+  @keyframes p-corre { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+
+  /* =================== Movimiento =================== */
+  @media (prefers-reduced-motion: no-preference) {
+    .borde-espera.in, .luz-habla.in { animation: p-fundido 200ms var(--curva) both; }
+    .luz-habla.in { animation: p-voltea 320ms var(--rebote) both; }
+    .etiqueta-pos.in .etiqueta { animation: p-hamaca 1600ms cubic-bezier(.3,.6,.4,1) both; }
+    .persiana.in { animation: p-baja-persiana 760ms cubic-bezier(.5, 0, .3, 1.15) both; }
+    .persiana.sube { transition: transform 700ms cubic-bezier(.6, 0, .4, 1); transform: translateY(-100%) !important; }
+    .panel-error.in { animation: p-entra-der 380ms var(--curva) 120ms both; }
+    .rotulo-captura.in, .rotulo-abajo.in { animation: p-fundido 300ms var(--curva) 300ms both; }
+    .sale { animation: p-se-va 200ms var(--curva-salida) both !important; }
+  }
+  @media (prefers-reduced-motion: no-preference) and (max-width: 899px) { .panel-error.in { animation: p-sube 380ms var(--curva) 120ms both; } }
+  @keyframes p-fundido { from { opacity: 0; } }
+  @keyframes p-voltea { from { opacity: 0; transform: translateY(10px) scale(.96); } }
+  @keyframes p-hamaca { 0% { opacity: 0; transform: translateY(-40px) rotate(0); } 18% { opacity: 1; transform: rotate(14deg); } 40% { transform: rotate(-9deg); } 60% { transform: rotate(5deg); } 80% { transform: rotate(-2deg); } 100% { transform: rotate(0); } }
+  @keyframes p-baja-persiana { from { transform: translateY(-100%); } }
+  @keyframes p-entra-der { from { opacity: 0; transform: translateX(40px); } }
+  @keyframes p-sube { from { transform: translateY(100%); } }
+  @keyframes p-se-va { to { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<!-- 1 · La espera -->
+<div class="borde-espera" id="borde" hidden aria-hidden="true"><b id="borde-b"></b></div>
+<div class="luz-habla" id="luz" role="status" hidden>
+  <span class="gira"><i class="i i-s" data-i="refresh-cw"></i></span><span class="ok"><i class="i i-s" data-i="check"></i></span>
+  <b id="luz-que">Guardando</b><small id="luz-falta">faltan 5 s</small>
+</div>
+
+<!-- 2 · La etiqueta de la versión nueva -->
+<div class="etiqueta-pos" id="etiqueta-pos" hidden>
+  <div class="etiqueta" id="etiqueta" role="status" aria-label="Hay una versión nueva">
+    <span class="hilo"></span>
+    <div class="cartelito">
+      <span class="ojal"></span>
+      <b>Versión nueva</b>
+      <p><span class="largo">Tarda unos segundos y volvés a la misma parte.</span><span class="corto">Tarda unos segundos.</span></p>
+      <div class="acciones"><button type="button" class="btn btn-oscuro chico" id="version-si" data-key="a" data-enter>Actualizar<span class="kbd">A</span></button></div>
+      <p class="gesto"><span class="largo">Arrastrala afuera o Esc para cerrarla.</span><span class="corto">Tirala para cerrarla.</span></p>
+      <button type="button" class="btn cerrar" id="version-no" data-key="c" aria-label="Cerrar sin actualizar"><i class="i i-s" data-i="x"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- 3 · La persiana -->
+<section class="persiana" id="persiana" role="alertdialog" aria-modal="true" aria-labelledby="persiana-t" hidden>
+  <div class="chapa" data-sacude>
+    <span class="tornillo t1"></span><span class="tornillo t2"></span><span class="tornillo t3"></span><span class="tornillo t4"></span>
+    <h2 class="t-titulo" id="persiana-t">Hay que actualizar para seguir</h2>
+    <p class="t-cuerpo"><span class="largo">Esta versión ya no se entiende con el servidor. Lo que hiciste quedó guardado detrás de la persiana.</span><span class="corto">Lo que hiciste quedó guardado atrás.</span></p>
+    <button type="button" class="btn btn-accion grande" id="persiana-si" data-key="a" data-enter><span class="gira-ic"><i class="i" data-i="refresh-cw"></i></span>Actualizar<span class="kbd">Enter</span></button>
+  </div>
+  <div class="pie" id="manija"><span class="flecha"><i class="i" data-i="chevron-right"></i></span><span class="manija"></span><span><span class="largo">o subí la persiana</span><span class="corto">o subila</span></span></div>
+</section>
+
+<!-- 4 · Algo salió mal: la pantalla al costado y el panel -->
+<div class="rotulo-captura" id="rotulo" hidden><span class="pastilla logro"><span class="punto"></span>Tu pantalla, tal cual</span><span class="largo">Es la captura que va en el aviso</span></div>
+<div class="rotulo-abajo" id="rotulo-abajo" hidden>Tocala para volver a ella. Lo que estabas haciendo sigue ahí: nada se borró.</div>
+<section class="panel-error" id="error" role="alertdialog" aria-labelledby="error-t" hidden>
+  <div class="cab">
+    <span class="ico"><i class="i i-l" data-i="triangle-alert"></i></span>
+    <div><h2 class="t-titulo" id="error-t">Algo salió mal</h2><p>Código F-4821 · hoy 10:41</p></div>
+  </div>
+  <p class="hacer"><i class="i" data-i="undo-2"></i><span><span class="largo">Volvé a tu pantalla y probá de nuevo. Si se repite, avisalo: con esto se arregla.</span><span class="corto">Volvé y probá de nuevo.</span></span></p>
+  <p class="t-etiqueta">Lo último que pasó</p>
+  <ol class="linea-tiempo" id="pasos"></ol>
+  <div class="voz" id="voz">
+    <button type="button" class="btn btn-suave btn-icono" id="voz-b" data-key="z" aria-label="Contarlo con la voz"><i class="i" data-i="mic"></i></button>
+    <span class="txt"><span class="largo">Si querés, contá con tu voz qué estabas haciendo (opcional).</span><span class="corto">Contalo con tu voz (opcional).</span></span>
+    <span class="onda" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+  </div>
+  <p class="nota"><i class="i i-s" data-i="lock"></i><span><span class="largo">Sin datos de clientes ni tu sesión. Se guarda acá y se manda cuando esté Mejoras y errores.</span><span class="corto">Sin datos de clientes. Se manda más adelante.</span></span></p>
+  <div class="botones">
+    <button type="button" class="btn" id="error-volver" data-key="s">Volver sin avisar<span class="kbd">Esc</span></button>
+    <button type="button" class="btn btn-accion" id="error-avisar" data-key="v" data-enter><i class="i" data-i="send"></i>Avisar y volver<span class="kbd">Enter</span></button>
+  </div>
+  <p class="gesto-celu"><i class="i i-s" data-i="smartphone"></i>Desde cualquier pantalla: sacudí el celular para avisar.</p>
+</section>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  var A = Avisos, $ = function (id) { return document.getElementById(id); }, body = document.body;
+  var borde = $("borde"), luz = $("luz"), etqPos = $("etiqueta-pos"), etq = $("etiqueta"), persiana = $("persiana"), error = $("error");
+
+  $("pasos").innerHTML = A.PASOS.map(function (p) {
+    return '<li class="' + (p.fallo ? "fallo" : "") + '"><span class="p"><i class="i i-s" data-i="' + (p.fallo ? "x" : p.ic) + '"></i></span><span>' + p.donde + " · " + p.que + "</span><time>" + p.hora.slice(0, 5) + "</time></li>";
+  }).join("");
+
+  function setBarra(frac) {
+    $("borde-b").style.transform = A.angosto() ? "scaleX(" + frac + ")" : "scaleY(" + frac + ")";
+  }
+
+  A.variante = {
+    limpiar: function () {
+      [borde, luz, etqPos, persiana, error, $("rotulo"), $("rotulo-abajo")].forEach(function (el) { el.hidden = true; el.classList.remove("in", "sale", "hecho", "sin", "sube"); });
+      persiana.style.transform = ""; etq.style.transform = ""; etq.classList.remove("va");
+      body.classList.remove("aparte"); $("voz").classList.remove("graba");
+    },
+    espera: {
+      mostrar: function (info) {
+        borde.classList.toggle("sin", !info.sabe); luz.classList.remove("hecho");
+        $("luz-que").textContent = "Guardando";
+        setBarra(info.sabe ? .28 : 0);
+        if (!info.sabe) $("borde-b").style.transform = "";
+        A.mostrar(borde); A.mostrar(luz);
+      },
+      avanzar: function (frac, faltan, info) {
+        $("luz-falta").textContent = info.sabe ? "faltan " + faltan + " s" : "un momento";
+        if (info.sabe) setBarra(frac);
+      },
+      terminar: function () {
+        borde.classList.remove("sin"); borde.classList.add("hecho"); luz.classList.add("hecho"); setBarra(1);
+        $("luz-que").textContent = "Guardado"; $("luz-falta").textContent = "recién";
+        setTimeout(function () { A.ocultar(borde); A.ocultar(luz); }, 1100);
+      }
+    },
+    version: function () { A.mostrar(etqPos); A.abrirCapa(etqPos, cerrarVersion); },
+    bloqueo: function () {
+      body.classList.add("tapa-todo");
+      A.mostrar(persiana);
+      A.abrirCapa(persiana, null);
+      $("persiana-si").focus({ preventScroll: true });
+    },
+    error: function () {
+      body.classList.add("tapa-todo", "aparte");
+      A.mostrar($("rotulo")); A.mostrar($("rotulo-abajo")); A.mostrar(error);
+      A.abrirCapa(error, function () { volver(false); });
+    }
+  };
+
+  // ---- La etiqueta: Actualizar, la × o tirarla afuera ----
+  function cerrarVersion(lejos) {
+    A.cerrarCapa(etqPos);
+    if (lejos && !A.reducido) {
+      etq.animate([{ transform: etq.style.transform || "none" }, { transform: "translate(" + lejos.x + "px," + lejos.y + "px) rotate(" + (lejos.x > 0 ? 40 : -40) + "deg)", opacity: 0 }], { duration: 260, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" })
+        .onfinish = function () { etqPos.hidden = true; etq.getAnimations().forEach(function (a) { a.cancel(); }); etq.style.transform = ""; };
+    } else A.ocultar(etqPos);
+    A.tostada("No vuelve a aparecer hasta que abras la aplicación de nuevo.", "clock");
+  }
+  $("version-no").addEventListener("click", function () { cerrarVersion(); });
+  $("version-si").addEventListener("click", function () { etq.classList.add("va"); setTimeout(function () { A.recargar(); }, 500); });
+  (function () {
+    var x0, y0, dx = 0, dy = 0, arrastra = false;
+    etq.addEventListener("pointerdown", function (e) {
+      if (e.target.closest("button")) return;
+      arrastra = true; x0 = e.clientX; y0 = e.clientY; dx = dy = 0; etq.setPointerCapture(e.pointerId); etq.style.cursor = "grabbing";
+    });
+    etq.addEventListener("pointermove", function (e) {
+      if (!arrastra) return;
+      dx = e.clientX - x0; dy = e.clientY - y0;
+      etq.style.transform = "translate(" + dx + "px," + dy + "px) rotate(" + Math.max(-30, Math.min(30, dx / 6)) + "deg)";
+    });
+    etq.addEventListener("pointerup", function () {
+      if (!arrastra) return; arrastra = false; etq.style.cursor = "";
+      if (Math.hypot(dx, dy) > 140) cerrarVersion({ x: dx * 3, y: dy * 3 });
+      else if (!A.reducido) { etq.animate([{ transform: etq.style.transform }, { transform: "rotate(" + (-dx / 10) + "deg)" }, { transform: "none" }], { duration: 500, easing: "cubic-bezier(.34,1.4,.64,1)" }); etq.style.transform = ""; }
+      else etq.style.transform = "";
+    });
+  })();
+
+  // ---- La persiana: Actualizar o subirla con el dedo ----
+  function subir() {
+    var b = $("persiana-si"); b.classList.add("esperando");
+    persiana.style.transform = "";
+    persiana.classList.add("sube");
+    if (A.reducido) persiana.style.transform = "translateY(-100%)";
+    setTimeout(function () { b.classList.remove("esperando"); A.recargar(); }, A.reducido ? 200 : 650);
+  }
+  $("persiana-si").addEventListener("click", subir);
+  (function () {
+    var y0, dy = 0, arrastra = false, man = $("manija");
+    man.addEventListener("pointerdown", function (e) { arrastra = true; y0 = e.clientY; dy = 0; man.setPointerCapture(e.pointerId); });
+    man.addEventListener("pointermove", function (e) { if (!arrastra) return; dy = Math.min(0, e.clientY - y0); persiana.style.transform = "translateY(" + dy + "px)"; });
+    man.addEventListener("pointerup", function () {
+      if (!arrastra) return; arrastra = false;
+      if (-dy > window.innerHeight * .3) subir();
+      else { if (!A.reducido) persiana.animate([{ transform: "translateY(" + dy + "px)" }, { transform: "none" }], { duration: 420, easing: "cubic-bezier(.34,1.4,.64,1)" }); persiana.style.transform = ""; }
+    });
+  })();
+
+  // ---- Algo salió mal: volver a la pantalla, con o sin aviso ----
+  function volver(conAviso) {
+    A.cerrarCapa(error);
+    A.ocultar(error); A.ocultar($("rotulo")); A.ocultar($("rotulo-abajo"));
+    body.classList.remove("aparte", "tapa-todo");
+    $("voz").classList.remove("graba");
+    setTimeout(function () {
+      A.atras.classList.remove("sigue"); void A.atras.offsetWidth; A.atras.classList.add("sigue");
+      if (conAviso) A.tostada("<b>Aviso guardado" + ($("voz").dataset.grabo ? ", con tu voz" : "") + ".</b> Se manda solo cuando esté Mejoras y errores.", "check");
+    }, A.reducido ? 0 : 380);
+  }
+  $("error-volver").addEventListener("click", function () { volver(false); });
+  $("error-avisar").addEventListener("click", function () { volver(true); });
+  A.escena.addEventListener("click", function () { if (body.classList.contains("aparte")) volver(false); });
+  $("voz-b").addEventListener("click", function () {
+    var v = $("voz"); v.classList.toggle("graba");
+    if (v.classList.contains("graba")) v.dataset.grabo = "1";
+  });
+
+  A.empezar();
+})();
+</script>
+</body>
+</html>

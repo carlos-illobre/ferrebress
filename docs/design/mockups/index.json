@@ -23,6 +23,19 @@
     { "device": "phone", "name": "2 · El tablero", "path": "mockups/app-frame/variant-2-pegboard/index.html" },
     { "device": "phone", "name": "3 · Una sola puerta", "path": "mockups/app-frame/variant-3-one-door/index.html" }
    ]
+  },
+  {
+   "id": "app-notices",
+   "title": "Los avisos del marco",
+   "module": "01 · Entrar",
+   "variants": [
+    { "device": "desktop", "name": "1 · Evolución", "path": "mockups/app-notices/variant-1-evolution/index.html" },
+    { "device": "desktop", "name": "2 · La isla", "path": "mockups/app-notices/variant-2-island/index.html" },
+    { "device": "desktop", "name": "3 · La persiana", "path": "mockups/app-notices/variant-3-shutter/index.html" },
+    { "device": "phone", "name": "1 · Evolución", "path": "mockups/app-notices/variant-1-evolution/index.html" },
+    { "device": "phone", "name": "2 · La isla", "path": "mockups/app-notices/variant-2-island/index.html" },
+    { "device": "phone", "name": "3 · La persiana", "path": "mockups/app-notices/variant-3-shutter/index.html" }
+   ]
   }
  ]
 }

@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Los avisos · 1 · Evolución</title>
+<!-- Los avisos del marco · variante 1, Evolución: cada aviso es una pieza conocida del lenguaje
+     «Mostrador», en su lugar de siempre. La espera es una línea arriba del área y una tarjeta chica
+     abajo; la versión nueva, una tarjeta en la esquina; el bloqueo, un diálogo que no se cierra;
+     «Algo salió mal», un diálogo que muestra qué se manda. Una sola página: desde 900 px es la
+     computadora; debajo, el celular. El marco de fondo es ../../app-frame/final/, sin tocar. -->
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="../shared.css">
+<script src="../../../common/icons.js"></script>
+<script src="../../../common/navigate.js" defer></script>
+<style>
+  /* =================== 1 · La espera: línea arriba del área + tarjeta chica abajo =================== */
+  .v1-linea { position: fixed; z-index: 20; left: var(--area-izq); right: var(--area-der); top: var(--area-arriba); height: 3px; overflow: hidden; background: rgb(18 56 47 / .08); }
+  .v1-linea b { position: absolute; inset: 0; background: var(--pino); transform-origin: 0 50%; transform: scaleX(0); transition: transform 250ms linear; }
+  .v1-linea.sin b { width: 30%; transform: none; transition: none; }
+  @media (prefers-reduced-motion: no-preference) { .v1-linea.sin b { animation: v1-barrido 1.3s var(--curva) infinite; } }
+  @keyframes v1-barrido { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+
+  .v1-espera { position: fixed; z-index: 21; left: calc((100vw + var(--area-izq) - var(--area-der)) / 2); bottom: calc(var(--area-abajo) + 24px); width: 440px; margin-left: -220px; display: grid; grid-template-columns: 40px 1fr; gap: 4px 12px; align-items: center; padding: 14px 16px; border: 1px solid var(--borde); border-radius: var(--r-tarjeta); background: var(--superficie); box-shadow: var(--sombra-3); }
+  .v1-espera .ico { grid-row: span 2; width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino-texto); }
+  .v1-espera .ico .listo { display: none; }
+  .v1-espera.hecho .ico { background: var(--logro-suave); color: var(--logro-texto); }
+  .v1-espera.hecho .ico .gira { display: none; } .v1-espera.hecho .ico .listo { display: block; }
+  .v1-espera .que { font-size: 16px; font-weight: 750; line-height: 22px; display: flex; justify-content: space-between; gap: 12px; }
+  .v1-espera .falta { font-size: 14px; font-weight: 650; color: var(--texto-2); white-space: nowrap; }
+  .v1-espera .barra { margin: 0; }
+  .v1-espera .barra > b { background: var(--pino); transform-origin: 0 50%; transform: scaleX(0); transition: transform 250ms linear; width: 100%; }
+  .v1-espera.sin .barra > b { width: 30%; transform: none; transition: none; }
+  @media (prefers-reduced-motion: no-preference) { .v1-espera.sin .barra > b { animation: v1-barrido 1.3s var(--curva) infinite; } }
+  .v1-espera.hecho .barra > b { background: var(--logro); }
+
+  /* =================== 2 · La versión nueva: tarjeta en la esquina =================== */
+  .v1-version { position: fixed; z-index: 22; right: calc(var(--area-der) + 24px); bottom: calc(var(--area-abajo) + 24px); width: 380px; display: grid; grid-template-columns: 40px 1fr; gap: 12px; padding: 16px; border: 1px solid var(--borde); border-radius: var(--r-tarjeta); background: var(--superficie); box-shadow: var(--sombra-3); }
+  .v1-version .ico { width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino-texto); }
+  .v1-version b { display: block; font-size: 16px; font-weight: 800; line-height: 22px; }
+  .v1-version p { margin: 2px 0 0; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .v1-version .acciones { grid-column: 2; display: flex; justify-content: flex-end; gap: 8px; }
+  .v1-version .actualizando { display: none; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--pino-texto); }
+  .v1-version.va .acciones .btn { display: none; } .v1-version.va .actualizando { display: inline-flex; }
+
+  /* =================== 3 · El bloqueo: un diálogo sin forma de cerrarlo =================== */
+  .v1-velo { position: fixed; inset: 0; z-index: 30; background: rgb(26 29 27 / .3); }
+  .v1-dialogo { position: fixed; z-index: 31; left: 50%; top: 50%; width: 460px; margin: -190px 0 0 -230px; padding: 32px; border-radius: var(--r-hoja); background: var(--superficie); box-shadow: var(--sombra-3); text-align: center; }
+  .v1-dialogo .ico-grande { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino); }
+  .v1-dialogo h2 { margin: 0 0 8px; }
+  .v1-dialogo p { margin: 0 0 24px; color: var(--texto-2); }
+  .v1-dialogo .btn { width: 100%; }
+  .v1-dialogo .version { margin: 16px 0 0; font-size: 14px; color: var(--texto-3); }
+
+  /* =================== 4 · Algo salió mal: diálogo que muestra qué se manda =================== */
+  .v1-error { position: fixed; z-index: 31; left: 50%; top: 50%; width: 600px; margin: -282px 0 0 -300px; padding: 28px; border-radius: var(--r-hoja); background: var(--superficie); box-shadow: var(--sombra-3); }
+  .v1-error .cab { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px; }
+  .v1-error .cab .ico { flex: none; width: 48px; height: 48px; border-radius: 99px; display: grid; place-items: center; background: var(--error-suave); color: var(--error-texto); }
+  .v1-error .cab h2 { margin: 0 0 4px; }
+  .v1-error .cab p { margin: 0; color: var(--texto-2); }
+  .v1-error .t-etiqueta { margin: 0 0 8px; }
+  .v1-error ol.hacer { margin: 0 0 20px; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: h; }
+  .v1-error ol.hacer li { display: flex; gap: 12px; align-items: center; font-weight: 600; counter-increment: h; }
+  .v1-error ol.hacer li::before { content: counter(h); flex: none; width: 28px; height: 28px; border-radius: 99px; display: grid; place-items: center; background: var(--hundido); font-size: 14px; font-weight: 800; }
+  .v1-error .manda { display: flex; gap: 16px; padding: 12px; border-radius: var(--r); background: var(--hundido); }
+  .v1-error .pasos { align-content: start; list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 14px; line-height: 20px; min-width: 0; }
+  .v1-error .pasos li { display: flex; gap: 8px; }
+  .v1-error .pasos time { color: var(--texto-3); font-weight: 600; flex: none; }
+  .v1-error .pasos li.fallo { color: var(--error-texto); font-weight: 700; }
+  .v1-error .nota { display: flex; gap: 8px; align-items: flex-start; margin: 12px 0 0; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .v1-error .nota .i { color: var(--logro-texto); margin-top: 0; }
+  .v1-error .pie { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 20px; }
+  .v1-error .pie .codigo { font-size: 14px; color: var(--texto-3); font-weight: 600; }
+  .v1-error .pie .botones { display: flex; gap: 8px; }
+  .v1-error .tilde { display: none; }
+  .v1-error.listo .btn-accion .i:not(.tilde), .v1-error.listo .btn-accion .kbd { display: none; }
+  .v1-error.listo .btn-accion .tilde { display: inline-block; }
+  .tilde path { stroke-dasharray: 24; stroke-dashoffset: 0; }
+
+  /* =================== Celular: lo mismo, abajo y bajo el pulgar =================== */
+  @media (max-width: 899px) {
+    .v1-espera { left: 16px; right: 16px; width: auto; margin: 0; bottom: calc(var(--area-abajo) + 12px); }
+    .v1-version { left: 12px; right: 12px; width: auto; bottom: calc(var(--area-abajo) + 12px); }
+    .v1-version .acciones .btn { flex: 1; }
+    .v1-version .acciones { grid-column: 1 / -1; }
+    .v1-dialogo, .v1-error { left: 0; right: 0; top: auto; bottom: 0; width: auto; margin: 0; padding: 24px 16px calc(24px + env(safe-area-inset-bottom)); border-radius: var(--r-hoja) var(--r-hoja) 0 0; }
+    .v1-dialogo { padding-top: 32px; }
+    .v1-error .cab { margin-bottom: 16px; }
+    .v1-error .cab .ico { width: 40px; height: 40px; }
+    .v1-error .manda { gap: 12px; }
+    .v1-error .pasos li:nth-child(n+3) { display: none; }
+    .v1-error .pasos time { display: none; }
+    .v1-error .pie { flex-direction: column-reverse; align-items: stretch; }
+    .v1-error .pie .botones { flex-direction: column-reverse; }
+    .v1-error .pie .btn { width: 100%; }
+    .v1-error .pie .codigo { text-align: center; }
+  }
+
+  /* =================== Movimiento (solo transform y opacity) =================== */
+  @media (prefers-reduced-motion: no-preference) {
+    .v1-espera.in { animation: v1-sube 240ms var(--curva) both; }
+    .v1-linea.in { animation: v1-fundido 200ms var(--curva) both; }
+    .v1-version.in { animation: v1-desliza 320ms var(--rebote) both; }
+    .v1-velo.in { animation: v1-fundido 200ms var(--curva) both; }
+    .v1-dialogo.in, .v1-error.in { animation: v1-aparece 260ms var(--curva) both; }
+    .v1-espera.sale, .v1-linea.sale, .v1-version.sale, .v1-velo.sale, .v1-dialogo.sale, .v1-error.sale { animation: v1-se-va 200ms var(--curva-salida) both; }
+    .v1-error.listo .tilde path { animation: v1-tilde 300ms var(--curva) both; }
+  }
+  @media (prefers-reduced-motion: no-preference) and (max-width: 899px) {
+    .v1-version.in { animation: v1-sube-hoja 320ms var(--rebote) both; }
+    .v1-dialogo.in, .v1-error.in { animation: v1-sube-hoja 320ms var(--curva) both; }
+  }
+  @keyframes v1-fundido { from { opacity: 0; } }
+  @keyframes v1-sube { from { opacity: 0; transform: translateY(8px); } }
+  @keyframes v1-desliza { from { opacity: 0; transform: translateX(24px); } }
+  @keyframes v1-sube-hoja { from { transform: translateY(100%); } }
+  @keyframes v1-aparece { from { opacity: 0; transform: scale(.96); } }
+  @keyframes v1-se-va { to { opacity: 0; transform: translateY(6px); } }
+  @keyframes v1-tilde { from { stroke-dashoffset: 24; } }
+</style>
+</head>
+<body>
+
+<!-- 1 · La espera -->
+<div class="v1-linea" id="linea" hidden aria-hidden="true"><b></b></div>
+<div class="v1-espera" id="espera" role="status" hidden>
+  <span class="ico"><span class="gira"><i class="i" data-i="refresh-cw"></i></span><i class="i listo" data-i="check"></i></span>
+  <span class="que"><span id="espera-que">Guardando los cambios</span><span class="falta" id="espera-falta">Faltan 5 s</span></span>
+  <div class="barra"><b id="espera-barra"></b></div>
+</div>
+
+<!-- 2 · Hay una versión nueva -->
+<aside class="v1-version" id="version" role="status" aria-label="Hay una versión nueva" hidden>
+  <span class="ico"><i class="i" data-i="sparkles"></i></span>
+  <div>
+    <b>Hay una versión nueva</b>
+    <p><span class="largo">Actualizá cuando termines: tarda unos segundos y volvés a la misma parte, sin perder nada.</span><span class="corto">Tarda unos segundos y no perdés nada.</span></p>
+  </div>
+  <div class="acciones">
+    <button type="button" class="btn btn-fantasma chico" id="version-no" data-key="c">Ahora no<span class="kbd">Esc</span></button>
+    <button type="button" class="btn btn-oscuro chico" id="version-si" data-key="a" data-enter>Actualizar<span class="kbd">A</span></button>
+    <span class="actualizando"><span class="gira"><i class="i i-s" data-i="refresh-cw"></i></span>Actualizando…</span>
+  </div>
+</aside>
+
+<!-- 3 · Hay que actualizar para seguir -->
+<div class="v1-velo" id="velo" hidden></div>
+<section class="v1-dialogo" id="bloqueo" role="alertdialog" aria-modal="true" aria-labelledby="bloqueo-t" hidden>
+  <div class="ico-grande" data-sacude><i class="i i-xl" data-i="refresh-cw"></i></div>
+  <h2 class="t-titulo" id="bloqueo-t">Hay que actualizar para seguir</h2>
+  <p class="t-cuerpo"><span class="largo">Esta versión ya no se entiende con el servidor. Actualizar tarda unos segundos y lo que hiciste sigue ahí.</span><span class="corto">Esta versión ya no sirve. Lo que hiciste sigue ahí.</span></p>
+  <button type="button" class="btn btn-accion grande" id="bloqueo-si" data-key="a" data-enter><span class="gira-ic" hidden><i class="i" data-i="refresh-cw"></i></span>Actualizar<span class="kbd">Enter</span></button>
+  <p class="version">Tenés la versión 1.14 · la del servidor es la 1.16</p>
+</section>
+
+<!-- 4 · Algo salió mal -->
+<section class="v1-error" id="error" role="alertdialog" aria-modal="true" aria-labelledby="error-t" hidden>
+  <div class="cab">
+    <span class="ico"><i class="i i-l" data-i="triangle-alert"></i></span>
+    <div>
+      <h2 class="t-titulo" id="error-t">Algo salió mal</h2>
+      <p><span class="largo">No fue por algo que hiciste. Lo que estabas haciendo sigue ahí, tal cual.</span><span class="corto">Lo que estabas haciendo sigue ahí.</span></p>
+    </div>
+  </div>
+  <p class="t-etiqueta">Qué hacer</p>
+  <ol class="hacer">
+    <li><span class="largo">Tocá «Seguir» y probá de nuevo lo que estabas haciendo.</span><span class="corto">Tocá «Seguir» y probá de nuevo.</span></li>
+    <li><span class="largo">Si vuelve a pasar, avisalo: así se arregla.</span><span class="corto">Si vuelve a pasar, avisalo.</span></li>
+  </ol>
+  <p class="t-etiqueta">Lo que va en el aviso</p>
+  <div class="manda">
+    <div id="error-mini"></div>
+    <ul class="pasos" id="error-pasos"></ul>
+  </div>
+  <p class="nota"><i class="i i-s" data-i="lock"></i><span><span class="largo">Sin datos de clientes ni tu sesión. Queda guardado en este dispositivo y se manda solo cuando esté Mejoras y errores.</span><span class="corto">Sin datos de clientes. Se manda solo más adelante.</span></span></p>
+  <div class="pie">
+    <span class="codigo">Código F-4821 · 10:41</span>
+    <div class="botones">
+      <button type="button" class="btn" id="error-seguir" data-key="s">Seguir sin avisar<span class="kbd">Esc</span></button>
+      <button type="button" class="btn btn-accion" id="error-avisar" data-key="v" data-enter><i class="i" data-i="send"></i><svg class="i tilde" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="txt">Avisar y seguir</span><span class="kbd">Enter</span></button>
+    </div>
+  </div>
+</section>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  var A = Avisos, $ = function (id) { return document.getElementById(id); };
+  var linea = $("linea"), espera = $("espera"), version = $("version"), velo = $("velo"), bloqueo = $("bloqueo"), error = $("error");
+
+  // Los pasos del aviso y la captura en chico.
+  $("error-mini").innerHTML = A.MINI;
+  $("error-pasos").innerHTML = A.PASOS.map(function (p) {
+    return '<li class="' + (p.fallo ? "fallo" : "") + '"><time>' + p.hora.slice(0, 5) + "</time><span>" + p.donde + " · " + p.que + "</span></li>";
+  }).join("");
+
+  A.variante = {
+    limpiar: function () {
+      [linea, espera, version, velo, bloqueo, error].forEach(function (el) { el.hidden = true; el.classList.remove("in", "sale"); });
+      version.classList.remove("va"); error.classList.remove("listo");
+      $("error-avisar").querySelector(".txt").textContent = "Avisar y seguir";
+    },
+    espera: {
+      mostrar: function (info) {
+        espera.classList.toggle("sin", !info.sabe); linea.classList.toggle("sin", !info.sabe); espera.classList.remove("hecho");
+        $("espera-que").textContent = A.angosto() ? info.queCorto : info.que;
+        $("espera-barra").style.transform = info.sabe ? "scaleX(.28)" : "";
+        linea.querySelector("b").style.transform = info.sabe ? "scaleX(.28)" : "";
+        A.mostrar(linea); A.mostrar(espera);
+      },
+      avanzar: function (frac, faltan, info) {
+        $("espera-falta").textContent = info.sabe ? "Faltan " + faltan + " s" : (A.angosto() ? "Un momento" : "Puede tardar un poco");
+        if (info.sabe) { $("espera-barra").style.transform = "scaleX(" + frac + ")"; linea.querySelector("b").style.transform = "scaleX(" + frac + ")"; }
+      },
+      terminar: function () {
+        espera.classList.remove("sin"); espera.classList.add("hecho");
+        $("espera-que").textContent = "Listo"; $("espera-falta").textContent = "";
+        $("espera-barra").style.transform = "scaleX(1)";
+        setTimeout(function () { A.ocultar(espera); A.ocultar(linea); }, 900);
+      }
+    },
+    version: function () {
+      A.mostrar(version);
+      A.abrirCapa(version, cerrarVersion);
+    },
+    bloqueo: function () {
+      document.body.classList.add("tapa-todo");
+      A.mostrar(velo); A.mostrar(bloqueo);
+      A.abrirCapa(bloqueo, null);   // Esc no lo cierra: se sacude (00 · R5.5)
+      $("bloqueo-si").focus({ preventScroll: true });
+    },
+    error: function () {
+      A.mostrar(velo); A.mostrar(error);
+      A.abrirCapa(error, seguir);
+    }
+  };
+
+  function cerrarVersion() {
+    A.cerrarCapa(version);
+    A.ocultar(version);
+    A.tostada("No vuelve a aparecer: se actualiza sola la próxima vez que abras la aplicación.", "clock");
+  }
+  $("version-no").addEventListener("click", cerrarVersion);
+  $("version-si").addEventListener("click", function () {
+    version.classList.add("va");
+    setTimeout(function () { A.recargar(); }, 600);
+  });
+
+  $("bloqueo-si").addEventListener("click", function () {
+    var b = $("bloqueo-si"); b.querySelector(".gira-ic").hidden = false; b.classList.add("esperando");
+    setTimeout(function () { b.classList.remove("esperando"); b.querySelector(".gira-ic").hidden = true; A.recargar(); }, 700);
+  });
+  // Tocar fuera del bloqueo no hace nada: se sacude para decir que hay que actualizar.
+  velo.addEventListener("click", function () { if (!bloqueo.hidden) A.sacudir(bloqueo); });
+
+  function seguir() {
+    A.cerrarCapa(error);
+    A.ocultar(error); A.ocultar(velo, function () {
+      A.atras.classList.remove("sigue"); void A.atras.offsetWidth; A.atras.classList.add("sigue");
+    });
+  }
+  $("error-seguir").addEventListener("click", seguir);
+  $("error-avisar").addEventListener("click", function () {
+    error.classList.add("listo");
+    $("error-avisar").querySelector(".txt").textContent = "Aviso guardado";
+    setTimeout(function () {
+      seguir();
+      A.tostada("<b>Aviso guardado.</b> Se manda solo cuando esté Mejoras y errores.", "check");
+    }, 700);
+  });
+
+  A.empezar();
+})();
+</script>
+</body>
+</html>

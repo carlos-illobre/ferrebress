@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Los avisos · 2 · La isla</title>
+<!-- Los avisos del marco · variante 2, La isla: no hay cuatro piezas distintas, hay una sola.
+     Una cápsula oscura que vive siempre en el mismo lugar (abajo del área: en la computadora, centrada
+     en el área de trabajo; en el celular, sobre el menú y bajo el pulgar) y crece según lo que tiene que decir:
+     chica para la espera, un poco más para la versión nueva, una tarjeta para «Algo salió mal» y
+     todo lo necesario para el bloqueo. Siempre se transforma desde donde estaba, nunca aparece
+     de la nada. Una sola página: desde 900 px es la computadora. El marco de fondo es
+     ../../app-frame/final/, sin tocar. -->
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="../shared.css">
+<script src="../../../common/icons.js"></script>
+<script src="../../../common/navigate.js" defer></script>
+<style>
+  /* =================== La isla: dónde está (una caja) y qué forma tiene (otra) =================== */
+  .velo { position: fixed; inset: 0; z-index: 30; background: rgb(26 29 27 / .32); opacity: 0; pointer-events: none; transition: opacity 260ms var(--curva); }
+  body.con-velo .velo { opacity: 1; pointer-events: auto; }
+
+  .isla-pos { position: fixed; z-index: 40; left: calc((100vw + var(--area-izq) - var(--area-der)) / 2); bottom: calc(var(--area-abajo) + 24px); transform: translateX(-50%); }
+  .isla-pos[data-modo="bloqueo"] { left: 50%; top: 50%; bottom: auto; transform: translate(-50%, -50%); }
+  .isla { position: relative; overflow: hidden; color: #fff; background: var(--pino); border-radius: 999px; box-shadow: var(--sombra-3); transform-origin: 0 0; }
+  .isla-pos[data-modo="error"] .isla, .isla-pos[data-modo="bloqueo"] .isla { border-radius: 28px; }
+  .isla-pos[hidden] { display: none; }
+  .isla .isla-cont { opacity: 1; transition: opacity 160ms var(--curva); }
+  .isla.morfando .isla-cont { opacity: 0; transition: none; }
+  .isla .modo { display: none; }
+  .isla-pos[data-modo="espera"] .m-espera, .isla-pos[data-modo="version"] .m-version, .isla-pos[data-modo="listo"] .m-listo,
+  .isla-pos[data-modo="bloqueo"] .m-bloqueo, .isla-pos[data-modo="error"] .m-error { display: block; }
+
+  /* Piezas oscuras: botones sobre el pino. */
+  .isla .btn-claro { background: #fff; border-color: #fff; color: var(--pino); box-shadow: none; }
+  .isla .btn-velo { background: rgb(255 255 255 / .12); border-color: transparent; color: #fff; box-shadow: none; }
+  .isla .kbd { background: rgb(255 255 255 / .16); border-color: rgb(255 255 255 / .2); color: #fff; }
+  .isla .btn-claro .kbd { background: var(--hundido); border-color: var(--borde); color: var(--pino); }
+  .isla small, .isla .gris { color: rgb(255 255 255 / .72); }
+
+  /* ---- 1 · Espera: la cápsula chica, con la barra en su borde de abajo ---- */
+  .m-espera .fila { display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 20px 0 14px; white-space: nowrap; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .m-espera .fila .gira, .m-espera .fila .ok { width: 24px; height: 24px; display: grid; place-items: center; }
+  .m-espera .ok { display: none !important; color: #7fe0ae; }
+  .isla-pos.hecho .m-espera .gira { display: none; } .isla-pos.hecho .m-espera .ok { display: grid !important; }
+  .m-espera .falta { color: rgb(255 255 255 / .72); font-weight: 650; }
+  .m-espera .riel { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgb(255 255 255 / .14); }
+  .m-espera .riel b { position: absolute; inset: 0; background: var(--accion); transform-origin: 0 50%; transform: scaleX(0); transition: transform 250ms linear; }
+  .isla-pos.sin .m-espera .riel b { width: 30%; transform: none; transition: none; }
+  @media (prefers-reduced-motion: no-preference) { .isla-pos.sin .m-espera .riel b { animation: i-barrido 1.3s var(--curva) infinite; } }
+  @keyframes i-barrido { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+  .isla-pos.hecho .m-espera .riel b { background: var(--logro); }
+  .m-espera .detalle { display: none; padding: 0 20px 16px 50px; font-size: 14px; line-height: 20px; white-space: normal; max-width: 360px; }
+  .isla-pos.abierta .m-espera .detalle { display: block; }
+
+  /* ---- 2 · Versión nueva: la cápsula se estira y suma «Actualizar» ---- */
+  .m-version .fila { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 8px 0 18px; white-space: nowrap; }
+  .m-version b { font-size: 15px; font-weight: 750; }
+  .m-version small { font-size: 14px; font-weight: 600; }
+  .m-version .btn { min-height: 40px; border-radius: 999px; }
+  .m-version .cerrar { width: 40px; padding: 0; }
+
+  /* ---- 3 · Bloqueo: la isla se vuelve todo lo que hay ---- */
+  .m-bloqueo { width: 460px; padding: 36px 32px 28px; text-align: center; }
+  .m-bloqueo .ico { width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 99px; display: grid; place-items: center; background: rgb(255 255 255 / .1); color: #fff; }
+  .m-bloqueo h2 { margin: 0 0 8px; color: #fff; }
+  .m-bloqueo p { margin: 0 0 24px; color: rgb(255 255 255 / .78); }
+  .m-bloqueo .btn { width: 100%; }
+  .m-bloqueo .gris { margin: 16px 0 0; font-size: 14px; }
+
+  /* ---- 4 · Algo salió mal: la isla baja y se abre como una tarjeta ---- */
+  .m-error { width: 560px; padding: 20px 20px 16px; }
+  .m-error .cab { display: flex; align-items: center; gap: 12px; }
+  .m-error .cab .ico { flex: none; width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; background: var(--error); color: #fff; }
+  .m-error .cab b { display: block; font-size: 20px; font-weight: 800; line-height: 26px; }
+  .m-error .cab small { display: block; font-size: 14px; line-height: 20px; }
+  .m-error .que-hacer { margin: 16px 0 0; padding: 12px 14px; border-radius: 14px; background: rgb(255 255 255 / .08); font-size: 15px; line-height: 22px; font-weight: 600; }
+  .m-error .que-hacer b { color: #ffd0bd; }
+  .m-error .tira { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 14px 0 0; padding: 0; list-style: none; overflow: hidden; }
+  .m-error .tira li { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border-radius: 999px; background: rgb(255 255 255 / .1); font-size: 14px; font-weight: 650; white-space: nowrap; }
+  .m-error .tira li.fallo { background: var(--error); }
+  .m-error .tira .sep { color: rgb(255 255 255 / .45); background: none; padding: 0; }
+  .m-error .lleva { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  .m-error .lleva .mini-captura { width: 104px; height: 66px; }
+  .m-error .lleva small { font-size: 14px; line-height: 20px; }
+  .m-error .botones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+  /* ---- Aviso guardado: vuelve a ser cápsula y se va ---- */
+  .m-listo .fila { display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 20px 0 14px; white-space: nowrap; font-weight: 700; font-size: 15px; }
+  .m-listo .fila .i { color: #7fe0ae; }
+  .tilde path { stroke-dasharray: 24; stroke-dashoffset: 0; }
+  @media (prefers-reduced-motion: no-preference) { .isla-pos[data-modo="listo"] .tilde path { animation: i-tilde 300ms var(--curva) both; } }
+  @keyframes i-tilde { from { stroke-dashoffset: 24; } }
+
+  /* =================== Celular: la isla vive abajo, sobre el menú, bajo el pulgar =================== */
+  @media (max-width: 899px) {
+    .isla-pos { top: auto; bottom: calc(var(--area-abajo) + 12px); left: 50%; }
+    .isla-pos[data-modo="error"], .isla-pos[data-modo="bloqueo"] { left: 12px; right: 12px; top: auto; bottom: 12px; transform: none; }
+    .isla-pos[data-modo="error"] { bottom: calc(var(--area-abajo) + 12px); }
+    .m-bloqueo, .m-error { width: auto; }
+    .m-bloqueo { padding: 32px 20px 20px; }
+    .m-version .fila { padding-left: 16px; gap: 8px; }
+    .m-version small { display: none; }
+    .m-error .tira li:nth-child(n+4) { display: none; }
+    .m-error .lleva .mini-captura { width: 48px; height: 84px; }
+    .m-error .botones .btn { flex: 1; }
+  }
+
+  /* =================== Movimiento =================== */
+  @media (prefers-reduced-motion: no-preference) {
+    .isla-pos.in .isla { animation: i-nace 360ms var(--rebote) both; }
+    .isla-pos.sale .isla { animation: i-muere 200ms var(--curva-salida) both; }
+  }
+  @keyframes i-nace { from { opacity: 0; transform: scale(.4); } }
+  @keyframes i-muere { to { opacity: 0; transform: scale(.6); } }
+  .isla.respira { animation: none; }
+  @media (prefers-reduced-motion: no-preference) { .isla.respira { animation: i-respira 520ms var(--rebote); } }
+  @keyframes i-respira { 40% { transform: scale(1.04); } }
+</style>
+</head>
+<body>
+
+<div class="velo" id="velo"></div>
+
+<div class="isla-pos" id="pos" data-modo="espera" hidden>
+  <div class="isla" id="isla">
+    <div class="isla-cont">
+
+      <!-- 1 · Espera -->
+      <div class="modo m-espera" role="status">
+        <div class="fila" id="espera-fila" title="Tocá para ver más">
+          <span class="gira"><i class="i" data-i="refresh-cw"></i></span><span class="ok"><i class="i" data-i="check"></i></span>
+          <span id="espera-que">Guardando los cambios</span><span class="falta" id="espera-falta">· 5 s</span>
+        </div>
+        <div class="detalle" id="espera-detalle">Mandando 3 renglones al servidor. Lo que tocaste queda quieto hasta que termine; lo demás sigue andando.</div>
+        <span class="riel"><b id="espera-riel"></b></span>
+      </div>
+
+      <!-- 2 · Versión nueva -->
+      <div class="modo m-version" role="status">
+        <div class="fila">
+          <i class="i" data-i="sparkles"></i>
+          <span><b>Versión nueva</b> <small class="gris">· tarda unos segundos</small></span>
+          <button type="button" class="btn btn-claro chico" id="version-si" data-key="a" data-enter>Actualizar<span class="kbd">A</span></button>
+          <button type="button" class="btn btn-velo chico cerrar" id="version-no" data-key="c" aria-label="Cerrar sin actualizar"><i class="i" data-i="x"></i></button>
+        </div>
+      </div>
+
+      <!-- 3 · Hay que actualizar para seguir -->
+      <div class="modo m-bloqueo" role="alertdialog" aria-modal="true" aria-labelledby="bloqueo-t">
+        <div class="ico" data-sacude><i class="i i-xl" data-i="refresh-cw"></i></div>
+        <h2 class="t-titulo" id="bloqueo-t">Hay que actualizar para seguir</h2>
+        <p class="t-cuerpo"><span class="largo">Esta versión ya no se entiende con el servidor. Tarda unos segundos y lo que hiciste sigue ahí.</span><span class="corto">Tarda unos segundos. Lo que hiciste sigue ahí.</span></p>
+        <button type="button" class="btn btn-accion grande" id="bloqueo-si" data-key="a" data-enter><span class="gira-ic"><i class="i" data-i="refresh-cw"></i></span>Actualizar<span class="kbd">Enter</span></button>
+        <p class="gris">Versión 1.14 · el servidor ya está en la 1.16</p>
+      </div>
+
+      <!-- 4 · Algo salió mal -->
+      <div class="modo m-error" role="alertdialog" aria-labelledby="error-t">
+        <div class="cab">
+          <span class="ico"><i class="i" data-i="triangle-alert"></i></span>
+          <div><b id="error-t">Algo salió mal</b><small><span class="largo">Lo que estabas haciendo sigue ahí, tal cual. Código F-4821.</span><span class="corto">Lo tuyo sigue ahí.</span></small></div>
+        </div>
+        <p class="que-hacer"><span class="largo"><b>Para seguir:</b> volvé y probá de nuevo. Si se repite, avisalo y probá desde otra parte del menú.</span><span class="corto"><b>Para seguir:</b> volvé y probá de nuevo.</span></p>
+        <ol class="tira" id="tira" aria-label="Los últimos pasos"></ol>
+        <div class="lleva" id="lleva"><small><span class="largo">El aviso lleva esta captura y los pasos, sin datos de clientes ni tu sesión. Se guarda acá y se manda cuando esté Mejoras y errores.</span><span class="corto">Lleva la captura y los pasos, sin datos de clientes.</span></small></div>
+        <div class="botones">
+          <button type="button" class="btn btn-velo" id="error-seguir" data-key="s">Volver<span class="kbd">Esc</span></button>
+          <button type="button" class="btn btn-accion" id="error-avisar" data-key="v" data-enter><i class="i" data-i="send"></i>Avisar y volver<span class="kbd">Enter</span></button>
+        </div>
+      </div>
+
+      <!-- Aviso guardado -->
+      <div class="modo m-listo" role="status">
+        <div class="fila"><svg class="i tilde" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span id="listo-txt">Aviso guardado · se manda solo</span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  var A = Avisos, $ = function (id) { return document.getElementById(id); };
+  var pos = $("pos"), isla = $("isla"), body = document.body;
+
+  $("tira").innerHTML = A.PASOS.slice().reverse().map(function (p, i, arr) {
+    return '<li class="' + (p.fallo ? "fallo" : "") + '"><i class="i i-s" data-i="' + p.ic + '"></i>' + p.que.replace(" (lo escrito no se manda)", "") + "</li>" + (i < arr.length - 1 ? '<li class="sep" aria-hidden="true">›</li>' : "");
+  }).join("");
+  $("lleva").insertAdjacentHTML("afterbegin", A.MINI);
+
+  // La isla cambia de forma desde donde estaba (FLIP, solo transform): se mide antes y después.
+  function modo(m, extra) {
+    var antes = pos.hidden ? null : isla.getBoundingClientRect();
+    pos.dataset.modo = m;
+    pos.classList.remove("hecho", "sin", "abierta");
+    if (extra) extra();
+    if (pos.hidden) { A.mostrar(pos); return; }
+    var despues = isla.getBoundingClientRect();
+    if (!antes || A.reducido) return;
+    var sx = antes.width / despues.width, sy = antes.height / despues.height;
+    isla.classList.add("morfando");
+    isla.animate([
+      { transform: "translate(" + (antes.left - despues.left) + "px," + (antes.top - despues.top) + "px) scale(" + sx + "," + sy + ")" },
+      { transform: "none" }
+    ], { duration: 380, easing: "cubic-bezier(.2,.8,.2,1)" });
+    setTimeout(function () { isla.classList.remove("morfando"); }, 200);
+  }
+  function irse(fn) { A.ocultar(pos, fn); body.classList.remove("con-velo"); }
+
+  A.variante = {
+    limpiar: function () { pos.hidden = true; pos.classList.remove("in", "sale", "hecho", "sin", "abierta"); body.classList.remove("con-velo"); },
+    espera: {
+      mostrar: function (info) {
+        modo("espera", function () { pos.classList.toggle("sin", !info.sabe); });
+        $("espera-que").textContent = A.angosto() ? info.queCorto : info.que;
+        $("espera-riel").style.transform = info.sabe ? "scaleX(.28)" : "";
+      },
+      avanzar: function (frac, faltan, info) {
+        $("espera-falta").textContent = info.sabe ? "· " + faltan + " s" : "· un momento";
+        if (info.sabe) $("espera-riel").style.transform = "scaleX(" + frac + ")";
+      },
+      terminar: function () {
+        pos.classList.remove("sin", "abierta"); pos.classList.add("hecho");
+        $("espera-que").textContent = "Guardado"; $("espera-falta").textContent = "";
+        $("espera-riel").style.transform = "scaleX(1)";
+        setTimeout(function () { if (pos.dataset.modo === "espera") irse(); }, 900);
+      }
+    },
+    version: function () { modo("version"); A.abrirCapa(pos, cerrarVersion); },
+    bloqueo: function () {
+      body.classList.add("tapa-todo", "con-velo");
+      modo("bloqueo");
+      A.abrirCapa(pos, null);
+      $("bloqueo-si").focus({ preventScroll: true });
+    },
+    error: function () {
+      body.classList.add("con-velo");
+      modo("error");
+      A.abrirCapa(pos, volver);
+    }
+  };
+
+  // Tocar la cápsula de espera la abre y dice más.
+  $("espera-fila").addEventListener("click", function () { pos.classList.toggle("abierta"); });
+
+  function cerrarVersion() {
+    A.cerrarCapa(pos);
+    irse(function () { A.tostada("No vuelve a aparecer hasta que abras la aplicación de nuevo.", "clock"); });
+  }
+  $("version-no").addEventListener("click", cerrarVersion);
+  $("version-si").addEventListener("click", function () {
+    A.cerrarCapa(pos);
+    modo("espera", function () { $("espera-que").textContent = "Actualizando"; $("espera-falta").textContent = "· 2 s"; $("espera-riel").style.transform = "scaleX(.5)"; });
+    setTimeout(function () { A.recargar(); }, 800);
+  });
+
+  $("bloqueo-si").addEventListener("click", function () {
+    $("bloqueo-si").classList.add("esperando");
+    setTimeout(function () { $("bloqueo-si").classList.remove("esperando"); A.recargar(); }, 700);
+  });
+  $("velo").addEventListener("click", function () {
+    if (pos.dataset.modo === "bloqueo") { isla.classList.remove("respira"); void isla.offsetWidth; isla.classList.add("respira"); }
+  });
+
+  function volver(conAviso) {
+    A.cerrarCapa(pos);
+    body.classList.remove("con-velo");
+    A.atras.classList.remove("sigue"); void A.atras.offsetWidth; A.atras.classList.add("sigue");
+    if (conAviso === true) {
+      modo("listo");
+      setTimeout(function () { if (pos.dataset.modo === "listo") irse(); }, 1800);
+    } else irse();
+  }
+  $("error-seguir").addEventListener("click", function () { volver(false); });
+  $("error-avisar").addEventListener("click", function () { volver(true); });
+
+  A.empezar();
+})();
+</script>
+</body>
+</html>
