@@ -1,0 +1,33 @@
+{
+  "name": "ferrebress",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.15.0",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "check": "pnpm types && pnpm lint && pnpm imports && pnpm repeated && pnpm secrets && pnpm vulnerable && pnpm sizes && pnpm links && pnpm test",
+    "types": "tsc --build",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "imports": "depcruise src --config .dependency-cruiser.cjs",
+    "repeated": "jscpd src",
+    "secrets": "secretlint \"**/*\"",
+    "vulnerable": "pnpm audit --prod --audit-level high",
+    "sizes": "node tools/cli.ts sizes",
+    "links": "node tools/cli.ts links",
+    "test": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.3",
+    "@secretlint/secretlint-rule-preset-recommend": "13.1.0",
+    "@types/node": "24.19.2",
+    "@vitest/coverage-v8": "5.0.5",
+    "dependency-cruiser": "18.7.0",
+    "jscpd": "5.4.2",
+    "secretlint": "13.1.0",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

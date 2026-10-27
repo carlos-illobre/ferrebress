@@ -1,0 +1,8 @@
+{
+  "minLines": 8,
+  "threshold": 0,
+  "reporters": ["console"],
+  "ignore": ["**/*.test.ts", "**/*.test.tsx", "**/node_modules/**", "**/dist/**"],
+  "absolute": false,
+  "exitCode": 1
+}
