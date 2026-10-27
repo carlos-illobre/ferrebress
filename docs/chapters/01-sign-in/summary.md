@@ -2,7 +2,7 @@
 
 Entrar, salir y el marco vacío al que se llega. Reglas completas en [rules.md](rules.md).
 
-**Estado:** esperando la aprobación de Carlos.
+**Estado:** aprobado por Carlos el 2026-10-27.
 
 ## Cada regla en una línea
 
@@ -10,8 +10,8 @@ Entrar, salir y el marco vacío al que se llega. Reglas completas en [rules.md](
   configuración del ambiente; no autorizada o dada de baja, el mismo mensaje (R1).
 - **Cómo:** Google en la computadora y en el celular; huella en el celular, ofrecida una vez
   después del primer Google; un celular, una cuenta; la computadora entra con la huella del
-  celular leyendo su QR (60 s, un uso, muestra qué computadora pide), o con la entrada del
-  navegador si hay Bluetooth; sin conexión no se entra; límite de intentos (R2).
+  celular leyendo su QR (60 s, un uso, muestra qué computadora pide y desde qué ciudad), o con la entrada del
+  navegador si hay Bluetooth; sin conexión no se entra; límite de intentos por dispositivo y por cuenta (R2).
 - **Sesión:** vence a los 60 minutos sin pedidos y a las 8 horas de haber entrado, cambiables por
   un Administrador; al vencer, la entrada aparece encima y la misma persona sigue donde estaba (R3).
 - **Lo sin enviar:** queda en el dispositivo, se manda cuando entra cualquiera, a nombre de quien lo

@@ -15,3 +15,7 @@ Las que solo tocan este módulo. Las que valen para todo el proyecto están en
   la misma persona, sigue donde estaba; si entra otra, lo que estaba a medio hacer se descarta.
 - **01-D07** (2026-10-27) La entrada se adapta de la primera versión, sin tres variantes.
 - **01-D08** (2026-10-27) Antes de cada módulo se lista su alcance (también general: decisión 59).
+- **01-D09** (2026-10-27) Además del límite por dispositivo, como mucho 20 intentos fallidos por
+  hora por cuenta.
+- **01-D10** (2026-10-27) Al leer el QR, el celular muestra también la ciudad aproximada de la
+  computadora, sacada de su dirección de internet.

@@ -4,7 +4,7 @@ Entrar y salir de la aplicación, y el marco vacío al que se llega. Las persona
 sesiones de otros dispositivos están en el capítulo 02. Las reglas generales (el marco, el teclado,
 la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 
-**Estado:** esperando la aprobación de Carlos.
+**Estado:** aprobado por Carlos el 2026-10-27.
 
 ## 1. Quién puede entrar
 
@@ -36,8 +36,9 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   código QR. Con el celular se lo lee y se pone la huella en el celular, sin tocar nada más en la
   computadora y sin paso de confirmar:
   - El código se renueva cada 60 segundos y sirve una sola vez.
-  - Antes de pedir la huella, el celular muestra qué computadora pide entrar (por ejemplo, «Chrome
-    en Windows»).
+  - Antes de pedir la huella, el celular muestra qué computadora pide entrar y desde qué ciudad
+    aproximada (por ejemplo, «Chrome en Windows · Buenos Aires»), para notar un código copiado desde
+    una página falsa en otro lado (01-D10).
   - La computadora se entera en el momento, sin preguntar a ritmo fijo: espera por un canal
     abierto solo mientras el código está en pantalla (capítulo 00, R4.3).
 - **R2.6** Si el navegador de la computadora puede usar un celular cercano para entrar (passkeys
@@ -49,6 +50,9 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   hace falta internet».
 - **R2.9** Como mucho 10 intentos por minuto con Google y 20 con la huella, por dispositivo. Pasado
   eso, la entrada dice cuánto falta para volver a intentar.
+- **R2.10** Además, como mucho 20 intentos fallidos por hora por cuenta, desde cualquier
+  dispositivo. Pasado eso, esa cuenta espera hasta que se cumpla la hora, y queda anotado para la
+  auditoría (01-D09).
 
 ## 3. La sesión (ADR-015)
 
@@ -137,7 +141,7 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 - **E12** **Dado** la entrada de la computadora, **cuando** se la mira, **entonces** muestra un código
   QR que cambia cada 60 segundos.
 - **E13** **Dado** un celular con sesión, **cuando** lee el código, **entonces** muestra qué computadora
-  pide entrar y pide la huella; puesta la huella, la computadora entra sola, sin tocar nada en ella.
+  pide entrar y desde qué ciudad aproximada, y pide la huella; puesta la huella, la computadora entra sola, sin tocar nada en ella.
 - **E14** **Dado** un código ya usado, **cuando** otro celular lo lee, **entonces** no sirve.
 - **E15** **Dado** un código de hace más de 60 segundos, **cuando** se lo lee, **entonces** no sirve.
 - **E16** **Dado** un celular sin sesión, **cuando** lee el código, **entonces** primero entra el celular
@@ -153,6 +157,10 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   apagados y dice «Para entrar hace falta internet».
 - **E20** **Dado** 10 intentos con Google en un minuto desde un dispositivo, **cuando** se intenta otra
   vez, **entonces** no se intenta y la entrada dice cuánto falta para volver a probar.
+
+- **E20b** **Dado** 20 intentos fallidos en una hora con una misma cuenta, desde dispositivos
+  distintos, **cuando** se intenta de nuevo con esa cuenta, **entonces** no se intenta, la entrada dice
+  cuánto falta y queda anotado para la auditoría.
 
 ### La sesión
 
