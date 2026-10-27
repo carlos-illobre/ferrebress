@@ -5,6 +5,7 @@ import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import type { useCollapse } from './useCollapse.ts';
 import type { usePanels } from './usePanels.ts';
+import type { usePhoneMore } from './usePhoneMore.ts';
 import type { useTip } from './useTip.ts';
 
 export type FrameState = {
@@ -14,6 +15,7 @@ export type FrameState = {
   current: string | undefined;
   collapse: ReturnType<typeof useCollapse>;
   panels: ReturnType<typeof usePanels>;
+  phoneMore: ReturnType<typeof usePhoneMore>;
   tip: ReturnType<typeof useTip>;
   // Lo que todavía no está, al tocarlo: se sacude y lo dice (R1.3).
   notYet: (element: HTMLElement, name: string) => void;

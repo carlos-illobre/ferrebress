@@ -1,6 +1,6 @@
 /* El marco del celular (docs/design/mockups/app-frame/final/, debajo de 900 px): la cabecera, la luz,
-   el menú de abajo con la elegida en naranja, sin fondo ni raya, y las hojas de Más y lo pendiente,
-   que suben por encima del menú. */
+   el menú de abajo con la elegida en naranja, sin fondo ni raya, y la hoja de lo pendiente, que
+   sube por encima del menú. */
 @layer screens {
   @media (max-width: 899px) {
     .phone-top {
@@ -86,15 +86,9 @@
   .phone-part.opens {
     cursor: pointer;
   }
-  .phone-part[aria-current="page"],
-  .phone-part[aria-expanded="true"] {
+  .phone-part[aria-current="page"] {
     color: var(--action);
     font-weight: 800;
-  }
-  /* Con Más abierto, la elegida es Más: una sola en naranja. */
-  .more-open .phone-part[aria-current="page"] {
-    color: var(--text-2);
-    font-weight: 650;
   }
 
   .sheet.frame-sheet,
@@ -116,66 +110,5 @@
   }
   .frame-sheet .sheet-grabber {
     margin: 4px auto 12px;
-  }
-  .sheet-person {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: var(--radius-card);
-    background: var(--surface);
-    border: 1px solid var(--border);
-  }
-  .sheet-person b {
-    display: block;
-    font-size: 16px;
-    font-weight: 800;
-  }
-  .sheet-person small {
-    display: block;
-    font-size: 14px;
-    color: var(--text-2);
-  }
-  .sheet-options {
-    list-style: none;
-    margin: 16px 0 0;
-    padding: 0;
-    border-radius: var(--radius-card);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    overflow: hidden;
-  }
-  .sheet-options li + li {
-    border-top: 1px solid var(--border);
-  }
-  .sheet-option {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 56px;
-    padding: 8px 12px;
-    border: 0;
-    background: none;
-    text-align: left;
-    font-size: 16px;
-    font-weight: 650;
-    color: var(--text-2);
-  }
-  .sheet-option-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-small);
-    background: var(--sunken);
-    display: grid;
-    place-items: center;
-    color: var(--text-3);
-  }
-  .sheet-option-name {
-    flex: 1;
-  }
-  .frame-sheet > .button {
-    margin-top: 16px;
-    width: 100%;
   }
 }

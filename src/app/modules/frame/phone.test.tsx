@@ -17,13 +17,24 @@ describe('el marco en el celular', () => {
     const phoneNav = screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement;
     const more = within(phoneNav).getByRole('button', { name: /Más/ });
     fireEvent.click(more);
-    const sheet = screen.getByRole('dialog', { name: 'Más' });
-    expect(more.getAttribute('aria-expanded')).toBe('true');
-    expect(within(sheet).getByText('Rubén Paredes')).toBeTruthy();
-    expect(within(sheet).getAllByText('Pronto')).toHaveLength(6);
-    fireEvent.click(within(sheet).getByRole('button', { name: /Anomalías/ }));
+    const screenMore = screen.getByRole('region', { name: 'Más' });
+    expect(more.getAttribute('aria-current')).toBe('page');
+    expect(
+      within(phoneNav)
+        .getByRole('button', { name: /Vender/ })
+        .hasAttribute('aria-current'),
+    ).toBe(false);
+    expect(document.querySelector('.frame')?.classList.contains('more-open')).toBe(true);
+    expect(within(screenMore).getByText('Rubén Paredes')).toBeTruthy();
+    expect(within(screenMore).getByText('Del negocio')).toBeTruthy();
+    expect(within(screenMore).getByText('Lo que no coincide')).toBeTruthy();
+    expect(within(screenMore).getAllByText('Pronto')).toHaveLength(6);
+    const anomalies = within(screenMore).getByRole('button', { name: /Anomalías/ });
+    expect(anomalies.querySelector('.phone-more-icon.urgent')).not.toBeNull();
+    expect(anomalies.lastElementChild?.className).toBe('coming-soon');
+    fireEvent.click(anomalies);
     expect(screen.getByRole('status').textContent).toBe('Anomalías · pronto. Todavía no está.');
-    fireEvent.click(within(sheet).getByRole('button', { name: /Salir/ }));
+    fireEvent.click(within(screenMore).getByRole('button', { name: /Salir/ }));
     await act(async () => {});
     expect(onSignOut).toHaveBeenCalledOnce();
   });
@@ -45,7 +56,36 @@ describe('el marco en el celular', () => {
       ),
     ).toBeTruthy();
     fireEvent.click(document.querySelector('.phone-avatar') as Element);
-    expect(screen.getByRole('dialog', { name: 'Más' })).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Más' })).toBeTruthy();
+    fireEvent.click(
+      within(screen.getByRole('region', { name: 'Más' })).getByRole('button', { name: /En línea/ }),
+    );
+    expect(screen.getByRole('dialog', { name: 'Lo que está por enviar' })).toBeTruthy();
+  });
+
+  it('se sale de Más tocando la parte abierta o con el botón atrás del celular', () => {
+    open();
+    const phoneNav = screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement;
+    const more = within(phoneNav).getByRole('button', { name: /Más/ });
+    // happy-dom no vuelve atrás de verdad: se ve que lo pide y se hace como el navegador.
+    const back = vi.spyOn(history, 'back').mockImplementation(() => {
+      dispatchEvent(new PopStateEvent('popstate'));
+    });
+    fireEvent.click(more);
+    fireEvent.click(more);
+    act(() => {
+      fireEvent.click(within(phoneNav).getByRole('button', { name: /Vender/ }));
+    });
+    expect(back).toHaveBeenCalledOnce();
+    expect(screen.queryByRole('region', { name: 'Más' })).toBeNull();
+    back.mockRestore();
+    fireEvent.click(more);
+    act(() => {
+      dispatchEvent(new PopStateEvent('popstate'));
+    });
+    expect(screen.queryByRole('region', { name: 'Más' })).toBeNull();
+    fireEvent.click(within(phoneNav).getByRole('button', { name: /Vender/ }));
+    expect(screen.getByRole('status').textContent).toBe('Vender · pronto. Todavía no está.');
   });
 
   it('en el celular, una opción que existe se abre, desde el menú de abajo o desde Más', () => {
@@ -61,11 +101,11 @@ describe('el marco en el celular', () => {
       fireEvent.click(item);
       expect(location.pathname).toBe('/sell');
       fireEvent.click(within(phoneNav).getByRole('button', { name: /Más/ }));
-      fireEvent.click(
-        within(screen.getByRole('dialog', { name: 'Más' })).getByRole('button', {
-          name: /Mejoras/,
-        }),
-      );
+      const tickets = within(screen.getByRole('region', { name: 'Más' })).getByRole('button', {
+        name: /Mejoras/,
+      });
+      expect(tickets.querySelector('.coming-soon')).toBeNull();
+      fireEvent.click(tickets);
       expect(location.pathname).toBe('/tickets');
     } finally {
       delete sell.path;

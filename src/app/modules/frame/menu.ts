@@ -10,6 +10,9 @@ export type Option = {
   // Alt más esta tecla la abre en la computadora (00 · R2.8).
   shortcut: string;
   path?: string;
+  // En Más del celular: qué es, y el color del ícono (ámbar lo que avisa, neutro lo propio).
+  detail?: string;
+  tone?: 'urgent' | 'neutral';
 };
 
 export const parts: Option[] = [
@@ -19,13 +22,62 @@ export const parts: Option[] = [
   { id: 'business', name: 'Negocio', icon: 'chart-column', shortcut: 'n' },
 ];
 
-export const moreOptions: Option[] = [
-  { id: 'anomalies', name: 'Anomalías', icon: 'triangle-alert', shortcut: 'a' },
-  { id: 'processes', name: 'Procesos', icon: 'workflow', shortcut: 'r' },
-  { id: 'tickets', name: 'Mejoras y errores', icon: 'bug', shortcut: 'j' },
-  { id: 'deviceSettings', name: 'Configuración', icon: 'settings', shortcut: 'g' },
-  { id: 'administration', name: 'Administración', icon: 'sliders-horizontal', shortcut: 't' },
-  { id: 'manual', name: 'Manual', icon: 'book-open', shortcut: 'u' },
+const business: Option[] = [
+  {
+    id: 'anomalies',
+    name: 'Anomalías',
+    icon: 'triangle-alert',
+    shortcut: 'a',
+    detail: 'Lo que no coincide',
+    tone: 'urgent',
+  },
+  {
+    id: 'processes',
+    name: 'Procesos',
+    icon: 'workflow',
+    shortcut: 'r',
+    detail: 'Cómo se trabaja, paso a paso',
+  },
+  {
+    id: 'tickets',
+    name: 'Mejoras y errores',
+    icon: 'bug',
+    shortcut: 'j',
+    detail: 'Avisá algo que falla o una idea',
+  },
+];
+
+const settings: Option[] = [
+  {
+    id: 'deviceSettings',
+    name: 'Configuración',
+    icon: 'settings',
+    shortcut: 'g',
+    detail: 'Lo tuyo, en este celular',
+    tone: 'neutral',
+  },
+  {
+    id: 'administration',
+    name: 'Administración',
+    icon: 'sliders-horizontal',
+    shortcut: 't',
+    detail: 'Ajustes para todos',
+  },
+  {
+    id: 'manual',
+    name: 'Manual',
+    icon: 'book-open',
+    shortcut: 'u',
+    detail: 'Cómo se usa Ferrebress',
+  },
+];
+
+export const moreOptions: Option[] = [...business, ...settings];
+
+// Más en el celular las muestra en dos grupos.
+export const moreGroups = [
+  { title: 'Del negocio', options: business },
+  { title: 'Ajustes', options: settings },
 ];
 
 export const exists = (option: Option) => option.path !== undefined;

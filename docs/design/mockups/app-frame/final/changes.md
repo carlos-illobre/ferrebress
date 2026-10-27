@@ -51,13 +51,18 @@ Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
   - Las seis opciones de 00 · R1.2 en dos tarjetas, «Del negocio» (Anomalías, Procesos, Mejoras y
     errores) y «Ajustes» (Configuración, Administración, Manual). Cada renglón: el ícono en un
     cuadrado de 40 px de color suave, el nombre (16/700), el subtítulo (14, `--texto-2`), «Pronto»
-    a la derecha (en el lugar del número o del dato de la imagen) y la flecha. Los íconos son los
+    a la derecha (en el lugar del número o del dato de la imagen), sin flecha mientras no se pueda
+    abrir. Los íconos son los
     mismos del panel de Más de la computadora. Colores: Anomalías en ámbar (`--urgente-suave` y
     `--urgente-texto`), Configuración neutra (`--hundido` y `--texto-2`) y las demás en pino
     (`--pino-suave` y `--pino-texto`), como en la imagen; Manual, que la imagen no tiene, va en
     pino como Administración, su vecina. Tocar una dice «… · pronto. Todavía no está.».
   - «Salir» como un renglón aparte al final, en rojo suave (cuadrado `--error-suave`, nombre en
     `--error-texto`), con «Cerrar la sesión en este celular».
+  - Lo que decidió Carlos al verla: la luz dice el texto corto («En línea»), como pide 00 · R3.2;
+    el Manual va en pino; las opciones con «Pronto» no llevan flecha, porque no se pueden abrir
+    (R1.3); el botón atrás de Android cierra Más y vuelve a la pantalla anterior; y los subtítulos
+    pueden ocupar dos renglones al lado de «Pronto».
   - Entra con un fundido y 8 px de subida escalonado (200 ms, `transform` y `opacity`); con
     «reducir movimiento», aparece sin animar. Si no entra en la pantalla, se desplaza adentro.
 - **Minimizado:** los cinco íconos, la luz como un punto de color y la persona como sus iniciales,

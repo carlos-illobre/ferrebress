@@ -1,9 +1,9 @@
 // Lo que se abre desde el marco, de a uno por vez: Más, la tarjeta de la persona minimizada y lo
-// pendiente al costado del menú, y las hojas del celular. Tocar afuera, cambiar el tamaño de la
+// pendiente al costado del menú, y la hoja de lo pendiente del celular. Tocar afuera, cambiar el tamaño de la
 // ventana o abrir otro lo cierra.
 import { useEffect, useState } from 'preact/hooks';
 
-export type Panel = 'more' | 'person' | 'pending' | 'phoneMore' | 'phonePending';
+export type Panel = 'more' | 'person' | 'pending' | 'phonePending';
 
 // Dónde se dibuja lo que sale al costado del menú: a 8 px de lo tocado o del borde del menú.
 export type Place = { left: number; top: number };

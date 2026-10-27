@@ -12,8 +12,10 @@ import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
 import { useCollapse } from '../../useCollapse.ts';
 import { usePanels } from '../../usePanels.ts';
+import { usePhoneMore } from '../../usePhoneMore.ts';
 import { useTip } from '../../useTip.ts';
 import { PhoneNav, PhoneTop } from '../Phone/Phone.tsx';
+import { PhoneMore } from '../Phone/PhoneMore.tsx';
 import { PhoneSheets } from '../Phone/PhoneSheets.tsx';
 import { Side } from '../Side/Side.tsx';
 import { PendingPanel } from '../Side/SideFooter.tsx';
@@ -36,6 +38,7 @@ export function Frame({ person, testing, onSignOut, children }: FrameProps) {
   const online = useStore(onlineStore);
   const collapse = useCollapse();
   const panels = usePanels();
+  const phoneMore = usePhoneMore();
   const tip = useTip((element) => labelled(element, collapse.collapsed));
   const state: FrameState = {
     person,
@@ -44,6 +47,7 @@ export function Frame({ person, testing, onSignOut, children }: FrameProps) {
     current: firstOption(testing),
     collapse,
     panels,
+    phoneMore,
     tip,
     notYet(element, name) {
       shake(element);
@@ -54,12 +58,17 @@ export function Frame({ person, testing, onSignOut, children }: FrameProps) {
   };
   return (
     <FrameContext.Provider value={state}>
-      <div class={frameClass(collapse)} data-net={online ? 'online' : 'offline'} data-layer="">
+      <div
+        class={frameClass(collapse, phoneMore.open)}
+        data-net={online ? 'online' : 'offline'}
+        data-layer=""
+      >
         <Side />
         <PhoneTop />
         <main class="work-area" aria-label={texts.workArea}>
           {children}
         </main>
+        <PhoneMore />
         <PhoneNav />
         <WaitNotice />
         <VersionNotice />
@@ -72,8 +81,8 @@ export function Frame({ person, testing, onSignOut, children }: FrameProps) {
   );
 }
 
-const frameClass = ({ collapsed, phase }: ReturnType<typeof useCollapse>) =>
-  ['frame', collapsed && 'collapsed', phase].filter(Boolean).join(' ');
+const frameClass = ({ collapsed, phase }: ReturnType<typeof useCollapse>, moreOpen: boolean) =>
+  ['frame', collapsed && 'collapsed', phase, moreOpen && 'more-open'].filter(Boolean).join(' ');
 
 // El rótulo con el nombre: el botón de minimizar siempre (es un ícono solo) y, con el menú
 // minimizado, lo del menú que no está dentro de un panel abierto.

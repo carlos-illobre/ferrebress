@@ -1,6 +1,6 @@
 // El marco del celular (00 · R1.1): arriba el logotipo, la persona y la luz; abajo, el menú con las
-// cinco partes. Más es una hoja con la persona, sus opciones y «Salir» (01 · R5.1); la luz abre
-// otra hoja con lo pendiente. Sin teclas: en el celular no hay atajos (00 · R2).
+// cinco partes. Más es una pantalla entera (PhoneMore); la luz abre una hoja con lo pendiente. Sin
+// teclas: en el celular no hay atajos (00 · R2).
 import { navigate } from '../../../../platform/router.ts';
 import logo from '../../../../styles/brand/logo-on-light.webp';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
@@ -11,7 +11,7 @@ import { LightText } from '../Pending/Pending.tsx';
 import './Phone.css';
 
 export function PhoneTop() {
-  const { person, panels } = useFrame();
+  const { person, panels, phoneMore } = useFrame();
   return (
     <>
       <header class="phone-top phone-only">
@@ -19,9 +19,8 @@ export function PhoneTop() {
         <button
           type="button"
           class="phone-avatar"
-          aria-haspopup="dialog"
           aria-label={`${person.name} · ${texts.more}`}
-          onClick={() => panels.toggle('phoneMore')}
+          onClick={phoneMore.show}
         >
           <span class="avatar">{initials(person.name)}</span>
         </button>
@@ -40,22 +39,17 @@ export function PhoneTop() {
 }
 
 export function PhoneNav() {
-  const { testing, panels } = useFrame();
-  const moreOpen = panels.open === 'phoneMore';
+  const { testing, phoneMore } = useFrame();
   return (
-    <nav
-      class={moreOpen ? 'phone-nav phone-only more-open' : 'phone-nav phone-only'}
-      aria-label={texts.menu}
-    >
+    <nav class="phone-nav phone-only" aria-label={texts.menu}>
       {shown(parts, testing).map((option) => (
         <PhonePart key={option.id} option={option} />
       ))}
       <button
         type="button"
         class="phone-part opens"
-        aria-haspopup="dialog"
-        aria-expanded={moreOpen}
-        onClick={() => panels.toggle('phoneMore')}
+        aria-current={phoneMore.open ? 'page' : undefined}
+        onClick={phoneMore.show}
       >
         <span class="phone-part-icon">
           <Icon name="menu" />
@@ -72,16 +66,23 @@ export function PhoneNav() {
 function PhonePart({ option }: { option: Option }) {
   const frame = useFrame();
   const soon = !exists(option);
+  const current = frame.current === option.id;
+  // Con Más a la vista, la parte abierta vuelve a su pantalla.
+  const open = (event: MouseEvent) => {
+    if (current && frame.phoneMore.open) frame.phoneMore.hide();
+    else if (option.path) navigate(option.path);
+    else
+      frame.notYet(
+        (event.currentTarget as HTMLElement).firstElementChild as HTMLElement,
+        option.name,
+      );
+  };
   return (
     <button
       type="button"
       class="phone-part"
-      aria-current={frame.current === option.id ? 'page' : undefined}
-      onClick={(event) =>
-        option.path
-          ? navigate(option.path)
-          : frame.notYet(event.currentTarget.firstElementChild as HTMLElement, option.name)
-      }
+      aria-current={current && !frame.phoneMore.open ? 'page' : undefined}
+      onClick={open}
     >
       <span class="phone-part-icon">
         <Icon name={option.icon} />

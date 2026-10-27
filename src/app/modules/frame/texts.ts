@@ -15,6 +15,7 @@ export const texts = {
   workArea: 'Área de trabajo',
   session: 'Tu sesión',
   signOut: same('Salir'),
+  signOutDetail: 'Cerrar la sesión en este celular',
   signingOut: 'Saliendo',
   close: 'Cerrar',
   light: {
