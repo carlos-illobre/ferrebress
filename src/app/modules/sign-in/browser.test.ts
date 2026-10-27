@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { forgetGoogleChoice, showGoogleButton } from './google.ts';
+import { drawnWithinMs, forgetGoogleChoice, showGoogleButton } from './google.ts';
 import { scan, scanEveryMs } from './scanner.ts';
 
 const scriptUrl = 'https://accounts.google.com/gsi/client';
@@ -66,6 +66,42 @@ describe('el botón de Google', () => {
     expect(options).toMatchObject({ client_id: 'c', nonce: 'n' });
     options.callback({ credential: 'pase' });
     expect(onCredential).toHaveBeenCalledWith('pase');
+  });
+
+  it('el botón se ve recién cuando llegaron los estilos de Google, o a los 3 s', async () => {
+    vi.useFakeTimers();
+    fakeGoogle();
+    const shown = (element: HTMLElement) =>
+      showGoogleButton(element, {
+        scriptUrl,
+        clientId: 'c',
+        nonce: 'n',
+        width: 300,
+        onCredential() {},
+      });
+    const styles = document.createElement('link');
+    styles.id = 'googleidentityservice';
+    document.body.append(styles);
+    const styled = document.createElement('div');
+    const drawing = shown(styled);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(styled.dataset.drawn).toBeUndefined();
+    styles.dispatchEvent(new Event('load'));
+    await drawing;
+    expect(styled.dataset.drawn).toBe('');
+    const failed = document.createElement('div');
+    const failing = shown(failed);
+    await vi.advanceTimersByTimeAsync(0);
+    styles.dispatchEvent(new Event('error'));
+    await failing;
+    expect(failed.dataset.drawn).toBe('');
+    const slow = document.createElement('div');
+    const waiting = shown(slow);
+    await vi.advanceTimersByTimeAsync(drawnWithinMs);
+    await waiting;
+    expect(slow.dataset.drawn).toBe('');
+    styles.remove();
+    vi.useRealTimers();
   });
 
   it('01-E11: después de salir, Google vuelve a pedir la cuenta', () => {

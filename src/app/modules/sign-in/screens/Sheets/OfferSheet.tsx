@@ -1,5 +1,6 @@
 // La primera vez que entra con Google en un celular, se le ofrece una sola vez entrar con la huella
-// la próxima (R2.2; E06 a E09). Se muestra encima del marco, al llegar.
+// la próxima (R2.2; E06 a E09). Se muestra encima del marco, al llegar. «Sí» abre directo el lector
+// del celular y, vinculada la huella, la hoja se cierra sin avisar (R2.11).
 import { useState } from 'preact/hooks';
 import { useStore } from '../../../../platform/store.ts';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
@@ -9,16 +10,17 @@ import { texts } from '../../texts.ts';
 import { createPasskey } from '../../webauthn.ts';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
-type Step = 'ask' | 'done' | 'other-account';
+type Step = 'ask' | 'other-account';
+type Linked = Step | 'linked' | undefined;
 
-async function link(): Promise<Step | undefined> {
+async function link(): Promise<Linked> {
   const options = await signInApi.linkOptions();
   if (!options.ok) return undefined;
   const response = await createPasskey(options.data);
   if (!response) return undefined;
   const result = await signInApi.link(response);
   if (result.ok) passkeyLinked();
-  if (result.ok) return 'done';
+  if (result.ok) return 'linked';
   return result.error === 'phone-has-other-account' ? 'other-account' : undefined;
 }
 
@@ -42,7 +44,11 @@ export function OfferSheet() {
           <SheetButton
             look="orange"
             doing={texts.signingIn}
-            onPress={async () => setStep((await link()) ?? 'ask')}
+            onPress={async () => {
+              const linked = await link();
+              if (linked === 'linked') close();
+              else setStep(linked ?? 'ask');
+            }}
           >
             {texts.offer.yes}
           </SheetButton>
@@ -51,22 +57,14 @@ export function OfferSheet() {
           </SheetButton>
         </>
       ) : (
-        <Answer step={step} close={close} />
+        <>
+          <SheetIcon name="triangle-alert" />
+          <h2>{texts.offer.otherAccount}</h2>
+          <SheetButton look="green" doing={texts.cancel} onPress={close} closes>
+            {texts.offer.ok}
+          </SheetButton>
+        </>
       )}
     </Sheet>
-  );
-}
-
-function Answer({ step, close }: { step: Step; close: () => void }) {
-  const done = step === 'done';
-  return (
-    <>
-      <SheetIcon name={done ? 'check' : 'triangle-alert'} {...(done && { look: 'done' })} />
-      <h2>{done ? texts.offer.done : texts.offer.otherAccount}</h2>
-      {done && <p class="sheet-sub">{texts.offer.doneDetail}</p>}
-      <SheetButton look="green" doing={texts.cancel} onPress={close} closes>
-        {texts.offer.ok}
-      </SheetButton>
-    </>
   );
 }

@@ -1,7 +1,8 @@
 // El celular lee el código de una computadora (R2.5, R2.7; diseño de 01, § 5). Lo reserva y pide la
 // huella, que es la confirmación: con ella entra la computadora y, si el celular no tenía sesión,
-// también el celular. Sin huella vinculada y sin sesión, primero entra con Google, y recién ahí lee
-// el código, porque la huella nueva se crea con el desafío de esa computadora.
+// también el celular. Al entrar, la hoja se cierra sin avisar (R2.11). Sin huella vinculada y sin
+// sesión, primero entra con Google, y recién ahí lee el código, porque la huella nueva se crea con
+// el desafío de esa computadora.
 import type { ReadCodeResponse } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useState } from 'preact/hooks';
 import { createProofKey } from '../../platform/proof-key.ts';
@@ -16,7 +17,6 @@ export type PhoneCode =
   | { step: 'none' }
   | { step: 'sign-in-first'; code: string }
   | { step: 'ask'; read: ReadCodeResponse }
-  | { step: 'done'; label: string }
   | { step: 'other-network' }
   | { step: 'expired' }
   | { step: 'no-passkey' };
@@ -63,7 +63,7 @@ async function approve(read: ReadCodeResponse, signedIn: boolean): Promise<Phone
     const start = await signInApi.start();
     if (start.ok) confirmed(start.data.person);
   }
-  return { step: 'done', label: read.computer.label };
+  return none;
 }
 
 export function usePhoneCode() {

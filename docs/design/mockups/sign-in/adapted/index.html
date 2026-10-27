@@ -62,7 +62,7 @@
           <p><strong>Tu sesión se cerró desde otro dispositivo</strong><span>Entrá de nuevo para seguir donde estabas.</span></p>
         </div>
 
-        <!-- El código QR propio (sin Bluetooth). -->
+        <!-- El código QR de Ferrebress: la única forma de entrar con el celular (R2.6). -->
         <div class="qr-block d-only" id="qr-block">
           <div class="qr-col">
             <div class="qr" id="qr" role="img" aria-label="Código para entrar con el celular">
@@ -79,21 +79,6 @@
             <li><span><b>Apuntá el celular a este código</b>Con la cámara o con «Escanear» en la entrada de Ferrebress.</span></li>
             <li><span><b>Poné la huella en el celular</b>Esta pantalla entra sola. Si el celular no tiene la sesión abierta, entrás ahí con Google o con la huella.</span></li>
           </ol>
-        </div>
-
-        <!-- Con Bluetooth: la entrada del navegador reemplaza al QR propio (R2.6). -->
-        <div class="bt-block d-only" id="bt-block">
-          <div class="bt-art" aria-hidden="true">
-            <span class="bt-pc"><i class="i i-xl" data-i="monitor"></i></span>
-            <span class="bt-waves"><i></i><i></i><i></i></span>
-            <span class="bt-phone"><i class="i i-xl" data-i="smartphone"></i></span>
-          </div>
-          <div class="bt-text">
-            <p><b>Tu celular está cerca</b>El navegador lo encuentra por Bluetooth: tocá el botón, mirá el celular y poné la huella.</p>
-            <button type="button" class="btn-primary" id="bt-button" data-mark data-key="c" data-off-when="offline">
-              <i class="i i-l" data-i="bluetooth"></i>Entrar con el celular<kbd>C</kbd>
-            </button>
-          </div>
         </div>
 
         <div class="or d-only" aria-hidden="true"><span>o</span></div>
@@ -170,34 +155,6 @@
   </div>
 </section>
 
-<!-- Con Bluetooth: la ventana propia del navegador (simulada, con el aspecto del sistema). -->
-<section class="layer browser-dialog" id="bt-dialog" role="dialog" aria-modal="true" aria-labelledby="bt-title" hidden>
-  <div class="bd-step" data-step="choose">
-    <p class="bd-site"><i class="i i-s" data-i="lock"></i>ferrebress.com.ar</p>
-    <h2 id="bt-title">Usar una llave de acceso</h2>
-    <p class="bd-sub">Elegí el dispositivo que tiene la llave de acceso de ferrebress.com.ar.</p>
-    <button type="button" class="bd-option" id="bt-phone" data-mark data-key="1"><i class="i i-l" data-i="smartphone"></i><span><b>Celular de Mostrador</b><small>Cerca, por Bluetooth</small></span><kbd>1</kbd></button>
-    <div class="bd-actions"><button type="button" class="bd-btn" data-close data-mark data-key="c">Cancelar<kbd>C</kbd></button></div>
-  </div>
-  <div class="bd-step" data-step="wait">
-    <p class="bd-site"><i class="i i-s" data-i="lock"></i>ferrebress.com.ar</p>
-    <h2>Mirá tu celular</h2>
-    <p class="bd-sub">Le llegó un aviso a <b>Celular de Mostrador</b>. Poné la huella ahí para entrar en esta computadora.</p>
-    <div class="bd-spinner" aria-hidden="true"><i></i></div>
-    <div class="bd-actions"><button type="button" class="bd-btn" data-close data-mark data-key="c">Cancelar<kbd>C</kbd></button></div>
-  </div>
-  <p class="bd-sim">Ventana del navegador simulada · Chrome la dibuja a su manera.</p>
-</section>
-
-<!-- Celular: el lector del sistema pide la huella (simulado). -->
-<section class="layer sheet" id="sheet-finger" role="dialog" aria-modal="true" aria-labelledby="sf-title" hidden>
-  <div class="grabber" aria-hidden="true"></div>
-  <h2 id="sf-title">Entrar en Ferrebress</h2>
-  <p class="sheet-sub">Tocá el lector con el dedo.</p>
-  <button type="button" class="touch" data-touch aria-label="Poner la huella"><i class="i" data-i="fingerprint" data-trazo="1.6"></i></button>
-  <button type="button" class="btn-plain" data-close>Cancelar</button>
-</section>
-
 <!-- Celular: la primera vez que entra con Google (R2.2). -->
 <section class="layer sheet" id="sheet-offer" role="dialog" aria-modal="true" aria-labelledby="so-title" hidden>
   <div class="grabber" aria-hidden="true"></div>
@@ -205,19 +162,8 @@
     <span class="sheet-icon"><i class="i" data-i="fingerprint" data-trazo="1.8"></i></span>
     <h2 id="so-title">¿Entrar con la huella la próxima vez?</h2>
     <p class="sheet-sub">Este celular queda vinculado a <b>mostrador.ferreteria@gmail.com</b> y la próxima vez entrás sin Google.</p>
-    <button type="button" class="btn-orange" data-yes>Sí, usar la huella</button>
+    <button type="button" class="btn-orange" data-touch>Sí, usar la huella</button>
     <button type="button" class="btn-plain" data-close>Ahora no</button>
-  </div>
-  <div class="sheet-step" data-step="touch">
-    <h2>Poné la huella</h2>
-    <p class="sheet-sub">Para vincular este celular a tu cuenta.</p>
-    <button type="button" class="touch" data-touch aria-label="Poner la huella"><i class="i" data-i="fingerprint" data-trazo="1.6"></i></button>
-  </div>
-  <div class="sheet-step" data-step="done">
-    <span class="sheet-icon ok"><i class="i" data-i="check" data-trazo="3"></i></span>
-    <h2>Listo</h2>
-    <p class="sheet-sub">La próxima vez entrás con la huella. Podés quitar este celular desde Configuración.</p>
-    <button type="button" class="btn-green" data-close>Entendido</button>
   </div>
 </section>
 
@@ -229,15 +175,8 @@
     <span class="sheet-icon pc"><i class="i" data-i="monitor" data-trazo="1.8"></i></span>
     <h2 id="sq-title">¿Entrar en Chrome en Windows?</h2>
     <p class="sheet-sub">Una computadora pide entrar con tu usuario. Si no la tenés adelante, no pongas la huella.</p>
-    <button type="button" class="touch" data-touch aria-label="Poner la huella para entrar en la computadora"><i class="i" data-i="fingerprint" data-trazo="1.6"></i></button>
-    <p class="touch-hint">Poné la huella para entrar en los dos</p>
+    <button type="button" class="btn-orange" data-touch>Sí, entrar con la huella</button>
     <button type="button" class="btn-plain" data-close>No soy yo, cancelar</button>
-  </div>
-  <div class="sheet-step" data-step="done">
-    <span class="sheet-icon ok"><i class="i" data-i="check" data-trazo="3"></i></span>
-    <h2>La computadora entró</h2>
-    <p class="sheet-sub">Chrome en Windows ya tiene tu sesión. Este celular también.</p>
-    <button type="button" class="btn-green" data-close>Listo</button>
   </div>
   <!-- En otra red que la computadora: no pide la huella y la computadora sigue con su código (R2.5, E13b). -->
   <div class="sheet-step" data-step="other-network">
@@ -257,7 +196,6 @@
 <!-- Entrando / entró. En la aplicación se llega al marco (capítulo 00); acá vuelve a la entrada. -->
 <section class="layer done" id="done" role="status" hidden>
   <span class="done-spin" aria-hidden="true"></span>
-  <span class="done-check" aria-hidden="true"><i class="i" data-i="check" data-trazo="3"></i></span>
   <p id="done-text">Entrando…</p>
   <small>En la aplicación, acá se llega al marco.</small>
 </section>

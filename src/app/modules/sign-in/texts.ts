@@ -76,9 +76,6 @@ export const texts = {
       `Este celular queda vinculado a ${email} y la próxima vez entrás sin Google.`,
     yes: 'Sí, usar la huella',
     no: 'Ahora no',
-    done: 'Listo',
-    doneDetail:
-      'La próxima vez entrás con la huella. Podés quitar este celular desde Configuración.',
     ok: 'Entendido',
     otherAccount:
       'Este celular ya tiene la huella de otra cuenta. Para cambiarla, hay que quitar la anterior.',
@@ -87,16 +84,12 @@ export const texts = {
     ask: (label: string) => `¿Entrar en ${label}?`,
     askDetail:
       'Una computadora pide entrar con tu usuario. Si no la tenés adelante, no pongas la huella.',
-    touch: 'Poné la huella para entrar en los dos',
-    touchLabel: 'Poner la huella para entrar en la computadora',
+    go: 'Sí, entrar con la huella',
     notMe: 'No soy yo, cancelar',
     linkTitle: 'Vinculá tu huella para entrar a la computadora',
     linkDetail: (email: string) =>
       `Este celular queda vinculado a ${email}: con la huella entra la computadora, y la próxima vez entrás sin Google.`,
     signInFirst: 'Entrá en este celular para que entre la computadora',
-    done: 'La computadora entró',
-    doneDetail: (label: string) => `${label} ya tiene tu sesión. Este celular también.`,
-    ready: 'Listo',
     otherNetwork: 'Para entrar a la computadora, conectá este celular al mismo Wi-Fi',
     ok: 'Entendido',
     expired: 'Ese código ya no sirve: leé el que muestra la computadora ahora.',

@@ -107,15 +107,13 @@ describe('el celular lee el código de una computadora', () => {
     await act(() => result.current.scanned('c1'));
     expect(result.current.state).toMatchObject({ step: 'ask' });
     await act(() => result.current.touch());
-    expect(result.current.state).toEqual({ step: 'done', label: 'Chrome en Windows' });
+    expect(result.current.state).toEqual({ step: 'none' });
     expect(server.bodies('/api/sign-in/codes/approve')[0]).toEqual({
       secret: 's',
       kind: 'assertion',
       response: { id: 'credencial' },
     });
     expect(hasPasskey()).toBe(true);
-    act(() => result.current.close());
-    expect(result.current.state).toEqual({ step: 'none' });
   });
 
   it('01-E16: sin sesión y con la huella, una sola huella hace entrar a los dos', async () => {
@@ -134,7 +132,7 @@ describe('el celular lee el código de una computadora', () => {
     act(() => person.set(undefined));
     await act(() => result.current.scanned('c1'));
     await act(() => result.current.touch());
-    expect(result.current.state).toMatchObject({ step: 'done' });
+    expect(result.current.state).toEqual({ step: 'none' });
     expect(person.get()).toBeUndefined();
   });
 

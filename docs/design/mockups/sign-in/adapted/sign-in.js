@@ -16,7 +16,6 @@
   // ---------- Los estados ----------
   var STATES = [
     { id: "normal", label: "Normal", on: "both" },
-    { id: "bluetooth", label: "Con Bluetooth", on: "desktop" },
     { id: "no-autorizada", label: "Cuenta no autorizada", on: "both" },
     { id: "sin-conexion", label: "Sin conexión", on: "both" },
     { id: "intentos", label: "Demasiados intentos", on: "both" },
@@ -167,15 +166,13 @@
 
   function step(layer, name) { $$("[data-step]", layer).forEach(function (s) { s.classList.toggle("on", s.dataset.step === name); }); }
 
-  // Entrando… → entró. En la aplicación se llega al marco; acá vuelve a la entrada.
-  function signedIn(text, then) {
+  // Entrando…: la espera mientras entra. Sin aviso de «Entraste»: en la aplicación se ve solo, porque
+  // aparece el marco. Acá vuelve a la entrada.
+  function signedIn(then) {
     var d = $("#done");
-    d.classList.remove("ok"); $("#done-text").textContent = "Entrando…";
+    $("#done-text").textContent = "Entrando…";
     open(d, { scrim: false });
-    setTimeout(function () {
-      d.classList.add("ok"); $("#done-text").textContent = text || "Entraste";
-      setTimeout(function () { close(d); if (then) then(); }, wait(1400));
-    }, wait(1000));
+    setTimeout(function () { close(d); if (then) then(); }, wait(1000));
   }
 
   // ---------- Google ----------
@@ -188,36 +185,28 @@
       if (state === "no-autorizada" || state === "sesion-cerrada") setState("normal", true);
       if (isPhone()) {
         // Primera vez con Google en este celular: se ofrece la huella, una sola vez (R2.2).
-        var d = $("#done");
-        d.classList.remove("ok"); $("#done-text").textContent = "Entrando…";
-        open(d, { scrim: false });
-        setTimeout(function () { close(d); setState("ofrecer-huella", true); }, wait(1000));
-      } else signedIn("Entraste");
+        signedIn(function () { setState("ofrecer-huella", true); });
+      } else signedIn();
     });
   });
 
   // ---------- La huella (celular) ----------
+  // Tocar el botón abre directo el lector del sistema (Android o iOS lo dibujan a su manera; acá no se
+  // simula): Ferrebress no muestra una hoja propia antes ni un aviso después.
   function touchReader(layer, after) {
-    var t = $(".sheet-step.on [data-touch], :scope > [data-touch]", layer) || $("[data-touch]", layer);
     $$("[data-touch]", layer).forEach(function (b) {
       b.onclick = function () {
         b.classList.add("reading");
         setTimeout(function () { b.classList.remove("reading"); after(); }, wait(700));
       };
     });
-    return t;
   }
-  $("#finger").addEventListener("click", function () {
-    var s = $("#sheet-finger");
-    touchReader(s, function () { close(s); setTimeout(function () { signedIn("Entraste"); }, wait(220)); });
-    open(s);
-  });
+  $("#finger").addEventListener("click", function () { signedIn(); });
 
   function openOffer() {
     var s = $("#sheet-offer");
     step(s, "ask");
-    $("[data-yes]", s).onclick = function () { step(s, "touch"); };
-    touchReader(s, function () { step(s, "done"); });
+    touchReader(s, function () { close(s); });
     open(s);
   }
 
@@ -226,7 +215,7 @@
   function openQrSheet(name) {
     var s = $("#sheet-qr");
     step(s, name || "ask");
-    touchReader(s, function () { step(s, "done"); });
+    touchReader(s, function () { close(s); });
     open(s);
   }
   $("#scan").addEventListener("click", function () {
@@ -240,30 +229,14 @@
     }, wait(1800));
   });
 
-  // ---------- Con Bluetooth: la ventana del navegador (computadora) ----------
-  $("#bt-button").addEventListener("click", function () {
-    var dlg = $("#bt-dialog");
-    step(dlg, "choose");
-    open(dlg);
-  });
-  $("#bt-phone").addEventListener("click", function () {
-    var dlg = $("#bt-dialog");
-    step(dlg, "wait");
-    var f = $('[data-step="wait"] [data-close]', dlg); if (f && !isPhone()) f.focus();
-    setTimeout(function () {
-      if (stack.indexOf(dlg) < 0) return;
-      close(dlg); signedIn("Entraste");
-    }, wait(2400));
-  });
-
   // ---------- Simular que el celular lee el QR (computadora) ----------
   $("#sim-read").addEventListener("click", function () {
     var st = document.body.dataset.state;
-    if (st === "sin-conexion" || st === "bluetooth" || stack.length) return;
+    if (st === "sin-conexion" || stack.length) return;
     var q = $("#qr");
     q.classList.add("read");
     setTimeout(function () {
-      signedIn("Entraste", function () { q.classList.remove("read"); drawQr(); restartQr(); });
+      signedIn(function () { q.classList.remove("read"); drawQr(); restartQr(); });
     }, wait(1800));
   });
 

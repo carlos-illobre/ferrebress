@@ -1,8 +1,7 @@
 # Entrar · maqueta adaptada: el logotipo
 
 Capturas: `screenshot-desktop.png` y `screenshot-phone.png`; en el celular, las hojas del código de
-la computadora: `screenshot-phone-qr-ask.png`, `screenshot-phone-qr-done.png` y
-`screenshot-phone-other-network.png`.
+la computadora: `screenshot-phone-qr-ask.png` y `screenshot-phone-other-network.png`.
 
 ## Por directivas de Carlos
 
@@ -14,11 +13,23 @@ la computadora: `screenshot-phone-qr-ask.png`, `screenshot-phone-qr-done.png` y
 - **Lo demás se ve igual:** la computadora fija el alto del logotipo, así que la F queda del mismo
   tamaño; en el celular el ancho pasa de 252 a 246 px, lo que mide de menos el logotipo nuevo, para
   que la F tampoco cambie de tamaño.
+- **Los menos pasos posibles para poner la huella:** el celular ya muestra su propio lector, así
+  que Ferrebress no suma una hoja antes ni un aviso después.
+  - «Entrar con la huella» abre directo el lector del sistema; la maqueta no lo simula, porque lo
+    dibuja Android o iOS.
+  - Sin «Entraste» ni «La computadora entró» ni «Listo»: que entró se ve solo, porque aparece el
+    marco (o entra la computadora que la persona tiene adelante). Queda la espera, «Entrando…».
+  - La hoja de la huella la primera vez (R2.2) y la del código de la computadora (R2.5) quedan,
+    porque preguntan algo que el sistema no dice: si se quiere usar la huella y qué computadora
+    pide entrar. Su botón naranja abre directo el lector, sin el círculo de la huella que imitaba
+    al del sistema. Además, el navegador solo abre el lector después de un toque.
+- **Solo el código QR de Ferrebress (R2.6):** sin el estado «Con Bluetooth» ni la ventana del
+  navegador que pedía el celular cercano.
 
 ## Por las reglas (R2.5, E13 y E13b)
 
 - **El celular no muestra ciudades:** la hoja que pregunta antes de la huella dice «¿Entrar en
-  Chrome en Windows?» y la de confirmación «Chrome en Windows ya tiene tu sesión…».
+  Chrome en Windows?».
 - **Celular y computadora en la misma red:** si el celular lee el código desde otra red, no pide la
   huella. La misma hoja muestra un ícono de Wi-Fi, «Para entrar a la computadora, conectá este
   celular al mismo Wi-Fi» y el botón «Entendido», sin atajo: en el celular no hay atajos (capítulo 00, R2); la computadora

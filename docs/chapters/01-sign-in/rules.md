@@ -66,6 +66,15 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   dispositivo, contados aparte para Google y para la huella. Pasado eso, esa cuenta espera hasta que
   se cumpla la hora solo con esa forma de entrar: si se pasó con la huella, igual puede entrar con
   Google. Queda anotado para la auditoría.
+- **R2.11 Los menos pasos para poner la huella.** El lector de la huella lo muestra el celular, y
+  Ferrebress no suma nada alrededor:
+  - «Entrar con la huella» abre directo el lector, sin una hoja propia antes.
+  - Que entró no se avisa: se ve solo, porque aparece el marco o entra la computadora que la
+    persona tiene adelante. Mientras entra, se ve la espera.
+  - Solo hay una hoja antes del lector cuando pregunta algo que el celular no dice: si quiere usar
+    la huella (R2.2) o qué computadora pide entrar (R2.5). Su botón abre directo el lector, y es el
+    toque que el navegador pide para abrirlo.
+  - Vincular la huella tampoco se avisa: la hoja se cierra y el celular sigue donde estaba.
 
 ## 3. La sesión (ADR-015)
 

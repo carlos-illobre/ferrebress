@@ -36,17 +36,13 @@ describe('las hojas del celular', () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it('01-E13: pregunta qué computadora pide entrar y, con la huella, dice que entró', async () => {
+  it('01-E13, R2.11: pregunta qué computadora pide entrar; con la huella, se cierra sin avisar', async () => {
     fakePasskeys();
     fakeServer({ '/api/sign-in/codes/read': { body: reading }, '/api/sign-in/codes/approve': {} });
     render(<Code code="c1" />);
     fireEvent.click(screen.getByText('leer'));
     expect(await screen.findByText('¿Entrar en Chrome en Windows?')).toBeTruthy();
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Poner la huella para entrar en la computadora' }),
-    );
-    expect(await screen.findByText('La computadora entró')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Listo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sí, entrar con la huella' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
@@ -81,13 +77,11 @@ describe('las hojas del celular', () => {
     fakePasskeys({ cancel: true });
     fakeServer({ '/api/sign-in/codes/read': { body: reading }, '/api/sign-in/codes/cancel': {} });
     fireEvent.click(screen.getByText('leer'));
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Poner la huella para entrar en la computadora' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'Sí, entrar con la huella' }));
     expect(await screen.findByText(/Sin la huella no entra la computadora/)).toBeTruthy();
   });
 
-  it('01-E06, E07: ofrece la huella una vez; al aceptar la vincula', async () => {
+  it('01-E06, E07, R2.11: ofrece la huella una vez; al aceptar la vincula y se cierra sin avisar', async () => {
     fakePasskeys();
     fakeServer({ '/api/passkeys/options': { body: {} }, '/api/passkeys': {} });
     render(<OfferSheet />);
@@ -95,9 +89,8 @@ describe('las hojas del celular', () => {
     act(() => offerPasskey.set(true));
     expect(screen.getByText(/ana@example.com/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Sí, usar la huella' }));
-    expect(await screen.findByText('Listo')).toBeTruthy();
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(hasPasskey()).toBe(true);
-    fireEvent.click(screen.getByRole('button', { name: 'Entendido' }));
     expect(wasOffered()).toBe(true);
     expect(offerPasskey.get()).toBe(false);
   });

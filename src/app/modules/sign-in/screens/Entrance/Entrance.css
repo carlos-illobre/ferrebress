@@ -71,6 +71,14 @@
     overflow: hidden;
     transition: opacity 200ms;
   }
+  /* Hasta que llegan los estilos de Google, su botón no se ve (google.ts). */
+  .google > * {
+    opacity: 0;
+  }
+  .google[data-drawn] > * {
+    opacity: 1;
+    transition: opacity 200ms;
+  }
   /* Si Google no puede dibujar su botón (sin el origen autorizado, o con su estilo bloqueado),
      lo que deje no se agranda más que el lugar. */
   .google :where(svg, img) {
