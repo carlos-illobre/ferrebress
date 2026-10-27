@@ -12,7 +12,6 @@ export type EntranceState = {
   closed: string | undefined;
   // Corre un intento de entrar con su espera (00 · R7) y muestra el aviso que devuelva.
   attempt: (run: () => Promise<Notice | undefined>) => void;
-  busy: boolean;
   scan: () => void;
   // El celular leyó el código de una computadora y tiene que entrar primero (R2.7).
   signInFirst: boolean;

@@ -204,18 +204,35 @@ describe('la entrada en el celular', () => {
     expect(screen.getByText('Entrá en este celular para que entre la computadora')).toBeTruthy();
   });
 
-  it('mientras espera al servidor, dice «Entrando…»', async () => {
+  it('R2.11: puesta la huella, la espera dice cómo entra mientras el servidor no contesta', async () => {
     vi.useFakeTimers();
     googleFrame();
     fakePasskeys();
     phone();
-    let answer = (_: Response) => {};
-    vi.stubGlobal('fetch', () => new Promise<Response>((resolve) => (answer = resolve)));
+    fakeServer({
+      '/api/sign-in/passkey/options': { body: {} },
+      '/api/sign-in/passkey': 'waiting',
+    });
     const { card } = open();
     fireEvent.click(within(card).getByRole('button', { name: /Entrar con la huella/ }));
+    await later(299);
+    expect(screen.queryByText('Entrando con tu huella')).toBeNull();
+    await later(1);
+    expect(screen.getAllByText('Entrando con tu huella').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Huella confirmada').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Abriendo tu sesión').length).toBeGreaterThan(0);
+    vi.useRealTimers();
+  });
+
+  it('R2.11: con el pase de Google, la computadora tapa solo la tarjeta con la espera', async () => {
+    vi.useFakeTimers();
+    const google = googleFrame();
+    fakeServer({ '/api/sign-in/google': 'waiting' });
+    const { card } = open();
+    google.credential('pase');
     await later(300);
-    expect(screen.getByText('Entrando…')).toBeTruthy();
-    answer(new Response('{}', { status: 500 }));
+    expect(within(card).getByText('Conectando tu cuenta de Google')).toBeTruthy();
+    expect(card.querySelector('.card-body')?.hasAttribute('inert')).toBe(true);
     vi.useRealTimers();
   });
 });

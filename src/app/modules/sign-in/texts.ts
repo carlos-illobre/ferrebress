@@ -63,7 +63,39 @@ export const texts = {
   closedExpired: 'Tu sesión venció',
   closedDetail: 'Entrá de nuevo para seguir donde estabas.',
   signingIn: 'Entrando',
-  entering: 'Entrando…',
+  // La espera mientras se abre la sesión (R2.11): lo mismo en el celular y en la computadora.
+  entering: {
+    google: {
+      title: 'Conectando tu cuenta de Google',
+      detail: 'Google confirmó tu cuenta. Ahora Ferrebress abre tu sesión; tarda unos segundos.',
+      from: 'Google',
+      fromWhat: 'Confirmó tu cuenta',
+      done: 'Cuenta de Google verificada',
+      doneDetail: 'Google confirmó que sos vos.',
+    },
+    passkey: {
+      title: 'Entrando con tu huella',
+      detail:
+        'Tu celular confirmó tu huella. Ahora Ferrebress abre tu sesión; tarda unos segundos.',
+      from: 'Tu huella',
+      fromWhat: 'Confirmó que sos vos',
+      done: 'Huella confirmada',
+      doneDetail: 'Tu celular confirmó que sos vos.',
+    },
+    phone: {
+      title: 'Entrando con tu celular',
+      detail: 'Tu celular confirmó tu huella. Ahora Ferrebress abre tu sesión en esta computadora.',
+      from: 'Tu celular',
+      fromWhat: 'Confirmó tu huella',
+      done: 'Huella confirmada en el celular',
+      doneDetail: 'Tu celular confirmó que sos vos.',
+    },
+    brandWhat: 'Abre tu sesión',
+    shop: 'Tu local',
+    shopWhat: 'Adonde llegás',
+    opening: 'Abriendo tu sesión',
+    openingDetail: 'Ferrebress revisa que tu cuenta esté autorizada…',
+  },
   cancel: 'Cancelar',
   camera: {
     title: 'Escanear el código',

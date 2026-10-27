@@ -92,48 +92,4 @@
     filter: grayscale(1);
     pointer-events: none;
   }
-
-  /* «Entrando…» */
-  .entering {
-    position: fixed;
-    inset: 0;
-    z-index: 700;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    background: rgb(244 242 236 / 0.94);
-    color: var(--sign-in-green);
-  }
-  .entering p {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 800;
-  }
-  .entering-spin {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: 4px solid var(--sunken);
-    border-top-color: var(--sign-in-orange);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .entering {
-      animation: entering-in 340ms var(--sign-in-enter);
-    }
-    .entering-spin {
-      animation: entering-spin 0.9s linear infinite;
-    }
-  }
-  @keyframes entering-in {
-    from {
-      opacity: 0;
-    }
-  }
-  @keyframes entering-spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
 }

@@ -417,8 +417,12 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 - **Todas las bibliotecas se sirven desde el propio origen**, empaquetadas; ninguna desde un CDN.
 - **El QR:** se dibuja con `qrcode-generator` (unos 20 KB); se lee con `BarcodeDetector` y, donde
   no existe, con ZXing, que se baja recién al tocar «Escanear».
-- **Las pantallas:** la entrada, desde `docs/design/mockups/sign-in/adapted/`; el marco, desde
-  `docs/design/mockups/app-frame/final/`.
+- **Las pantallas:** la entrada, desde `docs/design/mockups/sign-in/adapted/`; «Entrando» en la
+  computadora, desde `docs/design/mockups/sign-in-entering/final/` (en el celular, la capa
+  «Entrando» de la entrada); el marco, desde `docs/design/mockups/app-frame/final/`.
+- **«Entrando» (R2.11):** un valor compartido dice cómo se está entrando. Lo prende el pedido que
+  abre la sesión (el pase de Google, la huella ya puesta o el permiso que trae el celular), pasados
+  300 ms, y lo apaga su respuesta. Así no se ve mientras el lector del celular está abierto.
 - **Peso:** el arranque (esqueleto, marco y entrada, sin Google) por debajo de 60 KB comprimido; lo
   controla `pnpm check`.
 

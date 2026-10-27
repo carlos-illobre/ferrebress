@@ -6,7 +6,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { createProofKey } from '../../platform/proof-key.ts';
 import { type ChannelEvent, openChannel } from '../../platform/realtime.ts';
 import { signInApi } from './api.ts';
-import { finish } from './useSignIn.ts';
+import { enteringWith, finish } from './useSignIn.ts';
 
 export type ComputerCode = { code?: string; read: boolean; since: number };
 
@@ -45,6 +45,7 @@ export function useComputerCode(enabled: boolean): ComputerCode {
   return state;
 }
 
+// El celular ya puso la huella: la computadora muestra la espera mientras abre su sesión.
 async function claim(permit: string): Promise<void> {
-  finish(await signInApi.claim(permit, await createProofKey()));
+  finish(await enteringWith('phone', async () => signInApi.claim(permit, await createProofKey())));
 }

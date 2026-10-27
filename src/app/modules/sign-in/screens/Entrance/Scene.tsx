@@ -116,11 +116,3 @@ export const Wave = () => (
     </svg>
   </footer>
 );
-
-// «Entrando…»: lo que muestra la entrada mientras espera al servidor (00 · R7.2).
-export const WaitingSign = () => (
-  <section class="entering" role="status">
-    <span class="entering-spin" aria-hidden="true" />
-    <p>{texts.entering}</p>
-  </section>
-);

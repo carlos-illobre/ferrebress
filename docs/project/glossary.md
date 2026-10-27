@@ -123,6 +123,8 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Dispositivo | Un navegador en un celular o una computadora, con su identificador | `device` |
 | Huella | Entrar con el lector del celular, sin contraseña | `passkey` |
 | Celular con huella | Un celular vinculado para entrar con la huella | `passkey` |
+| Entrando | La espera mientras se abre la sesión, ya confirmado quién es | `entering` |
+| Cómo entra | Con Google, con la huella o con el celular (la computadora, por el QR) | `way` (`google`, `passkey`, `phone`) |
 | Entrar con el celular | Entrar a la computadora leyendo su código con el celular | `phoneSignIn` |
 | Código de entrada | El código QR que muestra la computadora para entrar | `signInCode` |
 | Leer / aprobar / «No soy yo» | Lo que hace el celular con un código de entrada | `read` / `approve` / `cancel` |

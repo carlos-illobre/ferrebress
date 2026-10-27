@@ -2,7 +2,8 @@
 // pida y anota lo que le mandaron. Reemplaza a fetch mientras dura la prueba.
 import { vi } from 'vitest';
 
-export type Reply = { status?: number; body?: unknown; stream?: string } | 'offline';
+// 'offline': sin conexión; 'waiting': el servidor no contesta nunca.
+export type Reply = { status?: number; body?: unknown; stream?: string } | 'offline' | 'waiting';
 
 export type Sent = { path: string; body: unknown };
 
@@ -12,6 +13,13 @@ const json = (status: number, body: unknown) =>
     headers: { 'X-Ferrebress': 'v=app-test; t=1700000000000; e=testing' },
   });
 
+function answer(reply: Reply): Promise<Response> | Response {
+  if (reply === 'offline') throw new TypeError('Failed to fetch');
+  if (reply === 'waiting') return new Promise<Response>(() => {});
+  if (reply.stream !== undefined) return new Response(reply.stream);
+  return json(reply.status ?? 200, reply.body);
+}
+
 // Cada ruta contesta con su lista de respuestas, en orden; la última se repite.
 export function fakeServer(routes: Record<string, Reply | Reply[]>) {
   const sent: Sent[] = [];
@@ -20,9 +28,7 @@ export function fakeServer(routes: Record<string, Reply | Reply[]>) {
     sent.push({ path, body: init?.body ? JSON.parse(String(init.body)) : undefined });
     const replies = left.get(path) ?? [{ status: 404, body: { error: 'not-found' } }];
     const reply = (replies.length > 1 ? replies.shift() : replies[0]) as Reply;
-    if (reply === 'offline') throw new TypeError('Failed to fetch');
-    if (reply.stream !== undefined) return new Response(reply.stream);
-    return json(reply.status ?? 200, reply.body);
+    return answer(reply);
   });
   vi.stubGlobal('fetch', fetch);
   return { sent, bodies: (path: string) => sent.filter((s) => s.path === path).map((s) => s.body) };

@@ -8,9 +8,11 @@ import { useWaiting } from '../../../../platform/waiting.ts';
 import { TestEnvironment } from '../../../frame/index.ts';
 import { useNotice } from '../../notice.ts';
 import { texts } from '../../texts.ts';
+import { entering } from '../../useSignIn.ts';
 import { Card } from './Card.tsx';
 import { EntranceContext, type EntranceState } from './context.ts';
-import { Brand, PhoneShot, Seals, Status, WaitingSign, Wave, WhatFor } from './Scene.tsx';
+import { Entering } from './Entering.tsx';
+import { Brand, PhoneShot, Seals, Status, Wave, WhatFor } from './Scene.tsx';
 import './Entrance.css';
 import './desktop.css';
 import './desktop-code.css';
@@ -30,7 +32,8 @@ export function Entrance({ start, onScan, signInFirst, onStale }: EntranceProps)
   const online = useStore(onlineStore);
   const closed = useStore(sessionClosed);
   const { notice, setNotice } = useNotice();
-  const { phase, run } = useWaiting();
+  const { run } = useWaiting();
+  const way = useStore(entering);
   const state: EntranceState = {
     start,
     online,
@@ -41,7 +44,6 @@ export function Entrance({ start, onScan, signInFirst, onStale }: EntranceProps)
         setNotice(next);
         if (next?.kind === 'expired') onStale();
       }),
-    busy: phase === 'mark' || phase === 'bar',
     scan: onScan,
     signInFirst,
   };
@@ -62,7 +64,7 @@ export function Entrance({ start, onScan, signInFirst, onStale }: EntranceProps)
           <Wave />
         </div>
       </main>
-      {state.busy && <WaitingSign />}
+      {way && <Entering way={way} where="screen" />}
     </EntranceContext.Provider>
   );
 }
