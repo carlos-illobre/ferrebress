@@ -16,6 +16,7 @@ function page(html: string) {
 }
 
 const markedId = () => document.querySelector('.marked')?.id;
+const tick = () => new Promise((resolve) => setTimeout(resolve));
 
 describe('el teclado de la computadora', () => {
   let stop: () => void;
@@ -53,12 +54,12 @@ describe('el teclado de la computadora', () => {
     expect(clicks).toEqual(['cancel', 'google']);
   });
 
-  it('app-E09, E10 y E14: las flechas recorren lo marcable, Enter lo toca, Esc saca la marca y después cierra', () => {
+  it('app-E09 y E10: las flechas recorren lo marcable, Enter lo toca, Esc saca la marca', () => {
     const clicks = page(`
-      <section data-layer>
+      <main data-layer>
         <button id="a" data-mark>A</button><button id="b" data-mark>B</button>
-        <button id="close" data-close>×</button>
-      </section>`);
+        <button id="hidden" data-mark style="display: none">Escondido</button>
+      </main>`);
     press('ArrowUp');
     expect(markedId()).toBe('b');
     press('ArrowDown');
@@ -71,9 +72,88 @@ describe('el teclado de la computadora', () => {
     press('Escape');
     expect(markedId()).toBeUndefined();
     press('Enter');
+    expect(clicks).toEqual(['b']);
+  });
+
+  it('app-E14: con algo abierto encima, Esc lo cierra aunque haya algo marcado, y la marca vuelve a quien lo abrió', async () => {
+    const clicks = page(`
+      <main data-layer><button id="more" data-mark aria-expanded="false">Más</button></main>
+      <section data-layer><button id="inside" data-mark>Adentro</button><button id="close" data-close>×</button></section>`);
+    const section = document.querySelector('section') as HTMLElement;
+    section.style.display = 'none';
+    document.querySelector('#close')?.addEventListener('click', () => {
+      section.style.display = 'none';
+    });
+    document.querySelector('#more')?.addEventListener('click', () => {
+      section.style.display = '';
+    });
+    press('ArrowDown');
+    press('ArrowRight');
+    await tick();
+    expect(markedId()).toBe('inside');
     press('Escape');
-    expect(clicks).toEqual(['b', 'close']);
+    await tick();
+    expect(clicks).toEqual(['more', 'close']);
+    expect(markedId()).toBe('more');
+  });
+
+  it('← cierra lo que se abrió encima; sin nada encima, mueve la marca', async () => {
+    const clicks = page(`
+      <main data-layer><button id="a" data-mark>A</button></main>
+      <section data-layer><button id="close" data-close data-mark>×</button></section>`);
+    press('ArrowDown');
+    press('ArrowLeft');
+    await tick();
+    expect(clicks).toEqual(['close']);
+    expect(markedId()).toBeUndefined();
+    document.querySelector('section')?.remove();
+    press('ArrowLeft');
+    expect(markedId()).toBe('a');
+  });
+
+  it('Esc cierra lo de encima aunque no haya nada marcado', async () => {
+    const clicks = page(`
+      <main data-layer><button id="a" data-mark>A</button></main>
+      <section data-layer><button id="close" data-close>×</button></section>`);
+    press('Escape');
+    await tick();
+    expect(clicks).toEqual(['close']);
+    expect(markedId()).toBeUndefined();
+  });
+
+  it('si lo que abrió la capa ya no está, al cerrarla no queda nada marcado', async () => {
+    page(`
+      <main data-layer><button id="more" data-mark aria-expanded="false">Más</button></main>
+      <section data-layer><button id="inside" data-mark data-close>Adentro</button></section>`);
+    press('ArrowDown');
+    press('ArrowRight');
+    await tick();
+    document.querySelector('#more')?.remove();
+    press('Escape');
+    await tick();
+    expect(markedId()).toBeUndefined();
+  });
+
+  it('avisa cada vez que la marca cambia, para el rótulo del menú', () => {
+    page('<button id="a" data-mark>A</button>');
+    const seen: (string | undefined)[] = [];
+    const listener = (event: Event) =>
+      seen.push((event as CustomEvent<HTMLElement | undefined>).detail?.id);
+    document.addEventListener('mark', listener);
+    press('ArrowDown');
     window.dispatchEvent(new Event('mousemove'));
+    window.dispatchEvent(new Event('mousemove'));
+    document.removeEventListener('mark', listener);
+    expect(seen).toEqual(['a', undefined]);
+  });
+
+  it('app-E11 con algo encima: Alt muestra solo las teclas de la capa de arriba', () => {
+    page('<main data-layer></main><section data-layer></section>');
+    press('Alt');
+    expect(document.querySelector('section')?.classList.contains('show-keys')).toBe(true);
+    expect(document.querySelector('main')?.classList.contains('show-keys')).toBe(false);
+    window.dispatchEvent(new KeyboardEvent('keyup', { key: 'Alt' }));
+    expect(document.querySelector('.show-keys')).toBeNull();
   });
 
   it('app-E15: el mouse saca la marca; sin nada marcable las flechas no hacen nada', () => {

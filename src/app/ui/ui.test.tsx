@@ -4,6 +4,7 @@ import { startKeyboard } from '../platform/keyboard.ts';
 import { later } from '../testing/later.ts';
 import { Button } from './button/Button.tsx';
 import { Icon } from './icon/Icon.tsx';
+import { Say } from './say/Say.tsx';
 import { Sheet } from './sheet/Sheet.tsx';
 
 describe('las piezas', () => {
@@ -98,5 +99,17 @@ describe('las piezas', () => {
     expect(first?.getAttribute('aria-hidden')).toBe('true');
     expect(first?.getAttribute('class')).toBe('icon');
     expect(second?.getAttribute('class')).toBe('icon icon-large');
+  });
+
+  it('app-E18: un texto lleva la forma larga y la corta, y si son iguales, una sola', () => {
+    const { container } = render(
+      <p>
+        <Say words={{ long: 'En línea · todo enviado', short: 'En línea' }} />
+        <Say words={{ long: 'Salir', short: 'Salir' }} />
+      </p>,
+    );
+    expect(container.innerHTML).toBe(
+      '<p><span class="long">En línea · todo enviado</span><span class="short">En línea</span>Salir</p>',
+    );
   });
 });

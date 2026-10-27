@@ -108,10 +108,4 @@
   .show-keys .button kbd {
     display: inline-flex;
   }
-
-  /* Lo que marcan las flechas (00 · R2.4). */
-  .marked {
-    outline: 3px solid var(--action);
-    outline-offset: 3px;
-  }
 }
