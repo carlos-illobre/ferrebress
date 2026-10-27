@@ -1,6 +1,6 @@
 # ADR-010: Contenedores con Docker Compose, solo para correr el sistema
 
-**Estado:** aceptado (2026-10-26, decisión 32)
+**Estado:** aceptado
 
 ## Contexto
 

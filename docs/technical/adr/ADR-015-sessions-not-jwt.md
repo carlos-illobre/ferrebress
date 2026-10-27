@@ -1,6 +1,6 @@
 # ADR-015: Sesiones propias guardadas en el servidor, no JWT
 
-**Estado:** aceptado (2026-10-27, decisiones 60, 61 y 62). Precisa la parte de sesiones del ADR-006.
+**Estado:** aceptado. Precisa la parte de sesiones del ADR-006.
 
 ## Contexto
 
@@ -8,7 +8,7 @@ Después de entrar (con Google, con la huella o con el celular), cada pedido al 
 decir quién lo hace. Para eso el dispositivo recibe un pase al entrar y lo manda con cada pedido:
 eso es la sesión. Hace falta poder cerrar una sesión al instante (al salir, a distancia o al dar
 de baja a una persona), que la sesión venza sola después de un tiempo configurable, y que el
-sistema pueda crecer a varias copias del servidor (decisión 24).
+sistema pueda crecer a varias copias del servidor.
 
 ## Opciones
 
@@ -45,24 +45,24 @@ de la aplicación.
 
 - **Pase opaco** de 32 bytes al azar, creado al entrar.
 - **En el navegador,** en una cookie `HttpOnly`, `Secure`, `SameSite=Strict`. Funciona porque la
-  aplicación y el servidor están en la misma dirección (decisión 45). Lo que la pantalla necesita
+  aplicación y el servidor están en la misma dirección. Lo que la pantalla necesita
   mostrar sin conexión (nombre y rol) se guarda aparte en el dispositivo, porque no es secreto.
 - **En el servidor,** la tabla de sesiones de PostgreSQL es la fuente de verdad y guarda la huella
   del pase (SHA-256), la persona, el dispositivo, cuándo se entró y cuándo se usó por última vez.
   La memoria del servidor tiene una copia de las sesiones ya vistas: comprobar un pase no consulta
   la base. El último uso se escribe en la base por tandas.
 - **Vencimiento por falta de uso:** la sesión vence después de 60 minutos sin pedidos al servidor;
-  cada pedido vuelve a contar desde cero (decisiones 60 y 61). Un Administrador cambia ese tiempo
+  cada pedido vuelve a contar desde cero. Un Administrador cambia ese tiempo
   desde Administración; hasta que exista ese módulo, sale de la configuración. Lo cuenta el reloj
   del servidor. Solo cuentan los pedidos al servidor: no se mira si la persona toca la pantalla.
 - **Tope:** la sesión vence a las 8 horas de haber entrado, aunque se esté usando; ningún pedido lo
-  extiende (decisión 62). Así, una sesión robada o mantenida viva con pedidos automáticos dura
+  extiende. Así, una sesión robada o mantenida viva con pedidos automáticos dura
   como mucho 8 horas. También se cambia desde Administración.
 - **Lo hecho sin conexión** se guarda junto con la huella del pase de quien lo hizo. El servidor lo
   acepta a nombre de esa persona solo si el pase es suyo y su sesión no fue cerrada a mano ni la
   persona dada de baja; que el pase haya vencido no importa, porque solo prueba quién lo hizo. El
   cronómetro del dispositivo solo decide cuándo mostrar la entrada; nunca qué acepta el servidor.
-- **Sin conexión, la sesión no vence en el dispositivo** (01-D12): sin internet no se puede volver a
+- **Sin conexión, la sesión no vence en el dispositivo**: sin internet no se puede volver a
   entrar. Al volver la conexión, el servidor aplica los dos límites.
 - **Se termina** al salir, al vencer, cuando alguien la cierra a distancia o cuando la persona es
   dada de baja.

@@ -1,11 +1,11 @@
 # ADR-014: Dónde corre y cómo se despliega
 
-**Estado:** aceptado (2026-10-26, decisiones 25 y 32; enmendado por la 66)
+**Estado:** aceptado
 
 ## Contexto
 
 La infraestructura no cuesta nada hasta producción. Durante el desarrollo hay un solo ambiente, el
-de pruebas; producción nace en la tercera etapa (decisión 25). El repositorio es público: ni
+de pruebas; producción nace en la tercera etapa. El repositorio es público: ni
 secretos ni datos de proveedores entran en él.
 
 ## Opciones
@@ -32,9 +32,9 @@ secretos ni datos de proveedores entran en él.
 - La máquina no publica más que el puerto de Caddy; el servidor y PostgreSQL quedan en la red
   interna de Docker.
 
-## Enmienda (2026-10-27, decisión 66): cómo se entera la máquina
+## Cómo se entera la máquina
 
-La CI no entra a la máquina. Se toma el mecanismo de la primera versión, simplificado:
+La CI no entra a la máquina:
 
 1. La CI publica las imágenes en GHCR con la etiqueta del commit y manda un **aviso vacío** a un
    canal de ntfy.sh (servicio gratuito de notificaciones). El aviso no dice qué desplegar.
@@ -47,8 +47,6 @@ La CI no entra a la máquina. Se toma el mecanismo de la primera versión, simpl
 4. Un candado evita dos despliegues a la vez. Al arrancar la máquina, `deploy.sh` corre una vez,
    por si se perdió un aviso. Opcionalmente, el resultado se manda a otro canal de ntfy.
 
-Simplificaciones respecto de la primera versión: un solo ambiente hasta la tercera etapa, tres
-servicios fijos (Caddy, servidor, PostgreSQL) y un solo script.
 
 | | Aviso y la máquina pregunta (elegida) | SSH con una llave limitada (descartada) |
 |---|---|---|

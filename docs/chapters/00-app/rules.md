@@ -4,13 +4,13 @@ Lo que vale para toda la aplicación, sea cual sea el módulo: el marco y el men
 textos, la conexión, la versión nueva, el manual, las esperas, los formatos, los errores y el
 ambiente de pruebas.
 
-**Estado:** aprobado por Carlos el 2026-10-26.
+**Estado:** aprobado.
 
-## 1. El marco y el menú (decisiones 38, 51 y 63)
+## 1. El marco y el menú
 
 - **R1.1** El menú tiene cinco partes, en este orden: Vender · Catálogo · Depósito · Negocio · Más.
   En la computadora va a la izquierda; en el celular, abajo. Dónde va el menú no es una regla que
-  limite al director de arte: es la elección de hoy (decisión 63).
+  limite al director de arte: es la elección de hoy.
 - **R1.2** Cada parte tiene sus pestañas (el submenú):
   - Vender: Vender · Ventas de hoy.
   - Catálogo: Productos · Listas · Duplicados.
@@ -18,17 +18,17 @@ ambiente de pruebas.
   - Negocio: Resumen · Usuarios · Quién hizo qué.
   - Más: Anomalías · Procesos · Mejoras y errores · Configuración · Administración · Manual.
 - **R1.3** En el ambiente de pruebas, lo que todavía no existe aparece en el menú con la marca
-  «Pronto» y no se puede abrir. En producción no aparece hasta que existe (decisión 51).
+  «Pronto» y no se puede abrir. En producción no aparece hasta que existe.
 - **R1.4** Al abrir la aplicación se abre siempre la primera opción del menú que exista. No se
   recuerda la última parte usada ni cómo quedó el menú.
 - **R1.6** En la computadora, un botón minimiza el menú a solo sus íconos y lo vuelve a agrandar.
   Minimizado, cada ícono dice su nombre al pasar el mouse o al llegar con la marca del teclado.
-  Cada vez que se abre la aplicación, el menú arranca agrandado (R1.4, decisión 63).
+  Cada vez que se abre la aplicación, el menú arranca agrandado (R1.4).
 - **R1.5** La aplicación es una sola para la computadora y el celular: la misma funcionalidad, con
-  otra disposición (decisión 6). Se adapta a cualquier tamaño de pantalla, o al menos a los más
-  comunes (decisión 44).
+  otra disposición. Se adapta a cualquier tamaño de pantalla, o al menos a los más
+  comunes.
 
-## 2. El teclado (decisión 36)
+## 2. El teclado
 
 Vale solo en la computadora.
 
@@ -57,7 +57,7 @@ Vale solo en la computadora.
 - **R2.12** En el celular el cursor nunca arranca en una caja de texto, para que no se abra el
   teclado solo.
 
-## 3. Los textos (decisión 37)
+## 3. Los textos
 
 - **R3.1** Cada texto de una pantalla tiene dos formas: la **larga**, que explica cómo funciona, y la
   **corta**, que solo identifica, para quien ya sabe usarla.
@@ -65,7 +65,7 @@ Vale solo en la computadora.
   ancho en que cambia la disposición), usa la corta.
 - **R3.3** Todo en castellano, con las palabras del mostrador y el rol, no la persona.
 
-## 4. La conexión (decisiones 13, 14, 39 y 52)
+## 4. La conexión
 
 - **R4.1** Una luz de conexión, siempre a la vista, dice uno de tres estados: «En línea · todo
   enviado», «Sin conexión · N por enviar» o «Enviando…».
@@ -75,13 +75,13 @@ Vale solo en la computadora.
   los avisos del navegador. Ningún temporizador consulta la red.
 - **R4.4** Sin conexión, lo que no puede andar se pone gris y dice «Sin conexión»: se puede leer lo
   que ya estaba en pantalla, pero no tocar nada. Solo queda disponible salir de la aplicación
-  (decisión 52).
+ .
 - **R4.5** Si el dispositivo tiene habilitado trabajar sin conexión, lo de atender clientes y
   proveedores sigue andando; lo demás se pone gris. Qué anda sin conexión está en
   [qué necesita internet](../what-needs-internet.md).
 - **R4.6** Cuando vuelve la conexión, lo gris vuelve a andar solo, sin recargar.
 
-## 5. La versión nueva (decisiones 40 y 53)
+## 5. La versión nueva
 
 - **R5.1** La aplicación se entera de una versión nueva por las respuestas del servidor, sin
   consultas propias.
@@ -92,11 +92,11 @@ Vale solo en la computadora.
   se actualiza sola.
 - **R5.6** Si la aplicación pasa a segundo plano (otra pestaña, otra aplicación, la pantalla
   apagada) con una versión nueva esperando y nada a medio hacer, se actualiza sola, sin gastar
-  datos de más y sin interrumpir a nadie (decisión 53).
+  datos de más y sin interrumpir a nadie.
 - **R5.5** Si el servidor ya no entiende la versión que tiene el dispositivo, la aplicación se
   bloquea con «Hay que actualizar para seguir» y un solo botón: «Actualizar».
 
-## 6. El manual (decisiones 26 y 41)
+## 6. El manual
 
 - **R6.1** En la computadora se abre desde la entrada («Ver el manual») y desde Más → Manual. En el
   celular, solo desde Más → Manual.
@@ -104,7 +104,7 @@ Vale solo en la computadora.
 - **R6.3** Arriba se elige el dispositivo: Computadora o Celular. Arranca en el que se está usando.
   Todo el manual (índice, capítulos, capturas) muestra solo lo del dispositivo elegido.
 - **R6.4** Tiene un capítulo por módulo, en el orden del menú. En el ambiente de pruebas, los que
-  todavía no están escritos dicen «pronto» y no se abren; en producción no aparecen (decisión 51).
+  todavía no están escritos dicen «pronto» y no se abren; en producción no aparecen.
 - **R6.5** Cada capítulo tiene texto simple, para quien atiende una ferretería sin saber de
   informática, pasos y capturas de la aplicación de verdad. Un clip solo donde la funcionalidad es
   lo bastante grande para verla en video; arranca cuando se lo pide, sin sonido.
@@ -113,7 +113,7 @@ Vale solo en la computadora.
 - **R6.7** «Volver» lleva a donde se estaba (la entrada o la aplicación).
 - **R6.8** Necesita internet y no se guarda en el dispositivo.
 
-## 7. Las esperas y las búsquedas (decisión 46)
+## 7. Las esperas y las búsquedas
 
 - **R7.1** Lo que responde en menos de 300 ms no muestra ninguna espera.
 - **R7.2** Pasados 300 ms, lo que se tocó muestra una marca de espera y no se puede volver a tocar.
@@ -121,32 +121,32 @@ Vale solo en la computadora.
 - **R7.4** Toda búsqueda espera 150 ms sin que se tipee antes de buscar, y deja sin efecto la
   búsqueda anterior si todavía no había terminado.
 
-## 8. Los números y los formatos (decisiones 43, 48, 54 y 55)
+## 8. Los números y los formatos
 
 - **R8.1** Todo número calculado deja ver cómo se calculó, con los números de origen, desde la misma
   pantalla donde se muestra. La forma la decide el director de arte.
 - **R8.2** Los importes van con «$» y punto de miles: «$ 45.500». Por omisión, sin decimales; cada
-  persona puede elegir verlos en Configuración (decisión 54).
+  persona puede elegir verlos en Configuración.
 - **R8.3** Las cantidades van siempre con su unidad, abreviada igual en todas partes: «3 un.»,
   «1,5 kg», «2 m», «0,5 L».
-- **R8.4** Las fechas y horas las pone el servidor (decisión 22) y se muestran en la zona horaria
+- **R8.4** Las fechas y horas las pone el servidor y se muestran en la zona horaria
   del negocio, que fija un Administrador y es la misma para todos. El día del negocio («hoy» para
-  las ventas, el cierre de caja) sale de esa zona (decisión 55).
+  las ventas, el cierre de caja) sale de esa zona.
 - **R8.5** Cada persona elige en Configuración solo el formato de la hora (24 horas o a. m./p. m.)
   y de la fecha; por omisión, los del sistema del dispositivo.
 
-## 9. Si algo falla (decisiones 49 y 56)
+## 9. Si algo falla
 
 - **R9.1** Si algo de la aplicación falla sin que la persona pueda hacer nada, se muestra «Algo
   salió mal», con qué hacer para seguir y un botón para avisarlo.
 - **R9.4** El aviso lleva una captura de la pantalla y los últimos pasos que se hicieron (qué se
-  tocó y en qué pantalla), sin datos de clientes ni la sesión de la persona (decisión 56).
+  tocó y en qué pantalla), sin datos de clientes ni la sesión de la persona.
 - **R9.2** Mientras no exista el módulo de mejoras y errores, el aviso guarda qué pasó para mandarlo
   cuando exista.
 - **R9.3** Lo que se estaba haciendo no se pierde por el error: la venta en curso, por ejemplo,
   sigue ahí al volver.
 
-## 10. El ambiente de pruebas (decisión 45)
+## 10. El ambiente de pruebas
 
 - **R10.1** En el ambiente de pruebas, toda pantalla tiene un marco magenta fijo y el cartel
   «Ambiente de prueba · nada de esto es real». Producción no tiene nada de eso.

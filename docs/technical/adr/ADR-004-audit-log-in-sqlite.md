@@ -1,6 +1,6 @@
 # ADR-004: La auditoría en SQLite, aparte de PostgreSQL
 
-**Estado:** aceptado (2026-10-26, decisión 21)
+**Estado:** aceptado
 
 ## Contexto
 

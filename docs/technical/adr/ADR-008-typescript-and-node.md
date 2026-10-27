@@ -1,6 +1,6 @@
 # ADR-008: TypeScript sobre Node, con pnpm
 
-**Estado:** aceptado (2026-10-26, decisiones 2, 7 y 32)
+**Estado:** aceptado
 
 ## Contexto
 

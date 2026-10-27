@@ -1,6 +1,6 @@
 # ADR-013: Preact, Vite y CSS sin herramientas en la aplicación
 
-**Estado:** aceptado (2026-10-26, decisión 32). A confirmar por Carlos: Preact en lugar de React.
+**Estado:** aceptado
 
 ## Contexto
 

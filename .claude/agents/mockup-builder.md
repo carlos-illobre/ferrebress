@@ -19,8 +19,7 @@ Abrí la maqueta y mirá que la consola no tenga errores. No uses git.
 - La pantalla, la variante elegida (`docs/design/mockups/<screen>/<variante>/`) y lo que Carlos
   quiera tomar de las otras variantes.
 - Lo que Carlos pidió cambiar, con sus palabras.
-- El capítulo del módulo (`docs/chapters/NN-<module>/`): `rules.md`, `screens.md` y
-  `decisions.md`, y las reglas generales de `docs/chapters/00-app/rules.md`.
+- El capítulo del módulo (`docs/chapters/NN-<module>/`): `rules.md` y `screens.md`, y las reglas generales de `docs/chapters/00-app/rules.md`.
 
 ## Cómo trabajás
 
@@ -51,8 +50,9 @@ Abrí la maqueta y mirá que la consola no tenga errores. No uses git.
 ## Al terminar
 
 - `screenshot.png` (y las capturas de los estados que importen) en `final/`.
-- `final/changes.md`: qué se cambió respecto de lo del director, por qué directiva de Carlos o por
-  qué regla.
+- `final/changes.md`: en qué se diferencia hoy la final de lo del director, y por qué (una directiva
+  de Carlos, una regla o un límite de la tecnología). Describe el estado actual, sin rondas ni
+  fechas: si una vuelta nueva cambia algo, se reescribe.
 - En `docs/design/mockups/index.json`, la pantalla con una variante «Final», que apunta a
   `final/`, primero en la lista (las del director quedan detrás, como referencia).
 - Abrila dentro del visor (`docs/design/index.html`, con `python3 -m http.server` desde

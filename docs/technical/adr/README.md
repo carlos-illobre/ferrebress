@@ -1,10 +1,10 @@
 # Decisiones técnicas (ADR)
 
 Una decisión técnica que afecta a más de un módulo, con las opciones consideradas y el porqué.
-Un ADR no se reescribe: si cambia, se agrega una enmienda o uno nuevo que lo reemplaza.
+Cada ADR describe la decisión vigente, con sus opciones y el porqué. Si cambia, se reescribe; la
+historia está en los commits.
 
-Cada tecnología elegida tiene su ADR, con las opciones, los pros, los contras y el porqué
-(decisión 32).
+Cada tecnología elegida tiene su ADR, con las opciones, los pros, los contras y el porqué.
 
 | ADR | Decisión | Estado |
 |---|---|---|
@@ -20,6 +20,6 @@ Cada tecnología elegida tiene su ADR, con las opciones, los pros, los contras y
 | [ADR-010](ADR-010-docker-compose.md) | Contenedores con Docker Compose, solo para correr el sistema | Aceptado |
 | [ADR-011](ADR-011-caddy.md) | Caddy como puerta de entrada | Aceptado |
 | [ADR-012](ADR-012-server-libraries.md) | Hono, Kysely y Zod en el servidor | Aceptado |
-| [ADR-013](ADR-013-app-libraries.md) | Preact, Vite y CSS sin herramientas en la aplicación | A confirmar |
+| [ADR-013](ADR-013-app-libraries.md) | Preact, Vite y CSS sin herramientas en la aplicación | Aceptado |
 | [ADR-014](ADR-014-hosting-and-deployment.md) | Dónde corre y cómo se despliega | Aceptado |
 | [ADR-015](ADR-015-sessions-not-jwt.md) | Sesiones propias guardadas en el servidor, no JWT | Aceptado |

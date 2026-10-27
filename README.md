@@ -15,7 +15,6 @@ rehacerse desde la documentación: si se borra `src/`, no se pierde ninguna regl
 |---|---|
 | [docs/project/constitution.md](docs/project/constitution.md) | Lo que no se negocia y cómo se trabaja. **Se lee antes de tocar nada** |
 | [docs/project/glossary.md](docs/project/glossary.md) | Las palabras del negocio y cómo se dicen en el código |
-| [docs/project/decisions.md](docs/project/decisions.md) | Lo que decidió Carlos, numerado y con fecha |
 | [docs/project/roadmap.md](docs/project/roadmap.md) | Las etapas, el orden de los módulos y las tareas |
 | [docs/chapters/](docs/chapters/README.md) | Un capítulo por módulo: sus reglas, sus pantallas y la historia de sus cambios |
 | [docs/design/](docs/design/README.md) | El lenguaje visual y las maquetas de cada pantalla |

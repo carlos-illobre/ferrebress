@@ -1,12 +1,8 @@
 # Constitución de Ferrebress
 
 Lo que no se negocia. Todo capítulo, diseño, tarea y línea de código se revisa contra este
-documento; si algo lo contradice, se cambia ese algo o se enmienda la constitución con la
+documento; si algo lo contradice, se cambia ese algo o se cambia la constitución con la
 aprobación de Carlos.
-
-Se escribió el 2026-10-26, al rehacer el sistema desde cero: la documentación vive aparte del
-código, el código va en inglés, un solo servidor y una sola aplicación partidos en módulos, y un
-ciclo de nueve pasos por módulo ([decisiones](decisions.md) 1 a 34).
 
 ## Principios
 
@@ -125,12 +121,15 @@ sin tocar el negocio. La infraestructura no cuesta nada hasta que el sistema est
   traducción, la del [glosario](glossary.md); una palabra nueva se agrega ahí antes de usarla.
 - En pantallas e historias se nombra el rol, no la persona.
 
-### XI. Toda decisión queda escrita
+### XI. La documentación describe el presente
 
-Una decisión de Carlos se anota con su número y su fecha en [decisions.md](decisions.md) y, si es
-una regla, en el capítulo que toca. Una decisión técnica que afecta a más de un módulo es un ADR
-en `docs/technical/adr/`, con las opciones consideradas y el porqué. Un ADR o una decisión vieja
-no se reescribe: se agrega uno nuevo que dice a cuál reemplaza.
+- **Lo que decide Carlos se escribe donde corresponde,** como estado actual: una regla, en el
+  capítulo que toca; cómo se trabaja, en esta constitución; una decisión técnica, en su ADR. Si
+  cambia, se reescribe el texto: no se agregan enmiendas ni se guardan versiones viejas.
+- **Sin fechas ni historia.** Cuándo y por qué cambió algo está en los commits, y cada commit
+  explica el porqué.
+- **El porqué que sigue valiendo sí se escribe:** un ADR dice las opciones descartadas y por qué;
+  un capítulo puede decir qué no se hace y por qué, para que nadie lo vuelva a proponer.
 
 ### XII. Cómo se escribe el código
 
@@ -186,8 +185,7 @@ Cada módulo del negocio es un capítulo en `docs/chapters/`, con un número fij
 |---|---|
 | `summary.md` | Una página para entrar rápido: cada regla en una línea, lo que más pesa y lo que falta decidir. Es lo primero que se lee |
 | `rules.md` | Las reglas vigentes, con sus escenarios numerados (`E01`, `E02`…) en forma *dado / cuando / entonces*, incluidos los de error, de borde y de seguridad |
-| `screens.md` | Qué tiene que poder hacer cada rol en cada pantalla y qué maqueta de `docs/design/mockups/` se eligió |
-| `changes/AAAA-MM-DD-nombre/` | La historia: cada cambio con su pedido y sus decisiones |
+| `screens.md` | Qué tiene que poder hacer cada rol en cada pantalla y qué maqueta de `docs/design/mockups/` vale |
 
 `rules.md` tiene siempre lo vigente: cada cambio lo actualiza en el mismo commit. No hay otro
 documento de requerimientos (ni `spec.md` ni plantillas de Spec Kit): una regla está en un solo
@@ -200,7 +198,7 @@ comentarios; el maquetador construye la maqueta final con lo del director y esos
 Carlos la evalúa, y si pide cambios vuelve el maquetador, hasta que la aprueba.
 
 **Antes del paso 1, el alcance.** Antes de empezar un módulo, el agente le lista a Carlos todo lo
-que abarca, para que evalúe si se puede dividir en módulos más chicos (decisión 59). Se empieza
+que abarca, para que evalúe si se puede dividir en módulos más chicos. Se empieza
 recién con su respuesta.
 
 Los hace el mismo agente en la misma sesión, en este orden; el código se escribe recién en el
@@ -209,7 +207,7 @@ programó no puede revisarse.
 
 | Paso | Rol | Qué hace | Deja | Aprueba Carlos |
 |---|---|---|---|---|
-| 1 | Analista de negocio | Parte de lo que había en la primera versión y le pregunta a Carlos **todo** lo que haga falta para cubrir la funcionalidad completa: cada caso, cada borde, cada error, cada permiso. Dice qué se tomó, qué se descarta por desactualizado y qué propone mejorar. Cada regla o decisión que formula Carlos la analiza en busca de mejoras y, si encuentra una opción superadora, se la ofrece (decisión 50). Las preguntas van todas juntas, en tandas, hasta que no quede nada sin respuesta: lo que Carlos no contestó o no quedó claro se vuelve a preguntar | `rules.md` y `summary.md`, con los escenarios | Sí |
+| 1 | Analista de negocio | Parte de lo que había en la primera versión y le pregunta a Carlos **todo** lo que haga falta para cubrir la funcionalidad completa: cada caso, cada borde, cada error, cada permiso. Dice qué se tomó, qué se descarta por desactualizado y qué propone mejorar. Toda regla o decisión que define Carlos la cuestiona: le ofrece las alternativas mejores que encuentre y las desventajas de aplicarla tal cual. Las preguntas van todas juntas, en tandas, hasta que no quede nada sin respuesta: lo que Carlos no contestó o no quedó claro se vuelve a preguntar | `rules.md` y `summary.md`, con los escenarios | Sí |
 | 2 | Director de arte (skill `art-director`), un perfil artístico e innovador | Tres versiones muy distintas de cada pantalla, una pantalla por vez y en el orden en que se usan, funcionando y con sus animaciones, en el visor de maquetas. Carlos elige una antes de pasar a la siguiente. Solo pantallas de este módulo. La interfaz es lo más importante: va antes que todo lo técnico | `docs/design/mockups/<pantalla>/` y `screens.md` | Sí: las ve y da sus comentarios, con los que trabaja el maquetador |
 | 2b | Maquetador (agente `mockup-builder`), un desarrollador frontend | Lleva las ideas del director, por exóticas que sean, a la tecnología disponible, y construye la maqueta final: toma como base lo que hizo el director de arte (la variante elegida y lo que Carlos quiera de las otras), le suma las directivas de Carlos y la ajusta a las reglas aprobadas. El director diseña sin límites; el maquetador pone los límites. Nunca modifica lo del director | `docs/design/mockups/<pantalla>/final/` | Sí: la evalúa; si pide cambios, vuelve el maquetador |
 | 3 | Arquitecto | Entidades, API, eventos, permisos, conexiones, la sección «Seguridad», las **metas de performance** (consultas por pedido, milisegundos, bytes) y las tareas con sus dependencias; un ADR si hay una decisión técnica | `docs/technical/modules/<module>.md` | — |
@@ -234,28 +232,27 @@ tamaño y se le dice a Carlos en una línea:
 | Ajuste | Un color, un texto, el orden de un menú | El documento actualizado; el pedido vale como aprobación |
 | Cambio de regla | Una regla nueva o distinta en un capítulo que existe | Pasos 1 y 3 a 5, solo en lo que cambia |
 | Cambio de interfaz | Una pantalla que cambia de un modo que Carlos tiene que ver | Paso 2 |
-| Funcionalidad nueva | Algo que no existe, que toca más de un capítulo o lleva más de un día | Los nueve pasos, en una carpeta de `changes/` del capítulo principal |
+| Funcionalidad nueva | Algo que no existe, que toca más de un capítulo o lleva más de un día | Los nueve pasos |
 
 Ante la duda, vale el más grande.
 
 ### Trabajo en paralelo
 
-Varias sesiones pueden trabajar a la vez en módulos distintos (decisión 57). Para que no hagan lo
+Varias sesiones pueden trabajar a la vez en módulos distintos. Para que no hagan lo
 mismo ni se pisen:
 
 - **Se toma la tarea antes de empezar.** La sesión cambia el estado del módulo en el
-  [plan](roadmap.md) a «En curso: paso N (fecha)», hace commit y sube, **antes de tocar nada
+  [plan](roadmap.md) a «En curso: paso N», hace commit y sube, **antes de tocar nada
   más**. Si al subir otra sesión ya lo había tomado, el push falla: se trae `main` y se elige otro.
-  Al cerrar el módulo, el estado pasa a «Cerrado (fecha)».
+  Al cerrar el módulo, el estado pasa a «Cerrado».
 - **Solo se toma un módulo libre cuyos módulos previos estén cerrados** (columna «Depende de» del
   plan). Dos módulos donde uno depende del otro no van a la vez.
 - **El código común tiene un dueño por vez.** Cambiar `src/shared/`, `src/server/platform/`,
   `src/app/platform/`, `src/app/ui/` o `src/app/styles/` es una tarea propia del plan, que se toma
   igual que un módulo. Quien lo necesita y no lo tiene, lo anota y espera, o trabaja en otra parte.
-- **Las decisiones de un módulo van en su capítulo,** en `docs/chapters/NN-<module>/decisions.md`,
-  numeradas con el prefijo del módulo (`09-D03`). La lista general
-  ([decisions.md](decisions.md)) es solo para lo que vale para todo el proyecto, y se toca como el
-  código común: con la tarea «Documentos del proyecto» tomada.
+- **Los documentos del proyecto** (esta constitución, la arquitectura, los ADR, el plan salvo la
+  columna de estado) se tocan como el código común: con la tarea «Documentos del proyecto»
+  tomada.
 - **En los archivos compartidos cada módulo toca solo lo suyo:** en el
   [glosario](glossary.md), su sección; en [qué necesita internet](../chapters/what-needs-internet.md),
   sus filas. No se editan las líneas de otro módulo.
@@ -270,19 +267,6 @@ mismo ni se pisen:
 las pruebas unitarias con su cobertura y que los enlaces de la documentación funcionen. No se
 sube nada que no lo pase. Las pruebas de punta a punta corren antes de cerrar un módulo.
 
-## Enmiendas
+## Cómo se cambia
 
-Se enmienda con la aprobación de Carlos, anotando qué cambió y por qué, y subiendo la versión.
-
-**Version**: 2.2.0 | **Ratified**: 2026-10-26 | **Last Amended**: 2026-10-26
-
-**Enmienda 2.0.0 (2026-10-26):** toda la aplicación, no solo el servidor; una sola versión de
-cada pantalla; la base guarda el presente y la auditoría la historia; la hora es la del servidor;
-pruebas sin Docker y con cobertura total; nueve pasos por módulo con dos revisiones
-independientes (decisiones 1 a 34).
-
-**Enmienda 2.1.0 (2026-10-26):** el orden de autoridad (reglas, maquetas, diseño, pruebas,
-código) y las pruebas antes que el código; las preguntas sin respuesta se vuelven a hacer; cada
-tecnología tiene su ADR; sin `spec.md` (decisiones 30 a 34).
-
-**Enmienda 2.2.0 (2026-10-26):** trabajo en paralelo entre sesiones (decisión 57).
+Se cambia con la aprobación de Carlos, en el mismo commit que explica por qué.

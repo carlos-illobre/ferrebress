@@ -1,6 +1,6 @@
 # ADR-001: Un solo servidor partido en módulos
 
-**Estado:** aceptado (2026-10-26, decisión 2)
+**Estado:** aceptado
 
 ## Contexto
 
@@ -55,7 +55,7 @@ PostgreSQL con un **esquema por módulo**.
   servidor tumba todos los módulos. Lo que puede colgarse (leer una planilla rara) corre con un
   tiempo límite.
 
-## Enmienda (2026-10-26, decisiones 5 y 21)
+## La aplicación y la auditoría
 
 - La aplicación sigue la misma partición: un módulo de la aplicación por cada módulo del servidor,
   con el mismo nombre (ADR-002).

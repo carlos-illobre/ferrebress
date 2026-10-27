@@ -1,6 +1,6 @@
 # ADR-007: Sin conexión, solo para atender, y la hora del servidor
 
-**Estado:** aceptado (2026-10-26, decisiones 14, 17, 22 y 23)
+**Estado:** aceptado
 
 ## Decisión
 

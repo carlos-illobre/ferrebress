@@ -1,6 +1,6 @@
 # ADR-006: Entrar sin contraseñas
 
-**Estado:** aceptado (2026-10-26, decisión 11)
+**Estado:** aceptado
 
 ## Decisión
 
@@ -16,7 +16,7 @@
   - Si no, un QR propio que vence a los 60 segundos y sirve una sola vez. El celular muestra qué
     computadora pide la entrada y pide la huella.
 - **Sesiones opacas** guardadas en la base y en la memoria del servidor: comprobar una no consulta
-  la base, y cerrarla a distancia se nota al instante (decisión 28). El detalle, y por qué no JWT,
+  la base, y cerrarla a distancia se nota al instante. El detalle, y por qué no JWT,
   está en el ADR-015.
 
 ## Riesgos considerados
@@ -29,12 +29,10 @@
 ## Opciones descartadas
 
 - **Contraseñas:** Carlos no las quiere.
-- **Google en el celular:** más pasos; la huella alcanza.
 
-## Enmienda (2026-10-26, decisión 35)
+## Dónde se entra con qué
 
-El celular también entra con Google. Las formas de entrar quedan así, siempre con una cuenta
-autorizada:
+Siempre con una cuenta autorizada:
 
 | Dónde | Con Google | Con la huella |
 |---|---|---|

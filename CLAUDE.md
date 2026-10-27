@@ -27,10 +27,13 @@ secundario.**
 - **Un módulo a la vez, entero:** reglas, pantallas, diseño técnico, código, pruebas y manual, en
   los nueve pasos de la constitución. No se programa sin las reglas, las pantallas y el diseño
   técnico aprobados por Carlos.
-- **Toda regla de Carlos se analiza en busca de mejoras:** si hay una opción superadora, se le
-  ofrece con sus pros y contras, y decide él (decisión 50).
+- **Toda regla que define Carlos se cuestiona:** cada vez, se le ofrecen las alternativas mejores
+  que se encuentren y las desventajas de aplicarla tal cual; decide él.
+- **La documentación describe el presente:** sin fechas, sin numerar decisiones y sin historia.
+  Lo que decide Carlos se escribe donde corresponde (capítulo, constitución o ADR) como estado
+  actual. La historia está en los commits, y cada commit explica el porqué.
 - **Antes de empezar un módulo, se le lista a Carlos todo lo que abarca,** para que decida si se
-  divide (decisión 59).
+  divide.
 - **El analista de negocio pregunta todo.** Sin las preguntas, Carlos no puede describir bien el
   requerimiento: casos, bordes, errores y permisos, todas juntas y en tandas hasta que no quede
   nada sin respuesta.
@@ -44,10 +47,10 @@ secundario.**
 - **Antes de subir, `pnpm check`.** Todo directo a `main`, sin ramas ni pull requests. En una
   sesión en la nube que arranca en una rama `claude/…`, se sube igual a `main`
   (`git push origin HEAD:main`).
-- **Internet:** los sitios externos se consultan directamente, sin pedir permiso (decisión 4).
+- **Internet:** los sitios externos se consultan directamente, sin pedir permiso.
 
 ## Qué no decide el agente
 
 El alcance, las fechas y las prioridades. Un requerimiento nuevo, o uno que cambia, se le
 pregunta a Carlos. Si Carlos no contestó una pregunta, o la respuesta no quedó clara, se le
-vuelve a preguntar: nada queda supuesto (decisión 30).
+vuelve a preguntar: nada queda supuesto.

@@ -1,11 +1,11 @@
 # ADR-009: PostgreSQL para el estado actual
 
-**Estado:** aceptado (2026-10-26, decisiones 21, 24 y 32)
+**Estado:** aceptado
 
 ## Contexto
 
 La base guarda el estado actual: productos, precios, ventas, stock, personas. Hoy son tres
-personas; a futuro, hasta 100 en una instalación (decisión 24). La búsqueda de productos tiene que
+personas; a futuro, hasta 100 en una instalación. La búsqueda de productos tiene que
 responder en menos de 100 ms con más de 100.000 artículos, tolerando errores de tipeo. La historia
 va aparte, en la auditoría (ADR-004).
 

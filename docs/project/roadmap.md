@@ -2,7 +2,7 @@
 
 Lo previsto, por etapa y por módulo. Cada módulo se construye entero (reglas, pantallas, diseño,
 código, pruebas y manual) y se cierra cuando Carlos lo prueba; recién entonces empieza el
-siguiente (decisiones 5 y 25). Este archivo es la fuente de verdad de las tareas: los issues de
+siguiente. Este archivo es la fuente de verdad de las tareas: los issues de
 GitHub no se usan.
 
 ## Etapas
@@ -21,15 +21,15 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 
 | # | Módulo | Qué cubre | Por qué en este lugar | Depende de | Estado |
 |---|---|---|---|---|---|
-| 00 | `app` | Las reglas generales de la aplicación: el marco, el menú, el teclado, la conexión, la versión nueva, el manual, las esperas, los formatos | No se construye solo: cada regla se construye con el primer módulo que la necesita | — | Reglas aprobadas (2026-10-26) |
-| 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | En curso: paso 2 (2026-10-27) |
+| 00 | `app` | Las reglas generales de la aplicación: el marco, el menú, el teclado, la conexión, la versión nueva, el manual, las esperas, los formatos | No se construye solo: cada regla se construye con el primer módulo que la necesita | — | Reglas aprobadas |
+| 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | En curso: paso 3 |
 | 02 | `users` | Personas (autorizar, dar de baja), roles y permisos, y las sesiones abiertas de cada dispositivo | Para que entre alguien más que el primer Administrador | 01 | Libre |
 | 03 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para leer los códigos del catálogo | 01 | Libre |
 | 04 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo, formatos) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
 | 05 | `audit-log` | Quién hizo qué: guardarlo y consultarlo | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba | 01 | Libre |
 | 06 | `administration` | Los ajustes que fija un Administrador para todos (redondeo, márgenes rápidos, zona horaria, días del vínculo) y la pantalla de anomalías, a la que cada módulo le suma las suyas | El catálogo necesita el redondeo y los márgenes; mejor editarlos de entrada que dejar valores fijos | 02, 05 | Libre |
 | 07 | `catalog` | Productos, proveedores, costo, margen, precio, búsqueda, código de barras, foto y duplicados | La base de vender | 06 | Libre |
-| 08 | `price-lists` | Subir la lista de un proveedor, ver qué cambia y aplicarla; un lector por proveedor | Todo producto sale de una lista (decisión 15) | 07 | Libre |
+| 08 | `price-lists` | Subir la lista de un proveedor, ver qué cambia y aplicarla; un lector por proveedor | Todo producto sale de una lista | 07 | Libre |
 | 09 | `stock` | Cuánto hay de cada producto, correcciones a mano y las anomalías de stock | Vender lo descuenta | 07 | Libre |
 | 10 | `sales` | Vender, cobrar, ventas del día, corregir, anular, cambio de producto, consultas no satisfechas | El corazón del mostrador | 07, 09 | Libre |
 | 11 | `purchases` | Ingreso de mercadería y pedidos a proveedores | Atender proveedores | 07, 09 | Libre |
@@ -53,7 +53,7 @@ paralelo»).
 | Parte | Qué incluye | Estado |
 |---|---|---|
 | Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
-| Documentos del proyecto | La constitución, las decisiones generales, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
+| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
 
 ## Tareas pendientes de la base
 
@@ -70,7 +70,7 @@ paralelo»).
 
 ## Tareas futuras
 
-No se construyen ahora; el diseño no les cierra la puerta (decisión 29).
+No se construyen ahora; el diseño no les cierra la puerta.
 
 - [ ] T100 [carlos] Factura electrónica de ARCA.
 - [ ] T101 [carlos] Venta online, con devoluciones.
@@ -78,12 +78,12 @@ No se construyen ahora; el diseño no les cierra la puerta (decisión 29).
 - [ ] T103 [carlos] Buscar un producto sacándole una foto.
 - [ ] T104 [carlos] Devoluciones con reintegro o saldo a favor.
 - [ ] T105 [carlos] Productos propios y combos armados por la ferretería, con su código y su
-  precio, cuando haya datos de producción (decisión 15).
+  precio, cuando haya datos de producción.
 - [ ] T106 [carlos] Análisis de los datos guardados (rotación, combos), con una herramienta de
   análisis que lea la auditoría (ADR-004).
 - [ ] T108 [carlos] Productos que se venden en dólares: cómo se muestran y se cobran los importes
-  en otra moneda (decisión 54).
+  en otra moneda.
 - [ ] T109 [agente] Módulo 15 (Sin conexión): entrar sin conexión con la huella del celular,
   verificada en el dispositivo con la llave pública guardada; la firma viaja con cada venta como
-  prueba y el servidor la verifica al volver la conexión. Solo en el celular (01-D12).
-- [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales (decisión 25).
+  prueba y el servidor la verifica al volver la conexión. Solo en el celular.
+- [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales.

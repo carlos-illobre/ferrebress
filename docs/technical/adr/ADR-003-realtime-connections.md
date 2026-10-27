@@ -1,6 +1,6 @@
 # ADR-003: Las conexiones en un solo módulo, con cuatro formas
 
-**Estado:** aceptado (2026-10-26, decisiones 12 y 13)
+**Estado:** aceptado
 
 ## Contexto
 

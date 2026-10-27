@@ -2,7 +2,7 @@
 
 Entrar, salir y el marco vacío al que se llega. Reglas completas en [rules.md](rules.md).
 
-**Estado:** aprobado por Carlos el 2026-10-27.
+**Estado:** aprobado.
 
 ## Cada regla en una línea
 
@@ -20,18 +20,6 @@ Entrar, salir y el marco vacío al que se llega. Reglas completas en [rules.md](
 - **Al entrar:** el marco vacío, con todo en «Pronto» en pruebas (R6).
 - **La entrada:** la de la primera versión, una sola pantalla para los dos, con Google también en el
   celular (R7).
-
-## Lo que se tomó de la primera versión
-
-Google y la huella sin contraseñas, el QR de la computadora leído con el celular sin paso de
-confirmar, la huella ofrecida una vez después de Google, el límite de intentos, la pantalla de
-entrada.
-
-## Lo que se dejó
-
-- La sesión de 90 días: ahora 60 minutos sin uso y 8 horas como tope (decisiones 60 a 62).
-- El celular sin Google.
-- El aviso de un vínculo que podía tener varias cuentas en un celular.
 
 ## Lo que falta decidir
 

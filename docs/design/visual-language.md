@@ -158,12 +158,15 @@ Cinco partes, en el mismo orden en los dos dispositivos:
 Entrar va fuera del marco, a pantalla completa. Cada parte abre en su primera pestaña.
 
 **Computadora (1366 × 768)** — `desktop-frame.html`
-- Lateral blanco de 232 px (`.lateral`): marca, las cinco partes (44 px, ícono + nombre). La
+- Lateral blanco de 216 px (`.lateral`): el logotipo con el botón de minimizar a su derecha, las
+  cinco partes (44 px, ícono + nombre). La
   elegida va en `--pino-suave` con una raya naranja a la izquierda; Vender lleva la insignia con
   los renglones de la venta en curso; Más, una pastilla ámbar si hay anomalías.
 - Al pie del lateral: el espejo con el celular (`.vinculo`, verde si están juntos), la conexión
   («En línea · todo enviado» / ámbar «Sin conexión · 2 por enviar») y la persona.
-- Plegable a 72 px de íconos (`.app.plegado`, Ctrl B) para pantallas que piden ancho. Plegado, todo lo del pie (el estado de la conexión, la persona) va centrado en la columna.
+- Se minimiza a 64 px de íconos con su botón (Alt E): queda la F, los íconos, la luz como un punto y
+  la persona como sus iniciales, centrados en la columna. La maqueta de referencia es
+  `mockups/app-frame/final/`.
 - Contenido: cabecera (título 28 + acciones a la derecha, la principal en naranja) y debajo las
   pestañas subrayadas en pino. Área útil ≈ 1.070 × 600 px.
 - Teclado: ← va al lateral, ↑ ↓ lo recorren, → entra a las pestañas; Alt muestra las letras.

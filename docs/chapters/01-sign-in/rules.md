@@ -4,7 +4,7 @@ Entrar y salir de la aplicación, y el marco vacío al que se llega. Las persona
 sesiones de otros dispositivos están en el capítulo 02. Las reglas generales (el marco, el teclado,
 la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 
-**Estado:** aprobado por Carlos el 2026-10-27.
+**Estado:** aprobado.
 
 ## 1. Quién puede entrar
 
@@ -38,7 +38,7 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   - El código se renueva cada 60 segundos y sirve una sola vez.
   - Antes de pedir la huella, el celular muestra qué computadora pide entrar y desde qué ciudad
     aproximada (por ejemplo, «Chrome en Windows · Buenos Aires»), para notar un código copiado desde
-    una página falsa en otro lado (01-D10).
+    una página falsa en otro lado.
   - La computadora se entera en el momento, sin preguntar a ritmo fijo: espera por un canal
     abierto solo mientras el código está en pantalla (capítulo 00, R4.3).
 - **R2.6** Si el navegador de la computadora puede usar un celular cercano para entrar (passkeys
@@ -52,7 +52,7 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   eso, la entrada dice cuánto falta para volver a intentar.
 - **R2.10** Además, como mucho 20 intentos fallidos por hora por cuenta, desde cualquier
   dispositivo. Pasado eso, esa cuenta espera hasta que se cumpla la hora, y queda anotado para la
-  auditoría (01-D09).
+  auditoría.
 
 ## 3. La sesión (ADR-015)
 
@@ -73,7 +73,7 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   dispositivo».
 - **R3.6** Sin conexión, la sesión no vence en el dispositivo: ni por los 60 minutos sin uso ni por
   el tope de 8 horas, porque sin internet no se podría volver a entrar y el mostrador se frenaría
-  (01-D12). Cuando vuelve la conexión, el servidor la revisa: si sigue vigente, todo sigue; si
+ . Cuando vuelve la conexión, el servidor la revisa: si sigue vigente, todo sigue; si
   venció, aparece la entrada encima de lo que había, sin perder nada, y lo pendiente se manda con
   la prueba de quien lo hizo (R4).
 
@@ -85,7 +85,7 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   hizo.
 - **R4.3** El servidor lo acepta a nombre de esa persona solo si viene con la prueba de su pase y
   su sesión no fue cerrada a mano. Que el pase haya vencido no importa. Si la persona fue dada de
-  baja, va a la revisión de un Administrador (decisión 23).
+  baja, va a la revisión de un Administrador.
 
 ## 5. Salir
 
@@ -101,11 +101,11 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   la persona con su nombre, su rol y «Salir»; el área de trabajo, en blanco.
 - **R6.2** Al entrar se abre la pantalla de la primera opción del menú. Mientras no exista ningún
   otro módulo, esa pantalla está en blanco y, en el ambiente de pruebas, todas las opciones del
-  menú dicen «Pronto» (01-D13).
+  menú dicen «Pronto».
 
 ## 7. La entrada
 
-- **R7.1** Se ve como la de la primera versión (decisión 6), en una sola pantalla que se adapta al
+- **R7.1** Se ve como la de la primera versión, en una sola pantalla que se adapta al
   ancho. En el celular también está «Entrar con Google».
 - **R7.2** «Ver el manual» aparece recién cuando exista el manual.
 

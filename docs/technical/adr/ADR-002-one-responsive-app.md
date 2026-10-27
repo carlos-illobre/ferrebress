@@ -1,6 +1,6 @@
 # ADR-002: Una sola aplicación, una pantalla para el celular y la computadora
 
-**Estado:** aceptado (2026-10-26, decisión 6)
+**Estado:** aceptado
 
 ## Contexto
 

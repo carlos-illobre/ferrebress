@@ -2,7 +2,7 @@
 
 Lo que vale para toda la aplicación. Reglas completas en [rules.md](rules.md).
 
-**Estado:** aprobado por Carlos el 2026-10-26.
+**Estado:** aprobado.
 
 ## Cada regla en una línea
 
@@ -27,21 +27,6 @@ Lo que vale para toda la aplicación. Reglas completas en [rules.md](rules.md).
   servidor en la zona del negocio, igual para todos; cada persona elige solo el formato (R8).
 - **Si algo falla:** «Algo salió mal» con un botón para avisarlo, con captura y últimos pasos (R9).
 - **Ambiente de pruebas:** marco magenta fijo y cartel (R10).
-
-## Lo que se tomó de la primera versión
-
-El menú de la v2 y sus partes, la luz de conexión sin consultas, la versión nueva sin
-temporizador, el manual con selector y buscador, las unidades de las cantidades y el marco del
-ambiente de pruebas.
-
-## Lo que se dejó
-
-- El teclado de antes (Alt + número a la vista, teclas de función, reglas de flechas que
-  cambiaban por pantalla): se rehízo (decisión 36).
-- El menú que recordaba cómo quedó y la última parte usada.
-- El manual solo en la computadora.
-- El marco de pruebas que titilaba.
-- La regla fija de letra y de confirmaciones: las decide el director de arte (decisión 43).
 
 ## Lo que falta decidir
 

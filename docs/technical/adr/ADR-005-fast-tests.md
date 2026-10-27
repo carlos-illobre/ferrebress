@@ -1,6 +1,6 @@
 # ADR-005: Pruebas rápidas, sin Docker y con cobertura total
 
-**Estado:** aceptado (2026-10-26, decisión 8)
+**Estado:** aceptado
 
 ## Contexto
 

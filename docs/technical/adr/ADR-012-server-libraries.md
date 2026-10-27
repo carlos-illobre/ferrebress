@@ -1,6 +1,6 @@
 # ADR-012: Hono, Kysely y Zod en el servidor
 
-**Estado:** aceptado (2026-10-26, decisión 32)
+**Estado:** aceptado
 
 ## Contexto
 

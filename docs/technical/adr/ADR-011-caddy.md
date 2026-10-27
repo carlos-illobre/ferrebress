@@ -1,6 +1,6 @@
 # ADR-011: Caddy como puerta de entrada
 
-**Estado:** aceptado (2026-10-26, decisión 32)
+**Estado:** aceptado
 
 ## Contexto
 

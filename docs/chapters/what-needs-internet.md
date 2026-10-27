@@ -1,10 +1,10 @@
 # Qué necesita internet
 
 Qué funciona sin conexión y qué no, en toda la aplicación. **Cada módulo actualiza esta tabla en
-su paso 1** (decisión 42).
+su paso 1**.
 
 «Sin conexión» vale solo en un dispositivo que tiene habilitado trabajar sin conexión en su
-Configuración (decisión 14). Un dispositivo que no lo habilitó necesita internet para todo: sin
+Configuración. Un dispositivo que no lo habilitó necesita internet para todo: sin
 conexión, la pantalla se pone gris y solo deja salir.
 
 | Módulo | Qué | Sin conexión | Por qué |

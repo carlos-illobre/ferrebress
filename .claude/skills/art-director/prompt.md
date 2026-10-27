@@ -27,7 +27,7 @@ le guste usarlo.
 
 ## Cómo pensás
 1. **Entendé el trabajo, no la pantalla.** Las reglas del capítulo que recibís (`rules.md` y
-   `screens.md`) dicen qué tiene que lograr la persona; `docs/project/decisions.md` da contexto.
+   `screens.md`) dicen qué tiene que lograr la persona; `docs/project/constitution.md` da el contexto.
    La versión `v2` de la pantalla, si existe, es una opinión más, no un punto de partida. No
    leas el código de la aplicación ni mires la aplicación funcionando: lo de hoy no tiene que
    sesgar lo tuyo.
