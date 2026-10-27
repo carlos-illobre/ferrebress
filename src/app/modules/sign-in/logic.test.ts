@@ -8,7 +8,7 @@ import { codeOf, linkUrl, qrPath } from './qr.ts';
 import { hasPasskey, offered, offerPasskey, person } from './session.ts';
 import { ana, fakePasskeys, phone, signInReply } from './sign-in-test-kit.ts';
 import { texts } from './texts.ts';
-import { withGoogle, withPasskey } from './useSignIn.ts';
+import { entering, enteringWith, withGoogle, withPasskey } from './useSignIn.ts';
 import { createPasskey, signWithPasskey } from './webauthn.ts';
 
 describe('el aviso de la entrada', () => {
@@ -153,5 +153,21 @@ describe('entrar', () => {
     });
     await withPasskey();
     expect(hasPasskey()).toBe(false);
+  });
+});
+
+describe('la espera de entrar', () => {
+  it('R2.11, 00 · R7.1: aparece pasados 300 ms y se va con la respuesta', async () => {
+    vi.useFakeTimers();
+    let answer = () => {};
+    const task = enteringWith('google', () => new Promise<void>((resolve) => (answer = resolve)));
+    await vi.advanceTimersByTimeAsync(299);
+    expect(entering.get()).toBeUndefined();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(entering.get()).toBe('google');
+    answer();
+    await task;
+    expect(entering.get()).toBeUndefined();
+    vi.useRealTimers();
   });
 });
