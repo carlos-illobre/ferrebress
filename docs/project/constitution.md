@@ -195,6 +195,10 @@ lugar.
 
 ### Los nueve pasos de un módulo
 
+Las pantallas, una por vez: el director de arte crea tres versiones; Carlos las ve y da sus
+comentarios; el maquetador construye la maqueta final con lo del director y esos comentarios;
+Carlos la evalúa, y si pide cambios vuelve el maquetador, hasta que la aprueba.
+
 **Antes del paso 1, el alcance.** Antes de empezar un módulo, el agente le lista a Carlos todo lo
 que abarca, para que evalúe si se puede dividir en módulos más chicos (decisión 59). Se empieza
 recién con su respuesta.
@@ -206,8 +210,8 @@ programó no puede revisarse.
 | Paso | Rol | Qué hace | Deja | Aprueba Carlos |
 |---|---|---|---|---|
 | 1 | Analista de negocio | Parte de lo que había en la primera versión y le pregunta a Carlos **todo** lo que haga falta para cubrir la funcionalidad completa: cada caso, cada borde, cada error, cada permiso. Dice qué se tomó, qué se descarta por desactualizado y qué propone mejorar. Cada regla o decisión que formula Carlos la analiza en busca de mejoras y, si encuentra una opción superadora, se la ofrece (decisión 50). Las preguntas van todas juntas, en tandas, hasta que no quede nada sin respuesta: lo que Carlos no contestó o no quedó claro se vuelve a preguntar | `rules.md` y `summary.md`, con los escenarios | Sí |
-| 2 | Director de arte (skill `art-director`) | Tres versiones muy distintas de cada pantalla, una pantalla por vez y en el orden en que se usan, funcionando y con sus animaciones, en el visor de maquetas. Carlos elige una antes de pasar a la siguiente. Solo pantallas de este módulo. La interfaz es lo más importante: va antes que todo lo técnico | `docs/design/mockups/<pantalla>/` y `screens.md` | Sí: elige una |
-| 2b | Maquetador (agente `mockup-builder`) | Construye la maqueta final: toma como base lo que hizo el director de arte (la variante elegida y lo que Carlos quiera de las otras), le suma las directivas de Carlos y la ajusta a las reglas aprobadas. El director diseña sin límites; el maquetador pone los límites. Nunca modifica lo del director | `docs/design/mockups/<pantalla>/final/` | Sí: aprueba la final |
+| 2 | Director de arte (skill `art-director`) | Tres versiones muy distintas de cada pantalla, una pantalla por vez y en el orden en que se usan, funcionando y con sus animaciones, en el visor de maquetas. Carlos elige una antes de pasar a la siguiente. Solo pantallas de este módulo. La interfaz es lo más importante: va antes que todo lo técnico | `docs/design/mockups/<pantalla>/` y `screens.md` | Sí: las ve y da sus comentarios, con los que trabaja el maquetador |
+| 2b | Maquetador (agente `mockup-builder`) | Construye la maqueta final: toma como base lo que hizo el director de arte (la variante elegida y lo que Carlos quiera de las otras), le suma las directivas de Carlos y la ajusta a las reglas aprobadas. El director diseña sin límites; el maquetador pone los límites. Nunca modifica lo del director | `docs/design/mockups/<pantalla>/final/` | Sí: la evalúa; si pide cambios, vuelve el maquetador |
 | 3 | Arquitecto | Entidades, API, eventos, permisos, conexiones, la sección «Seguridad», las **metas de performance** (consultas por pedido, milisegundos, bytes) y las tareas con sus dependencias; un ADR si hay una decisión técnica | `docs/technical/modules/<module>.md` | — |
 | 4 | Revisor del diseño (agente `design-reviewer`) | Busca puntos débiles y mejoras al diseño técnico, contra la constitución y las restricciones de Carlos | `docs/technical/modules/<module>-design-review.md` | — |
 | 5 | Arquitecto | Corrige el diseño con lo que encontró el revisor y se lo presenta a Carlos | El diseño final | Sí |
