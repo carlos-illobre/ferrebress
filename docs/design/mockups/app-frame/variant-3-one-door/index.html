@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El marco vacío · 3 · Una sola puerta</title>
+<!-- Variante 3 · Audaz: no hay menú. La aplicación tiene una sola puerta: se pide lo que se quiere
+     hacer, escribiendo, hablando o escaneando, y se llega directo. Lo que todavía no existe se
+     encuentra igual y dice «Pronto». En el celular, la puerta está bajo el pulgar: hablar, la cámara
+     y escribir; deslizar hacia arriba muestra todo, hacia abajo, la persona y Salir.
+     Una sola página: desde 900 px la computadora; debajo, el celular. -->
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="../shared.css">
+<script src="../../../common/icons.js"></script>
+<script src="../../../common/navigate.js" defer></script>
+<style>
+  .p-only { display: none !important; }
+  .vista { position: relative; height: 100vh; display: flex; flex-direction: column; background: radial-gradient(900px 420px at 50% 46%, #FBFAF6 0%, rgb(251 250 246 / 0) 70%), var(--fondo); }
+
+  /* ---------- Las esquinas: la persona y la luz ---------- */
+  .esquinas { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 24px 28px 0; }
+  .persona { display: flex; align-items: center; gap: 10px; padding: 4px; border-radius: 999px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-1); }
+  .persona .txt { padding-right: 4px; }
+  .persona .txt b { display: block; font-size: 15px; font-weight: 750; line-height: 18px; }
+  .persona .txt small { display: block; font-size: 14px; color: var(--texto-2); line-height: 18px; }
+  .persona .btn { border-radius: 999px; }
+  .luz { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; white-space: nowrap; transition: transform var(--t-micro) var(--curva); }
+  .luz:active { transform: scale(.97); }
+  body[data-net="offline"] .luz { background: var(--urgente-suave); color: var(--urgente-texto); }
+  body[data-net="sending"] .luz { background: var(--pino-suave); color: var(--pino-texto); }
+
+  /* ---------- El centro: la puerta ---------- */
+  .centro { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; padding: 56px 24px 0; }
+  .iso { width: 52px; height: 52px; margin-bottom: 16px; }
+  .saludo { margin: 0; font-size: 40px; line-height: 46px; font-weight: 800; letter-spacing: -.03em; text-align: center; }
+  .sub { margin: 8px 0 0; max-width: 620px; text-align: center; color: var(--texto-2); }
+  .buscador { position: relative; z-index: 5; width: min(720px, 100%); margin-top: 28px; }
+  /* Mientras se busca, la puerta sube y el saludo se aparta: lo encontrado tiene lugar. */
+  .centro { transition: transform var(--t-nav) var(--curva); }
+  .iso, .saludo, .sub { transition: opacity var(--t) var(--curva); }
+  @media (min-width: 900px) {
+    body.buscando .centro { transform: translateY(-150px); }
+    body.buscando .iso, body.buscando .saludo, body.buscando .sub { opacity: 0; }
+  }
+  .puerta { position: relative; display: flex; align-items: center; gap: 12px; height: 72px; padding: 0 12px 0 22px; border-radius: 20px; background: var(--superficie); border: 1px solid var(--borde-fuerte); box-shadow: var(--sombra-2); transition: box-shadow var(--t) var(--curva); }
+  .puerta:focus-within { border-color: var(--pino); box-shadow: 0 0 0 4px rgb(18 56 47 / .12), var(--sombra-2); }
+  .puerta > svg { color: var(--texto-2); width: 24px; height: 24px; }
+  .puerta input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: none; font-size: 20px; font-weight: 600; color: var(--tinta); }
+  .puerta input::placeholder { color: var(--texto-3); font-weight: 500; }
+  .herr { position: relative; width: 48px; height: 48px; border-radius: 14px; border: 0; background: var(--hundido); color: var(--tinta); display: grid; place-items: center; transition: transform var(--t-micro) var(--curva); }
+  .herr:active { transform: scale(.94); }
+  .herr .kbd { position: absolute; top: -10px; right: -6px; }
+  .puerta .kbd-q { margin-right: 4px; }
+
+  /* Escuchar y escanear: la puerta cambia de forma */
+  .onda, .lector { position: absolute; inset: 0 128px 0 56px; display: flex; align-items: center; gap: 12px; opacity: 0; pointer-events: none; font-size: 18px; font-weight: 700; color: var(--pino); }
+  .onda .barras { display: flex; align-items: center; gap: 4px; height: 32px; }
+  .onda .barras i { display: block; width: 5px; height: 32px; border-radius: 9px; background: var(--accion); transform: scaleY(.25); }
+  body.escucha .onda, body.escanea .lector { opacity: 1; }
+  body.escucha .puerta input, body.escanea .puerta input { opacity: 0; }
+  body.escucha #hablar { background: var(--accion); color: #fff; }
+  body.escanea #escanear { background: var(--pino); color: #fff; }
+  .lector .linea { position: relative; width: 180px; height: 32px; border-radius: 8px; background: var(--hundido); overflow: hidden; }
+  .lector .linea::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 3px; background: var(--accion); box-shadow: 0 0 12px var(--accion); }
+  @media (prefers-reduced-motion: no-preference) {
+    body.escucha .onda .barras i { animation: barra 900ms ease-in-out infinite; }
+    .onda .barras i:nth-child(2) { animation-delay: -150ms; } .onda .barras i:nth-child(3) { animation-delay: -300ms; } .onda .barras i:nth-child(4) { animation-delay: -450ms; } .onda .barras i:nth-child(5) { animation-delay: -600ms; }
+    body.escanea .lector .linea::after { animation: barrido 1s ease-in-out infinite alternate; }
+    .onda, .lector, .puerta input { transition: opacity var(--t) var(--curva); }
+  }
+  @keyframes barra { 50% { transform: scaleY(1); } }
+  @keyframes barrido { to { transform: translateX(177px); } }
+
+  /* Lo que se encuentra */
+  .resultados { position: absolute; left: 0; right: 0; top: 80px; z-index: 10; max-height: min(460px, calc(100vh - 330px)); overflow: auto; padding: 8px; border-radius: 20px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-3); transform-origin: 50% 0; }
+  @media (prefers-reduced-motion: no-preference) { .resultados:not([hidden]) { animation: baja 200ms var(--curva) both; } }
+  @keyframes baja { from { opacity: 0; transform: translateY(-6px) scale(.99); } }
+  .resultados h3 { margin: 8px 12px 4px; font-size: 14px; font-weight: 700; color: var(--texto-3); }
+  .fila { width: 100%; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 56px; padding: 8px 12px; border: 0; border-radius: var(--r); background: none; text-align: left; }
+  .fila:hover { background: var(--fondo); }
+  .fila .ic { width: 40px; height: 40px; border-radius: var(--r-chico); background: var(--hundido); color: var(--texto-2); display: grid; place-items: center; }
+  .fila.activa .ic { background: var(--pino-suave); color: var(--pino-texto); }
+  .fila.peligro .ic { background: var(--error-suave); color: var(--error-texto); }
+  .fila b { display: block; font-size: 16px; font-weight: 700; line-height: 22px; color: var(--tinta); }
+  .fila b mark { background: none; color: inherit; text-decoration: underline 2px var(--accion); text-underline-offset: 3px; }
+  .fila small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .fila .dice { color: var(--accion-texto); font-weight: 700; }
+  .fila .enter { color: var(--texto-3); }
+  .fila.marca-tecla { outline-offset: -3px; background: var(--fondo); }
+  .nada { padding: 16px 12px; font-size: 15px; color: var(--texto-2); }
+
+  .ideas { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-top: 20px; color: var(--texto-3); font-size: 14px; font-weight: 650; }
+  .ideas button { height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--borde-fuerte); background: var(--superficie); font-size: 15px; font-weight: 650; color: var(--texto-2); }
+  .aviso-red { display: none; margin-top: 16px; max-width: 720px; }
+  body[data-net="offline"] .aviso-red { display: flex; }
+
+  .leyenda { flex: none; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 20px; padding: 0 24px 28px; color: var(--texto-3); font-size: 14px; font-weight: 600; }
+  .leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+  .tecla { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 6px; border: 1px solid var(--borde-fuerte); border-bottom-width: 2px; background: var(--superficie); color: var(--texto-2); font-size: 14px; font-weight: 700; line-height: 1; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .centro > * { animation: entra 520ms var(--curva) both; }
+    .centro > :nth-child(2) { animation-delay: 60ms; } .centro > :nth-child(3) { animation-delay: 120ms; } .centro > :nth-child(n+4) { animation-delay: 180ms; }
+  }
+  @keyframes entra { from { opacity: 0; transform: translateY(14px); } }
+
+  /* Lo pendiente (computadora) y las hojas (celular) */
+  .pop { position: fixed; z-index: 30; top: 72px; right: 28px; width: 440px; padding: 16px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-3); transform-origin: 90% 0; }
+  .pop .cerrar { position: absolute; top: 12px; right: 12px; }
+  @media (prefers-reduced-motion: no-preference) { .pop:not([hidden]) { animation: baja 220ms var(--curva) both; } }
+  .fondo-hoja { position: fixed; inset: 0; z-index: 40; background: rgb(26 29 27 / .3); }
+  .hoja { position: fixed; left: 0; right: 0; z-index: 41; padding: 16px; background: var(--fondo); box-shadow: var(--sombra-3); }
+  .hoja.abajo { bottom: 0; border-radius: var(--r-hoja) var(--r-hoja) 0 0; padding-bottom: 28px; }
+  .hoja.arriba { top: 0; border-radius: 0 0 var(--r-hoja) var(--r-hoja); padding-top: 44px; }
+  .hoja .asa { width: 40px; height: 5px; border-radius: 99px; background: var(--borde-fuerte); margin: 8px auto 4px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .fondo-hoja:not([hidden]) { animation: fundido var(--t-nav) var(--curva) both; }
+    .hoja.abajo:not([hidden]) { animation: sube var(--t-nav) var(--curva) both; }
+    .hoja.arriba:not([hidden]) { animation: cae var(--t-nav) var(--curva) both; }
+  }
+  @keyframes fundido { from { opacity: 0; } }
+  @keyframes sube { from { transform: translateY(100%); } }
+  @keyframes cae { from { transform: translateY(-100%); } }
+  .h-persona { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); }
+  .h-persona b { display: block; font-size: 18px; font-weight: 800; }
+  .h-persona small { display: block; font-size: 14px; color: var(--texto-2); }
+  .h-salir { margin-top: 12px; width: 100%; }
+
+  /* La cámara (celular): lo oscuro solo porque la tarea lo pide */
+  .camara { position: fixed; inset: 0; z-index: 60; background: #0d1512; color: #fff; display: grid; place-items: center; }
+  .camara .x { position: absolute; top: 40px; left: 16px; width: 48px; height: 48px; border-radius: 99px; border: 0; background: rgb(255 255 255 / .14); color: #fff; display: grid; place-items: center; }
+  .camara .visor { position: relative; width: 260px; height: 170px; border-radius: 20px; box-shadow: 0 0 0 999px rgb(0 0 0 / .35); overflow: hidden; }
+  .camara .visor::before { content: ""; position: absolute; inset: 0; border-radius: 20px; border: 3px solid rgb(255 255 255 / .9); }
+  .camara .visor::after { content: ""; position: absolute; left: 12px; right: 12px; top: 0; height: 3px; background: var(--accion); box-shadow: 0 0 16px var(--accion); }
+  .camara p { position: absolute; bottom: 120px; left: 0; right: 0; text-align: center; margin: 0; font-size: 16px; font-weight: 700; }
+  @media (prefers-reduced-motion: no-preference) { .camara:not([hidden]) .visor::after { animation: scan 1.2s ease-in-out infinite alternate; } .camara:not([hidden]) { animation: fundido 200ms var(--curva) both; } }
+  @keyframes scan { to { transform: translateY(164px); } }
+
+  /* =================== Celular =================== */
+  @media (max-width: 899px) {
+    .d-only { display: none !important; }
+    .p-only { display: revert !important; }
+    body { --tostada-abajo: 196px; }
+    .vista { height: 100dvh; }
+    .esquinas { padding: 40px 16px 0; }
+    .persona { padding: 2px; border: 0; box-shadow: none; background: none; }
+    .persona .txt b { font-size: 15px; }
+    .luz { height: 36px; }
+    .centro { justify-content: center; padding: 0 24px 24px; }
+    .iso { width: 56px; height: 56px; }
+    .saludo { font-size: 32px; line-height: 38px; }
+    .sub { font-size: 16px; }
+    .ideas { display: none; }
+    .aviso-red { font-size: 14px; }
+
+    /* El buscador vive en un cajón que sube desde abajo */
+    .buscador { position: fixed; left: 0; right: 0; bottom: 0; top: 64px; z-index: 45; width: auto; margin: 0; padding: 8px 16px 16px; border-radius: var(--r-hoja) var(--r-hoja) 0 0; background: var(--fondo); box-shadow: var(--sombra-3); display: none; flex-direction: column; }
+    body.cajon .buscador { display: flex; }
+    @media (prefers-reduced-motion: no-preference) { body.cajon .buscador { animation: sube var(--t-nav) var(--curva) both; } }
+    .buscador::before { content: ""; display: block; width: 40px; height: 5px; border-radius: 99px; background: var(--borde-fuerte); margin: 0 auto 12px; }
+    .puerta { height: 56px; border-radius: 16px; padding: 0 6px 0 14px; }
+    .puerta input { font-size: 17px; }
+    .puerta .herr { width: 44px; height: 44px; }
+    .onda, .lector { inset: 0 112px 0 46px; font-size: 16px; }
+    .resultados { position: static; display: block !important; flex: 1; max-height: none; margin-top: 12px; padding: 4px; border-radius: 16px; box-shadow: none; animation: none !important; }
+
+    /* La puerta bajo el pulgar */
+    .dock { display: grid !important; flex: none; grid-template-columns: 1fr auto 1fr; align-items: center; justify-items: center; padding: 0 32px 28px; position: relative; }
+    .asa-dock { grid-column: 1 / -1; display: grid !important; justify-items: center; gap: 4px; width: 100%; padding: 8px 0 16px; border: 0; background: none; color: var(--texto-3); font-size: 14px; font-weight: 700; touch-action: none; }
+    .asa-dock::before { content: ""; width: 40px; height: 5px; border-radius: 99px; background: var(--borde-fuerte); }
+    .redondo { width: 60px; height: 60px; border-radius: 99px; border: 1px solid var(--borde-fuerte); background: var(--superficie); color: var(--tinta); display: grid; place-items: center; box-shadow: var(--sombra-1); transition: transform var(--t-micro) var(--curva); }
+    .redondo:active { transform: scale(.94); }
+    .redondo .i { width: 26px; height: 26px; }
+    .mic { position: relative; width: 84px; height: 84px; border: 0; background: var(--pino); color: #fff; box-shadow: var(--sombra-2); touch-action: none; }
+    .mic .i { width: 32px; height: 32px; }
+    .mic .anillo { position: absolute; inset: 0; border-radius: 99px; background: var(--accion); opacity: 0; z-index: -1; }
+    body.escucha .mic { background: var(--accion); transform: scale(1.06); }
+    .rotulo { grid-column: 1 / -1; display: flex !important; justify-content: space-between; width: 100%; margin-top: 8px; color: var(--texto-2); font-size: 14px; font-weight: 700; }
+    .rotulo span { width: 84px; text-align: center; }
+    .escuchando { position: absolute; left: 16px; right: 16px; bottom: 100%; display: none !important; justify-content: center; }
+    body.escucha .escuchando { display: flex !important; }
+    .escuchando .tostada { background: var(--accion); }
+    @media (prefers-reduced-motion: no-preference) {
+      body.escucha .mic .anillo { animation: anillo 1.2s var(--curva) infinite; }
+      body.escucha .mic .anillo + .anillo { animation-delay: .6s; }
+    }
+  }
+  @keyframes anillo { from { opacity: .45; transform: scale(1); } to { opacity: 0; transform: scale(1.9); } }
+</style>
+</head>
+<body>
+<div class="test-frame" aria-hidden="true">
+  <div class="test-border"></div>
+  <div class="test-banner">Ambiente de prueba<span> · nada de esto es real</span></div>
+</div>
+
+<div class="vista" id="vista">
+  <header class="esquinas">
+    <div class="persona" id="persona">
+      <button type="button" class="p-only" id="p-avatar" style="border:0;background:none;padding:0" aria-label="Rubén Paredes · deslizá hacia abajo"><span class="avatar">RP</span></button>
+      <span class="avatar d-only">RP</span>
+      <div class="txt d-only"><b>Rubén Paredes</b><small>Administrador</small></div>
+      <button type="button" class="btn chico d-only" id="salir" data-key="s"><i class="i i-s" data-i="log-out"></i>Salir<span class="kbd">S</span></button>
+    </div>
+    <button type="button" class="luz" id="luz" data-key="z" aria-haspopup="dialog"><span class="luz-punto"></span><span data-luz></span><span class="kbd">Z</span></button>
+  </header>
+
+  <main class="centro">
+    <img class="iso" src="../assets/isotype.svg" alt="Ferrebress">
+    <h1 class="saludo">Buenas, Rubén.</h1>
+    <p class="sub t-cuerpo"><span class="largo">Ferrebress tiene una sola puerta: escribí, decí o escaneá lo que querés hacer y te lleva. Todavía no hay nada para usar; lo que se sume se encuentra acá, igual que lo demás.</span><span class="corto">Pedí lo que necesites: hablando, con la cámara o escribiendo. Todavía no hay nada para usar.</span></p>
+
+    <div class="buscador" id="buscador" data-no-ir>
+      <div class="puerta">
+        <i class="i" data-i="search"></i>
+        <input id="q" type="text" autocomplete="off" spellcheck="false" placeholder="Escribí lo que querés hacer: vender, stock, salir…" aria-label="¿Qué querés hacer?" aria-controls="res">
+        <div class="onda" aria-hidden="true"><span class="barras"><i></i><i></i><i></i><i></i><i></i></span><span>Escuchando…</span></div>
+        <div class="lector" aria-hidden="true"><span class="linea"></span><span><span class="largo">Pasá el código por el lector</span><span class="corto">Leyendo…</span></span></div>
+        <button type="button" class="herr" id="hablar" data-key="h" aria-label="Hablar"><i class="i" data-i="mic"></i><span class="kbd">H</span></button>
+        <button type="button" class="herr d-only" id="escanear" data-key="c" aria-label="Escanear un código"><i class="i" data-i="scan-barcode"></i><span class="kbd">C</span></button>
+      </div>
+      <div class="resultados" id="res" hidden role="listbox" aria-label="Lo que se encontró"></div>
+    </div>
+    <div class="ideas d-only" id="ideas">Probá: <button type="button" data-q="vender">vender</button><button type="button" data-q="stock">stock</button><button type="button" data-q="pendiente">lo pendiente</button><button type="button" data-q="salir">salir</button></div>
+    <div class="aviso urgente aviso-red"><i class="i" data-i="wifi-off"></i><span><span class="largo">Sin conexión. Podés leer lo que está en pantalla y salir; lo demás vuelve a andar solo cuando vuelva la conexión.</span><span class="corto">Sin conexión: solo se puede salir.</span></span></div>
+  </main>
+
+  <footer class="leyenda d-only">
+    <span><span class="tecla">↑</span><span class="tecla">↓</span> eligen</span>
+    <span><span class="tecla">Enter</span> abre</span>
+    <span><span class="tecla">Esc</span> cierra</span>
+    <span><span class="tecla">Alt</span> muestra las teclas</span>
+    <span>el cursor nunca sale de la puerta</span>
+  </footer>
+
+  <div class="dock p-only">
+    <button type="button" class="asa-dock" id="asa">Deslizá para ver todo</button>
+    <button type="button" class="redondo" id="p-camara" aria-label="Escanear con la cámara"><i class="i" data-i="camera"></i></button>
+    <button type="button" class="redondo mic" id="p-mic" aria-label="Mantené apretado para hablar"><span class="anillo"></span><span class="anillo"></span><i class="i" data-i="mic"></i></button>
+    <button type="button" class="redondo" id="p-teclado" aria-label="Escribir"><i class="i" data-i="keyboard"></i></button>
+    <div class="rotulo"><span>Escanear</span><span>Mantené y hablá</span><span>Escribir</span></div>
+    <div class="escuchando"><div class="tostada"><i class="i" data-i="mic"></i>Escuchando… soltá para pedir</div></div>
+  </div>
+</div>
+
+<section class="pop" id="pop" hidden role="dialog" aria-label="Lo que está por enviar">
+  <button type="button" class="btn btn-fantasma btn-icono chico cerrar" id="pop-cerrar" aria-label="Cerrar"><i class="i" data-i="x"></i></button>
+  <div data-pendiente></div>
+</section>
+<div class="fondo-hoja" id="fondo-hoja" hidden></div>
+<section class="hoja arriba" id="hoja-persona" hidden role="dialog" aria-label="Rubén Paredes">
+  <div class="h-persona"><span class="avatar" style="width:48px;height:48px;font-size:16px">RP</span><div><b>Rubén Paredes</b><small>Administrador</small></div></div>
+  <button type="button" class="btn btn-peligro grande h-salir" id="p-salir"><i class="i" data-i="log-out"></i>Salir</button>
+  <div class="asa"></div>
+</section>
+<section class="hoja abajo" id="hoja-luz" hidden role="dialog" aria-label="Lo que está por enviar">
+  <div class="asa" style="margin-top:0;margin-bottom:12px"></div>
+  <div data-pendiente></div>
+</section>
+<section class="camara" id="camara" hidden aria-label="Cámara">
+  <button type="button" class="x" id="camara-x" aria-label="Cerrar la cámara"><i class="i i-l" data-i="x"></i></button>
+  <div class="visor"></div>
+  <p>Apuntá a cualquier código</p>
+</section>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  var M = window.Marco;
+  var $ = function (id) { return document.getElementById(id); };
+  var body = document.body, q = $("q"), res = $("res");
+
+  // Todo lo que se puede pedir: los lugares de la aplicación (todos «Pronto») y lo del marco.
+  var COSAS = [
+    ["Vender", "Vender", "shopping-cart", "cobrar venta mostrador"],
+    ["Ventas de hoy", "Vender", "receipt", "ventas hoy caja"],
+    ["Productos", "Catálogo", "tags", "producto articulo catalogo"],
+    ["Listas", "Catálogo", "file-text", "lista precios proveedor"],
+    ["Duplicados", "Catálogo", "copy", "repetidos"],
+    ["Stock", "Depósito", "boxes", "stock inventario existencias deposito"],
+    ["Compras", "Depósito", "truck", "compra proveedor pedido"],
+    ["Contar", "Depósito", "clipboard-list", "conteo contar estanteria"],
+    ["Resumen", "Negocio", "gauge", "resumen negocio como va"],
+    ["Usuarios", "Negocio", "users", "usuario personas permisos rol"],
+    ["Quién hizo qué", "Negocio", "history", "actividad historial"],
+    ["Anomalías", "Más", "triangle-alert", "anomalia problema"],
+    ["Procesos", "Más", "workflow", "proceso"],
+    ["Mejoras y errores", "Más", "bug", "error mejora idea aviso"],
+    ["Configuración", "Más", "settings", "configuracion ajustes"],
+    ["Administración", "Más", "sliders-horizontal", "administracion sistema"],
+    ["Manual", "Más", "book-open", "manual ayuda"]
+  ];
+  var MARCO = [
+    { n: "Lo que está por enviar", d: "La luz de conexión", ic: "cloud-upload", s: "pendiente enviar conexion luz red", accion: "luz" },
+    { n: "Salir", d: "Cerrar la sesión y volver a la entrada", ic: "log-out", s: "salir cerrar sesion", accion: "salir", peligro: true }
+  ];
+  function coincide(nombre, resto, t) {
+    if (!t) return true;
+    if (norm(nombre).indexOf(t) >= 0) return true;
+    return norm(resto).split(/\s+/).some(function (w) { return w.indexOf(t) === 0 || (t.length > 3 && t.indexOf(w) === 0); });
+  }
+  function norm(t) { return t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function resaltar(nombre, t) {
+    if (!t) return nombre;
+    var i = norm(nombre).indexOf(t);
+    return i < 0 ? nombre : nombre.slice(0, i) + "<mark>" + nombre.slice(i, i + t.length) + "</mark>" + nombre.slice(i + t.length);
+  }
+  function fila(o) {
+    return '<button type="button" class="fila' + (o.activa ? " activa" : "") + (o.peligro ? " peligro" : "") + '" role="option" data-nombre="' + o.n + '"' + (o.accion ? ' data-accion="' + o.accion + '"' : "") + ">" +
+      '<span class="ic"><i class="i" data-i="' + o.ic + '"></i></span><span><b>' + o.html + "</b><small>" + o.d + "</small></span>" +
+      (o.accion ? '<i class="i i-s enter" data-i="corner-down-left"></i>' : '<span class="pronto">Pronto</span>') + "</button>";
+  }
+  function pintar(texto) {
+    var t = norm(texto.trim()), h = "", lugares = "", marco = "";
+    COSAS.forEach(function (c) {
+      if (coincide(c[0], c[1] + " " + c[3], t))
+        lugares += fila({ n: c[0], html: resaltar(c[0], t), d: c[1] === c[0] ? c[1] : c[1] + " › " + c[0], ic: c[2] });
+    });
+    MARCO.forEach(function (c) {
+      if (coincide(c.n, c.s, t)) marco += fila({ n: c.n, html: resaltar(c.n, t), d: c.d, ic: c.ic, accion: c.accion, activa: !c.peligro, peligro: c.peligro });
+    });
+    if (lugares) h += '<h3><span class="largo">Lugares de la aplicación · todavía no están</span><span class="corto">Lugares · pronto</span></h3>' + lugares;
+    if (marco) h += "<h3>Ya se puede</h3>" + marco;
+    if (!h) h = '<p class="nada">Nada con «' + texto.replace(/</g, "") + '». Probá con «vender», «stock» o «salir».</p>';
+    res.innerHTML = h;
+    window.pintarIconos(res);
+    M.desmarcar();
+  }
+  function abrirRes() {
+    if (!res.hidden) return;
+    res.hidden = false; M.abrirCapa(cerrarRes); body.classList.add("buscando");
+  }
+  function cerrarRes() {
+    if (M.angosto()) { cerrarCajon(); return; }
+    res.hidden = true; M.cerrarCapa(cerrarRes); M.desmarcar(); body.classList.remove("buscando");
+  }
+  q.addEventListener("input", function () { pintar(q.value); if (q.value || M.angosto()) abrirRes(); else cerrarRes(); });
+
+  // Activar una fila: lo del marco anda; lo que no existe se sacude y lo dice ahí mismo.
+  function activar(f) {
+    if (!f) return;
+    var a = f.dataset.accion;
+    if (a === "salir") { M.salir(); return; }
+    if (a === "luz") { cerrarRes(); abrirLuz(); return; }
+    var s = f.querySelector("small");
+    if (!f.dataset.orig) f.dataset.orig = s.innerHTML;
+    s.innerHTML = '<span class="dice">Todavía no está: cuando se sume, se abre desde acá.</span>';
+    f.classList.remove("no-esta"); void f.offsetWidth; f.classList.add("no-esta");
+    if (navigator.vibrate && M.angosto()) { try { navigator.vibrate(10); } catch (x) {} }
+    clearTimeout(f._t); f._t = setTimeout(function () { s.innerHTML = f.dataset.orig; }, 2200);
+  }
+  res.addEventListener("click", function (e) { activar(e.target.closest(".fila")); });
+  $("ideas").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-q]"); if (!b) return;
+    q.value = b.dataset.q; pintar(q.value); abrirRes(); q.focus();
+  });
+
+  // Teclado: el cursor se queda en la puerta (00 · R2.1); ↑ ↓ mueven la marca por lo encontrado.
+  q.addEventListener("keydown", function (e) {
+    if (e.altKey) return;
+    var filas = Array.prototype.slice.call(res.querySelectorAll(".fila")), i = filas.indexOf(M.marcado);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (res.hidden) { pintar(q.value); abrirRes(); filas = Array.prototype.slice.call(res.querySelectorAll(".fila")); i = -1; }
+      if (!filas.length) return;
+      var j = e.key === "ArrowDown" ? (i + 1) % filas.length : (i <= 0 ? filas.length - 1 : i - 1);
+      M.marcar(filas[j]);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (M.marcado && res.contains(M.marcado)) activar(M.marcado);
+      else if (q.value.trim() && filas.length) { abrirRes(); M.marcar(filas[0]); activar(filas[0]); }
+    } else if (e.key === "Escape" && res.hidden && q.value) {
+      q.value = ""; pintar("");
+    }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (M.angosto() || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (document.activeElement !== q && (e.key === "/" || e.key === "ArrowDown")) { e.preventDefault(); q.focus(); if (e.key === "ArrowDown") q.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" })); }
+  });
+  document.addEventListener("click", function (e) {
+    if (!M.angosto() && !res.hidden && !e.target.closest(".buscador") && !e.target.closest(".demo") && !e.target.closest("#ideas")) cerrarRes();
+  });
+
+  // ---------- Hablar (simulado): escucha, transcribe y pide ----------
+  var escuchaT;
+  function escuchar() {
+    if (body.classList.contains("escucha")) return;
+    body.classList.remove("escanea");
+    body.classList.add("escucha");
+  }
+  function soltar(frase) {
+    clearTimeout(escuchaT);
+    if (!body.classList.contains("escucha")) return;
+    body.classList.remove("escucha");
+    if (M.angosto()) {
+      M.tostada("Escuché «" + frase + "». <b>Vender</b> todavía no está: aparece cuando se sume.", "mic");
+      if (navigator.vibrate) { try { navigator.vibrate(10); } catch (x) {} }
+      return;
+    }
+    var k = 0; q.value = ""; q.focus();
+    (function tipear() {
+      q.value = frase.slice(0, ++k);
+      if (k < frase.length) setTimeout(tipear, M.reducido ? 0 : 45);
+      else { pintar("vender"); abrirRes(); var f = res.querySelector(".fila"); M.marcar(f); activar(f); q.value = frase; }
+    })();
+  }
+  $("hablar").addEventListener("click", function () {
+    if (body.classList.contains("escucha")) { soltar("vender"); return; }
+    escuchar(); escuchaT = setTimeout(function () { soltar("vender"); }, 1600);
+  });
+  var mic = $("p-mic");
+  mic.addEventListener("pointerdown", function (e) { e.preventDefault(); escuchar(); escuchaT = setTimeout(function () { soltar("vender"); }, 4000); });
+  ["pointerup", "pointerleave", "pointercancel"].forEach(function (ev) { mic.addEventListener(ev, function () { if (body.classList.contains("escucha")) setTimeout(function () { soltar("vender"); }, 250); }); });
+
+  // ---------- Escanear (simulado): el lector en la computadora, la cámara en el celular ----------
+  function leido() { M.tostada("Leí el código 7 791234 000017. <span class=\"largo\">Cuando esté Catálogo, un código abre lo suyo directamente.</span><span class=\"corto\">Catálogo todavía no está.</span>", "scan-barcode"); }
+  $("escanear").addEventListener("click", function () {
+    body.classList.remove("escucha"); body.classList.add("escanea");
+    setTimeout(function () { body.classList.remove("escanea"); leido(); q.focus(); }, 1600);
+  });
+  var cam = $("camara"), camT;
+  function cerrarCam() { cam.hidden = true; clearTimeout(camT); M.cerrarCapa(cerrarCam); }
+  $("p-camara").addEventListener("click", function () {
+    cam.hidden = false; M.abrirCapa(cerrarCam);
+    camT = setTimeout(function () { cerrarCam(); leido(); if (navigator.vibrate) { try { navigator.vibrate([10, 40, 10]); } catch (x) {} } }, 1800);
+  });
+  $("camara-x").addEventListener("click", cerrarCam);
+
+  // ---------- La luz y la persona ----------
+  var pop = $("pop"), fondo = $("fondo-hoja"), abierta = null;
+  function cerrarPop() { pop.hidden = true; pop.classList.remove("capa-arriba"); M.cerrarCapa(cerrarPop); }
+  function abrirHoja(hj) { cerrarHoja(); abierta = hj; hj.hidden = false; fondo.hidden = false; hj.classList.add("capa-arriba"); M.abrirCapa(cerrarHoja); }
+  function cerrarHoja() { if (!abierta) return; abierta.hidden = true; abierta.classList.remove("capa-arriba"); fondo.hidden = true; abierta = null; M.cerrarCapa(cerrarHoja); }
+  function abrirLuz() {
+    if (M.angosto()) { abrirHoja($("hoja-luz")); return; }
+    if (!pop.hidden) { cerrarPop(); return; }
+    pop.hidden = false; pop.classList.add("capa-arriba"); M.abrirCapa(cerrarPop);
+  }
+  $("luz").addEventListener("click", abrirLuz);
+  $("pop-cerrar").addEventListener("click", cerrarPop);
+  document.addEventListener("click", function (e) {
+    if (!pop.hidden && !pop.contains(e.target) && !$("luz").contains(e.target) && !e.target.closest(".demo") && !e.target.closest(".fila")) cerrarPop();
+  });
+  fondo.addEventListener("click", cerrarHoja);
+  $("salir").addEventListener("click", M.salir);
+  $("p-salir").addEventListener("click", M.salir);
+  $("p-avatar").addEventListener("click", function () { abrirHoja($("hoja-persona")); });
+
+  // ---------- Celular: el cajón de todo y los gestos ----------
+  function abrirCajon(conTeclado) {
+    pintar(q.value); body.classList.add("cajon"); res.hidden = false; M.abrirCapa(cerrarCajon);
+    fondo.hidden = false;
+    if (conTeclado) q.focus();
+  }
+  function cerrarCajon() { body.classList.remove("cajon"); fondo.hidden = true; q.blur(); M.cerrarCapa(cerrarCajon); }
+  fondo.addEventListener("click", function () { if (body.classList.contains("cajon")) cerrarCajon(); });
+  $("p-teclado").addEventListener("click", function () { abrirCajon(true); });
+  $("asa").addEventListener("click", function () { abrirCajon(false); });
+  // Deslizar: hacia arriba desde abajo abre todo; hacia abajo desde arriba muestra la persona y Salir.
+  var y0 = null, x0 = null;
+  $("vista").addEventListener("pointerdown", function (e) { if (!M.angosto() || e.target.closest(".mic")) return; y0 = e.clientY; x0 = e.clientX; });
+  $("vista").addEventListener("pointerup", function (e) {
+    if (y0 === null) return;
+    var dy = e.clientY - y0, alto = window.innerHeight;
+    if (dy < -60 && y0 > alto * .55) abrirCajon(false);
+    else if (dy > 60 && y0 < alto * .4) abrirHoja($("hoja-persona"));
+    y0 = null;
+  });
+  $("buscador").addEventListener("pointerdown", function (e) { if (M.angosto() && !e.target.closest("input, .fila, .herr")) y0b = e.clientY; });
+  var y0b = null;
+  $("buscador").addEventListener("pointerup", function (e) { if (y0b !== null && e.clientY - y0b > 60) cerrarCajon(); y0b = null; });
+  document.querySelectorAll(".hoja").forEach(function (hj) {
+    var a = null;
+    hj.addEventListener("pointerdown", function (e) { a = e.clientY; });
+    hj.addEventListener("pointerup", function (e) {
+      if (a === null) return;
+      var d = e.clientY - a;
+      if ((hj.classList.contains("abajo") && d > 60) || (hj.classList.contains("arriba") && d < -60)) cerrarHoja();
+      a = null;
+    });
+  });
+
+  pintar("");
+  if (M.angosto()) q.placeholder = "¿Qué querés hacer?";
+  // En la computadora el cursor arranca en la puerta (00 · R2.2); en el celular, nunca (R2.12).
+  if (!M.angosto()) q.focus();
+  window.addEventListener("resize", function () { cerrarHoja(); cerrarPop(); if (!M.angosto()) { body.classList.remove("cajon"); res.hidden = true; } });
+})();
+</script>
+</body>
+</html>

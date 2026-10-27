@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El marco vacío · 1 · Evolución</title>
+<!-- Variante 1 · Evolución: el marco «Mostrador» llevado a su mejor nivel. Una sola página:
+     desde 900 px es la computadora (menú a la izquierda), debajo es el celular (menú abajo). -->
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="../shared.css">
+<script src="../../../common/icons.js"></script>
+<script src="../../../common/navigate.js" defer></script>
+<style>
+  .p-only { display: none !important; }
+
+  /* =================== Computadora =================== */
+  .vista { display: grid; grid-template-columns: 280px 1fr; height: 100vh; }
+  .lado { position: relative; z-index: 3; background: var(--superficie); border-right: 1px solid var(--borde); display: flex; flex-direction: column; padding: 20px 12px 16px; gap: 2px; min-height: 0; }
+  .lado-marca { display: flex; align-items: center; gap: 10px; padding: 8px 8px 20px; }
+  .lado-marca img { width: 34px; height: 34px; }
+  .lado-marca b { font-size: 19px; font-weight: 800; letter-spacing: -.02em; }
+  .lado-marca .amb { margin-left: auto; }
+
+  .menu, .sub { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .parte { width: 100%; display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 10px 0 12px; border: 0; border-radius: var(--r); background: transparent; color: var(--texto-2); font-weight: 650; font-size: 15px; text-align: left; position: relative; cursor: default; transition: background var(--t-micro); }
+  .parte .i { color: var(--texto-3); }
+  .parte .nombre { flex: 1; }
+  /* Con Alt, la tecla aparece donde está el ícono: el renglón no se mueve. */
+  .parte .kbd, .luz .kbd { position: absolute; left: 8px; top: 50%; margin-top: -12px; }
+  body.alt .parte > svg:first-child, body.alt .luz .luz-punto { opacity: 0; }
+  .lado .marca-tecla { outline-offset: -3px; }
+  .parte.abre { cursor: pointer; color: var(--tinta); }
+  .parte.abre .i { color: var(--texto-2); }
+  .parte.abre:hover, .parte:hover { background: var(--fondo); }
+  .parte.mas .flecha { transition: transform var(--t) var(--curva); }
+  .parte.mas[aria-expanded="true"] { background: var(--pino-suave); color: var(--pino); font-weight: 750; }
+  .parte.mas[aria-expanded="true"] .i { color: var(--pino); }
+  .parte.mas[aria-expanded="true"] .flecha { transform: rotate(180deg); }
+  .parte.mas[aria-expanded="true"]::before { content: ""; position: absolute; left: -12px; top: 10px; bottom: 10px; width: 4px; border-radius: 0 4px 4px 0; background: var(--accion); }
+  .sub { margin: 4px 0 6px 18px; padding-left: 8px; border-left: 2px solid var(--borde); overflow: hidden; }
+  .sub .parte { height: 40px; font-size: 14px; gap: 10px; }
+  .sub .parte .i { width: 18px; height: 18px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .sub:not([hidden]) li { animation: entra-sub 240ms var(--curva) both; }
+    .sub li:nth-child(2) { animation-delay: 25ms; } .sub li:nth-child(3) { animation-delay: 50ms; }
+    .sub li:nth-child(4) { animation-delay: 75ms; } .sub li:nth-child(5) { animation-delay: 100ms; } .sub li:nth-child(6) { animation-delay: 125ms; }
+    .menu > li { animation: entra-sub 320ms var(--curva) both; }
+    .menu > li:nth-child(2) { animation-delay: 30ms; } .menu > li:nth-child(3) { animation-delay: 60ms; } .menu > li:nth-child(4) { animation-delay: 90ms; } .menu > li:nth-child(5) { animation-delay: 120ms; }
+  }
+  @keyframes entra-sub { from { opacity: 0; transform: translateY(-6px); } }
+
+  .lado-pie { margin-top: auto; display: grid; gap: 8px; padding-top: 12px; }
+  .luz { position: relative; display: flex; align-items: center; gap: 8px; white-space: nowrap; width: 100%; height: 44px; padding: 0 12px; border-radius: var(--r); border: 0; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; text-align: left; transition: transform var(--t-micro) var(--curva); }
+  .luz:active { transform: scale(.98); }
+  .luz [data-luz] { flex: 1; }
+  body[data-net="offline"] .luz { background: var(--urgente-suave); color: var(--urgente-texto); }
+  body[data-net="sending"] .luz { background: var(--pino-suave); color: var(--pino-texto); }
+  .persona { border: 1px solid var(--borde); border-radius: var(--r-tarjeta); padding: 12px; display: grid; gap: 10px; background: var(--superficie); box-shadow: var(--sombra-1); }
+  .persona .quien { display: flex; align-items: center; gap: 10px; }
+  .persona .quien b { display: block; font-size: 15px; font-weight: 750; line-height: 20px; }
+  .persona .quien small { display: block; font-size: 14px; color: var(--texto-2); line-height: 18px; }
+  .persona .btn { width: 100%; }
+
+  /* El área de trabajo: vacía y diciendo qué es */
+  .area { position: relative; min-width: 0; display: grid; place-items: center; padding: 48px 48px 40px; }
+  .vacio { max-width: 560px; text-align: center; display: grid; justify-items: center; gap: 12px; }
+  .vacio svg.ilus { width: 320px; height: 200px; margin-bottom: 12px; }
+  .vacio h1 { margin: 0; }
+  .vacio p { margin: 0; color: var(--texto-2); }
+  .vacio .aviso { text-align: left; margin-top: 8px; display: none; }
+  body[data-net="offline"] .vacio .aviso { display: flex; }
+  .leyenda { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; color: var(--texto-3); font-size: 14px; font-weight: 600; }
+  .leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+  .tecla { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 6px; border: 1px solid var(--borde-fuerte); border-bottom-width: 2px; background: var(--superficie); color: var(--texto-2); font-size: 14px; font-weight: 700; line-height: 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    .vacio > * { animation: entra-vacio 480ms var(--curva) both; }
+    .vacio > :nth-child(2) { animation-delay: 80ms; } .vacio > :nth-child(3) { animation-delay: 140ms; } .vacio > :nth-child(n+4) { animation-delay: 200ms; }
+    .ilus .hueco { animation: hueco 2.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .ilus .hueco:nth-of-type(2n) { animation-delay: .7s; } .ilus .hueco:nth-of-type(3n) { animation-delay: 1.4s; }
+    .ilus .cartel { animation: cartel 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 0; }
+  }
+  @keyframes entra-vacio { from { opacity: 0; transform: translateY(12px); } }
+  @keyframes hueco { 50% { opacity: .45; } }
+  @keyframes cartel { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+
+  /* El globo de «todavía no está», al lado de lo tocado */
+  .globo { position: fixed; z-index: 20; left: 288px; display: flex; align-items: flex-start; gap: 10px; max-width: 320px; padding: 12px 14px; border-radius: var(--r); background: var(--pino); color: #fff; font-size: 14px; line-height: 20px; font-weight: 600; box-shadow: var(--sombra-3); pointer-events: none; }
+  .globo::before { content: ""; position: absolute; left: -6px; top: 16px; width: 12px; height: 12px; background: var(--pino); transform: rotate(45deg); border-radius: 2px; }
+  .globo b { font-weight: 800; }
+  @media (prefers-reduced-motion: no-preference) { .globo:not([hidden]) { animation: globo 240ms var(--curva) both; } }
+  @keyframes globo { from { opacity: 0; transform: translateX(-8px); } }
+
+  /* Lo pendiente: un panel que sale de la luz */
+  .pop { position: fixed; z-index: 30; left: 288px; bottom: 24px; width: 440px; padding: 16px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-3); transform-origin: 0 100%; }
+  .pop .cerrar { position: absolute; top: 12px; right: 12px; }
+  @media (prefers-reduced-motion: no-preference) { .pop:not([hidden]) { animation: pop-in 220ms var(--curva) both; } }
+  @keyframes pop-in { from { opacity: 0; transform: scale(.94) translateX(-8px); } }
+
+  /* =================== Celular (debajo de 900 px) =================== */
+  @media (max-width: 899px) {
+    .d-only { display: none !important; }
+    .p-only { display: revert !important; }
+    body { --tostada-abajo: 108px; --nav-alto: 92px; }
+    .vista { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+    .p-cab { display: flex !important; align-items: center; gap: 12px; padding: 40px 16px 0; }
+    .p-cab img { width: 32px; height: 32px; }
+    .p-cab .t-titulo { flex: 1; }
+    .p-avatar { border: 0; padding: 0; background: none; }
+    .p-luz { display: flex !important; align-items: center; gap: 8px; margin: 8px 16px 0; height: 36px; padding: 0 12px; align-self: flex-start; border: 0; border-radius: 999px; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; }
+    body[data-net="offline"] .p-luz { background: var(--urgente-suave); color: var(--urgente-texto); }
+    body[data-net="sending"] .p-luz { background: var(--pino-suave); color: var(--pino-texto); }
+    .area { flex: 1; padding: 16px 24px; }
+    .vacio svg.ilus { width: 240px; height: 150px; margin-bottom: 4px; }
+    .vacio .t-titulo { font-size: 26px; }
+    .p-nav { display: grid !important; flex: none; grid-template-columns: repeat(5, 1fr); height: 92px; padding: 4px 4px 14px; background: var(--superficie); border-top: 1px solid var(--borde); }
+    .p-nav button { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; border: 0; background: none; color: var(--texto-3); font-size: 14px; font-weight: 650; padding: 0; cursor: default; }
+    .p-nav button .i { width: 26px; height: 26px; }
+    .p-nav button .pronto { height: auto; padding: 0; background: none; color: var(--texto-3); font-size: 14px; line-height: 16px; font-weight: 700; }
+    .p-nav button .lbl { line-height: 18px; }
+    .p-nav button.abre { color: var(--texto-2); cursor: pointer; }
+    .p-nav button.activo { color: var(--accion); font-weight: 800; }
+    .p-nav button.activo::before { content: ""; position: absolute; top: 0; left: 18%; right: 18%; height: 4px; border-radius: 0 0 4px 4px; background: var(--accion); }
+    .p-nav .ico-mov { display: inline-block; }
+  }
+
+  /* Hojas del celular: suben desde abajo */
+  .fondo-hoja { position: fixed; top: 0; left: 0; right: 0; z-index: 40; background: rgb(26 29 27 / .3); }
+  .fondo-hoja, .hoja { bottom: var(--nav-alto, 0); }
+  .hoja { position: fixed; left: 0; right: 0; z-index: 41; max-height: calc(100% - 120px); overflow: auto; padding: 8px 16px 20px; border-radius: var(--r-hoja) var(--r-hoja) 0 0; background: var(--fondo); box-shadow: var(--sombra-3); }
+  .hoja .asa { width: 40px; height: 5px; border-radius: 99px; background: var(--borde-fuerte); margin: 4px auto 12px; }
+  .hoja h2 { margin: 0 0 12px; font-size: 20px; font-weight: 750; }
+  .hoja .cab { display: flex; align-items: center; justify-content: space-between; }
+  @media (prefers-reduced-motion: no-preference) {
+    .fondo-hoja:not([hidden]) { animation: fundido var(--t-nav) var(--curva) both; }
+    .hoja:not([hidden]) { animation: sube var(--t-nav) var(--curva) both; }
+  }
+  @keyframes fundido { from { opacity: 0; } }
+  @keyframes sube { from { transform: translateY(100%); } }
+  .h-persona { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); }
+  .h-persona b { display: block; font-size: 16px; font-weight: 800; }
+  .h-persona small { display: block; font-size: 14px; color: var(--texto-2); }
+  .grupo { margin-top: 16px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); overflow: hidden; }
+  .grupo button { width: 100%; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 12px; border: 0; background: none; text-align: left; font-size: 16px; font-weight: 650; color: var(--texto-2); }
+  .grupo button + button { border-top: 1px solid var(--borde); }
+  .grupo button .ic { width: 36px; height: 36px; border-radius: var(--r-chico); background: var(--hundido); display: grid; place-items: center; color: var(--texto-3); }
+  .grupo button .n { flex: 1; }
+  .h-salir { margin-top: 16px; width: 100%; }
+</style>
+</head>
+<body>
+<div class="test-frame" aria-hidden="true">
+  <div class="test-border"></div>
+  <div class="test-banner">Ambiente de prueba<span> · nada de esto es real</span></div>
+</div>
+
+<div class="vista">
+  <!-- ======== Computadora: el lateral ======== -->
+  <nav class="lado d-only" aria-label="Menú" data-no-ir>
+    <div class="lado-marca"><img src="../assets/isotype.svg" alt=""><b>Ferrebress</b></div>
+    <ul class="menu" id="menu">
+      <li><button type="button" class="parte" data-nav data-key="v" data-nombre="Vender"><i class="i" data-i="shopping-cart"></i><span class="nombre">Vender</span><span class="pronto">Pronto</span><span class="kbd">V</span></button></li>
+      <li><button type="button" class="parte" data-nav data-key="c" data-nombre="Catálogo"><i class="i" data-i="tags"></i><span class="nombre">Catálogo</span><span class="pronto">Pronto</span><span class="kbd">C</span></button></li>
+      <li><button type="button" class="parte" data-nav data-key="p" data-nombre="Depósito"><i class="i" data-i="package"></i><span class="nombre">Depósito</span><span class="pronto">Pronto</span><span class="kbd">P</span></button></li>
+      <li><button type="button" class="parte" data-nav data-key="n" data-nombre="Negocio"><i class="i" data-i="chart-column"></i><span class="nombre">Negocio</span><span class="pronto">Pronto</span><span class="kbd">N</span></button></li>
+      <li>
+        <button type="button" class="parte abre mas" id="mas" data-nav data-key="m" aria-expanded="false" aria-controls="sub"><i class="i" data-i="ellipsis"></i><span class="nombre">Más</span><span class="kbd">M</span><i class="i i-s flecha" data-i="chevron-down"></i></button>
+        <ul class="sub" id="sub" hidden>
+          <li><button type="button" class="parte" data-nav data-key="a" data-nombre="Anomalías"><i class="i" data-i="triangle-alert"></i><span class="nombre">Anomalías</span><span class="pronto">Pronto</span><span class="kbd">A</span></button></li>
+          <li><button type="button" class="parte" data-nav data-key="r" data-nombre="Procesos"><i class="i" data-i="workflow"></i><span class="nombre">Procesos</span><span class="pronto">Pronto</span><span class="kbd">R</span></button></li>
+          <li><button type="button" class="parte" data-nav data-key="j" data-nombre="Mejoras y errores"><i class="i" data-i="bug"></i><span class="nombre">Mejoras y errores</span><span class="pronto">Pronto</span><span class="kbd">J</span></button></li>
+          <li><button type="button" class="parte" data-nav data-key="g" data-nombre="Configuración"><i class="i" data-i="settings"></i><span class="nombre">Configuración</span><span class="pronto">Pronto</span><span class="kbd">G</span></button></li>
+          <li><button type="button" class="parte" data-nav data-key="t" data-nombre="Administración"><i class="i" data-i="sliders-horizontal"></i><span class="nombre">Administración</span><span class="pronto">Pronto</span><span class="kbd">T</span></button></li>
+          <li><button type="button" class="parte" data-nav data-key="u" data-nombre="El manual"><i class="i" data-i="book-open"></i><span class="nombre">Manual</span><span class="pronto">Pronto</span><span class="kbd">U</span></button></li>
+        </ul>
+      </li>
+    </ul>
+    <div class="lado-pie">
+      <button type="button" class="luz" id="luz" data-nav data-key="z" aria-haspopup="dialog"><span class="luz-punto"></span><span data-luz></span><span class="kbd">Z</span><i class="i i-s" data-i="chevron-right"></i></button>
+      <div class="persona">
+        <div class="quien"><span class="avatar">RP</span><div><b>Rubén Paredes</b><small>Administrador</small></div></div>
+        <button type="button" class="btn chico" id="salir" data-nav data-key="s"><i class="i i-s" data-i="log-out"></i>Salir <span class="kbd">S</span></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ======== Celular: la cabecera ======== -->
+  <header class="p-cab p-only">
+    <img src="../assets/isotype.svg" alt="">
+    <span class="t-titulo">Ferrebress</span>
+    <button type="button" class="p-avatar" id="p-avatar" aria-label="Rubén Paredes · Más"><span class="avatar">RP</span></button>
+  </header>
+  <button type="button" class="p-luz p-only" id="p-luz"><span class="luz-punto"></span><span data-luz></span><i class="i i-s" data-i="chevron-right"></i></button>
+
+  <!-- ======== El área de trabajo: vacía ======== -->
+  <main class="area">
+    <div class="vacio">
+      <svg class="ilus" viewBox="0 0 320 200" aria-hidden="true">
+        <ellipse cx="160" cy="188" rx="142" ry="9" fill="#E3DFD5"/>
+        <rect x="38" y="14" width="244" height="132" rx="12" fill="#fff" stroke="#E6E2D8" stroke-width="2"/>
+        <path d="M38 58h244M38 102h244" stroke="#E6E2D8" stroke-width="2"/>
+        <rect class="hueco" x="54" y="24" width="52" height="26" rx="7" fill="none" stroke="#CEC8BA" stroke-width="2" stroke-dasharray="5 5"/>
+        <rect class="hueco" x="118" y="24" width="34" height="26" rx="7" fill="none" stroke="#CEC8BA" stroke-width="2" stroke-dasharray="5 5"/>
+        <rect class="hueco" x="164" y="24" width="64" height="26" rx="7" fill="none" stroke="#CEC8BA" stroke-width="2" stroke-dasharray="5 5"/>
+        <rect class="hueco" x="240" y="24" width="28" height="26" rx="7" fill="none" stroke="#CEC8BA" stroke-width="2" stroke-dasharray="5 5"/>
+        <rect class="hueco" x="54" y="68" width="40" height="26" rx="7" fill="none" stroke="#CEC8BA" stroke-width="2" stroke-dasharray="5 5"/>
+        <rect class="hueco" x="106" y="68" width="70" height="26" rx="7" fill="none" stroke="#CEC8BA" stroke-width="2" stroke-dasharray="5 5"/>
+        <rect class="hueco" x="188" y="68" width="80" height="26" rx="7" fill="none" stroke="#CEC8BA" stroke-width="2" stroke-dasharray="5 5"/>
+        <rect x="18" y="122" width="284" height="62" rx="12" fill="#ECE9E1" stroke="#E3DFD5" stroke-width="2"/>
+        <rect x="18" y="118" width="284" height="12" rx="6" fill="#12382F"/>
+        <g class="cartel"><path d="M246 130v8" stroke="#CEC8BA" stroke-width="2"/><rect x="216" y="138" width="62" height="26" rx="13" fill="#E8541C"/><text x="247" y="156" font-family="Manrope, sans-serif" font-size="14" font-weight="800" fill="#fff" text-anchor="middle">Pronto</text></g>
+        <image href="../assets/isotype.svg" x="34" y="140" width="28" height="28" opacity=".9"/>
+      </svg>
+      <h1 class="t-titulo">Bienvenido, Rubén.</h1>
+      <p class="t-cuerpo"><span class="largo">Este es tu lugar de trabajo en Ferrebress. Todavía no hay nada para usar: cada parte del menú dice «Pronto» y se enciende cuando se suma. Lo que abras va a aparecer acá, en el centro.</span><span class="corto">Todavía no hay nada para usar. Lo que se sume aparece en el menú de abajo.</span></p>
+      <div class="aviso urgente"><i class="i" data-i="wifi-off"></i><span><span class="largo">Sin conexión. Podés leer lo que está en pantalla y salir; lo demás vuelve a andar solo cuando vuelva la conexión.</span><span class="corto">Sin conexión: solo se puede salir.</span></span></div>
+      <div class="leyenda d-only">
+        <span><span class="tecla">↑</span><span class="tecla">↓</span> recorren el menú</span>
+        <span><span class="tecla">Enter</span> abre</span>
+        <span><span class="tecla">Esc</span> cierra</span>
+        <span>mantené <span class="tecla">Alt</span> para ver las teclas</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- ======== Celular: el menú de abajo ======== -->
+  <nav class="p-nav p-only" aria-label="Menú" data-no-ir>
+    <button type="button" data-p="Vender"><span class="ico-mov"><i class="i" data-i="shopping-cart"></i></span><span class="lbl">Vender</span><span class="pronto">Pronto</span></button>
+    <button type="button" data-p="Catálogo"><span class="ico-mov"><i class="i" data-i="tags"></i></span><span class="lbl">Catálogo</span><span class="pronto">Pronto</span></button>
+    <button type="button" data-p="Depósito"><span class="ico-mov"><i class="i" data-i="package"></i></span><span class="lbl">Depósito</span><span class="pronto">Pronto</span></button>
+    <button type="button" data-p="Negocio"><span class="ico-mov"><i class="i" data-i="chart-column"></i></span><span class="lbl">Negocio</span><span class="pronto">Pronto</span></button>
+    <button type="button" class="abre" id="p-mas"><span class="ico-mov"><i class="i" data-i="menu"></i></span><span class="lbl">Más</span><span class="pronto" style="visibility:hidden">·</span></button>
+  </nav>
+</div>
+
+<!-- Computadora: el globo y lo pendiente -->
+<div class="globo" id="globo" hidden role="status"><i class="i" data-i="clock"></i><span id="globo-txt"></span></div>
+<section class="pop" id="pop" hidden role="dialog" aria-label="Lo que está por enviar">
+  <button type="button" class="btn btn-fantasma btn-icono chico cerrar" id="pop-cerrar" aria-label="Cerrar"><i class="i" data-i="x"></i></button>
+  <div data-pendiente></div>
+  <p class="pend-nota">La luz dice lo que contestó el servidor la última vez; no consulta nada por su cuenta.</p>
+</section>
+
+<!-- Celular: las hojas -->
+<div class="fondo-hoja" id="fondo-hoja" hidden></div>
+<section class="hoja" id="hoja-mas" hidden role="dialog" aria-label="Más" data-no-ir>
+  <div class="asa"></div>
+  <div class="h-persona"><span class="avatar">RP</span><div><b>Rubén Paredes</b><small>Administrador</small></div></div>
+  <div class="grupo">
+    <button type="button" data-p="Anomalías"><span class="ic"><i class="i" data-i="triangle-alert"></i></span><span class="n">Anomalías</span><span class="pronto">Pronto</span></button>
+    <button type="button" data-p="Procesos"><span class="ic"><i class="i" data-i="workflow"></i></span><span class="n">Procesos</span><span class="pronto">Pronto</span></button>
+    <button type="button" data-p="Mejoras y errores"><span class="ic"><i class="i" data-i="bug"></i></span><span class="n">Mejoras y errores</span><span class="pronto">Pronto</span></button>
+    <button type="button" data-p="Configuración"><span class="ic"><i class="i" data-i="settings"></i></span><span class="n">Configuración</span><span class="pronto">Pronto</span></button>
+    <button type="button" data-p="Administración"><span class="ic"><i class="i" data-i="sliders-horizontal"></i></span><span class="n">Administración</span><span class="pronto">Pronto</span></button>
+    <button type="button" data-p="El manual"><span class="ic"><i class="i" data-i="book-open"></i></span><span class="n">Manual</span><span class="pronto">Pronto</span></button>
+  </div>
+  <button type="button" class="btn btn-peligro grande h-salir" id="p-salir"><i class="i" data-i="log-out"></i>Salir</button>
+</section>
+<section class="hoja" id="hoja-luz" hidden role="dialog" aria-label="Lo que está por enviar">
+  <div class="asa"></div>
+  <div data-pendiente></div>
+</section>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  var M = window.Marco;
+  var $ = function (id) { return document.getElementById(id); };
+  var mas = $("mas"), sub = $("sub"), globo = $("globo"), pop = $("pop");
+
+  // ---------- Más: se despliega en el lateral ----------
+  function abrirMas(abrir) {
+    if (abrir === undefined) abrir = sub.hidden;
+    sub.hidden = !abrir;
+    mas.setAttribute("aria-expanded", String(abrir));
+  }
+  mas.addEventListener("click", function () { abrirMas(); });
+
+  // ---------- Lo que dice «Pronto»: se sacude y el globo lo explica ----------
+  var gTimer;
+  function pronto(el) {
+    var r = el.getBoundingClientRect();
+    $("globo-txt").innerHTML = "<b>" + el.dataset.nombre + "</b> todavía no está. Cuando se sume, se abre desde acá y deja de decir «Pronto».";
+    globo.style.top = (r.top + r.height / 2 - 22) + "px";
+    globo.hidden = false;
+    el.classList.remove("no-esta"); void el.offsetWidth; el.classList.add("no-esta");
+    clearTimeout(gTimer);
+    gTimer = setTimeout(function () { globo.hidden = true; }, 2600);
+  }
+  document.querySelectorAll(".lado .parte[data-nombre]").forEach(function (b) {
+    b.addEventListener("click", function () { pronto(b); });
+  });
+
+  // ---------- La luz: lo pendiente ----------
+  function cerrarPop() { pop.hidden = true; pop.classList.remove("capa-arriba"); M.cerrarCapa(cerrarPop); }
+  $("luz").addEventListener("click", function () {
+    if (!pop.hidden) { cerrarPop(); return; }
+    globo.hidden = true; pop.hidden = false; pop.classList.add("capa-arriba"); M.abrirCapa(cerrarPop);
+  });
+  $("pop-cerrar").addEventListener("click", cerrarPop);
+  document.addEventListener("click", function (e) {
+    if (!pop.hidden && !pop.contains(e.target) && !$("luz").contains(e.target) && !e.target.closest(".demo")) cerrarPop();
+  });
+
+  $("salir").addEventListener("click", M.salir);
+  $("p-salir").addEventListener("click", M.salir);
+
+  // ---------- Teclado: ↑ ↓ recorren el menú, → abre Más, ← vuelve, Enter activa ----------
+  function recorrido() { return Array.prototype.filter.call(document.querySelectorAll(".lado [data-nav]"), function (el) { return el.offsetParent !== null; }); }
+  document.addEventListener("keydown", function (e) {
+    if (M.angosto() || e.altKey || e.ctrlKey || e.metaKey) return;
+    var lista = recorrido(), i = lista.indexOf(M.marcado);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (i < 0) { M.marcar(lista[e.key === "ArrowDown" ? 0 : lista.length - 1]); return; }
+      var j = (i + (e.key === "ArrowDown" ? 1 : -1) + lista.length) % lista.length;
+      M.marcar(lista[j]);
+    } else if (e.key === "ArrowRight" && M.marcado === mas && sub.hidden) {
+      e.preventDefault(); abrirMas(true);
+    } else if (e.key === "ArrowLeft" && M.marcado) {
+      e.preventDefault();
+      if (sub.contains(M.marcado)) M.marcar(mas);
+      else if (M.marcado === mas && !sub.hidden) abrirMas(false);
+    } else if (e.key === "Enter" && M.marcado) {
+      e.preventDefault(); M.marcado.click();
+    }
+  });
+
+  // ---------- Celular ----------
+  var fondo = $("fondo-hoja"), abierta = null;
+  function abrirHoja(h) {
+    cerrarHoja();
+    abierta = h; h.hidden = false; fondo.hidden = false; h.classList.add("capa-arriba");
+    if (h.id === "hoja-mas") $("p-mas").classList.add("activo");
+    M.abrirCapa(cerrarHoja);
+  }
+  function cerrarHoja() {
+    if (!abierta) return;
+    abierta.hidden = true; abierta.classList.remove("capa-arriba"); fondo.hidden = true;
+    $("p-mas").classList.remove("activo"); abierta = null; M.cerrarCapa(cerrarHoja);
+  }
+  fondo.addEventListener("click", cerrarHoja);
+  $("p-mas").addEventListener("click", function () { abierta && abierta.id === "hoja-mas" ? cerrarHoja() : abrirHoja($("hoja-mas")); });
+  $("p-avatar").addEventListener("click", function () { abrirHoja($("hoja-mas")); });
+  $("p-luz").addEventListener("click", function () { abrirHoja($("hoja-luz")); });
+  document.querySelectorAll(".p-nav [data-p]").forEach(function (b) {
+    b.addEventListener("click", function () { M.noEsta(b.querySelector(".ico-mov"), b.dataset.p, "· pronto. Todavía no está."); });
+  });
+  document.querySelectorAll(".hoja [data-p]").forEach(function (b) {
+    b.addEventListener("click", function () { M.noEsta(b, b.dataset.p, "· pronto. Todavía no está."); });
+  });
+  // Deslizar la hoja hacia abajo la cierra.
+  document.querySelectorAll(".hoja").forEach(function (h) {
+    var y0 = null;
+    h.addEventListener("pointerdown", function (e) { if (h.scrollTop <= 0) y0 = e.clientY; });
+    h.addEventListener("pointerup", function (e) { if (y0 !== null && e.clientY - y0 > 60) cerrarHoja(); y0 = null; });
+  });
+  window.addEventListener("resize", function () { cerrarHoja(); cerrarPop(); globo.hidden = true; });
+})();
+</script>
+</body>
+</html>

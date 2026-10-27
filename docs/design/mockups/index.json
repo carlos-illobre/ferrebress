@@ -8,6 +8,19 @@
     { "device": "desktop", "name": "Adaptada", "path": "mockups/sign-in/adapted/index.html" },
     { "device": "phone", "name": "Adaptada", "path": "mockups/sign-in/adapted/index.html" }
    ]
+  },
+  {
+   "id": "app-frame",
+   "title": "El marco vacío",
+   "module": "01 · Entrar",
+   "variants": [
+    { "device": "desktop", "name": "1 · Evolución", "path": "mockups/app-frame/variant-1-evolution/index.html" },
+    { "device": "desktop", "name": "2 · El tablero", "path": "mockups/app-frame/variant-2-pegboard/index.html" },
+    { "device": "desktop", "name": "3 · Una sola puerta", "path": "mockups/app-frame/variant-3-one-door/index.html" },
+    { "device": "phone", "name": "1 · Evolución", "path": "mockups/app-frame/variant-1-evolution/index.html" },
+    { "device": "phone", "name": "2 · El tablero", "path": "mockups/app-frame/variant-2-pegboard/index.html" },
+    { "device": "phone", "name": "3 · Una sola puerta", "path": "mockups/app-frame/variant-3-one-door/index.html" }
+   ]
   }
  ]
 }

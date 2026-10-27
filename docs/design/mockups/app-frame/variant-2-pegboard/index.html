@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El marco vacío · 2 · El tablero</title>
+<!-- Variante 2 · Reinvención: no hay menú que se abre y se cierra. La aplicación es un tablero de
+     herramientas, como el de la pared de la ferretería: cada lugar de la aplicación tiene su hueco
+     marcado, todos a la vista y a un toque. Lo que se suma «se cuelga» en su hueco.
+     Una sola página: desde 900 px, la computadora (cinco columnas); debajo, el celular. -->
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="../shared.css">
+<script src="../../../common/icons.js"></script>
+<script src="../../../common/navigate.js" defer></script>
+<style>
+  .p-only { display: none !important; }
+  .vista { height: 100vh; display: flex; flex-direction: column; }
+
+  /* ---------- La barra de arriba: dónde estoy, la luz, quién soy ---------- */
+  .tope { flex: none; display: flex; align-items: center; gap: 16px; height: 68px; padding: 0 24px 0 28px; background: var(--superficie); border-bottom: 1px solid var(--borde); }
+  .tope .marca-f { display: flex; align-items: center; gap: 10px; }
+  .tope .marca-f img { width: 32px; height: 32px; }
+  .tope .marca-f b { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+  .aqui { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 999px; border: 0; background: var(--pino-suave); color: var(--pino); font-size: 14px; font-weight: 750; }
+  .tope .der { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .luz { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; white-space: nowrap; transition: transform var(--t-micro) var(--curva); }
+  .luz:active { transform: scale(.97); }
+  body[data-net="offline"] .luz { background: var(--urgente-suave); color: var(--urgente-texto); }
+  body[data-net="sending"] .luz { background: var(--pino-suave); color: var(--pino-texto); }
+  .persona { display: flex; align-items: center; gap: 10px; padding: 4px 4px 4px 4px; border-radius: 999px; border: 1px solid var(--borde); background: var(--superficie); }
+  .persona .txt b { display: block; font-size: 15px; font-weight: 750; line-height: 18px; }
+  .persona .txt small { display: block; font-size: 14px; color: var(--texto-2); line-height: 18px; }
+  .persona .btn { border-radius: 999px; margin-left: 4px; }
+
+  /* ---------- El área: bienvenida + tablero ---------- */
+  .area { flex: 1; min-height: 0; overflow: auto; padding: 20px 32px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .hola { display: flex; align-items: flex-end; gap: 24px; }
+  .hola .t { flex: 1; }
+  .hola h1 { margin: 0; }
+  .hola p { margin: 4px 0 0; color: var(--texto-2); max-width: 760px; }
+  .avance { min-width: 240px; padding: 12px 16px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-1); }
+  .avance .et { font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .avance .va { font-size: 24px; font-weight: 800; letter-spacing: -.02em; line-height: 30px; }
+  .avance .va small { font-size: 15px; font-weight: 650; color: var(--texto-2); }
+  .aviso-red { display: none; }
+  body[data-net="offline"] .aviso-red { display: flex; }
+
+  /* El tablero perforado: blanco, con agujeros hundidos cada 24 px */
+  .tablero { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; padding: 20px; border-radius: 20px; background-color: var(--superficie); background-image: radial-gradient(circle at 12px 12px, var(--hundido-2) 2.5px, transparent 3px); background-size: 24px 24px; border: 1px solid var(--borde); box-shadow: var(--sombra-2); }
+  .grupo h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 6px 10px 6px 6px; border-radius: 999px; background: var(--superficie); font-size: 18px; font-weight: 800; letter-spacing: -.01em; width: fit-content; box-shadow: 0 0 0 1px var(--borde); }
+  .grupo h2 .ico { width: 32px; height: 32px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino-texto); }
+  .grupo ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+
+  /* El hueco: la silueta punteada de lo que va a colgar ahí */
+  .hueco { position: relative; width: 100%; display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px 6px 12px; border-radius: var(--r); border: 2px dashed var(--borde-fuerte); background: rgb(244 242 236 / .85); color: var(--texto-2); text-align: left; font-size: 15px; font-weight: 700; line-height: 19px; transform-origin: 50% -8px; }
+  .hueco::before { content: ""; position: absolute; top: -9px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 99px; background: var(--borde-fuerte); box-shadow: inset 0 -2px 0 rgb(0 0 0 / .08); }
+  .hueco > svg { color: var(--texto-3); }
+  .hueco .kbd { position: absolute; left: 10px; top: 50%; margin-top: -12px; }
+  body.alt .hueco > svg { opacity: 0; }
+  .hueco:hover { background: var(--fondo); border-color: var(--texto-3); }
+  .marca-tecla.hueco { outline-offset: 3px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .hueco.hamaca { animation: hamaca 700ms var(--curva); }
+    .grupo { animation: entra 420ms var(--curva) both; }
+    .grupo:nth-child(2) { animation-delay: 50ms; } .grupo:nth-child(3) { animation-delay: 100ms; } .grupo:nth-child(4) { animation-delay: 150ms; } .grupo:nth-child(5) { animation-delay: 200ms; }
+  }
+  @keyframes hamaca { 15% { transform: rotate(5deg); } 35% { transform: rotate(-4deg); } 55% { transform: rotate(2.5deg); } 75% { transform: rotate(-1deg); } }
+  @keyframes entra { from { opacity: 0; transform: translateY(10px); } }
+
+  /* ---------- Lo que se abre: lo pendiente y la persona ---------- */
+  .pop { position: fixed; z-index: 30; top: 76px; right: 24px; width: 440px; padding: 16px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-3); transform-origin: 70% 0; }
+  .pop .cerrar { position: absolute; top: 12px; right: 12px; }
+  @media (prefers-reduced-motion: no-preference) { .pop:not([hidden]) { animation: pop-in 220ms var(--curva) both; } }
+  @keyframes pop-in { from { opacity: 0; transform: translateY(-8px) scale(.97); } }
+
+  .fondo-hoja { position: fixed; inset: 0; z-index: 40; background: rgb(26 29 27 / .3); }
+  .hoja { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; padding: 8px 16px 28px; border-radius: var(--r-hoja) var(--r-hoja) 0 0; background: var(--fondo); box-shadow: var(--sombra-3); max-height: calc(100% - 96px); overflow: auto; }
+  .hoja .asa { width: 40px; height: 5px; border-radius: 99px; background: var(--borde-fuerte); margin: 4px auto 12px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .fondo-hoja:not([hidden]) { animation: fundido var(--t-nav) var(--curva) both; }
+    .hoja:not([hidden]) { animation: sube var(--t-nav) var(--curva) both; }
+  }
+  @keyframes fundido { from { opacity: 0; } }
+  @keyframes sube { from { transform: translateY(100%); } }
+  .h-persona { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); }
+  .h-persona b { display: block; font-size: 18px; font-weight: 800; }
+  .h-persona small { display: block; font-size: 14px; color: var(--texto-2); }
+  .h-salir { margin-top: 12px; width: 100%; }
+
+  /* =================== Celular =================== */
+  @media (max-width: 899px) {
+    .d-only { display: none !important; }
+    .p-only { display: revert !important; }
+    .vista { height: 100dvh; }
+    .tope { height: auto; padding: 40px 16px 8px; background: transparent; border: 0; gap: 12px; }
+    .tope .marca-f b { display: none; }
+    .tope .t-titulo { flex: 1; }
+    .p-avatar { border: 0; padding: 0; background: none; }
+    .p-fila { display: flex !important; align-items: center; gap: 8px; padding: 0 16px 8px; }
+    .p-fila .luz { height: 36px; }
+    .indice { display: flex !important; gap: 8px; padding: 4px 16px 12px; overflow-x: auto; scrollbar-width: none; flex: none; }
+    .indice button { flex: none; height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--borde-fuerte); background: var(--superficie); font-size: 15px; font-weight: 700; color: var(--tinta); }
+    .indice button.elegido { background: var(--pino); border-color: var(--pino); color: #fff; }
+    .area { padding: 0 16px 24px; gap: 12px; scroll-behavior: smooth; }
+    .hola p { font-size: 15px; }
+    .hola h1 { font-size: 24px; line-height: 30px; }
+    .tablero { grid-template-columns: 1fr; gap: 24px; padding: 16px 12px; border-radius: 16px; }
+    .grupo ul { grid-template-columns: 1fr 1fr; gap: 14px 10px; }
+    .hueco { grid-template-columns: 1fr; justify-items: start; gap: 4px; min-height: 92px; padding: 12px; font-size: 15px; }
+    .hueco .pronto { height: 22px; font-size: 14px; }
+    .grupo h2 { font-size: 17px; }
+  }
+  @media (max-width: 899px) and (prefers-reduced-motion: reduce) { .area { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="test-frame" aria-hidden="true">
+  <div class="test-border"></div>
+  <div class="test-banner">Ambiente de prueba<span> · nada de esto es real</span></div>
+</div>
+
+<div class="vista">
+  <header class="tope">
+    <div class="marca-f"><img src="../assets/isotype.svg" alt=""><b>Ferrebress</b></div>
+    <span class="aqui d-only" id="aqui"><i class="i i-s" data-i="layout-grid"></i>Tablero<span class="kbd">0</span></span>
+    <span class="t-titulo p-only">Tablero</span>
+    <div class="der d-only">
+      <button type="button" class="luz" id="luz" data-key="z" aria-haspopup="dialog"><span class="luz-punto"></span><span data-luz></span><span class="kbd">Z</span><i class="i i-s" data-i="chevron-down"></i></button>
+      <div class="persona">
+        <span class="avatar">RP</span>
+        <div class="txt"><b>Rubén Paredes</b><small>Administrador</small></div>
+        <button type="button" class="btn chico" id="salir" data-key="s"><i class="i i-s" data-i="log-out"></i>Salir<span class="kbd">S</span></button>
+      </div>
+    </div>
+    <button type="button" class="p-avatar p-only" id="p-avatar" aria-label="Rubén Paredes"><span class="avatar">RP</span></button>
+  </header>
+  <div class="p-fila p-only"><button type="button" class="luz" id="p-luz"><span class="luz-punto"></span><span data-luz></span><i class="i i-s" data-i="chevron-right"></i></button></div>
+  <nav class="indice p-only" id="indice" aria-label="Ir a una parte del tablero" data-no-ir></nav>
+
+  <main class="area" id="area">
+    <div class="hola">
+      <div class="t">
+        <h1 class="t-titulo">Bienvenido, Rubén.</h1>
+        <p class="t-cuerpo"><span class="largo">Este es el tablero de Ferrebress: cada lugar de la aplicación tiene su hueco marcado, todos a la vista. Todavía no hay ninguno colgado; lo que se sume aparece en su hueco y se abre con un toque o con su tecla.</span><span class="corto">Todavía no hay nada colgado. Lo que se sume aparece en su hueco.</span></p>
+      </div>
+      <div class="avance d-only"><div class="et">Listos para usar</div><div class="va">0 <small>de 17</small></div><div class="barra"><b style="width:0"></b></div></div>
+    </div>
+    <div class="aviso urgente aviso-red"><i class="i" data-i="wifi-off"></i><span><span class="largo">Sin conexión. Podés leer lo que está en pantalla y salir; lo demás vuelve a andar solo cuando vuelva la conexión.</span><span class="corto">Sin conexión: solo se puede salir.</span></span></div>
+    <section class="tablero" id="tablero" aria-label="El tablero" data-no-ir></section>
+  </main>
+</div>
+
+<section class="pop" id="pop" hidden role="dialog" aria-label="Lo que está por enviar">
+  <button type="button" class="btn btn-fantasma btn-icono chico cerrar" id="pop-cerrar" aria-label="Cerrar"><i class="i" data-i="x"></i></button>
+  <div data-pendiente></div>
+</section>
+<div class="fondo-hoja" id="fondo-hoja" hidden></div>
+<section class="hoja" id="hoja-persona" hidden role="dialog" aria-label="Rubén Paredes">
+  <div class="asa"></div>
+  <div class="h-persona"><span class="avatar" style="width:48px;height:48px;font-size:16px">RP</span><div><b>Rubén Paredes</b><small>Administrador</small></div></div>
+  <button type="button" class="btn btn-peligro grande h-salir" id="p-salir"><i class="i" data-i="log-out"></i>Salir</button>
+</section>
+<section class="hoja" id="hoja-luz" hidden role="dialog" aria-label="Lo que está por enviar">
+  <div class="asa"></div>
+  <div data-pendiente></div>
+</section>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  var M = window.Marco;
+  var $ = function (id) { return document.getElementById(id); };
+  // Los cinco grupos y sus lugares (00 · R1.2). Todos dicen «Pronto» (R1.3).
+  var GRUPOS = [
+    { n: "Vender", ic: "shopping-cart", l: [["Vender", "shopping-cart", "v"], ["Ventas de hoy", "receipt", "h"]] },
+    { n: "Catálogo", ic: "tags", l: [["Productos", "tags", "p"], ["Listas", "file-text", "l"], ["Duplicados", "copy", "u"]] },
+    { n: "Depósito", ic: "package", l: [["Stock", "boxes", "k"], ["Compras", "truck", "c"], ["Contar", "clipboard-list", "o"]] },
+    { n: "Negocio", ic: "chart-column", l: [["Resumen", "gauge", "r"], ["Usuarios", "users", "i"], ["Quién hizo qué", "history", "q"]] },
+    { n: "Más", ic: "ellipsis", l: [["Anomalías", "triangle-alert", "a"], ["Procesos", "workflow", "1"], ["Mejoras y errores", "bug", "m"], ["Configuración", "settings", "n"], ["Administración", "sliders-horizontal", "t"], ["Manual", "book-open", "2"]] }
+  ];
+  var tab = $("tablero"), ind = $("indice"), h = "", hi = "";
+  GRUPOS.forEach(function (g, gi) {
+    h += '<div class="grupo" id="g' + gi + '"><h2><span class="ico"><i class="i i-s" data-i="' + g.ic + '"></i></span>' + g.n + "</h2><ul>";
+    g.l.forEach(function (x, xi) {
+      h += '<li><button type="button" class="hueco" data-col="' + gi + '" data-fila="' + xi + '" data-nombre="' + x[0] + '" data-grupo="' + g.n + '" data-key="' + x[2] + '">' +
+           '<i class="i" data-i="' + x[1] + '"></i><span>' + x[0] + '</span><span class="pronto">Pronto</span><span class="kbd">' + x[2].toUpperCase() + "</span></button></li>";
+    });
+    h += "</ul></div>";
+    hi += '<button type="button" data-g="' + gi + '"' + (gi === 0 ? ' class="elegido"' : "") + ">" + g.n + "</button>";
+  });
+  tab.innerHTML = h; ind.innerHTML = hi;
+  window.pintarIconos(tab);
+
+  // ---------- Tocar un hueco: se hamaca en su gancho y dice que todavía no está ----------
+  tab.addEventListener("click", function (e) {
+    var b = e.target.closest(".hueco"); if (!b) return;
+    b.classList.remove("hamaca"); void b.offsetWidth; b.classList.add("hamaca");
+    if (navigator.vibrate && M.angosto()) { try { navigator.vibrate(10); } catch (x) {} }
+    var donde = b.dataset.nombre === b.dataset.grupo ? "" : " (" + b.dataset.grupo + ")";
+    M.tostada("<b>" + b.dataset.nombre + "</b>" + donde + ' todavía no está colgado. <span class="largo">Cuando se sume, aparece en este hueco y se abre desde acá.</span>', "clock");
+  });
+  $("aqui").addEventListener("click", function () { M.tostada("Ya estás en el tablero. Desde cualquier lugar, Esc o Alt 0 te trae de vuelta.", "layout-grid"); });
+  $("aqui").setAttribute("data-key", "0");
+
+  // ---------- Celular: el índice salta a cada grupo y se ilumina el que se ve ----------
+  var area = $("area");
+  function arriba(el) { return area.scrollTop + el.getBoundingClientRect().top - area.getBoundingClientRect().top; }
+  ind.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var g = $("g" + b.dataset.g);
+    area.scrollTo({ top: arriba(g) - 8, behavior: M.reducido ? "auto" : "smooth" });
+  });
+  area.addEventListener("scroll", function () {
+    var y = area.scrollTop + 40, cual = 0;
+    GRUPOS.forEach(function (g, gi) { if (arriba($("g" + gi)) <= y) cual = gi; });
+    if (area.scrollTop + area.clientHeight >= area.scrollHeight - 4) cual = GRUPOS.length - 1;
+    ind.querySelectorAll("button").forEach(function (b, bi) {
+      var on = bi === cual;
+      if (on !== b.classList.contains("elegido")) { b.classList.toggle("elegido", on); if (on) b.scrollIntoView({ inline: "nearest", block: "nearest" }); }
+    });
+  });
+
+  // ---------- La luz y la persona ----------
+  var pop = $("pop");
+  function cerrarPop() { pop.hidden = true; pop.classList.remove("capa-arriba"); M.cerrarCapa(cerrarPop); }
+  $("luz").addEventListener("click", function () {
+    if (!pop.hidden) { cerrarPop(); return; }
+    pop.hidden = false; pop.classList.add("capa-arriba"); M.abrirCapa(cerrarPop);
+  });
+  $("pop-cerrar").addEventListener("click", cerrarPop);
+  document.addEventListener("click", function (e) {
+    if (!pop.hidden && !pop.contains(e.target) && !$("luz").contains(e.target) && !e.target.closest(".demo")) cerrarPop();
+  });
+  $("salir").addEventListener("click", M.salir);
+  $("p-salir").addEventListener("click", M.salir);
+
+  var fondo = $("fondo-hoja"), abierta = null;
+  function abrirHoja(hj) { cerrarHoja(); abierta = hj; hj.hidden = false; fondo.hidden = false; hj.classList.add("capa-arriba"); M.abrirCapa(cerrarHoja); }
+  function cerrarHoja() { if (!abierta) return; abierta.hidden = true; abierta.classList.remove("capa-arriba"); fondo.hidden = true; abierta = null; M.cerrarCapa(cerrarHoja); }
+  fondo.addEventListener("click", cerrarHoja);
+  $("p-avatar").addEventListener("click", function () { abrirHoja($("hoja-persona")); });
+  $("p-luz").addEventListener("click", function () { abrirHoja($("hoja-luz")); });
+  document.querySelectorAll(".hoja").forEach(function (hj) {
+    var y0 = null;
+    hj.addEventListener("pointerdown", function (e) { y0 = e.clientY; });
+    hj.addEventListener("pointerup", function (e) { if (y0 !== null && e.clientY - y0 > 60) cerrarHoja(); y0 = null; });
+  });
+
+  // ---------- Teclado: las flechas se mueven por el tablero como se ve ----------
+  var deArriba = [$("aqui"), $("luz"), $("salir")];
+  function hueco(c, f) {
+    var col = tab.querySelectorAll('.hueco[data-col="' + c + '"]');
+    return col[Math.min(f, col.length - 1)];
+  }
+  document.addEventListener("keydown", function (e) {
+    if (M.angosto() || e.altKey || e.ctrlKey || e.metaKey || M.hayCapa()) return;
+    var k = e.key, m = M.marcado;
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"].indexOf(k) < 0) return;
+    e.preventDefault();
+    if (k === "Enter") { if (m) m.click(); return; }
+    if (!m) { M.marcar(hueco(0, 0)); return; }
+    var ai = deArriba.indexOf(m);
+    if (ai >= 0) {
+      if (k === "ArrowLeft") M.marcar(deArriba[Math.max(0, ai - 1)]);
+      else if (k === "ArrowRight") M.marcar(deArriba[Math.min(deArriba.length - 1, ai + 1)]);
+      else if (k === "ArrowDown") M.marcar(hueco(ai === 0 ? 0 : 4, 0));
+      return;
+    }
+    var c = +m.dataset.col, f = +m.dataset.fila;
+    if (k === "ArrowLeft" && c > 0) M.marcar(hueco(c - 1, f));
+    else if (k === "ArrowRight" && c < 4) M.marcar(hueco(c + 1, f));
+    else if (k === "ArrowDown") M.marcar(hueco(c, f + 1));
+    else if (k === "ArrowUp") M.marcar(f === 0 ? deArriba[c < 2 ? 0 : (c < 4 ? 1 : 2)] : hueco(c, f - 1));
+  });
+  window.addEventListener("resize", function () { cerrarHoja(); cerrarPop(); });
+})();
+</script>
+</body>
+</html>
