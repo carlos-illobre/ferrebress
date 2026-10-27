@@ -15,7 +15,7 @@
     detecta con `PublicKeyCredential.getClientCapabilities()`.
   - Si no, un QR propio: el servidor genera el código y se lo manda a la computadora por un canal
     abierto mientras la entrada está a la vista; cambia cada 60 segundos y sirve una sola vez.
-    Leerlo lo reserva; el celular muestra qué computadora pide la entrada y desde qué ciudad, y
+    Leerlo lo reserva; el celular solo aprueba si está en la misma red que la computadora, muestra qué computadora pide la entrada y
     pide la huella. El permiso solo lo puede usar la computadora que abrió el canal.
 - **Sesiones opacas** guardadas en la base y en la memoria del servidor: comprobar una no consulta
   la base, y cerrarla a distancia se nota al instante. El detalle, y por qué no JWT,
@@ -24,7 +24,7 @@
 ## Riesgos considerados
 
 - **QR copiado en una página falsa:** el QR propio se mitiga con los 60 segundos, el uso único,
-  la reserva al leerlo, el nombre y la ciudad de la computadora en el celular y la huella. La entrada del navegador no tiene este
+  la reserva al leerlo, que el celular y la computadora tengan que estar en la misma red, el nombre de la computadora en el celular y la huella. La entrada del navegador no tiene este
   riesgo.
 - **Celular perdido:** la sesión y la passkey se cierran a distancia.
 - **Passkeys que se copian:** las de Google se sincronizan con los otros dispositivos de la misma

@@ -19,7 +19,7 @@ COPY src/shared src/shared
 COPY src/server src/server
 ARG VERSION
 ENV VERSION=$VERSION NODE_ENV=production
-RUN mkdir -p /data/audit /data/geo && chown node /data/audit
+RUN mkdir -p /data/audit && chown node /data/audit
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=10s --timeout=3s --retries=6 \

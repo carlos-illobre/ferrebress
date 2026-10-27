@@ -79,7 +79,9 @@ if unset_value POSTGRES_PASSWORD; then
 fi
 fill GOOGLE_CLIENT_ID "$GOOGLE_CLIENT_ID"
 fill INITIAL_ADMIN_EMAIL "$ADMIN_EMAIL"
-grep -q '^GEO_DIR=' <<<"$current" || current+=$'\n# La base de ciudades la baja deploy.sh una vez por mes en esta carpeta.\nGEO_DIR=./geo'
+# La base de ciudades ya no se usa: se saca lo que haya dejado una instalación anterior.
+current=$(grep -v -e '^GEO_DIR=' -e '^# La base de ciudades' <<<"$current")
+sudo rm -rf "$home/ferrebress/geo"
 grep -q '<' <<<"$current" && fail "el .env tiene valores sin completar (<…>)"
 printf '%s\n' "$current" | sudo install -o "$USER_NAME" -m 600 /dev/stdin "$env_file"
 printf 'NTFY_TOPIC=%s\n' "$NTFY_TOPIC" | sudo install -o "$USER_NAME" -m 600 /dev/stdin "$home/ferrebress/deploy.env"

@@ -43,8 +43,8 @@ src/
 │   ├── main.ts      arma el servidor: registra cada módulo
 │   ├── platform/    tecnología sin negocio: db, audit, http, session, permissions,
 │   │                events, realtime, config, clock
-│   ├── adapters/    lo que habla con un proveedor que se puede cambiar (la ciudad de una
-│   │                dirección de internet); cumple una interfaz que define el módulo que lo usa
+│   ├── adapters/    lo que habla con un proveedor que se puede cambiar; cumple una interfaz
+│   │                que define el módulo que lo usa
 │   └── modules/<module>/
 └── app/
     ├── main.tsx     arma la aplicación: registra cada módulo

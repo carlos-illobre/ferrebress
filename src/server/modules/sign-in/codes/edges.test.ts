@@ -16,10 +16,15 @@ const admin = { sub: 'sub-admin', email: 'admin@example.com' };
 describe('entrar con el celular: lo que no tiene que pasar', () => {
   let server: SignInServer;
   let now = new Date('2026-10-27T08:00:00Z').getTime();
-  let ip = 0;
+  let network = 0;
+  let ip = '';
   const time = manualWait();
-  const computer = () => createDevice(server, { ip: `190.9.0.${++ip}` });
-  const phone = () => createDevice(server, { userAgent: androidPhone, ip: `181.9.0.${++ip}` });
+  // Cada computadora en una red nueva; el celular, en la red de la última computadora.
+  const computer = () => {
+    ip = `190.9.0.${++network}`;
+    return createDevice(server, { ip });
+  };
+  const phone = () => createDevice(server, { userAgent: androidPhone, ip });
   async function linkedPhone(signedIn = true) {
     const device = phone();
     await device.signInWithGoogle(admin);
@@ -31,19 +36,22 @@ describe('entrar con el celular: lo que no tiene que pasar', () => {
   }
 
   beforeAll(async () => {
-    const findCity = async () => {
-      throw new Error('la base de ciudades no anda');
-    };
-    server = await createSignInServer({ now: () => new Date(now) }, { findCity, wait: time.wait });
+    server = await createSignInServer({ now: () => new Date(now) }, { wait: time.wait });
   });
   afterAll(() => server.close());
 
-  it('sign-in-E13d: si la ciudad no se puede saber, avisa igual', async () => {
+  it('al aprobar se vuelve a mirar la red: desde otra, no', async () => {
     const screen = await openScreen(server, computer());
-    const read = await (await linkedPhone()).device.request('/api/sign-in/codes/read', {
-      code: screen.lastCode(),
+    const { device, authenticator } = await linkedPhone();
+    const read = await device.request('/api/sign-in/codes/read', { code: screen.lastCode() });
+    const elsewhere = createDevice(server, { userAgent: androidPhone, ip: '181.9.9.9' });
+    const response = authenticator.get(read.body.authentication);
+    const approved = await elsewhere.request('/api/sign-in/codes/approve', {
+      secret: read.body.secret,
+      kind: 'assertion',
+      response,
     });
-    expect(read.body.place).toEqual({ kind: 'unknown-city' });
+    expect(approved).toMatchObject({ status: 409, body: { error: 'other-network' } });
     await screen.close();
   });
 
@@ -126,8 +134,8 @@ describe('entrar con el celular: lo que no tiene que pasar', () => {
   });
 
   it('el permiso solo lo usa la computadora que abrió la pantalla', async () => {
-    const screen = await openScreen(server, computer());
     const other = await openScreen(server, computer());
+    const screen = await openScreen(server, computer());
     const { device, authenticator } = await linkedPhone();
     const read = await device.request('/api/sign-in/codes/read', { code: screen.lastCode() });
     await device.request('/api/sign-in/codes/approve', {
@@ -176,7 +184,7 @@ describe('vincular la huella al aprobar', () => {
   afterAll(() => server.close());
 
   it('exige Google reciente, una huella de verdad y que el celular no tenga otra cuenta', async () => {
-    const device = createDevice(server, { userAgent: androidPhone, ip: '181.7.0.1' });
+    const device = createDevice(server, { userAgent: androidPhone, ip: '190.7.0.1' });
     await device.signInWithGoogle(admin);
     const register = async (flags = {}) => {
       const screen = await openScreen(server, createDevice(server, { ip: '190.7.0.1' }));
@@ -210,15 +218,11 @@ describe('vincular la huella al aprobar', () => {
   });
 });
 
-describe('sin base de ciudades', () => {
-  it('la ciudad es desconocida y el código cambia cada minuto de verdad', async () => {
+describe('con la espera de verdad', () => {
+  it('la pantalla recibe su código y se cierra sin esperar el minuto', async () => {
     const server = await createSignInServer();
     const screen = await openScreen(server, createDevice(server, { ip: '190.8.0.1' }));
-    const read = await createDevice(server, { ip: '181.8.0.1' }).request(
-      '/api/sign-in/codes/read',
-      { code: screen.lastCode() },
-    );
-    expect(read.body.place).toEqual({ kind: 'unknown-city' });
+    expect(screen.events).toEqual([{ type: 'code', code: expect.any(String) }]);
     await screen.close();
     await server.close();
   });

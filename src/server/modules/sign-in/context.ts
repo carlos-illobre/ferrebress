@@ -9,7 +9,6 @@ import { createOneUse } from '../../platform/one-use.ts';
 import type { Window } from '../../platform/rate-limit.ts';
 import type { User, Users } from '../users/index.ts';
 import { createScreens } from './codes/screens.ts';
-import type { FindCity } from './geo.ts';
 import type { GoogleSettings } from './google/verify.ts';
 import { type PasskeysTables, passkeysData } from './passkeys/data.ts';
 import { createSessionStore } from './sessions/store.ts';
@@ -57,19 +56,15 @@ const person = (user: User): Person => ({
   role: 'Administrador',
 });
 
-// Lo que viene de afuera del módulo: las personas, Google, la ciudad y cómo esperar (las pruebas
-// cambian las tres últimas).
+// Lo que viene de afuera del módulo: las personas, Google y cómo esperar (las pruebas cambian los
+// dos últimos).
 export type SignInDependencies = {
   users: Users;
   google: GoogleSettings;
-  findCity: FindCity;
   wait: (ms: number) => Promise<void>;
 };
 
-export function createContext(
-  platform: Platform,
-  { users, google, findCity, wait }: SignInDependencies,
-) {
+export function createContext(platform: Platform, { users, google, wait }: SignInDependencies) {
   return {
     platform,
     users,
@@ -95,7 +90,6 @@ export function createContext(
     },
     ...createGuards(platform),
     person,
-    findCity,
     wait,
     screens: createScreens(platform.clock),
     // El permiso que la computadora cambia por su sesión, una vez y por 30 segundos.

@@ -6,6 +6,7 @@ export type ErrorCode =
   | 'code-expired'
   | 'code-used'
   | 'phone-has-other-account'
+  | 'other-network'
   | 'session-closed'
   | 'update-required'
   | 'not-found'

@@ -27,32 +27,6 @@ if [ -z "${1:-}" ] && [ -f "$last" ] && [ $(($(date +%s) - $(cat "$last"))) -lt 
 fi
 date +%s > "$last"
 
-# La base de ciudades (diseño de 01, § 8): una vez por mes, por HTTPS, y solo reemplaza la
-# anterior si lo que bajó es una base de verdad (tamaño y marca del formato).
-update_cities() {
-    local month tmp
-    month=$(date -u +%Y-%m)
-    [ "$(cat "$DIR/geo/.month" 2>/dev/null)" != "$month" ] || return 1
-    mkdir -p "$DIR/geo"
-    tmp=$(mktemp -d)
-    if curl -sfL "https://download.db-ip.com/free/dbip-city-lite-$month.mmdb.gz" -o "$tmp/city.mmdb.gz" \
-        && gunzip "$tmp/city.mmdb.gz" && [ "$(stat -c %s "$tmp/city.mmdb")" -gt 50000000 ] \
-        && grep -qa 'MaxMind.com' "$tmp/city.mmdb"; then
-        mv "$tmp/city.mmdb" "$DIR/geo/city.mmdb"
-        echo "$month" > "$DIR/geo/.month"
-        say "base de ciudades de $month"
-        rm -rf "$tmp"
-        return 0
-    fi
-    say "no pude bajar la base de ciudades de $month; sigue la anterior"
-    rm -rf "$tmp"
-    return 1
-}
-# El servidor lee la base al arrancar: con una nueva, se reinicia aunque no haya versión nueva.
-if update_cities && [ -n "$(cd "$DIR" && docker compose ps -q server 2>/dev/null)" ]; then
-    (cd "$DIR" && docker compose restart server >/dev/null) || true
-fi
-
 sha=${1:-$(git ls-remote "https://github.com/$REPO.git" "refs/heads/$BRANCH" | cut -f1)}
 [ -n "$sha" ] || { say "no pude consultar $BRANCH en GitHub"; exit 1; }
 

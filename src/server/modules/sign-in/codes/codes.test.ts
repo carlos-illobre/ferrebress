@@ -11,18 +11,19 @@ import {
 const androidPhone =
   'Mozilla/5.0 (Linux; Android 14; moto e13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Mobile Safari/537.36';
 const admin = { sub: 'sub-admin', email: 'admin@example.com' };
-const cities: Record<string, string> = {
-  '190.1.2.3': 'Córdoba',
-  '181.0.0.1': 'Córdoba',
-  '181.0.0.2': 'Buenos Aires',
-};
 
 describe('entrar a la computadora con el celular', () => {
   let server: SignInServer;
   let now = new Date('2026-10-27T08:00:00Z').getTime();
   const time = manualWait();
-  const computer = () => createDevice(server, { ip: '190.1.2.3' });
-  const phone = (ip = '181.0.0.1') => createDevice(server, { userAgent: androidPhone, ip });
+  // Cada prueba en su propia red, así los límites por dirección de una no tocan a las otras.
+  let network = 0;
+  let ip = '';
+  const computer = () => {
+    ip = `190.1.2.${++network}`;
+    return createDevice(server, { ip });
+  };
+  const phone = (at?: string) => createDevice(server, { userAgent: androidPhone, ip: at ?? ip });
 
   // Un celular con su huella vinculada y, si se pide, sin la sesión abierta.
   async function phoneWithPasskey(ip?: string, signedIn = true) {
@@ -36,8 +37,7 @@ describe('entrar a la computadora con el celular', () => {
   }
 
   beforeAll(async () => {
-    const findCity = async (ip: string) => cities[ip];
-    server = await createSignInServer({ now: () => new Date(now) }, { findCity, wait: time.wait });
+    server = await createSignInServer({ now: () => new Date(now) }, { wait: time.wait });
   });
   afterAll(() => server.close());
 
@@ -51,7 +51,6 @@ describe('entrar a la computadora con el celular', () => {
       status: 200,
       body: {
         computer: { label: 'Chrome en Windows' },
-        place: { kind: 'same-city', city: 'Córdoba' },
         holdSeconds: 120,
       },
     });
@@ -75,23 +74,16 @@ describe('entrar a la computadora con el celular', () => {
     await screen.close();
   });
 
-  it('sign-in-E13b y E13c: avisa si las ciudades no coinciden, o dice que están en la misma red', async () => {
+  it('sign-in-E13b: desde otra red el celular no puede aprobar y la computadora sigue con su código', async () => {
     const screen = await openScreen(server, computer());
     const { device } = await phoneWithPasskey('181.0.0.2');
     const far = await device.request('/api/sign-in/codes/read', { code: screen.lastCode() });
-    expect(far.body.place).toEqual({
-      kind: 'different-cities',
-      computerCity: 'Córdoba',
-      phoneCity: 'Buenos Aires',
-    });
+    expect(far).toMatchObject({ status: 409, body: { error: 'other-network' } });
+    await screen.settle();
+    expect(screen.events.map((event) => event.type)).toEqual(['code']);
+    const near = await phone().request('/api/sign-in/codes/read', { code: screen.lastCode() });
+    expect(near.status).toBe(200);
     await screen.close();
-    const other = await openScreen(server, computer());
-    const near = await (await phoneWithPasskey('190.1.2.3')).device.request(
-      '/api/sign-in/codes/read',
-      { code: other.lastCode() },
-    );
-    expect(near.body.place).toEqual({ kind: 'same-network' });
-    await other.close();
   });
 
   it('sign-in-E14 y E15: un código leído no sirve para otro celular, y uno de hace un minuto tampoco', async () => {

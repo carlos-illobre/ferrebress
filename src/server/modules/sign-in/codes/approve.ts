@@ -1,8 +1,8 @@
-// Aprobar la entrada de la computadora desde el celular (R2.5, R2.7; diseño de 01, § 5): siempre
-// con la huella, firmada para el desafío de esta reserva. Con la huella ya vinculada, una sola
-// huella hace entrar también al celular si no tenía sesión (E16); sin huella vinculada, el
-// celular que entró con Google la vincula en ese momento y esa huella aprueba (E16b). Entrar con
-// Google no alcanza para aprobar.
+// Aprobar la entrada de la computadora desde el celular (R2.5, R2.7; diseño de 01, § 5): desde la
+// misma red y siempre con la huella, firmada para el desafío de esta reserva. Con la huella ya
+// vinculada, una sola huella hace entrar también al celular si no tenía sesión (E16); sin huella
+// vinculada, el celular que entró con Google la vincula en ese momento y esa huella aprueba
+// (E16b). Entrar con Google no alcanza para aprobar.
 import { approveCodeBody } from '@ferrebress/shared/contracts/sign-in';
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
@@ -19,27 +19,48 @@ import {
 import { writeSessionCookie } from '../sessions/cookie.ts';
 import { isProofKey } from '../sessions/proof.ts';
 import { optionalSession } from '../sessions/require.ts';
+import { sameNetwork } from './network.ts';
 import type { Screen } from './screens.ts';
 
 type Approval = { userId: string } | Response;
+
+type ApproveBody = {
+  secret: string;
+  kind: 'assertion' | 'registration';
+  response: unknown;
+  proofPublicKey?: string | undefined;
+};
+
+// La pantalla reservada para este pedido, si sigue esperando, es de la misma red y la huella
+// firmó su desafío; si no, la respuesta que corresponde.
+function reservedScreen(
+  ctx: SignInContext,
+  c: Context,
+  body: ApproveBody,
+): Required<Screen> | Response {
+  const screen = ctx.screens.byReservation(body.secret);
+  if (!screen) return fail(c, 410, 'code-expired');
+  if (!sameNetwork(screen.ipAddress, c.get('ipAddress'))) return fail(c, 409, 'other-network');
+  const reserved = screen as Required<Screen>;
+  const signed = challengeOf(body.response as never) === reserved.reservation.challenge;
+  return signed ? reserved : fail(c, 401, 'not-authorized');
+}
 
 export function registerApproveRoute(ctx: SignInContext): void {
   ctx.platform.http.post('/api/sign-in/codes/approve', async (c) => {
     const body = approveCodeBody.safeParse(await c.req.json());
     if (!body.success) return fail(c, 400, 'bad-request');
-    const screen = ctx.screens.byReservation(body.data.secret);
-    if (!screen) return fail(c, 410, 'code-expired');
-    const { reservation } = screen as Required<Screen>;
-    if (challengeOf(body.data.response as never) !== reservation.challenge)
-      return fail(c, 401, 'not-authorized');
+    const screen = reservedScreen(ctx, c, body.data);
+    if (screen instanceof Response) return screen;
+    const { challenge } = screen.reservation;
     const approval =
       body.data.kind === 'registration'
-        ? await withNewPasskey(ctx, c, body.data.response as never, reservation.challenge)
+        ? await withNewPasskey(ctx, c, body.data.response as never, challenge)
         : await withPasskey(
             ctx,
             c,
             body.data.response as never,
-            reservation.challenge,
+            challenge,
             body.data.proofPublicKey,
           );
     return approval instanceof Response ? approval : grant(ctx, c, screen, approval.userId);

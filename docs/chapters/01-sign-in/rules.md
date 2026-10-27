@@ -36,19 +36,13 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   código QR. Con el celular se lo lee y se pone la huella en el celular, sin tocar nada más en la
   computadora y sin paso de confirmar:
   - El código se renueva cada 60 segundos y sirve una sola vez.
-  - Antes de pedir la huella, el celular muestra qué computadora pide entrar y desde qué ciudad
-    aproximada (por ejemplo, «Chrome en Windows · Buenos Aires»), para notar un código copiado desde
-    una página falsa en otro lado.
-  - Si el celular y la computadora salen a internet por la misma red (los dos en el Wi-Fi del
-    local), el celular lo dice en lugar de la ciudad: «Chrome en Windows · misma red que este
-    celular».
-  - Si no, y la ciudad aproximada de la computadora no coincide con la del celular, el celular avisa
-    en grande antes de pedir la huella: «Esta computadora está en Córdoba y vos en Buenos Aires. Si
-    no la tenés adelante, no pongas la huella».
-  - Si no se sabe la ciudad de alguno de los dos, cuenta como que no coinciden, con su texto: «No se
-    pudo saber desde dónde pide entrar esta computadora. Si no la tenés adelante, no pongas la
-    huella».
-  - Las ciudades son aproximadas: los avisos solo avisan, nunca bloquean.
+  - El celular y la computadora tienen que estar en la misma red: salir a internet por la misma
+    dirección, como pasa con los dos en el Wi-Fi del local. Así un código copiado en una página falsa
+    desde otro lado no sirve. Si no están en la misma red, el celular no pide la huella y dice «Para
+    entrar a la computadora, conectá este celular al mismo Wi-Fi»; la computadora sigue mostrando su
+    código.
+  - Antes de pedir la huella, el celular muestra qué computadora pide entrar: «¿Entrar en Chrome en
+    Windows?».
   - La computadora se entera en el momento, sin preguntar a ritmo fijo: espera por un canal
     abierto solo mientras el código está en pantalla (capítulo 00, R4.3).
 - **R2.6** Si el navegador de la computadora puede usar un celular cercano para entrar (passkeys
@@ -167,16 +161,12 @@ enviar es «Salir» (R5.2).
 
 - **E12** **Dado** la entrada de la computadora, **cuando** se la mira, **entonces** muestra un código
   QR que cambia cada 60 segundos.
-- **E13** **Dado** un celular con sesión, **cuando** lee el código, **entonces** muestra qué computadora
-  pide entrar y desde qué ciudad aproximada, y pide la huella; puesta la huella, la computadora entra sola, sin tocar nada en ella.
-- **E13b** **Dado** una computadora en Córdoba y un celular en Buenos Aires, **cuando** el celular lee
-  el código, **entonces** avisa en grande que las ciudades no coinciden y que no ponga la huella si
-  no tiene la computadora adelante; si igual pone la huella, la computadora entra.
-- **E13c** **Dado** una computadora y un celular en el mismo Wi-Fi, **cuando** el celular lee el código,
-  **entonces** muestra «misma red que este celular» y ningún aviso.
-- **E13d** **Dado** una computadora cuya ciudad no se puede saber, **cuando** el celular lee el código,
-  **entonces** avisa en grande que no se pudo saber desde dónde pide entrar; si igual pone la huella,
-  la computadora entra.
+- **E13** **Dado** un celular con sesión en la misma red que la computadora, **cuando** lee el código,
+  **entonces** muestra qué computadora pide entrar y pide la huella; puesta la huella, la computadora
+  entra sola, sin tocar nada en ella.
+- **E13b** **Dado** un celular en otra red que la computadora (por ejemplo, con datos móviles),
+  **cuando** lee el código, **entonces** no pide la huella, le dice que se conecte al mismo Wi-Fi y la
+  computadora sigue con su código.
 - **E14** **Dado** un código ya usado, **cuando** otro celular lo lee, **entonces** no sirve.
 - **E15** **Dado** un código de hace más de 60 segundos, **cuando** se lo lee, **entonces** no sirve.
 - **E16** **Dado** un celular sin sesión y con la huella vinculada, **cuando** lee el código y pone la

@@ -29,7 +29,6 @@ ferrebress/
 │   ├── server/
 │   │   ├── main.ts                  arma el servidor y registra los módulos
 │   │   ├── platform/                config, db, audit, http, realtime, clock, rate-limit
-│   │   ├── adapters/geo-dbip/       la ciudad, con la base local DB-IP Lite
 │   │   └── modules/
 │   │       ├── users/               personas: lo mínimo que necesita entrar
 │   │       └── sign-in/             entrar, salir, sesiones, huellas, códigos QR
@@ -51,8 +50,8 @@ ferrebress/
 ```
 
 - **Un workspace de pnpm** con tres paquetes: `src/shared`, `src/server` y `src/app`.
-- **`adapters/`** tiene lo que habla con un proveedor que se puede cambiar. Cada uno cumple una
-  interfaz que define quien lo usa, y solo `main.ts` sabe cuál se usa.
+- **`adapters/`** tiene lo que habla con un proveedor que se puede cambiar, cuando haga falta. Cada
+  uno cumple una interfaz que define quien lo usa, y solo `main.ts` sabe cuál se usa.
 - **`users` arranca acá con lo mínimo:** la tabla y su fachada. Las pantallas y las reglas de
   personas, roles y permisos llegan con el módulo 02, en la misma carpeta.
 - **`frame` es, en la aplicación, el módulo del capítulo 00 (`00-app`):** el marco y el menú. Las
@@ -224,7 +223,7 @@ computadora                         servidor                          celular
    │ ◀──── código (cada 60 s, por el canal)
    │ dibuja el QR                                       lee el QR (cámara o «Escanear»)
    │                                   ◀── POST /codes/read {código} ─ │  (lo reserva)
-   │ ◀──── «leído» ────────            ── «Chrome en Windows · Córdoba» ─▶ │  (+ aviso de ciudad)
+   │ ◀──── «leído» ────────            ── «¿Entrar en Chrome en Windows?» ─▶ │  (solo en la misma red)
    │                                   ◀── POST /codes/approve + huella ─ │
    │ ◀──── permiso de un uso ──
    │ POST /codes/claim + la cookie ───▶ sesión + cookie
@@ -244,12 +243,12 @@ computadora                         servidor                          celular
 - **El canal y el permiso están atados a la computadora** por la cookie `__Host-sign-in-screen`
   (`HttpOnly`, al azar, nunca va en el QR). Quien vea el QR no puede escuchar el canal ni usar el
   permiso. El permiso dura 30 segundos y sirve una vez.
-- **La red y las ciudades (R2.5):** al leer el código, el servidor compara la dirección de internet
-  de la computadora (la del canal) con la del celular. Si es la misma (en IPv6, el mismo `/64`),
-  responde «misma red». Si no, busca las dos ciudades aproximadas (§ 8): si son distintas, o si
-  alguna es desconocida, el celular muestra el aviso que corresponde; una ciudad desconocida cuenta
-  como que no coinciden, porque si no, quien arma una página falsa elegiría una dirección sin
-  ciudad.
+- **La misma red (R2.5):** al leer el código, el servidor compara la dirección de internet de la
+  computadora (la del canal) con la del celular. Si no es la misma, responde `other-network`, no
+  reserva el código y la computadora sigue con él. Al aprobar lo vuelve a comparar. En IPv6 se
+  compara el `/64`; hoy Ferrebress solo atiende por IPv4 (el dominio no tiene dirección IPv6), y
+  así tiene que seguir mientras valga esta regla: con IPv6, un celular y una computadora del mismo
+  Wi-Fi podrían salir por direcciones de distinto tipo.
 - **Celular sin sesión (R2.7):** se llega al código por la cámara del sistema (abre la dirección
   del QR) o por «Escanear el código de la computadora» en la entrada. Con la huella vinculada,
   **una sola huella** hace entrar a los dos: `approve` sin sesión verifica la huella, crea la
@@ -313,7 +312,7 @@ si la persona está activa. Si no lo dice (Firefox, hoy), el QR propio.
   dispositivo: la auditoría la guarda como hora no confirmada. Entrar con otra cuenta en ese dispositivo también
   la cierra. Si nunca llega, vence sola.
 
-## 8. Lo que vive en memoria del servidor, los límites y la ciudad
+## 8. Lo que vive en memoria del servidor y los límites
 
 | Qué | Dura | Tope | Si se reinicia el servidor |
 |---|---|---|---|
@@ -352,24 +351,6 @@ Los números están en el archivo de configuración.
 navegador; el servidor solo la acepta si el pedido viene de Caddy. Para que Caddy vea la dirección
 real hace falta que nada en el medio la pierda (§ 14).
 
-**La ciudad aproximada** se pide por una interfaz de una sola función que define `sign-in`:
-
-```ts
-// sign-in/geo.ts: lo único que sign-in sabe de la ciudad
-export type FindCity = (ipAddress: string) => Promise<string | undefined>;
-```
-
-- **Hoy la cumple `adapters/geo-dbip`:** una base de ciudades dentro de la máquina (DB-IP Lite,
-  licencia CC BY 4.0, que permite el uso comercial), en un volumen que `deploy.sh` actualiza una vez
-  por mes. La consulta es local: ninguna dirección de internet sale de la máquina.
-- **Cambiarla por un servicio externo** es escribir otro adaptador con la misma función, cambiar
-  una línea de `main.ts` y borrar la carpeta, la variable del `.env` y el paso de `deploy.sh`. Nada
-  de `sign-in` cambia. dependency-cruiser controla que ningún módulo importe un adaptador.
-- **Si falla o tarda más de 200 ms**, o no encuentra la dirección, la ciudad es «ubicación
-  desconocida» y la entrada sigue: la ciudad es un aviso, nunca frena.
-- **Las pruebas de `sign-in`** usan una función de prueba; el adaptador tiene las suyas, con una
-  base chica de prueba.
-
 ## 9. Eventos y auditoría
 
 La auditoría se construye en `platform/audit` desde este módulo (SQLite, ADR-004); su pantalla
@@ -385,7 +366,7 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 | `sign-out` | Salió (si fue sin conexión, con la hora en que tocó y la hora en que llegó) |
 | `session.ended` | Venció o se cerró, con el motivo |
 | `passkey.linked`, `passkey.rejected` | Vinculó la huella de un celular, o no pudo (otra cuenta) |
-| `code.read`, `code.approved`, `code.cancelled` | Lo que hizo un celular con un código, con las dos ciudades |
+| `code.read`, `code.rejected`, `code.approved`, `code.cancelled` | Lo que hizo un celular con un código (rechazado: desde otra red) |
 
 ## 10. La aplicación
 
@@ -436,7 +417,6 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 | `GOOGLE_CLIENT_ID` | El cliente OAuth |
 | `GOOGLE_ISSUER`, `GOOGLE_JWKS_URL` | Quién emite el pase de Google y dónde están sus llaves; en las pruebas, un emisor de prueba |
 | `GOOGLE_SCRIPT_URL` | El script del botón de Google; en las pruebas de punta a punta, uno de prueba |
-| `GEO_DATABASE_PATH` | La base de ciudades del adaptador `geo-dbip` |
 | `INITIAL_ADMIN_EMAIL` | El primer Administrador |
 | `TRUSTED_PROXY` | La dirección de Caddy, la única de la que se acepta la dirección de internet |
 
@@ -523,7 +503,7 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
 
 - **Imágenes:** el servidor (Node) y Caddy con la aplicación adentro, para ARM, construidas en un
   runner ARM de GitHub (gratis en repositorios públicos).
-- **Volúmenes:** la base, la auditoría y la base de ciudades. Los certificados los guarda el proxy
+- **Volúmenes:** la base y la auditoría. Los certificados los guarda el proxy
   de la máquina.
 - **Las migraciones** corren al arrancar el servidor, antes de atender. Cada una es compatible con
   la versión anterior del código (primero se agrega; lo que se quita, en una versión posterior),
@@ -533,9 +513,7 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   `permissions:` mínimos en cada workflow (`contents: read`; `packages: write` solo en el que publica)
   y las acciones de terceros fijadas por su commit.
 - **En la máquina, `deploy.sh`** corre como mucho una vez por minuto (un aviso falso solo provoca una
-  consulta a GitHub), baja las imágenes por su huella (`@sha256:`) y no solo por la etiqueta, y baja
-  la base de ciudades una vez por mes por HTTPS, y la reemplaza solo si es una base válida (tamaño
-  y marca del formato; DB-IP no publica sumas).
+  consulta a GitHub), baja las imágenes por su huella (`@sha256:`) y no solo por la etiqueta.
 - **Las pruebas de punta a punta**, con el compose, antes de cerrar el módulo.
 - **La máquina:** una VM de Oracle que comparte con otras aplicaciones. Ferrebress corre con su
   propio usuario y Docker sin privilegios, y `loginctl enable-linger` para que el servicio arranque
@@ -558,8 +536,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   dirección fija en la red interna del compose).
 - **La dirección real:** una prueba en la máquina entra desde una
   dirección conocida y comprueba que la auditoría anota esa. Docker sin privilegios, con su forma
-  de abrir puertos por omisión, la pierde y anota la misma para todos: eso apagaría el aviso de
-  ciudad y juntaría los límites de todo el mundo en uno; pasando por el proxy de la máquina no
+  de abrir puertos por omisión, la pierde y anota la misma para todos: eso dejaría sin efecto la
+  regla de la misma red y juntaría los límites de todo el mundo en uno; pasando por el proxy de la máquina no
   hace falta tocar la red de Docker.
 - **Las versiones:** exactas en `package.json`. Hono 4.6.5 o más nueva (las anteriores tienen
   fallas conocidas en su control de origen) y `jose` reciente.
@@ -570,12 +548,10 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
 
 Lo que decidió Carlos:
 
-- **La ciudad:** la base local, en un adaptador que se puede cambiar por un servicio externo sin
-  tocar el resto (§ 8).
 - **Celular sin huella ante el QR:** se le pide vincularla en ese momento (R2.7, § 5).
 - **Las huellas que se copian:** se acepta (§ 13, ADR-006).
-- **La red y la ciudad:** «misma red que este celular» cuando salen por la misma dirección, y la
-  ciudad desconocida cuenta como que no coinciden (R2.5).
+- **La misma red:** el celular solo aprueba la entrada de una computadora que sale a internet por
+  su misma dirección (R2.5). No se usa ninguna base de ciudades.
 - **El límite por cuenta:** Google y la huella se cuentan aparte (R2.10).
 
 - **Los puertos:** el proxy de la máquina atiende HTTPS y le pasa los dominios de Ferrebress a su
@@ -593,7 +569,7 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
    de pruebas.
 4. `users`: la tabla, la fachada, el primer Administrador y el evento de baja.
 5. `sign-in` del servidor: sesiones y sus límites, Google, la huella, los códigos QR con su canal,
-   salir, los límites de intentos, la ciudad, los eventos.
+   salir, los límites de intentos, los eventos.
 6. `platform` de la aplicación `[P]`: api, clock, device, actions, keyboard, realtime, router,
    storage; `ui` y `styles`.
 7. `frame`: el marco desde su maqueta, con la luz, la tarjeta de la persona, «Algo salió mal» y la

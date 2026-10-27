@@ -55,16 +55,9 @@ export const cancelCodeBody = z.object({ secret: base64url(64) });
 
 export const claimCodeBody = z.object({ permit: base64url(64), proofPublicKey: base64url(256) });
 
-export type CodePlace =
-  | { kind: 'same-network' }
-  | { kind: 'same-city'; city: string }
-  | { kind: 'different-cities'; computerCity: string; phoneCity: string }
-  | { kind: 'unknown-city' };
-
 export type ReadCodeResponse = {
   secret: string;
   computer: { label: string };
-  place: CodePlace;
   holdSeconds: number;
   authentication: unknown;
   // Solo si el celular entró con Google hace poco y todavía no tiene huella.

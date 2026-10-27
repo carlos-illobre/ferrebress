@@ -56,9 +56,6 @@ importers:
       kysely:
         specifier: 0.29.7
         version: 0.29.7
-      mmdb-lib:
-        specifier: 3.0.3
-        version: 3.0.3
       pg:
         specifier: 8.23.1
         version: 8.23.1
@@ -863,10 +860,6 @@ packages:
 
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
-
-  mmdb-lib@3.0.3:
-    resolution: {integrity: sha512-xQPoBXcNjjHiOvOraFBKtA++uNWF6aCVHL9dRKFXEov8eI3QJwtgiw3qApsonFT5SpoqsEVISUTg3HIDs2DiXw==}
-    engines: {node: '>=10', npm: '>=6'}
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
@@ -1992,8 +1985,6 @@ snapshots:
       source-map-js: 1.2.2
 
   minimist@1.2.8: {}
-
-  mmdb-lib@3.0.3: {}
 
   ms@2.1.3: {}
 

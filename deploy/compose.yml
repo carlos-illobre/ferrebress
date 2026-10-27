@@ -16,12 +16,9 @@ services:
     environment:
       PORT: "3000"
       AUDIT_PATH: /data/audit
-      GEO_DATABASE_PATH: /data/geo/city.mmdb
       TRUSTED_PROXY: 172.30.0.10
     volumes:
       - audit-data:/data/audit
-      # GEO_DIR: una carpeta de la máquina con la base de ciudades; si no, un volumen.
-      - ${GEO_DIR:-geo-data}:/data/geo:ro
     depends_on:
       db: { condition: service_healthy }
     networks: [internal]
@@ -41,7 +38,6 @@ services:
 volumes:
   db-data:
   audit-data:
-  geo-data:
 networks:
   internal:
     ipam:

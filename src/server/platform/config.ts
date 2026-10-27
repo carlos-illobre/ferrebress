@@ -19,7 +19,6 @@ const configSchema = z.object({
   GOOGLE_ISSUER: z.url(),
   GOOGLE_JWKS_URL: z.url(),
   GOOGLE_SCRIPT_URL: z.url(),
-  GEO_DATABASE_PATH: text,
   INITIAL_ADMIN_EMAIL: z.email(),
   TRUSTED_PROXY: text,
 });

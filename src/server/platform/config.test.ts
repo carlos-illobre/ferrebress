@@ -12,7 +12,6 @@ const valid = {
   GOOGLE_ISSUER: 'https://accounts.google.com',
   GOOGLE_JWKS_URL: 'https://www.googleapis.com/oauth2/v3/certs',
   GOOGLE_SCRIPT_URL: 'https://accounts.google.com/gsi/client',
-  GEO_DATABASE_PATH: '/data/geo/city.mmdb',
   INITIAL_ADMIN_EMAIL: 'admin@example.com',
   TRUSTED_PROXY: '172.20.0.2',
 };
