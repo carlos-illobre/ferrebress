@@ -2,6 +2,7 @@
 export type ErrorCode =
   | 'bad-request'
   | 'not-authorized'
+  | 'sign-in-expired'
   | 'too-many-attempts'
   | 'code-expired'
   | 'code-used'

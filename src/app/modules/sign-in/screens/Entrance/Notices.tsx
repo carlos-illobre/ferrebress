@@ -63,6 +63,12 @@ export function MainNotice() {
         {texts.notAuthorized(notice.email)}
       </Shown>
     );
+  if (notice?.kind === 'expired')
+    return (
+      <Shown kind="warn" icon="clock">
+        {texts.expired}
+      </Shown>
+    );
   if (notice?.kind !== 'too-many') return null;
   return (
     <Shown kind="warn" icon="clock">

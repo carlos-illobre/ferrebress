@@ -165,7 +165,10 @@ Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`
 **Errores**, con un código y el texto que muestra la pantalla: `not-authorized` (con el correo;
 R1.3), `too-many-attempts` (con los segundos que faltan; R2.9, R2.10), `code-expired`,
 `code-used`, `phone-has-other-account` (R2.3, E09), `session-closed` (con el motivo; R3.5),
-`update-required` (00 · R5.5) y `bad-request` (forma, tamaño u origen).
+`update-required` (00 · R5.5), `sign-in-expired` (un pase de Google bueno con un `nonce` vencido o
+ya usado: la aplicación pide otro a `/api/start` y la persona vuelve a tocar Google) y
+`bad-request` (forma, tamaño u origen). La aplicación pide un `nonce` nuevo también al salir y
+al cerrarse la sesión, porque el anterior ya se usó.
 
 **Versión incompatible:** el servidor tiene en su configuración la versión mínima de la aplicación
 que entiende; sube cuando un contrato cambia de forma incompatible. Un pedido con una versión menor

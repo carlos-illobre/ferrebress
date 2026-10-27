@@ -17,9 +17,9 @@ import {
 
 const start = startReply().body as Parameters<typeof Entrance>[0]['start'];
 
-function open({ signInFirst = false, onScan = vi.fn() } = {}) {
-  render(<Entrance start={start} onScan={onScan} signInFirst={signInFirst} />);
-  return { onScan, card: screen.getByRole('region', { name: 'Entrar' }) };
+function open({ signInFirst = false, onScan = vi.fn(), onStale = vi.fn() } = {}) {
+  render(<Entrance start={start} onScan={onScan} signInFirst={signInFirst} onStale={onStale} />);
+  return { onScan, onStale, card: screen.getByRole('region', { name: 'Entrar' }) };
 }
 
 describe('la entrada en la computadora', () => {
@@ -85,6 +85,21 @@ describe('la entrada en la computadora', () => {
     await waitFor(() => expect(person.get()).toEqual(ana));
   });
 
+  it('si el pase de Google llegó con un nonce vencido, pide otro y dice que se toque Google otra vez', async () => {
+    const google = googleScript();
+    fakeServer({
+      '/api/sign-in/codes': {},
+      '/api/realtime/sign-in-codes': { stream: '' },
+      '/api/sign-in/google': { status: 401, body: { error: 'sign-in-expired' } },
+    });
+    const { onStale } = open();
+    google.load();
+    await waitFor(() => expect(google.id.initialize).toHaveBeenCalled());
+    act(() => google.id.initialize.mock.calls.at(-1)?.[0].callback({ credential: 'pase' }));
+    expect(await screen.findByText(/Pasó mucho tiempo desde que se abrió la entrada/)).toBeTruthy();
+    expect(onStale).toHaveBeenCalledOnce();
+  });
+
   it('01-E02: una cuenta no autorizada ve por qué, y la nota se va', async () => {
     const google = googleScript();
     fakeServer({
@@ -143,6 +158,7 @@ describe('la entrada en el celular', () => {
         start={{ ...start, googleNonce: undefined } as never}
         onScan={() => {}}
         signInFirst={false}
+        onStale={() => {}}
       />,
     );
     google.load();

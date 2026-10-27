@@ -18,9 +18,15 @@ import './desktop-end.css';
 import './phone.css';
 import './phone-buttons.css';
 
-export type EntranceProps = { start: StartResponse; onScan: () => void; signInFirst: boolean };
+export type EntranceProps = {
+  start: StartResponse;
+  onScan: () => void;
+  signInFirst: boolean;
+  // El nonce de Google ya no sirve: hay que pedir otro a /api/start.
+  onStale: () => void;
+};
 
-export function Entrance({ start, onScan, signInFirst }: EntranceProps) {
+export function Entrance({ start, onScan, signInFirst, onStale }: EntranceProps) {
   const online = useStore(onlineStore);
   const closed = useStore(sessionClosed);
   const { notice, setNotice } = useNotice();
@@ -30,7 +36,11 @@ export function Entrance({ start, onScan, signInFirst }: EntranceProps) {
     online,
     notice,
     closed,
-    attempt: (task) => void run(texts.signingIn, task).then((next) => setNotice(next)),
+    attempt: (task) =>
+      void run(texts.signingIn, task).then((next) => {
+        setNotice(next);
+        if (next?.kind === 'expired') onStale();
+      }),
     busy: phase === 'mark' || phase === 'bar',
     scan: onScan,
     signInFirst,

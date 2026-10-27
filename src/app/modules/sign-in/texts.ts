@@ -52,7 +52,8 @@ export const texts = {
     ['Hacé crecer', 'tu negocio'],
   ],
   notAuthorized: (email: string) =>
-    `Esta cuenta (${email}) no está autorizada. Pedile a un Administrador que agregue tu correo.`,
+    `Esta cuenta${email ? ` (${email})` : ''} no está autorizada. Pedile a un Administrador que agregue tu correo.`,
+  expired: 'Pasó mucho tiempo desde que se abrió la entrada: tocá «Continuar con Google» otra vez.',
   needsInternet: 'Para entrar hace falta internet',
   needsInternetDetail: 'Cuando vuelva la conexión, los botones se prenden solos.',
   tooMany: 'Demasiados intentos seguidos',

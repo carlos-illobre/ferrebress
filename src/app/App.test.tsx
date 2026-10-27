@@ -46,12 +46,16 @@ describe('la aplicación al abrir', () => {
     expect(server.sent.map((s) => s.path).slice(0, 2)).toEqual(['/api/sign-out', '/api/start']);
   });
 
-  it('app-E01, 01-E35: con sesión abre el marco; «Salir» vuelve a la entrada', async () => {
-    fakeServer({ '/api/start': startReply({ person: ana }), '/api/sign-out': {} });
+  it('app-E01, 01-E35: con sesión abre el marco; «Salir» vuelve a la entrada con un nonce nuevo', async () => {
+    const server = fakeServer({
+      '/api/start': [startReply({ person: ana }), startReply({ googleNonce: 'otro' })],
+      '/api/sign-out': {},
+    });
     render(<App />);
     const card = await screen.findByRole('region', { name: 'Tu sesión' });
     fireEvent.click(card.querySelector('button') as Element);
     expect(await screen.findByRole('region', { name: 'Entrar' })).toBeTruthy();
+    await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(2));
   });
 
   it('R3.6: sin conexión al abrir sigue con quién estaba guardado, sin el marco de pruebas', async () => {

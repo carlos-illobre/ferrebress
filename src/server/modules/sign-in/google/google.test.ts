@@ -151,15 +151,18 @@ describe('entrar con Google', () => {
     });
     const body = { credential, proofPublicKey: device.proofPublicKey };
     expect((await device.request('/api/sign-in/google', body)).status).toBe(403);
-    expect((await device.request('/api/sign-in/google', body)).status).toBe(401);
+    expect(await device.request('/api/sign-in/google', body)).toMatchObject({
+      status: 401,
+      body: { error: 'sign-in-expired' },
+    });
     const invented = await server.google.credential({
       nonce: 'inventado',
       sub: 's',
       email: 'nadie@example.com',
     });
     expect(
-      (await device.request('/api/sign-in/google', { ...body, credential: invented })).status,
-    ).toBe(401);
+      (await device.request('/api/sign-in/google', { ...body, credential: invented })).body,
+    ).toEqual({ error: 'sign-in-expired' });
   });
 
   it('rechaza un pedido sin dispositivo, mal formado o con una llave de prueba que no es P-256', async () => {

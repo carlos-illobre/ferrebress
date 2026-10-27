@@ -7,6 +7,7 @@ import { minutes, noticeOf, useNotice } from './notice.ts';
 import { codeOf, linkUrl, qrPath } from './qr.ts';
 import { hasPasskey, offered, offerPasskey, person } from './session.ts';
 import { ana, fakePasskeys, phone, signInReply } from './sign-in-test-kit.ts';
+import { texts } from './texts.ts';
 import { withGoogle, withPasskey } from './useSignIn.ts';
 import { createPasskey, signWithPasskey } from './webauthn.ts';
 
@@ -27,6 +28,10 @@ describe('el aviso de la entrada', () => {
       kind: 'too-many',
       seconds: 45,
     });
+    expect(noticeOf({ ok: false, error: 'sign-in-expired' })).toEqual({ kind: 'expired' });
+    expect(texts.notAuthorized('')).toBe(
+      'Esta cuenta no está autorizada. Pedile a un Administrador que agregue tu correo.',
+    );
     expect(noticeOf({ ok: false, error: 'offline' })).toBeUndefined();
   });
 

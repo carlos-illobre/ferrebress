@@ -88,21 +88,24 @@ function useStart(scanned: (code: string) => void) {
     };
   }, []);
 
-  // La sesión cerrada se vuelve a abrir desde la entrada, con un pase de Google nuevo.
+  // La entrada necesita un nonce de Google sin usar: al salir, al cerrarse la sesión y cuando el
+  // que tenía venció, se pide otro.
+  const refresh = () => void signInApi.start().then((again) => again.ok && setStart(again.data));
   useEffect(() => {
-    if (closed) void signInApi.start().then((again) => again.ok && setStart(again.data));
+    if (closed) refresh();
   }, [closed]);
   useEffect(() => {
     if (who && closed) sessionClosed.set(undefined);
+    if (!who && start) refresh();
   }, [who]);
 
-  return { start, who, closed };
+  return { start, who, closed, refresh };
 }
 
 export function App() {
   const [camera, setCamera] = useState(false);
   const code = usePhoneCode();
-  const { start, who, closed } = useStart((linked) => void code.scanned(linked));
+  const { start, who, closed, refresh } = useStart((linked) => void code.scanned(linked));
 
   if (!start) return <Dialogs />;
   const testing = start.environment !== 'production';
@@ -114,6 +117,7 @@ export function App() {
           start={start}
           onScan={() => setCamera(true)}
           signInFirst={code.state.step === 'sign-in-first'}
+          onStale={refresh}
         />
       )}
       {camera && (

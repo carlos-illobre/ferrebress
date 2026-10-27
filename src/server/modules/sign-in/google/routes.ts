@@ -62,9 +62,15 @@ async function signInWithGoogle(
   device: { deviceId: string; proofPublicKey: Uint8Array },
 ) {
   const identity = await verifyGoogle(credential, ctx.google);
-  if (!identity || !ctx.nonces.take(identity.nonce)) {
+  if (!identity) {
     ctx.record(c, 'sign-in.rejected', { data: { method: 'google', reason: 'invalid-credential' } });
     return fail(c, 401, 'not-authorized');
+  }
+  // Un pase bueno con un nonce vencido o ya usado: la entrada estuvo abierta mucho tiempo, o se
+  // volvió a ella sin pedir otro. La aplicación pide uno nuevo y la persona vuelve a tocar Google.
+  if (!ctx.nonces.take(identity.nonce)) {
+    ctx.record(c, 'sign-in.rejected', { data: { method: 'google', reason: 'nonce' } });
+    return fail(c, 401, 'sign-in-expired');
   }
   const accountKey = `failed:google:${identity.email.toLowerCase()}`;
   if (ctx.platform.limiter.exceeded(accountKey, limits.failedPerAccount)) {
