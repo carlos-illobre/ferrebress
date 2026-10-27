@@ -1,3 +1,13 @@
 {
- "screens": []
+ "screens": [
+  {
+   "id": "sign-in",
+   "title": "Entrar",
+   "module": "01 · Entrar",
+   "variants": [
+    { "device": "desktop", "name": "Adaptada", "path": "mockups/sign-in/adapted/index.html" },
+    { "device": "phone", "name": "Adaptada", "path": "mockups/sign-in/adapted/index.html" }
+   ]
+  }
+ ]
 }

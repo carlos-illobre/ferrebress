@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entrar · Ferrebress</title>
+<!-- La entrada, adaptada de la primera versión (01 · Entrar, R7.1). Una sola página para los dos anchos:
+     desde 900 px se ve como la computadora y debajo, como el celular. Solo cambia el CSS. -->
+<link rel="stylesheet" href="sign-in.css">
+<script src="../../../common/icons.js"></script>
+<script src="extra-icons.js"></script>
+<script src="sign-in.js" defer></script>
+</head>
+<body data-state="normal">
+
+<!-- Ambiente de prueba: marco magenta fijo, sin titilar. -->
+<div class="test-frame" aria-hidden="true">
+  <div class="test-border"></div>
+  <div class="test-banner">Ambiente de prueba<span> · nada de esto es real</span></div>
+</div>
+
+<main class="sign-in">
+  <div class="scene">
+    <div class="scene-bg" aria-hidden="true"></div>
+
+    <!-- La marca: en la computadora, sobre el verde; en el celular, arriba y al centro. -->
+    <section class="brand">
+      <h1 class="brand-logo">
+        <img class="d-only" src="logo-on-dark.png" alt="Ferrebress" width="830" height="208">
+        <img class="p-only" src="logo-on-light.png" alt="Ferrebress" width="830" height="208">
+      </h1>
+      <p class="brand-motto p-only">Vendé, contá y cobrá desde el mostrador o el depósito.</p>
+      <p class="brand-kicker d-only">El sistema del mostrador</p>
+      <p class="brand-title d-only">Precios al día,<br>ventas y stock<br><em>de la ferretería.</em></p>
+      <p class="brand-lead d-only">Ferrebress es el sistema del mostrador: se usa desde el celular y desde la computadora, con los mismos datos.</p>
+      <ul class="brand-points d-only">
+        <li><span><i class="i" data-i="shopping-cart"></i></span><span>Buscás el producto,<br>decís el precio y cobrás.</span></li>
+        <li><span><i class="i" data-i="file-text"></i></span><span>Los precios se actualizan<br>con las listas de los proveedores.</span></li>
+        <li><span><i class="i" data-i="package"></i></span><span>Lo que se vende baja del stock;<br>lo que se compra, sube.</span></li>
+      </ul>
+    </section>
+
+    <img class="phone-shot d-only" src="phone-selling.webp" alt="" aria-hidden="true">
+
+    <!-- Esta computadora y si llega al servidor. En el celular solo aparece «Sin conexión». -->
+    <p class="status">
+      <span class="status-device d-only"><i class="i i-s" data-i="monitor"></i>Computadora del mostrador</span>
+      <span class="status-net" role="status" id="net">En línea</span>
+    </p>
+
+    <div class="right">
+      <section class="card" aria-label="Entrar">
+        <div class="card-title d-only">
+          <h2 id="card-title">Entrá con tu celular</h2>
+          <span class="pill"><i class="i i-s" data-i="smartphone"></i>La forma más rápida</span>
+        </div>
+        <p class="card-sub d-only" id="card-sub">Entra con tu usuario, sin contraseñas, en cuanto ponés tu huella.</p>
+
+        <!-- Aviso de arriba: la sesión se cerró desde otro dispositivo. -->
+        <div class="notice notice-top warn" id="notice-closed" role="alert">
+          <i class="i" data-i="log-out"></i>
+          <p><strong>Tu sesión se cerró desde otro dispositivo</strong><span>Entrá de nuevo para seguir donde estabas.</span></p>
+        </div>
+
+        <!-- El código QR propio (sin Bluetooth). -->
+        <div class="qr-block d-only" id="qr-block">
+          <div class="qr-col">
+            <div class="qr" id="qr" role="img" aria-label="Código para entrar con el celular">
+              <svg id="qr-svg" viewBox="0 0 29 29" shape-rendering="crispEdges" aria-hidden="true"></svg>
+              <span class="qr-logo" aria-hidden="true"></span>
+              <span class="qr-read" id="qr-read" aria-hidden="true"><i class="i i-l" data-i="fingerprint"></i><b>Leído</b><small>Esperando la huella</small></span>
+            </div>
+            <p class="qr-count" id="qr-count" aria-live="off">
+              <span><i class="ring" id="ring" aria-hidden="true"></i>Cambia en <b id="qr-time">1:00</b></span>
+              <span>y sirve una vez</span>
+            </p>
+          </div>
+          <ol class="steps">
+            <li><span><b>Apuntá el celular a este código</b>Con la cámara o con «Escanear» en la entrada de Ferrebress.</span></li>
+            <li><span><b>Poné la huella en el celular</b>Esta pantalla entra sola. Si el celular no tiene la sesión abierta, entrás ahí con Google o con la huella.</span></li>
+          </ol>
+        </div>
+
+        <!-- Con Bluetooth: la entrada del navegador reemplaza al QR propio (R2.6). -->
+        <div class="bt-block d-only" id="bt-block">
+          <div class="bt-art" aria-hidden="true">
+            <span class="bt-pc"><i class="i i-xl" data-i="monitor"></i></span>
+            <span class="bt-waves"><i></i><i></i><i></i></span>
+            <span class="bt-phone"><i class="i i-xl" data-i="smartphone"></i></span>
+          </div>
+          <div class="bt-text">
+            <p><b>Tu celular está cerca</b>El navegador lo encuentra por Bluetooth: tocá el botón, mirá el celular y poné la huella.</p>
+            <button type="button" class="btn-primary" id="bt-button" data-mark data-key="c" data-off-when="offline">
+              <i class="i i-l" data-i="bluetooth"></i>Entrar con el celular<kbd>C</kbd>
+            </button>
+          </div>
+        </div>
+
+        <div class="or d-only" aria-hidden="true"><span>o</span></div>
+
+        <button type="button" class="google" id="google" data-mark data-key="g" data-off-when="offline limit">
+          <span class="google-g" aria-hidden="true"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></span>
+          <span class="google-text">Continuar con Google</span><kbd>G</kbd>
+        </button>
+
+        <div class="or p-only" aria-hidden="true"><span>o</span></div>
+
+        <button type="button" class="finger p-only" id="finger" data-off-when="offline limit">
+          <i class="i" data-i="fingerprint" data-trazo="1.8"></i>
+          <span><strong>Entrar con la huella</strong><small>Rápido y seguro</small></span>
+        </button>
+
+        <button type="button" class="scan p-only" id="scan" data-off-when="offline">
+          <i class="i" data-i="scan-qr" data-trazo="1.8"></i>
+          <span><strong>Escanear el código de la computadora</strong><small>Para entrar en los dos de una vez</small></span>
+        </button>
+
+        <!-- Aviso del lugar: no autorizada, sin conexión o demasiados intentos. -->
+        <div class="notice notice-main" id="notice" role="alert">
+          <i class="i" id="notice-icon" data-i="ban"></i>
+          <p id="notice-text"></p>
+        </div>
+
+        <p class="note d-only" id="note"><i class="i" data-i="shield"></i><span>Solo entran las personas que un Administrador del negocio autorizó. Si es tu primera vez, pedile que agregue tu correo de Google.</span></p>
+
+        <p class="no-pass p-only"><i class="i" data-i="lock" data-trazo="1.8"></i><span><strong>Sin contraseñas.</strong> Entrá de forma simple y segura.</span></p>
+
+        <p class="card-foot d-only"><span><i class="i" data-i="lock"></i>Tus datos están protegidos</span><span class="bar" aria-hidden="true"></span><img src="logo-on-light.png" alt="Ferrebress"></p>
+      </section>
+
+      <ul class="seals d-only">
+        <li><i class="i" data-i="wifi-off" data-trazo="1.7"></i><span>Una vez dentro, resiste<br>cortes de internet</span></li>
+        <li><i class="i" data-i="scan-barcode" data-trazo="1.7"></i><span>Busca productos<br>por código de barras</span></li>
+        <li><i class="i" data-i="monitor-smartphone" data-trazo="1.7"></i><span>Maneja la computadora<br>desde el celular</span></li>
+      </ul>
+    </div>
+
+    <ul class="what-for p-only">
+      <li><span class="round"><i class="i" data-i="shopping-cart"></i></span><strong>Vendé</strong><span>más rápido</span></li>
+      <li><span class="round"><i class="i" data-i="package"></i></span><strong>Controlá</strong><span>tu stock</span></li>
+      <li><span class="round"><i class="i" data-i="chart-column"></i></span><strong>Hacé crecer</strong><span>tu negocio</span></li>
+    </ul>
+
+    <footer class="wave p-only" aria-hidden="true">
+      <svg viewBox="0 0 390 150" preserveAspectRatio="none">
+        <path d="M0 4 C 110 46, 250 84, 390 92 L 390 150 L 0 150 Z" fill="#d83f0e"/>
+        <path d="M0 26 C 110 62, 250 90, 390 96 L 390 150 L 0 150 Z" fill="#17312b"/>
+      </svg>
+    </footer>
+  </div>
+</main>
+
+<!-- ============ Lo que se abre encima ============ -->
+<div class="scrim" id="scrim" hidden></div>
+
+<!-- Google: elegir la cuenta (después de salir, Google siempre la pide, R2.1). Simulada. -->
+<section class="layer google-picker" id="picker" role="dialog" aria-modal="true" aria-labelledby="picker-title" hidden>
+  <div class="win-bar d-only" aria-hidden="true"><span></span><span></span><span></span><b>accounts.google.com</b></div>
+  <div class="grabber p-only" aria-hidden="true"></div>
+  <div class="picker-body">
+    <p class="picker-brand"><span class="google-g small" aria-hidden="true"></span>Acceder con Google</p>
+    <h2 id="picker-title">Elegí una cuenta</h2>
+    <p class="picker-sub">para ir a <b>Ferrebress</b></p>
+    <ul class="accounts">
+      <li><button type="button" data-account="ok" data-mark data-key="1"><span class="av av-1">MF</span><span><b>Mostrador Ferretería</b><small>mostrador.ferreteria@gmail.com</small></span><kbd>1</kbd></button></li>
+      <li><button type="button" data-account="no" data-mark data-key="2"><span class="av av-2">CP</span><span><b>Cuenta de prueba</b><small>cuenta.prueba@gmail.com</small></span><kbd>2</kbd></button></li>
+    </ul>
+    <p class="picker-sim">Ventana de Google simulada · la primera cuenta está autorizada, la segunda no.</p>
+    <button type="button" class="btn-plain" data-close data-mark data-key="c">Cancelar<kbd>C</kbd></button>
+  </div>
+</section>
+
+<!-- Con Bluetooth: la ventana propia del navegador (simulada, con el aspecto del sistema). -->
+<section class="layer browser-dialog" id="bt-dialog" role="dialog" aria-modal="true" aria-labelledby="bt-title" hidden>
+  <div class="bd-step" data-step="choose">
+    <p class="bd-site"><i class="i i-s" data-i="lock"></i>ferrebress.com.ar</p>
+    <h2 id="bt-title">Usar una llave de acceso</h2>
+    <p class="bd-sub">Elegí el dispositivo que tiene la llave de acceso de ferrebress.com.ar.</p>
+    <button type="button" class="bd-option" id="bt-phone" data-mark data-key="1"><i class="i i-l" data-i="smartphone"></i><span><b>Celular de Mostrador</b><small>Cerca, por Bluetooth</small></span><kbd>1</kbd></button>
+    <div class="bd-actions"><button type="button" class="bd-btn" data-close data-mark data-key="c">Cancelar<kbd>C</kbd></button></div>
+  </div>
+  <div class="bd-step" data-step="wait">
+    <p class="bd-site"><i class="i i-s" data-i="lock"></i>ferrebress.com.ar</p>
+    <h2>Mirá tu celular</h2>
+    <p class="bd-sub">Le llegó un aviso a <b>Celular de Mostrador</b>. Poné la huella ahí para entrar en esta computadora.</p>
+    <div class="bd-spinner" aria-hidden="true"><i></i></div>
+    <div class="bd-actions"><button type="button" class="bd-btn" data-close data-mark data-key="c">Cancelar<kbd>C</kbd></button></div>
+  </div>
+  <p class="bd-sim">Ventana del navegador simulada · Chrome la dibuja a su manera.</p>
+</section>
+
+<!-- Celular: el lector del sistema pide la huella (simulado). -->
+<section class="layer sheet" id="sheet-finger" role="dialog" aria-modal="true" aria-labelledby="sf-title" hidden>
+  <div class="grabber" aria-hidden="true"></div>
+  <h2 id="sf-title">Entrar en Ferrebress</h2>
+  <p class="sheet-sub">Tocá el lector con el dedo.</p>
+  <button type="button" class="touch" data-touch aria-label="Poner la huella"><i class="i" data-i="fingerprint" data-trazo="1.6"></i></button>
+  <button type="button" class="btn-plain" data-close>Cancelar</button>
+</section>
+
+<!-- Celular: la primera vez que entra con Google (R2.2). -->
+<section class="layer sheet" id="sheet-offer" role="dialog" aria-modal="true" aria-labelledby="so-title" hidden>
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-step" data-step="ask">
+    <span class="sheet-icon"><i class="i" data-i="fingerprint" data-trazo="1.8"></i></span>
+    <h2 id="so-title">¿Entrar con la huella la próxima vez?</h2>
+    <p class="sheet-sub">Este celular queda vinculado a <b>mostrador.ferreteria@gmail.com</b> y la próxima vez entrás sin Google.</p>
+    <button type="button" class="btn-orange" data-yes>Sí, usar la huella</button>
+    <button type="button" class="btn-plain" data-close>Ahora no</button>
+  </div>
+  <div class="sheet-step" data-step="touch">
+    <h2>Poné la huella</h2>
+    <p class="sheet-sub">Para vincular este celular a tu cuenta.</p>
+    <button type="button" class="touch" data-touch aria-label="Poner la huella"><i class="i" data-i="fingerprint" data-trazo="1.6"></i></button>
+  </div>
+  <div class="sheet-step" data-step="done">
+    <span class="sheet-icon ok"><i class="i" data-i="check" data-trazo="3"></i></span>
+    <h2>Listo</h2>
+    <p class="sheet-sub">La próxima vez entrás con la huella. Podés quitar este celular desde Configuración.</p>
+    <button type="button" class="btn-green" data-close>Entendido</button>
+  </div>
+</section>
+
+<!-- Celular: leyó el código de una computadora (R2.5). Sin paso de confirmar: la huella es la confirmación. -->
+<section class="layer sheet" id="sheet-qr" role="dialog" aria-modal="true" aria-labelledby="sq-title" hidden>
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-step" data-step="ask">
+    <span class="sheet-icon pc"><i class="i" data-i="monitor" data-trazo="1.8"></i></span>
+    <h2 id="sq-title">¿Entrar en Chrome en Windows · Buenos Aires?</h2>
+    <p class="sheet-sub">Una computadora pide entrar con tu usuario. Si no la tenés adelante, no pongas la huella.</p>
+    <button type="button" class="touch" data-touch aria-label="Poner la huella para entrar en la computadora"><i class="i" data-i="fingerprint" data-trazo="1.6"></i></button>
+    <p class="touch-hint">Poné la huella para entrar en los dos</p>
+    <button type="button" class="btn-plain" data-close>No soy yo, cancelar</button>
+  </div>
+  <div class="sheet-step" data-step="done">
+    <span class="sheet-icon ok"><i class="i" data-i="check" data-trazo="3"></i></span>
+    <h2>La computadora entró</h2>
+    <p class="sheet-sub">Chrome en Windows · Buenos Aires ya tiene tu sesión. Este celular también.</p>
+    <button type="button" class="btn-green" data-close>Listo</button>
+  </div>
+</section>
+
+<!-- Celular: la cámara, leyendo el código (simulado). -->
+<section class="layer camera" id="camera" role="dialog" aria-modal="true" aria-label="Escanear el código" hidden>
+  <p class="camera-tip">Apuntá al código de la computadora</p>
+  <div class="camera-frame" aria-hidden="true"><i class="scanline"></i></div>
+  <button type="button" class="camera-close" data-close aria-label="Cerrar"><i class="i i-l" data-i="x"></i></button>
+</section>
+
+<!-- Entrando / entró. En la aplicación se llega al marco (capítulo 00); acá vuelve a la entrada. -->
+<section class="layer done" id="done" role="status" hidden>
+  <span class="done-spin" aria-hidden="true"></span>
+  <span class="done-check" aria-hidden="true"><i class="i" data-i="check" data-trazo="3"></i></span>
+  <p id="done-text">Entrando…</p>
+  <small>En la aplicación, acá se llega al marco.</small>
+</section>
+
+<!-- Selector de estado: fuera del diseño. -->
+<div class="mock-tools" aria-label="Herramientas de la maqueta">
+  <label>Estado <select id="state-select"></select></label>
+  <button type="button" id="sim-read" class="d-only">El celular lee el QR</button>
+</div>
+</body>
+</html>

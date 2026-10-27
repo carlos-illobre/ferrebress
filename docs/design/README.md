@@ -25,8 +25,8 @@ Cada pantalla tiene su carpeta en `mockups/<pantalla>/`, con `desktop/` y `phone
   variantes. Las v2 no figuran en el visor: son material de consulta para el director de arte.
 
 La pantalla de entrada (`mockups/sign-in/`) no tiene v2: se ve como la de la primera versión, que
-está en sus capturas `current-desktop.png` y `current-phone.png`. Ojo: en esa primera versión el
-celular entraba con Google, y ahora no (decisión 11).
+está en sus capturas `current-desktop.png` y `current-phone.png`; la adaptada a las reglas del
+capítulo 01 está en `adapted/`.
 
 Las maquetas no llevan pruebas: se abre cada una y se mira que la consola no tenga errores.
 
