@@ -83,4 +83,7 @@ No se construyen ahora; el diseño no les cierra la puerta (decisión 29).
   análisis que lea la auditoría (ADR-004).
 - [ ] T108 [carlos] Productos que se venden en dólares: cómo se muestran y se cobran los importes
   en otra moneda (decisión 54).
+- [ ] T109 [agente] Módulo 15 (Sin conexión): entrar sin conexión con la huella del celular,
+  verificada en el dispositivo con la llave pública guardada; la firma viaja con cada venta como
+  prueba y el servidor la verifica al volver la conexión. Solo en el celular (01-D12).
 - [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales (decisión 25).

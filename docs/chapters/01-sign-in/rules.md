@@ -71,8 +71,11 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   (R4).
 - **R3.5** Si la sesión la cerró otro dispositivo, la entrada dice «Tu sesión se cerró desde otro
   dispositivo».
-- **R3.6** Sin conexión, la sesión no vence en el dispositivo mientras se lo use: la inactividad la
-  mide el cronómetro del dispositivo, que solo decide cuándo mostrar la entrada.
+- **R3.6** Sin conexión, la sesión no vence en el dispositivo: ni por los 60 minutos sin uso ni por
+  el tope de 8 horas, porque sin internet no se podría volver a entrar y el mostrador se frenaría
+  (01-D12). Cuando vuelve la conexión, el servidor la revisa: si sigue vigente, todo sigue; si
+  venció, aparece la entrada encima de lo que había, sin perder nada, y lo pendiente se manda con
+  la prueba de quien lo hizo (R4).
 
 ## 4. Lo que quedó sin enviar
 
@@ -178,8 +181,12 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   **entonces** la venta a medio armar se descarta.
 - **E27** **Dado** una sesión cerrada desde otro dispositivo, **cuando** el dispositivo hace su próximo
   pedido, **entonces** muestra la entrada con «Tu sesión se cerró desde otro dispositivo».
-- **E28** **Dado** un dispositivo sin conexión que se sigue usando, **cuando** pasan más de 60 minutos
-  desde el último pedido al servidor, **entonces** no se muestra la entrada mientras se lo use.
+- **E28** **Dado** un dispositivo sin conexión, **cuando** pasan más de 60 minutos sin uso o más de 8
+  horas desde que se entró, **entonces** la sesión sigue abierta en el dispositivo y se puede seguir
+  vendiendo.
+- **E28b** **Dado** una sesión que venció en el servidor durante un corte, **cuando** vuelve la
+  conexión, **entonces** aparece la entrada encima de lo que había, y al volver a entrar lo pendiente
+  se manda a nombre de quien lo hizo.
 
 ### Lo que quedó sin enviar
 

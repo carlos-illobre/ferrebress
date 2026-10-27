@@ -1,0 +1,95 @@
+/* El marco vacío · lo que comparten las tres variantes:
+   el ambiente de pruebas, el selector de conexión de la maqueta, las teclas con Alt,
+   la marca del teclado, la tostada y la lista de lo pendiente.
+   Se enlaza después de ../../../common/common.css. */
+
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { overflow: hidden; }
+
+/* ---------- Ambiente de pruebas (00 · R10): magenta, fijo, igual en todas las pantallas ---------- */
+.test-frame { position: fixed; inset: 0; z-index: 900; pointer-events: none; }
+.test-border { position: absolute; inset: 0; border: 7px solid #d6007a; box-shadow: inset 0 0 22px rgb(214 0 122 / .45); opacity: .85; }
+.test-banner { position: absolute; top: 0; left: 50%; transform: translateX(-50%); padding: 4px 16px 5px; border-radius: 0 0 12px 12px; background: #d6007a; color: #fff; font-size: 14px; font-weight: 750; line-height: 1.2; white-space: nowrap; box-shadow: 0 2px 8px rgb(0 0 0 / .25); }
+@media (max-width: 899px) { .test-banner span { display: none; } }
+
+/* ---------- Teclas de atajo: solo mientras Alt está apretado (00 · R2.9) ---------- */
+.kbd { display: none; }
+body.alt .kbd { display: inline-flex; }
+@media (prefers-reduced-motion: no-preference) { body.alt .kbd { animation: f-kbd 120ms var(--curva); } }
+@keyframes f-kbd { from { opacity: 0; transform: scale(.8); } }
+
+/* ---------- La marca del teclado (00 · R2.5): distinta del cursor, igual en todas partes ---------- */
+.marca-tecla { outline: 3px solid var(--accion) !important; outline-offset: 2px; position: relative; z-index: 2; }
+:focus-visible { outline: 3px solid var(--pino-2); outline-offset: 2px; }
+.marca-tecla:focus-visible { outline-color: var(--accion); }
+
+/* ---------- «Pronto»: la pastilla de lo que todavía no existe (00 · R1.3) ---------- */
+.pronto { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 999px; background: var(--hundido); color: var(--texto-2); font-size: 14px; font-weight: 700; white-space: nowrap; }
+.no-esta { animation: none; }
+@media (prefers-reduced-motion: no-preference) { .no-esta { animation: f-no 360ms var(--curva); } }
+@keyframes f-no { 20% { transform: translateX(-5px); } 45% { transform: translateX(4px); } 70% { transform: translateX(-2px); } }
+
+/* ---------- La luz de conexión (00 · R4.1) ---------- */
+.luz-punto { position: relative; width: 10px; height: 10px; border-radius: 99px; background: var(--logro); flex: none; }
+.luz-punto::after { content: ""; position: absolute; inset: -5px; border-radius: 99px; background: currentColor; opacity: 0; }
+body[data-net="offline"] .luz-punto { background: var(--urgente); color: var(--urgente); }
+body[data-net="sending"] .luz-punto { background: transparent; border: 2px solid var(--pino-texto); border-right-color: transparent; }
+@media (prefers-reduced-motion: no-preference) {
+  body[data-net="offline"] .luz-punto::after { animation: f-latido 1.8s var(--curva) infinite; }
+  body[data-net="sending"] .luz-punto { animation: f-gira .8s linear infinite; }
+}
+@keyframes f-latido { 0% { opacity: .35; transform: scale(.5); } 100% { opacity: 0; transform: scale(1.4); } }
+@keyframes f-gira { to { transform: rotate(360deg); } }
+
+/* ---------- Lo pendiente (00 · R4.2): qué es, de cuándo y quién ---------- */
+.pend-cab { display: flex; align-items: center; gap: 12px; }
+.pend-cab .ico { width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; background: var(--logro-suave); color: var(--logro-texto); flex: none; }
+body[data-net="offline"] .pend-cab .ico { background: var(--urgente-suave); color: var(--urgente-texto); }
+body[data-net="sending"] .pend-cab .ico { background: var(--pino-suave); color: var(--pino-texto); }
+.pend-cab b { display: block; font-size: 16px; font-weight: 800; line-height: 22px; }
+.pend-cab small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); font-weight: 500; }
+.pend-lista { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+.pend-item { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--borde); border-radius: var(--r); background: var(--superficie); }
+.pend-item .ic { width: 40px; height: 40px; border-radius: var(--r-chico); background: var(--hundido); color: var(--texto-2); display: grid; place-items: center; }
+.pend-item b { display: block; font-size: 15px; font-weight: 700; line-height: 20px; }
+.pend-item small { display: block; font-size: 14px; color: var(--texto-2); line-height: 20px; }
+.pend-item .gira { display: inline-block; }
+@media (prefers-reduced-motion: no-preference) {
+  .pend-item { animation: f-entra 260ms var(--curva) both; }
+  .pend-item:nth-child(2) { animation-delay: 40ms; } .pend-item:nth-child(3) { animation-delay: 80ms; }
+  .pend-item .gira { animation: f-gira .9s linear infinite; }
+}
+@keyframes f-entra { from { opacity: 0; transform: translateY(8px); } }
+.pend-vacio { margin-top: 12px; padding: 16px; border-radius: var(--r); background: var(--hundido); color: var(--texto-2); font-size: 14px; line-height: 20px; }
+.pend-nota { margin-top: 12px; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+
+/* ---------- La tostada (aviso corto que se va solo) ---------- */
+.f-tostada { position: fixed; left: 50%; bottom: var(--tostada-abajo, 32px); z-index: 800; transform: translateX(-50%); pointer-events: none; }
+.f-tostada .tostada { max-width: min(560px, calc(100vw - 48px)); white-space: normal; line-height: 20px; }
+@media (prefers-reduced-motion: no-preference) {
+  .f-tostada { animation: f-tost-in 280ms var(--rebote) both; }
+  .f-tostada.sale { animation: f-tost-out 200ms var(--curva-salida) both; }
+}
+@keyframes f-tost-in { from { opacity: 0; transform: translate(-50%, 16px) scale(.96); } }
+@keyframes f-tost-out { to { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* ---------- Salir: la pantalla se va antes de volver a la entrada ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  body.saliendo .vista { animation: f-sale 260ms var(--curva-salida) forwards; }
+}
+@keyframes f-sale { to { opacity: 0; transform: scale(.98); } }
+
+/* ---------- Selector de la maqueta (fuera del diseño): el estado de la conexión ---------- */
+.demo { position: fixed; right: 7px; top: 50%; z-index: 950; display: flex; align-items: center; transform: translateY(-50%); font-family: var(--letra); }
+.demo-asa { width: 28px; height: 64px; border: 0; border-radius: 10px 0 0 10px; background: rgb(26 29 27 / .72); color: #fff; display: grid; place-items: center; padding: 0; box-shadow: 0 4px 12px rgb(0 0 0 / .2); }
+.demo-panel { display: none; gap: 4px; padding: 8px; border-radius: 12px 0 0 12px; background: rgb(26 29 27 / .86); color: #fff; box-shadow: 0 8px 24px rgb(0 0 0 / .25); }
+.demo.abierta .demo-panel { display: grid; }
+.demo.abierta .demo-asa { border-radius: 0; }
+.demo-panel p { margin: 0 4px 4px; font-size: 14px; font-weight: 700; opacity: .75; white-space: nowrap; }
+.demo-panel button { height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #fff; font-size: 14px; font-weight: 650; text-align: left; white-space: nowrap; }
+.demo-panel button[aria-pressed="true"] { background: rgb(255 255 255 / .18); }
+
+/* ---------- Textos largos en la computadora, cortos en el celular (00 · R3.2) ---------- */
+.corto { display: none; }
+@media (max-width: 899px) { .largo { display: none; } .corto { display: inline; } }

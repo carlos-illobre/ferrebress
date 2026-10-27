@@ -21,3 +21,5 @@ Las que solo tocan este módulo. Las que valen para todo el proyecto están en
   computadora, sacada de su dirección de internet.
 - **01-D11** (2026-10-27) La entrada conserva el naranja de la primera versión (#D83F0E), aunque el
   resto de la aplicación use el de «Mostrador».
+- **01-D12** (2026-10-27) Sin conexión, la sesión no vence en el dispositivo; el servidor la revisa
+  cuando vuelve la conexión.

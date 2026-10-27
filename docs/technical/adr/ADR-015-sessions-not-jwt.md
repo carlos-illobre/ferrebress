@@ -62,6 +62,8 @@ de la aplicación.
   acepta a nombre de esa persona solo si el pase es suyo y su sesión no fue cerrada a mano ni la
   persona dada de baja; que el pase haya vencido no importa, porque solo prueba quién lo hizo. El
   cronómetro del dispositivo solo decide cuándo mostrar la entrada; nunca qué acepta el servidor.
+- **Sin conexión, la sesión no vence en el dispositivo** (01-D12): sin internet no se puede volver a
+  entrar. Al volver la conexión, el servidor aplica los dos límites.
 - **Se termina** al salir, al vencer, cuando alguien la cierra a distancia o cuando la persona es
   dada de baja.
 - **Con varias copias del servidor:** cada una busca en la base el pase que no tiene en memoria,
