@@ -1,0 +1,44 @@
+# El Caddy de Ferrebress (ADR-011): sirve la aplicación, pone las cabeceras de seguridad y
+# pasa /api al servidor. HTTPS lo atiende el proxy de la máquina, que le pasa la dirección
+# real en X-Forwarded-For; solo se le cree a quien llega por la red local.
+{
+	admin off
+	auto_https off
+	servers {
+		trusted_proxies static private_ranges
+		client_ip_headers X-Forwarded-For
+	}
+}
+
+:80 {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' https://accounts.google.com/gsi/style; frame-src https://accounts.google.com/gsi/; connect-src 'self' https://accounts.google.com/gsi/; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+		X-Frame-Options DENY
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+		Cross-Origin-Opener-Policy same-origin-allow-popups
+		Permissions-Policy "camera=(self), publickey-credentials-get=(self), publickey-credentials-create=(self), geolocation=(), microphone=()"
+		-Server
+	}
+
+	handle /api/* {
+		request_body {
+			max_size 64KB
+		}
+		# flush_interval -1: el canal en tiempo real no acumula respuestas (ADR-003).
+		reverse_proxy server:3000 {
+			flush_interval -1
+		}
+	}
+
+	handle {
+		root * /srv
+		encode zstd gzip
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		header /index.html Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}

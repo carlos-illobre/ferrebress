@@ -1,0 +1,16 @@
+# Servicio de usuario de systemd (~/.config/systemd/user/): escucha los avisos de despliegue.
+[Unit]
+Description=Ferrebress: escucha los avisos de despliegue y despliega verificando contra GitHub
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=DOCKER_HOST=unix://%t/docker.sock
+ExecStart=%h/ferrebress/listen.sh
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

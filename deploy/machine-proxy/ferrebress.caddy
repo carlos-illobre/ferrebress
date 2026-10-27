@@ -1,0 +1,6 @@
+# Los dominios de Ferrebress en el proxy de la máquina (ADR-011). Va en /etc/caddy/sitios/
+# y lo instala un administrador (deploy/README.md). Solo pasa cada dominio al Caddy de
+# Ferrebress, que escucha en un puerto local.
+ferrebress-pruebas.duckdns.org {
+	reverse_proxy 127.0.0.1:8090
+}

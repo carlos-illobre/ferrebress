@@ -1,0 +1,48 @@
+# Ferrebress en la máquina (ADR-010, ADR-014). Las imágenes las fija deploy.sh por su huella.
+name: ferrebress
+services:
+  web:
+    image: ${WEB_IMAGE:?falta WEB_IMAGE}
+    restart: unless-stopped
+    ports: ["127.0.0.1:${WEB_PORT:?falta WEB_PORT}:80"]
+    depends_on:
+      server: { condition: service_healthy }
+    networks:
+      internal: { ipv4_address: 172.30.0.10 }
+  server:
+    image: ${SERVER_IMAGE:?falta SERVER_IMAGE}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: "3000"
+      AUDIT_PATH: /data/audit
+      GEO_DATABASE_PATH: /data/geo/city.mmdb
+      TRUSTED_PROXY: 172.30.0.10
+    volumes:
+      - audit-data:/data/audit
+      - geo-data:/data/geo:ro
+    depends_on:
+      db: { condition: service_healthy }
+    networks: [internal]
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ferrebress
+      POSTGRES_USER: ferrebress
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD}
+    volumes: [db-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ferrebress"]
+      interval: 5s
+      retries: 12
+    networks: [internal]
+volumes:
+  db-data:
+  audit-data:
+  geo-data:
+networks:
+  internal:
+    ipam:
+      # Las direcciones automáticas van de .128 en adelante; .10 queda fija para el Caddy.
+      config: [{ subnet: 172.30.0.0/24, ip_range: 172.30.0.128/25 }]
