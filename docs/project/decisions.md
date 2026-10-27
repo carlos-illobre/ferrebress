@@ -341,3 +341,7 @@ cambia, sin depender de documentos que no están en este repositorio.
     arte va más allá de las reglas y no ajusta sus maquetas. El maquetador (agente
     `mockup-builder`) construye la maqueta final: toma como base lo que hizo el director, le suma
     las directivas de Carlos y la ajusta a las reglas aprobadas. Carlos aprueba la final.
+
+65. **Los perfiles del director de arte y del maquetador** (2026-10-27). El director de arte tiene
+    un perfil artístico, de diseño, innovador. El maquetador es un desarrollador frontend que
+    adapta las ideas exóticas del director a la tecnología disponible. Precisa la 64.
