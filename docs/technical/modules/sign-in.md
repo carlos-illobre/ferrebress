@@ -449,14 +449,16 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   arranque solo. Lo dice `deploy/README.md`.
 - **Workflows:** `check.yml` en cada subida (`pnpm check`); `deploy.yml` en `main` (imágenes, GHCR,
   aviso a ntfy). Las pruebas de punta a punta, con el compose, antes de cerrar el módulo.
-- **La máquina:** la misma VM de Oracle del proyecto anterior. Ferrebress toma los puertos 80 y 443
-  con su Caddy; antes del primer despliegue se apaga el proyecto anterior en esa máquina, porque
-  solo un programa puede tener esos puertos.
+- **La máquina:** la misma VM de Oracle del proyecto anterior. Antes del primer despliegue se
+  apaga y se desinstala en ella todo lo del proyecto anterior, también su producción: contenedores,
+  imágenes, volúmenes, servicios y su carpeta. Ferrebress queda solo en la máquina, con los puertos
+  80 y 443 para su Caddy. Lo hace `deploy/uninstall-previous.sh` (§ 17), que primero guarda una
+  copia de la base de producción del proyecto anterior fuera de la máquina.
 
 ## 15. Lo que decidió Carlos
 
-- **Los puertos:** Ferrebress se queda con el 80 y el 443; el proyecto anterior se apaga en la
-  máquina antes del primer despliegue (§ 14).
+- **La máquina:** se desinstala todo lo del proyecto anterior, también su producción, y Ferrebress
+  queda solo en ella (§ 14).
 - **La ciudad:** la base local, en un adaptador que se puede cambiar por un servicio externo sin
   tocar el resto (§ 8).
 - **Celular sin huella ante el QR:** se le pide vincularla en ese momento (R2.7, § 5).
@@ -490,6 +492,8 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
   el cliente web, agregar a «Orígenes de JavaScript autorizados»
   `https://ferrebress-pruebas.duckdns.org`. Mientras la pantalla de consentimiento siga en
   «Prueba», cada cuenta que entre tiene que estar en su lista de usuarios de prueba.
-- **La máquina:** apagar el proyecto anterior en la VM antes del primer despliegue (§ 14).
+- **La máquina:** correr `deploy/uninstall-previous.sh` en la VM (§ 14), que guarda la copia de la
+  base de producción del proyecto anterior y desinstala todo lo suyo; se lo prepara el agente con
+  los pasos.
 - **ntfy:** nada; el agente crea el canal con un nombre al azar y lo guarda como variable de GitHub
   y en la máquina.

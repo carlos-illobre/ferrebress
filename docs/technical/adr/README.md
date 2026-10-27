@@ -23,4 +23,4 @@ Cada tecnología elegida tiene su ADR, con las opciones, los pros, los contras y
 | [ADR-013](ADR-013-app-libraries.md) | Preact, Vite y CSS sin herramientas en la aplicación | Aceptado |
 | [ADR-014](ADR-014-hosting-and-deployment.md) | Dónde corre y cómo se despliega | Aceptado |
 | [ADR-015](ADR-015-sessions-not-jwt.md) | Sesiones propias guardadas en el servidor, no JWT | Aceptado |
-| [ADR-016](ADR-016-checks-before-pushing.md) | Qué controla `pnpm check` y con qué herramientas | Propuesto |
+| [ADR-016](ADR-016-checks-before-pushing.md) | Qué controla `pnpm check` y con qué herramientas | Aceptado |

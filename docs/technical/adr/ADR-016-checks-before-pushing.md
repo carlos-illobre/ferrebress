@@ -1,6 +1,6 @@
 # ADR-016: Qué controla `pnpm check` y con qué herramientas
 
-**Estado:** propuesto
+**Estado:** aceptado
 
 ## Contexto
 
