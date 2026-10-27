@@ -128,8 +128,9 @@
 
   // ---------- Lo que está encima: Esc lo cierra ----------
   var capas = [];
-  F.abrirCapa = function (cerrar) { capas.push(cerrar); };
-  F.cerrarCapa = function (cerrar) { var i = capas.indexOf(cerrar); if (i >= 0) capas.splice(i, 1); };
+  // body.con-capa: con algo abierto encima, Alt muestra solo las teclas de eso (00 · R2.10).
+  F.abrirCapa = function (cerrar) { capas.push(cerrar); body.classList.add("con-capa"); };
+  F.cerrarCapa = function (cerrar) { var i = capas.indexOf(cerrar); if (i >= 0) capas.splice(i, 1); body.classList.toggle("con-capa", capas.length > 0); };
   F.hayCapa = function () { return capas.length > 0; };
   F.cerrarArriba = function () { var c = capas.pop(); if (c) c(); return !!c; };
 

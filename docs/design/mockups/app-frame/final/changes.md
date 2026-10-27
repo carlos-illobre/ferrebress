@@ -1,11 +1,13 @@
 # El marco · maqueta final: qué cambió respecto de la variante 1 (Evolución)
 
 Base: `../variant-1-evolution/` (elegida por Carlos, 01-D13). La carpeta no depende de las otras
-variantes: tiene su copia de `shared.css`, `shared.js` y del isotipo (`isotype.svg`). Lo del
-director quedó sin tocar.
+variantes: tiene su copia de `shared.css`, `shared.js`, del isotipo (`isotype.svg`) y del
+logotipo de la entrada (`logo-on-light.png`, de `../../sign-in/adapted/`), y `extra-icons.js`
+con los dos íconos de Lucide que `common/icons.js` no tiene. Lo del director quedó sin tocar.
 
 Capturas: `screenshot.png` (computadora, menú agrandado), `screenshot-collapsed.png` (menú
-minimizado, con el nombre de Catálogo al pasar el mouse) y `screenshot-phone.png` (celular).
+minimizado, con el nombre de Catálogo al pasar el mouse), `screenshot-alt.png` (con Alt
+apretado: las teclas a la derecha) y `screenshot-phone.png` (celular).
 
 ## Por pedido de Carlos
 
@@ -14,11 +16,9 @@ minimizado, con el nombre de Catálogo al pasar el mouse) y `screenshot-phone.pn
    la computadora y en el celular. El área es la pantalla de la primera opción del menú: mientras
    no exista ningún módulo, queda vacía, con el fondo de la aplicación.
 2. **El menú se minimiza a solo íconos** (00 · R1.6, E03b), solo en la computadora:
-   - Un botón redondo arriba, montado sobre el borde del lateral a la altura del isotipo, lo
-     achica a 72 px y lo vuelve a agrandar. Está en el mismo lugar en los dos estados, así el menú
-     no salta; su flecha gira para decir hacia dónde va. Atajo **Alt E** (de «m**e**nú»: la M ya
-     es de Más), que se ve solo con Alt apretado, como los demás.
-   - Minimizado: el isotipo, los cinco íconos, la luz como un punto de color y la persona como sus
+   - Un botón lo achica y lo vuelve a agrandar (cómo es, en la segunda vuelta). Atajo **Alt E**
+     (de «m**e**nú»: la M ya es de Más), que se ve solo con Alt apretado, como los demás.
+   - Minimizado: la F, los cinco íconos, la luz como un punto de color y la persona como sus
      iniciales.
    - Cada ícono dice su nombre al pasar el mouse o al llegar con la marca del teclado, en un
      rótulo pino al costado (el mismo dibujo que el globo de «todavía no está»). Los que no
@@ -28,12 +28,43 @@ minimizado, con el nombre de Catálogo al pasar el mouse) y `screenshot-phone.pn
    - Las iniciales abren al costado la misma tarjeta de antes: nombre, rol y «Salir».
    - Más se abre como panel al costado, con sus seis opciones y «Pronto»; → lo abre y marca la
      primera, ← y Esc lo cierran.
-   - La animación: el fondo del lateral se achica (`scaleX`), el borde y el botón se corren
-     (`translateX`), la flecha gira y los nombres, «Pronto» y el pie se apagan (`opacity`), en
-     240 ms; al agrandar, al revés. El ancho de la columna cambia de golpe, cuando no se ve
+   - La animación: el fondo del lateral se achica (`scaleX`), el borde se corre (`translateX`) y
+     la palabra del logotipo, los nombres, «Pronto» y el pie se apagan (`opacity`), en 240 ms; al
+     agrandar, al revés. El ancho de la columna cambia de golpe, cuando no se ve
      (detrás está el área vacía), así que no se anima nada del diseño de la página. Con «reducir
      movimiento», cambia sin animación.
    - Cada vez que se abre la aplicación arranca agrandado: el estado no se guarda en ningún lado.
+
+## Segunda vuelta: lo que pidió Carlos al verla (2026-10-27)
+
+1. **«No me gusta ese ícono, buscá uno mejor.»** El círculo con «›» montado sobre el borde se
+   cambió por un renglón más del menú, al pie, arriba de la luz, con el mismo dibujo que las
+   opciones: agrandado dice «Minimizar» con el ícono **`panel-left-close`** de Lucide; minimizado
+   es solo el ícono **`panel-left-open`** (y su rótulo dice «Agrandar el menú»). Se eligieron
+   porque dibujan el propio lateral (el rectángulo con la columna de la izquierda) y la flecha
+   hacia donde va: se entiende qué se achica, no solo «hacia la izquierda», y es el mismo signo que
+   usan los editores y programas de oficina. Al pie queda en el mismo lugar en los dos estados,
+   así no salta nada al minimizar.
+2. **«El menú es demasiado ancho.»** Agrandado pasa de 280 a **216 px**: lo justo para
+   «Catálogo» con «Pronto» (el lateral deja 8 px a cada lado en vez de 12). Minimizado pasa de 72 a
+   **64 px**: el ícono de 48 con 8 px a cada lado. Los íconos quedan en la misma columna en los dos
+   estados. Lo que no entraba en 216 px:
+   - **Más se abre siempre como panel al costado** (el que ya tenía minimizado), porque sus
+     opciones con «Pronto» («Mejoras y errores», «Administración») no entran en el menú angosto.
+     Su flecha pasa a «›» (abre al costado) y → lo abre y marca la primera opción, ← y Esc lo
+     cierran, igual que minimizado. **A confirmar con Carlos** (ver la respuesta).
+   - **La luz puede ir en dos renglones** («En línea · todo / enviado»): el texto largo de la
+     computadora (00 · R3.2) no entra en uno.
+3. **«Al presionar Alt las teclas tienen que aparecer a la derecha.»** La tecla de cada opción,
+   de la luz, del botón de minimizar y de las iniciales aparece a 8 px a la derecha del botón,
+   afuera, sin tapar el ícono ni el texto, agrandado y minimizado; también en el panel de Más. En
+   «Salir» ya estaba a la derecha del texto. La × del panel de lo pendiente muestra su tecla a su
+   derecha y el botón crece hacia la izquierda. El celular no muestra teclas: nada cambia ahí.
+4. **«El logo es una letra F.»** Agrandado, el logotipo de la entrada, donde la F es la primera
+   letra de «Ferrebress» (`logo-on-light.png`, 36 px de alto); minimizado, solo la F
+   (`isotype.svg`). El isotipo va encima de la F del logotipo, del mismo tamaño, así al minimizar
+   se apaga la palabra y la F no se mueve. En el celular la cabecera decía también «F Ferrebress»:
+   se cambió por el mismo logotipo, para que diga lo mismo en los dos (00 · consistencia).
 
 ## Por las reglas aprobadas
 
@@ -46,17 +77,21 @@ minimizado, con el nombre de Catálogo al pasar el mouse) y `screenshot-phone.pn
   los textos que pidió sacar Carlos). Sin conexión lo dicen la luz y su panel; Salir sigue andando.
   Cuando haya pantallas, cada una pone gris lo que no puede andar.
 
+- **00 · R2.10:** con algo abierto encima (el panel de Más, la tarjeta, lo pendiente), Alt
+  muestra solo las teclas de eso, que son las únicas que valen; las del menú de atrás quedaban
+  asomando debajo del panel. `shared.js` pone `body.con-capa` mientras hay algo encima.
+
 ## Para llevarla al código (perfil de desarrollador frontend)
 
 - **Atajo de Ctrl B descartado:** el lenguaje visual dice «Plegable a 72 px (Ctrl B)», pero
   R2.8 pide Alt más una letra y sin pisar atajos del navegador (R2.11: Ctrl B es el de favoritos
   en Firefox). Se usó Alt E.
-- **Solo `transform` y `opacity`:** el lateral se separó en piezas (`.lado-fondo`, `.lado-linea`,
-  `.plegar`) para animarlo sin tocar el ancho. Las entradas al cargar usan `backwards` en vez de
+- **Solo `transform` y `opacity`:** el lateral se separó en piezas (`.lado-fondo`, `.lado-linea`)
+  para animarlo sin tocar el ancho. Las entradas al cargar usan `backwards` en vez de
   `both`, para que un `transform` que queda puesto no cambie dónde se ubican los paneles fijos que
   se abren dentro del lateral.
 - **Una clase por pieza:** `.plegar`, `.pronto-mini`, `.persona-mini`, `.persona-quien`,
-  `.panel-costado`, `.rotulo`, `.luz-texto`, `.pop-cerrar`, `.p-nav-parte`, `.grupo-opcion`,
+  `.panel-costado`, `.rotulo`, `.lado-logo`, `.lado-isotipo`, `.p-logo`, `.luz-texto`, `.pop-cerrar`, `.p-nav-parte`, `.grupo-opcion`,
   `.hoja-asa`; los anchos del menú en variables (`--lado-ancho`, `--lado-mini`). Se sacaron el
   estilo en línea del celular (`.pronto.vacio`) y los selectores por etiqueta.
 - **HTML semántico:** la tarjeta de la persona es una `section` con nombre; las opciones de Más en

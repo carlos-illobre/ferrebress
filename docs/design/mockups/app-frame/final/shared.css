@@ -16,6 +16,9 @@ body { overflow: hidden; }
 /* ---------- Teclas de atajo: solo mientras Alt está apretado (00 · R2.9) ---------- */
 .kbd { display: none; }
 body.alt .kbd { display: inline-flex; }
+/* Con algo abierto encima, solo valen (y se ven) las teclas de eso (00 · R2.10). */
+body.alt.con-capa .kbd { display: none; }
+body.alt.con-capa .capa-arriba .kbd { display: inline-flex; }
 @media (prefers-reduced-motion: no-preference) { body.alt .kbd { animation: f-kbd 120ms var(--curva); } }
 @keyframes f-kbd { from { opacity: 0; transform: scale(.8); } }
 

@@ -10,52 +10,55 @@
 <link rel="stylesheet" href="../../../common/common.css">
 <link rel="stylesheet" href="shared.css">
 <script src="../../../common/icons.js"></script>
+<script src="extra-icons.js"></script>
 <script src="../../../common/navigate.js" defer></script>
 <style>
   .p-only { display: none !important; }
 
   /* =================== Computadora =================== */
-  /* El ancho del menú vive en una variable: agrandado 280 px, minimizado 72 px (00 · R1.6). */
-  body { --lado-ancho: 280px; --lado-mini: 72px; }
+  /* El ancho del menú vive en una variable (00 · R1.6): agrandado, lo justo para «Catálogo» con
+     «Pronto» (216 px); minimizado, el ícono de 48 px con 8 px a cada lado (64 px). */
+  body { --lado-ancho: 216px; --lado-mini: 64px; }
   body.plegado { --lado-ancho: var(--lado-mini); }
   .vista { display: grid; grid-template-columns: var(--lado-ancho) 1fr; height: 100vh; }
 
   /* ---------- El lateral ---------- */
-  .lado { position: relative; z-index: 3; display: flex; flex-direction: column; gap: 2px; min-height: 0; padding: 20px 12px 16px; }
+  .lado { position: relative; z-index: 3; display: flex; flex-direction: column; gap: 2px; min-height: 0; padding: 20px 8px 16px; }
   /* El fondo y el borde son piezas aparte para poder animarlos con transform. */
   .lado-fondo { position: absolute; inset: 0; z-index: -1; background: var(--superficie); transform-origin: 0 50%; }
   .lado-linea { position: absolute; top: 0; bottom: 0; right: 0; width: 1px; background: var(--borde); }
 
-  .lado-marca { display: flex; align-items: center; gap: 10px; padding: 8px 8px 20px; }
-  .lado-marca img { width: 34px; height: 34px; }
-  .lado-marca b { font-size: 19px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; }
-
-  /* El botón para minimizar: arriba, montado sobre el borde del lateral */
-  .plegar { position: absolute; z-index: 2; top: 29px; right: -16px; width: 32px; height: 32px; padding: 0; display: grid; place-items: center; border: 1px solid var(--borde-fuerte); border-radius: 99px; background: var(--superficie); color: var(--texto-2); box-shadow: var(--sombra-1); cursor: pointer; transition: transform var(--t-micro) var(--curva); }
-  .plegar:hover { color: var(--tinta); }
-  .plegar:active { transform: scale(.94); }
-  .plegar .i { width: 18px; height: 18px; }
-  .plegar .kbd { position: absolute; }
-  body.alt .plegar > svg { opacity: 0; }
-  body.plegado .plegar > svg { transform: rotate(180deg); }
+  /* La marca: agrandado, el logotipo (la F es la primera letra de «Ferrebress», como en la
+     entrada); minimizado, solo la F. El isotipo va encima de la F del logotipo, del mismo tamaño,
+     así al minimizar se apaga la palabra y la F queda quieta. */
+  .lado-marca { position: relative; display: flex; align-items: center; height: 36px; margin: 4px 0 18px 8px; }
+  .lado-logo { display: block; height: 36px; width: auto; }
+  .lado-isotipo { position: absolute; left: -3.6px; top: -1.35px; width: 38.4px; height: 38.4px; }
 
   .menu, .sub { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .parte { position: relative; width: 100%; display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 10px 0 14px; border: 0; border-radius: var(--r); background: transparent; color: var(--texto-2); font-weight: 650; font-size: 15px; text-align: left; white-space: nowrap; cursor: default; transition: background var(--t-micro); }
   .parte .i { color: var(--texto-3); }
   .parte .nombre { flex: 1; }
-  /* Con Alt, la tecla aparece donde está el ícono: el renglón no se mueve. */
-  .parte .kbd, .luz .kbd { position: absolute; left: 10px; top: 50%; margin-top: -12px; }
-  body.alt .parte > svg:first-child, body.alt .luz .luz-punto, body.alt .parte .pronto-mini { opacity: 0; }
+  /* Con Alt, la tecla aparece a la derecha de cada botón, afuera: no tapa el ícono ni el texto
+     y el renglón no se mueve. */
+  .parte .kbd, .luz .kbd, .persona-mini .kbd { position: absolute; z-index: 5; left: calc(100% + 8px); top: 50%; margin-top: -12px; }
   .lado .marca-tecla { outline-offset: -3px; }
+
+  /* El botón para minimizar: un renglón más del menú, al pie, con el lateral y la flecha
+     (panel-left-close al minimizar, panel-left-open al agrandar). */
+  .plegar { cursor: pointer; }
+  .plegar:hover { color: var(--tinta); }
+  .plegar:hover .i { color: var(--texto-2); }
+  .plegar .plegar-abre, body.plegado .plegar .plegar-cierra { display: none; }
+  body.plegado .plegar .plegar-abre { display: block; }
   .parte.abre { cursor: pointer; color: var(--tinta); }
   .parte.abre .i { color: var(--texto-2); }
   .parte:hover { background: var(--fondo); }
-  .parte.mas .flecha { transition: transform var(--t) var(--curva); }
   .parte.mas[aria-expanded="true"] { background: var(--pino-suave); color: var(--pino); font-weight: 750; }
   .parte.mas[aria-expanded="true"] .i { color: var(--pino); }
-  .parte.mas[aria-expanded="true"] .flecha { transform: rotate(180deg); }
-  .parte.mas[aria-expanded="true"]::before { content: ""; position: absolute; left: -12px; top: 10px; bottom: 10px; width: 4px; border-radius: 0 4px 4px 0; background: var(--accion); }
-  .sub { margin: 4px 0 6px 18px; padding-left: 8px; border-left: 2px solid var(--borde); }
+  .parte.mas[aria-expanded="true"]::before { content: ""; position: absolute; left: -8px; top: 10px; bottom: 10px; width: 4px; border-radius: 0 4px 4px 0; background: var(--accion); }
+  /* Más se abre siempre como panel al costado: sus opciones con «Pronto» no entran en el menú angosto. */
+  .sub { margin: 0; width: 264px; padding: 8px; }
   .sub .parte { height: 40px; font-size: 14px; gap: 10px; }
   .sub .parte .i { width: 18px; height: 18px; }
   /* «Pronto» minimizado: una marca chica con el reloj, arriba a la derecha del ícono */
@@ -73,7 +76,8 @@
 
   /* ---------- El pie: la luz y la persona ---------- */
   .lado-pie { margin-top: auto; display: grid; gap: 8px; padding-top: 12px; }
-  .luz { position: relative; display: flex; align-items: center; gap: 8px; white-space: nowrap; width: 100%; height: 44px; padding: 0 12px; border-radius: var(--r); border: 0; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; text-align: left; transition: transform var(--t-micro) var(--curva); }
+  /* El texto largo de la luz puede ir en dos renglones en el menú angosto. */
+  .luz { position: relative; display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 6px 12px; line-height: 18px; border-radius: var(--r); border: 0; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; text-align: left; transition: transform var(--t-micro) var(--curva); }
   .luz:active { transform: scale(.98); }
   .luz .luz-texto { flex: 1; }
   body[data-net="offline"] .luz { background: var(--urgente-suave); color: var(--urgente-texto); }
@@ -86,26 +90,22 @@
   /* Minimizado, la persona es solo sus iniciales */
   .persona-mini { display: none; position: relative; width: 48px; height: 48px; padding: 0; border: 0; border-radius: var(--r); background: transparent; place-items: center; cursor: pointer; }
   .persona-mini:hover { background: var(--fondo); }
-  .persona-mini .kbd { position: absolute; left: 12px; top: 12px; }
-  body.alt .persona-mini .avatar { opacity: 0; }
   .persona-mini[aria-expanded="true"] { background: var(--pino-suave); }
 
-  /* ---------- Minimizado: 72 px, solo íconos (00 · R1.6) ---------- */
-  body.plegado .lado-marca b,
+  /* ---------- Minimizado: 64 px, solo íconos (00 · R1.6) ---------- */
   body.plegado .menu > li > .parte .flecha,
   body.plegado .luz .luz-texto, body.plegado .luz > svg:last-child { display: none; }
-  body.plegado .menu > li > .parte { width: 48px; padding: 0 14px; }
-  body.plegado .menu > li > .parte .nombre,
+  body.plegado .menu > li > .parte, body.plegado .plegar { width: 48px; padding: 0 14px; }
+  body.plegado .lado-logo,
+  body.plegado .menu > li > .parte .nombre, body.plegado .plegar .nombre,
   body.plegado .menu > li > .parte .pronto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   body.plegado .menu > li > .parte .pronto-mini { display: grid; }
   body.plegado .luz { width: 48px; padding: 0; justify-content: center; }
-  body.plegado .luz .kbd, body.plegado .parte .kbd { left: 12px; }
   body.plegado .persona-mini { display: grid; }
   body.plegado .persona { display: none; }
-  /* Minimizado, Más y la persona se abren como paneles al costado */
-  .panel-costado { position: fixed; z-index: 30; left: calc(var(--lado-mini) + 8px); background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-3); }
-  body.plegado .sub { margin: 0; width: 264px; padding: 8px; }
-  body.plegado .persona.abierta { display: grid; bottom: 16px; width: 264px; }
+  /* Más (siempre) y la persona minimizada se abren como paneles al costado */
+  .panel-costado { position: fixed; z-index: 30; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-3); }
+  body.plegado .persona.abierta { display: grid; bottom: 16px; left: calc(var(--lado-mini) + 8px); width: 264px; }
   @media (prefers-reduced-motion: no-preference) {
     .panel-costado:not([hidden]) { animation: entra-costado var(--t) var(--curva) both; }
   }
@@ -117,26 +117,22 @@
   .vista.anima .lado { pointer-events: none; }
   @media (prefers-reduced-motion: no-preference) {
     body.cierra .lado-fondo { animation: fondo-cierra 240ms var(--curva) forwards; }
-    body.cierra .lado-linea, body.cierra .plegar { animation: corre-cierra 240ms var(--curva) forwards; }
-    body.cierra .plegar > svg { animation: gira-cierra 240ms var(--curva) forwards; }
-    body.cierra .lado-marca b, body.cierra .menu > li > .parte .nombre, body.cierra .menu > li > .parte .pronto,
+    body.cierra .lado-linea { animation: corre-cierra 240ms var(--curva) forwards; }
+    body.cierra .lado-logo, body.cierra .menu > li > .parte .nombre, body.cierra .menu > li > .parte .pronto,
     body.cierra .menu > li > .parte .flecha, body.cierra .lado-pie { animation: se-apaga 120ms var(--curva-salida) forwards; }
 
     body.abre .lado-fondo { animation: fondo-abre 240ms var(--curva) both; }
-    body.abre .lado-linea, body.abre .plegar { animation: corre-abre 240ms var(--curva) both; }
-    body.abre .plegar > svg { animation: gira-abre 240ms var(--curva) both; }
-    body.abre .lado-marca b, body.abre .menu > li > .parte .nombre, body.abre .menu > li > .parte .pronto,
+    body.abre .lado-linea { animation: corre-abre 240ms var(--curva) both; }
+    body.abre .lado-logo, body.abre .menu > li > .parte .nombre, body.abre .menu > li > .parte .pronto,
     body.abre .menu > li > .parte .flecha, body.abre .lado-pie { animation: se-enciende 160ms var(--curva) 100ms both; }
 
     body.plegado .pronto-mini, body.plegado .lado-pie { animation: se-enciende 160ms var(--curva) both; }
   }
-  /* 72 / 280 = .2571; 280 − 72 = 208 px */
-  @keyframes fondo-cierra { to { transform: scaleX(.2571); } }
-  @keyframes fondo-abre { from { transform: scaleX(.2571); } }
-  @keyframes corre-cierra { to { transform: translateX(-208px); } }
-  @keyframes corre-abre { from { transform: translateX(-208px); } }
-  @keyframes gira-cierra { to { transform: rotate(180deg); } }
-  @keyframes gira-abre { from { transform: rotate(180deg); } }
+  /* 64 / 216 = .2963; 216 − 64 = 152 px */
+  @keyframes fondo-cierra { to { transform: scaleX(.2963); } }
+  @keyframes fondo-abre { from { transform: scaleX(.2963); } }
+  @keyframes corre-cierra { to { transform: translateX(-152px); } }
+  @keyframes corre-abre { from { transform: translateX(-152px); } }
   @keyframes se-apaga { to { opacity: 0; } }
   @keyframes se-enciende { from { opacity: 0; } }
 
@@ -158,9 +154,9 @@
 
   /* ---------- Lo pendiente: un panel que sale de la luz ---------- */
   .pop { position: fixed; z-index: 30; bottom: 24px; width: 440px; padding: 16px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-3); transform-origin: 0 100%; }
-  .pop-cerrar { position: absolute; top: 12px; right: 12px; }
-  .pop-cerrar .kbd { position: absolute; }
-  body.alt .pop-cerrar > svg { opacity: 0; }
+  .pop-cerrar { position: absolute; top: 12px; right: 12px; gap: 6px; }
+  /* Con Alt, la tecla va a la derecha de la ×: el botón crece hacia la izquierda. */
+  body.alt .pop-cerrar { width: auto; padding: 0 6px 0 8px; }
   @media (prefers-reduced-motion: no-preference) { .pop:not([hidden]) { animation: pop-in 220ms var(--curva) both; } }
   @keyframes pop-in { from { opacity: 0; transform: scale(.94) translateX(-8px); } }
 
@@ -171,8 +167,7 @@
     body { --tostada-abajo: 108px; --nav-alto: 92px; }
     .vista { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
     .p-cab { display: flex !important; align-items: center; gap: 12px; padding: 40px 16px 0; }
-    .p-cab img { width: 32px; height: 32px; }
-    .p-cab .t-titulo { flex: 1; }
+    .p-logo { height: 28px; width: auto; margin-right: auto; }
     .p-avatar { border: 0; padding: 0; background: none; }
     .p-luz { display: flex !important; align-items: center; gap: 8px; margin: 8px 16px 0; height: 36px; padding: 0 12px; align-self: flex-start; border: 0; border-radius: 999px; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; }
     body[data-net="offline"] .p-luz { background: var(--urgente-suave); color: var(--urgente-texto); }
@@ -223,8 +218,7 @@
   <nav class="lado d-only" id="lado" aria-label="Menú" data-no-ir>
     <div class="lado-fondo" aria-hidden="true"></div>
     <div class="lado-linea" aria-hidden="true"></div>
-    <div class="lado-marca"><img src="isotype.svg" alt=""><b>Ferrebress</b></div>
-    <button type="button" class="plegar" id="plegar" data-key="e" aria-controls="lado" aria-expanded="true" aria-label="Minimizar el menú"><i class="i" data-i="chevron-left"></i><span class="kbd">E</span></button>
+    <div class="lado-marca"><img class="lado-logo" src="logo-on-light.png" alt="Ferrebress" width="144" height="36"><img class="lado-isotipo" src="isotype.svg" alt=""></div>
 
     <ul class="menu" id="menu">
       <li><button type="button" class="parte" data-nav data-key="v" data-nombre="Vender"><i class="i" data-i="shopping-cart"></i><span class="nombre">Vender</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">V</span></button></li>
@@ -232,7 +226,7 @@
       <li><button type="button" class="parte" data-nav data-key="p" data-nombre="Depósito"><i class="i" data-i="package"></i><span class="nombre">Depósito</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">P</span></button></li>
       <li><button type="button" class="parte" data-nav data-key="n" data-nombre="Negocio"><i class="i" data-i="chart-column"></i><span class="nombre">Negocio</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">N</span></button></li>
       <li>
-        <button type="button" class="parte abre mas" id="mas" data-nav data-key="m" aria-expanded="false" aria-controls="sub"><i class="i" data-i="ellipsis"></i><span class="nombre">Más</span><span class="kbd">M</span><i class="i i-s flecha" data-i="chevron-down"></i></button>
+        <button type="button" class="parte abre mas" id="mas" data-nav data-key="m" aria-expanded="false" aria-controls="sub"><i class="i" data-i="ellipsis"></i><span class="nombre">Más</span><span class="kbd">M</span><i class="i i-s flecha" data-i="chevron-right"></i></button>
         <ul class="sub" id="sub" hidden aria-label="Más">
           <li><button type="button" class="parte" data-nav data-key="a" data-nombre="Anomalías"><i class="i" data-i="triangle-alert"></i><span class="nombre">Anomalías</span><span class="pronto">Pronto</span><span class="kbd">A</span></button></li>
           <li><button type="button" class="parte" data-nav data-key="r" data-nombre="Procesos"><i class="i" data-i="workflow"></i><span class="nombre">Procesos</span><span class="pronto">Pronto</span><span class="kbd">R</span></button></li>
@@ -245,6 +239,7 @@
     </ul>
 
     <div class="lado-pie">
+      <button type="button" class="parte plegar" id="plegar" data-nav data-key="e" aria-controls="lado" aria-expanded="true" aria-label="Minimizar el menú"><i class="i plegar-cierra" data-i="panel-left-close"></i><i class="i plegar-abre" data-i="panel-left-open"></i><span class="nombre" aria-hidden="true">Minimizar</span><span class="kbd">E</span></button>
       <button type="button" class="luz" id="luz" data-nav data-key="z" aria-haspopup="dialog"><span class="luz-punto"></span><span class="luz-texto" data-luz></span><span class="kbd">Z</span><i class="i i-s" data-i="chevron-right"></i></button>
       <button type="button" class="persona-mini" id="persona-mini" data-nav data-key="s" aria-haspopup="dialog" aria-expanded="false" aria-controls="persona" aria-label="Rubén Paredes, Administrador"><span class="avatar">RP</span><span class="kbd">S</span></button>
       <section class="persona" id="persona" aria-label="Tu sesión">
@@ -256,8 +251,7 @@
 
   <!-- ======== Celular: la cabecera ======== -->
   <header class="p-cab p-only">
-    <img src="isotype.svg" alt="">
-    <span class="t-titulo">Ferrebress</span>
+    <img class="p-logo" src="logo-on-light.png" alt="Ferrebress" width="112" height="28">
     <button type="button" class="p-avatar" id="p-avatar" aria-label="Rubén Paredes · Más"><span class="avatar">RP</span></button>
   </header>
   <button type="button" class="p-luz p-only" id="p-luz"><span class="luz-punto"></span><span data-luz></span><i class="i i-s" data-i="chevron-right"></i></button>
@@ -336,30 +330,30 @@
   function ocultarRotulo() { rotulo.hidden = true; }
   function llevaRotulo(el) {
     if (!el || !lado.contains(el)) return false;
-    if (el === plegarBtn) return true;
     return plegado() && !sub.contains(el) && !persona.contains(el);
   }
-  lado.querySelectorAll("[data-nav], .plegar").forEach(function (el) {
+  lado.querySelectorAll("[data-nav]").forEach(function (el) {
     el.addEventListener("pointerenter", function (e) { if (e.pointerType !== "touch" && llevaRotulo(el)) mostrarRotulo(el); });
     el.addEventListener("pointerleave", ocultarRotulo);
   });
   M.alMarcar(function (el) { if (llevaRotulo(el)) mostrarRotulo(el); else ocultarRotulo(); });
 
-  // ---------- Más: agrandado se despliega en el lateral; minimizado, como panel al costado ----------
+  // ---------- Más: un panel al costado del lateral, agrandado o minimizado ----------
   function cerrarMasCapa() { abrirMas(false); }
   function abrirMas(abrir) {
     if (abrir === undefined) abrir = sub.hidden;
     if (abrir === !sub.hidden) return;
     sub.hidden = !abrir;
     mas.setAttribute("aria-expanded", String(abrir));
-    if (plegado() && abrir) {
+    if (abrir) {
       ocultarRotulo();
       sub.classList.add("panel-costado", "capa-arriba");
+      sub.style.left = alCostado(mas) + "px";
       sub.style.top = mas.getBoundingClientRect().top + "px";
       M.abrirCapa(cerrarMasCapa);
     } else if (!abrir) {
       sub.classList.remove("panel-costado", "capa-arriba");
-      sub.style.top = "";
+      sub.style.top = ""; sub.style.left = "";
       M.cerrarCapa(cerrarMasCapa);
       if (sub.contains(M.marcado)) M.marcar(mas);
     }
@@ -413,7 +407,7 @@
   document.addEventListener("click", function (e) {
     if (e.target.closest(".demo")) return;
     if (!pop.hidden && !pop.contains(e.target) && !$("luz").contains(e.target)) cerrarPop();
-    if (plegado() && !sub.hidden && !sub.contains(e.target) && !mas.contains(e.target)) abrirMas(false);
+    if (!sub.hidden && !sub.contains(e.target) && !mas.contains(e.target)) abrirMas(false);
     if (persona.classList.contains("abierta") && !persona.contains(e.target) && !personaMini.contains(e.target)) cerrarPersona();
   });
 
@@ -431,7 +425,7 @@
     function listo() {
       animando = false; vista.classList.remove("anima");
       if (M.marcado && llevaRotulo(M.marcado)) mostrarRotulo(M.marcado);
-      if (plegarBtn.matches(":hover")) mostrarRotulo(plegarBtn);
+      if (plegarBtn.matches(":hover") && llevaRotulo(plegarBtn)) mostrarRotulo(plegarBtn);
     }
     if (M.reducido) { body.classList.toggle("plegado", si); listo(); return; }
     animando = true; vista.classList.add("anima");
@@ -456,10 +450,10 @@
       M.marcar(lista[(i + (e.key === "ArrowDown" ? 1 : -1) + lista.length) % lista.length]);
     } else if (e.key === "ArrowRight" && M.marcado === mas && sub.hidden) {
       e.preventDefault(); abrirMas(true);
-      if (plegado()) M.marcar(sub.querySelector("[data-nav]"));
+      M.marcar(sub.querySelector("[data-nav]"));
     } else if (e.key === "ArrowLeft" && M.marcado) {
       e.preventDefault();
-      if (sub.contains(M.marcado)) { if (plegado()) abrirMas(false); else M.marcar(mas); }
+      if (sub.contains(M.marcado)) abrirMas(false);
       else if (M.marcado === mas && !sub.hidden) abrirMas(false);
       else if (persona.contains(M.marcado)) cerrarPersona();
     } else if (e.key === "Enter" && M.marcado) {
