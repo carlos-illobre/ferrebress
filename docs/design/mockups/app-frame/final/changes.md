@@ -1,9 +1,9 @@
 # El marco · maqueta final: en qué se diferencia de la variante 1 del director
 
 Base: `../variant-1-evolution/`. Esta carpeta no depende de las otras variantes: tiene su copia de
-`shared.css`, `shared.js`, el isotipo (`isotype.svg`), el logotipo (`logo-on-light.png`) y
-`extra-icons.js` con los dos íconos de Lucide que `common/icons.js` no
-tiene.
+`shared.css`, `shared.js` y `extra-icons.js` con los dos íconos de Lucide que `common/icons.js` no
+tiene. El logotipo y el isotipo no son copias: son los de `common/brand/`, el único juego para
+todas las maquetas.
 
 Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
 `screenshot-alt.png` y `screenshot-alt-collapsed.png` (con Alt apretado) y `screenshot-phone.png`.
@@ -12,11 +12,11 @@ Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
 
 - **El área de trabajo está vacía:** es la pantalla de la primera opción del menú, que todavía no
   existe. Sin dibujo, sin bienvenida y sin textos, en la computadora y en el celular.
-- **El logotipo:** agrandado, el de la entrada, donde la F es la primera letra de «Ferrebress»,
-  pero con «errebress» más pegado a la F (18 px menos en el original de 208 px de alto, unos 3 px
-  en pantalla), para que se lea como una sola palabra; el mismo en la cabecera del celular.
-  Minimizado, solo la F, en el mismo lugar. El archivo de esta carpeta ya no es igual al de la
-  entrada: si se toma este, la entrada lo tendría que usar también.
+- **El logotipo se ve igual en toda la aplicación:** es `common/brand/logo-on-light.png`, el mismo
+  de la entrada, donde la F es la primera letra de «Ferrebress» y «errebress» va pegado a la F
+  (18 px menos que en el del director, en el original de 208 px de alto, unos 3 px en pantalla),
+  para que se lea como una sola palabra; el mismo en la cabecera del celular. Minimizado, solo la
+  F (`common/brand/isotype.svg`), en el mismo lugar.
 - **El menú, más angosto:** 216 px agrandado (lo justo para «Catálogo» con «Pronto») y 64 px
   minimizado.
 - **El botón para minimizar el menú** (solo en la computadora) es un ícono solo, a la derecha del
@@ -30,10 +30,15 @@ Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
 - **La opción abierta** (al entrar, Vender, la primera del menú) va con fondo verde claro,
   bordes redondeados y el nombre y el ícono en verde oscuro, como en la imagen de Carlos:
   `--pino-suave` y `--pino`, los colores exactos de su imagen, que ya están en la paleta (y son los
-  de Más abierto y los que pide el lenguaje visual para la elegida). No lleva la raya naranja que
-  dice el lenguaje visual, porque la imagen no la tiene. «Pronto» sigue a su derecha. Minimizado,
-  el mismo fondo detrás del ícono; al minimizar se achica junto con el lateral. En el celular el
-  menú de abajo no marca Vender.
+  de Más abierto y los que pide el lenguaje visual para la elegida). No lleva raya naranja,
+  porque la imagen no la tiene. «Pronto» sigue a su derecha. Minimizado,
+  el mismo fondo detrás del ícono; al minimizar se achica junto con el lateral.
+- **En el menú de abajo del celular, la opción abierta** (Vender) va con el ícono y el nombre en
+  naranja (`--accion`) y en negrita, sin fondo, y las demás en gris oscuro (`--texto-2`), como en
+  la imagen de Carlos; no lleva la raya naranja de arriba de la variante del director, porque
+  la imagen no la tiene. No usa el verde claro de la computadora: Carlos pidió que quede como en su
+  imagen. «Pronto» sigue debajo, como estaba. Con la hoja de Más abierta, la naranja es Más y
+  Vender vuelve a gris, para que haya una sola elegida.
 - **Minimizado:** los cinco íconos, la luz como un punto de color y la persona como sus iniciales,
   que abren la misma tarjeta con «Salir». Cada ícono dice su nombre en un rótulo; «Pronto» es un
   reloj chico sobre el ícono.
@@ -63,7 +68,8 @@ Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
 
 - El lateral está separado en piezas (`.lado-fondo`, `.lado-linea`) para animarlo sin tocar el
   ancho; el fondo de la opción abierta es su `::after`, por lo mismo.
-- La opción abierta se marca con `aria-current="page"`, que es también lo que la pinta.
+- La opción abierta se marca con `aria-current="page"`, que es también lo que la pinta, en el
+  lateral y en el menú de abajo; con Más abierto, el menú de abajo lleva `.mas-abierto`.
 - Una clase por pieza (`.plegar`, `.pronto-mini`, `.persona-mini`, `.panel-costado`, `.rotulo`,
   `.lado-logo`, `.lado-isotipo`…) y los anchos del menú en variables (`--lado-ancho`,
   `--lado-mini`). Sin estilos en línea ni selectores por etiqueta.

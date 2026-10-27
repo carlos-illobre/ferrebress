@@ -255,7 +255,7 @@ body[data-state="intentos"] #notice { display: flex; }
   .qr { position: relative; width: calc(200 * var(--u)); height: calc(200 * var(--u)); padding: calc(12 * var(--u)); border-radius: 16px; background: #fff; box-shadow: 0 4px 16px rgb(0 0 0 / 0.08), 0 0 0 1px #e3e8e4; overflow: hidden; transition: opacity 300ms, filter 300ms; }
   .qr > svg { display: block; width: 100%; height: 100%; transition: opacity 260ms var(--sale), transform 260ms var(--sale); }
   .qr > svg.swap { opacity: 0; transform: scale(0.94); }
-  .qr-logo { position: absolute; left: 50%; top: 50%; width: 22%; aspect-ratio: 1; transform: translate(-50%, -50%); padding: 3px; border-radius: 8px; background: #fff url("isotype.svg") center / 86% no-repeat; }
+  .qr-logo { position: absolute; left: 50%; top: 50%; width: 22%; aspect-ratio: 1; transform: translate(-50%, -50%); padding: 3px; border-radius: 8px; background: #fff url("../../../common/brand/isotype.svg") center / 86% no-repeat; }
   .qr-read { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: rgb(255 255 255 / 0.94); color: var(--verde); font-size: 15px; opacity: 0; transform: scale(1.04); transition: opacity 240ms var(--curva), transform 240ms var(--curva); pointer-events: none; }
   .qr-read svg { width: 32px; height: 32px; color: var(--naranja); margin-bottom: 4px; }
   .qr-read small { font-size: 14px; color: var(--texto-2); }
@@ -340,7 +340,7 @@ body[data-state="intentos"] #notice { display: flex; }
   body[data-state="sin-conexion"] .status-net::before { content: "!"; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 2px solid currentColor; font-size: 12px; font-weight: 800; }
 
   .brand { order: 1; display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center; padding-top: 28px; }
-  .brand-logo img { width: 252px; height: auto; margin-bottom: 12px; }
+  .brand-logo img { width: 246px; height: auto; margin-bottom: 12px; }
   .brand-motto { font-size: 19px; line-height: 1.32; color: var(--texto-2); }
 
   .right { order: 2; display: flex; flex-direction: column; }

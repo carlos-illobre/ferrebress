@@ -6,8 +6,11 @@ computadora y en el celular. Solo cambia si el director de arte propone algo sup
 elige; en ese caso se cambia acá, con el número de la decisión.
 
 En [common/](common/): `common.css` (las variables y las piezas, la fuente de verdad de los
-valores), `icons.js` y `icons/`, las fuentes, las fotos de producto, `sample.png` (todo aplicado)
-y `desktop-frame.html` / `phone-frame.html` (el marco de la aplicación).
+valores), `icons.js` y `icons/`, las fuentes, las fotos de producto, `sample.png` (todo aplicado),
+`desktop-frame.html` / `phone-frame.html` (el marco de la aplicación) y `brand/`, el único juego
+del logotipo para todas las pantallas: `logo-on-light.png` (sobre fondo claro),
+`logo-on-dark.png` (sobre fondo oscuro), con «errebress» pegado a la F para que se lea como una
+sola palabra, e `isotype.svg` (la F sola, para el menú minimizado y el centro del QR).
 
 El ambiente de pruebas se distingue con un marco magenta y un cartel, que no siguen este lenguaje y
 solo aparecen en pruebas.
@@ -176,8 +179,9 @@ Entrar va fuera del marco, a pantalla completa. Cada parte abre en su primera pe
   espejo», gris «Desconectado», contorno «Vincular»); debajo, una línea con la conexión.
 - Pestañas como segmentos de 44 px (`.celu-pestanas`).
 - La acción principal, fija abajo en `.barra-accion` (blanca translúcida), justo arriba del menú.
-- Menú de abajo (`.nav-inferior`, 76 px): las cinco partes; la elegida en naranja con su raya
-  arriba (como en las referencias de Carlos); insignia en Vender.
+- Menú de abajo (`.nav-inferior`, 76 px): las cinco partes, con el ícono y el nombre en
+  `--texto-2`; la elegida, con el ícono y el nombre en `--accion` (naranja) y en negrita, sin
+  fondo ni raya. Con Más abierto, la elegida es Más. Insignia en Vender.
 - La cámara y los modos de una sola tarea (escanear, contar) pueden tapar el marco a pantalla
   completa, con una × arriba a la izquierda para volver.
 

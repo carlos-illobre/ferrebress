@@ -201,14 +201,16 @@
     body[data-net="sending"] .p-luz { background: var(--pino-suave); color: var(--pino-texto); }
     .area { flex: 1; }
     .p-nav { display: grid !important; flex: none; grid-template-columns: repeat(5, 1fr); height: 92px; padding: 4px 4px 14px; background: var(--superficie); border-top: 1px solid var(--borde); }
-    .p-nav-parte { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; border: 0; background: none; color: var(--texto-3); font-size: 14px; font-weight: 650; padding: 0; cursor: default; }
+    .p-nav-parte { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; border: 0; background: none; color: var(--texto-2); font-size: 14px; font-weight: 650; padding: 0; cursor: default; }
     .p-nav-parte .i { width: 26px; height: 26px; }
     .p-nav-parte .pronto { height: auto; padding: 0; background: none; color: var(--texto-3); font-size: 14px; line-height: 16px; font-weight: 700; }
     .p-nav-parte .pronto.vacio { visibility: hidden; }
     .p-nav-parte .lbl { line-height: 18px; }
-    .p-nav-parte.abre { color: var(--texto-2); cursor: pointer; }
-    .p-nav-parte.activo { color: var(--accion); font-weight: 800; }
-    .p-nav-parte.activo::before { content: ""; position: absolute; top: 0; left: 18%; right: 18%; height: 4px; border-radius: 0 0 4px 4px; background: var(--accion); }
+    .p-nav-parte.abre { cursor: pointer; }
+    /* La elegida: ícono y nombre en naranja, sin fondo ni raya (la imagen de Carlos) */
+    .p-nav-parte[aria-current="page"], .p-nav-parte.activo { color: var(--accion); font-weight: 800; }
+    /* Con Más abierto, la elegida es Más: una sola en naranja */
+    .p-nav.mas-abierto .p-nav-parte[aria-current="page"] { color: var(--texto-2); font-weight: 650; }
     .p-nav-parte .ico-mov { display: inline-block; }
   }
 
@@ -245,7 +247,7 @@
   <nav class="lado d-only" id="lado" aria-label="Menú" data-no-ir>
     <div class="lado-fondo" aria-hidden="true"></div>
     <div class="lado-linea" aria-hidden="true"></div>
-    <div class="lado-marca"><img class="lado-logo" src="logo-on-light.png" alt="Ferrebress" width="141" height="36"><img class="lado-isotipo" src="isotype.svg" alt="">
+    <div class="lado-marca"><img class="lado-logo" src="../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><img class="lado-isotipo" src="../../../common/brand/isotype.svg" alt="">
       <button type="button" class="plegar" id="plegar" data-nav data-key="e" aria-controls="lado" aria-expanded="true" aria-label="Minimizar el menú"><i class="i plegar-cierra" data-i="panel-left-close"></i><i class="i plegar-abre" data-i="panel-left-open"></i><span class="kbd">E</span></button>
     </div>
 
@@ -279,7 +281,7 @@
 
   <!-- ======== Celular: la cabecera ======== -->
   <header class="p-cab p-only">
-    <img class="p-logo" src="logo-on-light.png" alt="Ferrebress" width="109" height="28">
+    <img class="p-logo" src="../../../common/brand/logo-on-light.png" alt="Ferrebress" width="109" height="28">
     <button type="button" class="p-avatar" id="p-avatar" aria-label="Rubén Paredes · Más"><span class="avatar">RP</span></button>
   </header>
   <button type="button" class="p-luz p-only" id="p-luz"><span class="luz-punto"></span><span data-luz></span><i class="i i-s" data-i="chevron-right"></i></button>
@@ -289,7 +291,7 @@
 
   <!-- ======== Celular: el menú de abajo ======== -->
   <nav class="p-nav p-only" aria-label="Menú" data-no-ir>
-    <button type="button" class="p-nav-parte" data-p="Vender"><span class="ico-mov"><i class="i" data-i="shopping-cart"></i></span><span class="lbl">Vender</span><span class="pronto">Pronto</span></button>
+    <button type="button" class="p-nav-parte" data-p="Vender" aria-current="page"><span class="ico-mov"><i class="i" data-i="shopping-cart"></i></span><span class="lbl">Vender</span><span class="pronto">Pronto</span></button>
     <button type="button" class="p-nav-parte" data-p="Catálogo"><span class="ico-mov"><i class="i" data-i="tags"></i></span><span class="lbl">Catálogo</span><span class="pronto">Pronto</span></button>
     <button type="button" class="p-nav-parte" data-p="Depósito"><span class="ico-mov"><i class="i" data-i="package"></i></span><span class="lbl">Depósito</span><span class="pronto">Pronto</span></button>
     <button type="button" class="p-nav-parte" data-p="Negocio"><span class="ico-mov"><i class="i" data-i="chart-column"></i></span><span class="lbl">Negocio</span><span class="pronto">Pronto</span></button>
@@ -495,13 +497,13 @@
   function abrirHoja(h) {
     cerrarHoja();
     abierta = h; h.hidden = false; fondo.hidden = false; h.classList.add("capa-arriba");
-    if (h.id === "hoja-mas") $("p-mas").classList.add("activo");
+    if (h.id === "hoja-mas") { $("p-mas").classList.add("activo"); $("p-mas").parentNode.classList.add("mas-abierto"); }
     M.abrirCapa(cerrarHoja);
   }
   function cerrarHoja() {
     if (!abierta) return;
     abierta.hidden = true; abierta.classList.remove("capa-arriba"); fondo.hidden = true;
-    $("p-mas").classList.remove("activo"); abierta = null; M.cerrarCapa(cerrarHoja);
+    $("p-mas").classList.remove("activo"); $("p-mas").parentNode.classList.remove("mas-abierto"); abierta = null; M.cerrarCapa(cerrarHoja);
   }
   fondo.addEventListener("click", cerrarHoja);
   $("p-mas").addEventListener("click", function () { abierta && abierta.id === "hoja-mas" ? cerrarHoja() : abrirHoja($("hoja-mas")); });
