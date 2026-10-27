@@ -105,7 +105,7 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 
 ## 7. La entrada
 
-- **R7.1** Se ve como la de la primera versión, en una sola pantalla que se adapta al
+- **R7.1** Se ve como su maqueta aprobada (`docs/design/mockups/sign-in/adapted/`), en una sola pantalla que se adapta al
   ancho. En el celular también está «Entrar con Google».
 - **R7.2** «Ver el manual» aparece recién cuando exista el manual.
 
@@ -217,7 +217,7 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 ### La entrada
 
 - **E38** **Dado** la entrada, **cuando** se abre en la computadora y en el celular, **entonces** se ve
-  como la de la primera versión, con «Entrar con Google» en los dos.
+  como su maqueta aprobada, con «Entrar con Google» en los dos.
 - **E39** **Dado** que todavía no existe el manual, **cuando** se mira la entrada, **entonces** no hay
   «Ver el manual».
 

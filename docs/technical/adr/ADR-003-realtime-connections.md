@@ -6,8 +6,8 @@
 
 Hay cosas que tienen que llegar sin que la persona pida nada: que hay una versión nueva, que la
 sesión se cerró, que el celular leyó un código, que la otra pantalla cambió. Cada una tiene un
-equilibrio distinto entre tiempo real y consumo. La primera versión las resolvió una por una y llegó
-a un diseño parecido a este, pero repartido en varios servicios.
+equilibrio distinto entre tiempo real y consumo. Resolverlas una por una lleva a
+mecanismos distintos para lo mismo y a consultas que gastan datos sin necesidad.
 
 Carlos quiere minimizar el consumo de datos y la carga del servidor, y poder sumar más casos en
 el futuro sin rediseñar.

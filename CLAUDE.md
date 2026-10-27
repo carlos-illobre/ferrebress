@@ -38,9 +38,9 @@ secundario.**
   requerimiento: casos, bordes, errores y permisos, todas juntas y en tandas hasta que no quede
   nada sin respuesta.
 - **Las pantallas salen del director de arte**, siempre tres versiones para que Carlos elija. La
-  referencia actual es la v2, salvo la entrada, que se ve como la de la primera versión.
-- **La primera versión (`ferre`) se usa solo para leer** y se va a borrar: la documentación no la
-  nombra, salvo la [guía de migración](docs/project/migration-from-ferre.md), que dice cómo
+  referencia de partida son las maquetas v2 de `docs/design/mockups/`.
+- **El proyecto anterior (`ferre`) se usa solo para leer** y se va a borrar: la documentación no
+  lo nombra, salvo la [guía de migración](docs/project/migration-from-ferre.md), que dice cómo
   usarla. Todo lo de ahí se puede cuestionar y mejorar, y lo que se toma se confirma con Carlos.
 - **El orden de autoridad:** reglas, maquetas, diseño técnico, pruebas y código. Las pruebas se
   escriben antes que el código y no se cambian para que el código pase.

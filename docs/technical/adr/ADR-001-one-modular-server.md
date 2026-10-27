@@ -4,10 +4,10 @@
 
 ## Contexto
 
-La primera versión terminó con el backend partido en seis servicios: Comercial, Acceso, Tickets, Auditoría, Procesos y
-la lectura de listas (en Python), con una puerta que reparte por ruta y una base por servicio.
-Para una ferretería con tres personas, una sola máquina y una persona que decide, eso trajo
-costos sin beneficio visible en el mostrador:
+El sistema tiene varias funcionalidades bastante independientes: ventas, catálogo, acceso,
+auditoría, mejoras y errores, procesos, la lectura de listas. Podrían ser servicios separados, cada
+uno con su base y una puerta que reparte por ruta. Para una ferretería con tres personas, una sola
+máquina y una persona que decide, eso traería costos sin beneficio visible en el mostrador:
 
 - Un despliegue con una clave de base por servicio y un orden de subida que coordinar.
 - La identidad viajando en cabeceras con un token compartido, y si Acceso se cae, se cae todo.

@@ -1,21 +1,21 @@
-# Guía de migración desde la primera versión
+# Guía de migración desde el proyecto anterior
 
-**Este archivo se borra cuando Ferrebress esté terminado,** junto con la primera versión. Es el
+**Este archivo se borra cuando Ferrebress esté terminado,** junto con el proyecto anterior. Es el
 único documento que la nombra (decisión 31): el resto de la documentación se entiende sin ella.
 
-La primera versión está en el repositorio [`ferre`](https://github.com/carlos-illobre/ferre). Se
+El proyecto anterior está en el repositorio [`ferre`](https://github.com/carlos-illobre/ferre). Se
 usa solo para leer: no se modifica.
 
 ## Cómo se usa
 
-- **El analista de negocio** (paso 1) lee lo que la primera versión decía del módulo, dice qué se
+- **El analista de negocio** (paso 1) lee lo que el proyecto anterior decía del módulo, dice qué se
   toma, qué se descarta por desactualizado y qué propone mejorar, y le confirma todo a Carlos.
   Todo se puede cuestionar, también las reglas.
-- **Lo que se toma se reescribe acá,** completo y sin enlaces a la primera versión.
-- **La documentación de la primera versión tiene partes desactualizadas.** Ante una contradicción
+- **Lo que se toma se reescribe acá,** completo y sin enlaces al proyecto anterior.
+- **La documentación del proyecto anterior tiene partes desactualizadas.** Ante una contradicción
   entre una especificación y una decisión posterior, vale la decisión, y se confirma con Carlos.
 
-## Dónde está cada cosa en la primera versión
+## Dónde está cada cosa en el proyecto anterior
 
 | Qué | Dónde |
 |---|---|

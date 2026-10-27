@@ -4,11 +4,11 @@
 
 ## Contexto
 
-En la primera versión el celular y la computadora terminaron siendo dos aplicaciones paralelas:
-68 archivos con el mismo nombre en las dos carpetas, cada una con su lógica, sus llamadas y sus
-estilos. Un arreglo en una no llegaba a la otra, y «Vender» quedó repartido en unos 190 archivos.
-Además, los límites de 150 líneas por archivo y 40 por función partieron todo en 839 archivos
-chicos.
+La aplicación se usa en el celular y en la computadora. Hacer una aplicación para cada uno lleva a
+dos aplicaciones paralelas, cada una con su lógica, sus llamadas y sus estilos: un arreglo en una
+no llega a la otra, y una misma funcionalidad queda repartida en el doble de archivos. Y los
+límites estrictos de tamaño por archivo y por función parten el código en cientos de piezas
+chicas, difíciles de recorrer.
 
 La funcionalidad es la misma en los dos; cambia la disposición. Las maquetas v2 lo muestran: la
 barra lateral pasa a barra inferior, la columna de cobro pasa a quedar fija abajo, las tarjetas
@@ -28,8 +28,8 @@ de los renglones son las mismas.
 - **Las acciones con nombre pasan por un solo punto** (ver [arquitectura](../architecture.md)), que
   usan el espejo, el teclado y la cola sin conexión.
 - **La entrada** es una sola pantalla con piezas; las opciones que muestra dependen de las
-  capacidades del dispositivo y los adornos de cada ancho los elige el CSS. Se ve como la de la
-  primera versión.
+  capacidades del dispositivo y los adornos de cada ancho los elige el CSS. Se ve como su maqueta
+  aprobada (`docs/design/mockups/sign-in/adapted/`).
 
 ## Opciones descartadas
 

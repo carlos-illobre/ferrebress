@@ -5,7 +5,7 @@ funcionando en el [visor](https://carlos-illobre.github.io/ferrebress/).
 
 | # | Pantalla | Qué se tiene que poder hacer | Maqueta |
 |---|---|---|---|
-| 1 | La entrada | Entrar con Google; con la huella en el celular; en la computadora, ver el QR (o la entrada del navegador si hay Bluetooth); ver los mensajes de no autorizada, sin conexión, intentos y sesión cerrada | **Aprobada**: `mockups/sign-in/adapted/`, con el naranja de la primera versión |
+| 1 | La entrada | Entrar con Google; con la huella en el celular; en la computadora, ver el QR (o la entrada del navegador si hay Bluetooth); ver los mensajes de no autorizada, sin conexión, intentos y sesión cerrada | **Aprobada**: `mockups/sign-in/adapted/`, con su naranja propio (#D83F0E), distinto del de «Mostrador» |
 | 2 | El marco vacío | Ver el menú con «Pronto», minimizarlo a íconos, la luz de conexión y la tarjeta de la persona; salir; el área de trabajo en blanco | **Aprobada**: `mockups/app-frame/final/`, sobre la variante 1 del director (`variant-1-evolution/`) |
 
 Lo que se abre encima, en el celular, también es parte de estas pantallas: «¿Entrar con la huella

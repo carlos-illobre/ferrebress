@@ -10,7 +10,7 @@ escenarios) y `screens.md` (qué se tiene que poder hacer en cada pantalla y qu�
 commits.
 
 Los capítulos se escriben de a uno, cuando le toca a su módulo. El analista de negocio parte de
-lo que había en la primera versión, le pregunta a Carlos todo lo que falte y dice qué se tomó, qué
+lo que había en el proyecto anterior (la guía de migración), le pregunta a Carlos todo lo que falte y dice qué se tomó, qué
 se dejó y qué propone mejorar (constitución, paso 1).
 
 | Capítulo | Qué cubre | Estado |

@@ -8,8 +8,8 @@ Las pruebas sirven para refactorizar sin riesgo y para que no sobren líneas: un
 necesita ninguna prueba, no hace falta. Tienen que correr rápido y probar toda la funcionalidad.
 El código de las pruebas y el de producción tiene que ser el mismo.
 
-En la primera versión las pruebas de la capa de datos necesitaban Docker con PostgreSQL, que tarda en
-arrancar, y las de punta a punta levantaban dos stacks completos.
+Probar la capa de datos contra un PostgreSQL en Docker obliga a tener Docker para correr las
+unitarias y tarda en arrancar; levantar el sistema completo para cada prueba la vuelve lenta.
 
 ## Decisión
 

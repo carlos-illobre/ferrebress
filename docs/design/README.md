@@ -26,7 +26,7 @@ Cada pantalla tiene su carpeta en `mockups/<pantalla>/`, con `desktop/` y `phone
 - **`mockups/index.json`** es el índice del visor: solo las pantallas del módulo en curso, con sus
   variantes. Las v2 no figuran en el visor: son material de consulta para el director de arte.
 
-La pantalla de entrada (`mockups/sign-in/`) no tiene v2: se ve como la de la primera versión, que
+La pantalla de entrada (`mockups/sign-in/`) no tiene v2: su referencia era una pantalla de un proyecto anterior, que
 está en sus capturas `current-desktop.png` y `current-phone.png`; la adaptada a las reglas del
 capítulo 01 está en `adapted/`.
 

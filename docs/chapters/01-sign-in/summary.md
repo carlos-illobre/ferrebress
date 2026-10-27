@@ -18,7 +18,7 @@ Entrar, salir y el marco vacío al que se llega. Reglas completas en [rules.md](
   hizo y con la prueba de su pase (R4).
 - **Salir:** en la tarjeta de la persona (computadora) o en Más (celular), con o sin conexión (R5).
 - **Al entrar:** el marco vacío, con todo en «Pronto» en pruebas (R6).
-- **La entrada:** la de la primera versión, una sola pantalla para los dos, con Google también en el
+- **La entrada:** la de su maqueta aprobada, una sola pantalla para los dos, con Google también en el
   celular (R7).
 
 ## Lo que falta decidir

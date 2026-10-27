@@ -57,7 +57,7 @@ paralelo»).
 
 ## Tareas pendientes de la base
 
-- [x] T001 [agente] Traer de la primera versión el director de arte (`.claude/skills/art-director/`)
+- [x] T001 [agente] Traer del proyecto anterior el director de arte (`.claude/skills/art-director/`)
   y el revisor, dividido en dos: `design-reviewer` y `code-reviewer` (`.claude/agents/`).
 - [x] T002 [agente] Pasar a `docs/design/` el lenguaje visual «Mostrador», las capturas de la
   pantalla de entrada y las maquetas v2 de cada pantalla.
