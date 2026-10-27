@@ -2,9 +2,6 @@
    cambia (docs/design/mockups/sign-in-entering/final/). Lo común y el celular, en entering.css. */
 @layer screens {
   @media (min-width: 900px) {
-    .card-body {
-      display: contents;
-    }
     .entering-card {
       position: absolute;
       inset: 0;

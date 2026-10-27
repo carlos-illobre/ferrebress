@@ -2,6 +2,11 @@
    docs/design/mockups/sign-in/adapted/; en la computadora, el panel que tapa la tarjeta, de
    docs/design/mockups/sign-in-entering/final/. Solo giran el anillo y la marca del paso en curso. */
 @layer screens {
+  /* Lo de la tarjeta va envuelto para apagarlo durante la espera, pero no cuenta para el armado:
+     la tarjeta sigue separando sus piezas como antes, en los dos anchos. */
+  .card-body {
+    display: contents;
+  }
   .entering :where(h2, p, ol) {
     margin: 0;
     padding: 0;
