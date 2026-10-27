@@ -1,8 +1,8 @@
 # El marco · maqueta final: en qué se diferencia de la variante 1 del director
 
 Base: `../variant-1-evolution/`. Esta carpeta no depende de las otras variantes: tiene su copia de
-`shared.css`, `shared.js`, el isotipo (`isotype.svg`), el logotipo de la entrada
-(`logo-on-light.png`) y `extra-icons.js` con los dos íconos de Lucide que `common/icons.js` no
+`shared.css`, `shared.js`, el isotipo (`isotype.svg`), el logotipo (`logo-on-light.png`) y
+`extra-icons.js` con los dos íconos de Lucide que `common/icons.js` no
 tiene.
 
 Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
@@ -12,16 +12,28 @@ Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
 
 - **El área de trabajo está vacía:** es la pantalla de la primera opción del menú, que todavía no
   existe. Sin dibujo, sin bienvenida y sin textos, en la computadora y en el celular.
-- **El logotipo:** agrandado, el de la entrada, donde la F es la primera letra de «Ferrebress»;
-  minimizado, solo la F, en el mismo lugar.
+- **El logotipo:** agrandado, el de la entrada, donde la F es la primera letra de «Ferrebress»,
+  pero con «errebress» más pegado a la F (18 px menos en el original de 208 px de alto, unos 3 px
+  en pantalla), para que se lea como una sola palabra; el mismo en la cabecera del celular.
+  Minimizado, solo la F, en el mismo lugar. El archivo de esta carpeta ya no es igual al de la
+  entrada: si se toma este, la entrada lo tendría que usar también.
 - **El menú, más angosto:** 216 px agrandado (lo justo para «Catálogo» con «Pronto») y 64 px
   minimizado.
 - **El botón para minimizar el menú** (solo en la computadora) es un ícono solo, a la derecha del
   logotipo: `panel-left-close` para minimizar y `panel-left-open` para agrandar. Dibujan el propio
-  lateral con la flecha hacia donde va. Minimizado, queda debajo de la F. La cabecera tiene el
-  mismo alto en los dos estados, para que nada salte; por eso, agrandado, quedan unos 30 px de aire
-  entre el logotipo y Vender. Su nombre sale en un rótulo al pasar el mouse o al llegar con la
+  lateral con la flecha hacia donde va. Minimizado, queda debajo de la F.
+- **Poco aire entre el logotipo y Vender:** agrandada, la cabecera es solo el renglón del logotipo
+  (21 px hasta Vender); minimizada, suma el botón de minimizar debajo de la F, así que el menú
+  queda 29 px más abajo. Para que no salte, el menú baja y sube animado, en los mismos 240 ms que
+  el lateral; con «reducir movimiento» cambia de lugar sin animar, como todo lo demás. Su nombre sale en un rótulo al pasar el mouse o al llegar con la
   marca del teclado. Atajo: Alt E (la M es de Más).
+- **La opción abierta** (al entrar, Vender, la primera del menú) va con fondo verde claro,
+  bordes redondeados y el nombre y el ícono en verde oscuro, como en la imagen de Carlos:
+  `--pino-suave` y `--pino`, los colores exactos de su imagen, que ya están en la paleta (y son los
+  de Más abierto y los que pide el lenguaje visual para la elegida). No lleva la raya naranja que
+  dice el lenguaje visual, porque la imagen no la tiene. «Pronto» sigue a su derecha. Minimizado,
+  el mismo fondo detrás del ícono; al minimizar se achica junto con el lateral. En el celular el
+  menú de abajo no marca Vender.
 - **Minimizado:** los cinco íconos, la luz como un punto de color y la persona como sus iniciales,
   que abren la misma tarjeta con «Salir». Cada ícono dice su nombre en un rótulo; «Pronto» es un
   reloj chico sobre el ícono.
@@ -50,7 +62,8 @@ Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
 ## Para llevarla al código
 
 - El lateral está separado en piezas (`.lado-fondo`, `.lado-linea`) para animarlo sin tocar el
-  ancho.
+  ancho; el fondo de la opción abierta es su `::after`, por lo mismo.
+- La opción abierta se marca con `aria-current="page"`, que es también lo que la pinta.
 - Una clase por pieza (`.plegar`, `.pronto-mini`, `.persona-mini`, `.panel-costado`, `.rotulo`,
   `.lado-logo`, `.lado-isotipo`…) y los anchos del menú en variables (`--lado-ancho`,
   `--lado-mini`). Sin estilos en línea ni selectores por etiqueta.

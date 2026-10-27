@@ -31,9 +31,11 @@
   /* La marca: agrandado, el logotipo (la F es la primera letra de «Ferrebress», como en la
      entrada); minimizado, solo la F. El isotipo va encima de la F del logotipo, del mismo tamaño,
      así al minimizar se apaga la palabra y la F queda quieta.
-     La cabecera tiene el mismo alto agrandada y minimizada (la F y, debajo, el botón de minimizar),
-     así el menú no salta al cambiar. */
-  .lado-marca { position: relative; height: 76px; margin: 4px 0 10px 8px; }
+     Agrandada, la cabecera es solo el renglón del logotipo, con poco aire hasta Vender; minimizada,
+     suma debajo de la F el botón de minimizar. El menú baja 29 px al minimizar y sube al agrandar,
+     animado con transform (ver «La animación de minimizar»), así no salta. */
+  .lado-marca { position: relative; height: 36px; margin: 4px 0 21px 8px; }
+  body.plegado .lado-marca { height: 76px; margin-bottom: 10px; }
   .lado-logo { display: block; height: 36px; width: auto; }
   .lado-isotipo { position: absolute; left: -3.6px; top: -1.35px; width: 38.4px; height: 38.4px; }
 
@@ -62,6 +64,12 @@
   .parte.abre { cursor: pointer; color: var(--tinta); }
   .parte.abre .i { color: var(--texto-2); }
   .parte:hover { background: var(--fondo); }
+  /* La opción abierta (al entrar, la primera del menú): fondo verde claro y texto verde oscuro.
+     Minimizado, el mismo fondo detrás del ícono. El fondo es una pieza aparte (::after) para
+     achicarlo con transform junto con el lateral al minimizar. */
+  .parte[aria-current="page"], .parte[aria-current="page"]:hover { isolation: isolate; background: transparent; color: var(--pino); font-weight: 750; }
+  .parte[aria-current="page"]::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--pino-suave); transform-origin: 0 50%; }
+  .parte[aria-current="page"] .i { color: var(--pino); }
   .parte.mas[aria-expanded="true"] { background: var(--pino-suave); color: var(--pino); font-weight: 750; }
   .parte.mas[aria-expanded="true"] .i { color: var(--pino); }
   .parte.mas[aria-expanded="true"]::before { content: ""; position: absolute; left: -8px; top: 10px; bottom: 10px; width: 4px; border-radius: 0 4px 4px 0; background: var(--accion); }
@@ -127,11 +135,15 @@
   @media (prefers-reduced-motion: no-preference) {
     body.cierra .lado-fondo { animation: fondo-cierra 240ms var(--curva) forwards; }
     body.cierra .lado-linea { animation: corre-cierra 240ms var(--curva) forwards; }
+    body.cierra .menu { animation: menu-baja 240ms var(--curva) forwards; }
+    body.cierra .menu > li > .parte[aria-current="page"]::after { animation: elegida-cierra 240ms var(--curva) forwards; }
     body.cierra .lado-logo, body.cierra .menu > li > .parte .nombre, body.cierra .menu > li > .parte .pronto,
     body.cierra .menu > li > .parte .flecha, body.cierra .plegar, body.cierra .lado-pie { animation: se-apaga 120ms var(--curva-salida) forwards; }
 
     body.abre .lado-fondo { animation: fondo-abre 240ms var(--curva) both; }
     body.abre .lado-linea { animation: corre-abre 240ms var(--curva) both; }
+    body.abre .menu { animation: menu-sube 240ms var(--curva) both; }
+    body.abre .menu > li > .parte[aria-current="page"]::after { animation: elegida-abre 240ms var(--curva) both; }
     body.abre .lado-logo, body.abre .menu > li > .parte .nombre, body.abre .menu > li > .parte .pronto,
     body.abre .menu > li > .parte .flecha, body.abre .plegar, body.abre .lado-pie { animation: se-enciende 160ms var(--curva) 100ms both; }
 
@@ -142,6 +154,12 @@
   @keyframes fondo-abre { from { transform: scaleX(.2963); } }
   @keyframes corre-cierra { to { transform: translateX(-152px); } }
   @keyframes corre-abre { from { transform: translateX(-152px); } }
+  /* La cabecera minimizada mide 29 px más: (76 + 10) − (36 + 21) */
+  @keyframes menu-baja { to { transform: translateY(29px); } }
+  @keyframes menu-sube { from { transform: translateY(29px); } }
+  /* La opción elegida pasa de 200 px a 48 px: 48 / 200 = .24 */
+  @keyframes elegida-cierra { to { transform: scaleX(.24); } }
+  @keyframes elegida-abre { from { transform: scaleX(.24); } }
   @keyframes se-apaga { to { opacity: 0; } }
   @keyframes se-enciende { from { opacity: 0; } }
 
@@ -227,12 +245,12 @@
   <nav class="lado d-only" id="lado" aria-label="Menú" data-no-ir>
     <div class="lado-fondo" aria-hidden="true"></div>
     <div class="lado-linea" aria-hidden="true"></div>
-    <div class="lado-marca"><img class="lado-logo" src="logo-on-light.png" alt="Ferrebress" width="144" height="36"><img class="lado-isotipo" src="isotype.svg" alt="">
+    <div class="lado-marca"><img class="lado-logo" src="logo-on-light.png" alt="Ferrebress" width="141" height="36"><img class="lado-isotipo" src="isotype.svg" alt="">
       <button type="button" class="plegar" id="plegar" data-nav data-key="e" aria-controls="lado" aria-expanded="true" aria-label="Minimizar el menú"><i class="i plegar-cierra" data-i="panel-left-close"></i><i class="i plegar-abre" data-i="panel-left-open"></i><span class="kbd">E</span></button>
     </div>
 
     <ul class="menu" id="menu">
-      <li><button type="button" class="parte" data-nav data-key="v" data-nombre="Vender"><i class="i" data-i="shopping-cart"></i><span class="nombre">Vender</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">V</span></button></li>
+      <li><button type="button" class="parte" data-nav data-key="v" data-nombre="Vender" aria-current="page"><i class="i" data-i="shopping-cart"></i><span class="nombre">Vender</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">V</span></button></li>
       <li><button type="button" class="parte" data-nav data-key="c" data-nombre="Catálogo"><i class="i" data-i="tags"></i><span class="nombre">Catálogo</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">C</span></button></li>
       <li><button type="button" class="parte" data-nav data-key="p" data-nombre="Depósito"><i class="i" data-i="package"></i><span class="nombre">Depósito</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">P</span></button></li>
       <li><button type="button" class="parte" data-nav data-key="n" data-nombre="Negocio"><i class="i" data-i="chart-column"></i><span class="nombre">Negocio</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">N</span></button></li>
@@ -261,7 +279,7 @@
 
   <!-- ======== Celular: la cabecera ======== -->
   <header class="p-cab p-only">
-    <img class="p-logo" src="logo-on-light.png" alt="Ferrebress" width="112" height="28">
+    <img class="p-logo" src="logo-on-light.png" alt="Ferrebress" width="109" height="28">
     <button type="button" class="p-avatar" id="p-avatar" aria-label="Rubén Paredes · Más"><span class="avatar">RP</span></button>
   </header>
   <button type="button" class="p-luz p-only" id="p-luz"><span class="luz-punto"></span><span data-luz></span><i class="i i-s" data-i="chevron-right"></i></button>
