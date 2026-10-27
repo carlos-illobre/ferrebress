@@ -30,8 +30,16 @@ function fakeServer(version: { current: string }) {
   });
 }
 
-const request = (path: string, init: { method?: string; mode?: string } = {}) =>
-  ({ url: origin + path, method: init.method ?? 'GET', mode: init.mode ?? 'cors' }) as Request;
+const request = (
+  path: string,
+  init: { method?: string; mode?: string; destination?: string } = {},
+) =>
+  ({
+    url: origin + path,
+    method: init.method ?? 'GET',
+    mode: init.mode ?? 'cors',
+    destination: init.destination ?? (init.mode === 'navigate' ? 'document' : 'script'),
+  }) as Request;
 
 describe('el service worker', () => {
   it('nunca toca /api, otros sitios ni lo que no se lee; distingue la página de los archivos', () => {
@@ -42,6 +50,9 @@ describe('el service worker', () => {
     ).toBe('skip');
     expect(kindOf(request('/manifest.webmanifest'), origin)).toBe('skip');
     expect(kindOf(request('/link', { mode: 'navigate' }), origin)).toBe('page');
+    expect(
+      kindOf(request('/google-button.html', { mode: 'navigate', destination: 'iframe' }), origin),
+    ).toBe('skip');
     expect(kindOf(request('/assets/a.js'), origin)).toBe('asset');
   });
 

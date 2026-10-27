@@ -1,0 +1,12 @@
+/* El marco del botón de Google: transparente, sin márgenes y con el botón centrado. */
+html,
+body {
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+}
+#google-button {
+  display: flex;
+  justify-content: center;
+  padding: 2px 0;
+}

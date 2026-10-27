@@ -37,6 +37,7 @@ ferrebress/
 │       ├── platform/                api, realtime, proof-key, clock, device, keyboard, router,
 │       │                            storage, waiting, offline (el service worker)
 │       ├── sw.ts                    los eventos del service worker; se arma como /sw.js
+│       ├── google-button.*          la página del marco del botón de Google
 │       ├── public/                  el manifiesto y los íconos para instalarla
 │       ├── ui/                      piezas del lenguaje visual
 │       ├── styles/                  tokens de «Mostrador», el marco de pruebas
@@ -402,13 +403,13 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
   - La página se pide siempre primero a la red, así que recargar trae la versión nueva, como dice
     R5. Sin conexión, abre la guardada (R3.6).
   - Si la página que llega es de otra versión, borra lo guardado de la anterior.
-  - Nunca guarda ni contesta nada de `/api`, ni de otros sitios.
+  - Nunca guarda ni contesta nada de `/api`, ni de otros sitios, ni el marco del botón de Google.
   - Caddy sirve la página, `/sw.js` y el manifiesto sin que el navegador los guarde.
 - **«Algo salió mal» (00 · R9):** muestra qué hacer y guarda el aviso, con la captura y los últimos
   pasos, para mandarlo cuando exista el módulo 12. La captura se saca con `html-to-image` (unos
   10 KB), que se baja recién cuando hace falta.
-- **El script de Google** se carga solo cuando se muestra la entrada. Si la aplicación abre con
-  sesión, no se carga.
+- **El script de Google** se carga solo cuando se muestra la entrada, y solo dentro del marco del
+  botón (`google/`). Si la aplicación abre con sesión, no se carga.
 - **Nada de HTML armado a mano:** Preact escapa todo texto, y `pnpm check` prohíbe
   `dangerouslySetInnerHTML` (regla de Biome).
 - **«Algo salió mal»:** las piezas que muestran datos personales llevan la marca `data-private`, y
@@ -502,11 +503,16 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   - Una política de contenido que solo permite el propio origen y lo que pide el botón de Google
     (`accounts.google.com` en scripts, marcos, conexiones y estilos), con `object-src 'none'`,
     `base-uri 'none'`, `worker-src 'self'`, `img-src 'self' data: blob:` y
-    `frame-ancestors 'none'`. Los estilos admiten además los escritos en la página
-    (`'unsafe-inline'`), una excepción aprobada por Carlos para el botón de Google: se mide y se
-    dibuja con estilos propios en línea, y sin ellos se ve un instante como una G enorme con el
-    texto repetido. Los scripts siguen solo del propio origen y de Google: un estilo inyectado no
-    corre código, y la aplicación no arma HTML a mano.
+    `frame-ancestors 'none'`.
+  - **La única excepción, aprobada por Carlos, es el botón de Google**, que Google mide y dibuja
+    con estilos en línea (sin ellos se ve un instante como una G enorme con el texto repetido).
+    Como la política vale para una página entera, el botón vive en su propia página,
+    `/google-button.html`, dentro de un marco de la entrada: solo esa página admite estilos en
+    línea, solo puede cargar el script de Google y solo la aplicación puede enmarcarla
+    (`frame-ancestors 'self'`). La aplicación le pide por mensaje qué dibujar (el identificador,
+    el `nonce` y el ancho) y recibe el pase de Google; cada lado escucha solo al otro y solo de
+    este origen. El marco aparece recién cuando el botón quedó dibujado. «Salir» deja anotado en
+    el dispositivo que, la próxima vez, Google vuelva a pedir la cuenta (R2.1).
   - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
     `Referrer-Policy: strict-origin-when-cross-origin` (Google comprueba el origen del botón por esa
     cabecera; a otros sitios va solo el origen, nunca la ruta) y

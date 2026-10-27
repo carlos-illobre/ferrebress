@@ -1,29 +1,45 @@
 // Los botones para entrar: Google en los dos anchos (R2.1, R7.1) y, en el celular, la huella (R2.3)
-// y «Escanear el código de la computadora» (R2.7). El de Google lo dibuja Google adentro de su
-// lugar; si Google no carga, queda el lugar vacío y apagado.
-import { useEffect, useRef } from 'preact/hooks';
+// y «Escanear el código de la computadora» (R2.7). El de Google lo dibuja Google en su propio marco
+// (google/messages.ts), que aparece cuando quedó dibujado; si Google no carga, el lugar queda vacío.
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { showGoogleButton } from '../../google.ts';
+import { connectGoogleFrame } from '../../google/connect.ts';
+import { googleFramePath } from '../../google/messages.ts';
 import { texts } from '../../texts.ts';
 import { withGoogle, withPasskey } from '../../useSignIn.ts';
 import { limited, offline, useEntrance } from './context.ts';
 
 export function GoogleButton() {
   const entrance = useEntrance();
-  const place = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLIFrameElement>(null);
+  const connection = useRef<ReturnType<typeof connectGoogleFrame>>(undefined);
+  const [drawn, setDrawn] = useState(false);
+  const attempt = useRef(entrance.attempt);
+  attempt.current = entrance.attempt;
   const { googleClientId, googleNonce, googleScriptUrl } = entrance.start;
   useEffect(() => {
-    const element = place.current as HTMLDivElement;
+    const opened = connectGoogleFrame(frame.current as HTMLIFrameElement, {
+      drawn: () => setDrawn(true),
+      credential: (credential) => attempt.current(() => withGoogle(credential)),
+    });
+    connection.current = opened;
+    return opened.stop;
+  }, []);
+  useEffect(() => {
+    const element = frame.current as HTMLIFrameElement;
     if (!googleNonce) return;
-    void showGoogleButton(element, {
+    connection.current?.show({
       scriptUrl: googleScriptUrl,
       clientId: googleClientId,
       nonce: googleNonce,
       width: Math.min(400, element.clientWidth || 400),
-      onCredential: (credential) => entrance.attempt(() => withGoogle(credential)),
     });
   }, [googleClientId, googleNonce]);
-  return <div ref={place} class={limited(entrance) ? 'google off' : 'google'} />;
+  return (
+    <div class={limited(entrance) ? 'google off' : 'google'} data-drawn={drawn ? '' : undefined}>
+      <iframe ref={frame} src={googleFramePath} title={texts.google} />
+    </div>
+  );
 }
 
 export function FingerButton() {

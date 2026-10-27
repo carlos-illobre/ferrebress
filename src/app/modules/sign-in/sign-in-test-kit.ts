@@ -1,5 +1,6 @@
 // Lo que comparten las pruebas de la entrada: una persona, las respuestas del servidor al entrar y
 // un navegador con huella de mentira (WebAuthn y su JSON).
+import { act } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
 
 export const ana = {
@@ -47,22 +48,29 @@ export const phone = () =>
     userAgentData: { mobile: true },
   });
 
-// happy-dom no baja scripts: el de Google se guarda sin cargar, y la prueba decide si cargó. Se
-// guardan todos los de la corrida: el botón baja el script una sola vez por página.
-const scripts: HTMLScriptElement[] = [];
-
-type GoogleId = Record<'initialize' | 'renderButton' | 'disableAutoSelect', Mock>;
-
-export function googleScript(): { id: GoogleId; load: () => void } {
-  vi.spyOn(document.head, 'append').mockImplementation((script) => {
-    scripts.push(script as HTMLScriptElement);
-  });
-  const id = { initialize: vi.fn(), renderButton: vi.fn(), disableAutoSelect: vi.fn() };
+// happy-dom no carga el marco del botón de Google: la prueba hace de marco. `ready` dice que está
+// listo, `drawn` que lo dibujó, `shown` es lo que la entrada le pidió dibujar y `credential` le pasa
+// un pase de Google.
+export function googleFrame(): {
+  shown: Mock;
+  ready: () => void;
+  drawn: () => void;
+  credential: (credential: string) => void;
+} {
+  const inside = { postMessage: vi.fn() };
+  vi.spyOn(HTMLIFrameElement.prototype, 'contentWindow', 'get').mockReturnValue(
+    inside as unknown as Window,
+  );
+  const say = (data: unknown) =>
+    act(() => {
+      dispatchEvent(
+        new MessageEvent('message', { data, origin: location.origin, source: inside as never }),
+      );
+    });
   return {
-    id,
-    load() {
-      vi.stubGlobal('google', { accounts: { id } });
-      for (const script of scripts) script.dispatchEvent(new Event('load'));
-    },
+    shown: inside.postMessage,
+    ready: () => say({ type: 'ready' }),
+    drawn: () => say({ type: 'drawn' }),
+    credential: (credential: string) => say({ type: 'credential', credential }),
   };
 }

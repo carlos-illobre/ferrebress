@@ -6,7 +6,7 @@ import { scan } from './modules/sign-in/scanner.ts';
 import { person } from './modules/sign-in/session.ts';
 import {
   ana,
-  googleScript,
+  googleFrame,
   phone,
   signInReply,
   startReply,
@@ -30,7 +30,7 @@ describe('la aplicación al abrir', () => {
     localStorage.clear();
     person.set(undefined);
     navigate('/', { replace: true });
-    googleScript();
+    googleFrame();
   });
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -67,16 +67,16 @@ describe('la aplicación al abrir', () => {
   });
 
   it('R3.4: si la sesión se cierra, la entrada aparece encima del marco y se va al volver a entrar', async () => {
-    const google = googleScript();
+    const google = googleFrame();
     fakeServer({ '/api/start': startReply({ person: ana }), '/api/sign-in/google': signInReply() });
     render(<App />);
     await screen.findByRole('region', { name: 'Tu sesión' });
     act(() => sessionClosed.set('revoked'));
     expect(await screen.findByRole('region', { name: 'Entrar' })).toBeTruthy();
     expect(screen.getByRole('region', { name: 'Tu sesión' })).toBeTruthy();
-    google.load();
-    await waitFor(() => expect(google.id.initialize).toHaveBeenCalled());
-    act(() => google.id.initialize.mock.calls.at(-1)?.[0].callback({ credential: 'pase' }));
+    google.ready();
+    await waitFor(() => expect(google.shown).toHaveBeenCalled());
+    google.credential('pase');
     await waitFor(() => expect(screen.queryByRole('region', { name: 'Entrar' })).toBeNull());
     expect(sessionClosed.get()).toBeUndefined();
   });

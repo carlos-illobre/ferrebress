@@ -21,13 +21,15 @@ export default defineConfig({
       include: ['tools/**/*.ts', 'src/**/*.{ts,tsx}'],
       // Solo conectan lo que se prueba con el proceso o el navegador (ADR-016): tools/cli.ts elige
       // el control y sale con su resultado; src/server/main.ts lee el .env y abre el puerto;
-      // src/app/main.tsx monta la aplicación en la página; src/app/sw.ts conecta los eventos del
-      // service worker con platform/offline/worker.ts. Las configuraciones no son código.
+      // src/app/main.tsx monta la aplicación en la página y src/app/google-button.ts, el marco del
+      // botón de Google; src/app/sw.ts conecta los eventos del service worker con
+      // platform/offline/worker.ts. Las configuraciones no son código.
       exclude: [
         'tools/cli.ts',
         'src/server/main.ts',
         'src/app/main.tsx',
         'src/app/sw.ts',
+        'src/app/google-button.ts',
         '**/*.config.ts',
         '**/*.test.{ts,tsx}',
       ],

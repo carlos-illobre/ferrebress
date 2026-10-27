@@ -15,7 +15,8 @@ export function kindOf(request: Request, origin: string): Kind {
   const url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== origin || url.pathname.startsWith('/api/'))
     return 'skip';
-  if (request.mode === 'navigate') return 'page';
+  // La página de la aplicación; el marco del botón de Google no se guarda.
+  if (request.mode === 'navigate') return request.destination === 'document' ? 'page' : 'skip';
   return url.pathname.startsWith('/assets/') ? 'asset' : 'skip';
 }
 

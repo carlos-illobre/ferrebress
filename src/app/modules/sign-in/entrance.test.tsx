@@ -9,7 +9,7 @@ import { person } from './session.ts';
 import {
   ana,
   fakePasskeys,
-  googleScript,
+  googleFrame,
   phone,
   signInReply,
   startReply,
@@ -35,7 +35,7 @@ describe('la entrada en la computadora', () => {
   });
 
   it('01-E38, E12: muestra el código QR con sus pasos, Google y la nota, en el ambiente de pruebas', async () => {
-    googleScript();
+    googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
       '/api/realtime/sign-in-codes': [
@@ -59,7 +59,7 @@ describe('la entrada en la computadora', () => {
   });
 
   it('01-E17: muestra el QR de Ferrebress y nunca la entrada del navegador con un celular cercano', async () => {
-    googleScript();
+    googleFrame();
     const credentials = fakePasskeys();
     fakeServer({
       '/api/sign-in/codes': {},
@@ -72,45 +72,54 @@ describe('la entrada en la computadora', () => {
   });
 
   it('01-E05: Google dibuja su botón y, con el pase, entra', async () => {
-    const google = googleScript();
+    const google = googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
       '/api/realtime/sign-in-codes': { stream: '' },
       '/api/sign-in/google': signInReply(),
     });
     open();
-    google.load();
-    await waitFor(() => expect(google.id.renderButton).toHaveBeenCalled());
-    act(() => google.id.initialize.mock.calls[0]?.[0].callback({ credential: 'pase' }));
+    google.ready();
+    await waitFor(() =>
+      expect(google.shown).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'show', nonce: 'nonce' }),
+        location.origin,
+      ),
+    );
+    const place = document.querySelector('.google') as HTMLElement;
+    expect(place.hasAttribute('data-drawn')).toBe(false);
+    google.drawn();
+    expect(place.hasAttribute('data-drawn')).toBe(true);
+    google.credential('pase');
     await waitFor(() => expect(person.get()).toEqual(ana));
   });
 
   it('si el pase de Google llegó con un nonce vencido, pide otro y dice que se toque Google otra vez', async () => {
-    const google = googleScript();
+    const google = googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
       '/api/realtime/sign-in-codes': { stream: '' },
       '/api/sign-in/google': { status: 401, body: { error: 'sign-in-expired' } },
     });
     const { onStale } = open();
-    google.load();
-    await waitFor(() => expect(google.id.initialize).toHaveBeenCalled());
-    act(() => google.id.initialize.mock.calls.at(-1)?.[0].callback({ credential: 'pase' }));
+    google.ready();
+    await waitFor(() => expect(google.shown).toHaveBeenCalled());
+    google.credential('pase');
     expect(await screen.findByText(/Pasó mucho tiempo desde que se abrió la entrada/)).toBeTruthy();
     expect(onStale).toHaveBeenCalledOnce();
   });
 
   it('01-E02: una cuenta no autorizada ve por qué, y la nota se va', async () => {
-    const google = googleScript();
+    const google = googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
       '/api/realtime/sign-in-codes': { stream: '' },
       '/api/sign-in/google': { status: 403, body: { error: 'not-authorized', email: 'x@y.com' } },
     });
     open();
-    google.load();
-    await waitFor(() => expect(google.id.initialize).toHaveBeenCalled());
-    act(() => google.id.initialize.mock.calls[0]?.[0].callback({ credential: 'pase' }));
+    google.ready();
+    await waitFor(() => expect(google.shown).toHaveBeenCalled());
+    google.credential('pase');
     expect(
       await screen.findByText(
         'Esta cuenta (x@y.com) no está autorizada. Pedile a un Administrador que agregue tu correo.',
@@ -119,7 +128,7 @@ describe('la entrada en la computadora', () => {
   });
 
   it('01-E19: sin conexión los botones se apagan y dice que hace falta internet', () => {
-    googleScript();
+    googleFrame();
     fakeServer({ '/api/sign-in/codes': 'offline', '/api/realtime/sign-in-codes': 'offline' });
     online.set(false);
     open();
@@ -129,7 +138,7 @@ describe('la entrada en la computadora', () => {
   });
 
   it('R3.4: si la sesión se cerró, lo dice arriba; si venció, dice que venció', async () => {
-    googleScript();
+    googleFrame();
     const server = fakeServer({});
     sessionClosed.set('revoked');
     open();
@@ -152,7 +161,7 @@ describe('la entrada en el celular', () => {
   });
 
   it('01-E38: Google, la huella y «Escanear», sin QR; con sesión, Google no se dibuja', () => {
-    const google = googleScript();
+    const google = googleFrame();
     render(
       <Entrance
         start={{ ...start, googleNonce: undefined } as never}
@@ -161,8 +170,8 @@ describe('la entrada en el celular', () => {
         onStale={() => {}}
       />,
     );
-    google.load();
-    expect(google.id.renderButton).not.toHaveBeenCalled();
+    google.ready();
+    expect(google.shown).not.toHaveBeenCalled();
     document.body.innerHTML = '';
     const { card, onScan } = open();
     expect(card.querySelector('.qr')).toBeNull();
@@ -171,7 +180,7 @@ describe('la entrada en el celular', () => {
   });
 
   it('01-E20: con la huella, demasiados intentos apagan Google y la huella, y dice cuánto falta', async () => {
-    googleScript();
+    googleFrame();
     fakeServer({
       '/api/sign-in/passkey/options': {
         status: 429,
@@ -190,14 +199,14 @@ describe('la entrada en el celular', () => {
   });
 
   it('01-E16b: si leyó el código sin sesión, le dice que entre primero', () => {
-    googleScript();
+    googleFrame();
     open({ signInFirst: true });
     expect(screen.getByText('Entrá en este celular para que entre la computadora')).toBeTruthy();
   });
 
   it('mientras espera al servidor, dice «Entrando…»', async () => {
     vi.useFakeTimers();
-    googleScript();
+    googleFrame();
     fakePasskeys();
     phone();
     let answer = (_: Response) => {};

@@ -6,7 +6,7 @@ import { forgetProofKey, signWithProofKey } from '../../platform/proof-key.ts';
 import { forget, readStored, store } from '../../platform/storage.ts';
 import { createStore } from '../../platform/store.ts';
 import { signInApi } from './api.ts';
-import { forgetGoogleChoice } from './google.ts';
+import { forgetGoogleChoice } from './google/messages.ts';
 
 const sessionKey = 'session';
 const pendingKey = 'pending-sign-out';
