@@ -492,7 +492,9 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
     (`accounts.google.com` en scripts, marcos, conexiones y estilos), con `object-src 'none'`,
     `base-uri 'none'`, `worker-src 'self'`, `img-src 'self' data: blob:` y
     `frame-ancestors 'none'`.
-  - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: same-origin` y
+  - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+    `Referrer-Policy: strict-origin-when-cross-origin` (Google comprueba el origen del botón por esa
+    cabecera; a otros sitios va solo el origen, nunca la ruta) y
     `Cross-Origin-Opener-Policy: same-origin-allow-popups` (el botón de Google abre una ventana).
   - `Permissions-Policy` con la cámara y la huella solo para el propio origen.
 - **Secretos:** la contraseña de la base (`DATABASE_URL`) y el canal de ntfy, que se guarda como

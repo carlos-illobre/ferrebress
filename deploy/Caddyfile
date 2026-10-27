@@ -16,7 +16,8 @@
 		Content-Security-Policy "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' https://accounts.google.com/gsi/style; frame-src https://accounts.google.com/gsi/; connect-src 'self' https://accounts.google.com/gsi/; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
 		X-Frame-Options DENY
 		X-Content-Type-Options nosniff
-		Referrer-Policy same-origin
+		# Google necesita ver de qué sitio viene el pedido del botón: a otros sitios va solo el origen.
+		Referrer-Policy strict-origin-when-cross-origin
 		Cross-Origin-Opener-Policy same-origin-allow-popups
 		Permissions-Policy "camera=(self), publickey-credentials-get=(self), publickey-credentials-create=(self), geolocation=(), microphone=()"
 		-Server
