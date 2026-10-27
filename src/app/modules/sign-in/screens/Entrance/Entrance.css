@@ -67,7 +67,15 @@
     display: flex;
     justify-content: center;
     min-height: 44px;
+    max-height: 64px;
+    overflow: hidden;
     transition: opacity 200ms;
+  }
+  /* Si Google no puede dibujar su botón (sin el origen autorizado, o con su estilo bloqueado),
+     lo que deje no se agranda más que el lugar. */
+  .google :where(svg, img) {
+    max-width: 44px;
+    max-height: 44px;
   }
 
   /* Apagados: sin conexión, todo; con demasiados intentos, Google y la huella (R2.8, R2.9). */
