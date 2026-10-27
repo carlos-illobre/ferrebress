@@ -1,0 +1,173 @@
+/* La espera y la versión nueva (docs/design/mockups/app-notices/final/): la línea arriba del área
+   de trabajo, la tarjeta de la espera abajo al centro y la de la versión nueva en la esquina. En el
+   celular, abajo, arriba del menú. Solo transform y opacity. */
+@layer screens {
+  .wait-line {
+    position: fixed;
+    z-index: 20;
+    top: 0;
+    left: var(--side-width);
+    right: 0;
+    height: 3px;
+    overflow: hidden;
+    background: rgb(18 56 47 / 0.08);
+  }
+  .wait-line-progress,
+  .wait-bar-progress {
+    position: absolute;
+    inset: 0;
+    width: 30%;
+    background: var(--pine);
+  }
+  .wait-line.done .wait-line-progress,
+  .wait-notice.done .wait-bar-progress {
+    width: 100%;
+  }
+  .wait-notice.done .wait-bar-progress {
+    background: var(--success);
+  }
+  .wait-notice {
+    position: fixed;
+    z-index: 21;
+    bottom: 24px;
+    left: calc(var(--side-width) + (100vw - var(--side-width)) / 2);
+    width: 440px;
+    margin-left: -220px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 4px 12px;
+    align-items: center;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-3);
+  }
+  .wait-icon {
+    grid-row: span 2;
+  }
+  .wait-icon,
+  .version-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 99px;
+    display: grid;
+    place-items: center;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .wait-notice.done .wait-icon {
+    background: var(--success-soft);
+    color: var(--success-text);
+  }
+  .wait-what {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 750;
+    line-height: 22px;
+  }
+  .wait-left {
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+  .wait-bar {
+    position: relative;
+    height: 6px;
+    border-radius: 99px;
+    background: var(--sunken-2);
+    overflow: hidden;
+  }
+
+  .version-notice {
+    position: fixed;
+    z-index: 22;
+    right: 24px;
+    bottom: 24px;
+    width: 380px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-3);
+  }
+  .version-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 22px;
+  }
+  .version-detail {
+    margin: 2px 0 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-2);
+  }
+  .version-actions {
+    grid-column: 2;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  @media (max-width: 899px) {
+    .wait-line {
+      left: 0;
+    }
+    .wait-notice,
+    .version-notice {
+      left: 12px;
+      right: 12px;
+      width: auto;
+      margin: 0;
+      bottom: 104px;
+    }
+    .version-actions {
+      grid-column: 1 / -1;
+    }
+    .version-actions .button {
+      flex: 1;
+      min-height: 44px;
+      font-size: 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .wait-line:not(.done) .wait-line-progress,
+    .wait-notice:not(.done) .wait-bar-progress {
+      animation: wait-sweep 1.3s var(--ease) infinite;
+    }
+    .wait-notice {
+      animation: notice-rise 240ms var(--ease) both;
+    }
+    .version-notice {
+      animation: notice-slide 320ms var(--bounce) both;
+    }
+  }
+  @keyframes wait-sweep {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(340%);
+    }
+  }
+  @keyframes notice-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes notice-slide {
+    from {
+      opacity: 0;
+      transform: translateX(24px);
+    }
+  }
+}

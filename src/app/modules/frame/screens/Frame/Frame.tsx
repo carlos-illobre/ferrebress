@@ -5,8 +5,10 @@ import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { ComponentChildren } from 'preact';
 import { online as onlineStore } from '../../../../platform/api.ts';
 import { useStore } from '../../../../platform/store.ts';
+import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { FrameContext, type FrameState, shake } from '../../context.ts';
 import { exists, moreOptions, parts } from '../../menu.ts';
+import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
 import { useCollapse } from '../../useCollapse.ts';
 import { usePanels } from '../../usePanels.ts';
@@ -15,7 +17,7 @@ import { PhoneNav, PhoneTop } from '../Phone/Phone.tsx';
 import { PhoneSheets } from '../Phone/PhoneSheets.tsx';
 import { Side } from '../Side/Side.tsx';
 import { PendingPanel } from '../Side/SideFooter.tsx';
-import { Tips, Toast, useToast } from './Tips.tsx';
+import { Tips } from './Tips.tsx';
 import '../../../../styles/test-environment.css';
 import './Frame.css';
 
@@ -34,7 +36,6 @@ export function Frame({ person, testing, onSignOut, children }: FrameProps) {
   const online = useStore(onlineStore);
   const collapse = useCollapse();
   const panels = usePanels();
-  const toast = useToast();
   const tip = useTip((element) => labelled(element, collapse.collapsed));
   const state: FrameState = {
     person,
@@ -46,7 +47,7 @@ export function Frame({ person, testing, onSignOut, children }: FrameProps) {
     tip,
     notYet(element, name) {
       shake(element);
-      if (matchMedia('(max-width: 899px)').matches) toast.show(texts.notYetShort(name));
+      if (matchMedia('(max-width: 899px)').matches) showToast(texts.notYetShort(name));
       else tip.notYet(element, name);
     },
     signOut: onSignOut,
@@ -60,11 +61,12 @@ export function Frame({ person, testing, onSignOut, children }: FrameProps) {
           {children}
         </main>
         <PhoneNav />
+        <WaitNotice />
+        <VersionNotice />
       </div>
       <PendingPanel />
       <PhoneSheets />
       <Tips />
-      <Toast toast={toast} />
       {testing && <TestEnvironment />}
     </FrameContext.Provider>
   );

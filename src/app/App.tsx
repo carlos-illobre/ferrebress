@@ -4,7 +4,15 @@
 // la dirección del QR (/link#<código>) y la cámara de «Escanear».
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useState } from 'preact/hooks';
-import { Frame } from './modules/frame/index.ts';
+import {
+  announceUpdate,
+  Dialogs,
+  Frame,
+  forgetReport,
+  updateOnOpen,
+  watchBackground,
+  watchCrashes,
+} from './modules/frame/index.ts';
 import {
   Camera,
   CodeSheet,
@@ -21,6 +29,7 @@ import {
 import { sessionClosed } from './platform/api.ts';
 import { clearHash, navigate, route } from './platform/router.ts';
 import { useStore } from './platform/store.ts';
+import { Toasts } from './ui/toast/Toast.tsx';
 
 // Sin conexión al abrir, no se sabe nada del servidor: se sigue con lo guardado (R3.6).
 const unknown: StartResponse = {
@@ -30,12 +39,20 @@ const unknown: StartResponse = {
   googleScriptUrl: '',
 };
 
-async function boot(): Promise<StartResponse> {
+async function boot(): Promise<StartResponse | undefined> {
   await sendPendingSignOut();
   const start = await signInApi.start();
   if (!start.ok) return unknown;
+  // Recién abierta, con una versión nueva en el servidor, se actualiza antes de que se use (R5.2).
+  if (updateOnOpen(start.data.version)) return undefined;
   confirmed(start.data.person);
   return start.data;
+}
+
+// Salir borra también el aviso de «Algo salió mal» guardado (diseño de 01, § 7).
+async function leave(): Promise<void> {
+  forgetReport();
+  await signOut();
 }
 
 // El código que trajo la dirección: se lee una vez y se borra, para que no quede en el historial.
@@ -47,22 +64,28 @@ function takeCode(): string | undefined {
   return hash;
 }
 
-export function App() {
+// Al abrir: arranca, lee el código del QR si vino en la dirección, y escucha lo que pasa mientras
+// la aplicación está abierta (la red, los errores, el segundo plano).
+function useStart(scanned: (code: string) => void) {
   const [start, setStart] = useState<StartResponse>();
-  const [camera, setCamera] = useState(false);
   const who = useStore(person);
   const closed = useStore(sessionClosed);
-  const code = usePhoneCode();
 
   useEffect(() => {
     const linked = takeCode();
     void boot().then((started) => {
+      if (!started) return;
       setStart(started);
-      if (linked) void code.scanned(linked);
+      announceUpdate();
+      if (linked) scanned(linked);
     });
     const retry = () => void sendPendingSignOut();
     addEventListener('online', retry);
-    return () => removeEventListener('online', retry);
+    const stops = [watchCrashes(), watchBackground()];
+    return () => {
+      removeEventListener('online', retry);
+      for (const stop of stops) stop();
+    };
   }, []);
 
   // La sesión cerrada se vuelve a abrir desde la entrada, con un pase de Google nuevo.
@@ -73,11 +96,19 @@ export function App() {
     if (who && closed) sessionClosed.set(undefined);
   }, [who]);
 
-  if (!start) return null;
+  return { start, who, closed };
+}
+
+export function App() {
+  const [camera, setCamera] = useState(false);
+  const code = usePhoneCode();
+  const { start, who, closed } = useStart((linked) => void code.scanned(linked));
+
+  if (!start) return <Dialogs />;
   const testing = start.environment !== 'production';
   return (
     <>
-      {who && <Frame person={who} testing={testing} onSignOut={signOut} />}
+      {who && <Frame person={who} testing={testing} onSignOut={leave} />}
       {(!who || closed) && (
         <Entrance
           start={start}
@@ -96,6 +127,8 @@ export function App() {
       )}
       <CodeSheet code={code} />
       <OfferSheet />
+      <Dialogs />
+      <Toasts />
     </>
   );
 }

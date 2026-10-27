@@ -1,0 +1,188 @@
+/* El bloqueo de «Hay que actualizar» y «Algo salió mal», adentro del diálogo común
+   (docs/design/mockups/app-notices/final/). */
+@layer screens {
+  .update-block {
+    width: 460px;
+    padding: 32px;
+    text-align: center;
+  }
+  .update-block-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 99px;
+    display: grid;
+    place-items: center;
+    background: var(--pine-soft);
+    color: var(--pine);
+  }
+  .update-block .title {
+    margin: 0 0 8px;
+  }
+  .update-block-detail {
+    margin: 0 0 24px;
+    color: var(--text-2);
+  }
+  .update-block .button {
+    width: 100%;
+  }
+
+  .crash-dialog {
+    width: 600px;
+    padding: 28px;
+  }
+  .crash-head {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .crash-head .title {
+    margin: 0 0 4px;
+  }
+  .crash-icon {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 99px;
+    display: grid;
+    place-items: center;
+    background: var(--error-soft);
+    color: var(--error-text);
+  }
+  .crash-detail {
+    margin: 0;
+    color: var(--text-2);
+  }
+  .crash-label {
+    margin: 0 0 8px;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 650;
+    color: var(--text-2);
+  }
+  .crash-todo {
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    counter-reset: todo;
+  }
+  .crash-todo li {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-weight: 600;
+    counter-increment: todo;
+  }
+  .crash-todo li::before {
+    content: counter(todo);
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 99px;
+    display: grid;
+    place-items: center;
+    background: var(--sunken);
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .crash-contents {
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    border-radius: var(--radius);
+    background: var(--sunken);
+  }
+  .crash-capture {
+    flex: none;
+    width: 120px;
+    height: auto;
+    border-radius: var(--radius-small);
+    box-shadow: var(--shadow-1);
+  }
+  .crash-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    align-content: start;
+    gap: 2px;
+    min-width: 0;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .crash-step {
+    display: flex;
+    gap: 8px;
+  }
+  .crash-step-time {
+    flex: none;
+    color: var(--text-3);
+    font-weight: 600;
+  }
+  .crash-step.failed {
+    color: var(--error-text);
+    font-weight: 700;
+  }
+  .crash-privacy {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 12px 0 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-2);
+  }
+  .crash-privacy .icon {
+    color: var(--success-text);
+  }
+  .crash-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .crash-code {
+    font-size: 14px;
+    color: var(--text-3);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .crash-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  @media (max-width: 899px) {
+    .update-block,
+    .crash-dialog {
+      width: auto;
+      padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+    }
+    .update-block {
+      padding-top: 32px;
+    }
+    .crash-head {
+      margin-bottom: 16px;
+    }
+    .crash-icon {
+      width: 40px;
+      height: 40px;
+    }
+    .crash-step:nth-child(n + 3),
+    .crash-step-time {
+      display: none;
+    }
+    .crash-foot,
+    .crash-buttons {
+      flex-direction: column-reverse;
+      align-items: stretch;
+    }
+    .crash-code {
+      text-align: center;
+    }
+  }
+}

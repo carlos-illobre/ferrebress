@@ -1,0 +1,76 @@
+/* El diálogo y su velo (docs/design/mockups/app-notices/final/): al centro en la computadora, una
+   hoja abajo en el celular. Entra desde 96 % con fundido; con «reducir movimiento», aparece. */
+@layer pieces {
+  .veil {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgb(26 29 27 / 0.3);
+  }
+  .dialog {
+    position: fixed;
+    z-index: 31;
+    left: 50%;
+    top: 50%;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+    border-radius: var(--radius-sheet);
+    background: var(--surface);
+    box-shadow: var(--shadow-3);
+    transform: translate(-50%, -50%);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .veil {
+      animation: dialog-fade 200ms var(--ease) both;
+    }
+    .dialog {
+      animation: dialog-in 260ms var(--ease) both;
+    }
+  }
+  @keyframes dialog-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.96);
+    }
+  }
+  .dialog.shake {
+    animation: dialog-shake 360ms var(--ease);
+  }
+  @keyframes dialog-shake {
+    20% {
+      translate: -6px 0;
+    }
+    45% {
+      translate: 5px 0;
+    }
+    70% {
+      translate: -2px 0;
+    }
+  }
+  @media (max-width: 899px) {
+    .dialog {
+      left: 0;
+      right: 0;
+      top: auto;
+      bottom: 0;
+      max-height: calc(100dvh - 24px);
+      border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+      transform: none;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .dialog {
+        animation: dialog-rise 320ms var(--ease) both;
+      }
+    }
+  }
+  @keyframes dialog-rise {
+    from {
+      transform: translateY(100%);
+    }
+  }
+}

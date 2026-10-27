@@ -37,4 +37,57 @@ export const texts = {
   },
   testEnvironment: 'Ambiente de prueba',
   testEnvironmentDetail: ' · nada de esto es real',
+  wait: {
+    unknown: { long: 'Puede tardar un poco', short: 'Un momento' },
+    done: 'Listo',
+  },
+  update: {
+    title: 'Hay una versión nueva',
+    detail: {
+      long: 'Actualizá cuando termines: tarda unos segundos y volvés a la misma parte, sin perder nada.',
+      short: 'Tarda unos segundos y no perdés nada.',
+    },
+    notNow: 'Ahora no',
+    now: 'Actualizar',
+    updating: 'Actualizando…',
+    later: {
+      long: 'No vuelve a aparecer: se actualiza sola la próxima vez que abras la aplicación.',
+      short: 'Se actualiza sola la próxima vez.',
+    },
+    done: { long: 'Versión nueva. Seguís donde estabas.', short: 'Versión nueva.' },
+    requiredTitle: 'Hay que actualizar para seguir',
+    requiredDetail: {
+      long: 'Esta versión ya no se entiende con el servidor. Actualizar tarda unos segundos y lo que hiciste sigue ahí.',
+      short: 'Esta versión ya no sirve. Lo que hiciste sigue ahí.',
+    },
+  },
+  crash: {
+    title: 'Algo salió mal',
+    detail: {
+      long: 'No fue por algo que hiciste. Lo que estabas haciendo sigue ahí, tal cual.',
+      short: 'Lo que estabas haciendo sigue ahí.',
+    },
+    whatToDo: 'Qué hacer',
+    steps: [
+      {
+        long: 'Tocá «Seguir sin avisar» y probá de nuevo lo que estabas haciendo.',
+        short: 'Tocá «Seguir sin avisar» y probá de nuevo.',
+      },
+      { long: 'Si vuelve a pasar, avisalo: así se arregla.', short: 'Si vuelve a pasar, avisalo.' },
+    ],
+    contents: 'Lo que va en el aviso',
+    captureLabel: 'La pantalla cuando pasó',
+    privacy: {
+      long: 'Sin datos de clientes ni tu sesión. Queda guardado en este dispositivo y se manda solo cuando esté Mejoras y errores.',
+      short: 'Sin datos de clientes. Se manda solo más adelante.',
+    },
+    code: (code: string, time: string) => `Código ${code} · ${time}`,
+    goOn: 'Seguir sin avisar',
+    report: 'Avisar y seguir',
+    reported: 'Aviso guardado',
+    saved: {
+      long: 'Aviso guardado. Se manda solo cuando esté Mejoras y errores.',
+      short: 'Aviso guardado. Se manda más adelante.',
+    },
+  },
 } as const;

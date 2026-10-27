@@ -11,7 +11,7 @@ import {
   signInReply,
   startReply,
 } from './modules/sign-in/sign-in-test-kit.ts';
-import { sessionClosed } from './platform/api.ts';
+import { newVersion, sessionClosed } from './platform/api.ts';
 import { navigate } from './platform/router.ts';
 import { store } from './platform/storage.ts';
 import { fakeServer } from './testing/fake-server.ts';
@@ -107,6 +107,18 @@ describe('la aplicación al abrir', () => {
     expect(
       await screen.findByText('Entrá en este celular para que entre la computadora'),
     ).toBeTruthy();
+  });
+
+  it('app-E27: recién abierta, con una versión nueva en el servidor, se actualiza antes de usarse', async () => {
+    const reload = vi.fn();
+    vi.stubGlobal('location', { ...location, reload });
+    sessionStorage.clear();
+    fakeServer({ '/api/start': startReply({ person: ana }) });
+    newVersion.set(true);
+    render(<App />);
+    await waitFor(() => expect(reload).toHaveBeenCalledOnce());
+    expect(screen.queryByRole('region', { name: 'Tu sesión' })).toBeNull();
+    newVersion.set(false);
   });
 
   it('cuando vuelve la red, manda la salida pendiente', async () => {

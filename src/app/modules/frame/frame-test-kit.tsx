@@ -2,6 +2,7 @@
 // contesta matchMedia, abrir el marco y las teclas.
 import { render, screen } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
+import { Toasts } from '../../ui/toast/Toast.tsx';
 import { Frame } from './index.ts';
 
 export const person = {
@@ -25,7 +26,12 @@ export function open({
   testing?: boolean;
   onSignOut?: Mock<() => unknown>;
 } = {}): { onSignOut: Mock<() => unknown>; side: HTMLElement } {
-  render(<Frame person={person} testing={testing} onSignOut={onSignOut} />);
+  render(
+    <>
+      <Frame person={person} testing={testing} onSignOut={onSignOut} />
+      <Toasts />
+    </>,
+  );
   return { onSignOut, side: screen.getAllByRole('navigation', { name: 'Menú' })[0] as HTMLElement };
 }
 

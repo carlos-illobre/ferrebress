@@ -18,6 +18,8 @@ export type ButtonProps = {
   shortcut?: string;
   // Lo que hace Esc en su capa.
   closes?: boolean;
+  // El principal de un diálogo: el cursor arranca ahí en la computadora y Enter lo toca.
+  primary?: boolean;
   disabled?: boolean;
 };
 
@@ -38,6 +40,7 @@ export function Button(props: ButtonProps) {
       data-mark=""
       data-key={props.shortcut}
       data-close={props.closes ? '' : undefined}
+      data-primary={props.primary ? '' : undefined}
       onClick={() => {
         void run(props.doing, async () => props.onPress());
       }}
