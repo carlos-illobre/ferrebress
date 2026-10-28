@@ -506,6 +506,15 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
     es lo mismo que dibuja el QR, y el celular abre la dirección que el QR lleva.
   - Sin animaciones (`reducedMotion`), sin reintentos y sin capturas, salvo cuando una falla.
   - La 4 es un pedido común, sin abrir el navegador.
+- **Pruebas de captura de la entrada:** la de la computadora y la del celular, tal como quedaron
+  aprobadas, se comparan punto por punto con una captura de referencia (`tests/screens/`), así
+  ningún cambio las modifica sin que se vea. Corren en `pnpm check`, en cada subida, en unos
+  6 s: la aplicación armada contra una API de mentira que siempre contesta lo mismo (sin sesión,
+  el mismo QR y un botón de Google con su forma), con el reloj fijo. Se sacan y se comparan
+  siempre en la imagen de Playwright de Docker, porque fuera de ella las letras se dibujan apenas
+  distinto; en GitHub el control corre dentro de esa imagen y en una sesión `pnpm screens` se
+  relanza en Docker. Cuando Carlos aprueba un cambio de la entrada, las referencias se vuelven a
+  sacar con `pnpm screens --update-snapshots` y se suben con el cambio.
 - **Una prueba por ataque:** cada riesgo de § 13 y de la revisión de seguridad tiene una prueba que
   lo intenta y falla: un correo reasignado, un código cancelado sin el secreto de la reserva, una
   firma de otro desafío, un pedido sin `Origin` o sin cuerpo, un cuerpo de más de 64 KB, un emisor

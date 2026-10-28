@@ -29,6 +29,9 @@ unitarias y tarda en arrancar; levantar el sistema completo para cada prueba la 
 - **De punta a punta, con Playwright,** pocas: los caminos principales y lo que una unitaria no
   puede probar, cada uno en el ancho donde pasa, armadas para tardar lo mínimo. Corren antes de
   cerrar un módulo, no en cada subida.
+- **Pruebas de captura** de las pantallas que Carlos aprueba como definitivas: cada una se compara
+  punto por punto con su captura de referencia, en cada subida. Se sacan y se comparan siempre en
+  la imagen de Playwright de Docker, para que el dibujo de las letras no cambie entre máquinas.
 
 ## Opciones descartadas
 

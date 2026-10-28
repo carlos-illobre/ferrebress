@@ -5,6 +5,7 @@
     { "path": "src/server" },
     { "path": "src/app" },
     { "path": "tools" },
-    { "path": "tests/e2e" }
+    { "path": "tests/e2e" },
+    { "path": "tests/screens" }
   ]
 }

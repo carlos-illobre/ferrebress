@@ -1,5 +1,10 @@
 # Revisión de seguridad · 01 · Entrar (`sign-in`)
 
+Tiene dos partes: la revisión del diseño (paso 4), que sigue abajo tal como se escribió, y la
+[revisión del código](#paso-7-el-código) (paso 7), al final, con el estado de cada punto del paso 4.
+
+## Paso 4: el diseño
+
 Revisión independiente del [diseño](sign-in.md) desde el punto de vista de un atacante
 (constitución, paso 4). Todavía no hay código. Leí la constitución, el capítulo
 [01](../../chapters/01-sign-in/rules.md) y las partes del [00](../../chapters/00-app/rules.md) que el
@@ -442,3 +447,415 @@ Fuentes de la búsqueda: [RootlessKit, conexiones entrantes](https://rootlesscon
 [moby, discusión 45337](https://github.com/moby/moby/discussions/45337),
 [CVE-2024-48913 en NVD](https://nvd.nist.gov/vuln/detail/CVE-2024-48913),
 [CVE-2024-48913 en OSV](https://osv.dev/vulnerability/CVE-2024-48913).
+
+---
+
+## Paso 7: el código
+
+Revisión del código programado en el paso 6 (hasta el commit `c1d3ed3`), contra el
+[diseño](sign-in.md) ya corregido. Leí todo `src/server/` (plataforma, `users` y `sign-in`),
+`src/shared/contracts/`, la plataforma de la aplicación (con `platform/offline/` y `sw.ts`),
+`modules/sign-in/` (con `google/` y `google-button.html`), `modules/frame/` en lo que guarda o
+captura, `deploy/` entero, los workflows y `tests/e2e/`. Corrí `pnpm test` (281 pruebas en verde, 100 %
+de cobertura) y `pnpm audit --prod` (sin fallas conocidas). Lo que digo que comprobé lo probé con
+pruebas propias, fuera del repositorio, contra el código tal cual; no corrí las de punta a punta ni
+tuve la máquina de Oracle a mano.
+
+### Resumen
+
+El código cumple casi todo lo que el diseño promete y casi cada ataque tiene una prueba que lo
+intenta: el correo reasignado, el emisor de prueba fuera de `e2e`, el origen y el tipo en todo
+`POST` (con y sin cuerpo), los 64 KB, el `nonce` de un uso, el desafío de otra reserva, «No soy
+yo» sin el secreto, el permiso de otra pantalla, la huella sin verificación, el contador que
+retrocede, el límite por cuenta que frena solo la huella, la baja que cierra las sesiones en su
+transacción, el hash del pase. La llave de prueba no se puede exportar, el script de Google vive
+solo en su marco y cada lado del marco escucha solo al otro y solo de este origen.
+
+Frena una cosa, y es la misma que en el paso 4 con otra cara: **la dirección de internet real no
+está comprobada en el despliegue, y hay una razón concreta para pensar que el servidor ve la misma
+para todos.** De eso depende la regla de la misma red (R2.5), que es la única defensa contra un QR
+copiado en una página falsa.
+
+Además hay cuatro formas baratas de tirar partes del sistema sin entrar, dos de ellas comprobadas:
+las pantallas con QR que nunca se liberan y el limitador de intentos que se vuelve lento con
+claves inventadas.
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 24 | La dirección real: `::ffff:` y la cadena de `X-Forwarded-For`, sin probar en la máquina | **Frena** (hasta comprobarlo) |
+| 25 | Una pantalla con QR sin canal no se libera nunca | Mejora importante (comprobado) |
+| 26 | Canales sin límite para una misma pantalla | Mejora importante |
+| 27 | El limitador de intentos: claves inventadas y un barrido que recorre todo en cada pedido | Mejora importante (comprobado) |
+| 28 | Los topes totales en memoria se llenan con pocas direcciones | Mejora importante |
+| 29 | Aprobar un código no tiene límite de intentos | Mejora (comprobado) |
+| 30 | Un JSON roto es un error 500 con su traza en el registro, sin límite | Mejora (comprobado) |
+| 31 | Lo que no se anota en la auditoría | Mejora |
+| 32 | Lo que el diseño dice que está en `deploy/oracle/` y no está | Mejora |
+| 33 | La política de contenido de la aplicación todavía nombra a Google | Mejora |
+| 34 | El service worker guarda como página cualquier navegación del sitio | Mejora |
+| 35 | Detalles: `ENVIRONMENT=e2e`, la dirección sin validar, `data-private`, la salida pendiente, `pnpm audit`, el compose | Mejora |
+
+### 24 · La dirección real (`src/server/platform/http.ts:69`, `src/server/main.ts:14`, `deploy/Caddyfile:8`) — Frena hasta comprobarlo
+
+**Dónde:** `identify` cree en `X-Forwarded-For` solo si `remoteAddress` es exactamente
+`TRUSTED_PROXY` (`172.30.0.10`, fijado en `deploy/compose.yml`). `main.ts` abre el puerto con
+`serve({ port })`, sin `hostname`.
+
+**El problema, en dos partes:**
+
+1. **El formato `::ffff:`.** Sin `hostname`, Node escucha en `::` si el sistema tiene IPv6 (en un
+   contenedor de Docker lo tiene, aunque la red sea solo IPv4: Docker apaga IPv6 en las interfaces,
+   no en el núcleo). En una conexión IPv4 que entra por un socket `::`, `remoteAddress` llega como
+   `::ffff:172.30.0.10`, no como `172.30.0.10`. Es el comportamiento conocido de Node en Docker
+   (por ejemplo, el `::ffff:172.17.0.1` que reportan otras aplicaciones). Con eso,
+   `remote === trustedProxy` nunca se cumple y el servidor anota **la dirección de Caddy para todos
+   los pedidos**. Lo reproduje con el servidor de pruebas pasándole `::ffff:<TRUSTED_PROXY>` como
+   dirección de la conexión: los pedidos con dos `X-Forwarded-For` distintos quedan con la misma
+   dirección. No lo pude comprobar dentro del contenedor (en esta máquina el núcleo no tiene IPv6 y
+   Docker no estaba prendido), y la prueba de `http.test.ts` («en un servidor de verdad…») escucha
+   en `127.0.0.1`, justo el caso que no tiene el problema. Las e2e tampoco lo ven: todos sus
+   navegadores salen de la misma dirección, así que la regla de la misma red pasa igual.
+2. **Quién pone la primera dirección de la lista.** El servidor toma la primera de
+   `X-Forwarded-For`. El Caddy de Ferrebress confía en cualquier dirección privada
+   (`trusted_proxies static private_ranges`) y agrega la suya al final; la primera la pone el proxy
+   de la máquina. Eso es seguro solo si el proxy de la máquina **pisa** la cabecera que manda el
+   navegador. Caddy lo hace por omisión, salvo que su configuración global confíe en quien se le
+   conecta (`trusted_proxies`). Esa configuración no está en el repositorio (el proxy es compartido)
+   y no la pude ver. Además, cualquier proceso de la VM que se conecte a `127.0.0.1:8090` llega como
+   dirección privada y elige la que quiera.
+
+**El ataque, con la parte 1 (la más probable):**
+
+1. Alguien abre la entrada de Ferrebress en su computadora, en su casa, y arma una página falsa
+   («Escaneá para ver la lista de precios») que muestra en vivo el QR de su propia pantalla.
+2. Una persona del local la lee con el celular de la ferretería, en cualquier red. El servidor
+   compara «la dirección de la computadora» con «la del celular»: las dos son `::ffff:172.30.0.10`.
+   Misma red.
+3. El celular muestra «¿Entrar en Chrome en Windows?», que es lo que dice cualquier computadora. La
+   persona pone la huella y el atacante entra con su cuenta, hoy de Administrador.
+
+Con la parte 2, si el proxy de la máquina confía en lo que le llega, el atacante no necesita la
+parte 1: manda `X-Forwarded-For: <la dirección del local>` al abrir su pantalla y al leer, y el
+servidor le cree.
+
+Además, con todas las direcciones iguales: los límites por dirección son uno solo para todo el
+mundo (30 `/api/start` por minuto en total: cualquiera que los gaste deja a todos sin el botón de
+Google; 3 pantallas con QR abiertas en total: ver el punto 25), y la auditoría y las sesiones
+guardan la dirección de Caddy en lugar de «desde dónde».
+
+**Qué propongo:**
+
+- Que el servidor normalice la dirección de la conexión antes de compararla (sacar `::ffff:` de una
+  IPv4 escrita como IPv6) **y** que escuche en `0.0.0.0` (`hostname: '0.0.0.0'` en `serve`). Una
+  prueba con `remoteAddress: '::ffff:172.20.0.2'` que espera la dirección de `X-Forwarded-For`.
+  Cuesta: dos líneas y una prueba.
+- Que el Caddy de Ferrebress no confíe en todo lo privado sino solo en la dirección por la que le
+  llega el proxy de la máquina, con `trusted_proxies_strict` (toma la primera dirección no confiable
+  desde la derecha), y que le pase al servidor una sola dirección ya resuelta
+  (`header_up X-Real-IP {client_ip}`) en lugar de la lista. Cuesta: tres líneas del `Caddyfile`.
+- La prueba que pide el diseño (§ 14, «La dirección real») y que no existe: que `install.sh`, después
+  de levantar, entre desde afuera con una dirección conocida (o mande un `X-Forwarded-For` inventado)
+  y compruebe en la auditoría o en una respuesta de prueba que se anotó la real. Cuesta: unas líneas;
+  hay que correrlo en la máquina.
+
+Hasta que esto esté comprobado en la máquina, R2.5 no defiende nada y el QR no debería usarse fuera
+del ambiente de pruebas.
+
+### 25 · Una pantalla con QR sin canal no se libera nunca (`codes/screens.ts:34`, `codes/computer-routes.ts:30` y `:98`) — Mejora importante, comprobado
+
+**Dónde:** `POST /api/sign-in/codes` guarda la pantalla en memoria. Solo se borra cuando se corta su
+canal (`onAbort`) o cuando la computadora entra (`claim`). No tiene vencimiento.
+
+**El ataque:**
+
+1. Desde una dirección, tres `POST /api/sign-in/codes` sin abrir nunca el canal. Esa dirección ya no
+   puede abrir otra pantalla, para siempre (hasta reiniciar el servidor): lo probé con el reloj
+   adelantado un día y sigue en `too-many-attempts`.
+2. Desde 34 direcciones (unas 100 pantallas), el tope total queda lleno: **ninguna computadora puede
+   mostrar el QR**, hasta reiniciar. Cuesta 102 pedidos, una vez.
+3. No hace falta un atacante para perder lugares: la aplicación abre una pantalla nueva en cada
+   reconexión (`useComputerCode.ts:15`, `open` hace el `POST` y después el `fetch` del canal); si el
+   `POST` llega y el canal no (la red del local que se corta en ese instante), esa pantalla queda
+   ocupada. Con tres así, la computadora del local deja de tener QR sin que nadie entienda por qué.
+   Con el punto 24, el tope por dirección es uno solo para todo el mundo y tres pérdidas apagan el
+   QR de todos.
+
+No entra a nada: se sigue entrando con Google.
+
+**Qué propongo:** que una pantalla sin canal abierto venza sola (por ejemplo, a los 30 segundos de
+abierta sin canal, o en cada barrido de códigos), y que abrir una pantalla nueva con la cookie de una
+vieja la reemplace. Una prueba que abre tres pantallas sin canal, adelanta el reloj y abre otra.
+Cuesta: un campo y unas líneas en `screens.ts`.
+
+### 26 · Canales sin límite para una misma pantalla (`codes/computer-routes.ts:40`) — Mejora importante
+
+**Dónde:** `GET /api/realtime/sign-in-codes` no tiene límite y no mira si esa pantalla ya tiene un
+canal. Cada pedido arranca su propio bucle `serveScreen`, que pisa `screen.notify` y genera un
+código por minuto. Lo leí; no lo hice correr.
+
+**El ataque:** con una sola cookie de pantalla (un `POST`), un programa abre miles de canales desde
+una dirección. Cada uno es una conexión que Caddy y Node mantienen abiertas sin tiempo máximo (el
+diseño no les pone tope, a propósito), con su bucle y sus temporizadores, hasta agotar las
+conexiones o la memoria de la VM, que comparte con PostgreSQL y con otras aplicaciones. Además, el
+primero que se corte cierra la pantalla y los demás bucles siguen generando códigos de una pantalla
+que ya no existe.
+
+**Qué propongo:** un canal por pantalla (si ya tiene uno, se cierra el anterior o se rechaza el
+nuevo), y el canal cuenta para el tope de pantallas por dirección. Una prueba que abre dos canales
+con la misma cookie. Cuesta: unas líneas.
+
+### 27 · El limitador de intentos (`platform/rate-limit.ts:39`, `sign-in/context.ts:40`) — Mejora importante, comprobado
+
+**Dónde:** cada clave nueva se agrega al mapa; cuando hay más de 10.000, **cada clave nueva recorre
+el mapa entero** para barrer las vencidas, aunque no haya ninguna vencida. Y `throttle` cuenta todas
+las claves del pedido (`.map`, no se corta en la primera que frena), entre ellas
+`google:device:<X-Device-Id>` y `passkey:device:<X-Device-Id>`, que elige quien manda el pedido.
+
+**El ataque:**
+
+1. Desde una sola dirección, un programa manda `POST /api/sign-in/passkey/options` (no pide cuerpo
+   con forma: basta `{}`, el origen y el tipo, que no son secretos) con un `X-Device-Id` al azar en
+   cada uno. El límite por dirección lo frena a los 20, pero la clave del dispositivo nuevo **igual se
+   agrega** al mapa.
+2. Pasadas las 10.000 claves vivas, cada pedido de cualquiera (también los del local) que trae una
+   clave nueva recorre todo el mapa. Medí el limitador solo: con 112.000 claves vivas, 1.000 claves
+   nuevas tardan un segundo de procesador (un milisegundo por pedido, con el único hilo de Node
+   frenado), y llegar a esas 112.000 tardó casi un minuto de procesador. El costo crece con cada
+   pedido del atacante: un solo programa deja al servidor sin responder mientras insiste.
+
+**Qué propongo:** barrer por tiempo (una vez por ventana, o con el trabajo periódico que ya existe)
+en lugar de en cada clave nueva; contar primero la dirección y no agregar la clave del dispositivo si
+la dirección ya está frenada; y un tope de claves por dirección. Una prueba que mete 20.000 claves y
+mide que la siguiente no recorra el mapa (o que cuente cuántas veces barre). Cuesta: unas líneas.
+
+### 28 · Los topes totales se llenan con pocas direcciones (`sign-in/settings.ts:15` y `:16`, `:41`) — Mejora importante
+
+**Dónde:** `nonce` de Google: 1.000 en total y 100 por dirección; desafíos de la huella: 1.000 y 10;
+pantallas: 100 y 3. Al llegar al total se rechaza lo nuevo, como dice el diseño. La prueba «con la
+memoria llena de nonces, /api/start frena hasta que vencen» muestra justamente el ataque.
+
+**El ataque:** con **10 direcciones** (salidas de Tor, una VPN, unas máquinas baratas) que piden
+`/api/start` cada dos segundos, los 1.000 `nonce` quedan siempre llenos: nadie que abra la entrada
+después recibe un `nonce` y **nadie puede entrar con Google**, tampoco el local, mientras el ataque
+dure. Con 100 direcciones pasa lo mismo con la huella; con 34, con el QR (punto 25). En el local, por
+el punto 24, puede bastar con una.
+
+**Qué propongo:** que el tope total sea mucho más alto que la suma que puede juntar un atacante con
+pocas direcciones. Cada `nonce` ocupa unos 100 bytes: 100.000 son 10 MB. Por ejemplo `nonce` y
+desafíos con 100.000 en total, y las pantallas con 1.000. Llenarlos exige miles de direcciones. Es un
+número en `settings.ts` y la prueba que ya existe con el número nuevo.
+
+### 29 · Aprobar un código no tiene límite (`codes/approve.ts:50`) — Mejora, comprobado
+
+**Dónde:** `POST /api/sign-in/codes/approve` no llama a `throttle`. Mandé 40 seguidos desde un
+dispositivo y ninguno fue `too-many-attempts`. R2.9 dice 20 intentos por minuto con la huella por
+dispositivo, y aprobar es un intento con la huella.
+
+**El ataque:** quien leyó un código (en la misma red) tiene el secreto de la reserva por 2 o 5
+minutos y puede mandar firmas sin parar. No las puede falsificar, pero cada una consulta la base
+(la credencial) y, con el identificador de una huella de otro, gasta en segundos el límite por cuenta
+de esa persona (lo que el diseño acepta, pero con el ritmo de R2.9, no sin tope).
+
+**Qué propongo:** el mismo `throttle` de la huella (`passkey:device` y `passkey:ip`) al empezar
+`approve`. Una prueba. Cuesta: una línea.
+
+### 30 · Un JSON roto es un 500 con su traza en el registro (`platform/http.ts:54`, cada `c.req.json()`) — Mejora, comprobado
+
+**Dónde:** las rutas hacen `safeParse(await c.req.json())`; si el cuerpo no es JSON, `c.req.json()`
+tira un error que va a `onError`, que responde 500 y escribe la traza con `console.error`. Lo probé:
+`{` como cuerpo de `/api/sign-in/google` da 500 y una traza de 10 líneas.
+
+**El ataque:** sin sesión y sin límite (el origen y el tipo se pueden poner a mano), un programa manda
+miles de cuerpos rotos por minuto. Cada uno escribe una traza en el registro del contenedor; el
+`compose.yml` no limita el tamaño de los registros (Docker guarda todo por omisión) y la VM es
+compartida: se llena el disco. Además los 500 no quedan en la auditoría como pedido rechazado.
+
+**Qué propongo:** leer el cuerpo en un solo lugar de `platform/http` (o atrapar el error de
+`c.req.json()`) y responder `bad-request` con `request.rejected` por ventana, como los demás
+rechazos; y en `compose.yml`, `logging: { options: { max-size: 10m, max-file: "3" } }` en los tres
+servicios. Una prueba con un cuerpo roto. Cuesta: unas líneas.
+
+### 31 · Lo que no se anota en la auditoría (E44) — Mejora
+
+Lo que sí se anota: entradas, rechazos de Google y de la huella, el permiso rechazado, los límites (una
+vez por ventana), los rechazos de origen, tipo, tamaño y versión, salir y las sesiones que terminan.
+Lo que falta, aunque E44 dice «cualquier intento rechazado»:
+
+- `approve` rechazado por reserva vencida, otra red o firma de otro desafío (`approve.ts`,
+  `reservedScreen`), y `cancel` con un secreto que no existe.
+- `read` de un código vencido o usado (sí se anota el de otra red).
+- La salida pendiente con una firma que no verifica (`sessions/routes.ts:39`): es justo un intento de
+  cerrar la sesión de otro.
+- Vincular la huella rechazado por no ser celular o por haber pasado los 5 minutos
+  (`cannotLink`).
+- El diseño (§ 9) dice que la salida sin conexión guarda «la hora en que tocó y la hora en que
+  llegó»; la aplicación no manda la hora en que se tocó y el servidor anota solo la de llegada.
+
+Todo con la misma regla de una fila por ventana y por clave, para que insistir no llene la auditoría.
+Cuesta: una llamada a `record` en cada rama.
+
+### 32 · Lo que el diseño dice que está en `deploy/oracle/` y no está — Mejora
+
+- **Si se pierde un celular:** el diseño (§ 6 y § 14) dice que `deploy/oracle/README.md` tiene las dos
+  sentencias para cerrar sus sesiones y quitar su huella. No están. Hasta el módulo 02 es la única
+  forma de cerrar a distancia (principio VIII): con un celular robado y la huella vinculada, quien lo
+  tenga entra durante 8 horas por sesión, y vuelve a entrar con la huella mientras nadie la quite.
+  Cuesta: un párrafo, con el reinicio del servidor (las sesiones en memoria siguen valiendo hasta que
+  se reinicia).
+- **La prueba de la dirección real** (punto 24).
+
+### 33 · La política de contenido de la aplicación todavía nombra a Google (`deploy/Caddyfile:30`) — Mejora
+
+Desde que el botón vive en su propia página, la aplicación no carga nada de Google: su política podría
+ser solo `'self'` en `script-src`, `style-src`, `frame-src` y `connect-src`. Hoy deja cargar el script
+de Google en la página que tiene la sesión. No encuentro cómo aprovecharlo sin un XSS previo, pero con
+uno le da al atacante un script de un tercero que ya está permitido. La política del marco del botón
+está bien. Cuesta: una línea y la e2e de cabeceras, que ya existe, mirando que la de la aplicación no
+nombre a `accounts.google.com`.
+
+### 34 · El service worker guarda como página cualquier navegación (`platform/offline/worker.ts:19`) — Mejora
+
+Toda navegación del propio sitio que responde bien se guarda como la página de la aplicación (`/`),
+también la de un archivo: alguien manda un enlace a `https://<sitio>/sw.js` o a un `/assets/…js`; la
+persona lo abre; el service worker lo guarda como si fuera la página y borra lo guardado que esa
+«página» no carga. La próxima vez que se abra **sin conexión**, sale el texto de un archivo en lugar de
+la aplicación. No ejecuta nada ajeno (todo es del propio origen), pero rompe justo el caso en que no
+hay cómo arreglarlo (00 · R3.6). Propongo guardar solo respuestas `text/html`. Cuesta: una condición y
+una prueba.
+
+### 35 · Detalles — Mejora
+
+- **`ENVIRONMENT=e2e` apaga la comprobación de Google** (`platform/config.ts:44`). Si un `.env` de la
+  máquina lo tuviera por error, el servidor aceptaría cualquier `GOOGLE_SCRIPT_URL` y cualquier emisor.
+  Hoy no alcanza para entrar (las llaves siguen saliendo de `GOOGLE_JWKS_URL`), pero cuesta una línea
+  que `e2e` exija `DATABASE_URL=memory://`.
+- **La dirección no se valida.** Lo que viene en `X-Forwarded-For` se guarda tal cual en la
+  auditoría y en la columna `inet` de la sesión; un valor que no es una dirección hace fallar la
+  sesión con un 500. Con el punto 24 resuelto llega solo lo que pone Caddy, pero conviene validarla
+  (`net.isIP`) y anotar «desconocida» si no lo es. Cuesta: una línea.
+- **`data-private` no se usa en ninguna pieza.** La captura de «Algo salió mal» tapa lo marcado, pero
+  hoy no hay nada marcado: lleva el nombre de la persona en la tarjeta, y el correo de una cuenta no
+  autorizada si el error pasa en la entrada. Los últimos pasos guardan el `aria-label` de lo tocado,
+  que en la tarjeta es el nombre de la persona. Son datos de quien usa el dispositivo y quedan en él;
+  conviene marcar la tarjeta y el aviso de la entrada antes de que haya pantallas con datos de
+  clientes. Cuesta: dos atributos.
+- **La salida pendiente sin límite** (`/api/sign-out` con `pending`): sin sesión, cada pedido con un
+  identificador inventado es una consulta a la base. Conviene el límite de los pedidos sin sesión por
+  dirección.
+- **`pnpm audit --prod --audit-level high`** en `pnpm check`: una falla «moderada» (como varias de Hono
+  de este año) no frena la subida. Propongo `moderate`. Cuesta: una palabra.
+- **El compose:** las imágenes base (`node:24-alpine`, `caddy:2.11-alpine`, `postgres:17-alpine`) van
+  por etiqueta, no por su huella, y los servicios no tienen `cap_drop: [ALL]`,
+  `security_opt: [no-new-privileges:true]` ni `read_only`. Con Docker sin privilegios el daño de un
+  contenedor tomado ya es chico; son unas líneas.
+- **Leer un código sin sesión lo reserva por 5 minutos.** Alguien en la misma red (un cliente en el
+  Wi-Fi del local) que lee el QR de la pantalla deja la computadora en «Esperando la huella» 5 minutos,
+  y lo puede repetir. Se sale ocultando y volviendo a mostrar la pestaña (abre otra pantalla). Lo dejo
+  anotado; acortar ese plazo es una decisión de la regla.
+
+### Lo que está bien y no repito
+
+- **Entrar sin permiso:** el pase de 32 bytes en una cookie `__Host-` con `HttpOnly`, `Secure`,
+  `SameSite=Strict` y `Max-Age`; solo su hash en la base (E40, con prueba). El pase de Google verificado
+  con `RS256` fijo, emisor, público, vencimiento, correo verificado y `nonce` de un uso. La huella con
+  `userVerification` obligatorio, ES256, origen y `rpId`. La llave de prueba P-256 no exportable, y el
+  servidor que rechaza otra curva.
+- **Permisos:** el canal y el permiso atados a la cookie de la pantalla; el permiso de un uso por 30
+  segundos y de esa pantalla; una persona dada de baja no entra por ninguno de los tres caminos ni
+  usa un permiso ya dado (`claim` mira `active`).
+- **Lo que entra de afuera:** contratos con largos máximos, 64 KB en Caddy y en Hono (también en
+  cuerpos sin `Content-Length`), `X-Device-Id` como UUID; consultas con parámetros de Kysely, sin SQL
+  armado con texto (la sentencia de `writeLastUsed` usa `sql` con parámetros).
+- **El navegador:** sin `dangerouslySetInnerHTML` (regla de Biome), el código del QR que se borra de la
+  dirección, el lector que solo acepta direcciones de este origen, `frame-ancestors 'none'` en la
+  aplicación y `'self'` solo en el marco del botón, el service worker que no toca `/api` ni el marco.
+- **Secretos:** nada en el repositorio ni en su historia (lo busqué); el `.env` y `deploy.env` con
+  permisos 600; la contraseña de la base generada en la máquina sin mostrarse; el canal de ntfy como
+  secreto de GitHub; el emisor de prueba con llaves que nacen y mueren en cada corrida.
+- **El despliegue:** solo `127.0.0.1:8090` publicado; PostgreSQL en la red interna; el servidor con
+  el usuario `node`; los workflows con permisos mínimos, acciones fijadas por su commit, sin
+  `pull_request_target`, y el despliegue solo después de un `push` a `main` con el control en verde;
+  `deploy.sh` una vez por minuto y las imágenes por su huella.
+
+### Cada riesgo y su prueba
+
+| Riesgo | Prueba que lo intenta |
+|---|---|
+| Correo reasignado a otra persona | `users.test.ts`, «un correo reasignado…» |
+| Pedido desde otro sitio, sin origen, sin cuerpo, con otro tipo, más de 64 KB | `http.test.ts`, «rechaza %s y lo anota» |
+| Emisor de prueba fuera de `e2e` | `config.test.ts` |
+| `nonce` usado o inventado | `google.test.ts` |
+| Cancelar sin el secreto, firma de otro desafío, permiso de otra pantalla, otra red al aprobar | `codes.test.ts`, `edges.test.ts` |
+| Huella sin verificación, contador que retrocede, desafío de vincular para entrar | `passkeys.test.ts` |
+| Límite por cuenta que no frena Google | `passkeys/limits.test.ts` (E20c) |
+| Topes por dirección | `limits.test.ts`, `edges.test.ts` |
+| Una cookie inventada no queda en memoria | Parcial: la prueba mira que no sea nadie, no que no se guarde |
+| La dirección real en la máquina | **Falta** (punto 24) |
+| `::ffff:` en la dirección de Caddy | **Falta** (punto 24) |
+| Pantalla sin canal, varios canales por pantalla | **Falta** (puntos 25 y 26) |
+| Claves inventadas en el limitador | **Falta** (punto 27) |
+| Límite en `approve` | **Falta** (punto 29) |
+| Cuerpo que no es JSON | **Falta** (punto 30) |
+
+### El estado de los puntos del paso 4
+
+| # | Punto del paso 4 | Estado en el código |
+|---|---|---|
+| 1 | La dirección real con Docker sin privilegios | El diseño pasó al proxy de la máquina; **sigue abierto** con otra forma (punto 24) |
+| 2 | La ciudad desconocida | Ya no aplica: la regla pasó a «la misma red», sin ciudades |
+| 3 | Correo reasignado | Cerrado, con prueba |
+| 4 | El nombre de la computadora | Cerrado: lo arma el servidor de una lista cerrada |
+| 5 | La llave de prueba | Cerrado: ECDSA P-256 no exportable en IndexedDB |
+| 6 | Topes de memoria y `/api/start` | En parte: hay límites, pero los totales se llenan con pocas direcciones y las pantallas no vencen (puntos 25, 27, 28) |
+| 7 | Tamaño máximo | Cerrado |
+| 8 | Pedidos desde otros sitios | Cerrado, con prueba |
+| 9 | El emisor de prueba | Cerrado; un detalle en el punto 35 |
+| 10 | La reserva y «No soy yo» | Cerrado |
+| 11 | El desafío de `approve` | Cerrado |
+| 12 | El límite por cuenta | Cerrado: Google y la huella aparte |
+| 13 | Dar de baja | Cerrado: en la misma transacción y fuera de la memoria |
+| 14 | Cerrar a distancia antes del módulo 02 | **Abierto:** las instrucciones no están (punto 32) |
+| 15 | Lo que queda al salir | Cerrado: se borran el nombre, el rol, la llave y el aviso; `data-private` sin usar (punto 35) |
+| 16 | El service worker y `/api` | Cerrado; un detalle nuevo en el punto 34 |
+| 17 | Cabeceras | Cerrado; la política de la aplicación se puede ajustar (punto 33) |
+| 18 | XSS | Cerrado |
+| 19 | Auditoría | En parte (punto 31) |
+| 20 | El canal de ntfy | Cerrado: es un secreto |
+| 21 | Los workflows | Cerrado |
+| 22 | `DATABASE_URL` | Cerrado |
+| 23 | Dependencias | Cerrado: versiones exactas, Hono 4.13.14, `pnpm audit --prod` sin fallas; el nivel, en el punto 35 |
+
+### Dependencias
+
+`pnpm audit --prod` no encuentra fallas conocidas. Las versiones están fijadas: Hono 4.13.14,
+`@hono/node-server` 2.1.5, jose 6.2.13, `@simplewebauthn/server` 14.0.3, Kysely 0.29.7, pg 8.23.1,
+zod 4.6.7, Preact 11.0.2, `qrcode-generator` 2.0.4, `@zxing/library` 0.23.0 y `html-to-image` 1.11.13.
+
+- **Hono** tuvo muchas fallas publicadas este año, varias en piezas que este código no usa (CORS,
+  `basicAuth`, JWT, `serveStatic`, JSX en el servidor, `ipRestriction`). Las que tocan lo que sí usa
+  son la de `bodyLimit` con cuerpos partidos (CVE-2026-44456) y la de nombres de cookie en
+  `setCookie` (CVE-2026-56762); leí el `bodyLimit` instalado y cuenta también los cuerpos partidos, y
+  los nombres de cookie acá son fijos. No pude comprobar en una fuente oficial la versión exacta que
+  corrige cada una; `pnpm audit` no marca ninguna para 4.13.14.
+- **Kysely:** las fallas de inyección de este año (CVE-2026-32763 y las de MySQL) son de rutas JSON en
+  MySQL y SQLite y de `sql.lit`; este código usa PostgreSQL y no usa ninguna de las dos.
+- **ZXing y `html-to-image`:** no encontré fallas publicadas ni pude confirmar cuán mantenidos están.
+  Se bajan recién cuando se usan, desde el propio origen; el riesgo es chico.
+
+### Lo que no pude comprobar
+
+- Si Node, dentro del contenedor, ve `::ffff:172.30.0.10` (punto 24): Docker no estaba prendido en esta
+  máquina. Se comprueba en la máquina con `docker compose logs server` después de un pedido, o con la
+  prueba que propongo.
+- Si el proxy de la máquina pisa el `X-Forwarded-For` que manda el navegador (punto 24): su
+  configuración global no está en el repositorio.
+- Cuántas conexiones abiertas aguanta la VM antes de caerse (punto 26).
+- Las pruebas de punta a punta: no las corrí, como se pidió.
+
+Fuentes: [Nextcloud, «Requesting address is denied: ::ffff:172.17.0.1»](https://help.nextcloud.com/t/requesting-address-is-denied-172-17-0-1-wsd-loolwsd-cpp-1971/44179/18),
+[Apify, IPv4 escrita como IPv6 en Node](https://blog.apify.com/ipv4-mapped-ipv6-in-nodejs/),
+[CVE-2026-39409 en Docker Scout](https://scout.docker.com/vulnerabilities/id/CVE-2026-39409/my-images),
+[fallas de Hono en cve-dev.imfht.com](https://cve-dev.imfht.com/product/hono?lang=en),
+[CVE-2026-47674 de Hono en GitLab](https://advisories.gitlab.com/npm/hono/CVE-2026-47674/),
+[CVE-2026-32763 de Kysely en NCSC](https://vulnerabilities.ncsc.nl/csaf/v2/2026/cve-2026-32763.json),
+[fallas de kysely-org en cve.imfht.com](https://cve.imfht.com/vendor/kysely-org).
