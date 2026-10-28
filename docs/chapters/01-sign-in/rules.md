@@ -133,7 +133,9 @@ enviar es «Salir» (R5.2).
 
 - **R7.1** Se ve como su maqueta aprobada (`docs/design/mockups/sign-in/adapted/`), en una sola
   pantalla que se adapta al ancho. En el celular también está «Entrar con Google».
-- **R7.2** «Ver el manual» aparece recién cuando exista el manual.
+- **R7.2** La entrada de la computadora tiene «Ver el manual», debajo de lo que hace Ferrebress (en
+  el celular, el manual se abre desde Más). Mientras el manual no exista, lleva «Pronto» y al
+  tocarlo dice «Manual · pronto. Todavía no está.».
 
 ## Escenarios
 
@@ -255,8 +257,8 @@ enviar es «Salir» (R5.2).
 
 - **E38** **Dado** la entrada, **cuando** se abre en la computadora y en el celular, **entonces** se ve
   como su maqueta aprobada, con «Entrar con Google» en los dos.
-- **E39** **Dado** que todavía no existe el manual, **cuando** se mira la entrada, **entonces** no hay
-  «Ver el manual».
+- **E39** **Dado** que todavía no existe el manual, **cuando** se toca «Ver el manual» en la entrada
+  de la computadora, **entonces** dice que todavía no está; el botón lleva «Pronto».
 
 ### Seguridad
 

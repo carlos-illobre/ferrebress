@@ -32,6 +32,10 @@ la computadora: `screenshot-phone-qr-ask.png` y `screenshot-phone-other-network.
   pasos: el ya hecho («Cuenta de Google verificada», «Huella confirmada»…) y «Abriendo tu sesión».
   Solo giran el anillo y la marca del paso en curso (`transform`); con «reducir movimiento», nada
   gira. Se ve con los estados «Entrando con…» del selector.
+- **«Ver el manual» en la computadora (R7.2):** una pastilla naranja debajo de los tres puntos de
+  la marca, como el «Ver tutorial» de la primera versión, con el ícono del libro de Más → Manual.
+  Mientras el manual no exista lleva «Pronto», y al tocarlo dice «Manual · pronto. Todavía no
+  está.». Atajo: Alt M. En el celular no está: el manual se abre desde Más.
 - **Solo el código QR de Ferrebress (R2.6):** sin el estado «Con Bluetooth» ni la ventana del
   navegador que pedía el celular cercano.
 

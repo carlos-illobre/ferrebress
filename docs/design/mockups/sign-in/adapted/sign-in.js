@@ -246,6 +246,15 @@
     }, wait(1800));
   });
 
+  // ---------- «Ver el manual»: todavía no existe (R7.2) ----------
+  var soonTimer = null;
+  $("#manual").addEventListener("click", function () {
+    var t = $("#soon-toast");
+    t.hidden = false;
+    clearTimeout(soonTimer);
+    soonTimer = setTimeout(function () { t.hidden = true; }, wait(2400));
+  });
+
   // ---------- Simular que el celular lee el QR (computadora) ----------
   $("#sim-read").addEventListener("click", function () {
     var st = document.body.dataset.state;

@@ -38,6 +38,10 @@
         <li><span><i class="i" data-i="file-text"></i></span><span>Los precios se actualizan<br>con las listas de los proveedores.</span></li>
         <li><span><i class="i" data-i="package"></i></span><span>Lo que se vende baja del stock;<br>lo que se compra, sube.</span></li>
       </ul>
+      <!-- «Ver el manual» (R7.2): mientras el manual no exista, lleva «Pronto» y dice que todavía no está. -->
+      <button type="button" class="manual d-only" id="manual" data-mark data-key="m">
+        <i class="i" data-i="book-open"></i>Ver el manual<span class="manual-soon">Pronto</span><kbd>M</kbd>
+      </button>
     </section>
 
     <img class="phone-shot d-only" src="phone-selling.webp" alt="" aria-hidden="true">
@@ -134,6 +138,9 @@
     </footer>
   </div>
 </main>
+
+<!-- Lo que dice una opción que todavía no existe (como en el marco). -->
+<p class="soon-toast" id="soon-toast" role="status" hidden>Manual · pronto. Todavía no está.</p>
 
 <!-- ============ Lo que se abre encima ============ -->
 <div class="scrim" id="scrim" hidden></div>
