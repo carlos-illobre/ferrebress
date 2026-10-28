@@ -77,6 +77,7 @@ export type GoogleButton = {
   nonce: string;
   width: number;
   onCredential: (credential: string) => void;
+  theme?: 'filled_blue' | 'outline';
 };
 
 // Dibuja el botón dentro del elemento y dice si lo dibujó: si Google no carga (sin conexión), no.
@@ -99,7 +100,7 @@ export async function showGoogleButton(
     ux_mode: 'popup',
   });
   google.renderButton(element, {
-    theme: 'filled_blue',
+    theme: button.theme === 'outline' ? 'outline' : 'filled_blue',
     shape: 'pill',
     size: 'large',
     text: 'continue_with',

@@ -1,0 +1,111 @@
+/* La entrada oscura del celular (phone-dark.css): la huella y «Escanear» en círculos, el pie y el
+   lugar de Google sobre lo oscuro (google/google-slot.css). */
+@layer screens {
+  @media (max-width: 899px) {
+    .sign-in[data-device="phone"] {
+      /* La huella y escanear: un círculo con el ícono y debajo qué es; todo es el botón. */
+      .round-way {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0 12px 2px;
+        border: 0;
+        border-radius: 16px;
+        background: none;
+        color: var(--dark-text);
+        font: inherit;
+        text-align: center;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: opacity 200ms;
+      }
+      .round-way-circle {
+        display: grid;
+        place-items: center;
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        background: var(--dark-scan);
+        box-shadow: inset 0 0 0 1.5px var(--dark-scan-border);
+      }
+      .finger .round-way-circle {
+        background: var(--dark-finger);
+        box-shadow: inset 0 0 0 1.5px var(--dark-finger-border);
+      }
+      .round-way-circle .icon {
+        width: 46px;
+        height: 46px;
+        color: #eef3ef;
+      }
+      .round-way strong {
+        margin-top: 4px;
+        font-size: 16px;
+        line-height: 22px;
+        font-weight: 500;
+      }
+      .round-way small {
+        font-size: 14.5px;
+        line-height: 19px;
+        color: var(--dark-text-3);
+      }
+      .round-way.off {
+        opacity: 0.38;
+        filter: none;
+      }
+
+      .no-account {
+        order: 4;
+        margin-top: auto;
+        padding-top: 34px;
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--dark-text-2);
+      }
+
+      /* El lugar de Google sobre lo oscuro: la línea clara, el tramo blanco y, al llegar Google, se
+         completa en blanco, el color de su botón (google/google-slot.css). */
+      .g-track {
+        background: rgb(255 255 255 / 0.22);
+      }
+      .g-run {
+        background: linear-gradient(
+          90deg,
+          #fff 0 16%,
+          transparent 16% 50%,
+          #fff 50% 66%,
+          transparent 66%
+        );
+      }
+      .g-fill {
+        background: #fff;
+      }
+      .g-label {
+        color: var(--dark-text-2);
+        font-weight: 500;
+      }
+      .g-fail .g-track {
+        background: var(--urgent);
+      }
+      .g-fail .g-label {
+        color: #ffd27a;
+      }
+      .g-fail b {
+        color: #fff;
+      }
+    }
+  }
+
+  @media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
+    .sign-in[data-device="phone"] .round-way-circle {
+      transition: transform 120ms ease-out;
+    }
+    .sign-in[data-device="phone"] .round-way:active .round-way-circle {
+      transform: scale(0.95);
+    }
+  }
+  @media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+    .sign-in[data-device="phone"] .g-run {
+      background: #fff;
+    }
+  }
+}

@@ -35,7 +35,7 @@ describe('la espera de entrar', () => {
       '/api/sign-in/passkey': 'waiting',
     });
     const { card } = open();
-    fireEvent.click(within(card).getByRole('button', { name: /Entrar con la huella/ }));
+    fireEvent.click(within(card).getByRole('button', { name: /Ingresar con huella/ }));
     // La llave de la sesión se crea con la criptografía del navegador, que no sigue al reloj falso.
     await vi.waitFor(() => expect(server.bodies('/api/sign-in/passkey')).toHaveLength(1));
     await later(300);

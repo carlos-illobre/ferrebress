@@ -2,6 +2,7 @@
 // aprobada (docs/design/mockups/sign-in/adapted/). Se ve sin sesión, y encima de lo que había si
 // la sesión se cerró (R3.4).
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
+import { isPhone } from '../../../../platform/device/device.ts';
 import { online as onlineStore, sessionClosed } from '../../../../platform/server/api.ts';
 import { useStore } from '../../../../platform/store.ts';
 import { useWaiting } from '../../../../platform/waiting.ts';
@@ -19,6 +20,8 @@ import './qr/qr.css';
 import './styles/desktop-end.css';
 import './styles/phone.css';
 import './styles/phone-buttons.css';
+import './styles/phone-dark.css';
+import './styles/phone-dark-ways.css';
 
 export type EntranceProps = {
   start: StartResponse;
@@ -34,6 +37,8 @@ export function Entrance({ start, onScan, signInFirst, onStale }: EntranceProps)
   const { notice, setNotice } = useNotice();
   const { run } = useWaiting();
   const way = useStore(entering);
+  // El celular tiene su entrada oscura; la computadora con la ventana angosta sigue con la clara.
+  const phone = isPhone();
   const state: EntranceState = {
     start,
     online,
@@ -50,18 +55,28 @@ export function Entrance({ start, onScan, signInFirst, onStale }: EntranceProps)
   return (
     <EntranceContext.Provider value={state}>
       {start.environment !== 'production' && <TestEnvironment />}
-      <main class={online ? 'sign-in' : 'sign-in offline'} data-layer="">
+      <main
+        class={online ? 'sign-in' : 'sign-in offline'}
+        data-device={phone ? 'phone' : 'computer'}
+        data-layer=""
+      >
         <div class="scene">
           <div class="scene-background" aria-hidden="true" />
-          <Brand />
+          <Brand phone={phone} />
           <PhoneShot />
           <Status />
           <div class="right">
             <Card />
             <Seals />
           </div>
-          <WhatFor />
-          <Wave />
+          {phone ? (
+            <p class="no-account">{texts.noAccount}</p>
+          ) : (
+            <>
+              <WhatFor />
+              <Wave />
+            </>
+          )}
         </div>
       </main>
       {way && <Entering way={way} where="screen" />}

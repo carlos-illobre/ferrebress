@@ -6,7 +6,15 @@ import { forget, readStored, store } from '../../../platform/device/storage.ts';
 
 export const googleFramePath = '/google-button.html';
 
-export type ShowGoogle = { scriptUrl: string; clientId: string; nonce: string; width: number };
+// `theme`: el botón azul (la computadora) o el blanco (la entrada oscura del celular).
+export type GoogleTheme = 'filled_blue' | 'outline';
+export type ShowGoogle = {
+  scriptUrl: string;
+  clientId: string;
+  nonce: string;
+  width: number;
+  theme: GoogleTheme;
+};
 
 export type ToFrame = { type: 'show' } & ShowGoogle;
 export type FromFrame =

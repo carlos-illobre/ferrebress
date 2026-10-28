@@ -84,7 +84,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   Google. Queda anotado para la auditoría.
 - **R2.11 Los menos pasos para poner la huella.** El lector de la huella lo muestra el celular, y
   Ferrebress no suma nada alrededor:
-  - «Entrar con la huella» abre directo el lector, sin una hoja propia antes.
+  - La huella de la entrada («Ingresar con huella» en el celular) abre directo el lector, sin una
+    hoja propia antes.
   - Que entró no se avisa: se ve solo, porque aparece el marco o entra la computadora que la
     persona tiene adelante. Mientras entra, se ve la espera.
   - Solo hay una hoja antes del lector cuando pregunta algo que el celular no dice: si quiere usar
@@ -148,12 +149,19 @@ enviar es «Salir» (R5.2).
 
 ## 7. La entrada
 
-- **R7.1** Se ve como su maqueta aprobada (`docs/design/mockups/sign-in/adapted/`), en una sola
-  pantalla que se adapta al ancho. En el celular también está «Entrar con Google». Lo que se ofrece
+- **R7.1** Se ve como su maqueta aprobada. En la computadora,
+  `docs/design/mockups/sign-in/adapted/`, en una sola pantalla que se adapta al ancho. En el
+  celular, `docs/design/mockups/sign-in-phone-dark/final/`: oscura, con su letra, sus colores y sus
+  íconos, que no tiene que parecerse a la computadora. En el celular también está Google. Lo que se ofrece
   depende del dispositivo y no del ancho: la computadora siempre muestra el QR y nunca la huella ni
   «Escanear», aunque su ventana sea angosta; ahí el QR va arriba, sus pasos debajo, y después Google.
   Arriba a la derecha dice «Esta computadora» y si llega al servidor; cuando las computadoras tengan
   nombre (capítulo 04), irá el suyo.
+  - La entrada del celular dice «Iniciá sesión» y «Accedé a tu cuenta para gestionar precios,
+    ventas y stock desde cualquier lugar.»; sus formas de entrar son «Continuar con Google»,
+    «Ingresar con huella» («Rápido y seguro») y «Escanear código QR» («Entrá en la computadora con
+    su código»), separadas por «o», y abajo dice «¿No tenés cuenta? Contactá a tu administrador.».
+    Esas palabras son solo de esta pantalla: el resto de la aplicación dice «Entrar».
 - **R7.2** La entrada de la computadora tiene «Ver el manual», debajo de lo que hace Ferrebress (en
   el celular, el manual se abre desde Más). Mientras el manual no exista, lleva «Pronto» y al
   tocarlo dice «Manual · pronto. Todavía no está.».
@@ -277,7 +285,7 @@ enviar es «Salir» (R5.2).
 ### La entrada
 
 - **E38** **Dado** la entrada, **cuando** se abre en la computadora y en el celular, **entonces** se ve
-  como su maqueta aprobada, con «Entrar con Google» en los dos.
+  como su maqueta aprobada, con «Continuar con Google» en los dos.
 - **E39** **Dado** que todavía no existe el manual, **cuando** se toca «Ver el manual» en la entrada
   de la computadora, **entonces** dice que todavía no está; el botón lleva «Pronto».
 

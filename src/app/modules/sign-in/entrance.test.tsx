@@ -80,7 +80,7 @@ describe('la entrada en la computadora', () => {
     await waitFor(() => expect(card.querySelector('.qr svg path')).not.toBeNull());
     expect(within(card).queryByRole('button', { name: /Entrar con el celular/ })).toBeNull();
     // Aunque la ventana sea angosta, la computadora no ofrece lo del celular (R2.6).
-    expect(within(card).queryByRole('button', { name: /Entrar con la huella/ })).toBeNull();
+    expect(within(card).queryByRole('button', { name: /Ingresar con huella/ })).toBeNull();
     expect(within(card).queryByRole('button', { name: /Escanear/ })).toBeNull();
     expect(credentials.get).not.toHaveBeenCalled();
   });
@@ -190,7 +190,7 @@ describe('la entrada en el celular', () => {
     document.body.innerHTML = '';
     const { card, onScan } = open();
     expect(card.querySelector('.qr')).toBeNull();
-    fireEvent.click(within(card).getByRole('button', { name: /Escanear el código/ }));
+    fireEvent.click(within(card).getByRole('button', { name: /Escanear código QR/ }));
     expect(onScan).toHaveBeenCalledOnce();
   });
 
@@ -198,7 +198,7 @@ describe('la entrada en el celular', () => {
     googleFrame();
     online.set(false);
     const { card } = open();
-    for (const name of [/Entrar con la huella/, /Escanear/])
+    for (const name of [/Ingresar con huella/, /Escanear/])
       expect(within(card).getByRole('button', { name }).hasAttribute('disabled')).toBe(true);
     online.set(true);
   });
@@ -212,12 +212,12 @@ describe('la entrada en el celular', () => {
       },
     });
     const { card } = open();
-    fireEvent.click(within(card).getByRole('button', { name: /Entrar con la huella/ }));
+    fireEvent.click(within(card).getByRole('button', { name: /Ingresar con huella/ }));
     expect(await screen.findByText('Demasiados intentos seguidos')).toBeTruthy();
     expect(screen.getByText('0:45')).toBeTruthy();
     expect(
       within(card)
-        .getByRole('button', { name: /Entrar con la huella/ })
+        .getByRole('button', { name: /Ingresar con huella/ })
         .hasAttribute('disabled'),
     ).toBe(true);
     // El botón de Google, que es un marco, tampoco se alcanza con el teclado, y se ve gris.

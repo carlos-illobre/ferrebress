@@ -12,6 +12,6 @@ test('vincula la huella después de Google y entra con ella', async ({ browser }
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.getByRole('button', { name: 'Más', exact: true }).click();
   await page.getByRole('button', { name: /Salir/ }).click();
-  await page.getByRole('button', { name: /Entrar con la huella/ }).click();
+  await page.getByRole('button', { name: /Ingresar con huella/ }).click();
   await expect(page.getByRole('button', { name: 'Más', exact: true })).toBeVisible();
 });

@@ -9,12 +9,13 @@ export function startGoogleFrame(place: HTMLElement, app: Window): void {
   addEventListener('message', (event) => {
     const message = messageFrom<ToFrame>(event, app);
     if (message?.type !== 'show') return;
-    const { scriptUrl, clientId, nonce, width } = message;
+    const { scriptUrl, clientId, nonce, width, theme } = message;
     void showGoogleButton(place, {
       scriptUrl,
       clientId,
       nonce,
       width,
+      theme,
       onCredential: (credential) => tell({ type: 'credential', credential }),
     }).then((drawn) => drawn && tell({ type: 'drawn' }));
   });

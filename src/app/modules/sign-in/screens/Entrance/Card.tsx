@@ -1,6 +1,7 @@
 // La tarjeta de la entrada (01 · R7.1): en la computadora, el título, el QR de Ferrebress (R2.6),
-// Google y la nota; en el celular, Google, la huella y «Escanear». En la computadora, mientras se
-// abre la sesión, la espera la tapa (R2.11).
+// Google y la nota; en el celular, «Iniciá sesión», Google, la huella y «Escanear», cada uno
+// separado por «o» (la entrada oscura). En la computadora, mientras se abre la sesión, la espera la
+// tapa (R2.11).
 import { isPhone } from '../../../../platform/device/device.ts';
 import { useStore } from '../../../../platform/store.ts';
 import logo from '../../../../styles/brand/logo-on-light.webp';
@@ -33,9 +34,14 @@ export function Card() {
         <ClosedNotice />
         {phone ? (
           <>
+            <div class="phone-head">
+              <h2 class="phone-title">{texts.phoneTitle}</h2>
+              <p class="phone-sub">{texts.phoneSub}</p>
+            </div>
             <GoogleButton />
             <Or />
             <FingerButton />
+            <Or second />
             <ScanButton />
           </>
         ) : (
@@ -46,33 +52,36 @@ export function Card() {
           </>
         )}
         <MainNotice />
-        <CardEnd />
+        <CardEnd phone={phone} />
       </div>
       {way && <Entering way={way} where="card" />}
     </section>
   );
 }
 
-const Or = () => (
-  <div class="or" aria-hidden="true">
+const Or = ({ second = false }: { second?: boolean }) => (
+  <div class={second ? 'or or-second' : 'or'} aria-hidden="true">
     <span>{texts.or}</span>
   </div>
 );
 
-function CardEnd() {
+// «Sin contraseñas» queda solo en la computadora con la ventana angosta: el celular ya no lo tiene.
+function CardEnd({ phone }: { phone: boolean }) {
   return (
     <>
       <p class="note desktop-only">
         <Icon name="shield" />
         <span>{texts.note}</span>
       </p>
-      <p class="no-password phone-only">
-        <Icon name="lock" stroke={1.8} />
-        <span>
-          <strong>{texts.noPassword}</strong>
-          {texts.noPasswordDetail}
-        </span>
-      </p>
+      {!phone && (
+        <p class="no-password phone-only">
+          <Icon name="lock" stroke={1.8} />
+          <span>
+            <strong>{texts.noPassword}</strong>
+            {texts.noPasswordDetail}
+          </span>
+        </p>
+      )}
       <p class="card-foot desktop-only">
         <span>
           <Icon name="lock" />

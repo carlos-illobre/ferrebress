@@ -1,39 +1,66 @@
-// Los botones para entrar del celular: la huella (R2.2) y «Escanear el código de la computadora»
+// Los botones para entrar del celular: la huella (R2.2) y «Escanear código QR»
 // (R2.7). El de Google, en los dos anchos, está aparte (google/GoogleButton.tsx).
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
 import { texts } from '../../texts.ts';
 import { withPasskey } from '../../useSignIn.ts';
 import { limited, offline, useEntrance } from './context.ts';
 
-export function FingerButton() {
-  const entrance = useEntrance();
-  const off = limited(entrance);
+// En el celular, cada forma de entrar es un círculo con su ícono y debajo qué es: todo es el botón.
+function RoundWay({
+  kind,
+  icon,
+  title,
+  detail,
+  off,
+  onPress,
+}: {
+  kind: 'finger' | 'scan';
+  icon: IconName;
+  title: string;
+  detail: string;
+  off: boolean;
+  onPress: () => void;
+}) {
   return (
     <button
       type="button"
-      class={off ? 'finger off' : 'finger'}
+      class={`round-way ${kind}${off ? ' off' : ''}`}
       disabled={off}
-      onClick={() => entrance.attempt(withPasskey)}
+      onClick={onPress}
     >
-      <Icon name="fingerprint" stroke={1.8} />
-      <span>
-        <strong>{texts.finger}</strong>
-        <small>{texts.fingerDetail}</small>
+      <span class="round-way-circle">
+        <Icon name={icon} stroke={kind === 'finger' ? 1.3 : 1.6} />
       </span>
+      <strong>{title}</strong>
+      <small>{detail}</small>
     </button>
+  );
+}
+
+export function FingerButton() {
+  const entrance = useEntrance();
+  return (
+    <RoundWay
+      kind="finger"
+      icon="fingerprint-arches"
+      title={texts.finger}
+      detail={texts.fingerDetail}
+      off={limited(entrance)}
+      onPress={() => entrance.attempt(withPasskey)}
+    />
   );
 }
 
 export function ScanButton() {
   const entrance = useEntrance();
-  const off = offline(entrance);
   return (
-    <button type="button" class={off ? 'scan off' : 'scan'} disabled={off} onClick={entrance.scan}>
-      <Icon name="scan-qr" stroke={1.8} />
-      <span>
-        <strong>{texts.scan}</strong>
-        <small>{texts.scanDetail}</small>
-      </span>
-    </button>
+    <RoundWay
+      kind="scan"
+      icon="scan-frame"
+      title={texts.scan}
+      detail={texts.scanDetail}
+      off={offline(entrance)}
+      onPress={entrance.scan}
+    />
   );
 }

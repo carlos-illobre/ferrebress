@@ -3,7 +3,9 @@
 // computadora reemplaza solo la tarjeta, y la escena no cambia (docs/design/mockups/
 // sign-in-entering/final/). Al abrirse la sesión aparece el marco, sin aviso de «Entraste».
 
+import { isPhone } from '../../../../../platform/device/device.ts';
 import isotype from '../../../../../styles/brand/isotype.svg';
+import logoOnDark from '../../../../../styles/brand/logo-on-dark-large.webp';
 import logo from '../../../../../styles/brand/logo-on-light.webp';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { texts } from '../../../texts.ts';
@@ -11,6 +13,7 @@ import type { Way } from '../../../useSignIn.ts';
 import { GoogleG } from '../google/GoogleG.tsx';
 import './entering.css';
 import './entering-card.css';
+import './entering-phone.css';
 
 const t = texts.entering;
 
@@ -46,17 +49,21 @@ function Stop({
 // where: «screen», la pantalla entera del celular; «card», en lugar de la tarjeta de la computadora.
 export function Entering({ way, where }: { way: Way; where: 'screen' | 'card' }) {
   const said = t[way];
+  // En el celular, sobre la foto oscura de su entrada, con el logo blanco.
+  const phone = isPhone();
   return (
     <section
       class={
         where === 'screen'
-          ? 'entering entering-screen phone-only'
+          ? `entering entering-screen phone-only${phone ? ' on-phone' : ''}`
           : 'entering entering-card desktop-only'
       }
       role="status"
       aria-labelledby={`entering-${where}`}
     >
-      {where === 'screen' && <img class="entering-logo" src={logo} alt="Ferrebress" />}
+      {where === 'screen' && (
+        <img class="entering-logo" src={phone ? logoOnDark : logo} alt="Ferrebress" />
+      )}
       <h2 id={`entering-${where}`}>{said.title}</h2>
       <p class="entering-detail">{said.detail}</p>
       <div class="entering-path" aria-hidden="true">

@@ -1,5 +1,5 @@
-/* La entrada en el celular (debajo de 900 px), como su maqueta: la marca arriba, Google, la huella,
-   «Escanear», para qué sirve y la ola. */
+/* La entrada de debajo de 900 px: la marca arriba y la tarjeta debajo. La computadora con la
+   ventana angosta la usa clara; el celular, oscura (phone-dark.css, que se pone encima). */
 @layer screens {
   @media (max-width: 899px) {
     .sign-in {
@@ -106,12 +106,6 @@
       flex: 1;
       height: 1px;
       background: var(--border);
-    }
-    .finger {
-      order: 5;
-    }
-    .scan {
-      order: 6;
     }
     .no-password {
       order: 7;

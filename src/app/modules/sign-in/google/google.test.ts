@@ -73,12 +73,25 @@ describe('el botón de Google', () => {
     expect(await second).toBe(true);
     expect(id.renderButton).toHaveBeenCalledWith(
       element,
-      expect.objectContaining({ text: 'continue_with', width: 300 }),
+      expect.objectContaining({ text: 'continue_with', width: 300, theme: 'filled_blue' }),
     );
     const options = id.initialize.mock.calls[0]?.[0];
     expect(options).toMatchObject({ client_id: 'c', nonce: 'n' });
     options.callback({ credential: 'pase' });
     expect(onCredential).toHaveBeenCalledWith('pase');
+    // En la entrada oscura del celular, el botón blanco de Google.
+    await showGoogleButton(element, {
+      scriptUrl,
+      clientId: 'c',
+      nonce: 'n',
+      width: 300,
+      theme: 'outline',
+      onCredential,
+    });
+    expect(id.renderButton).toHaveBeenLastCalledWith(
+      element,
+      expect.objectContaining({ theme: 'outline' }),
+    );
   });
 
   it('dice que lo dibujó recién cuando llegaron los estilos de Google, o a los 3 s', async () => {
@@ -204,7 +217,13 @@ describe('el marco del botón de Google', () => {
     Object.defineProperty(frame, 'contentWindow', { value: inside });
     const events = { drawn: vi.fn(), credential: vi.fn() };
     const connection = connectGoogleFrame(frame, events);
-    const show = { scriptUrl, clientId: 'c', nonce: 'n', width: 320 };
+    const show = {
+      scriptUrl,
+      clientId: 'c',
+      nonce: 'n',
+      width: 320,
+      theme: 'filled_blue' as const,
+    };
     connection.show(show);
     expect(inside.postMessage).not.toHaveBeenCalled();
     from({}, { type: 'ready' });

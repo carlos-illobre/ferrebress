@@ -1,0 +1,169 @@
+/* La entrada del celular, oscura (docs/design/mockups/sign-in-phone-dark/final/, desde una imagen
+   de Carlos): la foto desenfocada de una ferretería con un degradado encima, el logo blanco,
+   «Iniciá sesión», Google blanco y la huella y «Escanear» en círculos. La letra (Google Sans), los
+   colores y los íconos son los de esa imagen, no los de «Mostrador», y no tiene que parecerse a la
+   computadora. Solo el celular (data-device="phone"); la computadora con la ventana angosta sigue
+   con la clara. La foto y la letra se bajan recién cuando se muestra, y quedan guardadas. Las
+   formas de entrar están en phone-dark-ways.css y «Entrando», en entering/entering-phone.css. */
+@font-face {
+  font-family: "Google Sans Local";
+  src: url("../../../../../styles/fonts/google-sans-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: block;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215;
+}
+
+:root {
+  --dark-background: #06100e;
+  --dark-text: #ffffff;
+  --dark-text-2: #dcdcd6;
+  --dark-text-3: #cfd0ca;
+  --dark-motto: #9ccab3;
+  --dark-line: rgb(255 255 255 / 0.24);
+  --dark-finger: #034a3a;
+  --dark-finger-border: #7fa597;
+  --dark-scan: rgb(4 18 16 / 0.72);
+  --dark-scan-border: #b4bbb6;
+  --dark-font: "Google Sans Local", "Google Sans", Roboto, Arial, system-ui, sans-serif;
+}
+
+@layer screens {
+  @media (max-width: 899px) {
+    .sign-in[data-device="phone"] {
+      background: var(--dark-background);
+      font-family: var(--dark-font);
+
+      .scene {
+        isolation: isolate;
+        gap: 0;
+        padding: 0 28px 34px;
+        background: none;
+        color: var(--dark-text);
+        text-align: center;
+      }
+      .scene > * {
+        max-width: 400px;
+      }
+      .scene-background {
+        display: block;
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+          linear-gradient(
+            180deg,
+            rgb(3 34 28 / 0.82) 0%,
+            rgb(3 32 26 / 0.66) 20%,
+            rgb(3 26 22 / 0.5) 32%,
+            rgb(3 18 15 / 0.4) 52%,
+            rgb(6 8 6 / 0.46) 74%,
+            rgb(10 6 3 / 0.46) 88%,
+            rgb(4 3 2 / 0.66) 100%
+          ),
+          #1d1a14 url("./phone-background.webp") center / cover no-repeat;
+      }
+
+      /* Arriba a la derecha, solo sin conexión: encima de la foto, sin correr nada. */
+      .status {
+        position: absolute;
+        top: 34px;
+        right: 14px;
+        z-index: 2;
+        width: auto;
+        min-height: 0;
+      }
+
+      .brand {
+        gap: 0;
+        padding-top: 70px;
+      }
+      .brand-logo img {
+        width: 209px;
+        margin: 0;
+      }
+      .brand-motto {
+        max-width: 300px;
+        margin: 15px auto 0;
+        font-size: 15px;
+        line-height: 21px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        color: var(--dark-motto);
+      }
+
+      .card {
+        align-items: center;
+        gap: 0;
+      }
+      .card-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .phone-head {
+        order: 0;
+        margin-top: 50px;
+      }
+      .phone-title {
+        font-size: 38px;
+        line-height: 44px;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        color: var(--dark-text);
+      }
+      .phone-sub {
+        max-width: 268px;
+        margin: 8px auto 0;
+        font-size: 16.5px;
+        line-height: 20px;
+        color: var(--dark-text-2);
+      }
+      .notice {
+        align-self: stretch;
+        margin-top: 18px;
+        text-align: left;
+      }
+      .google {
+        order: 3;
+        align-self: stretch;
+        margin-top: 46px;
+      }
+      /* Con un aviso, el botón se acerca, para que el pie quede lo más cerca de la pantalla. */
+      .notice ~ .google,
+      .card-body:has(.notice) .google {
+        margin-top: 22px;
+      }
+      .or {
+        order: 4;
+        align-self: center;
+        width: 225px;
+        max-width: 100%;
+        height: 14px;
+        margin-top: 24px;
+        gap: 10px;
+        color: var(--dark-text-2);
+        font-size: 13px;
+        line-height: 1;
+      }
+      .or::before,
+      .or::after {
+        background: var(--dark-line);
+      }
+      .finger {
+        order: 5;
+        margin-top: 16px;
+      }
+      .or-second {
+        order: 6;
+        margin-top: 7px;
+      }
+      .scan {
+        order: 7;
+        margin-top: 18px;
+      }
+    }
+  }
+}

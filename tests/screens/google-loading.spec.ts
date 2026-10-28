@@ -18,7 +18,11 @@ async function waiting(page: Page, ms: number, phase: string): Promise<void> {
 test('en la computadora, pasados 2 s: «Conectando con Google…»', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await waiting(page, 2500, 'slow');
-  await expect(page).toHaveScreenshot('google-loading-desktop.png');
+  // El reloj de la página sigue andando mientras se saca la captura: la cuenta regresiva del QR,
+  // que no es lo que se prueba acá, va tapada.
+  await expect(page).toHaveScreenshot('google-loading-desktop.png', {
+    mask: [page.locator('.qr-count')],
+  });
 });
 
 test.describe('en el celular', () => {

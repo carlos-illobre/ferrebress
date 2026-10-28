@@ -1,6 +1,6 @@
 // Los íconos de las pantallas: entrar, avisos, estados de la conexión y del dispositivo.
-// Lucide 0.460 (licencia ISC). Uno nuevo se copia de docs/design/common/icons/, solo cuando una
-// pantalla lo usa.
+// Lucide 0.460 (licencia ISC), salvo los dos de la entrada oscura del celular. Uno nuevo se copia de
+// docs/design/common/icons/, solo cuando una pantalla lo usa.
 export const shapes = {
   ban: (
     <>
@@ -35,6 +35,26 @@ export const shapes = {
       <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2" />
       <path d="M8.65 22c.21-.66.45-1.32.57-2" />
       <path d="M9 6.8a6 6 0 0 1 9 5.2v2" />
+    </>
+  ),
+  // La huella y el recuadro de escanear de la entrada oscura del celular, dibujados como en su
+  // maqueta (docs/design/mockups/sign-in-phone-dark/final/): no son de Lucide.
+  'fingerprint-arches': (
+    <>
+      <path d="M6 6.2a8.5 8.5 0 0 1 12 0" />
+      <path d="M5.5 17v-4.5a6.5 6.5 0 0 1 13 0V16" />
+      <path d="M7.5 19v-6.5a4.5 4.5 0 0 1 9 0v5" />
+      <path d="M9.5 20.5v-8a2.5 2.5 0 0 1 5 0V19" />
+      <path d="M12 12.5V21" />
+    </>
+  ),
+  'scan-frame': (
+    <>
+      <path d="M4 8.5v-3A1.5 1.5 0 0 1 5.5 4h3" />
+      <path d="M15.5 4h3A1.5 1.5 0 0 1 20 5.5v3" />
+      <path d="M20 15.5v3a1.5 1.5 0 0 1-1.5 1.5h-3" />
+      <path d="M8.5 20h-3A1.5 1.5 0 0 1 4 18.5v-3" />
+      <path d="M7.5 12h9" />
     </>
   ),
   lock: (

@@ -45,10 +45,15 @@ export const texts = {
     ],
   ],
   or: 'o',
-  finger: 'Entrar con la huella',
+  // La entrada del celular, oscura (docs/design/mockups/sign-in-phone-dark/final/): con las palabras
+  // de su maqueta, solo acá; el resto de la aplicación dice «Entrar».
+  phoneTitle: 'Iniciá sesión',
+  phoneSub: 'Accedé a tu cuenta para gestionar precios, ventas y stock desde cualquier lugar.',
+  finger: 'Ingresar con huella',
   fingerDetail: 'Rápido y seguro',
-  scan: 'Escanear el código de la computadora',
-  scanDetail: 'Para entrar en los dos de una vez',
+  scan: 'Escanear código QR',
+  scanDetail: 'Entrá en la computadora con su código',
+  noAccount: '¿No tenés cuenta? Contactá a tu administrador.',
   note: 'Solo entran las personas que un Administrador del negocio autorizó. Si es tu primera vez, pedile que agregue tu correo de Google.',
   noPassword: 'Sin contraseñas.',
   noPasswordDetail: 'Entrá de forma simple y segura.',

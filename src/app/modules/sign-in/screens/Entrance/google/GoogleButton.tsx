@@ -2,6 +2,7 @@
 // (google/messages.ts); mientras tanto, su lugar muestra «El hilo» (useGooglePhase.ts), del mismo
 // tamaño, así que cuando aparece no se mueve nada. Si no carga, se puede reintentar.
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { isPhone } from '../../../../../platform/device/device.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { connectGoogleFrame } from '../../../google/connect.ts';
 import { googleFramePath } from '../../../google/messages.ts';
@@ -42,6 +43,8 @@ function useGoogleFrame(frameKey: number, setDrawn: (drawn: boolean) => void) {
       clientId: googleClientId,
       nonce: googleNonce,
       width: Math.min(400, element.clientWidth || 400),
+      // En la entrada oscura del celular, el botón blanco.
+      theme: isPhone() ? 'outline' : 'filled_blue',
     });
   }, [googleClientId, googleNonce, frameKey]);
   return frame;

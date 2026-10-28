@@ -182,10 +182,10 @@ describe('la aplicación al abrir', () => {
     navigate('/link', { replace: true });
     fakeServer({ '/api/start': startReply(), '/api/sign-in/codes/read': { body: reading } });
     render(<App />);
-    fireEvent.click(await screen.findByRole('button', { name: /Escanear el código/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /Escanear código QR/ }));
     fireEvent.click(await screen.findByRole('button', { name: 'Cerrar' }));
     expect(screen.queryByRole('dialog', { name: 'Escanear el código' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /Escanear el código/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Escanear código QR/ }));
     await waitFor(() => expect(scan).toHaveBeenCalledTimes(2));
     act(() => read(`${location.origin}/link#c9`));
     expect(

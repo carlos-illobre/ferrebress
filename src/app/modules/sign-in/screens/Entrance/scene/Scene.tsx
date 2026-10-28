@@ -27,12 +27,17 @@ const Lines = ({ lines }: { lines: readonly string[] }) => (
   </>
 );
 
-export function Brand() {
+// `phone`: en el celular, la entrada es oscura y lleva el logo blanco, como la computadora.
+export function Brand({ phone }: { phone: boolean }) {
   return (
     <section class="brand">
       <h1 class="brand-logo">
         <img class="desktop-only" src={logoDark} alt="Ferrebress" width={593} height={152} />
-        <img class="phone-only" src={logoLight} alt="Ferrebress" width={492} height={126} />
+        {phone ? (
+          <img class="phone-only" src={logoDark} alt="Ferrebress" width={593} height={152} />
+        ) : (
+          <img class="phone-only" src={logoLight} alt="Ferrebress" width={492} height={126} />
+        )}
       </h1>
       <p class="brand-motto phone-only">{texts.motto}</p>
       <p class="brand-kicker desktop-only">{texts.kicker}</p>
