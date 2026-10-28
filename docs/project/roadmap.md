@@ -36,7 +36,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | 12 | `tickets` | Avisar de un error o pedir una mejora | Listo para la etapa de pruebas reales | 01 | Libre |
 | 13 | `customers` | Clientes importantes y su cuenta corriente | | 10 | Libre |
 | 14 | `business-overview` | Los números del negocio y el cierre de caja | | 10, 11 | Libre |
-| 15 | `offline` | Trabajar sin conexión al atender clientes y proveedores; lo que hace alguien dado de baja pasa a revisión | Desde el módulo 10 todo se programa para poder sumarlo sin rehacer nada | 10, 11 | Libre |
+| 15 | `offline` | En dos etapas. **a. Entrar sin conexión** con la huella del celular (T109). **b. Trabajar sin conexión** al atender clientes y proveedores: lo hecho se guarda en el dispositivo, cifrado, y al volver la conexión el servidor lo revisa; lo que pasa se aplica y lo que no, va a anomalías (T110) | La etapa a, ahora, por pedido de Carlos; la b, desde el módulo 10 todo se programa para poder sumarla sin rehacer nada | a: 01; b: 10, 11 | a: paso 1 (reglas) |
 | 16 | `stock-counts` | Contar por sector | | 09 | Libre |
 | 17 | `processes` | Los procesos del negocio, dibujados | Muy importante, pero puede ir al final | 02 | Libre |
 
@@ -88,7 +88,19 @@ No se construyen ahora; el diseño no les cierra la puerta.
   análisis que lea la auditoría (ADR-004).
 - [ ] T108 [carlos] Productos que se venden en dólares: cómo se muestran y se cobran los importes
   en otra moneda.
-- [ ] T109 [agente] Módulo 15 (Sin conexión): entrar sin conexión con la huella del celular,
-  verificada en el dispositivo con la llave pública guardada; la firma viaja con cada venta como
-  prueba y el servidor la verifica al volver la conexión. Solo en el celular.
+- [ ] T109 [agente] Módulo 15, etapa a (Entrar sin conexión): entrar sin conexión con la huella del
+  celular, verificada en el dispositivo con la llave pública guardada; la firma viaja con lo que se
+  manda como prueba y el servidor la verifica al volver la conexión. Solo la cuenta vinculada a ese
+  celular, solo si en el último contacto el servidor dijo que estaba activa, y como mucho 24 horas
+  desde ese contacto. La opción la prende cada persona en su celular, si un Administrador le dio
+  permiso.
+- [ ] T110 [agente] Módulo 15, etapa b (Trabajar sin conexión), lo que ya decidió Carlos: el sistema
+  no frena, revisa. Al volver la conexión el servidor revisa todo: lo que pasa se aplica tal cual,
+  con los precios que puso quien vendió (la última palabra la tiene el vendedor, no la aplicación),
+  y lo que no pasa va a anomalías para un Administrador. Rechazar una anomalía ajusta el stock o
+  deja la diferencia de caja, según corresponda. Lo de alguien dado de baja (también un celular
+  robado y denunciado) va a anomalías, diga la hora que diga el celular. Sin conexión, la factura
+  se hace a mano con el talonario. Lo guardado en el celular va cifrado con una clave que solo da
+  la huella (PRF de la passkey), si no es costoso. Perder lo no enviado (el celular roto o borrado)
+  es un riesgo aceptado.
 - [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales.
