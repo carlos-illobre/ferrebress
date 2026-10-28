@@ -10,7 +10,7 @@ import { entering } from '../../useSignIn.ts';
 import { FingerButton, GoogleButton, ScanButton } from './Buttons.tsx';
 import { Entering } from './entering/Entering.tsx';
 import { ClosedNotice, MainNotice } from './Notices.tsx';
-import { QrBlock } from './QrBlock.tsx';
+import { QrBlock } from './qr/QrBlock.tsx';
 
 export function Card() {
   const way = useStore(entering);

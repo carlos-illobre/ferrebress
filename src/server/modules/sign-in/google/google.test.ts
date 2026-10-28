@@ -4,7 +4,7 @@ import {
   createDevice,
   createSignInServer,
   type SignInServer,
-} from '../../../testing/sign-in-server.ts';
+} from '../../../testing/sign-in/sign-in-server.ts';
 
 describe('entrar con Google', () => {
   let server: SignInServer;

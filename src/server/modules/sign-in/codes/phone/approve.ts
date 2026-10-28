@@ -6,20 +6,20 @@
 import { type ApproveCodeBody, approveCodeBody } from '@ferrebress/shared/contracts/sign-in';
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
-import { fail } from '../../../platform/http.ts';
-import type { SignInContext } from '../context.ts';
+import { fail } from '../../../../platform/http.ts';
+import type { SignInContext } from '../../context.ts';
 import {
   cannotLink,
   challengeOf,
   checkAssertion,
   savePasskey,
   verifyRegistration,
-} from '../passkeys/webauthn.ts';
-import { openSession, proofKeyOf } from '../sessions/open.ts';
-import { optionalSession } from '../sessions/require.ts';
-import { signInSettings } from '../settings.ts';
-import { sameNetwork } from './network.ts';
-import type { Screen } from './screens.ts';
+} from '../../passkeys/webauthn.ts';
+import { openSession, proofKeyOf } from '../../sessions/open.ts';
+import { optionalSession } from '../../sessions/require.ts';
+import { signInSettings } from '../../settings.ts';
+import type { Screen } from '../computer/screens.ts';
+import { sameNetwork } from '../network.ts';
 
 type Approval = { userId: string } | Response;
 

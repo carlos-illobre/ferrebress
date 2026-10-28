@@ -26,7 +26,7 @@ hasta 30 veces más con 100 personas.
 ## Decisión
 
 SQLite, con el módulo `node:sqlite` que trae Node (sin dependencias), detrás de una interfaz en
-`platform/audit`:
+`platform/storage/audit`:
 
 - **Un archivo por año**, que se archiva o se borra entero.
 - **Columnas compactas:** la fecha como número, el tipo y la persona como enteros, el dato

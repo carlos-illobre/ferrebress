@@ -1,14 +1,14 @@
 // Arma el servidor a partir de la configuración: abre la base y la auditoría, migra cada módulo
 // y registra sus rutas. Separado de main.ts para que se pueda probar sin abrir un puerto.
 import { sql } from 'kysely';
-import { openAuditLog } from './platform/audit.ts';
 import { type Clock, systemClock } from './platform/clock.ts';
 import type { Config } from './platform/config.ts';
-import { migrate, openDatabase } from './platform/db.ts';
 import { createEvents } from './platform/events.ts';
 import { createHttp } from './platform/http.ts';
 import { createRateLimiter } from './platform/limits/rate-limit.ts';
 import type { Platform, ServerModule } from './platform/modules.ts';
+import { openAuditLog } from './platform/storage/audit.ts';
+import { migrate, openDatabase } from './platform/storage/db.ts';
 
 // Cómo se programa un trabajo periódico; las pruebas pasan uno que corre cuando ellas quieren.
 export type Schedule = (ms: number, run: () => void) => () => void;

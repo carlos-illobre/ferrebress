@@ -6,7 +6,7 @@ import { later } from '../../testing/later.ts';
 import { codeOf, linkUrl, qrPath } from './codes/qr.ts';
 import { minutes, noticeOf, useNotice } from './notice.ts';
 import { createPasskey, signWithPasskey } from './passkeys/webauthn.ts';
-import { secondsLeft } from './screens/Entrance/QrBlock.tsx';
+import { secondsLeft } from './screens/Entrance/qr/QrBlock.tsx';
 import { hasPasskey, offered, offerPasskey, person } from './session.ts';
 import { ana, fakePasskeys, phone, signInReply } from './sign-in-test-kit.ts';
 import { texts } from './texts.ts';

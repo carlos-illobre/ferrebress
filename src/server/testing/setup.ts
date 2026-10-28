@@ -2,6 +2,6 @@
 // testing/pglite-template.ts.
 import { readFileSync } from 'node:fs';
 import { inject } from 'vitest';
-import { useMemoryTemplate } from '../platform/db.ts';
+import { useMemoryTemplate } from '../platform/storage/db.ts';
 
 useMemoryTemplate(new Blob([readFileSync(inject('pgliteTemplate'))]));

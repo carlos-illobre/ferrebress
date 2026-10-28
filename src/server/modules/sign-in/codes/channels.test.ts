@@ -2,12 +2,12 @@
 // nunca abre su canal se libera sola, y cada pantalla tiene un solo canal.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { appHeaders } from '../../../testing/config.ts';
-import { manualWait, openScreen } from '../../../testing/screen-channel.ts';
+import { manualWait, openScreen } from '../../../testing/sign-in/screen-channel.ts';
 import {
   createDevice,
   createSignInServer,
   type SignInServer,
-} from '../../../testing/sign-in-server.ts';
+} from '../../../testing/sign-in/sign-in-server.ts';
 
 describe('las pantallas con QR y sus canales', () => {
   let server: SignInServer;

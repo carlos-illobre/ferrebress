@@ -3,8 +3,8 @@
 import { createRemoteJWKSet, type JWTVerifyGetKey } from 'jose';
 import type { ServerModule } from '../../platform/modules.ts';
 import type { Users } from '../users/index.ts';
-import { registerComputerRoutes } from './codes/computer-routes.ts';
-import { registerPhoneRoutes } from './codes/phone-routes.ts';
+import { registerComputerRoutes } from './codes/computer/computer-routes.ts';
+import { registerPhoneRoutes } from './codes/phone/phone-routes.ts';
 import { createContext } from './context.ts';
 import { registerGoogleRoutes } from './google/routes.ts';
 import { createSignIn } from './migrations/001-sign-in.ts';

@@ -1,13 +1,13 @@
 // «Hay una versión nueva» mientras se usa la aplicación (00 · R5.3, R5.4), desde su maqueta: una
 // tarjeta en la esquina con «Ahora no» y «Actualizar». Cerrada, no vuelve hasta la próxima vez que
 // se abra la aplicación, que se actualiza sola.
-import { newVersion } from '../../../platform/server/api.ts';
-import { useStore } from '../../../platform/store.ts';
-import { Button } from '../../../ui/button/Button.tsx';
-import { Icon } from '../../../ui/icon/Icon.tsx';
-import { Say } from '../../../ui/say/Say.tsx';
-import { showToast } from '../../../ui/toast/Toast.tsx';
-import { texts } from '../texts.ts';
+import { newVersion } from '../../../../platform/server/api.ts';
+import { useStore } from '../../../../platform/store.ts';
+import { Button } from '../../../../ui/button/Button.tsx';
+import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Say } from '../../../../ui/say/Say.tsx';
+import { showToast } from '../../../../ui/toast/Toast.tsx';
+import { texts } from '../../texts.ts';
 import { dismissed, update } from './update.ts';
 
 export function VersionNotice() {

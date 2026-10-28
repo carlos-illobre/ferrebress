@@ -3,13 +3,13 @@
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
 import type { Kysely } from 'kysely';
-import type { AuditEvent } from '../../platform/audit.ts';
 import { fail } from '../../platform/http.ts';
 import { createOneUse } from '../../platform/limits/one-use.ts';
 import type { Window } from '../../platform/limits/rate-limit.ts';
 import type { Platform } from '../../platform/modules.ts';
+import type { AuditEvent } from '../../platform/storage/audit.ts';
 import type { User, Users } from '../users/index.ts';
-import { createScreens } from './codes/screens.ts';
+import { createScreens } from './codes/computer/screens.ts';
 import type { GoogleSettings } from './google/verify.ts';
 import { type PasskeysTables, passkeysData } from './passkeys/data.ts';
 import { createSessionStore } from './sessions/store.ts';

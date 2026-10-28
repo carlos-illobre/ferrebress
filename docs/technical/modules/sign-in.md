@@ -28,11 +28,15 @@ ferrebress/
 │   ├── shared/contracts/            la forma de la API, con zod/mini
 │   ├── server/
 │   │   ├── main.ts                  arma el servidor y registra los módulos
-│   │   ├── platform/                config, db, audit, http, clock, events, ids, settings, y
-│   │   │                            limits/ (rate-limit y one-use: lo de un solo uso en memoria)
+│   │   ├── platform/                config, http, clock, events, ids, settings; storage/ (db y
+│   │   │                            audit: lo que se guarda) y limits/ (rate-limit y one-use: lo
+│   │   │                            de un solo uso en memoria)
 │   │   └── modules/
 │   │       ├── users/               personas: lo mínimo que necesita entrar
-│   │       └── sign-in/             entrar, salir, sesiones, huellas, códigos QR
+│   │       └── sign-in/             entrar, salir, sesiones, huellas, códigos QR (codes/, con
+│   │                                computer/: la pantalla y su canal, y phone/: leer y aprobar)
+│   ├── server/testing/              lo que comparten las pruebas; sign-in/ (el Google y la huella
+│   │                                de prueba, el canal, el servidor armado)
 │   └── app/
 │       ├── main.tsx                 arma la aplicación y registra los módulos
 │       ├── platform/                server/ (api, realtime, clock: hablar con el servidor),
@@ -45,9 +49,13 @@ ferrebress/
 │       ├── styles/                  tokens de «Mostrador», el marco de pruebas
 │       └── modules/
 │           ├── frame/               el marco (capítulo 00): menú, luz, tarjeta de la persona;
-│           │                        behavior/ (cómo se minimiza, los paneles, Más, las ayudas)
+│           │                        behavior/ (cómo se minimiza, los paneles, Más, las ayudas) y
+│           │                        notices/ con update/ (la versión nueva) y crash/ («Algo salió
+│           │                        mal»)
 │           └── sign-in/             la entrada, las hojas del celular, salir; codes/ (el QR, el
-│                                    lector y los dos lados del código), passkeys/, google/
+│                                    lector y los dos lados del código), passkeys/, google/ (con
+│                                    page/: lo que corre adentro del marco de Google) y
+│                                    screens/Entrance/ con qr/, scene/, entering/ y styles/
 ├── tests/e2e/                       Playwright: lo que una unitaria no puede probar (§ 12)
 ├── tools/                           los controles propios de pnpm check, en checks/ (enlaces de
 │                                    docs/, tamaños, cabeceras, el peso del arranque)
@@ -394,7 +402,7 @@ que nada en el medio la pierda (§ 14).
 
 ## 9. Eventos y auditoría
 
-La auditoría se construye en `platform/audit` desde este módulo (SQLite, ADR-004); su pantalla
+La auditoría se construye en `platform/storage/audit` desde este módulo (SQLite, ADR-004); su pantalla
 llega con el módulo 05. Cada evento lleva quién (o el correo, si la cuenta no está autorizada),
 cuándo (hora del servidor), el dispositivo y la dirección de internet.
 

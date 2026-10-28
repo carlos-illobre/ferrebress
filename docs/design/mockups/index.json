@@ -21,6 +21,19 @@
    ]
   },
   {
+   "id": "sign-in-google-loading",
+   "title": "Entrar · Google cargando",
+   "module": "01 · Entrar",
+   "variants": [
+    { "device": "desktop", "name": "1 · El molde", "path": "mockups/sign-in-google-loading/variant-1-skeleton/index.html" },
+    { "device": "desktop", "name": "2 · El hilo", "path": "mockups/sign-in-google-loading/variant-2-thread/index.html" },
+    { "device": "desktop", "name": "3 · El suplente", "path": "mockups/sign-in-google-loading/variant-3-stand-in/index.html" },
+    { "device": "phone", "name": "1 · El molde", "path": "mockups/sign-in-google-loading/variant-1-skeleton/index.html" },
+    { "device": "phone", "name": "2 · El hilo", "path": "mockups/sign-in-google-loading/variant-2-thread/index.html" },
+    { "device": "phone", "name": "3 · El suplente", "path": "mockups/sign-in-google-loading/variant-3-stand-in/index.html" }
+   ]
+  },
+  {
    "id": "app-frame",
    "title": "El marco",
    "module": "01 · Entrar",

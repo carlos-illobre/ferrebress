@@ -2,11 +2,11 @@
 // abierta se actualiza sola (R5.2); en uso avisa y se puede cerrar hasta la próxima vez que se abra
 // (R5.3, R5.4); en segundo plano, con nada a medio hacer, se actualiza sola (R5.6). Si el servidor
 // ya no la entiende, se bloquea hasta actualizar (R5.5).
-import { newVersion } from '../../../platform/server/api.ts';
-import { createStore } from '../../../platform/store.ts';
-import { showToast } from '../../../ui/toast/Toast.tsx';
-import { texts } from '../texts.ts';
-import { halfDone } from '../work.ts';
+import { newVersion } from '../../../../platform/server/api.ts';
+import { createStore } from '../../../../platform/store.ts';
+import { showToast } from '../../../../ui/toast/Toast.tsx';
+import { texts } from '../../texts.ts';
+import { halfDone } from '../../work.ts';
 
 export const dismissed = createStore(false);
 

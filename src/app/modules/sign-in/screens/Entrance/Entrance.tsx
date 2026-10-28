@@ -12,13 +12,13 @@ import { entering } from '../../useSignIn.ts';
 import { Card } from './Card.tsx';
 import { EntranceContext, type EntranceState } from './context.ts';
 import { Entering } from './entering/Entering.tsx';
-import { Brand, PhoneShot, Seals, Status, Wave, WhatFor } from './Scene.tsx';
-import './Entrance.css';
-import './desktop.css';
-import './desktop-code.css';
-import './desktop-end.css';
-import './phone.css';
-import './phone-buttons.css';
+import { Brand, PhoneShot, Seals, Status, Wave, WhatFor } from './scene/Scene.tsx';
+import './styles/Entrance.css';
+import './styles/desktop.css';
+import './qr/qr.css';
+import './styles/desktop-end.css';
+import './styles/phone.css';
+import './styles/phone-buttons.css';
 
 export type EntranceProps = {
   start: StartResponse;

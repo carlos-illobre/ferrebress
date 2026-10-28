@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { newVersion } from '../../platform/server/api.ts';
 import { media, open, person } from './frame-test-kit.tsx';
 import { Dialogs, parts, registerWork, watchBackground, watchCrashes } from './index.ts';
-import { crash, reportCrash } from './notices/crash.ts';
+import { crash, reportCrash } from './notices/crash/crash.ts';
 import { discardWork, halfDone } from './work.ts';
 
 vi.mock('html-to-image', () => ({ toJpeg: vi.fn(async () => 'data:image/jpeg;base64,') }));

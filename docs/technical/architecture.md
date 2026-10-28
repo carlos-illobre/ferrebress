@@ -41,7 +41,7 @@ src/
 │   └── contracts/   la forma de lo que entra y sale por la API, por módulo
 ├── server/
 │   ├── main.ts      arma el servidor: registra cada módulo
-│   ├── platform/    tecnología sin negocio: db, audit, http, session, permissions,
+│   ├── platform/    tecnología sin negocio: storage/ (db, audit), http, session, permissions,
 │   │                events, realtime, config, clock
 │   ├── adapters/    lo que habla con un proveedor que se puede cambiar; cumple una interfaz
 │   │                que define el módulo que lo usa

@@ -9,14 +9,14 @@ import {
   readCodeBody,
 } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
-import { fail } from '../../../platform/http.ts';
-import type { SignInContext } from '../context.ts';
-import { authenticationOptions, cannotLink, registrationOptions } from '../passkeys/webauthn.ts';
-import { optionalSession } from '../sessions/require.ts';
-import { codeSettings } from '../settings.ts';
+import { fail } from '../../../../platform/http.ts';
+import type { SignInContext } from '../../context.ts';
+import { authenticationOptions, cannotLink, registrationOptions } from '../../passkeys/webauthn.ts';
+import { optionalSession } from '../../sessions/require.ts';
+import { codeSettings } from '../../settings.ts';
+import type { Screen } from '../computer/screens.ts';
+import { sameNetwork } from '../network.ts';
 import { registerApproveRoute } from './approve.ts';
-import { sameNetwork } from './network.ts';
-import type { Screen } from './screens.ts';
 
 export function registerPhoneRoutes(ctx: SignInContext): void {
   const { http } = ctx.platform;

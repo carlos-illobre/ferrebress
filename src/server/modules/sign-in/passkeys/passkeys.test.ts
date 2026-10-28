@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createAuthenticator } from '../../../testing/authenticator.ts';
 import { testConfig } from '../../../testing/config.ts';
+import { createAuthenticator } from '../../../testing/sign-in/authenticator.ts';
 import {
   createDevice,
   createSignInServer,
   type SignInServer,
-} from '../../../testing/sign-in-server.ts';
+} from '../../../testing/sign-in/sign-in-server.ts';
 
 const androidPhone =
   'Mozilla/5.0 (Linux; Android 14; moto e13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Mobile Safari/537.36';

@@ -1,11 +1,11 @@
 // Un servidor con personas y entrar, y lo que necesita una prueba para hablarle como la
 // aplicación: el origen, el dispositivo, la llave de prueba y la cookie de la sesión.
 import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
-import { createServer } from '../app.ts';
-import { createSignInModule } from '../modules/sign-in/index.ts';
-import { createUsersModule } from '../modules/users/index.ts';
-import type { Clock } from '../platform/clock.ts';
-import { appHeaders, testConfig } from './config.ts';
+import { createServer } from '../../app.ts';
+import { createSignInModule } from '../../modules/sign-in/index.ts';
+import { createUsersModule } from '../../modules/users/index.ts';
+import type { Clock } from '../../platform/clock.ts';
+import { appHeaders, testConfig } from '../config.ts';
 import { createTestGoogle } from './google.ts';
 
 export const chromeWindows =

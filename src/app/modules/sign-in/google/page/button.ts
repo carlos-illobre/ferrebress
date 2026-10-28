@@ -2,7 +2,7 @@
 // dibuja Google, en el idioma del navegador, y devuelve el pase que verifica el servidor. El script
 // (su dirección la dice el servidor: en las pruebas de punta a punta es uno de prueba) se baja
 // recién cuando se muestra la entrada; si la aplicación abre con sesión, no se carga.
-import { takeForgetGoogle } from './messages.ts';
+import { takeForgetGoogle } from '../messages.ts';
 
 type GoogleId = {
   initialize(options: {

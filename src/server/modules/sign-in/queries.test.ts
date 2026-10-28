@@ -1,14 +1,14 @@
 // Cuántas consultas a la base hace cada pedido de entrar (diseño de 01, § 12): que no aparezca una
 // consulta de más, ni una dentro de un bucle.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createAuthenticator } from '../../testing/authenticator.ts';
 import { testConfig } from '../../testing/config.ts';
-import { openScreen } from '../../testing/screen-channel.ts';
+import { createAuthenticator } from '../../testing/sign-in/authenticator.ts';
+import { openScreen } from '../../testing/sign-in/screen-channel.ts';
 import {
   createDevice,
   createSignInServer,
   type SignInServer,
-} from '../../testing/sign-in-server.ts';
+} from '../../testing/sign-in/sign-in-server.ts';
 
 const androidPhone =
   'Mozilla/5.0 (Linux; Android 14; moto e13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Mobile Safari/537.36';

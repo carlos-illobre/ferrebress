@@ -3,13 +3,13 @@
 // de muestra, el estado de la conexión y los sellos en la computadora; el lema, para qué sirve y
 // la ola en el celular.
 
-import logoDark from '../../../../styles/brand/logo-on-dark-large.webp';
-import logoLight from '../../../../styles/brand/logo-on-light-large.webp';
-import type { IconName } from '../../../../ui/icon/Icon.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
-import { texts } from '../../texts.ts';
-import { useEntrance } from './context.ts';
+import logoDark from '../../../../../styles/brand/logo-on-dark-large.webp';
+import logoLight from '../../../../../styles/brand/logo-on-light-large.webp';
+import type { IconName } from '../../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { showToast } from '../../../../../ui/toast/Toast.tsx';
+import { texts } from '../../../texts.ts';
+import { useEntrance } from '../context.ts';
 import phone from './phone-selling.webp';
 
 const pointIcons: IconName[] = ['shopping-cart', 'file-text', 'package'];

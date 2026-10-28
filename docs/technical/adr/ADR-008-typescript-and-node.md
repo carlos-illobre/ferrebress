@@ -34,5 +34,5 @@ sea LTS) y pnpm con un workspace.
 
 ## Consecuencias
 
-- `node:sqlite` todavía está como «release candidate» en Node. Queda detrás de `platform/audit`
+- `node:sqlite` todavía está como «release candidate» en Node. Queda detrás de `platform/storage/audit`
   (ADR-004); si cambiara, se reemplaza por `better-sqlite3` sin tocar a quien lo usa.

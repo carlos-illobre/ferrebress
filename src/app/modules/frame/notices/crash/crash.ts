@@ -2,8 +2,8 @@
 // aviso con un código, la hora, los últimos pasos (qué se tocó y en qué pantalla, sin lo escrito) y
 // una captura que tapa lo marcado data-private (R9.4). «Avisar y seguir» lo guarda en el
 // dispositivo, uno solo, para mandarlo cuando exista Mejoras y errores (R9.2); salir lo borra.
-import { forget, store } from '../../../platform/device/storage.ts';
-import { createStore } from '../../../platform/store.ts';
+import { forget, store } from '../../../../platform/device/storage.ts';
+import { createStore } from '../../../../platform/store.ts';
 
 export type Step = { at: number; where: string; what: string };
 export type Crash = { code: string; at: number; steps: Step[]; capture?: string };

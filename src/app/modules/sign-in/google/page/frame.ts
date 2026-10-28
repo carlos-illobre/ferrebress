@@ -1,7 +1,8 @@
 // La página del marco del botón de Google (google-button.html): espera que la aplicación le diga
 // qué dibujar, lo dibuja y le pasa a la aplicación cuándo quedó dibujado y el pase de Google.
+
+import { type FromFrame, messageFrom, type ToFrame } from '../messages.ts';
 import { showGoogleButton } from './button.ts';
-import { type FromFrame, messageFrom, type ToFrame } from './messages.ts';
 
 export function startGoogleFrame(place: HTMLElement, app: Window): void {
   const tell = (message: FromFrame) => app.postMessage(message, location.origin);

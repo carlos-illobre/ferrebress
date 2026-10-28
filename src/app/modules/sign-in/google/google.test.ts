@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { drawnWithinMs, showGoogleButton } from './button.ts';
 import { connectGoogleFrame } from './connect.ts';
-import { startGoogleFrame } from './frame.ts';
 import { forgetGoogleChoice } from './messages.ts';
+import { drawnWithinMs, showGoogleButton } from './page/button.ts';
+import { startGoogleFrame } from './page/frame.ts';
 
 const scriptUrl = 'https://accounts.google.com/gsi/client';
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { codeSettings } from '../settings.ts';
+import { codeSettings } from '../../settings.ts';
 import { createScreens } from './screens.ts';
 
 describe('las pantallas de entrada', () => {

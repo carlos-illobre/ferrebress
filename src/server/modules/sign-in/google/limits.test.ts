@@ -3,7 +3,7 @@ import {
   createDevice,
   createSignInServer,
   type SignInServer,
-} from '../../../testing/sign-in-server.ts';
+} from '../../../testing/sign-in/sign-in-server.ts';
 import { signInSettings } from '../settings.ts';
 
 describe('los límites de intentos con Google', () => {

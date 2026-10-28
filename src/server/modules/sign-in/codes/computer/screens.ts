@@ -2,8 +2,8 @@
 // 01, § 5 y § 8): su código vigente, la reserva del celular que lo leyó y a quién avisarle por
 // el canal. Duran lo que dura su canal, uno solo por pantalla; la que no lo abre en 30 s se libera.
 import { randomBytes } from 'node:crypto';
-import type { Clock } from '../../../platform/clock.ts';
-import { codeSettings } from '../settings.ts';
+import type { Clock } from '../../../../platform/clock.ts';
+import { codeSettings } from '../../settings.ts';
 
 export type ScreenEvent =
   | { type: 'code'; code: string }

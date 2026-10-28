@@ -18,7 +18,7 @@ unitarias y tarda en arrancar; levantar el sistema completo para cada prueba la 
   de cero tarda unos 2 segundos, así que se crea una sola vez antes de las pruebas y cada archivo
   arranca la suya copiándola, en menos de medio segundo; después corre sus migraciones. Las consultas son las mismas que en
   producción; lo único que cambia es la cadena de conexión del `.env`
-  (`DATABASE_URL=memory://`), que `platform/db` resuelve en un solo lugar.
+  (`DATABASE_URL=memory://`), que `platform/storage/db` resuelve en un solo lugar.
 - **La auditoría en memoria** de la misma forma (ADR-004).
 - **Vitest**, con `happy-dom` y Testing Library para las pantallas.
 - **Cobertura del 100 % de líneas y ramas**, en `pnpm check`. La única excepción es una lista

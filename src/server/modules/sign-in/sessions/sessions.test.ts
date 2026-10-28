@@ -5,7 +5,7 @@ import {
   createDevice,
   createSignInServer,
   type SignInServer,
-} from '../../../testing/sign-in-server.ts';
+} from '../../../testing/sign-in/sign-in-server.ts';
 
 const minutes = (n: number) => n * 60_000;
 
