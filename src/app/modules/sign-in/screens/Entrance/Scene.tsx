@@ -1,4 +1,5 @@
-// Lo que rodea a la tarjeta en la entrada (01 · R7.1): la marca y lo que hace Ferrebress, el celular
+// Lo que rodea a la tarjeta en la entrada (01 · R7.1): la marca, lo que hace Ferrebress y «Ver el
+// manual»; el celular
 // de muestra, el estado de la conexión y los sellos en la computadora; el lema, para qué sirve y
 // la ola en el celular.
 
@@ -6,6 +7,7 @@ import logoDark from '../../../../styles/brand/logo-on-dark-large.webp';
 import logoLight from '../../../../styles/brand/logo-on-light-large.webp';
 import type { IconName } from '../../../../ui/icon/Icon.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { texts } from '../../texts.ts';
 import { useEntrance } from './context.ts';
 import phone from './phone-selling.webp';
@@ -54,9 +56,27 @@ export function Brand() {
           </li>
         ))}
       </ul>
+      <ManualButton />
     </section>
   );
 }
+
+// «Ver el manual», en la computadora (R7.2, E39): mientras el manual no exista, dice que todavía no
+// está. En el celular el manual se abre desde Más.
+const ManualButton = () => (
+  <button
+    type="button"
+    class="manual desktop-only"
+    data-mark=""
+    data-key="m"
+    onClick={() => showToast(texts.manualSoon)}
+  >
+    <Icon name="book-open" />
+    {texts.manual}
+    <span class="manual-soon">{texts.soon}</span>
+    <kbd>M</kbd>
+  </button>
+);
 
 export const PhoneShot = () => (
   <img class="phone-shot desktop-only" src={phone} alt="" aria-hidden="true" />

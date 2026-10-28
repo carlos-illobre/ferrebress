@@ -16,6 +16,10 @@ export const texts = {
   offline: 'Sin conexión',
   cardTitle: 'Entrá con tu celular',
   fastest: 'La forma más rápida',
+  // «Ver el manual» (R7.2): mientras el manual no exista, lleva «Pronto».
+  manual: 'Ver el manual',
+  soon: 'Pronto',
+  manualSoon: 'Manual · pronto. Todavía no está.',
   google: 'Continuar con Google',
   cardSub: 'Entra con tu usuario, sin contraseñas, usando tu huella.',
   qrLabel: 'Código para entrar con el celular',

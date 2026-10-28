@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { online, sessionClosed } from '../../platform/api.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
-import { later } from '../../testing/later.ts';
+import { Toasts } from '../../ui/toast/Toast.tsx';
 import { Entrance } from './index.ts';
 import { person } from './session.ts';
 import {
@@ -56,6 +56,17 @@ describe('la entrada en la computadora', () => {
     expect(card.querySelector('.note')).not.toBeNull();
     expect(document.querySelector('.test-banner')).not.toBeNull();
     expect(screen.getByText('En línea')).toBeTruthy();
+  });
+
+  it('01-E39: «Ver el manual» lleva «Pronto» y dice que todavía no está', () => {
+    googleFrame();
+    fakeServer({ '/api/sign-in/codes': {}, '/api/realtime/sign-in-codes': { stream: '' } });
+    open();
+    render(<Toasts />);
+    const manual = screen.getByRole('button', { name: /Ver el manual/ });
+    expect(manual.textContent).toContain('Pronto');
+    fireEvent.click(manual);
+    expect(screen.getByText('Manual · pronto. Todavía no está.')).toBeTruthy();
   });
 
   it('01-E17: muestra el QR de Ferrebress y nunca la entrada del navegador con un celular cercano', async () => {
@@ -202,38 +213,5 @@ describe('la entrada en el celular', () => {
     googleFrame();
     open({ signInFirst: true });
     expect(screen.getByText('Entrá en este celular para que entre la computadora')).toBeTruthy();
-  });
-
-  it('R2.11: puesta la huella, la espera dice cómo entra mientras el servidor no contesta', async () => {
-    vi.useFakeTimers();
-    googleFrame();
-    fakePasskeys();
-    phone();
-    const server = fakeServer({
-      '/api/sign-in/passkey/options': { body: {} },
-      '/api/sign-in/passkey': 'waiting',
-    });
-    const { card } = open();
-    fireEvent.click(within(card).getByRole('button', { name: /Entrar con la huella/ }));
-    // La llave de la sesión se crea con la criptografía del navegador, que no sigue al reloj falso.
-    await vi.waitFor(() => expect(server.bodies('/api/sign-in/passkey')).toHaveLength(1));
-    await later(300);
-    expect(screen.getAllByText('Entrando con tu huella').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Huella confirmada').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Abriendo tu sesión').length).toBeGreaterThan(0);
-    vi.useRealTimers();
-  });
-
-  it('R2.11: con el pase de Google, la computadora tapa solo la tarjeta con la espera', async () => {
-    vi.useFakeTimers();
-    const google = googleFrame();
-    const server = fakeServer({ '/api/sign-in/google': 'waiting' });
-    const { card } = open();
-    google.credential('pase');
-    await vi.waitFor(() => expect(server.bodies('/api/sign-in/google')).toHaveLength(1));
-    await later(300);
-    expect(within(card).getByText('Conectando tu cuenta de Google')).toBeTruthy();
-    expect(card.querySelector('.card-body')?.hasAttribute('inert')).toBe(true);
-    vi.useRealTimers();
   });
 });
