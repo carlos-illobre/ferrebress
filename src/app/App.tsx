@@ -33,6 +33,7 @@ import {
 import { readStored, store } from './platform/device/storage.ts';
 import { clearHash, navigate, route } from './platform/router.ts';
 import { sessionClosed } from './platform/server/api.ts';
+import { useReconnect } from './platform/server/reconnect.ts';
 import { useStore } from './platform/store.ts';
 import { Toasts } from './ui/toast/Toast.tsx';
 
@@ -139,6 +140,9 @@ export function App() {
   const { start, who, closed, refresh, renew } = useStart((linked) => void code.scanned(linked));
   const entrance = !who || !!closed || code.state.step === 'sign-in-first';
   useNonceRenewal(start?.googleNonce, entrance, renew);
+  // Con la entrada apagada por un pedido que falló teniendo red, se vuelve a probar con el mismo
+  // pedido mínimo del nonce (01 · R2.8).
+  useReconnect(entrance, renew);
 
   if (!start) return <Dialogs />;
   const testing = start.environment !== 'production';

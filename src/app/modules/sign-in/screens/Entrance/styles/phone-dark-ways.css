@@ -39,13 +39,13 @@
       }
       .round-way strong {
         margin-top: 4px;
-        font-size: 16px;
-        line-height: 22px;
+        font-size: 17.5px;
+        line-height: 23px;
         font-weight: 500;
       }
       .round-way small {
-        font-size: 14.5px;
-        line-height: 19px;
+        font-size: 15.5px;
+        line-height: 20px;
         color: var(--dark-text-3);
       }
       .round-way.off {
@@ -57,8 +57,8 @@
         order: 4;
         margin-top: auto;
         padding-top: 34px;
-        font-size: 14px;
-        line-height: 20px;
+        font-size: 15.5px;
+        line-height: 21px;
         color: var(--dark-text-2);
       }
 

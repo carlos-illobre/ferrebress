@@ -298,7 +298,9 @@ computadora                         servidor                          celular
 - **El canal no usa `EventSource`**, que se reconecta solo cada pocos segundos (un pedido a ritmo
   fijo). Se lee con `fetch`: si se corta, se reconecta solo si la pestaña está a la vista y el
   navegador dice que hay red, como mucho tres veces con espera creciente; después espera a que
-  vuelva la red o la pestaña.
+  vuelva la red o la pestaña. Si el servidor lo frena por abrirse demasiadas veces (las recargas
+  seguidas, 429), espera los segundos que dice el servidor y vuelve a abrir: si no, el QR quedaba en
+  blanco hasta salir de la pestaña.
 
 ### Sin la entrada del navegador (R2.6)
 

@@ -78,7 +78,7 @@
 
       .brand {
         gap: 0;
-        padding-top: 70px;
+        padding-top: 40px;
       }
       .brand-logo img {
         width: 209px;
@@ -86,9 +86,9 @@
       }
       .brand-motto {
         max-width: 300px;
-        margin: 15px auto 0;
-        font-size: 15px;
-        line-height: 21px;
+        margin: 12px auto 0;
+        font-size: 16.5px;
+        line-height: 22px;
         font-weight: 500;
         letter-spacing: 0.01em;
         color: var(--dark-motto);
@@ -105,7 +105,7 @@
       }
       .phone-head {
         order: 0;
-        margin-top: 50px;
+        margin-top: 30px;
       }
       .phone-title {
         font-size: 38px;
@@ -115,10 +115,10 @@
         color: var(--dark-text);
       }
       .phone-sub {
-        max-width: 268px;
+        max-width: 300px;
         margin: 8px auto 0;
-        font-size: 16.5px;
-        line-height: 20px;
+        font-size: 18px;
+        line-height: 23px;
         color: var(--dark-text-2);
       }
       .notice {
@@ -145,7 +145,7 @@
         margin-top: 24px;
         gap: 10px;
         color: var(--dark-text-2);
-        font-size: 13px;
+        font-size: 14px;
         line-height: 1;
       }
       .or::before,

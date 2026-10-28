@@ -53,6 +53,18 @@ describe('la renovación del pedido de Google', () => {
     expect(renew).toHaveBeenCalledOnce();
   });
 
+  it('al volver a la vista antes de tiempo, el próximo va a lo que le falta, no a un plazo entero', () => {
+    vi.useFakeTimers();
+    const renew = vi.fn();
+    renderHook(() => useNonceRenewal('n1', true, renew));
+    hidden(true);
+    vi.advanceTimersByTime(renewAfterMs - 60_000);
+    hidden(false);
+    expect(renew).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(60_000);
+    expect(renew).toHaveBeenCalledOnce();
+  });
+
   it('sin la entrada a la vista o sin pedido todavía, no pide nada', () => {
     vi.useFakeTimers();
     const renew = vi.fn();

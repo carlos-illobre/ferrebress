@@ -1,7 +1,9 @@
 // La espera de más de 2 segundos (00 · R7.3), desde su maqueta: una línea arriba del área de
 // trabajo y una tarjeta chica abajo que dice qué se está haciendo. Hoy nunca se sabe cuánto falta,
-// así que la barra va y viene. Al terminar dice «Listo» un instante y se va.
-import { useEffect, useState } from 'preact/hooks';
+// así que la barra va y viene. Al terminar dice «Listo» un instante y se va. La espera que ya corría
+// cuando apareció el marco (la de entrar, con la huella o Google) no se muestra: al entrar no hay
+// ningún «Listo».
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { useStore } from '../../../platform/store.ts';
 import { waitBar } from '../../../platform/waiting.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
@@ -10,8 +12,17 @@ import { texts } from '../texts.ts';
 
 export const doneMs = 900;
 
-export function WaitNotice() {
+// Lo que dice la barra, sin la espera que ya corría cuando apareció el marco: ni mientras sigue ni
+// cuando termina.
+function useFrameWait(): string | undefined {
   const doing = useStore(waitBar);
+  const before = useRef(doing);
+  if (doing !== before.current) before.current = undefined;
+  return doing === before.current ? undefined : doing;
+}
+
+export function WaitNotice() {
+  const doing = useFrameWait();
   const [shown, setShown] = useState<{ doing: string; done: boolean }>();
 
   useEffect(() => {

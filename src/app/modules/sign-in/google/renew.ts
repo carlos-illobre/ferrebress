@@ -14,23 +14,27 @@ export function useNonceRenewal(nonce: string | undefined, shown: boolean, renew
   useEffect(() => {
     if (!shown || !nonce) return;
     let last = Date.now();
-    let timer: ReturnType<typeof setInterval> | undefined;
-    // Si una vez no hubo conexión, la próxima vuelta vuelve a probar.
-    const attempt = () => {
-      last = Date.now();
-      renew();
-    };
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    // El próximo, a lo que le falta al que se tiene, no a un plazo entero desde ahora: si no, al
+    // volver a la vista se pedía cuando el que se tenía ya había vencido. Si una vez no hubo
+    // conexión, la próxima vuelta vuelve a probar.
     const follow = () => {
-      clearInterval(timer);
+      clearTimeout(timer);
       timer = undefined;
       if (!visible()) return;
-      if (Date.now() - last >= renewAfterMs) attempt();
-      timer = setInterval(attempt, renewAfterMs);
+      const left = renewAfterMs - (Date.now() - last);
+      if (left > 0) {
+        timer = setTimeout(follow, left);
+        return;
+      }
+      last = Date.now();
+      renew();
+      follow();
     };
     follow();
     document.addEventListener('visibilitychange', follow);
     return () => {
-      clearInterval(timer);
+      clearTimeout(timer);
       document.removeEventListener('visibilitychange', follow);
     };
   }, [nonce, shown]);

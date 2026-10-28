@@ -130,3 +130,15 @@ Arriba a la izquierda, las herramientas de la maqueta: el momento de Google (en 
 - **Con un aviso en pantalla, el pie queda abajo del borde:** está bien así.
 - **Los textos chicos:** Carlos eligió, de las tres opciones de `text-sizes-comparison.webp`, el lema
   a 15 px en minúsculas (con la frase larga se lee de un vistazo) y el pie a 14 px.
+
+## Lo que pidió Carlos al probarla
+
+Vale sobre lo de arriba; la maqueta no se rehízo.
+
+- **El lema** vuelve a ser «Tu ferretería, siempre en orden», en minúsculas y a 16,5 px: «Vendé,
+  contá y cobrá…» repetía lo que dice el subtítulo de «Iniciá sesión».
+- **La letra, un poco más grande:** el lema a 16,5 px, el subtítulo a 18 px, los nombres de la huella
+  y de escanear a 17,5 px, sus detalles a 15,5 px, la «o» a 14 px y el pie a 15,5 px. El título
+  queda en 38 px.
+- **Menos espacio** arriba del logo (40 px en lugar de 70) y entre el lema e «Iniciá sesión» (30 px
+  en lugar de 50).

@@ -75,7 +75,9 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
     no), la computadora no entra con él: el celular lo dice y la computadora sigue pudiendo entrar
     con Google.
 - **R2.8** Sin conexión no se puede entrar. Los botones se apagan y la entrada dice «Para entrar
-  hace falta internet».
+  hace falta internet». Cuando vuelve la conexión, los botones se prenden solos: si el navegador dice
+  que hay red pero un pedido falló, la entrada a la vista vuelve a probar sola (a los 2, 4, 8, 16 y
+  32 segundos, y después cada minuto) hasta que uno llegue.
 - **R2.9** Como mucho 10 intentos por minuto con Google y 20 con la huella, por dispositivo. Pasado
   eso, la entrada dice cuánto falta para volver a intentar.
 - **R2.10** Además, como mucho 20 intentos fallidos por hora por cuenta, desde cualquier
@@ -157,7 +159,8 @@ enviar es «Salir» (R5.2).
   «Escanear», aunque su ventana sea angosta; ahí el QR va arriba, sus pasos debajo, y después Google.
   Arriba a la derecha dice «Esta computadora» y si llega al servidor; cuando las computadoras tengan
   nombre (capítulo 04), irá el suyo.
-  - La entrada del celular dice «Iniciá sesión» y «Accedé a tu cuenta para gestionar precios,
+  - La entrada del celular lleva debajo del logo «Tu ferretería, siempre en orden», y dice
+    «Iniciá sesión» y «Accedé a tu cuenta para gestionar precios,
     ventas y stock desde cualquier lugar.»; sus formas de entrar son «Continuar con Google»,
     «Ingresar con huella» («Rápido y seguro») y «Escanear código QR» («Entrá en la computadora con
     su código»), separadas por «o», y abajo dice «¿No tenés cuenta? Contactá a tu administrador.».
@@ -225,6 +228,8 @@ enviar es «Salir» (R5.2).
 
 - **E19** **Dado** que no hay conexión, **cuando** se abre la entrada, **entonces** los botones están
   apagados y dice «Para entrar hace falta internet».
+- **E45** **Dado** la entrada apagada porque un pedido falló justo al volver la red, **cuando** la red
+  ya anda, **entonces** los botones se prenden solos, sin tocar nada.
 - **E20** **Dado** 10 intentos con Google en un minuto desde un dispositivo, **cuando** se intenta otra
   vez, **entonces** no se intenta y la entrada dice cuánto falta para volver a probar.
 

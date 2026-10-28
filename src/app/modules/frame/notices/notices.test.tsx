@@ -64,6 +64,14 @@ describe('los avisos del marco', () => {
     expect(screen.queryByRole('status')).toBeNull();
   });
 
+  it('app-E56: la espera de entrar, que ya corría al aparecer el marco, no dice «Listo»', () => {
+    act(() => waitBar.set('Entrando'));
+    all();
+    expect(screen.queryByRole('status')).toBeNull();
+    act(() => waitBar.set(undefined));
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
   it('app-E28, E29: en uso avisa la versión nueva; «Ahora no» la cierra hasta la próxima vez', () => {
     all();
     act(() => newVersion.set(true));

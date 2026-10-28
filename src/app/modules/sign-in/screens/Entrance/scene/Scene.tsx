@@ -39,7 +39,7 @@ export function Brand({ phone }: { phone: boolean }) {
           <img class="phone-only" src={logoLight} alt="Ferrebress" width={492} height={126} />
         )}
       </h1>
-      <p class="brand-motto phone-only">{texts.motto}</p>
+      <p class="brand-motto phone-only">{phone ? texts.phoneMotto : texts.motto}</p>
       <p class="brand-kicker desktop-only">{texts.kicker}</p>
       <p class="brand-title desktop-only">
         {texts.title[0]}

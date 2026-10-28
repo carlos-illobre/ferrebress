@@ -59,6 +59,29 @@ describe('el canal temporal', () => {
     expect(open).toHaveBeenCalledTimes(8);
   });
 
+  it('frenado por las recargas seguidas, espera lo que dice el servidor y vuelve a abrir', async () => {
+    const waits: number[] = [];
+    const tooMany = (body: string) =>
+      new Response(body, { status: 429, headers: { 'Content-Type': 'application/json' } });
+    const open = vi
+      .fn()
+      .mockResolvedValueOnce(tooMany('{"error":"too-many-attempts","retryAfterSeconds":42}'))
+      .mockResolvedValueOnce(tooMany('sin JSON'))
+      .mockResolvedValue(sse('event: code\ndata: {}\n\n'));
+    const events: ChannelEvent[] = [];
+    const close = openChannel({
+      open,
+      onEvent: (event) => events.push(event),
+      wait: async (ms) => {
+        waits.push(ms);
+        if (waits.length > 2) close();
+      },
+    });
+    await flush();
+    expect(waits.slice(0, 2)).toEqual([42_000, 60_000]);
+    expect(events[0]).toEqual({ type: 'code', data: {} });
+  });
+
   it('con la pestaña escondida no vuelve a abrir hasta que se vea', async () => {
     let visibility = 'hidden';
     vi.spyOn(document, 'visibilityState', 'get').mockImplementation(

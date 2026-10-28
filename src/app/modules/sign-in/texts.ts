@@ -47,6 +47,7 @@ export const texts = {
   or: 'o',
   // La entrada del celular, oscura (docs/design/mockups/sign-in-phone-dark/final/): con las palabras
   // de su maqueta, solo acá; el resto de la aplicación dice «Entrar».
+  phoneMotto: 'Tu ferretería, siempre en orden',
   phoneTitle: 'Iniciá sesión',
   phoneSub: 'Accedé a tu cuenta para gestionar precios, ventas y stock desde cualquier lugar.',
   finger: 'Ingresar con huella',

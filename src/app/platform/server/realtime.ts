@@ -1,7 +1,9 @@
 // El canal temporal (ADR-003): un SSE leído con fetch, abierto solo mientras se espera algo. No
 // usa EventSource, que se reconecta solo cada pocos segundos: si se corta, vuelve a abrir solo con
 // la pestaña a la vista y con red, como mucho tres veces con espera creciente; después espera a
-// que vuelva la red o la pestaña (diseño de 01, § 5).
+// que vuelva la red o la pestaña (diseño de 01, § 5). Si el servidor dice que se abrió demasiadas
+// veces (las recargas seguidas), espera lo que el servidor dice y vuelve a probar una vez: si no, el
+// QR quedaba en blanco hasta salir de la pestaña.
 export type ChannelEvent = { type: string; data: unknown };
 
 export type ChannelOptions = {
@@ -22,10 +24,11 @@ export function openChannel({ open, onEvent, wait = sleep }: ChannelOptions): ()
   let failures = 0;
 
   // Una vez: abre y lee hasta que se corte. Si llegó a abrir bien, se empiezan a contar de nuevo
-  // los cortes.
-  const attempt = async () => {
+  // los cortes. Devuelve cuánto pide esperar el servidor, si lo frenó.
+  const attempt = async (): Promise<number | undefined> => {
     try {
       const response = await open(signal);
+      if (response.status === 429) return await retryAfterMs(response);
       if (!response.ok || !response.body) return;
       failures = 0;
       await readEvents(response.body, onEvent);
@@ -36,10 +39,11 @@ export function openChannel({ open, onEvent, wait = sleep }: ChannelOptions): ()
 
   void (async () => {
     while (!signal.aborted) {
-      await attempt();
+      const held = await attempt();
       failures += 1;
       if (signal.aborted) return;
-      if (failures <= maxRetries && canReconnect()) await wait(1000 * 2 ** (failures - 1));
+      const ms = delay(held, failures);
+      if (ms !== undefined) await wait(ms);
       else {
         failures = 0;
         await nextChance(signal);
@@ -48,6 +52,18 @@ export function openChannel({ open, onEvent, wait = sleep }: ChannelOptions): ()
   })();
   return () => controller.abort();
 }
+
+// Cuánto esperar antes de volver a abrir; sin nada, se espera a que vuelva la red o la pestaña.
+const delay = (held: number | undefined, failures: number): number | undefined => {
+  if (!canReconnect()) return undefined;
+  if (held !== undefined) return held;
+  return failures <= maxRetries ? 1000 * 2 ** (failures - 1) : undefined;
+};
+
+const retryAfterMs = async (response: Response) => {
+  const body = (await response.json().catch(() => ({}))) as { retryAfterSeconds?: unknown };
+  return Math.max(1, Number(body.retryAfterSeconds) || 60) * 1000;
+};
 
 // Vuelve la red o la pestaña a la vista.
 const nextChance = (signal: AbortSignal) =>
