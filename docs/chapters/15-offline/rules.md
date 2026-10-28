@@ -37,16 +37,19 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
   R2.2).
 - **R2.2** Entra solo la cuenta vinculada a ese celular (01 · R2.3), y solo si:
   - en el último contacto con el servidor, la cuenta estaba activa y con el permiso;
-  - pasaron menos de **24 horas** desde ese contacto. Cuenta como contacto cualquier pedido que
-    llegó al servidor;
+  - pasaron menos de **24 horas** desde ese contacto. Cuenta como contacto cualquier pedido con la
+    sesión abierta que el servidor aceptó: después de «Salir», cuenta desde el último uso de la
+    sesión;
   - la última sesión de ese celular no la cerró otro dispositivo (01 · R3.5): alguien la cerró a
     propósito, así que pide conexión. Después de «Salir» o de una sesión vencida, sí entra.
-- **R2.3** La hora la pone el reloj del celular. Si marca una hora anterior a la del último
-  contacto, se toma como vencido: atrasar el reloj no da más tiempo.
+- **R2.3** La hora la pone el reloj del celular. Si marca una hora anterior a la más alta que vio
+  la aplicación, se toma como vencido: atrasar el reloj no da más tiempo.
 - **R2.4** Si no cumple R2.2 o R2.3, la entrada queda como sin la opción: todo apagado y «Para
   entrar hace falta internet» (01 · R2.8).
-- **R2.5** El celular verifica la huella él solo, con lo que guardó al vincularla, y guarda la
-  firma como prueba de que fue esa persona. Los intentos fallidos los cuenta el lector del celular.
+- **R2.5** Sin conexión, la huella la verifica el lector del celular, y la aplicación comprueba que
+  sea la vinculada a esa persona. La firma queda guardada como prueba de que fue esa persona: la
+  que vale es la verificación del servidor, al volver la conexión (R3). Los intentos fallidos los
+  cuenta el lector del celular.
 - **R2.6** Al entrar se llega directo al marco, sin la espera «Entrando» (la huella se verifica en
   el celular, al instante), igual que con conexión (01 · R6), con la luz en «Sin conexión». La aplicación abre aunque no haya internet desde que se prendió el celular.
 - **R2.7** La sesión que se abrió sin conexión dura hasta que vuelve la conexión (R3) o hasta que se
@@ -57,7 +60,8 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
 
 - **R3.1** Con el primer pedido que llega, el celular manda la prueba de la huella. El servidor
   revisa que la firma sea de la huella vinculada a esa persona en ese celular, que la cuenta siga
-  activa y con el permiso, y que la prueba no se haya usado antes. Si todo pasa, abre la sesión y
+  activa y con el permiso, que la prueba no se haya usado antes y que llegue antes de que se
+  cumplan 24 horas desde el último contacto con sesión de ese celular, que el servidor sabe. Si todo pasa, abre la sesión y
   la persona sigue sin volver a entrar. Los tiempos de la sesión (01 · R3.1) cuentan desde ahí.
 - **R3.2** Si algo no pasa, aparece la entrada encima de lo que había, sin borrarlo, con «No se
   pudo confirmar tu entrada sin conexión» y debajo «Entrá de nuevo para seguir donde estabas.».
