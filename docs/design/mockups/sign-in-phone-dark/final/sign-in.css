@@ -343,7 +343,7 @@ body[data-state="intentos"] #notice { display: flex; }
   /* La marca: el logo blanco y el lema en mayúsculas espaciadas. */
   .brand { order: 1; display: flex; flex-direction: column; align-items: center; padding-top: 70px; }
   .brand-logo img { width: 209px; height: auto; }
-  .brand-motto { margin-top: 15px; font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.29em; text-transform: uppercase; color: var(--oscuro-lema); }
+  .brand-motto { margin: 15px auto 0; max-width: 300px; font-size: 15px; line-height: 21px; font-weight: 500; letter-spacing: 0.01em; color: var(--oscuro-lema); }
 
   .right { order: 2; display: flex; flex-direction: column; }
   .card { display: flex; flex-direction: column; align-items: center; }
@@ -374,7 +374,7 @@ body[data-state="intentos"] #notice { display: flex; }
   .round-way small { font-size: 14.5px; line-height: 19px; color: var(--oscuro-texto-3); }
   .round-way:focus-visible { outline-color: #fff; }
 
-  .no-account { order: 4; margin-top: auto; padding-top: 34px; font-size: 13.5px; line-height: 19px; color: var(--oscuro-texto-2); }
+  .no-account { order: 4; margin-top: auto; padding-top: 34px; font-size: 14px; line-height: 20px; color: var(--oscuro-texto-2); }
 
   /* Apagados: sobre lo oscuro, sin el gris de la entrada clara. */
   .round-way.off { opacity: 0.38; filter: none; }

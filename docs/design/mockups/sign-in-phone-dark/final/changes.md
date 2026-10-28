@@ -128,6 +128,5 @@ Arriba a la izquierda, las herramientas de la maqueta: el momento de Google (en 
 - **«Escanear código QR»** dice debajo «Entrá en la computadora con su código», en lugar de «Ingresá
   desde tu computadora», que se podía entender al revés.
 - **Con un aviso en pantalla, el pie queda abajo del borde:** está bien así.
-- **El tamaño de los textos chicos** (el lema y el pie) está por decidir: `text-sizes-comparison.webp`
-  muestra los de la imagen (11 y 13,5 px), los dos a 14 px en mayúsculas, y el lema a 15 px en
-  minúsculas con el pie a 14 px.
+- **Los textos chicos:** Carlos eligió, de las tres opciones de `text-sizes-comparison.webp`, el lema
+  a 15 px en minúsculas (con la frase larga se lee de un vistazo) y el pie a 14 px.
