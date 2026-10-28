@@ -24,9 +24,10 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 | Computadora | Sí | Sí, con la del celular |
 
 - **R2.1 Google** en la computadora y en el celular. Después de salir, Google pide elegir la
-  cuenta: no entra solo con la última. Si la entrada quedó abierta tanto tiempo que el pedido de
-  Google ya no sirve, dice «Pasó mucho tiempo desde que se abrió la entrada: tocá «Continuar con
-  Google» otra vez.».
+  cuenta: no entra solo con la última. La entrada puede quedar abierta todo el tiempo que sea:
+  mientras se ve, renueva sola lo que necesita Google antes de que venza, y al volver a la vista un
+  dispositivo que estuvo dormido. Si igual llegara vencido, dice «Pasó mucho tiempo desde que se
+  abrió la entrada: tocá «Continuar con Google» otra vez.».
   - El botón de Google es el de Google, dibujado en su propio marco: es la única excepción a
     00 · R2.8. No tiene atajo con Alt ni lo recorren las flechas; se llega a él con Tab.
 - **R2.2 La huella en el celular.** La primera vez que alguien entra con Google en un celular, la

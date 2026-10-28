@@ -27,6 +27,7 @@ import {
   sendPendingSignOut,
   signInApi,
   signOut,
+  useNonceRenewal,
   usePhoneCode,
 } from './modules/sign-in/index.ts';
 import { readStored, store } from './platform/device/storage.ts';
@@ -130,13 +131,15 @@ export function App() {
   const [camera, setCamera] = useState(false);
   const code = usePhoneCode();
   const { start, who, closed, refresh } = useStart((linked) => void code.scanned(linked));
+  const entrance = !who || !!closed || code.state.step === 'sign-in-first';
+  useNonceRenewal(start?.googleNonce, entrance, refresh);
 
   if (!start) return <Dialogs />;
   const testing = start.environment !== 'production';
   return (
     <>
       {who && <Frame person={who} testing={testing} onSignOut={leave} />}
-      {(!who || closed || code.state.step === 'sign-in-first') && (
+      {entrance && (
         <Entrance
           start={start}
           onScan={() => setCamera(true)}

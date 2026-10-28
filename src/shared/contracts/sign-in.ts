@@ -66,6 +66,9 @@ export const approveCodeBody = z.object({
 
 export type ApproveCodeBody = z.infer<typeof approveCodeBody>;
 
+// El pedido de Google (nonce) que da /api/start vence a los 10 minutos: la entrada lo renueva antes.
+export const googleNonceMinutes = 10;
+
 // Cada código dura un minuto (R2.5): lo renueva el servidor y la computadora muestra la cuenta.
 export const codeSeconds = 60;
 

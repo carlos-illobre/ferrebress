@@ -190,7 +190,8 @@ R1.3), `too-many-attempts` (con los segundos que faltan; R2.9, R2.10), `code-exp
 ya usado: la aplicación pide otro a `/api/start` y la persona vuelve a tocar Google) y
 `bad-request` (forma, tamaño, origen o un cuerpo que no es JSON, que no deja traza en el
 registro). La aplicación pide un `nonce` nuevo también al salir y
-al cerrarse la sesión, porque el anterior ya se usó.
+al cerrarse la sesión, porque el anterior ya se usó, y mientras se ve la entrada, antes de que
+venza (§ 8): así la entrada puede quedar abierta horas y Google sigue andando.
 
 **Versión incompatible:** el servidor tiene en su configuración la versión mínima de la aplicación
 que entiende; sube cuando un contrato cambia de forma incompatible. Un pedido con una versión menor
@@ -357,7 +358,7 @@ la computadora. Solo el celular usa la huella.
 |---|---|---|---|
 | Sesiones ya vistas | Mientras vivan | — | Se vuelven a leer de la base |
 | Desafíos de la huella | 5 minutos, un uso | 100.000 | Se vuelve a tocar el botón |
-| `nonce` de Google | 10 minutos, un uso | 100.000 | La entrada pide otro |
+| `nonce` de Google | 10 minutos, un uso | 100.000 | La entrada pide otro a los 9 minutos mientras se ve, y al volver a la vista después de 9 minutos (el reloj se frena con el dispositivo dormido) |
 | Pantallas con QR y sus códigos | Mientras su canal esté abierto (uno solo: uno nuevo corta el anterior); si no lo abre en 30 s, se libera | 1.000 | La entrada abre otro canal |
 | Intentos | 1 minuto y 1 hora | — | Se vuelve a contar |
 | Llaves públicas de Google | Lo que diga Google | — | Se vuelven a pedir |

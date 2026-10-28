@@ -1,7 +1,7 @@
 // Lo de entrar que es igual en todos los ambientes (diseño de 01, § 8 y § 11): los tiempos de la
 // sesión (hasta que existan en Administración), los plazos de lo que vive en memoria y los
 // límites de intentos.
-import { codeSeconds } from '@ferrebress/shared/contracts/sign-in';
+import { codeSeconds, googleNonceMinutes } from '@ferrebress/shared/contracts/sign-in';
 
 const minute = 60_000;
 const hour = 60 * minute;
@@ -14,7 +14,12 @@ export const signInSettings = {
   cleanupEveryMs: 24 * hour,
   // Cada carga de la entrada pide uno: en el local todos salen por la misma dirección, así que el
   // tope por dirección es alto y, al llegar, se descarta el más viejo en lugar de negarse.
-  nonce: { ttlMs: 10 * minute, maxTotal: 100_000, maxPerOwner: 100, replaceOldest: true },
+  nonce: {
+    ttlMs: googleNonceMinutes * minute,
+    maxTotal: 100_000,
+    maxPerOwner: 100,
+    replaceOldest: true,
+  },
   challenge: { ttlMs: 5 * minute, maxTotal: 100_000, maxPerOwner: 10 },
   limits: {
     // Por dispositivo y por dirección de internet (R2.9).
