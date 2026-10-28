@@ -15,5 +15,6 @@ conexión, la pantalla se pone gris y solo deja salir.
 | 00 · La aplicación | El manual | No | No ocupa lugar en el dispositivo |
 | 00 · La aplicación | Avisar que algo salió mal | Se guarda y sale al volver la conexión | No se pierde el aviso |
 | 01 · Entrar | Entrar (Google, huella, con el celular) | No | Lo verifica el servidor |
+| 15 · Sin conexión | Entrar con la huella en el celular con «Trabajar sin conexión» prendido | Sí, hasta 24 horas desde el último contacto | El celular verifica la huella y el servidor lo confirma al volver la conexión |
 | 01 · Entrar | Seguir trabajando con la sesión abierta | Sí | La sesión no vence en el dispositivo mientras se lo use |
 | 01 · Entrar | Salir | Sí | El servidor cierra la sesión al volver la conexión |

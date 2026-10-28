@@ -75,7 +75,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
     no), la computadora no entra con él: el celular lo dice y la computadora sigue pudiendo entrar
     con Google.
 - **R2.8** Sin conexión no se puede entrar. Los botones se apagan y la entrada dice «Para entrar
-  hace falta internet». Cuando vuelve la conexión, los botones se prenden solos: si el navegador dice
+  hace falta internet». La excepción es el celular con «Trabajar sin conexión» prendido, que entra
+  con la huella (capítulo 15). Cuando vuelve la conexión, los botones se prenden solos: si el navegador dice
   que hay red pero un pedido falló, la entrada a la vista vuelve a probar sola (a los 2, 4, 8, 16 y
   32 segundos, y después cada minuto) hasta que uno llegue.
 - **R2.9** Como mucho 10 intentos por minuto con Google y 20 con la huella, por dispositivo. Pasado
