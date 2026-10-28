@@ -6,7 +6,8 @@ import { texts } from '../../texts.ts';
 import { useEntrance } from './context.ts';
 
 // La sesión vence sola por no usarla o por el tope (R3.1, R3.2); si no, alguien la cerró.
-const expiredReasons = new Set(['idle', 'max-age']);
+// Sin cookie (venció a las 8 horas y el navegador la borró) el servidor no sabe el motivo: venció.
+const expiredReasons = new Set(['idle', 'max-age', 'unknown']);
 
 export function ClosedNotice() {
   const { closed, signInFirst } = useEntrance();
@@ -60,7 +61,7 @@ export function MainNotice() {
   if (notice?.kind === 'not-authorized')
     return (
       <Shown kind="error" icon="ban">
-        {texts.notAuthorized(notice.email)}
+        <span data-private="">{texts.notAuthorized(notice.email)}</span>
       </Shown>
     );
   if (notice?.kind === 'expired')

@@ -3,7 +3,7 @@
 // también el celular. Al entrar, la hoja se cierra sin avisar (R2.11). Sin huella vinculada y sin
 // sesión, primero entra con Google, y recién ahí lee el código, porque la huella nueva se crea con
 // el desafío de esa computadora.
-import type { ReadCodeResponse } from '@ferrebress/shared/contracts/sign-in';
+import type { Person, ReadCodeResponse } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useState } from 'preact/hooks';
 import { createProofKey } from '../../platform/proof-key.ts';
 import { useStore } from '../../platform/store.ts';
@@ -15,7 +15,8 @@ type Json = Record<string, unknown>;
 
 export type PhoneCode =
   | { step: 'none' }
-  | { step: 'sign-in-first'; code: string }
+  // Sin huella, primero entra con Google (R2.7); `before` es quién estaba, para esperar el nuevo.
+  | { step: 'sign-in-first'; code: string; before: Person | undefined }
   | { step: 'ask'; read: ReadCodeResponse }
   | { step: 'other-network' }
   | { step: 'expired' }
@@ -23,9 +24,12 @@ export type PhoneCode =
 
 const none: PhoneCode = { step: 'none' };
 
-async function read(code: string): Promise<PhoneCode> {
+// `who`: quién tiene la sesión ahora; si el servidor pide que primero entre con Google (con sesión
+// y sin huella, R2.7), se espera a que entre de nuevo.
+async function read(code: string, who: Person | undefined): Promise<PhoneCode> {
   const result = await signInApi.readCode(code);
   if (result.ok) return { step: 'ask', read: result.data };
+  if (result.error === 'sign-in-first') return { step: 'sign-in-first', code, before: who };
   if (result.error === 'other-network') return { step: 'other-network' };
   return result.error === 'offline' ? none : { step: 'expired' };
 }
@@ -72,14 +76,15 @@ export function usePhoneCode() {
 
   // Recién entró con Google: ahora sí lee el código que estaba esperando.
   useEffect(() => {
-    if (state.step === 'sign-in-first' && who) void read(state.code).then(setState);
+    if (state.step === 'sign-in-first' && who && who !== state.before)
+      void read(state.code, who).then(setState);
   }, [who, state]);
 
   return {
     state,
     async scanned(code: string) {
-      if (!who && !hasPasskey()) setState({ step: 'sign-in-first', code });
-      else setState(await read(code));
+      if (!who && !hasPasskey()) setState({ step: 'sign-in-first', code, before: who });
+      else setState(await read(code, who));
     },
     async touch() {
       if (state.step === 'ask') setState(await approve(state.read, who !== undefined));

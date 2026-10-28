@@ -3,6 +3,8 @@ export type ErrorCode =
   | 'bad-request'
   | 'not-authorized'
   | 'sign-in-expired'
+  // El celular sin huella tiene que entrar con Google antes de vincularla para una computadora.
+  | 'sign-in-first'
   | 'too-many-attempts'
   | 'code-expired'
   | 'code-used'

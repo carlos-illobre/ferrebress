@@ -27,7 +27,7 @@ export function PhoneMore() {
           <LightText />
         </button>
       </header>
-      <section class="phone-more-card phone-more-person" aria-label={texts.session}>
+      <section class="phone-more-card phone-more-person" aria-label={texts.session} data-private="">
         <span class="avatar">{initials(person.name)}</span>
         <div>
           <b>{person.name}</b>

@@ -151,6 +151,21 @@ describe('el celular lee el código de una computadora', () => {
     expect(server.bodies('/api/sign-in/codes/approve')[0]).toMatchObject({ kind: 'registration' });
   });
 
+  it('01-E16b: con sesión y sin huella, si el servidor lo pide, lee recién cuando vuelve a entrar con Google', async () => {
+    person.set(ana);
+    fakeServer({
+      '/api/sign-in/codes/read': [
+        { status: 409, body: { error: 'sign-in-first' } },
+        { body: { ...reading, registration: {} } },
+      ],
+    });
+    const { result } = renderHook(() => usePhoneCode());
+    await act(() => result.current.scanned('c1'));
+    expect(result.current.state).toMatchObject({ step: 'sign-in-first', code: 'c1' });
+    act(() => person.set({ ...ana }));
+    await waitFor(() => expect(result.current.state).toMatchObject({ step: 'ask' }));
+  });
+
   it('01-E16c: si no pone la huella, suelta el código y dice que la computadora puede entrar con Google', async () => {
     person.set(ana);
     fakePasskeys({ cancel: true });

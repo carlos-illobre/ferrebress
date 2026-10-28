@@ -29,7 +29,7 @@ function Ask({ code, read }: { code: Code; read: ReadCodeResponse }) {
         {...(!linking && { look: 'computer' })}
       />
       <h2>{linking ? texts.code.linkTitle : texts.code.ask(read.computer.label)}</h2>
-      <p class="sheet-sub">
+      <p class="sheet-sub" data-private="">
         {linking ? texts.code.linkDetail((person.get() as Person).email) : texts.code.askDetail}
       </p>
       <SheetButton look="orange" doing={texts.signingIn} onPress={code.touch}>

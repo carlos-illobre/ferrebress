@@ -58,9 +58,15 @@ export async function api<T>(
     online.set(false);
     return { ok: false, error: 'offline' };
   }
-  online.set(true);
   readServerHeader(response);
-  const data = (await response.json()) as T & ErrorBody;
+  // Sin JSON (el 502 de Caddy mientras el servidor se reinicia, una página de error del proxy) no
+  // se llega al servidor: se sigue como sin conexión (R3.6).
+  const data = (await response.json().catch(() => undefined)) as (T & ErrorBody) | undefined;
+  if (data === undefined) {
+    online.set(false);
+    return { ok: false, error: 'offline' };
+  }
+  online.set(true);
   if (response.ok) return { ok: true, data };
   if (data.error === 'update-required') updateRequired.set(true);
   if (data.error === 'session-closed') sessionClosed.set(String(data.reason));

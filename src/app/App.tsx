@@ -2,6 +2,7 @@
 // pregunta /api/start y muestra el marco si hay sesión o la entrada si no. Si la sesión se cierra
 // mientras se usa, la entrada aparece encima de lo que había, sin perderlo (R3.4). Atiende también
 // la dirección del QR (/link#<código>) y la cámara de «Escanear».
+import type { Environment } from '@ferrebress/shared/contracts/server-header';
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useState } from 'preact/hooks';
 import {
@@ -28,25 +29,38 @@ import {
 } from './modules/sign-in/index.ts';
 import { sessionClosed } from './platform/api.ts';
 import { clearHash, navigate, route } from './platform/router.ts';
+import { readStored, store } from './platform/storage.ts';
 import { useStore } from './platform/store.ts';
 import { Toasts } from './ui/toast/Toast.tsx';
 
-// Sin conexión al abrir, no se sabe nada del servidor: se sigue con lo guardado (R3.6).
-const unknown: StartResponse = {
-  environment: 'production',
+// Sin conexión al abrir, no se sabe nada del servidor: se sigue con lo guardado (R3.6), también
+// el último ambiente, para que el de pruebas siga con su marco y su menú (00 · R10.1).
+const environmentKey = 'environment';
+const unknown = (): StartResponse => ({
+  environment: readStored<Environment>(environmentKey) ?? 'production',
   version: '',
   googleClientId: '',
   googleScriptUrl: '',
-};
+});
 
 async function boot(): Promise<StartResponse | undefined> {
   await sendPendingSignOut();
   const start = await signInApi.start();
-  if (!start.ok) return unknown;
+  if (!start.ok) return unknown();
+  store(environmentKey, start.data.environment);
   // Recién abierta, con una versión nueva en el servidor, se actualiza antes de que se use (R5.2).
   if (updateOnOpen(start.data.version)) return undefined;
   confirmed(start.data.person);
   return start.data;
+}
+
+// Al volver la conexión, el servidor revisa la sesión: si venció durante el corte, aparece la
+// entrada encima de lo que había (R3.6, E28b).
+async function recheck(): Promise<void> {
+  await sendPendingSignOut();
+  if (!person.get()) return;
+  const start = await signInApi.start();
+  if (start.ok && !start.data.person) sessionClosed.set('unknown');
 }
 
 // Salir borra también el aviso de «Algo salió mal» guardado (diseño de 01, § 7).
@@ -79,7 +93,7 @@ function useStart(scanned: (code: string) => void) {
       announceUpdate();
       if (linked) scanned(linked);
     });
-    const retry = () => void sendPendingSignOut();
+    const retry = () => void recheck();
     addEventListener('online', retry);
     const stops = [watchCrashes(), watchBackground()];
     return () => {
@@ -112,7 +126,7 @@ export function App() {
   return (
     <>
       {who && <Frame person={who} testing={testing} onSignOut={leave} />}
-      {(!who || closed) && (
+      {(!who || closed || code.state.step === 'sign-in-first') && (
         <Entrance
           start={start}
           onScan={() => setCamera(true)}

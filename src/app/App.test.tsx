@@ -15,6 +15,7 @@ import { newVersion, sessionClosed } from './platform/api.ts';
 import { navigate } from './platform/router.ts';
 import { store } from './platform/storage.ts';
 import { fakeServer } from './testing/fake-server.ts';
+import { later } from './testing/later.ts';
 
 vi.mock('./modules/sign-in/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
 
@@ -58,12 +59,79 @@ describe('la aplicación al abrir', () => {
     await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(2));
   });
 
-  it('R3.6: sin conexión al abrir sigue con quién estaba guardado, sin el marco de pruebas', async () => {
+  it('R3.6, 01-E28, 00-E51: sin conexión al abrir sigue con quién estaba, con el marco de pruebas, aunque pasen horas', async () => {
     person.set(ana);
+    store('environment', 'testing');
     fakeServer({ '/api/start': 'offline' });
     render(<App />);
     expect(await screen.findByRole('region', { name: 'Tu sesión' })).toBeTruthy();
-    expect(document.querySelector('.test-frame')).toBeNull();
+    expect(document.querySelector('.test-frame')).not.toBeNull();
+    vi.useFakeTimers();
+    await later(9 * 60 * 60_000);
+    vi.useRealTimers();
+    expect(screen.getByRole('region', { name: 'Tu sesión' })).toBeTruthy();
+    expect(screen.queryByRole('region', { name: 'Entrar' })).toBeNull();
+  });
+
+  it('R3.6: si el servidor no contesta JSON (un despliegue), sigue como sin conexión', async () => {
+    person.set(ana);
+    fakeServer({ '/api/start': { stream: '<html>502</html>' } });
+    render(<App />);
+    expect(await screen.findByRole('region', { name: 'Tu sesión' })).toBeTruthy();
+  });
+
+  it('R3.6, 01-E28b: al volver la conexión el servidor revisa la sesión; vencida, la entrada aparece encima', async () => {
+    googleFrame();
+    const server = fakeServer({
+      '/api/start': [startReply({ person: ana }), startReply({ person: ana }), startReply()],
+    });
+    render(<App />);
+    await screen.findByRole('region', { name: 'Tu sesión' });
+    const back = () =>
+      act(() => {
+        dispatchEvent(new Event('online'));
+      });
+    back();
+    await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(2));
+    expect(screen.queryByText('Tu sesión venció')).toBeNull();
+    back();
+    expect(await screen.findByText('Tu sesión venció')).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Tu sesión' })).toBeTruthy();
+  });
+
+  it('sin sesión, al volver la conexión no pregunta por ninguna', async () => {
+    googleFrame();
+    const server = fakeServer({ '/api/start': startReply() });
+    render(<App />);
+    await screen.findByRole('region', { name: 'Entrar' });
+    act(() => {
+      dispatchEvent(new Event('online'));
+    });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(server.bodies('/api/start')).toHaveLength(1);
+  });
+
+  it('01-E16b: sin sesión ni huella, al leer el QR entra con Google y solo se abre la hoja de vincular', async () => {
+    navigate('/link#c1', { replace: true });
+    phone();
+    const google = googleFrame();
+    fakeServer({
+      '/api/start': startReply(),
+      '/api/sign-in/google': signInReply(true),
+      '/api/sign-in/codes/read': { body: { ...reading, registration: {} } },
+    });
+    render(<App />);
+    expect(
+      await screen.findByText('Entrá en este celular para que entre la computadora'),
+    ).toBeTruthy();
+    // El marco avisa que está listo cuando cargó, después de que la entrada lo escucha.
+    await waitFor(() => {
+      google.ready();
+      expect(google.shown).toHaveBeenCalled();
+    });
+    google.credential('pase');
+    expect(await screen.findByText('Vinculá tu huella para entrar a la computadora')).toBeTruthy();
+    expect(screen.queryByText('¿Entrar con la huella la próxima vez?')).toBeNull();
   });
 
   it('R3.4: si la sesión se cierra, la entrada aparece encima del marco y se va al volver a entrar', async () => {

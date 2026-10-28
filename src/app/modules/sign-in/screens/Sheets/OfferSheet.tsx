@@ -40,7 +40,9 @@ export function OfferSheet() {
         <>
           <SheetIcon name="fingerprint" />
           <h2>{texts.offer.title}</h2>
-          <p class="sheet-sub">{texts.offer.detail(who.email)}</p>
+          <p class="sheet-sub" data-private="">
+            {texts.offer.detail(who.email)}
+          </p>
           <SheetButton
             look="orange"
             doing={texts.signingIn}

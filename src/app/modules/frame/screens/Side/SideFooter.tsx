@@ -56,6 +56,7 @@ function PersonMini() {
     <button
       type="button"
       class="person-mini"
+      data-private=""
       data-mark=""
       data-key="s"
       data-name={person.name}
@@ -83,7 +84,7 @@ function PersonCard({ open }: { open: boolean }) {
       data-panel=""
       {...(open && { 'data-layer': '' })}
     >
-      <div class="person-who">
+      <div class="person-who" data-private="">
         <span class="avatar">{initials(person.name)}</span>
         <div>
           <b>{person.name}</b>

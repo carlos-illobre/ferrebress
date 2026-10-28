@@ -32,6 +32,7 @@ export function registerPhoneRoutes(ctx: SignInContext): void {
       ctx.record(c, 'code.rejected', { data: { reason: 'other-network' } });
       return fail(c, 409, 'other-network');
     }
+    if (await mustSignInFirst(ctx, c)) return fail(c, 409, 'sign-in-first');
     return c.json<ReadCodeResponse>(await read(ctx, c, found));
   });
 
@@ -46,6 +47,14 @@ export function registerPhoneRoutes(ctx: SignInContext): void {
   });
 
   registerApproveRoute(ctx);
+}
+
+// Con sesión y sin huella, la huella nueva solo se crea recién pasado por Google: si no puede
+// vincularla ahora, primero entra, sin reservar el código (R2.7, tercer punto).
+async function mustSignInFirst(ctx: SignInContext, c: Context): Promise<boolean> {
+  const session = await optionalSession(ctx, c);
+  if (!session || (await ctx.passkeys.findActiveByDevice(session.deviceId))) return false;
+  return cannotLink(ctx, c, session) !== undefined;
 }
 
 async function read(ctx: SignInContext, c: Context, screen: Screen): Promise<ReadCodeResponse> {

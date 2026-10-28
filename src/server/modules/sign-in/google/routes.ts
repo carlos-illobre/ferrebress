@@ -32,11 +32,15 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     const resolved = token ? await ctx.store.resolve(token) : undefined;
     const user =
       resolved?.kind === 'open' ? await ctx.users.findById(resolved.session.userId) : undefined;
-    if (user) return c.json<StartResponse>({ ...base, person: ctx.person(user) });
+    // El nonce va también con sesión: un celular sin huella vuelve a entrar con Google para
+    // vincularla y hacer entrar a una computadora (R2.7).
     const googleNonce = ctx.nonces.issue(ip, true);
-    return googleNonce
-      ? c.json<StartResponse>({ ...base, googleNonce })
-      : ctx.tooMany(c, signInSettings.nonce.ttlMs);
+    if (!googleNonce) return ctx.tooMany(c, signInSettings.nonce.ttlMs);
+    return c.json<StartResponse>({
+      ...base,
+      googleNonce,
+      ...(user && { person: ctx.person(user) }),
+    });
   });
 
   http.post('/api/sign-in/google', async (c) => {

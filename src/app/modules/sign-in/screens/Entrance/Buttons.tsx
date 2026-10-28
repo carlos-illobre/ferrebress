@@ -16,11 +16,14 @@ export function GoogleButton() {
   const [drawn, setDrawn] = useState(false);
   const attempt = useRef(entrance.attempt);
   attempt.current = entrance.attempt;
+  const signInFirst = useRef(entrance.signInFirst);
+  signInFirst.current = entrance.signInFirst;
   const { googleClientId, googleNonce, googleScriptUrl } = entrance.start;
   useEffect(() => {
     const opened = connectGoogleFrame(frame.current as HTMLIFrameElement, {
       drawn: () => setDrawn(true),
-      credential: (credential) => attempt.current(() => withGoogle(credential)),
+      credential: (credential) =>
+        attempt.current(() => withGoogle(credential, !signInFirst.current)),
     });
     connection.current = opened;
     return opened.stop;

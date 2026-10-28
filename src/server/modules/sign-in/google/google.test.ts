@@ -38,7 +38,7 @@ describe('entrar con Google', () => {
       person: { email: 'admin@example.com' },
       environment: 'testing',
     });
-    expect(start.body.googleNonce).toBeUndefined();
+    expect(start.body.googleNonce).toBeDefined();
   });
 
   it('sin nombre en el pase, la persona se llama como su correo; sin navegador conocido, «Otro navegador»', async () => {

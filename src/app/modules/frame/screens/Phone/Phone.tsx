@@ -19,6 +19,7 @@ export function PhoneTop() {
         <button
           type="button"
           class="phone-avatar"
+          data-private=""
           aria-label={`${person.name} · ${texts.more}`}
           onClick={phoneMore.show}
         >

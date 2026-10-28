@@ -154,6 +154,20 @@ describe('entrar a la computadora con el celular', () => {
     await screen.close();
   });
 
+  it('sign-in-E16b: con la sesión abierta hace rato y sin huella, primero entra con Google y el mismo código sirve', async () => {
+    const pc = computer();
+    const device = phone();
+    await device.signInWithGoogle(admin);
+    now += 6 * 60_000;
+    const screen = await openScreen(server, pc);
+    const first = await device.request('/api/sign-in/codes/read', { code: screen.lastCode() });
+    expect(first).toMatchObject({ status: 409, body: { error: 'sign-in-first' } });
+    await device.signInWithGoogle(admin);
+    const read = await device.request('/api/sign-in/codes/read', { code: screen.lastCode() });
+    expect(read.body.registration).toBeDefined();
+    await screen.close();
+  });
+
   it('sign-in-E16c: «No soy yo» devuelve la computadora a un código nuevo, y solo lo puede tocar quien leyó', async () => {
     const screen = await openScreen(server, computer());
     const first = screen.lastCode();

@@ -38,11 +38,14 @@ export const finish: Done = (result) => {
   return undefined;
 };
 
-export async function withGoogle(credential: string): Promise<Notice | undefined> {
+// `offer`: si se ofrece la huella después (R2.2); no cuando entra para leer el código de una
+// computadora, que ya pide vincularla en su hoja (R2.7).
+export async function withGoogle(credential: string, offer = true): Promise<Notice | undefined> {
   const result = await enteringWith('google', async () =>
     signInApi.google(credential, await createProofKey()),
   );
-  if (result.ok && result.data.offerPasskey && isPhone() && !wasOffered()) offerPasskey.set(true);
+  if (offer && result.ok && result.data.offerPasskey && isPhone() && !wasOffered())
+    offerPasskey.set(true);
   return finish(result);
 }
 
