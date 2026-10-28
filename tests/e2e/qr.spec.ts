@@ -1,4 +1,4 @@
-// 3 · Entrar a la computadora con el QR, con dos navegadores (R2.5 a R2.7; E13, E16): la computadora
+// 3 · Entrar a la computadora con el QR, con dos navegadores (R2.5 a R2.7; E13): la computadora
 // muestra el código, el celular con la huella lo lee y la computadora entra sola. La prueba lee el
 // código del canal en tiempo real, que es lo mismo que dibuja el QR, en lugar de fotografiarlo.
 import { expect, test } from '@playwright/test';

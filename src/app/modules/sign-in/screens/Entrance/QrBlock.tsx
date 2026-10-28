@@ -11,13 +11,18 @@ import { useComputerCode } from '../../useComputerCode.ts';
 
 export const codeSeconds = 60;
 
+// Los segundos que le quedan al código. Puede llegar después de la última marca del reloj: hasta
+// la siguiente, va entero (1:00, nunca 1:01).
+export const secondsLeft = (now: number, since: number): number =>
+  Math.max(0, codeSeconds - Math.floor(Math.max(0, now - since) / 1000));
+
 function useCountdown(since: number): number {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
-  return Math.max(0, codeSeconds - Math.floor((now - since) / 1000));
+  return secondsLeft(now, since);
 }
 
 export function QrBlock() {

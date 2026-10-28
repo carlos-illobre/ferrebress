@@ -5,11 +5,22 @@ import { fakeServer } from '../../testing/fake-server.ts';
 import { later } from '../../testing/later.ts';
 import { minutes, noticeOf, useNotice } from './notice.ts';
 import { codeOf, linkUrl, qrPath } from './qr.ts';
+import { secondsLeft } from './screens/Entrance/QrBlock.tsx';
 import { hasPasskey, offered, offerPasskey, person } from './session.ts';
 import { ana, fakePasskeys, phone, signInReply } from './sign-in-test-kit.ts';
 import { texts } from './texts.ts';
 import { entering, enteringWith, withGoogle, withPasskey } from './useSignIn.ts';
 import { createPasskey, signWithPasskey } from './webauthn.ts';
+
+describe('la cuenta regresiva del código', () => {
+  it('arranca en 1:00 aunque el código llegue después de la última marca del reloj (revisión de código, 9.1)', () => {
+    expect(secondsLeft(1_000, 1_400)).toBe(60);
+    expect(secondsLeft(1_400, 1_400)).toBe(60);
+    expect(secondsLeft(2_399, 1_400)).toBe(60);
+    expect(secondsLeft(2_400, 1_400)).toBe(59);
+    expect(secondsLeft(70_000, 1_400)).toBe(0);
+  });
+});
 
 describe('el aviso de la entrada', () => {
   afterEach(() => vi.useRealTimers());
@@ -110,7 +121,7 @@ describe('entrar', () => {
     offerPasskey.set(false);
     await withGoogle('pase');
     expect(offerPasskey.get()).toBe(false);
-    offered();
+    offered(ana.userId);
     await withGoogle('pase');
     expect(offerPasskey.get()).toBe(false);
   });

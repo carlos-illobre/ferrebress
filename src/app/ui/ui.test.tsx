@@ -101,7 +101,7 @@ describe('las piezas', () => {
     expect(second?.getAttribute('class')).toBe('icon icon-large');
   });
 
-  it('app-E18: un texto lleva la forma larga y la corta, y si son iguales, una sola', () => {
+  it('un texto lleva la forma larga y la corta, y si son iguales, una sola (la pieza de app-E18)', () => {
     const { container } = render(
       <p>
         <Say words={{ long: 'En línea · todo enviado', short: 'En línea' }} />

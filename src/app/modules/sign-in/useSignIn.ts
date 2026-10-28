@@ -44,8 +44,8 @@ export async function withGoogle(credential: string, offer = true): Promise<Noti
   const result = await enteringWith('google', async () =>
     signInApi.google(credential, await createProofKey()),
   );
-  if (offer && result.ok && result.data.offerPasskey && isPhone() && !wasOffered())
-    offerPasskey.set(true);
+  const firstTime = result.ok && !wasOffered(result.data.person.userId);
+  if (offer && firstTime && result.data.offerPasskey && isPhone()) offerPasskey.set(true);
   return finish(result);
 }
 

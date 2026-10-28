@@ -3,6 +3,7 @@
 // celular pone la huella, el permiso que cambia por su sesión. El canal está abierto solo mientras
 // la entrada está a la vista: con la pestaña escondida se cierra, y se vuelve a abrir al volver.
 import { useEffect, useState } from 'preact/hooks';
+import { appHeaders } from '../../platform/api.ts';
 import { createProofKey } from '../../platform/proof-key.ts';
 import { type ChannelEvent, openChannel } from '../../platform/realtime.ts';
 import { signInApi } from './api.ts';
@@ -14,7 +15,7 @@ const channelPath = '/api/realtime/sign-in-codes';
 
 async function open(signal: AbortSignal): Promise<Response> {
   await signInApi.openScreen();
-  return fetch(channelPath, { signal });
+  return fetch(channelPath, { signal, headers: appHeaders() });
 }
 
 export function useComputerCode(enabled: boolean): ComputerCode {

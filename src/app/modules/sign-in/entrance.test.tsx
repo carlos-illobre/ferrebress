@@ -123,7 +123,7 @@ describe('la entrada en la computadora', () => {
     expect(onStale).toHaveBeenCalledOnce();
   });
 
-  it('sign-in-E02: una cuenta no autorizada ve por qué, y la nota se va', async () => {
+  it('sign-in-E02: una cuenta no autorizada ve por qué', async () => {
     const google = googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},

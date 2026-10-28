@@ -168,7 +168,7 @@ describe('entrar a la computadora con el celular', () => {
     await screen.close();
   });
 
-  it('sign-in-E16c: «No soy yo» devuelve la computadora a un código nuevo, y solo lo puede tocar quien leyó', async () => {
+  it('«No soy yo» devuelve la computadora a un código nuevo, y solo lo puede tocar quien leyó (lo que usa sign-in-E16c)', async () => {
     const screen = await openScreen(server, computer());
     const first = screen.lastCode();
     const { device } = await phoneWithPasskey();

@@ -31,7 +31,7 @@ export function OfferSheet() {
   if (!open || !who) return null;
   const close = () => {
     setStep('ask');
-    offered();
+    offered(who.userId);
     offerPasskey.set(false);
   };
   return (

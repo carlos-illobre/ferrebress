@@ -41,6 +41,29 @@ describe('la cámara', () => {
     expect(track.stop).toHaveBeenCalled();
   });
 
+  it('después de leer un QR ajeno sigue leyendo (revisión de código, 1.10)', async () => {
+    vi.useFakeTimers();
+    const { video } = camera();
+    const detect = vi
+      .fn()
+      .mockResolvedValueOnce([{ rawValue: 'https://otro.example/producto' }])
+      .mockResolvedValue([{ rawValue: 'el bueno' }]);
+    vi.stubGlobal(
+      'BarcodeDetector',
+      class {
+        detect = detect;
+      },
+    );
+    const onText = vi.fn();
+    const stop = await scan(video, onText, () => {});
+    await vi.advanceTimersByTimeAsync(scanEveryMs);
+    expect(onText.mock.calls.map(([text]) => text)).toEqual([
+      'https://otro.example/producto',
+      'el bueno',
+    ]);
+    stop();
+  });
+
   it('si se cierra mientras busca, deja de leer', async () => {
     vi.useFakeTimers();
     const { video } = camera();

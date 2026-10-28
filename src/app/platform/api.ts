@@ -34,15 +34,18 @@ export type ApiResult<T> =
   | { ok: true; data: T }
   | ({ ok: false; error: ErrorCode | 'offline' } & Record<string, unknown>);
 
+// Lo que lleva todo pedido a /api, también el canal en tiempo real: la versión y el dispositivo.
+export const appHeaders = (): Record<string, string> => ({
+  [appVersionHeaderName]: String(contractVersion),
+  [deviceIdHeaderName]: deviceId(),
+});
+
 export async function api<T>(
   path: string,
   body?: unknown,
   signal?: AbortSignal,
 ): Promise<ApiResult<T>> {
-  const headers: Record<string, string> = {
-    [appVersionHeaderName]: String(contractVersion),
-    [deviceIdHeaderName]: deviceId(),
-  };
+  const headers = appHeaders();
   const init: RequestInit =
     body === undefined
       ? { headers }

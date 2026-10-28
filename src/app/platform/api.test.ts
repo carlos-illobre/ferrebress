@@ -48,7 +48,7 @@ describe('hablar con el servidor', () => {
     await api('/api/start');
   });
 
-  it('app-E24 y E26: sin conexión lo dice, y con la próxima respuesta vuelve', async () => {
+  it('sin conexión lo anota, y con la próxima respuesta vuelve (lo que usan app-E24 y E26)', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => {

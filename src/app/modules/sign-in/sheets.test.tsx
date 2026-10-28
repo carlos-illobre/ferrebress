@@ -91,7 +91,7 @@ describe('las hojas del celular', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sí, usar la huella' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(hasPasskey()).toBe(true);
-    expect(wasOffered()).toBe(true);
+    expect(wasOffered(ana.userId)).toBe(true);
     expect(offerPasskey.get()).toBe(false);
   });
 
@@ -122,7 +122,7 @@ describe('las hojas del celular', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Entendido' }));
     act(() => offerPasskey.set(true));
     fireEvent.click(screen.getByRole('button', { name: 'Ahora no' }));
-    expect(wasOffered()).toBe(true);
+    expect(wasOffered(ana.userId)).toBe(true);
   });
 
   it('la cámara lee un código de esta aplicación y se cierra con la ×; sin cámara, lo dice', async () => {

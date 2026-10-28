@@ -1,6 +1,7 @@
 // Las pantallas con QR que no se quedan con su lugar (revisión de seguridad, puntos 25 y 26): la que
 // nunca abre su canal se libera sola, y cada pantalla tiene un solo canal.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { appHeaders } from '../../../testing/config.ts';
 import { manualWait, openScreen } from '../../../testing/screen-channel.ts';
 import {
   createDevice,
@@ -38,7 +39,7 @@ describe('las pantallas con QR y sus canales', () => {
     const screen = await openScreen(server, computer());
     const before = screen.events.length;
     const again = await server.http.request('/api/realtime/sign-in-codes', {
-      headers: { Cookie: screen.cookie },
+      headers: { ...appHeaders(), Cookie: screen.cookie },
     });
     expect(again.status).toBe(200);
     await screen.settle();

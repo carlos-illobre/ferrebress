@@ -18,7 +18,7 @@ describe('entrar con Google', () => {
       .read(2026)
       .concat(server.platform.audit.read(new Date().getUTCFullYear()));
 
-  it('sign-in-E01 y E05: el primer Administrador entra y queda con su sesión en una cookie que la página no lee', async () => {
+  it('sign-in-E01, E05 y E41: el primer Administrador entra y queda con su sesión en una cookie que la página no lee', async () => {
     const device = createDevice(server);
     const response = await device.signInWithGoogle({
       sub: 'sub-admin',

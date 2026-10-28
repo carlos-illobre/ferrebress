@@ -102,7 +102,7 @@ describe('todo pedido de /api', () => {
     ['sin versión', { headers: { 'X-Device-Id': appHeaders()['X-Device-Id'] } }],
     ['una versión que no es un número', get({ 'X-App-Version': 'abc' })],
     ['un cuerpo de más de 64 KB', post({ texto: 'x'.repeat(65 * 1024) })],
-  ])('rechaza %s y lo anota', async (_, init) => {
+  ])('sign-in-E42: rechaza %s y lo anota', async (_, init) => {
     const { http, rejected } = setUp();
     const response = await http.request('/api/echo', init);
     expect(response.status).toBe(400);
@@ -155,13 +155,10 @@ describe('todo pedido de /api', () => {
     expect(await boom.json()).toEqual({ error: 'unexpected' });
   });
 
-  it('/api/health y los canales en tiempo real no piden las cabeceras de la aplicación', async () => {
+  it('/api/health no pide las cabeceras de la aplicación: lo miran el despliegue y Docker', async () => {
     const { http } = setUp();
     http.get('/api/health', (c) => c.json({ ok: true }));
-    http.get('/api/realtime/x', (c) => c.json({ ok: true }));
     expect((await http.request('/api/health')).status).toBe(200);
-    expect((await http.request('/api/realtime/x')).status).toBe(200);
-    expect((await http.request('/api/realtime/x', { method: 'POST' })).status).toBe(400);
   });
 
   it('sin dirección conocida la anota como desconocida', async () => {

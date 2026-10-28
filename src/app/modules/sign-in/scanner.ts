@@ -1,6 +1,7 @@
 // Leer un código QR con la cámara (diseño de 01, § 10): con BarcodeDetector donde el navegador lo
 // tiene, y si no, con ZXing, que se baja recién al tocar «Escanear». Lee un cuadro cada 250 ms
-// hasta encontrar un código o hasta que se cierre la cámara.
+// hasta que se cierre la cámara, y avisa cada texto que lee: quien la usa decide si le sirve, así un
+// QR ajeno (el de un producto, uno de un pago) no la deja sin leer.
 type Detector = { detect(source: HTMLVideoElement): Promise<{ rawValue: string }[]> };
 type WithDetector = { BarcodeDetector?: new (options: { formats: string[] }) => Detector };
 
@@ -23,7 +24,7 @@ async function detector(): Promise<(video: HTMLVideoElement) => Promise<string |
   };
 }
 
-// Prende la cámara de atrás en el video y avisa lo que lee; devuelve cómo apagarla. Si no hay
+// Prende la cámara de atrás en el video y avisa todo lo que lee; devuelve cómo apagarla. Si no hay
 // cámara o no dan permiso, avisa con onFail.
 export async function scan(
   video: HTMLVideoElement,
@@ -45,7 +46,7 @@ export async function scan(
       if (stopped) return;
       const text = await read(video).catch(() => undefined);
       if (text) onText(text);
-      else setTimeout(tick, scanEveryMs);
+      setTimeout(tick, scanEveryMs);
     };
     void tick();
   } catch {

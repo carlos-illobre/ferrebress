@@ -90,12 +90,16 @@ describe('la sesión en la aplicación', () => {
     expect(readStored('pending-sign-out')).toBeUndefined();
   });
 
-  it('recuerda si el celular tiene huella y si ya se le ofreció', () => {
+  it('recuerda si el celular tiene huella y a quién ya se le ofreció, por persona (R2.2)', () => {
     expect(hasPasskey()).toBe(false);
-    expect(wasOffered()).toBe(false);
+    expect(wasOffered('u1')).toBe(false);
     passkeyLinked();
-    offered();
+    offered('u1');
+    offered('u1');
     expect(hasPasskey()).toBe(true);
-    expect(wasOffered()).toBe(true);
+    expect(wasOffered('u1')).toBe(true);
+    // A otra persona que entra después en el mismo celular se le ofrece igual.
+    expect(wasOffered('u2')).toBe(false);
+    expect(readStored('passkey-offered-to')).toEqual(['u1']);
   });
 });

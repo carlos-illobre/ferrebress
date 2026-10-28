@@ -63,8 +63,9 @@ ferrebress/
   `app/platform/`, porque las usan todos los módulos.
 - **Qué se guarda en el dispositivo aunque no trabaje sin conexión** (la arquitectura lo dice como
   excepción):
-  - En `localStorage`, lo que no es del negocio ni secreto: el identificador del dispositivo, si ya
-    se le ofreció la huella, «salir pendiente», el nombre y rol de quien entró (para mostrarlos sin
+  - En `localStorage`, lo que no es del negocio ni secreto: el identificador del dispositivo, a qué
+    personas ya se les ofreció la huella en él (su identificador, no su nombre: R2.2 la ofrece una
+    vez por persona), «salir pendiente», el nombre y rol de quien entró (para mostrarlos sin
     conexión; se borran al salir) y el último aviso de «Algo salió mal» (uno solo; se borra al
     salir y al mandarlo).
   - En IndexedDB, solo la llave de prueba de la sesión (§ 6): una llave de WebCrypto que no se
@@ -135,9 +136,8 @@ Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`
   campo en su contrato (el pase de Google, 4 KB; una respuesta de la huella, 8 KB; el código, 32
   caracteres). `X-Device-Id` tiene que ser un UUID y `X-App-Version` un número entero; si falta
   alguna o no lo es, el pedido se rechaza (400), y una versión menor que la mínima pide actualizar
-  (426). Solo dos rutas no las piden: `/api/health`, que miran Docker y el despliegue, y el canal
-  en tiempo real, que el navegador abre sin cabeceras propias (`EventSource`) y al que identifica
-  la cookie de la pantalla.
+  (426). También el canal en tiempo real, que se lee con `fetch`, las lleva. Solo `/api/health`,
+  que miran Docker y el despliegue, no las pide.
 - **Pedidos desde otros sitios:** todo pedido que no es `GET`, con o sin sesión, exige `Origin`
   igual a `PUBLIC_ORIGIN` (sin `Origin`, se rechaza) y `Content-Type: application/json`, también
   los que no llevan cuerpo. Es una comprobación propia de `platform/http`. Ninguna respuesta lleva

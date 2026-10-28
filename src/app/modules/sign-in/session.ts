@@ -56,15 +56,19 @@ export async function sendPendingSignOut(): Promise<void> {
   if (result.ok || result.error !== 'offline') forget(pendingKey);
 }
 
-// Si este celular ya tiene una huella vinculada y si ya se le ofreció (R2.2: una sola vez). Lo sabe
-// el dispositivo; el servidor igual controla todo.
+// Si este celular ya tiene una huella vinculada, y a quiénes ya se les ofreció en él (R2.2: una
+// sola vez por persona, la primera vez que entra). Lo sabe el dispositivo; el servidor igual
+// controla todo.
 const passkeyKey = 'passkey';
-const offeredKey = 'passkey-offered';
+const offeredKey = 'passkey-offered-to';
 
 export const hasPasskey = () => readStored<boolean>(passkeyKey) === true;
 export const passkeyLinked = () => store(passkeyKey, true);
-export const wasOffered = () => readStored<boolean>(offeredKey) === true;
-export const offered = () => store(offeredKey, true);
+const offeredTo = () => readStored<string[]>(offeredKey) ?? [];
+export const wasOffered = (userId: string) => offeredTo().includes(userId);
+export const offered = (userId: string) => {
+  if (!wasOffered(userId)) store(offeredKey, [...offeredTo(), userId]);
+};
 
 // Se le ofrece la huella al llegar al marco (E06): lo muestra la aplicación encima del marco.
 export const offerPasskey = createStore(false);

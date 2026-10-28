@@ -106,15 +106,9 @@ function guard(
 }
 
 // Todo pedido trae el dispositivo (un UUID) y la versión del contrato (un entero); sin ellos no
-// viene de la aplicación. No los piden /api/health, que miran el despliegue y Docker, ni los
-// canales en tiempo real, que el navegador abre sin cabeceras propias (EventSource) y que
-// identifica su cookie.
-const withoutApp = (c: Context) =>
-  c.req.path === '/api/health' ||
-  (c.req.method === 'GET' && c.req.path.startsWith('/api/realtime/'));
-
+// viene de la aplicación. Solo /api/health, que miran el despliegue y Docker, no los pide.
 function rejectionReason(c: Context, publicOrigin: string): Reason | undefined {
-  if (withoutApp(c)) return undefined;
+  if (c.req.path === '/api/health') return undefined;
   if (!c.get('deviceId')) return 'device';
   const contract = Number(c.req.header(appVersionHeaderName) || Number.NaN);
   if (!Number.isInteger(contract)) return 'contract';

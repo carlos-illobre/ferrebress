@@ -39,8 +39,7 @@ export async function openScreen(server: SignInServer, computer: ReturnType<type
   const cookie = (opened.cookie as string).split(';')[0] as string;
   const controller = new AbortController();
   const response = await server.http.request('/api/realtime/sign-in-codes', {
-    // Como EventSource: sin las cabeceras de la aplicación, solo con la cookie.
-    headers: { Cookie: cookie, 'X-Real-IP': '190.1.2.3' },
+    headers: { ...appHeaders(computer.id), Cookie: cookie, 'X-Real-IP': '190.1.2.3' },
     signal: controller.signal,
   });
   const reader = (response.body as ReadableStream<Uint8Array>).getReader();
