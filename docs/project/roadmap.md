@@ -22,7 +22,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | # | Módulo | Qué cubre | Por qué en este lugar | Depende de | Estado |
 |---|---|---|---|---|---|
 | 00 | `app` | Las reglas generales de la aplicación: el marco, el menú, el teclado, la conexión, la versión nueva, el manual, las esperas, los formatos | No se construye solo: cada regla se construye con el primer módulo que la necesita | — | Reglas aprobadas |
-| 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | En curso: paso 6 |
+| 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | En curso: paso 8 (lo prueba Carlos) |
 | 02 | `users` | Personas (autorizar, dar de baja), roles y permisos, y las sesiones abiertas de cada dispositivo | Para que entre alguien más que el primer Administrador | 01 | Libre |
 | 03 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para leer los códigos del catálogo | 01 | Libre |
 | 04 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo, formatos) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
@@ -61,11 +61,11 @@ paralelo»).
   y el revisor, dividido en dos: `design-reviewer` y `code-reviewer` (`.claude/agents/`).
 - [x] T002 [agente] Pasar a `docs/design/` el lenguaje visual «Mostrador», las capturas de la
   pantalla de entrada y las maquetas v2 de cada pantalla.
-- [ ] T003 [agente] Armar el esqueleto: workspace de pnpm, `pnpm check`, el `.env` de ejemplo, el
+- [x] T003 [agente] Armar el esqueleto: workspace de pnpm, `pnpm check`, el `.env` de ejemplo, el
   compose (Caddy, servidor, PostgreSQL) y la CI que despliega `main` en el ambiente de pruebas. Va
   en el paso 6 del módulo 01, el primero que se programa: sus límites y su configuración son parte
-  de su diseño técnico, que Carlos aprueba antes. Hasta entonces no hay `pnpm check`.
-- [ ] T004 [carlos] Habilitar GitHub Pages en el repositorio (Settings → Pages → Source: «GitHub
+  de su diseño técnico, que Carlos aprueba antes.
+- [x] T004 [carlos] Habilitar GitHub Pages en el repositorio (Settings → Pages → Source: «GitHub
   Actions»), para que se publique el visor de maquetas.
 - [ ] T006 [agente] Cuando el último capítulo tenga sus reglas aprobadas, borrar la guía de
   migración y toda mención del proyecto anterior (`CLAUDE.md`, `README.md`, la constitución, el
