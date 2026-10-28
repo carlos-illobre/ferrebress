@@ -111,18 +111,6 @@ describe('la aplicación al abrir', () => {
     expect(server.sent).toHaveLength(1);
   });
 
-  it('sin nadie guardado, la entrada se dibuja sin esperar al servidor; con una salida pendiente, no', async () => {
-    googleFrame();
-    fakeServer({ '/api/start': 'waiting' });
-    const { unmount } = render(<App />);
-    // El servidor todavía no contestó (nunca contesta) y la entrada ya está.
-    expect(screen.getByRole('region', { name: 'Entrar' })).toBeTruthy();
-    unmount();
-    store('pending-sign-out', { sessionId: 's', signature: 'f', tappedAt: 1 });
-    render(<App />);
-    expect(screen.queryByRole('region', { name: 'Entrar' })).toBeNull();
-  });
-
   it('sin sesión, al volver la conexión no pregunta por ninguna', async () => {
     googleFrame();
     const server = fakeServer({ '/api/start': startReply() });

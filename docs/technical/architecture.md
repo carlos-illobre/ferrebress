@@ -1,8 +1,10 @@
 # Arquitectura
 
 Cómo está armado el sistema por dentro. El porqué de cada decisión está en los
-[ADR](adr/README.md); el diseño de cada módulo, en [modules/](modules/README.md). Esta página no
-tiene reglas del negocio: esas están en los [capítulos](../chapters/README.md).
+[ADR](adr/README.md); el diseño de cada módulo, en [modules/](modules/README.md); los pedidos que
+la aplicación hace sola y lo que gastan de los datos del celular, en
+[mobile-data.md](mobile-data.md). Esta página no tiene reglas del negocio: esas están en los
+[capítulos](../chapters/README.md).
 
 ## Las piezas
 

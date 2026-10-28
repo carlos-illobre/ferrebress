@@ -168,6 +168,7 @@ Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`
 
 | Ruta | Qué hace | Sesión |
 |---|---|---|
+| `GET /api/sign-in/google/nonce` | Solo un `nonce` nuevo (`{"nonce":"…"}`, menos de 50 bytes), para la entrada que quedó abierta: lo pide un minuto antes de que venza el anterior, mientras se ve (01 · R2.1). Ninguna consulta a la base, el mismo límite que `/api/start` | No |
 | `GET /api/start` | El primer pedido al abrir: ambiente, versión, identificador de cliente de Google, la dirección del script de Google (en las pruebas de punta a punta, uno de prueba), un `nonce` de Google y, si hay cookie válida, quién es | Opcional |
 | `POST /api/sign-in/google` | Recibe el pase de Google, lo verifica, crea la sesión. Devuelve la persona y si es un celular sin huella vinculada | No |
 | `POST /api/sign-in/passkey/options` | Un desafío para entrar con la huella | No |
@@ -358,7 +359,7 @@ la computadora. Solo el celular usa la huella.
 |---|---|---|---|
 | Sesiones ya vistas | Mientras vivan | — | Se vuelven a leer de la base |
 | Desafíos de la huella | 5 minutos, un uso | 100.000 | Se vuelve a tocar el botón |
-| `nonce` de Google | 10 minutos, un uso | 100.000 | La entrada pide otro a los 9 minutos mientras se ve, y al volver a la vista después de 9 minutos (el reloj se frena con el dispositivo dormido) |
+| `nonce` de Google | 10 minutos, un uso | 100.000 | La entrada pide otro (solo el `nonce`) un minuto antes de que venza, mientras se ve, y al volver a la vista si ya pasó ese tiempo (el reloj se frena con el dispositivo dormido). El plazo está una sola vez, en `src/shared/`, y la renovación se calcula de él |
 | Pantallas con QR y sus códigos | Mientras su canal esté abierto (uno solo: uno nuevo corta el anterior); si no lo abre en 30 s, se libera | 1.000 | La entrada abre otro canal |
 | Intentos | 1 minuto y 1 hora | — | Se vuelve a contar |
 | Llaves públicas de Google | Lo que diga Google | — | Se vuelven a pedir |
@@ -518,6 +519,7 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   | Pedido | Consultas a la base |
   |---|---|
   | `/api/start` con la sesión ya en memoria | 0 (quién es la persona también queda en memoria) |
+  | `/api/sign-in/google/nonce` | 0 |
   | El primero de una sesión después de reiniciar | 2 (la sesión y la persona); sin prueba, porque la prueba no reinicia el servidor |
   | Entrar con Google | hasta 3 (buscar la cuenta, guardar `google_subject` la primera vez, crear la sesión); en el celular, hasta 4, porque mira si ya tiene huella para no ofrecerla |
   | Entrar con la huella | 4 (la credencial, su contador, la persona, crear la sesión) |
@@ -619,6 +621,11 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
     cabecera; a otros sitios va solo el origen, nunca la ruta) y
     `Cross-Origin-Opener-Policy: same-origin-allow-popups` (el botón de Google abre una ventana).
   - `Permissions-Policy` con la cámara y la huella solo para el propio origen.
+  - Lo que solo sirve en una página (la política de contenido de la aplicación, `X-Frame-Options`,
+    `Referrer-Policy`, `Cross-Origin-Opener-Policy` y `Permissions-Policy`) no va en las respuestas
+    de `/api`, que son JSON: ahí van solo `Strict-Transport-Security`, `nosniff` y una política de
+    contenido mínima (`default-src 'none'; frame-ancestors 'none'`). Cada respuesta pesa así unos
+    600 bytes menos, que en el celular se pagan con datos.
   - `Cache-Control`: lo de `/assets/`, que lleva el hash en el nombre, se guarda un año; todo lo
     demás (las páginas, `/link`, el service worker, el manifiesto) lleva `no-cache` y se revisa
     siempre.

@@ -100,7 +100,10 @@ export default async function start(): Promise<() => Promise<void>> {
   });
   return async () => {
     stopCaddy();
+    // El servidor escribe la auditoría al cerrarse: la carpeta se borra recién cuando terminó.
+    const exited = new Promise((resolve) => server.once('exit', resolve));
     server.kill();
+    await exited;
     google.server.close();
     rmSync(dir, { recursive: true, force: true });
   };

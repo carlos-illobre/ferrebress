@@ -53,6 +53,12 @@ que más va a cambiar: se cambia tocando CSS, sin tocar la lógica (ADR-002). En
 con una mano y sin desplazarse al costado; en la computadora, con el teclado y aprovechando todo
 el ancho.
 
+El celular usa datos móviles, que se pagan. La aplicación abierta y sin usarse no le pide nada al
+servidor, y oculta no pide nada nunca. Todo pedido que la aplicación haga sola (por un
+temporizador, al abrir, al volver la conexión o a la vista) se anota antes en
+[mobile-data.md](../technical/mobile-data.md), con lo que pesa, también lo que baje de afuera, y
+lo aprueba Carlos.
+
 ### IV. El mostrador no para
 
 Atender clientes y proveedores (vender, buscar precios, cobrar, corregir y anular ventas,

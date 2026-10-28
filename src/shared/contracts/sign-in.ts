@@ -24,6 +24,8 @@ export const signOutBody = z.object({
   ),
 });
 
+export type NonceResponse = { nonce: string };
+
 export type Person = { userId: string; name: string; email: string; role: string };
 
 export type StartResponse = {

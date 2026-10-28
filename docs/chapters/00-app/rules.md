@@ -222,8 +222,10 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 - **E22** **Dado** cosas por enviar, **cuando** se toca la luz, **entonces** muestra cada una: qué es,
   de cuándo y quién la hizo.
 - **E23** **Dado** la aplicación abierta sin usarse, **cuando** pasa cualquier tiempo, **entonces** no
-  hace ningún pedido al servidor. La entrada es la excepción: renueva lo que necesita para entrar
-  con Google (01 · R2.1) y la computadora espera su código.
+  hace ningún pedido al servidor. Las excepciones, con lo que gasta cada una de los datos del
+  celular, están anotadas aparte (las mantiene el diseño técnico); hoy, la entrada a la vista, que
+  renueva lo que necesita para entrar con Google (01 · R2.1), y la computadora, que espera su
+  código.
 - **E24** **Dado** un dispositivo sin trabajo sin conexión, **cuando** se corta la conexión,
   **entonces** la pantalla se pone gris, dice «Sin conexión», lo que ya estaba se sigue leyendo y
   solo deja salir.

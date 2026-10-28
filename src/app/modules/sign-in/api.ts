@@ -2,6 +2,7 @@
 // el JSON de WebAuthn: el servidor arma las opciones y valida las respuestas.
 import type {
   ApproveCodeBody,
+  NonceResponse,
   ReadCodeResponse,
   SignInResponse,
   StartResponse,
@@ -15,6 +16,7 @@ export type ApproveBody = ApproveCodeBody;
 
 export const signInApi = {
   start: () => api<StartResponse>('/api/start'),
+  nonce: () => api<NonceResponse>('/api/sign-in/google/nonce'),
   google: (credential: string, proofPublicKey: string) =>
     api<SignInResponse>('/api/sign-in/google', { credential, proofPublicKey }),
   passkeyOptions: () => api<Json>('/api/sign-in/passkey/options', {}),

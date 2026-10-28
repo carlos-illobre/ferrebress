@@ -61,6 +61,8 @@ describe('los límites de intentos con Google', () => {
     for (let i = 0; i < 31; i++) statuses.push((await device.request('/api/start')).status);
     expect(statuses.slice(0, 10).every((status) => status === 200)).toBe(true);
     expect(statuses.at(-1)).toBe(429);
+    // El nonce suelto de la entrada abierta cuenta en el mismo límite.
+    expect((await device.request('/api/sign-in/google/nonce')).status).toBe(429);
   });
 
   it('recargar la entrada no gasta el nonce: pasado el tope, se descarta el más viejo', async () => {
@@ -84,6 +86,8 @@ describe('los límites de intentos con Google', () => {
         for (let i = 0; i < 15; i++) last = (await device.request('/api/start')).status;
       }
       expect(last).toBe(429);
+      const other = createDevice(server, { ip: '204.0.9.1' });
+      expect((await other.request('/api/sign-in/google/nonce')).status).toBe(429);
     } finally {
       signInSettings.nonce.maxTotal = maxTotal;
     }

@@ -32,6 +32,26 @@ describe('las consultas de cada pedido', () => {
     expect(await server.countQueries(() => pc.request('/api/start'))).toBe(0);
   });
 
+  it('un nonce nuevo para la entrada abierta: sin consultas y solo el nonce (01 · R2.1)', async () => {
+    const phone = device(androidPhone);
+    let reply: Awaited<ReturnType<typeof phone.request>> | undefined;
+    expect(
+      await server.countQueries(async () => {
+        reply = await phone.request('/api/sign-in/google/nonce');
+      }),
+    ).toBe(0);
+    expect(Object.keys(reply?.body)).toEqual(['nonce']);
+    // Lo que se paga con datos del celular: el cuerpo entero, menos de 50 bytes.
+    expect(JSON.stringify(reply?.body).length).toBeLessThan(50);
+    // Y sirve para entrar con Google.
+    const credential = await server.google.credential({ ...admin, nonce: reply?.body.nonce });
+    const signedIn = await phone.request('/api/sign-in/google', {
+      credential,
+      proofPublicKey: phone.proofPublicKey,
+    });
+    expect(signedIn.status).toBe(200);
+  });
+
   it('entrar con Google: hasta 3 en la computadora, hasta 4 en el celular', async () => {
     const pc = device();
     const start = await pc.request('/api/start');

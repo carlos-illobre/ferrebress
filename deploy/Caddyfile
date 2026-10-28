@@ -17,19 +17,27 @@
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options nosniff
+		-Server
+	}
+
+	# Lo que solo sirve en una página. Las respuestas de /api, que son JSON y no se dibujan, no lo
+	# llevan: cada pedido viaja más liviano, que en el celular se paga con datos.
+	@page not path /api/*
+	header @page {
 		# Google necesita ver de qué sitio viene el pedido del botón: a otros sitios va solo el origen.
 		Referrer-Policy strict-origin-when-cross-origin
 		Cross-Origin-Opener-Policy same-origin-allow-popups
 		Permissions-Policy "camera=(self), publickey-credentials-get=(self), publickey-credentials-create=(self), geolocation=(), microphone=()"
-		-Server
 	}
+	@api path /api/*
+	header @api Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
 
 	# La política de contenido: estricta para toda la aplicación, que no habla con Google. Google vive
 	# solo en la página de su botón (google-button.html), dentro de un marco de la aplicación: solo
 	# esa página carga lo de Google y admite estilos en línea (la única excepción aprobada), y solo
 	# la aplicación puede enmarcarla.
 	@googleButton path /google-button.html
-	@app not path /google-button.html
+	@app not path /google-button.html /api/*
 	header @app {
 		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; frame-src 'self'; connect-src 'self'; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
 		X-Frame-Options DENY

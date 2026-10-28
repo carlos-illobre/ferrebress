@@ -116,6 +116,12 @@ function useStart(scanned: (code: string) => void) {
   // La entrada necesita un nonce de Google sin usar: al salir, al cerrarse la sesión y cuando el
   // que tenía venció, se pide otro.
   const refresh = () => void signInApi.start().then((again) => again.ok && setStart(again.data));
+  // Con la entrada abierta, solo hace falta otro nonce: un pedido mínimo, que en el celular se paga
+  // con datos (01 · R2.1).
+  const renew = () =>
+    void signInApi.nonce().then((fresh) => {
+      if (fresh.ok) setStart((now) => now && { ...now, googleNonce: fresh.data.nonce });
+    });
   useEffect(() => {
     if (closed) refresh();
   }, [closed]);
@@ -124,15 +130,15 @@ function useStart(scanned: (code: string) => void) {
     if (!who && booted.current) refresh();
   }, [who]);
 
-  return { start, who, closed, refresh };
+  return { start, who, closed, refresh, renew };
 }
 
 export function App() {
   const [camera, setCamera] = useState(false);
   const code = usePhoneCode();
-  const { start, who, closed, refresh } = useStart((linked) => void code.scanned(linked));
+  const { start, who, closed, refresh, renew } = useStart((linked) => void code.scanned(linked));
   const entrance = !who || !!closed || code.state.step === 'sign-in-first';
-  useNonceRenewal(start?.googleNonce, entrance, refresh);
+  useNonceRenewal(start?.googleNonce, entrance, renew);
 
   if (!start) return <Dialogs />;
   const testing = start.environment !== 'production';

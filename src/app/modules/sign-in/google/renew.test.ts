@@ -3,8 +3,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renewAfterMs, useNonceRenewal } from './renew.ts';
 
 describe('la renovación del pedido de Google', () => {
-  afterEach(() => vi.useRealTimers());
-
   const hidden = (value: boolean) => {
     Object.defineProperty(document, 'visibilityState', {
       configurable: true,
@@ -12,6 +10,23 @@ describe('la renovación del pedido de Google', () => {
     });
     document.dispatchEvent(new Event('visibilitychange'));
   };
+  afterEach(() => {
+    hidden(false);
+    vi.useRealTimers();
+  });
+
+  it('oculta no pide nada, aunque pasen horas: cada nonce nuevo hace que Google baje su botón de nuevo', () => {
+    vi.useFakeTimers();
+    const renew = vi.fn();
+    renderHook(() => useNonceRenewal('n1', true, renew));
+    hidden(true);
+    vi.advanceTimersByTime(renewAfterMs * 20);
+    expect(renew).not.toHaveBeenCalled();
+    hidden(false);
+    expect(renew).toHaveBeenCalledOnce();
+    vi.advanceTimersByTime(renewAfterMs);
+    expect(renew).toHaveBeenCalledTimes(2);
+  });
 
   it('con la entrada a la vista, pide otro un minuto antes de que venza', () => {
     vi.useFakeTimers();

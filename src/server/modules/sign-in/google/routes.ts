@@ -1,6 +1,7 @@
 // El primer pedido al abrir la aplicación y la entrada con Google (diseño de 01, § 4 y § 5).
 import {
   googleSignInBody,
+  type NonceResponse,
   type SignInResponse,
   type StartResponse,
 } from '@ferrebress/shared/contracts/sign-in';
@@ -43,6 +44,8 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     });
   });
 
+  registerNonceRoute(ctx);
+
   http.post('/api/sign-in/google', async (c) => {
     const body = googleSignInBody.safeParse(await c.req.json());
     const proofPublicKey = body.success ? proofKeyOf(body.data.proofPublicKey) : undefined;
@@ -54,6 +57,19 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     );
     if (blocked) return blocked;
     return signInWithGoogle(ctx, c, body.data.credential, proofPublicKey);
+  });
+}
+
+// Solo un nonce nuevo, para la entrada que quedó abierta (01 · R2.1): lo más chico posible, porque
+// en el celular se paga con datos. Mismo límite que /api/start y ninguna consulta a la base.
+function registerNonceRoute(ctx: SignInContext): void {
+  ctx.platform.http.get('/api/sign-in/google/nonce', (c) => {
+    const ip = c.get('ipAddress');
+    const blocked = ctx.throttle(c, [`start:ip:${ip}`], limits.start);
+    if (blocked) return blocked;
+    const nonce = ctx.nonces.issue(ip, true);
+    if (!nonce) return ctx.tooMany(c, signInSettings.nonce.ttlMs);
+    return c.json<NonceResponse>({ nonce });
   });
 }
 

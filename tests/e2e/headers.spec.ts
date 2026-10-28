@@ -1,6 +1,6 @@
 // 4 · Las cabeceras de Caddy, sin navegador (diseño de 01, «Cabeceras de Caddy»): la política
 // estricta en la aplicación, sin Google; la excepción de estilos solo en el marco del botón de
-// Google, y que solo lo de /assets se guarde.
+// Google, que solo lo de /assets se guarde, y que /api lleve solo lo que sirve para un JSON.
 import { expect, test } from '@playwright/test';
 
 test('la aplicación es estricta y solo el marco de Google admite estilos en línea', async ({
@@ -25,4 +25,11 @@ test('la aplicación es estricta y solo el marco de Google admite estilos en lí
   }
   const link = (await request.get(`${origin}/link`)).headers();
   expect(link['cache-control']).toBe('no-cache');
+  // /api: lo de seguridad que sirve para un JSON, sin lo de una página (cada byte se paga con datos).
+  const api = (await request.get(`${origin}/api/health`)).headers();
+  expect(api['content-security-policy']).toBe("default-src 'none'; frame-ancestors 'none'");
+  expect(api['x-content-type-options']).toBe('nosniff');
+  expect(api['strict-transport-security']).toContain('max-age=31536000');
+  for (const pageOnly of ['permissions-policy', 'referrer-policy', 'x-frame-options'])
+    expect(api[pageOnly]).toBeUndefined();
 });
