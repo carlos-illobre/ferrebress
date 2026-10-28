@@ -1,6 +1,8 @@
 // Lo que vale para todos los pedidos de /api (diseño de 01, § 4 y § 13): la cabecera con la
 // versión y la hora, la dirección real, y el rechazo de lo que no viene de la aplicación.
+
 import type { IncomingMessage } from 'node:http';
+import { isIP } from 'node:net';
 import {
   appVersionHeaderName,
   deviceIdHeaderName,
@@ -52,21 +54,29 @@ export function createHttp(options: HttpOptions): Http {
   http.use('/api/*', guard(options.publicOrigin, reject));
   http.notFound((c) => fail(c, 404, 'not-found'));
   http.onError((error, c) => {
+    // Un cuerpo que no es JSON es un pedido mal hecho, no una falla: sin traza en el registro.
+    if (error instanceof SyntaxError) return reject(c, 'body');
     console.error(error);
     return fail(c, 500, 'unexpected');
   });
   return http;
 }
 
-// La dirección real la pone Caddy en X-Forwarded-For; solo se le cree si el pedido viene de él.
+// Una IPv4 que llega por un socket IPv6 viene escrita «::ffff:172.30.0.10»: se la deja como IPv4,
+// así se la puede comparar con la de Caddy.
+const plain = (address: string) => address.replace(/^::ffff:(?=\d+\.\d+\.\d+\.\d+$)/, '');
+
+// La dirección real la resuelve Caddy y la pasa en X-Real-IP, una sola; solo se le cree si el
+// pedido viene de él y si es una dirección.
 function identify({
   trustedProxy,
   remoteAddress = nodeRemoteAddress,
 }: HttpOptions): MiddlewareHandler {
   return async (c, next) => {
-    const remote = remoteAddress(c) ?? 'desconocida';
-    const forwarded = c.req.header('X-Forwarded-For')?.split(',')[0]?.trim();
-    c.set('ipAddress', remote === trustedProxy && forwarded ? forwarded : remote);
+    const remote = plain(remoteAddress(c) ?? 'desconocida');
+    const real = c.req.header('X-Real-IP')?.trim();
+    const fromCaddy = remote === trustedProxy && real !== undefined && isIP(real) !== 0;
+    c.set('ipAddress', fromCaddy ? plain(real) : remote);
     const deviceId = c.req.header(deviceIdHeaderName);
     c.set('deviceId', deviceId && uuid.test(deviceId) ? deviceId : undefined);
     await next();
@@ -82,7 +92,7 @@ function stamp({ version, environment, clock }: HttpOptions): MiddlewareHandler 
   };
 }
 
-type Reason = 'size' | 'origin' | 'content-type' | 'device' | 'version';
+type Reason = 'size' | 'origin' | 'content-type' | 'device' | 'version' | 'body';
 
 function guard(
   publicOrigin: string,

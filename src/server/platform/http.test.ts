@@ -1,7 +1,7 @@
 import type { AddressInfo } from 'node:net';
 import { parseServerHeader } from '@ferrebress/shared/contracts/server-header';
 import { serve } from '@hono/node-server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { inMemoryAudit, openAuditLog } from './audit.ts';
 import { createHttp } from './http.ts';
 import { createRateLimiter } from './rate-limit.ts';
@@ -51,13 +51,33 @@ describe('todo pedido de /api', () => {
   });
 
   it('toma la dirección real de la cabecera solo si el pedido viene de Caddy', async () => {
-    const headers = { 'X-Forwarded-For': '190.1.2.3, 10.0.0.1' };
+    const headers = { 'X-Real-IP': '190.1.2.3' };
     const fromCaddy = await setUp().http.request('/api/echo', { headers });
     expect(await fromCaddy.json()).toMatchObject({ ip: '190.1.2.3' });
+    // Caddy por un socket IPv6, con su dirección IPv4 escrita como IPv6 (revisión de seguridad, 24).
+    const mapped = await setUp('::ffff:172.20.0.2').http.request('/api/echo', { headers });
+    expect(await mapped.json()).toMatchObject({ ip: '190.1.2.3' });
+    const invented = await setUp().http.request('/api/echo', {
+      headers: { 'X-Real-IP': 'cualquiera' },
+    });
+    expect(await invented.json()).toMatchObject({ ip: '172.20.0.2' });
+    const list = await setUp().http.request('/api/echo', {
+      headers: { 'X-Forwarded-For': '6.6.6.6', 'X-Real-IP': '190.1.2.3' },
+    });
+    expect(await list.json()).toMatchObject({ ip: '190.1.2.3' });
     const direct = await setUp('10.9.9.9').http.request('/api/echo', { headers });
     expect(await direct.json()).toMatchObject({ ip: '10.9.9.9' });
     const unknown = await setUp('172.20.0.2').http.request('/api/echo');
     expect(await unknown.json()).toMatchObject({ ip: '172.20.0.2' });
+  });
+
+  it('un cuerpo que no es JSON es un pedido mal hecho, sin traza en el registro', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const response = await setUp().http.request('/api/echo', { ...post({}), body: '{' });
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: 'bad-request' });
+    expect(logged).not.toHaveBeenCalled();
+    logged.mockRestore();
   });
 
   it('acepta un pedido que cambia algo desde la propia aplicación', async () => {

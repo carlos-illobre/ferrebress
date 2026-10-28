@@ -85,7 +85,8 @@ type Stream = Parameters<Parameters<typeof streamSSE>[1]>[0];
 
 // El canal de una pantalla: le manda un código nuevo cada minuto mientras nadie lo leyó, y lo
 // que pasa con la reserva. Se cierra cuando la computadora lo cierra (entró, o la pestaña dejó de
-// estar a la vista); con él se cierra la pantalla.
+// estar a la vista); con él se cierra la pantalla. Hay uno solo por pantalla: uno nuevo (la
+// computadora que se reconecta) corta el anterior sin cerrarla.
 async function serveScreen(ctx: SignInContext, screen: Screen, stream: Stream) {
   // Despierta la espera antes de tiempo: «No soy yo» o la computadora que cierra el canal.
   let nudge = Promise.withResolvers<void>();
@@ -95,8 +96,12 @@ async function serveScreen(ctx: SignInContext, screen: Screen, stream: Stream) {
     void send(event);
     if (event.type === 'cancelled') nudge.resolve();
   };
+  const channel = { stop: () => stream.abort() };
+  const replaced = screen.channel;
+  screen.channel = channel;
+  replaced?.stop();
   stream.onAbort(() => {
-    ctx.screens.close(screen.id);
+    if (screen.channel === channel) ctx.screens.close(screen.id);
     nudge.resolve();
   });
   while (!stream.aborted) {

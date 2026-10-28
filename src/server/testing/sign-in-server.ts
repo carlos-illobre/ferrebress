@@ -46,7 +46,7 @@ async function request(
   const headers: Record<string, string> = {
     'X-Device-Id': device.id,
     ...(agent.userAgent && { 'User-Agent': agent.userAgent }),
-    'X-Forwarded-For': agent.ip,
+    'X-Real-IP': agent.ip,
     ...(device.cookie && { Cookie: device.cookie }),
   };
   const post = {

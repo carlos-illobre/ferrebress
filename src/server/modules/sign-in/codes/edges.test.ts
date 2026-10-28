@@ -103,6 +103,13 @@ describe('entrar con el celular: lo que no tiene que pasar', () => {
     expect((await device.request('/api/sign-in/codes/approve', { secret: 'nada' })).status).toBe(
       400,
     );
+    // Aprobar es un intento con la huella: 20 por minuto (R2.9; revisión de seguridad, 29).
+    for (let i = 0; i < 20; i++)
+      await device.request('/api/sign-in/codes/approve', { secret: 'nada' });
+    expect((await device.request('/api/sign-in/codes/approve', { secret: 'nada' })).status).toBe(
+      429,
+    );
+    now += 60_000;
     await screen.close();
   });
 

@@ -32,14 +32,18 @@ describe('los límites de pedidos', () => {
     expect(createRateLimiter(fakeClock()).hit('k', { max: 0, windowMs: 1 }).allowed).toBe(false);
   });
 
-  it('barre las ventanas vencidas cuando hay muchas, así la memoria no crece sin fin', () => {
+  it('barre las ventanas vencidas cuando hay muchas, como mucho una vez por minuto', () => {
     const clock = fakeClock();
     const limiter = createRateLimiter(clock);
     for (let i = 0; i < 10_000; i++) limiter.hit(`k${i}`, { max: 1, windowMs: 1_000 });
-    limiter.hit('vivo', { max: 1, windowMs: 60_000 });
+    limiter.hit('vivo', { max: 1, windowMs: 120_000 });
     clock.advance(1_000);
-    expect(limiter.hit('nuevo', { max: 1, windowMs: 1_000 }).allowed).toBe(true);
-    expect(limiter.hit('vivo', { max: 1, windowMs: 60_000 }).allowed).toBe(false);
+    // Barrió hace menos de un minuto (al llegar a las 10.000): las vencidas siguen guardadas.
+    limiter.hit('nuevo', { max: 1, windowMs: 1_000 });
+    expect(limiter.hit('k1', { max: 1, windowMs: 1_000 })).toMatchObject({ previousCount: 1 });
+    clock.advance(60_000);
+    expect(limiter.hit('nuevo2', { max: 1, windowMs: 1_000 }).allowed).toBe(true);
+    expect(limiter.hit('vivo', { max: 1, windowMs: 120_000 }).allowed).toBe(false);
     expect(limiter.hit('k0', { max: 1, windowMs: 1_000 })).toEqual({
       allowed: true,
       retryAfterMs: 0,

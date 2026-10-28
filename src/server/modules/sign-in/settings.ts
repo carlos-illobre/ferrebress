@@ -12,8 +12,8 @@ export const signInSettings = {
   cleanupEveryMs: 24 * hour,
   // Cada carga de la entrada pide uno: en el local todos salen por la misma dirección, así que el
   // tope por dirección es alto y, al llegar, se descarta el más viejo en lugar de negarse.
-  nonce: { ttlMs: 10 * minute, maxTotal: 1_000, maxPerOwner: 100, replaceOldest: true },
-  challenge: { ttlMs: 5 * minute, maxTotal: 1_000, maxPerOwner: 10 },
+  nonce: { ttlMs: 10 * minute, maxTotal: 100_000, maxPerOwner: 100, replaceOldest: true },
+  challenge: { ttlMs: 5 * minute, maxTotal: 100_000, maxPerOwner: 10 },
   limits: {
     // Por dispositivo y por dirección de internet (R2.9).
     google: { max: 10, windowMs: minute },
@@ -38,7 +38,9 @@ export const codeSettings = {
   holdMs: 2 * minute,
   holdWithSignInMs: 5 * minute,
   permitTtlMs: 30_000,
-  maxScreens: 100,
+  // Una pantalla que no abre su canal en este tiempo se libera sola (revisión de seguridad, 25).
+  listenWithinMs: 30_000,
+  maxScreens: 1_000,
   maxScreensPerIp: 3,
   openPerIp: { max: 10, windowMs: minute },
   readPerIp: { max: 10, windowMs: minute },

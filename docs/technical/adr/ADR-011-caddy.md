@@ -31,7 +31,9 @@
   la VM y que tiene los puertos 80 y 443. Ferrebress le agrega un archivo con sus dominios
   (`/etc/caddy/sitios/ferrebress.caddy`), que solo pasa cada dominio al puerto local de su ambiente
   y la dirección real de quien se conecta en `X-Forwarded-For`. El Caddy de Ferrebress solo
-  escucha en `127.0.0.1` y confía en esa cabecera solo si viene del proxy.
+  escucha en `127.0.0.1`, confía en esa cabecera solo si viene del proxy, se queda con la
+  dirección que agregó el proxy (`trusted_proxies_strict`) y se la pasa al servidor, una sola, en
+  `X-Real-IP`.
 - **Por qué no alcanza con el proxy de la máquina:** la configuración del Caddy propio cambia con el
   código y se despliega con cada commit; la aplicación viaja en su imagen, así que volver atrás es
   cambiar de versión; y las pruebas de punta a punta usan la misma configuración que la máquina.

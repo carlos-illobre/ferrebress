@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { codeSettings } from '../settings.ts';
 import { createScreens } from './screens.ts';
 
 describe('las pantallas de entrada', () => {
@@ -20,7 +21,8 @@ describe('las pantallas de entrada', () => {
 
   it('hay un tope total de pantallas abiertas', () => {
     const screens = createScreens({ now: () => new Date(0) });
-    for (let i = 0; i < 100; i++) screens.open(`10.0.${Math.floor(i / 3)}.${i}`, 'x');
+    for (let i = 0; i < codeSettings.maxScreens; i++)
+      screens.open(`10.${Math.floor(i / 250)}.${i % 250}.1`, 'x');
     expect(screens.open('10.9.9.9', 'x')).toBeUndefined();
   });
 });

@@ -4,6 +4,7 @@ import {
   createSignInServer,
   type SignInServer,
 } from '../../../testing/sign-in-server.ts';
+import { signInSettings } from '../settings.ts';
 
 describe('los límites de intentos con Google', () => {
   let server: SignInServer;
@@ -72,12 +73,19 @@ describe('los límites de intentos con Google', () => {
     expect(nonces.every(Boolean)).toBe(true);
   });
 
-  it('con la memoria llena de nonces, /api/start frena hasta que vencen', async () => {
-    let last = 0;
-    for (let ip = 0; ip < 34; ip++) {
-      const device = createDevice(server, { ip: `204.0.${ip}.1` });
-      for (let i = 0; i < 30; i++) last = (await device.request('/api/start')).status;
+  it('con la memoria llena de nonces, /api/start frena', async () => {
+    // El tope de verdad son 100.000; acá se baja un momento para no pedir tantos.
+    const { maxTotal } = signInSettings.nonce;
+    signInSettings.nonce.maxTotal = 20;
+    try {
+      let last = 0;
+      for (let ip = 0; ip < 2; ip++) {
+        const device = createDevice(server, { ip: `204.0.${ip}.1` });
+        for (let i = 0; i < 15; i++) last = (await device.request('/api/start')).status;
+      }
+      expect(last).toBe(429);
+    } finally {
+      signInSettings.nonce.maxTotal = maxTotal;
     }
-    expect(last).toBe(429);
   });
 });

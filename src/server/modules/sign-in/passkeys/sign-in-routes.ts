@@ -24,7 +24,7 @@ export function registerPasskeySignInRoutes(ctx: SignInContext): void {
   const throttle = (c: Context) =>
     ctx.throttle(
       c,
-      [`passkey:device:${c.get('deviceId')}`, `passkey:ip:${c.get('ipAddress')}`],
+      [`passkey:ip:${c.get('ipAddress')}`, `passkey:device:${c.get('deviceId')}`],
       limits.passkey,
     );
 

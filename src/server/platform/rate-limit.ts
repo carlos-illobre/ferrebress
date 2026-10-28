@@ -11,12 +11,18 @@ export type Hit = {
   previousCount?: number;
 };
 
+// Con muchas claves se barren las vencidas, pero como mucho una vez por minuto: barrer en cada
+// clave nueva dejaba que claves inventadas frenaran el servidor (revisión de seguridad, punto 27).
 const sweepAbove = 10_000;
+const sweepEveryMs = 60_000;
 
 export function createRateLimiter(clock: Clock) {
   const windows = new Map<string, { start: number; count: number; windowMs: number }>();
+  let sweptAt = Number.NEGATIVE_INFINITY;
 
   const sweep = (now: number) => {
+    if (windows.size < sweepAbove || now - sweptAt < sweepEveryMs) return;
+    sweptAt = now;
     for (const [key, entry] of windows)
       if (now - entry.start >= entry.windowMs) windows.delete(key);
   };
@@ -36,7 +42,7 @@ export function createRateLimiter(clock: Clock) {
         const allowed = current.count <= max;
         return { allowed, retryAfterMs: allowed ? 0 : current.start + windowMs - now };
       }
-      if (windows.size >= sweepAbove) sweep(now);
+      sweep(now);
       windows.set(key, { start: now, count: 1, windowMs });
       return {
         allowed: max >= 1,

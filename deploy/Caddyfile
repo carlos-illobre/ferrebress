@@ -1,12 +1,15 @@
 # El Caddy de Ferrebress (ADR-011): sirve la aplicación, pone las cabeceras de seguridad y
 # pasa /api al servidor. HTTPS lo atiende el proxy de la máquina, que le pasa la dirección
-# real en X-Forwarded-For; solo se le cree a quien llega por la red local.
+# real en X-Forwarded-For; solo se le cree a quien llega por la red local, y de la lista se toma
+# la primera que no es de confianza empezando por la derecha (la que agregó el proxy), así lo que
+# mande el navegador no cuenta. Al servidor le llega esa sola, ya resuelta, en X-Real-IP.
 {
 	admin off
 	auto_https off
 	servers {
 		trusted_proxies static private_ranges
 		client_ip_headers X-Forwarded-For
+		trusted_proxies_strict
 	}
 }
 
@@ -42,6 +45,7 @@
 		# flush_interval -1: el canal en tiempo real no acumula respuestas (ADR-003).
 		reverse_proxy server:3000 {
 			flush_interval -1
+			header_up X-Real-IP {client_ip}
 		}
 	}
 

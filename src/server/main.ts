@@ -11,7 +11,8 @@ const config = readConfig(process.env);
 const { module: users, users: usersFacade } = createUsersModule();
 const signIn = createSignInModule({ users: usersFacade });
 const { http, close } = await createServer(config, [users, signIn]);
-const server = serve({ fetch: http.fetch, port: config.PORT });
+// En IPv4: así la conexión de Caddy llega con su dirección tal cual (platform/http).
+const server = serve({ fetch: http.fetch, port: config.PORT, hostname: '0.0.0.0' });
 
 for (const signal of ['SIGTERM', 'SIGINT']) {
   process.once(signal, () => server.close(() => void close()));

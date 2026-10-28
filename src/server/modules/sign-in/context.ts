@@ -33,12 +33,18 @@ function createGuards({ audit, clock, limiter }: Platform) {
   const tooMany = (c: Context, retryAfterMs: number) =>
     fail(c, 429, 'too-many-attempts', { retryAfterSeconds: Math.ceil(retryAfterMs / 1000) });
 
-  // Cuenta el pedido contra `window` con cada clave; si alguna se pasó, frena y lo anota una vez
-  // por ventana.
+  // Cuenta el pedido contra `window` con cada clave, en orden; en la primera que se pasó, frena y
+  // lo anota una vez por ventana. Las demás ya no se cuentan: con la dirección primero, una
+  // dirección frenada no agrega claves de dispositivos inventados (revisión de seguridad, 27).
   const throttle = (c: Context, keys: string[], window: Window): Response | undefined => {
-    const blocked = keys
-      .map((key) => ({ key, hit: limiter.hit(key, window) }))
-      .find(({ hit }) => !hit.allowed);
+    let blocked: { key: string; hit: ReturnType<typeof limiter.hit> } | undefined;
+    for (const key of keys) {
+      const hit = limiter.hit(key, window);
+      if (!hit.allowed) {
+        blocked = { key, hit };
+        break;
+      }
+    }
     if (!blocked) return undefined;
     if (limiter.hit(`audit:${blocked.key}`, signInSettings.limits.throttledAudit).allowed) {
       record(c, 'sign-in.throttled', { data: { key: blocked.key } });

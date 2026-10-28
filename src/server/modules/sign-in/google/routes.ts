@@ -47,7 +47,7 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     if (!isProofKey(proofPublicKey)) return fail(c, 400, 'bad-request');
     const blocked = ctx.throttle(
       c,
-      [`google:device:${deviceId}`, `google:ip:${c.get('ipAddress')}`],
+      [`google:ip:${c.get('ipAddress')}`, `google:device:${deviceId}`],
       limits.google,
     );
     if (blocked) return blocked;

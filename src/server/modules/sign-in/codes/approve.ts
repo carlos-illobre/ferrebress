@@ -19,6 +19,7 @@ import {
 import { writeSessionCookie } from '../sessions/cookie.ts';
 import { isProofKey } from '../sessions/proof.ts';
 import { optionalSession } from '../sessions/require.ts';
+import { signInSettings } from '../settings.ts';
 import { sameNetwork } from './network.ts';
 import type { Screen } from './screens.ts';
 
@@ -48,6 +49,13 @@ function reservedScreen(
 
 export function registerApproveRoute(ctx: SignInContext): void {
   ctx.platform.http.post('/api/sign-in/codes/approve', async (c) => {
+    // Aprobar es un intento con la huella: el mismo límite (R2.9).
+    const blocked = ctx.throttle(
+      c,
+      [`passkey:ip:${c.get('ipAddress')}`, `passkey:device:${c.get('deviceId')}`],
+      signInSettings.limits.passkey,
+    );
+    if (blocked) return blocked;
     const body = approveCodeBody.safeParse(await c.req.json());
     if (!body.success) return fail(c, 400, 'bad-request');
     const screen = reservedScreen(ctx, c, body.data);

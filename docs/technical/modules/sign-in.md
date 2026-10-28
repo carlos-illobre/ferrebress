@@ -170,7 +170,8 @@ R1.3), `too-many-attempts` (con los segundos que faltan; R2.9, R2.10), `code-exp
 `code-used`, `phone-has-other-account` (R2.3, E09), `session-closed` (con el motivo; R3.5),
 `update-required` (00 · R5.5), `sign-in-expired` (un pase de Google bueno con un `nonce` vencido o
 ya usado: la aplicación pide otro a `/api/start` y la persona vuelve a tocar Google) y
-`bad-request` (forma, tamaño u origen). La aplicación pide un `nonce` nuevo también al salir y
+`bad-request` (forma, tamaño, origen o un cuerpo que no es JSON, que no deja traza en el
+registro). La aplicación pide un `nonce` nuevo también al salir y
 al cerrarse la sesión, porque el anterior ya se usó.
 
 **Versión incompatible:** el servidor tiene en su configuración la versión mínima de la aplicación
@@ -323,9 +324,9 @@ la computadora. Solo el celular usa la huella.
 | Qué | Dura | Tope | Si se reinicia el servidor |
 |---|---|---|---|
 | Sesiones ya vistas | Mientras vivan | — | Se vuelven a leer de la base |
-| Desafíos de la huella | 5 minutos, un uso | 1.000 | Se vuelve a tocar el botón |
-| `nonce` de Google | 10 minutos, un uso | 1.000 | La entrada pide otro |
-| Pantallas con QR y sus códigos | Mientras el canal esté abierto | 100 | La entrada abre otro canal |
+| Desafíos de la huella | 5 minutos, un uso | 100.000 | Se vuelve a tocar el botón |
+| `nonce` de Google | 10 minutos, un uso | 100.000 | La entrada pide otro |
+| Pantallas con QR y sus códigos | Mientras su canal esté abierto (uno solo: uno nuevo corta el anterior); si no lo abre en 30 s, se libera | 1.000 | La entrada abre otro canal |
 | Intentos | 1 minuto y 1 hora | — | Se vuelve a contar |
 | Llaves públicas de Google | Lo que diga Google | — | Se vuelven a pedir |
 
@@ -348,14 +349,23 @@ también tienen límite por dirección:
 | Desafíos de la huella | 20 por minuto, y como mucho 10 vivos |
 | Abrir una pantalla con QR | 10 por minuto, y como mucho 3 abiertas |
 | Leer un código | 10 por minuto |
+| Aprobar un código | el de la huella: 20 por minuto, por dirección y por dispositivo |
 
-Al llegar a un tope, se rechaza lo nuevo con `too-many-attempts`; nunca se saca lo que ya estaba.
-Con topes por dirección, llenar los topes totales de la tabla de arriba exige muchas direcciones.
-Los números están en el archivo de configuración.
+Al llegar a un tope, se rechaza lo nuevo con `too-many-attempts`; nunca se saca lo que ya estaba,
+salvo los `nonce`. Los topes totales de la tabla de arriba son mucho más altos que lo que puede
+juntar alguien con pocas direcciones: cada lugar ocupa unos cien bytes. Cada pedido se cuenta
+primero por su dirección y después por su dispositivo, y se deja de contar en el primero que
+frena: una dirección frenada no agrega dispositivos inventados. Las ventanas vencidas se barren
+como mucho una vez por minuto. Los números están en el archivo de configuración.
 
-**La dirección de internet** sale de la cabecera que pone Caddy, que pisa la que mande el
-navegador; el servidor solo la acepta si el pedido viene de Caddy. Para que Caddy vea la dirección
-real hace falta que nada en el medio la pierda (§ 14).
+**La dirección de internet** la resuelve Caddy y se la pasa al servidor, una sola, en `X-Real-IP`.
+Caddy la toma de `X-Forwarded-For` solo si el pedido le llega de la red local, y de esa lista se
+queda con la primera que no es de confianza empezando por la derecha (`trusted_proxies_strict`):
+la que agregó el proxy de la máquina, no la que mande el navegador. El servidor la acepta solo si
+el pedido viene de Caddy (`TRUSTED_PROXY`) y si es una dirección; escucha en IPv4 y lee la
+dirección de la conexión sin el `::ffff:` con que Node escribe una IPv4 que llega por un socket
+IPv6, que si no nunca coincidiría con la de Caddy. Para que Caddy vea la dirección real hace falta
+que nada en el medio la pierda (§ 14).
 
 ## 9. Eventos y auditoría
 
@@ -601,10 +611,12 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   }
   ```
 
-  El proxy pone la dirección de quien se conecta en `X-Forwarded-For` y pisa la que mande el
-  navegador. El Caddy de Ferrebress solo la toma si el pedido viene de la red local
-  (`trusted_proxies`), y el servidor solo la toma del Caddy de Ferrebress (`TRUSTED_PROXY`, una
-  dirección fija en la red interna del compose).
+  El proxy pone la dirección de quien se conecta en `X-Forwarded-For`. El Caddy de Ferrebress solo
+  la toma si el pedido viene de la red local, se queda con la que agregó el proxy
+  (`trusted_proxies_strict`) y se la pasa al servidor en `X-Real-IP`; el servidor solo la toma
+  del Caddy de Ferrebress (`TRUSTED_PROXY`, una dirección fija en la red interna del compose).
+- **Los registros:** cada servicio del compose guarda como mucho tres archivos de 10 MB, así un
+  pedido repetido no llena el disco de la VM.
 - **La dirección real:** una prueba en la máquina entra desde una
   dirección conocida y comprueba que la auditoría anota esa. Docker sin privilegios, con su forma
   de abrir puertos por omisión, la pierde y anota la misma para todos: eso dejaría sin efecto la

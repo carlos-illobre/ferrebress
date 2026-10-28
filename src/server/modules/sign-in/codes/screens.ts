@@ -1,6 +1,6 @@
 // Las pantallas de entrada abiertas en las computadoras, en la memoria del servidor (diseño de
 // 01, § 5 y § 8): su código vigente, la reserva del celular que lo leyó y a quién avisarle por
-// el canal. Duran lo que dura el canal abierto.
+// el canal. Duran lo que dura su canal, uno solo por pantalla; la que no lo abre en 30 s se libera.
 import { randomBytes } from 'node:crypto';
 import type { Clock } from '../../../platform/clock.ts';
 import { codeSettings } from '../settings.ts';
@@ -13,10 +13,15 @@ export type ScreenEvent =
 
 export type Reservation = { secret: string; challenge: string; until: number };
 
+// El canal abierto de una pantalla: si se abre otro, este se corta.
+export type Channel = { stop: () => void };
+
 export type Screen = {
   id: string;
   ipAddress: string;
   deviceLabel: string;
+  openedAt: number;
+  channel?: Channel;
   code?: string;
   reservation?: Reservation;
   notify?: (event: ScreenEvent) => void;
@@ -28,16 +33,23 @@ const random = (bytes: number) => randomBytes(bytes).toString('base64url');
 type State = { screens: Map<string, Screen>; codes: Map<string, CodeEntry>; now: () => number };
 
 // Abrir, buscar y cerrar pantallas.
-function registry({ screens }: State) {
+function registry({ screens, now }: State) {
+  // Las que nunca abrieron su canal (se cortó la red entre los dos pedidos, o nadie lo pidió).
+  const sweep = () => {
+    for (const [id, screen] of screens)
+      if (!screen.channel && screen.openedAt + codeSettings.listenWithinMs <= now())
+        screens.delete(id);
+  };
   return {
     // Una pantalla nueva, o undefined si se llegó al tope total o al de esa dirección.
     open(ipAddress: string, deviceLabel: string): Screen | undefined {
+      sweep();
       const fromIp = [...screens.values()].filter(
         (screen) => screen.ipAddress === ipAddress,
       ).length;
       if (screens.size >= codeSettings.maxScreens || fromIp >= codeSettings.maxScreensPerIp)
         return undefined;
-      const screen: Screen = { id: random(32), ipAddress, deviceLabel };
+      const screen: Screen = { id: random(32), ipAddress, deviceLabel, openedAt: now() };
       screens.set(screen.id, screen);
       return screen;
     },
