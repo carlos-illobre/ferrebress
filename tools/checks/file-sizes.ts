@@ -1,7 +1,7 @@
 // El máximo de líneas por archivo de código (ADR-016).
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { listFiles, readText } from './files.ts';
+import { listFiles, readText } from '../files.ts';
 
 export const maxLinesPerFile = 250;
 const codeFolders = ['src', 'tools', 'tests'];

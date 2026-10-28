@@ -3,17 +3,17 @@
 // página para los dos anchos: desde 900 px es la computadora y debajo, el celular (ADR-002).
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { ComponentChildren } from 'preact';
-import { online as onlineStore } from '../../../../platform/api.ts';
+import { online as onlineStore } from '../../../../platform/server/api.ts';
 import { useStore } from '../../../../platform/store.ts';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
+import { useCollapse } from '../../behavior/useCollapse.ts';
+import { usePanels } from '../../behavior/usePanels.ts';
+import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
+import { useTip } from '../../behavior/useTip.ts';
 import { FrameContext, type FrameState, shake } from '../../context.ts';
 import { exists, moreOptions, parts } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
-import { useCollapse } from '../../useCollapse.ts';
-import { usePanels } from '../../usePanels.ts';
-import { usePhoneMore } from '../../usePhoneMore.ts';
-import { useTip } from '../../useTip.ts';
 import { PhoneNav, PhoneTop } from '../Phone/Phone.tsx';
 import { PhoneMore } from '../Phone/PhoneMore.tsx';
 import { PhoneSheets } from '../Phone/PhoneSheets.tsx';

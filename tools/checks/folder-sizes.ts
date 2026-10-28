@@ -1,7 +1,7 @@
 // El límite de archivos por carpeta del código (constitución, XII): pasado el límite, los
 // archivos se agrupan por concepto en subcarpetas. Las pruebas no cuentan.
 import { dirname } from 'node:path';
-import { isTest, listSourceCode } from './source-code.ts';
+import { isTest, listSourceCode } from '../source-code.ts';
 
 export const maxFilesPerFolder = 20;
 

@@ -8,9 +8,9 @@ import {
 } from '@ferrebress/shared/contracts/contract-version';
 import type { ErrorBody, ErrorCode } from '@ferrebress/shared/contracts/errors';
 import { parseServerHeader, serverHeaderName } from '@ferrebress/shared/contracts/server-header';
+import { deviceId } from '../device/device.ts';
+import { createStore } from '../store.ts';
 import { syncServerTime } from './clock.ts';
-import { deviceId } from './device.ts';
-import { createStore } from './store.ts';
 
 // La versión de esta aplicación: el commit con que se construyó (vite.config.ts); en desarrollo,
 // «dev», igual que el servidor local.

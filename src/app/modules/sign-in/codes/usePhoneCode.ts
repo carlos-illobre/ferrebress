@@ -5,13 +5,13 @@
 // el desafío de esa computadora.
 import type { Person, ReadCodeResponse } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useState } from 'preact/hooks';
-import type { ApiResult } from '../../platform/api.ts';
-import { createProofKey } from '../../platform/proof-key.ts';
-import { useStore } from '../../platform/store.ts';
-import { type ApproveBody, signInApi } from './api.ts';
-import { type Notice, noticeOf } from './notice.ts';
-import { confirmed, hasPasskey, passkeyLinked, person } from './session.ts';
-import { createPasskey, signWithPasskey } from './webauthn.ts';
+import { createProofKey } from '../../../platform/device/proof-key.ts';
+import type { ApiResult } from '../../../platform/server/api.ts';
+import { useStore } from '../../../platform/store.ts';
+import { type ApproveBody, signInApi } from '../api.ts';
+import { type Notice, noticeOf } from '../notice.ts';
+import { createPasskey, signWithPasskey } from '../passkeys/webauthn.ts';
+import { confirmed, hasPasskey, passkeyLinked, person } from '../session.ts';
 
 type Json = Record<string, unknown>;
 

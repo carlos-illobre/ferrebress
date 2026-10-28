@@ -2,7 +2,7 @@
 // en su propia página, /google-button.html, porque Google lo dibuja con estilos en línea: esa página
 // es la única con esa excepción a la política de contenido, y la aplicación sigue estricta. Los dos
 // son del mismo origen; cada uno solo escucha al otro.
-import { forget, readStored, store } from '../../../platform/storage.ts';
+import { forget, readStored, store } from '../../../platform/device/storage.ts';
 
 export const googleFramePath = '/google-button.html';
 

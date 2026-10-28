@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { online, sessionClosed } from '../../platform/api.ts';
+import { online, sessionClosed } from '../../platform/server/api.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
 import { Entrance } from './index.ts';

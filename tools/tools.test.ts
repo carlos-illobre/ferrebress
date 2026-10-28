@@ -3,11 +3,11 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { bootFiles, findHeavyBoot, maxBootBytes } from './boot-size.ts';
-import { findBrokenLinks } from './doc-links.ts';
-import { findLongFiles, maxLinesPerFile } from './file-sizes.ts';
-import { findCrowdedFolders, maxFilesPerFolder } from './folder-sizes.ts';
-import { findFilesWithoutHeader } from './header-comments.ts';
+import { bootFiles, findHeavyBoot, maxBootBytes } from './checks/boot-size.ts';
+import { findBrokenLinks } from './checks/doc-links.ts';
+import { findLongFiles, maxLinesPerFile } from './checks/file-sizes.ts';
+import { findCrowdedFolders, maxFilesPerFolder } from './checks/folder-sizes.ts';
+import { findFilesWithoutHeader } from './checks/header-comments.ts';
 
 function project(files: Record<string, string>): string {
   const root = mkdtempSync(join(tmpdir(), 'ferrebress-tools-'));

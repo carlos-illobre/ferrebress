@@ -3,11 +3,11 @@
 // celular pone la huella, el permiso que cambia por su sesión. El canal está abierto solo mientras
 // la entrada está a la vista: con la pestaña escondida se cierra, y se vuelve a abrir al volver.
 import { useEffect, useState } from 'preact/hooks';
-import { appHeaders } from '../../platform/api.ts';
-import { createProofKey } from '../../platform/proof-key.ts';
-import { type ChannelEvent, openChannel } from '../../platform/realtime.ts';
-import { signInApi } from './api.ts';
-import { enteringWith, finish } from './useSignIn.ts';
+import { createProofKey } from '../../../platform/device/proof-key.ts';
+import { appHeaders } from '../../../platform/server/api.ts';
+import { type ChannelEvent, openChannel } from '../../../platform/server/realtime.ts';
+import { signInApi } from '../api.ts';
+import { enteringWith, finish } from '../useSignIn.ts';
 
 export type ComputerCode = { code?: string; read: boolean; since: number };
 

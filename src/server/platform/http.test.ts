@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { appHeaders } from '../testing/config.ts';
 import { inMemoryAudit, openAuditLog } from './audit.ts';
 import { createHttp } from './http.ts';
-import { createRateLimiter } from './rate-limit.ts';
+import { createRateLimiter } from './limits/rate-limit.ts';
 
 const origin = 'https://ferrebress-pruebas.duckdns.org';
 const now = new Date('2026-10-27T12:00:00Z');

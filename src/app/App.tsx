@@ -27,9 +27,9 @@ import {
   signOut,
   usePhoneCode,
 } from './modules/sign-in/index.ts';
-import { sessionClosed } from './platform/api.ts';
+import { readStored, store } from './platform/device/storage.ts';
 import { clearHash, navigate, route } from './platform/router.ts';
-import { readStored, store } from './platform/storage.ts';
+import { sessionClosed } from './platform/server/api.ts';
 import { useStore } from './platform/store.ts';
 import { Toasts } from './ui/toast/Toast.tsx';
 

@@ -6,7 +6,7 @@ import type {
   SignInResponse,
   StartResponse,
 } from '@ferrebress/shared/contracts/sign-in';
-import { api } from '../../platform/api.ts';
+import { api } from '../../platform/server/api.ts';
 
 type Ok = { ok: true };
 type Json = Record<string, unknown>;

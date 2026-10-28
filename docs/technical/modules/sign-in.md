@@ -28,25 +28,29 @@ ferrebress/
 │   ├── shared/contracts/            la forma de la API, con zod/mini
 │   ├── server/
 │   │   ├── main.ts                  arma el servidor y registra los módulos
-│   │   ├── platform/                config, db, audit, http, clock, rate-limit, one-use (lo de un
-│   │   │                            solo uso en memoria), events, ids, settings
+│   │   ├── platform/                config, db, audit, http, clock, events, ids, settings, y
+│   │   │                            limits/ (rate-limit y one-use: lo de un solo uso en memoria)
 │   │   └── modules/
 │   │       ├── users/               personas: lo mínimo que necesita entrar
 │   │       └── sign-in/             entrar, salir, sesiones, huellas, códigos QR
 │   └── app/
 │       ├── main.tsx                 arma la aplicación y registra los módulos
-│       ├── platform/                api, realtime, proof-key, clock, device, keyboard, router,
-│       │                            storage, waiting, offline (el service worker)
+│       ├── platform/                server/ (api, realtime, clock: hablar con el servidor),
+│       │                            device/ (device, proof-key, storage: lo del dispositivo),
+│       │                            keyboard, router, store, waiting, offline (el service worker)
 │       ├── sw.ts                    los eventos del service worker; se arma como /sw.js
 │       ├── google-button.*          la página del marco del botón de Google
 │       ├── public/                  el manifiesto y los íconos para instalarla
 │       ├── ui/                      piezas del lenguaje visual
 │       ├── styles/                  tokens de «Mostrador», el marco de pruebas
 │       └── modules/
-│           ├── frame/               el marco (capítulo 00): menú, luz, tarjeta de la persona
-│           └── sign-in/             la entrada, las hojas del celular, salir
+│           ├── frame/               el marco (capítulo 00): menú, luz, tarjeta de la persona;
+│           │                        behavior/ (cómo se minimiza, los paneles, Más, las ayudas)
+│           └── sign-in/             la entrada, las hojas del celular, salir; codes/ (el QR, el
+│                                    lector y los dos lados del código), passkeys/, google/
 ├── tests/e2e/                       Playwright: lo que una unitaria no puede probar (§ 12)
-├── tools/                           los controles propios de pnpm check (enlaces de docs/)
+├── tools/                           los controles propios de pnpm check, en checks/ (enlaces de
+│                                    docs/, tamaños, cabeceras, el peso del arranque)
 ├── deploy/                          las imágenes, el Caddyfile y el compose: sirven en cualquier lado
 │   └── oracle/                      solo de la VM de Oracle: install.sh, deploy.sh, listen.sh, el
 │                                    servicio y el archivo para el proxy de la máquina
@@ -248,7 +252,8 @@ computadora                         servidor                          celular
 - **El QR lleva** `https://<origen>/link#<código>`: después del `#`, para que el código no quede en
   los registros de Caddy. La aplicación del celular lo lee de ahí y lo manda en el cuerpo.
 - **Leer el código lo reserva:** desde ese momento nadie más lo puede leer y el celular tiene 2
-  minutos para aprobar (5 si antes tiene que entrar). `read` le devuelve al celular, y solo a él, un
+  minutos para aprobar, con o sin sesión: si tiene que entrar con Google, entra antes de leerlo
+  (R2.7). Un plazo corto hace que nadie en la misma red pueda dejar la computadora esperando. `read` le devuelve al celular, y solo a él, un
   secreto de la reserva y el desafío de la huella para esa computadora; `approve` y `cancel` exigen
   el secreto, y `approve` solo acepta una firma de ese desafío. Así nadie más puede cancelar la
   reserva, y la huella queda firmada para esa computadora y no para otra. Apenas lee el código, la
@@ -407,18 +412,18 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 - **`platform/keyboard`:** las reglas del capítulo 00 (R2). Cada pantalla declara sus acciones con
   su tecla; el motor muestra las teclas con Alt, dentro del botón a la derecha, y las ejecuta. Las
   pantallas no escuchan teclas.
-- **`platform/api`:** un `fetch` que pone las cabeceras, lee `X-Ferrebress` y traduce los errores.
+- **`platform/server/api`:** un `fetch` que pone las cabeceras, lee `X-Ferrebress` y traduce los errores.
 - **`platform/waiting`:** las esperas (00 · R7) de lo que se toca: nada antes de 300 ms, la marca
   después y la barra a los 2 s, que muestra el marco. El botón de `ui/` la usa sola; mientras
   espera, volver a tocarlo no hace nada. Las búsquedas (R7.4) llegan con la primera que haya.
 - **`platform/router`:** la dirección es un valor compartido, que el menú cambia. Atrás y adelante
   del navegador funcionan. Hoy el área de trabajo está en blanco (00), así que nada elige pantalla
   por la dirección; eso llega con la primera pantalla de trabajo.
-- **`platform/realtime`:** el canal temporal (SSE con `fetch`, § 5) y la lectura de la cabecera.
+- **`platform/server/realtime`:** el canal temporal (SSE con `fetch`, § 5) y la lectura de la cabecera.
   Cada tema declara qué permiso hace falta para escucharlo. La conexión directa entre dispositivos
   llega con el módulo 03; no se arma una interfaz de estrategias hasta que haya una segunda forma.
-- **`platform/clock`:** la hora del servidor más el cronómetro (ADR-007).
-- **`platform/device`:** el identificador y si es celular (Android o iPhone, por
+- **`platform/server/clock`:** la hora del servidor más el cronómetro (ADR-007).
+- **`platform/device/device`:** el identificador y si es celular (Android o iPhone, por
   `navigator.userAgentData` o, si no está, por el agente; sin bibliotecas). El nombre «Chrome en
   Windows» lo arma el servidor (§ 5); si hay cámara se sabe recién al tocar «Escanear».
 - **La versión nueva (00 · R5) y la instalación:** un service worker escrito a mano, sin
@@ -687,7 +692,8 @@ En orden; cada una empieza por sus pruebas. `[P]` se puede hacer en paralelo con
 4. `users`: la tabla, la fachada, el primer Administrador y el evento de baja.
 5. `sign-in` del servidor: sesiones y sus límites, Google, la huella, los códigos QR con su canal,
    salir, los límites de intentos, los eventos.
-6. `platform` de la aplicación `[P]`: api, clock, device, keyboard, realtime, proof-key, router, storage,
+6. `platform` de la aplicación `[P]`: server (api, clock, realtime), device (device, proof-key,
+   storage), keyboard, router,
    waiting; `ui` y `styles`.
 7. `frame`: el marco desde su maqueta, con la luz, la tarjeta de la persona, «Algo salió mal» y la
    versión nueva.

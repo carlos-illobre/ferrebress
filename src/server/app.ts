@@ -7,8 +7,8 @@ import type { Config } from './platform/config.ts';
 import { migrate, openDatabase } from './platform/db.ts';
 import { createEvents } from './platform/events.ts';
 import { createHttp } from './platform/http.ts';
+import { createRateLimiter } from './platform/limits/rate-limit.ts';
 import type { Platform, ServerModule } from './platform/modules.ts';
-import { createRateLimiter } from './platform/rate-limit.ts';
 
 // Cómo se programa un trabajo periódico; las pruebas pasan uno que corre cuando ellas quieren.
 export type Schedule = (ms: number, run: () => void) => () => void;

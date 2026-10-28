@@ -2,7 +2,7 @@
 // aprobada (docs/design/mockups/sign-in/adapted/). Se ve sin sesión, y encima de lo que había si
 // la sesión se cerró (R3.4).
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
-import { online as onlineStore, sessionClosed } from '../../../../platform/api.ts';
+import { online as onlineStore, sessionClosed } from '../../../../platform/server/api.ts';
 import { useStore } from '../../../../platform/store.ts';
 import { useWaiting } from '../../../../platform/waiting.ts';
 import { TestEnvironment } from '../../../frame/index.ts';
@@ -11,7 +11,7 @@ import { texts } from '../../texts.ts';
 import { entering } from '../../useSignIn.ts';
 import { Card } from './Card.tsx';
 import { EntranceContext, type EntranceState } from './context.ts';
-import { Entering } from './Entering.tsx';
+import { Entering } from './entering/Entering.tsx';
 import { Brand, PhoneShot, Seals, Status, Wave, WhatFor } from './Scene.tsx';
 import './Entrance.css';
 import './desktop.css';

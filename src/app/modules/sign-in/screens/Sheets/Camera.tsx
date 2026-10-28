@@ -3,8 +3,8 @@
 // dirección. Si no hay cámara o no dan permiso, lo dice.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { codeOf } from '../../qr.ts';
-import { scan } from '../../scanner.ts';
+import { codeOf } from '../../codes/qr.ts';
+import { scan } from '../../codes/scanner.ts';
 import { texts } from '../../texts.ts';
 
 export function Camera({

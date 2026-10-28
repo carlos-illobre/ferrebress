@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { newVersion } from '../../platform/api.ts';
+import { newVersion } from '../../platform/server/api.ts';
 import { media, open, person } from './frame-test-kit.tsx';
 import { Dialogs, parts, registerWork, watchBackground, watchCrashes } from './index.ts';
 import { crash, reportCrash } from './notices/crash.ts';

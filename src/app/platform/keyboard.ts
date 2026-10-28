@@ -8,7 +8,7 @@
 //   data-close   lo que hace Esc en esa capa (R2.7)
 // Cada vez que la marca cambia, avisa con el evento «mark» en document, para el rótulo del menú.
 // En el celular no hay atajos ni marca.
-import { isPhone } from './device.ts';
+import { isPhone } from './device/device.ts';
 
 const showKeysClass = 'show-keys';
 const markedClass = 'marked';

@@ -1,7 +1,7 @@
 import { act, fireEvent, screen, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { online } from '../../platform/api.ts';
 import { startKeyboard } from '../../platform/keyboard.ts';
+import { online } from '../../platform/server/api.ts';
 import { later } from '../../testing/later.ts';
 import { alt, media, open, press } from './frame-test-kit.tsx';
 import { moreOptions, type Option, parts } from './menu.ts';

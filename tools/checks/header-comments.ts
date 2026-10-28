@@ -2,8 +2,8 @@
 // XII). Si ese comentario sigue siendo cierto no lo puede saber una herramienta: lo mira el
 // revisor del código.
 
-import { readText } from './files.ts';
-import { isTest, listSourceCode } from './source-code.ts';
+import { readText } from '../files.ts';
+import { isTest, listSourceCode } from '../source-code.ts';
 
 // Las líneas que van antes del comentario por obligación: el intérprete y la sintaxis de Docker.
 const preamble = /^(#!|# syntax=|<!doctype)/i;

@@ -5,9 +5,9 @@ import { useState } from 'preact/hooks';
 import { useStore } from '../../../../platform/store.ts';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
 import { signInApi } from '../../api.ts';
+import { createPasskey } from '../../passkeys/webauthn.ts';
 import { offered, offerPasskey, passkeyLinked, person } from '../../session.ts';
 import { texts } from '../../texts.ts';
-import { createPasskey } from '../../webauthn.ts';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
 type Step = 'ask' | 'other-account';

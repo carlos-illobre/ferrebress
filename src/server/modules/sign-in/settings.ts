@@ -35,10 +35,9 @@ export const linkPasskeyWithinMs = 5 * minute;
 // Entrar a la computadora con el celular (R2.5, R2.7; diseño de 01, § 5).
 export const codeSettings = {
   codeTtlMs: codeSeconds * 1000,
-  // Cuánto espera la computadora la huella después de leído el código; más si el celular
-  // primero tiene que entrar.
+  // Cuánto espera la computadora la huella después de leído el código, con o sin sesión en el
+  // celular: corto, así nadie en la misma red la deja esperando (revisión de seguridad, 35).
   holdMs: 2 * minute,
-  holdWithSignInMs: 5 * minute,
   permitTtlMs: 30_000,
   // Una pantalla que no abre su canal en este tiempo se libera sola (revisión de seguridad, 25).
   listenWithinMs: 30_000,

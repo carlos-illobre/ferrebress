@@ -3,9 +3,9 @@
 // misma tarjeta al costado.
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { type Place, px } from '../../behavior/usePanels.ts';
 import { initials, useFrame } from '../../context.ts';
 import { texts } from '../../texts.ts';
-import { type Place, px } from '../../usePanels.ts';
 import { LightText, Pending } from '../Pending/Pending.tsx';
 import { CloseForKeyboard } from './More.tsx';
 

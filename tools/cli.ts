@@ -5,11 +5,11 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { findHeavyBoot } from './boot-size.ts';
-import { findBrokenLinks } from './doc-links.ts';
-import { findLongFiles } from './file-sizes.ts';
-import { findCrowdedFolders } from './folder-sizes.ts';
-import { findFilesWithoutHeader } from './header-comments.ts';
+import { findHeavyBoot } from './checks/boot-size.ts';
+import { findBrokenLinks } from './checks/doc-links.ts';
+import { findLongFiles } from './checks/file-sizes.ts';
+import { findCrowdedFolders } from './checks/folder-sizes.ts';
+import { findFilesWithoutHeader } from './checks/header-comments.ts';
 
 const root = process.cwd();
 const checks: Record<string, () => string[]> = {

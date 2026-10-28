@@ -3,14 +3,14 @@ import { act, renderHook } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { later } from '../../testing/later.ts';
+import { codeOf, linkUrl, qrPath } from './codes/qr.ts';
 import { minutes, noticeOf, useNotice } from './notice.ts';
-import { codeOf, linkUrl, qrPath } from './qr.ts';
+import { createPasskey, signWithPasskey } from './passkeys/webauthn.ts';
 import { secondsLeft } from './screens/Entrance/QrBlock.tsx';
 import { hasPasskey, offered, offerPasskey, person } from './session.ts';
 import { ana, fakePasskeys, phone, signInReply } from './sign-in-test-kit.ts';
 import { texts } from './texts.ts';
 import { entering, enteringWith, withGoogle, withPasskey } from './useSignIn.ts';
-import { createPasskey, signWithPasskey } from './webauthn.ts';
 
 describe('la cuenta regresiva del código', () => {
   it('arranca en 1:00 aunque el código llegue después de la última marca del reloj (revisión de código, 9.1)', () => {

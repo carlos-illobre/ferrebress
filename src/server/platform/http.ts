@@ -18,7 +18,7 @@ import { bodyLimit } from 'hono/body-limit';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { AuditLog } from './audit.ts';
 import type { Clock } from './clock.ts';
-import type { RateLimiter } from './rate-limit.ts';
+import type { RateLimiter } from './limits/rate-limit.ts';
 import { platformSettings } from './settings.ts';
 
 export type HttpVariables = { ipAddress: string; deviceId: string | undefined };

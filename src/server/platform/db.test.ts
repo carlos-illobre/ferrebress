@@ -28,7 +28,8 @@ describe('la base', () => {
     const fresh = await openDatabase(inMemoryUrl);
     expect((await sql<{ one: number }>`select 1 as one`.execute(fresh)).rows).toEqual([{ one: 1 }]);
     await fresh.destroy();
-  });
+    // Crearla de cero es lo lento que la base de partida evita: en una máquina cargada, segundos.
+  }, 30_000);
 
   it('en memoria corre las migraciones de cada módulo en su esquema, una sola vez', async () => {
     const notes = { schema: 'notes', migrations: { '001-notes': createNotes } };

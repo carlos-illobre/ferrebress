@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App.tsx';
-import { scan } from './modules/sign-in/scanner.ts';
+import { scan } from './modules/sign-in/codes/scanner.ts';
 import { person } from './modules/sign-in/session.ts';
 import {
   ana,
@@ -11,13 +11,13 @@ import {
   signInReply,
   startReply,
 } from './modules/sign-in/sign-in-test-kit.ts';
-import { newVersion, sessionClosed } from './platform/api.ts';
+import { store } from './platform/device/storage.ts';
 import { navigate } from './platform/router.ts';
-import { store } from './platform/storage.ts';
+import { newVersion, sessionClosed } from './platform/server/api.ts';
 import { fakeServer } from './testing/fake-server.ts';
 import { later } from './testing/later.ts';
 
-vi.mock('./modules/sign-in/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
+vi.mock('./modules/sign-in/codes/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
 
 const reading = {
   secret: 's',

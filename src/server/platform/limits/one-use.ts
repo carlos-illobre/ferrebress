@@ -4,7 +4,7 @@
 // nuevo; al llegar al del dueño también, salvo con `replaceOldest`: entonces se descarta el más viejo
 // de ese mismo dueño (los `nonce`, que se piden con cada carga de la entrada y no son intentos).
 import { randomBytes } from 'node:crypto';
-import type { Clock } from './clock.ts';
+import type { Clock } from '../clock.ts';
 
 export type OneUseLimits = {
   ttlMs: number;

@@ -62,7 +62,7 @@ async function mustSignInFirst(ctx: SignInContext, c: Context): Promise<boolean>
 
 async function read(ctx: SignInContext, c: Context, screen: Screen): Promise<ReadCodeResponse> {
   const session = await optionalSession(ctx, c);
-  const holdMs = session ? codeSettings.holdMs : codeSettings.holdWithSignInMs;
+  const holdMs = codeSettings.holdMs;
   const challenge = randomBytes(32).toString('base64url');
   const reservation = ctx.screens.reserve(screen, challenge, holdMs);
   screen.notify?.({ type: 'read' });

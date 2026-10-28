@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createProofKey } from '../../platform/proof-key.ts';
-import { readStored } from '../../platform/storage.ts';
+import { createProofKey } from '../../platform/device/proof-key.ts';
+import { readStored } from '../../platform/device/storage.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { registerWork } from '../frame/index.ts';
 import {

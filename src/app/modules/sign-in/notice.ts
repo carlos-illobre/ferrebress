@@ -3,7 +3,7 @@
 // entrada pide otro y la persona vuelve a tocar Google. Con demasiados intentos, cuenta los segundos
 // hasta poder volver a probar. Lo usan la entrada y la hoja del celular que aprueba una computadora.
 import { useEffect, useState } from 'preact/hooks';
-import type { ApiResult } from '../../platform/api.ts';
+import type { ApiResult } from '../../platform/server/api.ts';
 
 export type Notice =
   | { kind: 'not-authorized'; email: string }

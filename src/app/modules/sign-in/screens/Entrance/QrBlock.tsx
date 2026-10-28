@@ -5,10 +5,10 @@ import { codeSeconds } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useState } from 'preact/hooks';
 import isotype from '../../../../styles/brand/isotype.svg';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { linkUrl, qrPath } from '../../codes/qr.ts';
+import { useComputerCode } from '../../codes/useComputerCode.ts';
 import { minutes } from '../../notice.ts';
-import { linkUrl, qrPath } from '../../qr.ts';
 import { texts } from '../../texts.ts';
-import { useComputerCode } from '../../useComputerCode.ts';
 
 // Los segundos que le quedan al código. Puede llegar después de la última marca del reloj: hasta
 // la siguiente, va entero (1:00, nunca 1:01).

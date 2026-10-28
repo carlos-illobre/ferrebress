@@ -1,14 +1,14 @@
 // La tarjeta de la entrada (01 · R7.1): en la computadora, el título, el QR de Ferrebress (R2.6),
 // Google y la nota; en el celular, Google, la huella y «Escanear». En la computadora, mientras se
 // abre la sesión, la espera la tapa (R2.11).
-import { isPhone } from '../../../../platform/device.ts';
+import { isPhone } from '../../../../platform/device/device.ts';
 import { useStore } from '../../../../platform/store.ts';
 import logo from '../../../../styles/brand/logo-on-light.webp';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { texts } from '../../texts.ts';
 import { entering } from '../../useSignIn.ts';
 import { FingerButton, GoogleButton, ScanButton } from './Buttons.tsx';
-import { Entering } from './Entering.tsx';
+import { Entering } from './entering/Entering.tsx';
 import { ClosedNotice, MainNotice } from './Notices.tsx';
 import { QrBlock } from './QrBlock.tsx';
 

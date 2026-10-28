@@ -3,10 +3,10 @@
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
-import type { useCollapse } from './useCollapse.ts';
-import type { usePanels } from './usePanels.ts';
-import type { usePhoneMore } from './usePhoneMore.ts';
-import type { useTip } from './useTip.ts';
+import type { useCollapse } from './behavior/useCollapse.ts';
+import type { usePanels } from './behavior/usePanels.ts';
+import type { usePhoneMore } from './behavior/usePhoneMore.ts';
+import type { useTip } from './behavior/useTip.ts';
 
 export type FrameState = {
   person: Person;

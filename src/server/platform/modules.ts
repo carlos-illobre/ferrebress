@@ -7,7 +7,7 @@ import type { Config } from './config.ts';
 import type { ModuleSchema } from './db.ts';
 import type { Events } from './events.ts';
 import type { Http } from './http.ts';
-import type { RateLimiter } from './rate-limit.ts';
+import type { RateLimiter } from './limits/rate-limit.ts';
 
 // Lo que la plataforma le da a cada módulo al registrarlo.
 export type Platform = {

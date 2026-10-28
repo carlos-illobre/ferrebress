@@ -6,8 +6,8 @@ import {
   type SignInResponse,
   signOutMessage,
 } from '@ferrebress/shared/contracts/sign-in';
-import { forgetProofKey, signWithProofKey } from '../../platform/proof-key.ts';
-import { forget, readStored, store } from '../../platform/storage.ts';
+import { forgetProofKey, signWithProofKey } from '../../platform/device/proof-key.ts';
+import { forget, readStored, store } from '../../platform/device/storage.ts';
 import { createStore } from '../../platform/store.ts';
 import { discardWork } from '../frame/index.ts';
 import { signInApi } from './api.ts';

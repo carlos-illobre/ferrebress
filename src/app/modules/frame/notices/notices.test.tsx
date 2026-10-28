@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { newVersion, updateRequired } from '../../../platform/api.ts';
-import { readStored } from '../../../platform/storage.ts';
+import { readStored } from '../../../platform/device/storage.ts';
+import { newVersion, updateRequired } from '../../../platform/server/api.ts';
 import { waitBar } from '../../../platform/waiting.ts';
 import { later } from '../../../testing/later.ts';
 import { Toasts } from '../../../ui/toast/Toast.tsx';

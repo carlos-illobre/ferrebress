@@ -1,9 +1,9 @@
 import 'fake-indexeddb/auto';
 import { act, renderHook, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fakeServer } from '../../testing/fake-server.ts';
-import { hasPasskey, passkeyLinked, person } from './session.ts';
-import { ana, fakePasskeys, signInReply, startReply } from './sign-in-test-kit.ts';
+import { fakeServer } from '../../../testing/fake-server.ts';
+import { hasPasskey, passkeyLinked, person } from '../session.ts';
+import { ana, fakePasskeys, signInReply, startReply } from '../sign-in-test-kit.ts';
 import { useComputerCode } from './useComputerCode.ts';
 import { usePhoneCode } from './usePhoneCode.ts';
 

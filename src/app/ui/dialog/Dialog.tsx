@@ -6,7 +6,7 @@
 import type { ComponentChildren } from 'preact';
 import { createPortal } from 'preact/compat';
 import { useEffect, useRef } from 'preact/hooks';
-import { isPhone } from '../../platform/device.ts';
+import { isPhone } from '../../platform/device/device.ts';
 import './dialog.css';
 
 // La sacudida vuelve a empezar aunque ya estuviera sacudiéndose.

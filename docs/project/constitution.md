@@ -155,7 +155,8 @@ Además:
 - **Organizado por funcionalidad, no por capa técnica.** Un módulo tiene el mismo nombre en el
   capítulo, en el servidor y en la aplicación.
 - **Carpetas chicas, agrupadas por concepto.** Siempre que varios archivos comparten un concepto,
-  van juntos en una subcarpeta con ese nombre. Como mucho 20 archivos por carpeta, sin contar las
+  van juntos en una subcarpeta con ese nombre, aunque la carpeta no esté cerca del tope: el tope
+  es un límite, no la señal para agrupar. Como mucho 20 archivos por carpeta, sin contar las
   pruebas. Vale para el código, no para la documentación.
 - **Cada archivo se explica solo.** Empieza con un comentario que dice de qué se encarga y por qué
   existe, sin repetir lo que ya dice su nombre. Quien cambia el código, cambia ese comentario si

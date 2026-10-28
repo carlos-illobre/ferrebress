@@ -4,10 +4,10 @@
 // entrada (E03, R2.9). Que la computadora entró no se avisa: se ve en ella (R2.11).
 import type { Person, ReadCodeResponse } from '@ferrebress/shared/contracts/sign-in';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
+import type { usePhoneCode } from '../../codes/usePhoneCode.ts';
 import { minutes, type Notice, useNotice } from '../../notice.ts';
 import { person } from '../../session.ts';
 import { texts } from '../../texts.ts';
-import type { usePhoneCode } from '../../usePhoneCode.ts';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
 type Code = ReturnType<typeof usePhoneCode>;

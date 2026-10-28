@@ -2,15 +2,15 @@
 // antes la llave de prueba de la sesión nueva (ADR-015) y, si sale bien, deja la sesión guardada: la
 // aplicación pasa sola al marco.
 import type { SignInResponse } from '@ferrebress/shared/contracts/sign-in';
-import type { ApiResult } from '../../platform/api.ts';
-import { isPhone } from '../../platform/device.ts';
-import { createProofKey } from '../../platform/proof-key.ts';
+import { isPhone } from '../../platform/device/device.ts';
+import { createProofKey } from '../../platform/device/proof-key.ts';
+import type { ApiResult } from '../../platform/server/api.ts';
 import { createStore } from '../../platform/store.ts';
 import { waitSettings } from '../../platform/waiting.ts';
 import { signInApi } from './api.ts';
 import { type Notice, noticeOf } from './notice.ts';
+import { signWithPasskey } from './passkeys/webauthn.ts';
 import { offerPasskey, passkeyLinked, signedIn, wasOffered } from './session.ts';
-import { signWithPasskey } from './webauthn.ts';
 
 type Done = (result: ApiResult<SignInResponse>) => Notice | undefined;
 

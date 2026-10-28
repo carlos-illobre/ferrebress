@@ -1,9 +1,9 @@
 // Los avisos chicos del marco: en la computadora, el globo al costado del menú (el rótulo de un
 // ícono o «todavía no está»). En el celular, lo mismo lo dice una tostada.
 import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { px } from '../../behavior/usePanels.ts';
 import { useFrame } from '../../context.ts';
 import { texts } from '../../texts.ts';
-import { px } from '../../usePanels.ts';
 
 export function Tips() {
   const { tip } = useFrame();

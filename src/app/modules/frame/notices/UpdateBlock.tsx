@@ -1,7 +1,7 @@
 // «Hay que actualizar para seguir» (00 · R5.5): si el servidor ya no entiende esta versión, la
 // aplicación se bloquea con un solo botón. No se cierra: no tiene nada para Esc, y tocar afuera lo
 // sacude.
-import { updateRequired } from '../../../platform/api.ts';
+import { updateRequired } from '../../../platform/server/api.ts';
 import { useStore } from '../../../platform/store.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Dialog } from '../../../ui/dialog/Dialog.tsx';

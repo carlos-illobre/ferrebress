@@ -118,7 +118,8 @@ describe('entrar a la computadora con el celular', () => {
     const screen = await openScreen(server, computer());
     const { device, authenticator } = await phoneWithPasskey(undefined, false);
     const read = await device.request('/api/sign-in/codes/read', { code: screen.lastCode() });
-    expect(read.body.holdSeconds).toBe(300);
+    // Sin sesión, también 2 minutos (revisión de seguridad, 35).
+    expect(read.body.holdSeconds).toBe(120);
     const response = authenticator.get(read.body.authentication);
     const body = {
       secret: read.body.secret,

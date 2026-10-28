@@ -3,11 +3,11 @@
 // computadora reemplaza solo la tarjeta, y la escena no cambia (docs/design/mockups/
 // sign-in-entering/final/). Al abrirse la sesión aparece el marco, sin aviso de «Entraste».
 
-import isotype from '../../../../styles/brand/isotype.svg';
-import logo from '../../../../styles/brand/logo-on-light.webp';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { texts } from '../../texts.ts';
-import type { Way } from '../../useSignIn.ts';
+import isotype from '../../../../../styles/brand/isotype.svg';
+import logo from '../../../../../styles/brand/logo-on-light.webp';
+import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { texts } from '../../../texts.ts';
+import type { Way } from '../../../useSignIn.ts';
 import './entering.css';
 import './entering-card.css';
 
