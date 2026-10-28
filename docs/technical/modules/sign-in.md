@@ -382,6 +382,7 @@ también tienen límite por dirección:
 | `GET /api/start` (da un `nonce`) | 30 por minuto, y como mucho 100 `nonce` vivos: al llegar, se descarta el más viejo de esa dirección en lugar de negarse, porque se pide uno con cada carga de la entrada, no es un intento, y en el local todos los dispositivos salen por la misma dirección |
 | Desafíos de la huella | 20 por minuto, y como mucho 10 vivos |
 | Abrir una pantalla con QR | 10 por minuto, y como mucho 3 abiertas |
+| Volver a abrir la pantalla de la misma pestaña (recargar la entrada, o volver a su pestaña) | 60 por minuto, aparte: reemplaza la pantalla anterior de esa pestaña, que se cierra en el acto, así que no cuenta para las 3 abiertas ni para las 10 por minuto. La pestaña la identifica un número al azar guardado en la pestaña (`sessionStorage`), que se conserva solo al recargar: una pestaña duplicada lleva otro |
 | Leer un código | 10 por minuto |
 | Aprobar un código | el de la huella: 20 por minuto, por dirección y por dispositivo |
 | Una salida pendiente (`POST /api/sign-out` con `pending`) | 30 por minuto, como `/api/start`: se busca en la base aunque no haya sesión |

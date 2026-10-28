@@ -18,6 +18,8 @@ export type Channel = { stop: () => void };
 
 export type Screen = {
   id: string;
+  // El dispositivo y la pestaña que la abrió, si los dijo: recargar la reemplaza.
+  owner?: string;
   ipAddress: string;
   deviceLabel: string;
   openedAt: number;
@@ -42,19 +44,32 @@ function registry({ screens, now }: State) {
   };
   return {
     // Una pantalla nueva, o undefined si se llegó al tope total o al de esa dirección.
-    open(ipAddress: string, deviceLabel: string): Screen | undefined {
+    open(ipAddress: string, deviceLabel: string, owner?: string): Screen | undefined {
       sweep();
       const fromIp = [...screens.values()].filter(
         (screen) => screen.ipAddress === ipAddress,
       ).length;
       if (screens.size >= codeSettings.maxScreens || fromIp >= codeSettings.maxScreensPerIp)
         return undefined;
-      const screen: Screen = { id: random(32), ipAddress, deviceLabel, openedAt: now() };
+      const screen: Screen = {
+        id: random(32),
+        ipAddress,
+        deviceLabel,
+        openedAt: now(),
+        ...(owner && { owner }),
+      };
       screens.set(screen.id, screen);
       return screen;
     },
     get: (id: string) => screens.get(id),
     close: (id: string) => void screens.delete(id),
+    // La pantalla que abrió antes la misma pestaña, si sigue abierta.
+    ownedBy: (owner: string) => [...screens.values()].find((screen) => screen.owner === owner),
+    // Al reemplazarla: se corta su canal y se libera su lugar.
+    drop(screen: Screen): void {
+      screens.delete(screen.id);
+      screen.channel?.stop();
+    },
   };
 }
 

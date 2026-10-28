@@ -49,5 +49,8 @@ export const codeSettings = {
   maxScreens: 1_000,
   maxScreensPerIp: 3,
   openPerIp: { max: 10, windowMs: minute },
+  // Recargar la entrada o volver a su pestaña reemplaza la pantalla de esa pestaña: no ocupa más
+  // lugar, pero igual tiene un tope, más alto que el de pantallas nuevas.
+  reopenPerIp: { max: 60, windowMs: minute },
   readPerIp: { max: 10, windowMs: minute },
 };

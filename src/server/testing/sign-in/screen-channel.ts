@@ -34,8 +34,13 @@ function collect(reader: ReadableStreamDefaultReader<Uint8Array>, events: Screen
 
 const fromCaddy = { incoming: { socket: { remoteAddress: testConfig.TRUSTED_PROXY } } };
 
-export async function openScreen(server: SignInServer, computer: ReturnType<typeof createDevice>) {
-  const opened = await computer.request('/api/sign-in/codes', {});
+// `tab`: la pestaña que la abre, para probar que recargarla reemplaza su pantalla.
+export async function openScreen(
+  server: SignInServer,
+  computer: ReturnType<typeof createDevice>,
+  tab?: string,
+) {
+  const opened = await computer.request('/api/sign-in/codes', tab ? { tab } : {});
   const cookie = (opened.cookie as string).split(';')[0] as string;
   const controller = new AbortController();
   const response = await server.http.request('/api/realtime/sign-in-codes', {

@@ -2,7 +2,7 @@
 // pantalla, escucha por un canal los códigos que le manda el servidor y, cuando el celular
 // aprueba, cambia el permiso por su sesión. El canal y el permiso están atados a la computadora
 // por una cookie que nunca va en el QR.
-import { claimCodeBody } from '@ferrebress/shared/contracts/sign-in';
+import { claimCodeBody, openScreenBody } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
 import { streamSSE } from 'hono/streaming';
@@ -26,14 +26,9 @@ const screenOf = (ctx: SignInContext, c: Context) => {
 export function registerComputerRoutes(ctx: SignInContext): void {
   const { http } = ctx.platform;
 
-  http.post('/api/sign-in/codes', (c) => {
-    const ip = c.get('ipAddress');
-    const blocked = ctx.throttle(c, [`codes:open:${ip}`], codeSettings.openPerIp);
-    if (blocked) return blocked;
-    const screen = ctx.screens.open(ip, deviceLabel(c.req.header('User-Agent')));
-    if (!screen) return ctx.tooMany(c, codeSettings.codeTtlMs);
-    setCookie(c, cookie.name, screen.id, { ...cookie.options, httpOnly: true, sameSite: 'Strict' });
-    return c.json({ ok: true });
+  http.post('/api/sign-in/codes', async (c) => {
+    const body = openScreenBody.safeParse(await c.req.json());
+    return body.success ? openScreen(ctx, c, body.data.tab) : fail(c, 400, 'bad-request');
   });
 
   http.get('/api/realtime/sign-in-codes', (c) => {
@@ -44,6 +39,23 @@ export function registerComputerRoutes(ctx: SignInContext): void {
   });
 
   http.post('/api/sign-in/codes/claim', (c) => claim(ctx, c));
+}
+
+// Recargar la entrada o volver a su pestaña no cuenta para los topes de pantallas: reemplaza la de
+// esa pestaña, con un tope propio más alto. Una pestaña nueva sí cuenta.
+function openScreen(ctx: SignInContext, c: Context, tab: string | undefined) {
+  const ip = c.get('ipAddress');
+  const owner = tab && `${c.get('deviceId')}:${tab}`;
+  const previous = owner ? ctx.screens.ownedBy(owner) : undefined;
+  const blocked = previous
+    ? ctx.throttle(c, [`codes:reopen:${ip}`], codeSettings.reopenPerIp)
+    : ctx.throttle(c, [`codes:open:${ip}`], codeSettings.openPerIp);
+  if (blocked) return blocked;
+  if (previous) ctx.screens.drop(previous);
+  const screen = ctx.screens.open(ip, deviceLabel(c.req.header('User-Agent')), owner);
+  if (!screen) return ctx.tooMany(c, codeSettings.codeTtlMs);
+  setCookie(c, cookie.name, screen.id, { ...cookie.options, httpOnly: true, sameSite: 'Strict' });
+  return c.json({ ok: true });
 }
 
 // La computadora cambia el permiso de un uso por su sesión, con la cookie de su pantalla.

@@ -42,6 +42,9 @@ test.describe('en el celular', () => {
   test('a los 8 s: «Google no responde · Reintentar»', async ({ page }) => {
     await waiting(page, 8500, 'failed');
     await expect(page).toHaveScreenshot('google-failed-phone.png');
+    // Se toca de verdad (nada lo tapa) y vuelve a pedir Google: la espera empieza de cero.
+    await page.getByRole('button', { name: /Reintentar/ }).tap();
+    await expect(page.locator('.google[data-phase="empty"]')).toBeVisible();
   });
 
   test('sin conexión: «Sin internet, Google no carga»', async ({ page, context }) => {

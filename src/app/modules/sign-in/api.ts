@@ -7,6 +7,7 @@ import type {
   SignInResponse,
   StartResponse,
 } from '@ferrebress/shared/contracts/sign-in';
+import { tabId } from '../../platform/device/device.ts';
 import { api } from '../../platform/server/api.ts';
 
 type Ok = { ok: true };
@@ -24,7 +25,8 @@ export const signInApi = {
     api<SignInResponse>('/api/sign-in/passkey', { response, proofPublicKey }),
   linkOptions: () => api<Json>('/api/passkeys/options', {}),
   link: (response: Json) => api<Ok>('/api/passkeys', { response }),
-  openScreen: () => api<Ok>('/api/sign-in/codes', {}),
+  // La pestaña va para que recargarla reemplace su pantalla (01 · R2.5).
+  openScreen: () => api<Ok>('/api/sign-in/codes', { tab: tabId() }),
   readCode: (code: string) => api<ReadCodeResponse>('/api/sign-in/codes/read', { code }),
   approve: (body: ApproveBody) => api<Ok>('/api/sign-in/codes/approve', body),
   cancel: (secret: string) => api<Ok>('/api/sign-in/codes/cancel', { secret }),

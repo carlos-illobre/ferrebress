@@ -56,6 +56,10 @@ export const passkeySignInBody = z.object({
 export type PasskeySignInBody = z.infer<typeof passkeySignInBody>;
 
 // Entrar a la computadora con el celular (diseño de 01, § 5).
+// Abrir la pantalla con el QR: `tab` identifica la pestaña y sobrevive a recargarla, así una
+// recarga reemplaza su pantalla en lugar de sumar otra.
+export const openScreenBody = z.object({ tab: z.optional(z.uuid()) });
+
 export const readCodeBody = z.object({ code: base64url(32) });
 
 export const approveCodeBody = z.object({

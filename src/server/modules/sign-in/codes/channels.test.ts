@@ -33,6 +33,43 @@ describe('las pantallas con QR y sus canales', () => {
     await screen.close();
   });
 
+  it('recargar la pestaña reemplaza su pantalla: no cuenta para el tope, y corta el canal viejo', async () => {
+    const pc = computer();
+    const [a, b, c, d] = [1, 2, 3, 4].map((n) => `00000000-0000-4000-8000-00000000000${n}`);
+    const first = await openScreen(server, pc, a);
+    for (const tab of [b, c])
+      expect((await pc.request('/api/sign-in/codes', { tab })).status).toBe(200);
+    // Ya hay 3 de esta dirección: una pestaña nueva no entra, pero recargar la primera sí.
+    expect((await pc.request('/api/sign-in/codes', { tab: d })).status).toBe(429);
+    const reloaded = await openScreen(server, pc, a);
+    expect(reloaded.lastCode()).toBeDefined();
+    const before = first.events.length;
+    time.elapse();
+    await reloaded.settle();
+    expect(first.events.length).toBe(before);
+    // La pantalla vieja ya no existe: su cookie no sirve para su canal.
+    const old = await server.http.request('/api/realtime/sign-in-codes', {
+      headers: { ...appHeaders(), Cookie: first.cookie },
+    });
+    expect(old.status).toBe(404);
+    expect((await pc.request('/api/sign-in/codes', { tab: 'x' })).status).toBe(400);
+    await reloaded.close();
+  });
+
+  it('recargar tiene su propio tope, más alto, y no gasta el de pantallas nuevas', async () => {
+    const pc = computer();
+    const tab = '00000000-0000-4000-8000-0000000000aa';
+    expect((await pc.request('/api/sign-in/codes', { tab })).status).toBe(200);
+    const statuses = [];
+    for (let i = 0; i < 61; i++)
+      statuses.push((await pc.request('/api/sign-in/codes', { tab })).status);
+    expect(statuses.slice(0, 60).every((status) => status === 200)).toBe(true);
+    expect(statuses.at(-1)).toBe(429);
+    // Las 60 recargas no gastaron el tope de pantallas nuevas de esta dirección.
+    const other = '00000000-0000-4000-8000-0000000000bb';
+    expect((await pc.request('/api/sign-in/codes', { tab: other })).status).toBe(200);
+  });
+
   it('una pantalla que no abre su canal se libera a los 30 s', async () => {
     computer();
     const sameNetwork = () => createDevice(server, { ip });
