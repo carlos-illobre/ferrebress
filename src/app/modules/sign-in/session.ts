@@ -52,6 +52,9 @@ export async function signOut(): Promise<void> {
   await forgetProofKey();
 }
 
+// Si hay una salida sin mandar: mientras haya, ningún otro pedido sale antes que ella.
+export const hasPendingSignOut = (): boolean => readStored<Pending>(pendingKey) !== undefined;
+
 // La salida que quedó sin mandar: va primero. Si sigue sin conexión, queda para la próxima.
 export async function sendPendingSignOut(): Promise<void> {
   const pending = readStored<Pending>(pendingKey);

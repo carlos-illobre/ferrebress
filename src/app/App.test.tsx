@@ -100,6 +100,8 @@ describe('la aplicación al abrir', () => {
   });
 
   it('app-E23: abierta y sin usarse, no le pide nada al servidor', async () => {
+    // Como queda un dispositivo con sesión: la persona guardada.
+    person.set(ana);
     const server = fakeServer({ '/api/start': startReply({ person: ana }) });
     render(<App />);
     await screen.findByRole('region', { name: 'Tu sesión' });
@@ -107,6 +109,18 @@ describe('la aplicación al abrir', () => {
     await later(2 * 60 * 60_000);
     vi.useRealTimers();
     expect(server.sent).toHaveLength(1);
+  });
+
+  it('sin nadie guardado, la entrada se dibuja sin esperar al servidor; con una salida pendiente, no', async () => {
+    googleFrame();
+    fakeServer({ '/api/start': 'waiting' });
+    const { unmount } = render(<App />);
+    // El servidor todavía no contestó (nunca contesta) y la entrada ya está.
+    expect(screen.getByRole('region', { name: 'Entrar' })).toBeTruthy();
+    unmount();
+    store('pending-sign-out', { sessionId: 's', signature: 'f', tappedAt: 1 });
+    render(<App />);
+    expect(screen.queryByRole('region', { name: 'Entrar' })).toBeNull();
   });
 
   it('sin sesión, al volver la conexión no pregunta por ninguna', async () => {

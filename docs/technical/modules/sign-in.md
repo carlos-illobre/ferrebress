@@ -197,6 +197,12 @@ recibe `update-required` (código 426) y la aplicación muestra el bloqueo.
    versión, el identificador de Google y si ya tiene sesión.
 3. Con sesión, abre el marco en la primera opción del menú; sin sesión, la entrada.
 
+Si el dispositivo no tiene a nadie guardado ni una salida pendiente, lo más probable es la entrada:
+se dibuja enseguida, con el último ambiente guardado, sin esperar `/api/start`. Así el marco de
+Google y el QR de la computadora cargan mientras tanto; el botón de Google se dibuja recién con el
+`nonce`. Si `/api/start` dice que sí hay sesión (la cookie sigue y el dispositivo borró lo
+guardado), la entrada se va y aparece el marco.
+
 ### Google
 
 1. La entrada carga el botón de Google Identity Services (lo dibuja Google en el idioma del

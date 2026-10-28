@@ -1,10 +1,11 @@
 // La aplicación (diseño de 01, § 5, «Al abrir la aplicación»): manda primero la salida pendiente,
-// pregunta /api/start y muestra el marco si hay sesión o la entrada si no. Si la sesión se cierra
-// mientras se usa, la entrada aparece encima de lo que había, sin perderlo (R3.4). Atiende también
+// pregunta /api/start y muestra el marco si hay sesión o la entrada si no; sin nadie guardado, la
+// entrada se dibuja antes de que conteste. Si la sesión se cierra mientras se usa, la entrada
+// aparece encima de lo que había, sin perderlo (R3.4). Atiende también
 // la dirección del QR (/link#<código>) y la cámara de «Escanear».
 import type { Environment } from '@ferrebress/shared/contracts/server-header';
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import {
   announceUpdate,
   Dialogs,
@@ -19,6 +20,7 @@ import {
   CodeSheet,
   confirmed,
   Entrance,
+  hasPendingSignOut,
   linkPath,
   OfferSheet,
   person,
@@ -78,10 +80,17 @@ function takeCode(): string | undefined {
   return hash;
 }
 
+// Sin nadie guardado en el dispositivo, lo más probable es la entrada: se dibuja sin esperar al
+// servidor, así el marco de Google y el QR cargan mientras tanto (el botón de Google espera el
+// nonce). No si hay una salida pendiente, que tiene que salir antes que cualquier otro pedido.
+const early = (): StartResponse | undefined =>
+  person.get() || hasPendingSignOut() ? undefined : unknown();
+
 // Al abrir: arranca, lee el código del QR si vino en la dirección, y escucha lo que pasa mientras
 // la aplicación está abierta (la red, los errores, el segundo plano).
 function useStart(scanned: (code: string) => void) {
-  const [start, setStart] = useState<StartResponse>();
+  const [start, setStart] = useState<StartResponse | undefined>(early);
+  const booted = useRef(false);
   const who = useStore(person);
   const closed = useStore(sessionClosed);
 
@@ -89,6 +98,7 @@ function useStart(scanned: (code: string) => void) {
     const linked = takeCode();
     void boot().then((started) => {
       if (!started) return;
+      booted.current = true;
       setStart(started);
       announceUpdate();
       if (linked) scanned(linked);
@@ -110,7 +120,7 @@ function useStart(scanned: (code: string) => void) {
   }, [closed]);
   useEffect(() => {
     if (who && closed) sessionClosed.set(undefined);
-    if (!who && start) refresh();
+    if (!who && booted.current) refresh();
   }, [who]);
 
   return { start, who, closed, refresh };

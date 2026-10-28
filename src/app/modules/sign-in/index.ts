@@ -7,4 +7,10 @@ export { Entrance } from './screens/Entrance/Entrance.tsx';
 export { Camera } from './screens/Sheets/Camera.tsx';
 export { CodeSheet } from './screens/Sheets/CodeSheet.tsx';
 export { OfferSheet } from './screens/Sheets/OfferSheet.tsx';
-export { confirmed, person, sendPendingSignOut, signOut } from './session.ts';
+export {
+  confirmed,
+  hasPendingSignOut,
+  person,
+  sendPendingSignOut,
+  signOut,
+} from './session.ts';
