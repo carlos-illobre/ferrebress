@@ -6,6 +6,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Continuar con Google</title>
+    <!-- Lo de Google empieza a bajar apenas abre el marco, mientras la aplicación le manda qué
+         dibujar: la conexión y el script, que en producción y en pruebas es siempre este (la
+         configuración del servidor no acepta otro, salvo en las pruebas de punta a punta). -->
+    <link rel="preconnect" href="https://accounts.google.com" />
+    <link rel="preload" href="https://accounts.google.com/gsi/client" as="script" />
   </head>
   <body>
     <div id="google-button"></div>

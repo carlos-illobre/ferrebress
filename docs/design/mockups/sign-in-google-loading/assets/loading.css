@@ -1,0 +1,39 @@
+/* El lugar del botón de Google mientras Google lo dibuja. Lo común a las tres variantes:
+   el lugar (mismo alto y ancho que el botón final, para que nada salte), el botón de Google
+   blanco con borde gris, y las herramientas de la maqueta. Cada variante pone lo suyo en su
+   index.html. Solo se anima transform y opacity. */
+
+/* ---------- El lugar: lo mide el botón de Google, no lo que se muestra adentro ---------- */
+.g-slot { --g-h: 44px; position: relative; align-self: center; width: min(100%, 400px); height: var(--g-h); flex: none; }
+@media (max-width: 899px) { .g-slot { --g-h: 40px; order: 3; } }
+.g-slot > * { position: absolute; inset: 0; }
+
+/* ---------- El botón que dibuja Google (tema blanco, borde gris, redondeado) ---------- */
+.g-slot .google { min-height: 0; height: 100%; padding: 0 12px; border: 1px solid #dadce0; background: #fff; color: #3c4043; font-size: 14px; }
+.g-slot .google:hover { background: #f8fafe; border-color: #d2e3fc; }
+.g-slot .google-g { width: 20px; height: 20px; background: none; }
+.g-slot .google-g svg { width: 18px; height: 18px; }
+.g-slot .google-text { padding-right: 20px; font-family: Roboto, Arial, system-ui, sans-serif; font-weight: 500; font-size: 14px; letter-spacing: 0.01em; }
+
+
+/* El botón de Google y lo que espera en su lugar: por omisión, invisibles y sin tocarse. */
+.g-slot .google, .g-wait, .g-fail, .g-off { opacity: 0; pointer-events: none; }
+.g-slot[data-phase="ready"] .google { opacity: 1; pointer-events: auto; }
+.g-slot[data-phase="failed"] .g-fail { opacity: 1; pointer-events: auto; }
+.g-slot[data-phase="offline"] .g-off { opacity: 1; }
+.g-slot[data-phase="ready"] .google.off { opacity: 0.45; cursor: default; }
+
+/* Aparece el botón de Google: un fundido corto, sin moverse de lugar. */
+@media (prefers-reduced-motion: no-preference) {
+  .g-slot .google { transition: opacity 200ms var(--curva), transform 260ms var(--curva); }
+}
+
+/* ---------- Herramientas de la maqueta (fuera del diseño) ---------- */
+.mock-tools { flex-wrap: wrap; row-gap: 4px; max-width: calc(100vw - 28px); }
+.mock-tools .g-clock { margin-left: 8px; font-variant-numeric: tabular-nums; opacity: 0.85; white-space: nowrap; }
+.mock-tools #g-moment { max-width: 260px; }
+@media (max-width: 899px) {
+  .mock-tools { border-radius: 16px; }
+  .mock-tools select { max-width: 150px; }
+  .mock-tools #g-moment { max-width: 190px; }
+}

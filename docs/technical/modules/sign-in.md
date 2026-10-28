@@ -593,7 +593,10 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
     línea, solo puede cargar el script de Google y solo la aplicación puede enmarcarla
     (`frame-ancestors 'self'`). La aplicación le pide por mensaje qué dibujar (el identificador,
     el `nonce` y el ancho) y recibe el pase de Google; cada lado escucha solo al otro y solo de
-    este origen. El marco aparece recién cuando el botón quedó dibujado: cuando cargaron los
+    este origen. Apenas abre, la página del marco ya abre la conexión con Google y empieza a bajar
+    su script (`preconnect` y `preload`), en paralelo con lo que tarda la aplicación en pedirle el
+    botón: medido, el botón queda listo unos 300 ms antes. El marco aparece recién cuando el
+    botón quedó dibujado: cuando cargaron los
     estilos de Google y el marco del botón personalizado, o a los 3 segundos si alguno no llega. «Salir» deja anotado en
     el dispositivo que, la próxima vez, Google vuelva a pedir la cuenta (R2.1).
   - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
