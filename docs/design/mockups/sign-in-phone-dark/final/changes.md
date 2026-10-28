@@ -120,3 +120,14 @@ Arriba a la izquierda, las herramientas de la maqueta: el momento de Google (en 
 - **Nada se pide a la red:** la letra, el logo, la foto y los íconos están en la carpeta de la maqueta.
 - **Probada en Chrome** (computadora y celular, 390 × 844), sin errores en la consola. No hay
   Firefox en el entorno para mirarla; no usa nada que Firefox no tenga (`:is()`, `dvh`, `inset`).
+
+## Lo que pidió Carlos después
+
+- **El lema** pasa a ser «Vendé, contá y cobrá desde el mostrador o el depósito.» en lugar de «Tu
+  ferretería, siempre en orden».
+- **«Escanear código QR»** dice debajo «Entrá en la computadora con su código», en lugar de «Ingresá
+  desde tu computadora», que se podía entender al revés.
+- **Con un aviso en pantalla, el pie queda abajo del borde:** está bien así.
+- **El tamaño de los textos chicos** (el lema y el pie) está por decidir: `text-sizes-comparison.webp`
+  muestra los de la imagen (11 y 13,5 px), los dos a 14 px en mayúsculas, y el lema a 15 px en
+  minúsculas con el pie a 14 px.
