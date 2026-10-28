@@ -147,7 +147,8 @@ describe('la entrada en la computadora', () => {
     online.set(false);
     open();
     expect(screen.getByText('Para entrar hace falta internet')).toBeTruthy();
-    expect(document.querySelector('.google')?.classList.contains('off')).toBe(true);
+    // Google no pudo cargar: su lugar lo dice.
+    expect(screen.getByText('Sin internet, Google no carga')).toBeTruthy();
     expect(screen.getByText('Sin conexión')).toBeTruthy();
   });
 
@@ -203,7 +204,7 @@ describe('la entrada en el celular', () => {
   });
 
   it('sign-in-E20: con la huella, demasiados intentos apagan Google y la huella, y dice cuánto falta', async () => {
-    googleFrame();
+    const google = googleFrame();
     fakeServer({
       '/api/sign-in/passkey/options': {
         status: 429,
@@ -219,8 +220,10 @@ describe('la entrada en el celular', () => {
         .getByRole('button', { name: /Entrar con la huella/ })
         .hasAttribute('disabled'),
     ).toBe(true);
-    // El botón de Google, que es un marco, tampoco se alcanza con el teclado.
+    // El botón de Google, que es un marco, tampoco se alcanza con el teclado, y se ve gris.
+    google.drawn();
     expect(card.querySelector('.google')?.hasAttribute('inert')).toBe(true);
+    expect(card.querySelector('.google')?.classList.contains('off')).toBe(true);
   });
 
   it('sign-in-E16b: si leyó el código sin sesión, le dice que entre primero', () => {

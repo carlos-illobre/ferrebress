@@ -21,6 +21,13 @@ export const texts = {
   soon: 'Pronto',
   manualSoon: 'Manual · pronto. Todavía no está.',
   google: 'Continuar con Google',
+  // El lugar del botón de Google mientras Google lo dibuja (R2.1, «El hilo»).
+  googleSlot: {
+    connecting: 'Conectando con Google…',
+    failed: 'Google no responde ·',
+    retry: 'Reintentar',
+    offline: 'Sin internet, Google no carga',
+  },
   cardSub: 'Entra con tu usuario, sin contraseñas, usando tu huella.',
   qrLabel: 'Código para entrar con el celular',
   read: 'Leído',

@@ -613,8 +613,11 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
     este origen. Apenas abre, la página del marco ya abre la conexión con Google y empieza a bajar
     su script (`preconnect` y `preload`), en paralelo con lo que tarda la aplicación en pedirle el
     botón: medido, el botón queda listo unos 300 ms antes. El marco aparece recién cuando el
-    botón quedó dibujado: cuando cargaron los
-    estilos de Google y el marco del botón personalizado, o a los 3 segundos si alguno no llega. «Salir» deja anotado en
+    botón quedó dibujado: cuando cargaron los estilos de Google y el marco del botón
+    personalizado, o a los 3 segundos si alguno no llega. Mientras tanto, su lugar muestra «El
+    hilo» (01 · R2.1): los momentos están en `useGooglePhase`, con las esperas de
+    `platform/waiting` y 8 s para decir que no respondió; «Reintentar» y la vuelta de la conexión
+    cargan un marco nuevo. «Salir» deja anotado en
     el dispositivo que, la próxima vez, Google vuelva a pedir la cuenta (R2.1).
   - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
     `Referrer-Policy: strict-origin-when-cross-origin` (Google comprueba el origen del botón por esa

@@ -7,8 +7,9 @@ import logo from '../../../../styles/brand/logo-on-light.webp';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { texts } from '../../texts.ts';
 import { entering } from '../../useSignIn.ts';
-import { FingerButton, GoogleButton, ScanButton } from './Buttons.tsx';
+import { FingerButton, ScanButton } from './Buttons.tsx';
 import { Entering } from './entering/Entering.tsx';
+import { GoogleButton } from './google/GoogleButton.tsx';
 import { ClosedNotice, MainNotice } from './Notices.tsx';
 import { QrBlock } from './qr/QrBlock.tsx';
 

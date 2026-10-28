@@ -30,6 +30,12 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   abrió la entrada: tocá «Continuar con Google» otra vez.».
   - El botón de Google es el de Google, dibujado en su propio marco: es la única excepción a
     00 · R2.8. No tiene atajo con Alt ni lo recorren las flechas; se llega a él con Tab.
+  - Mientras Google lo dibuja, su lugar, del mismo tamaño, muestra que está cargando, con las
+    esperas de 00 · R7: nada antes de 300 ms; después, una línea fina con un tramo que la recorre;
+    pasados 2 s, «Conectando con Google…». Cuando llega, la línea se completa y el botón aparece
+    desde ella, sin que nada de la entrada se mueva. Si a los 8 s no llegó, dice «Google no
+    responde · Reintentar», y «Reintentar» (Alt R) lo pide de nuevo. Sin conexión dice «Sin
+    internet, Google no carga», y al volver la conexión lo pide de nuevo solo.
 - **R2.2 La huella en el celular.** La primera vez que alguien entra con Google en un celular, la
   aplicación le ofrece, una sola vez, «¿Entrar con la huella la próxima vez?». Si dice que sí, el
   celular queda vinculado a esa cuenta. Si dice que no, puede vincularlo después desde

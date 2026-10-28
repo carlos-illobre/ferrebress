@@ -1,0 +1,185 @@
+/* El lugar del botón de Google mientras Google lo dibuja: «El hilo»
+   (docs/design/mockups/sign-in-google-loading/final/). El lugar mide lo que mide siempre (el botón de
+   Google), y el hilo va adentro, así que cuando aparece el botón no se mueve nada. Los momentos están
+   en data-phase (useGooglePhase.ts). Solo se anima transform y opacity. */
+:root {
+  /* El azul del botón de Google: el hilo se completa en él cuando el botón llega. */
+  --google-blue: #1a73e8;
+}
+
+@layer screens {
+  .google {
+    position: relative;
+  }
+  .google > :is(.g-thread, .g-fail, .g-off) {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+  }
+
+  /* El hilo: una línea fina donde va a estar el botón. */
+  .g-thread {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .g-track {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    top: 50%;
+    height: 2px;
+    margin-top: -1px;
+    border-radius: 2px;
+    background: var(--border);
+    overflow: hidden;
+    transform: scaleX(0);
+  }
+  /* El tramo verde: una tira del doble del hilo con dos tramos, uno detrás del otro, que se corre un
+     largo de hilo por vuelta. Siempre hay uno a la vista, así que no se lee como el separador de la
+     «o». */
+  .g-run {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -100%;
+    width: 200%;
+    background: linear-gradient(
+      90deg,
+      var(--sign-in-green) 0 16%,
+      transparent 16% 50%,
+      var(--sign-in-green) 50% 66%,
+      transparent 66%
+    );
+  }
+  /* Al llegar Google, el hilo se completa en su azul: es el botón, dormido. */
+  .g-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--google-blue);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  .g-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--text-2);
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+  .g-label svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  /* Google no cargó: el hilo queda quieto, en ámbar, y la frase es el botón para reintentar. */
+  .g-fail {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+  }
+  .g-fail .g-track {
+    transform: translateY(12px);
+    background: var(--urgent);
+  }
+  .g-fail .g-label {
+    opacity: 1;
+    transform: translateY(-90%);
+    color: var(--urgent-text);
+  }
+  .g-fail b {
+    color: var(--pine-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* Sin conexión: solo la frase, en el centro del lugar. */
+  .g-off .g-label {
+    opacity: 1;
+    transform: translateY(-50%);
+    color: var(--text-3);
+  }
+
+  .google:is([data-phase="loading"], [data-phase="slow"], .arrived) .g-thread {
+    opacity: 1;
+  }
+  .google:is([data-phase="loading"], [data-phase="slow"], .arrived) .g-track {
+    transform: none;
+  }
+  /* Pasados 2 s (00 · R7.3): el hilo baja y arriba aparece qué hace. */
+  .google[data-phase="slow"] .g-track {
+    transform: translateY(12px);
+  }
+  .google[data-phase="slow"] .g-label {
+    opacity: 1;
+    transform: translateY(-90%);
+  }
+
+  /* Llega Google: el hilo se completa de punta a punta y el botón se infla desde él. */
+  .google.arrived .g-fill {
+    transform: none;
+  }
+  .google.arrived[data-phase="ready"] .g-thread {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .g-thread {
+      transition: opacity 180ms var(--sign-in-enter) 120ms;
+    }
+    .google[data-phase="loading"] .g-thread {
+      transition-delay: 0ms;
+    }
+    .g-track {
+      transition: transform 360ms var(--sign-in-enter);
+    }
+    .g-label {
+      transition:
+        opacity 240ms var(--sign-in-enter),
+        transform 320ms var(--sign-in-enter);
+    }
+    .g-fill {
+      transition: transform 200ms var(--sign-in-enter);
+    }
+    .google:is([data-phase="loading"], [data-phase="slow"]) .g-run {
+      animation: g-run 1200ms cubic-bezier(0.15, 0.6, 0.85, 0.4) infinite;
+    }
+    /* El botón se infla desde el hilo, después de que el hilo se completó. */
+    .google.arrived iframe {
+      animation: g-inflate 300ms var(--sign-in-enter) 140ms both;
+    }
+  }
+  /* Sin movimiento: el tramo queda quieto en el centro. */
+  @media (prefers-reduced-motion: reduce) {
+    .g-run {
+      left: 34%;
+      width: 32%;
+      background: var(--sign-in-green);
+    }
+  }
+}
+
+@keyframes g-run {
+  to {
+    transform: translateX(50%);
+  }
+}
+@keyframes g-inflate {
+  from {
+    transform: scaleY(0.08);
+    opacity: 0;
+  }
+}
