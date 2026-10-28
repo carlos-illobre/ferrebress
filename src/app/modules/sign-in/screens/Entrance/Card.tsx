@@ -14,6 +14,9 @@ import { QrBlock } from './QrBlock.tsx';
 
 export function Card() {
   const way = useStore(entering);
+  // Lo de cada dispositivo depende de qué es, no del ancho de la ventana: la computadora siempre
+  // muestra el QR y nunca la huella ni «Escanear» (R2.6), aunque la ventana sea angosta.
+  const phone = isPhone();
   return (
     <section class="card" aria-label={texts.entrance}>
       {/* Mientras se abre la sesión, lo de la tarjeta sigue debajo de la espera y le da su tamaño. */}
@@ -27,12 +30,20 @@ export function Card() {
         </div>
         <p class="card-sub desktop-only">{texts.cardSub}</p>
         <ClosedNotice />
-        {!isPhone() && <QrBlock />}
-        <Or where="desktop-only" />
-        <GoogleButton />
-        <Or where="phone-only" />
-        <FingerButton />
-        <ScanButton />
+        {phone ? (
+          <>
+            <GoogleButton />
+            <Or />
+            <FingerButton />
+            <ScanButton />
+          </>
+        ) : (
+          <>
+            <QrBlock />
+            <Or />
+            <GoogleButton />
+          </>
+        )}
         <MainNotice />
         <CardEnd />
       </div>
@@ -41,8 +52,8 @@ export function Card() {
   );
 }
 
-const Or = ({ where }: { where: string }) => (
-  <div class={`or ${where}`} aria-hidden="true">
+const Or = () => (
+  <div class="or" aria-hidden="true">
     <span>{texts.or}</span>
   </div>
 );

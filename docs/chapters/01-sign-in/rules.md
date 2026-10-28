@@ -132,7 +132,9 @@ enviar es «Salir» (R5.2).
 ## 7. La entrada
 
 - **R7.1** Se ve como su maqueta aprobada (`docs/design/mockups/sign-in/adapted/`), en una sola
-  pantalla que se adapta al ancho. En el celular también está «Entrar con Google».
+  pantalla que se adapta al ancho. En el celular también está «Entrar con Google». Lo que se ofrece
+  depende del dispositivo y no del ancho: la computadora siempre muestra el QR y nunca la huella ni
+  «Escanear», aunque su ventana sea angosta; ahí el QR va arriba, sus pasos debajo, y después Google.
 - **R7.2** La entrada de la computadora tiene «Ver el manual», debajo de lo que hace Ferrebress (en
   el celular, el manual se abre desde Más). Mientras el manual no exista, lleva «Pronto» y al
   tocarlo dice «Manual · pronto. Todavía no está.».

@@ -48,7 +48,7 @@ export function FingerButton() {
   return (
     <button
       type="button"
-      class={off ? 'finger phone-only off' : 'finger phone-only'}
+      class={off ? 'finger off' : 'finger'}
       disabled={off}
       onClick={() => entrance.attempt(withPasskey)}
     >
@@ -65,12 +65,7 @@ export function ScanButton() {
   const entrance = useEntrance();
   const off = offline(entrance);
   return (
-    <button
-      type="button"
-      class={off ? 'scan phone-only off' : 'scan phone-only'}
-      disabled={off}
-      onClick={entrance.scan}
-    >
+    <button type="button" class={off ? 'scan off' : 'scan'} disabled={off} onClick={entrance.scan}>
       <Icon name="scan-qr" stroke={1.8} />
       <span>
         <strong>{texts.scan}</strong>

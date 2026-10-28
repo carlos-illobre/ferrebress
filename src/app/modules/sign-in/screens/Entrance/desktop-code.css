@@ -1,4 +1,6 @@
-/* La entrada en la computadora: el código QR de Ferrebress con sus dos pasos. */
+/* La entrada en la computadora: el código QR de Ferrebress con sus dos pasos. Solo se dibuja en
+   una computadora, así que vale en cualquier ancho: con la ventana angosta, el QR va arriba y los
+   pasos debajo, porque la computadora nunca muestra la entrada del celular (R2.6). */
 @layer screens {
   @media (min-width: 900px) {
     .qr-block {
@@ -7,6 +9,24 @@
       gap: calc(30 * var(--u));
       margin-left: calc(8 * var(--u));
     }
+  }
+  @media (max-width: 899px) {
+    .sign-in {
+      --u: 1px;
+    }
+    /* En la tarjeta angosta: los avisos, el QR, la «o» y Google, en ese orden. */
+    .qr-block,
+    .qr-block + .or {
+      order: 3;
+    }
+    .qr-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+  }
+  .sign-in {
     .qr-col {
       flex: none;
     }
@@ -99,11 +119,11 @@
       background: conic-gradient(var(--success) calc(var(--part, 1) * 360deg), var(--pine-soft) 0);
       mask: radial-gradient(circle 4px, transparent 98%, #000 100%);
     }
-    .offline .qr {
+    &.offline .qr {
       opacity: 0.35;
       filter: grayscale(1);
     }
-    .offline .qr-count {
+    &.offline .qr-count {
       visibility: hidden;
     }
     .steps {

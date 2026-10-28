@@ -17,6 +17,13 @@ test('la entrada en la computadora', async ({ page }) => {
   await expect(page).toHaveScreenshot('entrance-desktop.png');
 });
 
+test('la entrada en la computadora con la ventana angosta', async ({ page }) => {
+  await page.setViewportSize({ width: 700, height: 900 });
+  await ready(page);
+  await expect(page.locator('.qr > svg > path')).toBeVisible();
+  await expect(page).toHaveScreenshot('entrance-desktop-narrow.png');
+});
+
 test.describe('en el celular', () => {
   test.use({
     viewport: { width: 390, height: 844 },

@@ -25,7 +25,7 @@ export function QrBlock() {
   const left = useCountdown(since);
   const qr = code ? qrPath(linkUrl(code)) : undefined;
   return (
-    <div class="qr-block desktop-only">
+    <div class="qr-block">
       <div class="qr-col">
         <div class={read ? 'qr read' : 'qr'} role="img" aria-label={texts.qrLabel}>
           {qr && (

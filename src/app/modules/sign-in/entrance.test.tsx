@@ -79,6 +79,9 @@ describe('la entrada en la computadora', () => {
     const { card } = open();
     await waitFor(() => expect(card.querySelector('.qr svg path')).not.toBeNull());
     expect(within(card).queryByRole('button', { name: /Entrar con el celular/ })).toBeNull();
+    // Aunque la ventana sea angosta, la computadora no ofrece lo del celular (R2.6).
+    expect(within(card).queryByRole('button', { name: /Entrar con la huella/ })).toBeNull();
+    expect(within(card).queryByRole('button', { name: /Escanear/ })).toBeNull();
     expect(credentials.get).not.toHaveBeenCalled();
   });
 
@@ -188,6 +191,15 @@ describe('la entrada en el celular', () => {
     expect(card.querySelector('.qr')).toBeNull();
     fireEvent.click(within(card).getByRole('button', { name: /Escanear el código/ }));
     expect(onScan).toHaveBeenCalledOnce();
+  });
+
+  it('01-E19: sin conexión, en el celular también se apagan la huella y «Escanear»', () => {
+    googleFrame();
+    online.set(false);
+    const { card } = open();
+    for (const name of [/Entrar con la huella/, /Escanear/])
+      expect(within(card).getByRole('button', { name }).hasAttribute('disabled')).toBe(true);
+    online.set(true);
   });
 
   it('01-E20: con la huella, demasiados intentos apagan Google y la huella, y dice cuánto falta', async () => {
