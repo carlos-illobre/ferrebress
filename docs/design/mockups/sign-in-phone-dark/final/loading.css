@@ -1,0 +1,111 @@
+/* El lugar del botón de Google mientras Google lo dibuja: «El hilo».
+   El lugar mide lo mismo que el botón de Google (filled_blue, pill, large: 40 px de alto, el ancho
+   de la columna hasta 400 px), así que cuando Google lo dibuja no se mueve nada.
+   Momentos (data-phase del lugar): empty (antes de 300 ms) · loading (pasados 300 ms) ·
+   slow (pasados 2 s) · ready (Google lo dibujó) · failed (no cargó a los 8 s) · offline.
+   Solo se anima transform y opacity. */
+
+/* ---------- El lugar: lo mide el botón de Google, no lo que se muestra adentro ---------- */
+.g-slot { --g-h: 40px; position: relative; align-self: center; width: min(100%, 400px); height: var(--g-h); flex: none; }
+@media (max-width: 899px) { .g-slot { order: 3; } }
+.g-slot > * { position: absolute; inset: 0; }
+
+/* ---------- El botón de Google: filled_blue, pill, large, «Continuar con Google» ---------- */
+.g-slot .google { min-height: 0; height: 100%; padding: 1px; border: 0; border-radius: 999px; background: var(--google); color: #fff; font-size: 14px; }
+.g-slot .google:hover { box-shadow: 0 1px 2px rgb(60 64 67 / 0.3), 0 1px 3px 1px rgb(60 64 67 / 0.15); }
+.g-slot .google-g { width: 38px; height: 38px; background: #fff; }
+.g-slot .google-g svg { width: 18px; height: 18px; }
+.g-slot .google-text { padding-right: 38px; font-family: "Google Sans", Roboto, Arial, system-ui, sans-serif; font-weight: 500; font-size: 14px; letter-spacing: 0.25px; }
+
+/* El botón y lo que espera en su lugar: por omisión, invisibles y sin tocarse. */
+.g-slot .google, .g-wait, .g-fail, .g-off { opacity: 0; pointer-events: none; }
+.g-slot[data-phase="ready"] .google { opacity: 1; pointer-events: auto; }
+.g-slot[data-phase="failed"] .g-fail { opacity: 1; pointer-events: auto; }
+.g-slot[data-phase="offline"] .g-off { opacity: 1; }
+.g-slot[data-phase="ready"] .google.off { opacity: 0.45; cursor: default; }
+
+/* ---------- El hilo: una línea fina donde va a estar el botón ---------- */
+.g-thread { display: block; }
+.g-thread-track { position: absolute; left: 24px; right: 24px; top: 50%; height: 2px; margin-top: -1px; border-radius: 2px; background: var(--borde); overflow: hidden; transform: scaleX(0); }
+/* El tramo pino: una tira del doble del hilo con dos tramos, uno detrás del otro, que se corre
+   un largo de hilo por vuelta: lento en el medio y rápido al pasar por las puntas. Siempre hay un
+   tramo a la vista, así que no se lee como un separador. */
+.g-thread-run { position: absolute; top: 0; bottom: 0; left: -100%; width: 200%;
+  background: linear-gradient(90deg, var(--verde) 0 16%, transparent 16% 50%, var(--verde) 50% 66%, transparent 66%); }
+/* Al llegar Google, el hilo se completa en su azul: es el botón, dormido. */
+.g-thread-fill { position: absolute; inset: 0; background: var(--google); transform: scaleX(0); transform-origin: left; }
+.g-thread-label { position: absolute; left: 0; right: 0; top: 50%; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; font-size: 14px; font-weight: 650; color: var(--texto-2); transform: translateY(-110%); opacity: 0; }
+.g-thread-label .i, .g-thread-label .google-g { width: 16px; height: 16px; }
+.g-thread-label .google-g svg { width: 16px; height: 16px; }
+
+.g-slot[data-phase="loading"] .g-thread, .g-slot[data-phase="slow"] .g-thread, .g-slot.arrived .g-thread { opacity: 1; }
+.g-slot[data-phase="loading"] .g-thread-track, .g-slot[data-phase="slow"] .g-thread-track, .g-slot.arrived .g-thread-track { transform: none; }
+/* Pasados 2 s (00 · R7.3): el hilo baja y arriba aparece qué hace. */
+.g-slot[data-phase="slow"] .g-thread-track { transform: translateY(12px); }
+.g-slot[data-phase="slow"] .g-thread-label { opacity: 1; transform: translateY(-90%); }
+
+/* Llega Google: el hilo se completa de punta a punta y el botón se infla desde él. */
+.g-slot.arrived .g-thread-fill { transform: none; }
+.g-slot.arrived[data-phase="ready"] .g-thread { opacity: 0; }
+.g-slot:not([data-phase="ready"]) .google { transform: scaleY(0.08); }
+
+/* Google no cargó: el hilo queda quieto, en ámbar, y la frase es el botón para reintentar. */
+.g-fail { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 999px; }
+.g-fail .g-thread-track { transform: translateY(12px); background: #F0A20F; }
+.g-fail .g-thread-label { opacity: 1; transform: translateY(-90%); color: var(--urgente-texto); }
+.g-fail b { color: var(--pino-texto); text-decoration: underline; text-underline-offset: 3px; }
+.g-fail kbd { height: 20px; min-width: 20px; font-size: 13px; }
+/* Sin conexión: solo la frase, en el centro del lugar, que dice que Google necesita internet.
+   Sin el hilo: gris y quieto, se leería como otro separador junto al de la «o». */
+.g-off .g-thread-label { opacity: 1; transform: translateY(-50%); color: var(--texto-3); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .g-slot .google { transition: opacity 200ms var(--curva), transform 260ms var(--curva); }
+  .g-slot[data-phase="ready"] .google { transition: opacity 160ms var(--curva) 140ms, transform 300ms var(--curva) 140ms; }
+  .g-thread { transition: opacity 180ms var(--curva) 120ms; }
+  .g-slot[data-phase="loading"] .g-thread { transition-delay: 0ms; }
+  .g-thread-track { transition: transform 360ms var(--curva); }
+  .g-thread-label { transition: opacity 240ms var(--curva), transform 320ms var(--curva); }
+  .g-thread-fill { transition: transform 200ms var(--curva); }
+  .g-fail, .g-off { transition: opacity 200ms var(--curva); }
+  .g-slot[data-phase="loading"] .g-thread-run, .g-slot[data-phase="slow"] .g-thread-run { animation: g-thread-run 1200ms cubic-bezier(0.15, 0.6, 0.85, 0.4) infinite; }
+}
+/* Sin movimiento: el tramo queda quieto en el centro. */
+@media (prefers-reduced-motion: reduce) {
+  .g-thread-run { left: 34%; width: 32%; background: var(--verde); }
+}
+@keyframes g-thread-run { to { transform: translateX(50%); } }
+
+/* ---------- Herramientas de la maqueta (fuera del diseño) ---------- */
+.mock-tools { flex-wrap: wrap; row-gap: 4px; max-width: calc(100vw - 28px); }
+.mock-tools .g-clock { margin-left: 8px; font-variant-numeric: tabular-nums; opacity: 0.85; white-space: nowrap; }
+.mock-tools #g-moment { max-width: 260px; }
+@media (max-width: 899px) {
+  .mock-tools { flex-wrap: nowrap; border-radius: 999px; max-width: calc(100vw - 20px); }
+  .mock-tools select, .mock-tools #g-moment { max-width: 128px; margin-left: 2px; }
+  .mock-tools .g-clock { display: none; }
+}
+
+/* ---------- El celular oscuro: el botón blanco de Google y el hilo en claro ---------- */
+@media (max-width: 899px) {
+  /* El botón de Google con su tema blanco (theme: 'outline', shape: 'pill', size: 'large'):
+     fondo blanco, la G sin círculo y el texto gris oscuro de Google. */
+  .g-slot .google { padding: 1px 12px 1px 1px; background: #fff; color: #1f1f1f; box-shadow: inset 0 0 0 1px #dadce0; }
+  .g-slot .google-g { background: none; }
+  .g-slot .google-g svg { width: 18px; height: 18px; }
+  .g-slot .google-text { padding-right: 38px; color: #1f1f1f; font-family: "Google Sans Local", "Google Sans", Roboto, Arial, system-ui, sans-serif; }
+  .g-slot[data-phase="ready"] .google.off { opacity: 0.4; }
+  /* El hilo, sobre lo oscuro: la línea clara, el tramo blanco y, al llegar Google, se completa en
+     blanco, el color del botón. */
+  .g-thread-track { background: rgb(255 255 255 / 0.22); }
+  .g-thread-run { background: linear-gradient(90deg, #fff 0 16%, transparent 16% 50%, #fff 50% 66%, transparent 66%); }
+  .g-thread-fill { background: #fff; }
+  .g-thread-label { color: var(--oscuro-texto-2); font-weight: 500; }
+  .g-fail .g-thread-track { background: #F0A20F; }
+  .g-fail .g-thread-label { color: #ffd27a; }
+  .g-fail b { color: #fff; }
+  .g-off .g-thread-label { color: var(--oscuro-texto-2); }
+}
+@media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+  .g-thread-run { background: #fff; }
+}

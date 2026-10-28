@@ -10,6 +10,15 @@
    ]
   },
   {
+   "id": "sign-in-phone-dark",
+   "title": "Entrar · celular oscuro",
+   "module": "01 · Entrar",
+   "variants": [
+    { "device": "phone", "name": "Final", "path": "mockups/sign-in-phone-dark/final/index.html" },
+    { "device": "phone", "name": "Referencia de Carlos", "path": "mockups/sign-in-phone-dark/reference.png" }
+   ]
+  },
+  {
    "id": "sign-in-entering",
    "title": "Entrando (computadora)",
    "module": "01 · Entrar",
