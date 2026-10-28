@@ -62,7 +62,10 @@ Arriba a la izquierda, las herramientas de la maqueta: el momento de Google (en 
   «Entrar».
 - **Sin «Sin contraseñas»** ni las tres ventajas, ni la onda naranja y verde del pie. Queda «¿No
   tenés cuenta? Contactá a tu administrador.», como texto: no lleva a ningún lado.
-- **La foto es la que pasó Carlos**: una ferretería con estantes y el mostrador de madera adelante,
+- **La foto es la que pasó Carlos, generada con Microsoft Copilot**: una ferretería con estantes y
+  el mostrador de madera adelante. Si se puede usar en un negocio depende de los términos de
+  Copilot de su cuenta: antes de producción, o se confirman o se reemplaza por una foto del local,
+  desenfocada igual. La foto:
   desenfocada (así la quiere: que se lea como fondo, no como foto nítida). Se achicó a 780 × 1170 px
   en WebP (`background-phone.webp`, 33 kB), lo justo para un celular con pantalla densa, porque se
   baja con datos. Encima va el degradado, más claro que con la foto anterior para que se vea la
