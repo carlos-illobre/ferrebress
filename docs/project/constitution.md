@@ -100,6 +100,12 @@ que midió el cronómetro; si eso no se puede saber, lleva la hora del dispositi
   unitaria no puede probar (el navegador de verdad con el servidor y Caddy, varios dispositivos, el
   hardware). Cada camino corre en el ancho donde pasa (el celular, la computadora o los dos), y
   todas juntas tienen que tardar lo mínimo posible.
+- **Lo que una unitaria no puede probar, se prueba en un navegador de verdad**, siempre con el
+  menor tiempo posible: en las pruebas de captura, que ya tienen la pantalla armada, o en una de
+  punta a punta si hace falta el servidor. La unitaria corre en un navegador simulado que no dibuja
+  la página: un toque llega al botón aunque algo lo tape. Por eso toda pieza que se muestra encima
+  de otra o en su lugar (un aviso sobre un marco, «Reintentar» en el lugar del botón de Google) se
+  prueba además tocándola en el navegador de verdad, que comprueba que el toque le llegue.
 
 ### VIII. Seguro por defecto
 
