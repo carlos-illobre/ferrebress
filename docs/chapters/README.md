@@ -30,7 +30,7 @@ se dejó y qué propone mejorar (constitución, paso 1).
 | 12 · Mejoras y errores (`12-tickets`) | Avisar de un error o pedir una mejora | Por escribir |
 | 13 · Clientes (`13-customers`) | Clientes importantes y cuenta corriente | Por escribir |
 | 14 · Números del negocio (`14-business-overview`) | Ventas, compras, inventario y cierre de caja | Por escribir |
-| 15 · Sin conexión ([`15-offline`](15-offline/summary.md)) | Atender sin internet y lo que llega de alguien dado de baja | Etapa a (entrar sin conexión): reglas y pantallas aprobadas, paso 3: diseño técnico; etapa b: por escribir |
+| 15 · Sin conexión ([`15-offline`](15-offline/summary.md)) | Atender sin internet y lo que llega de alguien dado de baja | Etapa a (entrar sin conexión): reglas, pantallas y diseño aprobados, paso 6: código; etapa b: por escribir |
 | 16 · Conteos (`16-stock-counts`) | Contar por sector | Por escribir |
 | 17 · Procesos (`17-processes`) | Los procesos del negocio, dibujados | Por escribir |
 

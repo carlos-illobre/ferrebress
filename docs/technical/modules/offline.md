@@ -6,7 +6,7 @@ del celular sin conexión, y que el servidor lo confirme al volver la conexión.
 como dice el [diseño de 01](sign-in.md). Corregido con sus dos revisiones
 ([diseño](offline-design-review.md), [seguridad](offline-security-review.md)).
 
-**Dónde vive el código (excepción a la constitución XII, para que la apruebe Carlos).** Entrar sin
+**Dónde vive el código (excepción a la constitución XII, aprobada por Carlos).** Entrar sin
 conexión es una forma más de entrar: crea sesiones, usa las huellas y cambia la entrada, todo de
 `sign-in`. Vive en `src/server/modules/sign-in/offline/` y `src/app/modules/sign-in/offline/`. El
 módulo `offline` propio, con ese nombre en las dos partes, nace con la etapa b (la cola de lo hecho

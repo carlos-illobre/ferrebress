@@ -1,0 +1,22 @@
+<!doctype html>
+<!-- Prueba de una sola vez (diseño de 15, § 2): ¿la huella firma sin internet? Se borra después. -->
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ferrebress · prueba de la huella sin internet</title>
+    <link rel="stylesheet" href="/offline-probe.css" />
+  </head>
+  <body>
+    <h1>¿La huella anda sin internet?</h1>
+    <ol>
+      <li>Abrí esta página con internet.</li>
+      <li>Poné el modo avión.</li>
+      <li>Tocá el botón y poné la huella.</li>
+    </ol>
+    <button type="button" id="probe">Probar la huella</button>
+    <p id="network"></p>
+    <p id="result" role="status"></p>
+    <script src="/offline-probe.js"></script>
+  </body>
+</html>
