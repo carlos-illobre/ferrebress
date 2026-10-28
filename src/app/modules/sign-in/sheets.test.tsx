@@ -59,6 +59,32 @@ describe('las hojas del celular', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
+  it('sign-in-E03, R2.9: al aprobar, una cuenta que no puede entrar y los intentos de más dicen lo mismo que la entrada', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    fakePasskeys();
+    fakeServer({
+      '/api/sign-in/codes/read': { body: reading },
+      '/api/sign-in/codes/approve': [
+        { status: 401, body: { error: 'not-authorized' } },
+        { status: 429, body: { error: 'too-many-attempts', retryAfterSeconds: 2 } },
+      ],
+    });
+    render(<Code code="c1" />);
+    for (const expected of [/no está autorizada/, 'Demasiados intentos seguidos']) {
+      fireEvent.click(screen.getByText('leer'));
+      fireEvent.click(await screen.findByRole('button', { name: 'Sí, entrar con la huella' }));
+      expect(await screen.findByText(expected)).toBeTruthy();
+      if (expected !== 'Demasiados intentos seguidos')
+        fireEvent.click(screen.getByRole('button', { name: 'Entendido' }));
+    }
+    expect(screen.getByText('0:02')).toBeTruthy();
+    await act(async () => void (await vi.advanceTimersByTimeAsync(1000)));
+    expect(screen.getByText('0:01')).toBeTruthy();
+    await act(async () => void (await vi.advanceTimersByTimeAsync(1000)));
+    expect(screen.getByText('0:00')).toBeTruthy();
+    vi.useRealTimers();
+  });
+
   it('sign-in-E13b, E14, E16c: otra red, código vencido o sin huella, cada uno con su texto', async () => {
     fakeServer({
       '/api/sign-in/codes/read': [

@@ -1,8 +1,10 @@
 // Las hojas del celular cuando lee el código de una computadora (R2.5, R2.7; E13 a E16c): qué
 // computadora pide entrar, con el botón que abre directo el lector del celular, o que hay que estar
-// en el mismo Wi-Fi. Que la computadora entró no se avisa: se ve en ella (R2.11).
+// en el mismo Wi-Fi. Con demasiados intentos o una cuenta que no puede entrar, lo mismo que la
+// entrada (E03, R2.9). Que la computadora entró no se avisa: se ve en ella (R2.11).
 import type { Person, ReadCodeResponse } from '@ferrebress/shared/contracts/sign-in';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
+import { minutes, type Notice, useNotice } from '../../notice.ts';
 import { person } from '../../session.ts';
 import { texts } from '../../texts.ts';
 import type { usePhoneCode } from '../../usePhoneCode.ts';
@@ -42,8 +44,34 @@ function Ask({ code, read }: { code: Code; read: ReadCodeResponse }) {
   );
 }
 
+// La cuenta regresiva sigue en la hoja, como en la entrada; al llegar a cero, queda en 0:00.
+function Refused({ initial }: { initial: Notice }) {
+  const { notice } = useNotice(initial);
+  if (initial.kind === 'not-authorized')
+    return <h2 data-private="">{texts.notAuthorized(initial.email)}</h2>;
+  const seconds = notice?.kind === 'too-many' ? notice.seconds : 0;
+  return (
+    <>
+      <h2>{texts.tooMany}</h2>
+      <p class="sheet-sub">
+        {texts.tryAgainIn} <b>{minutes(seconds)}</b>.
+      </p>
+    </>
+  );
+}
+
 function Result({ code }: { code: Code }) {
   const { state } = code;
+  if (state.step === 'refused')
+    return (
+      <>
+        <SheetIcon name={state.notice.kind === 'too-many' ? 'clock' : 'ban'} />
+        <Refused initial={state.notice} />
+        <SheetButton look="green" doing={texts.cancel} onPress={code.close} closes>
+          {texts.code.ok}
+        </SheetButton>
+      </>
+    );
   const text =
     state.step === 'other-network'
       ? texts.code.otherNetwork

@@ -24,7 +24,11 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 | Computadora | Sí | Sí, con la del celular |
 
 - **R2.1 Google** en la computadora y en el celular. Después de salir, Google pide elegir la
-  cuenta: no entra solo con la última.
+  cuenta: no entra solo con la última. Si la entrada quedó abierta tanto tiempo que el pedido de
+  Google ya no sirve, dice «Pasó mucho tiempo desde que se abrió la entrada: tocá «Continuar con
+  Google» otra vez.».
+  - El botón de Google es el de Google, dibujado en su propio marco: es la única excepción a
+    00 · R2.8. No tiene atajo con Alt ni lo recorren las flechas; se llega a él con Tab.
 - **R2.2 La huella en el celular.** La primera vez que alguien entra con Google en un celular, la
   aplicación le ofrece, una sola vez, «¿Entrar con la huella la próxima vez?». Si dice que sí, el
   celular queda vinculado a esa cuenta. Si dice que no, puede vincularlo después desde
@@ -43,6 +47,11 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
     código.
   - Antes de pedir la huella, el celular muestra qué computadora pide entrar: «¿Entrar en Chrome en
     Windows?».
+  - Si al aprobar la cuenta no puede entrar (dada de baja) o hay demasiados intentos, el celular
+    dice lo mismo que la entrada (R1.3, R2.9), con la cuenta regresiva.
+  - Leer el código con «Escanear»: si el celular no puede abrir la cámara, dice «No se pudo abrir
+    la cámara. Podés leer el código con la cámara del celular.». Un QR que no es de Ferrebress no
+    hace nada: la cámara sigue leyendo.
   - La computadora se entera en el momento, sin preguntar a ritmo fijo: espera por un canal
     abierto solo mientras el código está en pantalla (capítulo 00, R4.3).
 - **R2.6** La computadora entra con el celular solo leyendo el código QR de Ferrebress. No se usa la
@@ -92,7 +101,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   anterior tenía a medio hacer y sin cobrar se descarta, y lo que tenía sin enviar se manda igual
   (R4).
 - **R3.5** Si la sesión la cerró otro dispositivo, la entrada dice «Tu sesión se cerró desde otro
-  dispositivo».
+  dispositivo»; si venció (R3.1, R3.2), «Tu sesión venció». En los dos casos, debajo: «Entrá de
+  nuevo para seguir donde estabas.».
 - **R3.6** Sin conexión, la sesión no vence en el dispositivo: ni por los 60 minutos sin uso ni por
   el tope de 8 horas, porque sin internet no se podría volver a entrar y el mostrador se frenaría.
   Cuando vuelve la conexión, el servidor la revisa: si sigue vigente, todo sigue; si
@@ -135,6 +145,8 @@ enviar es «Salir» (R5.2).
   pantalla que se adapta al ancho. En el celular también está «Entrar con Google». Lo que se ofrece
   depende del dispositivo y no del ancho: la computadora siempre muestra el QR y nunca la huella ni
   «Escanear», aunque su ventana sea angosta; ahí el QR va arriba, sus pasos debajo, y después Google.
+  Arriba a la derecha dice «Esta computadora» y si llega al servidor; cuando las computadoras tengan
+  nombre (capítulo 04), irá el suyo.
 - **R7.2** La entrada de la computadora tiene «Ver el manual», debajo de lo que hace Ferrebress (en
   el celular, el manual se abre desde Más). Mientras el manual no exista, lleva «Pronto» y al
   tocarlo dice «Manual · pronto. Todavía no está.».
@@ -147,8 +159,8 @@ enviar es «Salir» (R5.2).
   cuenta entra con Google por primera vez, **entonces** entra como Administrador.
 - **E02** **Dado** una cuenta no autorizada, **cuando** entra con Google, **entonces** ve «Esta cuenta
   (su correo) no está autorizada. Pedile a un Administrador que agregue tu correo.» y no entra.
-- **E03** **Dado** una cuenta dada de baja, **cuando** entra con Google o con la huella, **entonces** ve
-  el mismo mensaje que una no autorizada.
+- **E03** **Dado** una cuenta dada de baja, **cuando** entra con Google o con la huella, o aprueba con
+  el celular la entrada de una computadora, **entonces** ve el mismo mensaje que una no autorizada.
 - **E04** **Dado** el correo autorizado «Juan.Perez@gmail.com», **cuando** entra
   «juan.perez@gmail.com», **entonces** entra.
 

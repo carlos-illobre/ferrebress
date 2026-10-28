@@ -20,8 +20,8 @@ export function noticeOf(result: ApiResult<unknown>): Notice | undefined {
   return undefined;
 }
 
-export function useNotice() {
-  const [notice, setNotice] = useState<Notice>();
+export function useNotice(initial?: Notice) {
+  const [notice, setNotice] = useState<Notice | undefined>(initial);
 
   useEffect(() => {
     if (notice?.kind !== 'too-many') return;

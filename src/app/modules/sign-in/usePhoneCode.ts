@@ -5,9 +5,11 @@
 // el desafío de esa computadora.
 import type { Person, ReadCodeResponse } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useState } from 'preact/hooks';
+import type { ApiResult } from '../../platform/api.ts';
 import { createProofKey } from '../../platform/proof-key.ts';
 import { useStore } from '../../platform/store.ts';
 import { type ApproveBody, signInApi } from './api.ts';
+import { type Notice, noticeOf } from './notice.ts';
 import { confirmed, hasPasskey, passkeyLinked, person } from './session.ts';
 import { createPasskey, signWithPasskey } from './webauthn.ts';
 
@@ -20,9 +22,18 @@ export type PhoneCode =
   | { step: 'ask'; read: ReadCodeResponse }
   | { step: 'other-network' }
   | { step: 'expired' }
-  | { step: 'no-passkey' };
+  | { step: 'no-passkey' }
+  // Demasiados intentos o una cuenta que no puede entrar: lo mismo que dice la entrada (E03, R2.9).
+  | { step: 'refused'; notice: Notice };
 
 const none: PhoneCode = { step: 'none' };
+
+// Lo que no salió: otra red, lo que diría la entrada, o que el código ya no sirve.
+function failed(result: ApiResult<unknown>): PhoneCode {
+  if (!result.ok && result.error === 'other-network') return { step: 'other-network' };
+  const notice = noticeOf(result);
+  return notice && notice.kind !== 'expired' ? { step: 'refused', notice } : { step: 'expired' };
+}
 
 // `who`: quién tiene la sesión ahora; si el servidor pide que primero entre con Google (con sesión
 // y sin huella, R2.7), se espera a que entre de nuevo.
@@ -30,8 +41,7 @@ async function read(code: string, who: Person | undefined): Promise<PhoneCode> {
   const result = await signInApi.readCode(code);
   if (result.ok) return { step: 'ask', read: result.data };
   if (result.error === 'sign-in-first') return { step: 'sign-in-first', code, before: who };
-  if (result.error === 'other-network') return { step: 'other-network' };
-  return result.error === 'offline' ? none : { step: 'expired' };
+  return result.error === 'offline' ? none : failed(result);
 }
 
 // La huella: la que ya está vinculada, o una nueva si el servidor mandó cómo crearla (R2.7).
@@ -60,8 +70,7 @@ async function approve(read: ReadCodeResponse, signedIn: boolean): Promise<Phone
     return { step: 'no-passkey' };
   }
   const result = await signInApi.approve(body);
-  if (!result.ok)
-    return result.error === 'other-network' ? { step: 'other-network' } : { step: 'expired' };
+  if (!result.ok) return failed(result);
   passkeyLinked();
   if (!signedIn) {
     const start = await signInApi.start();

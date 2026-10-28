@@ -11,4 +11,6 @@ funcionando en el [visor](https://carlos-illobre.github.io/ferrebress/).
 
 Lo que se abre encima, en el celular, también es parte de estas pantallas: «¿Entrar con la huella
 la próxima vez?» y, al leer el QR, «¿Entrar en Chrome en Windows?». No hay más hojas: ni antes
-del lector de la huella ni para decir que entró (R2.11).
+del lector de la huella ni para decir que entró (R2.11). Si no se puede aprobar, la misma hoja dice
+por qué: otra red, el código que ya no sirve, la cuenta que no puede entrar o los intentos de más
+(R2.5).

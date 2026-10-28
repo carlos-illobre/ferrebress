@@ -48,3 +48,10 @@ la computadora: `screenshot-phone-qr-ask.png` y `screenshot-phone-other-network.
   celular al mismo Wi-Fi» y el botón «Entendido», sin atajo: en el celular no hay atajos (capítulo 00, R2); la computadora
   sigue con su código. Se ve con el estado «Leyó el QR desde otra red» del selector
   (`?estado=otra-red`).
+
+## Por lo que decidió Carlos después de las revisiones
+
+- **«Esta computadora»** arriba a la derecha, en lugar de «Computadora del mostrador»: sirve para
+  cualquier computadora. Cuando tengan nombre, irá el suyo.
+- **«Continuar con Google» sin atajo:** lo dibuja Google en su propio marco y no se le puede poner
+  tecla; es la única excepción a 00 · R2.8. Se llega con Tab.

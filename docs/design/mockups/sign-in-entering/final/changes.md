@@ -28,7 +28,7 @@ Lo demás es la entrada aprobada (`../../sign-in/adapted/`, versión de computad
   - «Conexión segura» (la pastilla del título): **se sacó**.
   - «No hace falta tocar nada: cuando la sesión esté abierta, aparece el menú de Ferrebress.»:
     **se sacó**.
-  - «Computadora del mostrador» y «En línea», arriba a la derecha: **quedan**, porque son parte de
+  - «Esta computadora» y «En línea», arriba a la derecha: **quedan**, porque son parte de
     la entrada de siempre y la escena no cambia (lo decidió Carlos al aprobarla).
   - El pie de la tarjeta («Tus datos están protegidos» y el logotipo): **se sacó**; el celular no lo
     tiene en la espera.

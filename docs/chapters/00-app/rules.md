@@ -47,7 +47,8 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 - **R2.7** Esc cierra lo que está encima (una hoja, un menú, un aviso). Si no hay nada encima, saca
   la marca.
 - **R2.8** Todo botón tiene un atajo: Alt más una tecla. La tecla es, de preferencia, una letra de
-  su nombre; si no hay una libre, un número. Sin teclas de función.
+  su nombre; si no hay una libre, un número. Sin teclas de función. La única excepción es el botón
+  de Google de la entrada, que dibuja Google en su propio marco (01 · R2.1).
 - **R2.9** Las teclas de los atajos se ven sobre los botones solo mientras Alt está apretado; al
   soltarlo, desaparecen.
 - **R2.10** Un atajo vale solo en la pantalla que se ve (y en lo que está encima, si hay algo
