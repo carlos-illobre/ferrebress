@@ -5,7 +5,7 @@ conexión**, con la huella del celular, que es lo que está escrito acá, y **b.
 conexión** (guardar lo que se hace, mandarlo al volver la conexión y las anomalías), que se escribe
 después de Vender y Compras. Entrar con conexión está en el [capítulo 01](../01-sign-in/rules.md).
 
-**Estado:** etapa a, para aprobar.
+**Estado:** etapa a, aprobada.
 
 **La idea:** el sistema no frena, revisa. Sin conexión, el celular deja entrar a quien ya conoce;
 cuando vuelve la conexión, el servidor confirma la entrada, y si no la puede confirmar, la sesión
@@ -19,7 +19,8 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
 - **R1.2** Solo la ve quien tiene el permiso «Trabajar sin conexión», que da y quita un
   Administrador (capítulo 02). Mientras no exista Personas, lo tienen los Administradores.
 - **R1.3** Para prenderla hace falta conexión y la huella de esa persona vinculada en ese celular
-  (01 · R2.2). Sin la huella, la opción dice «Primero vinculá tu huella» con el botón para hacerlo.
+  (01 · R2.2). Sin la huella vinculada, la opción no aparece, y sin conexión la huella de la entrada
+  sigue apagada.
 - **R1.4** Por ahora, prenderla solo deja entrar con la huella sin conexión (R2). Guardar lo que se
   hace sin conexión llega con la etapa b.
 - **R1.5** El celular deja de poder entrar sin conexión cuando:
@@ -72,8 +73,8 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
   prende «Trabajar sin conexión» en Más, **entonces** queda prendida.
 - **E02** **Dado** una persona sin el permiso, **cuando** abre Más en el celular, **entonces** no ve la
   opción.
-- **E03** **Dado** un celular sin la huella de la persona vinculada, **cuando** abre la opción,
-  **entonces** dice «Primero vinculá tu huella» con el botón para hacerlo, y no se puede prender.
+- **E03** **Dado** un celular sin la huella de la persona vinculada, **cuando** abre Más, **entonces**
+  no ve la opción; sin conexión, la huella de la entrada está apagada.
 - **E04** **Dado** la computadora, **cuando** se abre Más, **entonces** no está la opción.
 - **E05** **Dado** la opción prendida, **cuando** el servidor dice que la persona ya no tiene el
   permiso, **entonces** la opción se apaga y el celular ya no entra sin conexión.
