@@ -454,6 +454,9 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
   - Si la página que llega es de otra versión, borra lo guardado de la anterior.
   - Nunca guarda ni contesta nada de `/api`, ni de otros sitios, ni el marco del botón de Google.
   - Caddy sirve la página, `/sw.js` y el manifiesto sin que el navegador los guarde.
+  - Al entrar, si la respuesta trajo una versión nueva y no hay nada a medio hacer, recarga antes
+    de mostrar el marco, con la sesión ya guardada (00 · R5.2). Si está por ofrecerse la huella,
+    que se perdería al recargar, avisa como en uso (R5.3).
 - **«Algo salió mal» (00 · R9):** muestra qué hacer y guarda el aviso, con la captura y los últimos
   pasos, para mandarlo cuando exista el módulo 12. La captura se saca con `html-to-image` (unos
   10 KB), que se baja recién cuando hace falta.
@@ -572,6 +575,13 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   distinto; en GitHub el control corre dentro de esa imagen y en una sesión `pnpm screens` se
   relanza en Docker. Cuando Carlos aprueba un cambio de la entrada, las referencias se vuelven a
   sacar con `pnpm screens --update-snapshots` y se suben con el cambio.
+  - También los momentos del botón de Google mientras carga («El hilo»: cargando, no respondió y
+    sin conexión), con Google frenado y el reloj de la página avanzado hasta cada uno.
+  - **Los toques** (`taps.spec.ts`, constitución VII): cada pieza que se muestra encima de otra o
+    en su lugar se toca de verdad, y el navegador comprueba que el toque le llegue. Son el botón
+    de Google y la hoja de la huella, la hoja del código leído, la cámara, Más y su hoja, «Hay una
+    versión nueva», «Algo salió mal», «Reintentar», y que mientras se abre la sesión «Entrando»
+    no deje tocar Google. Cada prueba arma las respuestas del servidor que necesita.
 - **Una prueba por ataque:** cada riesgo de § 13 y de la revisión de seguridad tiene una prueba que
   lo intenta y falla: un correo reasignado, un código cancelado sin el secreto de la reserva, una
   firma de otro desafío, un pedido sin `Origin` o sin cuerpo, un cuerpo de más de 64 KB, un emisor

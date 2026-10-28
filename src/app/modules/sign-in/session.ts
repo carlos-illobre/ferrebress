@@ -9,7 +9,7 @@ import {
 import { forgetProofKey, signWithProofKey } from '../../platform/device/proof-key.ts';
 import { forget, readStored, store } from '../../platform/device/storage.ts';
 import { createStore } from '../../platform/store.ts';
-import { discardWork } from '../frame/index.ts';
+import { discardWork, updateOnSignIn } from '../frame/index.ts';
 import { signInApi } from './api.ts';
 import { forgetGoogleChoice } from './google/messages.ts';
 
@@ -27,6 +27,9 @@ export function signedIn({ person: who, sessionId }: SignInResponse): void {
   const before = person.get();
   if (before && before.userId !== who.userId) discardWork();
   store(sessionKey, { sessionId, person: who });
+  // Con una versión nueva, se actualiza ahora, antes de mostrar el marco (00 · R5.2); salvo que
+  // esté por ofrecerse la huella, que se perdería al recargar: ahí avisa, como en uso.
+  if (!offerPasskey.get() && updateOnSignIn()) return;
   person.set(who);
 }
 

@@ -1,10 +1,14 @@
 // El botón de Google de las pruebas de captura: con la forma del de verdad (azul, redondeado, la G
 // en un círculo blanco y «Continuar con Google»), para que la captura de referencia muestre la
-// entrada como se ve. Siempre igual; no entra a ningún lado.
+// entrada como se ve. Siempre igual. Tocarlo devuelve un pase de prueba, como Google al elegir la
+// cuenta: así las pruebas de toques comprueban que el toque le llega.
+let callback = () => {};
 window.google = {
   accounts: {
     id: {
-      initialize() {},
+      initialize(options) {
+        callback = options.callback;
+      },
       disableAutoSelect() {},
       renderButton(element, options) {
         const button = document.createElement('div');
@@ -18,6 +22,7 @@ window.google = {
         label.style.cssText = 'flex:1;text-align:center;padding-right:36px';
         label.textContent = 'Continuar con Google';
         button.append(g, label);
+        button.addEventListener('click', () => callback({ credential: 'pase-de-prueba' }));
         element.replaceChildren(button);
         // El marco del botón personalizado de Google, vacío: avisa que cargó, como el de verdad.
         const frame = document.createElement('iframe');

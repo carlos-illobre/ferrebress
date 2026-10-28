@@ -1,5 +1,5 @@
 // La versión nueva (00 · R5). La aplicación se entera por las respuestas del servidor (R5.1). Recién
-// abierta se actualiza sola (R5.2); en uso avisa y se puede cerrar hasta la próxima vez que se abra
+// abierta o recién entrada se actualiza sola (R5.2); en uso avisa y se puede cerrar hasta la próxima vez que se abra
 // (R5.3, R5.4); en segundo plano, con nada a medio hacer, se actualiza sola (R5.6). Si el servidor
 // ya no la entiende, se bloquea hasta actualizar (R5.5).
 import { newVersion } from '../../../../platform/server/api.ts';
@@ -45,6 +45,14 @@ export function updateOnOpen(serverVersion: string): boolean {
     return false;
   }
   location.reload();
+  return true;
+}
+
+// Recién entrada, con una versión nueva y nada a medio hacer, se actualiza sola, como recién abierta
+// (R5.2): no hay nada que interrumpir. Dice si se está actualizando.
+export function updateOnSignIn(): boolean {
+  if (!newVersion.get() || halfDone()) return false;
+  update();
   return true;
 }
 

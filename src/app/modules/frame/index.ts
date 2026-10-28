@@ -4,6 +4,11 @@
 export { moreOptions, parts } from './menu.ts';
 export { forgetReport, watchCrashes } from './notices/crash/crash.ts';
 export { Dialogs } from './notices/Notices.tsx';
-export { announceUpdate, updateOnOpen, watchBackground } from './notices/update/update.ts';
+export {
+  announceUpdate,
+  updateOnOpen,
+  updateOnSignIn,
+  watchBackground,
+} from './notices/update/update.ts';
 export { Frame, type FrameProps, TestEnvironment } from './screens/Frame/Frame.tsx';
 export { discardWork, halfDone, registerWork, type Work } from './work.ts';

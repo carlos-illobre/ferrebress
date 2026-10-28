@@ -2,12 +2,14 @@ import 'fake-indexeddb/auto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProofKey } from '../../platform/device/proof-key.ts';
 import { readStored } from '../../platform/device/storage.ts';
+import { newVersion } from '../../platform/server/api.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { registerWork } from '../frame/index.ts';
 import {
   confirmed,
   hasPasskey,
   offered,
+  offerPasskey,
   passkeyLinked,
   person,
   sendPendingSignOut,
@@ -22,6 +24,29 @@ const sessionId = '0190a000-0000-7000-8000-000000000001';
 describe('la sesión en la aplicación', () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.unstubAllGlobals());
+
+  it('00 · R5.2: al entrar con una versión nueva se actualiza sola; con algo a medio hacer o por ofrecer la huella, avisa', () => {
+    const reload = vi.fn();
+    vi.stubGlobal('location', { ...location, reload });
+    newVersion.set(true);
+    person.set(undefined);
+    signedIn({ person: ana, sessionId, offerPasskey: false });
+    expect(reload).toHaveBeenCalledOnce();
+    // Se actualiza antes de mostrar el marco, con la sesión ya guardada.
+    expect(person.get()).toBeUndefined();
+    expect(readStored('session')).toEqual({ sessionId, person: ana });
+    offerPasskey.set(true);
+    signedIn({ person: ana, sessionId, offerPasskey: true });
+    expect(reload).toHaveBeenCalledOnce();
+    offerPasskey.set(false);
+    person.set(undefined);
+    const stop = registerWork({ pending: () => true, discard: () => {} });
+    signedIn({ person: ana, sessionId, offerPasskey: false });
+    expect(reload).toHaveBeenCalledOnce();
+    expect(person.get()).toEqual(ana);
+    stop();
+    newVersion.set(false);
+  });
 
   it('al entrar guarda quién es, para mostrarlo sin conexión', () => {
     signedIn({ person: ana, sessionId, offerPasskey: false });

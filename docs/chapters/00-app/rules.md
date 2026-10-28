@@ -86,7 +86,9 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 
 - **R5.1** La aplicación se entera de una versión nueva por las respuestas del servidor, sin
   consultas propias.
-- **R5.2** Si se acaba de abrir, se actualiza sola, antes de que se use.
+- **R5.2** Si se acaba de abrir, se actualiza sola, antes de que se use. Lo mismo si se acaba de
+  entrar y no hay nada a medio hacer (después de una sesión vencida, la misma persona puede volver
+  a lo que tenía, y entonces avisa como en R5.3).
 - **R5.3** Si se está usando, no se recarga sola: muestra «Hay una versión nueva» con «Actualizar» y
   una forma de cerrarlo sin actualizar.
 - **R5.4** Cerrado el aviso, no vuelve a aparecer hasta la próxima vez que se abra la aplicación, que

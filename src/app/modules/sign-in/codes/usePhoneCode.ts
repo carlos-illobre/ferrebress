@@ -8,6 +8,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { createProofKey } from '../../../platform/device/proof-key.ts';
 import type { ApiResult } from '../../../platform/server/api.ts';
 import { useStore } from '../../../platform/store.ts';
+import { updateOnSignIn } from '../../frame/index.ts';
 import { type ApproveBody, signInApi } from '../api.ts';
 import { type Notice, noticeOf } from '../notice.ts';
 import { createPasskey, signWithPasskey } from '../passkeys/webauthn.ts';
@@ -74,7 +75,11 @@ async function approve(read: ReadCodeResponse, signedIn: boolean): Promise<Phone
   passkeyLinked();
   if (!signedIn) {
     const start = await signInApi.start();
-    if (start.ok) confirmed(start.data.person);
+    // Entró también el celular: con una versión nueva, se actualiza ahora (00 · R5.2).
+    if (start.ok) {
+      confirmed(start.data.person);
+      updateOnSignIn();
+    }
   }
   return none;
 }
