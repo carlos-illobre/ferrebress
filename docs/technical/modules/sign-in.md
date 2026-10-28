@@ -28,7 +28,8 @@ ferrebress/
 │   ├── shared/contracts/            la forma de la API, con zod/mini
 │   ├── server/
 │   │   ├── main.ts                  arma el servidor y registra los módulos
-│   │   ├── platform/                config, db, audit, http, realtime, clock, rate-limit
+│   │   ├── platform/                config, db, audit, http, clock, rate-limit, one-use (lo de un
+│   │   │                            solo uso en memoria), events, ids, settings
 │   │   └── modules/
 │   │       ├── users/               personas: lo mínimo que necesita entrar
 │   │       └── sign-in/             entrar, salir, sesiones, huellas, códigos QR
@@ -146,8 +147,10 @@ Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`
 - **La cookie de sesión:** `__Host-session`, `HttpOnly`, `Secure`, `SameSite=Strict`, `Path=/`,
   `Max-Age` igual al tope de la sesión. Así sobrevive a que se cierre la aplicación, pero no al
   tope.
-- **Cada pedido de la aplicación lleva** `X-App-Version` (su versión) y `X-Device-Id` (el
-  identificador del dispositivo).
+- **Cada pedido de la aplicación lleva** `X-App-Version` y `X-Device-Id` (el identificador del
+  dispositivo). `X-App-Version` es la versión del contrato de la API (`src/shared/`), un número que
+  sube solo cuando un cambio deja de ser compatible con la aplicación anterior; la versión del
+  código, la del commit, va aparte en la respuesta (`X-Ferrebress`).
 - **Cada respuesta lleva** `X-Ferrebress`: la versión del servidor, la hora del servidor y el
   ambiente. Es la forma `piggyback` del ADR-003.
 
@@ -309,7 +312,10 @@ la computadora. Solo el celular usa la huella.
   la aplicación le pregunta a `/api/start` por la sesión; si venció, aparece la entrada encima.
 - **Dar de baja** (módulo 02): `users` publica `user.deactivated` **dentro de la misma transacción**
   de la baja, y `sign-in`, que lo escucha, cierra sus sesiones en esa transacción y las saca de la
-  memoria. Si el servidor se cae en el medio, no queda una baja con sesiones abiertas. `users` no
+  memoria. Si el servidor se cae en el medio, no queda una baja con sesiones abiertas. Una sesión
+  ya en memoria no vuelve a mirar si la persona sigue activa: por eso la baja pasa siempre por
+  `users`. Hasta el módulo 02, `deploy/oracle/README.md` dice cómo hacerla en la base, cerrando
+  también sus sesiones. `users` no
   conoce a `sign-in`.
 - **Hasta el módulo 02** no hay pantallas para cerrar una sesión ni quitar una huella:
   `deploy/oracle/README.md` tiene las dos sentencias para hacerlo en la base si se pierde un celular, y
@@ -405,13 +411,16 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 - **`platform/waiting`:** las esperas (00 · R7) de lo que se toca: nada antes de 300 ms, la marca
   después y la barra a los 2 s, que muestra el marco. El botón de `ui/` la usa sola; mientras
   espera, volver a tocarlo no hace nada. Las búsquedas (R7.4) llegan con la primera que haya.
-- **`platform/router`:** la dirección es un valor compartido; cada módulo registra sus direcciones y
-  el marco muestra la que coincide. Atrás y adelante del navegador funcionan.
+- **`platform/router`:** la dirección es un valor compartido, que el menú cambia. Atrás y adelante
+  del navegador funcionan. Hoy el área de trabajo está en blanco (00), así que nada elige pantalla
+  por la dirección; eso llega con la primera pantalla de trabajo.
 - **`platform/realtime`:** el canal temporal (SSE con `fetch`, § 5) y la lectura de la cabecera.
   Cada tema declara qué permiso hace falta para escucharlo. La conexión directa entre dispositivos
   llega con el módulo 03; no se arma una interfaz de estrategias hasta que haya una segunda forma.
 - **`platform/clock`:** la hora del servidor más el cronómetro (ADR-007).
-- **`platform/device`:** el identificador, si es celular, si tiene cámara, y el nombre «Chrome en Windows» (de `navigator.userAgentData`, sin bibliotecas).
+- **`platform/device`:** el identificador y si es celular (Android o iPhone, por
+  `navigator.userAgentData` o, si no está, por el agente; sin bibliotecas). El nombre «Chrome en
+  Windows» lo arma el servidor (§ 5); si hay cámara se sabe recién al tocar «Escanear».
 - **La versión nueva (00 · R5) y la instalación:** un service worker escrito a mano, sin
   bibliotecas (`platform/offline`), que Vite arma aparte como `/sw.js`, con una dirección que no
   cambia. Con él y el manifiesto (`public/manifest.webmanifest`, con los íconos de la F), el
@@ -434,13 +443,16 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
   la captura las tapa (00 · R9.4).
 - **Todas las bibliotecas se sirven desde el propio origen**, empaquetadas; ninguna desde un CDN.
 - **El QR:** se dibuja con `qrcode-generator` (unos 20 KB); se lee con `BarcodeDetector` y, donde
-  no existe, con ZXing, que se baja recién al tocar «Escanear».
+  no existe, con ZXing, que se baja recién al tocar «Escanear». Lee un cuadro cada 250 ms hasta que
+  se cierra la cámara; lo que no es una dirección de este origen se descarta y sigue leyendo.
 - **Las pantallas:** la entrada, desde `docs/design/mockups/sign-in/adapted/`; «Entrando» en la
   computadora, desde `docs/design/mockups/sign-in-entering/final/` (en el celular, la capa
   «Entrando» de la entrada); el marco, desde `docs/design/mockups/app-frame/final/`.
 - **«Entrando» (R2.11):** un valor compartido dice cómo se está entrando. Lo prende el pedido que
   abre la sesión (el pase de Google, la huella ya puesta o el permiso que trae el celular), pasados
-  300 ms, y lo apaga su respuesta. Así no se ve mientras el lector del celular está abierto.
+  300 ms, y lo apaga su respuesta. Así no se ve mientras el lector del celular está abierto. En la
+  computadora reemplaza el cuerpo de la tarjeta, que queda inerte; en el celular se dibuja aparte,
+  encima de toda la entrada.
 - **Peso:** el arranque (esqueleto, marco y entrada, sin Google) por debajo de 60 KB comprimido; lo
   controla `pnpm check`.
 
@@ -576,7 +588,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
     línea, solo puede cargar el script de Google y solo la aplicación puede enmarcarla
     (`frame-ancestors 'self'`). La aplicación le pide por mensaje qué dibujar (el identificador,
     el `nonce` y el ancho) y recibe el pase de Google; cada lado escucha solo al otro y solo de
-    este origen. El marco aparece recién cuando el botón quedó dibujado. «Salir» deja anotado en
+    este origen. El marco aparece recién cuando el botón quedó dibujado: cuando cargaron los
+    estilos de Google y el marco del botón personalizado, o a los 3 segundos si alguno no llega. «Salir» deja anotado en
     el dispositivo que, la próxima vez, Google vuelva a pedir la cuenta (R2.1).
   - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
     `Referrer-Policy: strict-origin-when-cross-origin` (Google comprueba el origen del botón por esa

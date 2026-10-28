@@ -1,6 +1,7 @@
 // Las llamadas al servidor del módulo, una sola vez (diseño de 01, § 4). Las huellas van y vienen en
 // el JSON de WebAuthn: el servidor arma las opciones y valida las respuestas.
 import type {
+  ApproveCodeBody,
   ReadCodeResponse,
   SignInResponse,
   StartResponse,
@@ -10,12 +11,7 @@ import { api } from '../../platform/api.ts';
 type Ok = { ok: true };
 type Json = Record<string, unknown>;
 
-export type ApproveBody = {
-  secret: string;
-  kind: 'assertion' | 'registration';
-  response: Json;
-  proofPublicKey?: string;
-};
+export type ApproveBody = ApproveCodeBody;
 
 export const signInApi = {
   start: () => api<StartResponse>('/api/start'),

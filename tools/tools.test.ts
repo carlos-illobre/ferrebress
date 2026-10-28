@@ -1,7 +1,9 @@
+import { randomBytes } from 'node:crypto';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { bootFiles, findHeavyBoot, maxBootBytes } from './boot-size.ts';
 import { findBrokenLinks } from './doc-links.ts';
 import { findLongFiles, maxLinesPerFile } from './file-sizes.ts';
 import { findCrowdedFolders, maxFilesPerFolder } from './folder-sizes.ts';
@@ -72,5 +74,23 @@ describe('findFilesWithoutHeader', () => {
       'src/empty.ts: falta el comentario que dice de qué se encarga',
       'deploy/server.Dockerfile: falta el comentario que dice de qué se encarga',
     ]);
+  });
+});
+
+describe('findHeavyBoot', () => {
+  const page =
+    '<script type="module" src="/assets/main.js"></script><link rel="stylesheet" href="/assets/main.css"><link rel="modulepreload" href="/assets/main.js"><link rel="icon" href="/icons/i.png">';
+
+  it('cuenta los scripts y estilos que la página carga de entrada, una vez cada uno', () => {
+    expect(bootFiles(page)).toEqual(['assets/main.js', 'assets/main.css']);
+  });
+
+  it('avisa si lo de entrada pasa el máximo con gzip, y si no, nada', () => {
+    const light = project({ 'index.html': page, 'assets/main.js': 'x', 'assets/main.css': 'y' });
+    expect(findHeavyBoot(light)).toEqual([]);
+    // Bytes al azar: gzip casi no los achica.
+    const noise = randomBytes(maxBootBytes * 2).toString('base64');
+    const heavy = project({ 'index.html': page, 'assets/main.js': noise, 'assets/main.css': '' });
+    expect(findHeavyBoot(heavy)[0]).toMatch(/El arranque pesa .* KB con gzip \(máximo 60\.0 KB\)/);
   });
 });

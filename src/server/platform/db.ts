@@ -10,6 +10,13 @@ export type ModuleSchema = { schema: string; migrations: Record<string, Migratio
 
 export const inMemoryUrl = 'memory://';
 
+// Una base ya creada desde donde arranca cada PGlite: crearla de cero tarda unos 2 segundos, y
+// las pruebas abren una por archivo (testing/setup.ts).
+let memoryTemplate: Blob | undefined;
+export const useMemoryTemplate = (template: Blob | undefined): void => {
+  memoryTemplate = template;
+};
+
 // PostgreSQL de verdad; con `memory://`, PGlite dentro del proceso (ADR-005). PGlite solo
 // está en las dependencias de desarrollo: se carga recién si se pide. `onQuery` se entera de cada
 // consulta: así las pruebas cuentan cuántas hace cada pedido (diseño de 01, § 12).
@@ -25,7 +32,8 @@ export async function openDatabase<T>(url: string, onQuery?: () => void): Promis
     import('@electric-sql/pglite'),
     import('kysely-pglite-dialect'),
   ]);
-  return new Kysely<T>({ dialect: new PGliteDialect(new PGlite()), ...log });
+  const pglite = new PGlite(memoryTemplate && { loadDataDir: memoryTemplate });
+  return new Kysely<T>({ dialect: new PGliteDialect(pglite), ...log });
 }
 
 export async function migrate(db: Kysely<unknown>, modules: ModuleSchema[]): Promise<void> {

@@ -1,6 +1,7 @@
 // La computadora: el código QR de Ferrebress con los dos pasos (R2.5), la única forma de entrar con
 // el celular (R2.6). El QR cambia cuando el servidor
 // manda otro; la cuenta regresiva solo lo muestra.
+import { codeSeconds } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useState } from 'preact/hooks';
 import isotype from '../../../../styles/brand/isotype.svg';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
@@ -8,8 +9,6 @@ import { minutes } from '../../notice.ts';
 import { linkUrl, qrPath } from '../../qr.ts';
 import { texts } from '../../texts.ts';
 import { useComputerCode } from '../../useComputerCode.ts';
-
-export const codeSeconds = 60;
 
 // Los segundos que le quedan al código. Puede llegar después de la última marca del reloj: hasta
 // la siguiente, va entero (1:00, nunca 1:01).

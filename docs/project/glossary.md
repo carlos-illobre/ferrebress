@@ -125,8 +125,11 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Celular con huella | Un celular vinculado para entrar con la huella | `passkey` |
 | Entrando | La espera mientras se abre la sesión, ya confirmado quién es | `entering` |
 | Cómo entra | Con Google, con la huella o con el celular (la computadora, por el QR) | `way` (`google`, `passkey`, `phone`) |
-| Entrar con el celular | Entrar a la computadora leyendo su código con el celular | `phoneSignIn` |
-| Código de entrada | El código QR que muestra la computadora para entrar | `signInCode` |
+| Entrar con el celular | Entrar a la computadora leyendo su código con el celular | `codes` (la carpeta) |
+| Código (de entrada) | El código QR que muestra la computadora para entrar; cambia cada minuto | `code` |
+| Pantalla (de la entrada) | La entrada abierta en una computadora, que espera un código y recibe los suyos | `screen` |
+| Reserva | El código leído por un celular, apartado para él mientras pone la huella | `reservation` |
+| Permiso de entrada | Lo que recibe la computadora cuando el celular aprueba, y cambia una vez por su sesión | `permit` |
 | Leer / aprobar / «No soy yo» | Lo que hace el celular con un código de entrada | `read` / `approve` / `cancel` |
 | Lo apartado | Lo que hizo sin conexión alguien a quien dieron de baja, a la espera de que un Administrador lo revise | `heldChange` |
 | Aprobar / rechazar | Aplicar lo apartado o dejarlo sin efecto | `approve` / `reject` |

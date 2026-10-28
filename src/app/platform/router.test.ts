@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { clearHash, match, navigate, route } from './router.ts';
+import { clearHash, navigate, route } from './router.ts';
 
 describe('las direcciones', () => {
   it('ir a una dirección la cambia y avisa', () => {
@@ -23,14 +23,5 @@ describe('las direcciones', () => {
     expect(location.hash).toBe('');
     expect(route.get()).toEqual({ path: '/link', hash: '' });
     expect(push).not.toHaveBeenCalled();
-  });
-
-  it('elige la pantalla de la dirección, o ninguna', () => {
-    const routes = [
-      { path: '/sell', screen: 'vender' },
-      { path: '/link', screen: 'vincular' },
-    ];
-    expect(match(routes, '/link')).toBe('vincular');
-    expect(match(routes, '/nada')).toBeUndefined();
   });
 });

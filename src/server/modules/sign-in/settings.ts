@@ -1,6 +1,8 @@
 // Lo de entrar que es igual en todos los ambientes (diseño de 01, § 8 y § 11): los tiempos de la
 // sesión (hasta que existan en Administración), los plazos de lo que vive en memoria y los
 // límites de intentos.
+import { codeSeconds } from '@ferrebress/shared/contracts/sign-in';
+
 const minute = 60_000;
 const hour = 60 * minute;
 
@@ -32,7 +34,7 @@ export const linkPasskeyWithinMs = 5 * minute;
 
 // Entrar a la computadora con el celular (R2.5, R2.7; diseño de 01, § 5).
 export const codeSettings = {
-  codeTtlMs: minute,
+  codeTtlMs: codeSeconds * 1000,
   // Cuánto espera la computadora la huella después de leído el código; más si el celular
   // primero tiene que entrar.
   holdMs: 2 * minute,

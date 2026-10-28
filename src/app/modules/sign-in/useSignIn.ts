@@ -1,4 +1,4 @@
-// Las formas de entrar desde la entrada: Google (R2.1) y la huella del celular (R2.3). Cada una crea
+// Las formas de entrar desde la entrada: Google (R2.1) y la huella del celular (R2.2). Cada una crea
 // antes la llave de prueba de la sesión nueva (ADR-015) y, si sale bien, deja la sesión guardada: la
 // aplicación pasa sola al marco.
 import type { SignInResponse } from '@ferrebress/shared/contracts/sign-in';

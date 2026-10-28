@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { api, environment, newVersion, online, sessionClosed, updateRequired } from './api.ts';
+import { api, newVersion, online, sessionClosed, updateRequired } from './api.ts';
 import { serverNow } from './clock.ts';
 
 const serverHeader = (version = 'app-test') => ({
@@ -35,11 +35,10 @@ describe('hablar con el servidor', () => {
     expect(init.headers['X-Device-Id']).toMatch(/^[0-9a-f-]{36}$/);
   });
 
-  it('lee la hora y el ambiente del servidor, y si hay una versión nueva', async () => {
+  it('lee la hora del servidor y si hay una versión nueva', async () => {
     answer(200, {});
     await api('/api/start');
     expect(serverNow()?.getUTCFullYear()).toBe(2026);
-    expect(environment.get()).toBe('testing');
     expect(newVersion.get()).toBe(false);
     answer(200, {}, serverHeader('otra'));
     await api('/api/start');

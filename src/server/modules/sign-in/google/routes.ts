@@ -7,9 +7,9 @@ import {
 import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
-import { deviceLabel, isPhone } from '../device.ts';
-import { readSessionCookie, writeSessionCookie } from '../sessions/cookie.ts';
-import { isProofKey } from '../sessions/proof.ts';
+import { isPhone } from '../device.ts';
+import { readSessionCookie } from '../sessions/cookie.ts';
+import { openSession, proofKeyOf } from '../sessions/open.ts';
 import { signInSettings } from '../settings.ts';
 import { verifyGoogle } from './verify.ts';
 
@@ -45,17 +45,15 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
 
   http.post('/api/sign-in/google', async (c) => {
     const body = googleSignInBody.safeParse(await c.req.json());
-    const deviceId = c.get('deviceId');
-    if (!body.success || !deviceId) return fail(c, 400, 'bad-request');
-    const proofPublicKey = Buffer.from(body.data.proofPublicKey, 'base64url');
-    if (!isProofKey(proofPublicKey)) return fail(c, 400, 'bad-request');
+    const proofPublicKey = body.success ? proofKeyOf(body.data.proofPublicKey) : undefined;
+    if (!body.success || !proofPublicKey) return fail(c, 400, 'bad-request');
     const blocked = ctx.throttle(
       c,
-      [`google:ip:${c.get('ipAddress')}`, `google:device:${deviceId}`],
+      [`google:ip:${c.get('ipAddress')}`, `google:device:${c.get('deviceId')}`],
       limits.google,
     );
     if (blocked) return blocked;
-    return signInWithGoogle(ctx, c, body.data.credential, { deviceId, proofPublicKey });
+    return signInWithGoogle(ctx, c, body.data.credential, proofPublicKey);
   });
 }
 
@@ -63,7 +61,7 @@ async function signInWithGoogle(
   ctx: SignInContext,
   c: Context,
   credential: string,
-  device: { deviceId: string; proofPublicKey: Uint8Array },
+  proofPublicKey: Uint8Array,
 ) {
   const identity = await verifyGoogle(credential, ctx.google);
   if (!identity) {
@@ -93,18 +91,15 @@ async function signInWithGoogle(
     return fail(c, 403, 'not-authorized', { email: identity.email });
   }
   ctx.people.update(match.user);
-  const { token, session } = await ctx.store.create({
+  const session = await openSession(ctx, c, {
     userId: match.user.id,
-    ...device,
-    deviceLabel: deviceLabel(c.req.header('User-Agent')),
-    ipAddress: c.get('ipAddress'),
+    proofPublicKey,
     googleAt: ctx.platform.clock.now(),
+    data: { method: 'google' },
   });
-  writeSessionCookie(c, token);
-  ctx.record(c, 'sign-in.succeeded', { userId: match.user.id, data: { method: 'google' } });
   // Se ofrece la huella a un celular sin huella vinculada (R2.2); la computadora nunca (R2.4).
   const phone = isPhone(c.req.header('User-Agent'), c.req.header('Sec-CH-UA-Mobile'));
-  const offerPasskey = phone && !(await ctx.passkeys.findActiveByDevice(device.deviceId));
+  const offerPasskey = phone && !(await ctx.passkeys.findActiveByDevice(session.deviceId));
   return c.json<SignInResponse>({
     person: ctx.person(match.user),
     sessionId: session.id,

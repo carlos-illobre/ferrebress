@@ -21,5 +21,3 @@ export function verifyProof(spki: Uint8Array, message: string, signature: Uint8A
     !!key && verify('sha256', Buffer.from(message), { key, dsaEncoding: 'ieee-p1363' }, signature)
   );
 }
-
-export const signOutMessage = (sessionId: string): string => `sign-out:${sessionId}`;

@@ -3,12 +3,11 @@
 // vinculada, una sola huella hace entrar también al celular si no tenía sesión (E16); sin huella
 // vinculada, el celular que entró con Google la vincula en ese momento y esa huella aprueba
 // (E16b). Entrar con Google no alcanza para aprobar.
-import { approveCodeBody } from '@ferrebress/shared/contracts/sign-in';
+import { type ApproveCodeBody, approveCodeBody } from '@ferrebress/shared/contracts/sign-in';
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
-import { deviceLabel } from '../device.ts';
 import {
   cannotLink,
   challengeOf,
@@ -16,8 +15,7 @@ import {
   savePasskey,
   verifyRegistration,
 } from '../passkeys/webauthn.ts';
-import { writeSessionCookie } from '../sessions/cookie.ts';
-import { isProofKey } from '../sessions/proof.ts';
+import { openSession, proofKeyOf } from '../sessions/open.ts';
 import { optionalSession } from '../sessions/require.ts';
 import { signInSettings } from '../settings.ts';
 import { sameNetwork } from './network.ts';
@@ -25,12 +23,7 @@ import type { Screen } from './screens.ts';
 
 type Approval = { userId: string } | Response;
 
-type ApproveBody = {
-  secret: string;
-  kind: 'assertion' | 'registration';
-  response: unknown;
-  proofPublicKey?: string | undefined;
-};
+type ApproveBody = ApproveCodeBody;
 
 // La pantalla reservada para este pedido, si sigue esperando, es de la misma red y la huella
 // firmó su desafío; si no, la respuesta que corresponde, anotada en la auditoría.
@@ -133,18 +126,12 @@ async function signInPhone(
   userId: string,
   proofPublicKey: string | undefined,
 ): Promise<Approval> {
-  const key = proofPublicKey && Buffer.from(proofPublicKey, 'base64url');
-  const deviceId = c.get('deviceId');
-  if (!key || !isProofKey(key) || !deviceId) return fail(c, 400, 'bad-request');
-  const { token } = await ctx.store.create({
+  const key = proofKeyOf(proofPublicKey);
+  if (!key) return fail(c, 400, 'bad-request');
+  await openSession(ctx, c, {
     userId,
-    deviceId,
-    deviceLabel: deviceLabel(c.req.header('User-Agent')),
-    ipAddress: c.get('ipAddress'),
     proofPublicKey: key,
-    googleAt: null,
+    data: { method: 'passkey', via: 'qr' },
   });
-  writeSessionCookie(c, token);
-  ctx.record(c, 'sign-in.succeeded', { userId, data: { method: 'passkey', via: 'qr' } });
   return { userId };
 }

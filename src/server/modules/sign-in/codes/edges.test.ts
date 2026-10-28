@@ -85,6 +85,8 @@ describe('entrar con el celular: lo que no tiene que pasar', () => {
     expect((await approve({ kind: 'assertion', response: otherChallenge })).status).toBe(401);
     const stranger = createAuthenticator(testConfig.PUBLIC_ORIGIN).get(read.body.authentication);
     expect((await approve({ kind: 'assertion', response: stranger })).status).toBe(401);
+    // La baja hecha en la base (deploy/oracle/README.md, hasta el módulo 02): aprobar mira si la
+    // persona sigue activa aunque el celular tenga la sesión abierta.
     await sql`update users.users set active = false`.execute(server.platform.db);
     expect(
       (await approve({ kind: 'assertion', response: authenticator.get(read.body.authentication) }))

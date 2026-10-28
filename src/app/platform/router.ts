@@ -1,6 +1,7 @@
-// Qué pantalla se ve según la dirección. Cada módulo registra sus direcciones en su index.ts; el
-// marco muestra la que coincide. Atrás y adelante del navegador funcionan, y la dirección que
-// abre la aplicación (el QR del celular lleva /link#<código>) se lee una vez y se puede limpiar.
+// La dirección, como un valor compartido: el menú la cambia y lo que la muestra se entera. Atrás y
+// adelante del navegador funcionan, y la dirección que abre la aplicación (el QR del celular lleva
+// /link#<código>) se lee una vez y se puede limpiar. Qué pantalla corresponde a cada dirección
+// llega con la primera pantalla de trabajo (módulo 03).
 import { createStore } from './store.ts';
 
 export type Location = { path: string; hash: string };
@@ -22,8 +23,3 @@ export function navigate(path: string, { replace = false } = {}): void {
 export function clearHash(): void {
   navigate(location.pathname, { replace: true });
 }
-
-export type Route<Screen> = { path: string; screen: Screen };
-
-export const match = <Screen>(routes: Route<Screen>[], path: string): Screen | undefined =>
-  routes.find((candidate) => candidate.path === path)?.screen;

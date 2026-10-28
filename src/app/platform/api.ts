@@ -7,11 +7,7 @@ import {
   deviceIdHeaderName,
 } from '@ferrebress/shared/contracts/contract-version';
 import type { ErrorBody, ErrorCode } from '@ferrebress/shared/contracts/errors';
-import {
-  type Environment,
-  parseServerHeader,
-  serverHeaderName,
-} from '@ferrebress/shared/contracts/server-header';
+import { parseServerHeader, serverHeaderName } from '@ferrebress/shared/contracts/server-header';
 import { syncServerTime } from './clock.ts';
 import { deviceId } from './device.ts';
 import { createStore } from './store.ts';
@@ -21,7 +17,6 @@ import { createStore } from './store.ts';
 export const appVersion: string = import.meta.env.VITE_APP_VERSION;
 
 export const online = createStore(navigator.onLine);
-export const environment = createStore<Environment | undefined>(undefined);
 export const newVersion = createStore(false);
 export const updateRequired = createStore(false);
 // Por qué se cerró la sesión, si el servidor dijo que se cerró (R3.4).
@@ -80,6 +75,5 @@ function readServerHeader(response: Response): void {
   const header = parseServerHeader(response.headers.get(serverHeaderName));
   if (!header) return;
   syncServerTime(header.serverTime);
-  environment.set(header.environment);
   if (header.version !== appVersion) newVersion.set(true);
 }

@@ -1,7 +1,11 @@
 // La sesión en la aplicación (diseño de 01, § 6 y § 7): quién entró, guardado en el dispositivo para
 // mostrarlo sin conexión, y salir con o sin conexión. Sin conexión, la salida queda pendiente,
 // firmada con la llave de prueba, y se manda antes que cualquier otro pedido apenas se pueda.
-import type { Person, SignInResponse } from '@ferrebress/shared/contracts/sign-in';
+import {
+  type Person,
+  type SignInResponse,
+  signOutMessage,
+} from '@ferrebress/shared/contracts/sign-in';
 import { forgetProofKey, signWithProofKey } from '../../platform/proof-key.ts';
 import { forget, readStored, store } from '../../platform/storage.ts';
 import { createStore } from '../../platform/store.ts';
@@ -42,7 +46,7 @@ export async function signOut(): Promise<void> {
   const tappedAt = Date.now();
   const result = await signInApi.signOut();
   if (!result.ok && result.error === 'offline' && saved?.sessionId) {
-    const signature = await signWithProofKey(`sign-out:${saved.sessionId}`);
+    const signature = await signWithProofKey(signOutMessage(saved.sessionId));
     if (signature) store(pendingKey, { sessionId: saved.sessionId, signature, tappedAt });
   }
   await forgetProofKey();

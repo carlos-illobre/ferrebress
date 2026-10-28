@@ -82,3 +82,18 @@ desde la base. En la máquina, en `~/ferrebress`:
    ```
 
 El celular, si aparece, vuelve a entrar con Google y vincula de nuevo su huella.
+
+## Si hay que dar de baja a una persona
+
+Hasta que exista Administración (módulo 02), desde la base. Marcarla como dada de baja no alcanza:
+el servidor no vuelve a mirarlo en una sesión que ya tiene abierta. Por eso también se cierran sus
+sesiones y se reinicia el servidor:
+
+```bash
+docker compose exec db psql -U ferrebress -c "
+  update users.users set active = false where email = 'CORREO-DE-LA-PERSONA';
+  update sign_in.sessions set closed_at = now(), closed_reason = 'deactivated'
+    where user_id = (select id from users.users where email = 'CORREO-DE-LA-PERSONA')
+      and closed_at is null;"
+docker compose restart server
+```

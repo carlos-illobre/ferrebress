@@ -6,6 +6,7 @@ import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
 import { requireSession } from '../sessions/require.ts';
 import type { Session } from '../sessions/store.ts';
+import { signInSettings } from '../settings.ts';
 import {
   cannotLink,
   challengeOf,
@@ -26,7 +27,7 @@ export function registerLinkRoutes(ctx: SignInContext): void {
       purpose: 'link',
       sessionId: session.id,
     });
-    if (!challenge) return ctx.tooMany(c, 60_000);
+    if (!challenge) return ctx.tooMany(c, signInSettings.challenge.ttlMs);
     return c.json(await registrationOptions(ctx, session, challenge));
   });
 

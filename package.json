@@ -7,7 +7,7 @@
     "node": ">=22.13"
   },
   "scripts": {
-    "check": "pnpm types && pnpm lint && pnpm imports && pnpm repeated && pnpm secrets && pnpm vulnerable && pnpm sizes && pnpm headers && pnpm links && pnpm test && pnpm screens",
+    "check": "pnpm types && pnpm lint && pnpm imports && pnpm repeated && pnpm secrets && pnpm vulnerable && pnpm sizes && pnpm boot && pnpm headers && pnpm links && pnpm test && pnpm screens",
     "types": "tsc --build",
     "lint": "biome check .",
     "format": "biome check --write .",
@@ -16,6 +16,7 @@
     "secrets": "secretlint \"**/*\"",
     "vulnerable": "pnpm audit --prod --audit-level moderate",
     "sizes": "node tools/cli.ts sizes",
+    "boot": "node tools/cli.ts boot",
     "headers": "node tools/cli.ts headers",
     "links": "node tools/cli.ts links",
     "test": "vitest run --coverage",

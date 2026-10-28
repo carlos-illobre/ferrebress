@@ -1,7 +1,7 @@
 import { type Kysely, sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { inMemoryUrl, migrate, openDatabase } from './db.ts';
+import { inMemoryUrl, migrate, openDatabase, useMemoryTemplate } from './db.ts';
 
 type Tables = { 'notes.notes': { text: string } };
 
@@ -22,6 +22,13 @@ describe('la base', () => {
     db = await openDatabase<Tables>(inMemoryUrl);
   });
   afterAll(() => db.destroy());
+
+  it('sin una base de partida, PGlite crea la suya', async () => {
+    useMemoryTemplate(undefined);
+    const fresh = await openDatabase(inMemoryUrl);
+    expect((await sql<{ one: number }>`select 1 as one`.execute(fresh)).rows).toEqual([{ one: 1 }]);
+    await fresh.destroy();
+  });
 
   it('en memoria corre las migraciones de cada módulo en su esquema, una sola vez', async () => {
     const notes = { schema: 'notes', migrations: { '001-notes': createNotes } };

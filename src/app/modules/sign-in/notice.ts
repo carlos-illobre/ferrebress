@@ -1,6 +1,7 @@
-// El aviso de la entrada (R1.3, R2.8, R2.9, R3.4): qué falló al intentar entrar, traducido de lo
-// que contestó el servidor. «Vencido» es un pase de Google pedido con un nonce que ya no sirve: la
-// entrada pide otro y la persona vuelve a tocar Google. Con demasiados intentos, cuenta los segundos hasta poder volver a probar.
+// El aviso de la entrada (R1.3, R2.1, R2.9): qué falló al intentar entrar, traducido de lo que
+// contestó el servidor. «Vencido» es un pase de Google pedido con un nonce que ya no sirve: la
+// entrada pide otro y la persona vuelve a tocar Google. Con demasiados intentos, cuenta los segundos
+// hasta poder volver a probar. Lo usan la entrada y la hoja del celular que aprueba una computadora.
 import { useEffect, useState } from 'preact/hooks';
 import type { ApiResult } from '../../platform/api.ts';
 

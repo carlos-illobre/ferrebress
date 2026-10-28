@@ -1,12 +1,12 @@
 // Salir (R5, diseño de 01, § 7): cierra la sesión de la cookie y, si la aplicación trae una
 // salida que quedó pendiente sin conexión, también esa, probada con su llave de prueba.
-import { signOutBody } from '@ferrebress/shared/contracts/sign-in';
+import { signOutBody, signOutMessage } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
 import { signInSettings } from '../settings.ts';
 import { clearSessionCookie, readSessionCookie } from './cookie.ts';
-import { signOutMessage, verifyProof } from './proof.ts';
+import { verifyProof } from './proof.ts';
 
 export function registerSessionRoutes(ctx: SignInContext): void {
   ctx.platform.http.post('/api/sign-out', async (c) => {

@@ -9,8 +9,7 @@ import { streamSSE } from 'hono/streaming';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
 import { deviceLabel } from '../device.ts';
-import { writeSessionCookie } from '../sessions/cookie.ts';
-import { isProofKey } from '../sessions/proof.ts';
+import { openSession, proofKeyOf } from '../sessions/open.ts';
 import { codeSettings } from '../settings.ts';
 import type { Screen, ScreenEvent } from './screens.ts';
 
@@ -51,33 +50,22 @@ export function registerComputerRoutes(ctx: SignInContext): void {
 async function claim(ctx: SignInContext, c: Context) {
   const body = claimCodeBody.safeParse(await c.req.json());
   const screen = screenOf(ctx, c);
-  const deviceId = c.get('deviceId');
-  if (
-    !body.success ||
-    !screen ||
-    !deviceId ||
-    !isProofKey(Buffer.from(body.data.proofPublicKey, 'base64url'))
-  ) {
-    return fail(c, 400, 'bad-request');
-  }
+  const proofPublicKey = body.success ? proofKeyOf(body.data.proofPublicKey) : undefined;
+  if (!body.success || !screen || !proofPublicKey) return fail(c, 400, 'bad-request');
   const permit = ctx.permits.take(body.data.permit);
   const user = permit?.screenId === screen.id ? await ctx.users.findById(permit.userId) : undefined;
   if (!user?.active) {
     ctx.record(c, 'sign-in.rejected', { data: { method: 'qr', reason: 'invalid-permit' } });
     return fail(c, 401, 'not-authorized');
   }
-  const { token, session } = await ctx.store.create({
-    userId: user.id,
-    deviceId,
-    deviceLabel: screen.deviceLabel,
-    ipAddress: c.get('ipAddress'),
-    proofPublicKey: Buffer.from(body.data.proofPublicKey, 'base64url'),
-    googleAt: null,
-  });
   ctx.screens.close(screen.id);
   deleteCookie(c, cookie.name, cookie.options);
-  writeSessionCookie(c, token);
-  ctx.record(c, 'sign-in.succeeded', { userId: user.id, data: { method: 'qr' } });
+  const session = await openSession(ctx, c, {
+    userId: user.id,
+    proofPublicKey,
+    label: screen.deviceLabel,
+    data: { method: 'qr' },
+  });
   return c.json({ person: ctx.person(user), sessionId: session.id, offerPasskey: false });
 }
 

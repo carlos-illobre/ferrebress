@@ -25,6 +25,14 @@ describe('las pantallas con QR y sus canales', () => {
   });
   afterAll(() => server.close());
 
+  it('cambiar el permiso con un cuerpo mal formado es un pedido mal hecho', async () => {
+    const pc = computer();
+    const screen = await openScreen(server, pc);
+    pc.cookie = screen.cookie;
+    expect((await pc.request('/api/sign-in/codes/claim', { permit: 'x' })).status).toBe(400);
+    await screen.close();
+  });
+
   it('una pantalla que no abre su canal se libera a los 30 s', async () => {
     computer();
     const sameNetwork = () => createDevice(server, { ip });

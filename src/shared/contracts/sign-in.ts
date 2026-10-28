@@ -39,7 +39,10 @@ export type StartResponse = {
 export type SignInResponse = { person: Person; sessionId: string; offerPasskey: boolean };
 
 // Lo que devuelve el navegador al crear o usar una huella; su forma la valida el servidor.
-const webAuthnResponse = z.record(z.string(), z.unknown());
+// Una respuesta de la huella, como mucho de 8 KB (diseño de 01, § 4).
+const webAuthnResponse = z
+  .record(z.string(), z.unknown())
+  .check(z.refine((value) => JSON.stringify(value).length <= 8 * 1024));
 
 export const linkPasskeyBody = z.object({ response: webAuthnResponse });
 
@@ -61,6 +64,14 @@ export const approveCodeBody = z.object({
   proofPublicKey: z.optional(base64url(256)),
 });
 
+export type ApproveCodeBody = z.infer<typeof approveCodeBody>;
+
+// Cada código dura un minuto (R2.5): lo renueva el servidor y la computadora muestra la cuenta.
+export const codeSeconds = 60;
+
+// Lo que firma la llave de prueba para una salida pendiente (diseño de 01, § 7).
+export const signOutMessage = (sessionId: string): string => `sign-out:${sessionId}`;
+
 export const cancelCodeBody = z.object({ secret: base64url(64) });
 
 export const claimCodeBody = z.object({ permit: base64url(64), proofPublicKey: base64url(256) });
@@ -73,5 +84,3 @@ export type ReadCodeResponse = {
   // Solo si el celular entró con Google hace poco y todavía no tiene huella.
   registration?: unknown;
 };
-
-export type ScreenEventName = 'code' | 'read' | 'cancelled' | 'approved';

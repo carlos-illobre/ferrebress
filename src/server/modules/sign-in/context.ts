@@ -3,6 +3,7 @@
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
 import type { Kysely } from 'kysely';
+import type { AuditEvent } from '../../platform/audit.ts';
 import { fail } from '../../platform/http.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { createOneUse } from '../../platform/one-use.ts';
@@ -19,16 +20,17 @@ function createGuards({ audit, clock, limiter }: Platform) {
   const record = (
     c: Context,
     type: string,
-    fields: { userId?: string; email?: string; data?: object } = {},
+    fields: Pick<AuditEvent, 'userId' | 'email' | 'data'> = {},
   ) => {
     const deviceId = c.get('deviceId') as string | undefined;
-    audit.record({
+    const event: AuditEvent = {
       type,
       at: clock.now(),
-      ipAddress: c.get('ipAddress'),
+      ipAddress: c.get('ipAddress') as string,
       ...(deviceId && { deviceId }),
       ...fields,
-    } as never);
+    };
+    audit.record(event);
   };
   const tooMany = (c: Context, retryAfterMs: number) =>
     fail(c, 429, 'too-many-attempts', { retryAfterSeconds: Math.ceil(retryAfterMs / 1000) });

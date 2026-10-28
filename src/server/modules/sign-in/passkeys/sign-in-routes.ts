@@ -11,9 +11,7 @@ import type { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
-import { deviceLabel } from '../device.ts';
-import { writeSessionCookie } from '../sessions/cookie.ts';
-import { isProofKey } from '../sessions/proof.ts';
+import { openSession, proofKeyOf } from '../sessions/open.ts';
 import { signInSettings } from '../settings.ts';
 import { authenticationOptions, challengeOf, checkAssertion } from './webauthn.ts';
 
@@ -38,14 +36,9 @@ export function registerPasskeySignInRoutes(ctx: SignInContext): void {
 
   http.post('/api/sign-in/passkey', async (c) => {
     const body = passkeySignInBody.safeParse(await c.req.json());
-    if (
-      !body.success ||
-      !c.get('deviceId') ||
-      !isProofKey(Buffer.from(body.data.proofPublicKey, 'base64url'))
-    ) {
-      return fail(c, 400, 'bad-request');
-    }
-    return throttle(c) ?? signInWithPasskey(ctx, c, body.data);
+    const proofPublicKey = body.success ? proofKeyOf(body.data.proofPublicKey) : undefined;
+    if (!body.success || !proofPublicKey) return fail(c, 400, 'bad-request');
+    return throttle(c) ?? signInWithPasskey(ctx, c, body.data, proofPublicKey);
   });
 }
 
@@ -58,7 +51,12 @@ async function findPasskey(ctx: SignInContext, response: AuthenticationResponseJ
   return passkey ? { passkey, challenge: challenge as string } : undefined;
 }
 
-async function signInWithPasskey(ctx: SignInContext, c: Context, body: PasskeySignInBody) {
+async function signInWithPasskey(
+  ctx: SignInContext,
+  c: Context,
+  body: PasskeySignInBody,
+  proofPublicKey: Uint8Array,
+) {
   const response = body.response as unknown as AuthenticationResponseJSON;
   const found = await findPasskey(ctx, response);
   if (!found) {
@@ -67,16 +65,11 @@ async function signInWithPasskey(ctx: SignInContext, c: Context, body: PasskeySi
   }
   const user = await checkAssertion(ctx, c, found.passkey, response, found.challenge);
   if (user instanceof Response) return user;
-  const { token, session } = await ctx.store.create({
+  const session = await openSession(ctx, c, {
     userId: user.id,
-    deviceId: c.get('deviceId'),
-    deviceLabel: deviceLabel(c.req.header('User-Agent')),
-    ipAddress: c.get('ipAddress'),
-    proofPublicKey: Buffer.from(body.proofPublicKey, 'base64url'),
-    googleAt: null,
+    proofPublicKey,
+    data: { method: 'passkey' },
   });
-  writeSessionCookie(c, token);
-  ctx.record(c, 'sign-in.succeeded', { userId: user.id, data: { method: 'passkey' } });
   return c.json<SignInResponse>({
     person: ctx.person(user),
     sessionId: session.id,

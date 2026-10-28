@@ -1,5 +1,5 @@
-// El dispositivo (diseño de 01, § 10): su identificador, que se guarda la primera vez; si es un
-// y si es un celular.
+// El dispositivo (diseño de 01, § 10): su identificador, que se guarda la primera vez, y si es un
+// celular.
 import { readStored, store } from './storage.ts';
 
 const deviceIdKey = 'ferrebress.device-id';

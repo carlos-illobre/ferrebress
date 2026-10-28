@@ -14,8 +14,9 @@ unitarias y tarda en arrancar; levantar el sistema completo para cada prueba la 
 ## Decisión
 
 - **PGlite para la base de las pruebas:** PostgreSQL de verdad, compilado para correr dentro del
-  mismo proceso. No necesita Docker, arranca en menos de un segundo y cada archivo de pruebas
-  parte de una base limpia, copiada de una ya migrada. Las consultas son las mismas que en
+  mismo proceso. No necesita Docker y cada archivo de pruebas parte de una base limpia: crear una
+  de cero tarda unos 2 segundos, así que se crea una sola vez antes de las pruebas y cada archivo
+  arranca la suya copiándola, en menos de medio segundo; después corre sus migraciones. Las consultas son las mismas que en
   producción; lo único que cambia es la cadena de conexión del `.env`
   (`DATABASE_URL=memory://`), que `platform/db` resuelve en un solo lugar.
 - **La auditoría en memoria** de la misma forma (ADR-004).

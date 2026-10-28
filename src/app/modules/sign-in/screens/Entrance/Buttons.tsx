@@ -1,4 +1,4 @@
-// Los botones para entrar: Google en los dos anchos (R2.1, R7.1) y, en el celular, la huella (R2.3)
+// Los botones para entrar: Google en los dos anchos (R2.1, R7.1) y, en el celular, la huella (R2.2)
 // y «Escanear el código de la computadora» (R2.7). El de Google lo dibuja Google en su propio marco
 // (google/messages.ts), que aparece cuando quedó dibujado; si Google no carga, el lugar queda vacío.
 import { useEffect, useRef, useState } from 'preact/hooks';

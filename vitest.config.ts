@@ -9,7 +9,10 @@ export default defineConfig({
         test: {
           name: 'node',
           include: ['tools/**/*.test.ts', 'src/server/**/*.test.ts', 'src/shared/**/*.test.ts'],
-          // PGlite tarda unos segundos en arrancar en una máquina lenta: una base por archivo.
+          // Una base PGlite por archivo, que arranca desde una ya creada al empezar (es lo que más
+          // tarda); en una máquina lenta igual tarda unos segundos.
+          globalSetup: ['src/server/testing/pglite-template.ts'],
+          setupFiles: ['src/server/testing/setup.ts'],
           hookTimeout: 30_000,
           testTimeout: 30_000,
         },
@@ -23,13 +26,15 @@ export default defineConfig({
       // el control y sale con su resultado; src/server/main.ts lee el .env y abre el puerto;
       // src/app/main.tsx monta la aplicación en la página y src/app/google-button.ts, el marco del
       // botón de Google; src/app/sw.ts conecta los eventos del service worker con
-      // platform/offline/worker.ts. Las configuraciones no son código.
+      // platform/offline/worker.ts; src/server/testing/pglite-template.ts corre antes de las
+      // pruebas, fuera de ellas. Las configuraciones no son código.
       exclude: [
         'tools/cli.ts',
         'src/server/main.ts',
         'src/app/main.tsx',
         'src/app/sw.ts',
         'src/app/google-button.ts',
+        'src/server/testing/pglite-template.ts',
         '**/*.config.ts',
         '**/*.test.{ts,tsx}',
       ],
