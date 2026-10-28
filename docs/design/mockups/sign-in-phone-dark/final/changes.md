@@ -62,11 +62,11 @@ Arriba a la izquierda, las herramientas de la maqueta: el momento de Google (en 
   «Entrar».
 - **Sin «Sin contraseñas»** ni las tres ventajas, ni la onda naranja y verde del pie. Queda «¿No
   tenés cuenta? Contactá a tu administrador.», como texto: no lleva a ningún lado.
-- **La foto es la del fondo de la computadora** (`background-phone.jpg`, 28 kB), no la de la
-  referencia: de esa foto solo se ve una franja angosta de estantes y el mostrador entre las formas
-  verdes y blancas. Se tomó la franja de los estantes estirada a lo ancho y el mostrador abajo,
-  desenfocada y oscurecida, y encima el degradado. Se lee como estantes de madera desenfocados con
-  el mostrador abajo, no como la ferretería nítida de la referencia (ver «Lo que queda por decidir»).
+- **La foto es la que pasó Carlos**: una ferretería con estantes y el mostrador de madera adelante,
+  desenfocada (así la quiere: que se lea como fondo, no como foto nítida). Se achicó a 780 × 1170 px
+  en WebP (`background-phone.webp`, 33 kB), lo justo para un celular con pantalla densa, porque se
+  baja con datos. Encima va el degradado, más claro que con la foto anterior para que se vea la
+  ferretería, y los textos siguen leyéndose bien.
 
 ## Lo que se mantiene de la entrada aprobada
 
