@@ -27,7 +27,7 @@
     { id: "entrando-huella", label: "Entrando con la huella", on: "phone" },
     { id: "entrando-celular", label: "Entrando con el celular", on: "desktop" }
   ];
-  var DENIED_EMAIL = "cuenta.prueba@gmail.com";
+  var DENIED_EMAIL = "Cuenta de prueba";
   var state = "normal";
   var limitTimer = null;
   var select = $("#state-select");
