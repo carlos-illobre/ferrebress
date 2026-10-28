@@ -18,9 +18,11 @@
     { id: "normal", label: "Normal", on: "both" },
     { id: "no-autorizada", label: "Cuenta no autorizada", on: "both" },
     { id: "sin-conexion", label: "Sin conexión", on: "both" },
+    { id: "sin-conexion-huella", label: "Sin conexión, con la huella", on: "phone" },
     { id: "intentos", label: "Demasiados intentos", on: "both" },
     { id: "sesion-cerrada", label: "Sesión cerrada desde otro dispositivo", on: "both" },
     { id: "sesion-vencida", label: "Sesión vencida", on: "both" },
+    { id: "no-confirmada", label: "No se pudo confirmar", on: "phone" },
     { id: "ofrecer-huella", label: "¿Entrar con la huella la próxima vez?", on: "phone" },
     { id: "leer-codigo", label: "Leyó el QR de una computadora", on: "phone" },
     { id: "otra-red", label: "Leyó el QR desde otra red", on: "phone" },
@@ -29,6 +31,9 @@
     { id: "entrando-celular", label: "Entrando con el celular", on: "desktop" }
   ];
   var DENIED_EMAIL = "Cuenta de prueba";
+  // Hasta cuándo se puede entrar sin conexión (15 · R2.1): las 24 horas desde el último contacto.
+  var OFFLINE_UNTIL = "el martes 9:40";
+  var isOffline = function (id) { return id === "sin-conexion" || id === "sin-conexion-huella"; };
   var state = "normal";
   var limitTimer = null;
   var select = $("#state-select");
@@ -62,9 +67,14 @@
     select.value = id;
 
     // La sesión terminó (R3.5): el mismo aviso, con el título según por qué.
-    $("#notice-closed-title").textContent = id === "sesion-vencida" ? "Tu sesión venció" : "Tu sesión se cerró desde otro dispositivo";
+    // La entrada sin conexión que el servidor no pudo confirmar (15 · R3.2) usa el mismo aviso.
+    $("#notice-closed-title").textContent = id === "sesion-vencida" ? "Tu sesión venció"
+      : id === "no-confirmada" ? "No se pudo confirmar tu entrada sin conexión"
+      : "Tu sesión se cerró desde otro dispositivo";
     if (id === "no-autorizada") setNotice("error", "ban", "Esta cuenta (" + DENIED_EMAIL + ") no está autorizada. Pedile a un Administrador que agregue tu correo.");
     if (id === "sin-conexion") setNotice("warn", "wifi-off", "<strong>Para entrar hace falta internet</strong>Cuando vuelva la conexión, los botones se prenden solos.");
+    // Sin conexión, con la opción prendida y dentro de las 24 horas (15 · R2.1): no es un error, informa.
+    if (id === "sin-conexion-huella") setNotice("info", "wifi-off", "Sin conexión: podés entrar con la huella hasta <b>" + OFFLINE_UNTIL + "</b>");
     if (id === "intentos") {
       var left = 45;
       var paint = function () { setNotice("warn", "clock", "<strong>Demasiados intentos seguidos</strong>Podés volver a probar en <b>" + fmt(left) + "</b>."); };
@@ -72,14 +82,16 @@
       limitTimer = setInterval(function () { left -= 1; if (left <= 0) { setState("normal", true); } else paint(); }, 1000);
     }
 
-    // Lo apagado: sin conexión, todo; con demasiados intentos, Google y la huella.
-    var tokens = id === "sin-conexion" ? ["offline"] : id === "intentos" ? ["limit"] : [];
+    // Lo apagado: sin conexión, todo (o todo menos la huella, si se puede entrar con ella sin
+    // conexión, 15 · R2.1); con demasiados intentos, Google y la huella.
+    var tokens = id === "sin-conexion" ? ["offline"] : id === "sin-conexion-huella" ? ["offline-finger"] : id === "intentos" ? ["limit"] : [];
     $$("[data-off-when]").forEach(function (b) {
       var off = b.getAttribute("data-off-when").split(" ").some(function (t) { return tokens.indexOf(t) >= 0; });
       b.classList.toggle("off", off); b.disabled = off;
     });
-    $("#net").textContent = id === "sin-conexion" ? "Sin conexión" : "En línea";
-    if (id !== "sin-conexion") restartQr();
+    $("#net").textContent = isOffline(id) ? "Sin conexión" : "En línea";
+    document.body.dataset.net = isOffline(id) ? "offline" : "online";
+    if (!isOffline(id)) restartQr();
 
     var url = new URL(location.href);
     if (id === "normal") url.searchParams.delete("estado"); else url.searchParams.set("estado", id);
@@ -133,7 +145,7 @@
     qrLeft = QR_SECONDS; paintCount();
     clearInterval(qrTimer);
     qrTimer = setInterval(function () {
-      if (document.body.dataset.state === "sin-conexion") return;
+      if (document.body.dataset.net === "offline") return;
       qrLeft -= 1;
       if (qrLeft <= 0) { qrLeft = QR_SECONDS; swapQr(); }
       paintCount();
@@ -260,8 +272,7 @@
 
   // ---------- Simular que el celular lee el QR (computadora) ----------
   $("#sim-read").addEventListener("click", function () {
-    var st = document.body.dataset.state;
-    if (st === "sin-conexion" || stack.length) return;
+    if (document.body.dataset.net === "offline" || stack.length) return;
     var q = $("#qr");
     q.classList.add("read");
     setTimeout(function () {

@@ -101,7 +101,7 @@
     var url = new URL(location.href);
     if (moment.id === "vivo-3") url.searchParams.delete("google"); else url.searchParams.set("google", moment.id);
     history.replaceState(null, "", url);
-    if (document.body.dataset.state === "sin-conexion") { offline(); return; }
+    if (document.body.dataset.net === "offline") { offline(); return; }
     if (moment.phase) freeze(moment); else play(moment);
   }
   function offline() { stop(); slot.classList.remove("arrived"); setPhase("offline"); setClock("sin conexión · Google no puede cargar"); }
@@ -109,11 +109,11 @@
   select.addEventListener("change", function () { run(select.value); select.blur(); });
   replay.addEventListener("click", function () { run(moment && !moment.phase ? moment.id : "vivo-3"); });
 
-  // Sin conexión (el estado de la entrada): Google no puede cargar; al volver, se pide de nuevo solo.
+  // Sin conexión (los dos estados sin conexión de la entrada, con o sin la huella): Google no puede cargar; al volver, se pide de nuevo solo.
   new MutationObserver(function () {
-    if (document.body.dataset.state === "sin-conexion") offline();
+    if (document.body.dataset.net === "offline") offline();
     else if (slot.dataset.phase === "offline") run(moment.id);
-  }).observe(document.body, { attributes: true, attributeFilter: ["data-state"] });
+  }).observe(document.body, { attributes: true, attributeFilter: ["data-state", "data-net"] });
 
   run(new URLSearchParams(location.search).get("google") || "vivo-3");
 })();

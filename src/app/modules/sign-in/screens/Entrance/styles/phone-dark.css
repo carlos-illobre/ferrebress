@@ -80,6 +80,10 @@
         gap: 0;
         padding-top: 40px;
       }
+      /* Sin conexión, «Sin conexión» va arriba a la derecha: el logo baja para que no lo tape. */
+      &.offline .brand {
+        padding-top: 76px;
+      }
       .brand-logo img {
         width: 209px;
         margin: 0;

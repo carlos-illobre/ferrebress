@@ -26,7 +26,7 @@
   --urgente-suave: #FFF3D8; --urgente-texto: #845400; --urgente-borde: #f0c64a;
   --error-suave: #FCEAE7; --error-texto: #AE281D; --error: #D7372A;
   --logro: #1E9E62; --logro-suave: #E2F4EA; --logro-texto: #11764A;
-  --pino-suave: #E3EEE8; --pino-texto: #17614E;
+  --pino-suave: #E3EEE8; --pino-texto: #17614E; --pino-borde: #b5d3c4;
   --google: #1a73e8;
   --magenta: #d6007a;
   /* Movimiento: lo que sube, sube rápido y frena suave; lo que se va, se va más rápido. */
@@ -66,11 +66,15 @@ body.show-keys kbd { display: inline-flex; }
 .notice strong { display: block; }
 .notice.error { background: var(--error-suave); color: var(--error-texto); box-shadow: inset 0 0 0 1px #f3c6bf; }
 .notice.warn { background: var(--urgente-suave); color: var(--urgente-texto); box-shadow: inset 0 0 0 1px var(--urgente-borde); }
+/* Informa, no frena: se puede entrar con la huella sin conexión (15 · R2.1). */
+.notice.info { background: var(--pino-suave); color: var(--pino-texto); box-shadow: inset 0 0 0 1px var(--pino-borde); }
 .notice b { font-variant-numeric: tabular-nums; }
 body[data-state="sesion-cerrada"] #notice-closed,
-body[data-state="sesion-vencida"] #notice-closed { display: flex; }
+body[data-state="sesion-vencida"] #notice-closed,
+body[data-state="no-confirmada"] #notice-closed { display: flex; }
 body[data-state="no-autorizada"] #notice,
 body[data-state="sin-conexion"] #notice,
+body[data-state="sin-conexion-huella"] #notice,
 body[data-state="intentos"] #notice { display: flex; }
 @media (prefers-reduced-motion: no-preference) {
   .notice { animation: notice-in var(--t-entra) var(--curva); }
@@ -313,7 +317,7 @@ body[data-state="intentos"] #notice { display: flex; }
     --oscuro-texto: #ffffff;                /* títulos */
     --oscuro-texto-2: #dcdcd6;              /* el subtítulo y lo que explica */
     --oscuro-texto-3: #cfd0ca;              /* lo menos importante */
-    --oscuro-lema: #9ccab3;                 /* «TU FERRETERÍA, SIEMPRE EN ORDEN» */
+    --oscuro-lema: #9ccab3;                 /* el lema, «Tu ferretería, siempre en orden» */
     --oscuro-linea: rgb(255 255 255 / 0.24);/* las líneas de la «o» */
     --huella: #034a3a;                      /* el círculo de la huella */
     --huella-borde: #7fa597;
@@ -337,26 +341,28 @@ body[data-state="intentos"] #notice { display: flex; }
   /* Arriba a la derecha, solo sin conexión. */
   .status { position: absolute; top: 34px; right: 14px; z-index: 2; width: auto; }
   .status-net { display: none; }
-  body[data-state="sin-conexion"] .status-net { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 12px; background: #fff7d6; color: #6b4a00; box-shadow: inset 0 0 0 1px var(--urgente-borde); font-size: 15px; font-weight: 700; }
-  body[data-state="sin-conexion"] .status-net::before { content: "!"; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 2px solid currentColor; font-size: 12px; font-weight: 800; }
+  body[data-net="offline"] .status-net { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 12px; background: #fff7d6; color: #6b4a00; box-shadow: inset 0 0 0 1px var(--urgente-borde); font-size: 15px; font-weight: 700; }
+  body[data-net="offline"] .status-net::before { content: "!"; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 2px solid currentColor; font-size: 12px; font-weight: 800; }
 
-  /* La marca: el logo blanco y el lema en mayúsculas espaciadas. */
-  .brand { order: 1; display: flex; flex-direction: column; align-items: center; padding-top: 70px; }
+  /* La marca: el logo blanco y el lema. */
+  .brand { order: 1; display: flex; flex-direction: column; align-items: center; padding-top: 40px; }
+  /* Sin conexión, «Sin conexión» va arriba a la derecha: el logo baja para que no lo tape. */
+  body:is([data-state="sin-conexion"], [data-state="sin-conexion-huella"]) .brand { padding-top: 76px; }
   .brand-logo img { width: 209px; height: auto; }
-  .brand-motto { margin: 15px auto 0; max-width: 300px; font-size: 15px; line-height: 21px; font-weight: 500; letter-spacing: 0.01em; color: var(--oscuro-lema); }
+  .brand-motto { margin: 12px auto 0; max-width: 300px; font-size: 16.5px; line-height: 22px; font-weight: 500; letter-spacing: 0.01em; color: var(--oscuro-lema); }
 
   .right { order: 2; display: flex; flex-direction: column; }
   .card { display: flex; flex-direction: column; align-items: center; }
-  .phone-head { order: 0; margin-top: 50px; }
+  .phone-head { order: 0; margin-top: 30px; }
   .phone-title { font-size: 38px; line-height: 44px; font-weight: 600; letter-spacing: -0.005em; color: var(--oscuro-texto); }
-  .phone-sub { max-width: 268px; margin: 8px auto 0; font-size: 16.5px; line-height: 20px; font-weight: 400; color: var(--oscuro-texto-2); }
+  .phone-sub { max-width: 300px; margin: 8px auto 0; font-size: 18px; line-height: 23px; font-weight: 400; color: var(--oscuro-texto-2); }
   .notice { text-align: left; align-self: stretch; }
   .notice-top { order: 1; margin-top: 18px; }
   .notice-main { order: 2; margin-top: 18px; }
   .g-slot { order: 3; margin-top: 46px; }
   /* Con un aviso, el botón se acerca, para que el pie quede lo más cerca posible de la pantalla. */
-  body:is([data-state="no-autorizada"], [data-state="sin-conexion"], [data-state="intentos"], [data-state="sesion-cerrada"], [data-state="sesion-vencida"]) .g-slot { margin-top: 22px; }
-  .or { order: 4; align-self: stretch; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 auto; width: 225px; max-width: 100%; height: 14px; color: var(--oscuro-texto-2); font-size: 13px; line-height: 1; }
+  body:is([data-state="no-autorizada"], [data-state="sin-conexion"], [data-state="intentos"], [data-state="sesion-cerrada"], [data-state="sesion-vencida"], [data-state="sin-conexion-huella"], [data-state="no-confirmada"]) .g-slot { margin-top: 22px; }
+  .or { order: 4; align-self: stretch; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 auto; width: 225px; max-width: 100%; height: 14px; color: var(--oscuro-texto-2); font-size: 14px; line-height: 1; }
   .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--oscuro-linea); }
   .or { margin-top: 24px; }
   .finger { order: 5; margin-top: 16px; }
@@ -370,11 +376,11 @@ body[data-state="intentos"] #notice { display: flex; }
   .finger .round-way-circle { background: var(--huella); box-shadow: inset 0 0 0 1.5px var(--huella-borde); }
   .round-way-circle .i { width: 46px; height: 46px; color: #eef3ef; }
   .round-way:active .round-way-circle { transform: scale(0.95); }
-  .round-way strong { margin-top: 4px; font-size: 16px; line-height: 22px; font-weight: 500; }
-  .round-way small { font-size: 14.5px; line-height: 19px; color: var(--oscuro-texto-3); }
+  .round-way strong { margin-top: 4px; font-size: 17.5px; line-height: 23px; font-weight: 500; }
+  .round-way small { font-size: 15.5px; line-height: 20px; color: var(--oscuro-texto-3); }
   .round-way:focus-visible { outline-color: #fff; }
 
-  .no-account { order: 4; margin-top: auto; padding-top: 34px; font-size: 14px; line-height: 20px; color: var(--oscuro-texto-2); }
+  .no-account { order: 4; margin-top: auto; padding-top: 34px; font-size: 15.5px; line-height: 21px; color: var(--oscuro-texto-2); }
 
   /* Apagados: sobre lo oscuro, sin el gris de la entrada clara. */
   .round-way.off { opacity: 0.38; filter: none; }

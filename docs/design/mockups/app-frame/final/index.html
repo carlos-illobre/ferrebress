@@ -258,6 +258,17 @@
   .p-mas-texto { flex: 1; min-width: 0; }
   .p-mas-texto b { display: block; font-size: 16px; line-height: 22px; font-weight: 700; }
   .p-mas-texto small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  /* El interruptor (la «llave» de Configuración): prendido, en pino, como todo lo elegido. El color
+     cambia con un fundido de su capa (opacity) y la perilla se corre (transform). */
+  .llave { position: relative; flex: none; width: 52px; height: 32px; border-radius: 99px; background: var(--hundido-2); overflow: hidden; }
+  .llave::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--pino); opacity: 0; }
+  .llave::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 99px; background: var(--superficie); box-shadow: 0 2px 4px rgb(26 29 27 / .2); }
+  .p-mas-llave[aria-checked="true"] .llave::before { opacity: 1; }
+  .p-mas-llave[aria-checked="true"] .llave::after { transform: translateX(20px); }
+  @media (prefers-reduced-motion: no-preference) {
+    .llave::before { transition: opacity var(--t) var(--curva); }
+    .llave::after { transition: transform var(--t) var(--curva); }
+  }
   .p-mas-salir { margin-top: 20px; background: var(--superficie); }
   .p-mas-salir:active { background: var(--fondo); }
   .p-mas-salir .p-mas-texto b { color: var(--error-texto); }
@@ -338,6 +349,10 @@
     <h2 class="p-mas-grupo-titulo" id="p-mas-ajustes">Ajustes</h2>
     <ul class="p-mas-tarjeta p-mas-grupo" aria-labelledby="p-mas-ajustes">
       <li><button type="button" class="p-mas-opcion" data-p="Configuración"><span class="p-mas-ic neutro"><i class="i" data-i="settings"></i></span><span class="p-mas-texto"><b>Configuración</b><small>Lo tuyo, en este celular</small></span><span class="pronto">Pronto</span></button></li>
+      <!-- «Trabajar sin conexión» (15 · R1): solo en el celular, con el permiso y la huella vinculada en
+           este celular; si no, el renglón no está. Prenderla pide conexión; apagarla, no. Cuando exista
+           Configuración, pasa ahí. -->
+      <li><button type="button" class="p-mas-opcion p-mas-llave" id="p-sin-conexion" role="switch" aria-checked="false" aria-labelledby="p-sin-conexion-nombre" aria-describedby="p-sin-conexion-detalle"><span class="p-mas-ic neutro"><i class="i" data-i="wifi-off"></i></span><span class="p-mas-texto"><b id="p-sin-conexion-nombre">Trabajar sin conexión</b><small id="p-sin-conexion-detalle">Entrá con la huella aunque no haya internet, hasta 24 horas</small></span><span class="llave" aria-hidden="true"></span></button></li>
       <li><button type="button" class="p-mas-opcion" data-p="Administración"><span class="p-mas-ic"><i class="i" data-i="sliders-horizontal"></i></span><span class="p-mas-texto"><b>Administración</b><small>Ajustes para todos</small></span><span class="pronto">Pronto</span></button></li>
       <li><button type="button" class="p-mas-opcion" data-p="El manual"><span class="p-mas-ic"><i class="i" data-i="book-open"></i></span><span class="p-mas-texto"><b>Manual</b><small>Cómo se usa Ferrebress</small></span><span class="pronto">Pronto</span></button></li>
     </ul>
@@ -571,6 +586,14 @@
       if (!pantallaMas.hidden && b === parteAbierta) { verMas(false); return; }
       M.noEsta(b.querySelector(".ico-mov"), b.dataset.p, "· pronto. Todavía no está.");
     });
+  });
+  // «Trabajar sin conexión» (15 · R1.1 y R1.3): se prende y se apaga tocando el renglón. Para
+  // prenderla hace falta conexión; apagarla se puede siempre.
+  var llave = $("p-sin-conexion");
+  llave.addEventListener("click", function () {
+    var prendida = llave.getAttribute("aria-checked") === "true";
+    if (!prendida && M.net === "offline") { M.tostada("Para prenderla hace falta internet.", "wifi-off"); return; }
+    llave.setAttribute("aria-checked", String(!prendida));
   });
   pantallaMas.querySelectorAll("[data-p]").forEach(function (b) {
     b.addEventListener("click", function () { M.noEsta(b, b.dataset.p, "· pronto. Todavía no está."); });

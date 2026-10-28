@@ -7,7 +7,7 @@ todas las maquetas.
 
 Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
 `screenshot-alt.png` y `screenshot-alt-collapsed.png` (con Alt apretado), `screenshot-phone.png` y
-`screenshot-phone-more.png` (Más abierto en el celular).
+`screenshot-phone-more.png` (Más abierto en el celular, con «Trabajar sin conexión» prendida).
 
 ## Por directivas de Carlos
 
@@ -107,3 +107,24 @@ Capturas: `screenshot.png` (agrandado), `screenshot-collapsed.png` (minimizado),
   celular son dos listas con su título (`h2`), el botón de minimizar usa `aria-expanded`, y minimizado los nombres siguen
   en la página para el lector de pantalla.
 - `shared.js` suma `Marco.alMarcar(fn)`, para que el rótulo siga a la marca del teclado.
+
+## Entrar sin conexión (15 · etapa a)
+
+- **«Trabajar sin conexión» en Más del celular (15 · R1.1):** un renglón más en «Ajustes», debajo
+  de Configuración (cuando exista, la opción pasa ahí). El mismo molde que los otros renglones: el
+  ícono `wifi-off` en el cuadrado neutro (`--hundido`, como Configuración: es lo propio, en este
+  celular), el nombre «Trabajar sin conexión» y debajo «Entrá con la huella aunque no haya internet,
+  hasta 24 horas», en dos renglones. A la derecha, en lugar de «Pronto», el interruptor.
+- **El interruptor es la «llave» de la maqueta de Configuración** (`device-settings/settings.css`):
+  52 × 32 px, gris (`--hundido-2`) apagada y en pino prendida, como todo lo elegido. Se toca todo el
+  renglón (un `button` con `role="switch"` y `aria-checked`). El color cambia con un fundido de una
+  capa (`opacity`) y la perilla se corre con `transform`, en 200 ms; con «reducir movimiento»,
+  cambia sin animar. La original animaba el `background`; se cambió por la regla de animar solo
+  `transform` y `opacity`.
+- **Para prenderla hace falta conexión (15 · R1.3):** con el selector de la maqueta en «Sin conexión»,
+  tocarla apagada no la prende y la tostada dice «Para prenderla hace falta
+  internet.». Apagarla se puede siempre.
+- **Arranca apagada**; la captura `screenshot-phone-more.png` la muestra prendida.
+- **Solo en el celular (15 · R1.1, E04):** la computadora no la tiene y se ve igual. Quien no tiene el
+  permiso o no tiene la huella vinculada en ese celular no ve el renglón (R1.2, R1.3); la maqueta
+  muestra el caso de un Administrador con la huella vinculada.

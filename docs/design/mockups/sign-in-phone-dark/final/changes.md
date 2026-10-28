@@ -10,8 +10,10 @@ Capturas (390 × 844, sin las herramientas de la maqueta): `screenshot-phone.png
 `screenshot-phone-google-loading.png` (Google tarda, pasados 2 s), `screenshot-phone-google-failed.png`
 (Google no respondió), `screenshot-phone-offline.png`, `screenshot-phone-limit.png` (demasiados
 intentos), `screenshot-phone-denied.png` (cuenta no autorizada), `screenshot-phone-session-ended.png`
-(sesión vencida; la cerrada desde otro dispositivo es igual, con su título) y
-`screenshot-phone-entering.png` (Entrando con Google).
+(sesión vencida; la cerrada desde otro dispositivo es igual, con su título),
+`screenshot-phone-entering.png` (Entrando con Google), `screenshot-phone-offline-finger.png` (sin
+conexión, con la huella) y `screenshot-phone-not-confirmed.png` (no se pudo confirmar la entrada sin
+conexión).
 
 Arriba a la izquierda, las herramientas de la maqueta: el momento de Google (en vivo o fijo),
 «Repetir» y el estado de la entrada (también con `?estado=` y `?google=` en la dirección).
@@ -133,7 +135,7 @@ Arriba a la izquierda, las herramientas de la maqueta: el momento de Google (en 
 
 ## Lo que pidió Carlos al probarla
 
-Vale sobre lo de arriba; la maqueta no se rehízo.
+Vale sobre lo de arriba; la maqueta ya tiene estos valores, los mismos de la aplicación.
 
 - **El lema** vuelve a ser «Tu ferretería, siempre en orden», en minúsculas y a 16,5 px: «Vendé,
   contá y cobrá…» repetía lo que dice el subtítulo de «Iniciá sesión».
@@ -142,3 +144,38 @@ Vale sobre lo de arriba; la maqueta no se rehízo.
   queda en 38 px.
 - **Menos espacio** arriba del logo (40 px en lugar de 70) y entre el lema e «Iniciá sesión» (30 px
   en lugar de 50).
+
+## Entrar sin conexión (15 · etapa a)
+
+Dos estados más, solo en el celular (la computadora no entra sin conexión, 15 · R1.1), en el
+selector de la maqueta y en `?estado=`:
+
+- **«Sin conexión, con la huella»** (`?estado=sin-conexion-huella`, 15 · R2.1): la huella queda
+  prendida, como en el estado normal; Google («Sin internet, Google no carga») y «Escanear código QR»
+  apagados, como sin conexión; «Sin conexión» arriba a la derecha; y en lugar de «Para entrar hace
+  falta internet», el aviso «Sin conexión: podés entrar con la huella hasta **el martes 9:40**», con
+  el día y la hora en negrita, como la cuenta regresiva de demasiados intentos.
+  - **El tono del aviso:** no es un error ni algo que frena, así que no usa el ámbar de los avisos
+    que impiden entrar (sin conexión, intentos, sesión terminada) ni el rojo de la cuenta no
+    autorizada. Va en verde claro (`--pino-suave` con el texto en `--pino-texto`, el par que ya usa
+    la maqueta para «La forma más rápida»), con el mismo ícono de wifi tachado y la misma forma que
+    los otros avisos. Contraste 6,2:1, más que el de los avisos ámbar (5,9:1).
+- **«No se pudo confirmar»** (`?estado=no-confirmada`, 15 · R3.2): con conexión, todo prendido y
+  el aviso de arriba de la sesión vencida, con el título «No se pudo confirmar tu entrada sin
+  conexión» y debajo «Entrá de nuevo para seguir donde estabas.».
+- **«Sin conexión»** queda igual: es el de 15 · R2.4 (sin la opción, vencido, reloj atrasado, sesión
+  cerrada desde otro dispositivo o sin huella vinculada).
+- **Para llevarla al código:** los dos estados sin conexión marcan `body[data-net="offline"]`, que es
+  lo que muestra «Sin conexión» arriba, apaga el lugar de Google y frena el QR. Lo que se apaga en
+  cada estado sale de `data-off-when` (`offline` apaga todo; `offline-finger`, todo menos la huella).
+
+## Lo que queda sin resolver
+
+- **«Sin conexión» arriba a la derecha tapa la punta del logo** en los dos estados sin conexión:
+  con el logo a 40 px del borde (lo que pidió Carlos al probarla) quedan a la misma altura. La
+  aplicación tiene los mismos valores, así que se ve igual. No se cambió: decide Carlos dónde va.
+- **Tocar la huella sin conexión** muestra en la maqueta la misma pantalla de Entrando que con
+  conexión («Ahora Ferrebress abre tu sesión»). Sin conexión no hay servidor que la abra: por
+  15 · R2.6 se llega directo al marco con la luz en «Sin conexión». La maqueta no tiene el marco.
+- **Sin conexión, el logo baja** (76 px arriba en lugar de 40): la pastilla «Sin conexión», arriba
+  a la derecha, tapaba la punta del logo. También en la aplicación.
