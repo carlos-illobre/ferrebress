@@ -36,7 +36,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | 12 | `tickets` | Avisar de un error o pedir una mejora | Listo para la etapa de pruebas reales | 01 | Libre |
 | 13 | `customers` | Clientes importantes y su cuenta corriente | | 10 | Libre |
 | 14 | `business-overview` | Los números del negocio y el cierre de caja | | 10, 11 | Libre |
-| 15 | `offline` | En dos etapas. **a. Entrar sin conexión** con la huella del celular (T109). **b. Trabajar sin conexión** al atender clientes y proveedores: lo hecho se guarda en el dispositivo, cifrado, y al volver la conexión el servidor lo revisa; lo que pasa se aplica y lo que no, va a anomalías (T110) | La etapa a, ahora, por pedido de Carlos; la b, desde el módulo 10 todo se programa para poder sumarla sin rehacer nada | a: 01; b: 10, 11 | a: paso 2 (pantallas) |
+| 15 | `offline` | En dos etapas. **a. Entrar sin conexión** con la huella del celular (T109). **b. Trabajar sin conexión** al atender clientes y proveedores: lo hecho se guarda en el dispositivo, cifrado, y al volver la conexión el servidor lo revisa; lo que pasa se aplica y lo que no, va a anomalías (T110) | La etapa a, ahora, por pedido de Carlos; la b, desde el módulo 10 todo se programa para poder sumarla sin rehacer nada | a: 01; b: 10, 11 | a: paso 3 (diseño técnico) |
 | 16 | `stock-counts` | Contar por sector | | 09 | Libre |
 | 17 | `processes` | Los procesos del negocio, dibujados | Muy importante, pero puede ir al final | 02 | Libre |
 

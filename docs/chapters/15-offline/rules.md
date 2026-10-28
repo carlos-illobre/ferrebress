@@ -47,8 +47,8 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
   entrar hace falta internet» (01 · R2.8).
 - **R2.5** El celular verifica la huella él solo, con lo que guardó al vincularla, y guarda la
   firma como prueba de que fue esa persona. Los intentos fallidos los cuenta el lector del celular.
-- **R2.6** Al entrar se llega al marco, igual que con conexión (01 · R6), con la luz en «Sin
-  conexión». La aplicación abre aunque no haya internet desde que se prendió el celular.
+- **R2.6** Al entrar se llega directo al marco, sin la espera «Entrando» (la huella se verifica en
+  el celular, al instante), igual que con conexión (01 · R6), con la luz en «Sin conexión». La aplicación abre aunque no haya internet desde que se prendió el celular.
 - **R2.7** La sesión que se abrió sin conexión dura hasta que vuelve la conexión (R3) o hasta que se
   cumplen las 24 horas de R2.2. Ahí aparece la entrada encima de lo que había, sin borrarlo
   (01 · R3.4), con «Para entrar hace falta internet».
