@@ -33,18 +33,27 @@ type ApproveBody = {
 };
 
 // La pantalla reservada para este pedido, si sigue esperando, es de la misma red y la huella
-// firmó su desafío; si no, la respuesta que corresponde.
+// firmó su desafío; si no, la respuesta que corresponde, anotada en la auditoría.
 function reservedScreen(
   ctx: SignInContext,
   c: Context,
   body: ApproveBody,
 ): Required<Screen> | Response {
+  const rejected = (reason: string) =>
+    ctx.record(c, 'sign-in.rejected', { data: { method: 'qr', reason } });
   const screen = ctx.screens.byReservation(body.secret);
-  if (!screen) return fail(c, 410, 'code-expired');
-  if (!sameNetwork(screen.ipAddress, c.get('ipAddress'))) return fail(c, 409, 'other-network');
+  if (!screen) {
+    rejected('code-expired');
+    return fail(c, 410, 'code-expired');
+  }
+  if (!sameNetwork(screen.ipAddress, c.get('ipAddress'))) {
+    ctx.record(c, 'code.rejected', { data: { reason: 'other-network' } });
+    return fail(c, 409, 'other-network');
+  }
   const reserved = screen as Required<Screen>;
-  const signed = challengeOf(body.response as never) === reserved.reservation.challenge;
-  return signed ? reserved : fail(c, 401, 'not-authorized');
+  if (challengeOf(body.response as never) === reserved.reservation.challenge) return reserved;
+  rejected('other-challenge');
+  return fail(c, 401, 'not-authorized');
 }
 
 export function registerApproveRoute(ctx: SignInContext): void {
@@ -78,6 +87,7 @@ export function registerApproveRoute(ctx: SignInContext): void {
 // La computadora recibe por su canal el permiso de un uso, que cambia por su sesión.
 function grant(ctx: SignInContext, c: Context, screen: Screen, userId: string) {
   ctx.screens.release(screen);
+  // Sin tope total y reemplazando al anterior de la pantalla, siempre hay permiso (context.ts).
   const permit = ctx.permits.issue(screen.id, { screenId: screen.id, userId }) as string;
   screen.notify?.({ type: 'approved', permit });
   ctx.record(c, 'code.approved', { userId });

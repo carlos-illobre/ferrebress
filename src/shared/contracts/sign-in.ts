@@ -12,8 +12,16 @@ export const googleSignInBody = z.object({
   proofPublicKey: base64url(256),
 });
 
+// La salida pendiente lleva la hora en que se tocó «Salir», según el dispositivo, para la auditoría.
 export const signOutBody = z.object({
-  pending: z.optional(z.object({ sessionId: z.uuid(), signature: base64url(200) })),
+  pending: z.optional(
+    z.object({
+      sessionId: z.uuid(),
+      signature: base64url(200),
+      // Milisegundos desde 1970, dentro de lo que una fecha puede ser.
+      tappedAt: z.optional(z.int().check(z.minimum(0), z.maximum(8.64e15))),
+    }),
+  ),
 });
 
 export type Person = { userId: string; name: string; email: string; role: string };

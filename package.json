@@ -14,7 +14,7 @@
     "imports": "depcruise src --config .dependency-cruiser.cjs",
     "repeated": "jscpd src",
     "secrets": "secretlint \"**/*\"",
-    "vulnerable": "pnpm audit --prod --audit-level high",
+    "vulnerable": "pnpm audit --prod --audit-level moderate",
     "sizes": "node tools/cli.ts sizes",
     "headers": "node tools/cli.ts headers",
     "links": "node tools/cli.ts links",

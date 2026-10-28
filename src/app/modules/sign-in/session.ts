@@ -13,7 +13,7 @@ const sessionKey = 'session';
 const pendingKey = 'pending-sign-out';
 
 type Saved = { sessionId?: string; person: Person };
-type Pending = { sessionId: string; signature: string };
+type Pending = { sessionId: string; signature: string; tappedAt: number };
 
 export const person = createStore<Person | undefined>(readStored<Saved>(sessionKey)?.person);
 
@@ -39,10 +39,11 @@ export async function signOut(): Promise<void> {
   forget(sessionKey);
   person.set(undefined);
   forgetGoogleChoice();
+  const tappedAt = Date.now();
   const result = await signInApi.signOut();
   if (!result.ok && result.error === 'offline' && saved?.sessionId) {
     const signature = await signWithProofKey(`sign-out:${saved.sessionId}`);
-    if (signature) store(pendingKey, { sessionId: saved.sessionId, signature });
+    if (signature) store(pendingKey, { sessionId: saved.sessionId, signature, tappedAt });
   }
   await forgetProofKey();
 }

@@ -192,7 +192,8 @@ describe('las llaves de Google', () => {
     const { testConfig } = await import('../../../testing/config.ts');
     const { module, users } = createUsersModule();
     const server = await createServer(testConfig, [module, createSignInModule({ users })]);
-    expect((await server.http.request('/api/start')).status).toBe(200);
+    const headers = (await import('../../../testing/config.ts')).appHeaders();
+    expect((await server.http.request('/api/start', { headers })).status).toBe(200);
     await server.close();
   });
 });

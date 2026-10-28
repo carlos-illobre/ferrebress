@@ -67,8 +67,9 @@ describe('la sesión en la aplicación', () => {
     fakeServer({ '/api/sign-out': 'offline' });
     signedIn({ person: ana, sessionId, offerPasskey: false });
     await signOut();
-    const pending = readStored<{ sessionId: string; signature: string }>('pending-sign-out');
+    const pending = readStored<{ sessionId: string; tappedAt: number }>('pending-sign-out');
     expect(pending?.sessionId).toBe(sessionId);
+    expect(pending?.tappedAt).toBeTypeOf('number');
     await sendPendingSignOut();
     expect(readStored('pending-sign-out')).toEqual(pending);
     const server = fakeServer({ '/api/sign-out': { body: { ok: true } } });

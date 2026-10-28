@@ -38,8 +38,10 @@ export function GoogleButton() {
       width: Math.min(400, element.clientWidth || 400),
     });
   }, [googleClientId, googleNonce]);
+  const off = limited(entrance);
+  // Apagado, tampoco se llega con el teclado: inert saca el marco del orden de Tab.
   return (
-    <div class={limited(entrance) ? 'google off' : 'google'} data-drawn={drawn ? '' : undefined}>
+    <div class={off ? 'google off' : 'google'} data-drawn={drawn ? '' : undefined} inert={off}>
       <iframe ref={frame} src={googleFramePath} title={texts.google} />
     </div>
   );

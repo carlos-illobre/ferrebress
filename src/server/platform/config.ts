@@ -39,9 +39,14 @@ export function readConfig(env: Record<string, string | undefined>): Config {
 }
 
 // Fuera de las pruebas de punta a punta, Google es el de verdad: con un emisor de prueba,
-// cualquiera que lea el repositorio podría fabricar un pase (revisión de seguridad, punto 9).
+// cualquiera que lea el repositorio podría fabricar un pase (revisión de seguridad, punto 9). Y las
+// de punta a punta solo corren con la base en memoria: un .env de la máquina con ENVIRONMENT=e2e
+// por error no arranca (revisión de seguridad, 35).
 function assertRealGoogle(config: Config): void {
-  if (config.ENVIRONMENT === 'e2e') return;
+  if (config.ENVIRONMENT === 'e2e') {
+    if (config.DATABASE_URL === 'memory://') return;
+    throw new ConfigError('Con ENVIRONMENT=e2e, DATABASE_URL tiene que ser memory://');
+  }
   if (config.GOOGLE_ISSUER !== googleIssuer || config.GOOGLE_SCRIPT_URL !== googleScript) {
     throw new ConfigError(
       `Con ENVIRONMENT=${config.ENVIRONMENT}, GOOGLE_ISSUER y GOOGLE_SCRIPT_URL tienen que ser los de Google`,

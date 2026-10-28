@@ -27,7 +27,10 @@ export function registerPhoneRoutes(ctx: SignInContext): void {
     const blocked = ctx.throttle(c, [`codes:read:${c.get('ipAddress')}`], codeSettings.readPerIp);
     if (blocked) return blocked;
     const found = ctx.screens.find(body.data.code);
-    if (typeof found === 'string') return fail(c, 410, found);
+    if (typeof found === 'string') {
+      ctx.record(c, 'sign-in.rejected', { data: { method: 'qr', reason: found } });
+      return fail(c, 410, found);
+    }
     if (!sameNetwork(found.ipAddress, c.get('ipAddress'))) {
       ctx.record(c, 'code.rejected', { data: { reason: 'other-network' } });
       return fail(c, 409, 'other-network');

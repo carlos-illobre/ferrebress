@@ -16,6 +16,8 @@ describe('la sesión', () => {
   const admin = { sub: 'sub-admin', email: 'admin@example.com' };
   const personOf = async (device: ReturnType<typeof createDevice>) =>
     (await device.request('/api/start')).body.person;
+  const endedCount = () =>
+    server.platform.audit.read(2026).filter((event) => event.type === 'session.ended').length;
 
   beforeAll(async () => {
     server = await createSignInServer(clock);
@@ -70,11 +72,18 @@ describe('la sesión', () => {
     device.cookie = '';
     const second = await device.signInWithGoogle(admin);
     expect(second.body.sessionId).not.toBe(sessionId);
+    const tappedAt = Date.parse('2026-10-27T07:58:00Z');
     await device.request('/api/sign-out', {
-      pending: { sessionId, signature: device.prove(`sign-out:${sessionId}`) },
+      pending: { sessionId, signature: device.prove(`sign-out:${sessionId}`), tappedAt },
     });
     device.cookie = firstCookie;
     expect(await personOf(device)).toBeUndefined();
+    // Se anota cuándo tocó «Salir» el dispositivo; cuándo llegó es la hora del registro.
+    const signOut = server.platform.audit
+      .read(2026)
+      .filter((event) => event.type === 'sign-out')
+      .at(-1);
+    expect(signOut?.data).toEqual({ pending: true, tappedAt: '2026-10-27T07:58:00.000Z' });
   });
 
   it('una salida pendiente de una sesión que no existe o ya está cerrada no hace nada', async () => {
@@ -92,6 +101,16 @@ describe('la sesión', () => {
       (await device.request('/api/sign-out', { pending: { sessionId: 'x', signature: 'y' } }))
         .status,
     ).toBe(400);
+  });
+
+  it('las salidas pendientes sin sesión tienen el límite de los pedidos sin sesión', async () => {
+    const device = createDevice(server, { ip: '190.7.7.7' });
+    const pending = { sessionId: '00000000-0000-7000-8000-00000000fff1', signature: 'firma' };
+    for (let i = 0; i < 30; i++)
+      expect((await device.request('/api/sign-out', { pending })).status).toBe(200);
+    expect((await device.request('/api/sign-out', { pending })).status).toBe(429);
+    // Salir sin pendiente no se frena.
+    expect((await device.request('/api/sign-out', {})).status).toBe(200);
   });
 
   it('sign-in-E27: una sesión cerrada desde otro lado se nota en el próximo pedido', async () => {
@@ -149,8 +168,13 @@ describe('la sesión', () => {
       ).rows;
     expect((await rows())[0]?.last_used_at.getTime()).toBe(signedInAt + minutes(10));
     now += minutes(61);
+    const endedBefore = endedCount();
     await server.runJobs();
     expect((await rows())[0]?.closed_reason).toBe('idle');
+    // La limpieza la anota, una vez, aunque nadie la haya vuelto a usar (revisión de código, 5.3).
+    expect(endedCount()).toBe(endedBefore + 1);
+    await personOf(device);
+    expect(endedCount()).toBe(endedBefore + 1);
     now += minutes(30 * 24 * 60 + 1);
     await server.runJobs();
     expect(await rows()).toEqual([]);

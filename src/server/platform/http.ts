@@ -92,7 +92,7 @@ function stamp({ version, environment, clock }: HttpOptions): MiddlewareHandler 
   };
 }
 
-type Reason = 'size' | 'origin' | 'content-type' | 'device' | 'version' | 'body';
+type Reason = 'size' | 'origin' | 'content-type' | 'device' | 'contract' | 'version' | 'body';
 
 function guard(
   publicOrigin: string,
@@ -105,9 +105,19 @@ function guard(
   };
 }
 
+// Todo pedido trae el dispositivo (un UUID) y la versión del contrato (un entero); sin ellos no
+// viene de la aplicación. No los piden /api/health, que miran el despliegue y Docker, ni los
+// canales en tiempo real, que el navegador abre sin cabeceras propias (EventSource) y que
+// identifica su cookie.
+const withoutApp = (c: Context) =>
+  c.req.path === '/api/health' ||
+  (c.req.method === 'GET' && c.req.path.startsWith('/api/realtime/'));
+
 function rejectionReason(c: Context, publicOrigin: string): Reason | undefined {
-  if (c.req.header(deviceIdHeaderName) && !c.get('deviceId')) return 'device';
-  const contract = Number(c.req.header(appVersionHeaderName));
+  if (withoutApp(c)) return undefined;
+  if (!c.get('deviceId')) return 'device';
+  const contract = Number(c.req.header(appVersionHeaderName) || Number.NaN);
+  if (!Number.isInteger(contract)) return 'contract';
   if (contract < platformSettings.minContractVersion) return 'version';
   if (c.req.method === 'GET' || c.req.method === 'HEAD') return undefined;
   if (c.req.header('Origin') !== publicOrigin) return 'origin';

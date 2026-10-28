@@ -43,8 +43,13 @@ describe('la configuración del .env', () => {
     expect(() => readConfig(script)).toThrow(/GOOGLE_SCRIPT_URL/);
   });
 
-  it('en las pruebas de punta a punta acepta el emisor de prueba', () => {
+  it('en las pruebas de punta a punta acepta el emisor de prueba, solo con la base en memoria', () => {
     const e2e = { ...valid, ENVIRONMENT: 'e2e', GOOGLE_ISSUER: 'http://localhost:9000' };
-    expect(readConfig(e2e).GOOGLE_ISSUER).toBe('http://localhost:9000');
+    expect(readConfig({ ...e2e, DATABASE_URL: 'memory://' }).GOOGLE_ISSUER).toBe(
+      'http://localhost:9000',
+    );
+    expect(() => readConfig({ ...e2e, DATABASE_URL: 'postgres://u:p@db/x' })).toThrow(
+      /DATABASE_URL tiene que ser memory/,
+    );
   });
 });

@@ -23,7 +23,8 @@ function fakeBox() {
 function fakeServer(version: { current: string }) {
   return vi.fn(async (request: Request | string) => {
     const where = typeof request === 'string' ? request : new URL(request.url).pathname;
-    if (where === shell) return new Response(html(version.current));
+    if (where === shell)
+      return new Response(html(version.current), { headers: { 'content-type': 'text/html' } });
     return where === '/assets/missing.js'
       ? new Response('', { status: 404 })
       : new Response(`archivo ${where}`);
@@ -97,6 +98,17 @@ describe('el service worker', () => {
     expect([...kept.keys()].sort()).toEqual(['/', '/assets/main-v2.css', '/assets/main-v2.js']);
     const failing = vi.fn(async () => new Response('', { status: 500 }));
     expect((await page(request('/', { mode: 'navigate' }), box, failing)).status).toBe(500);
+    expect(await (await box.match(shell))?.text()).toBe(html('v2'));
+    // Una respuesta que no es HTML, aunque sea 200, tampoco reemplaza la página guardada.
+    const portal = vi.fn(
+      async () => new Response('{}', { headers: { 'content-type': 'text/plain' } }),
+    );
+    await page(request('/', { mode: 'navigate' }), box, portal);
+    await install(box, portal);
+    await install(
+      box,
+      vi.fn(async () => new Response(null)),
+    );
     expect(await (await box.match(shell))?.text()).toBe(html('v2'));
   });
 

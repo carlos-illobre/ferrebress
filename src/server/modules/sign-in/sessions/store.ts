@@ -120,9 +120,16 @@ export function createSessionStore(db: Kysely<unknown>, clock: Clock, onEnded: O
 
     flush,
 
+    // La limpieza diaria: las que venció las saca de la memoria y las anota.
     async cleanUp(): Promise<void> {
       await flush();
-      await data.cleanUp(clock.now(), signInSettings.session, signInSettings.closedRetentionMs);
+      const ended = await data.cleanUp(
+        clock.now(),
+        signInSettings.session,
+        signInSettings.closedRetentionMs,
+      );
+      memory.forget(ended.map((session) => session.id));
+      for (const session of ended) onEnded(session, session.reason);
     },
   };
 }

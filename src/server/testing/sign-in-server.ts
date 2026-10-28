@@ -5,7 +5,7 @@ import { createServer } from '../app.ts';
 import { createSignInModule } from '../modules/sign-in/index.ts';
 import { createUsersModule } from '../modules/users/index.ts';
 import type { Clock } from '../platform/clock.ts';
-import { testConfig } from './config.ts';
+import { appHeaders, testConfig } from './config.ts';
 import { createTestGoogle } from './google.ts';
 
 export const chromeWindows =
@@ -56,7 +56,7 @@ async function request(
   body?: unknown,
 ) {
   const headers: Record<string, string> = {
-    'X-Device-Id': device.id,
+    ...appHeaders(device.id),
     ...(agent.userAgent && { 'User-Agent': agent.userAgent }),
     'X-Real-IP': agent.ip,
     ...(device.cookie && { Cookie: device.cookie }),

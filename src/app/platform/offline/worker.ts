@@ -41,14 +41,20 @@ async function keep(box: Box, fetcher: Fetch, page: Response): Promise<void> {
   }
 }
 
+// Solo se guarda una página de verdad: un error o una respuesta que no es HTML (un proxy, una
+// página de la red del lugar) no reemplaza la guardada (revisión de seguridad, 34).
+const isPage = (response: Response) =>
+  response.ok && (response.headers.get('content-type') ?? '').startsWith('text/html');
+
 export async function install(box: Box, fetcher: Fetch): Promise<void> {
-  await keep(box, fetcher, await fetcher(shell));
+  const fresh = await fetcher(shell);
+  if (isPage(fresh)) await keep(box, fetcher, fresh);
 }
 
 export async function page(request: Request, box: Box, fetcher: Fetch): Promise<Response> {
   try {
     const fresh = await fetcher(request);
-    if (fresh.ok) await keep(box, fetcher, fresh.clone());
+    if (isPage(fresh)) await keep(box, fetcher, fresh.clone());
     return fresh;
   } catch {
     return (await box.match(shell)) ?? Response.error();

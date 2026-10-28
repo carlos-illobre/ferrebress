@@ -1,5 +1,6 @@
 // 4 · Las cabeceras de Caddy, sin navegador (diseño de 01, «Cabeceras de Caddy»): la política
-// estricta en la aplicación y la excepción de estilos solo en el marco del botón de Google.
+// estricta en la aplicación, sin Google; la excepción de estilos solo en el marco del botón de
+// Google, y que solo lo de /assets se guarde.
 import { expect, test } from '@playwright/test';
 
 test('la aplicación es estricta y solo el marco de Google admite estilos en línea', async ({
@@ -9,6 +10,7 @@ test('la aplicación es estricta y solo el marco de Google admite estilos en lí
   const app = (await request.get(`${origin}/`)).headers();
   const button = (await request.get(`${origin}/google-button.html`)).headers();
   expect(app['content-security-policy']).not.toContain('unsafe-inline');
+  expect(app['content-security-policy']).not.toContain('google');
   expect(app['content-security-policy']).toContain("frame-ancestors 'none'");
   expect(app['x-frame-options']).toBe('DENY');
   expect(button['content-security-policy']).toContain("style-src 'self' 'unsafe-inline'");
@@ -19,5 +21,8 @@ test('la aplicación es estricta y solo el marco de Google admite estilos en lí
     expect(headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
     expect(headers['strict-transport-security']).toContain('max-age=31536000');
     expect(headers.server).toBeUndefined();
+    expect(headers['cache-control']).toBe('no-cache');
   }
+  const link = (await request.get(`${origin}/link`)).headers();
+  expect(link['cache-control']).toBe('no-cache');
 });

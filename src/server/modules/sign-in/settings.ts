@@ -20,7 +20,7 @@ export const signInSettings = {
     passkey: { max: 20, windowMs: minute },
     // Por cuenta y por forma de entrar, solo los fallos que prueban algo de esa cuenta (R2.10).
     failedPerAccount: { max: 20, windowMs: hour },
-    // Los pedidos sin sesión, por dirección (diseño de 01, § 8).
+    // Los pedidos sin sesión, por dirección (diseño de 01, § 8): /api/start y las salidas pendientes.
     start: { max: 30, windowMs: minute },
     // Un rechazo por límite se anota una vez por ventana (revisión de seguridad, punto 19).
     throttledAudit: { max: 1, windowMs: minute },

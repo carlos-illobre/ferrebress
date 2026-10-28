@@ -219,6 +219,8 @@ describe('la entrada en el celular', () => {
         .getByRole('button', { name: /Entrar con la huella/ })
         .hasAttribute('disabled'),
     ).toBe(true);
+    // El botón de Google, que es un marco, tampoco se alcanza con el teclado.
+    expect(card.querySelector('.google')?.hasAttribute('inert')).toBe(true);
   });
 
   it('sign-in-E16b: si leyó el código sin sesión, le dice que entre primero', () => {

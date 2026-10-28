@@ -1,4 +1,9 @@
 // Una configuración completa para las pruebas del servidor: base y auditoría en memoria.
+import {
+  appVersionHeaderName,
+  contractVersion,
+  deviceIdHeaderName,
+} from '@ferrebress/shared/contracts/contract-version';
 import type { Config } from '../platform/config.ts';
 
 export const testConfig: Config = {
@@ -15,3 +20,9 @@ export const testConfig: Config = {
   INITIAL_ADMIN_EMAIL: 'admin@example.com',
   TRUSTED_PROXY: '172.20.0.2',
 };
+
+// Las cabeceras que la aplicación manda en todo pedido: su dispositivo y su versión del contrato.
+export const appHeaders = (deviceId = '0192d3a4-1b2c-7d3e-8f40-123456789abc') => ({
+  [deviceIdHeaderName]: deviceId,
+  [appVersionHeaderName]: String(contractVersion),
+});

@@ -133,8 +133,11 @@ Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`
 
 - **Tamaño máximo:** 64 KB por cuerpo, en Caddy y en Hono (`bodyLimit`), y un largo máximo para cada
   campo en su contrato (el pase de Google, 4 KB; una respuesta de la huella, 8 KB; el código, 32
-  caracteres). `X-Device-Id` tiene que ser un UUID y `X-App-Version` una versión; si no, el pedido
-  se rechaza.
+  caracteres). `X-Device-Id` tiene que ser un UUID y `X-App-Version` un número entero; si falta
+  alguna o no lo es, el pedido se rechaza (400), y una versión menor que la mínima pide actualizar
+  (426). Solo dos rutas no las piden: `/api/health`, que miran Docker y el despliegue, y el canal
+  en tiempo real, que el navegador abre sin cabeceras propias (`EventSource`) y al que identifica
+  la cookie de la pantalla.
 - **Pedidos desde otros sitios:** todo pedido que no es `GET`, con o sin sesión, exige `Origin`
   igual a `PUBLIC_ORIGIN` (sin `Origin`, se rechaza) y `Content-Type: application/json`, también
   los que no llevan cuerpo. Es una comprobación propia de `platform/http`. Ninguna respuesta lleva
@@ -354,6 +357,7 @@ también tienen límite por dirección:
 | Abrir una pantalla con QR | 10 por minuto, y como mucho 3 abiertas |
 | Leer un código | 10 por minuto |
 | Aprobar un código | el de la huella: 20 por minuto, por dirección y por dispositivo |
+| Una salida pendiente (`POST /api/sign-out` con `pending`) | 30 por minuto, como `/api/start`: se busca en la base aunque no haya sesión |
 
 Al llegar a un tope, se rechaza lo nuevo con `too-many-attempts`; nunca se saca lo que ya estaba,
 salvo los `nonce`. Los topes totales de la tabla de arriba son mucho más altos que lo que puede
@@ -507,7 +511,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
      demás cabeceras de seguridad.
 
   **Cómo corren:** `pnpm e2e` (`tests/e2e/`) arma la aplicación, levanta el servidor con la base en
-  memoria (`DATABASE_URL=memory://`, `ENVIRONMENT=e2e`) y un emisor de Google de prueba, y pone
+  memoria (`DATABASE_URL=memory://`, `ENVIRONMENT=e2e`; con otra base, `e2e` no arranca) y un
+  emisor de Google de prueba, y pone
   delante Caddy en Docker, con la imagen y el `Caddyfile` de producción. El script de Google es
   uno de prueba servido por la propia aplicación: dibuja el botón como Google y la prueba le pasa
   un pase firmado por el emisor de prueba, con el `nonce` que le dio la entrada. Hace falta Docker
@@ -559,10 +564,11 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
     pedido que no es `GET` (§ 4).
 - **Cabeceras de Caddy:**
   - HTTPS siempre (lo atiende el proxy de la máquina) y `Strict-Transport-Security`.
-  - Una política de contenido que solo permite el propio origen y lo que pide el botón de Google
-    (`accounts.google.com` en scripts, marcos, conexiones y estilos), con `object-src 'none'`,
-    `base-uri 'none'`, `worker-src 'self'`, `img-src 'self' data: blob:` y
-    `frame-ancestors 'none'`.
+  - Una política de contenido que en la aplicación solo permite el propio origen, sin nada de
+    Google, con `object-src 'none'`, `base-uri 'none'`, `worker-src 'self'`,
+    `img-src 'self' data: blob:` y `frame-ancestors 'none'`. Lo de Google
+    (`accounts.google.com` en scripts, marcos, conexiones y estilos) se permite solo en la página
+    del botón.
   - **La única excepción, aprobada por Carlos, es el botón de Google**, que Google mide y dibuja
     con estilos en línea (sin ellos se ve un instante como una G enorme con el texto repetido).
     Como la política vale para una página entera, el botón vive en su propia página,
@@ -577,6 +583,9 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
     cabecera; a otros sitios va solo el origen, nunca la ruta) y
     `Cross-Origin-Opener-Policy: same-origin-allow-popups` (el botón de Google abre una ventana).
   - `Permissions-Policy` con la cámara y la huella solo para el propio origen.
+  - `Cache-Control`: lo de `/assets/`, que lleva el hash en el nombre, se guarda un año; todo lo
+    demás (las páginas, `/link`, el service worker, el manifiesto) lleva `no-cache` y se revisa
+    siempre.
 - **Secretos:** la contraseña de la base (`DATABASE_URL`) y el canal de ntfy, que se guarda como
   secreto de GitHub para que no aparezca en los registros públicos de Actions. El identificador de
   Google no es secreto. Los pases, solo como hash.
@@ -601,7 +610,11 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   `permissions:` mínimos en cada workflow (`contents: read`; `packages: write` solo en el que publica)
   y las acciones de terceros fijadas por su commit.
 - **En la máquina, `deploy.sh`** corre como mucho una vez por minuto (un aviso falso solo provoca una
-  consulta a GitHub), baja las imágenes por su huella (`@sha256:`) y no solo por la etiqueta.
+  consulta a GitHub), baja las imágenes por su huella (`@sha256:`) y no solo por la etiqueta. Las
+  imágenes base de los Dockerfile y la de PostgreSQL del compose también van por su huella.
+- **Los contenedores:** ninguno puede ganar privilegios adentro (`no-new-privileges`), y el servidor,
+  que corre como el usuario `node`, no tiene ningún permiso del sistema (`cap_drop: [ALL]`).
+- **Dependencias:** `pnpm audit --prod` en `pnpm check` frena desde las fallas moderadas.
 - **Las pruebas de punta a punta**, con el compose, antes de cerrar el módulo.
 - **La máquina:** una VM de Oracle que comparte con otras aplicaciones. Ferrebress corre con su
   propio usuario y Docker sin privilegios, y `loginctl enable-linger` para que el servicio arranque
@@ -632,7 +645,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
 - **Las versiones:** exactas en `package.json`. Hono 4.6.5 o más nueva (las anteriores tienen
   fallas conocidas en su control de origen) y `jose` reciente.
 - **Si se pierde un celular** antes del módulo 02: `deploy/oracle/README.md` dice cómo cerrar sus sesiones
-  y quitar su huella en la base.
+  y quitar su huella en la base, y que después hay que reiniciar el servidor, que tiene las sesiones
+  en memoria.
 
 ## 15. Decisiones
 

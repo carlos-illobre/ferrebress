@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createAuthenticator } from '../../../testing/authenticator.ts';
-import { testConfig } from '../../../testing/config.ts';
+import { appHeaders, testConfig } from '../../../testing/config.ts';
 import { manualWait, openScreen } from '../../../testing/screen-channel.ts';
 import {
   createDevice,
@@ -172,7 +172,10 @@ describe('entrar con el celular: lo que no tiene que pasar', () => {
       body: { error: 'too-many-attempts' },
     });
     for (const screen of screens) await screen.close();
-    expect((await server.http.request('/api/realtime/sign-in-codes')).status).toBe(404);
+    const headers = appHeaders();
+    expect((await server.http.request('/api/realtime/sign-in-codes', { headers })).status).toBe(
+      404,
+    );
     const device = phone();
     expect((await device.request('/api/sign-in/codes/read', { code: '' })).status).toBe(400);
     expect((await device.request('/api/sign-in/codes/cancel', {})).status).toBe(410);

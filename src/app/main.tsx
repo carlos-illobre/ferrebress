@@ -9,4 +9,5 @@ import { startKeyboard } from './platform/keyboard.ts';
 startKeyboard();
 render(<App />, document.getElementById('app') as HTMLElement);
 if (import.meta.env.PROD && 'serviceWorker' in navigator)
-  void navigator.serviceWorker.register('/sw.js');
+  // Si no se puede registrar (un navegador que lo impide), la aplicación anda igual, sin instalarse.
+  navigator.serviceWorker.register('/sw.js').catch(() => undefined);

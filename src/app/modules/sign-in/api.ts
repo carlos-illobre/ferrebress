@@ -32,6 +32,6 @@ export const signInApi = {
   cancel: (secret: string) => api<Ok>('/api/sign-in/codes/cancel', { secret }),
   claim: (permit: string, proofPublicKey: string) =>
     api<SignInResponse>('/api/sign-in/codes/claim', { permit, proofPublicKey }),
-  signOut: (pending?: { sessionId: string; signature: string }) =>
+  signOut: (pending?: { sessionId: string; signature: string; tappedAt: number }) =>
     api<Ok>('/api/sign-out', pending ? { pending } : {}),
 };

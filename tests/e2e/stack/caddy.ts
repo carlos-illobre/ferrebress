@@ -5,7 +5,12 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const image = 'caddy:2.11-alpine';
+// La imagen, la misma que la de producción, fijada por su huella en web.Dockerfile.
+const dockerfile = readFileSync(
+  join(import.meta.dirname, '../../../deploy/web.Dockerfile'),
+  'utf8',
+);
+const image = (dockerfile.match(/^FROM (caddy:\S+)/m) as RegExpMatchArray)[1] as string;
 
 export function startCaddy(options: { dir: string; port: number; serverPort: number }): () => void {
   const source = readFileSync(join(import.meta.dirname, '../../../deploy/Caddyfile'), 'utf8');

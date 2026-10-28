@@ -111,18 +111,20 @@ function closing(db: Kysely<SessionsTables>) {
     },
 
     // Marca las vencidas que nadie volvió a usar y borra las cerradas hace más de `retentionMs`.
-    cleanUp: async (now: Date, limits: SessionLimits, retentionMs: number): Promise<void> => {
+    // Devuelve las que marcó, para sacarlas de la memoria y anotarlas.
+    cleanUp: async (now: Date, limits: SessionLimits, retentionMs: number) => {
       const maxAgeFrom = new Date(now.getTime() - limits.maxMs);
       const idleFrom = new Date(now.getTime() - limits.idleMs);
-      await sql`update sign_in.sessions set closed_at = ${now}, closed_reason =
+      const ended = await sql<{ id: string; userId: string; reason: 'max-age' | 'idle' }>`
+        update sign_in.sessions set closed_at = ${now}, closed_reason =
           case when created_at <= ${maxAgeFrom} then 'max-age' else 'idle' end::sign_in.closed_reason
-        where closed_at is null and (created_at <= ${maxAgeFrom} or last_used_at <= ${idleFrom})`.execute(
-        db,
-      );
+        where closed_at is null and (created_at <= ${maxAgeFrom} or last_used_at <= ${idleFrom})
+        returning id, user_id as "userId", closed_reason as reason`.execute(db);
       await db
         .deleteFrom('sign_in.sessions')
         .where('closed_at', '<', new Date(now.getTime() - retentionMs))
         .execute();
+      return ended.rows;
     },
   };
 }

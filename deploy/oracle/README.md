@@ -48,3 +48,37 @@ cd ~/ferrebress && docker compose ps && docker compose logs -f --tail 100 server
 
 Cuando cambian `deploy.sh`, `listen.sh`, el compose o el servicio en el repositorio, se hace
 `git pull` en la copia y se vuelve a correr `install.sh` con las mismas variables.
+
+## Si se pierde un celular
+
+Hasta que exista Administración (módulo 02), se le cierran las sesiones y se le quita la huella
+desde la base. En la máquina, en `~/ferrebress`:
+
+1. Buscar el celular entre los dispositivos de la persona, por su nombre y su último uso:
+
+   ```bash
+   docker compose exec db psql -U ferrebress -c "
+     select device_id, device_label, max(last_used_at) as ultimo_uso
+     from sign_in.sessions
+     where user_id = (select id from users.users where email = 'CORREO-DE-LA-PERSONA')
+     group by device_id, device_label order by ultimo_uso desc;"
+   ```
+
+2. Cerrar sus sesiones y quitarle la huella, con el `device_id` del paso anterior:
+
+   ```bash
+   docker compose exec db psql -U ferrebress -c "
+     update sign_in.sessions set closed_at = now(), closed_reason = 'revoked'
+       where device_id = 'DEVICE-ID' and closed_at is null;
+     update sign_in.passkeys set revoked_at = now()
+       where device_id = 'DEVICE-ID' and revoked_at is null;"
+   ```
+
+3. Reiniciar el servidor, que tiene las sesiones abiertas en memoria: hasta entonces seguirían
+   valiendo.
+
+   ```bash
+   docker compose restart server
+   ```
+
+El celular, si aparece, vuelve a entrar con Google y vincula de nuevo su huella.
