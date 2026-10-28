@@ -34,7 +34,7 @@ describe('la entrada en la computadora', () => {
     sessionClosed.set(undefined);
   });
 
-  it('01-E38, E12: muestra el código QR con sus pasos, Google y la nota, en el ambiente de pruebas', async () => {
+  it('sign-in-E38, E12: muestra el código QR con sus pasos, Google y la nota, en el ambiente de pruebas', async () => {
     googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
@@ -58,7 +58,7 @@ describe('la entrada en la computadora', () => {
     expect(screen.getByText('En línea')).toBeTruthy();
   });
 
-  it('01-E39: «Ver el manual» lleva «Pronto» y dice que todavía no está', () => {
+  it('sign-in-E39: «Ver el manual» lleva «Pronto» y dice que todavía no está', () => {
     googleFrame();
     fakeServer({ '/api/sign-in/codes': {}, '/api/realtime/sign-in-codes': { stream: '' } });
     open();
@@ -69,7 +69,7 @@ describe('la entrada en la computadora', () => {
     expect(screen.getByText('Manual · pronto. Todavía no está.')).toBeTruthy();
   });
 
-  it('01-E17: muestra el QR de Ferrebress y nunca la entrada del navegador con un celular cercano', async () => {
+  it('sign-in-E17: muestra el QR de Ferrebress y nunca la entrada del navegador con un celular cercano', async () => {
     googleFrame();
     const credentials = fakePasskeys();
     fakeServer({
@@ -85,7 +85,7 @@ describe('la entrada en la computadora', () => {
     expect(credentials.get).not.toHaveBeenCalled();
   });
 
-  it('01-E05: Google dibuja su botón y, con el pase, entra', async () => {
+  it('sign-in-E05: Google dibuja su botón y, con el pase, entra', async () => {
     const google = googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
@@ -123,7 +123,7 @@ describe('la entrada en la computadora', () => {
     expect(onStale).toHaveBeenCalledOnce();
   });
 
-  it('01-E02: una cuenta no autorizada ve por qué, y la nota se va', async () => {
+  it('sign-in-E02: una cuenta no autorizada ve por qué, y la nota se va', async () => {
     const google = googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
@@ -141,7 +141,7 @@ describe('la entrada en la computadora', () => {
     ).toBeTruthy();
   });
 
-  it('01-E19: sin conexión los botones se apagan y dice que hace falta internet', () => {
+  it('sign-in-E19: sin conexión los botones se apagan y dice que hace falta internet', () => {
     googleFrame();
     fakeServer({ '/api/sign-in/codes': 'offline', '/api/realtime/sign-in-codes': 'offline' });
     online.set(false);
@@ -174,7 +174,7 @@ describe('la entrada en el celular', () => {
     vi.restoreAllMocks();
   });
 
-  it('01-E38: Google, la huella y «Escanear», sin QR; con sesión, Google no se dibuja', () => {
+  it('sign-in-E38: Google, la huella y «Escanear», sin QR; con sesión, Google no se dibuja', () => {
     const google = googleFrame();
     render(
       <Entrance
@@ -193,7 +193,7 @@ describe('la entrada en el celular', () => {
     expect(onScan).toHaveBeenCalledOnce();
   });
 
-  it('01-E19: sin conexión, en el celular también se apagan la huella y «Escanear»', () => {
+  it('sign-in-E19: sin conexión, en el celular también se apagan la huella y «Escanear»', () => {
     googleFrame();
     online.set(false);
     const { card } = open();
@@ -202,7 +202,7 @@ describe('la entrada en el celular', () => {
     online.set(true);
   });
 
-  it('01-E20: con la huella, demasiados intentos apagan Google y la huella, y dice cuánto falta', async () => {
+  it('sign-in-E20: con la huella, demasiados intentos apagan Google y la huella, y dice cuánto falta', async () => {
     googleFrame();
     fakeServer({
       '/api/sign-in/passkey/options': {
@@ -221,7 +221,7 @@ describe('la entrada en el celular', () => {
     ).toBe(true);
   });
 
-  it('01-E16b: si leyó el código sin sesión, le dice que entre primero', () => {
+  it('sign-in-E16b: si leyó el código sin sesión, le dice que entre primero', () => {
     googleFrame();
     open({ signInFirst: true });
     expect(screen.getByText('Entrá en este celular para que entre la computadora')).toBeTruthy();

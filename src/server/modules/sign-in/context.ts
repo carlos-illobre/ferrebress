@@ -54,6 +54,28 @@ function createGuards({ audit, clock, limiter }: Platform) {
   return { record, throttle, tooMany };
 }
 
+// Quién es cada persona con sesión, como la muestra la aplicación, en memoria: así /api/start con
+// la sesión ya en memoria no consulta la base (diseño de 01, § 12). Solo para mostrar: si sigue
+// activa se mira siempre en la base. Darla de baja cierra sus sesiones y la olvida acá; el nombre
+// cambia solo al entrar con Google, que la actualiza si ya estaba.
+function createPeople(users: Users) {
+  const known = new Map<string, Person>();
+  return {
+    async of(userId: string): Promise<Person> {
+      const cached = known.get(userId);
+      if (cached) return cached;
+      // Con la sesión abierta, la persona existe.
+      const shown = person((await users.findById(userId)) as User);
+      known.set(userId, shown);
+      return shown;
+    },
+    update(user: User): void {
+      if (known.has(user.id)) known.set(user.id, person(user));
+    },
+    forget: (userId: string) => void known.delete(userId),
+  };
+}
+
 const person = (user: User): Person => ({
   userId: user.id,
   name: user.name ?? user.email,
@@ -96,6 +118,7 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
     },
     ...createGuards(platform),
     person,
+    people: createPeople(users),
     wait,
     screens: createScreens(platform.clock),
     // El permiso que la computadora cambia por su sesión, una vez y por 30 segundos.

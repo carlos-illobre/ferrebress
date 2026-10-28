@@ -39,9 +39,10 @@ export function createSignInModule(options: SignInOptions): ServerModule {
       registerPasskeySignInRoutes(ctx);
       registerComputerRoutes(ctx);
       registerPhoneRoutes(ctx);
-      platform.events.on('user.deactivated', ({ userId }, trx) =>
-        ctx.store.closeForUser(trx, userId, 'deactivated'),
-      );
+      platform.events.on('user.deactivated', ({ userId }, trx) => {
+        ctx.people.forget(userId);
+        return ctx.store.closeForUser(trx, userId, 'deactivated');
+      });
       platform.every(signInSettings.lastUsedFlushMs, ctx.store.flush);
       platform.every(signInSettings.cleanupEveryMs, ctx.store.cleanUp);
       platform.onClose(ctx.store.flush);

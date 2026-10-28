@@ -39,7 +39,7 @@ describe('la aplicación al abrir', () => {
     sessionClosed.set(undefined);
   });
 
-  it('01-E36: manda primero la salida pendiente; sin sesión, muestra la entrada', async () => {
+  it('sign-in-E36: manda primero la salida pendiente; sin sesión, muestra la entrada', async () => {
     store('pending-sign-out', { sessionId: 'x', signature: 'y' });
     const server = fakeServer({ '/api/sign-out': {}, '/api/start': startReply() });
     render(<App />);
@@ -47,7 +47,7 @@ describe('la aplicación al abrir', () => {
     expect(server.sent.map((s) => s.path).slice(0, 2)).toEqual(['/api/sign-out', '/api/start']);
   });
 
-  it('app-E01, 01-E35: con sesión abre el marco; «Salir» vuelve a la entrada con un nonce nuevo', async () => {
+  it('app-E01, sign-in-E35: con sesión abre el marco; «Salir» vuelve a la entrada con un nonce nuevo', async () => {
     const server = fakeServer({
       '/api/start': [startReply({ person: ana }), startReply({ googleNonce: 'otro' })],
       '/api/sign-out': {},
@@ -59,7 +59,7 @@ describe('la aplicación al abrir', () => {
     await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(2));
   });
 
-  it('R3.6, 01-E28, 00-E51: sin conexión al abrir sigue con quién estaba, con el marco de pruebas, aunque pasen horas', async () => {
+  it('R3.6, sign-in-E28, app-E51: sin conexión al abrir sigue con quién estaba, con el marco de pruebas, aunque pasen horas', async () => {
     person.set(ana);
     store('environment', 'testing');
     fakeServer({ '/api/start': 'offline' });
@@ -80,7 +80,7 @@ describe('la aplicación al abrir', () => {
     expect(await screen.findByRole('region', { name: 'Tu sesión' })).toBeTruthy();
   });
 
-  it('R3.6, 01-E28b: al volver la conexión el servidor revisa la sesión; vencida, la entrada aparece encima', async () => {
+  it('R3.6, sign-in-E28b: al volver la conexión el servidor revisa la sesión; vencida, la entrada aparece encima', async () => {
     googleFrame();
     const server = fakeServer({
       '/api/start': [startReply({ person: ana }), startReply({ person: ana }), startReply()],
@@ -99,6 +99,16 @@ describe('la aplicación al abrir', () => {
     expect(screen.getByRole('region', { name: 'Tu sesión' })).toBeTruthy();
   });
 
+  it('app-E23: abierta y sin usarse, no le pide nada al servidor', async () => {
+    const server = fakeServer({ '/api/start': startReply({ person: ana }) });
+    render(<App />);
+    await screen.findByRole('region', { name: 'Tu sesión' });
+    vi.useFakeTimers();
+    await later(2 * 60 * 60_000);
+    vi.useRealTimers();
+    expect(server.sent).toHaveLength(1);
+  });
+
   it('sin sesión, al volver la conexión no pregunta por ninguna', async () => {
     googleFrame();
     const server = fakeServer({ '/api/start': startReply() });
@@ -111,7 +121,7 @@ describe('la aplicación al abrir', () => {
     expect(server.bodies('/api/start')).toHaveLength(1);
   });
 
-  it('01-E16b: sin sesión ni huella, al leer el QR entra con Google y solo se abre la hoja de vincular', async () => {
+  it('sign-in-E16b: sin sesión ni huella, al leer el QR entra con Google y solo se abre la hoja de vincular', async () => {
     navigate('/link#c1', { replace: true });
     phone();
     const google = googleFrame();
@@ -149,7 +159,7 @@ describe('la aplicación al abrir', () => {
     expect(sessionClosed.get()).toBeUndefined();
   });
 
-  it('01-E13: la dirección del QR abre la hoja del código y se borra de la dirección', async () => {
+  it('sign-in-E13: la dirección del QR abre la hoja del código y se borra de la dirección', async () => {
     navigate('/link#c1', { replace: true });
     fakeServer({
       '/api/start': startReply({ person: ana }),

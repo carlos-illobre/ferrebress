@@ -20,9 +20,13 @@ const intervals: Schedule = (ms, run) => {
 export async function createServer(
   config: Config,
   modules: ServerModule[],
-  { clock = systemClock, schedule = intervals }: { clock?: Clock; schedule?: Schedule } = {},
+  {
+    clock = systemClock,
+    schedule = intervals,
+    onQuery,
+  }: { clock?: Clock; schedule?: Schedule; onQuery?: () => void } = {},
 ) {
-  const db = await openDatabase<unknown>(config.DATABASE_URL);
+  const db = await openDatabase<unknown>(config.DATABASE_URL, onQuery);
   await migrate(
     db,
     modules.flatMap((module) => (module.schema ? [module.schema] : [])),

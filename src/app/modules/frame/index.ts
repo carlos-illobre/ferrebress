@@ -6,3 +6,4 @@ export { forgetReport, watchCrashes } from './notices/crash.ts';
 export { Dialogs } from './notices/Notices.tsx';
 export { announceUpdate, updateOnOpen, watchBackground } from './notices/update.ts';
 export { Frame, type FrameProps, TestEnvironment } from './screens/Frame/Frame.tsx';
+export { discardWork, halfDone, registerWork, type Work } from './work.ts';

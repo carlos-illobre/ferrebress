@@ -54,6 +54,14 @@ describe('el teclado de la computadora', () => {
     expect(clicks).toEqual(['cancel', 'google']);
   });
 
+  it('app-E16: en una caja con texto, Ctrl+C, V, X, Z y A hacen lo de siempre', () => {
+    document.body.innerHTML = '<main data-layer><input aria-label="Buscar" data-key="c" /></main>';
+    const box = document.querySelector('input') as HTMLInputElement;
+    box.focus();
+    for (const key of ['c', 'v', 'x', 'z', 'a'])
+      expect(press(key, { ctrlKey: true, code: `Key${key.toUpperCase()}` }, box)).toBe(true);
+  });
+
   it('app-E09 y E10: las flechas recorren lo marcable, Enter lo toca, Esc saca la marca', () => {
     const clicks = page(`
       <main data-layer>

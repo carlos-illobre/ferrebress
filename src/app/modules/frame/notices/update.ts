@@ -6,6 +6,7 @@ import { newVersion } from '../../../platform/api.ts';
 import { createStore } from '../../../platform/store.ts';
 import { showToast } from '../../../ui/toast/Toast.tsx';
 import { texts } from '../texts.ts';
+import { halfDone } from '../work.ts';
 
 export const dismissed = createStore(false);
 
@@ -47,10 +48,10 @@ export function updateOnOpen(serverVersion: string): boolean {
   return true;
 }
 
-// En segundo plano, con una versión nueva esperando, se actualiza sola.
+// En segundo plano, con una versión nueva esperando y nada a medio hacer, se actualiza sola.
 export function watchBackground(): () => void {
   const hidden = () => {
-    if (document.visibilityState === 'hidden' && newVersion.get()) update();
+    if (document.visibilityState === 'hidden' && newVersion.get() && !halfDone()) update();
   };
   document.addEventListener('visibilitychange', hidden);
   return () => document.removeEventListener('visibilitychange', hidden);

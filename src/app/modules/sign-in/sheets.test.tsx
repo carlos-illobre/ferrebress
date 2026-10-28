@@ -36,7 +36,7 @@ describe('las hojas del celular', () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it('01-E13, R2.11: pregunta qué computadora pide entrar; con la huella, se cierra sin avisar', async () => {
+  it('sign-in-E13, R2.11: pregunta qué computadora pide entrar; con la huella, se cierra sin avisar', async () => {
     fakePasskeys();
     fakeServer({ '/api/sign-in/codes/read': { body: reading }, '/api/sign-in/codes/approve': {} });
     render(<Code code="c1" />);
@@ -46,7 +46,7 @@ describe('las hojas del celular', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
-  it('01-E16b: si hay que vincular la huella, lo dice con el correo de la cuenta', async () => {
+  it('sign-in-E16b: si hay que vincular la huella, lo dice con el correo de la cuenta', async () => {
     fakeServer({
       '/api/sign-in/codes/read': { body: { ...reading, registration: {} } },
       '/api/sign-in/codes/cancel': {},
@@ -59,7 +59,7 @@ describe('las hojas del celular', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
-  it('01-E13b, E14, E16c: otra red, código vencido o sin huella, cada uno con su texto', async () => {
+  it('sign-in-E13b, E14, E16c: otra red, código vencido o sin huella, cada uno con su texto', async () => {
     fakeServer({
       '/api/sign-in/codes/read': [
         { status: 409, body: { error: 'other-network' } },
@@ -81,7 +81,7 @@ describe('las hojas del celular', () => {
     expect(await screen.findByText(/Sin la huella no entra la computadora/)).toBeTruthy();
   });
 
-  it('01-E06, E07, R2.11: ofrece la huella una vez; al aceptar la vincula y se cierra sin avisar', async () => {
+  it('sign-in-E06, E07, R2.11: ofrece la huella una vez; al aceptar la vincula y se cierra sin avisar', async () => {
     fakePasskeys();
     fakeServer({ '/api/passkeys/options': { body: {} }, '/api/passkeys': {} });
     render(<OfferSheet />);
@@ -95,7 +95,7 @@ describe('las hojas del celular', () => {
     expect(offerPasskey.get()).toBe(false);
   });
 
-  it('01-E08, E09: «Ahora no» no la vuelve a ofrecer; si el celular es de otra cuenta, lo dice', async () => {
+  it('sign-in-E08, E09: «Ahora no» no la vuelve a ofrecer; si el celular es de otra cuenta, lo dice', async () => {
     fakePasskeys();
     const server = fakeServer({
       '/api/passkeys/options': [{ status: 401, body: { error: 'session-closed' } }, { body: {} }],

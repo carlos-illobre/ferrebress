@@ -14,7 +14,7 @@ import { createPasskey, signWithPasskey } from './webauthn.ts';
 describe('el aviso de la entrada', () => {
   afterEach(() => vi.useRealTimers());
 
-  it('01-E02: traduce lo que contestó el servidor; lo demás no es un aviso', () => {
+  it('sign-in-E02: traduce lo que contestó el servidor; lo demás no es un aviso', () => {
     expect(noticeOf({ ok: true, data: {} })).toBeUndefined();
     expect(noticeOf({ ok: false, error: 'not-authorized', email: 'x@y.com' })).toEqual({
       kind: 'not-authorized',
@@ -35,7 +35,7 @@ describe('el aviso de la entrada', () => {
     expect(noticeOf({ ok: false, error: 'offline' })).toBeUndefined();
   });
 
-  it('01-E20: con demasiados intentos cuenta los segundos y al llegar a cero se va', async () => {
+  it('sign-in-E20: con demasiados intentos cuenta los segundos y al llegar a cero se va', async () => {
     vi.useFakeTimers();
     const { result } = renderHook(() => useNotice());
     act(() => result.current.setNotice({ kind: 'too-many', seconds: 2 }));
@@ -92,7 +92,7 @@ describe('entrar', () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it('01-E05: con Google en la computadora entra, sin ofrecer la huella', async () => {
+  it('sign-in-E05: con Google en la computadora entra, sin ofrecer la huella', async () => {
     const server = fakeServer({ '/api/sign-in/google': signInReply(true) });
     expect(await withGoogle('pase')).toBeUndefined();
     expect(person.get()).toEqual(ana);
@@ -100,7 +100,7 @@ describe('entrar', () => {
     expect(server.bodies('/api/sign-in/google')[0]).toMatchObject({ credential: 'pase' });
   });
 
-  it('01-E06 y E08: en el celular sin huella se le ofrece, una sola vez', async () => {
+  it('sign-in-E06 y E08: en el celular sin huella se le ofrece, una sola vez', async () => {
     phone();
     fakeServer({
       '/api/sign-in/google': [signInReply(true), signInReply(false), signInReply(true)],
@@ -115,7 +115,7 @@ describe('entrar', () => {
     expect(offerPasskey.get()).toBe(false);
   });
 
-  it('01-E02: una cuenta no autorizada no entra y dice por qué', async () => {
+  it('sign-in-E02: una cuenta no autorizada no entra y dice por qué', async () => {
     fakeServer({
       '/api/sign-in/google': { status: 403, body: { error: 'not-authorized', email: 'x@y.com' } },
     });
@@ -123,7 +123,7 @@ describe('entrar', () => {
     expect(person.get()).toBeUndefined();
   });
 
-  it('01-E07: con la huella entra, y el celular sabe que la tiene', async () => {
+  it('sign-in-E07: con la huella entra, y el celular sabe que la tiene', async () => {
     phone();
     fakePasskeys();
     fakeServer({

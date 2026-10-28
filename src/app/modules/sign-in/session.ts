@@ -5,6 +5,7 @@ import type { Person, SignInResponse } from '@ferrebress/shared/contracts/sign-i
 import { forgetProofKey, signWithProofKey } from '../../platform/proof-key.ts';
 import { forget, readStored, store } from '../../platform/storage.ts';
 import { createStore } from '../../platform/store.ts';
+import { discardWork } from '../frame/index.ts';
 import { signInApi } from './api.ts';
 import { forgetGoogleChoice } from './google/messages.ts';
 
@@ -17,6 +18,10 @@ type Pending = { sessionId: string; signature: string };
 export const person = createStore<Person | undefined>(readStored<Saved>(sessionKey)?.person);
 
 export function signedIn({ person: who, sessionId }: SignInResponse): void {
+  // Después de una sesión vencida, si entra otra persona, lo que había a medio hacer se descarta;
+  // si es la misma, sigue donde estaba (E25, E26).
+  const before = person.get();
+  if (before && before.userId !== who.userId) discardWork();
   store(sessionKey, { sessionId, person: who });
   person.set(who);
 }

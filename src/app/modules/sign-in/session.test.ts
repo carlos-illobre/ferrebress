@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProofKey } from '../../platform/proof-key.ts';
 import { readStored } from '../../platform/storage.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
+import { registerWork } from '../frame/index.ts';
 import {
   confirmed,
   hasPasskey,
@@ -41,7 +42,18 @@ describe('la sesión en la aplicación', () => {
     expect(readStored('session')).toEqual({ person: ana });
   });
 
-  it('01-E35: salir con conexión cierra la sesión en el servidor y no deja nada pendiente', async () => {
+  it('sign-in-E25, E26: después de una sesión vencida, la misma persona sigue; otra descarta lo de antes', () => {
+    const discard = vi.fn();
+    const stop = registerWork({ pending: () => true, discard });
+    signedIn({ person: ana, sessionId, offerPasskey: false });
+    signedIn({ person: { ...ana }, sessionId, offerPasskey: false });
+    expect(discard).not.toHaveBeenCalled();
+    signedIn({ person: { ...ana, userId: 'u2' }, sessionId, offerPasskey: false });
+    expect(discard).toHaveBeenCalledOnce();
+    stop();
+  });
+
+  it('sign-in-E35: salir con conexión cierra la sesión en el servidor y no deja nada pendiente', async () => {
     const server = fakeServer({ '/api/sign-out': { body: { ok: true } } });
     signedIn({ person: ana, sessionId, offerPasskey: false });
     await signOut();
@@ -50,7 +62,7 @@ describe('la sesión en la aplicación', () => {
     expect(readStored('pending-sign-out')).toBeUndefined();
   });
 
-  it('01-E36: sin conexión sale al instante y deja la salida firmada, que se manda al volver', async () => {
+  it('sign-in-E36: sin conexión sale al instante y deja la salida firmada, que se manda al volver', async () => {
     await createProofKey();
     fakeServer({ '/api/sign-out': 'offline' });
     signedIn({ person: ana, sessionId, offerPasskey: false });

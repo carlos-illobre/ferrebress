@@ -147,7 +147,7 @@ describe('el botón de Google', () => {
     vi.useRealTimers();
   });
 
-  it('01-E11: después de salir, Google vuelve a pedir la cuenta una vez', async () => {
+  it('sign-in-E11: después de salir, Google vuelve a pedir la cuenta una vez', async () => {
     const id = fakeGoogle();
     const show = () =>
       showGoogleButton(document.createElement('div'), {

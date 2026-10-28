@@ -81,6 +81,13 @@ describe('hablar con el servidor', () => {
     expect(updateRequired.get()).toBe(true);
   });
 
+  it('app-E55: pide a la misma dirección de la que se bajó la aplicación', async () => {
+    const fetch = vi.fn(async () => new Response('{}'));
+    vi.stubGlobal('fetch', fetch);
+    await api('/api/start');
+    expect(String((fetch.mock.calls[0] as unknown[])[0])).toBe('/api/start');
+  });
+
   it('se puede cancelar un pedido', async () => {
     const fetch = answer(200, {});
     const controller = new AbortController();

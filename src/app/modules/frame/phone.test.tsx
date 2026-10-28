@@ -11,7 +11,7 @@ describe('el marco en el celular', () => {
     vi.unstubAllGlobals();
   });
 
-  it('01-E34: en el celular, «Salir» está en Más, con la persona y las opciones', async () => {
+  it('sign-in-E34: en el celular, «Salir» está en Más, con la persona y las opciones', async () => {
     media({ phone: true });
     const { onSignOut } = open();
     const phoneNav = screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement;

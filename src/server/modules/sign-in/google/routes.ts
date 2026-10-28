@@ -30,8 +30,8 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     };
     const token = readSessionCookie(c);
     const resolved = token ? await ctx.store.resolve(token) : undefined;
-    const user =
-      resolved?.kind === 'open' ? await ctx.users.findById(resolved.session.userId) : undefined;
+    const who =
+      resolved?.kind === 'open' ? await ctx.people.of(resolved.session.userId) : undefined;
     // El nonce va también con sesión: un celular sin huella vuelve a entrar con Google para
     // vincularla y hacer entrar a una computadora (R2.7).
     const googleNonce = ctx.nonces.issue(ip, true);
@@ -39,7 +39,7 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     return c.json<StartResponse>({
       ...base,
       googleNonce,
-      ...(user && { person: ctx.person(user) }),
+      ...(who && { person: who }),
     });
   });
 
@@ -92,6 +92,7 @@ async function signInWithGoogle(
     ctx.record(c, 'sign-in.rejected', { email: identity.email, data });
     return fail(c, 403, 'not-authorized', { email: identity.email });
   }
+  ctx.people.update(match.user);
   const { token, session } = await ctx.store.create({
     userId: match.user.id,
     ...device,

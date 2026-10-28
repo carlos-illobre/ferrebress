@@ -14,7 +14,7 @@ describe('el marco', () => {
     online.set(true);
   });
 
-  it('01-E37, app-E01, app-E51: en pruebas, el menú con todo en «Pronto», la luz, la persona y el área en blanco', () => {
+  it('sign-in-E37, app-E01, app-E51: en pruebas, el menú con todo en «Pronto», la luz, la persona y el área en blanco', () => {
     const { side } = open();
     const names = within(side)
       .getAllByRole('button')
@@ -56,7 +56,7 @@ describe('el marco', () => {
     expect(screen.queryByRole('status')).toBeNull();
   });
 
-  it('01-E34: en la computadora, «Salir» está en la tarjeta de la persona', async () => {
+  it('sign-in-E34: en la computadora, «Salir» está en la tarjeta de la persona', async () => {
     const { onSignOut } = open();
     fireEvent.click(within(screen.getByRole('region', { name: 'Tu sesión' })).getByRole('button'));
     await act(async () => {});

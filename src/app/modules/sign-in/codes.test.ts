@@ -29,7 +29,7 @@ describe('la computadora espera que el celular lea su código', () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it('01-E12, E13: recibe el código, «leído», y al aprobar cambia el permiso por su sesión', async () => {
+  it('sign-in-E12, E13: recibe el código, «leído», y al aprobar cambia el permiso por su sesión', async () => {
     const server = fakeServer({
       '/api/sign-in/codes': {},
       '/api/realtime/sign-in-codes': {
@@ -62,7 +62,7 @@ describe('la computadora espera que el celular lea su código', () => {
     unmount();
   });
 
-  it('01-E18: con la pestaña escondida cierra el canal y lo vuelve a abrir al verse; apagado, no abre', async () => {
+  it('sign-in-E18: con la pestaña escondida cierra el canal y lo vuelve a abrir al verse; apagado, no abre', async () => {
     let visibility = 'visible';
     vi.spyOn(document, 'visibilityState', 'get').mockImplementation(
       () => visibility as DocumentVisibilityState,
@@ -96,7 +96,7 @@ describe('el celular lee el código de una computadora', () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it('01-E13: con sesión pide la huella; puesta, entra la computadora', async () => {
+  it('sign-in-E13: con sesión pide la huella; puesta, entra la computadora', async () => {
     person.set(ana);
     fakePasskeys();
     const server = fakeServer({
@@ -116,7 +116,7 @@ describe('el celular lee el código de una computadora', () => {
     expect(hasPasskey()).toBe(true);
   });
 
-  it('01-E16: sin sesión y con la huella, una sola huella hace entrar a los dos', async () => {
+  it('sign-in-E16: sin sesión y con la huella, una sola huella hace entrar a los dos', async () => {
     passkeyLinked();
     fakePasskeys();
     const server = fakeServer({
@@ -136,7 +136,7 @@ describe('el celular lee el código de una computadora', () => {
     expect(person.get()).toBeUndefined();
   });
 
-  it('01-E16b: sin sesión ni huella, primero entra con Google, después lee y vincula la huella', async () => {
+  it('sign-in-E16b: sin sesión ni huella, primero entra con Google, después lee y vincula la huella', async () => {
     fakePasskeys();
     const server = fakeServer({
       '/api/sign-in/codes/read': { body: { ...reading, registration: { challenge: 'r' } } },
@@ -151,7 +151,7 @@ describe('el celular lee el código de una computadora', () => {
     expect(server.bodies('/api/sign-in/codes/approve')[0]).toMatchObject({ kind: 'registration' });
   });
 
-  it('01-E16b: con sesión y sin huella, si el servidor lo pide, lee recién cuando vuelve a entrar con Google', async () => {
+  it('sign-in-E16b: con sesión y sin huella, si el servidor lo pide, lee recién cuando vuelve a entrar con Google', async () => {
     person.set(ana);
     fakeServer({
       '/api/sign-in/codes/read': [
@@ -166,7 +166,7 @@ describe('el celular lee el código de una computadora', () => {
     await waitFor(() => expect(result.current.state).toMatchObject({ step: 'ask' }));
   });
 
-  it('01-E16c: si no pone la huella, suelta el código y dice que la computadora puede entrar con Google', async () => {
+  it('sign-in-E16c: si no pone la huella, suelta el código y dice que la computadora puede entrar con Google', async () => {
     person.set(ana);
     fakePasskeys({ cancel: true });
     const server = fakeServer({
@@ -184,7 +184,7 @@ describe('el celular lee el código de una computadora', () => {
     expect(result.current.state).toEqual({ step: 'no-passkey' });
   });
 
-  it('01-E13b, E14: en otra red, o con un código vencido o usado, no pide la huella', async () => {
+  it('sign-in-E13b, E14: en otra red, o con un código vencido o usado, no pide la huella', async () => {
     person.set(ana);
     fakeServer({
       '/api/sign-in/codes/read': [

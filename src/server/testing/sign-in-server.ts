@@ -22,13 +22,25 @@ export async function createSignInServer(clock?: Clock, options: SignInServerOpt
     return () => {};
   };
   const modules = [usersModule, createSignInModule({ users, googleKeys: google.keys, ...options })];
-  const server = await createServer(testConfig, modules, { ...(clock && { clock }), schedule });
+  // Cuántas consultas a la base hizo el servidor: las pruebas miran cuántas suma cada pedido.
+  const queries = { count: 0 };
+  const server = await createServer(testConfig, modules, {
+    ...(clock && { clock }),
+    schedule,
+    onQuery: () => void queries.count++,
+  });
   // Corre ya los trabajos periódicos, como si hubiera pasado su tiempo.
   const runJobs = async () => {
     for (const job of jobs) job();
     await new Promise((resolve) => setTimeout(resolve, 50));
   };
-  return { ...server, users, google, runJobs };
+  // Cuántas consultas hace lo que se le pase.
+  const countQueries = async (run: () => Promise<unknown>) => {
+    const before = queries.count;
+    await run();
+    return queries.count - before;
+  };
+  return { ...server, users, google, runJobs, countQueries };
 }
 
 export type SignInServer = Awaited<ReturnType<typeof createSignInServer>>;

@@ -294,12 +294,16 @@ la computadora. Solo el celular usa la huella.
   escribe juntos en la base los últimos usos que cambiaron. La plataforma no conoce la regla.
 - **Vencida o cerrada:** `session-closed` con el motivo; la aplicación muestra la entrada encima de
   lo que había (R3.4).
-- **Al volver a entrar:** si es la misma persona, se saca la entrada y todo sigue. Si es otra, la
-  aplicación publica la acción `session.person-changed` y cada módulo vacía lo que tenía a medio
-  hacer. Hoy no hay ninguno: las pruebas de E25 y E26 usan un módulo de prueba con algo a medio
-  hacer.
+- **Al volver a entrar:** si es la misma persona, se saca la entrada y todo sigue. Si es otra, se
+  descarta lo que había a medio hacer: cada módulo anota lo suyo en el marco (`registerWork`, con
+  si tiene algo pendiente y cómo descartarlo), y la sesión, al entrar otra persona, le pide al marco
+  que lo descarte. El mismo registro le dice al marco si puede aplicar sola una versión nueva en
+  segundo plano (00 · R5.6). Hoy ningún módulo anota nada: las pruebas de E25, E26 y E30c usan algo
+  a medio hacer de prueba.
 - **Sin conexión (R3.6):** la aplicación no muestra la entrada por vencimiento mientras no hay
-  conexión; el servidor aplica los límites en el próximo pedido.
+  conexión, y sigue con lo último que dijo el servidor, también el ambiente. Si el servidor no
+  contesta JSON (el 502 de un despliegue), es lo mismo que sin conexión. Cuando vuelve la conexión,
+  la aplicación le pregunta a `/api/start` por la sesión; si venció, aparece la entrada encima.
 - **Dar de baja** (módulo 02): `users` publica `user.deactivated` **dentro de la misma transacción**
   de la baja, y `sign-in`, que lo escucha, cierra sus sesiones en esa transacción y las saca de la
   memoria. Si el servidor se cae en el medio, no queda una baja con sesiones abiertas. `users` no
@@ -468,6 +472,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
 
 - **Primero las pruebas:** cada tarea empieza por las suyas, que fallan; después el código.
 - **Unitarias (Vitest):** cada escenario del 01 (salvo E29 a E33) y los del 00 que se construyen
+  (salvo E22, que necesita algo que se mande después: llega con el módulo 15). Los que solo se ven
+  en un navegador de verdad (E04, E19) van con las pruebas de captura
   acá, con su nombre (`sign-in-E13`). El servidor por su API, con PGlite y la auditoría en memoria;
   la aplicación por lo que ve la persona, con Testing Library. Google, con un emisor de prueba; la
   huella, con respuestas de autenticador de prueba.
@@ -475,10 +481,11 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
 
   | Pedido | Consultas a la base |
   |---|---|
-  | Cualquiera con la sesión ya en memoria | 0 |
-  | El primero de una sesión después de reiniciar | 1 |
-  | Entrar con Google | hasta 3 (buscar la cuenta, guardar `google_subject` la primera vez, crear la sesión) |
+  | `/api/start` con la sesión ya en memoria | 0 (quién es la persona también queda en memoria) |
+  | El primero de una sesión después de reiniciar | 2 (la sesión y la persona); sin prueba, porque la prueba no reinicia el servidor |
+  | Entrar con Google | hasta 3 (buscar la cuenta, guardar `google_subject` la primera vez, crear la sesión); en el celular, hasta 4, porque mira si ya tiene huella para no ofrecerla |
   | Entrar con la huella | 4 (la credencial, su contador, la persona, crear la sesión) |
+  | Leer un código | hasta 3 (la sesión, si el celular tiene huella, la persona para vincularla) |
   | Aprobar un código | hasta 5 (las de la huella y la sesión de la computadora) |
 
 - **Cobertura del 100 %.** Fuera de la cuenta, solo lo que habla con el hardware del navegador
