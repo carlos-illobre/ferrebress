@@ -79,6 +79,8 @@
    "title": "El manual",
    "module": "01 · Entrar",
    "variants": [
+    { "device": "desktop", "name": "Final", "path": "mockups/manual/final/index.html" },
+    { "device": "phone", "name": "Final", "path": "mockups/manual/final/index.html" },
     { "device": "desktop", "name": "1 · El libro", "path": "mockups/manual/desktop/variant-1-book/index.html" },
     { "device": "desktop", "name": "2 · Paso a paso", "path": "mockups/manual/desktop/variant-2-guide/index.html" },
     { "device": "desktop", "name": "3 · Mostrame", "path": "mockups/manual/desktop/variant-3-show-me/index.html" },

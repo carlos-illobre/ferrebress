@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El manual · Final</title>
+<!-- El manual · maqueta final. Parte de la variante 2 del director («Paso a paso»), computadora y
+     celular, ajustada a 00 · R6. Una sola página: desde 900 px se ve como la computadora; debajo,
+     como el celular. Lo que cambia y por qué, en changes.md. -->
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="manual.css">
+<script src="../../../common/icons.js"></script>
+<script src="content.js"></script>
+</head>
+<body>
+<!-- ======== Computadora: la barra de arriba ======== -->
+<header class="top">
+  <img class="top-logo" src="../../../common/brand/logo-on-light.png" alt="Ferrebress" width="94" height="24">
+  <span class="top-nombre">Manual</span>
+  <!-- El dispositivo del manual (R6.3): arranca en el que se está usando -->
+  <div class="segmentos" role="group" aria-label="Manual de">
+    <button type="button" data-dev="desktop" aria-pressed="true"><i class="i i-s" data-i="monitor"></i>Computadora <span class="kbd kbd-alt">C</span></button>
+    <button type="button" data-dev="phone" aria-pressed="false"><i class="i i-s" data-i="smartphone"></i>Celular <span class="kbd kbd-alt">L</span></button>
+  </div>
+  <!-- «Volver» (R6.7): abierto desde la entrada, vuelve a la entrada -->
+  <button type="button" class="btn top-volver" id="volver" data-volver><i class="i" data-i="arrow-left"></i>Volver a la entrada <span class="kbd kbd-alt">O</span></button>
+</header>
+
+<div class="cuerpo">
+  <!-- ======== Las tareas: «¿Qué querés hacer?», el buscador y el índice ======== -->
+  <section class="tareas" aria-labelledby="preg-titulo">
+    <div class="preg">
+      <!-- Celular: se abre desde Más y «Más» vuelve ahí (R6.1, R6.7) -->
+      <button type="button" class="atras p-only" data-volver><i class="i i-l" data-i="chevron-left"></i>Más</button>
+      <h1 class="preg-titulo t-titulo" id="preg-titulo">¿Qué querés hacer?</h1>
+      <div class="segmentos seg-celu p-only" role="group" aria-label="Manual de">
+        <button type="button" data-dev="desktop" aria-pressed="false"><i class="i i-s" data-i="monitor"></i>Computadora</button>
+        <button type="button" data-dev="phone" aria-pressed="true"><i class="i i-s" data-i="smartphone"></i>Celular</button>
+      </div>
+      <label class="campo buscar"><i class="i" data-i="search"></i><input type="search" id="q" autocomplete="off" aria-label="Buscar en el manual" data-largo="Escribí: entrar sin internet, salir…" data-corto="Ej.: entrar sin internet"></label>
+    </div>
+    <div class="lista" id="lista" aria-live="polite"></div>
+  </section>
+
+  <!-- ======== El paso a paso ======== -->
+  <main class="guia" id="guia" aria-labelledby="g-tit">
+    <div class="guia-cab">
+      <span class="pastilla pino d-only">Entrar</span>
+      <h2 class="guia-titulo t-seccion" id="g-tit"></h2>
+      <div class="guia-botones">
+        <button type="button" class="btn chico guia-clip" id="ver-clip" aria-label="Ver el clip"><i class="i i-s" data-i="zap"></i><span class="d-only">Ver el clip</span> <span class="kbd kbd-alt">V</span></button>
+        <button type="button" class="btn chico" id="todo"><i class="i i-s" data-i="list-checks"></i>Todos los pasos <span class="kbd kbd-alt">T</span></button>
+        <button type="button" class="btn btn-fantasma btn-icono guia-cerrar" id="cerrar" aria-label="Cerrar"><i class="i i-l" data-i="x"></i></button>
+      </div>
+    </div>
+    <div class="avance" id="avance"></div>
+    <div class="escenario" id="esc"></div>
+    <span class="numero" id="num" aria-hidden="true">1</span>
+    <div class="frase-bloque"><p class="frase" id="frase" aria-live="polite"></p><div class="frase-sub" id="sub"></div></div>
+    <div class="consejo" id="consejo"></div>
+    <div class="ctrl">
+      <button type="button" class="btn btn-icono grande" id="ant" aria-label="Paso anterior"><i class="i" data-i="arrow-left"></i><span class="kbd kbd-alt">A</span></button>
+      <button type="button" class="btn btn-accion grande" id="sig"></button>
+    </div>
+  </main>
+
+  <!-- ======== Todos los pasos: el capítulo entero, de corrido (R6.5) ======== -->
+  <section class="leer" id="leer" aria-labelledby="leer-tit" hidden>
+    <div class="leer-cab">
+      <h2 class="leer-titulo t-seccion" id="leer-tit">Entrar · todos los pasos</h2>
+      <button type="button" class="btn chico d-only" id="leer-volver"><i class="i i-s" data-i="arrow-left"></i>Volver al paso a paso <span class="kbd kbd-alt">T</span></button>
+      <button type="button" class="btn btn-fantasma btn-icono p-only" id="leer-cerrar" aria-label="Cerrar"><i class="i i-l" data-i="x"></i></button>
+    </div>
+    <div class="leer-cuerpo" id="leer-cuerpo"></div>
+  </section>
+</div>
+
+<script src="manual.js"></script>
+</body>
+</html>
