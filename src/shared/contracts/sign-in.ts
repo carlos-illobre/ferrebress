@@ -26,7 +26,18 @@ export const signOutBody = z.object({
 
 export type NonceResponse = { nonce: string };
 
-export type Person = { userId: string; name: string; email: string; role: string };
+export type Person = {
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+  // Solo con sesión, desde un celular con la huella de esta persona y con el permiso: puede prender
+  // «Trabajar sin conexión» (15 · R1).
+  offline?: true;
+};
+
+// Vincular la huella responde si, con ella, ya se puede prender «Trabajar sin conexión».
+export type LinkPasskeyResponse = { ok: true; offline: boolean };
 
 export type StartResponse = {
   environment: Environment;

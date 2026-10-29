@@ -114,6 +114,9 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
       signInSettings.challenge,
     ),
     passkeys: passkeysData(platform.db as Kysely<PasskeysTables>),
+    // De quién es la huella de cada celular, ya consultada (diseño de 15, § 10): así /api/start con
+    // la sesión en memoria sigue sin consultar la base. Vincular la actualiza.
+    phoneOwners: new Map<string, string | undefined>(),
     relyingParty: {
       id: new URL(platform.config.PUBLIC_ORIGIN).hostname,
       origin: platform.config.PUBLIC_ORIGIN,

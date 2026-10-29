@@ -91,7 +91,7 @@ export async function verifyRegistration(
 }
 
 // El contador nuevo, o undefined si la firma, el origen o la verificación no cierran.
-async function verifyAssertion(
+export async function verifyAssertion(
   ctx: SignInContext,
   response: AuthenticationResponseJSON,
   passkey: Passkey,
@@ -125,7 +125,10 @@ export async function savePasskey(
   const now = ctx.platform.clock.now();
   await ctx.passkeys.revokeOwn(session.userId, session.deviceId, now);
   const passkey = { ...credential, userId: session.userId, deviceId: session.deviceId };
-  if (!(await ctx.passkeys.insert(passkey, now))) {
+  const saved = await ctx.passkeys.insert(passkey, now);
+  if (saved) ctx.phoneOwners.set(session.deviceId, session.userId);
+  else ctx.phoneOwners.delete(session.deviceId);
+  if (!saved) {
     ctx.record(c, 'passkey.rejected', {
       userId: session.userId,
       data: { reason: 'phone-has-other-account' },

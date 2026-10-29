@@ -11,6 +11,7 @@ import type { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
+import { canWorkOffline } from '../offline/rules.ts';
 import { openSession, proofKeyOf } from '../sessions/open.ts';
 import { signInSettings } from '../settings.ts';
 import { authenticationOptions, challengeOf, checkAssertion } from './webauthn.ts';
@@ -71,7 +72,12 @@ async function signInWithPasskey(
     data: { method: 'passkey' },
   });
   return c.json<SignInResponse>({
-    person: ctx.person(user),
+    // Entró con su propia huella en este celular (15 · R1).
+    person: {
+      ...ctx.person(user),
+      ...(found.passkey.deviceId === c.get('deviceId') &&
+        canWorkOffline(user) && { offline: true }),
+    },
     sessionId: session.id,
     offerPasskey: false,
   });

@@ -8,6 +8,9 @@ import { registerPhoneRoutes } from './codes/phone/phone-routes.ts';
 import { createContext } from './context.ts';
 import { registerGoogleRoutes } from './google/routes.ts';
 import { createSignIn } from './migrations/001-sign-in.ts';
+import { createOffline } from './migrations/002-offline.ts';
+import { registerOfflineRoutes } from './offline/routes.ts';
+import { offlineSettings } from './offline/rules.ts';
 import { registerLinkRoutes } from './passkeys/link-routes.ts';
 import { registerPasskeySignInRoutes } from './passkeys/sign-in-routes.ts';
 import { registerSessionRoutes } from './sessions/routes.ts';
@@ -27,7 +30,10 @@ export function createSignInModule(options: SignInOptions): ServerModule {
   const { users, googleKeys, wait = sleep } = options;
   return {
     name: 'sign-in',
-    schema: { schema: 'sign_in', migrations: { '001-sign-in': createSignIn } },
+    schema: {
+      schema: 'sign_in',
+      migrations: { '001-sign-in': createSignIn, '002-offline': createOffline },
+    },
     register(platform) {
       const { config } = platform;
       const keys = googleKeys ?? createRemoteJWKSet(new URL(config.GOOGLE_JWKS_URL));
@@ -39,12 +45,18 @@ export function createSignInModule(options: SignInOptions): ServerModule {
       registerPasskeySignInRoutes(ctx);
       registerComputerRoutes(ctx);
       registerPhoneRoutes(ctx);
+      const offline = registerOfflineRoutes(ctx);
       platform.events.on('user.deactivated', ({ userId }, trx) => {
         ctx.people.forget(userId);
         return ctx.store.closeForUser(trx, userId, 'deactivated');
       });
       platform.every(signInSettings.lastUsedFlushMs, ctx.store.flush);
       platform.every(signInSettings.cleanupEveryMs, ctx.store.cleanUp);
+      platform.every(signInSettings.cleanupEveryMs, () =>
+        offline.removeOlderThan(
+          new Date(platform.clock.now().getTime() - offlineSettings.retentionMs),
+        ),
+      );
       platform.onClose(ctx.store.flush);
     },
   };

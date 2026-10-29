@@ -11,6 +11,9 @@ export type ErrorCode =
   | 'phone-has-other-account'
   | 'other-network'
   | 'session-closed'
+  // Entrar sin conexión (15 · R3): el servidor no la confirmó, o ya la había confirmado.
+  | 'offline-not-confirmed'
+  | 'offline-already-confirmed'
   | 'update-required'
   | 'not-found'
   | 'unexpected';

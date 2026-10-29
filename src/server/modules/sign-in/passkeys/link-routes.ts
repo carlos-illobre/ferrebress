@@ -1,9 +1,10 @@
 // Vincular la huella de un celular (R2.2, R2.3, R2.4; diseño de 01, § 5): solo desde un celular,
 // con la sesión abierta y habiendo pasado por Google hace menos de 5 minutos.
-import { linkPasskeyBody } from '@ferrebress/shared/contracts/sign-in';
+import { type LinkPasskeyResponse, linkPasskeyBody } from '@ferrebress/shared/contracts/sign-in';
 import type { RegistrationResponseJSON } from '@simplewebauthn/server';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
+import { canWorkOffline } from '../offline/rules.ts';
 import { requireSession } from '../sessions/require.ts';
 import type { Session } from '../sessions/store.ts';
 import { signInSettings } from '../settings.ts';
@@ -47,7 +48,11 @@ export function registerLinkRoutes(ctx: SignInContext): void {
       ctx.record(c, 'passkey.rejected', { userId: session.userId, data: { reason: 'invalid' } });
       return fail(c, 400, 'bad-request');
     }
-    return (await savePasskey(ctx, c, session, credential)) ?? c.json({ ok: true });
+    const refusedSave = await savePasskey(ctx, c, session, credential);
+    if (refusedSave) return refusedSave;
+    // Con la huella vinculada, ya puede prender «Trabajar sin conexión» (15 · R1.3).
+    const offline = canWorkOffline({ active: true });
+    return c.json<LinkPasskeyResponse>({ ok: true, offline });
   });
 }
 

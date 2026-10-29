@@ -9,6 +9,8 @@ import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
 import { isPhone } from '../device.ts';
+import { ownerOf, withOffline } from '../offline/flag.ts';
+import { canWorkOffline } from '../offline/rules.ts';
 import { readSessionCookie } from '../sessions/cookie.ts';
 import { openSession, proofKeyOf } from '../sessions/open.ts';
 import { signInSettings } from '../settings.ts';
@@ -40,7 +42,7 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     return c.json<StartResponse>({
       ...base,
       googleNonce,
-      ...(who && { person: who }),
+      ...(who && { person: await withOffline(ctx, c, who) }),
     });
   });
 
@@ -115,9 +117,12 @@ async function signInWithGoogle(
   });
   // Se ofrece la huella a un celular sin huella vinculada (R2.2); la computadora nunca (R2.4).
   const phone = isPhone(c.req.header('User-Agent'), c.req.header('Sec-CH-UA-Mobile'));
-  const offerPasskey = phone && !(await ctx.passkeys.findActiveByDevice(session.deviceId));
+  const owner = phone ? await ownerOf(ctx, session.deviceId) : undefined;
+  const offerPasskey = phone && !owner;
+  // Con su propia huella en este celular, puede prender «Trabajar sin conexión» (15 · R1).
+  const offline = owner === match.user.id && canWorkOffline(match.user);
   return c.json<SignInResponse>({
-    person: ctx.person(match.user),
+    person: { ...ctx.person(match.user), ...(offline && { offline: true }) },
     sessionId: session.id,
     offerPasskey,
   });
