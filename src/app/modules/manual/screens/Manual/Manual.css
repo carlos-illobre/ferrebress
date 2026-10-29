@@ -1,0 +1,168 @@
+/* El manual (docs/design/mockups/manual/final/): la página entera, encima de lo que había. Desde
+   900 px, la barra de arriba y dos columnas; debajo, las tareas a pantalla entera y el paso a paso
+   en una hoja. Las piezas propias del manual (selector, pastillas, consejo) también van acá. */
+@layer screens {
+  .manual-page {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    background: var(--background);
+    color: var(--ink);
+  }
+  .manual-top {
+    height: 64px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--s5);
+    padding: 0 var(--s8);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .manual-logo {
+    height: 24px;
+    width: auto;
+  }
+  .manual-name {
+    font-weight: 800;
+    color: var(--text-2);
+    padding-left: var(--s3);
+    border-left: 1px solid var(--border);
+  }
+  .manual-top .manual-devices {
+    margin-left: var(--s6);
+  }
+  .manual-back {
+    margin-left: auto;
+  }
+  .manual-body {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 392px 1fr;
+  }
+
+  /* El dispositivo del manual: un selector de dos (R6.3) */
+  .manual-devices {
+    min-width: 0;
+    margin: 0;
+    border: 0;
+    display: inline-flex;
+    padding: 3px;
+    gap: 2px;
+    border-radius: var(--radius);
+    background: var(--sunken);
+  }
+  .manual-devices > button {
+    min-height: 34px;
+    padding: 0 var(--s3);
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-2);
+  }
+  .manual-devices > [aria-pressed="true"] {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow-1);
+  }
+
+  .manual-pill {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 var(--s2);
+    border-radius: 999px;
+    background: var(--sunken-2);
+    color: var(--text-2);
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .manual-pill.pine {
+    height: 28px;
+    padding: 0 10px;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .manual-pill.action {
+    background: var(--action-soft);
+    color: var(--action-text);
+    margin-left: var(--s1);
+  }
+  .manual-tip {
+    display: flex;
+    gap: var(--s3);
+    align-items: flex-start;
+    padding: var(--s3) var(--s4);
+    border-radius: var(--radius);
+    background: var(--pine-soft);
+    color: var(--pine-text);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+  }
+  .manual-tip .icon {
+    margin-top: 2px;
+  }
+  .manual-page mark {
+    background: var(--urgent-soft);
+    color: var(--ink);
+    border-radius: 4px;
+    padding: 0 2px;
+    box-shadow: inset 0 -2px 0 var(--urgent);
+  }
+  .manual-offline {
+    margin: auto;
+    display: grid;
+    justify-items: center;
+    gap: var(--s4);
+    color: var(--text-2);
+    font-weight: 600;
+  }
+  .manual-close {
+    width: 44px;
+    padding: 0;
+  }
+}
+
+@layer widths {
+  @media (max-width: 899px) {
+    .manual-body {
+      display: block;
+      overflow: hidden;
+    }
+    .manual-phone-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      height: 44px;
+      padding: 0 var(--s2) 0 var(--s1);
+      margin-left: calc(-1 * var(--s1));
+      border: 0;
+      background: none;
+      color: var(--pine-text);
+      font: inherit;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .manual-ask .manual-devices {
+      display: flex;
+      width: 100%;
+    }
+    .manual-ask .manual-devices > button {
+      flex: 1;
+      justify-content: center;
+      min-height: 40px;
+    }
+  }
+}

@@ -62,7 +62,7 @@ const buttonIcon = (name: RegExp) => (page: Page) =>
 
 async function openMore(page: Page, person: Person): Promise<void> {
   await signedIn(page, person);
-  await page.getByRole('button', { name: 'Más', exact: true }).tap();
+  await page.getByRole('button', { name: 'Más', exact: true }).click();
 }
 
 export const scenes: Scene[] = [
@@ -158,17 +158,24 @@ export const scenes: Scene[] = [
     prepare: async (page) => {
       await openMore(page, { ...ana, offline: true });
       const option = page.getByRole('switch', { name: 'Trabajar sin conexión' });
-      await option.tap();
+      await option.click();
       await expect(option).toHaveAttribute('aria-checked', 'true');
     },
-    points: { offline: (page) => page.getByRole('switch', { name: 'Trabajar sin conexión' }) },
+    points: {
+      offline: (page) =>
+        page.getByRole('switch', { name: 'Trabajar sin conexión' }).locator('.switch'),
+    },
   },
   {
     name: 'phone-more-sign-out',
     device: 'phone',
     prepare: async (page) => {
       await openMore(page, ana);
-      await page.getByRole('button', { name: /Salir/ }).last().scrollIntoViewIfNeeded();
+      // Hasta el final, siempre igual, y sin el foco del botón tocado: la captura sale idéntica.
+      await page.locator('.phone-more').evaluate((more) => {
+        more.scrollTop = more.scrollHeight;
+        (document.activeElement as HTMLElement | null)?.blur();
+      });
     },
     points: {
       more: (page) => page.getByRole('button', { name: 'Más', exact: true }),

@@ -33,6 +33,9 @@ export const phoneData = () =>
 
 export const sha256 = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
 
+// La página del botón de Google precarga el script de Google: se corta igual, sin frenar la escena.
+const cutQuietly = new Set(['https://accounts.google.com/gsi/client']);
+
 // Un contexto que solo puede pedir al servidor de mentira: cualquier otro pedido se corta y queda
 // anotado, y la escena falla (revisión de seguridad, 4).
 export async function closedContext(
@@ -46,7 +49,7 @@ export async function closedContext(
   await context.route('**/*', (route) => {
     const url = route.request().url();
     if (new URL(url).origin === origin) return route.fallback();
-    escaped.push(url);
+    if (!cutQuietly.has(url)) escaped.push(url);
     return route.abort();
   });
   return { context, escaped };

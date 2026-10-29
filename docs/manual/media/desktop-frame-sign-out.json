@@ -1,0 +1,16 @@
+{
+  "device": "computer",
+  "width": 1100,
+  "height": 618,
+  "points": {
+    "card": [
+      8.2,
+      86.6
+    ],
+    "sign-out": [
+      7.9,
+      93.9
+    ]
+  },
+  "hash": "21a5f0b71c7b8f410aae64c0a873768ea0c187c82e3e825c82a9e92cf0a729bd"
+}

@@ -18,6 +18,9 @@ RUN --mount=type=secret,id=ca,required=false \
 COPY tsconfig.base.json ./
 COPY src/shared src/shared
 COPY src/app src/app
+# El manual se arma desde docs/manual/ con tools/manual/ (diseño del manual, § 2).
+COPY tools/manual tools/manual
+COPY docs/manual docs/manual
 ARG VERSION
 RUN VERSION=$VERSION pnpm --filter @ferrebress/app build
 

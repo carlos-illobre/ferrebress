@@ -41,6 +41,7 @@ describe('buildManual', () => {
         title: 'Entrar con Google',
         icon: 'log-in',
         tag: { long: 'La forma más rápida', short: 'La más rápida' },
+        clip: 'phone-to-computer',
         steps: 2,
       },
       {

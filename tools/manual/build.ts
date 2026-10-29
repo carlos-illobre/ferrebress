@@ -138,7 +138,7 @@ function indexEntryOf(
   const goesTo = entry.goesTo && goesToOf(entry, chapters, problems);
   if (goesTo) return { id, name, icon, goesTo };
   if (!chapter) return { id, name, icon };
-  const tasks = chapter.tasks.map(({ note, clip, tips, steps, ...summary }) => ({
+  const tasks = chapter.tasks.map(({ note, tips, steps, ...summary }) => ({
     ...summary,
     steps: steps.length,
   }));

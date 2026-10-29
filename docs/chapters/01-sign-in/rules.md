@@ -168,8 +168,8 @@ enviar es «Salir» (R5.2).
     su código»), separadas por «o», y abajo dice «¿No tenés cuenta? Contactá a tu administrador.».
     Esas palabras son solo de esta pantalla: el resto de la aplicación dice «Entrar».
 - **R7.2** La entrada de la computadora tiene «Ver el manual», debajo de lo que hace Ferrebress (en
-  el celular, el manual se abre desde Más). Mientras el manual no exista, lleva «Pronto» y al
-  tocarlo dice «Manual · pronto. Todavía no está.».
+  el celular, el manual se abre desde Más), y abre el manual sin haber entrado (00 · R6.1). Sin
+  conexión se pone gris (00 · R4.4).
 
 ## Escenarios
 
@@ -293,9 +293,6 @@ enviar es «Salir» (R5.2).
 
 - **E38** **Dado** la entrada, **cuando** se abre en la computadora y en el celular, **entonces** se ve
   como su maqueta aprobada, con «Continuar con Google» en los dos.
-- **E39** **Dado** que todavía no existe el manual, **cuando** se toca «Ver el manual» en la entrada
-  de la computadora, **entonces** dice que todavía no está; el botón lleva «Pronto».
-
 ### Seguridad
 
 - **E40** **Dado** el pase de una sesión, **cuando** se lo busca en la base, **entonces** solo está su

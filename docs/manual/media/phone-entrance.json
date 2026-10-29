@@ -1,0 +1,20 @@
+{
+  "device": "phone",
+  "width": 585,
+  "height": 1266,
+  "points": {
+    "google": [
+      50,
+      44.7
+    ],
+    "fingerprint": [
+      50,
+      58.7
+    ],
+    "scan": [
+      50,
+      77.9
+    ]
+  },
+  "hash": "145c5152ac344e36d382f36aa04ec6de4bbf4c501b72576fbd6cc06187f0a9d2"
+}

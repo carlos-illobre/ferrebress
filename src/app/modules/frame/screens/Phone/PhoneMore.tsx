@@ -4,11 +4,10 @@
 // grupo sin nada no se muestra. Debajo de Configuración puede ir un interruptor de otro módulo (hoy,
 // «Trabajar sin conexión», 15 · R1).
 import { Fragment } from 'preact';
-import { navigate } from '../../../../platform/router.ts';
 import { useWaiting } from '../../../../platform/waiting.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { initials, useFrame } from '../../context.ts';
-import { exists, moreGroups, type Option, shown } from '../../menu.ts';
+import { exists, moreGroups, type Option, openOption, shown, unavailable } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './PhoneMore.css';
@@ -75,14 +74,16 @@ function MoreGroup({ title, options }: { title: string; options: Option[] }) {
 const settingsAfter = 'deviceSettings';
 
 function MoreOption({ option }: { option: Option }) {
-  const { notYet } = useFrame();
+  const { notYet, online } = useFrame();
   const soon = !exists(option);
+  const off = unavailable(option, online);
   return (
     <button
       type="button"
       class="phone-more-option"
+      disabled={off}
       onClick={(event) =>
-        option.path ? navigate(option.path) : notYet(event.currentTarget, option.name)
+        option.path ? openOption(option, 'more') : notYet(event.currentTarget, option.name)
       }
     >
       <span class={option.tone ? `phone-more-icon ${option.tone}` : 'phone-more-icon'}>
@@ -92,7 +93,11 @@ function MoreOption({ option }: { option: Option }) {
         <b>{option.name}</b>
         <small>{option.detail}</small>
       </span>
-      {soon ? <span class="coming-soon">{texts.comingSoon}</span> : <Icon name="chevron-right" />}
+      {soon || off ? (
+        <span class="coming-soon">{off ? texts.offlineOption : texts.comingSoon}</span>
+      ) : (
+        <Icon name="chevron-right" />
+      )}
     </button>
   );
 }

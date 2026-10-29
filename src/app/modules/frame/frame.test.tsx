@@ -40,7 +40,13 @@ describe('el marco', () => {
 
   it('app-E02b, app-E52: en producción solo está lo que existe, y no hay marco magenta', () => {
     const { side } = open({ testing: false });
-    expect(within(side).queryAllByRole('listitem')).toHaveLength(0);
+    // Solo Más, que tiene el manual.
+    expect(
+      within(side)
+        .queryAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual([expect.stringContaining('Más')]);
+    expect(side.querySelector('[aria-current="page"]')).toBeNull();
     expect(document.querySelector('.test-frame')).toBeNull();
   });
 

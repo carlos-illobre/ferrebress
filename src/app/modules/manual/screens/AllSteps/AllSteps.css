@@ -1,0 +1,146 @@
+/* «Todos los pasos» (maqueta final del manual): en la computadora cubre solo el paso a paso; en el
+   celular es otra hoja, encima de la del paso a paso. */
+@layer screens {
+  .manual-all {
+    position: absolute;
+    inset: 0 0 0 392px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    background: var(--background);
+  }
+  .manual-all-head {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    padding: var(--s5) var(--s8) var(--s3);
+  }
+  .manual-all-head h2 {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: 750;
+  }
+  .manual-all-body {
+    position: relative;
+    flex: 1;
+    overflow: auto;
+    padding: var(--s1) var(--s8) var(--s8);
+  }
+  .manual-all-intro {
+    max-width: 720px;
+    margin: 0 0 var(--s5);
+    font-size: 17px;
+    line-height: 26px;
+    color: var(--text-2);
+  }
+  .manual-all-part {
+    position: relative;
+    max-width: 720px;
+    margin-bottom: var(--s3);
+    padding: var(--s5) var(--s6);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-1);
+  }
+  .manual-all-part::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    box-shadow: 0 0 0 3px var(--action);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .manual-all-part-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: var(--s1);
+  }
+  .manual-all-part-head .manual-task-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .manual-all-part-head h3 {
+    margin: 0;
+    font-size: 20px;
+    line-height: 26px;
+  }
+  .manual-all-note {
+    margin: var(--s1) 0 0;
+    color: var(--text-2);
+  }
+  .manual-all-steps {
+    margin: var(--s3) 0 0;
+    padding-left: var(--s6);
+    display: grid;
+    gap: 10px;
+    font-size: 17px;
+    line-height: 25px;
+  }
+  .manual-all-tips {
+    list-style: none;
+    margin: var(--s3) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--s2);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .manual-all {
+      animation: manual-all-in 160ms var(--ease) both;
+    }
+    .manual-all-part.flash::after {
+      animation: manual-flash 1.2s var(--ease);
+    }
+  }
+  @keyframes manual-all-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes manual-flash {
+    0%,
+    30% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+}
+
+@layer widths {
+  @media (max-width: 899px) {
+    .manual-all {
+      inset: var(--s6) 0 0;
+      z-index: 6;
+      border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+      background: var(--surface);
+      box-shadow: var(--shadow-3);
+    }
+    .manual-all-head {
+      padding: var(--s3) var(--s3) var(--s2) var(--s4);
+    }
+    .manual-all-head h2 {
+      font-size: 16px;
+      line-height: 22px;
+      font-weight: 700;
+    }
+    .manual-all-body {
+      padding: var(--s1) var(--s4) var(--s8);
+    }
+    .manual-all-intro,
+    .manual-all-steps {
+      font-size: 16px;
+      line-height: 24px;
+    }
+    .manual-all-part {
+      padding: var(--s4);
+    }
+  }
+}

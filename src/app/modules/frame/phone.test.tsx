@@ -28,7 +28,7 @@ describe('el marco en el celular', () => {
     expect(within(screenMore).getByText('Rubén Paredes')).toBeTruthy();
     expect(within(screenMore).getByText('Del negocio')).toBeTruthy();
     expect(within(screenMore).getByText('Lo que no coincide')).toBeTruthy();
-    expect(within(screenMore).getAllByText('Pronto')).toHaveLength(6);
+    expect(within(screenMore).getAllByText('Pronto')).toHaveLength(5);
     const anomalies = within(screenMore).getByRole('button', { name: /Anomalías/ });
     expect(anomalies.querySelector('.phone-more-icon.urgent')).not.toBeNull();
     expect(anomalies.lastElementChild?.className).toBe('coming-soon');
@@ -77,7 +77,7 @@ describe('el marco en el celular', () => {
     expect(row.closest('ul')?.previousElementSibling?.textContent).toBe('Ajustes');
   });
 
-  it('app-E02b: en producción y sin interruptor, Más no tiene grupos vacíos', () => {
+  it('app-E02b: en producción, Más tiene solo lo que existe (el manual), sin grupos vacíos', () => {
     open({ testing: false });
     fireEvent.click(
       within(screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement).getByRole(
@@ -85,7 +85,10 @@ describe('el marco en el celular', () => {
         { name: /Más/ },
       ),
     );
-    expect(screen.queryByText('Ajustes')).toBeNull();
+    const screenMore = screen.getByRole('region', { name: 'Más' });
+    expect(within(screenMore).queryByText('Del negocio')).toBeNull();
+    expect(within(screenMore).getByText('Ajustes')).toBeTruthy();
+    expect(within(screenMore).getByRole('button', { name: /Manual/ })).toBeTruthy();
   });
 
   it('en el celular, lo que no está lo dice una tostada que se va sola; la luz abre lo pendiente', async () => {

@@ -16,10 +16,8 @@ export const texts = {
   offline: 'Sin conexión',
   cardTitle: 'Entrá con tu celular',
   fastest: 'La forma más rápida',
-  // «Ver el manual» (R7.2): mientras el manual no exista, lleva «Pronto».
+  // «Ver el manual» (R7.2); sin conexión, gris (00 · R4.4).
   manual: 'Ver el manual',
-  soon: 'Pronto',
-  manualSoon: 'Manual · pronto. Todavía no está.',
   google: 'Continuar con Google',
   // El lugar del botón de Google mientras Google lo dibuja (R2.1, «El hilo»).
   googleSlot: {

@@ -13,6 +13,7 @@ export type TaskSummary = {
   title: string;
   icon: string;
   tag?: Tag;
+  clip?: string;
   steps: number;
 };
 
@@ -41,7 +42,6 @@ export type Step = { text: string; icon: string; capture?: Capture };
 
 export type Task = Omit<TaskSummary, 'steps'> & {
   note?: string;
-  clip?: string;
   steps: Step[];
   tips: string[];
 };

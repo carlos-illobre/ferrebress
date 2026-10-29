@@ -7,7 +7,7 @@
 import { copyFileSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { expect, type Frame, type Page, test } from '@playwright/test';
+import { type Browser, expect, type Frame, type Page, test } from '@playwright/test';
 import type { ReadCodeResponse } from '../../src/shared/contracts/sign-in.ts';
 import { closedContext, mediaDir, toWebp } from './media.ts';
 import { ana, header, now, start } from './scenes.ts';
@@ -31,29 +31,31 @@ const read: ReadCodeResponse = {
 const frameOf = (page: Page, wanted: string) =>
   page.frames().find((frame) => frame.name() === wanted) as Frame;
 
-test(name, async ({ browser, baseURL }) => {
-  test.skip(process.env.MANUAL_CHECK === '1', 'un video no sale igual dos veces');
+// Un contexto que graba, con el celular que ya entra con la huella (01 · R2.4) y las respuestas del
+// guion: la computadora entra recién cuando `scene.entered`.
+async function recording(browser: Browser, baseURL: string, scene: { entered: boolean }) {
   const videos = mkdtempSync(join(tmpdir(), 'ferrebress-clip-'));
-  const { context, escaped } = await closedContext(browser, baseURL as string, {
+  const closed = await closedContext(browser, baseURL, {
     viewport: size,
     recordVideo: { dir: videos, size },
   });
-  // El marco del celular se presenta como celular.
-  await context.addInitScript(() => {
-    if (window.name === 'phone')
-      Object.defineProperty(navigator, 'userAgentData', { get: () => ({ mobile: true }) });
+  await closed.context.addInitScript(() => {
+    if (window.name !== 'phone') return;
+    Object.defineProperty(navigator, 'userAgentData', { get: () => ({ mobile: true }) });
+    localStorage.setItem('passkey', 'true');
   });
-  let entered = false;
-  await context.route('**/api/start', (route) => {
+  await closed.context.route('**/api/start', (route) => {
     const computer = route.request().frame().name() === 'computer';
-    route.fulfill({ json: start(computer && entered ? ana : undefined), headers: header() });
+    route.fulfill({ json: start(computer && scene.entered ? ana : undefined), headers: header() });
   });
-  await context.route('**/api/sign-in/codes/read', (route) =>
+  await closed.context.route('**/api/sign-in/codes/read', (route) =>
     route.fulfill({ json: read, headers: header() }),
   );
-  const page = await context.newPage();
-  await page.clock.setFixedTime(now);
-  await page.setContent(stage(baseURL as string));
+  return closed;
+}
+
+// El guion: la entrada con su código, el celular que lo lee y pregunta, la computadora que entra.
+async function play(page: Page, baseURL: string, scene: { entered: boolean }): Promise<void> {
   const computer = frameOf(page, 'computer');
   const phone = frameOf(page, 'phone');
   await expect(computer.locator('.qr > svg > path')).toBeVisible();
@@ -62,10 +64,26 @@ test(name, async ({ browser, baseURL }) => {
   await phone.goto(`${baseURL}/link#captura-fija`);
   await expect(phone.getByText('¿Entrar en Chrome en Windows?')).toBeVisible();
   await page.waitForTimeout(2500);
-  entered = true;
+  scene.entered = true;
   await computer.goto(`${baseURL}/`);
   await expect(computer.getByText(ana.name)).toBeVisible();
   await page.waitForTimeout(2500);
+}
+
+test(name, async ({ browser, baseURL }) => {
+  test.skip(process.env.MANUAL_CHECK === '1', 'un video no sale igual dos veces');
+  const base = baseURL as string;
+  const scene = { entered: false };
+  const { context, escaped } = await recording(browser, base, scene);
+  const page = await context.newPage();
+  await page.clock.setFixedTime(now);
+  // La escena se sirve desde el mismo servidor: los marcos con la aplicación necesitan una página
+  // segura alrededor (crypto.randomUUID, la huella).
+  await page.route('**/clip-stage', (route) =>
+    route.fulfill({ contentType: 'text/html', body: stage(base) }),
+  );
+  await page.goto('/clip-stage');
+  await play(page, base, scene);
   const last = await page.screenshot();
   expect(escaped, 'pedidos fuera del servidor de mentira').toEqual([]);
   const video = page.video();

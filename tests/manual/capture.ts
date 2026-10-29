@@ -33,7 +33,7 @@ async function expectClean(page: Page): Promise<void> {
 }
 
 for (const scene of scenes) {
-  test(scene.name, async ({ browser, baseURL }) => {
+  test(scene.name, async ({ browser, baseURL }, testInfo) => {
     const device = devices[scene.device];
     const { context, escaped } = await closedContext(browser, baseURL as string, device.options);
     if (scene.device === 'phone') await context.addInitScript(phoneData);
@@ -48,6 +48,8 @@ for (const scene of scenes) {
     const saved = join(mediaDir, `${scene.name}.json`);
     if (checking) {
       const stored = existsSync(saved) ? JSON.parse(readFileSync(saved, 'utf8')).hash : undefined;
+      // La de ahora queda en los resultados, para ver qué cambió.
+      if (stored !== hash) writeFileSync(testInfo.outputPath(`${scene.name}.png`), png);
       expect(stored, `${scene.name} quedó vieja: corré pnpm manual:media`).toBe(hash);
     } else {
       const webp = await toWebp(await context.newPage(), png, device.width);

@@ -1,0 +1,195 @@
+/* «¿Qué querés hacer?» (maqueta final del manual): la pregunta, el buscador y la lista de tareas. En
+   el celular ocupa la pantalla entera y se achica un poco cuando sube la hoja del paso a paso. */
+@layer screens {
+  .manual-tasks {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-right: 1px solid var(--border);
+    background: var(--background);
+  }
+  .manual-ask {
+    padding: var(--s6) var(--s6) var(--s3);
+  }
+  .manual-question {
+    margin: 0 0 var(--s3);
+    font-size: 24px;
+    line-height: 30px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .manual-search {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    height: 52px;
+    padding: 0 var(--s4);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .manual-search:focus-within {
+    border-color: var(--pine);
+    box-shadow: 0 0 0 4px rgb(18 56 47 / 0.12);
+  }
+  .manual-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .manual-list {
+    flex: 1;
+    overflow: auto;
+    padding: var(--s1) var(--s6) var(--s6);
+  }
+  .manual-group {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    margin: var(--s3) var(--s1) var(--s2);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-3);
+  }
+  .manual-group.apart {
+    margin-top: var(--s5);
+  }
+  .manual-task-list,
+  .manual-coming {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .manual-task-list {
+    display: grid;
+    gap: var(--s1);
+  }
+  .manual-task {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: var(--s3);
+    align-items: center;
+    padding: var(--s3);
+    border-radius: 14px;
+    border: 1px solid transparent;
+    background: none;
+    text-align: left;
+    font: inherit;
+    color: var(--ink);
+  }
+  .manual-task:hover,
+  .manual-task.active {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  .manual-task.active {
+    box-shadow: var(--shadow-1);
+  }
+  .manual-task-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    display: grid;
+    place-items: center;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .manual-task.active .manual-task-icon {
+    background: var(--pine);
+    color: #fff;
+  }
+  .manual-task.all-steps .manual-task-icon {
+    background: var(--sunken);
+    color: var(--ink);
+  }
+  .manual-task-name {
+    display: block;
+    font-weight: 750;
+  }
+  .manual-task-detail {
+    display: block;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-2);
+  }
+  .manual-task > .icon:last-child {
+    color: var(--text-3);
+  }
+  .manual-coming {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    padding: var(--s1);
+  }
+  .manual-coming li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 var(--s1) 0 var(--s3);
+    border-radius: 99px;
+    background: var(--sunken);
+    color: var(--text-2);
+    font-size: 14px;
+    font-weight: 650;
+  }
+  .manual-coming .manual-pill {
+    background: var(--surface);
+  }
+}
+
+@layer widths {
+  @media (max-width: 899px) {
+    .manual-tasks {
+      position: absolute;
+      inset: 0;
+      border-right: 0;
+      transition:
+        transform var(--time-nav) var(--ease),
+        opacity var(--time-nav);
+    }
+    .in-guide .manual-tasks {
+      transform: scale(0.94);
+      opacity: 0.5;
+    }
+    .manual-ask {
+      padding: var(--s2) var(--s4) 0;
+    }
+    .manual-question {
+      font-size: 28px;
+      line-height: 34px;
+    }
+    .manual-search {
+      height: 48px;
+      margin-top: var(--s3);
+    }
+    .manual-list {
+      padding: var(--s1) var(--s4) var(--s8);
+    }
+    .manual-task-list {
+      gap: var(--s2);
+    }
+    .manual-task {
+      grid-template-columns: 44px 1fr auto;
+      border-radius: var(--radius-card);
+      border-color: var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow-1);
+    }
+    .manual-task-icon {
+      width: 44px;
+      height: 44px;
+    }
+    .manual-coming {
+      padding: 0;
+    }
+  }
+}

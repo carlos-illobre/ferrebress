@@ -1,11 +1,10 @@
 // El marco del celular (00 · R1.1): arriba el logotipo, la persona y la luz; abajo, el menú con las
 // cinco partes. Más es una pantalla entera (PhoneMore); la luz abre una hoja con lo pendiente. Sin
 // teclas: en el celular no hay atajos (00 · R2).
-import { navigate } from '../../../../platform/router.ts';
 import logo from '../../../../styles/brand/logo-on-light.webp';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { initials, useFrame } from '../../context.ts';
-import { exists, type Option, parts, shown } from '../../menu.ts';
+import { exists, type Option, openOption, parts, shown } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './Phone.css';
@@ -71,7 +70,7 @@ function PhonePart({ option }: { option: Option }) {
   // Con Más a la vista, la parte abierta vuelve a su pantalla.
   const open = (event: MouseEvent) => {
     if (current && frame.phoneMore.open) frame.phoneMore.hide();
-    else if (option.path) navigate(option.path);
+    else if (option.path) openOption(option, frame.current);
     else
       frame.notYet(
         (event.currentTarget as HTMLElement).firstElementChild as HTMLElement,

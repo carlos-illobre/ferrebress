@@ -7,7 +7,7 @@
     "node": ">=22.13"
   },
   "scripts": {
-    "check": "pnpm types && pnpm lint && pnpm imports && pnpm repeated && pnpm secrets && pnpm vulnerable && pnpm sizes && pnpm boot && pnpm headers && pnpm links && pnpm test && pnpm screens",
+    "check": "pnpm types && pnpm lint && pnpm imports && pnpm repeated && pnpm secrets && pnpm vulnerable && pnpm sizes && pnpm boot && pnpm headers && pnpm links && pnpm manual && pnpm test && pnpm screens && pnpm manual:check",
     "types": "tsc --build",
     "lint": "biome check . && node tools/cli.ts html",
     "format": "biome check --write .",
@@ -23,7 +23,8 @@
     "e2e": "playwright test -c tests/e2e/playwright.config.ts",
     "screens": "node tests/screens/run.ts",
     "manual": "node tools/cli.ts manual",
-    "manual:media": "node tests/screens/run.ts --config tests/manual/playwright.config.ts"
+    "manual:media": "node tests/screens/run.ts --config tests/manual/playwright.config.ts",
+    "manual:check": "MANUAL_CHECK=1 node tests/screens/run.ts --config tests/manual/playwright.config.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",

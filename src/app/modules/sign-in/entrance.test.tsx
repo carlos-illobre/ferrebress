@@ -58,15 +58,19 @@ describe('la entrada en la computadora', () => {
     expect(screen.getByText('En línea')).toBeTruthy();
   });
 
-  it('sign-in-E39: «Ver el manual» lleva «Pronto» y dice que todavía no está', () => {
+  it('app-E32: «Ver el manual» abre el manual sin haber entrado; sin conexión, gris', () => {
     googleFrame();
     fakeServer({ '/api/sign-in/codes': {}, '/api/realtime/sign-in-codes': { stream: '' } });
     open();
-    render(<Toasts />);
     const manual = screen.getByRole('button', { name: /Ver el manual/ });
-    expect(manual.textContent).toContain('Pronto');
+    expect(manual.textContent).not.toContain('Pronto');
     fireEvent.click(manual);
-    expect(screen.getByText('Manual · pronto. Todavía no está.')).toBeTruthy();
+    expect(location.pathname).toBe('/manual');
+    expect(history.state).toEqual({ from: 'entrance' });
+    act(() => online.set(false));
+    expect(manual.hasAttribute('disabled')).toBe(true);
+    expect(manual.textContent).toContain('Sin conexión');
+    act(() => online.set(true));
   });
 
   it('sign-in-E17: muestra el QR de Ferrebress y nunca la entrada del navegador con un celular cercano', async () => {
@@ -149,7 +153,7 @@ describe('la entrada en la computadora', () => {
     expect(screen.getByText('Para entrar hace falta internet')).toBeTruthy();
     // Google no pudo cargar: su lugar lo dice.
     expect(screen.getByText('Sin internet, Google no carga')).toBeTruthy();
-    expect(screen.getByText('Sin conexión')).toBeTruthy();
+    expect(screen.getAllByText('Sin conexión').length).toBeGreaterThan(0);
   });
 
   it('R3.4: si la sesión se cerró, lo dice arriba; si venció, dice que venció', async () => {

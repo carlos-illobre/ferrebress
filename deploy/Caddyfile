@@ -58,6 +58,15 @@
 		}
 	}
 
+	# El manual (diseño del manual, § 4): nunca se guarda en el dispositivo (R6.8), y un archivo que
+	# no está da 404, no la página (una versión vieja lo nota y pide actualizar).
+	handle /manual/* {
+		root * /srv
+		encode zstd gzip
+		header Cache-Control "no-store"
+		file_server
+	}
+
 	handle {
 		root * /srv
 		encode zstd gzip

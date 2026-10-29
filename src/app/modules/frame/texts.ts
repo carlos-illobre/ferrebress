@@ -6,6 +6,8 @@ const same = (text: string): Words => ({ long: text, short: text });
 export const texts = {
   menu: 'Menú',
   more: 'Más',
+  // Lo que sin conexión no puede andar (R4.4).
+  offlineOption: 'Sin conexión',
   comingSoon: 'Pronto',
   collapse: 'Minimizar el menú',
   expand: 'Agrandar el menú',

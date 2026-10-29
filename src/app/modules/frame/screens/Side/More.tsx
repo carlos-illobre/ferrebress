@@ -1,5 +1,5 @@
 // Más en la computadora: un panel al costado del menú, agrandado o minimizado, porque sus opciones
-// con «Pronto» no entran en el menú angosto. → lo abre, ← y Esc lo cierran (es una capa).
+// con «Pronto» no entran en el menú angosto. Siempre tiene algo: el manual existe. → lo abre, ← y Esc lo cierran (es una capa).
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { type Place, px } from '../../behavior/usePanels.ts';
 import { useFrame } from '../../context.ts';
@@ -9,8 +9,6 @@ import { MenuItem } from './MenuItem.tsx';
 
 export function More() {
   const frame = useFrame();
-  const options = shown(moreOptions, frame.testing);
-  if (options.length === 0) return null;
   const open = frame.panels.open === 'more';
   // Lo que se abre desde el menú siempre sabe dónde: lo calcula al tocar Más.
   const place = frame.panels.place as Place;
@@ -40,7 +38,7 @@ export function More() {
           data-panel=""
           style={{ left: px(place.left), top: px(place.top) }}
         >
-          {options.map((option) => (
+          {shown(moreOptions, frame.testing).map((option) => (
             <li key={option.id}>
               <MenuItem option={option} />
             </li>

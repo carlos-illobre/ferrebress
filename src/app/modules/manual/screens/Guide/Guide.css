@@ -1,0 +1,191 @@
+/* El paso a paso (maqueta final del manual): en la computadora, la columna de la derecha; en el
+   celular, una hoja que sube desde abajo. */
+@layer screens {
+  .manual-guide {
+    position: relative;
+    min-height: 0;
+    display: grid;
+    padding: var(--s5) var(--s8) var(--s6);
+    column-gap: var(--s5);
+    row-gap: var(--s4);
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto 1fr auto auto auto;
+    grid-template-areas: "head head head" "stage stage stage" "number sentence controls" "progress progress progress" "tip tip tip";
+  }
+  .manual-guide-head {
+    grid-area: head;
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    min-width: 0;
+  }
+  .manual-guide-title {
+    margin: 0;
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+  }
+  .manual-guide-buttons {
+    margin-left: auto;
+    display: flex;
+    gap: var(--s2);
+  }
+  .manual-number {
+    grid-area: number;
+    align-self: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 99px;
+    display: grid;
+    place-items: center;
+    background: var(--pine);
+    color: #fff;
+    font-weight: 800;
+    font-size: 24px;
+  }
+  .manual-sentence {
+    grid-area: sentence;
+    align-self: center;
+    min-width: 0;
+  }
+  .manual-sentence p {
+    margin: 0;
+    font-size: 22px;
+    line-height: 30px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .manual-sentence-sub {
+    margin-top: var(--s1);
+    font-size: 15px;
+    color: var(--text-2);
+  }
+  .manual-guide-controls {
+    grid-area: controls;
+    align-self: center;
+    display: flex;
+    gap: var(--s2);
+  }
+  .manual-previous {
+    width: 56px;
+    padding: 0;
+  }
+  .manual-progress {
+    grid-area: progress;
+    display: flex;
+    gap: 6px;
+  }
+  .manual-progress-step {
+    flex: 1;
+    height: 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 99px;
+    background: var(--sunken-2);
+    position: relative;
+    overflow: hidden;
+  }
+  .manual-progress-step::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--pine);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--time-nav) var(--ease);
+  }
+  .manual-progress-step.done::after {
+    transform: scaleX(1);
+  }
+  .manual-guide .manual-tip {
+    grid-area: tip;
+  }
+}
+
+@layer widths {
+  @media (max-width: 899px) {
+    .manual-guide {
+      position: absolute;
+      inset: var(--s6) 0 0;
+      z-index: 4;
+      padding: 0 0 var(--s5);
+      column-gap: var(--s3);
+      row-gap: 0;
+      background: var(--surface);
+      border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+      box-shadow: var(--shadow-3);
+      grid-template-columns: 56px 1fr;
+      grid-template-rows: auto auto 1fr auto auto auto;
+      grid-template-areas: "head head" "progress progress" "stage stage" "number sentence" "tip tip" "controls controls";
+      transform: translateY(100%);
+      visibility: hidden;
+      transition:
+        transform var(--time-nav) var(--ease),
+        visibility 0s var(--time-nav);
+    }
+    .manual-guide.open {
+      transform: none;
+      visibility: visible;
+      transition: transform var(--time-nav) var(--ease);
+    }
+    .manual-guide-head {
+      gap: var(--s2);
+      padding: var(--s3) var(--s3) 0 var(--s4);
+    }
+    .manual-guide-title {
+      flex: 1;
+      min-width: 0;
+      font-size: 16px;
+      line-height: 22px;
+      font-weight: 700;
+      letter-spacing: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .manual-guide-buttons {
+      gap: var(--s1);
+    }
+    .manual-progress {
+      gap: var(--s1);
+      padding: var(--s3) var(--s4) 0;
+    }
+    .manual-progress-step {
+      height: 4px;
+    }
+    .manual-progress-step::after {
+      background: var(--action);
+    }
+    .manual-number {
+      margin: var(--s4) 0 0 var(--s4);
+      align-self: start;
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+    }
+    .manual-sentence {
+      padding: var(--s4) var(--s4) 0 0;
+      align-self: start;
+      min-height: 104px;
+    }
+    .manual-sentence p {
+      font-size: 18px;
+      line-height: 26px;
+    }
+    .manual-sentence-sub {
+      display: none;
+    }
+    .manual-guide .manual-tip {
+      margin: var(--s2) var(--s4) 0;
+    }
+    .manual-guide:not(.last) .manual-tip {
+      display: none;
+    }
+    .manual-guide-controls {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      padding: var(--s3) var(--s4) 0;
+    }
+  }
+}

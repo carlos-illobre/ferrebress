@@ -33,7 +33,8 @@ export type FrameProps = {
 
 // La opción abierta (R1.4): la primera del menú que exista; en pruebas, sin ninguna, Vender.
 const firstOption = (testing: boolean) =>
-  [...parts, ...moreOptions].find(exists)?.id ?? (testing ? parts[0]?.id : undefined);
+  [...parts, ...moreOptions].find((option) => exists(option) && !option.over)?.id ??
+  (testing ? parts[0]?.id : undefined);
 
 export function Frame({ person, testing, onSignOut, setting, children }: FrameProps) {
   const online = useStore(onlineStore);

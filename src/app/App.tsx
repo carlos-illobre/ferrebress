@@ -15,6 +15,7 @@ import {
   watchBackground,
   watchCrashes,
 } from './modules/frame/index.ts';
+import { ManualSlot, manualPath } from './modules/manual/index.ts';
 import {
   Camera,
   CodeSheet,
@@ -147,7 +148,11 @@ export function App() {
   const [camera, setCamera] = useState(false);
   const code = usePhoneCode();
   const { start, who, closed, refresh, renew } = useStart((linked) => void code.scanned(linked));
-  const entrance = !who || !!closed || code.state.step === 'sign-in-first';
+  // El manual va encima de todo, haya o no sesión (00 · R6.2): el marco queda debajo, oculto y sin
+  // tocarse, con lo que se estaba haciendo; la entrada se desmonta, así se cierran su canal del QR y
+  // la renovación de Google (ADR-003), y al volver se monta de nuevo.
+  const manual = useStore(route).path === manualPath;
+  const entrance = (!who || !!closed || code.state.step === 'sign-in-first') && !manual;
   useNonceRenewal(start?.googleNonce, entrance, renew);
   // Con la entrada apagada por un pedido que falló teniendo red, se vuelve a probar con el mismo
   // pedido mínimo del nonce (01 · R2.8); con una entrada sin conexión por confirmar, mandándola
@@ -163,7 +168,11 @@ export function App() {
   const testing = start.environment !== 'production';
   return (
     <>
-      {who && <Frame person={who} testing={testing} onSignOut={leave} setting={setting} />}
+      {who && (
+        <div class="behind-manual" hidden={manual} inert={manual}>
+          <Frame person={who} testing={testing} onSignOut={leave} setting={setting} />
+        </div>
+      )}
       {entrance && (
         <Entrance
           start={start}
@@ -181,6 +190,7 @@ export function App() {
           onClose={() => setCamera(false)}
         />
       )}
+      {manual && <ManualSlot testing={testing} />}
       <CodeSheet code={code} />
       <OfferSheet />
       <Dialogs />

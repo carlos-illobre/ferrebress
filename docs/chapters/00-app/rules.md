@@ -19,8 +19,9 @@ ambiente de pruebas.
   - Más: Anomalías · Procesos · Mejoras y errores · Configuración · Administración · Manual.
 - **R1.3** En el ambiente de pruebas, lo que todavía no existe aparece en el menú con la marca
   «Pronto» y no se puede abrir. En producción no aparece hasta que existe.
-- **R1.4** Al abrir la aplicación se abre siempre la primera opción del menú que exista. No se
-  recuerda la última parte usada ni cómo quedó el menú.
+- **R1.4** Al abrir la aplicación se abre siempre la primera opción del menú que exista (el manual
+  no cuenta: se abre encima de lo demás). No se recuerda la última parte usada ni cómo quedó el
+  menú.
 - **R1.6** En la computadora, un botón minimiza el menú a solo sus íconos y lo vuelve a agrandar.
   Minimizado, cada ícono dice su nombre al pasar el mouse o al llegar con la marca del teclado.
   Cada vez que se abre la aplicación, el menú arranca agrandado (R1.4).
