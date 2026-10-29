@@ -143,7 +143,14 @@ Vale sobre lo de arriba; la maqueta ya tiene estos valores, los mismos de la apl
   y de escanear a 17,5 px, sus detalles a 15,5 px, la «o» a 14 px y el pie a 15,5 px. El título
   queda en 38 px.
 - **Los espacios** arriba del logo (70 px), debajo del logo (15 px) y entre el lema e «Iniciá
-  sesión» (50 px) son los de la maqueta aprobada.
+  sesión» (50 px) son los de la maqueta aprobada cuando la pantalla tiene lugar. En un celular más
+  bajo, o con las barras del navegador a la vista, los espacios grandes se achican en proporción,
+  lo justo para que se vea todo hasta «¿No tenés cuenta?» sin correr la pantalla (en la aplicación;
+  la maqueta queda con los de siempre). Sin conexión, el logo no sube, para que la pastilla no lo
+  tape.
+- **El botón de Google, un 20 % más grande en el celular:** Google lo dibuja de 40 px de alto como
+  mucho; la aplicación se lo pide más angosto y lo agranda, así mide unos 48 px y ocupa el mismo
+  ancho.
 
 ## Entrar sin conexión (15 · etapa a)
 

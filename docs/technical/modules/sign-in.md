@@ -475,7 +475,10 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 - **Las pantallas:** la entrada, desde `docs/design/mockups/sign-in/adapted/`, y en el celular la
   oscura, desde `docs/design/mockups/sign-in-phone-dark/final/` (la elige el dispositivo, no el
   ancho: `data-device` en la entrada; la computadora con la ventana angosta sigue con la clara; la
-  foto, la letra Google Sans y el botón blanco de Google, con `theme: 'outline'`, son solo de ella); «Entrando» en la
+  foto, la letra Google Sans y el botón blanco de Google, con `theme: 'outline'`, son solo de ella).
+  En la oscura, el botón de Google se pide más angosto y se agranda un 20 % con `transform`
+  (Google no lo dibuja de más de 40 px de alto), y los espacios grandes se achican con la altura
+  de la pantalla (`--short`), así se ve todo hasta el pie sin correrla. «Entrando» en la
   computadora, desde `docs/design/mockups/sign-in-entering/final/` (en el celular, la capa
   «Entrando» de la entrada); el marco, desde `docs/design/mockups/app-frame/final/`.
 - **«Entrando» (R2.11):** un valor compartido dice cómo se está entrando. Lo prende el pedido que

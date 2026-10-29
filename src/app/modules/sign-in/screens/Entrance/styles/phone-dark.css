@@ -33,13 +33,17 @@
 @layer screens {
   @media (max-width: 899px) {
     .sign-in[data-device="phone"] {
+      /* Cuánto le falta a la pantalla para que entre todo, con el pie: en un celular bajo (o con las
+         barras del navegador a la vista), los espacios grandes se achican lo justo, en proporción.
+         Con lugar, son los de la maqueta. */
+      --short: max(0px, 880px - 100dvh);
       background: var(--dark-background);
       font-family: var(--dark-font);
 
       .scene {
         isolation: isolate;
         gap: 0;
-        padding: 0 28px 34px;
+        padding: 0 28px max(14px, 34px - var(--short) * 0.12);
         background: none;
         color: var(--dark-text);
         text-align: center;
@@ -78,6 +82,11 @@
 
       .brand {
         gap: 0;
+        padding-top: max(12px, 70px - var(--short) * 0.34);
+      }
+      /* Sin conexión, la pastilla «Sin conexión» va arriba a la derecha: el logo no se sube hasta
+         ella. El aviso ya hace que la pantalla se corra para ver el pie. */
+      &.offline .brand {
         padding-top: 70px;
       }
       .brand-logo img {
@@ -86,7 +95,7 @@
       }
       .brand-motto {
         max-width: 300px;
-        margin: 15px auto 0;
+        margin: max(8px, 15px - var(--short) * 0.04) auto 0;
         font-size: 16.5px;
         line-height: 22px;
         font-weight: 500;
@@ -105,7 +114,7 @@
       }
       .phone-head {
         order: 0;
-        margin-top: 50px;
+        margin-top: max(14px, 50px - var(--short) * 0.21);
       }
       .phone-title {
         font-size: 38px;
@@ -129,7 +138,15 @@
       .google {
         order: 3;
         align-self: stretch;
-        margin-top: 46px;
+        min-height: 54px;
+        max-height: none;
+        margin-top: max(18px, 46px - var(--short) * 0.16);
+      }
+      /* Google dibuja su botón de 40 px como mucho: en el celular se ve un 20 % más grande. Se le
+         pide más angosto y se agranda, así ocupa el mismo ancho. */
+      .google iframe {
+        width: calc(100% / 1.2);
+        transform: scale(1.2);
       }
       /* Con un aviso, el botón se acerca, para que el pie quede lo más cerca de la pantalla. */
       .notice ~ .google,
