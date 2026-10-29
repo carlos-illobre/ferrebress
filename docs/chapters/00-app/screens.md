@@ -14,7 +14,7 @@ módulo que la necesita (el marco, con la entrada del módulo 01; el manual, en 
 | El detalle de lo pendiente | Al tocar la luz, ver cada cosa por enviar | [app-frame/final](../../design/mockups/app-frame/final/) |
 | Sin conexión | Ver lo gris con «Sin conexión» y salir | [app-frame/final](../../design/mockups/app-frame/final/) |
 | La versión nueva | Ver el aviso, actualizar o cerrarlo; ver el bloqueo de «Hay que actualizar» | [app-notices/variant-1-evolution](../../design/mockups/app-notices/variant-1-evolution/); la final, en `app-notices/final/` |
-| El manual | Elegir el dispositivo, recorrer el índice, buscar, leer un capítulo, volver | Elegida: [manual, variante 2 · Paso a paso](../../design/mockups/manual/) (empieza por «¿Qué querés hacer?» y cada tarea se sigue de a un paso); la final, en `manual/final/` |
+| El manual | Elegir el dispositivo, recorrer el índice, buscar, leer un capítulo, volver | [manual/final](../../design/mockups/manual/final/), sobre la variante 2 · Paso a paso (empieza por «¿Qué querés hacer?» y cada tarea se sigue de a un paso). En el celular, un título largo se corta con «…» en un renglón |
 | La espera | Ver que algo tarda: la marca del botón y, pasados 2 segundos, qué se hace y cuánto falta | [app-notices/variant-1-evolution](../../design/mockups/app-notices/variant-1-evolution/); la final, en `app-notices/final/` |
 | Algo salió mal | Ver qué pasó, qué hacer y avisarlo | [app-notices/variant-1-evolution](../../design/mockups/app-notices/variant-1-evolution/); la final, en `app-notices/final/` |
 | Las teclas a la vista | Ver las teclas de cada botón mientras Alt está apretado | [app-frame/final](../../design/mockups/app-frame/final/) |

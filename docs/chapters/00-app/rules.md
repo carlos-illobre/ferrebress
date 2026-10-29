@@ -105,15 +105,23 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   celular, solo desde Más → Manual.
 - **R6.2** Se abre sin haber entrado: no muestra datos del negocio.
 - **R6.3** Arriba se elige el dispositivo: Computadora o Celular. Arranca en el que se está usando.
-  Todo el manual (índice, capítulos, capturas) muestra solo lo del dispositivo elegido.
-- **R6.4** Tiene un capítulo por módulo, en el orden del menú. En el ambiente de pruebas, los que
-  todavía no están escritos dicen «pronto» y no se abren; en producción no aparecen.
+  Todo el manual (índice, capítulos, capturas) muestra solo lo del dispositivo elegido, salvo el
+  paso de una tarea que se hace en el otro dispositivo (por ejemplo, entrar a la computadora con el
+  celular): ese paso se muestra igual, con la captura del otro dispositivo y una aclaración de
+  dónde se hace, para que la tarea no quede cortada.
+- **R6.4** Tiene un capítulo por módulo, en el orden del menú; los módulos que no están en el menú
+  van después, en el orden en que se programan. En el ambiente de pruebas, los que todavía no están
+  escritos dicen «pronto» y no se abren; en producción no aparecen. Entrar sin conexión se explica
+  en «Entrar», donde lo busca quien no puede entrar; «Trabajar sin conexión» lleva ahí.
 - **R6.5** Cada capítulo tiene texto simple, para quien atiende una ferretería sin saber de
-  informática, pasos y capturas de la aplicación de verdad. Un clip solo donde la funcionalidad es
-  lo bastante grande para verla en video; arranca cuando se lo pide, sin sonido.
+  informática, pasos y capturas de la aplicación de verdad. Las capturas y los clips se sacan sin
+  el marco ni el cartel del ambiente de pruebas, y con datos de una cuenta de demostración. Un clip
+  solo donde la funcionalidad es lo bastante grande para verla en video; es un video de la
+  aplicación programada, arranca cuando se lo pide, sin sonido.
 - **R6.6** Tiene un buscador: muestra lo encontrado del dispositivo elegido, con su capítulo, y lleva
   a esa parte.
-- **R6.7** «Volver» lleva a donde se estaba (la entrada o la aplicación).
+- **R6.7** «Volver» lleva a donde se estaba (la entrada o la aplicación) y nombra esa pantalla
+  («Volver a la entrada», «Volver a Vender»).
 - **R6.8** Necesita internet y no se guarda en el dispositivo.
 
 ## 7. Las esperas y las búsquedas

@@ -106,24 +106,19 @@ el celular (390 × 844).
 - Las tareas, los capítulos que faltan y los pasos son listas (`ul`, `ol`); las tareas y las barras
   de avance son botones; el dispositivo elegido se marca con `aria-pressed`.
 
-## Lo que contradice una regla o falta decidir
+## Lo que decidió Carlos al aprobarla
 
-- **Capítulos que no son una opción del menú:** «Clientes» (va en Vender, pero el menú no lo
-  nombra), «Celular y computadora» y «Trabajar sin conexión» (están en Más, pero no en las pestañas
-  de 00 · R1.2). Se dejaron donde los puso el director: Clientes después de Vender, y los otros dos
-  al final de Más. «Administración» va primero en Más porque su módulo trae Anomalías, la primera
-  pestaña. Falta que Carlos confirme el orden.
-- **Entrar sin conexión está en el capítulo «Entrar»,** mientras «Trabajar sin conexión» (el módulo
-  15) sigue en «Pronto». La etapa a del módulo 15 ya anda y le falta su manual: o vive dentro de
-  «Entrar» (como ahora), o «Trabajar sin conexión» se abre con solo esa parte. Lo decide Carlos.
-- **Lo del otro dispositivo dentro de un capítulo:** el manual de la computadora muestra la
-  entrada del celular en «Entrar con el celular», y el del celular, la de la computadora en el
-  clip. R6.3 dice que todo muestra solo lo del dispositivo elegido; acá es parte de la tarea (para
-  entrar a la computadora se usa el celular). Se dejó; falta que Carlos lo confirme.
-- **El texto de «Volver» en la computadora abierto desde la aplicación** (Más → Manual): la maqueta
-  muestra el caso de la entrada, «Volver a la entrada». Desde la aplicación falta decidir el texto
-  (por ejemplo, «Volver a Ferrebress»).
-- **En el celular, la cabecera del paso a paso** lleva el clip (solo su ícono), «Todos los pasos» y
-  la ×: un título largo («Hacer entrar a la computadora») ocupa tres renglones.
-- **El clip** sigue armado con dos capturas, como lo dejó el director; en la aplicación es un video
-  mudo que se graba con el capítulo.
+- **Capítulos que no son una opción del menú** (Clientes, Celular y computadora, Trabajar sin
+  conexión, Administración): van después de los del menú, en el orden en que se programan
+  (00 · R6.4).
+- **Entrar sin conexión** se explica en «Entrar»; «Trabajar sin conexión» lleva ahí (00 · R6.4).
+- **El paso que se hace en el otro dispositivo** se muestra igual, con la captura del otro
+  dispositivo y una aclaración de dónde se hace (00 · R6.3).
+- **«Volver»** nombra la pantalla a la que vuelve: «Volver a la entrada», «Volver a Vender»
+  (00 · R6.7).
+- **En el celular, un título largo** se corta con «…» en un renglón; el título entero está en el
+  paso.
+- **El clip** queda en la maqueta como dos capturas; en la aplicación es un video mudo de la
+  aplicación programada (00 · R6.5).
+- **Las capturas y los clips del manual de verdad** se sacan sin el marco ni el cartel del ambiente
+  de pruebas, con una cuenta de demostración (00 · R6.5). Las de esta maqueta los tienen.
