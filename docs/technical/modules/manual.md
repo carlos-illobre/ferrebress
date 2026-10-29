@@ -36,7 +36,7 @@ el orden en que están escritas en su archivo: reordenarlas es mover su sección
 - sell · Vender · shopping-cart
 - customers · Clientes · users
 …
-- offline · Trabajar sin conexión · wifi-off · → sign-in: offline, no-internet
+- offline · Trabajar sin conexión · wifi-off · → sign-in: no-internet (computadora), offline (celular)
 …
 ```
 
@@ -46,9 +46,9 @@ Cada renglón, separado por «·»: el identificador (el nombre del módulo, en 
 - **un archivo:** el capítulo está escrito;
 - **nada:** el capítulo falta; en el ambiente de pruebas dice «Pronto» y no se abre, y en producción
   no aparece (R6.4);
-- **`→ <capítulo>: <tareas>`:** el capítulo lleva a tareas de otro, una por dispositivo (R6.4:
-  «Trabajar sin conexión» lleva a «Entrar»). Abre la que es del dispositivo elegido; si ninguna lo
-  es, el renglón no sale con ese dispositivo.
+- **`→ <capítulo>: <tarea> (<dispositivo>), …`:** el capítulo lleva a tareas de otro, una por
+  dispositivo (R6.4: «Trabajar sin conexión» lleva a «Entrar»). Abre la del dispositivo elegido;
+  si no hay, el renglón no sale con ese dispositivo.
 
 El orden de hoy es el de R6.4.
 

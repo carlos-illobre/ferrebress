@@ -56,6 +56,38 @@ describe('el marco en el celular', () => {
     expect(toggle).toHaveBeenCalledOnce();
   });
 
+  it('app-E02b, offline-E01: en producción, sin grupos vacíos, y el interruptor primero en Ajustes', () => {
+    const setting = {
+      name: 'Trabajar sin conexión',
+      detail: 'Hasta 24 horas',
+      on: false,
+      toggle: vi.fn(),
+    };
+    open({ testing: false, setting });
+    fireEvent.click(
+      within(screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement).getByRole(
+        'button',
+        { name: /Más/ },
+      ),
+    );
+    const screenMore = screen.getByRole('region', { name: 'Más' });
+    expect(within(screenMore).queryByText('Del negocio')).toBeNull();
+    expect(within(screenMore).queryByText('Pronto')).toBeNull();
+    const row = screen.getByRole('switch', { name: /Trabajar sin conexión/ });
+    expect(row.closest('ul')?.previousElementSibling?.textContent).toBe('Ajustes');
+  });
+
+  it('app-E02b: en producción y sin interruptor, Más no tiene grupos vacíos', () => {
+    open({ testing: false });
+    fireEvent.click(
+      within(screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement).getByRole(
+        'button',
+        { name: /Más/ },
+      ),
+    );
+    expect(screen.queryByText('Ajustes')).toBeNull();
+  });
+
   it('en el celular, lo que no está lo dice una tostada que se va sola; la luz abre lo pendiente', async () => {
     vi.useFakeTimers();
     media({ phone: true });

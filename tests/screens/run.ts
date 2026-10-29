@@ -9,11 +9,20 @@ import { join } from 'node:path';
 const image =
   'mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a';
 const root = join(import.meta.dirname, '../..');
-const args = process.argv.slice(2);
+// `--config <archivo>` corre otra configuración en la misma imagen (las capturas del manual).
+const given = process.argv.slice(2);
+const [config, args] =
+  given[0] === '--config'
+    ? [given[1] as string, given.slice(2)]
+    : ['tests/screens/playwright.config.ts', given];
 const inImage = existsSync('/ms-playwright');
+// Lo que elige qué hacen las capturas del manual pasa también a Docker.
+const passed = ['MANUAL_CHECK'].flatMap((name) =>
+  process.env[name] ? ['-e', `${name}=${process.env[name]}`] : [],
+);
 
 const run = inImage
-  ? spawnSync('npx', ['playwright', 'test', '-c', 'tests/screens/playwright.config.ts', ...args], {
+  ? spawnSync('npx', ['playwright', 'test', '-c', config, ...args], {
       cwd: root,
       stdio: 'inherit',
     })
@@ -28,10 +37,11 @@ const run = inImage
         `${root}:/repo`,
         '-w',
         '/repo',
+        ...passed,
         image,
         'node',
         'tests/screens/run.ts',
-        ...args,
+        ...given,
       ],
       { stdio: 'inherit' },
     );

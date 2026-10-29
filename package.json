@@ -21,7 +21,9 @@
     "links": "node tools/cli.ts links",
     "test": "vitest run --coverage",
     "e2e": "playwright test -c tests/e2e/playwright.config.ts",
-    "screens": "node tests/screens/run.ts"
+    "screens": "node tests/screens/run.ts",
+    "manual": "node tools/cli.ts manual",
+    "manual:media": "node tests/screens/run.ts --config tests/manual/playwright.config.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",

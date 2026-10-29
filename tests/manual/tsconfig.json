@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../dist/types/manual",
+    "rootDir": "../..",
+    "lib": ["es2024", "dom", "dom.iterable"],
+    "types": ["node"]
+  },
+  "include": [
+    "**/*.ts",
+    "../../src/shared/contracts/sign-in.ts",
+    "../../src/shared/contracts/server-header.ts"
+  ]
+}

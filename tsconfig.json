@@ -1,11 +1,26 @@
 {
   "files": [],
   "references": [
-    { "path": "src/shared" },
-    { "path": "src/server" },
-    { "path": "src/app" },
-    { "path": "tools" },
-    { "path": "tests/e2e" },
-    { "path": "tests/screens" }
+    {
+      "path": "src/shared"
+    },
+    {
+      "path": "src/server"
+    },
+    {
+      "path": "src/app"
+    },
+    {
+      "path": "tools"
+    },
+    {
+      "path": "tests/e2e"
+    },
+    {
+      "path": "tests/screens"
+    },
+    {
+      "path": "tests/manual"
+    }
   ]
 }

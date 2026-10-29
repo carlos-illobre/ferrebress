@@ -1,5 +1,15 @@
 {
   "extends": "../tsconfig.base.json",
-  "compilerOptions": { "outDir": "../dist/types/tools", "rootDir": "..", "types": ["node"] },
-  "include": ["**/*.ts", "../vitest.config.ts"]
+  "compilerOptions": {
+    "outDir": "../dist/types/tools",
+    "rootDir": "..",
+    "types": ["node"]
+  },
+  "include": [
+    "**/*.ts",
+    "../vitest.config.ts",
+    "../src/app/vite.config.ts",
+    "../src/shared/contracts/manual.ts",
+    "../src/app/modules/manual/icons.ts"
+  ]
 }

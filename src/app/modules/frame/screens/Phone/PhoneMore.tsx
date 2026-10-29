@@ -1,7 +1,8 @@
 // Más en el celular (maqueta del marco): una pantalla entera con el título, la luz, la persona, las
 // opciones en dos grupos con su ícono y qué son, y «Salir» aparte (01 · R5.1). Lo que todavía no
-// existe dice «Pronto» y no lleva flecha, porque no se abre (00 · R1.3). Debajo de Configuración
-// puede ir un interruptor de otro módulo (hoy, «Trabajar sin conexión», 15 · R1).
+// existe dice «Pronto» y no lleva flecha, porque no se abre (00 · R1.3); en producción no está, y un
+// grupo sin nada no se muestra. Debajo de Configuración puede ir un interruptor de otro módulo (hoy,
+// «Trabajar sin conexión», 15 · R1).
 import { Fragment } from 'preact';
 import { navigate } from '../../../../platform/router.ts';
 import { useWaiting } from '../../../../platform/waiting.ts';
@@ -14,7 +15,7 @@ import './PhoneMore.css';
 import './switch.css';
 
 export function PhoneMore() {
-  const { person, panels, phoneMore, testing } = useFrame();
+  const { person, panels, phoneMore } = useFrame();
   if (!phoneMore.open) return null;
   return (
     <section class="phone-more phone-only" aria-labelledby="phone-more-title">
@@ -37,28 +38,41 @@ export function PhoneMore() {
           <small>{person.role}</small>
         </div>
       </section>
-      {moreGroups.map((group) => {
-        const options = shown(group.options, testing);
-        return (
-          <div key={group.title}>
-            <h2 class="phone-more-group-title">{group.title}</h2>
-            <ul class="phone-more-card phone-more-group">
-              {options.map((option) => (
-                <Fragment key={option.id}>
-                  <li>
-                    <MoreOption option={option} />
-                  </li>
-                  {option.id === 'deviceSettings' && <SettingOption />}
-                </Fragment>
-              ))}
-            </ul>
-          </div>
-        );
-      })}
+      {moreGroups.map((group) => (
+        <MoreGroup key={group.title} title={group.title} options={group.options} />
+      ))}
       <SignOutRow />
     </section>
   );
 }
+
+// Un grupo de opciones. El interruptor de otro módulo va debajo de Configuración; si Configuración
+// todavía no se muestra (en producción), va primero en su grupo. Un grupo vacío no se muestra.
+function MoreGroup({ title, options }: { title: string; options: Option[] }) {
+  const { setting, testing } = useFrame();
+  const visible = shown(options, testing);
+  const settingHere = !!setting && options.some((option) => option.id === settingsAfter);
+  const settingFirst = settingHere && !visible.some((option) => option.id === settingsAfter);
+  if (visible.length === 0 && !settingHere) return null;
+  return (
+    <div>
+      <h2 class="phone-more-group-title">{title}</h2>
+      <ul class="phone-more-card phone-more-group">
+        {settingFirst && <SettingOption />}
+        {visible.map((option) => (
+          <Fragment key={option.id}>
+            <li>
+              <MoreOption option={option} />
+            </li>
+            {option.id === settingsAfter && <SettingOption />}
+          </Fragment>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+const settingsAfter = 'deviceSettings';
 
 function MoreOption({ option }: { option: Option }) {
   const { notYet } = useFrame();
