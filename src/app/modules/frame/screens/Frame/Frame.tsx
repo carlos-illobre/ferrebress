@@ -10,7 +10,7 @@ import { useCollapse } from '../../behavior/useCollapse.ts';
 import { usePanels } from '../../behavior/usePanels.ts';
 import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
 import { useTip } from '../../behavior/useTip.ts';
-import { FrameContext, type FrameState, shake } from '../../context.ts';
+import { FrameContext, type FrameState, type SettingRow, shake } from '../../context.ts';
 import { exists, moreOptions, parts } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
@@ -27,6 +27,7 @@ export type FrameProps = {
   person: Person;
   testing: boolean;
   onSignOut: () => unknown;
+  setting?: SettingRow | undefined;
   children?: ComponentChildren;
 };
 
@@ -34,7 +35,7 @@ export type FrameProps = {
 const firstOption = (testing: boolean) =>
   [...parts, ...moreOptions].find(exists)?.id ?? (testing ? parts[0]?.id : undefined);
 
-export function Frame({ person, testing, onSignOut, children }: FrameProps) {
+export function Frame({ person, testing, onSignOut, setting, children }: FrameProps) {
   const online = useStore(onlineStore);
   const collapse = useCollapse();
   const panels = usePanels();
@@ -55,6 +56,7 @@ export function Frame({ person, testing, onSignOut, children }: FrameProps) {
       else tip.notYet(element, name);
     },
     signOut: onSignOut,
+    setting,
   };
   return (
     <FrameContext.Provider value={state}>

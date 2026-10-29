@@ -12,24 +12,38 @@ import { createStore } from '../../platform/store.ts';
 import { discardWork, updateOnSignIn } from '../frame/index.ts';
 import { signInApi } from './api.ts';
 import { forgetGoogleChoice } from './google/messages.ts';
+import { endEntry } from './offline/pending.ts';
 
 const sessionKey = 'session';
 const pendingKey = 'pending-sign-out';
 
-type Saved = { sessionId?: string; person: Person };
+// `offlineId`: la sesión se abrió sin conexión y el servidor todavía no la confirmó (15 · R2).
+type Saved = { sessionId?: string; offlineId?: string; person: Person };
 type Pending = { sessionId: string; signature: string; tappedAt: number };
 
 export const person = createStore<Person | undefined>(readStored<Saved>(sessionKey)?.person);
 
-export function signedIn({ person: who, sessionId }: SignInResponse): void {
+export const signedIn = ({ person: who, sessionId }: SignInResponse) =>
+  enter({ sessionId, person: who });
+
+// Entró sin conexión con la huella (15 · R2.6): la sesión queda abierta hasta que el servidor la
+// confirme.
+export const signedInOffline = (who: Person, offlineId: string) =>
+  enter({ offlineId, person: who });
+
+export const offlineSession = (): string | undefined => readStored<Saved>(sessionKey)?.offlineId;
+
+function enter(saved: Saved): void {
+  const who = saved.person;
   // Después de una sesión vencida, si entra otra persona, lo que había a medio hacer se descarta;
   // si es la misma, sigue donde estaba (E25, E26).
   const before = person.get();
   if (before && before.userId !== who.userId) discardWork();
-  store(sessionKey, { sessionId, person: who });
+  store(sessionKey, saved);
   // Con una versión nueva, se actualiza ahora, antes de mostrar el marco (00 · R5.2); salvo que
   // esté por ofrecerse la huella, que se perdería al recargar: ahí avisa, como en uso.
-  if (!offerPasskey.get() && updateOnSignIn()) return;
+  // Sin conexión, no: la versión nueva se aplica al volver.
+  if (!saved.offlineId && !offerPasskey.get() && updateOnSignIn()) return;
   person.set(who);
 }
 
@@ -37,7 +51,11 @@ export function signedIn({ person: who, sessionId }: SignInResponse): void {
 export function confirmed(who: Person | undefined): void {
   const saved = readStored<Saved>(sessionKey);
   if (!who) forget(sessionKey);
-  else store(sessionKey, { ...(saved?.person.userId === who.userId && saved), person: who });
+  else {
+    // Con el servidor diciendo quién es, la sesión ya no es una sin confirmar.
+    const { offlineId: _, ...kept } = saved?.person.userId === who.userId ? saved : { person: who };
+    store(sessionKey, { ...kept, person: who });
+  }
   person.set(who);
 }
 
@@ -46,6 +64,8 @@ export async function signOut(): Promise<void> {
   forget(sessionKey);
   person.set(undefined);
   forgetGoogleChoice();
+  // Salir de una sesión sin conexión: la entrada se manda igual, para la auditoría (15 · E21).
+  if (saved?.offlineId) endEntry(saved.offlineId);
   const tappedAt = Date.now();
   const result = await signInApi.signOut();
   if (!result.ok && result.error === 'offline' && saved?.sessionId) {

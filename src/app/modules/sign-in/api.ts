@@ -1,5 +1,7 @@
 // Las llamadas al servidor del módulo, una sola vez (diseño de 01, § 4). Las huellas van y vienen en
 // el JSON de WebAuthn: el servidor arma las opciones y valida las respuestas.
+
+import type { OfflineSignInBody } from '@ferrebress/shared/contracts/offline-sign-in';
 import type {
   ApproveCodeBody,
   NonceResponse,
@@ -32,6 +34,9 @@ export const signInApi = {
   cancel: (secret: string) => api<Ok>('/api/sign-in/codes/cancel', { secret }),
   claim: (permit: string, proofPublicKey: string) =>
     api<SignInResponse>('/api/sign-in/codes/claim', { permit, proofPublicKey }),
+  // Confirmar una entrada sin conexión (15 · R3).
+  offline: (entry: Omit<OfflineSignInBody, 'response'> & { response: Json }) =>
+    api<SignInResponse | { ended: true }>('/api/sign-in/offline', entry),
   signOut: (pending?: { sessionId: string; signature: string; tappedAt: number }) =>
     api<Ok>('/api/sign-out', pending ? { pending } : {}),
 };

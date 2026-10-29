@@ -39,6 +39,23 @@ describe('el marco en el celular', () => {
     expect(onSignOut).toHaveBeenCalledOnce();
   });
 
+  it('offline-E01: debajo de Configuración, el interruptor de otro módulo, que se toca entero', () => {
+    const toggle = vi.fn();
+    const setting = { name: 'Trabajar sin conexión', detail: 'Hasta 24 horas', on: false, toggle };
+    open({ setting });
+    fireEvent.click(
+      within(screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement).getByRole(
+        'button',
+        { name: /Más/ },
+      ),
+    );
+    const row = screen.getByRole('switch', { name: /Trabajar sin conexión/ });
+    expect(row.getAttribute('aria-checked')).toBe('false');
+    expect(row.closest('li')?.previousElementSibling?.textContent).toContain('Configuración');
+    fireEvent.click(row);
+    expect(toggle).toHaveBeenCalledOnce();
+  });
+
   it('en el celular, lo que no está lo dice una tostada que se va sola; la luz abre lo pendiente', async () => {
     vi.useFakeTimers();
     media({ phone: true });

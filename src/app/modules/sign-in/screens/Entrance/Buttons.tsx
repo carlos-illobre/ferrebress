@@ -1,9 +1,10 @@
 // Los botones para entrar del celular: la huella (R2.2) y «Escanear código QR»
 // (R2.7). El de Google, en los dos anchos, está aparte (google/GoogleButton.tsx).
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
+import { withOfflinePasskey } from '../../offline/enter.ts';
 import { texts } from '../../texts.ts';
 import { withPasskey } from '../../useSignIn.ts';
-import { limited, offline, useEntrance } from './context.ts';
+import { fingerOff, offline, useEntrance } from './context.ts';
 
 // En el celular, cada forma de entrar es un círculo con su ícono y debajo qué es: todo es el botón.
 function RoundWay({
@@ -45,8 +46,8 @@ export function FingerButton() {
       icon="fingerprint-arches"
       title={texts.finger}
       detail={texts.fingerDetail}
-      off={limited(entrance)}
-      onPress={() => entrance.attempt(withPasskey)}
+      off={fingerOff(entrance)}
+      onPress={() => entrance.attempt(entrance.online ? withPasskey : withOfflinePasskey)}
     />
   );
 }

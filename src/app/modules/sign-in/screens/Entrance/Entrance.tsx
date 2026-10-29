@@ -8,6 +8,7 @@ import { useStore } from '../../../../platform/store.ts';
 import { useWaiting } from '../../../../platform/waiting.ts';
 import { TestEnvironment } from '../../../frame/index.ts';
 import { useNotice } from '../../notice.ts';
+import { useOfflineEntry } from '../../offline/useOfflineEntry.ts';
 import { texts } from '../../texts.ts';
 import { entering } from '../../useSignIn.ts';
 import { Card } from './Card.tsx';
@@ -39,6 +40,7 @@ export function Entrance({ start, onScan, signInFirst, onStale }: EntranceProps)
   const way = useStore(entering);
   // El celular tiene su entrada oscura; la computadora con la ventana angosta sigue con la clara.
   const phone = isPhone();
+  const offlineUntil = useOfflineEntry(online, phone);
   const state: EntranceState = {
     start,
     online,
@@ -51,6 +53,7 @@ export function Entrance({ start, onScan, signInFirst, onStale }: EntranceProps)
       }),
     scan: onScan,
     signInFirst,
+    offlineUntil,
   };
   return (
     <EntranceContext.Provider value={state}>

@@ -2,12 +2,18 @@
 // entrar: no autorizada (R1.3), sin conexión (R2.8) o demasiados intentos (R2.9).
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
 import { minutes } from '../../notice.ts';
+import { whenText } from '../../offline/useOfflineEntry.ts';
 import { texts } from '../../texts.ts';
 import { useEntrance } from './context.ts';
 
 // La sesión vence sola por no usarla o por el tope (R3.1, R3.2); si no, alguien la cerró.
 // Sin cookie (venció a las 8 horas y el navegador la borró) el servidor no sabe el motivo: venció.
 const expiredReasons = new Set(['idle', 'max-age', 'unknown']);
+
+const closedTitle = (closed: string) => {
+  if (closed === 'offline-not-confirmed') return texts.offlineNotConfirmed;
+  return expiredReasons.has(closed) ? texts.closedExpired : texts.closedElsewhere;
+};
 
 export function ClosedNotice() {
   const { closed, signInFirst } = useEntrance();
@@ -21,11 +27,21 @@ export function ClosedNotice() {
       </div>
     );
   if (!closed) return null;
+  // La entrada sin conexión que el servidor no confirmó (15 · R3.2).
+  if (closed === 'not-authorized')
+    return (
+      <div class="notice notice-top error" role="alert">
+        <Icon name="ban" />
+        <p>
+          <strong>{texts.notAuthorized('')}</strong>
+        </p>
+      </div>
+    );
   return (
     <div class="notice notice-top warn" role="alert">
       <Icon name="log-out" />
       <p>
-        <strong>{expiredReasons.has(closed) ? texts.closedExpired : texts.closedElsewhere}</strong>
+        <strong>{closedTitle(closed)}</strong>
         <span>{texts.closedDetail}</span>
       </p>
     </div>
@@ -50,7 +66,14 @@ function Shown({
 }
 
 export function MainNotice() {
-  const { online, notice } = useEntrance();
+  const { online, notice, offlineUntil } = useEntrance();
+  // Sin conexión, con la huella prendida (15 · R2.1): es información, no un error.
+  if (!online && offlineUntil)
+    return (
+      <Shown kind="info" icon="wifi-off">
+        {texts.offlineFinger(whenText(offlineUntil))}
+      </Shown>
+    );
   if (!online)
     return (
       <Shown kind="warn" icon="wifi-off">

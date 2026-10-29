@@ -1,6 +1,8 @@
 // Más en el celular (maqueta del marco): una pantalla entera con el título, la luz, la persona, las
 // opciones en dos grupos con su ícono y qué son, y «Salir» aparte (01 · R5.1). Lo que todavía no
-// existe dice «Pronto» y no lleva flecha, porque no se abre (00 · R1.3).
+// existe dice «Pronto» y no lleva flecha, porque no se abre (00 · R1.3). Debajo de Configuración
+// puede ir un interruptor de otro módulo (hoy, «Trabajar sin conexión», 15 · R1).
+import { Fragment } from 'preact';
 import { navigate } from '../../../../platform/router.ts';
 import { useWaiting } from '../../../../platform/waiting.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
@@ -9,6 +11,7 @@ import { exists, moreGroups, type Option, shown } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './PhoneMore.css';
+import './switch.css';
 
 export function PhoneMore() {
   const { person, panels, phoneMore, testing } = useFrame();
@@ -41,9 +44,12 @@ export function PhoneMore() {
             <h2 class="phone-more-group-title">{group.title}</h2>
             <ul class="phone-more-card phone-more-group">
               {options.map((option) => (
-                <li key={option.id}>
-                  <MoreOption option={option} />
-                </li>
+                <Fragment key={option.id}>
+                  <li>
+                    <MoreOption option={option} />
+                  </li>
+                  {option.id === 'deviceSettings' && <SettingOption />}
+                </Fragment>
               ))}
             </ul>
           </div>
@@ -74,6 +80,32 @@ function MoreOption({ option }: { option: Option }) {
       </span>
       {soon ? <span class="coming-soon">{texts.comingSoon}</span> : <Icon name="chevron-right" />}
     </button>
+  );
+}
+
+// El interruptor de otro módulo (hoy, «Trabajar sin conexión»): se toca todo el renglón.
+function SettingOption() {
+  const { setting } = useFrame();
+  if (!setting) return null;
+  return (
+    <li>
+      <button
+        type="button"
+        class="phone-more-option phone-more-switch"
+        role="switch"
+        aria-checked={setting.on}
+        onClick={setting.toggle}
+      >
+        <span class="phone-more-icon neutral">
+          <Icon name="wifi-off" />
+        </span>
+        <span class="phone-more-text">
+          <b>{setting.name}</b>
+          <small>{setting.detail}</small>
+        </span>
+        <span class="switch" aria-hidden="true" />
+      </button>
+    </li>
   );
 }
 

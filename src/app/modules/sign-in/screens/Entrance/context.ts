@@ -15,6 +15,8 @@ export type EntranceState = {
   scan: () => void;
   // El celular leyó el código de una computadora y tiene que entrar primero (R2.7).
   signInFirst: boolean;
+  // Sin conexión, hasta cuándo se puede entrar con la huella (15 · R2.1).
+  offlineUntil: Date | undefined;
 };
 
 export const EntranceContext = createContext<EntranceState | undefined>(undefined);
@@ -23,3 +25,6 @@ export const useEntrance = () => useContext(EntranceContext) as EntranceState;
 
 export const offline = (state: EntranceState) => !state.online;
 export const limited = (state: EntranceState) => !state.online || state.notice?.kind === 'too-many';
+// La huella: con conexión, como las demás; sin conexión, si se puede entrar sin conexión.
+export const fingerOff = (state: EntranceState) =>
+  state.online ? limited(state) : !state.offlineUntil;

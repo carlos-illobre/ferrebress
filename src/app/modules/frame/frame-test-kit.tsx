@@ -3,7 +3,7 @@
 import { render, screen } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
 import { Toasts } from '../../ui/toast/Toast.tsx';
-import { Frame } from './index.ts';
+import { Frame, type SettingRow } from './index.ts';
 
 export const person = {
   userId: 'u1',
@@ -22,13 +22,15 @@ export function media({ phone = false, reduced = false } = {}) {
 export function open({
   testing = true,
   onSignOut = vi.fn<() => unknown>(),
+  setting,
 }: {
   testing?: boolean;
   onSignOut?: Mock<() => unknown>;
+  setting?: SettingRow;
 } = {}): { onSignOut: Mock<() => unknown>; side: HTMLElement } {
   render(
     <>
-      <Frame person={person} testing={testing} onSignOut={onSignOut} />
+      <Frame person={person} testing={testing} onSignOut={onSignOut} setting={setting} />
       <Toasts />
     </>,
   );

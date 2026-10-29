@@ -50,6 +50,12 @@
     color: var(--urgent-text);
     box-shadow: inset 0 0 0 1px var(--sign-in-urgent-border);
   }
+  /* Sin conexión, con la huella (15 · R2.1): información, en verde. */
+  .notice.info {
+    background: var(--pine-soft);
+    color: var(--pine-text);
+    box-shadow: inset 0 0 0 1px #b5d3c4;
+  }
   @media (prefers-reduced-motion: no-preference) {
     .notice {
       animation: notice-in 340ms var(--sign-in-enter);

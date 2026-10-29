@@ -21,6 +21,9 @@ export const newVersion = createStore(false);
 export const updateRequired = createStore(false);
 // Por qué se cerró la sesión, si el servidor dijo que se cerró (R3.4).
 export const sessionClosed = createStore<string | undefined>(undefined);
+// Cuándo contestó bien el servidor por última vez, con la hora del dispositivo: lo escucha quien
+// necesita saber del último contacto (entrar sin conexión, 15 · R2.2), sin que esto sepa para qué.
+export const lastReply = createStore<number | undefined>(undefined);
 
 addEventListener('online', () => online.set(true));
 addEventListener('offline', () => online.set(false));
@@ -65,7 +68,10 @@ export async function api<T>(
     return { ok: false, error: 'offline' };
   }
   online.set(true);
-  if (response.ok) return { ok: true, data };
+  if (response.ok) {
+    lastReply.set(Date.now());
+    return { ok: true, data };
+  }
   if (data.error === 'update-required') updateRequired.set(true);
   if (data.error === 'session-closed') sessionClosed.set(String(data.reason));
   return { ok: false, ...data };

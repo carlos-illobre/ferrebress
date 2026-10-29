@@ -33,7 +33,6 @@ async function signEntry(
   const challenge = await offlineChallenge({
     ...fields,
     deviceId: phone.id,
-    credentialId: authenticator.credentialId,
   });
   return {
     ...fields,

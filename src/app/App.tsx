@@ -23,12 +23,16 @@ import {
   hasPendingSignOut,
   linkPath,
   OfferSheet,
+  offlineSession,
+  pendingEntries,
   person,
-  sendPendingSignOut,
+  sendPending,
   signInApi,
   signOut,
   useNonceRenewal,
+  useOfflineSetting,
   usePhoneCode,
+  watchOffline,
 } from './modules/sign-in/index.ts';
 import { readStored, store } from './platform/device/storage.ts';
 import { clearHash, navigate, route } from './platform/router.ts';
@@ -48,21 +52,22 @@ const unknown = (): StartResponse => ({
 });
 
 async function boot(): Promise<StartResponse | undefined> {
-  await sendPendingSignOut();
+  await sendPending();
   const start = await signInApi.start();
   if (!start.ok) return unknown();
   store(environmentKey, start.data.environment);
   // Recién abierta, con una versión nueva en el servidor, se actualiza antes de que se use (R5.2).
   if (updateOnOpen(start.data.version)) return undefined;
-  confirmed(start.data.person);
+  // Una sesión abierta sin conexión que todavía no se pudo confirmar sigue (15 · R2.7).
+  if (start.data.person || !offlineSession()) confirmed(start.data.person);
   return start.data;
 }
 
 // Al volver la conexión, el servidor revisa la sesión: si venció durante el corte, aparece la
 // entrada encima de lo que había (R3.6, E28b).
 async function recheck(): Promise<void> {
-  await sendPendingSignOut();
-  if (!person.get()) return;
+  await sendPending();
+  if (!person.get() || offlineSession()) return;
   const start = await signInApi.start();
   if (start.ok && !start.data.person) sessionClosed.set('unknown');
 }
@@ -86,7 +91,7 @@ function takeCode(): string | undefined {
 // servidor, así el marco de Google y el QR cargan mientras tanto (el botón de Google espera el
 // nonce). No si hay una salida pendiente, que tiene que salir antes que cualquier otro pedido.
 const early = (): StartResponse | undefined =>
-  person.get() || hasPendingSignOut() ? undefined : unknown();
+  person.get() || hasPendingSignOut() || pendingEntries.get() > 0 ? undefined : unknown();
 
 // Al abrir: arranca, lee el código del QR si vino en la dirección, y escucha lo que pasa mientras
 // la aplicación está abierta (la red, los errores, el segundo plano).
@@ -107,7 +112,7 @@ function useStart(scanned: (code: string) => void) {
     });
     const retry = () => void recheck();
     addEventListener('online', retry);
-    const stops = [watchCrashes(), watchBackground()];
+    const stops = [watchCrashes(), watchBackground(), watchOffline()];
     return () => {
       removeEventListener('online', retry);
       for (const stop of stops) stop();
@@ -141,14 +146,17 @@ export function App() {
   const entrance = !who || !!closed || code.state.step === 'sign-in-first';
   useNonceRenewal(start?.googleNonce, entrance, renew);
   // Con la entrada apagada por un pedido que falló teniendo red, se vuelve a probar con el mismo
-  // pedido mínimo del nonce (01 · R2.8).
-  useReconnect(entrance, renew);
+  // pedido mínimo del nonce (01 · R2.8); con una entrada sin conexión por confirmar, mandándola
+  // (15 · R3).
+  const pending = useStore(pendingEntries) > 0;
+  useReconnect(entrance || pending, pending ? () => void recheck() : renew);
+  const setting = useOfflineSetting(who);
 
   if (!start) return <Dialogs />;
   const testing = start.environment !== 'production';
   return (
     <>
-      {who && <Frame person={who} testing={testing} onSignOut={leave} />}
+      {who && <Frame person={who} testing={testing} onSignOut={leave} setting={setting} />}
       {entrance && (
         <Entrance
           start={start}

@@ -59,7 +59,7 @@ async function confirm(ctx: SignInContext, c: Context, confirming: Confirming) {
   if (ctx.platform.limiter.exceeded(accountKey, limits.failedPerAccount)) {
     return ctx.throttle(c, [accountKey], limits.failedPerAccount) as Response;
   }
-  const challenge = await offlineChallenge({ ...body, deviceId, credentialId: response.id });
+  const challenge = await offlineChallenge({ ...body, deviceId });
   const counter = await verifyAssertion(ctx, response, passkey, challenge);
   if (counter === undefined) {
     ctx.platform.limiter.hit(accountKey, limits.failedPerAccount);

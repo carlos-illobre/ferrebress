@@ -60,7 +60,6 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
     const challenge = await offlineChallenge({
       ...unverified,
       deviceId: linked.phone.id,
-      credentialId: linked.authenticator.credentialId,
     });
     unverified.response = linked.authenticator.get({ challenge }, { userVerified: false });
     expect((await kit.send(linked, unverified)).status).toBe(401);

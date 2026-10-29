@@ -20,7 +20,12 @@ export type FrameState = {
   // Lo que todavía no está, al tocarlo: se sacude y lo dice (R1.3).
   notYet: (element: HTMLElement, name: string) => void;
   signOut: () => unknown;
+  // Un interruptor de otro módulo para Más del celular, debajo de Configuración: hoy, «Trabajar sin
+  // conexión» (15 · R1). El marco solo lo muestra.
+  setting: SettingRow | undefined;
 };
+
+export type SettingRow = { name: string; detail: string; on: boolean; toggle: () => void };
 
 export const FrameContext = createContext<FrameState | undefined>(undefined);
 

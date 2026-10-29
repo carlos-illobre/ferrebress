@@ -79,6 +79,14 @@ export const texts = {
   closedElsewhere: 'Tu sesión se cerró desde otro dispositivo',
   closedExpired: 'Tu sesión venció',
   closedDetail: 'Entrá de nuevo para seguir donde estabas.',
+  // Entrar sin conexión (capítulo 15).
+  offlineFinger: (when: string) => `Sin conexión: podés entrar con la huella hasta ${when}`,
+  offlineNotConfirmed: 'No se pudo confirmar tu entrada sin conexión',
+  offlineSetting: {
+    name: 'Trabajar sin conexión',
+    detail: 'Entrá con la huella aunque no haya internet, hasta 24 horas',
+    needsInternet: 'Para prenderla hace falta internet.',
+  },
   signingIn: 'Entrando',
   // La espera mientras se abre la sesión (R2.11): lo mismo en el celular y en la computadora.
   entering: {

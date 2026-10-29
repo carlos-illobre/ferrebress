@@ -1,7 +1,8 @@
 // Entrar sin conexión con la huella del celular (diseño de 15, § 4): la forma de la confirmación
 // que la aplicación manda al volver la conexión, y el desafío que firma la huella, que arman igual
 // el celular y el servidor. El desafío ata la firma a esa entrada: cambiar cualquier dato después
-// de firmar da otro desafío, y la firma deja de servir.
+// de firmar da otro desafío, y la firma deja de servir. La huella no va en el desafío: la firma
+// solo verifica con la llave de la huella que la hizo.
 import * as z from 'zod/mini';
 
 const base64url = (max: number) =>
@@ -33,7 +34,6 @@ export type OfflineChallengeFields = {
   id: string;
   userId: string;
   deviceId: string;
-  credentialId: string;
   signedAt: string;
   lastContactAt: string;
 };
@@ -43,7 +43,6 @@ const order: (keyof OfflineChallengeFields)[] = [
   'id',
   'userId',
   'deviceId',
-  'credentialId',
   'signedAt',
   'lastContactAt',
 ];
