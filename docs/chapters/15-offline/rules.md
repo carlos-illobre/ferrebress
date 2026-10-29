@@ -43,7 +43,8 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
   - la última sesión de ese celular no la cerró otro dispositivo (01 · R3.5): alguien la cerró a
     propósito, así que pide conexión. Después de «Salir» o de una sesión vencida, sí entra.
 - **R2.3** La hora la pone el reloj del celular. Si marca una hora anterior a la más alta que vio
-  la aplicación, se toma como vencido: atrasar el reloj no da más tiempo.
+  la aplicación (con 5 minutos de margen por los ajustes de hora del celular), se toma como
+  vencido: atrasar el reloj no da más tiempo, tampoco a una sesión ya abierta sin conexión.
 - **R2.4** Si no cumple R2.2 o R2.3, la entrada queda como sin la opción: todo apagado y «Para
   entrar hace falta internet» (01 · R2.8).
 - **R2.5** Sin conexión, la huella la verifica el lector del celular, y la aplicación comprueba que

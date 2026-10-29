@@ -2,7 +2,7 @@
 // entrar: no autorizada (R1.3), sin conexión (R2.8) o demasiados intentos (R2.9).
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
 import { minutes } from '../../notice.ts';
-import { whenText } from '../../offline/useOfflineEntry.ts';
+import { whenText } from '../../offline/when.ts';
 import { texts } from '../../texts.ts';
 import { useEntrance } from './context.ts';
 
@@ -26,7 +26,8 @@ export function ClosedNotice() {
         </p>
       </div>
     );
-  if (!closed) return null;
+  // El corte de las 24 horas de una sesión sin conexión: lo dice el aviso de sin conexión (R2.7).
+  if (!closed || closed === 'offline-expired') return null;
   // La entrada sin conexión que el servidor no confirmó (15 · R3.2).
   if (closed === 'not-authorized')
     return (
@@ -71,7 +72,7 @@ export function MainNotice() {
   if (!online && offlineUntil)
     return (
       <Shown kind="info" icon="wifi-off">
-        {texts.offlineFinger(whenText(offlineUntil))}
+        {texts.offlineFinger} <b>{whenText(offlineUntil)}</b>
       </Shown>
     );
   if (!online)

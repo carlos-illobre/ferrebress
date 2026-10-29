@@ -22,8 +22,10 @@ export const offlineSignInBody = z.object({
   signedAt: isoTime,
   lastContactAt: isoTime,
   // Si es la sesión que la persona tiene ahora en el celular: si salió o entró otra, se confirma
-  // sin abrir nada.
+  // sin abrir nada. Para abrirla, la firma de la llave de prueba (que no se puede copiar) sobre
+  // `offlineOpenMessage(id)`: quien copie la entrada guardada no puede abrir la sesión.
   openSession: z.boolean(),
+  openSignature: z.optional(base64url(200)),
   response: webAuthnResponse,
   proofPublicKey: base64url(256),
 });
@@ -36,6 +38,8 @@ export type OfflineChallengeFields = {
   deviceId: string;
   signedAt: string;
   lastContactAt: string;
+  // La llave de prueba de esa entrada: la firma de la huella la ata a ella.
+  proofPublicKey: string;
 };
 
 // Siempre en este orden, para que el texto sea el mismo en los dos lados.
@@ -45,6 +49,7 @@ const order: (keyof OfflineChallengeFields)[] = [
   'deviceId',
   'signedAt',
   'lastContactAt',
+  'proofPublicKey',
 ];
 
 const base64urlOf = (bytes: ArrayBuffer): string =>
@@ -52,6 +57,12 @@ const base64urlOf = (bytes: ArrayBuffer): string =>
     .replaceAll('+', '-')
     .replaceAll('/', '_')
     .replace(/=+$/, '');
+
+// Cuánto se puede entrar sin conexión desde el último contacto con sesión (15 · R2.2).
+export const offlineWindowHours = 24;
+
+// Lo que firma la llave de prueba para que la confirmación abra la sesión.
+export const offlineOpenMessage = (id: string): string => `offline-open:${id}`;
 
 // El desafío de una entrada sin conexión: SHA-256 del JSON con las claves en orden, en base64url.
 export async function offlineChallenge(fields: OfflineChallengeFields): Promise<string> {

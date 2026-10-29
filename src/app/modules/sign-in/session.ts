@@ -1,6 +1,8 @@
 // La sesión en la aplicación (diseño de 01, § 6 y § 7): quién entró, guardado en el dispositivo para
 // mostrarlo sin conexión, y salir con o sin conexión. Sin conexión, la salida queda pendiente,
-// firmada con la llave de prueba, y se manda antes que cualquier otro pedido apenas se pueda.
+// firmada con la llave de prueba, y se manda antes que cualquier otro pedido apenas se pueda. La
+// sesión puede haberse abierto sin conexión (15 · R2): el servidor no la conoce hasta confirmarla,
+// y si no la confirma, la entrada aparece encima, también al recargar (R3.2).
 import {
   type Person,
   type SignInResponse,
@@ -8,6 +10,7 @@ import {
 } from '@ferrebress/shared/contracts/sign-in';
 import { forgetProofKey, signWithProofKey } from '../../platform/device/proof-key.ts';
 import { forget, readStored, store } from '../../platform/device/storage.ts';
+import { sessionClosed } from '../../platform/server/api.ts';
 import { createStore } from '../../platform/store.ts';
 import { discardWork, updateOnSignIn } from '../frame/index.ts';
 import { signInApi } from './api.ts';
@@ -17,8 +20,9 @@ import { endEntry } from './offline/pending.ts';
 const sessionKey = 'session';
 const pendingKey = 'pending-sign-out';
 
-// `offlineId`: la sesión se abrió sin conexión y el servidor todavía no la confirmó (15 · R2).
-type Saved = { sessionId?: string; offlineId?: string; person: Person };
+// `offlineId`: la sesión se abrió sin conexión y el servidor todavía no la confirmó (15 · R2);
+// `closedReason`: el servidor no la confirmó (R3.2).
+type Saved = { sessionId?: string; offlineId?: string; closedReason?: string; person: Person };
 type Pending = { sessionId: string; signature: string; tappedAt: number };
 
 export const person = createStore<Person | undefined>(readStored<Saved>(sessionKey)?.person);
@@ -48,7 +52,7 @@ function enter(saved: Saved): void {
 }
 
 // Recién vinculada su huella, la persona puede prender «Trabajar sin conexión» (15 · R1).
-export function canGoOffline(): void {
+export function allowOffline(): void {
   const saved = readStored<Saved>(sessionKey);
   if (!saved) return;
   const who = { ...saved.person, offline: true as const };
@@ -57,12 +61,30 @@ export function canGoOffline(): void {
 }
 
 // Lo que dijo /api/start al abrir: quién tiene la sesión ahora, o nadie.
+// El servidor no confirmó la sesión abierta sin conexión: la entrada aparece encima de lo que
+// había, y sigue ahí si se recarga.
+export function offlineRejected(reason: string): void {
+  const saved = readStored<Saved>(sessionKey);
+  if (saved) store(sessionKey, { person: saved.person, closedReason: reason });
+  sessionClosed.set(reason);
+}
+
+// La sesión que el servidor no conoce: abierta sin conexión, o no confirmada. `/api/start` sin
+// persona no la borra.
+export const unknownToServer = (): boolean => {
+  const saved = readStored<Saved>(sessionKey);
+  return !!(saved?.offlineId || saved?.closedReason);
+};
+
+export const rejectedBefore = (): string | undefined => readStored<Saved>(sessionKey)?.closedReason;
+
 export function confirmed(who: Person | undefined): void {
   const saved = readStored<Saved>(sessionKey);
   if (!who) forget(sessionKey);
   else {
     // Con el servidor diciendo quién es, la sesión ya no es una sin confirmar.
-    const { offlineId: _, ...kept } = saved?.person.userId === who.userId ? saved : { person: who };
+    const same = saved?.person.userId === who.userId ? saved : { person: who };
+    const { offlineId: _, closedReason: __, ...kept } = same;
     store(sessionKey, { ...kept, person: who });
   }
   person.set(who);

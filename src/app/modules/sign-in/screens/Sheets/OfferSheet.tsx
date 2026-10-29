@@ -6,7 +6,7 @@ import { useStore } from '../../../../platform/store.ts';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
 import { signInApi } from '../../api.ts';
 import { createPasskey } from '../../passkeys/webauthn.ts';
-import { canGoOffline, offered, offerPasskey, passkeyLinked, person } from '../../session.ts';
+import { allowOffline, offered, offerPasskey, passkeyLinked, person } from '../../session.ts';
 import { texts } from '../../texts.ts';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
@@ -22,7 +22,7 @@ async function link(): Promise<Linked> {
   if (!result.ok) return result.error === 'phone-has-other-account' ? 'other-account' : undefined;
   passkeyLinked();
   // Con la huella, ya puede prender «Trabajar sin conexión» (15 · R1.3).
-  if (result.data.offline) canGoOffline();
+  if (result.data.offline) allowOffline();
   return 'linked';
 }
 

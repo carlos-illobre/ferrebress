@@ -31,15 +31,37 @@ describe('entrar sin conexión: seguridad y bordes de la confirmación', () => {
     expect(await kit.rowOf(entry.id)).toEqual({ result: 'rejected', reason: 'revoked-session' });
   });
 
-  it('una firma de más de 30 días según el propio celular no se confirma', async () => {
+  it('seguridad: una firma de más de 29 días o de más de un día en el futuro, con el reloj del servidor, no se confirma', async () => {
     const linked = await kit.linkedPhone();
     const old = await kit.offlineEntry(
       linked,
       {},
-      { lastContactAt: new Date(kit.clock.now - hours(24 * 31)).toISOString() },
+      { signedAt: new Date(kit.clock.now - hours(24 * 30)).toISOString() },
     );
     expect((await kit.send(linked, old)).status).toBe(401);
     expect((await kit.rowOf(old.id))?.reason).toBe('too-old');
+    const ahead = await kit.offlineEntry(
+      linked,
+      {},
+      { signedAt: new Date(kit.clock.now + hours(25)).toISOString() },
+    );
+    expect((await kit.send(linked, ahead)).status).toBe(401);
+    expect((await kit.rowOf(ahead.id))?.reason).toBe('too-old');
+  });
+
+  it('seguridad: la misma entrada, a los 31 días, ya borrada su fila, no se vuelve a confirmar', async () => {
+    const linked = await kit.linkedPhone();
+    const entry = await kit.offlineEntry(linked);
+    expect((await kit.send(linked, entry)).status).toBe(200);
+    kit.clock.now += hours(24 * 31);
+    await kit.server.runJobs();
+    expect(await kit.rowOf(entry.id)).toBeUndefined();
+    // El celular se sigue usando: tiene una sesión nueva.
+    linked.phone.cookie = '';
+    await linked.phone.signInWithGoogle(linked.claims);
+    linked.phone.cookie = '';
+    expect((await kit.send(linked, entry)).status).toBe(401);
+    expect((await kit.rowOf(entry.id))?.reason).toBe('too-old');
   });
 
   it('lo que no tiene la forma se rechaza antes de mirar nada', async () => {

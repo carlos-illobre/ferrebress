@@ -8,10 +8,10 @@ import { useStore } from '../../../platform/store.ts';
 import { showToast } from '../../../ui/toast/Toast.tsx';
 import type { SettingRow } from '../../frame/index.ts';
 import { texts } from '../texts.ts';
-import { contacted, disableOffline, enableOffline, permit } from './permit.ts';
+import { contacted, disableOffline, enableOffline, offlineOption } from './option.ts';
 
 export function useOfflineSetting(who: Person | undefined): SettingRow | undefined {
-  const current = useStore(permit);
+  const current = useStore(offlineOption);
   const online = useStore(onlineStore);
   if (!who?.offline || !isPhone()) return undefined;
   const on = current?.person.userId === who.userId;
@@ -21,7 +21,7 @@ export function useOfflineSetting(who: Person | undefined): SettingRow | undefin
     on,
     toggle() {
       if (on) return disableOffline();
-      if (!online) return showToast(texts.offlineSetting.needsInternet);
+      if (!online) return showToast(texts.offlineSetting.needsInternet, 'wifi-off');
       // El último pedido que el servidor aceptó con esta sesión es el último contacto.
       contacted(lastReply.get() ?? Date.now());
       enableOffline(who);

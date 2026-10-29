@@ -1,7 +1,8 @@
 // Las entradas sin conexión que el servidor todavía no confirmó (15 · R3; diseño de 15, § 5), en
 // orden. Salen primero, antes que cualquier otro pedido, al abrir y al volver la red. Cada una se
-// borra con cualquier respuesta del servidor salvo «probá después» (sin red, demasiados intentos o
-// una versión nueva que actualizar). La firma guardada no sirve para otra cosa: está atada a su id.
+// borra con cualquier respuesta del servidor salvo «probá después» (sin red, demasiados intentos,
+// una versión nueva que actualizar o un error del servidor). Sin la llave de prueba del celular,
+// que no se puede copiar, la entrada guardada no abre ninguna sesión.
 import { forget, readStored, store } from '../../../platform/device/storage.ts';
 import { createStore } from '../../../platform/store.ts';
 

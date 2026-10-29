@@ -3,8 +3,8 @@ import { render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App.tsx';
 import { eva, resetOffline } from './modules/sign-in/offline/offline-kit.ts';
+import { contacted } from './modules/sign-in/offline/option.ts';
 import { addEntry, entries } from './modules/sign-in/offline/pending.ts';
-import { contacted } from './modules/sign-in/offline/permit.ts';
 import { offlineSession, person } from './modules/sign-in/session.ts';
 import { googleFrame, startReply } from './modules/sign-in/sign-in-test-kit.ts';
 import { store } from './platform/device/storage.ts';
@@ -69,5 +69,14 @@ describe('la aplicación con una entrada sin conexión por confirmar', () => {
     await waitFor(() => expect(entries()).toEqual([]), { timeout: 4000 });
     expect(server.bodies('/api/sign-in/offline')).toHaveLength(2);
     expect(offlineSession()).toBeUndefined();
+  });
+
+  it('offline-R3.2: la entrada que el servidor no confirmó sigue encima al recargar', async () => {
+    store('session', { person: eva, closedReason: 'offline-not-confirmed' });
+    person.set(eva);
+    fakeServer({ '/api/start': startReply(), '/api/sign-in/codes': 'offline' });
+    render(<App />);
+    expect(await screen.findByText('No se pudo confirmar tu entrada sin conexión')).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Tu sesión' })).toBeTruthy();
   });
 });

@@ -3,12 +3,12 @@
 // así el aviso se apaga solo cuando se cumple el plazo (E08).
 import { useEffect, useState } from 'preact/hooks';
 import { useStore } from '../../../platform/store.ts';
-import { offlineUntil, permit } from './permit.ts';
+import { offlineOption, offlineUntil } from './option.ts';
 
 const minute = 60_000;
 
 export function useOfflineEntry(online: boolean, phone: boolean): Date | undefined {
-  const current = useStore(permit);
+  const current = useStore(offlineOption);
   const [until, setUntil] = useState<Date | undefined>();
   useEffect(() => {
     if (online || !phone) return setUntil(undefined);
@@ -22,16 +22,4 @@ export function useOfflineEntry(online: boolean, phone: boolean): Date | undefin
     };
   }, [online, phone, current]);
   return until;
-}
-
-// «hoy 21:40», «mañana 9:40» o «el martes 9:40», en la hora del celular.
-export function whenText(until: Date, now = new Date()): string {
-  const time = `${until.getHours()}:${String(until.getMinutes()).padStart(2, '0')}`;
-  const days = Math.round(
-    (new Date(until).setHours(0, 0, 0, 0) - new Date(now).setHours(0, 0, 0, 0)) /
-      (24 * 60 * minute),
-  );
-  if (days === 0) return `hoy ${time}`;
-  if (days === 1) return `mañana ${time}`;
-  return `el ${until.toLocaleDateString('es-AR', { weekday: 'long' })} ${time}`;
 }

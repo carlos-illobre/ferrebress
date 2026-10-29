@@ -80,7 +80,7 @@ export const texts = {
   closedExpired: 'Tu sesión venció',
   closedDetail: 'Entrá de nuevo para seguir donde estabas.',
   // Entrar sin conexión (capítulo 15).
-  offlineFinger: (when: string) => `Sin conexión: podés entrar con la huella hasta ${when}`,
+  offlineFinger: 'Sin conexión: podés entrar con la huella hasta',
   offlineNotConfirmed: 'No se pudo confirmar tu entrada sin conexión',
   offlineSetting: {
     name: 'Trabajar sin conexión',

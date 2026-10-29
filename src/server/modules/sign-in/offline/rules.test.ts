@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { remember } from './phone-owner.ts';
 import { offlineSettings, rejectionOf } from './rules.ts';
 
 const now = new Date('2026-10-29T08:00:00Z');
@@ -30,5 +31,15 @@ describe('las reglas de entrar sin conexión', () => {
   it('la baja pesa más que todo lo demás', () => {
     const user = { active: false };
     expect(rejectionOf({ ...judged, user, allowed: false })).toBe('deactivated');
+  });
+});
+
+describe('de quién es la huella de cada celular, en memoria', () => {
+  it('tiene un tope: pasado, empieza de cero', () => {
+    const known = new Map<string, string>();
+    remember(known, 'a', '1', 2);
+    remember(known, 'b', '2', 2);
+    remember(known, 'c', '3', 2);
+    expect([...known]).toEqual([['c', '3']]);
   });
 });

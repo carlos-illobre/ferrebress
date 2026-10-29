@@ -8,7 +8,7 @@ import { Entrance } from '../index.ts';
 import { person } from '../session.ts';
 import { startReply } from '../sign-in-test-kit.ts';
 import { eva, fakeFinger, resetOffline } from './offline-kit.ts';
-import { contacted, enableOffline, permit } from './permit.ts';
+import { contacted, enableOffline, offlineOption } from './option.ts';
 import { useOfflineSetting } from './setting.ts';
 
 const start = startReply().body as Parameters<typeof Entrance>[0]['start'];
@@ -37,7 +37,7 @@ describe('la entrada del celular sin conexión', () => {
     expect(finger().hasAttribute('disabled')).toBe(false);
     expect(screen.queryByText('Para entrar hace falta internet')).toBeNull();
     fireEvent.click(finger());
-    await waitFor(() => expect(person.get()).toEqual(eva));
+    await waitFor(() => expect(person.get()).toMatchObject({ userId: eva.userId, name: eva.name }));
   });
 
   it('offline-E12: sin la opción, todo apagado, como siempre', () => {
@@ -78,13 +78,17 @@ describe('la opción «Trabajar sin conexión»', () => {
     const { result } = renderHook(() => useOfflineSetting(eva));
     expect(result.current).toMatchObject({ name: 'Trabajar sin conexión', on: false });
     act(() => result.current?.toggle());
-    expect(permit.get()?.person).toEqual(eva);
+    expect(offlineOption.get()?.person).toEqual({
+      userId: eva.userId,
+      name: eva.name,
+      role: eva.role,
+    });
     expect(result.current?.on).toBe(true);
     act(() => online.set(false));
     act(() => result.current?.toggle());
-    expect(permit.get()).toBeUndefined();
+    expect(offlineOption.get()).toBeUndefined();
     act(() => result.current?.toggle());
-    expect(permit.get()).toBeUndefined();
+    expect(offlineOption.get()).toBeUndefined();
     expect(screen.getByText('Para prenderla hace falta internet.')).toBeTruthy();
   });
 });

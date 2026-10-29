@@ -94,14 +94,16 @@ function SettingOption() {
         class="phone-more-option phone-more-switch"
         role="switch"
         aria-checked={setting.on}
+        aria-labelledby="phone-more-switch-name"
+        aria-describedby="phone-more-switch-detail"
         onClick={setting.toggle}
       >
         <span class="phone-more-icon neutral">
           <Icon name="wifi-off" />
         </span>
         <span class="phone-more-text">
-          <b>{setting.name}</b>
-          <small>{setting.detail}</small>
+          <b id="phone-more-switch-name">{setting.name}</b>
+          <small id="phone-more-switch-detail">{setting.detail}</small>
         </span>
         <span class="switch" aria-hidden="true" />
       </button>

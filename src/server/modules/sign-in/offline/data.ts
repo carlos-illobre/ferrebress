@@ -39,14 +39,22 @@ export type OfflineTables = SessionsTables & {
 
 // Las entradas que llegaron.
 const entries = (db: Kysely<OfflineTables>) => ({
-  resultOf: async (id: string): Promise<OfflineResult | undefined> =>
-    (
-      await db
-        .selectFrom('sign_in.offline_sign_ins')
-        .select('result')
-        .where('id', '=', id)
-        .executeTakeFirst()
-    )?.result,
+  // Lo que ya se decidió de una entrada, y de quién es, si ya llegó.
+  previousOf: (id: string): Promise<{ result: OfflineResult; userId: string } | undefined> =>
+    db
+      .selectFrom('sign_in.offline_sign_ins')
+      .select(['result', 'user_id as userId'])
+      .where('id', '=', id)
+      .executeTakeFirst(),
+
+  // La sesión que abrió una entrada confirmada: se abre después de guardar la entrada.
+  linkSession: async (id: string, sessionId: string): Promise<void> => {
+    await db
+      .updateTable('sign_in.offline_sign_ins')
+      .set({ session_id: sessionId })
+      .where('id', '=', id)
+      .execute();
+  },
 
   // Guarda la entrada; si ya estaba (dos confirmaciones a la vez), no la pisa y devuelve false.
   insert: async (row: OfflineSignIn): Promise<boolean> => {
@@ -78,14 +86,18 @@ const entries = (db: Kysely<OfflineTables>) => ({
 export const offlineData = (db: Kysely<OfflineTables>) => ({
   ...entries(db),
 
-  // La sesión de ese celular usada por última vez: su último uso es el último contacto con sesión.
+  // La sesión de esa persona en ese celular usada por última vez: su último uso es el último
+  // contacto con sesión. Solo de esa persona: la sesión de otra cuenta con el mismo identificador de
+  // celular no le alarga el plazo (revisión de seguridad, 10).
   lastSessionOf: (
     deviceId: string,
+    userId: string,
   ): Promise<{ lastUsedAt: Date; closedReason: ClosedReason | null } | undefined> =>
     db
       .selectFrom('sign_in.sessions')
       .select(['last_used_at as lastUsedAt', 'closed_reason as closedReason'])
       .where('device_id', '=', deviceId)
+      .where('user_id', '=', userId)
       .orderBy('last_used_at', 'desc')
       .limit(1)
       .executeTakeFirst(),

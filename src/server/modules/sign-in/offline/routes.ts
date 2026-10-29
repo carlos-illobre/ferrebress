@@ -2,10 +2,12 @@
 // desafío que armó el celular, de un solo uso por su `id`, y el plazo medido con lo que sabe el
 // servidor. Lo que no prueba nada (una huella que no existe, una firma que no verifica) no ocupa
 // fila: se anota una vez por ventana. Si se confirma y es la sesión que la persona tiene ahora en el
-// celular, se abre la sesión; si ya salió o entró otra, solo se anota.
+// celular, se abre la sesión, con la firma de su llave de prueba; si ya salió o entró otra, solo se
+// anota.
 import {
   type OfflineSignInBody,
   offlineChallenge,
+  offlineOpenMessage,
   offlineSignInBody,
 } from '@ferrebress/shared/contracts/offline-sign-in';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/server';
@@ -17,9 +19,9 @@ import type { SignInContext } from '../context.ts';
 import type { Passkey } from '../passkeys/data.ts';
 import { verifyAssertion } from '../passkeys/webauthn.ts';
 import { openSession, proofKeyOf } from '../sessions/open.ts';
+import { verifyProof } from '../sessions/proof.ts';
 import { signInSettings } from '../settings.ts';
 import { type OfflineSignIn, type OfflineTables, offlineData } from './data.ts';
-import { withOffline } from './flag.ts';
 import { canWorkOffline, rejectionOf } from './rules.ts';
 
 const { limits } = signInSettings;
@@ -44,15 +46,26 @@ export function registerOfflineRoutes(ctx: SignInContext): Data {
 
 const notConfirmed = (c: Context) => fail(c, 401, 'offline-not-confirmed');
 
+// Para abrir la sesión, la firma de la llave de prueba, que no se puede copiar del celular.
+function canOpen(body: OfflineSignInBody, proof: Uint8Array): boolean {
+  if (!body.openSession) return true;
+  const signature = body.openSignature && Buffer.from(body.openSignature, 'base64url');
+  return !!signature && verifyProof(proof, offlineOpenMessage(body.id), signature);
+}
+
 async function confirm(ctx: SignInContext, c: Context, confirming: Confirming) {
-  const { body, data } = confirming;
-  const previous = await data.resultOf(body.id);
-  if (previous) return repeated(ctx, c, body, previous);
+  const { body, proof, data } = confirming;
+  const previous = await data.previousOf(body.id);
+  if (previous) return repeated(ctx, c, previous);
   const response = body.response as unknown as AuthenticationResponseJSON;
   const passkey = await ctx.passkeys.findActive(response.id);
   const deviceId = c.get('deviceId') as string;
-  if (!passkey || passkey.userId !== body.userId || passkey.deviceId !== deviceId) {
-    recordOnce(ctx, c, { userId: body.userId, reason: 'unknown-passkey' });
+  const ours = passkey && passkey.userId === body.userId && passkey.deviceId === deviceId;
+  if (!ours || !canOpen(body, proof)) {
+    recordOnce(ctx, c, {
+      userId: body.userId,
+      reason: ours ? 'open-signature' : 'unknown-passkey',
+    });
     return notConfirmed(c);
   }
   const accountKey = `failed:passkey:${passkey.userId}`;
@@ -76,7 +89,7 @@ async function judge(ctx: SignInContext, c: Context, confirming: Confirming, pas
   const now = ctx.platform.clock.now();
   const user = await ctx.users.findById(body.userId);
   await ctx.store.flush();
-  const lastSession = await data.lastSessionOf(passkey.deviceId);
+  const lastSession = await data.lastSessionOf(passkey.deviceId, body.userId);
   const active = user?.active === true;
   const reason = rejectionOf({
     user: { active },
@@ -84,7 +97,6 @@ async function judge(ctx: SignInContext, c: Context, confirming: Confirming, pas
     lastSession,
     now,
     signedAt: new Date(body.signedAt),
-    lastContactAt: new Date(body.lastContactAt),
   });
   const row: OfflineSignIn = {
     id: body.id,
@@ -102,39 +114,43 @@ async function judge(ctx: SignInContext, c: Context, confirming: Confirming, pas
   return finish(ctx, c, data, { row, user });
 }
 
-// Guarda la entrada y, si se confirmó como la sesión de ahora, la abre. Si otra confirmación de la
-// misma entrada llegó a la vez y ganó, esta no deja nada.
+// Guarda la entrada antes de abrir nada: si otra confirmación de la misma entrada llegó a la vez y
+// ganó, esta no abre ninguna sesión (revisión de seguridad, 12). Si se confirmó como la sesión de
+// ahora, la abre.
 async function finish(
   ctx: SignInContext,
   c: Context,
   data: Data,
   { row, user }: { row: OfflineSignIn; user: User | undefined },
 ) {
-  const session =
-    row.result === 'confirmed'
-      ? await openSession(ctx, c, {
-          userId: row.userId,
-          proofPublicKey: row.proofPublicKey,
-          data: { method: 'offline' },
-        })
-      : undefined;
-  if (!(await data.insert({ ...row, sessionId: session?.id ?? null }))) {
-    if (session) await ctx.store.close(session.id, 'sign-out');
-    return fail(c, 409, 'offline-already-confirmed');
-  }
+  if (!(await data.insert(row))) return fail(c, 409, 'offline-already-confirmed');
   const type = row.result === 'rejected' ? 'sign-in.offline-rejected' : 'sign-in.offline-confirmed';
   ctx.record(c, type, { userId: row.userId, data: audited(row) });
   if (row.reason === 'deactivated') return fail(c, 401, 'not-authorized');
   if (row.result === 'rejected') return notConfirmed(c);
-  if (!session) return c.json({ ended: true });
-  // Con la sesión abierta, la persona existe.
-  const person = await withOffline(ctx, c, ctx.person(user as User));
+  if (row.result === 'ended') return c.json({ ended: true });
+  const session = await openSession(ctx, c, {
+    userId: row.userId,
+    proofPublicKey: row.proofPublicKey,
+    data: { method: 'offline' },
+  });
+  await data.linkSession(row.id, session.id);
+  // Confirmada, la persona existe y está activa, con su huella en este celular y el permiso.
+  const person = { ...ctx.person(user as User), offline: true };
   return c.json({ person, sessionId: session.id, offerPasskey: false });
 }
 
-function repeated(ctx: SignInContext, c: Context, body: OfflineSignInBody, previous: string) {
-  ctx.record(c, 'sign-in.offline-repeated', { userId: body.userId, data: { id: body.id } });
-  return previous === 'rejected' ? notConfirmed(c) : fail(c, 409, 'offline-already-confirmed');
+// Llegó otra vez una entrada que ya llegó: a nombre de quien la mandó la primera vez, y una vez
+// por ventana, así no se puede llenar la auditoría ni anotar a nombre de otro (revisión de
+// seguridad, 11).
+function repeated(ctx: SignInContext, c: Context, previous: { result: string; userId: string }) {
+  const key = `audit:offline-repeated:${c.get('ipAddress')}`;
+  if (ctx.platform.limiter.hit(key, limits.throttledAudit).allowed) {
+    ctx.record(c, 'sign-in.offline-repeated', { userId: previous.userId });
+  }
+  return previous.result === 'rejected'
+    ? notConfirmed(c)
+    : fail(c, 409, 'offline-already-confirmed');
 }
 
 // Lo que va a la auditoría de una entrada sin conexión: la hora del celular, la de llegada y el

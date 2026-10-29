@@ -23,12 +23,13 @@ import {
   hasPendingSignOut,
   linkPath,
   OfferSheet,
-  offlineSession,
   pendingEntries,
   person,
+  rejectedBefore,
   sendPending,
   signInApi,
   signOut,
+  unknownToServer,
   useNonceRenewal,
   useOfflineSetting,
   usePhoneCode,
@@ -58,8 +59,11 @@ async function boot(): Promise<StartResponse | undefined> {
   store(environmentKey, start.data.environment);
   // Recién abierta, con una versión nueva en el servidor, se actualiza antes de que se use (R5.2).
   if (updateOnOpen(start.data.version)) return undefined;
-  // Una sesión abierta sin conexión que todavía no se pudo confirmar sigue (15 · R2.7).
-  if (start.data.person || !offlineSession()) confirmed(start.data.person);
+  // Una sesión abierta sin conexión que todavía no se pudo confirmar sigue (15 · R2.7); una que el
+  // servidor no confirmó vuelve a mostrar la entrada encima (R3.2).
+  if (start.data.person || !unknownToServer()) confirmed(start.data.person);
+  const rejected = rejectedBefore();
+  if (rejected && !start.data.person) sessionClosed.set(rejected);
   return start.data;
 }
 
@@ -67,7 +71,7 @@ async function boot(): Promise<StartResponse | undefined> {
 // entrada encima de lo que había (R3.6, E28b).
 async function recheck(): Promise<void> {
   await sendPending();
-  if (!person.get() || offlineSession()) return;
+  if (!person.get() || unknownToServer()) return;
   const start = await signInApi.start();
   if (start.ok && !start.data.person) sessionClosed.set('unknown');
 }
@@ -149,7 +153,10 @@ export function App() {
   // pedido mínimo del nonce (01 · R2.8); con una entrada sin conexión por confirmar, mandándola
   // (15 · R3).
   const pending = useStore(pendingEntries) > 0;
-  useReconnect(entrance || pending, pending ? () => void recheck() : renew);
+  useReconnect(entrance || pending, () => {
+    if (pending) void recheck();
+    if (entrance) renew();
+  });
   const setting = useOfflineSetting(who);
 
   if (!start) return <Dialogs />;

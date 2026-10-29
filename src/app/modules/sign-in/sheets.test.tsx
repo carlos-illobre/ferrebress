@@ -128,7 +128,7 @@ describe('las hojas del celular', () => {
     expect(person.get()?.offline).toBe(true);
   });
 
-  it('offline-E02: vinculada la huella sin el permiso, la opción no aparece', async () => {
+  it('offline-E02, E03: vinculada la huella sin el permiso, la opción no aparece; sin la huella, tampoco', async () => {
     fakePasskeys();
     fakeServer({
       '/api/passkeys/options': { body: {} },

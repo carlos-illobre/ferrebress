@@ -130,6 +130,9 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Pantalla (de la entrada) | La entrada abierta en una computadora, que espera un código y recibe los suyos | `screen` |
 | Reserva | El código leído por un celular, apartado para él mientras pone la huella | `reservation` |
 | Permiso de entrada | Lo que recibe la computadora cuando el celular aprueba, y cambia una vez por su sesión | `permit` |
+| Trabajar sin conexión | La opción del celular que deja entrar con la huella sin conexión (capítulo 15) | `offlineOption` |
+| Entrada sin conexión | Entrar con la huella sin conexión; el servidor la confirma al volver la red | `offline sign-in` (`OfflineSignIn`, `offline_sign_ins`) |
+| Último contacto | El último pedido con sesión que el servidor aceptó, del que cuentan las 24 horas | `lastContact` |
 | Leer / aprobar / «No soy yo» | Lo que hace el celular con un código de entrada | `read` / `approve` / `cancel` |
 | Lo apartado | Lo que hizo sin conexión alguien a quien dieron de baja, a la espera de que un Administrador lo revise | `heldChange` |
 | Aprobar / rechazar | Aplicar lo apartado o dejarlo sin efecto | `approve` / `reject` |

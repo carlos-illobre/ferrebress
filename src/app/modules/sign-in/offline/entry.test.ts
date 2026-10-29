@@ -1,31 +1,32 @@
 import 'fake-indexeddb/auto';
 import { act } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { lastReply, sessionClosed } from '../../../platform/server/api.ts';
+import { sessionClosed } from '../../../platform/server/api.ts';
 import { fakeServer } from '../../../testing/fake-server.ts';
-import { canGoOffline, offlineSession, person, signOut } from '../session.ts';
+import {
+  allowOffline,
+  offlineRejected,
+  offlineSession,
+  person,
+  signOut,
+  unknownToServer,
+} from '../session.ts';
 import { isOwn, withOfflinePasskey } from './enter.ts';
-import { assertion, eva, fakeFinger, resetOffline } from './offline-kit.ts';
+import { assertion, eva, fakeFinger, ready, resetOffline, signInReply } from './offline-kit.ts';
+import { offlineOption } from './option.ts';
 import { entries, pendingEntries } from './pending.ts';
-import { contacted, enableOffline, permit } from './permit.ts';
 import { sendPending } from './send.ts';
-import { watchOffline } from './watch.ts';
-
-const signInReply = { body: { person: eva, sessionId: 's1', offerPasskey: false } };
-
-// Un celular con la opción prendida y el último contacto recién.
-function ready() {
-  contacted(Date.now());
-  enableOffline(eva);
-}
 
 describe('entrar sin conexión con la huella', () => {
   beforeEach(resetOffline);
   afterEach(() => vi.unstubAllGlobals());
 
-  it('sin sesión guardada, la huella recién vinculada no cambia a nadie', () => {
-    canGoOffline();
+  it('sin sesión guardada, la huella recién vinculada no cambia a nadie, y un rechazo solo muestra la entrada', () => {
+    allowOffline();
     expect(person.get()).toBeUndefined();
+    offlineRejected('offline-not-confirmed');
+    expect(sessionClosed.get()).toBe('offline-not-confirmed');
+    expect(unknownToServer()).toBe(false);
   });
 
   it('offline-R2.5: la huella tiene que ser de la persona del permiso y verificada', () => {
@@ -43,7 +44,7 @@ describe('entrar sin conexión con la huella', () => {
     const get = fakeFinger();
     await act(() => withOfflinePasskey());
     expect(get).toHaveBeenCalledOnce();
-    expect(person.get()).toEqual(eva);
+    expect(person.get()).toMatchObject({ userId: eva.userId, name: eva.name });
     const [entry] = entries();
     expect(entry).toMatchObject({ userId: eva.userId, ended: false });
     expect(offlineSession()).toBe(entry?.id);
@@ -104,7 +105,7 @@ describe('entrar sin conexión con la huella', () => {
     await act(() => sendPending());
     expect(entries()).toEqual([]);
     expect(sessionClosed.get()).toBe('offline-not-confirmed');
-    expect(person.get()).toEqual(eva);
+    expect(person.get()).toMatchObject({ userId: eva.userId, name: eva.name });
   });
 
   it('offline-E16: si la cuenta se dio de baja, el mensaje de no autorizada y la opción se apaga', async () => {
@@ -114,7 +115,7 @@ describe('entrar sin conexión con la huella', () => {
     fakeServer({ '/api/sign-in/offline': { status: 401, body: { error: 'not-authorized' } } });
     await act(() => sendPending());
     expect(sessionClosed.get()).toBe('not-authorized');
-    expect(permit.get()).toBeUndefined();
+    expect(offlineOption.get()).toBeUndefined();
   });
 
   it('ya confirmada y la respuesta perdida: si la cookie llegó sigue; si no, la entrada', async () => {
@@ -157,57 +158,5 @@ describe('entrar sin conexión con la huella', () => {
     expect(server.bodies('/api/sign-in/offline')[0]).toMatchObject({ openSession: false });
     expect(server.bodies('/api/sign-in/offline')).toHaveLength(2);
     expect(entries()).toEqual([]);
-  });
-});
-
-describe('lo que el celular aprende del servidor', () => {
-  beforeEach(resetOffline);
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.unstubAllGlobals();
-  });
-
-  it('cada respuesta con sesión es un contacto; sin sesión o cerrada, no', () => {
-    const stop = watchOffline();
-    act(() => lastReply.set(1_000));
-    expect(localStorage.getItem('offline-contact')).toBeNull();
-    act(() => person.set(eva));
-    act(() => lastReply.set(2_000));
-    expect(JSON.parse(localStorage.getItem('offline-contact') as string).at).toBe(2_000);
-    act(() => sessionClosed.set('idle'));
-    act(() => lastReply.set(3_000));
-    expect(JSON.parse(localStorage.getItem('offline-contact') as string).at).toBe(2_000);
-    stop();
-  });
-
-  it('offline-E05: la sesión cerrada desde otro dispositivo frena; la baja o perder la opción, la apagan', () => {
-    ready();
-    const stop = watchOffline();
-    act(() => sessionClosed.set('revoked'));
-    expect(permit.get()?.revoked).toBe(true);
-    act(() => sessionClosed.set('deactivated'));
-    expect(permit.get()).toBeUndefined();
-    ready();
-    act(() => sessionClosed.set(undefined));
-    act(() => person.set({ ...eva, name: 'Otra', userId: 'otra' }));
-    expect(permit.get()).toBeDefined();
-    const { offline: _, ...without } = eva;
-    act(() => person.set(without));
-    expect(permit.get()).toBeUndefined();
-    stop();
-  });
-
-  it('offline-E14: la sesión abierta sin conexión se corta a las 24 horas del último contacto', async () => {
-    vi.useFakeTimers({ now: new Date('2026-10-29T08:00:00'), toFake: ['Date', 'setInterval'] });
-    ready();
-    fakeFinger();
-    await act(() => withOfflinePasskey());
-    const stop = watchOffline();
-    expect(sessionClosed.get()).toBeUndefined();
-    act(() => {
-      vi.advanceTimersByTime(24 * 3_600_000);
-    });
-    expect(sessionClosed.get()).toBe('max-age');
-    stop();
   });
 });

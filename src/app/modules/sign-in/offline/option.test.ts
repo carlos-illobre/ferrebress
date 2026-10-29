@@ -5,12 +5,14 @@ import {
   disableOffline,
   enableOffline,
   lastContactAt,
+  offlineOption,
+  offlineSessionOver,
   offlineUntil,
   offlineWindowMs,
-  permit,
   revokeOffline,
-} from './permit.ts';
-import { whenText } from './useOfflineEntry.ts';
+  updateOffline,
+} from './option.ts';
+import { whenText } from './when.ts';
 
 const at = new Date('2026-10-29T09:40:00').getTime();
 const minute = 60_000;
@@ -40,17 +42,42 @@ describe('hasta cuándo se puede entrar sin conexión', () => {
     expect(offlineUntil(at + 54 * minute)).toBeUndefined();
   });
 
+  it('offline-R2.3, R2.7: la sesión sin conexión se corta a las 24 horas, o si el reloj se atrasó', () => {
+    expect(offlineSessionOver(at)).toBe(true);
+    contacted(at);
+    expect(offlineSessionOver(at + minute)).toBe(false);
+    expect(offlineSessionOver(at - 6 * minute)).toBe(true);
+    expect(offlineSessionOver(at + offlineWindowMs)).toBe(true);
+  });
+
+  it('la persona de la opción guarda su nombre y su rol de ahora, y nunca el correo', () => {
+    enableOffline(eva);
+    expect(offlineOption.get()?.person).toEqual({
+      userId: eva.userId,
+      name: eva.name,
+      role: eva.role,
+    });
+    updateOffline({ ...eva, name: 'Eva R.' });
+    expect(offlineOption.get()?.person.name).toBe('Eva R.');
+    updateOffline({ ...eva, name: 'Eva R.' });
+    updateOffline({ ...eva, userId: 'otra', name: 'Otra' });
+    expect(offlineOption.get()?.person.name).toBe('Eva R.');
+    disableOffline();
+    updateOffline(eva);
+    expect(offlineOption.get()).toBeUndefined();
+  });
+
   it('offline-E10: con la sesión cerrada desde otro dispositivo, no hasta el próximo contacto', () => {
     contacted(at);
     enableOffline(eva);
     revokeOffline();
     expect(offlineUntil(at)).toBeUndefined();
     contacted(at + minute);
-    expect(permit.get()?.revoked).toBe(false);
+    expect(offlineOption.get()?.revoked).toBe(false);
     expect(offlineUntil(at + minute)).toBeDefined();
     disableOffline();
     revokeOffline();
-    expect(permit.get()).toBeUndefined();
+    expect(offlineOption.get()).toBeUndefined();
   });
 
   it('offline-R2.1: dice hasta cuándo como lo lee la persona', () => {

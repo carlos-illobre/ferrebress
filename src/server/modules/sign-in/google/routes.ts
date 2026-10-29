@@ -9,7 +9,7 @@ import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
 import { isPhone } from '../device.ts';
-import { ownerOf, withOffline } from '../offline/flag.ts';
+import { ownerOf, withOffline } from '../offline/phone-owner.ts';
 import { canWorkOffline } from '../offline/rules.ts';
 import { readSessionCookie } from '../sessions/cookie.ts';
 import { openSession, proofKeyOf } from '../sessions/open.ts';
@@ -17,6 +17,15 @@ import { signInSettings } from '../settings.ts';
 import { verifyGoogle } from './verify.ts';
 
 const { limits } = signInSettings;
+
+// Quién tiene la sesión de la cookie, si tiene, con `offline` si puede (15 · R1).
+async function personOf(ctx: SignInContext, c: Context) {
+  const token = readSessionCookie(c);
+  const resolved = token ? await ctx.store.resolve(token) : undefined;
+  if (resolved?.kind !== 'open') return undefined;
+  const { userId, deviceId } = resolved.session;
+  return withOffline(ctx, c, { person: await ctx.people.of(userId), deviceId });
+}
 
 export function registerGoogleRoutes(ctx: SignInContext): void {
   const { http, config } = ctx.platform;
@@ -31,10 +40,7 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
       googleClientId: config.GOOGLE_CLIENT_ID,
       googleScriptUrl: config.GOOGLE_SCRIPT_URL,
     };
-    const token = readSessionCookie(c);
-    const resolved = token ? await ctx.store.resolve(token) : undefined;
-    const who =
-      resolved?.kind === 'open' ? await ctx.people.of(resolved.session.userId) : undefined;
+    const who = await personOf(ctx, c);
     // El nonce va también con sesión: un celular sin huella vuelve a entrar con Google para
     // vincularla y hacer entrar a una computadora (R2.7).
     const googleNonce = ctx.nonces.issue(ip, true);
@@ -42,7 +48,7 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     return c.json<StartResponse>({
       ...base,
       googleNonce,
-      ...(who && { person: await withOffline(ctx, c, who) }),
+      ...(who && { person: who }),
     });
   });
 

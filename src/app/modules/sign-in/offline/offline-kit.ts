@@ -5,8 +5,8 @@ import { act } from '@testing-library/preact';
 import { vi } from 'vitest';
 import { sessionClosed } from '../../../platform/server/api.ts';
 import { person } from '../session.ts';
+import { contacted, disableOffline, enableOffline } from './option.ts';
 import { dropEntry, entries } from './pending.ts';
-import { disableOffline } from './permit.ts';
 
 export const eva = {
   userId: '0190a000-0000-7000-8000-0000000000aa',
@@ -65,4 +65,12 @@ export function resetOffline(): void {
     sessionClosed.set(undefined);
   });
   localStorage.clear();
+}
+
+export const signInReply = { body: { person: eva, sessionId: 's1', offerPasskey: false } };
+
+// Un celular con la opción prendida y el último contacto recién.
+export function ready(): void {
+  contacted(Date.now());
+  enableOffline(eva);
 }

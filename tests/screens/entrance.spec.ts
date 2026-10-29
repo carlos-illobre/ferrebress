@@ -40,20 +40,23 @@ test.describe('en el celular', () => {
     await expect(page).toHaveScreenshot('entrance-phone.png');
   });
 
-  // 15 · R2.1: sin conexión, con «Trabajar sin conexión» prendido y el último contacto hace una
+  // 15 · R2.1, E06: sin conexión, con «Trabajar sin conexión» prendido y el último contacto hace una
   // hora, la huella queda prendida y el aviso dice hasta cuándo.
   test('la entrada en el celular sin conexión, con la huella', async ({ page, context }) => {
     const contact = now.getTime() - 3_600_000;
     await page.addInitScript((at) => {
       Object.defineProperty(navigator, 'userAgentData', { get: () => ({ mobile: true }) });
       const person = { userId: 'u1', name: 'Ana', email: 'a@x.com', role: 'Administrador' };
-      localStorage.setItem('offline-permit', JSON.stringify({ person, revoked: false }));
+      localStorage.setItem('offline-option', JSON.stringify({ person, revoked: false }));
       localStorage.setItem('offline-contact', JSON.stringify({ at, maxSeenAt: at }));
     }, contact);
     await ready(page);
     await context.setOffline(true);
     await expect(page.getByText(/Sin conexión: podés entrar con la huella hasta/)).toBeVisible();
     await expect(page.getByRole('button', { name: /Ingresar con huella/ })).toBeEnabled();
+    // offline-E06: Google y escanear, apagados.
+    await expect(page.getByRole('button', { name: /Escanear código QR/ })).toBeDisabled();
+    await expect(page.locator('.google.off')).toBeVisible();
     await expect(page).toHaveScreenshot('entrance-phone-offline-finger.png');
   });
 });

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { offlineChallenge } from '@ferrebress/shared/contracts/offline-sign-in';
+import { sql } from 'kysely';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { testConfig } from '../../../testing/config.ts';
 import { createAuthenticator } from '../../../testing/sign-in/authenticator.ts';
@@ -28,7 +29,8 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
     const audited = kit.server.platform.audit
       .read(2026)
       .find((event) => event.type === 'sign-in.offline-confirmed' && event.data?.id === entry.id);
-    expect(audited?.data).toMatchObject({ signedAt: entry.signedAt });
+    expect(audited?.data).toMatchObject({ signedAt: entry.signedAt, result: 'confirmed' });
+    expect(audited?.data?.lastContactAt).toEqual(expect.any(String));
   });
 
   it('offline-E18: la misma entrada otra vez no abre otra sesión', async () => {
@@ -51,6 +53,7 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
     expect(await kit.send(linked, changed)).toMatchObject({
       status: 401,
       body: { error: 'offline-not-confirmed' },
+      cookie: null,
     });
     expect(await kit.rowOf(changed.id)).toBeUndefined();
     const other = createAuthenticator(testConfig.PUBLIC_ORIGIN);
@@ -84,6 +87,11 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
       body: { error: 'not-authorized' },
     });
     expect(await kit.rowOf(entry.id)).toEqual({ result: 'rejected', reason: 'deactivated' });
+    expect(kit.auditOf(entry.id)).toMatchObject({
+      type: 'sign-in.offline-rejected',
+      userId: linked.userId,
+      data: { reason: 'deactivated' },
+    });
     // Repetirla dice lo mismo.
     expect((await kit.send(linked, entry)).body.error).toBe('offline-not-confirmed');
   });
@@ -106,7 +114,34 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
       cookie: null,
     });
     expect(await kit.rowOf(entry.id)).toEqual({ result: 'ended', reason: null });
+    expect(kit.auditOf(entry.id)).toMatchObject({
+      type: 'sign-in.offline-confirmed',
+      data: { result: 'ended' },
+    });
     expect((await kit.send(linked, entry)).status).toBe(409);
+  });
+
+  it('offline-E17: si la huella se quitó mientras tanto, no se confirma', async () => {
+    const linked = await kit.linkedPhone();
+    await sql`update sign_in.passkeys set revoked_at = now()
+      where device_id = ${linked.phone.id}`.execute(kit.server.platform.db);
+    linked.phone.cookie = '';
+    const entry = await kit.offlineEntry(linked);
+    expect(await kit.send(linked, entry)).toMatchObject({
+      status: 401,
+      body: { error: 'offline-not-confirmed' },
+      cookie: null,
+    });
+  });
+
+  it('las consultas: /api/start desde el celular, ninguna con la sesión en memoria; confirmar, como mucho 9', async () => {
+    const linked = await kit.linkedPhone();
+    await linked.phone.request('/api/start');
+    expect(await kit.server.countQueries(() => linked.phone.request('/api/start'))).toBe(0);
+    linked.phone.cookie = '';
+    const entry = await kit.offlineEntry(linked);
+    const count = await kit.server.countQueries(() => kit.send(linked, entry));
+    expect(count).toBeLessThanOrEqual(9);
   });
 
   it('offline-E01 a E04: la persona trae `offline` solo con su huella en este celular', async () => {

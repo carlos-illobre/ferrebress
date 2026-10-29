@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 import { phone } from './support/devices.ts';
 import { signInWithGoogle } from './support/google.ts';
 
-test('entra sin conexión con la huella y el servidor lo confirma al volver la red', async ({
+test('offline-E07, E11, E15: entra sin conexión con la huella después de salir, y el servidor lo confirma al volver la red', async ({
   browser,
 }) => {
   const page = await phone(browser);
@@ -27,6 +27,8 @@ test('entra sin conexión con la huella y el servidor lo confirma al volver la r
   await expect(page.getByText(/Sin conexión: podés entrar con la huella hasta/)).toBeVisible();
   await page.getByRole('button', { name: /Ingresar con huella/ }).click();
   await expect(page.getByRole('button', { name: 'Más', exact: true })).toBeVisible();
+  // E07: en el marco, con la luz en «Sin conexión».
+  await expect(page.locator('.frame[data-net="offline"]')).toBeVisible();
 
   const confirmed = page.waitForResponse('**/api/sign-in/offline');
   await page.context().setOffline(false);

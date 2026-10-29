@@ -15,7 +15,8 @@ export { OfferSheet } from './screens/Sheets/OfferSheet.tsx';
 export {
   confirmed,
   hasPendingSignOut,
-  offlineSession,
   person,
+  rejectedBefore,
   signOut,
+  unknownToServer,
 } from './session.ts';
