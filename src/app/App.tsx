@@ -35,6 +35,7 @@ import {
   usePhoneCode,
   watchOffline,
 } from './modules/sign-in/index.ts';
+import { pushStep } from './platform/back-step.ts';
 import { readStored, store } from './platform/device/storage.ts';
 import { clearHash, navigate, route } from './platform/router.ts';
 import { sessionClosed } from './platform/server/api.ts';
@@ -167,7 +168,11 @@ export function App() {
       {entrance && (
         <Entrance
           start={start}
-          onScan={() => setCamera(true)}
+          onScan={() => {
+            // En el toque mismo: así el botón atrás del celular cierra la cámara (01 · R2.5).
+            pushStep();
+            setCamera(true);
+          }}
           signInFirst={code.state.step === 'sign-in-first'}
           onStale={refresh}
         />

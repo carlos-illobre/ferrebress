@@ -22,6 +22,7 @@ test('offline-E07, E11, E15: entra sin conexión con la huella después de salir
   const started = page.waitForResponse('**/api/start');
   await page.getByRole('button', { name: /Salir/ }).click();
   await started;
+  await page.waitForLoadState('networkidle');
 
   await page.context().setOffline(true);
   await expect(page.getByText(/Sin conexión: podés entrar con la huella hasta/)).toBeVisible();
