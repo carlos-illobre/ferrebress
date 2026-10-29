@@ -120,5 +120,8 @@ el celular (390 × 844).
   paso.
 - **El clip** queda en la maqueta como dos capturas; en la aplicación es un video mudo de la
   aplicación programada (00 · R6.5).
+- **El rótulo del punto va afuera de la captura,** como leyenda debajo, con el mismo aro: adentro,
+  naranja y redondeado, parecía un botón de la pantalla. El aro sigue sobre la captura.
+  `screenshot-phone-google.png` lo muestra en el celular.
 - **Las capturas y los clips del manual de verdad** se sacan sin el marco ni el cartel del ambiente
   de pruebas, con una cuenta de demostración (00 · R6.5). Las de esta maqueta los tienen.

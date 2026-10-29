@@ -68,15 +68,17 @@
 
   /* ---------- El paso a paso ---------- */
   function hotHTML(st) {
-    var cls = (st.hot[0] > 65 ? " der" : st.hot[0] < 35 ? " izq" : "") + (st.hot[1] > 80 ? " arriba" : "");
-    return '<span class="punto-toque" style="left:' + st.hot[0] + '%;top:' + st.hot[1] + '%"></span>' +
-      '<span class="punto-rotulo' + cls + '" style="left:' + st.hot[0] + '%;top:' + st.hot[1] + '%">' + st.label + '</span>';
+    return '<span class="punto-toque" style="left:' + st.hot[0] + '%;top:' + st.hot[1] + '%"></span>';
+  }
+  /* El rótulo va afuera de la captura, como leyenda: adentro parecía un botón de la pantalla */
+  function legendHTML(st) {
+    return '<p class="punto-leyenda"><span class="punto-ref" aria-hidden="true"></span>' + st.label + '</p>';
   }
   function capClass(name) { return name.indexOf("phone") === 0 ? "celu-cap" : "compu"; }
   function layerHTML(st) {
     if (st.cap) {
       lastCap = st;
-      return '<div class="captura ' + capClass(st.cap) + '"><img src="' + M.cap(st.cap) + '" alt="Captura: ' + M.escape(st.label) + '">' + hotHTML(st) + '</div>';
+      return '<div class="captura ' + capClass(st.cap) + '"><img src="' + M.cap(st.cap) + '" alt="Captura: ' + M.escape(st.label) + '">' + hotHTML(st) + '</div>' + legendHTML(st);
     }
     /* Paso sin captura propia: un ícono grande sobre la captura anterior velada */
     var bg = lastCap ? '<div class="captura ' + capClass(lastCap.cap) + '"><img src="' + M.cap(lastCap.cap) + '" alt=""></div>' : "";

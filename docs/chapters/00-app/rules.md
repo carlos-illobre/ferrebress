@@ -115,7 +115,9 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   en «Entrar», donde lo busca quien no puede entrar; «Trabajar sin conexión» lleva ahí.
 - **R6.5** Cada capítulo tiene texto simple, para quien atiende una ferretería sin saber de
   informática, pasos y capturas de la aplicación de verdad. Las capturas y los clips se sacan sin
-  el marco ni el cartel del ambiente de pruebas, y con datos de una cuenta de demostración. Un clip
+  el marco ni el cartel del ambiente de pruebas, y con datos de una cuenta de demostración. Lo que
+  el manual señala en una captura se marca con un aro, y su nombre va afuera, como leyenda, para que
+  no se confunda con la pantalla. Un clip
   solo donde la funcionalidad es lo bastante grande para verla en video; es un video de la
   aplicación programada, arranca cuando se lo pide, sin sonido.
 - **R6.6** Tiene un buscador: muestra lo encontrado del dispositivo elegido, con su capítulo, y lleva

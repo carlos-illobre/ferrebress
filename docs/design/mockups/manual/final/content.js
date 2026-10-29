@@ -50,7 +50,7 @@
         { id: "d-google", title: "Entrar con Google", icon: "log-in",
           lead: "Si no tenés el celular a mano.",
           steps: [
-            { t: "Tocá «Continuar con Google».", cap: "desktop-entrance", hot: [78, 58.5], label: "Continuar con Google" },
+            { t: "Tocá «Continuar con Google».", cap: "desktop-entrance", hot: [78, 65.5], label: "Continuar con Google" },
             { t: "Elegí tu cuenta. Después de salir, Google siempre te pregunta cuál." },
             { t: "Entrás a Ferrebress, a la primera opción del menú." }
           ],
