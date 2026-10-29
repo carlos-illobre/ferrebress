@@ -22,7 +22,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | # | Módulo | Qué cubre | Por qué en este lugar | Depende de | Estado |
 |---|---|---|---|---|---|
 | 00 | `app` | Las reglas generales de la aplicación: el marco, el menú, el teclado, la conexión, la versión nueva, el manual, las esperas, los formatos | No se construye solo: cada regla se construye con el primer módulo que la necesita | — | Reglas aprobadas |
-| 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | En curso: paso 8 (lo prueba Carlos) |
+| 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | En curso: paso 9 (el manual). Carlos lo probó y lo aprobó |
 | 02 | `users` | Personas (autorizar, dar de baja), roles y permisos, y las sesiones abiertas de cada dispositivo | Para que entre alguien más que el primer Administrador | 01 | Libre |
 | 03 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para leer los códigos del catálogo | 01 | Libre |
 | 04 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo, formatos) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
@@ -104,3 +104,6 @@ No se construyen ahora; el diseño no les cierra la puerta.
   la huella (PRF de la passkey), si no es costoso. Perder lo no enviado (el celular roto o borrado)
   es un riesgo aceptado.
 - [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales.
+- [ ] T111 [carlos] Probar en el ambiente de pruebas que la sesión vence (01 · R3.1, R3.5): 60
+  minutos sin usarla, o 8 horas desde que se entró, y que al volver a entrar se sigue donde se
+  estaba.
