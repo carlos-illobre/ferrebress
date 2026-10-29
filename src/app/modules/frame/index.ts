@@ -4,7 +4,7 @@
 export type { SettingRow } from './context.ts';
 export { moreOptions, parts } from './menu.ts';
 export { forgetReport, watchCrashes } from './notices/crash/crash.ts';
-export { Dialogs } from './notices/Notices.tsx';
+export { Dialogs, VersionNotice } from './notices/Notices.tsx';
 export {
   announceUpdate,
   updateOnOpen,

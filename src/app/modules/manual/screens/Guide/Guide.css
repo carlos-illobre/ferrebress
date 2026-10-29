@@ -86,6 +86,15 @@
     position: relative;
     overflow: hidden;
   }
+  /* Con Alt, el número de cada paso encima de su segmento (R2.9). */
+  .show-keys .manual-progress-step {
+    overflow: visible;
+  }
+  .manual-progress-step kbd {
+    position: absolute;
+    bottom: 12px;
+    left: calc(50% - 12px);
+  }
   .manual-progress-step::after {
     content: "";
     position: absolute;

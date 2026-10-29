@@ -1,7 +1,7 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { updateRequired } from '../../platform/server/api.ts';
-import { chapter, index, loaded, media, serveManual, show } from './manual-test-kit.tsx';
+import { index, loaded, media, serveManual, show } from './manual-test-kit.tsx';
 
 const guide = () => screen.getByRole('main') as HTMLElement;
 
@@ -13,7 +13,7 @@ describe('el manual en la computadora', () => {
     updateRequired.set(false);
   });
 
-  it('app-E34, R6.3: arranca en el dispositivo que se usa, con la primera tarea; el selector cambia todo', async () => {
+  it('R6.3: arranca en el dispositivo que se usa, con la primera tarea; el selector cambia todo', async () => {
     serveManual();
     show();
     await loaded();
@@ -26,18 +26,21 @@ describe('el manual en la computadora', () => {
     expect(location.search).toBe('?d=phone&c=sign-in&t=offline&p=1');
   });
 
-  it('app-E35: en pruebas, los capítulos que faltan con «Pronto»; en producción no', async () => {
+  it('app-E35, R10.1: en pruebas, los capítulos que faltan con «Pronto» y el cartel; en producción no', async () => {
     serveManual();
     show();
     await loaded();
     expect(screen.getByText('Próximos capítulos')).toBeTruthy();
     expect(screen.getByText('Vender').parentElement?.textContent).toContain('Pronto');
+    // R10.1: en pruebas, el manual lleva el cartel del ambiente, como toda pantalla.
+    expect(screen.getByText(/Ambiente de prueba/)).toBeTruthy();
     // El que lleva a otro capítulo no sale en la computadora: no tiene tarea para ella.
     expect(screen.queryByText('Trabajar sin conexión')).toBeNull();
     serveManual();
     show({ testing: false });
     await loaded();
     expect(screen.queryByText('Próximos capítulos')).toBeNull();
+    expect(screen.queryByText(/Ambiente de prueba/)).toBeNull();
   });
 
   it('pasa de paso y de tarea; el último dice «Terminado»; el número, la frase y el consejo cambian', async () => {
@@ -215,14 +218,16 @@ describe('el manual en la computadora', () => {
     await waitFor(() => expect(updateRequired.get()).toBe(true));
   });
 
-  it('un capítulo que no llegó por falta de red se pide de nuevo al volver a elegirlo', async () => {
+  it('R4.4, R4.6: un capítulo que no llegó por falta de red dice «Sin conexión» y se pide al volver la red', async () => {
     const { asked } = serveManual({ 'sign-in.json': 'offline' });
     show();
     await loaded();
-    await waitFor(() => expect(asked).toContain('/manual/sign-in.json'));
-    expect(screen.queryByRole('main')).toBeNull();
+    expect(await screen.findByRole('heading', { name: 'Sin conexión' })).toBeTruthy();
     serveManual();
-    fireEvent.click(screen.getByRole('button', { name: /Entrar con Google/ }));
-    await waitFor(() => expect(within(guide()).getByText('Elegí tu cuenta.')).toBeTruthy());
+    act(() => {
+      dispatchEvent(new Event('online'));
+    });
+    await waitFor(() => expect(within(guide()).getByText('Mirá el código.')).toBeTruthy());
+    expect(asked).toEqual(['/manual/index.json', '/manual/sign-in.json']);
   });
 });

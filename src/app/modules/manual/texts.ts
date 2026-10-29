@@ -35,8 +35,5 @@ export const texts = {
   capture: (label: string) => `Captura: ${label}`,
   inOther: { computer: 'En la computadora', phone: 'En el celular' },
   offline: 'Sin conexión',
-  needsInternet: 'El manual necesita internet.',
-  goToApp: 'Ir a Ferrebress',
-  backTo: (place: string) => `Volver a ${place}`,
   backDoing: 'Volviendo',
 };

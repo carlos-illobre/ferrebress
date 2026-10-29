@@ -16,10 +16,12 @@ export type ManualState = {
   // En el celular, el paso a paso es una hoja.
   sheet: boolean;
   clip: boolean;
+  // Cuántas veces se pidió el clip: pedirlo de nuevo (Alt V) lo vuelve a empezar.
+  plays?: number;
 };
 
 export type Action =
-  | { type: 'chooseDevice'; device: Device }
+  | { type: 'chooseDevice'; device: Device; first: boolean }
   | { type: 'openTask'; chapter: string; task: string; step?: number }
   | { type: 'goToStep'; step: number }
   | { type: 'next' }
@@ -45,10 +47,29 @@ export function firstTask(index: ManualIndex, device: Device) {
   return undefined;
 }
 
-export function startState(index: ManualIndex, device: Device): ManualState {
+// «Todos los pasos»: desde una tarea llega a ella; desde la lista, del capítulo elegido.
+function openAllSteps(state: ManualState, index: ManualIndex, chapter?: string): ManualState {
+  const { allFrom: _, ...rest } = state;
+  if (chapter) return { ...allStepsOf(rest, index, chapter), allSteps: true };
+  return state.task ? { ...rest, allSteps: true, allFrom: state.task, clip: false } : state;
+}
+
+// «Todos los pasos» de un capítulo desde la lista. Si había una tarea abierta de otro capítulo, queda
+// la primera de este: al cerrarlo, el paso a paso y la dirección son de un mismo capítulo.
+function allStepsOf(state: ManualState, index: ManualIndex, chapter: string): ManualState {
+  if (!state.task || chapter === state.chapter) return { ...state, chapter, clip: false };
+  const { task: _, ...rest } = state;
+  const task = tasksOf(index, chapter, state.device)[0]?.id;
+  return { ...rest, chapter, ...(task && { task }), step: 0, direction: 0, clip: false };
+}
+
+// Con el paso a paso a la vista (la pantalla ancha) arranca en la primera tarea; en la angosta no hay
+// nada abierto hasta que se toca una tarea, así el celular no baja nada que nadie pidió
+// (constitución, III).
+export function startState(index: ManualIndex, device: Device, first: boolean): ManualState {
   return {
     device,
-    ...firstTask(index, device),
+    ...(first && firstTask(index, device)),
     step: 0,
     direction: 0,
     allSteps: false,
@@ -82,7 +103,7 @@ function move(state: ManualState, index: ManualIndex, way: 1 | -1): ManualState 
 export function reduce(state: ManualState, action: Action, index: ManualIndex): ManualState {
   switch (action.type) {
     case 'chooseDevice':
-      return startState(index, action.device);
+      return startState(index, action.device, action.first);
     case 'openTask': {
       const task = tasksOf(index, action.chapter, state.device).find(
         (one) => one.id === action.task,
@@ -102,16 +123,13 @@ export function reduce(state: ManualState, action: Action, index: ManualIndex): 
       return move(state, index, 1);
     case 'previous':
       return move(state, index, -1);
-    case 'openAllSteps': {
-      const { allFrom: _, ...rest } = state;
-      if (action.chapter) return { ...rest, chapter: action.chapter, allSteps: true, clip: false };
-      return state.task ? { ...rest, allSteps: true, allFrom: state.task, clip: false } : state;
-    }
+    case 'openAllSteps':
+      return openAllSteps(state, index, action.chapter);
     case 'closeAllSteps':
       return { ...state, allSteps: false };
     case 'closeSheet':
       return { ...state, sheet: false, allSteps: false, clip: false };
     case 'playClip':
-      return { ...state, clip: true };
+      return { ...state, clip: true, plays: (state.plays ?? 0) + 1 };
   }
 }

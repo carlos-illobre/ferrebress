@@ -7,6 +7,7 @@ import type { ChapterEntry } from '@ferrebress/shared/contracts/manual';
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import { isPhone } from '../../../../platform/device/device.ts';
+import { maxQuery, minQuery } from '../../search.ts';
 import { tasksOf } from '../../state.ts';
 import { texts } from '../../texts.ts';
 import type { View } from '../../view.ts';
@@ -94,7 +95,7 @@ function Contents({ view }: { view: View }) {
 }
 
 export function Tasks({ view, top }: { view: View; top: ComponentChildren }) {
-  const searching = view.searched.trim().length >= 2;
+  const searching = view.searched.trim().length >= minQuery;
   const box = useRef<HTMLInputElement>(null);
   // En la computadora el cursor arranca en el buscador (00 · R2.2); en el celular, nunca (R2.12).
   useEffect(() => {
@@ -111,7 +112,7 @@ export function Tasks({ view, top }: { view: View; top: ComponentChildren }) {
             autocomplete="off"
             aria-label={texts.searchLabel}
             placeholder={view.narrow ? texts.searchShort : texts.searchLong}
-            maxLength={60}
+            maxLength={maxQuery}
             value={view.query}
             onInput={(event) => view.setQuery(event.currentTarget.value)}
             data-slash=""

@@ -61,6 +61,22 @@ src/
 `src/` no tiene reglas que no estén en `docs/`. Cada módulo puede tener un `README.md` corto que
 explique su código y enlace su diseño en `docs/technical/modules/`.
 
+Fuera de `src/`:
+
+```
+docs/manual/         el manual (su contenido, no su código): la lista de capítulos, un archivo
+                     por capítulo y media/ con las capturas y los clips
+tools/               los controles de pnpm check; tools/manual/ es el lector que arma el manual
+tests/               las pruebas de punta a punta (e2e/), las de captura (screens/) y el programa
+                     que saca las capturas y los clips del manual (manual/)
+deploy/              Caddy, los Dockerfile y el compose
+```
+
+**El manual** se arma con la aplicación: el lector de `tools/manual/` lee `docs/manual/` y deja
+archivos fijos en `/manual/` del armado, con el código de su pantalla. Caddy sirve `/manual/*` aparte
+de `/assets/`, sin guardarse (`no-store`), y el service worker no lo guarda ([diseño del
+manual](modules/manual.md)).
+
 ## Un módulo del servidor
 
 Siempre los mismos archivos, así quien abrió uno sabe dónde está cada cosa en todos:
@@ -144,3 +160,7 @@ escritor).
 - Complejidad, tamaño de archivo y de función, y código repetido, con los límites del ADR-016.
 - Pruebas unitarias con cobertura del 100 % (ADR-005).
 - Los enlaces de `docs/` funcionan.
+- El peso del arranque de la aplicación y que el código del manual vaya aparte (`pnpm boot`).
+- El manual: que se arme sin problemas y dentro de sus topes (`pnpm manual`), y que ninguna captura
+  haya quedado vieja (`pnpm manual:check`).
+- Que la aplicación no arme HTML con texto ni ponga estilos en el HTML (en `pnpm lint`).

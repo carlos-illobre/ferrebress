@@ -368,3 +368,300 @@ da 404 a `/manual/../.env` y a `/manual/%2e%2e/package.json`.
   sin fallas conocidas. Playwright 1.56.1 ya tiene la corrección de CVE-2025-59288 (descarga de
   navegadores sin verificar el certificado, corregida en 1.55.1), y su imagen va fijada por huella
   en `tests/screens/run.ts`. Vite 8.3.5: ver el punto 13.
+
+---
+
+## Paso 7: el código
+
+Revisión del código del manual (commits `8a348e3`, `442792b`, `7f54aad`, `97322e1` y `f0be623`)
+contra el [diseño](manual.md) y contra los puntos del paso 4. Leí `tools/manual/`,
+`tools/checks/raw-html.ts`, `src/app/modules/manual/`, `src/app/App.tsx`,
+`src/app/platform/router.ts` y `keyboard.ts`, `src/app/modules/frame/menu.ts`,
+`src/app/vite.config.ts`, `tests/manual/`, `tests/screens/run.ts` y `serve.ts`, `deploy/Caddyfile`,
+`deploy/web.Dockerfile`, `tests/e2e/headers.spec.ts` y `docs/manual/` con `media/`.
+
+Lo que corrí:
+
+- Las unitarias del manual, de `tools/` y de `platform/` (22 archivos, 123 pruebas): pasan.
+  `pnpm manual`, el control de HTML armado (`tools/cli.ts html`) y `pnpm audit --prod` («No known
+  vulnerabilities found»): sin problemas.
+- El armado con Vite en una carpeta aparte: el código del manual sale solo en
+  `manual/app-*.js` (8,7 KB comprimido) y `manual/app-*.css`; nada del manual cae en `/assets/`, así
+  que el service worker no lo guarda (paso 4, punto 8).
+- **Caddy de verdad** (la imagen fijada del Dockerfile, con el `Caddyfile` del repositorio cambiado
+  solo de puerto, sobre ese armado): `/manual/index.json`, una captura, el clip y el código salen con
+  `Cache-Control: no-store`, la política estricta, `X-Frame-Options: DENY` y `nosniff`;
+  `/manual/nada.json`, `/manual/` y `/manual/media/` dan 404 (sin listado); `/manual` y
+  `/manual?c=x` dan la página con `no-cache`; `/manual/../manual/index.json` y
+  `/manual/%2e%2e/index.html` se normalizan dentro de `/srv`.
+- El servidor de desarrollo de Vite: `/manual/index.json` sale de la memoria; `/manual/../.env`,
+  `/manual/%2e%2e/package.json` y `/manual/..%2f..%2fpackage.json` dan 404.
+- Las capturas y el clip: miré las diez imágenes y una grilla de cuadros del video; decodifiqué el
+  QR de `desktop-entrance.webp` (lleva `http://localhost:4189/link#captura-fija`); miré los trozos
+  de cada WebP (solo `VP8X`, `ICCP` y `VP8`: sin EXIF ni XMP) y los metadatos del WebM (solo el
+  codificador y la duración).
+- **No corrí** `tests/e2e.sh` (el stack entero) ni `pnpm manual:media` / `pnpm manual:check` (la
+  imagen de Playwright): lo que dicen de la política en el navegador y del encierro del programa de
+  capturas lo leí en el código, no lo vi correr.
+
+### Resumen
+
+**No encontré nada que frene.** El manual no guarda nada en el dispositivo (ni `localStorage`, ni
+caché, ni el service worker; las capturas viven como `blob:` y se sueltan al cambiar de tarea), no
+arma HTML ni pone estilos en el HTML, no pide nada fuera de `/manual/`, «Volver» solo usa la
+historia o `/`, y Caddy pone lo que el diseño pide. Las capturas y el clip no tienen datos de nadie
+real ni nada del ambiente de pruebas. Los trece puntos del paso 4 están en el código, con huecos
+chicos en las pruebas. Lo que queda son mejoras: lo que el lector todavía deja pasar (nombres con
+HTML, metadatos en las imágenes, una carpeta `media/` que sea un enlace), lo que el control de HTML
+no ve y pruebas que faltan.
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 14 | El lector no comprueba que la imagen sea la que sacó el programa ni que venga sin metadatos | Mejora importante |
+| 15 | El nombre del capítulo (en la lista y en su `# título`) no pasa por la regla de «solo texto» | Mejora |
+| 16 | El control de HTML armado no ve `document.writeln` y otras formas; la prueba lo da por bueno | Mejora |
+| 17 | El encierro del programa de capturas no tiene una prueba que lo intente, no bloquea el service worker y el servidor de mentira escucha en toda la red | Mejora |
+| 18 | `media/` (la carpeta) puede ser un enlace simbólico; el diseño dice que se rechazan | Mejora |
+| 19 | El capítulo de la dirección se pide antes del índice (con forma de nombre): el diseño dice dos cosas | Mejora |
+| 20 | «Volver» busca en un objeto común: `from: 'constructor'` muestra el texto de una función | Mejora |
+| 21 | Los 404 de Caddy salen sin `nosniff` ni HSTS | Mejora |
+| 22 | Pruebas que faltan para riesgos que el diseño dice cubrir | Mejora |
+
+### Lo del paso 4, en el código
+
+| Punto del paso 4 | En el código | Prueba que lo intenta |
+|---|---|---|
+| 1 · HTML armado y estilos | El resaltado son pedazos que dibuja Preact (`search.ts:75-92`, `Rows.tsx:70-73`); el aro y el rótulo van por CSSOM (`Shot.tsx:23-54`); `pnpm lint` corre `tools/checks/raw-html.ts`; el lector rechaza `<`, `>` y entidades (`text.ts:12-17`). Busqué en el armado: ni `innerHTML` ni `style=` en el código del manual | `tools/tools.test.ts:99` (el control), `manual-errors.test.ts:36` (un `&amp;` frena), `headers.spec.ts:41-63` (una tarea abierta sin violaciones de la política). Huecos: puntos 15 y 16 |
+| 2 · El capítulo de la dirección | `address.ts` acepta solo lo que existe en el índice; el pedido adelantado acepta solo `^[a-z0-9-]+$` (`useManual.ts:28-45`) | `logic.test.ts:42-55` y `manual-screen.test.tsx:184-197`: con `c=../api/start` abre el principio y todo lo pedido empieza con `/manual/`. Ver punto 19 |
+| 3 · Lo que el lector lee | Nombres comprobados, `lstat` en cada archivo, topes, firma de cada tipo y puntos de 0 a 100 (`media.ts`, `build.ts:28-34`); el archivo del capítulo es siempre `<id>.md` (`list.ts:49`), así un enlace a `../../.env` no tiene forma de entrar | `manual-errors.test.ts:145-178` (enlace simbólico, carpeta, HTML disfrazado, pasado de tope, punto fuera de rango) y `:180` (`README.md` enlace). Falta la de un renglón con `../` o una ruta absoluta y la de la carpeta `media/` enlace (punto 18) |
+| 4 · El programa de capturas encerrado | `closedContext` (`tests/manual/media.ts:41-56`) corta todo pedido de otro origen y la escena falla (`capture.ts:46`, `clip.ts:88`); el origen es fijo (`playwright.config.ts:16`) y a Docker solo pasa `MANUAL_CHECK` (`run.ts:20-22`) | Ninguna prueba intenta escaparse. Ver punto 17 |
+| 5 · Personas, ambiente y metadatos | `ana@example.com` (`scenes.ts:18-23`); `/api/start` contesta `production` en cada escena; antes de guardar se comprueba que no estén el marco ni «Pronto» (`capture.ts:30-33`) | La comprobación de antes de guardar. No hay ninguna para «un `@` fuera de `example.com`» ni para una imagen hecha a mano (punto 14) |
+| 6 · WebP sin dependencias | `canvas.toBlob` en el mismo Chromium (`tests/manual/media.ts:60-87`); ninguna dependencia nueva | La firma y el tope del lector |
+| 7 · Caddy | `handle /manual/*` con `no-store` y `file_server` sin `try_files` (`Caddyfile:63-68`); `@fresh` ya no lo toca | `headers.spec.ts:41-63`: `no-store` en `index.json`, la política sin `unsafe-inline`, 404. No mira una captura ni que `/manual` siga con `no-cache` y `DENY`; lo comprobé a mano con Caddy (arriba) |
+| 8 · El service worker | `chunkFileNames` y `assetFileNames` mandan el manual a `manual/` (`vite.config.ts:54-61`) | `worker.test.ts` (`kindOf` con `/manual/…`); lo comprobé en el armado. No hay una que mire el armado de verdad |
+| 9 · «Volver» | Una lista cerrada (`back.ts:11-31`), sin texto de la historia; sin `from`, `/` | `manual-slot.test.tsx:49-58` (`https://otro.sitio`, un número, nada). Ver punto 20 |
+| 10 · Lo de abajo | Sin sesión la entrada se desmonta; con sesión el marco va `hidden` e `inert` (`App.tsx`) | `manual-app.test.tsx:31-64` |
+| 11 · El cartel del ambiente | `Manual.tsx:127` dibuja `TestEnvironment` | Ninguna del manual (punto 22) |
+| 12 · El buscador | `includes` sobre el texto normalizado, hasta 60 letras (`search.ts:9-26`), nunca `RegExp` con lo escrito | Ninguna con `(a+)+$`, `[` o un texto largo (punto 22) |
+| 13 · El servidor de desarrollo | Sirve `/manual/` desde la memoria (`vite.config.ts:28-34`), sin tocar `server.fs.allow` | Ninguna; lo comprobé a mano (arriba) |
+
+### 14 · La imagen que se publica no está atada a la que sacó el programa (`tools/manual/media.ts:20-33`, `tests/manual/capture.ts:47-60`) — Mejora importante
+
+**Dónde.** El lector acepta cualquier `.webp` que empiece con `RIFF…WEBP` y pese menos de 90 KB, sin
+mirar sus trozos. La huella del JSON de cada escena es la de la captura PNG **sin comprimir**, y
+`pnpm manual:check` vuelve a sacar la escena y compara esa huella: nunca mira el `.webp` que se
+publica.
+
+**El ataque (por error, que es el caso real).** Quien escribe un capítulo, o un agente, reemplaza
+`docs/manual/media/phone-entrance.webp` por una captura hecha con su celular (la pantalla de verdad,
+con su cuenta de Google arriba, o una foto del mostrador) y deja el JSON como estaba. Lo probé: le
+agregué a esa captura un trozo `EXIF` con «GPS -34.6037,-58.3816 Pixel 8 Juan Perez», armé el manual
+con el lector y salió sin ningún problema. `pnpm check` pasa (la huella del PNG no cambió), la imagen
+se copia a `dist/manual/media/` y Caddy la sirve a cualquiera, sin sesión, y queda en un repositorio
+público. Hoy las diez imágenes están limpias (lo miré); el riesgo es la próxima.
+
+**Qué propongo.** Dos renglones en el lector y uno en el programa:
+- Que el lector recorra los trozos del WebP y rechace `EXIF` y `XMP ` (y, en el WebM, cualquier
+  etiqueta que no sea `ENCODER` o `DURATION`).
+- Que el programa guarde en el JSON también la huella del `.webp` que escribe, y que el lector
+  rechace un `.webp` cuya huella no coincida («sacala con `pnpm manual:media`»).
+
+Costo: una hora con sus pruebas.
+
+**Prueba.** Unitarias del lector: un WebP con un trozo `EXIF` frena; un WebP válido con otra huella
+frena.
+
+### 15 · El nombre del capítulo no pasa por «solo texto» (`tools/manual/list.ts:43`, `tools/manual/chapter.ts:127`) — Mejora
+
+**Dónde.** El diseño (§ 2) dice que el texto del manual rechaza `<`, `>` y entidades. El lector lo
+hace con la introducción, los títulos de las tareas, los pasos, los consejos, las claves y los
+rótulos, pero no con el nombre del renglón de `README.md` ni con el `# título` del capítulo (que solo
+tiene que ser igual al nombre).
+
+**El riesgo.** Lo probé: con `- sign-in · Entrar <img src=x> &amp; · log-in · sign-in.md` y el mismo
+título, el lector no da ningún problema y `index.json` lleva `"Entrar <img src=x> &amp;"`. Preact
+lo dibuja como texto, así que **no se ejecuta nada**: no pude armar un ataque. Pero es la única
+puerta por la que el contenido con HTML llega a la pantalla, y si mañana algo lo pinta como HTML
+(un título de pestaña, una notificación), ya no hay barrera en el lector.
+
+**Qué propongo.** Pasar `name` por `textProblem` en `entryOf` (y rechazar «·» ahí, como en los
+rótulos). Costo: un renglón.
+
+**Prueba.** Unitaria del lector: un renglón con `<b>` en el nombre y otro con `&amp;` frenan.
+
+### 16 · Lo que el control de HTML armado no ve (`tools/checks/raw-html.ts:7-8`, `tools/tools.test.ts:105`) — Mejora
+
+**Dónde.** La expresión busca `\bdocument\.write\b`, que no encuentra `document.writeln` (la `l` sigue
+la palabra). La prueba del control lo deja escrito como correcto: `src/app/d.ts` tiene
+`document.writeln` y la prueba espera que **no** se avise. Tampoco ve `srcdoc`,
+`createContextualFragment`, `setHTMLUnsafe`, `DOMParser` ni `outerHTML` partido en dos renglones.
+
+**El riesgo.** Es la primera barrera contra HTML armado con texto (la segunda es la política de
+contenido, que bloquearía los `onerror`). Un `document.writeln(texto)` o un `iframe.srcdoc = …`
+pasan `pnpm lint`. No es un ataque de afuera: es un error que el control promete atajar y no ataja.
+
+**Qué propongo.** Ampliar la expresión a `document\.write(ln)?`, `srcdoc`, `createContextualFragment`,
+`setHTMLUnsafe` y `parseFromString`, y corregir la prueba: `document.writeln` tiene que avisar.
+Costo: diez minutos.
+
+### 17 · El encierro del programa de capturas (`tests/manual/media.ts:41-56`, `tests/screens/serve.ts:63`, `tests/screens/run.ts:29-46`) — Mejora
+
+**Dónde y qué pasa.**
+- El corte de `context.route('**/*', …)` es lo que pidió el paso 4 y está bien hecho (compara el
+  origen, no el texto). Pero **ninguna prueba lo intenta**: si mañana alguien cambia `'**/*'` por un
+  patrón más angosto, o el `route.fallback()` de lugar, las capturas siguen saliendo.
+- `context.route` de Playwright no ve lo que pide un service worker que contesta él mismo, y el armado
+  del servidor de mentira es de producción, así que `/sw.js` se registra. Hoy el service worker solo
+  pide al mismo origen, así que no pude armar una salida; no lo pude comprobar corriendo la imagen.
+- `run.ts` sigue lanzando Docker con `--network host` y `serve.ts` escucha en todas las interfaces
+  (`listen(port)`), así que mientras corre, la aplicación y la API de mentira están en el puerto 4189
+  para la red local y Tailscale. Solo sirven el armado y respuestas fijas: no hay datos que ver.
+
+**Qué propongo.** `serviceWorkers: 'block'` en `closedContext`; `listen(port, '127.0.0.1')` en
+`serve.ts`; y una prueba del encierro: una unitaria de `closedContext` con un navegador que pide
+`https://example.com/x.png` y comprueba que queda en `escaped` (o una escena de prueba que la corrida
+tiene que hacer fallar). Costo: una hora.
+
+### 18 · La carpeta `media/` como enlace simbólico (`tools/manual/media.ts:88-97`) — Mejora
+
+**Dónde.** El lector hace `lstat` de cada archivo, pero no de la carpeta `media/` ni de
+`docs/manual/`. El diseño (§ 2) dice que «la ruta resuelta tiene que quedar dentro de
+`docs/manual/`, y se rechazan los enlaces simbólicos».
+
+**El ataque.** Quien puede subir al repositorio cambia `docs/manual/media` por un enlace a una
+carpeta absoluta (git guarda enlaces). Al armar en GitHub o en la máquina de quien programa, el
+lector lee esa carpeta. Para que algo se publique, ahí tiene que haber un `<x>.json` con la forma de
+una escena y un `<x>.webp` o `.webm` válidos y que un capítulo nombre: no pude armar un caso real en
+que salga algo ajeno. Lo anoto porque el diseño lo da por cubierto.
+
+**Qué propongo.** `lstat` de `media/` (y de la raíz del manual) y rechazo si es un enlace; o
+`realpathSync` y comprobar que empieza con el `realpath` de `docs/manual/`. Costo: unos renglones.
+
+**Prueba.** Unitaria del lector: `media` como enlace a otra carpeta con una escena válida frena.
+
+### 19 · El capítulo de la dirección se pide antes del índice (`src/app/modules/manual/useManual.ts:28-45`) — Mejora
+
+**Dónde.** Con `/manual?c=<nombre>` el capítulo se pide a la vez que el índice, con el texto de la
+dirección si tiene forma de nombre (`^[a-z0-9-]+$`), y recién después se usa solo si el índice lo
+tiene. El diseño (§ 5) dice las dos cosas: «el archivo que se pide siempre es el del índice, nunca un
+texto armado con la dirección» y «si la dirección nombra un capítulo, el índice y el capítulo se piden
+a la vez».
+
+**El riesgo.** Con la forma de nombre no hay `/`, `.` ni `%`, así que el pedido queda dentro de
+`/manual/` y termina en `.json`: con `?c=index` o `?c=search-phone` se baja un archivo público más,
+que no se usa; un nombre que no existe da 404 y se descarta sin pedir actualizar. No pude armar nada
+más. Es el cierre del punto 2 del paso 4, bien hecho, pero el diseño no lo dice así.
+
+**Qué propongo.** Corregir la frase del diseño: «el capítulo de la dirección se pide a la vez que el
+índice solo si tiene forma de nombre, y se usa solo si el índice lo tiene». Costo: ninguno.
+
+**Prueba.** La de `manual-screen.test.tsx:184-197` ya lo cubre.
+
+### 20 · «Volver» busca en un objeto común (`src/app/modules/manual/back.ts:11-22`) — Mejora
+
+**Dónde.** `places[from]` es un objeto literal: `from: 'constructor'`, `'toString'` o `'__proto__'`
+devuelven algo de `Object.prototype`, que pasa el `if (!place)`, y el botón dice «Volver a function
+Object() { [native code] }».
+
+**El riesgo.** `history.state` solo lo escribe una página del mismo origen, así que no pude armar un
+ataque desde afuera, y `go` sigue siendo `history.go`: no hay redirección. Es la lista cerrada que
+pidió el paso 4 con una puerta por el prototipo.
+
+**Qué propongo.** `Object.hasOwn(places, from)` (o un `Map`). Costo: un renglón.
+
+**Prueba.** Sumar `{ from: 'constructor' }` y `{ from: '__proto__' }` a `manual-slot.test.tsx:49`.
+
+### 21 · Los 404 de Caddy salen sin `nosniff` ni HSTS (`deploy/Caddyfile:17-21`) — Mejora
+
+**Dónde.** El bloque de arriba (`Strict-Transport-Security`, `X-Content-Type-Options` y `-Server`)
+tiene un borrado, y Caddy lo aplica al escribir la respuesta; los 404 de `file_server` salen por el
+camino de errores y no lo llevan. Lo vi corriendo Caddy: `/manual/nada.json`, `/manual/` y
+`/manual/media/` dan 404 con la política y `DENY`, pero sin `nosniff` ni HSTS. Pasa también con
+`/assets/` (no es nuevo del manual).
+
+**El riesgo.** El 404 no tiene cuerpo ni tipo, así que `nosniff` no cambia nada, y HSTS ya lo dan
+todas las demás respuestas y el proxy de TLS. No pude armar un ataque.
+
+**Qué propongo.** Agregar las dos cabeceras sin `defer` (por ejemplo, un bloque `header` aparte para
+el borrado de `Server`), y en `headers.spec.ts` comprobar `nosniff` también en el 404. Costo: cinco
+minutos.
+
+### 22 · Pruebas que faltan (§ 10 del diseño) — Mejora
+
+Riesgos que el diseño dice cubrir y que ninguna prueba intenta:
+
+- **El encierro de las capturas** (paso 4, punto 4): ver el punto 17.
+- **El buscador con lo que escribe un atacante** (punto 12): unitaria de `searchManual` y `marks` con
+  `(a+)+$`, `[`, `\` y 10 000 letras: no tira error, corta en 60 y responde en menos de 5 ms.
+- **El servidor de desarrollo** (punto 13): unitaria del manejador de `configureServer` con
+  `/manual/../.env` y `/manual/%2e%2e/package.json` (hoy dan 404; lo comprobé a mano).
+- **El cartel del ambiente de pruebas en el manual** (punto 11, R10.1): unitaria de la pantalla en
+  pruebas con «Ambiente de prueba · nada de esto es real» y en producción sin él.
+- **E53 con sesión, espiando `fetch`:** `manual-app.test.tsx:31` comprueba que la persona no se ve,
+  pero no que con sesión ningún pedido del manual salga de `/manual/` (eso lo prueba
+  `manual-screen.test.tsx:184` sin sesión).
+- **Un renglón con `../` o una ruta absoluta** en `README.md` (punto 3, y § 10 «un enlace fuera de
+  `docs/manual/`»): hoy no tiene cómo pasar, porque el archivo tiene que ser `<id>.md`; una prueba
+  lo deja atado.
+- **Las cabeceras:** `headers.spec.ts` mira `index.json` y un 404; conviene sumar una captura de
+  `media/` con `no-store` e `image/webp`, `/manual` con `no-cache` y `X-Frame-Options: DENY`, y
+  comparar la política con la de la aplicación entera, no solo que no tenga `unsafe-inline`.
+
+Costo de todo: medio día.
+
+### Fuera de seguridad, visto de paso
+
+En `pnpm dev`, `server.middlewares.use('/manual/', …)` también atrapa `/manual` y `/manual?d=…`
+(connect quita la barra del final y compara por prefijo): abrir o recargar el manual por su dirección
+en desarrollo da 404 vacío. Lo comprobé con el servidor de desarrollo. No afecta a Caddy ni al
+armado.
+
+### Lo que revisé y está bien
+
+- **Entrar sin permiso y sesiones:** el manual no lee la sesión ni la persona, y no hay rutas,
+  eventos ni canales nuevos. Sin sesión, la entrada se desmonta (se cierran su canal del QR y la
+  renovación de Google).
+- **Permisos y lo ajeno:** todo lo que muestra sale del repositorio público; cambiar `d`, `c`, `t` o
+  `p` solo elige entre lo que hay en el índice (`p` se limita a la cantidad de pasos).
+- **Lo que entra de afuera:** la dirección (puntos 19 y 2 del paso 4), el buscador (60 letras,
+  `includes`), el `history.state` (punto 20). Nada se manda a ningún lado.
+- **El navegador:** sin `localStorage`, `sessionStorage`, IndexedDB ni caché; `fetch` con
+  `no-store`; las capturas como `blob:` (que `img-src` ya admite) se sueltan al cambiar de tarea y al
+  cerrar; el clip con `preload="none"`. La página no se puede enmarcar (`DENY` y
+  `frame-ancestors 'none'`, comprobado). La excepción de `'unsafe-inline'` en estilos sigue solo en
+  `/google-button.html` (`Caddyfile:39-48`); el HTML con estilos en línea de `tests/manual/clip.ts`
+  solo existe dentro del programa de capturas, nunca en Caddy.
+- **Redirecciones:** «Volver» usa `history.go` o `navigate('/')`; ningún camino asigna
+  `location`.
+- **Datos personales en el repositorio:** las diez imágenes y el video muestran solo a «Ana Gómez,
+  Administrador» con `ana@example.com` (que no aparece en ninguna imagen), el botón de Google de
+  mentira, el QR con `localhost` y «captura-fija», la computadora «Chrome en Windows»; ni el marco ni
+  el cartel del ambiente de pruebas, ni «Pronto». Sin EXIF ni XMP; el WebM solo dice el codificador.
+  El manual de prueba de `tests/manual/fixture/` reúsa dos de esas capturas.
+- **Secretos:** ninguno en el código, las imágenes ni el Dockerfile; el Dockerfile copia solo
+  `tools/manual` y `docs/manual`, y `MANUAL_DIR` y `MANUAL_MEDIA` no llegan al armado de la imagen
+  (no son `ARG`).
+- **Abuso y disponibilidad:** archivos fijos con topes; sin base ni memoria del servidor.
+- **Sin conexión y auditoría:** no hace nada sin conexión ni tiene acciones que registrar.
+- **Dependencias:** ninguna nueva en estos commits (`package.json` solo suma comandos);
+  `pnpm audit --prod` sin fallas. Los íconos se copiaron de Lucide como datos, sin la biblioteca.
+
+### Lo que se hizo con el paso 7
+
+- **14:** cada escena guarda la huella del `.webp` que se publica y el lector rechaza otra, y también
+  un WebP con trozos `EXIF` o `XMP`. Las etiquetas del WebM no se miran todavía.
+- **15:** el nombre de la lista pasa por «solo texto» y no puede tener «·»; el `# título` tiene que
+  ser igual. Los mensajes del lector ya no repiten el contenido del renglón.
+- **16:** el control de HTML ve `document.writeln`, `srcdoc`, `createContextualFragment`,
+  `setHTMLUnsafe`, `parseFromString`, `cssText` y `setAttribute` con comillas invertidas; la prueba
+  lo exige.
+- **17:** `serviceWorkers: 'block'`, el convertidor del clip en un contexto encerrado, el servidor de
+  mentira solo en `127.0.0.1`, y una prueba del encierro en `pnpm manual:check`.
+- **18:** el lector rechaza la carpeta del manual o `media/` como enlace.
+- **19:** el diseño dice lo que hace el código.
+- **20:** «Volver» usa `Object.hasOwn`; `constructor` y `__proto__` llevan a «Ir a Ferrebress».
+- **21:** el borrado de `Server` va en su propio bloque, y los 404 llevan `nosniff` y HSTS (la e2e lo
+  comprueba).
+- **22:** pruebas del buscador con texto hostil, del servidor de desarrollo, del cartel en pruebas,
+  de E53 con sesión, de un renglón con `../` o una ruta absoluta, y más cabeceras en la e2e (una
+  captura, `/manual` y la política igual a la de la aplicación).

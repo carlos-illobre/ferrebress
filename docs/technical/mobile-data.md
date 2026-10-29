@@ -40,6 +40,7 @@ KB cuando hay que abrirla de nuevo, que es lo normal después de unos minutos si
 | Al mostrar la entrada | El botón de Google, que lo baja Google | Unos 170 KB la primera vez (medido); después, parte sale de lo guardado del navegador | Celular y computadora | Entrar con Google (01 · R2.1) |
 | Al volver la conexión, con la entrada a la vista y el botón de Google sin dibujar | El botón de Google de nuevo, que lo baja Google | Hasta unos 170 KB (lo que el navegador no tenga guardado) | Celular y computadora | Que la entrada no quede sin Google después de un corte (01 · R2.1) |
 | Con la entrada de la computadora a la vista | Un canal abierto que recibe un código nuevo por minuto | Unos 60 bytes por código | Solo la computadora | Entrar con el celular leyendo el QR (01 · R2.5) |
+| Al volver la conexión, con el manual abierto, si un capítulo o una captura de la tarea abierta no llegó | Solo lo que no llegó: el capítulo (unos pocos KB) y las capturas de la tarea, hasta dos (de 6 a 75 KB cada una, medido) | Lo que pesaba lo que faltó; con todo bajado, nada | Celular y computadora | Que el manual no quede con «Sin conexión» después de un corte (00 · R4.6) |
 | En segundo plano, con una versión nueva y nada a medio hacer | La página y los archivos de la versión nueva | Lo que pese la versión nueva | Celular y computadora | Actualizarse sola (00 · R5.6) |
 
 ## Lo que se mira antes de agregar uno

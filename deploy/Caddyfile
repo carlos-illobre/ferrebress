@@ -14,11 +14,13 @@
 }
 
 :80 {
+	# Aparte del borrado de Server: un bloque con un borrado se aplica recién al escribir la
+	# respuesta, y los errores (un 404) salían sin estas dos.
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options nosniff
-		-Server
 	}
+	header -Server
 
 	# Lo que solo sirve en una página. Las respuestas de /api, que son JSON y no se dibujan, no lo
 	# llevan: cada pedido viaja más liviano, que en el celular se paga con datos.

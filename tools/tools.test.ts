@@ -8,6 +8,7 @@ import { findBrokenLinks } from './checks/doc-links.ts';
 import { findLongFiles, maxLinesPerFile } from './checks/file-sizes.ts';
 import { findCrowdedFolders, maxFilesPerFolder } from './checks/folder-sizes.ts';
 import { findFilesWithoutHeader } from './checks/header-comments.ts';
+import { findLooseManual } from './checks/manual-code.ts';
 import { findRawHtml } from './checks/raw-html.ts';
 
 function project(files: Record<string, string>): string {
@@ -96,18 +97,54 @@ describe('findHeavyBoot', () => {
   });
 });
 
+describe('findLooseManual', () => {
+  it('app-E39: el código del manual va en manual/, no en assets/, y no pasa su tope', () => {
+    const apart = { 'manual/app-a.js': 'x', 'manual/app-a.css': 'y', 'assets/main.js': 'z' };
+    expect(findLooseManual(project(apart))).toEqual([]);
+    const loose = project({ 'manual/index.json': '{}', 'assets/main.js': '"manual-page"' });
+    expect(findLooseManual(loose)).toEqual([
+      'Falta el código del manual en manual/app-*.js',
+      'Falta el código del manual en manual/app-*.css',
+      'El código del manual quedó en assets/main.js',
+    ]);
+    const noise = randomBytes(30 * 1024).toString('base64');
+    const heavy = project({ ...apart, 'manual/app-a.js': noise });
+    expect(findLooseManual(heavy)[0]).toMatch(
+      /El código del manual pesa .* KB con gzip \(máximo 20 KB\)/,
+    );
+  });
+});
+
 describe('findRawHtml', () => {
   it('avisa HTML armado con texto y estilos puestos en el HTML, salvo en las pruebas', () => {
     const root = project({
       'src/app/a.ts': 'el.innerHTML = x;\nok();\nel.setAttribute("style", "left:0");',
       'src/app/b.tsx': "box.insertAdjacentHTML('beforeend', x); el.style.setProperty('--x', '1');",
       'src/app/c.test.tsx': 'document.body.innerHTML = html;',
-      'src/app/d.ts': 'el.setAttribute("aria-label", "x"); document.writeln',
+      'src/app/d.ts': 'el.setAttribute("aria-label", "x");\ndocument.writeln(x);',
+      'src/app/e.ts': [
+        'frame.srcdoc = x;',
+        'range.createContextualFragment(x);',
+        'el.setHTMLUnsafe(x);',
+        'new DOMParser().parseFromString(x, "text/html");',
+        'el.style.cssText = x;',
+        'el.setAttribute(`style`, x);',
+      ].join('\n'),
     });
-    expect(findRawHtml(root).sort()).toEqual([
-      'src/app/a.ts:1: no se arma HTML con texto ni estilos en el HTML',
-      'src/app/a.ts:3: no se arma HTML con texto ni estilos en el HTML',
-      'src/app/b.tsx:1: no se arma HTML con texto ni estilos en el HTML',
-    ]);
+    const problem = (where: string) => `${where}: no se arma HTML con texto ni estilos en el HTML`;
+    expect(findRawHtml(root).sort()).toEqual(
+      [
+        'a.ts:1',
+        'a.ts:3',
+        'b.tsx:1',
+        'd.ts:2',
+        'e.ts:1',
+        'e.ts:2',
+        'e.ts:3',
+        'e.ts:4',
+        'e.ts:5',
+        'e.ts:6',
+      ].map((where) => problem(`src/app/${where}`)),
+    );
   });
 });

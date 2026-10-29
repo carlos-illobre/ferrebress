@@ -6,17 +6,16 @@
 import type { Device } from '@ferrebress/shared/contracts/manual';
 import logo from '../../../../styles/brand/logo-on-light.webp';
 import { TestEnvironment } from '../../../frame/index.ts';
+import type { Back } from '../../place/back.ts';
+import { NeedsInternet } from '../../place/NeedsInternet.tsx';
 import { texts } from '../../texts.ts';
 import { useManual } from '../../useManual.ts';
 import { useNarrow, type View } from '../../view.ts';
 import { AllSteps } from '../AllSteps/AllSteps.tsx';
 import { Glyph } from '../Glyph/Glyph.tsx';
-import { Guide } from '../Guide/Guide.tsx';
+import { Guide, GuideOffline } from '../Guide/Guide.tsx';
 import { Tasks } from '../Tasks/Tasks.tsx';
 import './Manual.css';
-
-// A dónde vuelve «Volver»: el nombre largo (computadora), el corto (celular) y cómo.
-export type Back = { long: string; short: string; go: (open: number) => void };
 
 function Devices({ view, keys }: { view: View; keys: boolean }) {
   const options: [Device, string, string, string][] = [
@@ -31,7 +30,7 @@ function Devices({ view, keys }: { view: View; keys: boolean }) {
           type="button"
           aria-pressed={view.state.device === device}
           data-key={keys ? key : undefined}
-          onClick={() => view.act({ type: 'chooseDevice', device })}
+          onClick={() => view.act({ type: 'chooseDevice', device, first: !view.narrow })}
         >
           <Glyph name={icon} size="small" />
           {name}
@@ -90,7 +89,13 @@ function Loaded({ view, back }: { view: View; back: Back }) {
       <Top view={view} back={back} />
       <div class={view.narrow && view.state.sheet ? 'manual-body in-guide' : 'manual-body'}>
         <Tasks view={view} top={ask} />
-        {view.task && <Guide view={view} task={view.task} />}
+        {view.task ? (
+          <Guide view={view} task={view.task} />
+        ) : (
+          view.state.task &&
+          view.chapter === 'offline' &&
+          (!view.narrow || view.state.sheet) && <GuideOffline view={view} />
+        )}
         {view.state.allSteps && <AllSteps view={view} />}
       </div>
     </>
@@ -106,23 +111,15 @@ export function Manual({
   testing: boolean;
   back: Back;
 }) {
-  const manual = useManual(device, testing);
   const narrow = useNarrow();
+  const manual = useManual(device, testing, narrow);
   const { index, state } = manual;
   return (
     <div class="manual-page" data-layer="" data-arrows="">
       {typeof index === 'object' && state ? (
         <Loaded view={{ ...manual, index, state, testing, narrow }} back={back} />
       ) : (
-        index !== undefined && (
-          <div class="manual-offline">
-            <p>{texts.needsInternet}</p>
-            <button type="button" class="button" onClick={() => back.go(0)}>
-              <Glyph name="arrow-left" />
-              <span>{back.long}</span>
-            </button>
-          </div>
-        )
+        index !== undefined && <NeedsInternet back={back} />
       )}
       {testing && <TestEnvironment />}
     </div>

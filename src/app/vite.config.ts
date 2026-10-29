@@ -6,15 +6,17 @@ import { join } from 'node:path';
 import preact from '@preact/preset-vite';
 import { defineConfig, type Plugin } from 'vite';
 import { buildManual } from '../../tools/manual/build.ts';
+import { serveManual } from '../../tools/manual/serve.ts';
 import { manualIcons } from './modules/manual/icons.ts';
 
 const version = process.env.VERSION ?? 'dev';
 
+// MANUAL_DIR: otro manual (el de prueba de las capturas de referencia).
+const manualDir = () => join(import.meta.dirname, '../..', process.env.MANUAL_DIR ?? 'docs/manual');
+
 function manual(): Plugin {
   const files = () => {
-    // MANUAL_DIR: otro manual (el de prueba de las capturas de referencia).
-    const dir = join(import.meta.dirname, '../..', process.env.MANUAL_DIR ?? 'docs/manual');
-    const built = buildManual(dir, version, new Set(Object.keys(manualIcons)));
+    const built = buildManual(manualDir(), version, new Set(Object.keys(manualIcons)));
     if (built.problems.length > 0) throw new Error(`El manual:\n${built.problems.join('\n')}`);
     return built.files;
   };
@@ -26,12 +28,13 @@ function manual(): Plugin {
         this.emitFile({ type: 'asset', fileName: `manual/${name}`, source });
     },
     configureServer(server) {
-      server.middlewares.use('/manual/', (request, response) => {
-        const file = files().get((request.url ?? '').slice(1).split('?')[0] ?? '');
-        response.statusCode = file ? 200 : 404;
-        response.setHeader('Cache-Control', 'no-store');
-        response.end(file);
+      // Se arma una vez y de nuevo cuando cambia algo del manual, no en cada pedido.
+      let built: Map<string, Buffer> | undefined;
+      server.watcher.add(manualDir());
+      server.watcher.on('all', (_, path) => {
+        if (path.startsWith(manualDir())) built = undefined;
       });
+      server.middlewares.use(serveManual(() => (built ??= files())));
     },
   };
 }

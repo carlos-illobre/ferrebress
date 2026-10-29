@@ -21,7 +21,6 @@ paso 9 de cada uno (constitución). La aplicación lo arma desde estos archivos;
 
 - sign-in · Entrar · log-in · sign-in.md
 - sales · Vender · shopping-cart
-- customers · Clientes · users
 - catalog · Productos · tags
 - price-lists · Listas de precios · file-text
 - stock · Stock · package
@@ -30,9 +29,10 @@ paso 9 de cada uno (constitución). La aplicación lo arma desde estos archivos;
 - business-overview · Números del negocio · chart-column
 - users · Personas · user-round
 - audit-log · Quién hizo qué · history
-- administration · Administración · sliders-horizontal
 - processes · Procesos · workflow
 - tickets · Mejoras y errores · bug
 - device-settings · Configuración · settings
 - device-link · Celular y computadora · smartphone
+- administration · Administración · sliders-horizontal
+- customers · Clientes · users
 - offline · Trabajar sin conexión · wifi-off · → sign-in: no-internet (computadora), offline (celular)

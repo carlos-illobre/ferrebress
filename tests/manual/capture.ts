@@ -5,7 +5,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, type Page, test } from '@playwright/test';
-import { closedContext, devices, mediaDir, phoneData, sha256, toWebp } from './media.ts';
+import { type Scene as SceneFile, sha256 } from '../../tools/manual/media.ts';
+import { closedContext, devices, expectClean, mediaDir, phoneData, toWebp } from './media.ts';
 import { now, type Scene, scenes } from './scenes.ts';
 
 const checking = process.env.MANUAL_CHECK === '1';
@@ -26,11 +27,15 @@ async function measure(page: Page, scene: Scene): Promise<Record<string, [number
   return points;
 }
 
-// Lo que no puede salir nunca: el ambiente de pruebas ni lo que todavía no existe.
-async function expectClean(page: Page): Promise<void> {
-  await expect(page.locator('.test-frame')).toHaveCount(0);
-  await expect(page.getByText('Pronto', { exact: true })).toHaveCount(0);
-}
+// El encierro se prueba a sí mismo: un pedido a otro sitio se corta y queda anotado.
+test('el encierro corta lo de afuera', async ({ browser, baseURL }) => {
+  const { context, escaped } = await closedContext(browser, baseURL as string, {});
+  const page = await context.newPage();
+  await page.goto('/');
+  await page.evaluate(() => fetch('https://example.com/x.png').catch(() => undefined));
+  expect(escaped).toEqual(['https://example.com/x.png']);
+  await context.close();
+});
 
 for (const scene of scenes) {
   test(scene.name, async ({ browser, baseURL }, testInfo) => {
@@ -55,7 +60,14 @@ for (const scene of scenes) {
       const webp = await toWebp(await context.newPage(), png, device.width);
       const height = Math.round((png.readUInt32BE(20) * device.width) / png.readUInt32BE(16));
       writeFileSync(join(mediaDir, `${scene.name}.webp`), webp);
-      const description = { device: scene.device, width: device.width, height, points, hash };
+      const description: SceneFile = {
+        device: scene.device,
+        width: device.width,
+        height,
+        points,
+        hash,
+        file: sha256(webp),
+      };
       writeFileSync(saved, `${JSON.stringify(description, null, 2)}\n`);
     }
     await context.close();

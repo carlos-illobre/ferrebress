@@ -9,6 +9,9 @@
   "include": [
     "**/*.ts",
     "../../src/shared/contracts/sign-in.ts",
-    "../../src/shared/contracts/server-header.ts"
+    "../../src/shared/contracts/server-header.ts",
+    "../../src/shared/contracts/manual.ts",
+    "../../tools/manual/media.ts",
+    "../../tools/manual/text.ts"
   ]
 }

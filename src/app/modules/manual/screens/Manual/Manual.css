@@ -5,7 +5,9 @@
   .manual-page {
     position: fixed;
     inset: 0;
-    z-index: 50;
+    /* Encima de lo de abajo (el marco queda oculto), debajo de los avisos: la versión nueva (22)
+       y los diálogos. */
+    z-index: 20;
     display: flex;
     flex-direction: column;
     background: var(--background);
@@ -31,9 +33,6 @@
     padding-left: var(--s3);
     border-left: 1px solid var(--border);
   }
-  .manual-top .manual-devices {
-    margin-left: var(--s6);
-  }
   .manual-back {
     margin-left: auto;
   }
@@ -55,6 +54,9 @@
     gap: 2px;
     border-radius: var(--radius);
     background: var(--sunken);
+  }
+  .manual-top .manual-devices {
+    margin-left: var(--s6);
   }
   .manual-devices > button {
     min-height: 34px;
@@ -120,14 +122,6 @@
     border-radius: 4px;
     padding: 0 2px;
     box-shadow: inset 0 -2px 0 var(--urgent);
-  }
-  .manual-offline {
-    margin: auto;
-    display: grid;
-    justify-items: center;
-    gap: var(--s4);
-    color: var(--text-2);
-    font-weight: 600;
   }
   .manual-close {
     width: 44px;

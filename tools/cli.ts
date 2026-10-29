@@ -12,6 +12,7 @@ import { findBrokenLinks } from './checks/doc-links.ts';
 import { findLongFiles } from './checks/file-sizes.ts';
 import { findCrowdedFolders } from './checks/folder-sizes.ts';
 import { findFilesWithoutHeader } from './checks/header-comments.ts';
+import { findLooseManual } from './checks/manual-code.ts';
 import { findRawHtml } from './checks/raw-html.ts';
 import { buildManual } from './manual/build.ts';
 
@@ -30,7 +31,7 @@ const checks: Record<string, () => string[]> = {
       cwd: join(root, 'src/app'),
       stdio: 'ignore',
     });
-    return findHeavyBoot(dist);
+    return [...findHeavyBoot(dist), ...findLooseManual(dist)];
   },
 };
 

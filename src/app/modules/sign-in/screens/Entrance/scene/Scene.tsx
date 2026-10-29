@@ -9,7 +9,6 @@ import logoDark from '../../../../../styles/brand/logo-on-dark-large.webp';
 import logoLight from '../../../../../styles/brand/logo-on-light-large.webp';
 import type { IconName } from '../../../../../ui/icon/Icon.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
-import { showToast } from '../../../../../ui/toast/Toast.tsx';
 import { manualPath } from '../../../../manual/index.ts';
 import { texts } from '../../../texts.ts';
 import { useEntrance } from '../context.ts';

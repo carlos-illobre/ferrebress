@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type Browser, expect, type Frame, type Page, test } from '@playwright/test';
 import type { ReadCodeResponse } from '../../src/shared/contracts/sign-in.ts';
-import { closedContext, mediaDir, toWebp } from './media.ts';
+import { closedContext, expectClean, mediaDir, toWebp } from './media.ts';
 import { ana, header, now, start } from './scenes.ts';
 
 const name = 'phone-to-computer';
@@ -84,12 +84,17 @@ test(name, async ({ browser, baseURL }) => {
   );
   await page.goto('/clip-stage');
   await play(page, base, scene);
+  for (const frame of page.frames()) await expectClean(frame);
   const last = await page.screenshot();
   expect(escaped, 'pedidos fuera del servidor de mentira').toEqual([]);
   const video = page.video();
   await context.close();
   copyFileSync((await video?.path()) as string, join(mediaDir, `${name}.webm`));
-  const converter = await browser.newPage();
-  writeFileSync(join(mediaDir, `${name}.end.webp`), await toWebp(converter, last, 960));
-  await converter.close();
+  // El último cuadro se pasa a WebP también en un contexto encerrado.
+  const quiet = await closedContext(browser, base, {});
+  writeFileSync(
+    join(mediaDir, `${name}.end.webp`),
+    await toWebp(await quiet.context.newPage(), last, 960),
+  );
+  await quiet.context.close();
 });

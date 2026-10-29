@@ -5,6 +5,7 @@
 import { manualFiles, type Task } from '@ferrebress/shared/contracts/manual';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { load } from './api.ts';
+import { useOnline } from './online.ts';
 
 // Cada escena: su dirección blob:, o «offline» si no se pudo bajar (se muestra gris).
 export type Captures = Record<string, string>;
@@ -12,16 +13,6 @@ export type Captures = Record<string, string>;
 const scenesOf = (task: Task, from: number) => [
   ...new Set(task.steps.slice(from).flatMap((step) => step.capture?.scene ?? [])),
 ];
-
-function useOnline(): number {
-  const [times, setTimes] = useState(0);
-  useEffect(() => {
-    const again = () => setTimes((count) => count + 1);
-    addEventListener('online', again);
-    return () => removeEventListener('online', again);
-  }, []);
-  return times;
-}
 
 export function useCaptures(task: Task, step: number): Captures {
   const [captures, setCaptures] = useState<Captures>({});

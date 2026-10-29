@@ -33,8 +33,8 @@ el orden en que están escritas en su archivo: reordenarlas es mover su sección
 ## Los capítulos, en orden
 
 - sign-in · Entrar · log-in · sign-in.md
-- sell · Vender · shopping-cart
-- customers · Clientes · users
+- sales · Vender · shopping-cart
+- catalog · Productos · tags
 …
 - offline · Trabajar sin conexión · wifi-off · → sign-in: no-internet (computadora), offline (celular)
 …
@@ -94,8 +94,9 @@ común y tiene una forma fija:
   «En la computadora» (R6.3).
 - **Un paso sin captura** lleva su `Ícono:` (si no, el de la tarea) y lo muestra grande sobre la
   captura anterior, velada; si es el primero, solo.
-- **Los consejos** (`>`): el consejo *i* sale en el paso *i*, y el último se repite en los que
-  siguen, como la maqueta; todos juntos en «Todos los pasos».
+- **Los consejos** (`>`): en la computadora, el consejo *i* sale en el paso *i*, y el último se
+  repite en los que siguen, como la maqueta; en el celular, por el lugar, solo en el último paso de
+  la tarea, el último consejo. Todos juntos en «Todos los pasos».
 - **Solo texto:** ni enlaces, ni negritas, ni HTML. Las comillas «» se escriben tal cual. Se
   rechazan `<`, `>` dentro del texto, `&` seguido de letras y `;` (entidades), y «·» en los
   rótulos.
@@ -123,14 +124,21 @@ manual (§ 5), una clave desconocida o que falta, un dispositivo que no es `comp
 su nombre (se miran los primeros bytes).
 
 **Qué lee:** solo `docs/manual/README.md`, los archivos que nombra y `docs/manual/media/`. Los
-nombres tienen que ser `^[a-z0-9-]+$` (más su extensión), la ruta resuelta tiene que quedar dentro
-de `docs/manual/`, y se rechazan los enlaces simbólicos.
+nombres tienen que tener la forma `isName` del contrato (minúsculas, números y guiones, más su
+extensión), el archivo de un capítulo es siempre `<id>.md`, y se rechazan los enlaces simbólicos
+(también si lo es la carpeta `media/` o la del manual). Una captura tiene que ser la que sacó el
+programa (la huella del `.webp` está en su escena) y no puede llevar metadatos (trozos `EXIF` o
+`XMP`). Los nombres de la lista también son «solo texto».
 
 **Cuándo corre:** al armar (`pnpm boot`, `pnpm screens`, el Dockerfile) y como control propio,
-`pnpm manual`, en `pnpm check`, que además mide los topes. Para sacar capturas de un capítulo nuevo
-se arma con `MANUAL_MEDIA=pending`, que no valida los medios (las capturas no muestran el manual);
-ese modo nunca se usa en `pnpm check` ni en el Dockerfile. En desarrollo, el complemento sirve
-`/manual/` desde la memoria: no se amplía `server.fs.allow` de Vite.
+`pnpm manual`, en `pnpm check`, que además mide los topes. Con `MANUAL_DIR=<carpeta>` se arma otro
+manual: las capturas de referencia usan el de prueba, `tests/manual/fixture/`, que no cambia cuando
+cambia el de verdad. El programa de capturas arma la aplicación con `MANUAL_MEDIA=pending`, que no
+arma el manual (las capturas no lo muestran, y así sale aunque falte una captura nueva); corre así
+también dentro de `pnpm check` (`pnpm manual:check`), después de que `pnpm manual` lo validó. El
+Dockerfile nunca lo usa. En desarrollo, el complemento sirve `/manual/…` desde la memoria, armado
+una vez y de nuevo cuando cambia algo de la carpeta del manual (la página `/manual` sigue siendo la
+aplicación); no se amplía `server.fs.allow` de Vite.
 
 El Dockerfile de la aplicación copia `docs/manual/`, con `media/`, antes de armar.
 
@@ -161,23 +169,29 @@ copia), para que las letras salgan iguales.
   otro pedido se corta y la corrida falla.
 - **Los puntos se ubican solos:** el programa mide dónde quedó cada elemento y guarda su centro, en
   porcentaje de la captura, en `docs/manual/media/<escena>.json`, uno por escena (así dos sesiones
-  que escriben capítulos distintos no se pisan). Ahí van también el dispositivo y la huella de la
-  captura sin comprimir.
+  que escriben capítulos distintos no se pisan). Ahí van también el dispositivo, la huella de la
+  captura sin comprimir y la del `.webp` que se publica.
+- **Sin el ambiente de pruebas:** antes de guardar, cada escena (y cada marco del clip) se comprueba
+  sin el marco de pruebas ni «Pronto». El encierro tiene su propia prueba: un pedido a otro sitio
+  tiene que quedar cortado y anotado. Sin service worker, que pediría por su cuenta.
 - **WebP sin dependencias:** la captura PNG se pasa a WebP con `canvas.toBlob` en el mismo Chromium.
   Se guarda al tamaño en que se muestra: la computadora a 1100 px de ancho; el celular a 585 × 1266
   (una vez y media), dentro del tope de 90 KB.
 
 **Los clips** son escenas grabadas con el video de Playwright, mudas (R6.5), de unos 8 segundos. El
-de «Entrar con el celular» se graba en **una sola página**, `tests/manual/stage.html`, que muestra
+de «Entrar con el celular» se graba en **una sola página**, que arma `tests/manual/clip.ts` y sirve
+el servidor de mentira (los marcos necesitan una página segura alrededor), y que muestra
 la computadora y el celular uno al lado del otro, cada uno en un marco con la aplicación; el guion de
 la escena encadena el código del QR entre los dos con respuestas de mentira. Así sale un solo video,
 sin dos que se desfasen. El programa guarda también el último cuadro como WebP, que la pantalla usa
 de imagen de espera y con «reducir movimiento».
 
-**`pnpm check` avisa si una captura quedó vieja:** `pnpm manual --check` vuelve a sacar cada escena
-sin comprimir y compara su huella con la guardada; si una pantalla cambió, nombra la escena y pide
-correr `pnpm manual:media`. Las capturas se sacan siempre igual (las pruebas de captura ya lo
-dependen), así que la huella no cambia sola.
+**`pnpm check` avisa si una captura quedó vieja:** `pnpm manual:check` (con Docker, en la imagen de
+Playwright) vuelve a sacar cada escena sin comprimir y compara su huella con la guardada; si una
+pantalla cambió, nombra la escena y pide correr `pnpm manual:media`. Las capturas se sacan siempre
+igual (las pruebas de captura ya lo dependen), así que la huella no cambia sola. **El clip no se
+compara** (un video no sale igual dos veces): se vuelve a grabar con `pnpm manual:media` cuando
+cambia una de sus pantallas.
 
 ## 4. Dónde se sirve y qué no se guarda
 
@@ -197,20 +211,31 @@ dependen), así que la huella no cambia sola.
 
 ## 5. La pantalla: `src/app/modules/manual/`
 
+En el arranque van solo `index.ts`, `ManualSlot.tsx` y `place/`; lo demás se baja al abrirlo.
+
 | Archivo | Qué hace |
 |---|---|
-| `index.ts` | El registro: la dirección `/manual`, y el `import()` del código, que se baja recién al abrirlo |
-| `api.ts` | Pide `index.json` y el capítulo, y el buscador del dispositivo recién al escribir, con `cache: 'no-store'`. Solo pide nombres que salen del índice |
-| `media.ts` | Baja las capturas de la tarea con `fetch` y las guarda como `blob:` mientras la tarea está abierta (la siguiente, un paso antes); las suelta al cerrarla |
-| `state.ts` | Las acciones con nombre y su reductor: `chooseDevice`, `openTask`, `goToStep`, `next`, `previous`, `openAllSteps`, `closeAllSteps`, `search`, `playClip` |
-| `address.ts` | Lee y escribe la dirección (`/manual?d=phone&c=sign-in&t=offline&p=2`), y la valida contra el índice |
-| `search.ts` | El buscador |
+| `index.ts` | La fachada: `ManualSlot` y la dirección `/manual` |
+| `ManualSlot.tsx` | El lugar del manual en `App`: el `import()` del código, que se baja recién al abrirlo; si no llega, pide actualizar o dice que necesita internet |
+| `place/address.ts` | Lee y escribe la dirección (`/manual?d=phone&c=sign-in&t=offline&p=2`), y la valida contra el índice |
+| `place/back.ts` | A dónde vuelve «Volver», de la lista cerrada, con sus propios textos (así `texts.ts` no va en el arranque) |
+| `place/NeedsInternet.tsx` | La única pantalla de «El manual necesita internet» |
+| `files/api.ts` | Pide `index.json` y el capítulo, y el buscador del dispositivo recién al escribir, con `cache: 'no-store'` |
+| `files/media.ts` | Baja las capturas de la tarea con `fetch` y las guarda como `blob:` mientras la tarea está abierta (la siguiente, un paso antes); las suelta al cerrarla |
+| `files/online.ts` | Avisa cuando vuelve la conexión, para pedir lo que no llegó |
+| `state.ts` | Las acciones con nombre y su reductor: `chooseDevice`, `openTask`, `goToStep`, `next`, `previous`, `openAllSteps`, `closeAllSteps`, `closeSheet`, `playClip` |
+| `search.ts` | El buscador, con sus topes |
 | `icons.ts` | El juego de íconos del manual, copiados de Lucide como los de `ui/icon`; se baja con la pantalla, así el arranque no crece |
-| `useManual.ts` | Une todo para la pantalla: carga, estado y «Volver» |
+| `useManual.ts` | Une todo para la pantalla: carga, estado, capítulo y buscador |
+| `view.ts` | Lo que reciben las pantallas (`View`) y si la ventana es angosta |
 | `texts.ts` | Los textos de la pantalla (no los del manual) |
-| `screens/Manual/` | La página: cabecera, tareas y paso a paso; en el celular, el paso a paso y «Todos los pasos» como hojas |
-| `screens/Step/` | La captura con su aro y su rótulo, el clip y el ícono de un paso sin captura |
-| `screens/AllSteps/` | El capítulo entero, para leerlo de corrido |
+| `screens/Manual/` | La página: cabecera, tareas y paso a paso |
+| `screens/Tasks/` | La lista de tareas (`Rows`) y lo encontrado (`Results`) |
+| `screens/Guide/` | El paso a paso, con su avance; en el celular, una hoja |
+| `screens/Stage/` | La captura con su aro y su rótulo (`Shot`), el clip (`Clip`) y el ícono de un paso sin captura |
+| `screens/AllSteps/` | El capítulo entero, para leerlo de corrido; en el celular, otra hoja |
+| `screens/SheetStep/` | Una hoja abierta es un paso de la historia: atrás la cierra |
+| `screens/Glyph/` | Un ícono del juego del manual |
 
 Es una sola pantalla para los dos tamaños, con el corte en 900 px, como la maqueta. Un ícono nuevo
 de un capítulo es un renglón en `icons.ts`.
@@ -234,9 +259,10 @@ de un capítulo es un renglón en `icons.ts`.
 ### Cómo se vuelve (R6.7, E37)
 
 - Quien abre el manual hace `navigate('/manual', { state: { from } })`, con `from` de una lista
-  cerrada: `entrance` o el id de la parte o la opción abierta (`sell`, `more`). El nombre que se
-  muestra sale de esa lista («Volver a la entrada», «Volver a Vender»; en el celular, «‹ Más»),
-  nunca de un texto guardado en la historia.
+  cerrada: `entrance`, el id de la parte o la opción abierta (`sell`, `more`) o `app`, si no había
+  ninguna parte abierta («Volver a Ferrebress»). El nombre que se muestra sale de esa lista
+  («Volver a la entrada», «Volver a Vender»; en el celular, «‹ Más»), nunca de un texto guardado en
+  la historia; solo cuentan las claves propias de la lista (`constructor` no es un lugar).
 - Cada cambio de tarea o de paso **reemplaza** la dirección, conservando el estado: el botón atrás
   no recorre los pasos.
 - Las hojas del celular («el paso a paso», «Todos los pasos») usan `useBackStep`: atrás cierra la de
@@ -251,9 +277,10 @@ replace })`, el reemplazo conserva el estado, y `route` lee también `search`.
 ### La dirección y lo que entra de afuera
 
 `d` (`computer` o `phone`), `c` (capítulo), `t` (tarea) y `p` (paso) se aceptan solo si existen en
-el índice y en el capítulo; si no, se ignoran y se abre el principio. El archivo que se pide siempre
-es el del índice, nunca un texto armado con la dirección. Si la dirección nombra un capítulo, el
-índice y el capítulo se piden a la vez.
+el índice y en el capítulo; si no, se ignoran y se abre el principio. Si la dirección nombra un
+capítulo con la forma de un nombre (`isName`: sin `/`, `.` ni `%`), el índice y el capítulo se piden
+a la vez, y el capítulo se usa solo si el índice lo tiene; uno que no existe da 404 y se descarta.
+Con otra forma, no se pide nada armado con la dirección.
 
 ### El dispositivo (R6.3, E34)
 
@@ -288,14 +315,18 @@ buscador y las capturas. Cambiarlo cierra «Todos los pasos» y vuelve al princi
 - **Las posiciones se ponen por CSSOM** (`element.style.setProperty` en un efecto), nunca con
   `style="…"` en el HTML: la política `style-src 'self'` no cambia.
 - **El clip** (R6.5, E38): un `<video>` con `preload="none"`, `muted`, sin `autoplay` y con el cuadro
-  final de imagen de espera: no baja nada hasta que se toca «Ver el clip». Con «reducir
-  movimiento», solo el cuadro final.
+  final de imagen de espera: no baja nada hasta que se toca «Ver el clip». Al terminar, «Ver cómo se
+  hace» lo vuelve a pasar; «Ver el clip» otra vez lo vuelve a empezar. Con «reducir movimiento»,
+  solo el cuadro final.
+- **Sin el capítulo** (se cortó la red): el lugar del paso a paso dice «Sin conexión», y en el
+  celular es una hoja que se cierra como las otras.
 - Las animaciones son las de la maqueta (`../design/mockups/manual/final/changes.md`).
 
 ### El teclado (00 · R2)
 
-Como la maqueta: Alt C Computadora, Alt L Celular, Alt O Volver, Alt V Ver el clip, Alt T Todos los
-pasos, Alt A anterior, Alt S siguiente; ← → pasan de paso con el buscador vacío; ↑ ↓ y Enter recorren
+Como la maqueta: Alt C Computadora, Alt L Celular, Alt O Volver, Alt V Ver el clip (y «Ver cómo se
+hace», que vuelve a pasarlo), Alt T Todos los pasos, Alt A anterior, Alt S siguiente, Alt 1 a Alt 9
+cada segmento del avance; ← → pasan de paso con el buscador vacío; ↑ ↓ y Enter recorren
 los resultados; `/` lleva al buscador; Esc cierra «Todos los pasos» o borra lo buscado. En la
 computadora el cursor arranca en el buscador (R2.2); en el celular, en ningún lado (R2.12).
 
@@ -342,12 +373,15 @@ No baja nada ni encola nada (R6.8, E39). Su conducta sin conexión está en § 4
 
 Las controla `pnpm manual` (los topes de § 2) y, para el arranque, `pnpm boot`.
 
-- **Antes de abrirlo:** cero bytes. El esqueleto de la aplicación crece menos de 1 KB (la dirección
-  y el `import()`).
-- **Al abrirlo en la computadora:** el código (menos de 20 KB comprimido) y, a la vez, el índice y
-  el capítulo (menos de 10 KB juntos); después la primera captura (menos de 90 KB): 3 pedidos en
-  cadena, visible en menos de 1 segundo con 4G. En el celular, el capítulo y su captura recién al
-  tocar una tarea.
+- **Antes de abrirlo:** cero bytes. El arranque de la aplicación crece lo de `ManualSlot` y `place/`
+  (la dirección, «Volver», la pantalla sin internet y el `import()`), con lo que se sumó al marco
+  (Más → Manual): unos 1,2 KB comprimidos, medido con `pnpm boot`.
+- **Al abrirlo en la computadora:** el código (menos de 20 KB comprimido, lo controla `pnpm boot`)
+  y, a la vez, el índice; con el capítulo en la dirección, también el capítulo. Sin él (abierto desde
+  Más o desde la entrada), el capítulo se pide al llegar el índice, porque recién ahí se sabe cuál
+  es el primero: código → índice → capítulo → captura, 4 pedidos en cadena (el índice y el capítulo,
+  menos de 10 KB juntos; la captura, menos de 90 KB), visible en menos de 1 segundo con 4G. En el
+  celular, nada más que el código y el índice hasta tocar una tarea.
 - **Buscar:** el archivo del dispositivo se baja una vez al escribir; buscar tarda menos de 5 ms con
   todos los capítulos escritos.
 - **Pasar de paso:** nada, salvo la captura siguiente, que se bajó un paso antes. Volver atrás no
@@ -362,7 +396,7 @@ Las controla `pnpm manual` (los topes de § 2) y, para el arranque, `pnpm boot`.
 | E34, E36 | Unitarias del reductor y de `search.ts`: el selector cambia todo; el buscador solo trae lo del dispositivo, una fila por tarea en el orden de la lista, con `<mark>`, y lleva al paso |
 | E35 | Unitaria de la pantalla con un índice de prueba, en pruebas y en producción |
 | E38 | Unitaria del clip: quieto, mudo, sin bajar nada hasta que se lo pide; con «reducir movimiento», el cuadro final |
-| E39 | Unitaria de `kindOf`: nada de `/manual/` entra en la caja; de punta a punta, con trabajo sin conexión prendido, la caja no tiene nada del manual |
+| E39 | Unitaria de `kindOf`: nada de `/manual/` entra en la caja. `pnpm boot`, sobre la aplicación armada: el código del manual está en `manual/app-*.js` y `manual/app-*.css`, nada de él queda en `assets/` y no pasa de 20 KB con gzip |
 | E53 | Unitaria del manual: con una sesión abierta, no muestra nada de la persona y no hace ningún pedido fuera de `/manual/` (se espía `fetch`) |
 | R4.4 | Unitarias: sin conexión, «Ver el manual» y Más → Manual grises; con el manual abierto, lo que no llegó dice «Sin conexión» |
 | La dirección | Unitarias de `address.ts`: valores que no existen, `c=../api/start` y parecidos se ignoran |

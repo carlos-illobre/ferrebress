@@ -25,7 +25,7 @@ describe('las direcciones', () => {
     expect(push).not.toHaveBeenCalled();
   });
 
-  it('manual-E37: lleva estado y lo de después del ?; reemplazar sin estado conserva el que había', () => {
+  it('app-E37: lleva estado y lo de después del ?; reemplazar sin estado conserva el que había', () => {
     navigate('/manual', { state: { from: 'entrance' } });
     expect(route.get()).toEqual({
       path: '/manual',

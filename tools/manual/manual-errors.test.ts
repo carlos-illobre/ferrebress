@@ -9,7 +9,6 @@ import {
   build,
   chapter,
   icons,
-  json,
   list,
   manual,
   problemsOf,
@@ -138,7 +137,7 @@ describe('buildManual, lo que frena', () => {
       'docs/manual/README.md:6: lleva a dos tareas de Computadora',
     ]);
     expect(goTo('→ sign-in: google (tablet)')).toEqual([
-      'docs/manual/README.md:6: al final va «offline.md» o «→ <capítulo>: <tarea> (<dispositivo>), …», no «→ sign-in: google (tablet)»',
+      'docs/manual/README.md:6: al final va «offline.md» o «→ <capítulo>: <tarea> (<dispositivo>), …»',
     ]);
   });
 
@@ -175,6 +174,50 @@ describe('buildManual, lo que frena', () => {
         'docs/manual/media/clip-sin-cuadro.webm: nadie lo usa',
       ].sort(),
     );
+  });
+
+  it('frena con una captura con metadatos, una que no es la del programa o media/ como enlace', () => {
+    const exif = Buffer.concat([
+      Buffer.from('RIFF0000WEBP'),
+      Buffer.from('EXIF'),
+      Buffer.from([4, 0, 0, 0]),
+      Buffer.from('GPS!'),
+    ]);
+    expect(problemsOf({ 'media/desktop-entrance.webp': exif })).toEqual([
+      'docs/manual/media/desktop-entrance.webp: lleva metadatos (EXIF o XMP): sacala con pnpm manual:media',
+      'docs/manual/media/desktop-entrance.json: falta su captura desktop-entrance.webp',
+    ]);
+    expect(problemsOf({ 'media/desktop-entrance.webp': webp(22) })).toEqual([
+      'docs/manual/media/desktop-entrance.webp: no es la que sacó el programa: sacala con pnpm manual:media',
+    ]);
+    const { media: _, ...rest } = base();
+    const other = manual(base());
+    const dir = manual(rest);
+    rmSync(join(dir, 'media'), { recursive: true, force: true });
+    symlinkSync(join(other, 'media'), join(dir, 'media'));
+    expect(buildManual(dir, 'v1', icons).problems).toContain(
+      'docs/manual/media: la carpeta del manual o la de medios es un enlace',
+    );
+  });
+
+  it('el nombre de un capítulo es solo texto, y el archivo es siempre <id>.md', () => {
+    const named = (line: string) =>
+      problemsOf({
+        'README.md': readme(list.replace('- sign-in · Entrar · log-in · sign-in.md', line)),
+      });
+    expect(named('- sign-in · Entrar <b>ya</b> · log-in · sign-in.md')).toContain(
+      'docs/manual/README.md:5: el texto no puede tener < ni >',
+    );
+    expect(named('- sign-in · Entrar·ya · log-in · sign-in.md')).toContain(
+      'docs/manual/README.md:5: el nombre no puede tener «·»',
+    );
+    expect(named('- sign-in · Entrar &amp; salir · log-in · sign-in.md')).toContain(
+      'docs/manual/README.md:5: el texto no puede tener entidades de HTML (&…;)',
+    );
+    for (const file of ['../../.env', '/etc/passwd'])
+      expect(named(`- sign-in · Entrar · log-in · ${file}`)).toContain(
+        'docs/manual/README.md:5: al final va «sign-in.md» o «→ <capítulo>: <tarea> (<dispositivo>), …»',
+      );
   });
 
   it('frena con un README.md que es un enlace o un archivo armado pasado de tope', () => {

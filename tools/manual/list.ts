@@ -2,7 +2,7 @@
 // en el orden en que salen. Cambiar el orden es mover un renglón.
 import type { Device } from '../../src/shared/contracts/manual.ts';
 import { deviceNames } from './chapter.ts';
-import { isName, type Problems, problemAt, splitDots } from './text.ts';
+import { isName, type Problems, problemAt, splitDots, textProblem } from './text.ts';
 
 export type ListEntry = {
   id: string;
@@ -44,12 +44,14 @@ function entryOf(text: string, line: number, problems: Problems): ListEntry | un
     return bad(
       'el renglón tiene que ser «id · nombre · ícono», con el archivo o el destino al final',
     );
+  const nameProblem = name.includes('·') ? 'el nombre no puede tener «·»' : textProblem(name);
+  if (nameProblem) return bad(nameProblem);
   const entry: ListEntry = { id, name, icon, line };
   if (target === undefined) return entry;
   if (target === `${id}.md`) return { ...entry, file: target };
   const goesTo = goesToOf(target);
   if (goesTo) return { ...entry, goesTo };
-  return bad(`al final va «${id}.md» o «→ <capítulo>: <tarea> (<dispositivo>), …», no «${target}»`);
+  return bad(`al final va «${id}.md» o «→ <capítulo>: <tarea> (<dispositivo>), …»`);
 }
 
 // Los renglones de la sección de la lista, con su número, hasta el título que sigue.

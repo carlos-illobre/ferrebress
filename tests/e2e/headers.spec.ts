@@ -43,10 +43,21 @@ test('el manual no se guarda, lo que falta da 404 y abrir una tarea no viola la 
   page,
 }) => {
   const origin = String(process.env.E2E_ORIGIN);
+  const app = (await request.get(`${origin}/`)).headers();
   const index = await request.get(`${origin}/manual/index.json`);
   expect(index.headers()['cache-control']).toBe('no-store');
-  expect(index.headers()['content-security-policy']).not.toContain('unsafe-inline');
-  expect((await request.get(`${origin}/manual/nada.json`)).status()).toBe(404);
+  expect(index.headers()['content-security-policy']).toBe(app['content-security-policy']);
+  const capture = (await request.get(`${origin}/manual/media/desktop-entrance.webp`)).headers();
+  expect(capture['cache-control']).toBe('no-store');
+  expect(capture['content-type']).toBe('image/webp');
+  const manual = (await request.get(`${origin}/manual?d=phone`)).headers();
+  expect(manual['cache-control']).toBe('no-cache');
+  expect(manual['x-frame-options']).toBe('DENY');
+  const missing = await request.get(`${origin}/manual/nada.json`);
+  expect(missing.status()).toBe(404);
+  // Los errores también llevan lo de seguridad de toda respuesta.
+  expect(missing.headers()['x-content-type-options']).toBe('nosniff');
+  expect(missing.headers()['strict-transport-security']).toContain('max-age=31536000');
   const violations: string[] = [];
   await page.exposeFunction('violated', (what: string) => violations.push(what));
   await page.addInitScript(() =>

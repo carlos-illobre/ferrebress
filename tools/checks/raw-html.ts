@@ -4,8 +4,9 @@
 import { listFiles, readText } from '../files.ts';
 import { isTest } from '../source-code.ts';
 
+// Las formas de meter HTML (también las nuevas, como setHTMLUnsafe) y de poner estilos en el HTML.
 const forbidden =
-  /\b(innerHTML|outerHTML|insertAdjacentHTML|document\.write)\b|setAttribute\(\s*['"]style['"]/;
+  /\b(innerHTML|outerHTML|insertAdjacentHTML|document\.write(ln)?|srcdoc|createContextualFragment|setHTMLUnsafe|parseFromString|cssText)\b|setAttribute\(\s*['"`]style['"`]/;
 
 export function findRawHtml(root: string): string[] {
   return listFiles(root, 'src/app', ['.ts', '.tsx'])

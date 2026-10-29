@@ -18,10 +18,11 @@ describe('el manual en el celular', () => {
     Reflect.deleteProperty(navigator, 'userAgentData');
   });
 
-  it('R2.12: en el celular el cursor no arranca en el buscador; en Stock no hay nada para el celular', async () => {
-    serveManual();
+  it('R2.12, constitución III: en el celular no se baja nada más que el índice hasta tocar una tarea', async () => {
+    const { asked } = serveManual();
     show({ device: 'phone' });
     await loaded();
+    expect(asked).toEqual(['/manual/index.json']);
     expect(document.activeElement).not.toBe(search());
     expect(screen.queryByText('Stock')).toBeNull();
   });
@@ -148,5 +149,30 @@ describe('el buscador del manual', () => {
     await loaded();
     fireEvent.input(search(), { target: { value: 'viejo' } });
     expect(await screen.findByRole('button', { name: /Vieja/ })).toBeTruthy();
+  });
+
+  it('R4.4: en el celular, el capítulo sin red dice «Sin conexión» en la hoja, que se cierra', async () => {
+    media({ narrow: true });
+    serveManual({ 'sign-in.json': 'offline' });
+    show({ device: 'phone' });
+    await loaded();
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /Entrar sin internet/ })[0] as HTMLElement,
+    );
+    await screen.findByRole('heading', { name: 'Sin conexión' });
+    // El botón atrás la cierra, como cualquier hoja.
+    await waitFor(() => expect((history.state as { step?: string } | null)?.step).toBeDefined());
+    act(() => {
+      dispatchEvent(new PopStateEvent('popstate'));
+    });
+    expect(screen.queryByRole('heading', { name: 'Sin conexión' })).toBeNull();
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /Entrar sin internet/ })[0] as HTMLElement,
+    );
+    const empty = await screen.findByRole('heading', { name: 'Sin conexión' });
+    fireEvent.click(
+      within(empty.closest('main') as HTMLElement).getByRole('button', { name: 'Cerrar' }),
+    );
+    expect(screen.queryByRole('heading', { name: 'Sin conexión' })).toBeNull();
   });
 });

@@ -1,22 +1,11 @@
 // El lector del manual (diseño del manual, §§ 2 y 10): lo que arma con un manual de prueba, y lo que
 // frena en la lista de capítulos.
-import { join } from 'node:path';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { describe, expect, it } from 'vitest';
 import { manualIcons } from '../../src/app/modules/manual/icons.ts';
 import type { Chapter, ManualIndex, SearchTask } from '../../src/shared/contracts/manual.ts';
-import {
-  base,
-  build,
-  chapter,
-  json,
-  list,
-  manual,
-  problemsOf,
-  readme,
-  scene,
-  webm,
-  webp,
-} from './manual-test-kit.ts';
+import { base, build, chapter, json, list, problemsOf, readme } from './manual-test-kit.ts';
+import { serveManual } from './serve.ts';
 
 describe('buildManual', () => {
   it('arma el índice en el orden de la lista, el capítulo, el buscador y los medios usados', () => {
@@ -135,9 +124,9 @@ describe('buildManual', () => {
     ).toEqual([
       'docs/manual/README.md:6: cada capítulo va en un renglón «- …»',
       'docs/manual/README.md:7: el renglón tiene que ser «id · nombre · ícono», con el archivo o el destino al final',
-      'docs/manual/README.md:8: al final va «sign-in.md» o «→ <capítulo>: <tarea> (<dispositivo>), …», no «otro.md»',
+      'docs/manual/README.md:8: al final va «sign-in.md» o «→ <capítulo>: <tarea> (<dispositivo>), …»',
       'docs/manual/README.md:9: el capítulo «sign-in» está dos veces',
-      'docs/manual/README.md:11: al final va «y.md» o «→ <capítulo>: <tarea> (<dispositivo>), …», no «→ sign-in: Mal»',
+      'docs/manual/README.md:11: al final va «y.md» o «→ <capítulo>: <tarea> (<dispositivo>), …»',
       'docs/manual/README.md:12: el renglón tiene que ser «id · nombre · ícono», con el archivo o el destino al final',
       'docs/manual/README.md:10: el ícono «nada» no está en el manual',
     ]);
@@ -151,5 +140,56 @@ describe('manualIcons', () => {
       expect(shapes.length).toBeGreaterThan(0);
       for (const [tag] of shapes) expect(tags).toContain(tag);
     }
+  });
+});
+
+describe('el manual en el servidor de desarrollo', () => {
+  const files = () => new Map([['index.json', Buffer.from('{}')]]);
+  const ask = (url: string) => {
+    const response = {
+      statusCode: 0,
+      headers: {} as Record<string, string>,
+      body: undefined as unknown,
+    };
+    let passed = false;
+    serveManual(files)(
+      { url } as IncomingMessage,
+      {
+        setHeader: (name: string, value: string) => {
+          response.headers[name] = value;
+        },
+        end: (body: unknown) => {
+          response.body = body;
+        },
+        set statusCode(code: number) {
+          response.statusCode = code;
+        },
+      } as unknown as ServerResponse,
+      () => {
+        passed = true;
+      },
+    );
+    return { ...response, passed };
+  };
+
+  it('da lo armado por nombre, sin guardarse; la página /manual sigue de largo', () => {
+    expect(ask('/manual/index.json?x=1')).toMatchObject({
+      statusCode: 200,
+      headers: { 'Cache-Control': 'no-store' },
+    });
+    expect(ask('/manual').passed).toBe(true);
+    expect(ask('/manual?d=phone').passed).toBe(true);
+    expect(serveManual(files)({} as IncomingMessage, {} as ServerResponse, () => undefined)).toBe(
+      undefined,
+    );
+  });
+
+  it('nada fuera de lo armado: ni .. ni %2e%2e', () => {
+    for (const url of [
+      '/manual/../.env',
+      '/manual/%2e%2e/package.json',
+      '/manual/..%2f..%2fpackage.json',
+    ])
+      expect(ask(url)).toMatchObject({ statusCode: 404, passed: false });
   });
 });

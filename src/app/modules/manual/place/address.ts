@@ -1,6 +1,7 @@
 // La dirección del manual (diseño del manual, § 5): /manual?d=phone&c=sign-in&t=offline&p=2. Guarda
 // dónde se está, así recargar deja en el mismo paso. Lo que viene en ella solo se acepta si existe en
-// el índice: si no, se ignora y se abre el principio. Nunca arma el nombre de un archivo.
+// el índice: si no, se ignora y se abre el principio. Este archivo no arma nombres de archivos (el
+// capítulo que se pide adelantado lo valida useManual con `isName`).
 import { type Device, devices, type ManualIndex } from '@ferrebress/shared/contracts/manual';
 
 export const manualPath = '/manual';

@@ -1,6 +1,7 @@
 // Lo que el manual pide (diseño del manual, §§ 4 y 5): archivos fijos de /manual/, nunca de /api, y
-// siempre a la red (`no-store`: R6.8, no se guarda en el dispositivo). Solo pide nombres que salen del
-// índice o de las constantes de lo compartido. Sin red, «offline»; si el archivo no está (una versión
+// siempre a la red (`no-store`: R6.8, no se guarda en el dispositivo). Pide nombres que salen del
+// índice o de las constantes de lo compartido, y el capítulo de la dirección solo con la forma de un
+// nombre (`isName`), así nunca sale de /manual/. Sin red, «offline»; si el archivo no está (una versión
 // vieja después de un despliegue), «missing».
 import {
   type Chapter,

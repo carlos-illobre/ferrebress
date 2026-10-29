@@ -3,7 +3,6 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { online, sessionClosed } from '../../platform/server/api.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
-import { Toasts } from '../../ui/toast/Toast.tsx';
 import { Entrance } from './index.ts';
 import { person } from './session.ts';
 import {
@@ -177,6 +176,12 @@ describe('la entrada en el celular', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+  });
+
+  it('app-R6.1: la entrada del celular no tiene «Ver el manual» (se abre desde Más)', () => {
+    googleFrame();
+    open();
+    expect(screen.queryByRole('button', { name: /Ver el manual/ })).toBeNull();
   });
 
   it('sign-in-E38: Google, la huella y «Escanear», sin QR; con sesión, Google no se dibuja', () => {

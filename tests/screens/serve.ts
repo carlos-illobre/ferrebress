@@ -60,4 +60,5 @@ createServer((request, response) => {
   }
   if (path.startsWith('/api/')) return json(response, { error: 'not-found' }, 404);
   file(response, path);
-}).listen(port);
+  // Solo para esta máquina: ni la red local ni Tailscale lo ven mientras corre.
+}).listen(port, '127.0.0.1');

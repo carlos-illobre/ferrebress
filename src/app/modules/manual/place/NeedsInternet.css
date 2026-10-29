@@ -1,0 +1,17 @@
+/* «El manual necesita internet»: la página entera, como el manual, con el aviso al medio. */
+@layer screens {
+  .manual-needs-internet {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--s4);
+    padding: var(--s4);
+    background: var(--background);
+    color: var(--text-2);
+    font-weight: 600;
+    text-align: center;
+  }
+}

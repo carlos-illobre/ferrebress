@@ -2,19 +2,21 @@
 // dirección nombra un capítulo, ese capítulo a la vez), lleva el estado con sus acciones, baja cada
 // capítulo y el buscador del dispositivo cuando hacen falta, y escribe la dirección reemplazándola.
 // Si el índice es de otra versión, o falta un archivo que el índice nombra, pide actualizar (R5.5).
-import type {
-  Chapter,
-  Device,
-  ManualIndex,
-  SearchTask,
-  Task,
+import {
+  type Chapter,
+  type Device,
+  isName,
+  type ManualIndex,
+  type SearchTask,
+  type Task,
 } from '@ferrebress/shared/contracts/manual';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { navigate, route } from '../../platform/router.ts';
 import { appVersion, updateRequired } from '../../platform/server/api.ts';
-import { readAddress, validAddress, writeAddress } from './address.ts';
-import { type Loaded, manualApi } from './api.ts';
-import { searchManual } from './search.ts';
+import { type Loaded, manualApi } from './files/api.ts';
+import { useOnline } from './files/online.ts';
+import { readAddress, validAddress, writeAddress } from './place/address.ts';
+import { minQuery, searchManual } from './search.ts';
 import { type Action, type ManualState, reduce, startState } from './state.ts';
 
 export type Failure = 'offline' | 'missing';
@@ -25,20 +27,19 @@ function failure(loaded: Loaded<unknown> & { ok: false }): Failure {
   return loaded.reason;
 }
 
-const isName = (value: string | undefined): value is string =>
-  value !== undefined && /^[a-z0-9-]+$/.test(value);
+const named = (value: string | undefined): value is string => value !== undefined && isName(value);
 
 type Early = { id: string; loading: Promise<Loaded<Chapter>> } | undefined;
 
 // El capítulo que nombra la dirección se pide junto con el índice; su nombre solo se acepta con la
 // forma de un nombre, así no puede armar otra dirección (revisión de seguridad, 2).
-function useIndex(device: Device) {
+function useIndex(device: Device, first: boolean) {
   const [index, setIndex] = useState<ManualIndex | Failure>();
   const [state, setState] = useState<ManualState>();
   const early = useRef<Early>(undefined);
   useEffect(() => {
     const address = readAddress(route.get().search);
-    if (isName(address.chapter))
+    if (named(address.chapter))
       early.current = {
         id: address.chapter,
         loading: manualApi.chapter({ id: address.chapter, name: '', icon: '' }),
@@ -49,13 +50,18 @@ function useIndex(device: Device) {
       const chosen = address.device ?? device;
       const valid = validAddress(address, loaded.data, chosen);
       setIndex(loaded.data);
-      setState({ ...startState(loaded.data, chosen), ...valid, sheet: valid.task !== undefined });
+      setState({
+        ...startState(loaded.data, chosen, first),
+        ...valid,
+        sheet: valid.task !== undefined,
+      });
     });
   }, []);
   return { index, state, setState, early };
 }
 
-// `retry`: elegir otra tarea vuelve a pedir el capítulo que no llegó por falta de red.
+// Un capítulo que no llegó por falta de red se pide de nuevo al volver la conexión o al elegir otra
+// tarea (`retry`).
 function useChapter(
   index: ManualIndex | Failure | undefined,
   id: string | undefined,
@@ -63,6 +69,7 @@ function useChapter(
   retry: string | undefined,
 ) {
   const [chapters, setChapters] = useState<Record<string, Chapter | Failure>>({});
+  const online = useOnline();
   const entry =
     typeof index === 'object'
       ? index.chapters.find((one) => one.id === id && one.tasks)
@@ -75,7 +82,7 @@ function useChapter(
     void loading.then((loaded) =>
       setChapters((now) => ({ ...now, [entry.id]: loaded.ok ? loaded.data : failure(loaded) })),
     );
-  }, [entry, retry]);
+  }, [entry, retry, online]);
   return entry ? chapters[entry.id] : undefined;
 }
 
@@ -90,7 +97,7 @@ function useSearch(index: ManualIndex | Failure | undefined, device: Device, tes
   }, [query]);
   const ready = tasks[device];
   useEffect(() => {
-    if (searched.trim().length < 2 || (ready && ready !== 'offline')) return;
+    if (searched.trim().length < minQuery || (ready && ready !== 'offline')) return;
     void manualApi
       .search(device)
       .then((loaded) =>
@@ -107,8 +114,8 @@ function useSearch(index: ManualIndex | Failure | undefined, device: Device, tes
   return { query, setQuery, searched, found, searchFailed: typeof ready === 'string' };
 }
 
-export function useManual(device: Device, testing: boolean) {
-  const { index, state, setState, early } = useIndex(device);
+export function useManual(device: Device, testing: boolean, narrow: boolean) {
+  const { index, state, setState, early } = useIndex(device, !narrow);
   const chapter = useChapter(index, state?.chapter, early, state?.task);
   const search = useSearch(index, state?.device ?? device, testing);
   const act = (action: Action) =>

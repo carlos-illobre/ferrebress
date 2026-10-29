@@ -1,7 +1,7 @@
 import type { SearchTask } from '@ferrebress/shared/contracts/manual';
 import { describe, expect, it } from 'vitest';
-import { readAddress, validAddress, writeAddress } from './address.ts';
 import { index } from './manual-test-kit.tsx';
+import { readAddress, validAddress, writeAddress } from './place/address.ts';
 import { marks, normalize, searchManual } from './search.ts';
 import { firstTask, reduce, startState, tasksOf } from './state.ts';
 
@@ -97,6 +97,21 @@ describe('el buscador', () => {
     });
   });
 
+  it('lo que escribe cualquiera no rompe nada: sin expresiones regulares y cortado en 60 letras', () => {
+    const hostile = ['(a+)+$', '[', '\\', '.*', 'a'.repeat(10_000)];
+    const started = performance.now();
+    for (const query of hostile) {
+      expect(() => searchManual(query, index, tasks, true)).not.toThrow();
+      expect(
+        marks('Poné la huella.', query)
+          .map((piece) => piece.text)
+          .join(''),
+      ).toBe('Poné la huella.');
+    }
+    expect(performance.now() - started).toBeLessThan(50);
+    expect(searchManual(`huella${' '.repeat(60)}xyz`, index, tasks, true)?.groups).toHaveLength(1);
+  });
+
   it('lo que coincide con el título va primero; si solo coincide el título, muestra la aclaración o el primer paso', () => {
     const found = searchManual('entrar', index, tasks, false);
     expect(found?.groups[0]?.hits.map((hit) => [hit.task, hit.snippet])).toEqual([
@@ -140,7 +155,7 @@ describe('el buscador', () => {
 });
 
 describe('el estado del manual', () => {
-  const start = startState(index, 'computer');
+  const start = startState(index, 'computer', true);
 
   it('arranca en la primera tarea del dispositivo; sin tareas, en ninguna', () => {
     expect(start).toMatchObject({ device: 'computer', chapter: 'sign-in', task: 'phone', step: 0 });
@@ -177,7 +192,7 @@ describe('el estado del manual', () => {
   it('elegir otro dispositivo vuelve al principio de ese manual', () => {
     const phone = reduce(
       { ...start, allSteps: true },
-      { type: 'chooseDevice', device: 'phone' },
+      { type: 'chooseDevice', device: 'phone', first: true },
       index,
     );
     expect(phone).toMatchObject({ device: 'phone', task: 'offline', step: 0, allSteps: false });
@@ -203,6 +218,9 @@ describe('el estado del manual', () => {
     expect(all).toMatchObject({ allSteps: true, allFrom: 'phone' });
     const fromList = reduce(all, { type: 'openAllSteps', chapter: 'sign-in' }, index);
     expect(fromList.allFrom).toBeUndefined();
+    // Desde la lista, de otro capítulo: el paso a paso queda en la primera tarea de ese capítulo.
+    const other = reduce({ ...start, step: 2 }, { type: 'openAllSteps', chapter: 'stock' }, index);
+    expect(other).toMatchObject({ chapter: 'stock', task: 'count', step: 0, allSteps: true });
     const { task: _, ...noTask } = start;
     expect(reduce(noTask, { type: 'openAllSteps' }, index)).toBe(noTask);
     expect(reduce(all, { type: 'closeAllSteps' }, index).allSteps).toBe(false);

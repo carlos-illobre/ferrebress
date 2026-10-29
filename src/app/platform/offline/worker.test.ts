@@ -50,7 +50,8 @@ describe('el service worker', () => {
       kindOf({ ...request('/x'), url: 'https://accounts.google.com/gsi/client' }, origin),
     ).toBe('skip');
     expect(kindOf(request('/manifest.webmanifest'), origin)).toBe('skip');
-    // app-E39: nada del manual ocupa lugar, ni su contenido ni su código.
+    // Nada del manual ocupa lugar, ni su contenido ni su código (que vaya en manual/ lo controla
+    // `pnpm boot`, app-E39).
     expect(kindOf(request('/manual/index.json'), origin)).toBe('skip');
     expect(kindOf(request('/manual/app-abc.js'), origin)).toBe('skip');
     expect(kindOf(request('/link', { mode: 'navigate' }), origin)).toBe('page');

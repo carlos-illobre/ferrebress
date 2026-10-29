@@ -57,6 +57,10 @@ export type SearchTask = {
   texts: string[];
 };
 
+// La forma de un nombre (de capítulo, tarea, escena o punto): en inglés, minúsculas y guiones. El
+// lector no acepta otra, y la aplicación no pide un archivo con un nombre de otra forma.
+export const isName = (value: string) => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value);
+
 // Los nombres de los archivos que arma, dentro de /manual/.
 export const manualFiles = {
   index: 'index.json',

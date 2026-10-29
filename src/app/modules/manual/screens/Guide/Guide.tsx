@@ -3,12 +3,12 @@
 // celular es una hoja que sube, que el botón atrás cierra; ahí el consejo va solo en el último paso.
 // ← y → pasan de paso (data-arrows de la capa, diseño del manual, § 5).
 import type { Task } from '@ferrebress/shared/contracts/manual';
-import { useBackStep } from '../../../../platform/back-step.ts';
-import { useCaptures } from '../../media.ts';
+import { useCaptures } from '../../files/media.ts';
 import { tasksOf } from '../../state.ts';
 import { texts } from '../../texts.ts';
 import type { View } from '../../view.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
+import { SheetStep } from '../SheetStep/SheetStep.tsx';
 import { Stage } from '../Stage/Stage.tsx';
 import './Guide.css';
 
@@ -45,18 +45,22 @@ function Head({ view, task }: { view: View; task: Task }) {
           <span>{texts.allSteps}</span>
           <kbd>T</kbd>
         </button>
-        {narrow && (
-          <button
-            type="button"
-            class="button button-plain manual-close"
-            aria-label={texts.close}
-            onClick={() => act({ type: 'closeSheet' })}
-          >
-            <Glyph name="x" size="large" />
-          </button>
-        )}
+        {narrow && <CloseSheet view={view} />}
       </div>
     </div>
+  );
+}
+
+function CloseSheet({ view }: { view: View }) {
+  return (
+    <button
+      type="button"
+      class="button button-plain manual-close"
+      aria-label={texts.close}
+      onClick={() => view.act({ type: 'closeSheet' })}
+    >
+      <Glyph name="x" size="large" />
+    </button>
   );
 }
 
@@ -107,22 +111,37 @@ function Progress({ view, task }: { view: View; task: Task }) {
       {task.steps.map((_, at) => (
         <button
           type="button"
-          // biome-ignore lint/suspicious/noArrayIndexKey: los pasos son fijos y su lugar es su identidad
           key={at}
           class={at <= view.state.step ? 'manual-progress-step done' : 'manual-progress-step'}
           aria-label={texts.stepLabel(at + 1)}
           aria-current={at === view.state.step ? 'step' : undefined}
+          // R2.8: un número por paso, del 1 al 9.
+          data-key={at < 9 ? String(at + 1) : undefined}
           onClick={() => view.act({ type: 'goToStep', step: at })}
-        />
+        >
+          {at < 9 && <kbd>{at + 1}</kbd>}
+        </button>
       ))}
     </div>
   );
 }
 
 // En el celular, la hoja suma un paso al historial: atrás la cierra.
-function SheetStep({ view }: { view: View }) {
-  useBackStep(() => view.act({ type: 'closeSheet' }));
-  return null;
+// El lugar del paso a paso cuando el capítulo no llegó por falta de red (R4.4): lo dice, y en el
+// celular se cierra como la hoja de siempre. Se pide de nuevo solo al volver la conexión.
+export function GuideOffline({ view }: { view: View }) {
+  return (
+    <main class="manual-guide open" aria-labelledby="manual-guide-offline">
+      {view.narrow && <SheetStep close={() => view.act({ type: 'closeSheet' })} />}
+      <div class="manual-guide-head">
+        <h2 class="manual-guide-title" id="manual-guide-offline">
+          {texts.offline}
+        </h2>
+        {view.narrow && <CloseSheet view={view} />}
+      </div>
+      <div class="manual-stage manual-stage-offline">{texts.offline}</div>
+    </main>
+  );
 }
 
 export function Guide({ view, task }: { view: View; task: Task }) {
@@ -138,14 +157,14 @@ export function Guide({ view, task }: { view: View; task: Task }) {
       aria-labelledby="manual-guide-title"
       aria-hidden={!open || undefined}
     >
-      {view.narrow && state.sheet && <SheetStep view={view} />}
+      {view.narrow && state.sheet && <SheetStep close={() => view.act({ type: 'closeSheet' })} />}
       <Head view={view} task={task} />
       <Progress view={view} task={task} />
       <Stage
         task={task}
         step={state.step}
         direction={state.direction}
-        clip={state.clip}
+        clip={state.clip ? Number(state.plays) : 0}
         captures={captures}
       />
       <span class="manual-number" aria-hidden="true">

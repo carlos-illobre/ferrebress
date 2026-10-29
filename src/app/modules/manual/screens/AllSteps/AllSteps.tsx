@@ -5,16 +5,11 @@
 // celular es otra hoja, que atrás o la × cierran.
 import type { Chapter } from '@ferrebress/shared/contracts/manual';
 import { useEffect, useRef } from 'preact/hooks';
-import { useBackStep } from '../../../../platform/back-step.ts';
 import { texts } from '../../texts.ts';
 import type { View } from '../../view.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
+import { SheetStep } from '../SheetStep/SheetStep.tsx';
 import './AllSteps.css';
-
-function SheetStep({ close }: { close: () => void }) {
-  useBackStep(close);
-  return null;
-}
 
 function Parts({ chapter, view }: { chapter: Chapter; view: View }) {
   return (

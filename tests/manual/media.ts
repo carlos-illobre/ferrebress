@@ -1,13 +1,19 @@
 // Lo común de las capturas del manual (diseño del manual, § 3): el navegador encerrado en el servidor
 // de mentira, el tamaño de cada dispositivo, el paso a WebP en el mismo Chromium (sin dependencias)
 // y dónde se guarda cada cosa.
-import { createHash } from 'node:crypto';
 import { join } from 'node:path';
-import type { Browser, BrowserContext, BrowserContextOptions, Page } from '@playwright/test';
-import type { Device } from './scenes.ts';
+import {
+  type Browser,
+  type BrowserContext,
+  type BrowserContextOptions,
+  expect,
+  type Frame,
+  type Page,
+} from '@playwright/test';
+import type { Device } from '../../src/shared/contracts/manual.ts';
+import { maxCaptureBytes } from '../../tools/manual/media.ts';
 
 export const mediaDir = join(import.meta.dirname, '../../docs/manual/media');
-export const maxBytes = 90 * 1024;
 
 const phoneUserAgent =
   'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/141 Mobile';
@@ -31,19 +37,23 @@ export const devices: Record<Device, { options: BrowserContextOptions; width: nu
 export const phoneData = () =>
   Object.defineProperty(navigator, 'userAgentData', { get: () => ({ mobile: true }) });
 
-export const sha256 = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
-
 // La página del botón de Google precarga el script de Google: se corta igual, sin frenar la escena.
 const cutQuietly = new Set(['https://accounts.google.com/gsi/client']);
 
 // Un contexto que solo puede pedir al servidor de mentira: cualquier otro pedido se corta y queda
-// anotado, y la escena falla (revisión de seguridad, 4).
+// anotado, y la escena falla (revisión de seguridad, 4). Sin service worker, que pediría por su
+// cuenta sin pasar por el corte.
 export async function closedContext(
   browser: Browser,
   baseURL: string,
   options: BrowserContextOptions,
 ): Promise<{ context: BrowserContext; escaped: string[] }> {
-  const context = await browser.newContext({ ...options, baseURL, reducedMotion: 'reduce' });
+  const context = await browser.newContext({
+    ...options,
+    baseURL,
+    reducedMotion: 'reduce',
+    serviceWorkers: 'block',
+  });
   const escaped: string[] = [];
   const origin = new URL(baseURL).origin;
   await context.route('**/*', (route) => {
@@ -53,6 +63,12 @@ export async function closedContext(
     return route.abort();
   });
   return { context, escaped };
+}
+
+// Lo que no puede salir nunca: el ambiente de pruebas ni lo que todavía no existe.
+export async function expectClean(page: Page | Frame): Promise<void> {
+  await expect(page.locator('.test-frame')).toHaveCount(0);
+  await expect(page.getByText('Pronto', { exact: true })).toHaveCount(0);
 }
 
 // Pasa una imagen PNG a WebP del ancho pedido con el canvas de Chromium, bajando la calidad hasta que
@@ -81,7 +97,7 @@ export async function toWebp(page: Page, png: Buffer, width: number): Promise<Bu
       { data: `data:image/png;base64,${png.toString('base64')}`, width, quality },
     );
     const webp = Buffer.from(encoded, 'base64');
-    if (webp.length <= maxBytes) return webp;
+    if (webp.length <= maxCaptureBytes) return webp;
   }
-  throw new Error(`la captura no entra en ${maxBytes / 1024} KB`);
+  throw new Error(`la captura no entra en ${maxCaptureBytes / 1024} KB`);
 }

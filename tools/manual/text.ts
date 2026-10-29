@@ -5,8 +5,8 @@ export type Problems = string[];
 export const problemAt = (file: string, line: number, message: string) =>
   `docs/manual/${file}:${line}: ${message}`;
 
-// Nombres de archivos, capítulos, tareas, escenas y puntos: en inglés, minúsculas y guiones.
-export const isName = (value: string) => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value);
+// Nombres de archivos, capítulos, tareas, escenas y puntos: la forma del contrato.
+export { isName } from '../../src/shared/contracts/manual.ts';
 
 // Solo texto: nada que el navegador pudiera leer como HTML (diseño del manual, § 8).
 export function textProblem(text: string): string | undefined {

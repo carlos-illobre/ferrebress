@@ -3,9 +3,8 @@
 // cartel del ambiente de pruebas), con una persona inventada y el reloj fijo.
 
 import { type BrowserContext, expect, type Locator, type Page } from '@playwright/test';
+import type { Device } from '../../src/shared/contracts/manual.ts';
 import type { Person, StartResponse } from '../../src/shared/contracts/sign-in.ts';
-
-export type Device = 'computer' | 'phone';
 
 export type Scene = {
   name: string;

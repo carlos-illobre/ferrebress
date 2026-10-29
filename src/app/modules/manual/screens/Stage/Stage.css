@@ -11,6 +11,12 @@
     overflow: hidden;
     touch-action: pan-y;
   }
+  .manual-stage-offline {
+    display: grid;
+    place-items: center;
+    color: var(--text-3);
+    font-weight: 700;
+  }
   .manual-layer {
     position: absolute;
     inset: 0;

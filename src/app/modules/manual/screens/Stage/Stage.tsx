@@ -3,7 +3,7 @@
 // un paso del otro dispositivo lo aclara (R6.3); y el clip, cuando se lo pide. Lo que no llegó por
 // falta de red se ve gris con «Sin conexión» (R4.4).
 import type { Step, Task } from '@ferrebress/shared/contracts/manual';
-import type { Captures } from '../../media.ts';
+import type { Captures } from '../../files/media.ts';
 import { texts } from '../../texts.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import { Clip } from './Clip.tsx';
@@ -43,7 +43,8 @@ export function Stage({
   task: Task;
   step: number;
   direction: -1 | 0 | 1;
-  clip: boolean;
+  // 0 sin el clip; si no, la vez que se pidió (cada vez lo vuelve a empezar).
+  clip: number;
   captures: Captures;
 }) {
   const shown = task.steps[step] as Step;
@@ -51,14 +52,14 @@ export function Stage({
   return (
     <div class="manual-stage">
       <div class={layer.filter(Boolean).join(' ')} key={`${task.id}-${step}-${clip}`}>
-        {clip && task.clip ? (
+        {clip > 0 && task.clip ? (
           <Clip name={task.clip} />
         ) : shown.capture ? (
           <Shot capture={shown.capture} url={captures[shown.capture.scene]} />
         ) : (
           <Veiled task={task} step={shown} captures={captures} />
         )}
-        {!clip && shown.capture && shown.capture.device !== task.device && (
+        {clip === 0 && shown.capture && shown.capture.device !== task.device && (
           <span class="manual-other">{texts.inOther[shown.capture.device]}</span>
         )}
       </div>
