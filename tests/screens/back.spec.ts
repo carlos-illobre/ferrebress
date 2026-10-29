@@ -1,6 +1,5 @@
 // El botón atrás del celular con la cámara abierta (01 · R2.5): la cierra y vuelve a la entrada, sin
-// salir de la aplicación. En un navegador de verdad, porque Chrome saltea con el botón atrás los
-// pasos del historial que se suman sin un toque de la persona.
+// salir de la aplicación. En un navegador de verdad, con su historial.
 import { expect, test } from '@playwright/test';
 
 test.use({
