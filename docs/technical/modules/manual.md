@@ -369,7 +369,7 @@ Las controla `pnpm manual` (los topes de § 2) y, para el arranque, `pnpm boot`.
 | El teclado | Unitarias de `data-arrows`, `data-slash` y `data-clear` en `platform/keyboard.ts` |
 | El lector | Unitarias de cada error de § 2 (también un enlace fuera de `docs/manual/`, un enlace simbólico, un archivo disfrazado y uno pasado de tope) y de lo que arma con un manual de prueba |
 | Pantallas | Capturas de referencia (`tests/screens/manual.spec.ts`) con el manual de prueba de `tests/manual/fixture/`, que no cambia cuando cambia el de verdad |
-| De punta a punta | Abrir el manual desde la entrada, buscar, seguir «Entrar con Google» y volver, sin ninguna violación de la política de contenido (`tests/e2e/manual.spec.ts`); las cabeceras de `/manual/*` y el 404 en `headers.spec.ts` |
+| De punta a punta | Una sola, aprobada por Carlos, en `tests/e2e/headers.spec.ts`: lo de `/manual/` sale con `no-store` y la política de la aplicación, lo que falta da 404, y abrir una tarea no viola la política de estilos (lo pone Caddy, que solo corre en el stack de Docker) |
 
 **01 · E39** («Ver el manual» con «Pronto») deja de poder darse: se retira el escenario de 01 junto
 con su prueba, y R7.2 de 01 pierde la frase de «mientras el manual no exista».
@@ -387,5 +387,5 @@ con su prueba, y R7.2 de 01 pierde la frase de «mientras el manual no exista».
 5. La pantalla, con sus pruebas (depende de 2 y 3).
 6. Abrirla desde la entrada y desde Más, sin conexión en gris, lo de abajo; Caddy, Vite y el
    Dockerfile; retirar 01 · E39 (depende de 5).
-7. Las capturas de referencia con el manual de prueba y la prueba de punta a punta.
+7. Las capturas de referencia con el manual de prueba y la prueba de las cabeceras del manual.
 8. Las revisiones del código y de seguridad (paso 7).

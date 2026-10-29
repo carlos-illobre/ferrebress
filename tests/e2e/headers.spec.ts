@@ -1,6 +1,7 @@
 // 4 · Las cabeceras de Caddy, sin navegador (diseño de 01, «Cabeceras de Caddy»): la política
 // estricta en la aplicación, sin Google; la excepción de estilos solo en el marco del botón de
-// Google, que solo lo de /assets se guarde, y que /api lleve solo lo que sirve para un JSON.
+// Google, que solo lo de /assets se guarde, que /api lleve solo lo que sirve para un JSON, y lo del
+// manual.
 import { expect, test } from '@playwright/test';
 
 test('la aplicación es estricta y solo el marco de Google admite estilos en línea', async ({
@@ -32,4 +33,31 @@ test('la aplicación es estricta y solo el marco de Google admite estilos en lí
   expect(api['strict-transport-security']).toContain('max-age=31536000');
   for (const pageOnly of ['permissions-policy', 'referrer-policy', 'x-frame-options'])
     expect(api[pageOnly]).toBeUndefined();
+});
+
+// El manual (diseño del manual, §§ 4 y 8): lo de /manual/ no se guarda (R6.8), lo que no está da
+// 404 y no la página, la política es la misma de la aplicación, y las posiciones del aro y del
+// rótulo, que se ponen por código, no violan la política estricta de estilos.
+test('el manual no se guarda, lo que falta da 404 y abrir una tarea no viola la política', async ({
+  request,
+  page,
+}) => {
+  const origin = String(process.env.E2E_ORIGIN);
+  const index = await request.get(`${origin}/manual/index.json`);
+  expect(index.headers()['cache-control']).toBe('no-store');
+  expect(index.headers()['content-security-policy']).not.toContain('unsafe-inline');
+  expect((await request.get(`${origin}/manual/nada.json`)).status()).toBe(404);
+  const violations: string[] = [];
+  await page.exposeFunction('violated', (what: string) => violations.push(what));
+  await page.addInitScript(() =>
+    document.addEventListener('securitypolicyviolation', (event) =>
+      (window as unknown as { violated: (what: string) => void }).violated(event.violatedDirective),
+    ),
+  );
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.goto(`${origin}/manual?d=computer&c=sign-in&t=phone&p=1`);
+  await expect(page.locator('.manual-ring-label')).toBeVisible();
+  await page.getByRole('button', { name: /^Siguiente/ }).click();
+  await expect(page.locator('img[alt^="Captura"]')).toBeVisible();
+  expect(violations).toEqual([]);
 });
