@@ -8,6 +8,7 @@ import { findBrokenLinks } from './checks/doc-links.ts';
 import { findLongFiles, maxLinesPerFile } from './checks/file-sizes.ts';
 import { findCrowdedFolders, maxFilesPerFolder } from './checks/folder-sizes.ts';
 import { findFilesWithoutHeader } from './checks/header-comments.ts';
+import { findRawHtml } from './checks/raw-html.ts';
 
 function project(files: Record<string, string>): string {
   const root = mkdtempSync(join(tmpdir(), 'ferrebress-tools-'));
@@ -92,5 +93,21 @@ describe('findHeavyBoot', () => {
     const noise = randomBytes(maxBootBytes * 2).toString('base64');
     const heavy = project({ 'index.html': page, 'assets/main.js': noise, 'assets/main.css': '' });
     expect(findHeavyBoot(heavy)[0]).toMatch(/El arranque pesa .* KB con gzip \(máximo 60\.0 KB\)/);
+  });
+});
+
+describe('findRawHtml', () => {
+  it('avisa HTML armado con texto y estilos puestos en el HTML, salvo en las pruebas', () => {
+    const root = project({
+      'src/app/a.ts': 'el.innerHTML = x;\nok();\nel.setAttribute("style", "left:0");',
+      'src/app/b.tsx': "box.insertAdjacentHTML('beforeend', x); el.style.setProperty('--x', '1');",
+      'src/app/c.test.tsx': 'document.body.innerHTML = html;',
+      'src/app/d.ts': 'el.setAttribute("aria-label", "x"); document.writeln',
+    });
+    expect(findRawHtml(root).sort()).toEqual([
+      'src/app/a.ts:1: no se arma HTML con texto ni estilos en el HTML',
+      'src/app/a.ts:3: no se arma HTML con texto ni estilos en el HTML',
+      'src/app/b.tsx:1: no se arma HTML con texto ni estilos en el HTML',
+    ]);
   });
 });

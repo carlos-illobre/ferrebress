@@ -6,6 +6,9 @@
 //   data-mark    lo que recorren las flechas (R2.4) y activa Enter (R2.6); → abre lo que tiene
 //                aria-expanded, como Más, y ← cierra lo que se abrió encima
 //   data-close   lo que hace Esc en esa capa (R2.7)
+//   data-arrows  una capa que recorre pasos: ← y → tocan sus botones data-arrow="previous" y
+//                "next", salvo con el cursor en una caja con texto (el manual)
+//   data-slash   la caja a la que lleva / ; data-clear, la que Esc vacía antes de cerrar nada
 // Cada vez que la marca cambia, avisa con el evento «mark» en document, para el rótulo del menú.
 // En el celular no hay atajos ni marca.
 import { isPhone } from './device/device.ts';
@@ -80,6 +83,43 @@ function arrow(event: KeyboardEvent): void {
   event.preventDefault();
 }
 
+const isTextBox = (target: EventTarget | null): target is HTMLInputElement =>
+  target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
+
+const sideways: Record<string, string> = { ArrowLeft: 'previous', ArrowRight: 'next' };
+
+// ← y → en una capa que recorre pasos: con texto en la caja son del cursor; si no, pasan de paso.
+function layerArrow(event: KeyboardEvent): boolean {
+  const direction = sideways[event.key];
+  if (!direction || !topLayer().hasAttribute('data-arrows')) return false;
+  if (isTextBox(event.target) && event.target.value !== '') return true;
+  topLayer().querySelector<HTMLElement>(`[data-arrow="${direction}"]`)?.click();
+  event.preventDefault();
+  return true;
+}
+
+function slash(event: KeyboardEvent): void {
+  const box = topLayer().querySelector<HTMLElement>('[data-slash]');
+  if (!box || isTextBox(event.target)) return;
+  event.preventDefault();
+  box.focus();
+}
+
+// Esc en una caja data-clear con texto la vacía, y avisa como si se hubiera borrado.
+function clearBox(event: KeyboardEvent): boolean {
+  const box = event.target;
+  if (!isTextBox(box) || !box.hasAttribute('data-clear') || box.value === '') return false;
+  box.value = '';
+  box.dispatchEvent(new Event('input', { bubbles: true }));
+  return true;
+}
+
+function onEscape(event: KeyboardEvent): void {
+  if (clearBox(event)) return;
+  if (somethingOnTop()) closeTop();
+  else unmark();
+}
+
 function onKeyDown(event: KeyboardEvent): void {
   if (event.key === 'Alt') {
     topLayer().classList.add(showKeysClass);
@@ -87,12 +127,13 @@ function onKeyDown(event: KeyboardEvent): void {
   } else if (event.altKey) {
     shortcut(event);
   } else if (event.key in steps) {
-    if (!caretKeepsArrow(event)) arrow(event);
+    if (!layerArrow(event) && !caretKeepsArrow(event)) arrow(event);
   } else if (event.key === 'Enter') {
     marked()?.click();
   } else if (event.key === 'Escape') {
-    if (somethingOnTop()) closeTop();
-    else unmark();
+    onEscape(event);
+  } else if (event.key === '/') {
+    slash(event);
   }
 }
 

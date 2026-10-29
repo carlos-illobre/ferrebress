@@ -12,6 +12,7 @@ import { findBrokenLinks } from './checks/doc-links.ts';
 import { findLongFiles } from './checks/file-sizes.ts';
 import { findCrowdedFolders } from './checks/folder-sizes.ts';
 import { findFilesWithoutHeader } from './checks/header-comments.ts';
+import { findRawHtml } from './checks/raw-html.ts';
 import { buildManual } from './manual/build.ts';
 
 const root = process.cwd();
@@ -19,6 +20,7 @@ const checks: Record<string, () => string[]> = {
   links: () => findBrokenLinks(root, ['.']),
   sizes: () => [...findLongFiles(root), ...findCrowdedFolders(root)],
   headers: () => findFilesWithoutHeader(root),
+  html: () => findRawHtml(root),
   manual: () =>
     buildManual(join(root, 'docs/manual'), 'check', new Set(Object.keys(manualIcons))).problems,
   boot: () => {

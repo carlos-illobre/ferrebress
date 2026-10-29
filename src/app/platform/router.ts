@@ -4,17 +4,28 @@
 // llega con la primera pantalla de trabajo (módulo 03).
 import { createStore } from './store.ts';
 
-export type Location = { path: string; hash: string };
+// `state` es lo que guardó quien navegó (por ejemplo, desde dónde se abrió el manual).
+export type Location = { path: string; hash: string; search: string; state: unknown };
 
-const current = (): Location => ({ path: location.pathname, hash: location.hash.slice(1) });
+const current = (): Location => ({
+  path: location.pathname,
+  hash: location.hash.slice(1),
+  search: location.search,
+  state: history.state,
+});
 
 export const route = createStore<Location>(current());
 
 addEventListener('popstate', () => route.set(current()));
 
-export function navigate(path: string, { replace = false } = {}): void {
-  if (replace) history.replaceState(null, '', path);
-  else history.pushState(null, '', path);
+// Reemplazar sin estado conserva el que había: el manual cambia de paso sin perder desde dónde se
+// abrió.
+export function navigate(
+  path: string,
+  { replace = false, state }: { replace?: boolean; state?: unknown } = {},
+): void {
+  if (replace) history.replaceState(state ?? history.state, '', path);
+  else history.pushState(state ?? null, '', path);
   route.set(current());
 }
 
