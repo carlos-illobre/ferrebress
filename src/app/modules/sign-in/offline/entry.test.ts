@@ -3,7 +3,7 @@ import { act } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { lastReply, sessionClosed } from '../../../platform/server/api.ts';
 import { fakeServer } from '../../../testing/fake-server.ts';
-import { offlineSession, person, signOut } from '../session.ts';
+import { canGoOffline, offlineSession, person, signOut } from '../session.ts';
 import { isOwn, withOfflinePasskey } from './enter.ts';
 import { assertion, eva, fakeFinger, resetOffline } from './offline-kit.ts';
 import { entries, pendingEntries } from './pending.ts';
@@ -22,6 +22,11 @@ function ready() {
 describe('entrar sin conexión con la huella', () => {
   beforeEach(resetOffline);
   afterEach(() => vi.unstubAllGlobals());
+
+  it('sin sesión guardada, la huella recién vinculada no cambia a nadie', () => {
+    canGoOffline();
+    expect(person.get()).toBeUndefined();
+  });
 
   it('offline-R2.5: la huella tiene que ser de la persona del permiso y verificada', () => {
     expect(isOwn(assertion(), eva.userId)).toBe(true);

@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { store } from '../../platform/device/storage.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { scan } from './codes/scanner.ts';
 import { Camera, CodeSheet, OfferSheet, usePhoneCode } from './index.ts';
@@ -109,7 +110,11 @@ describe('las hojas del celular', () => {
 
   it('sign-in-E06, E07, R2.11: ofrece la huella una vez; al aceptar la vincula y se cierra sin avisar', async () => {
     fakePasskeys();
-    fakeServer({ '/api/passkeys/options': { body: {} }, '/api/passkeys': {} });
+    fakeServer({
+      '/api/passkeys/options': { body: {} },
+      '/api/passkeys': { body: { ok: true, offline: true } },
+    });
+    store('session', { sessionId: 's', person: ana });
     render(<OfferSheet />);
     expect(screen.queryByRole('dialog')).toBeNull();
     act(() => offerPasskey.set(true));
@@ -119,6 +124,22 @@ describe('las hojas del celular', () => {
     expect(hasPasskey()).toBe(true);
     expect(wasOffered(ana.userId)).toBe(true);
     expect(offerPasskey.get()).toBe(false);
+    // Con la huella, ya puede prender «Trabajar sin conexión» (15 · R1.3).
+    expect(person.get()?.offline).toBe(true);
+  });
+
+  it('offline-E02: vinculada la huella sin el permiso, la opción no aparece', async () => {
+    fakePasskeys();
+    fakeServer({
+      '/api/passkeys/options': { body: {} },
+      '/api/passkeys': { body: { ok: true, offline: false } },
+    });
+    store('session', { sessionId: 's', person: ana });
+    render(<OfferSheet />);
+    act(() => offerPasskey.set(true));
+    fireEvent.click(screen.getByRole('button', { name: 'Sí, usar la huella' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(person.get()?.offline).toBeUndefined();
   });
 
   it('sign-in-E08, E09: «Ahora no» no la vuelve a ofrecer; si el celular es de otra cuenta, lo dice', async () => {

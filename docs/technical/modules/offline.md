@@ -24,15 +24,12 @@ La pantalla se fía del lector del celular: la verificación que vale es **la de
 volver la conexión, con esa misma firma. Para el plazo, el servidor no se fía de ninguna hora del
 celular: usa solo lo que sabe él.
 
-## 2. Lo primero: probar que la huella anda sin internet
+## 2. La huella anda sin internet
 
 Las huellas de Android viven en el Administrador de contraseñas de Google, que las sincroniza entre
-dispositivos. La firma la hace el celular, así que debería andar sin internet, pero no está
-documentado. **La tarea 1 es una página de prueba**, `/offline-probe.html`, servida desde el
-ambiente de pruebas (la huella está atada a su dirección), fuera de `src/` y sin pruebas, que se
-borra después. Carlos, con la huella ya vinculada, la abre: con la aplicación instalada y en modo
-avión, y con el celular recién prendido sin red. Llama a `navigator.credentials.get()` con un
-desafío local y muestra si firmó. Si no anda, se para acá y se vuelve al paso 1 con Carlos.
+dispositivos, pero la firma la hace el celular. No está documentado que ande sin internet: Carlos lo
+probó en su celular, en modo avión, con una página de prueba que pedía la huella con un desafío
+armado en el celular, como lo hace la aplicación. Firmó, con la huella.
 
 ## 3. Entidades
 
@@ -44,7 +41,7 @@ línea en la auditoría con la regla de una fila por ventana (diseño de 01, § 
 
 | Columna | Tipo | Para qué |
 |---|---|---|
-| `id` | `uuid` PK | El identificador que creó el celular al entrar (UUID v7). Que sea la clave impide usar la misma firma dos veces (E18) |
+| `id` | `uuid` PK | El identificador que creó el celular al entrar, al azar. Que sea la clave impide usar la misma firma dos veces (E18) |
 | `user_id`, `device_id`, `credential_id` | | Quién, desde qué celular y con qué huella |
 | `signed_at` | `timestamptz` | La hora del celular cuando puso la huella (no confirmada, solo para mirar) |
 | `received_at` | `timestamptz` | La hora del servidor cuando llegó |
@@ -76,9 +73,12 @@ tiene una huella vinculada sin quitar **de esa misma persona**. Si no, el campo 
 - Sin sesión no va nada: nadie puede preguntar por la huella de un celular ajeno mandando su
   identificador (revisión de seguridad, 2). Después de «Salir», el celular sigue con lo que supo en
   el último contacto con sesión, que es lo que dice la regla.
-- La persona con sesión ya está en memoria (diseño de 01, § 6); lo de la huella es una consulta por
-  índice (`sign_in.passkeys` por `device_id`), solo con sesión y solo desde un celular, y se guarda
-  con la sesión en memoria. Son unos 15 bytes.
+- La persona con sesión ya está en memoria (diseño de 01, § 6). De quién es la huella de cada
+  celular es una consulta por índice (`sign_in.passkeys` por `device_id`), solo con sesión y solo
+  desde un celular, y queda en memoria (`phoneOwners`); vincular una huella la actualiza. Así
+  `/api/start` con la sesión en memoria sigue sin consultar la base. Son unos 15 bytes. También lo
+  dicen la respuesta de entrar con la huella (sin consulta: es la huella que firmó) y la de
+  vincularla (`{ ok, offline }`), para que la opción aparezca sin volver a abrir.
 - La llave pública no viaja: el celular no verifica la firma (§ 5).
 
 ### `POST /api/sign-in/offline` (nueva)
@@ -90,7 +90,7 @@ Recibe (contrato `OfflineSignIn` en `src/shared/contracts/`, como mucho 8 KB):
 
 | Campo | Qué |
 |---|---|
-| `id` | El de la entrada (UUID v7) |
+| `id` | El de la entrada, al azar |
 | `userId` | Quién dice ser |
 | `signedAt`, `lastContactAt` | Las horas del celular (ISO 8601), firmadas: solo se guardan |
 | `openSession` | Si esta entrada es la sesión que la persona tiene ahora en el celular. Es `false` si ya salió o si entró otra persona (§ 5) |
@@ -106,15 +106,14 @@ El servidor, en orden, y se queda en el primero que falla:
    dice qué hace la aplicación); `rejected`, `offline-not-confirmed`.
 4. **El desafío:** el servidor lo recalcula con `offlineChallenge()`, la única función que lo arma,
    en `src/shared/` (la usan los dos lados): `base64url(SHA-256(JSON con las claves en orden de
-   { id, userId, deviceId, credentialId, signedAt, lastContactAt }))`, con `deviceId` de
-   `X-Device-Id` y `credentialId` de `response.id`. A `@simplewebauthn/server` le pasa ese desafío
-   recalculado, nunca el que viene en el pedido. Así ningún dato se puede cambiar después de
-   firmar (E19).
+   { id, userId, deviceId, signedAt, lastContactAt }))`, con `deviceId` de `X-Device-Id`. La huella
+   no va en el desafío: la firma solo verifica con la llave de la huella que la hizo. A
+   `@simplewebauthn/server` le pasa ese desafío recalculado, nunca el que viene en el pedido. Así
+   ningún dato se puede cambiar después de firmar (E19).
 5. La huella: existe, no está quitada, es de `userId` y de ese `device_id` (E20). Verifica la firma,
    el origen, el `rpId`, el tipo `webauthn.get` y la marca de verificación (UV). El contador, como
-   con conexión, salvo que entre entradas sin conexión llegadas en desorden no se exige que suba
-   (las huellas de Google mandan siempre 0). Una firma que no verifica cuenta como intento
-   fallido de la cuenta y no deja fila (§ 3).
+   con conexión (las huellas de Google mandan siempre 0, y las entradas salen en orden). Una firma
+   que no verifica cuenta como intento fallido de la cuenta y no deja fila (§ 3).
 6. La cuenta, por la fachada de `users`: activa (si no, `not-authorized`, E16) y `canWorkOffline`
    (si no, `not-allowed`).
 7. Que la última sesión de ese celular no la haya cerrado otro dispositivo (`revoked-session`).
@@ -141,14 +140,19 @@ mismo. Lo que no se puede probar es cuándo firmó: por eso el plazo se mide con
 
 ### Lo guardado en el celular
 
-En IndexedDB, en la base de la aplicación (la misma de la llave de prueba, como dicen la
-arquitectura y el ADR-007), con su forma en un contrato con versión en `src/shared/`. Una versión
-nueva de la aplicación que cambie la forma lee la anterior.
+En `localStorage` (`platform/device/storage`): son tres valores chicos, sin datos del negocio ni
+secretos, como el resto de lo que guarda la aplicación sin trabajar sin conexión (arquitectura,
+«Los datos»). La cola de la etapa b, con lo hecho sin conexión, va en IndexedDB (ADR-007); si una
+versión nueva cambia la forma de estos valores, lee la anterior.
 
 | Qué | Para qué | Se borra |
 |---|---|---|
-| **El permiso** `{ userId, name, role, credentialId, lastContactAt, maxSeenAt, revoked }` | Entrar sin conexión | Al apagar la opción, o cuando el servidor dice que ya no (abajo) |
-| **Lo pendiente**: la lista de entradas sin conexión `{ id, userId, credentialId, signedAt, lastContactAt, ended, response }`, en orden, cada una con su llave de prueba | Confirmarlas | Cada una, cuando el servidor contesta algo que no sea «probá después» |
+| **El permiso** (`offline-permit`): `{ person, revoked }` | Entrar sin conexión | Al apagar la opción, o cuando el servidor dice que ya no (abajo) |
+| **El contacto** (`offline-contact`): `{ at, maxSeenAt }`, horas del celular | El plazo y el reloj | No se borra |
+| **Lo pendiente** (`offline-pending`): la lista de entradas sin conexión `{ id, userId, signedAt, lastContactAt, response, proofPublicKey, ended }`, en orden | Confirmarlas | Cada una, cuando el servidor contesta algo que no sea «probá después» |
+
+La llave de prueba de cada entrada es la de la sesión (IndexedDB, diseño de 01, § 6): la entrada
+guarda su parte pública. En la etapa b, cada entrada tendrá la suya.
 
 La firma guardada no sirve para otra cosa: está atada a su `id`, que se usa una vez.
 
@@ -164,9 +168,10 @@ La firma guardada no sirve para otra cosa: está atada a su `id`, que se usa una
 
 ### Cada contacto con sesión
 
-- La plataforma publica «el servidor contestó» (`serverReplied`, un valor como `online`, con la hora
-  del celular), sin saber del negocio. `sign-in/offline` lo escucha: si el pedido llevaba sesión y
-  el servidor la aceptó, pasa esa hora a `lastContactAt` y pone `revoked: false`.
+- La plataforma publica «el servidor contestó bien» (`lastReply`, un valor como `online`, con la
+  hora del celular), sin saber del negocio. `sign-in/offline` lo escucha: si hay una persona con
+  sesión (no una sin confirmar) y la sesión no se cerró, pasa esa hora al contacto y pone
+  `revoked: false`.
 - Si la persona con sesión ya no trae `offline: true` (perdió el permiso, se quitó su huella, la dio
   de baja), el permiso se borra: la opción se apaga (R1.5, E05). Lo mismo con `not-authorized`.
 - `session-closed` con motivo `revoked` (cerrada desde otro dispositivo) **no** borra el permiso:
@@ -183,18 +188,21 @@ La firma guardada no sirve para otra cosa: está atada a su `id`, que se usa una
   apaga solo a la hora (E08 sin recargar). Si se puede, la huella queda prendida y el aviso dice
   hasta cuándo (R2.1, E06): «hoy 21:40», «mañana 9:40» o «el martes 9:40», en la hora del celular.
 - Al tocar la huella:
-  1. Crea `id` (UUID v7) y toma `signedAt` y `lastContactAt`.
+  1. Crea `id` (al azar) y toma `signedAt` y `lastContactAt`.
   2. Arma el desafío con `offlineChallenge()` y llama a `navigator.credentials.get()` con
-     `allowCredentials: [credentialId]` y `userVerification: "required"`.
-  3. **Verifica lo que la pantalla necesita, sin la firma:** que la huella que contestó sea la
-     guardada y que traiga la marca UV. Verificar la firma en el celular no agrega nada (quien
+     `userVerification: "required"`, sin decir qué huella: la del celular.
+  3. **Verifica lo que la pantalla necesita, sin la firma:** que la huella que contestó sea de la
+     persona del permiso (`userHandle`, el identificador de la persona que se guardó al
+     vincularla) y que traiga la marca UV. Verificar la firma en el celular no agrega nada (quien
      pueda tocar el código del celular se la saltea), así que no se hace y no hace falta la llave
      pública en el celular (revisión de diseño, 3.1). Si falla o se cancela, no entra (E13).
-  4. Crea la llave de prueba de esa entrada, suma la entrada a lo pendiente y entra como entra
-     siempre (`signedIn()`), con la persona guardada: directo al marco, sin «Entrando» (R2.6, E07).
+  4. Crea la llave de prueba, suma la entrada a lo pendiente y entra con la persona guardada
+     (`signedInOffline()`, con el `id` de la entrada): directo al marco, sin «Entrando» (R2.6, E07).
+     Una versión nueva no se aplica sin conexión: espera a que vuelva.
 - **El corte de las 24 horas** (R2.7, E14) se mira al arrancar la aplicación, cada minuto, y al
-  volver a la vista (un temporizador largo se atrasa con el celular dormido). Cumplido, aparece la
-  entrada encima, sin borrar nada, con todo apagado. Lo pendiente sigue pendiente.
+  volver a la vista (un temporizador largo se atrasa con el celular dormido). Cuenta desde el
+  último contacto, aunque se haya apagado la opción. Cumplido, aparece la entrada encima, sin
+  borrar nada, con todo apagado. Lo pendiente sigue pendiente.
 - La aplicación abre sin red porque el service worker guarda el esqueleto al instalarse, y lo de
   entrar (con esta parte) está en el esqueleto: suma unos 3 KB al tope de 60 KB.
 
@@ -202,14 +210,16 @@ La firma guardada no sirve para otra cosa: está atada a su `id`, que se usa una
 
 Una sola función, `sendPending()`, que llaman `boot` (al abrir, antes de `/api/start`) y `recheck`
 (al volver la red), manda lo pendiente en orden: la salida pendiente (diseño de 01, § 7) y después
-cada entrada sin conexión. Es la base de la cola de la etapa b. Para cada entrada:
+cada entrada sin conexión. Es la base de la cola de la etapa b. Mientras la sesión abierta sin
+conexión no se confirma, `/api/start` sin persona no la cierra: sigue hasta confirmarse o hasta las
+24 horas. Para cada entrada:
 
 - `openSession` es `true` solo para la última, si es la sesión que el celular tiene ahora (no salió
   ni entró otra persona). Así una confirmación de A nunca pisa la cookie de B (revisión de diseño,
   1.5).
 - **Qué la borra:** cualquier respuesta del servidor salvo «probá después». «Probá después» es: sin
-  red o sin JSON, `too-many-attempts` y `update-required` (se actualiza la aplicación y se manda
-  con la versión nueva).
+  red o sin JSON, `too-many-attempts`, `update-required` (se actualiza la aplicación y se manda
+  con la versión nueva) y `unexpected`.
   - Confirmada (E15): la cookie quedó puesta y todo sigue.
   - `offline-not-confirmed` o `not-authorized` (E16, E17) con `openSession`: aparece la entrada
     encima, sin borrar nada, con «No se pudo confirmar tu entrada sin conexión» o el de no
@@ -291,7 +301,8 @@ Nada nuevo de `realtime`.
 |---|---|
 | E01 a E05 | Unitarias del renglón de Más y de lo guardado; el servidor con `offline` en la persona |
 | E06, E08, E09, E12, E14 | Unitarias de `useOfflineEntry` con el reloj falso; captura de la entrada sin conexión (`tests/screens/`) |
-| E07, E11, E13, E15, E21 | De punta a punta con el autenticador virtual de Chrome, cortando la red (si el autenticador no firma con la red cortada, se corta solo el servidor) |
+| E07, E11, E15 | De punta a punta (`tests/e2e/offline.spec.ts`), con el autenticador virtual de Chrome y la red cortada: vincular, prender la opción, salir, entrar con la huella y confirmarse al volver la red |
+| E13, E21 | Unitarias de la entrada sin conexión y de salir de ella |
 | E10, E16, E17 | Unitarias de `sendPending` y de la ruta |
 | E18 a E20 | La ruta del servidor, con firmas de verdad hechas en la prueba: repetida, de otra huella, con un dato cambiado, de otra cuenta |
 | Seguridad | El plazo no se mueve con `/api/start` sin sesión (revisión de seguridad, 1); sin sesión no sale nada de la huella (2); el límite por cuenta (3); la firma mala no deja fila (4) |

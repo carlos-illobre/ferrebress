@@ -47,6 +47,15 @@ function enter(saved: Saved): void {
   person.set(who);
 }
 
+// Recién vinculada su huella, la persona puede prender «Trabajar sin conexión» (15 · R1).
+export function canGoOffline(): void {
+  const saved = readStored<Saved>(sessionKey);
+  if (!saved) return;
+  const who = { ...saved.person, offline: true as const };
+  store(sessionKey, { ...saved, person: who });
+  person.set(who);
+}
+
 // Lo que dijo /api/start al abrir: quién tiene la sesión ahora, o nadie.
 export function confirmed(who: Person | undefined): void {
   const saved = readStored<Saved>(sessionKey);

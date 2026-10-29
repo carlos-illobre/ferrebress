@@ -4,6 +4,7 @@
 import type { OfflineSignInBody } from '@ferrebress/shared/contracts/offline-sign-in';
 import type {
   ApproveCodeBody,
+  LinkPasskeyResponse,
   NonceResponse,
   ReadCodeResponse,
   SignInResponse,
@@ -26,7 +27,7 @@ export const signInApi = {
   passkey: (response: Json, proofPublicKey: string) =>
     api<SignInResponse>('/api/sign-in/passkey', { response, proofPublicKey }),
   linkOptions: () => api<Json>('/api/passkeys/options', {}),
-  link: (response: Json) => api<Ok>('/api/passkeys', { response }),
+  link: (response: Json) => api<LinkPasskeyResponse>('/api/passkeys', { response }),
   // La pestaña va para que recargarla reemplace su pantalla (01 · R2.5).
   openScreen: () => api<Ok>('/api/sign-in/codes', { tab: tabId() }),
   readCode: (code: string) => api<ReadCodeResponse>('/api/sign-in/codes/read', { code }),
