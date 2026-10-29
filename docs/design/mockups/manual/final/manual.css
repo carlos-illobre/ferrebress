@@ -25,10 +25,17 @@ body.alt .kbd-alt { display: inline-flex; }
 .punto-toque::before { background: rgba(232, 84, 28, .14); }
 .punto-toque::after { animation: latido 1.6s var(--curva) infinite; }
 @keyframes latido { from { transform: scale(1); opacity: .9; } to { transform: scale(2); opacity: 0; } }
-/* La leyenda del punto: afuera de la captura, en el gris del escenario, para que no se lea como
-   parte de la pantalla. El aro repite el del punto. */
-.punto-leyenda { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--tinta); font-size: 15px; font-weight: 650; }
-.punto-ref { flex: none; width: 16px; height: 16px; border-radius: 99px; border: 3px solid var(--accion); background: rgba(232, 84, 28, .14); }
+/* El rótulo del punto: al costado, en diagonal, con una flecha hacia el aro, para que se lea como
+   una nota del manual y no como un botón de la pantalla */
+.punto-rotulo { position: absolute; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; background: var(--accion); color: #fff; font-weight: 750; font-size: 14px; padding: 4px 10px 4px 6px; border-radius: 8px; box-shadow: var(--sombra-accion); pointer-events: none; z-index: 2; }
+.punto-flecha { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.punto-rotulo.der.abajo { transform: translate(18px, 18px); }
+.punto-rotulo.izq.abajo { transform: translate(calc(-100% - 18px), 18px); flex-direction: row-reverse; padding: 4px 6px 4px 10px; }
+.punto-rotulo.izq.abajo .punto-flecha { transform: scaleX(-1); }
+.punto-rotulo.der.arriba { transform: translate(18px, calc(-100% - 18px)); }
+.punto-rotulo.der.arriba .punto-flecha { transform: scaleY(-1); }
+.punto-rotulo.izq.arriba { transform: translate(calc(-100% - 18px), calc(-100% - 18px)); flex-direction: row-reverse; padding: 4px 6px 4px 10px; }
+.punto-rotulo.izq.arriba .punto-flecha { transform: scale(-1, -1); }
 
 /* «Pronto»: los capítulos que no están escritos (solo en el ambiente de pruebas) */
 .pronto { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 99px; background: var(--hundido-2); color: var(--texto-2); font-size: 14px; font-weight: 700; }
@@ -123,7 +130,7 @@ body { overflow: hidden; }
 .guia-cerrar { display: none; }
 
 .escenario { grid-area: esc; position: relative; min-height: 0; border-radius: 20px; background: var(--hundido); overflow: hidden; touch-action: pan-y; }
-.capa { position: absolute; inset: 0; display: grid; grid-template-rows: minmax(0, 1fr); grid-auto-rows: auto; gap: 12px; place-items: center; padding: 20px; transition: opacity var(--t-nav), transform var(--t-nav) var(--curva); }
+.capa { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; transition: opacity var(--t-nav), transform var(--t-nav) var(--curva); }
 .capa.entra { opacity: 0; transform: translateX(24px); }
 .capa.entra.atras { transform: translateX(-24px); }
 .capa.sale { opacity: 0; transform: translateX(-24px); }

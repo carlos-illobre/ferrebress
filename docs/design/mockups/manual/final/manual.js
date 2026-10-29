@@ -67,18 +67,47 @@
   }
 
   /* ---------- El paso a paso ---------- */
+  /* El rótulo va al costado del punto, en diagonal, con una flecha que lo señala: debajo y centrado
+     parecía un botón de la pantalla. Cerca de un borde, cambia de lado. Va afuera de la captura, en
+     la capa, para poder salir del marco y leerse entero; placeLabel lo pone junto al punto. */
   function hotHTML(st) {
     return '<span class="punto-toque" style="left:' + st.hot[0] + '%;top:' + st.hot[1] + '%"></span>';
   }
-  /* El rótulo va afuera de la captura, como leyenda: adentro parecía un botón de la pantalla */
-  function legendHTML(st) {
-    return '<p class="punto-leyenda"><span class="punto-ref" aria-hidden="true"></span>' + st.label + '</p>';
+  function labelHTML(st) {
+    var cls = (st.hot[0] > 60 ? " izq" : " der") + (st.hot[1] > 75 ? " arriba" : " abajo");
+    var arrow = '<svg class="punto-flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20 6 6M6 15V6h9"/></svg>';
+    return '<span class="punto-rotulo' + cls + '">' + arrow + st.label + '</span>';
   }
+  /* Una captura de la computadora más alta que el escenario se achica entera: recortada, el punto
+     (en % de la imagen) caía fuera de lugar */
+  function fitCapture(layer) {
+    var cap = layer.querySelector(".captura.compu"), im = cap && cap.querySelector("img");
+    if (!im || !im.naturalWidth) return;
+    cap.style.width = "";
+    var pad = parseFloat(getComputedStyle(layer).paddingTop) * 2, room = layer.clientHeight - pad;
+    var h = cap.clientWidth * im.naturalHeight / im.naturalWidth;
+    if (h > room) cap.style.width = Math.floor(room * im.naturalWidth / im.naturalHeight) + "px";
+  }
+  function placeLabel(layer) {
+    fitCapture(layer);
+    var dot = layer.querySelector(".punto-toque"), label = layer.querySelector(".punto-rotulo");
+    if (!dot || !label) return;
+    var box = layer.getBoundingClientRect(), d = dot.getBoundingClientRect();
+    label.style.left = (d.left + d.width / 2 - box.left) + "px";
+    label.style.top = (d.top + d.height / 2 - box.top) + "px";
+    label.style.marginLeft = "0px";
+    /* Si igual no entra en el escenario, se corre hacia adentro */
+    var r = label.getBoundingClientRect(), pad = 8, shift = 0;
+    if (r.right > box.right - pad) shift = box.right - pad - r.right;
+    if (r.left + shift < box.left + pad) shift = box.left + pad - r.left;
+    label.style.marginLeft = shift + "px";
+  }
+  window.addEventListener("resize", function () { var l = esc && esc.querySelector(".capa:last-child"); if (l) placeLabel(l); });
   function capClass(name) { return name.indexOf("phone") === 0 ? "celu-cap" : "compu"; }
   function layerHTML(st) {
     if (st.cap) {
       lastCap = st;
-      return '<div class="captura ' + capClass(st.cap) + '"><img src="' + M.cap(st.cap) + '" alt="Captura: ' + M.escape(st.label) + '">' + hotHTML(st) + '</div>' + legendHTML(st);
+      return '<div class="captura ' + capClass(st.cap) + '"><img src="' + M.cap(st.cap) + '" alt="Captura: ' + M.escape(st.label) + '">' + hotHTML(st) + '</div>' + labelHTML(st);
     }
     /* Paso sin captura propia: un ícono grande sobre la captura anterior velada */
     var bg = lastCap ? '<div class="captura ' + capClass(lastCap.cap) + '"><img src="' + M.cap(lastCap.cap) + '" alt=""></div>' : "";
@@ -92,6 +121,8 @@
     layer.innerHTML = layerHTML(st);
     esc.innerHTML = ""; if (old) esc.appendChild(old);
     esc.appendChild(layer); paint(layer);
+    placeLabel(layer);
+    layer.querySelectorAll("img").forEach(function (im) { im.addEventListener("load", function () { placeLabel(layer); }); });
     if (old) { old.classList.add("sale"); if (dir < 0) old.classList.add("atras"); setTimeout(function () { old.remove(); }, 320); }
     requestAnimationFrame(function () { requestAnimationFrame(function () { layer.classList.remove("entra", "atras"); }); });
 
