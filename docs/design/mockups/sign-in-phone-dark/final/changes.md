@@ -67,8 +67,9 @@ Arriba a la izquierda, las herramientas de la maqueta: el momento de Google (en 
 - **La foto es la que pasó Carlos, generada con Microsoft Copilot**: una ferretería genérica con
   estantes y el mostrador de madera adelante, sin marcas ni un local real. Microsoft no reclama las
   imágenes que genera; Carlos lo consultó y decidió usarla, también en producción. La foto:
-  desenfocada (así la quiere: que se lea como fondo, no como foto nítida). Se achicó a 780 × 1170 px
-  en WebP (`background-phone.webp`, 33 kB), lo justo para un celular con pantalla densa, porque se
+  bien desenfocada (así la quiere: que se lea como fondo, no como foto nítida; el desenfoque está en
+  la imagen, así el celular no lo calcula). Se achicó a 780 × 1170 px en WebP
+  (`background-phone.webp`, 19 kB), lo justo para un celular con pantalla densa, porque se
   baja con datos. Encima va el degradado, más claro que con la foto anterior para que se vea la
   ferretería, y los textos siguen leyéndose bien.
 
