@@ -58,7 +58,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
     dice lo mismo que la entrada (R1.3, R2.9), con la cuenta regresiva.
   - Leer el código con «Escanear»: si el celular no puede abrir la cámara, dice «No se pudo abrir
     la cámara. Podés leer el código con la cámara del celular.». Un QR que no es de Ferrebress no
-    hace nada: la cámara sigue leyendo.
+    hace nada: la cámara sigue leyendo. El botón atrás del celular cierra la cámara y vuelve a la
+    entrada, sin salir de la aplicación.
   - La computadora se entera en el momento, sin preguntar a ritmo fijo: espera por un canal
     abierto solo mientras el código está en pantalla (capítulo 00, R4.3).
 - **R2.6** La computadora entra con el celular solo leyendo el código QR de Ferrebress. No se usa la

@@ -1,7 +1,9 @@
 // «Escanear código QR» en el celular (R2.7): la cámara a pantalla completa con su
 // marco; al leer un código de esta aplicación, se cierra y sigue como si se hubiera abierto su
-// dirección. Si no hay cámara o no dan permiso, lo dice.
+// dirección. Si no hay cámara o no dan permiso, lo dice. El botón atrás del celular la cierra y
+// vuelve a la entrada.
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { useBackStep } from '../../../../platform/back-step.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { codeOf } from '../../codes/qr.ts';
 import { scan } from '../../codes/scanner.ts';
@@ -16,6 +18,7 @@ export function Camera({
 }) {
   const video = useRef<HTMLVideoElement>(null);
   const [failed, setFailed] = useState(false);
+  useBackStep(onClose);
 
   useEffect(() => {
     const scanning = scan(
