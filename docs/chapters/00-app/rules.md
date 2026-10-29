@@ -109,8 +109,9 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   paso de una tarea que se hace en el otro dispositivo (por ejemplo, entrar a la computadora con el
   celular): ese paso se muestra igual, con la captura del otro dispositivo y una aclaración de
   dónde se hace, para que la tarea no quede cortada.
-- **R6.4** Tiene un capítulo por módulo, en el orden del menú; los módulos que no están en el menú
-  van después, en el orden en que se programan. En el ambiente de pruebas, los que todavía no están
+- **R6.4** Tiene un capítulo por módulo, en el orden que elige Carlos, que puede cambiar cuando
+  quiera; hoy, el del menú, y después los módulos que no están en el menú, en el orden en que se
+  programan. En el ambiente de pruebas, los que todavía no están
   escritos dicen «pronto» y no se abren; en producción no aparecen. Entrar sin conexión se explica
   en «Entrar», donde lo busca quien no puede entrar; «Trabajar sin conexión» lleva ahí.
 - **R6.5** Cada capítulo tiene texto simple, para quien atiende una ferretería sin saber de
@@ -277,7 +278,7 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   elegido Celular, y todo lo que se ve es del celular; al elegir Computadora, todo cambia a lo de la
   computadora.
 - **E35** **Dado** el índice en el ambiente de pruebas, **cuando** se lo mira, **entonces** están
-  todos los capítulos en el orden del menú; los que no están escritos dicen «pronto» y no se abren.
+  todos los capítulos en el orden elegido; los que no están escritos dicen «pronto» y no se abren.
   En producción solo están los escritos.
 - **E36** **Dado** el buscador, **cuando** se escribe «huella», **entonces** muestra lo encontrado del
   dispositivo elegido, con su capítulo, y al elegir un resultado lleva a esa parte.
