@@ -33,14 +33,24 @@
 @layer screens {
   @media (max-width: 899px) {
     .sign-in[data-device="phone"] {
+      /* Ocupa la ventana con su propio borde y no con 100dvh, como el marco: instalada como
+         aplicación, Android calcula esa altura al abrir con la de la pantalla de bienvenida, y el
+         pie quedaba abajo del borde hasta que algo hacía recalcular la pantalla (girarla). La altura
+         de la ventana es la del contenedor (cqh). */
+      position: fixed;
+      inset: 0;
+      min-height: 0;
+      overflow-y: auto;
+      container-type: size;
       /* Cuánto le falta a la pantalla para que entre todo, con el pie: en un celular bajo (o con las
          barras del navegador a la vista), los espacios grandes se achican lo justo, en proporción.
          Con lugar, son los de la maqueta. */
-      --short: max(0px, 880px - 100dvh);
+      --short: max(0px, 880px - 100cqh);
       background: var(--dark-background);
       font-family: var(--dark-font);
 
       .scene {
+        min-height: 100cqh;
         isolation: isolate;
         gap: 0;
         padding: 0 28px max(14px, 34px - var(--short) * 0.12);

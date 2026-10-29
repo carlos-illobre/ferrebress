@@ -478,7 +478,9 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
   foto, la letra Google Sans y el botón blanco de Google, con `theme: 'outline'`, son solo de ella).
   En la oscura, el botón de Google se pide más angosto y se agranda un 20 % con `transform`
   (Google no lo dibuja de más de 40 px de alto), y los espacios grandes se achican con la altura
-  de la pantalla (`--short`), así se ve todo hasta el pie sin correrla. «Entrando» en la
+  de la pantalla (`--short`), así se ve todo hasta el pie sin correrla. Como el marco, ocupa la
+  ventana con su propio borde (`position: fixed`) y mide su alto como contenedor (`cqh`), no con
+  `100dvh`: instalada, Android calcula esa altura al abrir con la de la pantalla de bienvenida. «Entrando» en la
   computadora, desde `docs/design/mockups/sign-in-entering/final/` (en el celular, la capa
   «Entrando» de la entrada); el marco, desde `docs/design/mockups/app-frame/final/`.
 - **«Entrando» (R2.11):** un valor compartido dice cómo se está entrando. Lo prende el pedido que
