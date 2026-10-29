@@ -1,0 +1,67 @@
+/* Manual · piezas que comparten las tres variantes. Los valores salen de common.css. */
+
+mark { background: var(--urgente-suave); color: var(--tinta); border-radius: 4px; padding: 0 2px; box-shadow: inset 0 -2px 0 var(--urgente); }
+
+/* Teclas con Alt: escondidas hasta que se mantiene Alt */
+.kbd-alt { display: none; }
+body.alt .kbd-alt { display: inline-flex; }
+body.alt .kbd-sin-alt { display: none; }
+
+/* Captura de la aplicación: siempre en su marco, con sombra de objeto */
+.captura { position: relative; border-radius: 12px; overflow: hidden; background: var(--hundido); box-shadow: 0 0 0 1px var(--borde), var(--sombra-2); }
+.captura img { width: 100%; height: auto; }
+.captura.celu-cap { border-radius: 28px; box-shadow: 0 0 0 6px #1A1D1B, 0 0 0 7px #3a3f3c, var(--sombra-3); }
+.captura .pie-cap { position: absolute; left: 8px; bottom: 8px; }
+
+/* El punto que señala dónde tocar, con su rótulo */
+.punto-toque { position: absolute; transform: translate(-50%, -50%); width: 40px; height: 40px; pointer-events: none; }
+.punto-toque::before, .punto-toque::after { content: ""; position: absolute; inset: 0; border-radius: 99px; border: 3px solid var(--accion); }
+.punto-toque::before { background: rgba(232, 84, 28, .14); }
+.punto-toque::after { animation: latido 1.6s var(--curva) infinite; }
+@keyframes latido { from { transform: scale(1); opacity: .9; } to { transform: scale(2); opacity: 0; } }
+.punto-rotulo { position: absolute; transform: translate(-50%, 28px); white-space: nowrap; background: var(--accion); color: #fff; font-weight: 750; font-size: 14px; padding: 4px 10px; border-radius: 99px; box-shadow: var(--sombra-accion); pointer-events: none; }
+
+/* Captura que todavía no se sacó: neutra, nunca un relleno de otra pantalla */
+.sin-captura { display: grid; place-items: center; text-align: center; gap: 8px; padding: 24px; border: 2px dashed var(--borde-fuerte); border-radius: 12px; color: var(--texto-3); font-weight: 650; font-size: 14px; background: var(--hundido); }
+.sin-captura .i { color: var(--texto-3); }
+
+/* «Pronto»: los capítulos que no están escritos (solo en pruebas) */
+.pronto { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 99px; background: var(--hundido-2); color: var(--texto-2); font-size: 14px; font-weight: 700; }
+
+/* Tostada */
+.m-tostada { position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 16px); opacity: 0; z-index: 90; pointer-events: none; transition: transform var(--t) var(--curva), opacity var(--t); }
+.m-tostada.ver { transform: translate(-50%, 0); opacity: 1; }
+
+/* El clip: escena armada con capturas, arranca cuando se lo pide, sin sonido */
+.clip { position: relative; border-radius: 16px; overflow: hidden; background: var(--pino); aspect-ratio: 16 / 9; color: #fff; }
+.clip-escena { position: absolute; inset: 0; }
+.clip-compu { position: absolute; left: 6%; top: 10%; width: 72%; border-radius: 8px; box-shadow: var(--sombra-3); opacity: .55; transition: opacity var(--t-nav); }
+.clip-celu { position: absolute; right: 7%; top: 14%; width: 24%; border-radius: 18px; overflow: hidden; box-shadow: 0 0 0 4px #0b0d0c, var(--sombra-3); transform: translateY(8%); opacity: .55; }
+.clip-scan { position: absolute; left: 8%; right: 8%; top: 74%; height: 3px; background: var(--accion); border-radius: 3px; opacity: 0; }
+.clip-ok { position: absolute; left: 6%; top: 10%; width: 72%; aspect-ratio: 1350 / 752; display: grid; place-content: center; justify-items: center; gap: 8px; background: rgba(18, 56, 47, .82); border-radius: 8px; opacity: 0; font-size: 20px; }
+.clip-ok .i { color: #7CE0AE; }
+.clip-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 12px; border: 0; background: linear-gradient(180deg, rgba(18,56,47,0) 30%, rgba(18,56,47,.65)); color: #fff; text-align: left; transition: opacity var(--t); }
+.clip-play b { display: block; font-size: 17px; }
+.clip-play small { display: block; font-size: 14px; opacity: .85; }
+.clip-boton { width: 56px; height: 56px; border-radius: 99px; background: var(--accion); display: grid; place-items: center; box-shadow: var(--sombra-accion); transition: transform var(--t-micro) var(--curva); }
+.clip-play:active .clip-boton { transform: scale(.94); }
+.clip-barra { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.18); }
+.clip-barra b { display: block; height: 100%; background: var(--accion); transform-origin: left; transform: scaleX(0); }
+.clip.corriendo .clip-play { opacity: 0; pointer-events: none; }
+.clip.corriendo .clip-barra b { animation: clip-barra 8s linear forwards; }
+.clip.corriendo .clip-compu { animation: clip-compu 8s var(--curva) forwards; }
+.clip.corriendo .clip-celu { animation: clip-celu 8s var(--curva) forwards; }
+.clip.corriendo .clip-scan { animation: clip-scan 8s linear forwards; }
+.clip.corriendo .clip-ok { animation: clip-ok 8s var(--curva) forwards; }
+@keyframes clip-barra { to { transform: scaleX(1); } }
+@keyframes clip-compu { 0% { opacity: .55; } 10%, 100% { opacity: 1; } }
+@keyframes clip-celu { 0% { opacity: .55; transform: translateY(8%); } 12% { opacity: 1; transform: translateY(0); } 30% { transform: translate(-30%, -6%) scale(1.15); } 62% { transform: translate(-30%, -6%) scale(1.15); } 75%, 100% { opacity: 1; transform: translate(0, 0); } }
+@keyframes clip-scan { 0%, 30% { opacity: 0; transform: translateY(0); } 34% { opacity: 1; } 40% { transform: translateY(-900%); } 46% { transform: translateY(0); } 52% { transform: translateY(-900%); opacity: 1; } 56%, 100% { opacity: 0; } }
+@keyframes clip-ok { 0%, 70% { opacity: 0; transform: scale(.98); } 78%, 100% { opacity: 1; transform: scale(1); } }
+.clip.visto .clip-play b::after { content: " otra vez"; }
+
+@media (prefers-reduced-motion: reduce) {
+  .clip.corriendo .clip-ok { opacity: 1; }
+}
+.punto-rotulo.der { transform: translate(calc(-100% + 20px), 28px); }
+.punto-rotulo.izq { transform: translate(-20px, 28px); }

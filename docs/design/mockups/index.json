@@ -73,6 +73,19 @@
     { "device": "phone", "name": "2 · La isla", "path": "mockups/app-notices/variant-2-island/index.html" },
     { "device": "phone", "name": "3 · La persiana", "path": "mockups/app-notices/variant-3-shutter/index.html" }
    ]
+  },
+  {
+   "id": "manual",
+   "title": "El manual",
+   "module": "01 · Entrar",
+   "variants": [
+    { "device": "desktop", "name": "1 · El libro", "path": "mockups/manual/desktop/variant-1-book/index.html" },
+    { "device": "desktop", "name": "2 · Paso a paso", "path": "mockups/manual/desktop/variant-2-guide/index.html" },
+    { "device": "desktop", "name": "3 · Mostrame", "path": "mockups/manual/desktop/variant-3-show-me/index.html" },
+    { "device": "phone", "name": "1 · El libro", "path": "mockups/manual/phone/variant-1-book/index.html" },
+    { "device": "phone", "name": "2 · Paso a paso", "path": "mockups/manual/phone/variant-2-guide/index.html" },
+    { "device": "phone", "name": "3 · Mostrame", "path": "mockups/manual/phone/variant-3-show-me/index.html" }
+   ]
   }
  ]
 }

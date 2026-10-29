@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual · variante 2 · paso a paso · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  html, body { height: 100%; }
+  body { overflow: hidden; }
+  .top { height: 64px; display: flex; align-items: center; gap: 20px; padding: 0 32px; background: var(--superficie); border-bottom: 1px solid var(--borde); }
+  .top img { height: 24px; width: auto; }
+  .top .m { font-weight: 800; color: var(--texto-2); padding-left: 12px; border-left: 1px solid var(--borde); }
+  .top .der { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+  .cuerpo { display: grid; grid-template-columns: 392px 1fr; height: calc(100vh - 64px); }
+
+  /* Columna de tareas: la pregunta y el buscador mandan */
+  .tareas { border-right: 1px solid var(--borde); display: flex; flex-direction: column; min-height: 0; background: var(--fondo); }
+  .preg { padding: 24px 24px 12px; }
+  .preg h1 { margin: 0 0 12px; font-size: 24px; line-height: 30px; }
+  .preg .campo { color: var(--tinta); }
+  .preg input { border: 0; outline: 0; flex: 1; background: transparent; font-weight: 600; min-width: 0; font-size: 16px; }
+  .preg .campo:focus-within { border-color: var(--pino); box-shadow: 0 0 0 4px rgba(18,56,47,.12); }
+  .lista { flex: 1; overflow: auto; padding: 4px 24px 24px; }
+  .grupo-t { font-size: 14px; font-weight: 700; color: var(--texto-3); margin: 12px 4px 8px; display: flex; align-items: center; gap: 8px; }
+  .tarea { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 12px; border-radius: 14px; border: 1px solid transparent; cursor: pointer; transition: background var(--t-micro); }
+  .tarea + .tarea { margin-top: 4px; }
+  .tarea:hover { background: var(--superficie); border-color: var(--borde); }
+  .tarea.activa { background: var(--superficie); border-color: var(--borde); box-shadow: var(--sombra-1); }
+  .tarea.activa .ico { background: var(--pino); color: #fff; }
+  .tarea.marcada { outline: 3px solid rgba(18,56,47,.35); outline-offset: 1px; }
+  .tarea .ico { width: 40px; height: 40px; border-radius: 12px; background: var(--pino-suave); color: var(--pino-texto); display: grid; place-items: center; }
+  .tarea .n { font-weight: 750; }
+  .tarea .d { font-size: 14px; color: var(--texto-2); display: flex; gap: 8px; align-items: center; }
+  .tarea .sn { font-size: 14px; color: var(--texto-2); line-height: 20px; }
+  .proximo { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px; }
+  .proximo span { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 99px; background: var(--hundido); color: var(--texto-2); font-size: 14px; font-weight: 650; }
+  .otro { font-size: 14px; color: var(--texto-2); padding: 12px 4px; display: flex; gap: 8px; align-items: center; }
+  .otro button { border: 0; background: none; padding: 0; color: var(--pino-texto); font-weight: 750; }
+
+  /* El reproductor de pasos */
+  .guia { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; padding: 20px 32px 24px; gap: 16px; }
+  .guia-cab { display: flex; align-items: center; gap: 12px; }
+  .guia-cab .t-seccion { margin: 0; }
+  .guia-cab .der { margin-left: auto; display: flex; gap: 8px; }
+  .escenario { position: relative; min-height: 0; border-radius: 20px; background: var(--hundido); overflow: hidden; display: grid; place-items: center; }
+  .escenario .capa { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; transition: opacity var(--t-nav), transform var(--t-nav) var(--curva); }
+  .escenario .capa.sale { opacity: 0; transform: translateX(-24px); }
+  .escenario .capa.entra { opacity: 0; transform: translateX(24px); }
+  .escenario .captura { max-height: 100%; }
+  .escenario .captura.compu { width: min(100%, 760px); }
+  .escenario .captura.celu-cap { height: 100%; max-height: 380px; width: auto; aspect-ratio: 374 / 828; }
+  .escenario .captura.celu-cap img { height: 100%; width: auto; }
+  .escenario .sin-captura { width: 70%; height: 70%; }
+  .velo { position: absolute; inset: 0; background: rgba(244,242,236,.72); display: grid; place-items: center; }
+  .velo .grande { width: 112px; height: 112px; border-radius: 99px; background: var(--superficie); box-shadow: var(--sombra-3); display: grid; place-items: center; color: var(--pino); animation: entra-ico 420ms var(--rebote); }
+  .velo .grande .i { width: 52px; height: 52px; }
+  @keyframes entra-ico { from { transform: scale(.7); opacity: 0; } }
+  .escenario .clip { position: absolute; inset: 20px; aspect-ratio: auto; }
+  .texto { display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; }
+  .numero { width: 56px; height: 56px; border-radius: 99px; background: var(--pino); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 24px; }
+  .frase { font-size: 22px; line-height: 30px; font-weight: 700; letter-spacing: -.01em; }
+  .frase-sub { font-size: 15px; color: var(--texto-2); margin-top: 4px; display: flex; gap: 8px; align-items: center; }
+  .ctrl { display: flex; gap: 8px; align-items: center; }
+  .avance { display: flex; gap: 6px; margin-top: 12px; }
+  .avance b { flex: 1; height: 6px; border-radius: 99px; background: var(--hundido-2); position: relative; overflow: hidden; cursor: pointer; }
+  .avance b::after { content: ""; position: absolute; inset: 0; background: var(--pino); transform: scaleX(0); transform-origin: left; transition: transform var(--t-nav) var(--curva); }
+  .avance b.hecho::after { transform: scaleX(1); }
+  .consejo { margin-top: 12px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress"><span class="m">Manual</span>
+  <div class="segmentos" style="margin-left:24px">
+    <button class="elegido" data-dev="desktop"><i class="i i-s" data-i="monitor"></i>Computadora <span class="kbd kbd-alt">C</span></button>
+    <button data-dev="phone"><i class="i i-s" data-i="smartphone"></i>Celular <span class="kbd kbd-alt">L</span></button>
+  </div>
+  <div class="der"><button class="btn" id="volver"><i class="i" data-i="arrow-left"></i>Volver a la entrada <span class="kbd">Esc</span></button></div>
+</header>
+<div class="cuerpo">
+  <aside class="tareas">
+    <div class="preg">
+      <h1>¿Qué querés hacer?</h1>
+      <label class="campo"><i class="i" data-i="search"></i><input id="q" placeholder="Escribí: entrar sin internet, salir…" autocomplete="off"><span class="kbd">/</span></label>
+    </div>
+    <div class="lista" id="lista"></div>
+  </aside>
+  <main class="guia">
+    <div class="guia-cab">
+      <span class="pastilla pino" id="g-cap">Entrar</span>
+      <h2 class="t-seccion" id="g-tit"></h2>
+      <div class="der"><button class="btn chico" id="ver-clip" style="display:none"><i class="i i-s" data-i="zap"></i>Ver el clip <span class="kbd">V</span></button><button class="btn chico btn-suave" id="todo"><i class="i i-s" data-i="list-checks"></i>Todos los pasos <span class="kbd">T</span></button></div>
+    </div>
+    <div class="escenario" id="esc"></div>
+    <div>
+      <div class="texto">
+        <span class="numero" id="num">1</span>
+        <div><div class="frase" id="frase"></div><div class="frase-sub" id="sub"></div></div>
+        <div class="ctrl"><button class="btn btn-icono" id="ant" aria-label="Paso anterior"><i class="i" data-i="arrow-left"></i></button><button class="btn btn-accion grande" id="sig">Siguiente <span class="kbd">→</span></button></div>
+      </div>
+      <div class="avance" id="avance"></div>
+      <div class="consejo" id="consejo"></div>
+    </div>
+  </main>
+</div>
+<script>
+(function () {
+  var M = window.MANUAL, dev = "desktop", sec = null, step = 0, lastCap = null, marked = 0;
+  var lista = document.getElementById("lista"), esc = document.getElementById("esc"), q = document.getElementById("q");
+
+  function sections() { return M.entrar[dev].sections; }
+  function renderList() {
+    var v = q.value.trim(), html = "";
+    if (v.length >= 2) {
+      var r = M.search(dev, v);
+      var found = r.filter(function (x) { return !x.pronto; });
+      html += '<div class="grupo-t">' + (found.length ? found.length + " encontradas" : "No encontré «" + v + "»") + '</div>';
+      html += found.map(function (x, i) { return taskHTML(x.section, M.mark(x.snippet, v), i === 0); }).join("");
+      r.filter(function (x) { return x.pronto; }).forEach(function (x) { html += '<div class="proximo"><span>' + x.chapter + ' · pronto</span></div>'; });
+      var o = M.otherDeviceCount(dev, v);
+      if (o) html += '<div class="otro"><i class="i i-s" data-i="' + (dev === "desktop" ? "smartphone" : "monitor") + '"></i>' + o + ' en el ' + (dev === "desktop" ? "celular" : "de la computadora") + ' <button id="cambiar">Ver</button></div>';
+    } else {
+      html += '<div class="grupo-t"><i class="i i-s" data-i="log-in"></i>Entrar</div>' + sections().map(function (s) { return taskHTML(s); }).join("");
+      html += '<div class="grupo-t" style="margin-top:20px">Próximos capítulos</div><div class="proximo">' + M.chapters.filter(function (c) { return !c.ready; }).map(function (c) { return '<span><i class="i i-s" data-i="' + c.icon + '"></i>' + c.name + '</span>'; }).join("") + '</div>';
+    }
+    lista.innerHTML = html; window.pintarIconos(lista);
+    marked = 0; mark();
+  }
+  function taskHTML(s, snippet, first) {
+    var caps = s.steps.length;
+    return '<div class="tarea' + (sec === s ? " activa" : "") + '" data-sec="' + s.id + '"><span class="ico"><i class="i" data-i="' + s.icon + '"></i></span><div><div class="n">' + s.title + '</div>' +
+      (snippet ? '<div class="sn">' + snippet + '</div>' : '<div class="d">' + caps + ' pasos' + (s.clip ? ' · con clip' : "") + (s.tag ? ' <span class="pastilla accion" style="height:24px">Más rápida</span>' : "") + '</div>') +
+      '</div><i class="i" data-i="chevron-right" style="color:var(--texto-3)"></i></div>';
+  }
+  function mark() { var t = lista.querySelectorAll(".tarea"); t.forEach(function (el, i) { el.classList.toggle("marcada", q.value.trim().length > 1 && i === marked); }); }
+
+  function capLayer(st) {
+    var html;
+    if (st.cap) {
+      lastCap = st;
+      var phone = st.cap.indexOf("phone") === 0;
+      html = '<div class="captura ' + (phone ? "celu-cap" : "compu") + '"><img src="' + M.cap(st.cap) + '" alt=""><span class="punto-toque" style="left:' + st.hot[0] + '%;top:' + st.hot[1] + '%"></span><span class="punto-rotulo' + (st.hot[0] > 65 ? ' der' : st.hot[0] < 35 ? ' izq' : '') + '" style="left:' + st.hot[0] + '%;top:' + st.hot[1] + '%">' + st.label + '</span></div>';
+    } else if (st.ph) {
+      lastCap = null;
+      html = '<div class="sin-captura"><i class="i i-xl" data-i="image"></i>Captura de la aplicación: ' + st.ph + '</div>';
+    } else if (lastCap) {
+      var p = lastCap.cap.indexOf("phone") === 0;
+      html = '<div class="captura ' + (p ? "celu-cap" : "compu") + '"><img src="' + M.cap(lastCap.cap) + '" alt=""></div><div class="velo"><span class="grande"><i class="i" data-i="' + M.stepIcon(st, sec) + '"></i></span></div>';
+    } else {
+      html = '<div class="velo" style="background:none"><span class="grande"><i class="i" data-i="' + M.stepIcon(st, sec) + '"></i></span></div>';
+    }
+    return html;
+  }
+  function show(dir) {
+    var st = sec.steps[step];
+    var old = esc.querySelector(".capa");
+    var layer = document.createElement("div"); layer.className = "capa" + (dir ? " entra" : ""); layer.innerHTML = capLayer(st);
+    if (dir < 0) layer.style.transform = "translateX(-24px)";
+    esc.appendChild(layer); window.pintarIconos(layer);
+    if (old) { old.classList.add("sale"); if (dir < 0) old.style.transform = "translateX(24px)"; setTimeout(function () { old.remove(); }, 320); }
+    requestAnimationFrame(function () { requestAnimationFrame(function () { layer.classList.remove("entra"); layer.style.transform = ""; }); });
+    document.getElementById("num").textContent = step + 1;
+    document.getElementById("frase").textContent = st.t;
+    document.getElementById("sub").innerHTML = "Paso " + (step + 1) + " de " + sec.steps.length + (sec.lead && step === 0 ? " · " + sec.lead : "");
+    document.getElementById("avance").innerHTML = sec.steps.map(function (_, i) { return '<b data-paso="' + i + '"' + (i <= step ? ' class="hecho"' : "") + '></b>'; }).join("");
+    var last = step === sec.steps.length - 1;
+    var sig = document.getElementById("sig");
+    var next = sections()[sections().indexOf(sec) + 1];
+    sig.innerHTML = last ? (next ? 'Siguiente: ' + next.title + ' <span class="kbd">→</span>' : 'Terminado <i class="i" data-i="check"></i>') : 'Siguiente <span class="kbd">→</span>';
+    window.pintarIconos(sig);
+    document.getElementById("ant").disabled = step === 0 && sections().indexOf(sec) === 0;
+    var tips = sec.tips || [];
+    document.getElementById("consejo").innerHTML = tips.length ? '<div class="aviso pino"><i class="i i-s" data-i="info"></i><span>' + tips[Math.min(step, tips.length - 1)] + '</span></div>' : "";
+    window.pintarIconos(document.getElementById("consejo"));
+  }
+  function open(s, keepList) {
+    sec = s; step = 0; lastCap = null;
+    document.getElementById("g-tit").textContent = s.title;
+    document.getElementById("ver-clip").style.display = s.clip ? "" : "none";
+    lista.querySelectorAll(".tarea").forEach(function (t) { t.classList.toggle("activa", t.dataset.sec === s.id); });
+    show(0);
+  }
+  function go(d) {
+    if (d > 0 && step < sec.steps.length - 1) { step++; show(1); }
+    else if (d > 0) { var n = sections()[sections().indexOf(sec) + 1]; if (n) { open(n); } }
+    else if (d < 0 && step > 0) { step--; show(-1); }
+    else if (d < 0) { var p = sections()[sections().indexOf(sec) - 1]; if (p) { open(p); step = p.steps.length - 1; show(-1); } }
+  }
+  document.getElementById("sig").addEventListener("click", function () { go(1); });
+  document.getElementById("ant").addEventListener("click", function () { go(-1); });
+  document.getElementById("avance").addEventListener("click", function (e) { var b = e.target.closest("[data-paso]"); if (b) { var n = +b.dataset.paso; var d = n > step ? 1 : -1; step = n; show(d); } });
+  document.getElementById("ver-clip").addEventListener("click", function () {
+    var layer = document.createElement("div"); layer.className = "capa"; layer.innerHTML = M.clipHTML();
+    esc.innerHTML = ""; esc.appendChild(layer); window.pintarIconos(layer); M.wireClips(layer); layer.querySelector(".clip-play").click();
+  });
+  document.getElementById("todo").addEventListener("click", function () {
+    var html = '<div class="capa"><div class="tarjeta" style="padding:24px;width:min(640px,100%);max-height:100%;overflow:auto"><div class="t-etiqueta">' + sec.title + ' · todos los pasos</div><ol style="margin:12px 0 0;padding-left:24px;display:grid;gap:10px;font-size:17px">' + sec.steps.map(function (s) { return "<li>" + s.t + "</li>"; }).join("") + '</ol></div></div>';
+    esc.innerHTML = html;
+  });
+  lista.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-sec]"); if (t) open(sections().filter(function (s) { return s.id === t.dataset.sec; })[0]);
+    if (e.target.closest("#cambiar")) setDev(dev === "desktop" ? "phone" : "desktop");
+  });
+  function setDev(d) {
+    dev = d; document.querySelectorAll("[data-dev]").forEach(function (b) { b.classList.toggle("elegido", b.dataset.dev === d); });
+    renderList(); open(sections()[0]);
+  }
+  document.querySelectorAll("[data-dev]").forEach(function (b) { b.addEventListener("click", function () { setDev(b.dataset.dev); }); });
+  q.addEventListener("input", function () { clearTimeout(q._t); q._t = setTimeout(renderList, 150); });
+  q.addEventListener("keydown", function (e) {
+    var t = lista.querySelectorAll(".tarea");
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); if (t.length) { marked = (marked + (e.key === "ArrowDown" ? 1 : t.length - 1)) % t.length; mark(); } }
+    if (e.key === "Enter" && t[marked]) { t[marked].click(); q.blur(); }
+    if (e.key === "Escape") { e.stopPropagation(); q.value = ""; renderList(); q.blur(); }
+  });
+  M.altKeys();
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey && /^[cC]$/.test(e.key)) { e.preventDefault(); setDev("desktop"); }
+    if (e.altKey && /^[lL]$/.test(e.key)) { e.preventDefault(); setDev("phone"); }
+    if (document.activeElement === q && q.value) return;
+    if (e.key === "ArrowRight") go(1);
+    if (e.key === "ArrowLeft") go(-1);
+    if (document.activeElement === q) return;
+    if (e.key === "/") { e.preventDefault(); q.focus(); }
+    if (e.key === "v" || e.key === "V") document.getElementById("ver-clip").click();
+    if (e.key === "t" || e.key === "T") document.getElementById("todo").click();
+    if (e.key === "Escape") M.toast("Vuelve a la entrada, donde estabas");
+  });
+  document.getElementById("volver").addEventListener("click", function () { M.toast("Vuelve a la entrada, donde estabas"); });
+  renderList(); open(sections()[0]); q.focus();
+})();
+</script>
+</body>
+</html>

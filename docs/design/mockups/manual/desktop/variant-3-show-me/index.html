@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual · variante 3 · mostrame · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  html, body { height: 100%; }
+  body { overflow: hidden; background: #0f1513; }
+  .escenario { position: fixed; inset: 0; display: grid; place-items: center; }
+  .escenario.celular { background: radial-gradient(120% 90% at 50% 40%, #24443b, #0f1513); }
+  .lienzo { position: relative; transition: opacity var(--t-nav), transform var(--t-nav) var(--curva); }
+  .lienzo.cambia { opacity: 0; transform: scale(.98); }
+  .escenario.compu .lienzo { width: 100vw; height: 100vh; }
+  .escenario.compu .lienzo > img { width: 100%; height: 100%; object-fit: fill; }
+  .escenario.celular .lienzo { height: 640px; aspect-ratio: 374 / 828; border-radius: 36px; box-shadow: 0 0 0 9px #0b0d0c, 0 0 0 10px #3a3f3c, 0 40px 80px -20px rgba(0,0,0,.6); overflow: visible; }
+  .escenario.celular .lienzo > img { width: 100%; height: 100%; border-radius: 36px; }
+  .lienzo .sin-captura { position: absolute; inset: 0; border-radius: inherit; background: var(--fondo); font-size: 16px; }
+  .escenario.compu .lienzo .sin-captura { inset: 0; border: 0; border-radius: 0; }
+  /* el foco: todo se oscurece menos lo que se explica */
+  .foco { position: absolute; left: 0; top: 0; width: 132px; height: 132px; margin: -66px 0 0 -66px; border-radius: 99px; box-shadow: 0 0 0 200vmax rgba(8, 12, 10, .58); pointer-events: none; transition: transform 420ms var(--curva), opacity var(--t); opacity: 0; z-index: 2; }
+  .foco.ver { opacity: 1; }
+  .foco::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; border: 3px solid var(--accion); }
+  .punto { position: absolute; transform: translate(-50%, -50%); width: 36px; height: 36px; border-radius: 99px; border: 0; background: var(--accion); color: #fff; font-weight: 800; font-size: 16px; display: grid; place-items: center; box-shadow: 0 0 0 4px rgba(255,255,255,.9), var(--sombra-accion); z-index: 3; transition: transform var(--t-micro) var(--curva); }
+  .punto::after { content: ""; position: absolute; inset: -4px; border-radius: 99px; border: 3px solid var(--accion); animation: latido 1.8s var(--curva) infinite; }
+  .punto:hover, .punto.activo { transform: translate(-50%, -50%) scale(1.12); }
+  .punto.activo::after { animation: none; opacity: 0; }
+  /* lo que flota */
+  .chip-top { position: fixed; top: 20px; display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 16px 0 8px; border-radius: 99px; background: rgba(255,255,255,.94); backdrop-filter: blur(12px); box-shadow: var(--sombra-3); z-index: 10; font-weight: 750; }
+  .chip-top.izq { left: 24px; }
+  .chip-top.der { right: 24px; padding: 0 8px 0 16px; border: 0; }
+  .chip-top .iso { width: 32px; height: 32px; border-radius: 99px; background: var(--pino); display: grid; place-items: center; }
+  .chip-top .iso img { width: 18px; height: 18px; }
+  .chip-top .t-detalle { font-weight: 600; }
+  .globo { position: fixed; width: 392px; background: var(--superficie); border-radius: 20px; box-shadow: var(--sombra-3); padding: 20px; z-index: 12; opacity: 0; transform: translateY(8px) scale(.98); pointer-events: none; transition: opacity var(--t), transform var(--t) var(--curva); }
+  .globo.ver { opacity: 1; transform: none; pointer-events: auto; }
+  .globo .k { font-size: 14px; font-weight: 700; color: var(--pino-texto); display: flex; align-items: center; gap: 8px; }
+  .globo h2 { margin: 4px 0 4px; }
+  .globo ol { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: p; }
+  .globo li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; font-size: 15px; line-height: 22px; counter-increment: p; }
+  .globo li::before { content: counter(p); width: 24px; height: 24px; border-radius: 99px; background: var(--pino); color: #fff; font-weight: 800; font-size: 14px; display: grid; place-items: center; }
+  .globo .tip { margin-top: 12px; }
+  .globo .pie { display: flex; gap: 8px; margin-top: 16px; align-items: center; }
+  .globo .pie .btn-accion { margin-left: auto; }
+  .globo .clip { margin-top: 12px; }
+  .dock { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 22px; background: rgba(255,255,255,.95); backdrop-filter: blur(14px); box-shadow: var(--sombra-3); z-index: 10; }
+  .dock .preguntar { display: flex; align-items: center; gap: 10px; height: 44px; width: 300px; padding: 0 12px; border-radius: 14px; background: var(--hundido); border: 0; color: var(--texto-3); font-weight: 600; text-align: left; }
+  .dock .preguntar .kbd { margin-left: auto; }
+  .pantallas { display: flex; gap: 4px; }
+  .pantallas button { white-space: nowrap; height: 44px; padding: 0 12px; border-radius: 12px; border: 0; background: transparent; font-weight: 700; font-size: 14px; color: var(--texto-2); display: inline-flex; align-items: center; gap: 6px; }
+  .pantallas button.elegido { background: var(--pino-suave); color: var(--pino); }
+  .sep { width: 1px; height: 28px; background: var(--borde); }
+  /* capítulos: una tira, Entrar prendido, lo demás «pronto» */
+  .tira { display: flex; gap: 4px; align-items: center; }
+  .tira span { width: 10px; height: 10px; border-radius: 99px; background: var(--hundido-2); }
+  .tira span.on { width: auto; height: 28px; padding: 0 10px; background: var(--pino); color: #fff; font-size: 14px; font-weight: 750; display: inline-flex; align-items: center; }
+  /* preguntar */
+  .paleta-fondo { position: fixed; inset: 0; background: rgba(8,12,10,.45); z-index: 20; opacity: 0; pointer-events: none; transition: opacity var(--t); }
+  .paleta { position: fixed; left: 50%; top: 120px; width: 620px; margin-left: -310px; background: var(--superficie); border-radius: 20px; box-shadow: var(--sombra-3); z-index: 21; opacity: 0; transform: translateY(-8px) scale(.98); pointer-events: none; transition: opacity var(--t), transform var(--t) var(--curva); overflow: hidden; }
+  body.preguntando .paleta, body.preguntando .paleta-fondo { opacity: 1; pointer-events: auto; }
+  body.preguntando .paleta { transform: none; }
+  .paleta .campo { border: 0; box-shadow: none; border-bottom: 1px solid var(--borde); border-radius: 0; height: 60px; color: var(--tinta); font-size: 18px; }
+  .paleta input { border: 0; outline: 0; flex: 1; font-weight: 650; font-size: 18px; min-width: 0; }
+  .respuesta { padding: 16px 20px 20px; }
+  .respuesta .r { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 12px; border-radius: 14px; }
+  .respuesta .r.marcado { background: var(--hundido); }
+  .respuesta .r .c { font-size: 14px; color: var(--pino-texto); font-weight: 700; }
+  .respuesta .r .s { font-size: 15px; color: var(--texto-2); }
+  .respuesta .sug { display: flex; flex-wrap: wrap; gap: 8px; }
+  .respuesta .sug button { height: 36px; padding: 0 14px; border-radius: 99px; border: 1px solid var(--borde-fuerte); background: var(--superficie); font-weight: 650; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="escenario compu" id="esc"><div class="lienzo" id="lienzo"></div></div>
+
+<div class="chip-top izq"><button class="btn chico btn-suave" id="volver" style="border-radius:99px"><i class="i i-s" data-i="arrow-left"></i>Volver a la entrada <span class="kbd">Esc</span></button><span class="iso"><img src="../../../../common/brand/isotype.svg" alt=""></span>Manual · Entrar <span class="t-detalle" id="pista">Tocá un número</span></div>
+
+<div class="globo" id="globo"></div>
+
+<div class="dock">
+  <div class="segmentos"><button class="elegido" data-dev="desktop"><i class="i i-s" data-i="monitor"></i>Computadora</button><button data-dev="phone"><i class="i i-s" data-i="smartphone"></i>Celular</button></div>
+  <div class="sep"></div>
+  <div class="pantallas" id="pantallas"></div>
+  <div class="sep"></div>
+  <button class="preguntar" id="preguntar"><i class="i" data-i="search"></i>Preguntale al manual <span class="kbd">Ctrl K</span></button>
+  <div class="sep"></div>
+  <div class="tira" id="tira" title="Capítulos: Entrar; los demás, pronto"></div>
+</div>
+
+<div class="paleta-fondo" id="pfondo"></div>
+<div class="paleta" role="dialog" aria-label="Preguntale al manual">
+  <label class="campo"><i class="i i-l" data-i="search"></i><input id="q" placeholder="¿Cómo entro si no hay internet?" autocomplete="off"><span class="kbd">Esc</span></label>
+  <div class="respuesta" id="resp"></div>
+</div>
+
+<script>
+(function () {
+  var M = window.MANUAL, dev = "desktop", scr = 0, active = -1;
+  var esc = document.getElementById("esc"), lienzo = document.getElementById("lienzo"), globo = document.getElementById("globo");
+
+  function screens() { return M.screens[dev]; }
+  function render() {
+    var s = screens()[scr];
+    esc.className = "escenario " + (dev === "desktop" ? "compu" : "celular");
+    lienzo.innerHTML = (s.cap ? '<img src="' + M.cap(s.cap) + '" alt="' + s.name + '">' : '<div class="sin-captura"><i class="i i-xl" data-i="image"></i>Captura de la aplicación por sacar:<br>' + s.ph + '</div>') +
+      '<span class="foco" id="foco"></span>' +
+      s.spots.map(function (p, i) { return '<button class="punto" data-spot="' + i + '" style="left:' + p.x + '%;top:' + p.y + '%">' + (i + 1) + '</button>'; }).join("");
+    document.getElementById("pantallas").innerHTML = screens().map(function (x, i) { return '<button data-scr="' + i + '"' + (i === scr ? ' class="elegido"' : "") + '>' + x.name + '</button>'; }).join("");
+    window.pintarIconos(document);
+    active = -1; globo.classList.remove("ver");
+    document.getElementById("pista").textContent = s.spots.length + " puntos · Tab recorre";
+  }
+  function change(fn) { lienzo.classList.add("cambia"); globo.classList.remove("ver"); setTimeout(function () { fn(); render(); lienzo.classList.remove("cambia"); }, 200); }
+
+  function openSpot(i) {
+    var s = screens()[scr], p = s.spots[i]; if (!p) return;
+    active = i;
+    lienzo.querySelectorAll(".punto").forEach(function (b) { b.classList.toggle("activo", +b.dataset.spot === i); });
+    var r = lienzo.getBoundingClientRect(), x = r.width * p.x / 100, y = r.height * p.y / 100;
+    var foco = document.getElementById("foco"); foco.style.transform = "translate(" + x + "px," + y + "px)"; foco.classList.add("ver");
+    var sec = M.sectionById(dev, p.sec);
+    globo.innerHTML = '<div class="k"><i class="i i-s" data-i="' + sec.icon + '"></i>' + s.name + ' · ' + (i + 1) + ' de ' + s.spots.length + '</div><h2 class="t-seccion">' + sec.title + '</h2>' + (sec.lead ? '<div class="t-detalle">' + sec.lead + '</div>' : "") +
+      '<ol>' + sec.steps.map(function (st) { return '<li><span>' + st.t + '</span></li>'; }).join("") + '</ol>' +
+      (sec.tips ? '<div class="tip aviso pino"><i class="i i-s" data-i="info"></i><span>' + sec.tips[0] + '</span></div>' : "") +
+      '<div id="clip-aca"></div>' +
+      '<div class="pie">' + (sec.clip ? '<button class="btn chico" id="clip-btn"><i class="i i-s" data-i="zap"></i>Ver el clip</button>' : "") + '<button class="btn btn-fantasma chico" id="g-cerrar">Cerrar</button><button class="btn btn-accion chico" id="g-sig">' + (i < s.spots.length - 1 ? "Siguiente punto" : (scr < screens().length - 1 ? "Siguiente pantalla" : "Terminado")) + ' <span class="kbd">Tab</span></button></div>';
+    window.pintarIconos(globo);
+    var gx = r.left + x + 90, gw = 392;
+    if (gx + gw > innerWidth - 16) gx = r.left + x - 90 - gw;
+    if (gx < 16) gx = Math.min(innerWidth - gw - 16, Math.max(16, r.left + x - gw / 2));
+    globo.style.left = gx + "px";
+    globo.classList.remove("ver"); void globo.offsetWidth;
+    var h = globo.offsetHeight, gy = Math.min(innerHeight - h - 96, Math.max(84, r.top + y - 60));
+    globo.style.top = gy + "px"; globo.classList.add("ver");
+    var cb = document.getElementById("clip-btn");
+    if (cb) cb.addEventListener("click", function () { var c = document.getElementById("clip-aca"); c.innerHTML = M.clipHTML(); window.pintarIconos(c); M.wireClips(c); c.querySelector(".clip-play").click(); cb.remove(); var g = globo.getBoundingClientRect(); if (g.bottom > innerHeight - 90) globo.style.top = Math.max(16, innerHeight - 96 - globo.offsetHeight) + "px"; });
+    document.getElementById("g-cerrar").addEventListener("click", closeSpot);
+    document.getElementById("g-sig").addEventListener("click", next);
+  }
+  function closeSpot() { active = -1; globo.classList.remove("ver"); var f = document.getElementById("foco"); if (f) f.classList.remove("ver"); lienzo.querySelectorAll(".punto").forEach(function (b) { b.classList.remove("activo"); }); }
+  function next() {
+    var n = screens()[scr].spots.length;
+    if (active < n - 1) openSpot(active + 1);
+    else if (scr < screens().length - 1) change(function () { scr++; }), setTimeout(function () { openSpot(0); }, 260);
+    else closeSpot();
+  }
+  lienzo.addEventListener("click", function (e) { var b = e.target.closest("[data-spot]"); if (b) openSpot(+b.dataset.spot); else closeSpot(); });
+  document.getElementById("pantallas").addEventListener("click", function (e) { var b = e.target.closest("[data-scr]"); if (b && +b.dataset.scr !== scr) change(function () { scr = +b.dataset.scr; }); });
+  function setDev(d) { if (d === dev) return; document.querySelectorAll("[data-dev]").forEach(function (b) { b.classList.toggle("elegido", b.dataset.dev === d); }); change(function () { dev = d; scr = 0; }); }
+  document.querySelectorAll("[data-dev]").forEach(function (b) { b.addEventListener("click", function () { setDev(b.dataset.dev); }); });
+  document.getElementById("tira").innerHTML = M.chapters.map(function (c) { return c.ready ? '<span class="on">Entrar</span>' : '<span title="' + c.name + ' · pronto"></span>'; }).join("");
+
+  /* Preguntale al manual */
+  var q = document.getElementById("q"), resp = document.getElementById("resp"), marked = 0;
+  function ask(open) {
+    document.body.classList.toggle("preguntando", open);
+    if (open) { q.value = ""; answer(); setTimeout(function () { q.focus(); }, 50); } else q.blur();
+  }
+  function answer() {
+    var v = q.value.trim(); marked = 0;
+    if (v.length < 2) { resp.innerHTML = '<div class="t-etiqueta" style="margin-bottom:8px">Lo que más se pregunta</div><div class="sug">' + (dev === "desktop" ? ["Entrar con el celular", "No hay internet", "Salir"] : ["Huella", "Entrar sin internet", "Computadora"]).map(function (t) { return '<button data-sug="' + t + '">' + t + '</button>'; }).join("") + '</div>'; return; }
+    var r = M.search(dev, v);
+    resp.innerHTML = r.length ? r.map(function (x, i) {
+      if (x.pronto) return '<div class="r"><div><div class="c" style="color:var(--texto-3)">' + x.chapter + '</div><div class="s">Capítulo por escribir</div></div><span class="pronto">Pronto</span></div>';
+      return '<div class="r' + (i === 0 ? " marcado" : "") + '" data-go="' + x.section.id + '"><div><div class="c">Entrar › ' + x.section.title + '</div><div class="s">' + M.mark(x.snippet, v) + '</div></div><button class="btn chico btn-oscuro"><i class="i i-s" data-i="eye"></i>Mostrame</button></div>';
+    }).join("") : '<div class="t-detalle">No encontré «' + v + '» en el manual de la ' + (dev === "desktop" ? "computadora" : "celular") + '.</div>';
+    window.pintarIconos(resp);
+  }
+  function showMe(secId) {
+    ask(false);
+    var list = screens(), si = -1, pi = -1;
+    list.forEach(function (s, i) { s.spots.forEach(function (p, j) { if (si < 0 && p.sec === secId) { si = i; pi = j; } }); });
+    if (si < 0) return;
+    if (si !== scr) { change(function () { scr = si; }); setTimeout(function () { openSpot(pi); }, 260); } else openSpot(pi);
+  }
+  document.getElementById("preguntar").addEventListener("click", function () { ask(true); });
+  document.getElementById("pfondo").addEventListener("click", function () { ask(false); });
+  q.addEventListener("input", function () { clearTimeout(q._t); q._t = setTimeout(answer, 150); });
+  resp.addEventListener("click", function (e) {
+    var s = e.target.closest("[data-sug]"); if (s) { q.value = s.dataset.sug; answer(); q.focus(); return; }
+    var g = e.target.closest("[data-go]"); if (g) showMe(g.dataset.go);
+  });
+  q.addEventListener("keydown", function (e) {
+    var it = resp.querySelectorAll("[data-go]");
+    if ((e.key === "ArrowDown" || e.key === "ArrowUp") && it.length) { e.preventDefault(); marked = (marked + (e.key === "ArrowDown" ? 1 : it.length - 1)) % it.length; it.forEach(function (x, i) { x.classList.toggle("marcado", i === marked); }); }
+    if (e.key === "Enter" && it[marked]) showMe(it[marked].dataset.go);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) { e.preventDefault(); ask(!document.body.classList.contains("preguntando")); return; }
+    if (e.key === "Escape") { if (document.body.classList.contains("preguntando")) ask(false); else if (active >= 0) closeSpot(); else M.toast("Vuelve a la entrada, donde estabas"); return; }
+    if (document.body.classList.contains("preguntando")) return;
+    if (e.key === "Tab") { e.preventDefault(); if (e.shiftKey) openSpot(Math.max(0, active - 1)); else if (active < 0) openSpot(0); else next(); }
+    if (/^[1-9]$/.test(e.key)) openSpot(+e.key - 1);
+    if (e.key === "ArrowRight" && scr < screens().length - 1) change(function () { scr++; });
+    if (e.key === "ArrowLeft" && scr > 0) change(function () { scr--; });
+  });
+  document.getElementById("volver").addEventListener("click", function () { M.toast("Vuelve a la entrada, donde estabas"); });
+  window.addEventListener("resize", function () { if (active >= 0) openSpot(active); });
+  render();
+})();
+</script>
+</body>
+</html>

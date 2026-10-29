@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual · variante 3 · mostrame · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; background: #0f1513; }
+  .celu { background: #0f1513; }
+  .escenario { position: absolute; inset: 0; display: grid; place-items: center; touch-action: pan-y; }
+  .escenario.compu { background: radial-gradient(120% 80% at 50% 40%, #24443b, #0f1513); }
+  .lienzo { position: relative; transition: opacity var(--t-nav), transform var(--t-nav) var(--curva); }
+  .lienzo.sale-izq { opacity: 0; transform: translateX(-40px); }
+  .lienzo.sale-der { opacity: 0; transform: translateX(40px); }
+  .escenario.celular .lienzo { width: 390px; height: 844px; }
+  .escenario.celular .lienzo > img { width: 100%; height: 100%; object-fit: fill; }
+  .escenario.compu .lienzo { width: 374px; aspect-ratio: 1350 / 752; border-radius: 10px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.6); }
+  .escenario.compu { place-items: start center; padding-top: 116px; }
+  .escenario.compu ~ .hoja { max-height: 58%; }
+  .escenario.compu .lienzo > img { width: 100%; border-radius: 10px; }
+  .lienzo .sin-captura { position: absolute; inset: 0; border-radius: 0; background: var(--fondo); font-size: 16px; }
+  .foco { position: absolute; left: 0; top: 0; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 99px; box-shadow: 0 0 0 200vmax rgba(8,12,10,.6); opacity: 0; pointer-events: none; transition: transform 420ms var(--curva), opacity var(--t); z-index: 2; }
+  .escenario.compu .foco { width: 72px; height: 72px; margin: -36px 0 0 -36px; }
+  .foco.ver { opacity: 1; }
+  .foco::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; border: 3px solid var(--accion); }
+  .punto { position: absolute; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 99px; border: 0; background: var(--accion); color: #fff; font-weight: 800; font-size: 16px; display: grid; place-items: center; box-shadow: 0 0 0 4px rgba(255,255,255,.9), var(--sombra-accion); z-index: 3; }
+  .escenario.compu .punto { width: 32px; height: 32px; font-size: 14px; }
+  .punto::after { content: ""; position: absolute; inset: -4px; border-radius: 99px; border: 3px solid var(--accion); animation: latido 1.8s var(--curva) infinite; }
+  .punto.activo::after { opacity: 0; animation: none; }
+  .degrade { position: absolute; left: 0; right: 0; z-index: 4; pointer-events: none; transition: opacity var(--t); }
+  .degrade.arr { top: 0; height: 130px; background: linear-gradient(rgba(8,12,10,.55), rgba(8,12,10,0)); }
+  .degrade.aba { bottom: 0; height: 240px; background: linear-gradient(rgba(8,12,10,0), rgba(8,12,10,.7)); }
+  .celu.hoja-abierta .degrade.aba { opacity: 0; }
+  .arriba { position: absolute; top: 52px; left: 12px; right: 12px; display: flex; align-items: center; gap: 8px; z-index: 5; }
+  .redondo { width: 44px; height: 44px; border-radius: 99px; border: 0; background: rgba(255,255,255,.94); box-shadow: var(--sombra-3); display: grid; place-items: center; color: var(--tinta); }
+  .chip { height: 44px; border: 0; background: rgba(255,255,255,.94); box-shadow: var(--sombra-3); margin: 0 auto; font-weight: 750; font-size: 15px; }
+  .contador { min-width: 44px; height: 44px; border-radius: 99px; background: rgba(255,255,255,.94); box-shadow: var(--sombra-3); display: grid; place-items: center; font-weight: 800; font-size: 14px; padding: 0 10px; }
+  .abajo { position: absolute; left: 12px; right: 12px; bottom: 24px; z-index: 5; display: grid; gap: 10px; transition: opacity var(--t), transform var(--t) var(--curva); }
+  .celu.hoja-abierta .abajo { opacity: 0; transform: translateY(16px); pointer-events: none; }
+  .puntos-pag { display: flex; gap: 6px; justify-content: center; }
+  .puntos-pag b { height: 8px; width: 8px; border-radius: 99px; background: rgba(255,255,255,.55); box-shadow: 0 0 0 1px rgba(0,0,0,.12); transition: transform var(--t) var(--curva); }
+  .puntos-pag b.on { background: #fff; transform: scale(1.35); }
+  .nombre-pant { text-align: center; color: #fff; font-weight: 750; font-size: 15px; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+  .barra-preg { display: flex; gap: 8px; }
+  .barra-preg .preguntar { flex: 1; height: 56px; border-radius: 99px; border: 0; background: rgba(255,255,255,.96); box-shadow: var(--sombra-3); display: flex; align-items: center; gap: 10px; padding: 0 20px; color: var(--texto-2); font-weight: 650; font-size: 16px; }
+  .barra-preg .mic { width: 56px; height: 56px; border-radius: 99px; border: 0; background: var(--pino); color: #fff; box-shadow: var(--sombra-3); display: grid; place-items: center; }
+  .hoja { position: absolute; left: 0; right: 0; bottom: 0; max-height: 78%; background: var(--superficie); border-radius: 24px 24px 0 0; box-shadow: var(--sombra-3); padding: 8px 16px 28px; z-index: 8; transform: translateY(105%); transition: transform var(--t-nav) var(--curva); overflow: auto; }
+  .hoja.ver { transform: none; }
+  .agarre { width: 40px; height: 5px; border-radius: 99px; background: var(--hundido-2); margin: 0 auto 12px; }
+  .hoja .k { font-size: 14px; font-weight: 700; color: var(--pino-texto); display: flex; gap: 8px; align-items: center; }
+  .hoja h2 { margin: 4px 0; }
+  .hoja ol { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: p; }
+  .hoja li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: 16px; line-height: 23px; counter-increment: p; }
+  .hoja li::before { content: counter(p); width: 28px; height: 28px; border-radius: 99px; background: var(--pino); color: #fff; font-weight: 800; font-size: 14px; display: grid; place-items: center; }
+  .hoja .tip { margin-top: 12px; }
+  .hoja .pie { display: grid; grid-template-columns: auto 1fr; gap: 8px; margin-top: 16px; }
+  .hoja .clip { margin-top: 12px; }
+  .hoja .campo { color: var(--tinta); }
+  .hoja input { border: 0; outline: 0; flex: 1; font-weight: 650; min-width: 0; }
+  .r { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--borde); }
+  .r .c { font-size: 14px; color: var(--pino-texto); font-weight: 700; }
+  .r .s { font-size: 15px; color: var(--texto-2); }
+  .escucha { display: flex; gap: 6px; justify-content: center; align-items: center; height: 64px; }
+  .escucha i { display: block; width: 6px; height: 40px; border-radius: 99px; background: var(--accion); transform-origin: center; animation: onda .9s var(--curva) infinite alternate; }
+  .escucha i:nth-child(2) { animation-delay: .15s; } .escucha i:nth-child(3) { animation-delay: .3s; } .escucha i:nth-child(4) { animation-delay: .45s; } .escucha i:nth-child(5) { animation-delay: .6s; }
+  @keyframes onda { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
+  .velo-hoja { position: absolute; inset: 0; z-index: 7; background: rgba(8,12,10,.3); opacity: 0; pointer-events: none; transition: opacity var(--t); }
+  .celu.preg .velo-hoja { opacity: 1; pointer-events: auto; }
+  .seg-hoja { display: flex; width: 100%; } .seg-hoja > * { flex: 1; justify-content: center; min-height: 44px; }
+</style>
+</head>
+<body>
+<div class="celu" id="celu">
+  <div class="escenario celular" id="esc"><div class="lienzo" id="lienzo"></div></div>
+  <div class="degrade arr"></div><div class="degrade aba"></div>
+  <div class="arriba">
+    <button class="redondo" data-ir="more" aria-label="Volver"><i class="i i-l" data-i="x"></i></button>
+    <button class="chip btn" id="chip-dev" style="border-radius:99px"><i class="i i-s" data-i="smartphone"></i>Manual · Celular<i class="i i-s" data-i="chevron-down"></i></button>
+    <span class="contador" id="contador">1/4</span>
+  </div>
+  <div class="abajo">
+    <div class="nombre-pant" id="nombre"></div>
+    <div class="puntos-pag" id="pag"></div>
+    <div class="barra-preg"><button class="preguntar" id="preguntar"><i class="i" data-i="search"></i>Preguntale al manual</button><button class="mic" id="mic" aria-label="Preguntar hablando"><i class="i i-l" data-i="mic"></i></button></div>
+  </div>
+  <div class="velo-hoja" id="velo"></div>
+  <div class="hoja" id="hoja"></div>
+  <span class="home-ind" style="z-index:9"></span>
+</div>
+<script>
+(function () {
+  var M = window.MANUAL, dev = "phone", scr = 0, active = -1;
+  var celu = document.getElementById("celu"), esc = document.getElementById("esc"), lienzo = document.getElementById("lienzo"), hoja = document.getElementById("hoja");
+  function screens() { return M.screens[dev]; }
+  function render() {
+    var s = screens()[scr];
+    esc.className = "escenario " + (dev === "phone" ? "celular" : "compu");
+    lienzo.innerHTML = (s.cap ? '<img src="' + M.cap(s.cap) + '" alt="' + s.name + '">' : '<div class="sin-captura"><i class="i i-xl" data-i="image"></i>Captura por sacar:<br>' + s.ph + '</div>') + '<span class="foco" id="foco"></span>' +
+      s.spots.map(function (p, i) { return '<button class="punto" data-spot="' + i + '" style="left:' + p.x + '%;top:' + p.y + '%">' + (i + 1) + '</button>'; }).join("");
+    document.getElementById("pag").innerHTML = screens().map(function (_, i) { return '<b' + (i === scr ? ' class="on"' : "") + '></b>'; }).join("");
+    document.getElementById("nombre").textContent = s.name + " · deslizá para ver otra";
+    document.getElementById("contador").textContent = (scr + 1) + "/" + screens().length;
+    document.getElementById("chip-dev").innerHTML = '<i class="i i-s" data-i="' + (dev === "phone" ? "smartphone" : "monitor") + '"></i>Manual · ' + (dev === "phone" ? "Celular" : "Computadora") + '<i class="i i-s" data-i="chevron-down"></i>';
+    window.pintarIconos(document); active = -1;
+  }
+  function go(d) {
+    var n = scr + d; if (n < 0 || n >= screens().length) return;
+    closeSheet();
+    lienzo.classList.add(d > 0 ? "sale-izq" : "sale-der");
+    setTimeout(function () { scr = n; render(); lienzo.classList.remove("sale-izq", "sale-der"); }, 220);
+  }
+  function openSheet(html) { hoja.innerHTML = '<div class="agarre"></div>' + html; window.pintarIconos(hoja); hoja.classList.add("ver"); celu.classList.add("hoja-abierta"); }
+  function closeSheet() { lienzo.style.transform = ""; hoja.classList.remove("ver"); celu.classList.remove("hoja-abierta", "preg"); active = -1; var f = document.getElementById("foco"); if (f) f.classList.remove("ver"); lienzo.querySelectorAll(".punto").forEach(function (b) { b.classList.remove("activo"); }); }
+  function openSpot(i) {
+    var s = screens()[scr], p = s.spots[i]; active = i;
+    var r = lienzo.getBoundingClientRect(), x = r.width * p.x / 100, y = r.height * p.y / 100;
+    var foco = document.getElementById("foco"); foco.style.transform = "translate(" + x + "px," + y + "px)"; foco.classList.add("ver");
+    /* lo señalado sube para quedar arriba de la hoja */
+    var shift = dev === "phone" && y > 280 ? -(y - 240) : 0; lienzo.style.transform = shift ? "translateY(" + shift + "px)" : "";
+    lienzo.querySelectorAll(".punto").forEach(function (b) { b.classList.toggle("activo", +b.dataset.spot === i); });
+    var sec = M.sectionById(dev, p.sec), last = i === s.spots.length - 1;
+    celu.classList.remove("preg");
+    openSheet('<div class="k"><i class="i i-s" data-i="' + sec.icon + '"></i>' + s.name + ' · ' + (i + 1) + ' de ' + s.spots.length + '</div><h2 class="t-seccion">' + sec.title + '</h2>' +
+      '<ol>' + sec.steps.map(function (st) { return '<li><span>' + st.t + '</span></li>'; }).join("") + '</ol>' +
+      (sec.tips ? '<div class="tip aviso pino"><i class="i i-s" data-i="info"></i><span>' + sec.tips[0] + '</span></div>' : "") + '<div id="clip-aca"></div>' +
+      '<div class="pie">' + (sec.clip ? '<button class="btn grande" id="clip-btn"><i class="i" data-i="zap"></i>Clip</button>' : '<button class="btn grande btn-fantasma" id="h-cerrar">Cerrar</button>') +
+      '<button class="btn btn-accion grande" id="h-sig">' + (!last ? "Siguiente punto" : scr < screens().length - 1 ? "Otra pantalla" : "Listo") + '</button></div>');
+    var cb = document.getElementById("clip-btn"); if (cb) cb.addEventListener("click", function () { var c = document.getElementById("clip-aca"); c.innerHTML = M.clipHTML(); window.pintarIconos(c); M.wireClips(c); c.querySelector(".clip-play").click(); });
+    var hc = document.getElementById("h-cerrar"); if (hc) hc.addEventListener("click", closeSheet);
+    document.getElementById("h-sig").addEventListener("click", function () { if (!last) openSpot(i + 1); else if (scr < screens().length - 1) { go(1); setTimeout(function () { openSpot(0); }, 280); } else closeSheet(); });
+  }
+  lienzo.addEventListener("click", function (e) { var b = e.target.closest("[data-spot]"); if (b) openSpot(+b.dataset.spot); else closeSheet(); });
+  document.getElementById("velo").addEventListener("click", closeSheet);
+  /* deslizar entre pantallas; deslizar la hoja hacia abajo la cierra */
+  var sx = null, sy = null;
+  esc.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  esc.addEventListener("touchend", function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); sx = null; });
+  hoja.addEventListener("touchstart", function (e) { sy = e.touches[0].clientY; }, { passive: true });
+  hoja.addEventListener("touchend", function (e) { if (sy !== null && e.changedTouches[0].clientY - sy > 80 && hoja.scrollTop === 0) closeSheet(); sy = null; });
+
+  document.getElementById("chip-dev").addEventListener("click", function () {
+    celu.classList.add("preg");
+    openSheet('<div class="t-etiqueta" style="margin-bottom:8px">Ver el manual de</div><div class="segmentos seg-hoja"><button data-dev="desktop"' + (dev === "desktop" ? ' class="elegido"' : "") + '><i class="i i-s" data-i="monitor"></i>Computadora</button><button data-dev="phone"' + (dev === "phone" ? ' class="elegido"' : "") + '><i class="i i-s" data-i="smartphone"></i>Celular</button></div>' +
+      '<div class="t-etiqueta" style="margin:20px 0 8px">Capítulos</div><div style="display:grid;gap:8px">' + M.chapters.slice(0, 6).map(function (c) { return '<div style="display:flex;align-items:center;gap:12px;height:44px;' + (c.ready ? "font-weight:750" : "color:var(--texto-2)") + '"><i class="i" data-i="' + c.icon + '"></i>' + c.name + (c.ready ? '<span class="pastilla pino" style="margin-left:auto">Abierto</span>' : '<span class="pronto" style="margin-left:auto">Pronto</span>') + '</div>'; }).join("") + '<div class="t-detalle">Y ' + (M.chapters.length - 6) + ' capítulos más, pronto.</div></div>');
+    hoja.querySelectorAll("[data-dev]").forEach(function (b) { b.addEventListener("click", function () { var d = b.dataset.dev; closeSheet(); if (d !== dev) { lienzo.classList.add("sale-izq"); setTimeout(function () { dev = d; scr = 0; render(); lienzo.classList.remove("sale-izq"); }, 220); } }); });
+  });
+
+  /* Preguntar: escrito o hablado */
+  function askSheet(text) {
+    celu.classList.add("preg");
+    openSheet('<label class="campo"><i class="i" data-i="search"></i><input id="q" placeholder="¿Cómo entro sin internet?" value="' + (text || "") + '" autocomplete="off"></label><div id="resp"></div>');
+    var q = document.getElementById("q");
+    function answer() {
+      var v = q.value.trim(), r = v.length > 1 ? M.search(dev, v) : [], el = document.getElementById("resp");
+      el.innerHTML = v.length < 2 ? '<p class="t-detalle">Escribí o tocá el micrófono y preguntá como le preguntarías a un compañero.</p>' : r.length ? r.map(function (x) {
+        if (x.pronto) return '<div class="r"><div><div class="c" style="color:var(--texto-3)">' + x.chapter + '</div><div class="s">Por escribir</div></div><span class="pronto">Pronto</span></div>';
+        return '<div class="r"><div><div class="c">' + x.section.title + '</div><div class="s">' + M.mark(x.snippet, v) + '</div></div><button class="btn chico btn-oscuro" data-go="' + x.section.id + '">Mostrame</button></div>';
+      }).join("") : '<p class="t-detalle">No encontré «' + v + '».</p>';
+      el.addEventListener("click", function (e) { var g = e.target.closest("[data-go]"); if (g) showMe(g.dataset.go); });
+    }
+    q.addEventListener("input", function () { clearTimeout(q._t); q._t = setTimeout(answer, 150); });
+    answer();
+  }
+  function showMe(id) {
+    var si = -1, pi = -1;
+    screens().forEach(function (s, i) { s.spots.forEach(function (p, j) { if (si < 0 && p.sec === id) { si = i; pi = j; } }); });
+    closeSheet(); if (si < 0) return;
+    if (si === scr) setTimeout(function () { openSpot(pi); }, 200);
+    else { go(si - scr > 0 ? 1 : -1); setTimeout(function () { scr = si; render(); openSpot(pi); }, 260); }
+  }
+  document.getElementById("preguntar").addEventListener("click", function () { askSheet(""); });
+  document.getElementById("mic").addEventListener("click", function () {
+    celu.classList.add("preg");
+    openSheet('<div class="t-etiqueta" style="text-align:center">Escuchando…</div><div class="escucha"><i></i><i></i><i></i><i></i><i></i></div><p class="t-detalle" style="text-align:center">Preguntá, por ejemplo: «¿cómo entro sin internet?»</p>');
+    setTimeout(function () { if (hoja.classList.contains("ver")) askSheet("entrar sin internet"); }, 1700);
+  });
+  render();
+})();
+</script>
+</body>
+</html>
