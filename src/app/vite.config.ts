@@ -1,7 +1,7 @@
 // Arma la aplicación (ADR-013): Preact con Vite; en desarrollo, /api va al servidor local. El manual
 // se arma desde docs/manual/ con tools/manual/ (diseño del manual, § 2): en /manual/ del armado y,
 // en desarrollo, servido desde la memoria. Con MANUAL_MEDIA=pending no se arma (para sacar sus
-// capturas, que no lo muestran).
+// capturas, que no lo muestran); con MANUAL_DIR, se arma otro manual (el de prueba).
 import { join } from 'node:path';
 import preact from '@preact/preset-vite';
 import { defineConfig, type Plugin } from 'vite';
@@ -12,7 +12,8 @@ const version = process.env.VERSION ?? 'dev';
 
 function manual(): Plugin {
   const files = () => {
-    const dir = join(import.meta.dirname, '../../docs/manual');
+    // MANUAL_DIR: otro manual (el de prueba de las capturas de referencia).
+    const dir = join(import.meta.dirname, '../..', process.env.MANUAL_DIR ?? 'docs/manual');
     const built = buildManual(dir, version, new Set(Object.keys(manualIcons)));
     if (built.problems.length > 0) throw new Error(`El manual:\n${built.problems.join('\n')}`);
     return built.files;

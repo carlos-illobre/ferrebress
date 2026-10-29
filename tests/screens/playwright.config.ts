@@ -20,7 +20,8 @@ export default defineConfig({
   webServer: {
     command: 'node serve.ts',
     cwd: import.meta.dirname,
-    env: { SCREENS_PORT: String(port) },
+    // El manual de prueba: las capturas del manual no cambian cuando cambia el de verdad.
+    env: { SCREENS_PORT: String(port), MANUAL_DIR: 'tests/manual/fixture' },
     url: `http://localhost:${port}/api/start`,
     timeout: 60_000,
   },
