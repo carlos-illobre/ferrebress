@@ -345,15 +345,13 @@ body[data-state="intentos"] #notice { display: flex; }
   body[data-net="offline"] .status-net::before { content: "!"; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 2px solid currentColor; font-size: 12px; font-weight: 800; }
 
   /* La marca: el logo blanco y el lema. */
-  .brand { order: 1; display: flex; flex-direction: column; align-items: center; padding-top: 40px; }
-  /* Sin conexión, «Sin conexión» va arriba a la derecha: el logo baja para que no lo tape. */
-  body:is([data-state="sin-conexion"], [data-state="sin-conexion-huella"]) .brand { padding-top: 76px; }
+  .brand { order: 1; display: flex; flex-direction: column; align-items: center; padding-top: 70px; }
   .brand-logo img { width: 209px; height: auto; }
-  .brand-motto { margin: 12px auto 0; max-width: 300px; font-size: 16.5px; line-height: 22px; font-weight: 500; letter-spacing: 0.01em; color: var(--oscuro-lema); }
+  .brand-motto { margin: 15px auto 0; max-width: 300px; font-size: 16.5px; line-height: 22px; font-weight: 500; letter-spacing: 0.01em; color: var(--oscuro-lema); }
 
   .right { order: 2; display: flex; flex-direction: column; }
   .card { display: flex; flex-direction: column; align-items: center; }
-  .phone-head { order: 0; margin-top: 30px; }
+  .phone-head { order: 0; margin-top: 50px; }
   .phone-title { font-size: 38px; line-height: 44px; font-weight: 600; letter-spacing: -0.005em; color: var(--oscuro-texto); }
   .phone-sub { max-width: 300px; margin: 8px auto 0; font-size: 18px; line-height: 23px; font-weight: 400; color: var(--oscuro-texto-2); }
   .notice { text-align: left; align-self: stretch; }

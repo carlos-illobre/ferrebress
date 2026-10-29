@@ -142,8 +142,8 @@ Vale sobre lo de arriba; la maqueta ya tiene estos valores, los mismos de la apl
 - **La letra, un poco más grande:** el lema a 16,5 px, el subtítulo a 18 px, los nombres de la huella
   y de escanear a 17,5 px, sus detalles a 15,5 px, la «o» a 14 px y el pie a 15,5 px. El título
   queda en 38 px.
-- **Menos espacio** arriba del logo (40 px en lugar de 70) y entre el lema e «Iniciá sesión» (30 px
-  en lugar de 50).
+- **Los espacios** arriba del logo (70 px), debajo del logo (15 px) y entre el lema e «Iniciá
+  sesión» (50 px) son los de la maqueta aprobada.
 
 ## Entrar sin conexión (15 · etapa a)
 
@@ -171,11 +171,6 @@ selector de la maqueta y en `?estado=`:
 
 ## Lo que queda sin resolver
 
-- **«Sin conexión» arriba a la derecha tapa la punta del logo** en los dos estados sin conexión:
-  con el logo a 40 px del borde (lo que pidió Carlos al probarla) quedan a la misma altura. La
-  aplicación tiene los mismos valores, así que se ve igual. No se cambió: decide Carlos dónde va.
 - **Tocar la huella sin conexión** muestra en la maqueta la misma pantalla de Entrando que con
-  conexión («Ahora Ferrebress abre tu sesión»). Sin conexión no hay servidor que la abra: por
-  15 · R2.6 se llega directo al marco con la luz en «Sin conexión». La maqueta no tiene el marco.
-- **Sin conexión, el logo baja** (76 px arriba en lugar de 40): la pastilla «Sin conexión», arriba
-  a la derecha, tapaba la punta del logo. También en la aplicación.
+  conexión («Ahora Ferrebress abre tu sesión»). En la aplicación no: por 15 · R2.6 se llega directo
+  al marco con la luz en «Sin conexión» (lo decidió Carlos). La maqueta no tiene el marco.

@@ -78,11 +78,7 @@
 
       .brand {
         gap: 0;
-        padding-top: 40px;
-      }
-      /* Sin conexión, «Sin conexión» va arriba a la derecha: el logo baja para que no lo tape. */
-      &.offline .brand {
-        padding-top: 76px;
+        padding-top: 70px;
       }
       .brand-logo img {
         width: 209px;
@@ -90,7 +86,7 @@
       }
       .brand-motto {
         max-width: 300px;
-        margin: 12px auto 0;
+        margin: 15px auto 0;
         font-size: 16.5px;
         line-height: 22px;
         font-weight: 500;
@@ -109,7 +105,7 @@
       }
       .phone-head {
         order: 0;
-        margin-top: 30px;
+        margin-top: 50px;
       }
       .phone-title {
         font-size: 38px;
