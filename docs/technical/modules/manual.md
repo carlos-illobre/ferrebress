@@ -60,7 +60,8 @@ común y tiene una forma fija:
 ```markdown
 # Entrar
 
-Para usar Ferrebress primero entrás con tu cuenta. …                ← la introducción
+- Computadora: Para usar Ferrebress en la computadora primero hay que entrar. …
+- Celular: En el celular entrás con Google la primera vez y después con la huella. …
 
 ## Entrar con el celular
 
@@ -81,9 +82,10 @@ Para usar Ferrebress primero entrás con tu cuenta. …                ← la in
 > El código cambia cada minuto y sirve una sola vez.
 ```
 
-- **`# Título`** tiene que ser igual al nombre del renglón de la lista.
-- **Id:** obligatorio, en inglés, único en el capítulo. Con él la dirección nombra la tarea; cambiar
-  el título no rompe nada.
+- **`# Título`** tiene que ser igual al nombre del renglón de la lista. Debajo, la introducción
+  de cada dispositivo.
+- **Id:** obligatorio, en inglés, único en el capítulo para cada dispositivo (las dos «Salir» son
+  `sign-out`). Con él la dirección nombra la tarea; cambiar el título no rompe nada.
 - **Dispositivo:** `computadora` o `celular` (R6.3).
 - **Marca:** la forma entera (en «Todos los pasos») y, después de «/», la corta (en la lista).
 - **Aclaración:** sale en «Paso 1 de N · …» y en «Todos los pasos».
