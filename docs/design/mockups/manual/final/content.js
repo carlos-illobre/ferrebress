@@ -70,7 +70,7 @@
           tips: [ "Si entra otra persona, lo que quedó a medio hacer se descarta." ] },
         { id: "d-salir", title: "Salir", icon: "log-out",
           steps: [
-            { t: "Abajo del menú de la izquierda está tu tarjeta, con tu nombre.", cap: "desktop-frame-sign-out", hot: [8.5, 88.5], label: "Tu tarjeta" },
+            { t: "Abajo del menú de la izquierda está tu tarjeta, con tu nombre.", cap: "desktop-frame-sign-out", hot: [8.5, 87.3], label: "Tu tarjeta" },
             { t: "Tocá «Salir». Vuelve a la entrada.", cap: "desktop-frame-sign-out", hot: [7.5, 94.7], label: "Salir" }
           ],
           tips: [ "Se puede salir aunque no haya internet." ] }

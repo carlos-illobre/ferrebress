@@ -54,10 +54,8 @@ el celular (390 × 844).
 - **R6.3, arranca en el dispositivo que se usa:** en la maqueta lo decide el ancho (desde 900 px,
   Computadora); en la aplicación lo dice el dispositivo. Cambiar de dispositivo cierra «Todos los
   pasos» y vuelve al principio del otro manual.
-- **R6.2, sin datos del negocio:** las capturas del director tienen el cartel «Ambiente de prueba»
-  y una persona de prueba (Ana Gómez); las tres nuevas, el marco magenta de las maquetas recortado
-  y otra persona inventada (Rubén Paredes). Para la maqueta están bien. **Las del manual de verdad
-  se sacan sin el marco de pruebas** y de una cuenta de demostración.
+- **R6.2, sin datos del negocio:** las capturas muestran personas inventadas (Ana Gómez, Rubén
+  Paredes) y ningún dato del negocio.
 - **El capítulo «Entrar», como dicen 01 y 15:**
   - «Entrar con el celular» (computadora): el consejo del Wi-Fi dice el texto del celular («Para
     entrar a la computadora, conectá este celular al mismo Wi-Fi», 01 · R2.5); el de un celular sin
@@ -127,4 +125,5 @@ el celular (390 × 844).
 - **Una captura de la computadora más alta que el escenario se achica entera** en vez de
   recortarse abajo: recortada, el aro de «Tu tarjeta» y el de «Salir» caían fuera de lugar.
 - **Las capturas y los clips del manual de verdad** se sacan sin el marco ni el cartel del ambiente
-  de pruebas, con una cuenta de demostración (00 · R6.5). Las de esta maqueta los tienen.
+  de pruebas, con una cuenta de demostración (00 · R6.5). Las de esta maqueta, las nueve, se
+  volvieron a sacar de la aplicación así, a la misma medida, para que los puntos no se muevan.
