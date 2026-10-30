@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · 1 · La lista y la tarjeta · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; }
+  .celu-cabecera .avatar { margin-left: auto; }
+  .celu-estado { background: none; border: 0; padding: 0 16px; cursor: pointer; }
+  .celu-pantalla { display: flex; flex-direction: column; gap: 12px; position: relative; }
+  .busca { height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 14px; border-radius: var(--r); border: 1px solid var(--borde-fuerte); background: var(--superficie); box-shadow: var(--sombra-1); color: var(--texto-3); flex: none; }
+  .busca input { flex: 1; border: 0; outline: 0; background: none; font-size: 16px; font-weight: 600; color: var(--tinta); min-width: 0; }
+  .chips { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; flex: none; }
+  .chip { flex: none; height: 40px; padding: 0 14px; font-size: 14px; }
+  .chip span { opacity: .8; }
+  #lista { flex: 1; min-height: 0; overflow: auto; margin: 0 -16px; padding: 0 16px 16px; }
+  .grupo { font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 0 4px 8px; display: flex; gap: 6px; }
+  .grupo span { color: var(--texto-3); }
+  .grupo:not(:first-child) { padding-top: 16px; }
+  .fila { width: 100%; display: grid; grid-template-columns: 40px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 12px; text-align: left; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); transition: transform var(--t-micro) var(--curva); }
+  .fila:active { transform: scale(.98); }
+  .fila + .fila { margin-top: 8px; }
+  .fila.baja { background: transparent; border-style: dashed; border-color: var(--borde-fuerte); box-shadow: none; }
+  .fila.baja .nom { color: var(--texto-2); }
+  .fila .avatar { width: 40px; height: 40px; align-self: start; }
+  .cuerpo { display: grid; min-width: 0; gap: 2px; }
+  .nom { font-weight: 700; font-size: 16px; line-height: 22px; display: flex; gap: 6px; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nom .pastilla { height: 24px; padding: 0 8px; }
+  .det { font-size: 14px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lin { display: flex; gap: 8px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+  .lin .pastilla { height: 24px; padding: 0 8px; }
+  .ult { font-size: 14px; font-weight: 600; color: var(--texto-2); display: inline-flex; gap: 4px; align-items: center; }
+  .ult.nunca { color: var(--urgente-texto); }
+  .der { display: grid; justify-items: end; gap: 6px; color: var(--texto-3); }
+  .cta { display: inline-flex; gap: 4px; align-items: center; font-size: 14px; font-weight: 700; color: var(--texto-2); }
+  .vacio { display: grid; justify-items: center; text-align: center; gap: 6px; padding: 48px 16px; color: var(--texto-2); }
+
+  /* La tarjeta entra desde la derecha, como iPhone */
+  #ficha { position: absolute; left: 0; right: 0; top: 44px; bottom: 76px; background: var(--fondo); z-index: 20; overflow: auto; transform: translateX(100%); transition: transform var(--t-nav) var(--curva); }
+  body.con-ficha #ficha { transform: none; box-shadow: -12px 0 32px -16px rgba(26,29,27,.25); }
+  .ficha-in { padding: 4px 16px 24px; display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; }
+  .ficha-in > * { min-width: 0; }
+  .cab-ficha { display: grid; grid-template-columns: auto; justify-items: center; text-align: center; gap: 8px; position: relative; padding-top: 8px; }
+  .volver { position: absolute; left: -8px; top: 0; }
+  .quien { display: grid; justify-items: center; min-width: 0; width: 100%; }
+  .nombre-ed, .correo-ed { display: flex; align-items: center; gap: 4px; min-height: 32px; max-width: 100%; }
+  .nombre-ed .t-seccion, .correo-ed .t-detalle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn-icono.chico { width: 32px; min-height: 32px; color: var(--texto-3); }
+  .atado { color: var(--texto-3); display: inline-grid; place-items: center; width: 28px; height: 28px; }
+  .ed { width: 100%; height: 44px; border-radius: 10px; border: 1px solid var(--pino); box-shadow: 0 0 0 4px rgba(18,56,47,.12); padding: 0 12px; font-weight: 650; outline: 0; }
+  .nombre-ed:has(.ed), .correo-ed:has(.ed) { display: grid; gap: 4px; width: 100%; }
+  .mal .ed { border-color: var(--error); }
+  .mal .ayuda-ed { color: var(--error-texto); font-weight: 650; }
+  .pastillas { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
+  .pastillas .t-detalle { width: 100%; text-align: center; display: flex; justify-content: center; gap: 4px; align-items: center; }
+  .sec { display: grid; gap: 8px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); padding: 12px; box-shadow: var(--sombra-1); }
+  .sec-cab { display: flex; justify-content: space-between; align-items: center; min-height: 36px; }
+  .sec-cab .n { color: var(--texto-3); margin-left: 4px; }
+  .item { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; }
+  .item + .item { border-top: 1px solid var(--borde); padding-top: 12px; }
+  .item .ico { width: 40px; height: 40px; border-radius: 10px; background: var(--hundido); color: var(--texto-2); display: grid; place-items: center; position: relative; }
+  .vivo { position: absolute; right: -2px; top: -2px; width: 12px; height: 12px; border-radius: 99px; background: var(--logro); border: 2px solid #fff; }
+  .item .txt { display: grid; min-width: 0; }
+  .item .txt b { font-size: 15px; line-height: 20px; }
+  .item .txt span { font-size: 14px; line-height: 20px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item .btn { min-height: 44px; }
+  .nada, .nota { font-size: 14px; color: var(--texto-2); }
+  .nota { display: flex; gap: 6px; color: var(--texto-3); }
+  .pie-ficha { display: grid; gap: 8px; justify-items: stretch; text-align: center; }
+  .pie-ficha .btn { min-height: 52px; }
+  body.con-ficha .barra-accion { visibility: hidden; }
+  .hoja form, .hoja { display: grid; gap: 16px; }
+  .hoja .pie-d { display: grid; grid-template-columns: 1fr 1.4fr; }
+  .hoja .pie-d .btn { min-height: 52px; }
+  .hoja .lead { margin: 0; color: var(--texto-2); font-size: 15px; }
+  .gris-cartel { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); z-index: 30; white-space: nowrap; }
+</style>
+</head>
+<body class="es-celu">
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="celu-cabecera"><span class="t-titulo">Negocio</span><span class="avatar">RP</span></div>
+  <button class="celu-estado" data-luz><span class="punto"></span><span data-luz-texto>En línea</span></button>
+  <nav class="celu-pestanas"><a data-ir="business-overview">Resumen</a><a class="activa" data-no-ir>Usuarios</a><a data-ir="audit-log">Quién hizo qué</a></nav>
+  <div class="celu-pantalla">
+    <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión</div>
+    <label class="busca zona-red"><i class="i" data-i="search"></i><input id="buscar" placeholder="Buscá nombre o correo" autocomplete="off"></label>
+    <div class="chips zona-red">
+      <button class="chip elegido" data-filtro="todas">Todas <span data-n="c-todas">9</span></button>
+      <button class="chip" data-filtro="activas">Activas <span data-n="c-activas">7</span></button>
+      <button class="chip" data-filtro="nunca">Sin entrar <span data-n="c-nunca">2</span></button>
+      <button class="chip" data-filtro="baja">De baja <span data-n="c-baja">2</span></button>
+    </div>
+    <div id="lista" class="zona-red"></div>
+  </div>
+  <div id="ficha" class="zona-red"></div>
+  <div class="barra-accion zona-red"><button class="btn btn-accion grande" style="width:100%" data-autorizar><i class="i" data-i="user-plus"></i>Autorizar a alguien</button></div>
+  <nav class="nav-inferior">
+    <a data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a class="activo" data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+
+  <div class="velo"></div>
+  <form class="hoja" id="autorizar" novalidate>
+    <div class="asa"></div>
+    <div><h2>Autorizar a alguien</h2><p class="t-detalle" style="margin:0">Entra con esa cuenta de Google. No le llega nada: avisale vos.</p></div>
+    <div class="campo-real"><label for="a-nombre">Nombre <span style="font-weight:500;color:var(--texto-3)">(opcional)</span></label><input id="a-nombre" placeholder="Juan del mostrador" autocomplete="off"></div>
+    <div class="campo-real"><label for="a-correo">Correo de Google</label><input id="a-correo" type="email" inputmode="email" placeholder="nombre@gmail.com" autocomplete="off"><div class="err"><i class="i i-s" data-i="circle-alert"></i><span></span></div></div>
+    <div class="pie-d"><button type="button" class="btn btn-fantasma" data-cerrar>Cancelar</button><button class="btn btn-accion" type="submit"><i class="i i-s" data-i="user-check"></i>Autorizar</button></div>
+  </form>
+  <div class="hoja" id="confirmar" role="alertdialog">
+    <div class="asa"></div>
+    <div><h2></h2><p class="lead"></p></div><ul class="consecuencias" style="margin:0"></ul>
+    <div class="pie-d"><button class="btn btn-fantasma" data-cerrar>No</button><button class="btn btn-rojo"></button></div>
+  </div>
+  <div class="tostadas"></div>
+</div>
+<script src="../../shared/data.js"></script>
+<script src="../../shared/ui.js"></script>
+<script src="../../shared/v1.js"></script>
+</body>
+</html>

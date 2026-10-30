@@ -88,6 +88,19 @@
     { "device": "phone", "name": "2 · Paso a paso", "path": "mockups/manual/phone/variant-2-guide/index.html" },
     { "device": "phone", "name": "3 · Mostrame", "path": "mockups/manual/phone/variant-3-show-me/index.html" }
    ]
+  },
+  {
+   "id": "users-a",
+   "title": "Usuarios",
+   "module": "02 · Personas",
+   "variants": [
+    { "device": "desktop", "name": "1 · La lista y la tarjeta", "path": "mockups/users-a/desktop/variant-1-list/index.html" },
+    { "device": "desktop", "name": "2 · Personas y aparatos", "path": "mockups/users-a/desktop/variant-2-devices/index.html" },
+    { "device": "desktop", "name": "3 · El tablero", "path": "mockups/users-a/desktop/variant-3-panel/index.html" },
+    { "device": "phone", "name": "1 · La lista y la tarjeta", "path": "mockups/users-a/phone/variant-1-list/index.html" },
+    { "device": "phone", "name": "2 · Personas y aparatos", "path": "mockups/users-a/phone/variant-2-devices/index.html" },
+    { "device": "phone", "name": "3 · El tablero", "path": "mockups/users-a/phone/variant-3-panel/index.html" }
+   ]
   }
  ]
 }

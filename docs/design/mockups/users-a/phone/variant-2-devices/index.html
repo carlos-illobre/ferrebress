@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · 2 · Personas y aparatos · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; }
+  .celu-cabecera .avatar { margin-left: auto; }
+  .celu-estado { background: none; border: 0; padding: 0 16px; cursor: pointer; }
+  .celu-pantalla { display: flex; flex-direction: column; gap: 12px; position: relative; padding-bottom: 0; }
+  .segmentos { display: flex; flex: none; }
+  .segmentos > * { flex: 1; justify-content: center; min-height: 40px; font-size: 15px; }
+  .segmentos .n { color: var(--texto-3); }
+  #vista { flex: 1; min-height: 0; overflow: auto; margin: 0 -16px; padding: 4px 16px 24px; }
+  .cambia { animation: fundido var(--t) var(--curva); }
+  @keyframes fundido { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Las personas como pases de Wallet: apiladas, se abre una por vez */
+  .pases { display: grid; padding-bottom: 8px; }
+  .pase { position: relative; background: var(--superficie); border: 1px solid var(--borde); border-radius: 20px; box-shadow: 0 -6px 16px -10px rgba(26,29,27,.22), var(--sombra-1); padding: 14px; display: grid; gap: 12px; height: 96px; overflow: hidden; transition: transform var(--t-nav) var(--curva); }
+  .pase + .pase { margin-top: -28px; }
+  .pase.abierto { height: auto; z-index: 2; box-shadow: var(--sombra-3); margin-bottom: 16px; }
+  .pase.abierto + .pase { margin-top: 0; }
+  .pase.nunca { border-style: dashed; border-color: var(--borde-fuerte); }
+  .pase > :not(.pase-cab) { opacity: 0; transition: opacity var(--t) var(--curva); }
+  .pase.abierto > :not(.pase-cab) { opacity: 1; }
+  .pase-cab { display: grid; grid-template-columns: 44px minmax(0,1fr) auto; gap: 12px; align-items: center; cursor: pointer; }
+  .pase-cab .cuenta-c { display: none; }
+  .pase:not(.abierto) .pase-cab [data-menu] { display: none; }
+  .pase:not(.abierto) .pase-cab .cuenta-c { display: block; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .a48 { width: 44px; height: 44px; }
+  .a32 { width: 32px; height: 32px; }
+  .a28 { width: 24px; height: 24px; font-size: 14px; }
+  .pq { display: grid; min-width: 0; }
+  .pq b { font-size: 16px; display: flex; gap: 6px; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pq b .pastilla { height: 24px; padding: 0 8px; }
+  .pq > span { font-size: 14px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn-icono.chico { width: 44px; min-height: 44px; color: var(--texto-2); }
+  .pase-linea { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .pase-linea .pastilla { height: 26px; }
+  .ult { font-size: 14px; font-weight: 600; color: var(--texto-2); }
+  .ult.nu { color: var(--urgente-texto); }
+  .dock { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-top: 12px; border-top: 1px solid var(--borde); }
+  .tile { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 10px 0 8px; border-radius: 14px; border: 1px solid var(--borde); background: var(--fondo); text-align: left; transition: transform var(--t-micro) var(--curva); }
+  .tile:active { transform: scale(.96); }
+  .tile .ti { width: 36px; height: 36px; border-radius: 10px; background: var(--superficie); display: grid; place-items: center; color: var(--texto-2); position: relative; box-shadow: var(--sombra-1); flex: none; }
+  .tile.huella .ti { color: var(--pino-texto); background: var(--pino-suave); box-shadow: none; }
+  .vivo { position: absolute; right: -3px; top: -3px; width: 12px; height: 12px; border-radius: 99px; background: var(--logro); border: 2px solid #fff; }
+  .tile .tt { display: grid; line-height: 18px; min-width: 0; }
+  .tile .tt b { font-size: 14px; }
+  .tile .tt span { font-size: 14px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sin { font-size: 14px; color: var(--texto-3); grid-column: 1 / -1; }
+  .estrenar { display: flex; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--urgente-suave); color: var(--urgente-texto); font-size: 14px; line-height: 20px; font-weight: 600; }
+  .pase-pie { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pase-pie .btn { min-height: 44px; }
+  .estante { margin-top: 16px; padding: 12px; border-radius: var(--r-tarjeta); background: var(--hundido); }
+  .est-cab { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--texto-2); margin-bottom: 8px; }
+  .est-cab .t-detalle { display: none; }
+  .est-fila { display: grid; gap: 8px; }
+  .ficha-baja { display: grid; grid-template-columns: 32px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; border: 1px dashed var(--borde-fuerte); }
+  .fb { display: grid; min-width: 0; }
+  .fb b { font-size: 15px; color: var(--texto-2); }
+  .fb span { font-size: 14px; color: var(--texto-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ficha-baja .btn { min-height: 40px; }
+
+  /* Aparatos */
+  .aparatos { display: flex; flex-direction: column; gap: 8px; }
+  .ap-lado { order: -1; display: grid; gap: 8px; }
+  .grupo { font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 8px 4px 0; }
+  .ap { display: grid; grid-template-columns: 40px minmax(0,1fr) auto; grid-template-areas: "ti apt btn" "ti du btn"; column-gap: 12px; align-items: center; padding: 10px 12px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); }
+  .ap-lista .ap + .ap, .hu .ap + .ap { margin-top: 8px; }
+  .ap-lista .grupo + .ap, .hu .grupo + .ap { margin-top: 8px; }
+  .ap .ti { grid-area: ti; width: 40px; height: 40px; border-radius: 10px; background: var(--hundido); display: grid; place-items: center; color: var(--texto-2); position: relative; }
+  .apt { grid-area: apt; display: grid; min-width: 0; }
+  .apt b { font-size: 15px; line-height: 20px; }
+  .apt span { font-size: 14px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .duenio { grid-area: du; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; min-width: 0; margin-top: 4px; }
+  .duenio span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .uso { display: none; }
+  .ap .btn { grid-area: btn; min-height: 44px; }
+  .chico-ap { grid-template-areas: "ti apt btn"; }
+  .chico-ap .ti { background: var(--pino-suave); color: var(--pino-texto); }
+
+  .perdido { display: grid; grid-template-columns: 44px 1fr; gap: 12px; padding: 14px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-2); }
+  .perdido > div { display: grid; gap: 2px; }
+  .perdido b { font-size: 16px; }
+  .perdido > div span { font-size: 14px; color: var(--texto-2); line-height: 20px; }
+  .ico-p { width: 44px; height: 44px; border-radius: 12px; background: var(--hundido); display: grid; place-items: center; }
+  .perdido .btn { grid-column: 1 / -1; min-height: 52px; }
+
+  /* Autorizar: la barra de abajo, como escribir un mensaje */
+  #compo { flex: none; display: grid; grid-template-columns: minmax(0,1fr) 52px; gap: 8px; padding: 10px 12px; background: rgba(255,255,255,.94); backdrop-filter: blur(12px); border-top: 1px solid var(--borde); position: relative; z-index: 5; }
+  #compo input { height: 52px; border-radius: 26px; border: 1px solid var(--borde-fuerte); background: var(--superficie); padding: 0 18px; font-size: 16px; font-weight: 650; outline: 0; width: 100%; min-width: 0; }
+  #compo input:focus { border-color: var(--pino); box-shadow: 0 0 0 4px rgba(18,56,47,.12); }
+  #compo .enviar { width: 52px; height: 52px; border-radius: 99px; padding: 0; min-height: 52px; }
+  #compo .extra, #compo .err, #compo .cab-c { display: none; grid-column: 1 / -1; }
+  body.componiendo #compo .extra, body.componiendo #compo .cab-c { display: flex; }
+  body.componiendo #compo .extra input { flex: 1; }
+  #compo .cab-c { justify-content: space-between; align-items: center; font-size: 14px; color: var(--texto-2); font-weight: 600; }
+  #compo.mal .err { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; color: var(--error-texto); }
+  #compo.mal #c-correo { border-color: var(--error); }
+  body.componiendo #compo { box-shadow: 0 -16px 32px -16px rgba(26,29,27,.25); animation: sube var(--t-nav) var(--curva); }
+  @keyframes sube { from { transform: translateY(12px); opacity: .6; } to { transform: none; opacity: 1; } }
+  body[data-vista=aparatos] #compo { display: none; }
+
+  .hoja { display: grid; gap: 12px; }
+  .hoja .pie-d { display: grid; grid-template-columns: 1fr 1.4fr; margin-top: 8px; }
+  .hoja .pie-d .btn { min-height: 52px; }
+  .hoja .lead { margin: 0; color: var(--texto-2); font-size: 15px; }
+  .g-in { display: grid; gap: 12px; }
+  .g-cab { display: flex; gap: 12px; align-items: center; }
+  .g-cab .ti { width: 44px; height: 44px; border-radius: 12px; background: var(--hundido); display: grid; place-items: center; }
+  .g-cab div { display: grid; } .g-cab b { font-size: 18px; } .g-cab span { font-size: 14px; color: var(--texto-2); }
+  dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0; font-size: 15px; }
+  dt { color: var(--texto-2); font-weight: 600; } dd { margin: 0; font-weight: 650; }
+  .g-in .btn { min-height: 52px; }
+  #menu { gap: 4px; }
+  #menu button { display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 12px; border: 0; border-radius: 12px; background: var(--hundido); font-weight: 700; font-size: 16px; text-align: left; }
+  #menu button.rojo { color: var(--error-texto); background: var(--error-suave); }
+  .m-nota { display: flex; gap: 8px; align-items: center; padding: 4px 12px; font-size: 14px; color: var(--texto-3); }
+  #editar input:disabled { background: var(--hundido); color: var(--texto-2); box-shadow: none; }
+  .quienes { display: grid; gap: 8px; margin-top: 8px; }
+  .quien-b { display: grid; grid-template-columns: 44px 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; text-align: left; padding: 10px 12px; border-radius: var(--r); border: 1px solid var(--borde); background: var(--superficie); }
+  .quien-b .avatar { grid-row: span 2; }
+  .quien-b span { font-size: 14px; color: var(--texto-2); }
+  .paso { display: grid; gap: 8px; }
+  .gris-cartel { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); z-index: 30; white-space: nowrap; }
+</style>
+</head>
+<body class="es-celu" data-vista="personas">
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="celu-cabecera"><span class="t-titulo">Negocio</span><span class="avatar">RP</span></div>
+  <button class="celu-estado" data-luz><span class="punto"></span><span data-luz-texto>En línea</span></button>
+  <nav class="celu-pestanas"><a data-ir="business-overview">Resumen</a><a class="activa" data-no-ir>Usuarios</a><a data-ir="audit-log">Quién hizo qué</a></nav>
+  <div class="celu-pantalla">
+    <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión</div>
+    <div class="segmentos zona-red"><button class="elegido" data-vista="personas">Personas <span class="n" data-n="personas">7</span></button><button data-vista="aparatos">Aparatos <span class="n" data-n="aparatos">8</span></button></div>
+    <div id="vista" class="zona-red"></div>
+  </div>
+  <form id="compo" class="zona-red" novalidate>
+    <div class="cab-c"><span>Autorizar a alguien · no le llega nada</span><button type="button" class="btn btn-fantasma chico" id="c-cancelar">Cancelar</button></div>
+    <input id="c-correo" type="email" inputmode="email" placeholder="Autorizá: correo de Google" autocomplete="off" aria-label="Correo de Google">
+    <button class="btn btn-accion enviar" type="submit" aria-label="Autorizar"><i class="i i-l" data-i="user-plus"></i></button>
+    <div class="err"><i class="i i-s" data-i="circle-alert"></i><span></span></div>
+    <div class="extra"><input id="c-nombre" placeholder="Nombre (opcional)" autocomplete="off" aria-label="Nombre"></div>
+  </form>
+  <nav class="nav-inferior">
+    <a data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a class="activo" data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+
+  <div class="velo"></div>
+  <div class="hoja" id="globo"><div class="asa"></div><div class="g-in"></div></div>
+  <div class="hoja" id="menu"></div>
+  <form class="hoja" id="editar" novalidate>
+    <div class="asa"></div><h2>Cambiar los datos</h2>
+    <div class="campo-real"><label for="e-nombre">Nombre</label><input id="e-nombre" autocomplete="off"></div>
+    <div class="campo-real cor"><label for="e-correo">Correo de Google</label><input id="e-correo" autocomplete="off"><div class="err"><i class="i i-s" data-i="circle-alert"></i><span></span></div><div class="ayuda"></div></div>
+    <div class="pie-d"><button type="button" class="btn btn-fantasma" data-cerrar>Cancelar</button><button class="btn btn-oscuro" type="submit">Guardar</button></div>
+  </form>
+  <div class="hoja" id="confirmar" role="alertdialog">
+    <div class="asa"></div><div><h2></h2><p class="lead"></p></div><ul class="consecuencias" style="margin:0"></ul>
+    <div class="pie-d"><button class="btn btn-fantasma" data-cerrar>No</button><button class="btn btn-rojo"></button></div>
+  </div>
+  <div class="hoja" id="perdido"><div class="asa"></div><div class="paso"></div></div>
+  <div class="tostadas"></div>
+</div>
+<script src="../../shared/data.js"></script>
+<script src="../../shared/ui.js"></script>
+<script src="../../shared/v2.js"></script>
+</body>
+</html>

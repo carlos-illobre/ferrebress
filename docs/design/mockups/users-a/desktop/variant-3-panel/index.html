@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · 3 · El tablero · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/v3.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  html, body { height: 100%; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .top { height: 88px; padding: 0 32px; flex: none; }
+  .top .t-titulo { line-height: 32px; }
+  .top .der { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+  .salir { width: 44px; height: 44px; }
+  .zona { flex: 1; min-height: 0; overflow: auto; padding: 0 32px 16px; }
+  .circuito { grid-template-columns: 344px 88px minmax(0,1fr); gap: 12px; padding: 4px 20px 4px 12px; }
+  .circuito.vacio { grid-template-columns: 444px minmax(0,1fr); gap: 16px; padding: 14px 20px 14px 20px; }
+  .ayuda-tec { flex: none; height: 44px; display: flex; align-items: center; gap: 20px; padding: 0 32px; font-size: 14px; color: var(--texto-2); font-weight: 600; border-top: 1px solid var(--borde); background: var(--superficie); }
+  .ayuda-tec span { display: inline-flex; gap: 6px; align-items: center; }
+  .ayuda-tec .kbd { height: 22px; min-width: 22px; }
+</style>
+</head>
+<body>
+  <header class="top">
+    <button class="btn btn-icono salir" data-ir="business-overview" aria-label="Volver a Negocio"><i class="i" data-i="x"></i></button>
+    <div class="pq"><span class="t-titulo">Usuarios</span><span class="sub">El tablero del local · <b data-n="act">7</b> pueden entrar · <b data-n="ses">8</b> sesiones encendidas · <b data-n="hu">3</b> huellas</span></div>
+    <div class="der">
+      <button class="luz3" data-luz title="En la maqueta: tocala para simular que se corta la conexión"><span class="punto"></span><span data-luz-texto>En línea</span></button>
+      <button class="btn btn-accion" onclick="document.getElementById('n-correo').focus();document.getElementById('nuevo').scrollIntoView({block:'nearest',behavior:'smooth'})"><i class="i i-s" data-i="user-plus"></i>Circuito nuevo <span class="kbd">Alt N</span></button>
+    </div>
+  </header>
+  <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· el tablero se ve, no se toca</small></div>
+  <div class="zona zona-red"><div id="tablero"></div></div>
+  <footer class="ayuda-tec">
+    <span><span class="kbd">↑</span><span class="kbd">↓</span> circuito</span>
+    <span><span class="kbd">←</span><span class="kbd">→</span> llave y térmicas</span>
+    <span><span class="kbd">Espacio</span> baja la térmica</span>
+    <span>Mantené <span class="kbd">Espacio</span> en la llave o la general</span>
+    <span>Tocá la placa para cambiar el nombre</span>
+    <span style="margin-left:auto"><span class="kbd">Esc</span> volver a Negocio</span>
+  </footer>
+
+  <div class="velo"></div>
+  <form class="dialogo" id="editar" novalidate>
+    <h2>La placa</h2>
+    <div class="campo-real"><label for="e-nombre">Nombre</label><input id="e-nombre" autocomplete="off"></div>
+    <div class="campo-real cor"><label for="e-correo">Correo de Google</label><input id="e-correo" autocomplete="off"><div class="err"><i class="i i-s" data-i="circle-alert"></i><span></span></div><div class="ayuda"></div></div>
+    <div class="pie-d" style="margin-top:0"><button type="button" class="btn btn-fantasma" data-cerrar>Cancelar</button><button class="btn btn-oscuro" type="submit">Guardar <span class="kbd">Enter</span></button></div>
+  </form>
+  <div class="tostadas"></div>
+
+<script src="../../shared/data.js"></script>
+<script src="../../shared/ui.js"></script>
+<script src="../../shared/v3.js"></script>
+</body>
+</html>
