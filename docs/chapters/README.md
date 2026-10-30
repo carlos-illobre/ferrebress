@@ -20,7 +20,7 @@ se dejó y qué propone mejorar (constitución, paso 1).
 | 02 · Personas ([`02-users`](02-users/summary.md)) | Personas, roles, permisos y sesiones, en dos etapas: a. personas y sesiones; b. roles y permisos | Etapa a: reglas aprobadas; pantallas |
 | 03 · Celular y computadora (`03-device-link`) | Vincular, espejo, lector de códigos, fotos | Por escribir |
 | 04 · Configuración del dispositivo (`04-device-settings`) | Lo que cada persona elige para su dispositivo | Por escribir |
-| 05 · Quién hizo qué (`05-audit-log`) | El registro de cada acción y cómo se consulta | Por escribir |
+| 05 · Auditoría (`05-audit-log`) | El registro de cada acción y cómo se consulta, en Más → Usuarios | Por escribir |
 | 06 · Administración (`06-administration`) | Los ajustes para todos y las anomalías | Por escribir |
 | 07 · Catálogo (`07-catalog`) | Productos, proveedores, costo, margen, precio, búsqueda, duplicados | Por escribir |
 | 08 · Listas de precios (`08-price-lists`) | Subir, revisar y aplicar la lista de un proveedor | Por escribir |

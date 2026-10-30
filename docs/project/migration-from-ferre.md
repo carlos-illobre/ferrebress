@@ -39,7 +39,7 @@ usa solo para leer: no se modifica.
 | 02 · Personas | 007 (RF-72, RF-74, RF-75), 029 |
 | 03 · Celular y computadora | 002 (RF-08, RF-09), 007 (RF-77), 023, 025 |
 | 04 · Configuración del dispositivo | 009 |
-| 05 · Quién hizo qué | 007 (RF-71), 027 |
+| 05 · Auditoría | 007 (RF-71), 027 |
 | 06 · Administración | 020, 005 (RF-59), 014 |
 | 07 · Catálogo | 002, 015, 016 |
 | 08 · Listas de precios | 002 (RF-01 a RF-04) |

@@ -152,11 +152,11 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Lector | El celular leyendo códigos de barras para la computadora | `scanner` |
 | Acción | Algo que hace la persona en la aplicación, con un nombre (agregar un renglón, cobrar) | `action` |
 
-## Quién hizo qué, mejoras y procesos
+## Auditoría, mejoras y procesos
 
 | Castellano | Qué es | En el código |
 |---|---|---|
-| Quién hizo qué | El registro de cada acción, con quién la hizo | `auditLog` |
+| Auditoría | El registro de cada acción, con quién la hizo | `auditLog` |
 | Evento | Una acción registrada | `event` |
 | Ticket | Un aviso de error o un pedido de mejora | `ticket` |
 | Error / mejora | Los dos tipos de ticket | `bug` / `improvement` |

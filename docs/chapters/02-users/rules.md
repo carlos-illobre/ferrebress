@@ -23,8 +23,8 @@ Administrador. **Etapa b:** roles y permisos; se escribe al llegar a ella.
 
 ## 2. Dónde está
 
-- **R2.1** En Más → Usuarios, una opción propia de Más (00 · R1.2): administrar personas no es
-  parte del negocio. En la computadora y en el celular, con las mismas reglas (00 · R1.5).
+- **R2.1** En Más → Usuarios, pestaña Usuarios (00 · R1.2): administrar personas no es parte del
+  negocio. La otra pestaña, Auditoría, es del capítulo 05. En la computadora y en el celular, con las mismas reglas (00 · R1.5).
 - **R2.2** Todo lo de este capítulo necesita conexión: sin conexión, Usuarios se ve gris con «Sin
   conexión» y vuelve sola al volver la conexión (00 · R4.4).
 
