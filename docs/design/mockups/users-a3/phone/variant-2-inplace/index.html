@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · 2 · Todo en su lugar · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/base.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  .celu-cabecera .btn { height: 36px; min-height: 36px; padding: 0 12px; font-size: 14px; border-radius: 999px; }
+  /* Dos modos de la misma lista, a todo el ancho: Personas · Se perdió un celular */
+  .modos { display: grid; grid-template-columns: 5fr 7fr; margin: 12px 16px 0; padding: 3px; background: var(--hundido); border-radius: var(--r); position: relative; }
+  .modos button { position: relative; z-index: 1; height: 44px; border: 0; background: none; border-radius: 10px; font-weight: 700; font-size: 15px; color: var(--texto-2); display: inline-flex; gap: 6px; align-items: center; justify-content: center; }
+  .modos button.elegido { color: var(--pino); font-weight: 800; }
+  .modos button[data-m="perdido"].elegido { color: var(--error-texto); }
+  .modos button { white-space: nowrap; transition: background var(--t), box-shadow var(--t); }
+  .modos button.elegido { background: var(--superficie); box-shadow: var(--sombra-1); }
+  .modos .bola { display: none; }
+  .celu-pantalla { overflow: auto; padding-bottom: 16px; }
+  .intro { display: flex; gap: 10px; align-items: flex-start; padding: 4px 4px 12px; font-size: 15px; line-height: 21px; color: var(--texto-2); font-weight: 600; }
+  .intro .i { color: var(--error-texto); margin-top: 1px; }
+  .grupo { display: flex; gap: 6px; font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 16px 4px 8px; }
+  .grupo:first-child { padding-top: 4px; }
+  .grupo span { color: var(--texto-3); }
+  /* La lista agrupada: una sola tarjeta con separadores (como Ajustes de iPhone) */
+  .bloque { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); overflow: hidden; }
+  .bloque.punteado { background: transparent; border-style: dashed; border-color: var(--borde-fuerte); box-shadow: none; }
+  .per + .per { border-top: 1px solid var(--borde); }
+  .per.abierta { background: #FFFDF9; }
+  .cab { width: 100%; display: grid; grid-template-columns: 40px minmax(0,1fr) 20px; gap: 12px; align-items: center; padding: 12px 12px 12px 14px; border: 0; background: none; text-align: left; }
+  .cab .cara { align-self: start; margin-top: 2px; }
+  .nom { display: flex; align-items: center; gap: 6px; font-size: 16px; line-height: 22px; font-weight: 700; min-width: 0; }
+  .nom em { font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nom .pastilla { height: 22px; padding: 0 8px; flex: none; }
+  .nom .cts { margin-left: auto; display: inline-flex; gap: 8px; font-size: 14px; color: var(--texto-2); flex: none; }
+  .nom .ct { display: inline-flex; align-items: center; gap: 2px; }
+  .mail { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; font-size: 14px; font-weight: 600; color: var(--texto-2); }
+  .meta .pastilla { height: 24px; padding: 0 8px; }
+  .meta .ct { display: inline-flex; align-items: center; gap: 3px; }
+  .meta .nunca { color: var(--urgente-texto); display: inline-flex; gap: 4px; align-items: center; }
+  .flecha { color: var(--texto-3); transition: transform var(--t) var(--curva); }
+  .per.abierta .flecha { transform: rotate(90deg); }
+  .baja .nom { color: var(--texto-2); }
+  /* Lo que se despliega en el lugar */
+  .dentro { padding: 0 14px 16px; display: grid; gap: 10px; animation: abre var(--t-nav) var(--curva); }
+  @keyframes abre { from { opacity: 0; transform: translateY(-6px); } }
+  .sub { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 750; color: var(--texto-2); margin-top: 4px; }
+  .sub span { flex: 1; }
+  .it { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: center; padding: 10px 10px 10px 12px; border-radius: var(--r); background: var(--fondo); }
+  .it b { display: flex; gap: 6px; align-items: center; font-size: 15px; line-height: 20px; }
+  .it b .i { color: var(--texto-2); }
+  .it small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .it .vivo { width: 8px; height: 8px; border-radius: 99px; background: var(--logro); }
+  .acc { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .nota { font-size: 14px; line-height: 20px; color: var(--texto-2); display: flex; gap: 6px; }
+  .confirma { padding: 12px; border-radius: var(--r); background: var(--error-suave); color: var(--error-texto); display: grid; gap: 8px; animation: abre var(--t) var(--curva); }
+  .confirma b { font-size: 15px; }
+  .confirma ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 20px; font-weight: 600; }
+  .confirma .acc .btn { flex: 1; }
+  .ed-campo { display: flex; gap: 8px; }
+  .ed-campo .entrada { height: 44px; }
+  /* Modo «Se perdió un celular»: cada celular con su Cortar a la vista */
+  .cel { display: grid; grid-template-columns: 40px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 10px 12px 10px 14px; }
+  .cel + .cel { border-top: 1px solid var(--borde); }
+  .cel b { display: block; font-size: 15px; line-height: 20px; }
+  .cel small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .cortado { color: var(--logro-texto); font-weight: 750; font-size: 14px; display: inline-flex; gap: 4px; align-items: center; }
+  .pers-cel { display: flex; gap: 10px; align-items: center; padding: 12px 14px 4px; font-weight: 750; }
+  .vacio { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 40px 16px; color: var(--texto-2); }
+  .vacio .i-xl { color: var(--logro); }
+  /* Autorizar en una línea, abajo, como escribir un mensaje */
+  .redactar { display: grid; gap: 8px; }
+  .linea { display: grid; grid-template-columns: minmax(0,1fr) 52px; gap: 8px; }
+  .linea .entrada { height: 52px; border-radius: 999px; padding-left: 48px; background: var(--superficie) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B706B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M19 8v6M22 11h-6'/%3E%3C/svg%3E") no-repeat 16px center / 22px; }
+  .linea .btn { width: 52px; height: 52px; padding: 0; border-radius: 999px; }
+  .extra { display: none; }
+  .redactar.escribiendo .extra { display: grid; animation: abre var(--t) var(--curva); }
+  .redactar .error-campo { margin: 0 8px; }
+  body.m-perdido .barra-accion { display: none; }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="celu-cabecera"><span class="t-titulo">Usuarios</span><button class="btn" data-ir="audit-log"><i class="i i-s" data-i="clipboard-list"></i>Auditoría</button><span class="btn-vinculo"><i class="i i-s" data-i="monitor"></i></span></div>
+  <button class="celu-estado"><span class="punto"></span><span data-luz>En línea · todo enviado</span></button>
+  <div class="aviso urgente cartel-red"><i class="i" data-i="wifi-off"></i>Sin conexión: Usuarios vuelve sola cuando vuelva la conexión.</div>
+  <div class="modos zona-red" role="tablist"><span class="bola"></span>
+    <button class="elegido" data-m="personas" data-no-ir><i class="i i-s" data-i="users"></i>Personas <span id="n-per"></span></button>
+    <button data-m="perdido" data-no-ir><i class="i i-s" data-i="smartphone"></i>Se perdió un celular</button>
+  </div>
+  <div class="celu-pantalla zona-red" id="pantalla"></div>
+  <div class="barra-accion zona-red">
+    <div class="redactar" id="redactar">
+      <div class="error-campo" id="a-error"><i class="i i-s" data-i="circle-alert"></i><span></span></div>
+      <div class="extra"><input class="entrada" id="a-nombre" placeholder="Nombre (opcional: si no, el de Google)" autocomplete="off" style="border-radius:999px;height:48px"></div>
+      <div class="linea"><input class="entrada" id="a-correo" type="email" inputmode="email" placeholder="Autorizar: correo de Google" autocomplete="off"><button class="btn btn-accion" id="a-ok" aria-label="Autorizar"><i class="i i-l" data-i="arrow-right"></i></button></div>
+    </div>
+  </div>
+  <nav class="nav-inferior">
+    <a data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a class="activo" data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+  <div class="tostadas"></div>
+  <div class="velo"></div>
+</div>
+
+<script src="../../shared/data.js"></script>
+<script src="../../shared/ui.js"></script>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var ico = function (n, c) { return '<i class="i ' + (c || "") + '" data-i="' + n + '"></i>'; };
+  var modo = "personas", abierta = null, confirma = null, editando = null, recien = null, cortados = {};
+
+  function cara(p) { return '<span class="cara ' + (p.estado === "baja" ? "baja" : p.nunca ? "nunca" : "") + '" style="' + UA.tono(p) + '">' + UA.iniciales(p) + "</span>"; }
+
+  function persona(p) {
+    var baja = p.estado === "baja", vos = p.estado === "vos", ses = UA.sesiones(p), hu = UA.huellas(p), ab = abierta === p.id;
+    var meta = '<span class="pastilla ' + (baja ? "" : "pino") + '">' + ico("shield-check", "i-s") + "Administrador</span>" +
+      (p.nunca ? '<span class="nunca">' + ico("hourglass", "i-s") + "Todavía no entró</span>" : "<span>" + p.entro.replace("Entró ", "") + "</span>");
+    var cts = '<span class="cts">' + (ses.length ? '<span class="ct">' + ico("monitor", "i-s") + ses.length + "</span>" : "") + (hu.length ? '<span class="ct">' + ico("fingerprint", "i-s") + hu.length + "</span>" : "") + "</span>";
+    var h = '<div class="per ' + (ab ? "abierta " : "") + (baja ? "baja" : "") + '" data-p="' + p.id + '"><button class="cab" data-abrir>' + cara(p) +
+      '<span style="min-width:0"><span class="nom"><em>' + UA.esc(UA.mostrar(p)) + "</em>" + (vos ? '<span class="pastilla accion">Vos</span>' : "") + (baja ? '<span class="pastilla">De baja</span>' : "") + cts + '</span><span class="mail">' + (p.nombre ? p.correo : "Sin nombre todavía") + '</span><span class="meta">' + meta + "</span></span>" + ico("chevron-right", "flecha") + "</button>";
+    if (ab) h += dentro(p, ses, hu);
+    return h + "</div>";
+  }
+
+  function dentro(p, ses, hu) {
+    var baja = p.estado === "baja", vos = p.estado === "vos", h = '<div class="dentro">';
+    if (editando) {
+      var nom = editando === "nombre";
+      h += '<div class="sub"><span>' + (nom ? "Nombre (vacío, el de Google)" : "Correo de Google") + '</span></div><div class="ed-campo"><input class="entrada" id="e-v" value="' + UA.esc(nom ? p.nombre : p.correo) + '" autocomplete="off"><button class="btn btn-oscuro" data-guardar>Guardar</button></div><div class="error-campo" id="e-err">' + ico("circle-alert", "i-s") + "<span></span></div>";
+      return h + "</div>";
+    }
+    h += '<div class="acc"><button class="btn chico" data-ed="nombre">' + ico("pencil", "i-s") + "Nombre</button>" + (p.nunca ? '<button class="btn chico" data-ed="correo">' + ico("mail", "i-s") + "Correo</button>" : '<span class="nota" style="align-items:center">' + ico("lock", "i-s") + "El correo ya no cambia</span>") + "</div>";
+    if (p.nunca) {
+      h += '<div class="aviso urgente">' + ico("hourglass") + "<span>Avisale que entre con Google. Hasta entonces se puede borrar.</span></div>";
+      h += '<button class="btn btn-peligro" data-borrar>' + ico("trash-2", "i-s") + "Borrar, fue un error</button>";
+    } else if (baja) {
+      h += '<div class="nota">' + ico("info", "i-s") + "<span>No entra. Al darle de alta vincula de nuevo su celular.</span></div><button class=\"btn\" data-alta>" + ico("user-check", "i-s") + "Dar de alta</button>";
+    } else {
+      h += '<div class="sub"><span>Sesiones abiertas · ' + ses.length + "</span>" + (ses.length > 1 && confirma !== "todas" ? '<button class="btn btn-fantasma chico" data-todas style="color:var(--error-texto)">Cerrar todas</button>' : "") + "</div>";
+      if (confirma === "todas") h += '<div class="confirma"><b>¿Cerrar las ' + ses.length + " sesiones?</b><ul><li>Cada dispositivo vuelve a la entrada</li>" + (vos ? "<li>Este celular sigue adentro</li>" : "") + '</ul><div class="acc"><button class="btn chico" data-no>Cancelar</button><button class="btn chico btn-rojo" data-si-todas>Cerrar todas</button></div></div>';
+      h += ses.length ? ses.map(function (s) { return '<div class="it" data-s="' + s.id + '"><span><b>' + ico(s.tipo === "phone" ? "smartphone" : "monitor", "i-s") + s.disp + (s.vivo ? '<span class="vivo"></span>' : "") + "</b><small>" + s.como + " · " + s.desde.replace("Entró ", "entró ") + "</small><small>" + s.uso + '</small></span><button class="btn chico" data-cerrar-s="' + s.id + '">Cerrar</button></div>'; }).join("") : '<div class="nota">Sin sesiones abiertas</div>';
+      if (vos) h += '<div class="nota">' + ico("info", "i-s") + "<span>La de este celular se cierra con Salir; tus huellas, en Configuración.</span></div>";
+      else {
+        h += '<div class="sub"><span>Celulares con huella · ' + hu.length + "</span></div>";
+        h += hu.length ? hu.map(function (x) { return '<div class="it"><span><b>' + ico("fingerprint", "i-s") + x.disp + "</b><small>" + x.vinculo + "</small><small>" + x.uso + '</small></span><button class="btn chico" data-quitar="' + x.id + '">Quitar</button></div>'; }).join("") : '<div class="nota">Sin celulares con huella</div>';
+        if (confirma === "baja") h += '<div class="confirma"><b>¿Dar de baja a ' + UA.esc(UA.mostrar(p)) + "?</b><ul><li>" + UA.plural(ses.length, "sesión se cierra", "sesiones se cierran") + "</li><li>" + UA.plural(hu.length, "huella se quita", "huellas se quitan") + '</li><li>Ya no entra; sigue en la lista</li></ul><div class="acc"><button class="btn chico" data-no>Cancelar</button><button class="btn chico btn-rojo" data-si-baja>Dar de baja</button></div></div>';
+        else h += '<button class="btn btn-peligro" data-baja>' + ico("user-x", "i-s") + "Dar de baja</button>";
+      }
+    }
+    return h + "</div>";
+  }
+
+  function personas() {
+    UA.ordenar();
+    var act = PERSONAS.filter(function (p) { return p.estado !== "baja"; }), baja = PERSONAS.filter(function (p) { return p.estado === "baja"; });
+    return '<div class="grupo">Pueden entrar <span>' + act.length + '</span></div><div class="bloque">' + act.map(persona).join("") + "</div>" +
+      (baja.length ? '<div class="grupo">Dados de baja <span>' + baja.length + '</span></div><div class="bloque punteado">' + baja.map(persona).join("") + "</div>" : "");
+  }
+
+  function perdidos() {
+    var con = PERSONAS.filter(function (p) { return UA.celulares(p).length || cortados[p.id]; });
+    var h = '<div class="intro">' + ico("zap") + "<span>Tocá «Cortar» en el celular perdido: se cierra su sesión y se le quita la huella, sin preguntar.</span></div>";
+    if (!con.length) return h + '<div class="vacio">' + ico("circle-check", "i-xl") + "<b>No queda ningún celular para cortar</b></div>";
+    return h + con.map(function (p) {
+      var cels = UA.celulares(p), hechos = cortados[p.id] || [];
+      return '<div class="grupo" style="align-items:center;gap:10px">' + '<span class="cara" style="width:32px;height:32px;' + UA.tono(p) + '">' + UA.iniciales(p) + "</span>" + "<b style=\"color:var(--tinta);font-size:15px\">" + UA.esc(UA.mostrar(p)) + "</b><span>" + UA.plural(cels.length, "celular", "celulares") + '</span></div><div class="bloque">' +
+        cels.map(function (x) { return '<div class="cel" data-cel="' + x.cel + '"><span class="ico40">' + ico("smartphone") + "</span><span><b>" + x.disp + "</b><small>" + [x.sesion ? "Sesión abierta" : "", x.huella ? "con huella" : ""].filter(Boolean).join(" · ") + "</small><small>" + x.uso + '</small></span><button class="btn btn-rojo chico" data-cortar="' + p.id + "|" + x.cel + '">' + ico("zap", "i-s") + "Cortar</button></div>"; }).join("") +
+        hechos.map(function (t) { return '<div class="cel llega"><span class="ico40" style="background:var(--logro-suave);color:var(--logro-texto)">' + ico("check") + "</span><span><b>" + t.disp + '</b><small class="cortado">Cortado: ' + t.r.toLowerCase() + "</small></span><span></span></div>"; }).join("") + "</div>";
+    }).join("");
+  }
+
+  function pintar(mover) {
+    var pan = $("#pantalla"), y = pan.scrollTop;
+    pan.innerHTML = modo === "personas" ? personas() : perdidos();
+    pintarIconos(pan); if (!mover) pan.scrollTop = y;
+    $("#n-per").textContent = PERSONAS.length;
+    if (recien) { var f = pan.querySelector('[data-p="' + recien + '"]'); if (f) { f.classList.add("llega"); f.style.background = "var(--logro-suave)"; setTimeout(function () { f.style.background = ""; }, 1100); f.scrollIntoView({ block: "center" }); } recien = null; }
+    var ev = $("#e-v"); if (ev) ev.focus({ preventScroll: true });
+    var cf = pan.querySelector(".confirma"); if (cf) cf.scrollIntoView({ block: "nearest", behavior: UA.quieto() ? "auto" : "smooth" });
+  }
+
+  document.querySelector(".modos").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    modo = b.dataset.m; cortados = {};
+    document.querySelectorAll(".modos button").forEach(function (x) { x.classList.toggle("elegido", x === b); });
+    document.body.classList.toggle("m-perdido", modo === "perdido");
+    var pan = $("#pantalla"); pan.style.opacity = 0; setTimeout(function () { pintar(true); pan.scrollTop = 0; pan.style.opacity = 1; }, 120);
+    UI.vibrar(10);
+  });
+  $("#pantalla").style.transition = "opacity 120ms";
+
+  $("#pantalla").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var per = b.closest(".per"), p = per && UA.buscar(per.dataset.p);
+    if (b.dataset.cortar) {
+      var k = b.dataset.cortar.split("|"), q = UA.buscar(k[0]), x = UA.celulares(q).filter(function (c) { return c.cel === k[1]; })[0];
+      var r = UA.cortar(q, k[1]); (cortados[q.id] = cortados[q.id] || []).push({ disp: x.disp, r: r });
+      b.closest(".cel").classList.add("se-va"); UI.vibrar([10, 40, 10]);
+      setTimeout(function () { pintar(); UI.tostada(UA.esc(UA.mostrar(q)) + ": celular cortado", "zap"); }, 210); return;
+    }
+    if (!p) return;
+    if (b.hasAttribute("data-abrir")) { abierta = abierta === p.id ? null : p.id; confirma = null; editando = null; pintar(); UI.vibrar(10); return; }
+    if (b.dataset.ed) { editando = b.dataset.ed; pintar(); return; }
+    if (b.hasAttribute("data-guardar")) {
+      var v = $("#e-v").value.trim();
+      if (editando === "correo" && (!UA.esCorreo(v) || (UA.yaEsta(v) && v.toLowerCase() !== p.correo.toLowerCase()))) { $("#e-v").classList.add("mal"); $("#e-err").classList.add("ver"); $("#e-err span").textContent = UA.esCorreo(v) ? "Ese correo ya está cargado" : "Eso no es un correo"; return; }
+      if (editando === "nombre") p.nombre = v; else p.correo = v; editando = null; pintar(); UI.tostada("Guardado", "check"); return;
+    }
+    if (b.dataset.cerrarS) { b.closest(".it").classList.add("se-va"); setTimeout(function () { p.sesiones = p.sesiones.filter(function (s) { return s.id !== b.dataset.cerrarS; }); pintar(); UI.tostada("Sesión cerrada", "log-out"); UI.vibrar([10, 40, 10]); }, 210); return; }
+    if (b.dataset.quitar) { var hu = p.huellas.filter(function (x) { return x.id === b.dataset.quitar; })[0]; b.closest(".it").classList.add("se-va"); setTimeout(function () { var r = UA.cortar(p, hu.cel); pintar(); UI.tostada(/sesi/.test(r) ? "Huella quitada y su sesión cerrada" : "Huella quitada", "fingerprint"); UI.vibrar([10, 40, 10]); }, 210); return; }
+    if (b.hasAttribute("data-todas")) { confirma = "todas"; pintar(); return; }
+    if (b.hasAttribute("data-baja")) { confirma = "baja"; pintar(); return; }
+    if (b.hasAttribute("data-no")) { confirma = null; pintar(); return; }
+    if (b.hasAttribute("data-si-todas")) { var n = UA.sesiones(p).length; p.sesiones = p.sesiones.filter(function (s) { return s.actual === "phone"; }); confirma = null; pintar(); UI.tostada(n + " sesiones cerradas", "log-out"); UI.vibrar([10, 40, 10]); return; }
+    if (b.hasAttribute("data-si-baja")) { p.estado = "baja"; p.sesiones = []; p.huellas = []; confirma = null; pintar(); UI.tostada(UA.esc(UA.mostrar(p)) + " ya no entra", "user-x"); UI.vibrar([10, 40, 10]); return; }
+    if (b.hasAttribute("data-alta")) { p.estado = "activa"; pintar(); UI.tostada("Puede entrar de nuevo", "user-check"); return; }
+    if (b.hasAttribute("data-borrar")) { per.classList.add("se-va"); setTimeout(function () { PERSONAS.splice(PERSONAS.indexOf(p), 1); abierta = null; pintar(); UI.tostada("Borrada: su correo ya no entra", "trash-2"); }, 210); }
+  });
+
+  /* Autorizar en una línea */
+  var red = $("#redactar");
+  $("#a-correo").addEventListener("input", function () { red.classList.toggle("escribiendo", this.value.length > 0); this.classList.remove("mal"); $("#a-error").classList.remove("ver"); });
+  function autorizar() {
+    var c = $("#a-correo").value.trim(), n = $("#a-nombre").value.trim(), err = "";
+    if (!UA.esCorreo(c)) err = "Eso no es un correo: falta la @ o el dominio"; else if (UA.yaEsta(c)) err = "Ese correo ya está cargado";
+    if (err) { $("#a-correo").classList.add("mal"); $("#a-error").classList.add("ver"); $("#a-error span").textContent = err; return; }
+    var p = { id: "n" + Date.now(), nombre: n, correo: c, estado: "activa", nunca: true, entro: "Todavía no entró", autorizada: "Autorizada recién", sesiones: [], huellas: [] };
+    PERSONAS.push(p); recien = p.id; $("#a-correo").value = ""; $("#a-nombre").value = ""; red.classList.remove("escribiendo"); document.activeElement.blur();
+    pintar(); UI.tostada("Autorizada. Avisale que entre con Google", "user-check"); UI.vibrar(10);
+  }
+  $("#a-ok").onclick = autorizar;
+  [$("#a-correo"), $("#a-nombre")].forEach(function (i) { i.addEventListener("keydown", function (e) { if (e.key === "Enter") autorizar(); }); });
+
+  pintar();
+})();
+</script>
+</body>
+</html>

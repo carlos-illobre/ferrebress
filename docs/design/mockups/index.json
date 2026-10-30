@@ -332,6 +332,28 @@
      "path": "mockups/users-a2/phone/variant-3-keyrack/index.html"
     }
    ]
+  },
+  {
+   "id": "users-a3",
+   "title": "Usuarios · celular (tercera ronda)",
+   "module": "02 · Personas",
+   "variants": [
+    {
+     "device": "phone",
+     "name": "1 · Entrar a la tarjeta",
+     "path": "mockups/users-a3/phone/variant-1-push/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · Todo en su lugar",
+     "path": "mockups/users-a3/phone/variant-2-inplace/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · Arriba la lista, abajo la tarjeta",
+     "path": "mockups/users-a3/phone/variant-3-split/index.html"
+    }
+   ]
   }
  ]
 }

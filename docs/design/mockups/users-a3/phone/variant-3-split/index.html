@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · 3 · Arriba la lista, abajo la tarjeta · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/base.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  .celu-cabecera .perdi { height: 40px; min-height: 40px; padding: 0 14px; border-radius: 999px; font-size: 15px; gap: 6px; background: var(--error-suave); color: var(--error-texto); border-color: transparent; box-shadow: none; }
+  body.m-perdido .celu-cabecera .perdi { background: var(--error); color: #fff; }
+  .linea-estado { display: flex; align-items: center; padding-right: 8px; }
+  .linea-estado .celu-estado { flex: 1; }
+  .linea-estado .btn { min-height: 32px; height: 32px; font-size: 14px; color: var(--pino-texto); padding: 0 8px; }
+  /* La pantalla partida: arriba la lista, abajo la tarjeta. El asa se arrastra para repartir. */
+  .partida { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-top: 8px; }
+  .arriba { height: 268px; flex: none; overflow: auto; padding: 4px 16px 12px; }
+  .titulito { display: flex; align-items: center; gap: 8px; padding: 0 4px 8px; font-size: 14px; font-weight: 700; color: var(--texto-2); }
+  .titulito b { color: var(--tinta); font-size: 15px; }
+  .titulito span { margin-left: auto; color: var(--texto-3); }
+  .fila { width: 100%; display: grid; grid-template-columns: 36px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 8px 12px; min-height: 60px; text-align: left; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r); position: relative; transition: transform var(--t-micro) var(--curva); }
+  .fila:active { transform: scale(.98); }
+  .fila + .fila { margin-top: 6px; }
+  .fila .cara { width: 36px; height: 36px; }
+  .fila.elegida { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino); }
+  .fila.baja { background: transparent; border-style: dashed; border-color: var(--borde-fuerte); }
+  .fila .n { display: flex; gap: 6px; align-items: center; font-weight: 700; font-size: 16px; line-height: 22px; min-width: 0; }
+  .fila .n em { font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fila .n .pastilla { height: 22px; padding: 0 8px; flex: none; }
+  .fila .m { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fila .q { font-size: 14px; font-weight: 650; color: var(--texto-2); text-align: right; white-space: nowrap; }
+  .fila .q.nunca { color: var(--urgente-texto); }
+  .fila.nueva { border-style: dashed; border-color: var(--accion); background: var(--accion-suave); color: var(--accion-texto); }
+  .fila.nueva .cara { background: var(--accion); color: #fff; }
+  .sep { font-size: 14px; font-weight: 700; color: var(--texto-3); padding: 12px 4px 6px; }
+  .asa-zona { height: 24px; flex: none; display: grid; place-items: center; cursor: ns-resize; touch-action: none; position: relative; z-index: 2; }
+  .asa-zona span { width: 48px; height: 5px; border-radius: 99px; background: var(--borde-fuerte); }
+  .abajo { flex: 1; min-height: 0; overflow: auto; background: var(--superficie); border-radius: var(--r-hoja) var(--r-hoja) 0 0; box-shadow: var(--sombra-3); padding: 20px 16px 24px; margin-top: -12px; }
+  .abajo > .cont { animation: cambia var(--t) var(--curva); }
+  @keyframes cambia { from { opacity: 0; transform: translateY(6px); } }
+  .ficha-cab { display: grid; grid-template-columns: 56px minmax(0,1fr); gap: 12px; align-items: center; }
+  .ficha-cab .cara { width: 56px; height: 56px; font-size: 18px; }
+  .ed { display: flex; align-items: center; gap: 6px; max-width: 100%; border: 0; background: none; padding: 0; text-align: left; }
+  .ed .t { font-size: 20px; line-height: 26px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ed .c { font-size: 14px; color: var(--texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ed .i { color: var(--texto-3); flex: none; }
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 12px; font-size: 14px; color: var(--texto-2); font-weight: 600; }
+  .bloque-t { margin-top: 16px; }
+  .sub { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 750; margin-bottom: 8px; }
+  .sub span { color: var(--texto-3); }
+  .sub .btn { margin-left: auto; }
+  .it { display: grid; grid-template-columns: 36px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 10px 0; }
+  .it + .it { border-top: 1px solid var(--borde); }
+  .it .ico40 { width: 36px; height: 36px; position: relative; }
+  .it .vivo { position: absolute; top: -2px; right: -2px; width: 10px; height: 10px; border-radius: 99px; background: var(--logro); border: 2px solid var(--superficie); }
+  .it b { display: block; font-size: 15px; line-height: 20px; }
+  .it small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .nota { display: flex; gap: 6px; font-size: 14px; line-height: 20px; color: var(--texto-2); margin-top: 8px; }
+  .pie { margin-top: 16px; display: grid; gap: 8px; }
+  .pie .btn { width: 100%; }
+  .confirma { margin-top: 16px; padding: 14px; border-radius: var(--r); background: var(--error-suave); color: var(--error-texto); display: grid; gap: 8px; }
+  .confirma ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 20px; font-weight: 600; }
+  .confirma .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .vacio { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 32px 8px; color: var(--texto-2); }
+  .vacio .i-xl { color: var(--texto-3); }
+  /* Celular perdido: el resultado */
+  .listo { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 16px 0; }
+  .listo svg.tilde { width: 64px; height: 64px; }
+  .listo svg.tilde circle { fill: var(--logro-suave); }
+  .listo svg.tilde path { fill: none; stroke: var(--logro); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; animation: tilde 300ms var(--curva) 120ms forwards; }
+  @keyframes tilde { to { stroke-dashoffset: 0; } }
+  .listo h3 { margin: 4px 0 0; font-size: 20px; }
+  .op-cel { width: 100%; display: grid; grid-template-columns: 36px minmax(0,1fr) 24px; gap: 10px; align-items: center; padding: 12px; text-align: left; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r); }
+  .op-cel + .op-cel { margin-top: 8px; }
+  .op-cel .o { width: 22px; height: 22px; border-radius: 99px; border: 2px solid var(--borde-fuerte); }
+  .op-cel.elegida { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino); }
+  .op-cel.elegida .o { border: 7px solid var(--pino); }
+  .op-cel .ico40 { width: 36px; height: 36px; }
+  .op-cel b { display: block; font-size: 15px; line-height: 20px; }
+  .op-cel small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="celu-cabecera"><span class="t-titulo">Usuarios</span><button class="btn perdi zona-red" id="btn-perdido"><i class="i" data-i="smartphone"></i><span id="perdi-txt">Se perdió un celular</span></button></div>
+  <div class="linea-estado"><button class="celu-estado"><span class="punto"></span><span data-luz>En línea · todo enviado</span></button><button class="btn btn-fantasma" data-ir="audit-log">Auditoría<i class="i i-s" data-i="chevron-right"></i></button></div>
+  <div class="aviso urgente cartel-red"><i class="i" data-i="wifi-off"></i>Sin conexión: Usuarios vuelve sola cuando vuelva la conexión.</div>
+  <div class="partida zona-red">
+    <div class="arriba" id="arriba"></div>
+    <div class="asa-zona" id="asa" title="Arrastrá para repartir la pantalla"><span></span></div>
+    <div class="abajo" id="abajo"></div>
+  </div>
+  <nav class="nav-inferior">
+    <a data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a class="activo" data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+  <div class="tostadas" style="bottom:92px"></div>
+  <div class="velo"></div>
+</div>
+
+<script src="../../shared/data.js"></script>
+<script src="../../shared/ui.js"></script>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var ico = function (n, c) { return '<i class="i ' + (c || "") + '" data-i="' + n + '"></i>'; };
+  var modo = "personas", elegida = "gb", confirma = null, editando = null, pCel = null, cortado = null;
+
+  function cara(p, extra) { return '<span class="cara ' + (p.estado === "baja" ? "baja" : p.nunca ? "nunca" : "") + '" style="' + UA.tono(p) + '">' + UA.iniciales(p) + "</span>"; }
+  function corto(t) { return t.replace("Entró ", "").replace("hace ", "").replace(" horas", " h").replace(" días", " d").replace(" meses", " meses"); }
+
+  function fila(p) {
+    var baja = p.estado === "baja";
+    var nc = UA.celulares(p).length;
+    var q = modo === "perdido" ? (nc ? UA.plural(nc, "celular", "celulares") : '<span style="color:var(--logro-texto)">Cortado</span>') : (p.nunca ? "Sin entrar" : corto(p.entro));
+    return '<button class="fila ' + (p.id === elegida ? "elegida " : "") + (baja ? "baja" : "") + '" data-p="' + p.id + '">' + cara(p) +
+      '<span style="min-width:0"><span class="n"><em>' + UA.esc(UA.mostrar(p)) + "</em>" + (p.estado === "vos" ? '<span class="pastilla accion">Vos</span>' : "") + '</span><span class="m">' + (p.nombre ? p.correo : "Sin nombre todavía") + "</span></span>" +
+      '<span class="q ' + (p.nunca && modo !== "perdido" ? "nunca" : "") + '">' + q + "</span></button>";
+  }
+
+  function arriba() {
+    UA.ordenar();
+    var h;
+    if (modo === "perdido") {
+      var con = PERSONAS.filter(function (p) { return UA.celulares(p).length || (cortado && cortado.p === p.id); });
+      h = '<div class="titulito"><b>¿De quién es el celular?</b><span>' + con.length + "</span></div>" + con.map(fila).join("");
+      if (!con.length) h += '<div class="vacio">No queda ningún celular para cortar</div>';
+    } else {
+      var act = PERSONAS.filter(function (p) { return p.estado !== "baja"; }), baja = PERSONAS.filter(function (p) { return p.estado === "baja"; });
+      h = '<div class="titulito"><b>Pueden entrar</b> ' + act.length + "<span>" + UA.cuenta().sesiones + " sesiones · " + UA.cuenta().huellas + " con huella</span></div>" +
+        '<button class="fila nueva ' + (elegida === "nueva" ? "elegida" : "") + '" data-p="nueva"><span class="cara">' + ico("user-plus", "i-s") + '</span><span class="n">Autorizar a alguien</span><span>' + ico("plus") + "</span></button>" +
+        act.map(fila).join("") + (baja.length ? '<div class="sep">Dados de baja · ' + baja.length + "</div>" + baja.map(fila).join("") : "");
+    }
+    var a = $("#arriba"), y = a.scrollTop; a.innerHTML = h; pintarIconos(a); a.scrollTop = y;
+  }
+
+  function tarjetaPersona(p) {
+    var baja = p.estado === "baja", vos = p.estado === "vos", ses = UA.sesiones(p), hu = UA.huellas(p), h = "";
+    h += '<div class="ficha-cab">' + cara(p) + '<div style="min-width:0"><button class="ed" data-ed="nombre"><span class="t">' + UA.esc(UA.mostrar(p)) + "</span>" + ico("pencil", "i-s") + "</button>" +
+      (p.nunca ? '<button class="ed" data-ed="correo"><span class="c">' + p.correo + "</span>" + ico("pencil", "i-s") + "</button>" : '<span class="ed"><span class="c">' + p.correo + "</span>" + ico("lock", "i-s") + "</span>") + "</div></div>";
+    h += '<div class="pills">' + (vos ? '<span class="pastilla accion">Vos</span>' : "") + '<span class="pastilla ' + (baja ? "" : "pino") + '">' + ico("shield-check", "i-s") + "Administrador</span>" + (baja ? '<span class="pastilla error">Dada de baja</span>' : "") + "<span>" + (p.nunca ? "Todavía no entró" : p.entro) + "</span></div>";
+    if (editando) {
+      var nom = editando === "nombre";
+      return h + '<label class="etq" for="e-v">' + (nom ? "Nombre (vacío, vuelve al de Google)" : "Correo de Google") + '</label><input class="entrada" id="e-v" autocomplete="off" value="' + UA.esc(nom ? p.nombre : p.correo) + '"><div class="error-campo" id="e-err">' + ico("circle-alert", "i-s") + '<span></span></div><div class="confirma" style="background:none;padding:0"><div class="dos"><button class="btn" data-no>Cancelar</button><button class="btn btn-oscuro" data-guardar>Guardar</button></div></div>';
+    }
+    if (p.nunca) return h + '<div class="aviso urgente" style="margin-top:16px">' + ico("hourglass") + "<span>Avisale que entre con Google. Mientras no entre, el correo se corrige y se puede borrar.</span></div>" + '<div class="pie"><button class="btn btn-peligro" data-borrar>' + ico("trash-2") + "Borrar, fue un error</button></div>";
+    if (baja) return h + '<div class="nota" style="margin-top:16px">' + ico("info", "i-s") + "<span>No entra. Al darle de alta entra con la misma cuenta y vincula de nuevo su celular.</span></div>" + '<div class="pie"><button class="btn" data-alta>' + ico("user-check") + "Dar de alta</button></div>";
+    h += '<div class="bloque-t"><div class="sub">Sesiones abiertas <span>' + ses.length + "</span>" + (ses.length > 1 ? '<button class="btn chico btn-fantasma" data-todas style="color:var(--error-texto)">Cerrar todas</button>' : "") + "</div>";
+    if (confirma === "todas") h += '<div class="confirma" style="margin:0 0 8px"><b>¿Cerrar las ' + ses.length + " sesiones?</b><ul><li>Cada dispositivo vuelve a la entrada</li>" + (vos ? "<li>Este celular sigue adentro</li>" : "") + '</ul><div class="dos"><button class="btn chico" data-no>Cancelar</button><button class="btn chico btn-rojo" data-si-todas>Cerrar todas</button></div></div>';
+    h += ses.length ? ses.map(function (s) { return '<div class="it"><span class="ico40">' + ico(s.tipo === "phone" ? "smartphone" : "monitor") + (s.vivo ? '<span class="vivo"></span>' : "") + "</span><span><b>" + s.disp + "</b><small>" + s.como + " · " + s.uso.replace("Usada ", "usada ") + '</small></span><button class="btn chico btn-suave" data-cerrar-s="' + s.id + '">Cerrar</button></div>'; }).join("") : '<div class="nota">Sin sesiones abiertas</div>';
+    h += "</div>";
+    if (vos) return h + '<div class="nota">' + ico("info", "i-s") + "<span>La de este celular se cierra con Salir; tus huellas, en Configuración.</span></div>";
+    h += '<div class="bloque-t"><div class="sub">Celulares con huella <span>' + hu.length + "</span></div>" + (hu.length ? hu.map(function (x) { return '<div class="it"><span class="ico40">' + ico("fingerprint") + "</span><span><b>" + x.disp + "</b><small>" + x.uso + '</small></span><button class="btn chico btn-suave" data-quitar="' + x.id + '">Quitar</button></div>'; }).join("") : '<div class="nota">Sin celulares con huella</div>') + "</div>";
+    if (confirma === "baja") h += '<div class="confirma"><b>¿Dar de baja a ' + UA.esc(UA.mostrar(p)) + "?</b><ul><li>" + UA.plural(ses.length, "sesión se cierra", "sesiones se cierran") + "</li><li>" + UA.plural(hu.length, "huella se quita", "huellas se quitan") + '</li><li>Ya no entra; sigue en la lista</li></ul><div class="dos"><button class="btn chico" data-no>Cancelar</button><button class="btn chico btn-rojo" data-si-baja>Dar de baja</button></div></div>';
+    else h += '<div class="pie"><button class="btn btn-peligro" data-baja>' + ico("user-x") + "Dar de baja</button></div>";
+    return h;
+  }
+
+  function tarjetaNueva() {
+    return '<div class="ficha-cab"><span class="cara" style="background:var(--accion-suave);color:var(--accion-texto)">' + ico("user-plus", "i-l") + '</span><div><div class="t-seccion">Autorizar a alguien</div><div class="t-detalle">Entra con Google. No se le manda correo.</div></div></div>' +
+      '<label class="etq" for="a-correo">Correo de Google</label><input class="entrada" id="a-correo" type="email" inputmode="email" placeholder="nombre@gmail.com" autocomplete="off"><div class="error-campo" id="a-error">' + ico("circle-alert", "i-s") + "<span></span></div>" +
+      '<label class="etq" for="a-nombre">Nombre <span style="font-weight:500">(opcional)</span></label><input class="entrada" id="a-nombre" placeholder="Si no, el de Google" autocomplete="off">' +
+      '<div class="pie"><button class="btn btn-accion grande" data-autorizar>' + ico("user-check") + "Autorizar</button></div>";
+  }
+
+  function tarjetaPerdido() {
+    if (cortado) return '<div class="listo"><svg class="tilde" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32"/><path d="M20 33l8 8 16-17"/></svg><h3>Celular cortado</h3><div class="t-cuerpo">' + UA.esc(cortado.quien) + " · " + cortado.disp + '</div><div class="t-detalle">' + cortado.r + '.</div></div><div class="pie"><button class="btn" data-otro>Cortar otro</button><button class="btn btn-fantasma" data-fin>Listo</button></div>';
+    var p = UA.buscar(elegida);
+    if (!p || !UA.celulares(p).length) return '<div class="vacio">' + ico("smartphone", "i-xl") + "<b>Elegí arriba de quién es</b><span>Aparecen solo quienes tienen un celular para cortar.</span></div>";
+    var cels = UA.celulares(p); if (cels.length === 1) pCel = cels[0].cel;
+    return '<div class="sub" style="font-size:18px">' + (cels.length === 1 ? "El celular de " : "¿Cuál celular de ") + UA.esc(UA.mostrar(p)) + (cels.length === 1 ? "" : "?") + "</div>" +
+      cels.map(function (x) { return '<button class="op-cel ' + (pCel === x.cel ? "elegida" : "") + '" data-c="' + x.cel + '"><span class="ico40">' + ico("smartphone") + "</span><span><b>" + x.disp + "</b><small>" + [x.sesion ? "Sesión abierta" : "", x.huella ? "con huella" : ""].filter(Boolean).join(" · ") + "</small><small>" + x.uso + '</small></span><span class="o"></span></button>'; }).join("") +
+      '<div class="nota">' + ico("zap", "i-s") + "<span>Cierra sus sesiones y le quita la huella. No pide confirmación.</span></div>" +
+      '<div class="pie"><button class="btn btn-rojo grande" data-cortar ' + (pCel ? "" : "disabled") + ">" + ico("zap") + "Cortar</button></div>";
+  }
+
+  function abajo(mover) {
+    var p = elegida === "nueva" ? null : UA.buscar(elegida), ab = $("#abajo");
+    var h = modo === "perdido" ? tarjetaPerdido() : elegida === "nueva" ? tarjetaNueva() : p ? tarjetaPersona(p) : '<div class="vacio">Elegí a alguien arriba</div>';
+    ab.innerHTML = '<div class="cont">' + h + "</div>"; pintarIconos(ab);
+    if (mover) ab.scrollTop = 0;
+    var cf = ab.querySelector(".confirma b"); if (cf) cf.scrollIntoView({ block: "nearest" });
+    var f = ab.querySelector("#e-v, #a-correo"); if (f && mover !== false) f.focus({ preventScroll: true });
+  }
+  function todo(mover) { arriba(); abajo(mover); }
+
+  $("#arriba").addEventListener("click", function (e) {
+    var f = e.target.closest(".fila"); if (!f) return;
+    elegida = f.dataset.p; confirma = null; editando = null; pCel = null; cortado = null; todo(true); UI.vibrar(10);
+  });
+
+  $("#btn-perdido").onclick = function () {
+    modo = modo === "perdido" ? "personas" : "perdido"; document.body.classList.toggle("m-perdido", modo === "perdido");
+    $("#perdi-txt").textContent = modo === "perdido" ? "Volver a la lista" : "Se perdió un celular";
+    cortado = null; pCel = null; confirma = null; editando = null;
+    if (modo === "perdido") { var con = PERSONAS.filter(function (p) { return UA.celulares(p).length; }); elegida = con.length ? con[0].id : null; }
+    else elegida = "rp";
+    todo(true); UI.vibrar(10);
+  };
+
+  $("#abajo").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var p = UA.buscar(elegida);
+    if (b.dataset.c) { pCel = b.dataset.c; abajo(false); UI.vibrar(10); return; }
+    if (b.hasAttribute("data-cortar")) {
+      var x = UA.celulares(p).filter(function (c) { return c.cel === pCel; })[0];
+      cortado = { p: p.id, quien: UA.mostrar(p), disp: x.disp, r: UA.cortar(p, pCel) }; pCel = null; todo(true); UI.vibrar([10, 40, 10]); return;
+    }
+    if (b.hasAttribute("data-otro")) { cortado = null; var con = PERSONAS.filter(function (q) { return UA.celulares(q).length; }); elegida = con.length ? con[0].id : null; todo(true); return; }
+    if (b.hasAttribute("data-fin")) { $("#btn-perdido").click(); return; }
+    if (b.hasAttribute("data-autorizar")) {
+      var c = $("#a-correo").value.trim(), n = $("#a-nombre").value.trim(), err = "";
+      if (!UA.esCorreo(c)) err = "Eso no es un correo: falta la @ o el dominio"; else if (UA.yaEsta(c)) err = "Ese correo ya está cargado";
+      if (err) { $("#a-correo").classList.add("mal"); $("#a-error").classList.add("ver"); $("#a-error span").textContent = err; return; }
+      var np = { id: "n" + Date.now(), nombre: n, correo: c, estado: "activa", nunca: true, entro: "Todavía no entró", autorizada: "Autorizada recién", sesiones: [], huellas: [] };
+      PERSONAS.push(np); elegida = np.id; todo(true);
+      var f = document.querySelector('.fila[data-p="' + np.id + '"]'); f.classList.add("llega", "llega-borde"); f.scrollIntoView({ block: "nearest" }); setTimeout(function () { f.classList.remove("llega-borde"); }, 1200);
+      UI.tostada("Autorizada. Avisale que entre con Google", "user-check"); UI.vibrar(10); return;
+    }
+    if (!p) return;
+    if (b.dataset.ed) { editando = b.dataset.ed; abajo(); return; }
+    if (b.hasAttribute("data-guardar")) {
+      var v = $("#e-v").value.trim();
+      if (editando === "correo" && !UA.esCorreo(v)) { $("#e-v").classList.add("mal"); $("#e-err").classList.add("ver"); $("#e-err span").textContent = "Eso no es un correo"; return; }
+      if (editando === "nombre") p.nombre = v; else p.correo = v; editando = null; todo(); UI.tostada("Guardado", "check"); return;
+    }
+    if (b.dataset.cerrarS) { b.closest(".it").classList.add("se-va"); setTimeout(function () { p.sesiones = p.sesiones.filter(function (s) { return s.id !== b.dataset.cerrarS; }); todo(); UI.tostada("Sesión cerrada", "log-out"); UI.vibrar([10, 40, 10]); }, 210); return; }
+    if (b.dataset.quitar) { var hu = p.huellas.filter(function (x) { return x.id === b.dataset.quitar; })[0]; b.closest(".it").classList.add("se-va"); setTimeout(function () { var r = UA.cortar(p, hu.cel); todo(); UI.tostada(/sesi/.test(r) ? "Huella quitada y su sesión cerrada" : "Huella quitada", "fingerprint"); UI.vibrar([10, 40, 10]); }, 210); return; }
+    if (b.hasAttribute("data-todas")) { confirma = "todas"; abajo(); return; }
+    if (b.hasAttribute("data-baja")) { confirma = "baja"; abajo(); return; }
+    if (b.hasAttribute("data-no")) { confirma = null; editando = null; abajo(); return; }
+    if (b.hasAttribute("data-si-todas")) { var k = UA.sesiones(p).length; p.sesiones = p.sesiones.filter(function (s) { return s.actual === "phone"; }); confirma = null; todo(); UI.tostada(k + " sesiones cerradas", "log-out"); UI.vibrar([10, 40, 10]); return; }
+    if (b.hasAttribute("data-si-baja")) { p.estado = "baja"; p.sesiones = []; p.huellas = []; confirma = null; todo(); UI.tostada(UA.esc(UA.mostrar(p)) + " ya no entra", "user-x"); UI.vibrar([10, 40, 10]); return; }
+    if (b.hasAttribute("data-alta")) { p.estado = "activa"; todo(); UI.tostada("Puede entrar de nuevo", "user-check"); return; }
+    if (b.hasAttribute("data-borrar")) { PERSONAS.splice(PERSONAS.indexOf(p), 1); elegida = "rp"; todo(true); UI.tostada("Borrada: su correo ya no entra", "trash-2"); }
+  });
+  $("#abajo").addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target.matches("#a-correo, #a-nombre")) { var b = $("[data-autorizar]"); if (b) b.click(); } });
+  $("#abajo").addEventListener("input", function (e) { if (e.target.id === "a-correo") { e.target.classList.remove("mal"); $("#a-error").classList.remove("ver"); } });
+
+  /* El asa: se arrastra hacia arriba o hacia abajo para darle más lugar a la lista o a la tarjeta */
+  var asa = $("#asa"), arr = $("#arriba"), y0 = 0, h0 = 0, arrastrando = false;
+  asa.addEventListener("pointerdown", function (e) { arrastrando = true; y0 = e.clientY; h0 = arr.offsetHeight; asa.setPointerCapture(e.pointerId); });
+  asa.addEventListener("pointermove", function (e) { if (!arrastrando) return; arr.style.height = Math.max(132, Math.min(520, h0 + e.clientY - y0)) + "px"; });
+  asa.addEventListener("pointerup", function () { arrastrando = false; UI.vibrar(10); });
+
+  todo();
+})();
+</script>
+</body>
+</html>
