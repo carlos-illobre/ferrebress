@@ -3,7 +3,7 @@
 Quién puede entrar, autorizar y dar de baja, y las sesiones y celulares con huella de cada persona.
 Reglas completas en [rules.md](rules.md).
 
-**Estado:** etapa a (personas y sesiones), para aprobar. Etapa b (roles y permisos), por escribir.
+**Estado:** etapa a (personas y sesiones), aprobada. Etapa b (roles y permisos), por escribir.
 
 ## Cada regla en una línea
 
@@ -21,11 +21,6 @@ Reglas completas en [rules.md](rules.md).
   último uso; «Cerrar», «Cerrar todas» (con confirmación) y «Quitar», que también cierra la sesión
   de ese celular; los celulares propios van en Configuración (R5).
 - **La auditoría:** cada cambio, con quién y a quién (R6).
-
-## Lo que cambia en otros capítulos
-
-- **01 · R1.2 y E01:** el primer Administrador ya no sale de la configuración del ambiente; se carga
-  con el comando de 02 · R1.2. Se cambia al aprobar este capítulo.
 
 ## Lo que falta decidir
 

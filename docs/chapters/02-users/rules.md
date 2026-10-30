@@ -7,7 +7,7 @@ huella vistos por otro. Entrar, salir y la sesión propia están en el
 El capítulo va en dos etapas. **Etapa a (esta):** personas y sesiones, con un solo rol,
 Administrador. **Etapa b:** roles y permisos; se escribe al llegar a ella.
 
-**Estado:** etapa a, para aprobar.
+**Estado:** etapa a, aprobada.
 
 ## 1. Quién administra
 

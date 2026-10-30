@@ -9,8 +9,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 ## 1. Quién puede entrar
 
 - **R1.1** Solo entran cuentas de Google autorizadas por un Administrador. Sin contraseñas.
-- **R1.2** El correo del primer Administrador de cada ambiente sale de la configuración del
-  ambiente. Esa cuenta entra como Administrador la primera vez, sin que nadie la autorice.
+- **R1.2** El primer Administrador de cada ambiente se carga al instalar, con el comando del
+  capítulo 02 (02 · R1.2); entra como cualquier persona autorizada.
 - **R1.3** Una cuenta que no está autorizada, o que fue dada de baja, ve: «Esta cuenta
   (nombre@gmail.com) no está autorizada. Pedile a un Administrador que agregue tu correo.» El
   mismo mensaje en los dos casos.
@@ -175,7 +175,7 @@ enviar es «Salir» (R5.2).
 
 ### Quién puede entrar
 
-- **E01** **Dado** el correo del primer Administrador en la configuración del ambiente, **cuando** esa
+- **E01** **Dado** el primer Administrador cargado con el comando de instalación, **cuando** esa
   cuenta entra con Google por primera vez, **entonces** entra como Administrador.
 - **E02** **Dado** una cuenta no autorizada, **cuando** entra con Google, **entonces** ve «Esta cuenta
   (su correo) no está autorizada. Pedile a un Administrador que agregue tu correo.» y no entra.
