@@ -140,6 +140,10 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Configuración | Lo que elige cada persona para su dispositivo | `deviceSettings` |
 | Trabajar sin conexión | El ajuste de un dispositivo para seguir atendiendo sin internet | `offline` |
 | Hora no confirmada | Una hora que salió del reloj del dispositivo y puede no ser cierta | `unconfirmedTime` |
+| Última entrada | La última vez que una persona entró, por cualquier camino | `lastSignInAt` |
+| Nunca entró | Una persona autorizada que todavía no entró ninguna vez | `neverSignedIn` |
+| Cortar un celular | Cerrar las sesiones de una persona en un celular y quitarle la huella ahí, de un toque | `cutPhone` (`lost-phones`) |
+| Cerrar todas | Cerrar de una vez las sesiones de una persona | `closeAll` |
 
 ## Celular y computadora
 
