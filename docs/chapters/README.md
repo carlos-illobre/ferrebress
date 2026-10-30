@@ -17,7 +17,7 @@ se dejó y qué propone mejorar (constitución, paso 1).
 |---|---|---|
 | 00 · La aplicación ([`00-app`](00-app/summary.md)) | El marco, el menú, el teclado, la luz de conexión, la versión nueva, el manual | Reglas aprobadas; sus pantallas se diseñan con el módulo que las necesita |
 | 01 · Entrar ([`01-sign-in`](01-sign-in/summary.md)) | Entrar y salir, y el marco vacío al que se llega | Programado; Carlos lo probó y lo aprobó; paso 9: el manual |
-| 02 · Personas (`02-users`) | Personas, roles, permisos y sesiones, en dos etapas: a. personas y sesiones; b. roles y permisos | Etapa a: paso 1 |
+| 02 · Personas ([`02-users`](02-users/summary.md)) | Personas, roles, permisos y sesiones, en dos etapas: a. personas y sesiones; b. roles y permisos | Etapa a: reglas para aprobar |
 | 03 · Celular y computadora (`03-device-link`) | Vincular, espejo, lector de códigos, fotos | Por escribir |
 | 04 · Configuración del dispositivo (`04-device-settings`) | Lo que cada persona elige para su dispositivo | Por escribir |
 | 05 · Quién hizo qué (`05-audit-log`) | El registro de cada acción y cómo se consulta | Por escribir |
