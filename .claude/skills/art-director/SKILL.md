@@ -27,15 +27,34 @@ dice, los dos). Ejemplo: `/art-director stock, phone`.
 
 ## Cómo se corre
 
-1. **Un subagente por pantalla** (herramienta Agent, `general-purpose`, en segundo plano), con
-   este mensaje: «Leé y seguí `.claude/skills/art-director/prompt.md` (tu rol) y
-   `.claude/skills/art-director/brief.md` (el entorno)», más la entrada: la pantalla, la carpeta
-   donde va (`docs/design/mockups/<screen>/`), el dispositivo, el capítulo que la especifica
-   (`docs/chapters/NN-<module>/`) y qué hace la pantalla en una línea. **Nada más:** el encargo
-   no lleva restricciones ni prohibiciones («no pongas…», «nada de…»). El director diseña sin
-   límites y puede romper cualquier regla, el marco o el menú; lo que las reglas exigen lo aplica
-   después el maquetador. Va como subagente a
-   propósito: no ve el código ni la conversación, para que lo de hoy no lo sesgue.
+1. **Un subagente por pantalla** (herramienta Agent, `general-purpose`, en segundo plano). Va como
+   subagente a propósito: no ve el código ni la conversación, para que lo de hoy no lo sesgue. El
+   encargo se arma **siempre con este modelo, sin texto libre de quien lo lanza**:
+
+   ```
+   Leé y seguí `.claude/skills/art-director/prompt.md` (tu rol) y
+   `.claude/skills/art-director/brief.md` (el entorno).
+
+   Las maquetas no llevan pruebas: se abre cada una y se mira que la consola no tenga errores.
+
+   - Pantalla: <nombre>. Id para el visor: <id>, título «<título>».
+   - Carpeta: docs/design/mockups/<id>/
+   - Dispositivo: <desktop, phone o los dos>
+   - Capítulo: docs/chapters/NN-<module>/
+   - Qué hace, en una línea: <lo que logra la persona, sin decir cómo se ve>
+   - Lo que dijo Carlos (información, no límite): «<sus palabras, textuales>» (si no dijo nada, no va)
+
+   Al terminar, lo que pide el brief y la pantalla en docs/design/mockups/index.json. Sin commit.
+   Devolvé las ideas, tu preferida y qué rompe cada una.
+   ```
+
+   - **Lo de Carlos va textual,** entre comillas: nunca resumido ni reformulado, que es donde se
+     cuela una orden que él no dio.
+   - **Antes de lanzarlo, se relee el encargo** buscando palabras de orden de quien lo lanza
+     («va», «tiene que», «no pongas», «nada de», «solo», «sin»). Si aparece alguna fuera de las
+     comillas de Carlos, se saca.
+   - **Lo mismo vale para los mensajes** que se le mandan después, mientras trabaja.
+
 2. **Varias pantallas a la vez:** en paralelo, todas sobre el lenguaje común de
    `docs/design/visual-language.md`.
 3. **Al terminar cada una**, antes de subir:
