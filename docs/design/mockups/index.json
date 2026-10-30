@@ -5,8 +5,16 @@
    "title": "Entrar",
    "module": "01 · Entrar",
    "variants": [
-    { "device": "desktop", "name": "Adaptada", "path": "mockups/sign-in/adapted/index.html" },
-    { "device": "phone", "name": "Adaptada", "path": "mockups/sign-in/adapted/index.html" }
+    {
+     "device": "desktop",
+     "name": "Adaptada",
+     "path": "mockups/sign-in/adapted/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Adaptada",
+     "path": "mockups/sign-in/adapted/index.html"
+    }
    ]
   },
   {
@@ -14,8 +22,16 @@
    "title": "Entrar · celular oscuro",
    "module": "01 · Entrar",
    "variants": [
-    { "device": "phone", "name": "Final", "path": "mockups/sign-in-phone-dark/final/index.html" },
-    { "device": "phone", "name": "Referencia de Carlos", "path": "mockups/sign-in-phone-dark/reference.png" }
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/sign-in-phone-dark/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Referencia de Carlos",
+     "path": "mockups/sign-in-phone-dark/reference.png"
+    }
    ]
   },
   {
@@ -23,10 +39,26 @@
    "title": "Entrando (computadora)",
    "module": "01 · Entrar",
    "variants": [
-    { "device": "desktop", "name": "Final", "path": "mockups/sign-in-entering/final/index.html" },
-    { "device": "desktop", "name": "1 · La escena", "path": "mockups/sign-in-entering/desktop/variant-1-scene/index.html" },
-    { "device": "desktop", "name": "2 · El marco que se arma", "path": "mockups/sign-in-entering/desktop/variant-2-frame/index.html" },
-    { "device": "desktop", "name": "3 · La persiana", "path": "mockups/sign-in-entering/desktop/variant-3-shutter/index.html" }
+    {
+     "device": "desktop",
+     "name": "Final",
+     "path": "mockups/sign-in-entering/final/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "1 · La escena",
+     "path": "mockups/sign-in-entering/desktop/variant-1-scene/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · El marco que se arma",
+     "path": "mockups/sign-in-entering/desktop/variant-2-frame/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · La persiana",
+     "path": "mockups/sign-in-entering/desktop/variant-3-shutter/index.html"
+    }
    ]
   },
   {
@@ -34,14 +66,46 @@
    "title": "Entrar · Google cargando",
    "module": "01 · Entrar",
    "variants": [
-    { "device": "desktop", "name": "Final", "path": "mockups/sign-in-google-loading/final/index.html" },
-    { "device": "phone", "name": "Final", "path": "mockups/sign-in-google-loading/final/index.html" },
-    { "device": "desktop", "name": "1 · El molde", "path": "mockups/sign-in-google-loading/variant-1-skeleton/index.html" },
-    { "device": "desktop", "name": "2 · El hilo", "path": "mockups/sign-in-google-loading/variant-2-thread/index.html" },
-    { "device": "desktop", "name": "3 · El suplente", "path": "mockups/sign-in-google-loading/variant-3-stand-in/index.html" },
-    { "device": "phone", "name": "1 · El molde", "path": "mockups/sign-in-google-loading/variant-1-skeleton/index.html" },
-    { "device": "phone", "name": "2 · El hilo", "path": "mockups/sign-in-google-loading/variant-2-thread/index.html" },
-    { "device": "phone", "name": "3 · El suplente", "path": "mockups/sign-in-google-loading/variant-3-stand-in/index.html" }
+    {
+     "device": "desktop",
+     "name": "Final",
+     "path": "mockups/sign-in-google-loading/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/sign-in-google-loading/final/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "1 · El molde",
+     "path": "mockups/sign-in-google-loading/variant-1-skeleton/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · El hilo",
+     "path": "mockups/sign-in-google-loading/variant-2-thread/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · El suplente",
+     "path": "mockups/sign-in-google-loading/variant-3-stand-in/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · El molde",
+     "path": "mockups/sign-in-google-loading/variant-1-skeleton/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · El hilo",
+     "path": "mockups/sign-in-google-loading/variant-2-thread/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · El suplente",
+     "path": "mockups/sign-in-google-loading/variant-3-stand-in/index.html"
+    }
    ]
   },
   {
@@ -49,14 +113,46 @@
    "title": "El marco",
    "module": "01 · Entrar",
    "variants": [
-    { "device": "desktop", "name": "Final", "path": "mockups/app-frame/final/index.html" },
-    { "device": "phone", "name": "Final", "path": "mockups/app-frame/final/index.html" },
-    { "device": "desktop", "name": "1 · Evolución", "path": "mockups/app-frame/variant-1-evolution/index.html" },
-    { "device": "desktop", "name": "2 · El tablero", "path": "mockups/app-frame/variant-2-pegboard/index.html" },
-    { "device": "desktop", "name": "3 · Una sola puerta", "path": "mockups/app-frame/variant-3-one-door/index.html" },
-    { "device": "phone", "name": "1 · Evolución", "path": "mockups/app-frame/variant-1-evolution/index.html" },
-    { "device": "phone", "name": "2 · El tablero", "path": "mockups/app-frame/variant-2-pegboard/index.html" },
-    { "device": "phone", "name": "3 · Una sola puerta", "path": "mockups/app-frame/variant-3-one-door/index.html" }
+    {
+     "device": "desktop",
+     "name": "Final",
+     "path": "mockups/app-frame/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/app-frame/final/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "1 · Evolución",
+     "path": "mockups/app-frame/variant-1-evolution/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · El tablero",
+     "path": "mockups/app-frame/variant-2-pegboard/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · Una sola puerta",
+     "path": "mockups/app-frame/variant-3-one-door/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · Evolución",
+     "path": "mockups/app-frame/variant-1-evolution/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · El tablero",
+     "path": "mockups/app-frame/variant-2-pegboard/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · Una sola puerta",
+     "path": "mockups/app-frame/variant-3-one-door/index.html"
+    }
    ]
   },
   {
@@ -64,14 +160,46 @@
    "title": "Los avisos del marco",
    "module": "01 · Entrar",
    "variants": [
-    { "device": "desktop", "name": "Final", "path": "mockups/app-notices/final/index.html" },
-    { "device": "phone", "name": "Final", "path": "mockups/app-notices/final/index.html" },
-    { "device": "desktop", "name": "1 · Evolución", "path": "mockups/app-notices/variant-1-evolution/index.html" },
-    { "device": "desktop", "name": "2 · La isla", "path": "mockups/app-notices/variant-2-island/index.html" },
-    { "device": "desktop", "name": "3 · La persiana", "path": "mockups/app-notices/variant-3-shutter/index.html" },
-    { "device": "phone", "name": "1 · Evolución", "path": "mockups/app-notices/variant-1-evolution/index.html" },
-    { "device": "phone", "name": "2 · La isla", "path": "mockups/app-notices/variant-2-island/index.html" },
-    { "device": "phone", "name": "3 · La persiana", "path": "mockups/app-notices/variant-3-shutter/index.html" }
+    {
+     "device": "desktop",
+     "name": "Final",
+     "path": "mockups/app-notices/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/app-notices/final/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "1 · Evolución",
+     "path": "mockups/app-notices/variant-1-evolution/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · La isla",
+     "path": "mockups/app-notices/variant-2-island/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · La persiana",
+     "path": "mockups/app-notices/variant-3-shutter/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · Evolución",
+     "path": "mockups/app-notices/variant-1-evolution/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · La isla",
+     "path": "mockups/app-notices/variant-2-island/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · La persiana",
+     "path": "mockups/app-notices/variant-3-shutter/index.html"
+    }
    ]
   },
   {
@@ -79,14 +207,46 @@
    "title": "El manual",
    "module": "01 · Entrar",
    "variants": [
-    { "device": "desktop", "name": "Final", "path": "mockups/manual/final/index.html" },
-    { "device": "phone", "name": "Final", "path": "mockups/manual/final/index.html" },
-    { "device": "desktop", "name": "1 · El libro", "path": "mockups/manual/desktop/variant-1-book/index.html" },
-    { "device": "desktop", "name": "2 · Paso a paso", "path": "mockups/manual/desktop/variant-2-guide/index.html" },
-    { "device": "desktop", "name": "3 · Mostrame", "path": "mockups/manual/desktop/variant-3-show-me/index.html" },
-    { "device": "phone", "name": "1 · El libro", "path": "mockups/manual/phone/variant-1-book/index.html" },
-    { "device": "phone", "name": "2 · Paso a paso", "path": "mockups/manual/phone/variant-2-guide/index.html" },
-    { "device": "phone", "name": "3 · Mostrame", "path": "mockups/manual/phone/variant-3-show-me/index.html" }
+    {
+     "device": "desktop",
+     "name": "Final",
+     "path": "mockups/manual/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/manual/final/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "1 · El libro",
+     "path": "mockups/manual/desktop/variant-1-book/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · Paso a paso",
+     "path": "mockups/manual/desktop/variant-2-guide/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · Mostrame",
+     "path": "mockups/manual/desktop/variant-3-show-me/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · El libro",
+     "path": "mockups/manual/phone/variant-1-book/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · Paso a paso",
+     "path": "mockups/manual/phone/variant-2-guide/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · Mostrame",
+     "path": "mockups/manual/phone/variant-3-show-me/index.html"
+    }
    ]
   },
   {
@@ -94,12 +254,46 @@
    "title": "Usuarios",
    "module": "02 · Personas",
    "variants": [
-    { "device": "desktop", "name": "1 · La lista y la tarjeta", "path": "mockups/users-a/desktop/variant-1-list/index.html" },
-    { "device": "desktop", "name": "2 · Personas y aparatos", "path": "mockups/users-a/desktop/variant-2-devices/index.html" },
-    { "device": "desktop", "name": "3 · El tablero", "path": "mockups/users-a/desktop/variant-3-panel/index.html" },
-    { "device": "phone", "name": "1 · La lista y la tarjeta", "path": "mockups/users-a/phone/variant-1-list/index.html" },
-    { "device": "phone", "name": "2 · Personas y aparatos", "path": "mockups/users-a/phone/variant-2-devices/index.html" },
-    { "device": "phone", "name": "3 · El tablero", "path": "mockups/users-a/phone/variant-3-panel/index.html" }
+    {
+     "device": "desktop",
+     "name": "Final",
+     "path": "mockups/users-a/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/users-a/final/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "1 · La lista y la tarjeta",
+     "path": "mockups/users-a/desktop/variant-1-list/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · Personas y aparatos",
+     "path": "mockups/users-a/desktop/variant-2-devices/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · El tablero",
+     "path": "mockups/users-a/desktop/variant-3-panel/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · La lista y la tarjeta",
+     "path": "mockups/users-a/phone/variant-1-list/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · Personas y aparatos",
+     "path": "mockups/users-a/phone/variant-2-devices/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · El tablero",
+     "path": "mockups/users-a/phone/variant-3-panel/index.html"
+    }
    ]
   },
   {
@@ -107,12 +301,36 @@
    "title": "Usuarios (segunda ronda)",
    "module": "02 · Personas",
    "variants": [
-    { "device": "desktop", "name": "1 · La ficha", "path": "mockups/users-a2/desktop/variant-1-card/index.html" },
-    { "device": "desktop", "name": "2 · Las puertas abiertas", "path": "mockups/users-a2/desktop/variant-2-doors/index.html" },
-    { "device": "desktop", "name": "3 · El tablero de llaves", "path": "mockups/users-a2/desktop/variant-3-keyrack/index.html" },
-    { "device": "phone", "name": "1 · La ficha", "path": "mockups/users-a2/phone/variant-1-card/index.html" },
-    { "device": "phone", "name": "2 · Las puertas abiertas", "path": "mockups/users-a2/phone/variant-2-doors/index.html" },
-    { "device": "phone", "name": "3 · El tablero de llaves", "path": "mockups/users-a2/phone/variant-3-keyrack/index.html" }
+    {
+     "device": "desktop",
+     "name": "1 · La ficha",
+     "path": "mockups/users-a2/desktop/variant-1-card/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · Las puertas abiertas",
+     "path": "mockups/users-a2/desktop/variant-2-doors/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · El tablero de llaves",
+     "path": "mockups/users-a2/desktop/variant-3-keyrack/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · La ficha",
+     "path": "mockups/users-a2/phone/variant-1-card/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · Las puertas abiertas",
+     "path": "mockups/users-a2/phone/variant-2-doors/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · El tablero de llaves",
+     "path": "mockups/users-a2/phone/variant-3-keyrack/index.html"
+    }
    ]
   }
  ]

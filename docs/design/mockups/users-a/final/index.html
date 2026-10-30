@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Usuarios · Final</title>
+<!-- Más → Usuarios (02 · etapa a) · maqueta final. Parte de la variante 1 del director («La lista y la
+     tarjeta»), con dos ideas de la 2: autorizar en una línea y «Se perdió un celular». El marco es el
+     aprobado (app-frame/final). Una sola página: desde 900 px es la computadora, debajo el celular. -->
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="frame.css">
+<link rel="stylesheet" href="users.css">
+<script src="../../../common/icons.js"></script>
+<script src="extra-icons.js"></script>
+</head>
+<body>
+<div class="test-frame" aria-hidden="true">
+  <div class="test-border"></div>
+  <div class="test-banner">Ambiente de prueba<span> · nada de esto es real</span></div>
+</div>
+
+<div class="vista" id="vista">
+  <!-- ======== Computadora: el lateral (el del marco aprobado; la parte abierta es Más) ======== -->
+  <nav class="lado d-only" id="lado" aria-label="Menú">
+    <div class="lado-fondo" aria-hidden="true"></div>
+    <div class="lado-linea" aria-hidden="true"></div>
+    <div class="lado-marca"><img class="lado-logo" src="../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><img class="lado-isotipo" src="../../../common/brand/isotype.svg" alt="">
+      <button type="button" class="plegar" id="plegar" data-nav data-key="e" aria-controls="lado" aria-expanded="true" aria-label="Minimizar el menú"><i class="i plegar-cierra" data-i="panel-left-close"></i><i class="i plegar-abre" data-i="panel-left-open"></i><span class="kbd">E</span></button>
+    </div>
+
+    <ul class="menu" id="menu">
+      <li><button type="button" class="parte" data-nav data-key="v" data-nombre="Vender"><i class="i" data-i="shopping-cart"></i><span class="nombre">Vender</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">V</span></button></li>
+      <li><button type="button" class="parte" data-nav data-key="c" data-nombre="Catálogo"><i class="i" data-i="tags"></i><span class="nombre">Catálogo</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">C</span></button></li>
+      <li><button type="button" class="parte" data-nav data-key="p" data-nombre="Depósito"><i class="i" data-i="package"></i><span class="nombre">Depósito</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">P</span></button></li>
+      <li><button type="button" class="parte" data-nav data-key="n" data-nombre="Negocio"><i class="i" data-i="chart-column"></i><span class="nombre">Negocio</span><span class="pronto">Pronto</span><span class="pronto-mini" aria-hidden="true"><i class="i" data-i="clock"></i></span><span class="kbd">N</span></button></li>
+      <li>
+        <button type="button" class="parte abre mas" id="mas" data-nav data-key="m" aria-current="page" aria-expanded="false" aria-controls="sub"><i class="i" data-i="ellipsis"></i><span class="nombre">Más</span><span class="kbd">M</span><i class="i i-s flecha" data-i="chevron-right"></i></button>
+        <ul class="sub" id="sub" hidden aria-label="Más">
+          <li><button type="button" class="parte" data-nav data-key="a" data-nombre="Anomalías"><i class="i" data-i="triangle-alert"></i><span class="nombre">Anomalías</span><span class="pronto">Pronto</span><span class="kbd">A</span></button></li>
+          <li><button type="button" class="parte" data-nav data-key="r" data-nombre="Procesos"><i class="i" data-i="workflow"></i><span class="nombre">Procesos</span><span class="pronto">Pronto</span><span class="kbd">R</span></button></li>
+          <li><button type="button" class="parte" data-nav data-key="j" data-nombre="Mejoras y errores"><i class="i" data-i="bug"></i><span class="nombre">Mejoras y errores</span><span class="pronto">Pronto</span><span class="kbd">J</span></button></li>
+          <li><button type="button" class="parte abre" id="sub-usuarios" data-nav data-key="i" aria-current="page"><i class="i" data-i="users"></i><span class="nombre">Usuarios</span><span class="kbd">I</span></button></li>
+          <li><button type="button" class="parte" data-nav data-key="g" data-nombre="Configuración"><i class="i" data-i="settings"></i><span class="nombre">Configuración</span><span class="pronto">Pronto</span><span class="kbd">G</span></button></li>
+          <li><button type="button" class="parte" data-nav data-key="t" data-nombre="Administración"><i class="i" data-i="sliders-horizontal"></i><span class="nombre">Administración</span><span class="pronto">Pronto</span><span class="kbd">T</span></button></li>
+          <li><button type="button" class="parte" data-nav data-key="u" data-nombre="El manual"><i class="i" data-i="book-open"></i><span class="nombre">Manual</span><span class="pronto">Pronto</span><span class="kbd">U</span></button></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="lado-pie">
+      <button type="button" class="luz" id="luz" data-nav data-key="z" aria-haspopup="dialog"><span class="luz-punto"></span><span class="luz-texto" data-luz></span><span class="kbd">Z</span><i class="i i-s" data-i="chevron-right"></i></button>
+      <button type="button" class="persona-mini" id="persona-mini" data-nav data-key="s" aria-haspopup="dialog" aria-expanded="false" aria-controls="persona" aria-label="Rubén Paredes, Administrador"><span class="avatar">RP</span><span class="kbd">S</span></button>
+      <section class="persona" id="persona" aria-label="Tu sesión">
+        <div class="persona-quien"><span class="avatar">RP</span><div><b>Rubén Paredes</b><small>Administrador</small></div></div>
+        <button type="button" class="btn chico" id="salir" data-nav data-key="s"><i class="i i-s" data-i="log-out"></i>Salir <span class="kbd">S</span></button>
+      </section>
+    </div>
+  </nav>
+
+  <!-- ======== Celular: la cabecera del marco ======== -->
+  <header class="p-cab p-only">
+    <img class="p-logo" src="../../../common/brand/logo-on-light.png" alt="Ferrebress" width="109" height="28">
+    <span class="p-avatar"><span class="avatar">RP</span></span>
+  </header>
+  <button type="button" class="p-luz p-only" id="p-luz"><span class="luz-punto"></span><span data-luz></span><i class="i i-s" data-i="chevron-right"></i></button>
+
+  <!-- ======== El área de trabajo: Más → Usuarios ======== -->
+  <main class="area usuarios" id="usuarios" aria-labelledby="u-titulo">
+    <header class="u-cab">
+      <h1 class="u-titulo" id="u-titulo">Usuarios</h1>
+      <button type="button" class="btn u-perdido zona-red" id="u-perdido" data-key="i" aria-haspopup="dialog"><i class="i i-s" data-i="smartphone"></i>Se perdió un celular <span class="kbd">I</span></button>
+    </header>
+
+    <div class="u-pantalla">
+      <p class="u-sin-red" role="status"><i class="i i-s" data-i="wifi-off"></i><span class="largo">Sin conexión · se ve lo último que llegó; vuelve sola</span><span class="corto">Sin conexión</span></p>
+
+      <div class="u-izq">
+        <!-- Autorizar en una línea (variante 2): correo, nombre opcional y Enter, sin diálogo -->
+        <form class="u-alta zona-red" id="u-alta" novalidate aria-label="Autorizar a alguien">
+          <span class="u-alta-ico" aria-hidden="true"><i class="i" data-i="user-plus"></i></span>
+          <div class="u-alta-cab p-only"><span>Autorizar a alguien · no le llega nada</span><button type="button" class="btn btn-fantasma chico" id="u-alta-cancelar">Cancelar</button></div>
+          <input class="u-alta-correo" id="u-alta-correo" type="email" inputmode="email" autocomplete="off" spellcheck="false" aria-label="Correo de Google" aria-describedby="u-alta-error u-alta-ayuda" placeholder="Autorizá: su correo de Google">
+          <input class="u-alta-nombre" id="u-alta-nombre" autocomplete="off" aria-label="Nombre (opcional)" placeholder="Nombre (opcional)">
+          <button class="btn btn-accion u-alta-boton" type="submit" data-key="a" aria-label="Autorizar"><i class="i u-alta-boton-ico" data-i="user-plus"></i><span class="u-alta-boton-texto">Autorizar</span> <span class="kbd">A</span></button>
+          <p class="u-alta-error" id="u-alta-error" aria-live="polite"><i class="i i-s" data-i="circle-alert"></i><span></span></p>
+          <p class="u-alta-ayuda" id="u-alta-ayuda">Cualquier cuenta de Google, también de una empresa. Ferrebress no le manda nada: avisale vos.</p>
+        </form>
+
+        <div class="u-resumenes zona-red" aria-label="Resumen">
+          <div class="resumen u-resumen"><span class="ico"><i class="i" data-i="users"></i></span><div><div class="va" data-n="activas">0</div><div class="et">Pueden entrar</div></div></div>
+          <div class="resumen u-resumen"><span class="ico"><i class="i" data-i="monitor"></i></span><div><div class="va" data-n="sesiones">0</div><div class="et">Sesiones</div></div></div>
+          <div class="resumen u-resumen"><span class="ico"><i class="i" data-i="fingerprint"></i></span><div><div class="va" data-n="huellas">0</div><div class="et">Con huella</div></div></div>
+          <div class="resumen u-resumen urgente"><span class="ico"><i class="i" data-i="hourglass"></i></span><div><div class="va" data-n="nunca">0</div><div class="et">Sin entrar aún</div></div></div>
+        </div>
+
+        <div class="u-filtros zona-red">
+          <label class="u-busca" data-key="u"><i class="i" data-i="search"></i><input id="u-buscar" type="search" autocomplete="off" aria-label="Buscar por nombre o correo" placeholder="Buscá por nombre o correo"><span class="kbd">U</span></label>
+          <div class="u-chips" role="group" aria-label="Filtrar">
+            <button type="button" class="chip elegido" data-filtro="todas" data-key="1" aria-pressed="true">Todas <span class="u-chip-n" data-n="c-todas">0</span><span class="kbd">1</span></button>
+            <button type="button" class="chip" data-filtro="activas" data-key="2" aria-pressed="false">Activas <span class="u-chip-n" data-n="c-activas">0</span><span class="kbd">2</span></button>
+            <button type="button" class="chip" data-filtro="nunca" data-key="3" aria-pressed="false">Sin entrar <span class="u-chip-n" data-n="c-nunca">0</span><span class="kbd">3</span></button>
+            <button type="button" class="chip" data-filtro="baja" data-key="4" aria-pressed="false">De baja <span class="u-chip-n" data-n="c-baja">0</span><span class="kbd">4</span></button>
+          </div>
+        </div>
+
+        <div class="u-lista zona-red" id="u-lista" aria-label="Personas"></div>
+      </div>
+
+      <!-- La tarjeta de la persona: fija a la derecha en la computadora; en el celular entra desde la derecha -->
+      <section class="u-ficha zona-red" id="u-ficha" aria-label="Tarjeta de la persona"></section>
+    </div>
+  </main>
+
+  <!-- ======== Celular: el menú de abajo (la parte abierta es Más) ======== -->
+  <nav class="p-nav p-only" aria-label="Menú">
+    <button type="button" class="p-nav-parte" data-p="Vender"><span class="ico-mov"><i class="i" data-i="shopping-cart"></i></span><span class="lbl">Vender</span><span class="pronto">Pronto</span></button>
+    <button type="button" class="p-nav-parte" data-p="Catálogo"><span class="ico-mov"><i class="i" data-i="tags"></i></span><span class="lbl">Catálogo</span><span class="pronto">Pronto</span></button>
+    <button type="button" class="p-nav-parte" data-p="Depósito"><span class="ico-mov"><i class="i" data-i="package"></i></span><span class="lbl">Depósito</span><span class="pronto">Pronto</span></button>
+    <button type="button" class="p-nav-parte" data-p="Negocio"><span class="ico-mov"><i class="i" data-i="chart-column"></i></span><span class="lbl">Negocio</span><span class="pronto">Pronto</span></button>
+    <button type="button" class="p-nav-parte abre" id="p-mas" aria-current="page"><span class="ico-mov"><i class="i" data-i="menu"></i></span><span class="lbl">Más</span><span class="pronto vacio" aria-hidden="true">·</span></button>
+  </nav>
+</div>
+
+<!-- Computadora: el globo de «todavía no está», el rótulo de los íconos y lo pendiente -->
+<div class="globo" id="globo" hidden role="status"><i class="i" data-i="clock"></i><span id="globo-txt"></span></div>
+<div class="rotulo" id="rotulo" hidden aria-hidden="true"></div>
+<section class="pop" id="pop" hidden role="dialog" aria-label="Lo que está por enviar">
+  <button type="button" class="btn btn-fantasma btn-icono chico pop-cerrar" id="pop-cerrar" data-key="c" aria-label="Cerrar"><i class="i" data-i="x"></i><span class="kbd">C</span></button>
+  <div data-pendiente></div>
+  <p class="pend-nota">La luz dice lo que contestó el servidor la última vez; no consulta nada por su cuenta.</p>
+</section>
+
+<!-- Celular: la hoja de lo pendiente -->
+<div class="fondo-hoja" id="fondo-hoja" hidden></div>
+<section class="hoja" id="hoja-luz" hidden role="dialog" aria-label="Lo que está por enviar">
+  <div class="hoja-asa"></div>
+  <div data-pendiente></div>
+</section>
+
+<!-- Usuarios: diálogos (en el celular, hojas que suben desde abajo) -->
+<div class="u-velo" id="u-velo" hidden></div>
+<section class="u-dialogo" id="u-confirmar" hidden role="alertdialog" aria-labelledby="u-confirmar-titulo" aria-describedby="u-confirmar-texto">
+  <div class="hoja-asa p-only"></div>
+  <h2 class="u-dialogo-titulo" id="u-confirmar-titulo"></h2>
+  <p class="u-dialogo-texto" id="u-confirmar-texto"></p>
+  <ul class="u-consecuencias"></ul>
+  <div class="u-dialogo-pie">
+    <button type="button" class="btn btn-fantasma" data-u-cerrar>No, dejarla <span class="kbd">Esc</span></button>
+    <button type="button" class="btn u-btn-rojo" id="u-confirmar-si"></button>
+  </div>
+</section>
+<section class="u-dialogo u-perdido-dialogo" id="u-perdido-dialogo" hidden role="dialog" aria-labelledby="u-perdido-titulo">
+  <div class="hoja-asa p-only"></div>
+  <div class="u-paso" id="u-paso"></div>
+</section>
+
+<script src="shared.js"></script>
+<script src="frame.js"></script>
+<script src="data.js"></script>
+<script src="users.js"></script>
+</body>
+</html>
