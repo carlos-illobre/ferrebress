@@ -92,9 +92,12 @@ Administrador. **Etapa b:** roles y permisos; se escribe al llegar a ella.
 - **R5.7** **«Se perdió un celular»**, a mano arriba de la lista, junta R5.3 y R5.6 para el caso
   urgente: se elige de quién es y cuál de sus celulares (si tiene uno solo, ya está elegido), y
   «Cortar» cierra las sesiones de ese celular y le quita la huella, de un toque y sin confirmación,
-  como «Cerrar» y «Quitar». Muestra qué cortó. Si ese celular no tiene ni sesión ni huella, lo dice
-  y no hay nada que cortar. Los celulares que lista son los que tienen una sesión abierta o una
-  huella de esa persona; también los propios, salvo el que se está usando.
+  como «Cerrar» y «Quitar». Muestra qué cortó. Solo aparecen las personas que tienen algún celular
+  para cortar, y de cada una, los celulares con una sesión abierta o con su huella; también los
+  propios, salvo el que se está usando.
+- **R5.8** En la computadora, «Cerrar» y «Quitar» de la tarjeta no llevan atajo con Alt (son uno por
+  sesión o celular): se recorren con las flechas y se tocan con Enter, como cualquier lista
+  (00 · R2.4, R2.6).
 
 ## 6. Lo que queda anotado
 
