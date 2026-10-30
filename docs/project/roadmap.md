@@ -52,8 +52,8 @@ paralelo»).
 
 | Parte | Qué incluye | Estado |
 |---|---|---|
-| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
-| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
+| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | En curso: T112 |
+| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | En curso: el análisis de librería en el paso 7 |
 
 ## Tareas pendientes de la base
 
@@ -70,6 +70,11 @@ paralelo»).
 - [ ] T006 [agente] Cuando el último capítulo tenga sus reglas aprobadas, borrar la guía de
   migración y toda mención del proyecto anterior (`CLAUDE.md`, `README.md`, la constitución, el
   índice de capítulos, el roadmap y `docs/design/README.md`).
+- [ ] T112 [agente] Limpieza para poder extraer lo no funcional a una librería algún día (sin
+  crearla): los nombres propios de `platform/` (la cabecera, lo guardado, la base y la caché, los
+  ambientes) pasan a configuración, y el límite de pedidos, el valor de un solo uso y la
+  auditoría de cada ruta del servidor pasan a un paso común que la ruta declara. Sin cambiar lo
+  que hace la aplicación.
 - [x] T005 [agente] El revisor de seguridad (`.claude/agents/security-reviewer.md`), en los pasos 4
   y 7 de cada módulo.
 
