@@ -7,7 +7,7 @@ Carlos:
   tarjeta» (`../desktop/variant-1-list/`). Usa los archivos de la variante copiados en `shared/`.
   `data.js` y `v1.js` llevan los cambios de abajo, y la página suma las teclas con Alt y las
   pestañas.
-- **Celular (`phone/`):** la variante 1 de la tercera ronda, «Entrar a la tarjeta»
+- **Celular (`phone/`, aprobado):** la variante 1 de la tercera ronda, «Entrar a la tarjeta»
   (`../../users-a3/phone/variant-1-push/`). Sus archivos compartidos (`base.css`, `data.js`,
   `ui.js`, `icons-extra.js`) están copiados en la misma carpeta.
 
@@ -84,9 +84,13 @@ Capturas:
 ### Por directivas de Carlos
 
 - **El renglón «Se perdió un celular» resalta para distinguirse de los renglones de las
-  personas:** en la variante era blanco, con borde y sombra, como ellos. Ahora va con el fondo rojo
-  suave (`--error-suave`), sin borde ni sombra, el título, la línea y la flecha en su rojo
-  (`--error-texto`) y el ícono sobre un círculo blanco. Lugar, tamaño y texto, como en la variante.
+  personas:** en la variante era blanco, con borde gris y sombra, como ellos. Ahora va con el fondo
+  rojo suave (`--error-suave`), el borde de 1 px en rojo (`--error`) para que se vea como algo que
+  se toca, sin sombra, el título, la línea y la flecha en su rojo (`--error-texto`) y el ícono sobre
+  un círculo blanco. Lugar, tamaño y texto, como en la variante.
+- **Sin el botón «En espejo» en la cabecera:** queda solo el título «Usuarios».
+- **La barra de arriba de la tarjeta (‹ Usuarios) es de color liso** (`--fondo`), sin el
+  desenfoque de la variante.
 - **Auditoría lleva «Pronto» y no se abre,** igual que en la computadora aprobada (00 · R1.3): en
   la variante llevaba a otra maqueta. Al tocarla, la tostada lo dice.
 

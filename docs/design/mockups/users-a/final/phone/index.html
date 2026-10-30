@@ -25,8 +25,9 @@
   .perdido small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
   .perdido > .i { color: var(--texto-3); }
   /* Maqueta final (pedido de Carlos): se distingue de los renglones de las personas con el fondo rojo
-     suave, el texto en su rojo y el ícono sobre blanco. */
-  .perdido { background: var(--error-suave); border-color: transparent; box-shadow: none; }
+     suave, el borde rojo (para que se vea como algo que se toca), el texto en su rojo y el ícono
+     sobre blanco. */
+  .perdido { background: var(--error-suave); border-color: var(--error); box-shadow: none; }
   .perdido .ic { background: var(--superficie); }
   .perdido b, .perdido small, .perdido > .i { color: var(--error-texto); }
   .grupo { display: flex; gap: 6px; align-items: baseline; font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 20px 4px 8px; }
@@ -54,7 +55,7 @@
   body.en-tarjeta #tarjeta { transform: none; box-shadow: -12px 0 32px -16px rgba(26,29,27,.25); }
   .lista-zona { transition: transform var(--t-nav) var(--curva), opacity var(--t-nav); }
   body.en-tarjeta .lista-zona { transform: translateX(-30%); opacity: .6; }
-  .tb { display: flex; align-items: center; height: 52px; padding: 0 8px; position: sticky; top: 0; background: rgba(244,242,236,.94); backdrop-filter: blur(12px); z-index: 2; }
+  .tb { display: flex; align-items: center; height: 52px; padding: 0 8px; position: sticky; top: 0; background: var(--fondo); z-index: 2; }
   .tb .btn { color: var(--pino-texto); font-size: 16px; padding: 0 8px; }
   .tb .t { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 750; opacity: 0; transition: opacity var(--t); }
   #tarjeta.corrida .tb .t { opacity: 1; }
@@ -93,7 +94,7 @@
   <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
 
   <div class="lista-zona" style="display:flex;flex-direction:column;flex:1;min-height:0">
-    <div class="celu-cabecera"><span class="t-titulo">Usuarios</span><span class="btn-vinculo"><i class="i i-s" data-i="monitor"></i>En espejo</span></div>
+    <div class="celu-cabecera"><span class="t-titulo">Usuarios</span></div>
     <button class="celu-estado"><span class="punto"></span><span data-luz>En línea · todo enviado</span></button>
     <nav class="celu-pestanas"><a class="activa" data-no-ir aria-current="page">Usuarios</a><a class="pestana-pronto" data-no-ir aria-disabled="true">Auditoría <span class="pronto">Pronto</span></a></nav>
     <div class="aviso urgente cartel-red"><i class="i" data-i="wifi-off"></i>Sin conexión: Usuarios vuelve sola cuando vuelva la conexión.</div>
