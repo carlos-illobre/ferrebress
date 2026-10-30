@@ -9,6 +9,7 @@ import {
   readCodeBody,
 } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
+import { bySchema, readBody } from '../../../../platform/guards.ts';
 import { fail } from '../../../../platform/http.ts';
 import type { SignInContext } from '../../context.ts';
 import { authenticationOptions, cannotLink, registrationOptions } from '../../passkeys/webauthn.ts';
@@ -21,12 +22,10 @@ import { registerApproveRoute } from './approve.ts';
 export function registerPhoneRoutes(ctx: SignInContext): void {
   const { http } = ctx.platform;
 
-  http.post('/api/sign-in/codes/read', async (c) => {
-    const body = readCodeBody.safeParse(await c.req.json());
-    if (!body.success) return fail(c, 400, 'bad-request');
-    const blocked = ctx.throttle(c, [`codes:read:${c.get('ipAddress')}`], codeSettings.readPerIp);
-    if (blocked) return blocked;
-    const found = ctx.screens.find(body.data.code);
+  const body = readBody(bySchema(readCodeBody));
+  const limited = ctx.limit((c) => [`codes:read:${c.get('ipAddress')}`], codeSettings.readPerIp);
+  http.post('/api/sign-in/codes/read', body.step, limited, async (c) => {
+    const found = ctx.screens.find(body.of(c).code);
     if (typeof found === 'string') {
       ctx.record(c, 'sign-in.rejected', { data: { method: 'qr', reason: found } });
       return fail(c, 410, found);

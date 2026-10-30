@@ -235,9 +235,19 @@ programó no puede revisarse.
 | 4 | Revisor del diseño (agente `design-reviewer`) y revisor de seguridad (agente `security-reviewer`), por separado | El primero busca puntos débiles y mejoras al diseño técnico, contra la constitución y las restricciones de Carlos. El segundo lo mira como un atacante: entrar sin permiso, ver o cambiar lo ajeno, lo que entra de afuera, datos personales, abuso, despliegue y dependencias | `docs/technical/modules/<module>-design-review.md` y `<module>-security-review.md` | — |
 | 5 | Arquitecto | Corrige el diseño con lo que encontraron los dos revisores y se lo presenta a Carlos | El diseño final | Sí |
 | 6 | Desarrollador | Primero las pruebas: una por escenario y las que cuentan las consultas de cada pedido, todas fallando. Después el código que las hace pasar, con cobertura total; `pnpm check` en verde | Pruebas y código | — |
-| 7 | Revisor del código (agente `code-reviewer`) y revisor de seguridad (agente `security-reviewer`), por separado | El primero compara el código con las reglas, las pantallas y el diseño. El segundo busca cómo atacarlo y que cada riesgo cubierto tenga una prueba que lo intente. Lo que encuentran se arregla | `docs/technical/modules/<module>-code-review.md` y la sección del código de `<module>-security-review.md` | — |
+| 7 | Revisor del código (agente `code-reviewer`) y revisor de seguridad (agente `security-reviewer`), por separado | El primero compara el código con las reglas, las pantallas y el diseño, y además analiza si lo no funcional que construyó el módulo se podría extraer a una librería para otros proyectos (ver abajo). El segundo busca cómo atacarlo y que cada riesgo cubierto tenga una prueba que lo intente. Lo que encuentran se arregla, salvo el análisis de librería | `docs/technical/modules/<module>-code-review.md` y la sección del código de `<module>-security-review.md` | — |
 | 8 | Carlos | Lo prueba en el ambiente de pruebas; los ajustes vuelven al paso que corresponda | — | Sí: cierra el módulo |
 | 9 | Redactor | El manual del módulo (la pantalla del manual se diseña en el paso 9 del primer módulo, no antes): capturas, texto para quien atiende la ferretería sin saber de informática y un clip solo si la funcionalidad es lo bastante grande para verla en video | `docs/manual/` y la pantalla del manual | — |
+
+**El análisis de librería (paso 7)** es solo informativo: no se arregla nada ni se crea ninguna
+librería; Carlos decide si algún día se hace. Mira lo no funcional que el módulo agregó o cambió
+(seguridad, conexión, sin conexión, rendimiento, auditoría, teclado y accesibilidad, piezas
+visuales, controles de calidad, despliegue) y, para cada parte, dice: si serviría a otro proyecto
+con los mismos requerimientos no funcionales y otro negocio; qué la ata a Ferrebress (nombres,
+textos, reglas del negocio mezcladas en el mismo archivo); a qué grupo reutilizable iría (base
+del servidor, base de la aplicación, identidad, marco, piezas visuales, manual, calidad o
+despliegue) o si es uno nuevo; y qué cambio chico dentro de Ferrebress la dejaría más fácil de
+extraer, para que Carlos decida si se hace.
 
 La sección «Seguridad» del diseño contesta siempre: qué datos toca, quién puede hacer cada cosa,
 qué entra de afuera y cómo se valida, qué secretos usa y qué queda en la auditoría.

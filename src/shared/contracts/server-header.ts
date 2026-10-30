@@ -1,5 +1,7 @@
 // La cabecera X-Ferrebress que lleva cada respuesta: la forma `piggyback` del ADR-003.
-export const serverHeaderName = 'X-Ferrebress';
+import { product } from './product.ts';
+
+export const serverHeaderName = `X-${product.name}`;
 
 export const environments = ['testing', 'production', 'e2e'] as const;
 export type Environment = (typeof environments)[number];

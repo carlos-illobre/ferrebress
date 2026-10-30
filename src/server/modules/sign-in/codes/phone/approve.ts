@@ -6,6 +6,7 @@
 import { type ApproveCodeBody, approveCodeBody } from '@ferrebress/shared/contracts/sign-in';
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
+import { byAddressAndDevice, bySchema, readBody } from '../../../../platform/guards.ts';
 import { fail } from '../../../../platform/http.ts';
 import type { SignInContext } from '../../context.ts';
 import {
@@ -50,31 +51,25 @@ function reservedScreen(
 }
 
 export function registerApproveRoute(ctx: SignInContext): void {
-  ctx.platform.http.post('/api/sign-in/codes/approve', async (c) => {
+  const body = readBody(bySchema(approveCodeBody));
+  ctx.platform.http.post(
+    '/api/sign-in/codes/approve',
     // Aprobar es un intento con la huella: el mismo límite (R2.9).
-    const blocked = ctx.throttle(
-      c,
-      [`passkey:ip:${c.get('ipAddress')}`, `passkey:device:${c.get('deviceId')}`],
-      signInSettings.limits.passkey,
-    );
-    if (blocked) return blocked;
-    const body = approveCodeBody.safeParse(await c.req.json());
-    if (!body.success) return fail(c, 400, 'bad-request');
-    const screen = reservedScreen(ctx, c, body.data);
-    if (screen instanceof Response) return screen;
-    const { challenge } = screen.reservation;
-    const approval =
-      body.data.kind === 'registration'
-        ? await withNewPasskey(ctx, c, body.data.response as never, challenge)
-        : await withPasskey(
-            ctx,
-            c,
-            body.data.response as never,
-            challenge,
-            body.data.proofPublicKey,
-          );
-    return approval instanceof Response ? approval : grant(ctx, c, screen, approval.userId);
-  });
+    ctx.limit(byAddressAndDevice('passkey'), signInSettings.limits.passkey),
+    body.step,
+    (c) => approve(ctx, c, body.of(c)),
+  );
+}
+
+async function approve(ctx: SignInContext, c: Context, body: ApproveBody) {
+  const screen = reservedScreen(ctx, c, body);
+  if (screen instanceof Response) return screen;
+  const { challenge } = screen.reservation;
+  const approval =
+    body.kind === 'registration'
+      ? await withNewPasskey(ctx, c, body.response as never, challenge)
+      : await withPasskey(ctx, c, body.response as never, challenge, body.proofPublicKey);
+  return approval instanceof Response ? approval : grant(ctx, c, screen, approval.userId);
 }
 
 // La computadora recibe por su canal el permiso de un uso, que cambia por su sesión.

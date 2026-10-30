@@ -1,6 +1,7 @@
 // Lo de la huella que usan entrar, vincular y aprobar un código QR (diseño de 01, § 5): armar los
 // pedidos para el navegador, verificar sus respuestas y guardar una huella nueva. Siempre con
 // verificación de verdad (la huella, no solo tocar) y ES256, la que usan los celulares.
+import { product } from '@ferrebress/shared/contracts/product';
 import {
   type AuthenticationResponseJSON,
   generateAuthenticationOptions,
@@ -46,7 +47,7 @@ export async function registrationOptions(ctx: SignInContext, session: Session, 
   // Con la sesión abierta, la persona existe.
   const user = (await ctx.users.findById(session.userId)) as User;
   return generateRegistrationOptions({
-    rpName: 'Ferrebress',
+    rpName: product.name,
     rpID: ctx.relyingParty.id,
     userName: user.email,
     userID: Buffer.from(session.userId.replaceAll('-', ''), 'hex'),

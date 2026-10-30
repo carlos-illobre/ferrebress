@@ -2,7 +2,9 @@
 // pueden exportar. La privada queda en IndexedDB y firma lo que se manda cuando la cookie no
 // sirve (una salida pendiente; en el módulo 15, lo hecho sin conexión); el servidor guarda la
 // pública. Un código malicioso en la página podría usarla mientras está abierta, pero no copiarla.
-const database = 'ferrebress';
+import { product } from '@ferrebress/shared/contracts/product';
+
+const database = product.id;
 const table = 'keys';
 const key = 'proof';
 const algorithm = { name: 'ECDSA', namedCurve: 'P-256' } as const;

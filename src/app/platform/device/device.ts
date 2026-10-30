@@ -1,8 +1,9 @@
 // El dispositivo (diseño de 01, § 10): su identificador, que se guarda la primera vez, el de la
 // pestaña, que sobrevive a recargarla, y si es un celular.
+import { product } from '@ferrebress/shared/contracts/product';
 import { readStored, store } from './storage.ts';
 
-const deviceIdKey = 'ferrebress.device-id';
+const deviceIdKey = `${product.id}.device-id`;
 
 export function deviceId(): string {
   const stored = readStored<string>(deviceIdKey);
@@ -15,7 +16,7 @@ export function deviceId(): string {
 // La pestaña: sessionStorage es de cada pestaña y sobrevive a recargarla. Se conserva solo si la
 // página se recargó: una pestaña duplicada copia lo guardado de la original, y no tiene que pasar
 // por ella. Sin sessionStorage, ninguna. Se decide una vez por página.
-const tabIdKey = 'ferrebress.tab-id';
+const tabIdKey = `${product.id}.tab-id`;
 let tab: { id: string | undefined } | undefined;
 
 function loadTabId(): string | undefined {

@@ -9,10 +9,11 @@ import {
 } from '@ferrebress/shared/contracts/sign-in';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
+import { byAddressAndDevice, readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
 import { canWorkOffline } from '../offline/rules.ts';
-import { openSession, proofKeyOf } from '../sessions/open.ts';
+import { openSession, withProofKey } from '../sessions/open.ts';
 import { signInSettings } from '../settings.ts';
 import { authenticationOptions, challengeOf, checkAssertion } from './webauthn.ts';
 
@@ -20,27 +21,18 @@ const { limits } = signInSettings;
 
 export function registerPasskeySignInRoutes(ctx: SignInContext): void {
   const { http } = ctx.platform;
-  const throttle = (c: Context) =>
-    ctx.throttle(
-      c,
-      [`passkey:ip:${c.get('ipAddress')}`, `passkey:device:${c.get('deviceId')}`],
-      limits.passkey,
-    );
+  const limited = ctx.limit(byAddressAndDevice('passkey'), limits.passkey);
 
-  http.post('/api/sign-in/passkey/options', async (c) => {
-    const blocked = throttle(c);
-    if (blocked) return blocked;
+  http.post('/api/sign-in/passkey/options', limited, async (c) => {
     const challenge = ctx.challenges.issue(c.get('ipAddress'), { purpose: 'sign-in' });
     if (!challenge) return ctx.tooMany(c, signInSettings.challenge.ttlMs);
     return c.json(await authenticationOptions(ctx, challenge));
   });
 
-  http.post('/api/sign-in/passkey', async (c) => {
-    const body = passkeySignInBody.safeParse(await c.req.json());
-    const proofPublicKey = body.success ? proofKeyOf(body.data.proofPublicKey) : undefined;
-    if (!body.success || !proofPublicKey) return fail(c, 400, 'bad-request');
-    return throttle(c) ?? signInWithPasskey(ctx, c, body.data, proofPublicKey);
-  });
+  const body = readBody(withProofKey(passkeySignInBody));
+  http.post('/api/sign-in/passkey', body.step, limited, (c) =>
+    signInWithPasskey(ctx, c, body.of(c), body.of(c).proofKey),
+  );
 }
 
 // La huella que firmó, si existe y el desafío es uno que dio el servidor para entrar.

@@ -6,13 +6,14 @@ import {
   type StartResponse,
 } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
+import { byAddress, byAddressAndDevice, readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
 import { isPhone } from '../device.ts';
 import { ownerOf, withOffline } from '../offline/phone-owner.ts';
 import { canWorkOffline } from '../offline/rules.ts';
 import { readSessionCookie } from '../sessions/cookie.ts';
-import { openSession, proofKeyOf } from '../sessions/open.ts';
+import { openSession, withProofKey } from '../sessions/open.ts';
 import { signInSettings } from '../settings.ts';
 import { verifyGoogle } from './verify.ts';
 
@@ -30,10 +31,7 @@ async function personOf(ctx: SignInContext, c: Context) {
 export function registerGoogleRoutes(ctx: SignInContext): void {
   const { http, config } = ctx.platform;
 
-  http.get('/api/start', async (c) => {
-    const ip = c.get('ipAddress');
-    const blocked = ctx.throttle(c, [`start:ip:${ip}`], limits.start);
-    if (blocked) return blocked;
+  http.get('/api/start', ctx.limit(byAddress('start'), limits.start), async (c) => {
     const base = {
       environment: config.ENVIRONMENT,
       version: config.VERSION,
@@ -43,7 +41,7 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     const who = await personOf(ctx, c);
     // El nonce va también con sesión: un celular sin huella vuelve a entrar con Google para
     // vincularla y hacer entrar a una computadora (R2.7).
-    const googleNonce = ctx.nonces.issue(ip, true);
+    const googleNonce = ctx.nonces.issue(c.get('ipAddress'), true);
     if (!googleNonce) return ctx.tooMany(c, signInSettings.nonce.ttlMs);
     return c.json<StartResponse>({
       ...base,
@@ -52,33 +50,22 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     });
   });
 
-  registerNonceRoute(ctx);
-
-  http.post('/api/sign-in/google', async (c) => {
-    const body = googleSignInBody.safeParse(await c.req.json());
-    const proofPublicKey = body.success ? proofKeyOf(body.data.proofPublicKey) : undefined;
-    if (!body.success || !proofPublicKey) return fail(c, 400, 'bad-request');
-    const blocked = ctx.throttle(
-      c,
-      [`google:ip:${c.get('ipAddress')}`, `google:device:${c.get('deviceId')}`],
-      limits.google,
-    );
-    if (blocked) return blocked;
-    return signInWithGoogle(ctx, c, body.data.credential, proofPublicKey);
-  });
-}
-
-// Solo un nonce nuevo, para la entrada que quedó abierta (01 · R2.1): lo más chico posible, porque
-// en el celular se paga con datos. Mismo límite que /api/start y ninguna consulta a la base.
-function registerNonceRoute(ctx: SignInContext): void {
-  ctx.platform.http.get('/api/sign-in/google/nonce', (c) => {
-    const ip = c.get('ipAddress');
-    const blocked = ctx.throttle(c, [`start:ip:${ip}`], limits.start);
-    if (blocked) return blocked;
-    const nonce = ctx.nonces.issue(ip, true);
+  // Solo un nonce nuevo, para la entrada que quedó abierta (01 · R2.1): lo más chico posible,
+  // porque en el celular se paga con datos. Mismo límite que /api/start y ninguna consulta a la
+  // base.
+  http.get('/api/sign-in/google/nonce', ctx.limit(byAddress('start'), limits.start), (c) => {
+    const nonce = ctx.nonces.issue(c.get('ipAddress'), true);
     if (!nonce) return ctx.tooMany(c, signInSettings.nonce.ttlMs);
     return c.json<NonceResponse>({ nonce });
   });
+
+  const body = readBody(withProofKey(googleSignInBody));
+  http.post(
+    '/api/sign-in/google',
+    body.step,
+    ctx.limit(byAddressAndDevice('google'), limits.google),
+    (c) => signInWithGoogle(ctx, c, body.of(c).credential, body.of(c).proofKey),
+  );
 }
 
 async function signInWithGoogle(

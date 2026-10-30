@@ -2,28 +2,24 @@
 // salida que quedó pendiente sin conexión, también esa, probada con su llave de prueba.
 import { signOutBody, signOutMessage } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
-import { fail } from '../../../platform/http.ts';
+import { byAddress, bySchema, readBody } from '../../../platform/guards.ts';
 import type { SignInContext } from '../context.ts';
 import { signInSettings } from '../settings.ts';
 import { clearSessionCookie, readSessionCookie } from './cookie.ts';
 import { verifyProof } from './proof.ts';
 
 export function registerSessionRoutes(ctx: SignInContext): void {
-  ctx.platform.http.post('/api/sign-out', async (c) => {
-    const body = signOutBody.safeParse(await c.req.json());
-    if (!body.success) return fail(c, 400, 'bad-request');
+  const body = readBody(bySchema(signOutBody));
+  ctx.platform.http.post('/api/sign-out', body.step, async (c) => {
+    const { pending } = body.of(c);
     // La salida pendiente se busca en la base aunque no haya sesión: con el límite de los pedidos
     // sin sesión, por dirección (revisión de seguridad, 35).
-    if (body.data.pending) {
-      const blocked = ctx.throttle(
-        c,
-        [`sign-out:ip:${c.get('ipAddress')}`],
-        signInSettings.limits.start,
-      );
+    if (pending) {
+      const blocked = ctx.throttle(c, byAddress('sign-out')(c), signInSettings.limits.start);
       if (blocked) return blocked;
     }
     await closeCookieSession(ctx, c);
-    if (body.data.pending) await closePendingSession(ctx, c, body.data.pending);
+    if (pending) await closePendingSession(ctx, c, pending);
     clearSessionCookie(c);
     return c.json({ ok: true });
   });

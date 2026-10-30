@@ -2,11 +2,13 @@
 // probarlo. Guarda solo el esqueleto: la página y lo que ella carga de entrada; el resto, recién
 // cuando se usa. La página se pide siempre primero a la red, así llega cada versión nueva (00 · R5);
 // sin conexión, abre la guardada (00 · R3.6). Nunca guarda ni contesta nada de /api.
+import { product } from '@ferrebress/shared/contracts/product';
+
 export type Box = Pick<Cache, 'match' | 'put' | 'keys' | 'delete'>;
 export type Fetch = (request: Request | string) => Promise<Response>;
 
 export const shell = '/';
-export const boxName = 'ferrebress';
+export const boxName = product.id;
 
 export type Kind = 'page' | 'asset' | 'skip';
 

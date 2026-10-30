@@ -13,12 +13,13 @@ import {
 import type { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
 import type { Kysely } from 'kysely';
+import { byAddressAndDevice, readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import type { User } from '../../users/index.ts';
 import type { SignInContext } from '../context.ts';
 import type { Passkey } from '../passkeys/data.ts';
 import { verifyAssertion } from '../passkeys/webauthn.ts';
-import { openSession, proofKeyOf } from '../sessions/open.ts';
+import { openSession, withProofKey } from '../sessions/open.ts';
 import { verifyProof } from '../sessions/proof.ts';
 import { signInSettings } from '../settings.ts';
 import { type OfflineSignIn, type OfflineTables, offlineData } from './data.ts';
@@ -30,17 +31,13 @@ type Confirming = { body: OfflineSignInBody; proof: Uint8Array; data: Data };
 
 export function registerOfflineRoutes(ctx: SignInContext): Data {
   const data = offlineData(ctx.platform.db as Kysely<OfflineTables>);
-  ctx.platform.http.post('/api/sign-in/offline', async (c) => {
-    const body = offlineSignInBody.safeParse(await c.req.json());
-    const proof = body.success ? proofKeyOf(body.data.proofPublicKey) : undefined;
-    if (!body.success || !proof) return fail(c, 400, 'bad-request');
-    const blocked = ctx.throttle(
-      c,
-      [`passkey:ip:${c.get('ipAddress')}`, `passkey:device:${c.get('deviceId')}`],
-      limits.passkey,
-    );
-    return blocked ?? confirm(ctx, c, { body: body.data, proof, data });
-  });
+  const body = readBody(withProofKey(offlineSignInBody));
+  ctx.platform.http.post(
+    '/api/sign-in/offline',
+    body.step,
+    ctx.limit(byAddressAndDevice('passkey'), limits.passkey),
+    (c) => confirm(ctx, c, { body: body.of(c), proof: body.of(c).proofKey, data }),
+  );
   return data;
 }
 

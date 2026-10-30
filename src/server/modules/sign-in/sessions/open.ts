@@ -13,6 +13,18 @@ export function proofKeyOf(value: string | undefined): Uint8Array | undefined {
   return key && isProofKey(key) ? key : undefined;
 }
 
+// Un cuerpo con la llave de prueba, para leerlo como paso de la ruta (`readBody`): válido según
+// su esquema y con una llave que sirve; si no, nada (400).
+export const withProofKey =
+  <T extends { proofPublicKey: string }>(schema: {
+    safeParse(raw: unknown): { success: true; data: T } | { success: false };
+  }) =>
+  (raw: unknown): (T & { proofKey: Uint8Array }) | undefined => {
+    const parsed = schema.safeParse(raw);
+    const proofKey = parsed.success ? proofKeyOf(parsed.data.proofPublicKey) : undefined;
+    return parsed.success && proofKey ? { ...parsed.data, proofKey } : undefined;
+  };
+
 type Opening = {
   userId: string;
   proofPublicKey: Uint8Array;

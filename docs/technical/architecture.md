@@ -84,7 +84,7 @@ Siempre los mismos archivos, así quien abrió uno sabe dónde está cada cosa e
 | Archivo | Qué hace | Qué no hace |
 |---|---|---|
 | `index.ts` | La fachada: lo único que pueden usar los otros módulos, y el registro del módulo (rutas, permisos, eventos que escucha) | No tiene lógica propia |
-| `routes.ts` | La entrada HTTP: valida con el contrato, mira el permiso, llama a la regla y responde | No decide nada del negocio ni toca la base |
+| `routes.ts` | La entrada HTTP: declara sus pasos comunes (leer y validar el cuerpo, el límite de pedidos), mira el permiso, llama a la regla y responde | No decide nada del negocio ni toca la base |
 | `rules.ts` | La regla del negocio: qué se puede, qué se calcula, en qué orden | No importa tecnología: ni el framework web ni la base |
 | `data.ts` | Las consultas a las tablas de su esquema, siempre en lote | No decide: guarda y lee lo que le piden |
 | `events.ts` | Los eventos que publica, con su texto para la auditoría | |
@@ -92,6 +92,20 @@ Siempre los mismos archivos, así quien abrió uno sabe dónde está cada cosa e
 
 Si un archivo crece, se parte por responsabilidad con el mismo nombre en plural de carpeta
 (`rules/charge.ts`, `rules/void.ts`).
+
+**Los pasos comunes de una ruta** están en `platform/guards.ts`, iguales para cualquier módulo:
+leer y validar el cuerpo (`readBody`), frenar por límite de pedidos con las claves de la dirección
+y del dispositivo (`limit`, que anota en la auditoría una vez por ventana) y anotar en la
+auditoría con lo que trae el pedido (`record`). La ruta los declara antes de lo suyo
+(`http.post(ruta, cuerpo.step, limit(…), manejador)`), así queda solo con su regla. Lo que
+depende de la regla (un límite por cuenta después de verificar quién es, uno que vale solo en un
+caso) se llama desde adentro con `throttle`.
+
+**El nombre del producto** está en un solo lugar, `src/shared/contracts/product.ts`: la cabecera de
+cada respuesta, lo que la aplicación guarda en el dispositivo y el nombre de la huella salen de
+ahí. Los códigos de error de la plataforma están aparte de los de cada módulo
+(`src/shared/contracts/errors.ts`). Así la base no tiene nada de Ferrebress adentro y podría
+usarse en otro proyecto.
 
 La dirección es siempre `routes → rules → data`. Entre módulos, solo por `index.ts`, sin ciclos.
 Una transacción puede abarcar varios módulos: quien la abre se la pasa a la fachada del otro, que
