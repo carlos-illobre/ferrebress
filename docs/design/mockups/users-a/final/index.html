@@ -69,23 +69,30 @@
   <main class="area usuarios" id="usuarios" aria-labelledby="u-titulo">
     <header class="u-cab">
       <h1 class="u-titulo" id="u-titulo">Usuarios</h1>
-      <button type="button" class="btn u-perdido zona-red" id="u-perdido" data-key="i" aria-haspopup="dialog"><i class="i i-s" data-i="smartphone"></i>Se perdió un celular <span class="kbd">I</span></button>
     </header>
 
     <div class="u-pantalla">
       <p class="u-sin-red" role="status"><i class="i i-s" data-i="wifi-off"></i><span class="largo">Sin conexión · se ve lo último que llegó; vuelve sola</span><span class="corto">Sin conexión</span></p>
 
+      <!-- Autorizar en una línea (variante 2): correo, nombre opcional y Enter, sin diálogo.
+           En la computadora, arriba a todo lo ancho; en el celular, la barra de abajo, como un mensaje. -->
+      <form class="u-alta zona-red" id="u-alta" novalidate aria-label="Autorizar a alguien">
+        <div class="u-alta-cab p-only"><span>Autorizar a alguien · no le llega nada</span><button type="button" class="btn btn-fantasma chico" id="u-alta-cancelar">Cancelar</button></div>
+        <span class="u-alta-mas d-only" aria-hidden="true"><i class="i" data-i="user-plus"></i></span>
+        <input class="u-alta-correo" id="u-alta-correo" type="email" inputmode="email" autocomplete="off" spellcheck="false" aria-label="Correo de Google" aria-describedby="u-alta-error" placeholder="Autorizá a alguien: escribí su correo de Google" data-corto="Autorizá: correo de Google">
+        <input class="u-alta-nombre" id="u-alta-nombre" autocomplete="off" aria-label="Nombre (opcional)" placeholder="Nombre (opcional)">
+        <button class="btn btn-accion u-alta-boton" type="submit" data-key="a" aria-label="Autorizar"><i class="i i-l u-alta-boton-ico" data-i="user-plus"></i><span class="u-alta-boton-texto">Autorizar</span> <span class="kbd">A</span></button>
+        <p class="u-alta-error" id="u-alta-error" aria-live="polite"><i class="i i-s" data-i="circle-alert"></i><span></span></p>
+        <p class="u-alta-ayuda d-only">Cualquier dominio de Google. No le llega nada: avisale vos.</p>
+      </form>
+
       <div class="u-izq">
-        <!-- Autorizar en una línea (variante 2): correo, nombre opcional y Enter, sin diálogo -->
-        <form class="u-alta zona-red" id="u-alta" novalidate aria-label="Autorizar a alguien">
-          <span class="u-alta-ico" aria-hidden="true"><i class="i" data-i="user-plus"></i></span>
-          <div class="u-alta-cab p-only"><span>Autorizar a alguien · no le llega nada</span><button type="button" class="btn btn-fantasma chico" id="u-alta-cancelar">Cancelar</button></div>
-          <input class="u-alta-correo" id="u-alta-correo" type="email" inputmode="email" autocomplete="off" spellcheck="false" aria-label="Correo de Google" aria-describedby="u-alta-error u-alta-ayuda" placeholder="Autorizá: su correo de Google">
-          <input class="u-alta-nombre" id="u-alta-nombre" autocomplete="off" aria-label="Nombre (opcional)" placeholder="Nombre (opcional)">
-          <button class="btn btn-accion u-alta-boton" type="submit" data-key="a" aria-label="Autorizar"><i class="i u-alta-boton-ico" data-i="user-plus"></i><span class="u-alta-boton-texto">Autorizar</span> <span class="kbd">A</span></button>
-          <p class="u-alta-error" id="u-alta-error" aria-live="polite"><i class="i i-s" data-i="circle-alert"></i><span></span></p>
-          <p class="u-alta-ayuda" id="u-alta-ayuda">Cualquier cuenta de Google, también de una empresa. Ferrebress no le manda nada: avisale vos.</p>
-        </form>
+        <!-- «Se perdió un celular» (variante 2), arriba de la lista (R5.7) -->
+        <section class="u-perdido zona-red" aria-labelledby="u-perdido-titulo-card">
+          <span class="u-perdido-ico" aria-hidden="true"><i class="i i-l" data-i="smartphone"></i></span>
+          <div class="u-perdido-txt"><b id="u-perdido-titulo-card">¿Se perdió o le robaron un celular?</b><span><span class="largo">Elegís de quién era y cuál, y lo cortás de una: deja de entrar, no aprueba entradas y no trabaja sin conexión.</span><span class="corto">Elegís de quién era y cuál, y lo cortás de una.</span></span></div>
+          <button type="button" class="btn btn-oscuro" id="u-perdido" data-key="i" aria-haspopup="dialog"><i class="i i-s" data-i="power"></i>Cortar un celular <span class="kbd">I</span></button>
+        </section>
 
         <div class="u-resumenes zona-red" aria-label="Resumen">
           <div class="resumen u-resumen"><span class="ico"><i class="i" data-i="users"></i></span><div><div class="va" data-n="activas">0</div><div class="et">Pueden entrar</div></div></div>

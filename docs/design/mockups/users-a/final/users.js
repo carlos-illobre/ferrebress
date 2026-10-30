@@ -341,37 +341,40 @@
     paso.classList.remove("u-entra-paso"); void paso.offsetWidth; paso.classList.add("u-entra-paso");
     window.pintarIconos(paso);
   }
+  function resumenCorto(p) {
+    var a = [], s = sesiones(p).length, h = p.huellas.length;
+    if (s) a.push(plural(s, "sesión", "sesiones"));
+    if (h) a.push(plural(h, "huella", "huellas"));
+    return a.join(" · ");
+  }
+  // Paso 1, como en la variante 2: ¿de quién era? Solo quienes tienen algún celular para cortar.
   function pasoQuien() {
     deQuien = null; cualCel = null;
-    var act = P.filter(function (p) { return p.estado !== "baja"; });
-    pintarPaso('<h2 class="u-dialogo-titulo" id="u-perdido-titulo">¿De quién es el celular?</h2>' +
-      '<p class="u-dialogo-texto">' + largoCorto("Después elegís cuál de sus celulares y lo cortás de un toque: deja de entrar, no aprueba entradas y no trabaja sin conexión.", "Después elegís cuál y lo cortás.") + "</p>" +
-      '<div class="u-quienes">' + act.map(function (p, i) {
-        var n = celulares(p).length;
-        return '<button type="button" class="u-quien-b' + (n ? "" : " sin") + '" data-de="' + p.id + '"' + (i < 9 ? ' data-key="' + (i + 1) + '"' : "") + ">" + avatar(p) +
-          "<span><b>" + esc(mostrar(p)) + (p.estado === "vos" ? " (vos)" : "") + "</b><small>" + (n ? plural(n, "celular", "celulares") : "Ningún celular abierto") + "</small></span>" + (i < 9 ? kbd(i + 1) : "") + "</button>";
-      }).join("") + "</div>" +
+    var con = P.filter(function (p) { return p.estado !== "baja" && celulares(p).length; });
+    pintarPaso('<h2 class="u-dialogo-titulo" id="u-perdido-titulo">¿De quién era el celular?</h2>' +
+      '<p class="u-dialogo-texto">' + (con.length ? "Aparecen solo quienes tienen un celular abierto o con huella." : "Nadie tiene un celular abierto ni con huella: no hay nada que cortar.") + "</p>" +
+      (con.length ? '<div class="u-quienes">' + con.map(function (p, i) {
+        return '<button type="button" class="u-quien-b" data-de="' + p.id + '"' + (i < 9 ? ' data-key="' + (i + 1) + '"' : "") + ">" + avatar(p) +
+          "<b>" + esc(mostrar(p)) + (p.estado === "vos" ? " (vos)" : "") + "</b><small>" + resumenCorto(p) + "</small>" + (i < 9 ? kbd(i + 1) : "") + "</button>";
+      }).join("") + "</div>" : "") +
       '<div class="u-dialogo-pie"><button type="button" class="btn btn-fantasma" data-u-cerrar>Cancelar' + kbd("Esc") + "</button></div>");
   }
+  // Paso 2: sus celulares. Ajuste por R5.7: se elige uno (si tiene uno solo, ya está elegido) y se
+  // corta solo ese; en la variante 2 se cortaban todos juntos.
   function pasoCual(p) {
     deQuien = p;
     var cels = celulares(p), n = esc(mostrar(p));
-    if (!cels.length) {
-      pintarPaso('<h2 class="u-dialogo-titulo" id="u-perdido-titulo">Nada que cortar</h2>' +
-        '<div class="u-resultado"><span class="u-resultado-ico nada"><i class="i" data-i="smartphone"></i></span><p class="u-dialogo-texto">' + (p.estado === "vos" ? "No tenés ningún otro celular con una sesión abierta ni con huella: el que estás usando no se corta desde acá." : n + " no tiene ningún celular con una sesión abierta ni con huella.") + "</p></div>" +
-        '<div class="u-dialogo-pie"><button type="button" class="btn btn-fantasma" data-acc="otro" data-key="v"><i class="i i-s" data-i="chevron-left"></i>Volver' + kbd("V") + '</button><button type="button" class="btn" data-u-cerrar>Listo' + kbd("Esc") + "</button></div>");
-      return;
-    }
-    cualCel = cels.length === 1 ? cels[0].cel : null; // si tiene uno solo, ya está elegido
-    pintarPaso('<h2 class="u-dialogo-titulo" id="u-perdido-titulo">' + (cels.length === 1 ? "El celular de " : "¿Cuál celular de ") + n + (cels.length === 1 ? "" : "?") + "</h2>" +
-      '<p class="u-dialogo-texto">' + largoCorto("«Cortar» cierra sus sesiones y le quita la huella, sin preguntar. Si después aparece, se vuelve a vincular.", "Cierra sus sesiones y le quita la huella.") + "</p>" +
-      '<div class="u-cels" role="radiogroup" aria-label="Celulares de ' + n + '">' + cels.map(function (c, i) {
-        return '<button type="button" class="u-cel" role="radio" aria-checked="' + (c.cel === cualCel) + '" data-cel="' + c.cel + '"' + (i < 9 ? ' data-key="' + (i + 1) + '"' : "") + '><span class="u-cel-ico"><i class="i" data-i="smartphone"></i></span>' +
-          '<span class="u-cel-txt"><b>' + c.disp + "</b><small>" + detalleCel(c) + '</small></span><span class="u-cel-marca" aria-hidden="true"></span>' + (i < 9 ? kbd(i + 1) : "") + "</button>";
+    cualCel = cels.length === 1 ? cels[0].cel : null;
+    pintarPaso('<h2 class="u-dialogo-titulo" id="u-perdido-titulo">Los celulares de ' + n + "</h2>" +
+      '<p class="u-dialogo-texto">' + (cels.length === 1 ? "Tiene uno solo." : "Elegí cuál.") + " Se cierran sus sesiones y se le quita la huella. Si después aparece, lo vincula de nuevo.</p>" +
+      '<div class="u-quienes u-cels" role="radiogroup" aria-label="Celulares de ' + n + '">' + cels.map(function (c, i) {
+        return '<button type="button" class="u-quien-b" role="radio" aria-checked="' + (c.cel === cualCel) + '" data-cel="' + c.cel + '"' + (i < 9 ? ' data-key="' + (i + 1) + '"' : "") + '><span class="u-cel-ico"><i class="i" data-i="smartphone"></i></span>' +
+          "<b>" + c.disp + "</b><small>" + detalleCel(c) + "</small>" + (i < 9 ? kbd(i + 1) : "") + "</button>";
       }).join("") + "</div>" +
-      '<div class="u-dialogo-pie"><button type="button" class="btn btn-fantasma" data-acc="otro" data-key="v"><i class="i i-s" data-i="chevron-left"></i>Volver' + kbd("V") + "</button>" +
-      '<button type="button" class="btn u-btn-rojo" data-acc="cortar" data-key="c"' + (cualCel ? "" : " disabled") + '><i class="i i-s" data-i="power"></i>Cortar' + kbd("C") + "</button></div>");
+      '<div class="u-dialogo-pie"><button type="button" class="btn btn-fantasma" data-u-cerrar>Cancelar' + kbd("Esc") + "</button>" +
+      '<button type="button" class="btn u-btn-rojo grande" data-acc="cortar" data-key="c"' + (cualCel ? "" : " disabled") + '><i class="i" data-i="power"></i>Cortar este celular' + kbd("C") + "</button></div>");
   }
+  // Cortar: como en la variante 2, se cierra y la tostada dice qué se cortó (R5.7, «muestra qué cortó»).
   function cortar() {
     var p = deQuien, c = celulares(p).filter(function (x) { return x.cel === cualCel; })[0];
     var disp = c ? c.disp : "Ese celular";
@@ -379,19 +382,13 @@
     p.sesiones = p.sesiones.filter(function (s) { return s.cel !== cualCel; });
     p.huellas = p.huellas.filter(function (h) { return h.cel !== cualCel; });
     var ses = antesS - p.sesiones.length, hu = antesH - p.huellas.length, n = esc(mostrar(p));
-    if (!ses && !hu) {
-      // Alguien lo cortó mientras tanto: lo dice y no hay nada que cortar.
-      pintarPaso('<h2 class="u-dialogo-titulo" id="u-perdido-titulo">Nada que cortar</h2><div class="u-resultado"><span class="u-resultado-ico nada"><i class="i" data-i="smartphone"></i></span><p class="u-dialogo-texto">Ese celular ya no tiene ni sesión ni huella.</p></div>' +
-        '<div class="u-dialogo-pie"><button type="button" class="btn" data-u-cerrar>Listo' + kbd("Esc") + "</button></div>");
-      return;
-    }
+    cerrar();
+    if (!ses && !hu) { M.tostada("Ese celular ya no tenía ni sesión ni huella: no había nada que cortar.", "smartphone"); return; }
     repintar();
-    pintarPaso('<h2 class="u-dialogo-titulo" id="u-perdido-titulo">Cortado: ' + disp + " de " + n + "</h2>" +
-      '<ul class="u-consecuencias">' +
-      '<li><i class="i" data-i="log-out"></i><span>' + (ses ? (ses === 1 ? "Se cerró su sesión" : "Se cerraron sus " + ses + " sesiones") + ": vuelve a la entrada con su próximo pedido." : "No tenía una sesión abierta.") + "</span></li>" +
-      '<li><i class="i" data-i="fingerprint"></i><span>' + (hu ? "Se le quitó la huella: ya no entra con ella, no aprueba la entrada de una computadora ni trabaja sin conexión." : "No tenía huella.") + "</span></li></ul>" +
-      '<div class="u-dialogo-pie"><button type="button" class="btn btn-oscuro" data-u-cerrar data-key="l"><i class="i i-s" data-i="check"></i>Listo' + kbd("L") + "</button></div>");
-    M.tostada("Cortado: " + disp + " de " + n + ".", "power");
+    var que = [];
+    if (ses) que.push(ses === 1 ? "se cerró su sesión" : "se cerraron sus " + ses + " sesiones");
+    if (hu) que.push("se le quitó la huella");
+    M.tostada("Cortado el " + disp + " de " + n + ": " + que.join(" y ") + ".", "power");
     vibrar([10, 40, 10]);
   }
   per.addEventListener("click", function (e) {
@@ -403,7 +400,6 @@
       per.querySelector('[data-acc="cortar"]').disabled = false;
       vibrar(10); return;
     }
-    if ((t = e.target.closest('[data-acc="otro"]'))) { pasoQuien(); return; }
     if ((t = e.target.closest('[data-acc="cortar"]')) && !t.disabled) cortar();
   });
   $("u-perdido").addEventListener("click", function () { pasoQuien(); abrir(per); });
@@ -419,7 +415,7 @@
     if (yaEsta(c)) return aviso("Ese correo ya está cargado (sin importar mayúsculas).");
     var id = "n" + Date.now();
     P.push({ id: id, nombre: aNombre.value.trim(), correo: c, estado: "activa", nunca: true, entro: "Todavía no entró", autorizada: "Autorizada recién", sesiones: [], huellas: [] });
-    aCorreo.value = ""; aNombre.value = ""; alta.classList.remove("mal"); aCorreo.removeAttribute("aria-invalid");
+    aCorreo.value = ""; aNombre.value = ""; alta.classList.remove("mal", "lleno"); aCorreo.removeAttribute("aria-invalid");
     filtro = "todas"; texto = ""; buscador.value = "";
     document.querySelectorAll("[data-filtro]").forEach(function (x) { var si = x.dataset.filtro === "todas"; x.classList.toggle("elegido", si); x.setAttribute("aria-pressed", String(si)); });
     if (!celu()) elegido = id;
@@ -428,23 +424,44 @@
     else { body.classList.remove("u-componiendo"); aCorreo.blur(); }
     M.tostada("Autorizada. Avisale que entre con Google con ese correo.", "user-check"); vibrar(10);
   });
-  aCorreo.addEventListener("input", function () { alta.classList.remove("mal"); aCorreo.removeAttribute("aria-invalid"); M.desmarcar(); });
-  // En el celular, al tocar la línea se abre para escribir, como un mensaje.
-  alta.addEventListener("focusin", function () { if (celu()) body.classList.add("u-componiendo"); });
-  alta.addEventListener("focusout", function () {
-    setTimeout(function () { if (!alta.contains(document.activeElement) && !aCorreo.value && !aNombre.value) { body.classList.remove("u-componiendo"); alta.classList.remove("mal"); } }, 100);
-  });
+  // Como en la variante 2: el nombre se enciende al empezar a escribir el correo; en el celular, al
+  // tocar la línea se abre para escribir, como un mensaje, y se cierra con «Cancelar» o al autorizar.
+  aCorreo.addEventListener("input", function () { alta.classList.remove("mal"); aCorreo.removeAttribute("aria-invalid"); alta.classList.toggle("lleno", aCorreo.value.length > 0); M.desmarcar(); });
+  aCorreo.addEventListener("focus", function () { if (celu()) body.classList.add("u-componiendo"); });
   $("u-alta-cancelar").addEventListener("click", function () {
-    aCorreo.value = ""; aNombre.value = ""; alta.classList.remove("mal"); body.classList.remove("u-componiendo"); document.activeElement.blur();
+    aCorreo.value = ""; aNombre.value = ""; alta.classList.remove("lleno", "mal"); body.classList.remove("u-componiendo"); document.activeElement.blur();
   });
+  // El texto del campo, largo en la computadora y corto en el celular (00 · R3.2).
+  function placeholder() { if (!aCorreo.dataset.largo) aCorreo.dataset.largo = aCorreo.placeholder; aCorreo.placeholder = celu() ? aCorreo.dataset.corto : aCorreo.dataset.largo; }
+  placeholder(); window.addEventListener("resize", placeholder);
 
   // ---------- Teclado (computadora): ↑ ↓ recorren la lista y la tarjeta las sigue ----------
+  function botonesFicha() { return [].slice.call(ficha.querySelectorAll(".u-item .btn")); }
   function enTexto(el) { return el && /^(INPUT|TEXTAREA)$/.test(el.tagName); }
   document.addEventListener("keydown", function (e) {
     if (celu() || e.altKey || e.ctrlKey || e.metaKey || M.hayCapa()) return;
     var lado = $("lado"), act = document.activeElement;
     if (act && act.classList.contains("u-ed")) return;
     var enLado = M.marcado && lado.contains(M.marcado);
+    var enFicha = M.marcado && ficha.contains(M.marcado);
+    if (enFicha) {
+      // En la tarjeta, ↑ ↓ recorren «Cerrar» y «Quitar» de cada sesión y celular, Enter toca el
+      // marcado y ← vuelve a la lista.
+      var bots = botonesFicha(), j = bots.indexOf(M.marcado);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); M.marcar(bots[Math.max(0, Math.min(bots.length - 1, j + (e.key === "ArrowDown" ? 1 : -1)))]); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); M.marcar(fila(elegido)); }
+      else if (e.key === "Enter") {
+        e.preventDefault(); M.marcado.click();
+        // Lo tocado se va: la marca pasa al que queda en su lugar (o vuelve a la lista).
+        setTimeout(function () { var r = botonesFicha(); M.marcar(r.length ? r[Math.min(j, r.length - 1)] : fila(elegido)); }, quieto() ? 20 : 280);
+      }
+      return;
+    }
+    if (e.key === "ArrowRight" && M.marcado && lista.contains(M.marcado) && !(enTexto(act) && act.value && act.selectionEnd < act.value.length)) {
+      var b0 = botonesFicha()[0];
+      if (b0) { e.preventDefault(); M.marcar(b0); }
+      return;
+    }
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       if (enLado) return; // el menú lo recorre el marco
       e.preventDefault();
