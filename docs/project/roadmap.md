@@ -23,11 +23,11 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 |---|---|---|---|---|---|
 | 00 | `app` | Las reglas generales de la aplicación: el marco, el menú, el teclado, la conexión, la versión nueva, el manual, las esperas, los formatos | No se construye solo: cada regla se construye con el primer módulo que la necesita | — | Reglas aprobadas |
 | 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | Hecho: Carlos lo probó y lo aprobó, con su manual |
-| 02 | `users` | Personas (autorizar, dar de baja), roles y permisos, y las sesiones abiertas de cada dispositivo | Para que entre alguien más que el primer Administrador | 01 | En curso: el alcance |
+| 02 | `users` | En dos etapas. **a. Personas y sesiones:** autorizar, cambiar y dar de baja personas, y cerrar a distancia sus sesiones y quitar sus celulares con huella, todavía con el único rol Administrador. **b. Roles y permisos:** permisos fijos que define cada módulo, roles armados por el negocio, la aplicación y el servidor que respetan los permisos, y las protecciones para no quedarse sin quien administre | La a, para que entre alguien más que el primer Administrador y para resolver un celular perdido; la b, justo después, porque la usan todos los módulos que siguen | a: 01; b: 02a | a: en curso, paso 1; b: libre |
 | 03 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para leer los códigos del catálogo | 01 | Libre |
 | 04 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo, formatos) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
 | 05 | `audit-log` | Quién hizo qué: guardarlo y consultarlo | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba | 01 | Libre |
-| 06 | `administration` | Los ajustes que fija un Administrador para todos (redondeo, márgenes rápidos, zona horaria, días del vínculo) y la pantalla de anomalías, a la que cada módulo le suma las suyas | El catálogo necesita el redondeo y los márgenes; mejor editarlos de entrada que dejar valores fijos | 02, 05 | Libre |
+| 06 | `administration` | Los ajustes que fija un Administrador para todos (redondeo, márgenes rápidos, zona horaria, días del vínculo) y la pantalla de anomalías, a la que cada módulo le suma las suyas | El catálogo necesita el redondeo y los márgenes; mejor editarlos de entrada que dejar valores fijos | 02b, 05 | Libre |
 | 07 | `catalog` | Productos, proveedores, costo, margen, precio, búsqueda, código de barras, foto y duplicados | La base de vender | 06 | Libre |
 | 08 | `price-lists` | Subir la lista de un proveedor, ver qué cambia y aplicarla; un lector por proveedor | Todo producto sale de una lista | 07 | Libre |
 | 09 | `stock` | Cuánto hay de cada producto, correcciones a mano y las anomalías de stock | Vender lo descuenta | 07 | Libre |
@@ -38,7 +38,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | 14 | `business-overview` | Los números del negocio y el cierre de caja | | 10, 11 | Libre |
 | 15 | `offline` | En dos etapas. **a. Entrar sin conexión** con la huella del celular (T109). **b. Trabajar sin conexión** al atender clientes y proveedores: lo hecho se guarda en el dispositivo, cifrado, y al volver la conexión el servidor lo revisa; lo que pasa se aplica y lo que no, va a anomalías (T110) | La etapa a, ahora, por pedido de Carlos; la b, desde el módulo 10 todo se programa para poder sumarla sin rehacer nada | a: 01; b: 10, 11 | a: hecha, con su manual en el capítulo «Entrar»; b: libre |
 | 16 | `stock-counts` | Contar por sector | | 09 | Libre |
-| 17 | `processes` | Los procesos del negocio, dibujados | Muy importante, pero puede ir al final | 02 | Libre |
+| 17 | `processes` | Los procesos del negocio, dibujados | Muy importante, pero puede ir al final | 02b | Libre |
 
 Se pueden hacer a la vez dos módulos cuando ninguno depende del otro, ni directa ni
 indirectamente, y los dos tienen terminados los módulos de los que dependen. Por ejemplo, con 01 cerrado,
@@ -53,7 +53,7 @@ paralelo»).
 | Parte | Qué incluye | Estado |
 |---|---|---|
 | Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
-| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | En curso: dividir el 02 |
+| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
 
 ## Tareas pendientes de la base
 
