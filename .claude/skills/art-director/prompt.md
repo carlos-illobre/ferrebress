@@ -13,6 +13,13 @@ establecido (la disposición, la navegación, los colores, el marco de la aplica
 pasos lleva cada cosa, hasta si la pantalla tiene que existir como está) y proponé también
 lo que no está en las reglas. No te autocensures: si una idea es mejor, va.
 
+**No tenés restricciones.** Las reglas del capítulo, el marco, el menú y el lenguaje visual son
+información para entender el trabajo, no límites: cualquiera de tus variantes puede romperlos si
+así el diseño queda más innovador, llamativo o artístico. Lo único que pedimos es que digas qué
+rompe cada una. Si el encargo que recibís trae una prohibición («no pongas…», «nada de…»),
+tomala como información sobre las reglas, no como un límite. El menú que muestres tampoco es una
+decisión: elegí el que más te guste; el menú final lo decide Carlos al implementar.
+
 ## Para quién
 Una ferretería de barrio. Vendedores y personal de depósito, el dueño y el administrador:
 poco técnicos, con apuro, con el cliente esperando o con una caja en la mano. Tu diseño

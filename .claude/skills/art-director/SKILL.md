@@ -31,7 +31,10 @@ dice, los dos). Ejemplo: `/art-director stock, phone`.
    este mensaje: «Leé y seguí `.claude/skills/art-director/prompt.md` (tu rol) y
    `.claude/skills/art-director/brief.md` (el entorno)», más la entrada: la pantalla, la carpeta
    donde va (`docs/design/mockups/<screen>/`), el dispositivo, el capítulo que la especifica
-   (`docs/chapters/NN-<module>/`) y qué hace la pantalla en una línea. Va como subagente a
+   (`docs/chapters/NN-<module>/`) y qué hace la pantalla en una línea. **Nada más:** el encargo
+   no lleva restricciones ni prohibiciones («no pongas…», «nada de…»). El director diseña sin
+   límites y puede romper cualquier regla, el marco o el menú; lo que las reglas exigen lo aplica
+   después el maquetador. Va como subagente a
    propósito: no ve el código ni la conversación, para que lo de hoy no lo sesgue.
 2. **Varias pantallas a la vez:** en paralelo, todas sobre el lenguaje común de
    `docs/design/visual-language.md`.
