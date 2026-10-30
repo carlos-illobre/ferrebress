@@ -257,12 +257,12 @@
     {
      "device": "desktop",
      "name": "Final",
-     "path": "mockups/users-a/final/index.html"
+     "path": "mockups/users-a/final/desktop/index.html"
     },
     {
      "device": "phone",
      "name": "Final",
-     "path": "mockups/users-a/final/index.html"
+     "path": "mockups/users-a/final/phone/index.html"
     },
     {
      "device": "desktop",
