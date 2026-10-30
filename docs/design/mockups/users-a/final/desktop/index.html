@@ -88,6 +88,12 @@
   .gris-cartel { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 5; }
   .dialogo .lead { margin: 4px 0 0; color: var(--texto-2); font-size: 15px; }
   #autorizar { display: grid; gap: 16px; }
+  /* Maqueta final: las teclas se ven solo mientras Alt está apretado (00 · R2.9) */
+  .kbd { display: none !important; }
+  body.alt .kbd { display: inline-flex !important; }
+  /* Auditoría es del módulo 05: en el ambiente de pruebas se ve con «Pronto» y no se abre (00 · R1.3) */
+  .pestanas .pestana-pronto { display: inline-flex; align-items: center; gap: 8px; color: var(--texto-3); cursor: default; }
+  .pronto { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 999px; background: var(--hundido); color: var(--texto-2); font-size: 14px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -97,8 +103,8 @@
     <a class="nav-item" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></a>
     <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
     <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
-    <a class="nav-item activo" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
-    <a class="nav-item" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item activo" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
     <div class="pie">
       <button class="luz" data-luz title="En la maqueta: tocala para simular que se corta la conexión"><span class="punto"></span><span data-luz-texto>En línea · todo enviado</span><i class="i i-s" data-i="chevron-right"></i></button>
       <div class="persona"><div class="usuario"><span class="avatar">RP</span><div class="txt"><div style="font-weight:750;font-size:15px">Rubén Paredes</div><div class="t-detalle">Administrador</div></div></div><button class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
@@ -106,10 +112,10 @@
   </nav>
   <main class="contenido">
     <header class="cabecera">
-      <div class="t-titulo">Negocio</div>
-      <div class="acciones zona-red"><button class="btn" data-perdido><i class="i i-s" data-i="smartphone"></i>Se perdió un celular <span class="kbd">Alt P</span></button><button class="btn btn-accion" data-autorizar><i class="i i-s" data-i="user-plus"></i>Autorizar a alguien <span class="kbd">Alt N</span></button></div>
+      <div class="t-titulo">Usuarios</div>
+      <div class="acciones zona-red"><button class="btn" data-perdido><i class="i i-s" data-i="smartphone"></i>Se perdió un celular <span class="kbd">Alt I</span></button><button class="btn btn-accion" data-autorizar><i class="i i-s" data-i="user-plus"></i>Autorizar a alguien <span class="kbd">Alt U</span></button></div>
     </header>
-    <nav class="pestanas"><a data-ir="business-overview">Resumen</a><a class="activa" data-no-ir>Usuarios</a><a data-ir="audit-log">Quién hizo qué</a></nav>
+    <nav class="pestanas"><a class="activa" data-no-ir aria-current="page">Usuarios</a><a class="pestana-pronto" data-no-ir aria-disabled="true">Auditoría <span class="pronto">Pronto</span></a></nav>
     <section class="pantalla">
       <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· se ve lo último, vuelve sola</small></div>
       <div class="izq zona-red">
@@ -153,5 +159,12 @@
 <script src="../shared/data.js"></script>
 <script src="../shared/ui.js"></script>
 <script src="../shared/v1.js"></script>
+<script>
+/* Maqueta final: Alt muestra las teclas mientras está apretado; Auditoría todavía no está. */
+document.addEventListener("keydown", function (e) { if (e.key === "Alt") { document.body.classList.add("alt"); e.preventDefault(); } });
+document.addEventListener("keyup", function (e) { if (e.key === "Alt") { document.body.classList.remove("alt"); e.preventDefault(); } });
+window.addEventListener("blur", function () { document.body.classList.remove("alt"); });
+document.querySelector(".pestana-pronto").addEventListener("click", function () { UI.tostada("Auditoría · pronto. Todavía no está.", "clock"); });
+</script>
 </body>
 </html>

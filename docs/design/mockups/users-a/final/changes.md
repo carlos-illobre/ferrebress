@@ -4,13 +4,17 @@ La final es una copia fiel de la variante 1, «La lista y la tarjeta»
 (`../desktop/variant-1-list/` y `../phone/variant-1-list/`), con sus mismas dos páginas
 (`desktop/` y `phone/`) y sus archivos compartidos copiados en `shared/`. Las páginas y los
 archivos compartidos (`frame.css`, `ui.js`, `icons-extra.js`) son los de la variante. `data.js` y
-`v1.js` llevan los cambios de abajo. Todo lo que no figura acá es igual a la variante: el marco y
-el menú, la cabecera con el título, las pestañas y «Autorizar a alguien» con su diálogo (en el
-celular, la hoja), los cuatro números, el buscador y los filtros de la computadora, la lista, la
-tarjeta, las confirmaciones, el movimiento y las teclas.
+`v1.js` llevan los cambios de abajo, y la página de la computadora suma las teclas con Alt y las
+pestañas. Todo lo que no figura acá es igual a la variante: el marco, «Autorizar a alguien» con su
+diálogo (en el celular, la hoja), los cuatro números, el buscador y los filtros de la computadora,
+la lista, la tarjeta, las confirmaciones y el movimiento.
+
+**La computadora está aprobada.** El celular (`phone/`) lo rehace el director de arte; hasta
+entonces sigue como copia de la variante con los cambios de abajo, y todavía en Negocio.
 
 Capturas:
 - `desktop/screenshot.png` y `phone/screenshot.png`: la pantalla al abrir.
+- `screenshot-alt.png`: la computadora con Alt apretado.
 - `screenshot-unsubscribed.png`: una persona dada de baja.
 - `screenshot-keyboard-card.png`: la marca del teclado en «Cerrar» de la tarjeta.
 - `screenshot-lost-which.png`: «Se perdió un celular», con dos celulares para elegir.
@@ -21,6 +25,15 @@ Capturas:
 
 ## Por directivas de Carlos
 
+- **Va en Más → Usuarios, no en Negocio (computadora):** en el menú la parte elegida es Más, el
+  título es «Usuarios» y las pestañas son Usuarios · Auditoría, sin Resumen ni Quién hizo qué.
+  Auditoría es del módulo 05: lleva «Pronto» y no se abre (al tocarla, la tostada lo dice), como lo
+  que todavía no existe en el ambiente de pruebas (00 · R1.3).
+- **Las teclas se ven solo mientras Alt está apretado (00 · R2.9, computadora).** Y ninguna choca
+  con las del menú (00 · R2.10): «Autorizar a alguien» pasó de Alt N (Negocio) a Alt U, y «Se perdió
+  un celular», de Alt P (Depósito) a Alt I. Las demás quedan como en la variante: Alt T Cerrar
+  todas, Alt B Dar de baja o Borrar el alta, Alt A Dar de alta, «/» busca y Esc cierra.
+
 - **Los cuatro filtros del celular se ven de una vez, sin deslizar hacia el costado:** cuatro partes
   iguales con el nombre y el número debajo. En la computadora quedan como en la variante.
 - **«Cerrar» y «Quitar» de la tarjeta se recorren con las flechas (computadora):** → pasa de la
@@ -28,7 +41,7 @@ Capturas:
   marca del teclado (el contorno naranja) y Enter toca el marcado. Después, la marca pasa al botón
   que queda en su lugar. ← o Esc vuelven a la lista. No tienen tecla Alt propia.
 - **«Se perdió un celular» es un botón secundario, blanco, al lado de «Autorizar a alguien»:** en la
-  computadora va a su izquierda en la cabecera, con Alt P. En el celular comparte la barra de abajo
+  computadora va a su izquierda en la cabecera, con Alt I. En el celular comparte la barra de abajo
   con «Autorizar a alguien», a su izquierda y en dos renglones. Abre un diálogo (en el celular, una
   hoja) con el mismo estilo que los de la variante.
 
@@ -63,11 +76,8 @@ Capturas:
 - **Los celulares con huella propios no se cuentan en el renglón propio (R5.5):** la tarjeta ya no
   los mostraba («Los tuyos van en Configuración»).
 
-## Lo que no se cambió y choca con una regla
+## Lo que todavía choca con una regla (solo en el celular)
 
-- **Usuarios sigue en Negocio, con las pestañas Resumen · Usuarios · Quién hizo qué,** como en la
-  variante y como pidió Carlos. La regla R2.1 (y 00 · R1.2) la pone en Más, como opción propia.
-  Carlos decide el menú al programarlo.
-- **Las teclas, como en la variante:** se ven siempre y no solo con Alt (00 · R2.9), y Alt N
-  («Autorizar a alguien») es la misma tecla que Negocio en el marco aprobado (00 · R2.10). Se
-  arreglan junto con el menú.
+- **En el celular, Usuarios sigue en Negocio**, con las pestañas Resumen · Usuarios · Quién hizo
+  qué, como en la variante. La regla R2.1 (y 00 · R1.2) la pone en Más. Se resuelve cuando el
+  director rehaga el celular.

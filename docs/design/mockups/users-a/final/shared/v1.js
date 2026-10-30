@@ -346,8 +346,8 @@
   document.addEventListener("keydown", function (e) {
     if (CELU) return;
     var enCampo = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
-    if (e.altKey && e.key.toLowerCase() === "n") { e.preventDefault(); abrirAlta(); return; }
-    if (e.altKey && e.key.toLowerCase() === "p") { e.preventDefault(); abrirPerdido(); return; }
+    if (e.altKey && e.key.toLowerCase() === "u") { e.preventDefault(); abrirAlta(); return; } // Alt N es de Negocio en el menú
+    if (e.altKey && e.key.toLowerCase() === "i") { e.preventDefault(); abrirPerdido(); return; } // Alt P es de Depósito
     if (UI.estaAbierto()) return;
     if (e.key === "/" && !enCampo) { e.preventDefault(); buscador.focus(); return; }
     if (e.altKey) {
