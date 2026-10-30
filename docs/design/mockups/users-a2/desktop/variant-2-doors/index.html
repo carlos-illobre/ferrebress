@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · 2 · Las puertas abiertas</title>
+<!-- Variante 2 · Las puertas abiertas (la reinvención). La pantalla no empieza por las personas sino
+     por los aparatos donde hay alguien adentro, como «Dispositivos» de una cuenta de Google o «Buscar»
+     de Apple. Cada aparato junta su sesión y su huella, y se corta de un toque. Las personas viven en
+     un cajón al costado. -->
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../extra/shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../extra/icons-extra.js"></script>
+<script src="../../extra/shared.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  .pantalla { display: flex; flex-direction: column; gap: 12px; overflow: hidden; padding-top: 16px; }
+  /* ---- Arriba: el número y la línea del tiempo ---- */
+  .arriba { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: center; padding: 16px 20px; }
+  .arriba .t-numero { display: block; }
+  .linea { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .zona-t { position: relative; border-radius: 10px; padding: 8px 8px 6px; min-height: 76px; display: flex; flex-direction: column; justify-content: space-between; background: var(--fondo); }
+  .zona-t.vieja { background: var(--urgente-suave); }
+  .zona-t .puntos { display: flex; flex-wrap: wrap; gap: 4px; min-height: 32px; }
+  .zona-t .puntos .cara { width: 32px; height: 32px; font-size: 14px; cursor: pointer; transition: transform var(--t-micro) var(--curva); box-shadow: 0 0 0 2px #fff; }
+  .zona-t .puntos .cara:hover, .zona-t .puntos .cara.luz { transform: translateY(-3px) scale(1.08); }
+  .zona-t .rot { font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .zona-t.vieja .rot { color: var(--urgente-texto); }
+  .zona-t.ahora .rot::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: var(--logro); margin-right: 6px; vertical-align: 1px; animation: late 1.6s ease-in-out infinite; }
+  @keyframes late { 50% { opacity: .35; } }
+
+  /* ---- Filtros por persona ---- */
+  .filtros { display: flex; align-items: center; gap: 8px; }
+  .filtros .chips { flex-wrap: nowrap; overflow: hidden; }
+  .chip { cursor: pointer; padding: 0 14px 0 6px; gap: 8px; }
+  .chip.todos { padding: 0 16px; }
+  .chip .cara { width: 28px; height: 28px; font-size: 14px; }
+  .chip.elegido .cara { box-shadow: 0 0 0 2px var(--pino); }
+  .chip .k { color: var(--texto-3); font-weight: 700; }
+  .chip.elegido .k { color: rgba(255,255,255,.7); }
+  .teclas { margin-left: auto; display: flex; gap: 12px; font-size: 14px; color: var(--texto-2); white-space: nowrap; }
+  .teclas span { display: inline-flex; gap: 4px; align-items: center; }
+
+  /* ---- La persona elegida ---- */
+  .persona { display: none; align-items: center; gap: 12px; padding: 10px 16px; }
+  .persona.ver { display: flex; animation: fundido var(--t) var(--curva) both; }
+  .persona .n { font-weight: 750; }
+  .persona .d { font-size: 14px; color: var(--texto-2); }
+  .persona .acc { margin-left: auto; display: flex; gap: 8px; }
+  @keyframes fundido { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+  /* ---- La pared de aparatos ---- */
+  .pared { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; align-content: start; padding: 4px; margin: -4px; }
+  .pieza { position: relative; height: 216px; perspective: 900px; outline: none; }
+  .pieza .cara-a, .pieza .dorso { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: var(--r-tarjeta); background: var(--superficie);
+    border: 1px solid var(--borde); box-shadow: var(--sombra-1); padding: 12px; display: flex; flex-direction: column; transition: transform var(--t-nav) var(--curva); }
+  .pieza .dorso { transform: rotateY(180deg); }
+  .pieza.vuelta .cara-a { transform: rotateY(-180deg); }
+  .pieza.vuelta .dorso { transform: rotateY(0); }
+  .pieza:focus-visible .cara-a, .pieza:focus-visible .dorso, .pieza.luz .cara-a { box-shadow: 0 0 0 3px rgba(18,56,47,.35); border-color: var(--pino); }
+  .pieza.vieja .cara-a { border-color: #F0C66B; }
+  .pieza .arte-box { position: relative; height: 76px; border-radius: var(--r); background: var(--hundido); display: grid; place-items: center; color: var(--tinta); cursor: pointer; }
+  .pieza.vieja .arte-box { background: var(--urgente-suave); }
+  .arte { width: 88px; height: 66px; }
+  .pieza .llaves { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
+  .pieza .llaves span { width: 28px; height: 28px; border-radius: 99px; background: #fff; display: grid; place-items: center; color: var(--pino-texto); box-shadow: var(--sombra-1); }
+  .pieza .vivo-p { position: absolute; top: 8px; left: 8px; }
+  .pieza .t { font-weight: 700; line-height: 22px; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pieza .dueno { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; color: var(--texto-2); line-height: 20px; white-space: nowrap; overflow: hidden; }
+  .pieza .dueno .cara { width: 22px; height: 22px; font-size: 11px; box-shadow: none; }
+  .pieza .meta { font-size: 14px; color: var(--texto-2); line-height: 20px; white-space: nowrap; }
+  .pieza .meta b { color: var(--urgente-texto); }
+  .pieza .meta .ya { color: var(--logro-texto); font-weight: 700; }
+  .pieza .cortar { margin-top: auto; width: 100%; }
+  .pieza .cortar:hover, .pieza:focus-visible .cortar { background: var(--error-suave); color: var(--error-texto); }
+  .pieza .dorso h4 { margin: 0; font-size: 16px; line-height: 22px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .pieza .dorso h4 button { margin-left: auto; }
+  .pieza .renglon-d { border-top: 1px solid var(--borde); padding: 8px 0; font-size: 14px; line-height: 20px; color: var(--texto-2); display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+  .pieza .renglon-d:first-of-type { margin-top: 8px; }
+  .pieza .renglon-d b { color: var(--tinta); display: flex; gap: 6px; align-items: center; }
+  .pieza.se-corta .cara-a, .pieza.se-corta .dorso { transform: scale(.85); opacity: 0; transition: transform 280ms var(--curva-salida), opacity 280ms var(--curva-salida); }
+  .vacia { grid-column: 1 / -1; display: grid; justify-items: center; gap: 8px; padding: 48px; color: var(--texto-2); text-align: center; }
+
+  /* ---- Cajón de personas ---- */
+  .capa.de-cajon { place-items: stretch end; }
+  .cajon { width: 440px; height: 100%; background: var(--superficie); box-shadow: var(--sombra-3); display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--t-nav) var(--curva); }
+  .capa.abierta .cajon { transform: none; }
+  .cajon-cab { display: flex; align-items: center; gap: 8px; padding: 20px 20px 12px; }
+  .cajon-cab h2 { margin: 0; flex: 1; font-size: 20px; font-weight: 750; }
+  .cajon-lista { flex: 1; overflow: auto; padding: 0 12px 20px; }
+  .cajon .grupo { font-size: 14px; font-weight: 650; color: var(--texto-2); margin: 12px 8px 4px; }
+  .per { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 10px 8px; border-radius: var(--r); }
+  .per:hover { background: var(--fondo); }
+  .per .n { font-weight: 700; line-height: 22px; display: flex; align-items: center; gap: 6px; }
+  .per .c { font-size: 14px; color: var(--texto-2); line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .per .c.nunca { color: var(--urgente-texto); font-weight: 650; }
+  .per.baja .n { color: var(--texto-3); text-decoration: line-through; text-decoration-color: var(--borde-fuerte); }
+  .per .lado { display: grid; justify-items: end; }
+  .per .lado > * { grid-area: 1 / 1; }
+  .per .cuando { font-size: 14px; color: var(--texto-2); font-weight: 600; white-space: nowrap; transition: opacity var(--t-micro); }
+  .per .cuando.nunca { color: var(--urgente-texto); }
+  .per .acc { display: flex; gap: 4px; opacity: 0; transition: opacity var(--t-micro); }
+  .per:hover .acc, .per:focus-within .acc { opacity: 1; }
+  .per:hover .cuando, .per:focus-within .cuando { opacity: 0; }
+  .per .acc .btn { min-height: 32px; }
+  .pastilla.vos { background: var(--pino); color: #fff; height: 22px; padding: 0 8px; }
+  .per form { display: grid; gap: 4px; }
+
+  /* ---- El pase (autorizar) ---- */
+  .dialogo.pase-d { width: 760px; display: grid; grid-template-columns: 300px 1fr; gap: 28px; padding: 28px; }
+  .pase { border-radius: 20px; overflow: hidden; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-2); transition: transform 520ms var(--curva), opacity 520ms var(--curva); }
+  .pase .franja { height: 72px; background: var(--pino); display: flex; align-items: flex-start; padding: 16px 18px 0; }
+  .pase .franja img { height: 24px; }
+  .pase .cuerpo-p { padding: 20px 18px 18px; display: grid; justify-items: start; gap: 4px; }
+  .pase .cuerpo-p .cara { margin-top: -56px; justify-self: end; box-shadow: 0 0 0 4px #fff; }
+  .pase .pn { font-size: 20px; font-weight: 800; line-height: 26px; margin-top: 8px; word-break: break-word; }
+  .pase .pc { font-size: 14px; color: var(--texto-2); word-break: break-all; min-height: 20px; }
+  .pase .pp { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .pase .pie-p { border-top: 1px dashed var(--borde-fuerte); margin-top: 12px; padding-top: 12px; width: 100%; font-size: 14px; color: var(--texto-2); display: flex; gap: 6px; align-items: center; }
+  .pase.vuela { transform: translate(380px, -300px) scale(.2) rotate(8deg); opacity: 0; }
+  .form-pase { display: grid; gap: 12px; align-content: start; }
+  .form-pase label.et { font-size: 14px; font-weight: 650; color: var(--texto-2); margin-bottom: -6px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <img class="logo-img" src="../../../../common/brand/logo-on-light.png" alt="Ferrebress">
+    <a class="nav-item" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span><span class="insignia">3</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item activo" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <div class="vinculo"><i class="i" data-i="smartphone"></i><div class="txt">Celular en espejo<small>Chrome en Android</small></div></div>
+      <button class="pastilla logro conexion" data-conexion><span class="punto"></span>En línea · todo enviado</button>
+      <div class="usuario"><span class="cara ch vos">RG</span><div class="txt"><div style="font-weight:750;font-size:15px">Roberto Gaitán</div><div class="t-detalle">Administrador</div></div></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <header class="cabecera">
+      <div class="t-titulo">Usuarios</div>
+      <div class="acciones zona">
+        <button class="btn chico" id="btn-personas"><i class="i i-s" data-i="users"></i>Personas <span class="pastilla" style="height:22px;padding:0 8px" id="n-personas">9</span> <span class="kbd">Alt P</span></button>
+        <button class="btn btn-accion chico" id="btn-autorizar"><i class="i i-s" data-i="user-plus"></i>Autorizar <span class="kbd">Alt N</span></button>
+      </div>
+    </header>
+    <nav class="pestanas"><a class="activa" data-no-ir>Usuarios</a><a data-ir="audit-log">Auditoría</a></nav>
+    <section class="pantalla">
+      <div class="aviso urgente aviso-sin-conexion"><i class="i" data-i="wifi-off"></i>Sin conexión. Se ve lo último que se supo; para cortar o autorizar hace falta internet.</div>
+      <div class="tarjeta arriba zona">
+        <div><span class="t-numero" id="n-aparatos">9</span><div class="t-cuerpo" style="font-weight:700">aparatos con alguien adentro</div><div class="t-detalle" id="n-sub"></div></div>
+        <div class="linea" id="linea"></div>
+      </div>
+      <div class="filtros zona"><div class="chips" id="chips"></div>
+        <div class="teclas"><span><span class="kbd">←</span><span class="kbd">→</span> moverse</span><span><span class="kbd">↵</span> detalle</span><span><span class="kbd">X</span> cortar</span></div></div>
+      <div class="tarjeta persona zona" id="persona"></div>
+      <div class="pared zona" id="pared" role="grid" aria-label="Aparatos con acceso"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Cajón de personas -->
+<div class="capa de-cajon" id="capa-personas"><aside class="cajon" role="dialog" aria-modal="true" aria-labelledby="per-t">
+  <div class="cajon-cab"><h2 id="per-t">Personas</h2><button class="btn btn-accion chico" id="cajon-autorizar"><i class="i i-s" data-i="user-plus"></i>Autorizar</button><button class="btn btn-fantasma btn-icono chico" data-cerrar aria-label="Cerrar"><i class="i" data-i="x"></i></button></div>
+  <div class="cajon-lista" id="cajon-lista"></div>
+</aside></div>
+
+<!-- El pase -->
+<div class="capa" id="capa-pase"><form class="dialogo pase-d" id="form-pase" novalidate autocomplete="off">
+  <div class="pase" id="pase"></div>
+  <div class="form-pase">
+    <h2>Autorizar a alguien</h2>
+    <div class="t-detalle" style="margin-top:-8px">Así va a aparecer. Puede entrar ya, con su cuenta de Google de cualquier dominio. No le llega ningún correo: avisale vos.</div>
+    <label class="et" for="correo">Correo de Google</label>
+    <div><label class="entrada" id="campo-correo"><i class="i" data-i="mail"></i><input id="correo" type="email" placeholder="nombre@gmail.com" autofocus></label>
+    <div class="error-campo" id="error-correo" hidden><i class="i i-s" data-i="triangle-alert"></i><span></span></div></div>
+    <label class="et" for="nombre-nuevo">Nombre (opcional)</label>
+    <label class="entrada"><i class="i" data-i="user"></i><input id="nombre-nuevo" placeholder="Si lo dejás vacío, el de Google"></label>
+    <div class="pie-dialogo" style="margin-top:8px"><button class="btn btn-fantasma" type="button" data-cerrar>Cancelar <span class="kbd">Esc</span></button><button class="btn btn-accion" type="submit">Autorizar <span class="kbd">↵</span></button></div>
+  </div>
+</form></div>
+
+<!-- Confirmar baja -->
+<div class="capa" id="capa-baja"><div class="dialogo" role="dialog" aria-modal="true">
+  <h2>¿Dar de baja a <span data-q="nombre"></span>?</h2>
+  <ul class="consecuencias" id="baja-lista"></ul>
+  <div class="pie-dialogo"><button class="btn btn-fantasma" data-cerrar>Cancelar <span class="kbd">Esc</span></button><button class="btn btn-cortar" id="baja-ok"><i class="i i-s" data-i="user-x"></i>Dar de baja <span class="kbd">↵</span></button></div>
+</div></div>
+<div class="capa" id="capa-todas"><div class="dialogo" role="dialog" aria-modal="true">
+  <h2>¿Cerrar las <span data-q="n"></span> sesiones de <span data-q="nombre"></span>?</h2>
+  <div class="t-detalle">Cada aparato vuelve a la entrada con su próximo pedido. Las huellas quedan.</div>
+  <div class="pie-dialogo"><button class="btn btn-fantasma" data-cerrar>Cancelar <span class="kbd">Esc</span></button><button class="btn btn-cortar" id="todas-ok"><i class="i i-s" data-i="log-out"></i>Cerrar todas <span class="kbd">↵</span></button></div>
+</div></div>
+
+<script>
+(function () {
+  var P = U.people, filtro = null, foco = 0;
+  var $ = function (s) { return document.querySelector(s); };
+  function persona(id) { return P.filter(function (p) { return p.id === id; })[0]; }
+  var ZONAS = [["Ahora", 15, "ahora"], ["Hoy", 1440, ""], ["Esta semana", 10080, ""], ["Este mes", 43200, ""], ["Hace más de un mes", 1e9, "vieja"]];
+  function zonaDe(m) { for (var i = 0; i < ZONAS.length; i++) if (m < ZONAS[i][1]) return i; }
+
+  function arriba() {
+    var ap = U.aparatos(P), ses = 0, hue = 0, gente = {};
+    ap.forEach(function (a) { if (a.sesion) ses++; if (a.huella) hue++; gente[a.persona.id] = 1; });
+    $("#n-aparatos").textContent = ap.length;
+    $("#n-sub").textContent = ses + " sesiones y " + hue + " huellas, de " + Object.keys(gente).length + " personas";
+    var cols = ZONAS.map(function () { return []; });
+    ap.forEach(function (a) { cols[zonaDe(a.usoMin)].push(a); });
+    $("#linea").innerHTML = ZONAS.map(function (z, i) {
+      return '<div class="zona-t ' + z[2] + '"><div class="puntos">' + cols[i].map(function (a) { return U.cara(a.persona).replace('class="cara', 'data-dev="' + a.dev + '" title="' + a.disp + " de " + U.nombre(a.persona) + '" class="cara'); }).join("") + '</div><div class="rot">' + z[0] + (i === 4 && cols[i].length ? " · revisalos" : "") + "</div></div>";
+    }).join("");
+    U.pintar($("#linea"));
+    var per = {}; ap.forEach(function (a) { per[a.persona.id] = (per[a.persona.id] || 0) + 1; });
+    var h = '<button class="chip todos' + (filtro ? "" : " elegido") + '" data-f="">Todos <span class="k">' + ap.length + "</span></button>";
+    U.orden(P).todas.forEach(function (p) { if (!per[p.id]) return; h += '<button class="chip' + (filtro === p.id ? " elegido" : "") + '" data-f="' + p.id + '">' + U.cara(p) + (p.vos ? "Vos" : U.nombre(p).split(/[ ,]/)[0]) + ' <span class="k">' + per[p.id] + "</span></button>"; });
+    $("#chips").innerHTML = h; U.pintar($("#chips"));
+    $("#n-personas").textContent = P.length;
+  }
+
+  function pieza(a, i) {
+    var viejo = a.usoMin >= 43200, p = a.persona;
+    var meta = a.usoMin < 15 ? '<span class="ya">' + (a.usoMin === 0 ? "en uso ahora" : a.uso.toLowerCase()) + "</span>" : viejo ? "<b>sin usar " + a.uso.toLowerCase() + "</b>" : a.uso.toLowerCase();
+    var como = a.sesion ? U.M[a.sesion.como][0] : "Solo huella";
+    var llaves = (a.sesion ? '<span title="Sesión abierta"><i class="i i-s" data-i="key-round"></i></span>' : "") + (a.huella ? '<span title="Huella"><i class="i i-s" data-i="fingerprint"></i></span>' : "");
+    var dorso = '<h4><i class="i i-s" data-i="' + U.icoDisp(a.tipo) + '"></i>' + a.disp + '<button class="btn btn-fantasma btn-icono chico" data-volver aria-label="Volver"><i class="i i-s" data-i="undo-2"></i></button></h4>' +
+      (a.sesion ? '<div class="renglon-d"><div><b><i class="i i-s" data-i="key-round"></i>Sesión</b>' + U.M[a.sesion.como][0] + ", " + a.sesion.desde.toLowerCase() + '</div><button class="btn btn-suave chico" data-cerrar-s>Cerrar</button></div>' : "") +
+      (a.huella ? '<div class="renglon-d"><div><b><i class="i i-s" data-i="fingerprint"></i>Huella</b>Desde el ' + a.huella.vinc + '</div><button class="btn btn-suave chico" data-quitar>Quitar</button></div>' : "");
+    return '<div class="pieza' + (viejo ? " vieja" : "") + '" tabindex="' + (i === foco ? 0 : -1) + '" role="gridcell" data-dev="' + a.dev + '"><div class="cara-a">' +
+      '<div class="arte-box" data-voltear title="Ver el detalle">' + U.arte(a.tipo) + '<span class="llaves">' + llaves + "</span>" + (a.usoMin < 15 ? '<span class="vivo vivo-p"></span>' : "") + "</div>" +
+      '<div class="t">' + a.disp + '</div><div class="dueno"><i class="i i-s" data-i="user-round"></i>' + (p.vos ? "Vos" : U.nombre(p)) + '</div><div class="meta">' + como + " · " + meta + "</div>" +
+      '<button class="btn btn-suave chico cortar" data-cortar><i class="i i-s" data-i="scissors"></i>Cortar</button></div><div class="dorso">' + dorso + "</div></div>";
+  }
+  function pared() {
+    var ap = U.aparatos(P).filter(function (a) { return !filtro || a.persona.id === filtro; });
+    foco = Math.min(foco, Math.max(0, ap.length - 1));
+    $("#pared").innerHTML = ap.length ? ap.map(pieza).join("") : '<div class="vacia"><svg width="120" height="80" viewBox="0 0 120 80" fill="none" stroke="var(--borde-fuerte)" stroke-width="2.5" stroke-linecap="round"><rect x="20" y="10" width="44" height="60" rx="6" fill="#fff"/><path d="M76 40h28M90 26v28" stroke="var(--logro)"/></svg><div class="t-renglon">No hay aparatos con acceso</div><div class="t-detalle">' + (filtro ? "Esta persona no tiene sesiones ni huellas." : "Nadie está adentro.") + "</div></div>";
+    U.pintar($("#pared"));
+    var p = filtro && persona(filtro), box = $("#persona");
+    if (p) {
+      box.innerHTML = U.cara(p) + '<div><div class="n">' + U.nombre(p) + (p.vos ? ' <span class="pastilla vos">Vos</span>' : "") + '</div><div class="d">' + p.correo + " · " + p.entro + '</div></div><div class="acc">' +
+        (p.sesiones.length > 1 ? '<button class="btn chico" id="cerrar-todas"><i class="i i-s" data-i="log-out"></i>Cerrar todas (' + p.sesiones.length + ')</button>' : "") +
+        (p.vos ? "" : '<button class="btn btn-peligro chico" id="baja-p"><i class="i i-s" data-i="user-x"></i>Dar de baja</button>') + "</div>";
+      box.classList.add("ver"); U.pintar(box);
+    } else box.classList.remove("ver");
+  }
+  function todo() { arriba(); pared(); cajon(); }
+
+  // ---- Cortar, cerrar, quitar ----
+  function aparatoDe(el) { var dev = el.closest(".pieza").dataset.dev; return U.aparatos(P).filter(function (a) { return a.dev === dev; })[0]; }
+  function cortar(a, que) {
+    var el = document.querySelector('.pieza[data-dev="' + a.dev + '"]'), p = a.persona;
+    var hizo = [];
+    if ((que === "todo" || que === "s" || que === "h") && a.sesion) { p.sesiones = p.sesiones.filter(function (s) { return s.dev !== a.dev; }); hizo.push("sesión cerrada"); }
+    if ((que === "todo" || que === "h") && a.huella) { p.huellas = p.huellas.filter(function (h) { return h.dev !== a.dev; }); hizo.push("huella quitada"); }
+    el.classList.add("se-corta"); U.vibrar([10, 40, 10]);
+    setTimeout(function () { todo(); var r = document.querySelector('.pieza[data-dev="' + a.dev + '"]'); if (r) r.classList.add("se-suma"); }, 280);
+    U.tostada(a.disp + " de " + (p.vos ? "vos" : U.nombre(p)) + ": " + hizo.join(" y ") + ". Vuelve a la entrada con su próximo pedido.");
+  }
+  $("#pared").addEventListener("click", function (e) {
+    var t = e.target, pz = t.closest(".pieza"); if (!pz) return;
+    var a = aparatoDe(pz); foco = [].indexOf.call(pz.parentNode.children, pz);
+    if (t.closest("[data-cortar]")) cortar(a, "todo");
+    else if (t.closest("[data-cerrar-s]")) cortar(a, "s");
+    else if (t.closest("[data-quitar]")) cortar(a, "h");
+    else if (t.closest("[data-volver]")) pz.classList.remove("vuelta");
+    else if (t.closest("[data-voltear]")) pz.classList.add("vuelta");
+  });
+  $("#linea").addEventListener("mouseover", function (e) { var c = e.target.closest("[data-dev]"); document.querySelectorAll(".pieza.luz").forEach(function (x) { x.classList.remove("luz"); }); if (c) { var pz = document.querySelector('.pieza[data-dev="' + c.dataset.dev + '"]'); if (pz) { pz.classList.add("luz"); pz.scrollIntoView({ block: "nearest" }); } } });
+  $("#linea").addEventListener("click", function (e) { var c = e.target.closest("[data-dev]"); if (c) { var pz = document.querySelector('.pieza[data-dev="' + c.dataset.dev + '"]'); pz && pz.focus(); } });
+  $("#chips").addEventListener("click", function (e) { var c = e.target.closest(".chip"); if (!c) return; filtro = c.dataset.f || null; foco = 0; arriba(); pared(); });
+  $("#persona").addEventListener("click", function (e) {
+    var t = e.target.closest("button"); if (!t) return; var p = persona(filtro);
+    if (t.id === "cerrar-todas") { var c = $("#capa-todas"); c.querySelector("[data-q=n]").textContent = p.sesiones.length; c.querySelector("[data-q=nombre]").textContent = U.nombre(p); U.abrir("capa-todas"); $("#todas-ok").onclick = function () { var n = p.sesiones.length; p.sesiones = []; U.cerrar(c); todo(); U.tostada("Se cerraron las " + n + " sesiones de " + U.nombre(p) + "."); }; }
+    if (t.id === "baja-p") baja(p);
+  });
+
+  // ---- Teclado en la pared ----
+  document.addEventListener("keydown", function (e) {
+    var enCampo = /INPUT|TEXTAREA/.test(document.activeElement.tagName), capa = document.querySelector(".capa.abierta");
+    if (capa) { if (e.key === "Enter" && !enCampo && document.activeElement.tagName !== "BUTTON") { var ok = capa.querySelector(".btn-cortar"); if (ok) { e.preventDefault(); ok.click(); } } return; }
+    if (e.altKey && e.key.toLowerCase() === "n") { e.preventDefault(); abrirPase(); return; }
+    if (e.altKey && e.key.toLowerCase() === "p") { e.preventDefault(); U.abrir("capa-personas"); return; }
+    if (enCampo) return;
+    var piezas = [].slice.call(document.querySelectorAll(".pieza")); if (!piezas.length) return;
+    var i = piezas.indexOf(document.activeElement); if (i < 0) i = foco;
+    var mov = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 5, ArrowUp: -5 }[e.key];
+    if (mov) { e.preventDefault(); i = Math.max(0, Math.min(piezas.length - 1, i + mov)); foco = i; piezas.forEach(function (x, j) { x.tabIndex = j === i ? 0 : -1; }); piezas[i].focus(); }
+    else if (e.key === "Enter" && document.activeElement.classList.contains("pieza")) { e.preventDefault(); document.activeElement.classList.toggle("vuelta"); }
+    else if (e.key.toLowerCase() === "x" && document.activeElement.classList.contains("pieza")) { e.preventDefault(); cortar(aparatoDe(document.activeElement), "todo"); }
+  });
+
+  // ---- Cajón de personas ----
+  function cajon() {
+    var o = U.orden(P), h = "";
+    function per(p) {
+      var c = p.baja ? '<span class="cuando">Baja: ' + p.bajaDesde + "</span>" : '<span class="cuando' + (p.nunca ? " nunca" : "") + '">' + p.entroCorto + "</span>";
+      var acc = p.vos ? "" : p.baja ? '<button class="btn chico" data-alta>Dar de alta</button>' : p.nunca ? '<button class="btn btn-fantasma btn-icono chico" data-renombrar title="Cambiar el nombre"><i class="i i-s" data-i="pencil"></i></button><button class="btn btn-peligro chico" data-borrar>Borrar</button>' : '<button class="btn btn-fantasma btn-icono chico" data-renombrar title="Cambiar el nombre"><i class="i i-s" data-i="pencil"></i></button><button class="btn btn-peligro chico" data-baja>Baja</button>';
+      return '<div class="per' + (p.baja ? " baja" : "") + '" data-id="' + p.id + '">' + U.cara(p) + '<div style="min-width:0"><div class="n">' + U.nombre(p) + (p.vos ? ' <span class="pastilla vos">Vos</span>' : "") + '</div><div class="c">' + (p.nombre ? p.correo : "Sin nombre: se ve el correo") + '</div></div><div class="lado">' + c + '<div class="acc">' + acc + "</div></div></div>";
+    }
+    h += o.vos.map(per).join("") + '<div class="grupo">Pueden entrar · ' + o.activas.length + "</div>" + o.activas.map(per).join("") + (o.bajas.length ? '<div class="grupo">Dadas de baja · ' + o.bajas.length + "</div>" + o.bajas.map(per).join("") : "");
+    $("#cajon-lista").innerHTML = h; U.pintar($("#cajon-lista"));
+  }
+  $("#cajon-lista").addEventListener("click", function (e) {
+    var row = e.target.closest(".per"); if (!row) return; var p = persona(row.dataset.id), t = e.target.closest("button");
+    if (!t) { if (!p.baja) { filtro = p.id; U.cerrar($("#capa-personas")); arriba(); pared(); } return; }
+    if (t.hasAttribute("data-alta")) { p.baja = false; todo(); U.tostada(U.nombre(p) + " puede entrar de nuevo. Su huella la vincula otra vez."); }
+    if (t.hasAttribute("data-borrar")) { row.classList.add("se-va"); setTimeout(function () { P.splice(P.indexOf(p), 1); todo(); U.tostada("Borrada. Ese correo ya no entra."); }, 240); }
+    if (t.hasAttribute("data-baja")) baja(p);
+    if (t.hasAttribute("data-renombrar")) {
+      var box = row.children[1]; box.innerHTML = '<form><label class="entrada" style="height:40px"><input value="' + (p.nombre || "") + '" placeholder="' + (p.google || p.correo) + '"></label><span class="t-detalle">Enter guarda · vacío, el de Google</span></form>';
+      var f = box.querySelector("form"), i = f.querySelector("input"); i.focus(); i.select();
+      f.onsubmit = function (ev) { ev.preventDefault(); p.nombre = i.value.trim() || p.google || ""; todo(); U.tostada("Nombre guardado."); };
+      i.onkeydown = function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); cajon(); } };
+    }
+  });
+  function baja(p) {
+    var c = $("#capa-baja"); c.querySelector("[data-q=nombre]").textContent = U.nombre(p);
+    $("#baja-lista").innerHTML = (p.sesiones.length ? '<li><i class="i" data-i="log-out"></i>Se cierran sus ' + p.sesiones.length + " sesiones.</li>" : "") + (p.huellas.length ? '<li><i class="i" data-i="fingerprint"></i>Se le quita' + (p.huellas.length > 1 ? "n sus " + p.huellas.length + " celulares" : " su celular") + " con huella, y «Trabajar sin conexión».</li>" : "") + '<li><i class="i" data-i="ban"></i>Ya no entra. Sigue en la lista, como dada de baja.</li>';
+    U.pintar(c); U.abrir("capa-baja");
+    $("#baja-ok").onclick = function () { p.baja = true; p.bajaDesde = "30 de octubre"; p.sesiones = []; p.huellas = []; U.cerrar(c); if (filtro === p.id) filtro = null; todo(); U.tostada(U.nombre(p) + " quedó dada de baja: sus aparatos se apagaron."); };
+  }
+  $("#btn-personas").onclick = function () { U.abrir("capa-personas"); };
+
+  // ---- El pase ----
+  function pase() {
+    var c = $("#correo").value.trim(), n = $("#nombre-nuevo").value.trim(), fake = { nombre: n, correo: c || "correo@gmail.com", nunca: true };
+    $("#pase").innerHTML = '<div class="franja"><img src="../../../../common/brand/logo-on-dark.png" alt="Ferrebress"></div><div class="cuerpo-p">' + U.cara(fake, "xl") +
+      '<div class="pn">' + (n || c || "Nombre") + '</div><div class="pc">' + (n ? c : c ? "Hasta que entre, se ve el correo" : "") + '</div><div class="pp"><span class="pastilla pino">Administrador</span><span class="pastilla urgente">Todavía no entró</span></div>' +
+      '<div class="pie-p"><i class="i i-s" data-i="log-in"></i>Entra con Google. Sin correo de aviso.</div></div>';
+    U.pintar($("#pase"));
+  }
+  function abrirPase() { U.cerrar($("#capa-personas")); $("#pase").classList.remove("vuela"); pase(); U.abrir("capa-pase"); }
+  $("#btn-autorizar").onclick = abrirPase; $("#cajon-autorizar").onclick = abrirPase;
+  $("#correo").addEventListener("input", function () { $("#error-correo").hidden = true; $("#campo-correo").classList.remove("mal"); pase(); });
+  $("#nombre-nuevo").addEventListener("input", pase);
+  $("#form-pase").onsubmit = function (e) {
+    e.preventDefault(); var c = $("#correo"), m = U.correoMal(c.value, P);
+    if (m) { var er = $("#error-correo"); er.hidden = false; er.querySelector("span").textContent = m; $("#campo-correo").classList.add("mal"); c.focus(); return; }
+    var p = { id: "n" + Date.now(), nombre: $("#nombre-nuevo").value.trim(), correo: c.value.trim(), nunca: true, entro: "Todavía no entró", entroCorto: "Todavía no entró", sesiones: [], huellas: [] };
+    P.push(p); U.vibrar(10);
+    $("#pase").classList.add("vuela");
+    setTimeout(function () { U.cerrar($("#capa-pase")); c.value = ""; $("#nombre-nuevo").value = ""; todo(); var b = $("#btn-personas"); b.classList.add("se-suma"); setTimeout(function () { b.classList.remove("se-suma"); }, 1500);
+      U.tostada("Autorizaste a " + U.nombre(p) + ". Está en Personas; avisale que ya puede entrar.", { texto: "Ver", hacer: function () { U.abrir("capa-personas"); } }); }, U.quieto() ? 0 : 480);
+  };
+
+  todo();
+})();
+</script>
+</body>
+</html>

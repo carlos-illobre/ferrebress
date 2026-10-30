@@ -1,0 +1,107 @@
+/* Variante 3 · El tablero de llaves: las piezas comunes a la computadora y al celular.
+   PROPUESTA (rompe la paleta): el latón de las llaves, --laton, no está en «Mostrador». */
+:root { --laton: #D6B25E; --laton-2: #B18A33; --laton-suave: #F6EBCF; --tablero: #EAE5D9; --agujero: #D9D2C2; }
+
+/* El tablero perforado: el fondo de toda la pantalla */
+body.tablero-fondo { background-color: var(--tablero);
+  background-image: radial-gradient(circle at 12px 12px, var(--agujero) 3.2px, transparent 3.6px);
+  background-size: 24px 24px; }
+
+/* El llavero de cartón */
+.tag { position: relative; background: var(--superficie); border-radius: 14px 14px 18px 18px; border: 1px solid var(--borde);
+  box-shadow: 0 10px 22px -12px rgba(26,29,27,.35), 0 1px 2px rgba(26,29,27,.06); padding: 26px 12px 12px; text-align: center;
+  transform-origin: 50% -14px; cursor: grab; touch-action: none; user-select: none; outline: none; transition: box-shadow var(--t); }
+.tag::before { content: ""; position: absolute; top: 9px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 99px; background: var(--tablero); box-shadow: inset 0 1px 2px rgba(0,0,0,.25); }
+.tag:focus-visible, .tag.luz { box-shadow: 0 0 0 3px rgba(18,56,47,.35), 0 10px 22px -12px rgba(26,29,27,.35); }
+.tag .cara { margin: 0 auto 8px; }
+.tag .tn { font-weight: 800; font-size: 16px; line-height: 20px; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.tag .tc { font-size: 14px; line-height: 20px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tag .te { font-size: 14px; line-height: 20px; color: var(--texto-2); font-weight: 650; margin-top: 4px; }
+.tag .te.nunca { color: var(--urgente-texto); }
+.tag .vos-p { position: absolute; top: 6px; right: 8px; height: 22px; padding: 0 8px; background: var(--pino); color: #fff; border-radius: 99px; font-size: 14px; font-weight: 750; line-height: 22px; }
+.tag.balancea { animation: balanceo 1.1s var(--curva) both; }
+@keyframes balanceo { 0% { transform: rotate(14deg); } 30% { transform: rotate(-8deg); } 55% { transform: rotate(4deg); } 78% { transform: rotate(-1.5deg); } 100% { transform: rotate(0); } }
+.tag.nuevo { border: 2px dashed var(--borde-fuerte); background: rgba(255,255,255,.6); box-shadow: none; cursor: pointer; color: var(--texto-2); display: grid; place-items: center; gap: 6px; font-weight: 750; }
+.tag.nuevo:hover { background: #fff; }
+.tag form { display: grid; gap: 6px; text-align: left; }
+.tag form input { width: 100%; height: 40px; border: 1px solid var(--borde-fuerte); border-radius: 10px; padding: 0 10px; font-size: 15px; font-weight: 600; outline: none; }
+.tag form input:focus { border-color: var(--pino); box-shadow: 0 0 0 3px rgba(18,56,47,.12); }
+.tag form .error-campo { margin: 0; }
+
+/* El gancho y la argolla */
+.gancho { width: 28px; height: 36px; margin: 0 auto -14px; position: relative; z-index: 2; color: #8D8676; }
+.argolla { width: 28px; height: 28px; margin: -6px auto -8px; position: relative; z-index: 2; border-radius: 99px; border: 3px solid var(--laton-2); background: transparent; }
+
+/* La llave: cabeza de latón con el aparato adentro, la hoja con dientes y su rótulo */
+.llave { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: 8px; align-items: start; padding: 4px; border-radius: 12px; cursor: grab; touch-action: none; user-select: none; outline: none; transform-origin: 20px 0; }
+.llave:hover { background: rgba(255,255,255,.55); }
+.llave:focus-visible, .llave.luz { background: #fff; box-shadow: 0 0 0 3px rgba(18,56,47,.3); }
+.llave .metal { position: relative; width: 40px; height: 76px; }
+.llave .cabeza { position: absolute; top: 0; left: 2px; width: 36px; height: 36px; border-radius: 99px; background: var(--laton); border: 2px solid var(--laton-2); display: grid; place-items: center; color: #4A3A12; box-shadow: inset 0 -3px 0 rgba(0,0,0,.08); }
+.llave .cabeza .i-s { width: 18px; height: 18px; }
+.llave .hoja-l { position: absolute; top: 34px; left: 16px; width: 22px; height: 42px; }
+.llave .huella-b { position: absolute; top: 22px; left: 24px; width: 22px; height: 22px; border-radius: 99px; background: var(--pino); color: #fff; display: grid; place-items: center; border: 2px solid var(--tablero); }
+.llave .huella-b .i-s { width: 13px; height: 13px; }
+.llave .rot { font-size: 14px; line-height: 18px; text-align: left; padding-top: 2px; min-width: 0; }
+.llave .rot b { display: block; font-weight: 750; color: var(--tinta); }
+.llave .rot span { color: var(--texto-2); display: block; }
+.llave .rot .ya { color: var(--logro-texto); font-weight: 750; }
+.llave .rot .vieja { color: var(--urgente-texto); font-weight: 750; }
+.llave.oxidada .cabeza { background: #C9BFA5; border-color: #A39A80; }
+.llave.cae { animation: cae 420ms var(--curva-salida) forwards; }
+@keyframes cae { to { transform: translateY(160px) rotate(35deg); opacity: 0; } }
+.llave.tiembla { animation: tiembla 600ms ease-in-out 3; }
+@keyframes tiembla { 25% { transform: rotate(9deg); } 75% { transform: rotate(-9deg); } }
+.arrastrando { opacity: .25; }
+.fantasma { position: fixed; z-index: 90; pointer-events: none; left: 0; top: 0; transition: none; }
+.fantasma.vuelve { transition: transform 260ms var(--curva); }
+.fantasma > * { box-shadow: var(--sombra-3); background: #fff; transform: rotate(-4deg) scale(1.04); }
+
+/* El cajón de abajo: aparece al levantar una llave o un llavero */
+.cajon-cortar { position: fixed; left: 50%; bottom: 20px; z-index: 60; width: 520px; max-width: calc(100% - 32px); height: 96px; border-radius: 20px;
+  display: flex; align-items: center; justify-content: center; gap: 12px; font-weight: 800; font-size: 18px; color: var(--error-texto);
+  background: var(--error-suave); border: 2px dashed var(--error); transform: translate(-50%, calc(100% + 40px)); opacity: 0; pointer-events: none; transition: transform var(--t-nav) var(--curva), opacity var(--t) var(--curva); }
+.cajon-cortar.ver { transform: translate(-50%, 0); opacity: 1; }
+.cajon-cortar.encima { background: var(--error); color: #fff; border-style: solid; transform: translate(-50%, 0) scale(1.04); }
+.celu .cajon-cortar { position: absolute; }
+
+/* El menú chico de una llave o un llavero */
+.menu-chico { position: fixed; z-index: 70; width: 260px; background: #fff; border-radius: 16px; box-shadow: var(--sombra-3); padding: 8px; border: 1px solid var(--borde);
+  opacity: 0; transform: translateY(6px) scale(.98); pointer-events: none; transition: opacity var(--t) var(--curva), transform var(--t) var(--curva); }
+.menu-chico.abierto { opacity: 1; transform: none; pointer-events: auto; }
+.menu-chico .mc-t { padding: 8px 10px 6px; font-weight: 800; }
+.menu-chico .mc-d { padding: 0 10px 8px; font-size: 14px; color: var(--texto-2); line-height: 20px; }
+.menu-chico button { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border: 0; background: transparent; border-radius: 10px; font-weight: 700; text-align: left; }
+.menu-chico button:hover, .menu-chico button:focus-visible { background: var(--fondo); }
+.menu-chico button.peligro { color: var(--error-texto); }
+.menu-chico button .kbd { margin-left: auto; }
+.menu-chico form { padding: 4px; display: grid; gap: 6px; }
+
+/* La voz */
+.voz { position: fixed; left: 50%; bottom: 24px; z-index: 85; width: 560px; max-width: calc(100% - 32px); border-radius: 24px; background: var(--pino); color: #fff;
+  padding: 18px 20px; box-shadow: var(--sombra-3); transform: translate(-50%, calc(100% + 48px)); opacity: 0; transition: transform var(--t-nav) var(--curva), opacity var(--t) var(--curva); }
+.voz.ver { transform: translate(-50%, 0); opacity: 1; }
+.celu .voz { position: absolute; bottom: 120px; }
+.voz .onda { display: flex; gap: 4px; height: 32px; align-items: center; }
+.voz .onda i { width: 4px; height: 32px; border-radius: 2px; background: #9FD9BC; transform: scaleY(.2); animation: onda 900ms ease-in-out infinite; }
+.voz .onda i:nth-child(2n) { animation-delay: -.3s; } .voz .onda i:nth-child(3n) { animation-delay: -.6s; } .voz .onda i:nth-child(5n) { animation-delay: -.15s; }
+@keyframes onda { 50% { transform: scaleY(1); } }
+.voz .dice { font-size: 20px; line-height: 28px; font-weight: 750; margin-top: 8px; min-height: 28px; }
+.voz .entiende { font-size: 15px; color: rgba(255,255,255,.75); margin-top: 4px; }
+.voz .opciones-v { display: grid; gap: 8px; margin-top: 12px; }
+.voz .opciones-v button { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; font-weight: 700; text-align: left; }
+.voz .opciones-v button.elegida { background: #fff; color: var(--pino); }
+.voz .opciones-v button small { font-weight: 500; opacity: .8; font-size: 14px; margin-left: auto; }
+.celu .voz .opciones-v button { flex-wrap: wrap; padding: 8px 14px; gap: 4px 10px; }
+.celu .voz .opciones-v button small { margin-left: 30px; width: 100%; }
+.voz .acc-v { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+.voz .acc-v .btn-fantasma { color: rgba(255,255,255,.8); }
+
+/* Los dados vuelta (bajas) */
+.vuelta-t { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 99px; border: 1.5px dashed var(--borde-fuerte); background: rgba(255,255,255,.5); color: var(--texto-3); font-weight: 700; font-size: 14px; cursor: pointer; transition: transform var(--t) var(--curva); }
+.vuelta-t:hover { background: #fff; color: var(--texto-2); }
+.vuelta-t .cara { width: 28px; height: 28px; font-size: 14px; }
+.vuelta-t.da-vuelta { animation: davuelta 500ms var(--curva) both; }
+@keyframes davuelta { from { transform: rotateY(0); } 50% { transform: rotateY(90deg); } to { transform: rotateY(0); } }
+
+@media (prefers-reduced-motion: reduce) { .tag.balancea, .llave.tiembla, .llave.cae, .voz .onda i { animation: none !important; } }

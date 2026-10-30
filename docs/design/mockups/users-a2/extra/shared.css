@@ -1,0 +1,109 @@
+/* Usuarios (segunda ronda): piezas comunes a las tres variantes.
+   Solo lo que no está en common/common.css: el marco con el logotipo, las caras, los
+   diálogos, las hojas, las tostadas y el estado sin conexión. */
+
+/* ---------- El marco de la computadora, como en app-frame/final ---------- */
+.app { grid-template-columns: 216px 1fr; }
+.lateral { padding: 20px 8px 16px; }
+.lateral .logo-img { height: 36px; width: auto; margin: 4px 0 21px 8px; }
+.nav-item { text-decoration: none; cursor: pointer; padding: 0 10px 0 14px; }
+.nav-item:hover { background: var(--fondo); }
+.nav-item.activo::before { display: none; }
+.nav-item .i { color: var(--texto-3); }
+.nav-item.activo .i { color: var(--pino); }
+.pestanas a { cursor: pointer; }
+.conexion { justify-self: start; cursor: pointer; border: 0; }
+.nav-inferior a { cursor: pointer; }
+.nav-inferior a.activo::before { display: none; }
+
+/* ---------- Caras: iniciales, nunca fotos de personas ---------- */
+.cara { width: 40px; height: 40px; border-radius: 999px; display: grid; place-items: center; flex: none;
+  background: var(--hundido-2); color: var(--tinta); font-weight: 800; font-size: 15px; letter-spacing: -.01em; }
+.cara.vos { background: var(--pino); color: #fff; }
+.cara.nueva { background: var(--superficie); color: var(--texto-2); border: 1.5px dashed var(--borde-fuerte); }
+.cara.baja { background: transparent; color: var(--texto-3); border: 1.5px dashed var(--borde-fuerte); }
+.cara.g { width: 56px; height: 56px; font-size: 20px; }
+.cara.xl { width: 72px; height: 72px; font-size: 26px; }
+.cara.ch { width: 32px; height: 32px; font-size: 14px; }
+
+/* Cómo entró: ícono + palabra, siempre igual */
+.como { display: inline-flex; align-items: center; gap: 4px; font-weight: 650; color: var(--texto-2); }
+.como .i-s { color: var(--texto-3); }
+
+/* Estado de la persona */
+.vivo { display: inline-flex; align-items: center; gap: 6px; }
+.vivo::before { content: ""; width: 8px; height: 8px; border-radius: 99px; background: var(--logro); box-shadow: 0 0 0 3px var(--logro-suave); }
+
+/* Foco visible para el teclado */
+:focus-visible { outline: 3px solid rgba(18, 56, 47, .35); outline-offset: 2px; border-radius: 10px; }
+
+/* ---------- Capa: diálogo (computadora) y hoja (celular) ---------- */
+.capa { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: rgba(26, 29, 27, .30);
+  opacity: 0; pointer-events: none; transition: opacity var(--t) var(--curva); }
+.capa.abierta { opacity: 1; pointer-events: auto; }
+.dialogo { width: 480px; max-width: calc(100vw - 32px); background: var(--superficie); border-radius: var(--r-hoja); box-shadow: var(--sombra-3);
+  padding: 24px; transform: translateY(12px) scale(.98); opacity: 0; transition: transform var(--t-nav) var(--curva), opacity var(--t) var(--curva); }
+.capa.abierta .dialogo { transform: none; opacity: 1; }
+.dialogo h2 { margin: 0 0 4px; font-size: 20px; line-height: 26px; font-weight: 750; letter-spacing: -.01em; }
+.dialogo .pie-dialogo { display: flex; gap: 8px; justify-content: flex-end; margin-top: 24px; }
+.consecuencias { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
+.consecuencias li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 22px; }
+.consecuencias li .i { color: var(--error-texto); margin-top: 1px; }
+
+.capa.de-hoja { place-items: end center; }
+.hoja { width: 100%; background: var(--superficie); border-radius: var(--r-hoja) var(--r-hoja) 0 0; box-shadow: var(--sombra-3);
+  padding: 8px 16px 28px; transform: translateY(100%); transition: transform var(--t-nav) var(--curva); max-height: 92%; overflow: auto; }
+.capa.abierta .hoja { transform: none; }
+.hoja .asa { width: 40px; height: 5px; border-radius: 99px; background: var(--borde-fuerte); margin: 0 auto 16px; }
+.hoja h2 { margin: 0 0 4px; font-size: 20px; line-height: 26px; font-weight: 750; }
+/* En el celular la capa queda dentro del teléfono */
+.celu .capa { position: absolute; }
+.celu { overflow: clip; }
+
+.btn-cortar { background: var(--error); border-color: var(--error); color: #fff; box-shadow: 0 8px 20px -8px rgba(215, 55, 42, .55); }
+.btn-cortar:active { background: var(--error-texto); }
+.btn-cortar .kbd { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.35); color: #fff; }
+
+/* Campo de verdad (input) con la apariencia de .campo */
+.entrada { display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 16px; border-radius: var(--r); border: 1px solid var(--borde-fuerte);
+  background: var(--superficie); box-shadow: var(--sombra-1); }
+.entrada:focus-within { border-color: var(--pino); box-shadow: 0 0 0 4px rgba(18, 56, 47, .12); }
+.entrada input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 16px; font-weight: 600; }
+.entrada input::placeholder { color: var(--texto-3); font-weight: 500; }
+.entrada .i { color: var(--texto-3); }
+.entrada.mal { border-color: var(--error); box-shadow: 0 0 0 4px rgba(215, 55, 42, .10); }
+.error-campo { display: flex; align-items: center; gap: 6px; color: var(--error-texto); font-size: 14px; font-weight: 650; margin-top: 6px; }
+.error-campo[hidden] { display: none; }
+
+/* ---------- Tostadas ---------- */
+.tostadas { position: fixed; left: 50%; bottom: 24px; z-index: 80; display: grid; gap: 8px; justify-items: center; transform: translateX(-50%); pointer-events: none; }
+.celu .tostadas { position: absolute; bottom: 168px; }
+.tostadas .tostada { pointer-events: auto; animation: sube var(--t-nav) var(--curva) both; max-width: 560px; }
+.tostadas .tostada.se-va { animation: baja var(--t) var(--curva-salida) both; }
+.tostada .i { color: #9FD9BC; }
+.tostada button { border: 0; background: rgba(255,255,255,.14); color: #fff; font-weight: 750; border-radius: 8px; height: 32px; padding: 0 10px; margin-left: 4px; }
+@keyframes sube { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes baja { to { transform: translateY(16px); opacity: 0; } }
+
+/* Algo que se suma a una lista: sube 8 px con rebote; el borde verde lo pinta un ::after */
+.se-suma { position: relative; animation: suma 420ms var(--rebote) both; }
+.se-suma::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; border: 2px solid var(--logro); pointer-events: none; animation: apaga 1.2s var(--curva) .3s both; }
+@keyframes suma { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes apaga { from { opacity: 1; } to { opacity: 0; } }
+/* Algo que se va: se achica y se desvanece */
+.se-va { animation: va 260ms var(--curva-salida) both; }
+@keyframes va { to { transform: translateX(24px); opacity: 0; } }
+
+/* Tilde que se dibuja */
+.tilde { width: 64px; height: 64px; border-radius: 99px; background: var(--logro-suave); color: var(--logro-texto); display: grid; place-items: center; }
+.tilde path { stroke-dasharray: 30; stroke-dashoffset: 30; animation: dibuja 300ms var(--curva) 120ms forwards; }
+@keyframes dibuja { to { stroke-dashoffset: 0; } }
+
+/* ---------- Sin conexión (R2.2): todo gris, se puede leer ---------- */
+.aviso-sin-conexion { display: none; }
+body.sin-conexion .aviso-sin-conexion { display: flex; }
+body.sin-conexion .zona { opacity: .45; pointer-events: none; filter: grayscale(1); transition: opacity var(--t); }
+
+@media (prefers-reduced-motion: reduce) {
+  .capa, .dialogo, .hoja { transition: none !important; }
+}

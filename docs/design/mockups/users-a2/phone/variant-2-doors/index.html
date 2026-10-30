@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · 2 · Las puertas abiertas (celular)</title>
+<!-- Variante 2 · Las puertas abiertas (la reinvención), en el celular: primero los aparatos donde
+     hay alguien adentro, del más usado al más olvidado; cada uno se corta de un toque o deslizándolo.
+     Las personas, en el segmento de al lado. -->
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../extra/shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../extra/icons-extra.js"></script>
+<script src="../../extra/shared.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; }
+  .celu-pantalla { overflow: auto; padding-bottom: 16px; }
+  .seg { display: flex; width: 100%; }
+  .seg > * { flex: 1; justify-content: center; min-height: 40px; font-size: 15px; }
+  .hero { padding: 14px 16px; margin-top: 12px; }
+  .hero .top { display: flex; align-items: baseline; gap: 8px; }
+  .hero .top b { font-size: 32px; line-height: 36px; font-weight: 800; letter-spacing: -.02em; }
+  .hero .top span { font-weight: 700; }
+  .linea { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin-top: 10px; }
+  .zt { border-radius: 8px; background: var(--fondo); padding: 6px 4px 4px; display: grid; gap: 4px; justify-items: center; }
+  .zt.vieja { background: var(--urgente-suave); }
+  .zt .pts { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; min-height: 24px; }
+  .zt .pts i { width: 10px; height: 10px; border-radius: 99px; background: var(--pino); margin: 7px 1px 0; display: block; }
+  .zt.vieja .pts i { background: var(--urgente); }
+  .zt .r { font-size: 14px; font-weight: 650; color: var(--texto-2); line-height: 16px; text-align: center; }
+  .zt.vieja .r { color: var(--urgente-texto); }
+  .chips-x { display: flex; gap: 8px; overflow-x: auto; margin: 12px -16px 0; padding: 0 16px 2px; scrollbar-width: none; }
+  .chips-x .chip { flex: none; padding: 0 12px 0 4px; gap: 6px; height: 40px; }
+  .chips-x .chip.todos { padding: 0 14px; }
+  .chips-x .chip .cara { width: 30px; height: 30px; font-size: 14px; }
+  .grupo { font-size: 14px; font-weight: 650; color: var(--texto-2); margin: 16px 4px 8px; display: flex; align-items: center; gap: 6px; }
+  .grupo.vieja { color: var(--urgente-texto); }
+  .desliza { position: relative; border-radius: var(--r-tarjeta); overflow: hidden; }
+  .desliza + .desliza { margin-top: 8px; }
+  .desliza .detras { position: absolute; inset: 0; background: var(--error); opacity: 0; display: flex; justify-content: flex-end; align-items: center; padding-right: 20px; gap: 6px; color: #fff; font-weight: 800; }
+  .desliza.activa .detras { opacity: 1; }
+  .ap { position: relative; display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px 10px 10px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); touch-action: pan-y; transition: transform var(--t) var(--curva); }
+  .ap.arrastra { transition: none; }
+  .ap.vieja { border-color: #F0C66B; }
+  .ap .box { position: relative; width: 64px; height: 56px; border-radius: 10px; background: var(--hundido); display: grid; place-items: center; }
+  .ap.vieja .box { background: var(--urgente-suave); }
+  .ap .box .arte { width: 60px; height: 45px; }
+  .ap .box .vivo { position: absolute; top: 5px; left: 5px; }
+  .ap .box .vivo::before { width: 7px; height: 7px; }
+  .ap .t { font-weight: 700; line-height: 22px; display: flex; gap: 4px; align-items: center; }
+  .ap .t .i-s { color: var(--pino-texto); }
+  .ap .d { font-size: 14px; line-height: 20px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ap .d .ya { color: var(--logro-texto); font-weight: 700; }
+  .ap .d b { color: var(--urgente-texto); }
+  .ap .d.m { display: flex; align-items: center; gap: 4px; }
+  .ap .d.m .i-s { color: var(--pino-texto); }
+  .vacia { display: grid; justify-items: center; gap: 8px; text-align: center; padding: 32px 16px; color: var(--texto-2); }
+
+  .per { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 12px; border: 1px solid var(--borde); border-radius: var(--r-tarjeta); background: var(--superficie); box-shadow: var(--sombra-1); }
+  .per + .per { margin-top: 8px; }
+  .per .cara { width: 44px; height: 44px; }
+  .per .n { font-weight: 700; line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .per .c { font-size: 14px; color: var(--texto-2); line-height: 20px; }
+  .per .c.nunca { color: var(--urgente-texto); font-weight: 650; }
+  .per.baja .n { color: var(--texto-3); text-decoration: line-through; text-decoration-color: var(--borde-fuerte); }
+  .per .k { display: flex; gap: 2px; align-items: center; font-weight: 700; color: var(--texto-2); font-size: 14px; }
+  .pastilla.vos { background: var(--pino); color: #fff; height: 22px; padding: 0 8px; margin-left: 4px; }
+
+  .hoja .botones { display: grid; gap: 8px; margin-top: 16px; }
+  .hoja .campos { display: grid; gap: 8px; margin-top: 12px; }
+  .det { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 12px 0; border-top: 1px solid var(--borde); font-size: 14px; color: var(--texto-2); }
+  .det b { display: flex; align-items: center; gap: 6px; color: var(--tinta); font-size: 16px; }
+  .cab-hoja { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .cab-hoja .box { width: 72px; height: 60px; border-radius: 12px; background: var(--hundido); display: grid; place-items: center; }
+  .cab-hoja .arte { width: 64px; height: 48px; }
+
+  .pase { border-radius: 18px; overflow: hidden; border: 1px solid var(--borde); box-shadow: var(--sombra-2); margin-top: 12px; transition: transform 480ms var(--curva), opacity 480ms var(--curva); }
+  .pase .franja { height: 60px; background: var(--pino); padding: 14px 16px 0; }
+  .pase .franja img { height: 22px; }
+  .pase .cp { padding: 0 16px 14px; display: grid; gap: 2px; }
+  .pase .cp .cara { margin-top: -30px; justify-self: end; box-shadow: 0 0 0 4px #fff; width: 60px; height: 60px; }
+  .pase .pn { font-size: 20px; line-height: 26px; font-weight: 800; margin-top: -18px; max-width: 250px; }
+  .pase .pc { font-size: 14px; color: var(--texto-2); word-break: break-all; }
+  .pase.vuela { transform: translateY(-420px) scale(.3); opacity: 0; }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="celu-cabecera"><span class="t-titulo">Usuarios</span><span class="btn-vinculo"><i class="i i-s" data-i="monitor"></i>En espejo</span></div>
+  <div class="celu-estado" id="estado" style="cursor:pointer"><span class="punto"></span><span>En línea · todo enviado</span></div>
+  <nav class="celu-pestanas"><a class="activa" data-no-ir>Usuarios</a><a data-ir="audit-log">Auditoría</a></nav>
+  <div class="celu-pantalla">
+    <div class="aviso urgente aviso-sin-conexion" style="margin-bottom:8px"><i class="i" data-i="wifi-off"></i>Sin conexión. Para cortar o autorizar hace falta internet.</div>
+    <div class="zona">
+      <div class="segmentos seg" id="seg"><button class="elegido" data-v="ap">Aparatos <span id="k-ap"></span></button><button data-v="per">Personas <span id="k-per"></span></button></div>
+      <div id="vista"></div>
+    </div>
+  </div>
+  <div class="barra-accion zona"><button class="btn btn-accion grande" style="width:100%" id="btn-autorizar"><i class="i" data-i="user-plus"></i>Autorizar a alguien</button></div>
+  <nav class="nav-inferior">
+    <a data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender<span class="insignia">3</span></a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a class="activo" data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+
+  <div class="capa de-hoja" id="hoja-ap"><div class="hoja" id="hoja-ap-c"></div></div>
+  <div class="capa de-hoja" id="hoja-per"><div class="hoja" id="hoja-per-c"></div></div>
+  <div class="capa de-hoja" id="hoja-baja"><div class="hoja">
+    <div class="asa"></div><h2>¿Dar de baja a <span data-q="nombre"></span>?</h2>
+    <ul class="consecuencias" id="baja-lista"></ul>
+    <div class="botones"><button class="btn btn-cortar grande" id="baja-ok"><i class="i" data-i="user-x"></i>Dar de baja</button><button class="btn btn-fantasma" data-cerrar>Cancelar</button></div>
+  </div></div>
+  <div class="capa de-hoja" id="hoja-todas"><div class="hoja">
+    <div class="asa"></div><h2>¿Cerrar sus <span data-q="n"></span> sesiones?</h2><div class="t-detalle">Cada aparato vuelve a la entrada. Las huellas quedan.</div>
+    <div class="botones"><button class="btn btn-cortar grande" id="todas-ok"><i class="i" data-i="log-out"></i>Cerrar todas</button><button class="btn btn-fantasma" data-cerrar>Cancelar</button></div>
+  </div></div>
+  <div class="capa de-hoja" id="hoja-autorizar"><form class="hoja" id="form-pase" novalidate autocomplete="off">
+    <div class="asa"></div><h2>Autorizar a alguien</h2><div class="t-detalle">Así va a aparecer. No le llega ningún correo: avisale vos.</div>
+    <div class="pase" id="pase"></div>
+    <div class="campos">
+      <div><label class="entrada" id="campo-correo"><i class="i" data-i="mail"></i><input id="correo" type="email" inputmode="email" placeholder="Correo de Google"></label>
+      <div class="error-campo" id="error-correo" hidden><i class="i i-s" data-i="triangle-alert"></i><span></span></div></div>
+      <label class="entrada"><i class="i" data-i="user"></i><input id="nombre-nuevo" placeholder="Nombre (opcional)"></label>
+    </div>
+    <div class="botones"><button class="btn btn-accion grande" type="submit">Autorizar</button></div>
+  </form></div>
+</div>
+
+<script>
+(function () {
+  var P = U.people, vista = "ap", filtro = null;
+  var $ = function (s) { return document.querySelector(s); };
+  function persona(id) { return P.filter(function (p) { return p.id === id; })[0]; }
+  var Z = [["Ahora", 15], ["Hoy", 1440], ["Semana", 10080], ["Mes", 43200], ["Más de un mes", 1e9]];
+  function zona(m) { for (var i = 0; i < Z.length; i++) if (m < Z[i][1]) return i; }
+
+  function aparatos() {
+    var ap = U.aparatos(P), ver = ap.filter(function (a) { return !filtro || a.persona.id === filtro; }), cols = Z.map(function () { return 0; });
+    ap.forEach(function (a) { cols[zona(a.usoMin)]++; });
+    var h = '<div class="tarjeta hero"><div class="top"><b>' + ap.length + '</b><span>aparatos con alguien adentro</span></div><div class="linea">' +
+      Z.map(function (z, i) { return '<div class="zt' + (i === 4 ? " vieja" : "") + '"><div class="pts">' + new Array(cols[i] + 1).join("<i></i>") + '</div><div class="r">' + z[0] + "</div></div>"; }).join("") + "</div></div>";
+    var per = {}; ap.forEach(function (a) { per[a.persona.id] = (per[a.persona.id] || 0) + 1; });
+    h += '<div class="chips-x"><button class="chip todos' + (filtro ? "" : " elegido") + '" data-f="">Todos</button>';
+    U.orden(P).todas.forEach(function (p) { if (per[p.id]) h += '<button class="chip' + (filtro === p.id ? " elegido" : "") + '" data-f="' + p.id + '">' + U.cara(p) + (p.vos ? "Vos" : U.nombre(p).split(/[ ,]/)[0]) + "</button>"; });
+    h += "</div>";
+    var g = -1;
+    if (!ver.length) h += '<div class="vacia"><i class="i i-xl" data-i="circle-check"></i><div class="t-renglon">Nada abierto</div><div class="t-detalle">No tiene sesiones ni huellas.</div></div>';
+    ver.forEach(function (a) {
+      var z = zona(a.usoMin); if (z !== g) { g = z; h += '<div class="grupo' + (z === 4 ? " vieja" : "") + '">' + (z === 4 ? '<i class="i i-s" data-i="clock"></i>Sin usar hace más de un mes' : ["Ahora", "Hoy", "Esta semana", "Este mes"][z]) + "</div>"; }
+      var p = a.persona, viejo = z === 4;
+      var meta = a.usoMin < 15 ? '<span class="ya">' + (a.usoMin === 0 ? "en uso" : a.uso.toLowerCase()) + "</span>" : viejo ? "<b>" + a.uso.toLowerCase() + "</b>" : a.uso.toLowerCase();
+      h += '<div class="desliza"><div class="detras"><i class="i" data-i="scissors"></i>Cortar</div><div class="ap' + (viejo ? " vieja" : "") + '" data-dev="' + a.dev + '"><span class="box">' + U.arte(a.tipo) + (a.usoMin < 15 ? '<span class="vivo"></span>' : "") + "</span>" +
+        '<div style="min-width:0"><div class="t">' + a.disp + '</div><div class="d">' + (p.vos ? "Vos" : U.nombre(p)) + '</div><div class="d m">' + (a.sesion ? '<i class="i i-s" data-i="key-round"></i>' : "") + (a.huella ? '<i class="i i-s" data-i="fingerprint"></i>' : "") + meta + "</div></div>" +
+        '<button class="btn btn-suave btn-icono" data-cortar aria-label="Cortar"><i class="i" data-i="scissors"></i></button></div></div>';
+    });
+    $("#vista").innerHTML = h; U.pintar($("#vista")); deslizables();
+  }
+  function personas() {
+    var o = U.orden(P), h = "";
+    function fila(p) {
+      var c = p.baja ? "Dada de baja" : p.nunca ? '<span class="c nunca">Todavía no entró</span>' : p.entroCorto;
+      var n = U.aparatos(P).filter(function (a) { return a.persona === p; }).length;
+      return '<button class="per' + (p.baja ? " baja" : "") + '" data-id="' + p.id + '">' + U.cara(p) + '<div style="min-width:0"><div class="n">' + U.nombre(p) + (p.vos ? '<span class="pastilla vos">Vos</span>' : "") + '</div><div class="c">' + c + "</div></div>" + (n ? '<span class="k"><i class="i i-s" data-i="smartphone"></i>' + n + "</span>" : '<i class="i" data-i="chevron-right" style="color:var(--texto-3)"></i>') + "</button>";
+    }
+    h += '<div style="height:12px"></div>' + o.vos.map(fila).join("") + '<div class="grupo">Pueden entrar · ' + o.activas.length + "</div>" + o.activas.map(fila).join("") + (o.bajas.length ? '<div class="grupo">Dadas de baja · ' + o.bajas.length + "</div>" + o.bajas.map(fila).join("") : "");
+    $("#vista").innerHTML = h; U.pintar($("#vista"));
+  }
+  function todo() {
+    $("#k-ap").textContent = U.aparatos(P).length; $("#k-per").textContent = P.length;
+    document.querySelectorAll("#seg button").forEach(function (b) { b.classList.toggle("elegido", b.dataset.v === vista); });
+    if (vista === "ap") aparatos(); else personas();
+  }
+
+  function aparatoDe(dev) { return U.aparatos(P).filter(function (a) { return a.dev === dev; })[0]; }
+  function cortar(a, que, el) {
+    var p = a.persona, hizo = [];
+    if (a.sesion && que !== "h-solo") { p.sesiones = p.sesiones.filter(function (s) { return s.dev !== a.dev; }); hizo.push("sesión cerrada"); }
+    if (a.huella && (que === "todo" || que === "h-solo")) { p.huellas = p.huellas.filter(function (x) { return x.dev !== a.dev; }); hizo.push("huella quitada"); if (que === "h-solo" && a.sesion) {} }
+    if (que === "h-solo" && a.sesion) { /* quitar la huella también cierra la sesión de ese celular (R5.6) */ }
+    U.vibrar([10, 40, 10]);
+    var fin = function () { todo(); U.tostada(a.disp + ": " + hizo.join(" y ")); };
+    if (el) { el.parentNode.classList.add("activa"); el.style.transform = "translateX(-110%)"; setTimeout(fin, 220); } else fin();
+  }
+  function deslizables() {
+    document.querySelectorAll(".ap").forEach(function (a) {
+      var x0 = null, dx = 0;
+      a.addEventListener("pointerdown", function (e) { if (e.target.closest("button")) return; x0 = e.clientX; dx = 0; a.classList.add("arrastra"); a.parentNode.classList.add("activa"); a.setPointerCapture(e.pointerId); });
+      a.addEventListener("pointermove", function (e) { if (x0 === null) return; dx = Math.min(0, e.clientX - x0); a.style.transform = "translateX(" + dx + "px)"; });
+      a.addEventListener("pointerup", function () { if (x0 === null) return; x0 = null; a.classList.remove("arrastra");
+        if (dx < -90) cortar(aparatoDe(a.dataset.dev), "todo", a);
+        else { a.style.transform = ""; setTimeout(function () { a.parentNode.classList.remove("activa"); }, 200); if (Math.abs(dx) < 6) detalle(aparatoDe(a.dataset.dev)); } });
+    });
+  }
+  function detalle(a) {
+    var p = a.persona, h = '<div class="asa"></div><div class="cab-hoja"><span class="box">' + U.arte(a.tipo) + '</span><div><h2>' + a.disp + '</h2><div class="t-detalle">' + (p.vos ? "Tuyo" : "De " + U.nombre(p)) + " · usado " + a.uso.toLowerCase() + "</div></div></div>";
+    if (a.sesion) h += '<div class="det"><div><b><i class="i i-s" data-i="key-round"></i>Sesión abierta</b>Entró con ' + U.M[a.sesion.como][0].toLowerCase() + ", " + a.sesion.desde.toLowerCase() + '</div><button class="btn chico" data-x="s">Cerrar</button></div>';
+    if (a.huella) h += '<div class="det"><div><b><i class="i i-s" data-i="fingerprint"></i>Huella</b>Vinculada el ' + a.huella.vinc + '</div><button class="btn chico" data-x="h">Quitar</button></div>';
+    h += '<div class="botones"><button class="btn btn-cortar grande" data-x="todo"><i class="i" data-i="scissors"></i>Cortar las dos</button><button class="btn btn-fantasma" data-cerrar>Volver</button></div>';
+    var c = $("#hoja-ap-c"); c.innerHTML = h; U.pintar(c); U.abrir("hoja-ap");
+    c.onclick = function (e) { var b = e.target.closest("[data-x]"); if (!b) return; U.cerrar($("#hoja-ap")); cortar(a, b.dataset.x === "h" ? "todo" : b.dataset.x, null); };
+  }
+  $("#vista").addEventListener("click", function (e) {
+    var t = e.target;
+    var ch = t.closest(".chip"); if (ch) { filtro = ch.dataset.f || null; aparatos(); return; }
+    var cb = t.closest("[data-cortar]"); if (cb) { var el = cb.closest(".ap"); cortar(aparatoDe(el.dataset.dev), "todo", el); return; }
+    var pr = t.closest(".per"); if (pr) hojaPersona(persona(pr.dataset.id));
+  });
+  $("#seg").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; vista = b.dataset.v; todo(); });
+
+  function hojaPersona(p) {
+    var n = U.aparatos(P).filter(function (a) { return a.persona === p; }).length;
+    var h = '<div class="asa"></div><div class="cab-hoja">' + U.cara(p, "g") + '<div style="min-width:0"><h2>' + U.nombre(p) + '</h2><div class="t-detalle" style="word-break:break-all">' + p.correo + "</div></div></div>" +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">' + (p.baja ? '<span class="pastilla">Dada de baja el ' + p.bajaDesde + "</span>" : '<span class="pastilla pino">Administrador</span><span class="pastilla' + (p.nunca ? " urgente" : "") + '">' + p.entro + "</span>") + "</div>";
+    h += '<div class="campos"><label class="entrada"' + (p.baja ? ' style="display:none"' : "") + '><i class="i" data-i="pencil"></i><input id="ren" value="' + (p.nombre || "") + '" placeholder="' + (p.google || p.correo) + '" aria-label="Nombre"></label>' + (p.nunca ? '<label class="entrada"><i class="i" data-i="mail"></i><input id="rec" value="' + p.correo + '" aria-label="Correo"></label><div class="error-campo" id="rec-err" hidden><i class="i i-s" data-i="triangle-alert"></i><span></span></div>' : "") + "</div>";
+    h += '<div class="botones">';
+    if (!p.baja) h += '<button class="btn" data-y="guardar">Guardar los cambios</button>';
+    if (n) h += '<button class="btn" data-y="ver"><i class="i" data-i="smartphone"></i>Ver sus ' + n + " aparatos</button>";
+    if (p.sesiones.length > 1) h += '<button class="btn" data-y="todas"><i class="i" data-i="log-out"></i>Cerrar todas sus sesiones</button>';
+    if (p.vos) h += '<div class="t-detalle" style="text-align:center">A vos te tiene que dar de baja otro Administrador.</div>';
+    else if (p.baja) h += '<button class="btn btn-accion grande" data-y="alta"><i class="i" data-i="user-check"></i>Dar de alta</button>';
+    else if (p.nunca) h += '<button class="btn btn-peligro" data-y="borrar"><i class="i" data-i="trash-2"></i>Borrar (nunca entró)</button>';
+    else h += '<button class="btn btn-peligro" data-y="baja"><i class="i" data-i="user-x"></i>Dar de baja</button>';
+    h += "</div>";
+    var c = $("#hoja-per-c"); c.innerHTML = h; U.pintar(c); U.abrir("hoja-per");
+    c.onclick = function (e) {
+      var b = e.target.closest("[data-y]"); if (!b) return; var y = b.dataset.y;
+      if (y === "guardar") { if (p.nunca) { var m = U.correoMal($("#rec").value, P, p); if (m) { var er = $("#rec-err"); er.hidden = false; er.querySelector("span").textContent = m; return; } p.correo = $("#rec").value.trim(); } p.nombre = $("#ren").value.trim() || p.google || ""; U.cerrar($("#hoja-per")); todo(); U.tostada("Guardado"); }
+      if (y === "ver") { U.cerrar($("#hoja-per")); vista = "ap"; filtro = p.id; todo(); }
+      if (y === "todas") { U.cerrar($("#hoja-per")); $("#hoja-todas [data-q=n]").textContent = p.sesiones.length; U.abrir("hoja-todas"); $("#todas-ok").onclick = function () { p.sesiones = []; U.cerrar($("#hoja-todas")); todo(); U.tostada("Sesiones cerradas"); }; }
+      if (y === "alta") { p.baja = false; U.cerrar($("#hoja-per")); todo(); U.tostada(U.nombre(p) + " puede entrar de nuevo"); }
+      if (y === "borrar") { P.splice(P.indexOf(p), 1); U.cerrar($("#hoja-per")); todo(); U.tostada("Borrada"); }
+      if (y === "baja") { U.cerrar($("#hoja-per")); baja(p); }
+    };
+  }
+  function baja(p) {
+    $("#hoja-baja [data-q=nombre]").textContent = U.nombre(p);
+    $("#baja-lista").innerHTML = (p.sesiones.length ? '<li><i class="i" data-i="log-out"></i>Se cierran sus ' + p.sesiones.length + " sesiones.</li>" : "") + (p.huellas.length ? '<li><i class="i" data-i="fingerprint"></i>Se le quitan sus huellas.</li>' : "") + '<li><i class="i" data-i="ban"></i>Ya no entra. Sigue en la lista.</li>';
+    U.pintar($("#baja-lista")); U.abrir("hoja-baja");
+    $("#baja-ok").onclick = function () { p.baja = true; p.bajaDesde = "30 de octubre"; p.sesiones = []; p.huellas = []; U.cerrar($("#hoja-baja")); todo(); U.tostada(U.nombre(p) + " quedó dada de baja"); };
+  }
+
+  // ---- El pase ----
+  function pase() {
+    var c = $("#correo").value.trim(), n = $("#nombre-nuevo").value.trim();
+    $("#pase").innerHTML = '<div class="franja"><img src="../../../../common/brand/logo-on-dark.png" alt="Ferrebress"></div><div class="cp">' + U.cara({ nombre: n, nunca: true }) + '<div class="pn">' + (n || c || "Nombre") + '</div><div class="pc">' + (n ? c : "Todavía no entró") + "</div></div>";
+    U.pintar($("#pase"));
+  }
+  $("#btn-autorizar").onclick = function () { $("#pase").classList.remove("vuela"); pase(); U.abrir("hoja-autorizar"); };
+  $("#correo").oninput = function () { $("#error-correo").hidden = true; $("#campo-correo").classList.remove("mal"); pase(); };
+  $("#nombre-nuevo").oninput = pase;
+  $("#form-pase").onsubmit = function (e) {
+    e.preventDefault(); var c = $("#correo"), m = U.correoMal(c.value, P);
+    if (m) { var er = $("#error-correo"); er.hidden = false; er.querySelector("span").textContent = m; $("#campo-correo").classList.add("mal"); return; }
+    var p = { id: "n" + Date.now(), nombre: $("#nombre-nuevo").value.trim(), correo: c.value.trim(), nunca: true, entro: "Todavía no entró", entroCorto: "Todavía no entró", sesiones: [], huellas: [] };
+    P.push(p); U.vibrar(10); $("#pase").classList.add("vuela");
+    setTimeout(function () { U.cerrar($("#hoja-autorizar")); c.value = ""; $("#nombre-nuevo").value = ""; vista = "per"; todo(); var r = document.querySelector('.per[data-id="' + p.id + '"]'); if (r) { r.scrollIntoView({ block: "center" }); r.classList.add("se-suma"); } U.tostada("Autorizada. Avisale que ya puede entrar."); }, U.quieto() ? 0 : 440);
+  };
+
+  $("#estado").onclick = function () { var off = document.body.classList.toggle("sin-conexion"); this.querySelector(".punto").style.background = off ? "var(--urgente)" : ""; this.lastChild.textContent = off ? "Sin conexión" : "En línea · todo enviado"; };
+  todo();
+})();
+</script>
+</body>
+</html>

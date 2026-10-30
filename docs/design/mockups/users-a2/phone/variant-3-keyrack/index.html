@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · 3 · El tablero de llaves (celular)</title>
+<!-- Variante 3 · El tablero de llaves (la que nadie se animaría), en el celular: sin marco ni menú de
+     abajo. Cada persona es un llavero y sus llaves cuelgan al lado; se corta una llave tirándola al
+     cajón que aparece abajo. El botón grande del medio es para hablarle. -->
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../extra/shared.css">
+<link rel="stylesheet" href="../../extra/keyrack.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../extra/icons-extra.js"></script>
+<script src="../../extra/shared.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; }
+  .celu { background-color: var(--tablero); background-image: radial-gradient(circle at 12px 12px, var(--agujero) 3.2px, transparent 3.6px); background-size: 24px 24px; }
+  .cab { display: flex; align-items: center; gap: 12px; padding: 4px 16px 8px; }
+  .cab .t-titulo { line-height: 30px; }
+  .cab .sub { font-size: 14px; color: var(--texto-2); font-weight: 650; }
+  .salir { width: 44px; height: 44px; border-radius: 99px; background: #fff; border: 1px solid var(--borde); box-shadow: var(--sombra-1); display: grid; place-items: center; flex: none; }
+  .cab .aud { margin-left: auto; }
+  .area { flex: 1; min-height: 0; overflow: auto; padding: 8px 16px 140px 16px; position: relative; }
+  #tablero { display: grid; gap: 16px; padding-left: 14px; position: relative; }
+  #tablero::before { content: ""; position: absolute; left: -6px; top: -8px; bottom: -8px; width: 8px; border-radius: 99px; background: linear-gradient(90deg, #C9C1AF, #A9A08C); }
+  .llavero { display: grid; grid-template-columns: 140px 1fr; gap: 8px; align-items: start; position: relative; }
+  .llavero .gancho { position: absolute; left: -22px; top: 10px; width: 24px; height: 24px; margin: 0; transform: rotate(-90deg); }
+  .llavero .argolla { display: none; }
+  .llavero .tag { width: 140px; min-height: 0; padding: 24px 8px 10px; }
+  .llavero .tag .cara { width: 40px; height: 40px; margin-bottom: 4px; }
+  .llavero .tag .tc { display: none; }
+  .llavero .tag.nuevo { min-height: 88px; grid-column: 1 / -1; width: 100%; }
+  .llavero .tag form { grid-column: 1 / -1; }
+  .llavero:has(form) { grid-template-columns: 1fr; }
+  .llavero:has(form) .tag { width: 100%; }
+  .llaves { display: grid; gap: 4px; padding-top: 8px; }
+  .llave .rot { font-size: 14px; }
+  .bajas-t { margin: 24px 0 8px 14px; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  #bajas { display: flex; flex-wrap: wrap; gap: 8px; padding-left: 14px; }
+  .dock { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; padding: 0 24px 24px; display: flex; align-items: center; justify-content: center; gap: 24px;
+    background: linear-gradient(rgba(234,229,217,0), rgba(234,229,217,.95) 40%); }
+  .dock .mas { width: 56px; height: 56px; border-radius: 99px; padding: 0; }
+  .dock .mic { width: 76px; height: 76px; border-radius: 99px; padding: 0; display: grid; place-items: center; }
+  .dock .mic .i { width: 32px; height: 32px; }
+  .dock .hueco { width: 56px; }
+  .dock .leyenda-m { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .celu .menu-chico { position: absolute; }
+  .celu .cajon-cortar { bottom: 132px; height: 84px; font-size: 16px; }
+  .celu .voz { bottom: 132px; }
+  .celu .tostadas { bottom: 140px; }
+  .aviso-sin-conexion { margin: 0 16px 8px; }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="cab">
+    <button class="salir" data-ir="more" aria-label="Volver a Más"><i class="i" data-i="x"></i></button>
+    <div><div class="t-titulo">Usuarios</div><div class="sub" id="cuenta"></div></div>
+    <button class="btn btn-fantasma chico aud" data-ir="audit-log"><i class="i i-s" data-i="history"></i>Auditoría</button>
+  </div>
+  <div class="aviso urgente aviso-sin-conexion"><i class="i" data-i="wifi-off"></i>Sin conexión: se mira, no se toca.</div>
+  <div class="area zona">
+    <div id="tablero"></div>
+    <div class="bajas-t">Dados vuelta · tocá para dar de alta</div>
+    <div id="bajas"></div>
+  </div>
+  <div class="dock zona">
+    <button class="btn btn-accion mas" id="btn-colgar" aria-label="Colgar un llavero"><i class="i i-l" data-i="plus"></i></button>
+    <button class="btn btn-oscuro mic" id="btn-voz" aria-label="Decí qué pasó"><i class="i" data-i="mic"></i></button>
+    <span class="hueco"></span>
+    <div class="leyenda-m">Tocá y decí qué pasó</div>
+  </div>
+
+  <div class="cajon-cortar" id="cajon"></div>
+  <div class="menu-chico" id="menu" role="menu"></div>
+  <div class="voz" id="voz" aria-live="polite"></div>
+
+  <div class="capa de-hoja" id="capa-baja"><div class="hoja">
+    <div class="asa"></div><h2>¿Dar de baja a <span data-q="nombre"></span>?</h2>
+    <ul class="consecuencias" id="baja-lista"></ul>
+    <div style="display:grid;gap:8px;margin-top:16px"><button class="btn btn-cortar grande" id="baja-ok"><i class="i" data-i="user-x"></i>Dar de baja</button><button class="btn btn-fantasma" data-cerrar>Cancelar</button></div>
+  </div></div>
+  <div class="capa de-hoja" id="capa-todas"><div class="hoja">
+    <div class="asa"></div><h2>¿Cerrar sus <span data-q="n"></span> sesiones?</h2><div class="t-detalle">Las huellas quedan.</div>
+    <div style="display:grid;gap:8px;margin-top:16px"><button class="btn btn-cortar grande" id="todas-ok"><i class="i" data-i="log-out"></i>Cerrar todas</button><button class="btn btn-fantasma" data-cerrar>Cancelar</button></div>
+  </div></div>
+</div>
+<script src="../../extra/keyrack.js"></script>
+<script>
+  document.getElementById("btn-colgar").onclick = function () { KR.nuevo(); };
+</script>
+</body>
+</html>

@@ -101,6 +101,19 @@
     { "device": "phone", "name": "2 · Personas y aparatos", "path": "mockups/users-a/phone/variant-2-devices/index.html" },
     { "device": "phone", "name": "3 · El tablero", "path": "mockups/users-a/phone/variant-3-panel/index.html" }
    ]
+  },
+  {
+   "id": "users-a2",
+   "title": "Usuarios (segunda ronda)",
+   "module": "02 · Personas",
+   "variants": [
+    { "device": "desktop", "name": "1 · La ficha", "path": "mockups/users-a2/desktop/variant-1-card/index.html" },
+    { "device": "desktop", "name": "2 · Las puertas abiertas", "path": "mockups/users-a2/desktop/variant-2-doors/index.html" },
+    { "device": "desktop", "name": "3 · El tablero de llaves", "path": "mockups/users-a2/desktop/variant-3-keyrack/index.html" },
+    { "device": "phone", "name": "1 · La ficha", "path": "mockups/users-a2/phone/variant-1-card/index.html" },
+    { "device": "phone", "name": "2 · Las puertas abiertas", "path": "mockups/users-a2/phone/variant-2-doors/index.html" },
+    { "device": "phone", "name": "3 · El tablero de llaves", "path": "mockups/users-a2/phone/variant-3-keyrack/index.html" }
+   ]
   }
  ]
 }

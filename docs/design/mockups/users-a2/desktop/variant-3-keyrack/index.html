@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · 3 · El tablero de llaves</title>
+<!-- Variante 3 · El tablero de llaves (la que nadie se animaría). Sin marco: la pantalla entera es
+     el tablero perforado de la ferretería, donde cada persona es un llavero colgado y cada aparato
+     donde está adentro, una llave. Cortar es descolgar la llave y tirarla al cajón. Se le puede
+     hablar: «se perdió el celular de Nahuel». -->
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../extra/shared.css">
+<link rel="stylesheet" href="../../extra/keyrack.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../extra/icons-extra.js"></script>
+<script src="../../extra/shared.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { height: 100vh; overflow: hidden; }
+  .cab { display: flex; align-items: center; gap: 16px; padding: 20px 32px 0; }
+  .cab .t-titulo { line-height: 30px; }
+  .cab .sub { font-size: 15px; color: var(--texto-2); font-weight: 600; }
+  .cab .acc { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .salir { width: 44px; height: 44px; border-radius: 99px; background: #fff; border: 1px solid var(--borde); box-shadow: var(--sombra-1); display: grid; place-items: center; }
+  .btn-voz { border-radius: 99px; padding: 0 18px 0 8px; }
+  .btn-voz .mic { width: 32px; height: 32px; border-radius: 99px; background: rgba(255,255,255,.14); display: grid; place-items: center; }
+  .riel { height: 14px; margin: 24px 24px 0; border-radius: 99px; background: linear-gradient(#C9C1AF, #A9A08C); box-shadow: 0 2px 4px rgba(26,29,27,.18); }
+  #tablero { display: grid; grid-auto-flow: column; grid-auto-columns: 152px; gap: 12px; padding: 0 33px; align-items: start; }
+  .llavero { display: grid; justify-items: center; }
+  .llavero .tag { width: 148px; min-height: 152px; }
+  .llavero .tag.nuevo { min-height: 152px; }
+  .llaves { width: 152px; display: grid; gap: 2px; }
+  .abajo { position: fixed; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 14px 32px; background: rgba(244,242,236,.92); backdrop-filter: blur(8px); border-top: 1px solid var(--borde); }
+  .abajo .et { font-size: 14px; font-weight: 650; color: var(--texto-2); white-space: nowrap; }
+  #bajas { display: flex; gap: 8px; }
+  .teclas { margin-left: auto; display: flex; gap: 14px; font-size: 14px; color: var(--texto-2); white-space: nowrap; }
+  .teclas span { display: inline-flex; gap: 4px; align-items: center; }
+  .aviso-sin-conexion { margin: 12px 32px 0; }
+  .leyenda { display: flex; gap: 16px; font-size: 14px; color: var(--texto-2); font-weight: 600; margin-left: 8px; }
+  .leyenda span { display: inline-flex; gap: 6px; align-items: center; }
+  .leyenda .c1 { width: 16px; height: 16px; border-radius: 99px; background: var(--laton); border: 2px solid var(--laton-2); }
+  .leyenda .c2 { width: 16px; height: 16px; border-radius: 99px; background: var(--pino); }
+  .leyenda .c3 { width: 16px; height: 16px; border-radius: 99px; background: #C9BFA5; border: 2px solid #A39A80; }
+</style>
+</head>
+<body class="tablero-fondo">
+  <header class="cab">
+    <button class="salir" data-ir="more" aria-label="Volver a Más" title="Volver a Más (Alt X)"><i class="i" data-i="x"></i></button>
+    <div><div class="t-titulo">Usuarios</div><div class="sub" id="cuenta"></div></div>
+    <div class="leyenda"><span><i class="c1"></i>Sesión abierta</span><span><i class="c2"></i>Huella</span><span><i class="c3"></i>Olvidada, más de un mes</span></div>
+    <div class="acc">
+      <button class="btn btn-fantasma chico" data-ir="audit-log"><i class="i i-s" data-i="history"></i>Auditoría</button>
+      <button class="btn btn-oscuro btn-voz" id="btn-voz"><span class="mic"><i class="i" data-i="mic"></i></span>Decí qué pasó <span class="kbd">Espacio</span></button>
+      <button class="btn btn-accion" id="btn-colgar"><i class="i" data-i="plus"></i>Colgar un llavero <span class="kbd">N</span></button>
+    </div>
+  </header>
+  <div class="aviso urgente aviso-sin-conexion"><i class="i" data-i="wifi-off"></i>Sin conexión: el tablero se puede mirar pero no tocar. Vuelve solo.</div>
+  <div class="riel"></div>
+  <main id="tablero" class="zona" aria-label="Tablero de llaves"></main>
+  <footer class="abajo">
+    <span class="et">Dados vuelta</span><div id="bajas"></div>
+    <div class="teclas"><span><span class="kbd">←</span><span class="kbd">→</span><span class="kbd">↑</span><span class="kbd">↓</span> moverse</span><span><span class="kbd">↵</span> menú</span><span><span class="kbd">Supr</span> cortar llave</span><span><span class="kbd">B</span> baja</span><span><span class="kbd">Alt X</span> salir</span></div>
+  </footer>
+
+  <div class="cajon-cortar" id="cajon"></div>
+  <div class="menu-chico" id="menu" role="menu"></div>
+  <div class="voz" id="voz" aria-live="polite"></div>
+
+  <div class="capa" id="capa-baja"><div class="dialogo" role="dialog" aria-modal="true">
+    <h2>¿Dar de baja a <span data-q="nombre"></span>?</h2>
+    <ul class="consecuencias" id="baja-lista"></ul>
+    <div class="pie-dialogo"><button class="btn btn-fantasma" data-cerrar>Cancelar <span class="kbd">Esc</span></button><button class="btn btn-cortar" id="baja-ok"><i class="i i-s" data-i="user-x"></i>Dar de baja <span class="kbd">↵</span></button></div>
+  </div></div>
+  <div class="capa" id="capa-todas"><div class="dialogo" role="dialog" aria-modal="true">
+    <h2>¿Cerrar sus <span data-q="n"></span> sesiones?</h2><div class="t-detalle">Cada aparato vuelve a la entrada. Las huellas quedan.</div>
+    <div class="pie-dialogo"><button class="btn btn-fantasma" data-cerrar>Cancelar <span class="kbd">Esc</span></button><button class="btn btn-cortar" id="todas-ok"><i class="i i-s" data-i="log-out"></i>Cerrar todas <span class="kbd">↵</span></button></div>
+  </div></div>
+
+<script src="../../extra/keyrack.js"></script>
+<script>
+  document.getElementById("btn-colgar").onclick = function () { KR.nuevo(); };
+  // Conexión: Alt C muestra cómo se ve sin conexión
+  document.addEventListener("keydown", function (e) { if (e.altKey && e.key.toLowerCase() === "c") document.body.classList.toggle("sin-conexion"); });
+</script>
+</body>
+</html>

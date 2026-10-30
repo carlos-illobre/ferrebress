@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · 1 · La ficha</title>
+<!-- Variante 1 · La ficha (la evolución). Lista a la izquierda, la ficha de la persona elegida a
+     la derecha, fija, como la bandeja de Linear o Contactos de macOS. Autorizar es una línea con
+     Enter, arriba de la lista. -->
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../extra/shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../extra/icons-extra.js"></script>
+<script src="../../extra/shared.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  .pantalla { display: grid; grid-template-rows: auto 1fr; gap: 16px; overflow: hidden; padding-top: 16px; }
+  .resumenes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .resumen { padding: 10px 14px; gap: 12px; }
+  .resumen .ico { width: 36px; height: 36px; }
+  .resumen > div:last-child { display: flex; align-items: baseline; gap: 8px; }
+  .resumen .va { font-size: 24px; line-height: 30px; }
+  .resumen .et { white-space: nowrap; }
+  .resumen .et { font-size: 15px; }
+  .resumen.urgente { cursor: pointer; }
+  .resumen.urgente .et b { color: var(--urgente-texto); }
+  .cuerpo { display: grid; grid-template-columns: minmax(0, 1fr) 448px; gap: 20px; min-height: 0; }
+
+  /* ---- La lista ---- */
+  .lista { display: flex; flex-direction: column; min-height: 0; padding: 16px; }
+  .autorizar { display: grid; grid-template-columns: minmax(0, 1fr) 170px auto; gap: 8px; align-items: start; }
+  .autorizar .entrada { height: 48px; }
+  .autorizar .btn { height: 48px; }
+  .autorizar-nota { font-size: 14px; color: var(--texto-2); margin: 8px 2px 0; display: flex; gap: 6px; align-items: center; }
+  .filas { margin-top: 12px; overflow: auto; min-height: 0; padding: 2px; margin-inline: -2px; }
+  .grupo { font-size: 14px; font-weight: 650; color: var(--texto-2); margin: 12px 8px 4px; display: flex; justify-content: space-between; }
+  .grupo:first-child { margin-top: 4px; }
+  .fila { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto auto 20px; align-items: center; gap: 12px; padding: 8px 12px; border-radius: var(--r);
+    cursor: pointer; border: 1px solid transparent; transition: background var(--t-micro); }
+  .fila:hover { background: var(--fondo); }
+  .fila.elegida { background: var(--pino-suave); border-color: transparent; }
+  .fila .n { font-weight: 700; font-size: 16px; line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; gap: 8px; align-items: center; }
+  .fila .c { font-size: 14px; line-height: 20px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fila .cuando { font-size: 14px; color: var(--texto-2); font-weight: 600; text-align: right; }
+  .fila .cuando.nunca { color: var(--urgente-texto); }
+  .fila .cuenta { display: flex; gap: 10px; color: var(--texto-2); font-weight: 700; font-size: 14px; min-width: 76px; justify-content: flex-end; }
+  .fila .cuenta span { display: inline-flex; gap: 3px; align-items: center; }
+  .fila .flecha { color: var(--texto-3); }
+  .fila.baja .n, .fila.baja .c { color: var(--texto-3); }
+  .fila.baja .n { text-decoration: line-through; text-decoration-color: var(--borde-fuerte); text-decoration-thickness: 2px; }
+  .pastilla.vos { background: var(--pino); color: #fff; height: 24px; }
+  .pastilla.p { height: 24px; }
+  .ayuda-teclas { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--borde); font-size: 14px; color: var(--texto-2); }
+  .ayuda-teclas span { display: inline-flex; gap: 6px; align-items: center; }
+
+  /* ---- La ficha ---- */
+  .ficha { min-height: 0; overflow: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .ficha.cambia > * { animation: fundido var(--t) var(--curva) both; }
+  @keyframes fundido { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .quien { display: grid; grid-template-columns: 56px 1fr; gap: 16px; align-items: center; }
+  .quien .nombre { font-size: 22px; line-height: 28px; font-weight: 800; letter-spacing: -.01em; display: flex; align-items: center; gap: 4px; }
+  .quien .nombre button { border: 0; background: transparent; color: var(--texto-3); width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; }
+  .quien .nombre button:hover { background: var(--hundido); color: var(--tinta); }
+  .quien .correo { font-size: 14px; color: var(--texto-2); display: flex; gap: 6px; align-items: center; }
+  .quien .pastillas { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .editar-nombre { display: grid; gap: 6px; }
+  .editar-nombre .t-detalle { margin-left: 2px; }
+  .semana { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: var(--r); background: var(--fondo); }
+  .semana .t-detalle br { display: none; }
+  .semana .dias { display: flex; gap: 4px; }
+  .semana .dias b { width: 22px; height: 22px; border-radius: 6px; background: var(--hundido-2); display: grid; place-items: center; font-size: 14px; font-weight: 700; color: var(--texto-3); }
+  .semana .dias b.si { background: var(--pino); color: #fff; }
+  .semana .t-detalle { line-height: 18px; }
+  .seccion-t { display: flex; align-items: center; gap: 8px; }
+  .seccion-t h3 { margin: 0; font-size: 16px; font-weight: 750; flex: 1; }
+  .aparato { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid var(--borde); border-radius: var(--r); background: var(--superficie); }
+  .aparato + .aparato { margin-top: 8px; }
+  .aparato .ico { width: 44px; height: 44px; border-radius: 10px; background: var(--hundido); display: grid; place-items: center; color: var(--texto-2); }
+  .aparato .t { font-weight: 700; line-height: 22px; }
+  .aparato .d { font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .aparato .d { display: flex; gap: 12px; flex-wrap: wrap; }
+  .aparato .d .m { display: inline-flex; gap: 4px; align-items: center; }
+  .aparato .d .m .i-s { color: var(--texto-3); }
+  .aparato .d .ahora { color: var(--logro-texto); font-weight: 700; }
+  .aparato.viejo { border-color: #F3D48E; background: linear-gradient(var(--urgente-suave), var(--urgente-suave)); }
+  .aparato.viejo .d b { color: var(--urgente-texto); }
+  .aparato.brilla { animation: brilla 1.4s var(--curva) 2; }
+  @keyframes brilla { 50% { transform: scale(1.015); } }
+  .vacio { font-size: 14px; color: var(--texto-2); padding: 12px 16px; border-radius: var(--r); background: var(--fondo); display: flex; gap: 8px; align-items: center; }
+  .pie-ficha { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--borde); display: flex; align-items: center; gap: 12px; }
+  .pie-ficha .t-detalle { flex: 1; }
+  .ilustra { display: grid; place-items: center; gap: 12px; text-align: center; padding: 40px 16px; color: var(--texto-2); }
+
+  /* ---- Se perdió un celular ---- */
+  .elegir { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 16px; }
+  .opcion { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--borde-fuerte); border-radius: var(--r); background: var(--superficie); text-align: left; min-height: 56px; }
+  .opcion:hover { background: var(--fondo); }
+  .opcion.elegida { border-color: var(--pino); box-shadow: 0 0 0 3px rgba(18,56,47,.12); background: var(--pino-suave); }
+  .opcion .t { font-weight: 700; line-height: 20px; }
+  .opcion .d { font-size: 14px; color: var(--texto-2); line-height: 20px; }
+  .celulares { display: grid; gap: 8px; margin-top: 8px; }
+  .celulares .opcion { width: 100%; }
+  .paso-t { margin: 20px 0 0; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .cortado { display: grid; justify-items: center; text-align: center; gap: 12px; padding: 8px 0; }
+  .cortado ul { text-align: left; }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <img class="logo-img" src="../../../../common/brand/logo-on-light.png" alt="Ferrebress">
+    <a class="nav-item" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span><span class="insignia">3</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item activo" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <div class="vinculo"><i class="i" data-i="smartphone"></i><div class="txt">Celular en espejo<small>Chrome en Android</small></div></div>
+      <button class="pastilla logro conexion" data-conexion title="Tocá para ver cómo queda sin conexión"><span class="punto"></span>En línea · todo enviado</button>
+      <div class="usuario"><span class="cara ch vos">RG</span><div class="txt"><div style="font-weight:750;font-size:15px">Roberto Gaitán</div><div class="t-detalle">Administrador</div></div></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <header class="cabecera">
+      <div class="t-titulo">Usuarios</div>
+      <div class="acciones zona">
+        <label class="entrada" style="height:36px;width:240px;padding:0 10px;gap:8px"><i class="i i-s" data-i="search"></i><input id="buscar" placeholder="Buscar persona" style="font-size:14px"><span class="kbd">/</span></label>
+        <button class="btn btn-peligro chico" id="btn-perdio"><i class="i i-s" data-i="shield-alert"></i>Se perdió un celular <span class="kbd">Alt P</span></button>
+      </div>
+    </header>
+    <nav class="pestanas"><a class="activa" data-no-ir>Usuarios</a><a data-ir="audit-log">Auditoría</a></nav>
+    <section class="pantalla">
+      <div class="aviso urgente aviso-sin-conexion" style="grid-column:1/-1"><i class="i" data-i="wifi-off"></i>Sin conexión. Podés mirar, pero para autorizar, dar de baja o cerrar sesiones hace falta internet. Vuelve sola.</div>
+      <div class="resumenes zona" id="resumenes"></div>
+      <div class="cuerpo zona">
+        <div class="lista tarjeta">
+          <form class="autorizar" id="form-autorizar" autocomplete="off" novalidate>
+            <div>
+              <label class="entrada" id="campo-correo"><i class="i" data-i="user-plus"></i><input id="correo" type="email" placeholder="Correo de Google"><span class="kbd">Alt N</span></label>
+              <div class="error-campo" id="error-correo" hidden><i class="i i-s" data-i="triangle-alert"></i><span></span></div>
+            </div>
+            <label class="entrada"><input id="nombre-nuevo" placeholder="Nombre (opcional)"></label>
+            <button class="btn btn-accion" type="submit">Autorizar <span class="kbd">↵</span></button>
+          </form>
+          <p class="autorizar-nota"><i class="i i-s" data-i="info"></i>No le llega ningún correo: avisale vos. Puede entrar ya, con esa cuenta de Google.</p>
+          <div class="filas" id="filas" role="listbox" aria-label="Personas"></div>
+          <div class="ayuda-teclas">
+            <span><span class="kbd">↑</span><span class="kbd">↓</span> elegir</span>
+            <span><span class="kbd">Alt E</span> nombre</span>
+            <span><span class="kbd">Alt T</span> cerrar todas</span>
+            <span><span class="kbd">Alt B</span> baja o alta</span>
+          </div>
+        </div>
+        <aside class="ficha tarjeta-2" id="ficha" aria-live="polite"></aside>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Confirmar la baja -->
+<div class="capa" id="capa-baja"><div class="dialogo" role="dialog" aria-modal="true" aria-labelledby="baja-t">
+  <h2 id="baja-t">¿Dar de baja a <span data-q="nombre"></span>?</h2>
+  <div class="t-detalle">La saca de todo. Después la podés dar de alta de nuevo.</div>
+  <ul class="consecuencias" id="baja-lista"></ul>
+  <div class="pie-dialogo"><button class="btn btn-fantasma" data-cerrar>Cancelar <span class="kbd">Esc</span></button><button class="btn btn-cortar" id="baja-ok"><i class="i i-s" data-i="user-x"></i>Dar de baja <span class="kbd">↵</span></button></div>
+</div></div>
+
+<!-- Confirmar cerrar todas -->
+<div class="capa" id="capa-todas"><div class="dialogo" role="dialog" aria-modal="true" aria-labelledby="todas-t">
+  <h2 id="todas-t">¿Cerrar las <span data-q="n"></span> sesiones de <span data-q="nombre"></span>?</h2>
+  <div class="t-detalle" data-q="nota">Cada aparato vuelve a la entrada con su próximo pedido. Las huellas quedan como están.</div>
+  <div class="pie-dialogo"><button class="btn btn-fantasma" data-cerrar>Cancelar <span class="kbd">Esc</span></button><button class="btn btn-cortar" id="todas-ok"><i class="i i-s" data-i="log-out"></i>Cerrar todas <span class="kbd">↵</span></button></div>
+</div></div>
+
+<!-- Se perdió un celular -->
+<div class="capa" id="capa-perdio"><div class="dialogo" role="dialog" aria-modal="true" aria-labelledby="perdio-t" style="width:560px">
+  <div id="perdio-cuerpo"></div>
+</div></div>
+
+<script>
+(function () {
+  var P = U.people, sel = "graciela", editando = false;
+  var $ = function (s) { return document.querySelector(s); };
+  function persona(id) { return P.filter(function (p) { return p.id === id; })[0]; }
+  function lista() { var q = ($("#buscar").value || "").toLowerCase(); var o = U.orden(P.filter(function (p) { return !q || (U.nombre(p) + " " + p.correo).toLowerCase().indexOf(q) >= 0; })); return o; }
+
+  function resumenes() {
+    var act = P.filter(function (p) { return !p.baja; }), ses = 0, hue = 0, nunca = 0, viejas = 0;
+    act.forEach(function (p) { ses += p.sesiones.length; hue += p.huellas.length; if (p.nunca) nunca++; p.sesiones.forEach(function (s) { if (s.usoMin > 43200) viejas++; }); });
+    $("#resumenes").innerHTML =
+      r("users", "pueden entrar", act.length, "") +
+      r("monitor", "sesiones abiertas", ses, "") +
+      r("fingerprint", "celulares con huella", hue, "") +
+      (viejas ? '<div class="resumen urgente" id="ver-viejas" title="Ver cuál es"><span class="ico"><i class="i" data-i="clock"></i></span><div><div class="va">' + viejas + '</div><div class="et">olvidada hace 41 días</div></div></div>'
+             : '<div class="resumen logro"><span class="ico"><i class="i" data-i="circle-check"></i></span><div><div class="et">Sesiones olvidadas</div><div class="va">Ninguna</div></div></div>');
+    U.pintar($("#resumenes"));
+    var v = $("#ver-viejas"); if (v) v.onclick = function () { elegir("nahuel"); setTimeout(function () { var a = document.querySelector(".aparato.viejo"); a && a.classList.add("brilla"); }, 80); };
+    function r(ic, et, va, sub) { return '<div class="resumen"><span class="ico"><i class="i" data-i="' + ic + '"></i></span><div><div class="va">' + va + '</div><div class="et">' + et + (sub ? ' · ' + sub : "") + "</div></div></div>"; }
+  }
+
+  function fila(p) {
+    var cuenta = (p.sesiones.length ? '<span title="Sesiones"><i class="i i-s" data-i="monitor"></i>' + p.sesiones.length + "</span>" : "") + (p.huellas.length ? '<span title="Celulares con huella"><i class="i i-s" data-i="fingerprint"></i>' + p.huellas.length + "</span>" : "");
+    return '<div class="fila' + (p.id === sel ? " elegida" : "") + (p.baja ? " baja" : "") + '" role="option" data-id="' + p.id + '" aria-selected="' + (p.id === sel) + '">' + U.cara(p) +
+      '<div style="min-width:0"><div class="n">' + U.nombre(p) + (p.vos ? ' <span class="pastilla vos">Vos</span>' : "") + '</div><div class="c">' + (p.nombre ? p.correo : "Sin nombre: se ve el correo") + "</div></div>" +
+      '<div class="cuando' + (p.nunca ? " nunca" : "") + '">' + (p.baja ? "Dada de baja" : p.entroCorto) + "</div>" +
+      '<div class="cuenta">' + cuenta + '</div><i class="i i-s flecha" data-i="chevron-right"></i></div>';
+  }
+  function filas() {
+    var o = lista(), h = "";
+    if (o.vos.length) h += '<div class="grupo">Vos</div>' + o.vos.map(fila).join("");
+    if (o.activas.length) h += '<div class="grupo"><span>Pueden entrar · ' + o.activas.length + '</span><span>Última entrada</span></div>' + o.activas.map(fila).join("");
+    if (o.bajas.length) h += '<div class="grupo">Dadas de baja · ' + o.bajas.length + "</div>" + o.bajas.map(fila).join("");
+    if (!o.todas.length) h = '<div class="ilustra"><i class="i i-xl" data-i="search"></i>Nadie se llama así.</div>';
+    $("#filas").innerHTML = h; U.pintar($("#filas"));
+  }
+
+  function aparato(item, tipo, p) {
+    var viejo = item.usoMin > 43200;
+    var uso = item.usoMin === 0 ? '<span class="ahora">En uso ahora</span>' : (viejo ? "<b>" + item.uso + "</b>" : item.uso);
+    if (tipo === "s") return '<div class="aparato' + (viejo ? " viejo" : "") + '" data-s="' + item.id + '"><span class="ico"><i class="i" data-i="' + U.icoDisp(item.tipo) + '"></i></span><div><div class="t">' + item.disp + ' <span class="t-detalle">· ' + U.M[item.como][0] + '</span></div><div class="d">' + '<span class="m" title="Cuándo entró"><i class="i i-s" data-i="log-in"></i>' + item.desde.replace(",", "") + '</span><span class="m" title="Último uso"><i class="i i-s" data-i="clock"></i>' + uso + '</span>' + '</div></div><button class="btn chico" data-cerrar-s="' + item.id + '">Cerrar</button></div>';
+    return '<div class="aparato" data-h="' + item.id + '"><span class="ico"><i class="i" data-i="fingerprint"></i></span><div><div class="t">' + item.disp + '</div><div class="d"><span class="m" title="Cuándo se vinculó"><i class="i i-s" data-i="link"></i>' + item.vinc + '</span><span class="m" title="Último uso"><i class="i i-s" data-i="clock"></i>' + uso + '</span></div></div><button class="btn chico" data-quitar="' + item.id + '">Quitar</button></div>';
+  }
+
+  function ficha(anim) {
+    var p = persona(sel), f = $("#ficha"), h = "";
+    if (!p) { f.innerHTML = '<div class="ilustra"><i class="i i-xl" data-i="users"></i>Elegí a alguien de la lista.</div>'; U.pintar(f); return; }
+    var pills = p.baja ? '<span class="pastilla">Dada de baja el ' + p.bajaDesde + "</span>" : '<span class="pastilla pino p">Administrador</span>' + (p.nunca ? '<span class="pastilla urgente p">Todavía no entró</span>' : '<span class="pastilla p">' + p.entro + "</span>");
+    if (editando) {
+      h += '<div class="quien">' + U.cara(p, "g") + '<form class="editar-nombre" id="form-nombre"><label class="entrada" style="height:44px"><input id="in-nombre" value="' + (p.nombre || "") + '" placeholder="' + (p.google || p.correo) + '"></label><span class="t-detalle">Enter guarda, Esc deja como estaba. Vacío: ' + (p.google ? "se ve «" + p.google + "», el de Google." : p.nunca ? "se ve el correo." : "se ve el de Google.") + "</span></form></div>";
+    } else {
+      h += '<div class="quien">' + U.cara(p, "g") + '<div style="min-width:0"><div class="nombre">' + U.nombre(p) + (p.baja ? "" : ' <button id="editar" title="Cambiar el nombre (Alt E)"><i class="i i-s" data-i="pencil"></i></button>') + "</div>" +
+        '<div class="correo">' + (p.nunca ? '<i class="i i-s" data-i="mail"></i>' + p.correo + ' <button class="btn btn-fantasma chico" id="cambiar-correo" style="min-height:28px;padding:0 6px">Cambiar</button>' : '<i class="i i-s" data-i="lock"></i>' + p.correo) + "</div>" +
+        (p.google && p.nombre ? '<div class="t-detalle">En Google: ' + p.google + "</div>" : "") +
+        '<div class="pastillas">' + pills + "</div></div></div>";
+    }
+    if (!p.nunca && !p.baja && !p.vos) {
+      var dias = ["L", "M", "M", "J", "V", "S", "D"], usados = { graciela: [1,1,1,0,1,1,0], martin: [1,1,1,1,1,1,1], lucia: [1,0,0,1,1,0,0], nahuel: [0,0,1,0,0,0,0] }[p.id] || [1,1,1,1,1,0,1];
+      var n = usados.filter(Boolean).length;
+      h += '<div class="semana"><div class="dias">' + dias.map(function (d, i) { return '<b class="' + (usados[i] ? "si" : "") + '">' + d + "</b>"; }).join("") + '</div><div class="t-detalle">Usó Ferrebress <b style="color:var(--tinta)">' + n + " de 7 días</b> esta semana</div></div>";
+    }
+    if (p.nunca) {
+      h += '<div class="vacio"><i class="i" data-i="info"></i>Mientras no entre, el correo se puede cambiar y se la puede borrar sin más: no hay nada que perder.</div>';
+    } else if (p.baja) {
+      h += '<div class="vacio"><i class="i" data-i="ban"></i>No puede entrar: ve el mismo mensaje que una cuenta no autorizada. Si la das de alta, entra con la misma cuenta de Google y vincula de nuevo su huella.</div>';
+    } else {
+      h += '<div><div class="seccion-t"><h3>Sesiones abiertas · ' + p.sesiones.length + "</h3>" + (p.sesiones.length > 1 ? '<button class="btn btn-suave chico" id="cerrar-todas">Cerrar todas <span class="kbd">Alt T</span></button>' : "") + '</div><div style="margin-top:8px">' +
+        (p.sesiones.length ? p.sesiones.slice().sort(function (a, b) { return a.usoMin - b.usoMin; }).map(function (s) { return aparato(s, "s", p); }).join("") : '<div class="vacio"><i class="i" data-i="circle-check"></i>' + (p.vos ? "No tenés sesiones abiertas en otros aparatos." : "No tiene sesiones abiertas.") + "</div>") +
+        (p.vos ? '<div class="t-detalle" style="margin-top:8px">La de esta computadora no figura: se cierra con «Salir».</div>' : "") + "</div></div>";
+      h += '<div><div class="seccion-t"><h3>Celulares con huella' + (p.vos ? "" : " · " + p.huellas.length) + '</h3></div><div style="margin-top:8px">' +
+        (p.vos ? '<div class="vacio"><i class="i" data-i="settings"></i>Los tuyos van en Configuración.</div>' : p.huellas.length ? p.huellas.map(function (x) { return aparato(x, "h", p); }).join("") : '<div class="vacio"><i class="i" data-i="fingerprint"></i>No vinculó ningún celular.</div>') + "</div></div>";
+    }
+    var pie = "";
+    if (p.vos) pie = '<span class="t-detalle">A vos te tiene que dar de baja otro Administrador.</span>';
+    else if (p.baja) pie = '<span class="t-detalle">Sus celulares con huella no vuelven.</span><button class="btn" id="alta"><i class="i i-s" data-i="user-check"></i>Dar de alta <span class="kbd">Alt B</span></button>';
+    else if (p.nunca) pie = '<span class="t-detalle">Un alta equivocada se borra del todo.</span><button class="btn btn-peligro" id="borrar"><i class="i i-s" data-i="trash-2"></i>Borrar <span class="kbd">Supr</span></button>';
+    else pie = '<span class="t-detalle">Cierra sus sesiones y le quita las huellas.</span><button class="btn btn-peligro" id="baja"><i class="i i-s" data-i="user-x"></i>Dar de baja <span class="kbd">Alt B</span></button>';
+    h += '<div class="pie-ficha">' + pie + "</div>";
+    f.innerHTML = h; U.pintar(f);
+    if (anim && !U.quieto()) { f.classList.remove("cambia"); void f.offsetWidth; f.classList.add("cambia"); }
+    var inn = $("#in-nombre"); if (inn) { inn.focus(); inn.select(); }
+  }
+
+  function elegir(id) { sel = id; editando = false; filas(); ficha(true); var el = document.querySelector('.fila[data-id="' + id + '"]'); el && el.scrollIntoView({ block: "nearest" }); }
+  function todo() { resumenes(); filas(); ficha(); }
+
+  // ---- Clics en la lista y en la ficha ----
+  $("#filas").addEventListener("click", function (e) { var f = e.target.closest(".fila"); if (f) elegir(f.dataset.id); });
+  $("#ficha").addEventListener("click", function (e) {
+    var p = persona(sel), t = e.target.closest("button"); if (!t) return;
+    if (t.id === "editar") { editando = true; ficha(); }
+    if (t.id === "cambiar-correo") { cambiarCorreo(p); }
+    if (t.dataset.cerrarS) { var row = t.closest(".aparato"); row.classList.add("se-va"); setTimeout(function () { p.sesiones = p.sesiones.filter(function (s) { return s.id !== t.dataset.cerrarS; }); resumenes(); filas(); ficha(); U.tostada("Sesión cerrada. Ese aparato vuelve a la entrada con su próximo pedido."); }, 240); }
+    if (t.dataset.quitar) { var h = p.huellas.filter(function (x) { return x.id === t.dataset.quitar; })[0]; var row2 = t.closest(".aparato"); row2.classList.add("se-va"); setTimeout(function () { var cerro = p.sesiones.some(function (s) { return s.dev === h.dev; }); p.huellas = p.huellas.filter(function (x) { return x !== h; }); p.sesiones = p.sesiones.filter(function (s) { return s.dev !== h.dev; }); resumenes(); filas(); ficha(); U.tostada("Huella quitada" + (cerro ? " y sesión de ese celular cerrada." : ". Ya no entra sin conexión.")); }, 240); }
+    if (t.id === "cerrar-todas") confirmarTodas(p);
+    if (t.id === "baja") confirmarBaja(p);
+    if (t.id === "alta") { p.baja = false; U.tostada(U.nombre(p) + " puede entrar de nuevo."); todo(); }
+    if (t.id === "borrar") borrar(p);
+  });
+  $("#ficha").addEventListener("submit", function (e) {
+    e.preventDefault(); var p = persona(sel), v = $("#in-nombre").value.trim();
+    p.nombre = v || p.google || ""; editando = false; todo(); U.tostada(v ? "Ahora se llama «" + v + "»." : "Sin nombre escrito: se ve " + (p.google ? "el de Google." : "el correo."));
+  });
+  $("#ficha").addEventListener("keydown", function (e) { if (e.key === "Escape" && editando) { e.stopPropagation(); editando = false; ficha(); } });
+
+  function cambiarCorreo(p) {
+    var c = $("#ficha .correo");
+    c.outerHTML = '<form id="form-correo" style="display:grid;gap:4px;margin-top:4px"><label class="entrada" style="height:40px"><i class="i i-s" data-i="mail"></i><input id="in-correo" value="' + p.correo + '"></label><div class="error-campo" hidden><i class="i i-s" data-i="triangle-alert"></i><span></span></div></form>';
+    U.pintar($("#ficha")); var i = $("#in-correo"); i.focus(); i.select();
+    $("#form-correo").onsubmit = function (e) { e.preventDefault(); var m = U.correoMal(i.value, P, p); if (m) { var er = this.querySelector(".error-campo"); er.hidden = false; er.querySelector("span").textContent = m; i.parentNode.classList.add("mal"); return; } p.correo = i.value.trim(); todo(); U.tostada("Correo cambiado. Va a entrar con la cuenta nueva, no con la vieja."); };
+  }
+  function borrar(p) {
+    var row = document.querySelector('.fila[data-id="' + p.id + '"]'); row && row.classList.add("se-va");
+    setTimeout(function () { P.splice(P.indexOf(p), 1); sel = "graciela"; todo(); U.tostada(U.nombre(p) + " ya no está. Su correo no entra."); }, 240);
+  }
+  function confirmarBaja(p) {
+    var c = $("#capa-baja");
+    c.querySelector('[data-q="nombre"]').textContent = U.nombre(p);
+    $("#baja-lista").innerHTML =
+      (p.sesiones.length ? '<li><i class="i" data-i="log-out"></i>Se cierran sus ' + p.sesiones.length + " sesiones: cada aparato vuelve a la entrada.</li>" : "") +
+      (p.huellas.length ? '<li><i class="i" data-i="fingerprint"></i>Se le ' + (p.huellas.length > 1 ? "quitan sus " + p.huellas.length + " celulares" : "quita su celular") + " con huella, y con eso «Trabajar sin conexión».</li>" : "") +
+      '<li><i class="i" data-i="ban"></i>Ya no entra. Sigue en la lista, como dada de baja.</li>';
+    U.pintar(c); U.abrir("capa-baja");
+    $("#baja-ok").onclick = function () { p.baja = true; p.bajaDesde = "30 de octubre"; p.sesiones = []; p.huellas = []; U.cerrar(c); todo(); U.tostada(U.nombre(p) + " quedó dada de baja.", { texto: "Dar de alta", hacer: function () { p.baja = false; todo(); } }); };
+  }
+  function confirmarTodas(p) {
+    var c = $("#capa-todas");
+    c.querySelector('[data-q="n"]').textContent = p.sesiones.length; c.querySelector('[data-q="nombre"]').textContent = U.nombre(p);
+    U.abrir("capa-todas");
+    $("#todas-ok").onclick = function () { var n = p.sesiones.length; p.sesiones = []; U.cerrar(c); todo(); U.tostada("Se cerraron las " + n + " sesiones de " + U.nombre(p) + "."); };
+  }
+
+  // ---- Autorizar en una línea ----
+  $("#form-autorizar").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var c = $("#correo"), m = U.correoMal(c.value, P), er = $("#error-correo");
+    if (m) { er.hidden = false; er.querySelector("span").textContent = m; $("#campo-correo").classList.add("mal"); c.focus(); return; }
+    var n = $("#nombre-nuevo").value.trim(), p = { id: "n" + Date.now(), nombre: n, correo: c.value.trim(), nunca: true, entro: "Todavía no entró", entroCorto: "Todavía no entró", sesiones: [], huellas: [] };
+    P.push(p); c.value = ""; $("#nombre-nuevo").value = ""; sel = p.id; todo();
+    var row = document.querySelector('.fila[data-id="' + p.id + '"]'); if (row) { row.scrollIntoView({ block: "nearest" }); row.classList.add("se-suma"); }
+    U.vibrar(10);
+    U.tostada("Autorizaste a " + U.nombre(p) + ". Avisale que ya puede entrar.", { texto: "Copiar aviso", hacer: function () { try { navigator.clipboard.writeText("Ya podés entrar a Ferrebress con tu cuenta de Google " + p.correo); } catch (x) {} } });
+  });
+  $("#correo").addEventListener("input", function () { $("#error-correo").hidden = true; $("#campo-correo").classList.remove("mal"); });
+  $("#buscar").addEventListener("input", filas);
+
+  // ---- Se perdió un celular ----
+  var perdio = { p: null, d: null, listo: false };
+  function celularesDe(p) {
+    var map = {};
+    (p.huellas.concat(p.propios || [])).forEach(function (h) { map[h.dev] = { dev: h.dev, disp: h.disp, huella: h }; });
+    p.sesiones.forEach(function (s) { if (s.tipo !== "phone") return; (map[s.dev] = map[s.dev] || { dev: s.dev, disp: s.disp }).sesion = s; });
+    return Object.keys(map).map(function (k) { return map[k]; });
+  }
+  function pintarPerdio() {
+    var b = $("#perdio-cuerpo"), h = "";
+    if (perdio.listo) {
+      var r = perdio.listo;
+      h = '<div class="cortado"><span class="tilde"><svg class="i-xl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><h2>Listo, ese celular quedó afuera</h2><ul class="consecuencias">' + r + '</ul></div><div class="pie-dialogo"><button class="btn btn-accion" data-cerrar>Listo <span class="kbd">↵</span></button></div>';
+      b.innerHTML = h; U.pintar(b); setTimeout(function () { b.querySelector(".btn-accion").focus(); }, 30); return;
+    }
+    h += '<h2 id="perdio-t">Se perdió un celular</h2><div class="t-detalle">Cerramos sus sesiones y le quitamos la huella, de una vez.</div><div class="paso-t">1 · ¿De quién es?</div><div class="elegir">';
+    P.filter(function (p) { return !p.baja && celularesDe(p).length; }).forEach(function (p) {
+      var n = celularesDe(p).length;
+      h += '<button class="opcion' + (perdio.p === p ? " elegida" : "") + '" data-p="' + p.id + '">' + U.cara(p, "ch") + '<div><div class="t">' + U.nombre(p) + (p.vos ? " (vos)" : "") + '</div><div class="d">' + n + (n > 1 ? " celulares" : " celular") + "</div></div></button>";
+    });
+    h += "</div>";
+    if (perdio.p) {
+      var cs = celularesDe(perdio.p); if (cs.length === 1) perdio.d = cs[0].dev;
+      h += '<div class="paso-t">2 · ¿Cuál?' + (cs.length === 1 ? " Tiene uno solo: ya está elegido." : "") + '</div><div class="celulares">';
+      cs.forEach(function (c) {
+        var u = c.sesion ? c.sesion.uso : c.huella.uso;
+        h += '<button class="opcion' + (perdio.d === c.dev ? " elegida" : "") + '" data-d="' + c.dev + '"><span class="ico" style="width:40px;height:40px;border-radius:10px;background:var(--hundido);display:grid;place-items:center"><i class="i" data-i="smartphone"></i></span><div><div class="t">' + c.disp + '</div><div class="d">' + (c.sesion ? "Sesión abierta" : "Sin sesión") + " · " + (c.huella ? "huella del " + c.huella.vinc : "sin huella") + " · usado " + u.toLowerCase() + "</div></div></button>";
+      });
+      h += "</div>";
+    }
+    h += '<div class="pie-dialogo"><button class="btn btn-fantasma" data-cerrar>Cancelar <span class="kbd">Esc</span></button><button class="btn btn-cortar grande" id="cortar" ' + (perdio.d ? "" : "disabled") + '><i class="i" data-i="scissors"></i>Cortar <span class="kbd">↵</span></button></div>';
+    b.innerHTML = h; U.pintar(b);
+  }
+  $("#perdio-cuerpo").addEventListener("click", function (e) {
+    var t = e.target.closest("button"); if (!t) return;
+    if (t.dataset.p) { perdio.p = persona(t.dataset.p); perdio.d = null; pintarPerdio(); }
+    else if (t.dataset.d) { perdio.d = t.dataset.d; pintarPerdio(); }
+    else if (t.id === "cortar") cortar();
+  });
+  function cortar() {
+    var p = perdio.p, d = perdio.d, ses = p.sesiones.filter(function (s) { return s.dev === d; }), hue = p.huellas.concat(p.propios || []).filter(function (h) { return h.dev === d; });
+    p.sesiones = p.sesiones.filter(function (s) { return s.dev !== d; }); p.huellas = p.huellas.filter(function (h) { return h.dev !== d; }); if (p.propios) p.propios = p.propios.filter(function (h) { return h.dev !== d; });
+    perdio.listo = (ses.length ? '<li><i class="i" data-i="log-out"></i>Se cerró su sesión: vuelve a la entrada con su próximo pedido.</li>' : '<li><i class="i" data-i="info"></i>No tenía ninguna sesión abierta.</li>') +
+      (hue.length ? '<li><i class="i" data-i="fingerprint"></i>Se le quitó la huella: ya no entra con ella, ni sin conexión, ni aprueba una computadora.</li>' : "");
+    U.vibrar([10, 40, 10]); pintarPerdio(); todo();
+  }
+  function abrirPerdio() { perdio = { p: null, d: null, listo: false }; pintarPerdio(); U.abrir("capa-perdio"); }
+  $("#btn-perdio").onclick = abrirPerdio;
+
+  // ---- Teclado ----
+  document.addEventListener("keydown", function (e) {
+    var enCampo = /INPUT|TEXTAREA/.test(document.activeElement.tagName), capa = document.querySelector(".capa.abierta");
+    if (capa && e.key === "Enter" && !enCampo) { var ok = capa.querySelector(".btn-cortar:not([disabled]), .btn-accion"); if (ok && document.activeElement.tagName !== "BUTTON") { e.preventDefault(); ok.click(); } return; }
+    if (capa) return;
+    if (e.altKey && e.key.toLowerCase() === "n") { e.preventDefault(); $("#correo").focus(); }
+    else if (e.altKey && e.key.toLowerCase() === "p") { e.preventDefault(); abrirPerdio(); }
+    else if (e.altKey && e.key.toLowerCase() === "e") { e.preventDefault(); var b = $("#editar"); b && b.click(); }
+    else if (e.altKey && e.key.toLowerCase() === "t") { e.preventDefault(); var t = $("#cerrar-todas"); t && t.click(); }
+    else if (e.altKey && e.key.toLowerCase() === "b") { e.preventDefault(); var x = $("#baja") || $("#alta"); x && x.click(); }
+    else if (!enCampo && e.key === "/") { e.preventDefault(); $("#buscar").focus(); }
+    else if (!enCampo && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+      e.preventDefault(); var ids = lista().todas.map(function (p) { return p.id; }), i = ids.indexOf(sel);
+      i = Math.max(0, Math.min(ids.length - 1, i + (e.key === "ArrowDown" ? 1 : -1))); elegir(ids[i]);
+    }
+    else if (!enCampo && e.key === "Delete") { var bo = $("#borrar"); bo && bo.click(); }
+  });
+
+  todo();
+})();
+</script>
+</body>
+</html>
