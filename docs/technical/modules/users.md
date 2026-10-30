@@ -2,222 +2,307 @@
 
 Cómo se construye la etapa a del capítulo [02 · Personas](../../chapters/02-users/rules.md):
 personas y sesiones, con el único rol Administrador. La etapa b (roles y permisos) tendrá su propia
-parte de este diseño. Lo aprueba Carlos antes de programar (constitución, pasos 3 a 5).
+parte de este diseño. Lo aprueba Carlos antes de programar (constitución, pasos 3 a 5). Las
+revisiones independientes están en [users-design-review.md](users-design-review.md) y
+[users-security-review.md](users-security-review.md); este diseño ya las incorpora.
 
 ## 1. Qué resuelve
 
 - **El capítulo 02, etapa a:** R1 a R6 y E01 a E32.
-- **Lo que cambia en el 01:** el primer Administrador deja de salir de la configuración (01 ·
-  R1.2); el nombre que da Google deja de pisar el escrito (02 · R3.4); y Entrar anota la última vez
-  que cada persona entró (02 · R3.2).
+- **Lo que cambia en el 01:**
+  - el primer Administrador deja de salir de la configuración (01 · R1.2);
+  - el nombre que da Google deja de pisar el escrito (02 · R3.4);
+  - entrar anota cómo se entró, si es un celular y la última vez que la persona entró (R3.2, R5.2);
+  - tres arreglos del 01 que esta etapa destapa (§ 6): la memoria de sesiones que puede volver a
+    guardar una sesión ya cerrada, la memoria de «de quién es la huella de cada celular» que nadie
+    actualiza al quitarla, y el nombre de la persona que «Algo salió mal» guarda sin taparlo.
 - **No resuelve:** roles ni permisos (etapa b), la auditoría para leer (05), los celulares con huella
   propios (04) ni el espejo (03).
+- **E18 y E24** ya los cumple el 01 (una cuenta dada de baja no entra; un dispositivo cortado vuelve a
+  la entrada con su primer pedido y manda lo pendiente con su prueba). Se prueban por ese camino, con
+  pruebas que los nombran (`users-E18`, `users-E24`).
 
 ## 2. Entidades
 
-Nada nuevo en esquemas: cambian tablas que ya existen. Todo con migraciones nuevas, sin tocar las
-viejas.
+No hay tablas ni esquemas nuevos: cambian tablas que ya existen, con migraciones nuevas.
 
 ### `users.users` (migración `002-people`)
 
 | Columna | Cambio | Para qué |
 |---|---|---|
-| `name` | Pasa a ser el nombre que escribió quien la autorizó; puede ser nulo | R3.4 |
-| `google_name` | Nueva | El nombre que trae Google, guardado al entrar; se muestra solo si `name` es nulo |
-| `last_sign_in_at` | Nueva, `timestamptz` nulo | La última vez que entró (R3.2); nulo = nunca entró |
-| `version` | Nueva, `integer` desde 1 | Sube con cada cambio: el que cambia algo manda la versión que vio (§ 5) |
+| `name` | Pasa a ser el nombre que escribió quien la autorizó; nulo si no escribió | R3.4 |
+| `google_name` | Nueva | El nombre que trae Google, guardado al entrar (hasta 80 letras) |
+| `last_sign_in_at` | Nueva, `timestamptz` nulo | La última vez que entró (R3.2), con la hora del servidor |
+| `authorized_by` | Nueva, `uuid` nulo | Quién la autorizó; nulo = la cargó la instalación («Desde la instalación») |
+| `deactivated_at` | Nueva, `timestamptz` nulo | Desde cuándo está dada de baja («Dada de baja el …»); dar de alta lo vuelve nulo |
+| `version` | Nueva, `integer` desde 1 | Sube con cada cambio hecho desde Usuarios (§ 5). Entrar no la sube |
 | `created_at` | Ya estaba | «Autorizada el …» |
 
-**Lo que hay hoy en `name`** (lo que trajo Google) se pasa a `google_name` en la misma migración, y
-`name` queda nulo: hasta hoy nadie escribió un nombre. Las personas que ya entraron alguna vez
-reciben `last_sign_in_at` de su sesión más reciente; las otras quedan en nulo.
-
-**Nunca entró** quiere decir `google_subject` y `last_sign_in_at` nulos. Es lo que decide si se puede
-cambiar el correo (R3.6) o borrar (R3.7).
+- **El traspaso:** lo que hay hoy en `name` (lo que trajo Google) pasa a `google_name`, y `name`
+  queda nulo: hasta hoy nadie escribió un nombre. `last_sign_in_at` toma la sesión más reciente de
+  cada persona; quien entró alguna vez y ya no tiene sesiones guardadas (se borran a los 30 días)
+  toma su `created_at`, que es una cota. Solo pasa en el ambiente de pruebas.
+- **Nunca entró** quiere decir `google_subject` y `last_sign_in_at` nulos. Decide si se puede cambiar
+  el correo (R3.6) o borrar (R3.7).
+- **El nombre que se muestra** (R3.4): el escrito; si no, el de Google; si no, el correo. Es una regla
+  de `users/rules.ts`, una sola vez: la fachada da la persona con su `displayName` ya calculado, y
+  `sign-in` lo toma de ahí (hoy lo repite en `context.ts`).
 
 ### `sign_in.sessions` (migración `003-access`)
 
 | Columna | Cambio | Para qué |
 |---|---|---|
-| `way` | Nueva: `google`, `passkey`, `qr` u `offline` | Cómo entró (R5.2). Las abiertas antes de la migración quedan nulas y se muestran sin «cómo entró» |
-| `is_phone` | Nueva, `boolean` | Si es un celular (el mismo criterio que hoy decide ofrecer la huella): «Se perdió un celular» lista solo celulares (R5.7) |
+| `way` | Nueva, `not null`: `google`, `passkey`, `qr` u `offline` | Cómo entró (R5.2). Sale de lo que `openSession` ya recibe para la auditoría (`data.method`). El celular que se abre al aprobar una computadora entró con la huella: `passkey` |
+| `is_phone` | Nueva, `not null` | Si es un celular, con el criterio que ya decide ofrecer la huella. «Se perdió un celular» lista solo celulares (R5.7) |
+| `passkey_id` | Nueva, nula | La huella con la que se entró, si se entró con una. Quitar la huella cierra también las sesiones abiertas con ella desde otro identificador de dispositivo |
 
-Índice nuevo sobre `(user_id, device_id)` donde `closed_at` es nulo: cerrar las de un celular de
-una persona (R5.6, R5.7).
+La migración completa `way` con `google` e `is_phone` desde `device_label` («… en Android» o «… en
+iPhone»): son sesiones de pocas horas. No se agregan índices: las sesiones son pocas (las cerradas se
+borran a los 30 días) y ya hay uno por persona.
 
 ### `sign_in.passkeys` (la misma migración)
 
 | Columna | Cambio | Para qué |
 |---|---|---|
-| `device_label` | Nueva | «Chrome en Android», el mismo nombre que la sesión que la vinculó (R5.5) |
+| `public_id` | Nueva, `uuid` | El identificador que ve la aplicación. El de WebAuthn y el `device_id` nunca salen del servidor (§ 9) |
+| `device_label` | Nueva | «Chrome en Android», el nombre de la sesión que la vinculó (R5.5); las de antes, el de la sesión más reciente de su celular o «Celular» |
 
-Las huellas vinculadas antes de la migración toman el nombre de la sesión más reciente de su
-celular, o «Celular» si no hay.
+- **Quitar una huella la borra** (antes se marcaba `revoked_at`): lo que deja de valer se borra
+  (constitución, V). La confirmación sin conexión ya busca solo las que existen.
 
 ## 3. Dónde vive cada cosa
 
 - **`users`** tiene las personas: la lista, autorizar, cambiar, borrar, dar de baja y de alta, y el
-  comando del primer Administrador.
+  comando del primer Administrador. Sus reglas (el nombre que se muestra, nunca entró, el último
+  Administrador) están en `rules.ts`; los bloqueos, en `data.ts`.
 - **`sign-in`** tiene las sesiones y las huellas, así que también sus rutas para verlas y cortarlas
-  desde Usuarios: «Cerrar», «Cerrar todas», «Quitar» y «Se perdió un celular».
-- **Sin ciclos:** `sign-in` ya usa la fachada de `users`; `users` no conoce a `sign-in`. Lo que la
-  lista de personas necesita de las sesiones (cuántas tiene cada una) lo recibe como un puerto,
-  `accessCounts(userIds)`, que `main.ts` conecta con `sign-in` al registrar los módulos. La baja
-  sigue con el evento `user.deactivated`, que `sign-in` escucha.
+  desde Usuarios.
+- **Sin ciclos:** `sign-in` ya recibe la fachada de `users` al crearse. `users` recibe de `sign-in`,
+  al crearse, una función: `accessCounts(userIds, asking)`, cuántas sesiones abiertas y celulares con
+  huella tiene cada persona, sin lo de quien pregunta que no se muestra (R5.2, R5.5). El armado del
+  servidor (`app.ts`, que se prueba) las conecta, no `main.ts`.
+- **La sesión del pedido, para cualquier módulo** (código común, tarea propia): `sign-in` registra un
+  paso que lee la cookie y deja la sesión en el pedido (`c.get('session')`), y la plataforma da un
+  `requireSession` genérico que solo la lee. Así `users` sabe quién pregunta sin importar `sign-in`, y
+  sirve a todos los módulos que vienen.
+- **Los eventos del proceso**, para que `sign-in` reaccione sin que `users` lo conozca:
+  `user.deactivated` (ya está) y `user.renamed` (nuevo).
 
 ## 4. API
 
-Todo con sesión (`requireSession`). En la etapa a, cualquiera con sesión puede usarla (R1.1); la
-etapa b le pone el permiso. Cada cambio devuelve la persona como quedó, así la pantalla no pide la
-lista de nuevo.
+Todo con sesión y todo `GET` o `POST`, como ya habla la aplicación con el servidor; los cambios
+llevan la `version` en el cuerpo. Las formas y los errores están en `src/shared/contracts/users.ts`,
+una sola vez para el servidor y la aplicación.
 
-| Ruta | Qué hace | Módulo |
-|---|---|---|
-| `GET /api/users` | Todas las personas: nombre que se muestra, correo, activa, cuándo entró, si nunca entró, versión, y cuántas sesiones abiertas y celulares con huella tiene | users |
-| `POST /api/users` | Autorizar: `{ email, name? }`. `409 email-taken` si ya está (sin distinguir mayúsculas) | users |
-| `PATCH /api/users/:id` | `{ version, name?, email? }`. El correo, solo si nunca entró (`409 already-entered`) | users |
-| `DELETE /api/users/:id?version=` | Borrar, solo si nunca entró (`409 already-entered`) | users |
-| `POST /api/users/:id/deactivate` | `{ version }`. `409 self` si es la propia; `409 last-administrator` si quedaría sin Administrador activo | users |
-| `POST /api/users/:id/activate` | `{ version }` | users |
-| `GET /api/users/:id/access` | Sus sesiones abiertas y sus celulares con huella (R5.1, R5.2, R5.5), sin la sesión de quien pregunta ni, en la propia, sus celulares | sign-in |
-| `POST /api/sessions/:id/close` | «Cerrar» (R5.3) | sign-in |
-| `POST /api/users/:id/sessions/close` | «Cerrar todas» (R5.4), salvo la de quien pregunta | sign-in |
-| `POST /api/passkeys/:id/remove` | «Quitar» (R5.6): quita la huella y cierra las sesiones de esa persona en ese celular | sign-in |
-| `GET /api/lost-phones` | Para «Se perdió un celular»: las personas con algún celular para cortar y sus celulares (sesión abierta en un celular o huella), sin el que pregunta | sign-in |
-| `POST /api/lost-phones/cut` | `{ userId, deviceId }`: cierra las sesiones de esa persona en ese celular y quita su huella ahí (R5.7). Devuelve qué cortó | sign-in |
+| Ruta | Qué hace | Consultas | Módulo |
+|---|---|---|---|
+| `GET /api/users` | Todas las personas: id, nombre escrito, nombre que se muestra, correo, activa, autorizada el y por quién (o «la instalación»), dada de baja el, última entrada, nunca entró, versión y sus cantidades | 3 | users |
+| `POST /api/users` | Autorizar: `{ email, name? }`. `409 email-taken` | 1 | users |
+| `POST /api/users/:id` | Cambiar: `{ version, name?, email? }`. Sin `name`, no cambia; `name` vacío, vuelve al de Google. El correo, solo si nunca entró (`409 already-entered`) | 1 a 2 | users |
+| `POST /api/users/:id/delete` | `{ version }`. Borrar, solo si nunca entró | 1 a 2 | users |
+| `POST /api/users/:id/deactivate` | `{ version }`. `409 self` si es la propia | 4 | users |
+| `POST /api/users/:id/activate` | `{ version }`. `409 self` si es la propia | 1 a 2 | users |
+| `GET /api/users/:id/access` | Sus sesiones abiertas y sus celulares con huella, sin la sesión del pedido ni, en la propia, sus celulares | 2 | sign-in |
+| `POST /api/users/:id/sessions/:sessionId/close` | «Cerrar» (R5.3). La sesión del pedido no se puede (se sale con «Salir») | 1 | sign-in |
+| `POST /api/users/:id/sessions/close` | «Cerrar todas» (R5.4), salvo la del pedido | 1 | sign-in |
+| `POST /api/users/:id/phones/:phoneId/cut` | `{ from: 'card' \| 'lost' }`. «Quitar» (R5.6) y «Cortar» (R5.7) son la misma operación: cierra las sesiones de esa persona en ese celular (y las abiertas con su huella) y borra la huella. El celular del pedido no se puede | 2 | sign-in |
+| `GET /api/lost-phones` | Las personas con algún celular para cortar y sus celulares (con sesión abierta o con huella), sin el celular del pedido | 3 | sign-in |
 
-- **Los errores nuevos:** `email-taken`, `already-entered`, `self`, `last-administrator` y `changed`
-  (la versión no coincide: § 5). Con su texto en la aplicación, junto al campo o al botón.
-- **Un correo sin forma de correo** es `400 bad-request` del contrato (zod `email`), con el aviso
-  junto al campo en la aplicación, que lo comprueba antes de mandar.
-- **Las sesiones «abiertas»** son las sin cerrar y sin vencer (60 minutos y 8 horas, con el último
-  uso de la memoria del servidor si está, que es más nuevo que el de la base).
+- **`phoneId`:** el `public_id` de la huella o, si el celular solo tiene una sesión, el `id` de la
+  sesión. Lo resuelve el servidor; la aplicación nunca ve el `device_id` ni el identificador de
+  WebAuthn.
+- **Cortar algo que ya no está** (cerrar una sesión cerrada, quitar una huella quitada) no es un
+  error: devuelve `200` con lo que cortó, en cero, y la pantalla dice «No había nada que cortar».
+  Una persona o una sesión que no es de esa persona da `404`, igual que una que no existe.
+- **Los errores nuevos**, con su texto en la aplicación junto al campo o al botón: `email-taken`,
+  `already-entered`, `self`, `last-administrator` y `changed` (§ 5). Un correo sin forma de correo es
+  `400 bad-request` del contrato; la aplicación lo comprueba antes de mandar.
+- **Sesión abierta:** sin cerrar y sin vencer (60 minutos y 8 horas, mirando `created_at` y
+  `last_used_at`, no solo `closed_at`: la limpieza que marca las vencidas corre una vez por día). Para
+  contar alcanza el último uso de la base, con hasta un minuto de atraso; la tarjeta usa el de la
+  memoria, que se muestra («Usada ahora»).
+- **Después de un cambio,** la respuesta trae la persona como quedó, sin volver a contar sus
+  sesiones: la aplicación conserva las cantidades que tenía (o las pone en cero después de una baja).
 
 ## 5. Lo que pasa a la vez
 
-- **Dos personas cambian a la misma** (E30): cada cambio lleva la `version` que vio. El servidor
-  cambia solo si coincide (`where version = ?`) y la sube; si no, `409 changed` con la persona como
-  está ahora, y la pantalla la muestra y avisa «Cambió mientras la mirabas».
-- **Nunca sin Administrador activo** (R1.3, E04, E05): dar de baja corre en una transacción que
-  bloquea las filas de las personas activas (`select … where active for update`), cuenta, y recién
-  entonces cambia. Dos bajas a la vez esperan una a la otra: la segunda ve que quedaría sin nadie.
-  Lo mismo al borrar (una persona que nunca entró está activa y cuenta).
-- **La propia:** el servidor compara con la persona de la sesión; la aplicación ni ofrece el botón.
+- **Dos cambian a la misma** (E30): cada cambio escribe con `where version = ?` y la sube. Si no tocó
+  nada, lee la fila para saber por qué (`changed`, `already-entered` o `404`) y la devuelve; la
+  pantalla la muestra y avisa «Cambió mientras la mirabas».
+- **Nunca entró, en la misma consulta** (R3.6, R3.7): cambiar el correo y borrar escriben con
+  `where google_subject is null and last_sign_in_at is null`. Entrar con Google ata la cuenta con
+  `where id = ? and email = ? and google_subject is null`; si no tocó nada (lo borraron o le cambiaron
+  el correo mientras entraba), la entrada se rechaza como no autorizada.
+- **Activa, al abrir la sesión:** abrir una sesión, por cualquier camino, lee a la persona con
+  `for share` dentro de su transacción, y dar de baja la bloquea con `for update`: una entrada y una
+  baja no se cruzan. Si se cruzaran, la sesión nueva sería de alguien dado de baja.
+- **Nunca sin Administrador activo** (R1.3, E05): dar de baja bloquea las filas de las personas
+  activas (`select … where active order by id for update`; el orden evita que dos bajas se traben),
+  cuenta y recién entonces cambia. Como nadie se da de baja a sí mismo y quien da de baja está activo,
+  `last-administrator` solo sale en esa carrera. Borrar no necesita el bloqueo: quien borra está activo
+  y la persona borrada nunca entró.
+- **La prueba de E05:** las unitarias usan PGlite, que atiende una conexión a la vez: dos bajas «a la
+  vez» corren una detrás de la otra y la prueba pasaría aun sin el bloqueo. La unitaria prueba la regla
+  (la segunda baja ve que quedaría sin nadie). El bloqueo no tiene prueba automática: hoy no hay
+  pruebas contra PostgreSQL de verdad, y armar una solo para esto no lo justifica. Se comprueba a mano
+  contra la base del compose, con dos conexiones, al cerrar la etapa, y lo mira la revisión del código.
 
 ## 6. Los recorridos
 
-- **Autorizar:** valida, normaliza el correo (minúsculas, sin espacios) e inserta. El índice único
-  de `email` es la última palabra si dos autorizan el mismo a la vez.
-- **Entrar** (cambia en `sign-in`): al abrir una sesión, por cualquier camino, se anota `way`,
-  `is_phone` y, con `users.recordSignIn(userId, at)` (una consulta), `last_sign_in_at`. Una entrada
-  sin conexión cuenta cuando el servidor la confirma (R3.2). La primera vez con Google se guarda
-  `google_name`; ya no se pisa `name`.
-- **Dar de baja:** la transacción de § 5 pone `active = false` y publica `user.deactivated`, que en
-  `sign-in` cierra sus sesiones (`deactivated`, ya está) y ahora también quita sus huellas
-  (`revoked_at`), en la misma transacción. Con la huella quitada, «Trabajar sin conexión» se apaga
-  en sus celulares al próximo contacto y una entrada sin conexión posterior no se confirma (15 · R3.2,
-  ya está).
-- **Dar de alta:** `active = true`; las huellas no vuelven (R4.2).
-- **Cerrar, Cerrar todas, Quitar y Cortar:** cierran con el motivo `revoked`, el que ya hace que el
+- **Autorizar:** valida, normaliza el correo (minúsculas, sin espacios), guarda `authorized_by` e
+  inserta. El índice único de `email` es la última palabra si dos autorizan el mismo a la vez.
+- **Entrar** (cambia en `sign-in`): al abrir una sesión se anotan `way`, `is_phone` y `passkey_id`, y
+  `users.recordSignIn(userId, at)` anota la última entrada con la hora del servidor. La primera vez
+  con Google, atar la cuenta, guardar `google_name` y anotar la entrada son una sola escritura. Una
+  entrada sin conexión cuenta cuando el servidor la confirma, abra sesión o no (`ended`), con la hora
+  de la confirmación.
+- **Dar de baja:** la transacción de § 5 pone `active = false` y `deactivated_at`, y publica
+  `user.deactivated`; en `sign-in`, en la misma transacción, se cierran sus sesiones (`deactivated`)
+  y se borran sus huellas.
+- **Dar de alta:** `active = true`, `deactivated_at` nulo. Las huellas no vuelven (R4.2).
+- **Renombrar:** publica `user.renamed`; `sign-in` olvida a esa persona de su memoria, así
+  `/api/start` devuelve el nombre nuevo.
+- **Cerrar, Cerrar todas y Cortar** cierran con el motivo `revoked`, el que ya hace que el
   dispositivo vuelva a la entrada con «Tu sesión se cerró desde otro dispositivo» en su próximo
-  pedido (01 · R3.5). La caché de sesiones del servidor se entera en el momento: el próximo pedido de
-  ese dispositivo ya se rechaza.
-- **Nada en tiempo real:** el dispositivo cortado se entera con su próximo pedido, sin consultas
-  propias, como ya hace la sesión vencida. La pantalla de quien corta se actualiza con la respuesta.
+  pedido (01 · R3.5). Nada en tiempo real: se entera con su próximo pedido, sin consultas propias.
+- **La memoria de `sign-in` se pone al día en un solo lugar.** Cada camino que cierra sesiones o borra
+  huellas (cerrar, cerrar todas, cortar, la baja) pasa por una función que, después de confirmar la
+  transacción, saca las sesiones de la memoria, olvida a la persona y borra la entrada de su celular en
+  `phoneOwners`. Así un celular cortado no vuelve a recibir `offline: true` y se le vuelve a ofrecer
+  vincular la huella (E19, E26, E31).
+- **Arreglo del 01: la memoria de sesiones.** Hoy la sesión sale de la memoria dentro de la
+  transacción, antes de confirmarla: un pedido que llega en ese momento la lee abierta de la base y la
+  vuelve a guardar, y queda valiendo hasta 8 horas. Pasa a ser así: la memoria lleva un contador de
+  cierres; cada cierre lo sube antes y después de confirmar, y lo leído de la base se guarda en memoria
+  solo si el contador no cambió mientras se leía. Lo mismo para la baja. Con una prueba que mete un
+  pedido justo en ese momento.
 
 ## 7. El primer Administrador (R1.2)
 
-- **Un comando del servidor:** `node src/server/first-administrator.ts <correo> [nombre]` (en el
-  contenedor, `docker compose exec server node first-administrator.js …`). Abre la base con la
-  configuración del ambiente, corre las migraciones y, en una transacción, inserta a la persona solo
-  si la tabla está vacía; si no, sale con un error que lo dice y no cambia nada.
-- **Se va de la configuración:** `INITIAL_ADMIN_EMAIL` deja de existir (`platform/config.ts`, el
-  `.env` de ejemplo, `deploy/oracle/install.sh`, que pasa a correr el comando al final de la
-  instalación, y la documentación de operación). El arranque del servidor ya no crea a nadie.
-- **Los ambientes que ya existen** (pruebas) ya tienen personas: no hay que correr nada, y quitar la
-  variable de su `.env` es parte del despliegue de esta etapa.
-- **Las pruebas** cargan a sus personas como hoy, con la base de prueba.
+- **El comando:** `node src/server/first-administrator.ts <correo> [nombre]`; en el contenedor,
+  `docker compose exec server node src/server/first-administrator.ts …`. Toma solo `DATABASE_URL` del
+  ambiente (el correo nunca sale de la configuración, que es lo que pide la regla), corre las
+  migraciones y, con un bloqueo de la tabla, inserta a la persona solo si no hay ninguna; si hay, sale
+  con un error que lo dice y no cambia nada. No anota en la auditoría (es otro proceso, y la auditoría
+  tiene un solo escritor): la persona queda con `authorized_by` nulo, «Desde la instalación».
+- **Se va la variable:** `INITIAL_ADMIN_EMAIL` deja de existir en `platform/config.ts`, el `.env` de
+  ejemplo, `deploy/oracle/install.sh` (que pasa a correr el comando después de comprobar que el
+  servidor responde, con el correo entre comillas) y `docs/technical/modules/sign-in.md` (§ 11). El
+  arranque ya no crea a nadie. El ambiente de pruebas ya tiene personas: sacar la variable de su
+  `.env` va con el despliegue de esta etapa.
+- **Las pruebas de punta a punta** levantan el servidor con la base en memoria, que un comando aparte
+  no ve. Con `ENVIRONMENT=e2e` (que ya exige la base en memoria), el arranque carga a la persona de
+  prueba de una variable propia, `E2E_FIRST_ADMIN_EMAIL`, que la configuración rechaza en cualquier
+  otro ambiente; usa la misma función que el comando. Nunca es una ruta de la API.
 
 ## 8. La aplicación (`src/app/modules/users/`)
 
 - **Dónde:** Más → Usuarios, con las pestañas Usuarios · Auditoría (Auditoría con «Pronto» hasta el
-  05), como dicen 00 · R1.2 y 02 · R2.1. Como dijo Carlos, el menú final lo decide él al programar:
-  en el paso 6 se le muestra el menú antes de tocarlo. La opción lleva `needsInternet` (R2.2), como
-  el manual: sin conexión, gris.
-- **Las pantallas:** las maquetas aprobadas (`mockups/users-a/final/desktop/` y `final/phone/`),
-  separadas como la entrada: lista, tarjeta, autorizar, «Se perdió un celular» y las
-  confirmaciones (dar de baja y Cerrar todas). Los textos largos y cortos en `texts.ts`.
-- **El estado:** la lista se pide al abrir la opción y la tarjeta al elegir a alguien; cada cambio
-  reemplaza a esa persona con lo que devuelve el servidor. No se guarda nada en el dispositivo.
+  05), como dicen 00 · R1.2 y 02 · R2.1. Como pidió Carlos, en el paso 6 se le muestra el menú antes de
+  tocarlo, y él decide el final. La opción lleva `needsInternet` (R2.2), como el manual.
+- **Una sola pantalla para los dos tamaños** (ADR-002), con piezas: lista, tarjeta, autorizar, «Se
+  perdió un celular» y las confirmaciones (dar de baja y Cerrar todas). En la computadora la lista y la
+  tarjeta van lado a lado; en lo angosto, elegir a alguien muestra solo su tarjeta, que entra desde la
+  derecha, y es un paso de la historia: el botón atrás vuelve a la lista (`back-step`).
+- **El estado:** la lista entera se pide al abrir la opción; el buscador, los filtros (Todas, Activas,
+  Sin entrar, De baja) y el orden de R3.1 los hace la aplicación sobre esa lista. La tarjeta se pide al
+  elegir a alguien. No se guarda nada en el dispositivo.
+- **Sin conexión:** gris. Al volver la conexión se prende sola, con la lista que tenía, sin pedirla de
+  nuevo: no es un pedido automático (`mobile-data.md` no cambia). Un cambio sobre un dato viejo lo
+  frena la `version` (§ 5).
+- **«Entró hace 3 días»** se calcula con la hora del servidor que la aplicación ya tiene
+  (`platform/server/clock`), no con la del dispositivo.
+- **La propia:** la tarjeta no ofrece dar de baja y dice «No te podés dar de baja vos: lo tiene que
+  hacer otro Administrador» (E03).
 - **El teclado** (00 · R2): las teclas de la maqueta (Alt U autorizar, Alt I «Se perdió un celular»,
-  Alt T cerrar todas, Alt B dar de baja o borrar, Alt A dar de alta, `/` buscar) solo con Alt; en la
+  Alt T cerrar todas, Alt B dar de baja o borrar, Alt A dar de alta, `/` buscar), solo con Alt; en la
   tarjeta, «Cerrar» y «Quitar» con las flechas y Enter (R5.8).
-- **`data-private`:** nombres y correos, para «Algo salió mal» (00 · R9.4).
+- **`data-private`:** nombres y correos. **Arreglo del 01:** en «Algo salió mal», la marca va hoy
+  dentro del botón y no en él, así que el nombre de la persona entra en los últimos pasos; se pone en
+  el botón.
 
-## 9. Eventos y auditoría (R6)
+## 9. Seguridad
 
-En `users`: `user.authorized`, `user.renamed`, `user.email-changed`, `user.deleted`,
-`user.deactivated` (ya existe como evento; ahora también se anota), `user.activated`. En `sign-in`:
-`session.closed` (con quién la cerró y de quién era), `sessions.closed-all`, `passkey.removed` y
-`phone.cut`. Cada uno con quién lo hizo (la persona de la sesión) y a quién, como el resto de la
-auditoría (01 · E44).
+- **Qué datos toca:** nombres y correos de las personas, y desde qué dispositivos entran. Nada sale
+  del servidor sin sesión. Los identificadores de los dispositivos y de las huellas no salen nunca: la
+  aplicación ve otros, opacos (§ 4), porque con el de una huella cualquiera podría bloquearla mandando
+  firmas falsas.
+- **Quién puede:** en la etapa a, cualquier persona activa con sesión (R1.1), como decidió Carlos; la
+  etapa b le pone el permiso. Nadie se da de baja ni de alta a sí mismo, y nunca queda nadie activo
+  (§ 5), en el servidor.
+- **Lo que entra de afuera:** los cuerpos, con zod y largos máximos (correo 254, nombre 80, el de
+  Google se corta en 80); los nombres sin caracteres de control ni de dirección del texto; los
+  identificadores de la dirección, UUID; la `version`, un entero entre 1 y 2³¹ − 1.
+- **Ver o cambiar lo ajeno:** las rutas de sesiones y celulares nombran a la persona y comprueban que
+  la sesión o el celular sean suyos antes de cortar; si no, `404`.
+- **Abuso:** hoy ninguna ruta con sesión tiene límite. Se agregan dos, en la plataforma: los cambios de
+  Usuarios, 60 por minuto por sesión; y las cookies que no corresponden a ninguna sesión, 30 por minuto
+  por dirección (cada una cuesta una consulta).
+- **Secretos:** ninguno nuevo.
+- **El comando del primer Administrador** solo corre dentro del servidor: no hay ruta que cree a
+  alguien sin sesión.
+- **La auditoría** (R6.1), escrita después de confirmar la transacción (ADR-004): `userId` es quien lo
+  hizo y la persona afectada va en `data.targetUserId` (el 05 la va a buscar ahí). Las líneas:
+  `user.authorized`, `user.renamed`, `user.email-changed`, `user.deleted`, `user.deactivated`,
+  `user.activated`, `session.closed`, `sessions.closed-all`, `passkey.removed` y `phone.cut`. Cerrar
+  sesiones deja además una `session.ended` por sesión, como ya hace hoy. Los rechazos (`self`,
+  `last-administrator`, `changed`, `404`) se anotan una vez por minuto por motivo y persona, como los
+  de la plataforma. Arreglo del 01: `session.ended` se anota hoy antes de confirmar; pasa a después.
 
-## 10. Seguridad
+## 10. Metas de performance
 
-- **Qué datos toca:** nombres y correos de las personas, y de qué dispositivos entran. Nada de eso
-  sale del servidor sin sesión.
-- **Quién puede:** en la etapa a, cualquier persona activa con sesión (R1.1), como decidió Carlos;
-  la etapa b le pone el permiso. Nadie se da de baja a sí mismo y nunca queda nadie activo (§ 5),
-  controlado en el servidor.
-- **Lo que entra de afuera:** los cuerpos, con zod y largos máximos (correo 254, nombre 80); los
-  identificadores de la dirección, UUID; la `version`, un entero.
-- **Ver o cambiar lo ajeno:** las rutas de sesiones y huellas comprueban que la sesión o la huella
-  sea de la persona nombrada antes de cortar; un identificador de otro da `404`, igual que uno que
-  no existe.
-- **El comando del primer Administrador** solo corre dentro del servidor, con su configuración: no
-  hay ninguna ruta de la API que cree a alguien sin sesión.
-- **Abuso:** las rutas usan el límite por dirección de los pedidos con sesión que ya existe; no
-  hace falta uno propio: son pocas personas y todas con sesión.
-- **La auditoría** guarda cada cambio con quién y a quién.
+- Las consultas de cada ruta, en la tabla de § 4, cada una con su prueba que las cuenta.
+- `GET /api/users` con 100 personas (constitución, IX): menos de 50 ms y menos de 20 KB.
+- El arranque de la aplicación no crece: la pantalla se baja recién al abrir la opción, con `import()`,
+  como el manual.
 
-## 11. Metas de performance
-
-- `GET /api/users`: 3 consultas (personas, sesiones por persona, huellas por persona), menos de
-  50 ms con 50 personas, menos de 10 KB.
-- `GET /api/users/:id/access`: 2 consultas. Cada cambio: hasta 3 consultas en una transacción.
-- El arranque de la aplicación no crece: la pantalla se baja recién al abrir la opción (como el
-  manual, con `import()`).
-
-## 12. Pruebas
+## 11. Pruebas
 
 | Escenarios | Prueba |
 |---|---|
-| E01, E02 | Unitarias del comando contra la base de prueba: con la tabla vacía carga; con alguien, se niega |
-| E03 a E05 | De las rutas: la propia da `self`; la última activa da `last-administrator`; dos bajas a la vez, con la base de prueba, guardan una sola |
-| E06, E07 | De la pantalla, con el servidor de mentira: el orden, «Vos», la pastilla, «Entró hace 3 días» |
-| E08 a E16 | De las rutas y de la pantalla: autorizar, correo repetido o mal escrito, el nombre escrito contra el de Google, cambiar el correo y borrar solo si nunca entró |
-| E17 a E20 | De las rutas: la baja cierra sesiones y quita huellas; dada de baja no entra; el alta no devuelve las huellas; sin confirmar no cambia nada (pantalla) |
-| E21 a E27, E31, E32 | De las rutas: cada sesión con su forma de entrar; la propia no figura; Cerrar, Cerrar todas, Quitar y Cortar; el celular cortado recibe `session-closed` en su próximo pedido |
-| E28 | Cada cambio deja su evento, con quién y a quién |
-| E29 | De la pantalla: sin conexión, gris |
+| E01, E02 | Del comando contra la base de prueba: con la tabla vacía carga; con alguien, se niega |
+| E03, E04 | De las rutas: la propia da `self` (también al dar de alta); la última activa da `last-administrator`. E03, también de la pantalla (el aviso) |
+| E05 | La regla, en las unitarias; el bloqueo, a mano contra PostgreSQL (§ 5) |
+| E06, E07 | De la pantalla, con el servidor de mentira: el orden, «Vos», la pastilla, «Entró hace 3 días» con la hora del servidor |
+| E08 a E16 | De las rutas y de la pantalla: autorizar, correo repetido o mal escrito, el nombre escrito contra el de Google, cambiar el correo y borrar solo si nunca entró, también si la persona entra a la vez |
+| E17, E19, E20 | De las rutas: la baja cierra sesiones y borra huellas; el alta no las devuelve y vuelve a ofrecer vincular; sin confirmar no cambia nada (pantalla) |
+| E18, E24 | Por el camino del 01, con su nombre (§ 1) |
+| E21 a E23, E25 a E27, E31, E32 | De las rutas: cada sesión con cómo entró; la propia no figura; cerrar, cerrar todas y cortar; el celular cortado recibe `session-closed` en su próximo pedido y ya no `offline` |
+| E28 | Cada cambio deja su línea, con quién y a quién, después de confirmar |
+| E29 | De la pantalla: sin conexión, gris; al volver, se prende sin pedir nada |
 | E30 | De las rutas: un cambio con una versión vieja da `changed` |
-| Metas | Las pruebas que cuentan las consultas de cada ruta |
+| Seguridad | Un pedido que llega mientras se cierra su sesión no la vuelve a guardar; las rutas no dan el `device_id` ni el identificador de la huella; un celular de otra persona da `404`; los dos límites nuevos |
+| Metas | Las que cuentan las consultas de cada ruta |
 
-**De punta a punta:** se proponen a Carlos antes de escribirlas, con qué prueban y por qué no
-alcanza una unitaria (CLAUDE.md). La candidata es una sola: cerrar la sesión de un dispositivo desde
-otro y ver que ese dispositivo vuelve a la entrada con «Tu sesión se cerró desde otro dispositivo»,
-porque cruza dos navegadores, la cookie y la caché del servidor.
+**De punta a punta:** se proponen a Carlos antes de escribirlas (CLAUDE.md). La candidata es una
+sola: cerrar la sesión de un dispositivo desde otro y ver que el primero vuelve a la entrada con «Tu
+sesión se cerró desde otro dispositivo». Cruza dos navegadores, la cookie y la memoria del servidor.
 
-## 13. Tareas
+## 12. Tareas
 
-1. **Migraciones y datos** (`users` y `sign-in`), con el traspaso de `name` a `google_name`.
-2. **El comando del primer Administrador** y quitar `INITIAL_ADMIN_EMAIL` (servidor, instalación y
-   documentación de operación). Depende de 1.
-3. **Las rutas de `users`** (§ 4), con § 5. Depende de 1.
-4. **Entrar anota** `way`, `is_phone` y la última entrada, y deja de pisar el nombre. Depende de 1.
-5. **Las rutas de `sign-in`** para sesiones, huellas y celulares perdidos, y la baja que quita
-   huellas. Depende de 1 y 4.
-6. **El puerto de las cantidades** conectado en `main.ts`. Depende de 3 y 5.
-7. **La aplicación:** el menú (con Carlos), la lista, la tarjeta, autorizar, «Se perdió un celular»
-   y las confirmaciones, en la computadora y en el celular. Depende de 3 y 5.
-8. **Las pruebas de § 12, la documentación al día y la de punta a punta,** si Carlos la aprueba.
+1. **Código común:** la sesión del pedido para cualquier módulo y los dos límites nuevos (§ 3, § 9).
+   Se toma como tarea propia.
+2. **Migraciones y datos** (`users` y `sign-in`), con el traspaso.
+3. **El comando del primer Administrador,** la variable de las pruebas de punta a punta y sacar
+   `INITIAL_ADMIN_EMAIL` (servidor, instalación, documentación de operación y diseño del 01).
+   Depende de 2.
+4. **Los arreglos del 01:** la memoria de sesiones (§ 6), la auditoría después de confirmar y la marca
+   de «Algo salió mal». Depende de 2.
+5. **Entrar anota** cómo y cuándo, sin pisar el nombre, con los controles de § 5. Depende de 2 y 4.
+6. **Las rutas de `users`** (§ 4, § 5). Depende de 1 y 2.
+7. **Las rutas de `sign-in`,** con la función que pone al día la memoria, y la baja que borra huellas.
+   Depende de 1, 4 y 5.
+8. **Las cantidades** conectadas en `app.ts`. Depende de 6 y 7.
+9. **La aplicación:** el menú (con Carlos), la pantalla y sus piezas. Depende de 6 y 7.
+10. **Las pruebas de § 11, la documentación al día y la de punta a punta,** si Carlos la aprueba.
+
+## 13. Lo que decide Carlos
+
+- **Pasar por Google o la huella antes de autorizar o de dar de alta** (revisión de seguridad, 7).
+  Con una sesión abierta, quien sea (un cliente frente a la computadora del mostrador) puede autorizar
+  su propio Gmail en diez segundos y entrar después desde su casa. Propuesta: pedir haber pasado por
+  Google o por la huella en los últimos 5 minutos para esas dos acciones, como ya se pide para
+  vincular la huella; si no, la pantalla pide tocar Google o poner la huella. Si no, al menos queda
+  «Autorizada el … por …» a la vista, que este diseño ya incluye.
+- **«Dada de alta de nuevo hoy»,** que muestra la maqueta, es historia: va en la auditoría, no en la
+  tabla. La tarjeta muestra «Dada de baja el …» mientras lo está; al darla de alta, nada.
