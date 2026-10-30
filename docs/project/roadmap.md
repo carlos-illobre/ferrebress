@@ -22,7 +22,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | # | Módulo | Qué cubre | Por qué en este lugar | Depende de | Estado |
 |---|---|---|---|---|---|
 | 00 | `app` | Las reglas generales de la aplicación: el marco, el menú, el teclado, la conexión, la versión nueva, el manual, las esperas, los formatos | No se construye solo: cada regla se construye con el primer módulo que la necesita | — | Reglas aprobadas |
-| 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | En curso: paso 9 (el manual programado y revisado; falta que Carlos lo pruebe en el ambiente de pruebas). Carlos lo probó y lo aprobó |
+| 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | Hecho: Carlos lo probó y lo aprobó, con su manual |
 | 02 | `users` | Personas (autorizar, dar de baja), roles y permisos, y las sesiones abiertas de cada dispositivo | Para que entre alguien más que el primer Administrador | 01 | Libre |
 | 03 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para leer los códigos del catálogo | 01 | Libre |
 | 04 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo, formatos) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
@@ -36,7 +36,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | 12 | `tickets` | Avisar de un error o pedir una mejora | Listo para la etapa de pruebas reales | 01 | Libre |
 | 13 | `customers` | Clientes importantes y su cuenta corriente | | 10 | Libre |
 | 14 | `business-overview` | Los números del negocio y el cierre de caja | | 10, 11 | Libre |
-| 15 | `offline` | En dos etapas. **a. Entrar sin conexión** con la huella del celular (T109). **b. Trabajar sin conexión** al atender clientes y proveedores: lo hecho se guarda en el dispositivo, cifrado, y al volver la conexión el servidor lo revisa; lo que pasa se aplica y lo que no, va a anomalías (T110) | La etapa a, ahora, por pedido de Carlos; la b, desde el módulo 10 todo se programa para poder sumarla sin rehacer nada | a: 01; b: 10, 11 | a: Carlos la probó y anda; su manual está en el capítulo «Entrar» (falta que Carlos lo pruebe) |
+| 15 | `offline` | En dos etapas. **a. Entrar sin conexión** con la huella del celular (T109). **b. Trabajar sin conexión** al atender clientes y proveedores: lo hecho se guarda en el dispositivo, cifrado, y al volver la conexión el servidor lo revisa; lo que pasa se aplica y lo que no, va a anomalías (T110) | La etapa a, ahora, por pedido de Carlos; la b, desde el módulo 10 todo se programa para poder sumarla sin rehacer nada | a: 01; b: 10, 11 | a: hecha, con su manual en el capítulo «Entrar»; b: libre |
 | 16 | `stock-counts` | Contar por sector | | 09 | Libre |
 | 17 | `processes` | Los procesos del negocio, dibujados | Muy importante, pero puede ir al final | 02 | Libre |
 
@@ -88,7 +88,7 @@ No se construyen ahora; el diseño no les cierra la puerta.
   análisis que lea la auditoría (ADR-004).
 - [ ] T108 [carlos] Productos que se venden en dólares: cómo se muestran y se cobran los importes
   en otra moneda.
-- [ ] T109 [agente] Módulo 15, etapa a (Entrar sin conexión): entrar sin conexión con la huella del
+- [x] T109 [agente] Módulo 15, etapa a (Entrar sin conexión): entrar sin conexión con la huella del
   celular, verificada en el dispositivo con la llave pública guardada; la firma viaja con lo que se
   manda como prueba y el servidor la verifica al volver la conexión. Solo la cuenta vinculada a ese
   celular, solo si en el último contacto el servidor dijo que estaba activa, y como mucho 24 horas
