@@ -15,8 +15,9 @@ ambiente de pruebas.
   - Vender: Vender · Ventas de hoy.
   - Catálogo: Productos · Listas · Duplicados.
   - Depósito: Stock · Compras · Contar.
-  - Negocio: Resumen · Usuarios · Quién hizo qué.
-  - Más: Anomalías · Procesos · Mejoras y errores · Configuración · Administración · Manual.
+  - Negocio: Resumen · Quién hizo qué. Negocio es para los números del negocio.
+  - Más: Anomalías · Procesos · Mejoras y errores · Usuarios · Configuración · Administración ·
+    Manual. Usuarios es una opción propia de Más: administrar personas no es parte del negocio.
 - **R1.3** En el ambiente de pruebas, lo que todavía no existe aparece en el menú con la marca
   «Pronto» y no se puede abrir. En producción no aparece hasta que existe.
 - **R1.4** Al abrir la aplicación se abre siempre la primera opción del menú que exista (el manual

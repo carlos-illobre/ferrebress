@@ -23,8 +23,8 @@ Administrador. **Etapa b:** roles y permisos; se escribe al llegar a ella.
 
 ## 2. Dónde está
 
-- **R2.1** En Negocio → Usuarios (00 · R1.2), en la computadora y en el celular, con las mismas
-  reglas (00 · R1.5).
+- **R2.1** En Más → Usuarios, una opción propia de Más (00 · R1.2): administrar personas no es
+  parte del negocio. En la computadora y en el celular, con las mismas reglas (00 · R1.5).
 - **R2.2** Todo lo de este capítulo necesita conexión: sin conexión, Usuarios se ve gris con «Sin
   conexión» y vuelve sola al volver la conexión (00 · R4.4).
 
@@ -89,12 +89,18 @@ Administrador. **Etapa b:** roles y permisos; se escribe al llegar a ella.
   - se cierra la sesión abierta en ese celular, si hay: es el caso del celular perdido;
   - se le apaga «Trabajar sin conexión» (15 · R1.5), y una entrada sin conexión hecha después no
     se confirma (15 · R3.2).
+- **R5.7** **«Se perdió un celular»**, a mano arriba de la lista, junta R5.3 y R5.6 para el caso
+  urgente: se elige de quién es y cuál de sus celulares (si tiene uno solo, ya está elegido), y
+  «Cortar» cierra las sesiones de ese celular y le quita la huella, de un toque y sin confirmación,
+  como «Cerrar» y «Quitar». Muestra qué cortó. Si ese celular no tiene ni sesión ni huella, lo dice
+  y no hay nada que cortar. Los celulares que lista son los que tienen una sesión abierta o una
+  huella de esa persona; también los propios, salvo el que se está usando.
 
 ## 6. Lo que queda anotado
 
 - **R6.1** Cada cambio queda en la auditoría, con quién lo hizo y a quién: autorizar, cambiar el
-  nombre o el correo, borrar, dar de baja, dar de alta, cerrar una sesión, cerrar todas y quitar un
-  celular con huella.
+  nombre o el correo, borrar, dar de baja, dar de alta, cerrar una sesión, cerrar todas, quitar un
+  celular con huella y cortar un celular perdido.
 
 ## Escenarios
 
@@ -173,11 +179,17 @@ Administrador. **Etapa b:** roles y permisos; se escribe al llegar a ella.
 - **E27** **Dado** un celular con huella quitado, **cuando** manda una entrada sin conexión hecha
   después de quitarlo, **entonces** el servidor no la confirma (15 · R3.2).
 
+- **E31** **Dado** una persona con un celular con huella y su sesión abierta en él, **cuando** se toca
+  «Se perdió un celular», se la elige y se toca «Cortar», **entonces** ese celular vuelve a la
+  entrada con su próximo pedido, ya no entra con la huella ni sin conexión, y se ve qué se cortó.
+- **E32** **Dado** una persona con dos celulares, **cuando** se la elige en «Se perdió un celular»,
+  **entonces** hay que elegir cuál antes de cortar; el otro sigue como estaba.
+
 ### Lo que queda anotado y la conexión
 
 - **E28** **Dado** cualquiera de los cambios de R6.1, **cuando** se guarda, **entonces** queda en la
   auditoría con quién lo hizo y a quién.
-- **E29** **Dado** un dispositivo sin conexión, **cuando** se mira Negocio → Usuarios, **entonces** se
+- **E29** **Dado** un dispositivo sin conexión, **cuando** se mira Más → Usuarios, **entonces** se
   ve gris con «Sin conexión», y vuelve sola al volver la conexión.
 - **E30** **Dado** dos personas con Usuarios abierto, **cuando** una da de baja a alguien, **entonces**
   la otra, al hacer un cambio sobre esa persona, ve que ya no está activa y el cambio no se guarda

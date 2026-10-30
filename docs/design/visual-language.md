@@ -163,8 +163,8 @@ Cinco partes, en el mismo orden en los dos dispositivos:
 | **Vender** | Vender · Ventas de hoy |
 | **Catálogo** | Productos (con su ficha) · Listas de precios · Duplicados |
 | **Depósito** | Stock · Compras · Contar |
-| **Negocio** | Resumen · Usuarios · Quién hizo qué |
-| **Más** | Anomalías · Procesos · Mejoras y errores · Configuración (lista de tarjetas, no pestañas) |
+| **Negocio** | Resumen · Quién hizo qué |
+| **Más** | Anomalías · Procesos · Mejoras y errores · Usuarios · Configuración (lista de tarjetas, no pestañas) |
 
 Entrar va fuera del marco, a pantalla completa. Cada parte abre en su primera pestaña.
 
