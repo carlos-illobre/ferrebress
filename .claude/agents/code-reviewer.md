@@ -31,7 +31,9 @@ Buscá, en este orden:
    reconstruir leyendo solo `docs/`.
 9. **Pantallas.** Diferencias visibles con la maqueta elegida, en la computadora y en el celular.
 10. **Lo que se podría extraer a una librería** (constitución, «El análisis de librería»). Solo
-    informativo: no frena nada ni se arregla. De lo no funcional que el módulo agregó o cambió
+    informativo: no frena nada ni se arregla. Si el módulo no agregó ni cambió nada no funcional
+    (solo negocio sobre lo que ya había), decilo en una línea y listo. Si agregó o cambió algo: de lo
+    no funcional que el módulo agregó o cambió
     (seguridad, conexión, sin conexión, rendimiento, auditoría, teclado y accesibilidad, piezas
     visuales, controles de calidad, despliegue), cada parte con: dónde está; si serviría a otro
     proyecto con los mismos requerimientos no funcionales y otro negocio; qué la ata a

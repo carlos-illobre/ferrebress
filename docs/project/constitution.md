@@ -240,7 +240,8 @@ programó no puede revisarse.
 | 9 | Redactor | El manual del módulo (la pantalla del manual se diseña en el paso 9 del primer módulo, no antes): capturas, texto para quien atiende la ferretería sin saber de informática y un clip solo si la funcionalidad es lo bastante grande para verla en video | `docs/manual/` y la pantalla del manual | — |
 
 **El análisis de librería (paso 7)** es solo informativo: no se arregla nada ni se crea ninguna
-librería; Carlos decide si algún día se hace. Mira lo no funcional que el módulo agregó o cambió
+librería; Carlos decide si algún día se hace. Se hace solo si el módulo agregó o cambió algo no
+funcional; si no, se dice en una línea y nada más. Mira lo no funcional que el módulo agregó o cambió
 (seguridad, conexión, sin conexión, rendimiento, auditoría, teclado y accesibilidad, piezas
 visuales, controles de calidad, despliegue) y, para cada parte, dice: si serviría a otro proyecto
 con los mismos requerimientos no funcionales y otro negocio; qué la ata a Ferrebress (nombres,
