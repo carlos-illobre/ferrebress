@@ -574,3 +574,458 @@ pase por un solo lugar.
 - **El contrato en `src/shared/contracts/users.ts`.** El diseño nombra zod pero no dónde: la forma de
   cada ruta y los códigos de error nuevos (`email-taken`, `already-entered`, `self`,
   `last-administrator`, `changed`) van ahí, una sola vez para el servidor y la aplicación.
+
+---
+
+# Etapa b · roles y permisos
+
+Revisión independiente de las secciones 14 a 24 del [diseño](users.md) (constitución, paso 4), hecha
+con los documentos: la constitución, el [capítulo 02](../../chapters/02-users/rules.md) (sección 7,
+E34 a E57 y los cambios a R1.1, R1.3, R2.1, R3.1, R3.3, R3.8, R5.1 y R6.1), su `summary.md` y
+`screens.md` (filas 2 a 4), las capturas de las maquetas aprobadas (`users-roles/desktop/variant-1-card`,
+`users-person-roles/desktop/variant-1-card` y `app-no-permission/desktop/variant-1-door`, la de
+«Ya no tenés permiso»), 00 · R1.4 y R1.8, 15 · R1.2, R1.5, R2.2 y R3.1, la
+[arquitectura](../architecture.md) y [mobile-data.md](../mobile-data.md). Como la etapa b cambia lo
+que ya está programado, miré el código de la etapa a en lo que el diseño dice cambiar o reusar:
+`src/server/modules/users/` (`index.ts`, `people.ts`, `routes.ts`, `rules.ts`, `data.ts`, `first.ts`),
+`src/server/modules/sign-in/` (`index.ts`, `context.ts`, `sessions/store.ts`, `sessions/require.ts`,
+`offline/rules.ts`, `offline/phone-owner.ts` y dónde se usa `canWorkOffline`), `src/server/platform/`
+(`http.ts`, `session.ts`, `guards.ts`, `modules.ts`, `events.ts`), `src/server/modules.ts`, `app.ts`,
+`src/shared/contracts/server-header.ts` y `sign-in.ts`, y en la aplicación `modules/frame/menu.ts`,
+`modules/sign-in/offline/option.ts` y `watch.ts`, y quién usa `person.role`.
+
+No miré las maquetas funcionando (solo sus capturas) ni corrí nada: lo que dependa de cómo se
+comportan, lo digo como no comprobado. Misma escala que la etapa a: **Frena** o **Mejora**.
+
+## Resumen
+
+La forma general está bien: los permisos fijos en una lista compartida, la tabla de permisos
+conocidos para que el Administrador reciba solo los nuevos, el paso `permissions.require` en la
+plataforma (igual que la sesión del pedido, sin que otros módulos importen `users`), un solo bloqueo
+para todo lo que puede dejar sin quien administre, y la cabecera `p=` para enterarse de un cambio sin
+pedidos propios. Lo que frena está, otra vez, **en las memorias y en los bordes**: la memoria de
+permisos repite la carrera que la etapa a ya arregló para las sesiones (un permiso quitado puede
+seguir valiendo); `sign-in` guarda en memoria la persona que da `/api/start`, y si ahí van los roles
+y permisos, la cabecera cambia y `/api/start` sigue dando lo viejo; la confirmación de una entrada sin
+conexión no pasa a mirar `offline.work`; la persona guardada en el celular no tiene permisos, aunque
+el diseño dice que sí. Del lado de la API, quien tiene solo «Ver las personas» no puede mostrar las
+pastillas ni filtrar por rol (llegan ids sin nombres), y la pestaña Roles con solo «Administrar
+roles» no tiene los nombres de quienes tienen cada rol ni la versión que pide darles un rol. Falta
+decidir cómo se ve Usuarios en Más para quien tiene «Administrar roles» y no «Ver las personas». El
+pedido automático de `/api/start` cuando cambia `p=` no está en `mobile-data.md`. Y las tablas no
+dicen sus claves foráneas, de las que dependen borrar a una persona y borrar un rol.
+
+| # | Punto | Gravedad |
+|---|---|---|
+| b1.1 | Las pastillas y el filtro por rol (R3.1, E06, E54) necesitan nombres de roles que `GET /api/users` no da | Frena |
+| b1.2 | La pestaña Roles con solo «Administrar roles»: sin nombres de quienes lo tienen ni forma de darles el rol | Frena |
+| b1.3 | Usuarios en Más para quien tiene «Administrar roles» sin «Ver las personas» (R2.1 contra E45) | Frena (decisión de Carlos) |
+| b1.4 | La confirmación de una entrada sin conexión (15 · R3.1) sigue sin mirar `offline.work` | Frena |
+| b1.5 | La persona guardada en el celular no tiene permisos (R7.9, E52) | Frena |
+| b1.6 | «Ya no tenés permiso» cuando lo que cambió son los permisos de un rol, no los roles de la persona | Mejora |
+| b1.7 | Lo que muestra la tarjeta de quien entró con varios roles (`person.role`) | Mejora |
+| b1.8 | ¿Quién «tiene» un rol: también los dados de baja? (R7.3, R7.7, E39) | Mejora (pregunta a Carlos) |
+| b1.9 | «Sin permiso» sin conexión | Mejora |
+| b1.10 | `GET /api/roles` da «su último cambio», que ninguna tabla guarda | Mejora |
+| b2.1 | Las consultas de los cambios no cierran, y faltan las de `/api/start` y de autorizar | Frena |
+| b2.2 | El pedido de `/api/start` cuando cambia `p=` no está en `mobile-data.md` | Frena |
+| b2.3 | Cómo llega `p=` a la cabecera y qué hace la aplicación sin él | Mejora |
+| b3.1 | `last_roles_change`: historia en la base, que la aplicación puede calcular sola | Mejora |
+| b3.2 | La migración y el arranque suman permisos por dos caminos | Mejora |
+| b3.3 | Darle un rol a varias personas desde el rol, con una ruta que reemplaza todos los roles de una | Mejora |
+| b3.4 | `can()` en `sign-in` | Mejora |
+| b4.1 | La memoria de permisos repite la carrera que la etapa a arregló para las sesiones | Frena |
+| b4.2 | Dos memorias de la misma persona: la de `users` y la de `sign-in` | Frena |
+| b4.3 | `confirmed()` y el registro de rechazos, una sola vez | Mejora |
+| b5.1 | Una ruta nueva sin su permiso: se confía en acordarse de escribir la prueba | Mejora (fuerte) |
+| b5.2 | Las claves foráneas de las tablas nuevas | Frena |
+| b5.3 | El rechazo por permiso se anota como `users.rejected` desde la plataforma | Mejora |
+| b5.4 | La auditoría de roles con ids: no se lee si el rol se borra | Mejora |
+| b5.5 | Límites de pedidos de las rutas de roles y de `holders` | Mejora |
+| b5.6 | Solo un rol `system` | Mejora |
+| b6 | Fronteras | Sin observaciones que frenen (ver b3.4 y b5.3) |
+| b7.1 | La memoria de permisos y la escala | Mejora |
+| b8.x | Mejoras | Mejora |
+
+## b1. Escenarios sin cubrir
+
+Recorrí E34 a E57 y los que cambian de la etapa a. Tienen ruta, tabla y prueba: E34 y E53 (migración
+y comando), E35 a E40 y E57 (rutas de roles y la pantalla), E41 a E44, E46, E47, E49 a E51, E55 y
+E56. Los que no quedan cubiertos del todo:
+
+### b1.1 Las pastillas y el filtro por rol necesitan nombres (Frena)
+
+- **Dónde:** § 18, «Cambian las de la etapa a»: `GET /api/users` «suma los ids de los roles de cada
+  persona».
+- **Qué propone:** ids de roles por persona.
+- **Qué veo:** la lista muestra «una pastilla por cada uno de sus roles» (R3.1, E06) y se filtra por
+  rol con su nombre y su cantidad (E54; la maqueta `users-person-roles` muestra «Administrador 2»,
+  «Encargado de turno 1»). Los nombres solo los da `GET /api/roles`, que pide «Administrar roles».
+  Quien tiene solo «Ver las personas» (o «Administrar personas», E41) recibe ids que no puede
+  mostrar.
+- **Opciones:** que `GET /api/users` sume una lista `roles: { id, name }[]` (sin permisos ni
+  descripción), con la consulta que el diseño ya suma; o que cada persona traiga `{ id, name }`. La
+  primera pesa menos con 100 personas.
+
+### b1.2 La pestaña Roles con solo «Administrar roles» (Frena)
+
+- **Dónde:** § 18, `GET /api/roles` («quiénes los tienen (ids)») y `POST /api/users/:id/roles`
+  (`{ version, roles }` de la persona); `screens.md`, fila 2 («dar o sacar un rol desde el rol»).
+- **Qué veo:** la pestaña Roles muestra quiénes tienen cada rol con sus iniciales (la maqueta) y deja
+  darle o sacarle el rol a una persona. Con ids no hay iniciales; y para dar el rol hace falta elegir
+  entre las personas y mandar la `version` de cada una y todos sus roles, que salen de
+  `GET /api/users`, que pide «Ver las personas». R7.1 no hace que «Administrar roles» incluya «Ver las
+  personas», así que alguien puede tener la pestaña y no los datos que necesita.
+- **Opciones:** (a) proponerle a Carlos que «Administrar roles» incluya «Ver las personas», como ya
+  pasa con los otros dos: resuelve este punto y el b1.3, y es coherente con que quien reparte roles ve
+  a quién se los da; (b) que `GET /api/roles` traiga las personas activas con id, nombre que se
+  muestra, versión y roles, aunque eso es una segunda lista de personas por otro permiso. Me inclino
+  por (a), pero es una regla: la decide Carlos.
+
+### b1.3 Usuarios en Más sin «Ver las personas» (Frena, decisión de Carlos)
+
+- **Dónde:** § 20, «El menú»: cada opción y pestaña dice su permiso.
+- **Qué veo:** R2.1 dice que cada pestaña aparece para quien tiene su permiso; E45 dice que sin «Ver
+  las personas» no se ve Usuarios en Más. Para quien tiene «Administrar roles» y no «Ver las
+  personas», las dos no pueden cumplirse a la vez: o la opción aparece (para llegar a Roles) o no. El
+  diseño no dice qué permiso pide la opción ni a qué pestaña lleva `/users` en ese caso.
+- **Qué propongo:** si Carlos elige (a) de b1.2, desaparece. Si no, que el diseño diga que la opción
+  aparece con cualquiera de sus pestañas, abre la primera permitida, y que E45 se lee «sin ninguno de
+  los dos».
+
+### b1.4 La confirmación sin conexión no mira `offline.work` (Frena)
+
+- **Dónde:** § 17, «`offline: true` pide `offline.work` en vez de “ser Administrador”».
+- **Qué veo:** `canWorkOffline` se usa en cinco lugares del código: además de dar `offline: true`
+  (entrar con Google, con la huella, al vincular y en `/api/start`, `phone-owner.ts`), lo usa la
+  confirmación de una entrada sin conexión (`offline/routes.ts`, `allowed`), que es lo que pide 15 ·
+  R3.1 («que la cuenta siga activa y con el permiso»). El diseño solo nombra `offline: true`: si la
+  confirmación sigue con `active`, a quien le sacaron «Trabajar sin conexión» mientras estaba sin
+  conexión se le confirma la entrada. Además `canWorkOffline` está en `rules.ts` de `sign-in` y hoy
+  recibe `{ active }`: tiene que pasar a recibir los permisos, que da `users`.
+- **Qué propongo:** que § 17 diga que los cinco caminos piden `offline.work` con `permissionsOf`, con
+  una prueba de 15 · R3.1 sin el permiso (`offline-E…`).
+
+### b1.5 La persona guardada en el celular no tiene permisos (Frena)
+
+- **Dónde:** § 20, «Sin conexión (R7.9): la persona guardada en el dispositivo ya trae sus permisos».
+- **Qué veo:** no es así hoy. Lo que guarda el celular para entrar sin conexión es
+  `{ userId, name, role }` (`modules/sign-in/offline/option.ts`), y `updateOffline` solo lo reescribe
+  si cambia el nombre o el rol. La arquitectura dice que `localStorage` guarda «el nombre y rol de
+  quien entró». Sin permisos guardados, el marco sin conexión no sabe qué menú armar (E52).
+- **Qué propongo:** que el diseño diga que lo guardado suma `roles` y `permissions`, que
+  `updateOffline` lo reescribe también si cambian, y que se actualiza la línea de la arquitectura.
+  Los permisos no son secretos ni del negocio: pueden quedar en `localStorage`.
+
+### b1.6 «Ya no tenés permiso» cuando cambian los permisos de un rol (Mejora)
+
+- **Dónde:** § 15 (`last_roles_change` en `users.users`) y § 20.
+- **Qué veo:** R7.8 dice «con quién le sacó qué rol»; `last_roles_change` se escribe al cambiar los
+  roles de una persona. Pero también se pierde un permiso cuando le sacan ese permiso a un rol que la
+  persona tiene (E49, al revés). Ahí `last_roles_change` no cambia (o queda uno viejo, que se mostraría
+  como si fuera lo de ahora). El diseño no dice qué se ve en ese caso. Ver también b3.1.
+- **Qué propongo:** que diga qué texto se muestra cuando lo que cambió fue el rol («Graciela le sacó
+  “Ver las personas” a “Encargado de turno”») y de dónde sale; o, si se quiere solo el caso de la
+  regla, que en el otro se muestre sin «quién».
+
+### b1.7 La tarjeta de quien entró con varios roles (Mejora)
+
+- **Dónde:** § 17 («`sign-in` deja de inventar `role: 'Administrador'`») y § 20.
+- **Qué veo:** `person.role` se muestra hoy en la tarjeta de la persona del marco (`SideFooter.tsx`,
+  `PhoneMore.tsx`) y lo guarda la opción sin conexión. La maqueta de «Sin permiso» sigue mostrando un
+  solo rol debajo del nombre. El diseño no dice qué se muestra con dos roles (los dos, el primero, «2
+  roles»).
+- **Qué propongo:** decirlo; si es una decisión de cómo se ve, preguntarla.
+
+### b1.8 Quién «tiene» un rol (Mejora, pregunta a Carlos)
+
+- **Dónde:** § 18 (`role-in-use`, `holders`) y § 19.
+- **Qué veo:** R7.5 pide al menos un rol a las personas activas. Al dar de baja, el diseño no dice si
+  la persona conserva sus roles (para que el alta la deje con los mismos, R4.2) o los pierde (y
+  entonces el alta tendría que pedir roles). Si los conserva: ¿un rol que solo tienen personas dadas
+  de baja «lo tiene alguien» (no se puede borrar, E39)? ¿«Lo tienen 4 personas» y `holders` (R7.7)
+  cuentan a las dadas de baja? Para `holders` me parece claro que no; para borrar, no.
+- **Qué propongo:** que el diseño diga que la baja conserva los roles, que `holders`, los contadores y
+  `role-in-use` miran solo a las activas (o a todas), y preguntarle a Carlos lo de borrar.
+
+### b1.9 «Sin permiso» sin conexión (Mejora)
+
+- **Dónde:** § 20, «Sin permiso» pide `/api/permissions/:id/holders`.
+- **Qué veo:** sin conexión, quien abre por la dirección algo que no puede ve la pantalla del marco,
+  que necesita la red para «quién lo tiene». El diseño no dice qué muestra entonces (lo que se puede
+  saber sin red: el permiso que falta, para qué sirve, sus roles y el botón; y «Sin conexión» en lugar
+  de los nombres).
+
+### b1.10 «Su último cambio» de un rol (Mejora)
+
+- **Dónde:** § 18, `GET /api/roles` «… y su último cambio».
+- **Qué veo:** `users.roles` (§ 15) no tiene columnas para eso, y ninguna regla ni la maqueta lo piden
+  en la lista de roles. O sobra, o falta la columna y para qué es.
+
+## b2. Performance
+
+Cuento las consultas como lo hizo la etapa a, con el comienzo y la confirmación de la transacción
+(«6, con el comienzo y la confirmación»). Lo que no pude comprobar es cuántas se juntan en una sola
+sentencia (por ejemplo, borrar e insertar roles con un CTE): si el diseño piensa juntarlas, que lo
+diga, porque la prueba las va a contar.
+
+### b2.1 Las consultas de los cambios no cierran (Frena)
+
+- **Dónde:** § 18 y § 22.
+- **Qué veo:**
+  - `POST /api/users/:id/roles` («4 a 6»): comenzar, bloquear el rol `system`, subir la versión de la
+    persona y escribir `last_roles_change`, borrar sus roles, insertar los nuevos, contar quién queda
+    con los dos permisos, confirmar: 7, sin validar que los roles existan (o con la clave foránea,
+    b5.2). Además, decidir si pide confirmar (R3.8, solo si «da» un rol) necesita los roles de antes,
+    antes de cambiar nada: una lectura más, o la de la memoria de permisos, que no alcanza (son
+    permisos, no roles).
+  - `POST /api/roles/:id` («4 a 6»): comenzar, bloquear, leer el rol (para saber si se agregan
+    permisos, R3.8, y para la auditoría con lo que había), cambiarlo, borrar e insertar permisos,
+    contar, confirmar: 8.
+  - `POST /api/roles` («3»): comenzar, insertar el rol, insertar sus permisos, confirmar: 4.
+  - `POST /api/users` (autorizar) suma los roles de la persona y pasa a ser una transacción; el diseño
+    no actualiza su «1».
+  - Dar de baja pasa al bloqueo nuevo y a contar por permisos; el «6» de la etapa a cambia y no se dice
+    a cuánto.
+  - **`/api/start`**, que es el pedido de cada apertura y el que se repite al cambiar `p=`, no tiene
+    número. Hoy, con la sesión en memoria, no consulta la base. Con roles (nombres), permisos y
+    `lastRolesChange` (que muestra el nombre de quien hizo el cambio y los nombres de los roles,
+    según la maqueta) puede pasar a 2 o 3 si nada está en memoria.
+- **Qué propongo:** que § 18 dé el número de cada una con lo de arriba, y que § 22 diga cuántas hace
+  `/api/start` con la persona en memoria (idealmente cero) y sin ella.
+
+### b2.2 `/api/start` al cambiar `p=` no está en `mobile-data.md` (Frena)
+
+- **Dónde:** § 20, «Si cambia, la aplicación vuelve a pedir `/api/start`».
+- **Qué veo:** es un pedido que la aplicación hace sola, provocado por una cabecera; la constitución
+  (III) pide anotarlo antes en `mobile-data.md`, con lo que pesa, y que lo apruebe Carlos. Es raro
+  (solo cuando cambian los permisos) y chico (unos 400 bytes hoy; con roles y permisos, algo más),
+  así que debería pasar sin problema, pero tiene que estar.
+
+### b2.3 Cómo llega `p=` a la cabecera (Mejora)
+
+- **Dónde:** § 20 y § 24, tarea 1.
+- **Qué veo:** la cabecera la pone `stamp` de `platform/http.ts`, que corre en todos los pedidos de
+  `/api`, con o sin sesión. Para poner `p=` necesita los permisos de la sesión del pedido, que solo
+  existen si pasó `sessions.require`; `/api/start` usa `optionalSession` de `sign-in`, no el paso de
+  la plataforma, y tampoco lo pasan salir, vincular la huella ni la confirmación sin conexión. Así:
+  - hay pedidos con sesión que no llevan `p=`, y la aplicación tiene que ignorar la ausencia;
+  - la aplicación tiene que saber contra qué comparar el primero: si guarda «la última `p=` vista»,
+    un cambio entre `/api/start` y el primer pedido con `p=` no se nota. Conviene que `/api/start`
+    traiga la misma huella o que la función que la calcula esté en `src/shared/` y la aplicación la
+    calcule sobre los permisos que tiene.
+- **Qué propongo:** que el diseño diga dónde se calcula (el paso de sesión de la plataforma la deja
+  en el pedido, sumando una lectura de la memoria por pedido), qué pedidos la llevan y contra qué
+  compara la aplicación.
+
+Lo demás está bien medido: el paso de permisos sin consultas con la persona en memoria, `GET
+/api/roles` con 3 consultas fijas y una meta en ms y KB, y la pestaña y «Sin permiso» bajados recién
+al abrirse. El índice por `role_id` de `user_roles` sirve a `role-in-use`, `holders` y `GET
+/api/roles`; el único sobre `lower(name)`, al nombre repetido. No veo índices de más.
+
+## b3. Simpleza
+
+### b3.1 `last_roles_change`: historia en la base (Mejora)
+
+- **Dónde:** § 15.
+- **Qué veo:** un `jsonb` con `{ by, at, before, after }` en cada persona es historia, que la
+  constitución (V) manda a la auditoría. Y la mayor parte la tiene ya la aplicación: cuando detecta el
+  cambio (`p=`), tiene en memoria la persona de antes y recibe la de ahora, así que «los roles que
+  tenía y los que tiene» salen de comparar las dos, sin guardar nada. Solo «quién» lo hizo necesita al
+  servidor.
+- **Opciones:** (a) dejarlo como está, pero diciendo que es «el último cambio» (presente) y no
+  historia; (b) guardar solo `roles_changed_by` (y en el rol, quién cambió sus permisos, para b1.6) y
+  calcular lo demás en la aplicación. La (b) es más chica y cubre los dos casos de b1.6.
+
+### b3.2 Los permisos del Administrador por dos caminos (Mejora)
+
+- **Dónde:** § 15 («El traspaso … con todos los permisos de hoy, los anota en `known_permissions`»)
+  y § 16 («al arrancar, el servidor compara la lista con `known_permissions`»).
+- **Qué veo:** si la migración lista los permisos «de hoy», o los copia a mano (y queda congelada,
+  como debe ser una migración aplicada) o importa la lista viva (y una migración ya escrita cambia de
+  efecto con el tiempo). Las dos cosas son evitables: el arranque ya suma al rol `system` todo lo que
+  no está en `known_permissions`.
+- **Qué propongo:** que la migración cree el rol Administrador sin permisos, con `known_permissions`
+  vacía, y se lo dé a todos; el primer arranque le suma todos, por el mismo camino que un permiso
+  nuevo de mañana. Un solo camino, y E34, E51 y E53 se prueban igual. El comando del primer
+  Administrador corre las migraciones y no el arranque, pero en la instalación corre después de que el
+  servidor responde (§ 7), así que el rol ya tiene todo; que el diseño lo diga.
+
+### b3.3 Dar el rol desde el rol (Mejora)
+
+- **Dónde:** § 18, `POST /api/users/:id/roles` con todos los roles de la persona.
+- **Qué veo:** desde la tarjeta del rol se da o se saca ese rol a una o varias personas. Con la ruta de
+  la persona, la aplicación manda, por cada una, todos sus roles más o menos uno, con la versión de cada
+  persona: un pedido por persona, cada uno con su bloqueo y su conteo, y un `changed` si otra pantalla
+  tocó a cualquiera.
+- **Opciones:** `POST /api/roles/:id/holders { version, add, remove }`, con la versión del rol, en una
+  transacción, con el mismo control de § 19; la ruta de la persona queda para la tarjeta. Es una ruta
+  más, pero cada pantalla manda lo que cambia y no lo que no.
+
+### b3.4 `can()` en `sign-in` (Mejora)
+
+- **Dónde:** § 20, «`can(permission)` (de `sign-in`) la usan el marco y las pantallas».
+- **Qué veo:** hoy el marco recibe la persona (tipo de `shared/contracts/sign-in.ts`) y no importa
+  `sign-in`. Hacer que el marco y cada módulo importen `sign-in` para preguntar un permiso los ata a
+  él. `can(person, permission)` es una función pura sobre la lista de permisos: cabe en
+  `shared/contracts/permissions.ts` (también la puede usar el servidor), o en la plataforma de la
+  aplicación.
+
+Lo demás no tiene capas de más: `permissions.require` copia la forma de la sesión del pedido, y
+`known_permissions` es la forma más corta que encontré de saber «nuevo de verdad» sin que cada capítulo
+escriba en el esquema de `users`.
+
+## b4. Repetición
+
+### b4.1 La memoria de permisos repite la carrera de las sesiones (Frena)
+
+- **Dónde:** § 17, «La memoria de permisos … se borran al confirmar cualquier cambio».
+- **Qué veo:** es la misma carrera que la etapa a encontró y arregló en la memoria de sesiones (§ 6,
+  contador de cierres en `sessions/store.ts`): un pedido que no tiene a la persona en memoria lee sus
+  permisos de la base mientras otra transacción los cambia; la lectura ve los de antes, el cambio se
+  confirma y borra la memoria, y después el pedido guarda los viejos. Como la memoria no vence, el
+  permiso quitado sigue valiendo hasta el próximo cambio de roles de cualquiera: incumple R7.6 y es un
+  agujero de seguridad, no de vista. El diseño no dice nada.
+- **Qué propongo:** el mismo contador (subir antes y después de confirmar; guardar lo leído solo si no
+  cambió mientras se leía), con su prueba que mete un pedido en ese momento. Y, como ya son dos memorias
+  con la misma regla, una sola pieza en la plataforma («memoria que se invalida»), que es código común
+  y tarea propia; también la usaría la de b4.2.
+
+### b4.2 Dos memorias de la misma persona (Frena)
+
+- **Dónde:** § 17 («la persona de `/api/start` y de entrar lleva sus roles, sus permisos y su último
+  cambio, de la fachada de `users`»).
+- **Qué veo:** `sign-in` guarda en memoria la persona que da `/api/start` (`createPeople` en
+  `context.ts`) y la olvida solo con `user.deactivated` y `user.renamed`. Si ahí quedan los roles y
+  permisos, después de un cambio la cabecera `p=` (que sale de la memoria de `users`, ya al día)
+  cambia, la aplicación pide `/api/start`, que devuelve la persona vieja de la memoria de `sign-in`; la
+  `p=` del próximo pedido sigue sin coincidir y la aplicación vuelve a pedir `/api/start` en cada
+  respuesta. E48 no se cumple y el celular gasta datos sin parar.
+- **Opciones:** (a) que `sign-in` guarde solo lo que es suyo y tome roles, permisos y último cambio de
+  la fachada de `users` en cada `/api/start` (de su memoria, sin consultas), o directamente que la
+  fachada de `users` dé la persona entera (`personOf`) y `sign-in` deje de recordarla; (b) un evento
+  nuevo (`user.roles-changed`, y uno para los cambios de un rol, que olvida a todos) que `sign-in`
+  escucha. La (a) deja una sola memoria; la (b), dos que hay que mantener iguales.
+
+### b4.3 `confirmed()` y los rechazos (Mejora)
+
+- **Dónde:** § 18 («Lo que da acceso pide confirmar»; «Se anota como `users.rejected`, con el mismo
+  tope»).
+- **Qué veo:** `confirmed()` y `answer()` (con el tope por motivo y persona) están en
+  `users/routes.ts`. Las rutas de roles los necesitan iguales. Que el diseño diga que se reusan (por
+  ejemplo, que «confirmó hace menos de 5 minutos» pase al paso de sesión de la plataforma, junto a
+  `confirmedAt`), y no que se copian en el archivo de roles.
+
+## b5. Seguridad
+
+La sección «Seguridad» (§ 21) contesta quién puede, darse acceso, quién administra, lo que ve
+cualquiera, lo que entra de afuera y la auditoría. No dice qué datos nuevos toca (roles y permisos, sin
+datos personales nuevos; `holders` expone nombres) ni secretos (ninguno nuevo): conviene decirlo en
+una línea cada uno, como pide la constitución.
+
+### b5.1 Una ruta sin su permiso (Mejora, fuerte)
+
+- **Dónde:** § 21, «Una ruta nueva sin su paso es el riesgo: cada ruta … tiene una prueba que la pide
+  sin el permiso».
+- **Qué veo:** la defensa es una prueba por ruta, que alguien tiene que acordarse de escribir: una ruta
+  nueva sin paso y sin prueba pasa `pnpm check`. Cada capítulo que siga va a sumar rutas.
+- **Qué propongo:** que sea cerrado por defecto: una prueba (o un control de `pnpm check`) que recorra
+  las rutas registradas en `http` y falle si una de `/api` no tiene permiso declarado ni está en una
+  lista corta de las que solo piden sesión o nada (entrar, salir, `/api/start`, `holders`, el manual).
+  Así el olvido falla solo.
+
+### b5.2 Las claves foráneas (Frena)
+
+- **Dónde:** § 15.
+- **Qué veo:** el diseño da las claves primarias y un índice, no las foráneas. De ellas depende:
+  - borrar a quien nunca entró (R3.7, E15): sus filas de `user_roles` tienen que irse con ella
+    (`on delete cascade`) o la baja falla o quedan huérfanas;
+  - borrar un rol (E39): `user_roles.role_id` sin borrado en cascada (`restrict`) es la última palabra
+    si alguien se lo da a la vez (el bloqueo de § 19 ya lo frena, pero la base lo garantiza);
+    `role_permissions` sí en cascada;
+  - validar «contra la base» los ids de roles que llegan (§ 21): con la clave foránea alcanza, sin
+    consulta aparte (b2.1).
+- **Qué propongo:** escribirlas en la tabla de § 15.
+
+### b5.3 El rechazo por permiso desde la plataforma (Mejora)
+
+- **Dónde:** § 18, «Sin el permiso: `403` … Se anota como `users.rejected`».
+- **Qué veo:** el paso es de la plataforma y lo van a usar todos los módulos. Que un `403` en una ruta
+  de ventas quede como `users.rejected` confunde la auditoría, y la plataforma no debería conocer un
+  evento de `users`. Además el tope de `users.rejected` es por motivo y persona afectada
+  (`target`), que en otras rutas no existe.
+- **Qué propongo:** un evento propio de la plataforma (`permission.denied`, con la ruta y el permiso),
+  con su tope por sesión y permiso.
+
+### b5.4 La auditoría de roles con ids (Mejora)
+
+- **Dónde:** § 21 (`user.roles-changed` «con antes y después») y § 15 (`before`, `after`: ids).
+- **Qué veo:** si se guardan solo ids, un rol borrado después deja la línea sin poder leerse (la
+  auditoría no se modifica). R6.1 pide «lo que había antes y lo que quedó».
+- **Qué propongo:** guardar id y nombre de cada rol en `user.roles-changed` y `user.authorized`, y en
+  `role.changed` los permisos por id (que son fijos) más el nombre y la descripción de antes y después.
+
+### b5.5 Límites de pedidos (Mejora)
+
+- **Dónde:** § 18 y § 21.
+- **Qué veo:** la etapa a pone 60 cambios por minuto por sesión en Usuarios; el diseño no dice si las
+  rutas de roles entran en ese mismo límite (deberían, con la misma clave). `holders` es un `GET` con
+  sesión y dos consultas: no le veo riesgo, pero conviene decir que no lleva límite y por qué.
+
+### b5.6 Solo un rol `system` (Mejora)
+
+- **Dónde:** § 15.
+- **Qué veo:** nada impide dos filas con `system = true` (una migración o un arreglo a mano). El
+  bloqueo de § 19 toma «la fila del rol `system`»: con dos, el bloqueo deja de ser uno solo.
+- **Qué propongo:** un índice único parcial (`where system`), o que el bloqueo sea de otra cosa fija
+  (`pg_advisory_xact_lock` con una clave), que no depende de una fila.
+
+El resto está bien: el servidor decide cada pedido; darse acceso pide «Administrar roles» y Google o
+la huella reciente; § 19 controla el último administrador y el «sí mismo» en una transacción con un
+solo bloqueo; los ids de permisos se validan contra la lista; la entrada se acota. El control de R3.8
+en `POST /api/roles/:id` y `POST /api/users/:id/roles` depende de comparar con lo que había
+(«agregar» contra «quitar»): que el diseño diga que esa comparación se hace dentro de la transacción,
+después del bloqueo, y que el `403 confirm-first` deshace todo.
+
+## b6. Fronteras
+
+No veo imports entre módulos que salteen la fachada: `permissions.require` sigue la forma de la sesión
+del pedido (la plataforma recibe de `users` cómo saber los permisos), `sign-in` toma roles y permisos
+de la fachada de `users`, y la lista de permisos está en `shared/`. Dos cosas ya dichas: `can()` en
+`sign-in` ata el marco y los módulos de la aplicación a `sign-in` (b3.4), y el rechazo por permiso
+anota un evento de `users` desde la plataforma (b5.3). Las reglas que propone (`roles.ts`: nombre
+único, al menos un permiso, lo incluido, quedar sin quien administre) no dependen de la tecnología,
+siempre que el conteo de § 19 decida en `roles.ts` con lo que le da `data.ts`, y no en SQL.
+
+## b7. Sin conexión, hora y escala
+
+### b7.1 La memoria de permisos y la escala (Mejora)
+
+- **Dónde:** § 17, «Un servidor solo (constitución, IX)».
+- **Qué veo:** la arquitectura («Escala») lista las tres piezas que cambian con varias copias del
+  servidor (sesiones, avisos, auditoría). La memoria de permisos es una cuarta, con la misma forma: una
+  copia no se entera de que otra cambió un rol, y el permiso quitado sigue valiendo en ella.
+- **Qué propongo:** que quede detrás de la misma pieza de la plataforma que b4.1 propone, y que la
+  arquitectura la sume a la lista (que cambie a `LISTEN/NOTIFY` junto con los avisos).
+
+El módulo no atiende clientes ni proveedores. Lo que toca de sin conexión (R7.9, 15 · R3.1) está en
+b1.4 y b1.5; con eso, sumar la cola sin conexión del 15 no obliga a rehacer nada, porque el servidor
+igual pasa cada pedido por el paso de permisos. La hora de `last_roles_change.at` la pone el servidor.
+Con 100 personas y 20 roles, el bloqueo único de § 19 no se nota (son cambios raros) y el conteo es
+una consulta sobre tablas chicas.
+
+## b8. Mejoras
+
+- **Un código para «sin permisos» y «sin nombre» en un rol.** § 18 da `400` genérico a un rol sin
+  permisos, mientras que a una persona sin roles le da `no-roles`. E37 pide «se dice por qué»: si la
+  aplicación lo comprueba antes de mandar, alcanza con el `400`; si no, conviene `no-permissions`,
+  simétrico.
+- **La baja y la memoria de permisos.** § 17 borra la memoria en una baja; que la borre también en el
+  alta, así no queda guardado el «sin permisos» de una persona dada de baja.
+- **El arranque que suma permisos y varias copias.** Si dos arranques corren a la vez, la inserción en
+  `known_permissions` con `on conflict do nothing` y sumar al rol solo lo que se insertó evita
+  duplicados. Hoy hay una sola copia; que quede escrito.
+- **La introducción del diseño.** Dice que «ya incorpora» las revisiones; para la etapa b todavía
+  no: conviene que lo diga hasta el paso 5.
+- **La prueba de punta a punta propuesta** (§ 23) está bien justificada (dos navegadores, la memoria
+  del servidor y la cabecera); con b4.2 resuelto, además, es la que atraparía el bucle de `/api/start`.
