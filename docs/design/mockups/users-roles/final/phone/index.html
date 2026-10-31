@@ -77,8 +77,16 @@
   .rol .desc-rol { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 2px; }
   .cab .desc-rol { margin-top: 4px; }
   .edicion { display: grid; gap: 8px; }
-  .hoja .sec-cab { margin-top: 16px; min-height: 0; }
-  .hoja .grupos { margin-top: 8px; }
+  /* Nuevo rol: página que entra desde la derecha, con los botones fijos abajo */
+  .pag-nuevo { position: absolute; left: 0; right: 0; top: 44px; bottom: 76px; background: var(--fondo); z-index: 21; display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--t-nav) var(--curva); visibility: hidden; }
+  .pag-nuevo.abierta { transform: none; visibility: visible; box-shadow: -12px 0 24px -16px rgba(26,29,27,.25); }
+  .nuevo-cuerpo { flex: 1; overflow: auto; padding: 4px 16px 24px; }
+  .nuevo-cuerpo h2 { margin: 0; font-size: 24px; line-height: 30px; }
+  .nuevo-cuerpo .lead { margin: 4px 0 0; color: var(--texto-2); font-size: 15px; line-height: 22px; }
+  .nuevo-cuerpo .sec-cab { margin-top: 20px; min-height: 0; }
+  .nuevo-cuerpo .grupos { margin-top: 8px; }
+  .nuevo-pie { display: grid; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--borde); background: var(--superficie); }
+  .nuevo-pie .btn { width: 100%; }
   .grupo-perms .permiso { box-shadow: none; }
 </style>
 </head>
@@ -107,16 +115,20 @@
   </nav>
   <span class="home-ind"></span>
 
-  <section class="hoja" id="h-rol" role="dialog" aria-modal="true">
-    <div class="asa"></div>
-    <h2 id="h-rol-t">Nuevo rol</h2>
+  <!-- Rol nuevo o duplicado: una página que entra desde la derecha, como la del rol, no una hoja.
+       Nada se guarda hasta «Crear el rol» (R7.3, E38) -->
+  <section class="pag-nuevo zona-red" id="h-rol" aria-labelledby="h-rol-t">
+    <div class="pag-cab"><button class="volver" data-cancelar-nuevo><i class="i" data-i="chevron-left"></i>Roles</button></div>
+    <div class="nuevo-cuerpo">
+    <h2 class="t-titulo" id="h-rol-t">Nuevo rol</h2>
     <p class="lead" id="h-rol-lead">Un nombre y lo que deja hacer.</p>
     <div class="campo-real" style="margin-top:16px"><label for="h-nombre">Nombre</label><input id="h-nombre" placeholder="Por ejemplo, Encargado de depósito" autocomplete="off" enterkeyhint="next"><div class="err" id="h-nombre-err" hidden><i class="i i-s" data-i="circle-alert"></i><span></span></div></div>
     <div class="campo-real campo-desc" style="margin-top:16px"><label for="h-desc">Descripción (si querés)</label><textarea id="h-desc" rows="2" maxlength="200" placeholder="Para quién es" enterkeyhint="done"></textarea><div class="ayuda"><span>Se ve en la lista y al elegir los roles de alguien.</span><span class="contador" id="h-desc-n">0 / 200</span></div></div>
     <div class="sec-cab"><span class="t-renglon">Qué deja hacer</span></div>
     <div class="grupos" id="h-perms"></div>
     <div class="err" id="h-perms-err" hidden><i class="i i-s" data-i="circle-alert"></i><span>Elegí al menos un permiso.</span></div>
-    <div class="pie-d"><button class="btn" data-cerrar>Cancelar</button><button class="btn btn-accion" id="h-crear">Crear el rol</button></div>
+    </div>
+    <div class="nuevo-pie"><button class="btn btn-accion grande" id="h-crear"><i class="i" data-i="shield-plus"></i>Crear el rol</button><button class="btn" data-cancelar-nuevo>Cancelar</button></div>
   </section>
 
   <section class="hoja" id="h-dar" role="dialog" aria-modal="true">
@@ -266,8 +278,10 @@
     var n = document.getElementById("h-nombre"); n.value = from ? from.name + " (copia)" : "";
     hDesc.value = from ? (from.desc || "") : ""; countDesc();
     document.getElementById("h-nombre-err").hidden = true; n.parentNode.classList.remove("mal"); document.getElementById("h-perms-err").hidden = true;
-    drawDraft(); R.open(hRol);
+    drawDraft(); hRol.querySelector(".nuevo-cuerpo").scrollTop = 0; hRol.classList.add("abierta");
   }
+  function closeRole() { hRol.classList.remove("abierta"); }
+  document.addEventListener("click", function (e) { if (e.target.closest("[data-cancelar-nuevo]")) closeRole(); });
   var hDesc = document.getElementById("h-desc"), hDescN = document.getElementById("h-desc-n");
   function countDesc() { hDescN.textContent = hDesc.value.length + " / " + R.DESC_MAX; hDescN.classList.toggle("lleno", hDesc.value.length >= R.DESC_MAX); }
   hDesc.addEventListener("input", countDesc);
@@ -303,9 +317,9 @@
     if (why) { ne.hidden = false; ne.querySelector("span").textContent = why; n.parentNode.classList.add("mal"); bad = true; } else { ne.hidden = true; n.parentNode.classList.remove("mal"); }
     if (!draft.perms.length) { document.getElementById("h-perms-err").hidden = false; bad = true; }
     if (bad) return;
-    var name = n.value.trim(), desc = hDesc.value.trim(), perms = draft.perms.slice(); R.close();
+    var name = n.value.trim(), desc = hDesc.value.trim(), perms = draft.perms.slice();
     R.reauth("Crear el rol «" + name + "»", function () {
-      var id = "r" + Date.now(); R.roles.push({ id: id, name: name, desc: desc, perms: perms, people: [], last: "Lo creaste recién" });
+      closeRole(); var id = "r" + Date.now(); R.roles.push({ id: id, name: name, desc: desc, perms: perms, people: [], last: "Lo creaste recién" });
       pag.classList.remove("abierta"); sel = null; redraw(id);
       R.toast("Rol «" + name + "» creado");
       var f = lista.querySelector('[data-id="' + id + '"]'); if (f) f.scrollIntoView({ block: "nearest", behavior: "smooth" });

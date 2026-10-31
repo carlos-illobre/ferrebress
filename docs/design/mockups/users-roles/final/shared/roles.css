@@ -113,7 +113,14 @@ body.alt .kbd { display: inline-flex !important; }
 .grupo-p.con .grupo-cab .cuenta { color: var(--pino-texto); }
 .grupo-cab .giro { color: var(--texto-3); transition: transform var(--t) var(--curva); }
 .grupo-cab[aria-expanded="true"] .giro { transform: rotate(180deg); }
-.grupo-perms { display: grid; gap: 8px; padding: 0 12px 12px; }
+/* Adentro del grupo, cada permiso es un renglón sin borde propio: el único borde es el del grupo
+   (Carlos: «hiciste 3 bordes, queda mal»). Abierto, el grupo muestra sus permisos sobre un fondo
+   hundido, como en la referencia. */
+.grupo-perms { display: grid; gap: 2px; margin: 0 8px 8px; padding: 4px; border-radius: var(--r); background: var(--hundido); }
+.grupo-perms .permiso { border: 0; border-radius: var(--r-chico); background: none; box-shadow: none; padding: 10px 8px; cursor: pointer; }
+.grupo-perms .permiso.on { background: none; }
+.grupo-perms .permiso .ic { background: none; width: 24px; height: 24px; }
+.grupo-perms .permiso.on .ic { background: none; }
 .grupo-perms[hidden] { display: none; }
 .grupo-perms.abre { animation: abre-grupo var(--t) var(--curva); }
 @keyframes abre-grupo { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }

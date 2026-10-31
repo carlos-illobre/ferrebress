@@ -95,8 +95,17 @@
   .edicion { display: grid; gap: 8px; }
   .edicion .campo-desc textarea { min-height: 64px; }
   .nombre-ed .kbd { margin-left: 2px; }
-  .dialogo .sec-cab { margin-top: 16px; min-height: 0; }
-  .dialogo .grupos { margin-top: 8px; }
+  /* Nuevo rol y Duplicar: en el lugar de la tarjeta, con los botones fijos abajo */
+  .izq { grid-column: 1; grid-row: 1; }
+  #ficha, .nuevo-rol { grid-column: 2; grid-row: 1; }
+  #ficha[hidden], .nuevo-rol[hidden] { display: none; }
+  .nuevo-rol { display: flex; flex-direction: column; min-height: 0; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-2); overflow: hidden; }
+  .nuevo-cuerpo { flex: 1; min-height: 0; overflow: auto; padding: 20px; display: grid; gap: 18px; align-content: start; }
+  .nuevo-rol h2 { margin: 0; }
+  .nuevo-rol .lead { margin: 2px 0 0; color: var(--texto-2); font-size: 14px; line-height: 20px; }
+  .nuevo-rol .grupos { margin-top: 0; }
+  .grupo-perms .permiso { grid-template-columns: 24px 1fr auto; }
+  .nuevo-pie { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--borde); background: var(--superficie); }
   .dialogo:focus { outline: none; }
   /* Entre 900 px (el corte: debajo va la disposición del celular) y 1200 px: la tarjeta se angosta,
      los dos números van uno al lado del otro arriba de «Quién puede qué», y los renglones de la
@@ -149,20 +158,21 @@
         <div id="lista" role="listbox" aria-label="Roles"></div>
       </div>
       <aside id="ficha" class="zona-red" aria-label="El rol elegido"></aside>
+      <!-- Rol nuevo o duplicado: se despliega en el lugar de la tarjeta, no en un diálogo.
+           Nada se guarda hasta «Crear el rol» (R7.3, E38) -->
+      <section class="nuevo-rol zona-red" id="d-rol" aria-labelledby="d-rol-t" hidden>
+        <div class="nuevo-cuerpo">
+          <div class="cab"><span class="escudo"><i class="i" data-i="shield-plus"></i></span><div class="q"><h2 class="t-seccion" id="d-rol-t">Nuevo rol</h2><p class="lead" id="d-rol-lead">Un nombre y lo que deja hacer. Después se lo das a las personas.</p></div></div>
+          <div class="campo-real"><label for="d-nombre">Nombre</label><input id="d-nombre" placeholder="Por ejemplo, Encargado de depósito" autocomplete="off"><div class="err" id="d-nombre-err" hidden><i class="i i-s" data-i="circle-alert"></i><span></span></div></div>
+          <div class="campo-real campo-desc"><label for="d-desc">Descripción, si querés</label><textarea id="d-desc" rows="2" maxlength="200" placeholder="Para quién es. Por ejemplo: Atiende el mostrador y cobra; no ve costos"></textarea><div class="ayuda"><span>Se ve en la lista de roles y al elegir los roles de una persona.</span><span class="contador" id="d-desc-n">0 / 200</span></div></div>
+          <div class="sec"><div class="sec-cab"><span class="t-renglon">Qué deja hacer</span><span class="t-detalle">↑ ↓ y Enter</span></div>
+            <div class="grupos" id="d-perms"></div>
+            <div class="err" id="d-perms-err" hidden><i class="i i-s" data-i="circle-alert"></i><span>Elegí al menos un permiso.</span></div></div>
+        </div>
+        <div class="nuevo-pie"><button class="btn btn-fantasma" id="d-cancelar">Cancelar <span class="kbd claro">Esc</span></button><button class="btn btn-accion" id="d-crear">Crear el rol <span class="kbd">Enter</span></button></div>
+      </section>
     </section>
   </main>
-</div>
-
-<!-- Rol nuevo o duplicado: nada se guarda hasta «Crear el rol» (R7.3, E38) -->
-<div class="dialogo" id="d-rol" role="dialog" aria-modal="true" aria-labelledby="d-rol-t">
-  <h2 id="d-rol-t">Nuevo rol</h2>
-  <p class="lead" id="d-rol-lead">Un nombre y lo que deja hacer. Después se lo das a las personas.</p>
-  <div class="campo-real" style="margin-top:16px"><label for="d-nombre">Nombre</label><input id="d-nombre" placeholder="Por ejemplo, Encargado de depósito" autocomplete="off"><div class="err" id="d-nombre-err" hidden><i class="i i-s" data-i="circle-alert"></i><span></span></div></div>
-  <div class="campo-real campo-desc" style="margin-top:16px"><label for="d-desc">Descripción, si querés</label><textarea id="d-desc" rows="2" maxlength="200" placeholder="Para quién es. Por ejemplo: Atiende el mostrador y cobra; no ve costos"></textarea><div class="ayuda"><span>Se ve en la lista de roles y al elegir los roles de una persona.</span><span class="contador" id="d-desc-n">0 / 200</span></div></div>
-  <div class="sec-cab"><span class="t-renglon">Qué deja hacer</span><span class="t-detalle">Por parte de la aplicación · ↑ ↓ y Enter</span></div>
-  <div class="grupos" id="d-perms"></div>
-  <div class="err" id="d-perms-err" hidden><i class="i i-s" data-i="circle-alert"></i><span>Elegí al menos un permiso.</span></div>
-  <div class="pie-d"><button class="btn btn-fantasma" data-cerrar>Cancelar <span class="kbd claro">Esc</span></button><button class="btn btn-accion" id="d-crear">Crear el rol <span class="kbd">Enter</span></button></div>
 </div>
 
 <!-- Darle este rol a alguien -->
@@ -283,7 +293,7 @@
 
   function redraw(entering, animateCard) { drawQp(); drawList(entering); drawCard(animateCard); }
 
-  function choose(id) { sel = id; editing = false; warn = null; if (marca && marca.root === ficha) marca = null; drawList(); drawCard(true); }
+  function choose(id) { if (!dRol.hidden) { dRol.hidden = true; ficha.hidden = false; } sel = id; editing = false; warn = null; if (marca && marca.root === ficha) marca = null; drawList(); drawCard(true); }
 
   lista.addEventListener("click", function (e) { var f = e.target.closest(".fila"); if (f) choose(f.dataset.id); });
 
@@ -353,9 +363,17 @@
     dDesc.value = from ? (from.desc || "") : ""; countDesc();
     document.getElementById("d-nombre-err").hidden = true; n.parentNode.classList.remove("mal");
     document.getElementById("d-perms-err").hidden = true;
-    marca = null; drawDraft(); R.open(dRol);
-    setTimeout(function () { n.focus(); n.select(); }, 80);
+    marca = null; drawDraft(); showForm(true);
+    n.focus(); n.select();
   }
+  // El formulario ocupa el lugar de la tarjeta; Cancelar (o Esc) vuelve a la tarjeta del rol elegido
+  function showForm(on) {
+    dRol.hidden = !on; ficha.hidden = on;
+    var el = on ? dRol : ficha; el.classList.remove("fundido"); void el.offsetWidth; el.classList.add("fundido");
+    if (on) dRol.querySelector(".nuevo-cuerpo").scrollTop = 0;
+  }
+  function cancelForm() { marca = null; showForm(false); }
+  document.getElementById("d-cancelar").addEventListener("click", cancelForm);
   function drawDraft(opening) {
     var box = document.getElementById("d-perms");
     box.innerHTML = R.GROUPS.map(function (g) {
@@ -386,8 +404,9 @@
   // ↑ ↓ recorren los grupos y los permisos a la vista; Enter abre el grupo o cambia el permiso marcado.
   // Sin nada marcado, Enter en el nombre o en la descripción crea el rol (00 · R2.4, R2.6).
   document.addEventListener("keydown", function (e) {
-    if (!dRol.classList.contains("abierto") || document.querySelector("#reauth.abierto")) return;
+    if (dRol.hidden || R.isOpen()) return;
     var box = document.getElementById("d-perms");
+    if (e.key === "Escape") { e.preventDefault(); cancelForm(); return; }
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       if (e.target.tagName === "TEXTAREA") return;
       e.preventDefault();
@@ -406,9 +425,9 @@
     if (!draft.perms.length) { document.getElementById("d-perms-err").hidden = false; bad = true; }
     if (bad) { dRol.classList.remove("no"); void dRol.offsetWidth; return; }
     var name = n.value.trim(), desc = dDesc.value.trim(), perms = draft.perms.slice();
-    R.close(); marca = null;
+    marca = null;
     R.reauth("Crear el rol «" + name + "»", function () {
-      var id = "r" + Date.now();
+      var id = "r" + Date.now(); dRol.hidden = true; ficha.hidden = false;
       R.roles.push({ id: id, name: name, desc: desc, perms: perms, people: [], last: "Rubén Paredes lo creó · recién" });
       sel = id; editing = false; warn = null; redraw(id, true);
       R.toast("Rol «" + name + "» creado. Dáselo a quien corresponda.");
@@ -481,7 +500,7 @@
      ↑ ↓ recorren los interruptores y los «Sacárselo» (uno por renglón, sin tecla Alt, como
      «Cerrar» y «Quitar» en Usuarios, 02 · R5.8), Enter toca el marcado y ← o Esc vuelven ---- */
   document.addEventListener("keydown", function (e) {
-    if (R.isOpen() || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (R.isOpen() || !dRol.hidden || e.altKey || e.ctrlKey || e.metaKey) return;
     if (/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
     var inCard = marca && marca.root === ficha && marked();
     var items = [].slice.call(ficha.querySelectorAll("[data-perm], [data-quitar]"));
@@ -511,10 +530,11 @@
 
   document.getElementById("btn-nuevo").addEventListener("click", function () { openRole(null); });
   R.keys.u = function () { openRole(null); }; // Alt N es Negocio en el menú
-  R.keys.d = function () { openRole(R.role(sel)); };
-  R.keys.r = startEdit;
-  R.keys.g = openGive;
-  R.keys.b = openDelete;
+  function onCard(f) { return function () { if (dRol.hidden) f(); }; } // con el rol nuevo a la vista, la tarjeta no está
+  R.keys.d = onCard(function () { openRole(R.role(sel)); });
+  R.keys.r = onCard(startEdit);
+  R.keys.g = onCard(openGive);
+  R.keys.b = onCard(openDelete);
 
   redraw();
 })();

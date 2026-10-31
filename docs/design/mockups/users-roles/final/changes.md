@@ -17,7 +17,7 @@ Capturas:
   - `screenshot-alt.png`: con Alt apretado.
   - `screenshot-keyboard-card.png`: la marca del teclado en un interruptor de la tarjeta.
   - `screenshot-edit.png`: cambiando el nombre y la descripción.
-  - `screenshot-new-role.png`: «Nuevo rol», con los permisos agrupados.
+  - `screenshot-new-role.png`: «Nuevo rol», en el lugar de la tarjeta.
   - `screenshot-new-role-error.png`: crear sin nombre ni permisos.
   - `screenshot-created.png`: el rol recién creado.
 - Celular:
@@ -25,20 +25,34 @@ Capturas:
   - `screenshot-phone-role.png`: la página de un rol.
   - `screenshot-phone-edit.png`: cambiando el nombre y la descripción.
   - `screenshot-phone-new-role.png`: «Nuevo rol», con los permisos agrupados.
+  - `screenshot-phone-duplicate.png`: «Duplicar», en su página.
 
 ## Por directivas de Carlos
 
+- **«Nuevo rol» y «Duplicar» no son un diálogo:** se despliegan en su lugar, como en Copilot
+  (`../reference/copilot-new-role.webp`), donde crear un rol tiene su propio lugar. En la variante
+  eran un diálogo encima de la pantalla.
+  - En la computadora, el formulario ocupa el lugar de la tarjeta del rol, con la misma forma y el
+    mismo fundido. «Cancelar» y «Crear el rol» quedan fijos abajo y el resto se desplaza.
+    «Cancelar», Esc o elegir otro rol de la lista vuelven a la tarjeta sin crear nada.
+  - En el celular, es una página que entra desde la derecha, como la de cada rol, con «‹ Roles»
+    arriba y «Crear el rol» y «Cancelar» fijos abajo. En la variante era una hoja de abajo.
+  - Si se cancela «Confirmá que sos vos», el formulario sigue ahí con lo escrito.
+- **Dos bordes y un gris que remarca los permisos,** como en Copilot
+  (`../reference/copilot-borders.png`), y no tres. El primer borde es el del formulario y el
+  segundo, el de cada grupo. Al abrir un grupo, sus permisos van sobre un fondo gris (`--hundido`), como renglones sin borde,
+  sin fondo propio al estar prendidos y con el ícono sin su cuadrado.
 - **En «Nuevo rol», los permisos van agrupados por parte de la aplicación,** para que sean más
-  fáciles de encontrar. Es lo único que se toma de la referencia de Copilot
-  (`../reference/copilot-grouped-permissions.png`):
+  fáciles de encontrar (`../reference/copilot-grouped-permissions.png`):
   - Cada parte es un renglón que se abre y se cierra. Muestra su ícono, su nombre, qué abarca y
     cuántos permisos tiene tildados («2 de 4»). La flecha gira al abrirlo.
-  - Al abrir el diálogo, el primer grupo está abierto y los demás, cerrados, como en la referencia.
-  - Adentro, cada permiso se ve como en la variante 1: el interruptor con su explicación, el
-    candado de «Va incluido en…» y el sacudón si no se puede.
+  - Al abrir el formulario, el primer grupo está abierto y los demás, cerrados, como en la referencia.
+  - Adentro, cada permiso conserva lo de la variante 1: el interruptor con su explicación, el
+    candado de «Va incluido en…» y el sacudón si no se puede. Lo que cambia es la caja (el punto
+    anterior).
   - De Copilot no se toman las casillas, las dos columnas, los textos ni los permisos de ejemplo.
-  - Lo mismo vale para «Duplicar», que usa el mismo diálogo.
-  - Arriba de los grupos se agregó el título «Qué deja hacer», el mismo que usa la tarjeta.
+  - Lo mismo vale para «Duplicar», que usa el mismo formulario.
+  - Arriba de los grupos va el título «Qué deja hacer», el mismo que usa la tarjeta.
 - **La tarjeta del rol muestra sus permisos bajo el nombre de su parte** («Usuarios 2 de 4», «Sin
   conexión 1 de 1»). En la variante decía «Parte Usuarios» una sola vez, porque había una sola
   parte. Los grupos de la tarjeta no se abren ni se cierran: el resto queda como en la variante,
@@ -70,8 +84,10 @@ Capturas:
 - **«Nuevo rol» pasó de Alt N a Alt U (00 · R2.10):** Alt N es Negocio en el menú. Es la misma
   tecla que «Autorizar a alguien» en la pestaña Usuarios, que también es su botón principal.
 - **Todo botón tiene su atajo (00 · R2.8):** «Borrar» suma Alt B. Si el rol no se puede borrar,
-  se sacude y el porqué sigue al lado. El lápiz muestra Alt R, que ya andaba. En los diálogos,
-  «Cancelar» lleva Esc y «Crear el rol» y «Darle el rol» llevan Enter, como en Usuarios.
+  se sacude y el porqué sigue al lado. El lápiz muestra Alt R, que ya andaba. En «Nuevo rol» y
+  en los diálogos, «Cancelar» lleva Esc y «Crear el rol» y «Darle el rol» llevan Enter, como en Usuarios.
+- **Mientras el rol nuevo está a la vista,** valen sus teclas y no las de la tarjeta que tapa (00 ·
+  R2.10): Alt D, G, R y B no hacen nada, y las flechas de la lista tampoco.
 - **Los interruptores y los «Sacárselo» de la tarjeta no llevan tecla Alt:** se repiten por
   renglón y se recorren con las flechas, como «Cerrar» y «Quitar» en Usuarios (02 · R5.8, 00 ·
   R2.4, R2.6):
@@ -82,15 +98,16 @@ Capturas:
   - En la variante, ↑ ↓ andaban solo con el cursor en la lista y la tarjeta no se podía usar sin
     el mouse. El texto de ayuda de la lista ahora dice «↑ ↓ recorren los roles · → entra a la
     tarjeta», y el de la tarjeta, «→ y ↑ ↓ para recorrer · Enter cambia».
-- **En los diálogos, las flechas marcan y el cursor no se mueve (00 · R2.1, R2.6):**
-  - En «Nuevo rol», ↑ ↓ recorren los grupos y los permisos a la vista. Enter abre o cierra el grupo
-    marcado o cambia el permiso marcado. Sin nada marcado, Enter en el nombre o en la descripción
-    crea el rol.
+- **En «Nuevo rol» y en «Darle este rol», las flechas marcan y el cursor no se mueve (00 · R2.1, R2.6):**
+  - En «Nuevo rol», ↑ ↓ recorren los grupos y los
+    permisos a la vista. Enter abre o cierra el grupo marcado o cambia el permiso marcado. Sin nada
+    marcado, Enter en el nombre o en la descripción crea el rol. Al abrir, el cursor está en el
+    nombre (00 · R2.2).
   - En «Darle este rol», ↑ ↓ recorren las personas y Enter tilda la marcada. Sin nada marcado,
     Enter le da el rol. Al abrir, el cursor queda en el diálogo y no en «Cancelar».
-- **En el celular, ninguna hoja arranca con el cursor en una caja (00 · R2.12):** en la variante,
-  «Nuevo rol» ponía el cursor en el nombre y se abría el teclado solo. Ahora el cursor va al
-  primer botón.
+- **En el celular, nada arranca con el cursor en una caja (00 · R2.12):** en la variante, la hoja
+  de «Nuevo rol» ponía el cursor en el nombre y se abría el teclado solo. La página nueva no pone
+  el cursor en ninguna caja.
 
 ## Por la tecnología y el lugar
 
