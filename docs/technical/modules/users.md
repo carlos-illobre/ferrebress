@@ -1,8 +1,8 @@
-# Diseño técnico · 02 · Personas (`users`), etapa a
+# Diseño técnico · 02 · Personas (`users`)
 
-Cómo se construye la etapa a del capítulo [02 · Personas](../../chapters/02-users/rules.md):
-personas y sesiones, con el único rol Administrador. La etapa b (roles y permisos) tendrá su propia
-parte de este diseño. **Aprobado por Carlos.** Las
+Cómo se construye el capítulo [02 · Personas](../../chapters/02-users/rules.md). Las secciones 1 a 13
+son la etapa a (personas y sesiones), **aprobada por Carlos**; las 14 a 24, la etapa b (roles y
+permisos), **por revisar**. Las
 revisiones independientes están en [users-design-review.md](users-design-review.md) y
 [users-security-review.md](users-security-review.md); este diseño ya las incorpora.
 
@@ -348,3 +348,201 @@ dispositivo» con su próximo pedido. Cruza dos navegadores, la cookie y la memo
 - **«Dada de alta de nuevo hoy»,** que mostraba la maqueta, es historia: va en la auditoría. La tarjeta
   muestra «Dada de baja el …» mientras lo está; al darla de alta, nada (lo decidió Carlos).
 - **La prueba de punta a punta** propuesta en § 11 está aprobada.
+
+---
+
+# Etapa b · roles y permisos
+
+## 14. Qué resuelve
+
+- **El capítulo 02, etapa b:** R7 completa y los cambios a R1.1, R1.3, R2.1, R3.1, R3.3, R3.8, R5.1 y
+  R6.1, con E34 a E57 y los escenarios de la etapa a que cambian (E01, E03 a E06).
+- **Lo que cambia en otros capítulos:** el menú esconde lo que no se puede usar y abre la primera
+  opción permitida (00 · R1.4, R1.8); «Trabajar sin conexión» pasa a pedir su permiso (15 · R1.2).
+- **No resuelve:** el modo llavero (T114), la pantalla de la auditoría (05), las sesiones propias en
+  Configuración (04) ni pedir un permiso desde la aplicación (Carlos lo descartó).
+
+## 15. Entidades
+
+Migración `003-roles` del esquema `users`:
+
+| Tabla | Columnas | Para qué |
+|---|---|---|
+| `users.roles` | `id` uuid, `name` (hasta 40 letras), `description` (hasta 200, nula), `system` boolean, `version` integer, `created_at` | Los roles (R7.3). `system` marca al Administrador: no se borra y recibe los permisos nuevos (R7.4). Índice único sobre `lower(name)` |
+| `users.role_permissions` | `role_id`, `permission` (texto, el id del permiso); clave de los dos | Qué permisos da cada rol |
+| `users.user_roles` | `user_id`, `role_id`; clave de los dos; índice por `role_id` | Qué roles tiene cada persona (R7.5) |
+| `users.known_permissions` | `permission`, clave | Los permisos que el sistema ya conoce, para saber cuáles son nuevos (§ 16) |
+| `users.users` | `last_roles_change` jsonb, nula: `{ by, at, before, after }` (ids de roles) | Lo que muestra «Ya no tenés permiso» (R7.8): quién y qué cambió la última vez |
+
+- **El traspaso** (R7.10): crea el rol Administrador (`system = true`) con todos los permisos de hoy,
+  los anota en `known_permissions` y se lo da a todas las personas que ya existen.
+- **El primer Administrador** (R1.2): el comando y la carga de las pruebas de punta a punta le dan el
+  rol `system`.
+
+## 16. Los permisos
+
+- **Una lista fija en el código,** compartida por el servidor y la aplicación:
+  `src/shared/contracts/permissions.ts`. Cada permiso tiene su id en inglés, la parte a la que
+  pertenece, su nombre y su explicación en castellano (los de R7.1 y 15 · R1.2) y los que incluye:
+
+  | Id | Nombre | Parte | Incluye |
+  |---|---|---|---|
+  | `users.view` | Ver las personas | Usuarios | |
+  | `users.manage` | Administrar personas | Usuarios | `users.view` |
+  | `users.cut` | Cortar sesiones y huellas | Usuarios | `users.view` |
+  | `roles.manage` | Administrar roles | Usuarios | |
+  | `offline.work` | Trabajar sin conexión | Sin conexión | |
+
+  Cada capítulo que llega suma sus filas ahí, con la parte nueva.
+- **Un permiso nuevo** (R7.4): al arrancar, el servidor compara la lista con `known_permissions`; los
+  que faltan se anotan y se le suman al rol `system`, en una transacción. Así un permiso que alguien
+  le sacó al Administrador no vuelve solo: solo se suman los nuevos de verdad.
+- **«Incluye»** se guarda tildado (R7.1): al guardar un rol, el servidor agrega lo incluido; la
+  pantalla lo muestra con candado. Un permiso que ya no está en la lista se ignora al leer y lo borra
+  el arranque.
+- **Lo que no pide permiso** (R7.2) no tiene id: esas rutas solo piden sesión.
+
+## 17. Dónde vive cada cosa
+
+- **`users`** tiene los roles, sus permisos, quién los tiene y las reglas (`roles.ts`: el nombre único,
+  al menos un permiso, lo incluido, quedar sin quien administre). Su fachada suma
+  `permissionsOf(userId)`, que devuelve los permisos de la persona activa (unión de sus roles).
+- **La plataforma** suma el paso `permissions.require(id)` (`platform/permissions.ts`), como la sesión
+  del pedido: `users` le da cómo saber los permisos de alguien y cualquier módulo lo pide en sus
+  rutas sin importar a `users`. Va después de `sessions.require`.
+- **La memoria de permisos:** `users` guarda los permisos de cada persona en memoria; se borran al
+  confirmar cualquier cambio de roles, de sus permisos, de quién los tiene o una baja. Un servidor
+  solo (constitución, IX): vale desde el próximo pedido (R7.6) sin consultas extra.
+- **`sign-in`** deja de inventar `role: 'Administrador'`: la persona de `/api/start` y de entrar
+  lleva sus roles (id y nombre), sus permisos y su último cambio de roles, de la fachada de `users`.
+  «Trabajar sin conexión» (`offline: true`) pide `offline.work` en vez de «ser Administrador».
+
+## 18. API
+
+Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a. Las formas, en
+`src/shared/contracts/users.ts` y `roles.ts`.
+
+| Ruta | Permiso | Qué hace | Consultas |
+|---|---|---|---|
+| `GET /api/roles` | `roles.manage` | Los roles con descripción, permisos, versión, quiénes los tienen (ids) y su último cambio | 3 |
+| `POST /api/roles` | `roles.manage` | Crear (también duplicar, que arma el cuerpo en la aplicación): `{ name, description?, permissions }`. `409 role-name-taken`, `400` sin permisos | 3, en una transacción |
+| `POST /api/roles/:id` | `roles.manage` | Cambiar `{ version, name?, description?, permissions? }` | 4 a 6, en una transacción con el control de § 19 |
+| `POST /api/roles/:id/delete` | `roles.manage` | `{ version }`. `409 role-in-use` si alguien lo tiene, `409 system-role` si es el Administrador | 2 |
+| `POST /api/users/:id/roles` | `roles.manage` | Los roles de una persona: `{ version, roles }`, al menos uno (`400 no-roles`) | 4 a 6, con § 19 |
+| `GET /api/permissions/:id/holders` | sesión | Para «Sin permiso» (R7.7): los roles que tienen ese permiso, los nombres de quienes los tienen y quiénes tienen `roles.manage` | 2 |
+
+- **Cambian las de la etapa a:** `GET /api/users` pide `users.view` y suma los ids de los roles de cada
+  persona (una consulta más); `POST /api/users` (autorizar) pide `users.manage` y `roles.manage` y
+  suma `roles` (al menos uno); cambiar, borrar, dar de baja y de alta piden `users.manage`; ver las
+  sesiones y los celulares, `users.view`; cerrar, cerrar todas, cortar y «Se perdió un celular»,
+  `users.cut`.
+- **Sin el permiso:** `403 { error: 'forbidden', permission }`, sin cerrar la sesión (R7.6). Se anota
+  como `users.rejected`, con el mismo tope por minuto.
+- **Lo que da acceso pide confirmar** (R3.8, § 13): crear un rol, agregarle permisos y darle un rol a
+  alguien (también al autorizar) dan `403 confirm-first` si Google o la huella son de hace más de 5
+  minutos. Quitar no lo pide.
+- **Los errores nuevos,** con su texto en la aplicación: `role-name-taken`, `role-in-use`,
+  `system-role`, `no-roles`, `forbidden` y los que ya estaban (`self`, `last-administrator`,
+  `changed`).
+
+## 19. Lo que pasa a la vez
+
+- **Nunca sin quien administre** (R1.3, E04, E05, E56): todo cambio que puede sacar
+  `users.manage` o `roles.manage` (cambiar los permisos de un rol, borrarlo, cambiar los roles de
+  alguien, dar de baja) corre en una transacción que primero bloquea la fila del rol `system`
+  (`select … for update`): todos esos cambios pasan de a uno. Dentro, aplica el cambio y cuenta, con
+  una consulta, cuántas personas activas tienen cada uno de los dos permisos y si quien lo hace los
+  sigue teniendo. Si alguno queda en cero, `last-administrator`; si quien lo hace perdió alguno,
+  `self`; en los dos casos, la transacción se deshace.
+- **Por qué un bloqueo y no el de la etapa a:** la baja bloqueaba las personas activas; ahora también
+  cuentan los roles y sus permisos, que la persona no bloquea. Un solo bloqueo, siempre el mismo,
+  evita que dos cambios se traben. Son cambios raros: la espera no se nota. La baja pasa a usar este.
+- **Dos cambian lo mismo:** `version` en `roles` y en `users` (la etapa a); cambiar los roles de
+  alguien sube la `version` de esa persona.
+- **La prueba:** como en § 5, PGlite atiende una conexión a la vez; la unitaria prueba la regla y el
+  bloqueo se comprueba a mano contra PostgreSQL.
+
+## 20. La aplicación
+
+- **La persona** de `/api/start` trae `roles` (`{ id, name }[]`), `permissions` (ids) y
+  `lastRolesChange`. `can(permission)` (de `sign-in`) la usan el marco y las pantallas.
+- **El menú** (00 · R1.8): cada opción y pestaña puede decir el permiso que pide (`permission` en
+  `menu.ts`); sin él, no aparece. Al abrir se elige la primera permitida (00 · R1.4).
+- **Saber que cambió** (R7.8) sin pedidos extra: la cabecera `X-Ferrebress` de cada respuesta suma
+  `p=<huella de los permisos de la sesión>` (8 caracteres). Si cambia, la aplicación vuelve a pedir
+  `/api/start`; con la persona nueva, el menú se arma de nuevo y, si la pantalla abierta ya no está
+  permitida, se ve «Ya no tenés permiso» (R7.8) y a los 5 segundos va a su primera opción. Lo que se
+  estaba escribiendo en otra pantalla vive en su estado y no se toca.
+- **«Sin permiso»** (R7.7, maqueta aprobada `app-no-permission/variant-1-door`): es del marco
+  (`modules/frame/screens/NoPermission`), porque vale para cualquier opción. Pide
+  `/api/permissions/:id/holders` y arma «Copiar el pedido» en el portapapeles.
+- **La pestaña Roles** (maqueta `users-roles/variant-1-card`): `modules/users/screens/Roles/`, que se
+  baja recién al abrirla, con lo que la maqueta no muestra y piden las reglas: la descripción y los
+  permisos agrupados por parte también al crear (§ 16, screens.md).
+- **Los roles de una persona** (maquetas `users-person-roles`: la 1 en la computadora y la 2 en el
+  celular, con interruptores de roles): en la tarjeta y en el diálogo de autorizar.
+- **Sin conexión** (R7.9): la persona guardada en el dispositivo ya trae sus permisos; se actualizan
+  con el primer `/api/start` al volver.
+- **Lo que se esconde** (R7.7): los botones de Usuarios se arman según `can()`; el servidor igual
+  rechaza.
+
+## 21. Seguridad
+
+- **Quién puede:** el servidor decide cada pedido (R7.6) con el paso de la plataforma; la aplicación
+  solo esconde. Una ruta nueva sin su paso es el riesgo: cada ruta de `users`, `roles` y las de
+  Usuarios en `sign-in` tiene una prueba que la pide sin el permiso y espera `403`.
+- **Darse acceso:** solo `roles.manage` da roles o permisos, siempre con Google o la huella reciente
+  (§ 18). Quien lo tiene puede darse todo: es lo esperado, y Carlos lo sabe (paso 1).
+- **Nunca sin quien administre:** § 19, en el servidor.
+- **Lo que ve cualquiera con sesión:** `GET /api/permissions/:id/holders` da nombres (no correos) de
+  quienes tienen un permiso. Es lo que pide R7.7; el id del permiso se valida contra la lista, así no
+  sirve para recorrer otra cosa.
+- **Lo que entra de afuera:** nombres de rol (40) y descripciones (200) con las reglas de texto de la
+  etapa a; listas de permisos y de roles acotadas (los ids se validan contra la lista y contra la
+  base); ids UUID.
+- **La auditoría** (R6.1): `role.created`, `role.changed` (con lo que había y lo que quedó),
+  `role.deleted` y `user.roles-changed` (con antes y después), y `user.authorized` suma sus roles.
+  `users.rejected` suma `forbidden`.
+
+## 22. Metas de performance
+
+- El paso de permisos: cero consultas con la persona en memoria; una (roles y permisos juntos) si no.
+- `GET /api/roles` con 20 roles y 100 personas: menos de 30 ms y 10 KB.
+- La pestaña Roles y «Sin permiso» se bajan recién al abrirse: el arranque no crece.
+
+## 23. Pruebas
+
+| Escenarios | Prueba |
+|---|---|
+| E34, E53 | Del traspaso y del comando: el rol Administrador con todo, para todos los que ya estaban y para el primero |
+| E35 a E40, E57 | De las rutas de roles: crear, lo incluido, nombre repetido sin mayúsculas, sin permisos, duplicar, borrar con y sin personas, el Administrador; y de la pantalla |
+| E41 a E44 | De las rutas: autorizar pide los dos permisos y al menos un rol; quitar el último rol; la unión de dos roles |
+| E45, E46 | De la pantalla y del marco: lo que no se puede no aparece; por la dirección, «Sin permiso» con quiénes lo tienen |
+| E47 | Una prueba por ruta: sin el permiso, `403 forbidden` y la sesión sigue |
+| E48, E49 | Del servidor (la memoria se borra al cambiar) y de la aplicación (la cabecera cambia, se vuelve a pedir la persona, «Ya no tenés permiso») |
+| E50 | De las rutas: dar acceso con una sesión vieja da `confirm-first`; quitar, no |
+| E51 | Del arranque: un permiso nuevo se le suma solo al rol `system`, una vez |
+| E52 | De la aplicación: sin conexión usa los permisos guardados |
+| E54 | De la pantalla: el filtro por rol |
+| E55 | Cada cambio de roles deja su línea con antes y después |
+| E56, E04, E05 | De la regla: sacarse a sí mismo y dejar sin quien administre, por cada camino; el bloqueo, a mano |
+
+**De punta a punta:** se propone una sola, a aprobar por Carlos antes de escribirla: a una persona con
+Usuarios abierto otra le saca el rol en otro navegador, y la primera ve «Ya no tenés permiso» con su
+próximo pedido y Usuarios desaparece. Cruza dos navegadores, la memoria de permisos del servidor y la
+cabecera; una unitaria no lo cubre entero.
+
+## 24. Tareas
+
+1. **Código común:** la lista de permisos (`shared/contracts/permissions.ts`), el paso
+   `permissions.require` y la cabecera `p=` (plataforma del servidor y de la aplicación). Tarea propia.
+2. **Migración `003-roles`** con el traspaso, y el comando del primer Administrador. Depende de 1.
+3. **Roles en `users`:** reglas, datos, memoria de permisos, el arranque que suma los nuevos y las
+   rutas de § 18, con el control de § 19 (la baja pasa a usarlo). Depende de 2.
+4. **`sign-in`:** la persona con roles y permisos, `offline.work` y los permisos en las rutas de
+   sesiones y celulares. Depende de 3.
+5. **La aplicación:** `can()`, el menú, «Sin permiso», la pestaña Roles, los roles en la tarjeta y al
+   autorizar, y el cambio en uso. Depende de 3 y 4.
+6. **Las pruebas de § 23, la documentación al día** (manual: tareas de roles) **y la de punta a punta,**
+   si Carlos la aprueba.
+
