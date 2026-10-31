@@ -81,7 +81,10 @@ describe('la opción «Trabajar sin conexión»', () => {
     expect(offlineOption.get()?.person).toEqual({
       userId: eva.userId,
       name: eva.name,
-      role: eva.role,
+      roles: eva.roles,
+      permissions: eva.permissions,
+      rolesChangedBy: null,
+      rolesChangedAt: null,
     });
     expect(result.current?.on).toBe(true);
     act(() => online.set(false));

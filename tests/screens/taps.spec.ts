@@ -2,8 +2,9 @@
 // navegador comprueba que el toque le llegue a cada una y no a lo que tiene debajo. Las respuestas
 // del servidor las arma cada prueba, sin servidor de verdad.
 import { expect, type Page, test } from '@playwright/test';
+import { administrator } from './person.ts';
 
-const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', role: 'Administrador' };
+const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', ...administrator };
 const start = {
   environment: 'testing',
   version: 'screens',

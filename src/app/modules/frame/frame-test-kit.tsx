@@ -2,6 +2,7 @@
 // contesta matchMedia, abrir el marco y las teclas.
 import { render, screen } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
+import { administrator } from '../../testing/person.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
 import { Frame, type FrameProps, type SettingRow } from './index.ts';
 import type { Option } from './menu.ts';
@@ -10,7 +11,7 @@ export const person = {
   userId: 'u1',
   name: 'Rubén Paredes',
   email: 'ruben@example.com',
-  role: 'Administrador',
+  ...administrator,
 };
 
 // Lo que contesta matchMedia: el ancho (celular o computadora) y si se pidió reducir movimiento.

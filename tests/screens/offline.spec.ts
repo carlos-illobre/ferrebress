@@ -2,8 +2,9 @@
 // servidor no confirmó, encima del marco (R3.2), y la opción «Trabajar sin conexión» de Más (R1).
 // Las respuestas del servidor las arma cada prueba.
 import { expect, type Page, test } from '@playwright/test';
+import { administrator } from './person.ts';
 
-const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', role: 'Administrador' };
+const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', ...administrator };
 const start = {
   environment: 'testing',
   version: 'screens',

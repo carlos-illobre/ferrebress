@@ -1,6 +1,7 @@
 // La entrada, en la computadora y en el celular, tal como quedó aprobada (01 · R7.1, E38): una
 // captura de cada una que tiene que coincidir punto por punto con la de referencia.
 import { expect, type Page, test } from '@playwright/test';
+import { administrator } from './person.ts';
 
 const now = new Date('2026-10-28T12:00:00-03:00');
 
@@ -46,7 +47,7 @@ test.describe('en el celular', () => {
     const contact = now.getTime() - 3_600_000;
     await page.addInitScript((at) => {
       Object.defineProperty(navigator, 'userAgentData', { get: () => ({ mobile: true }) });
-      const person = { userId: 'u1', name: 'Ana', email: 'a@x.com', role: 'Administrador' };
+      const person = { userId: 'u1', name: 'Ana', email: 'a@x.com', ...administrator };
       localStorage.setItem('offline-option', JSON.stringify({ person, revoked: false }));
       localStorage.setItem('offline-contact', JSON.stringify({ at, maxSeenAt: at }));
     }, contact);

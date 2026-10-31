@@ -4,6 +4,7 @@
 import { act } from '@testing-library/preact';
 import { vi } from 'vitest';
 import { sessionClosed } from '../../../platform/server/api.ts';
+import { administrator } from '../../../testing/person.ts';
 import { person } from '../session.ts';
 import { contacted, disableOffline, enableOffline } from './option.ts';
 import { dropEntry, entries } from './pending.ts';
@@ -12,7 +13,7 @@ export const eva = {
   userId: '0190a000-0000-7000-8000-0000000000aa',
   name: 'Eva Ríos',
   email: 'eva@example.com',
-  role: 'Administrador',
+  ...administrator,
   offline: true as const,
 };
 

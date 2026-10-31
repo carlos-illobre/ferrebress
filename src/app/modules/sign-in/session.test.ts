@@ -4,6 +4,7 @@ import { createProofKey } from '../../platform/device/proof-key.ts';
 import { readStored } from '../../platform/device/storage.ts';
 import { newVersion } from '../../platform/server/api.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
+import { administrator } from '../../testing/person.ts';
 import { registerWork } from '../frame/index.ts';
 import {
   confirmed,
@@ -18,7 +19,7 @@ import {
   wasOffered,
 } from './session.ts';
 
-const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', role: 'Administrador' };
+const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', ...administrator };
 const sessionId = '0190a000-0000-7000-8000-000000000001';
 
 describe('la sesión en la aplicación', () => {

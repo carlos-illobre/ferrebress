@@ -4,6 +4,7 @@
 
 import { type BrowserContext, expect, type Locator, type Page } from '@playwright/test';
 import type { Device } from '../../src/shared/contracts/manual.ts';
+import { permissionIds } from '../../src/shared/contracts/permissions.ts';
 import type { Person, StartResponse } from '../../src/shared/contracts/sign-in.ts';
 
 export type Scene = {
@@ -18,7 +19,10 @@ export const ana: Person = {
   userId: 'u1',
   name: 'Ana Gómez',
   email: 'ana@example.com',
-  role: 'Administrador',
+  roles: [{ id: '0190a000-0000-7000-8000-00000000a001', name: 'Administrador' }],
+  permissions: [...permissionIds],
+  rolesChangedBy: null,
+  rolesChangedAt: null,
 };
 
 // La cabecera del servidor, de producción.

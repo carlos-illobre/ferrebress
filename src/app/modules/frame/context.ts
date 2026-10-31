@@ -31,6 +31,10 @@ export const FrameContext = createContext<FrameState | undefined>(undefined);
 
 export const useFrame = () => useContext(FrameContext) as FrameState;
 
+// Sus roles, como se leen debajo del nombre (02 · R7.5).
+export const roleNames = (person: { roles: { name: string }[] }) =>
+  person.roles.map((role) => role.name).join(', ');
+
 export const initials = (name: string) =>
   name
     .split(/\s+/)

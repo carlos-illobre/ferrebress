@@ -9,6 +9,7 @@
   "include": [
     "**/*.ts",
     "../../src/shared/contracts/sign-in.ts",
+    "../../src/shared/contracts/permissions.ts",
     "../../src/shared/contracts/server-header.ts",
     "../../src/shared/contracts/product.ts",
     "../../src/shared/contracts/manual.ts",

@@ -50,15 +50,21 @@ describe('hasta cuándo se puede entrar sin conexión', () => {
     expect(offlineSessionOver(at + offlineWindowMs)).toBe(true);
   });
 
-  it('la persona de la opción guarda su nombre y su rol de ahora, y nunca el correo', () => {
+  it('users-E52: la persona de la opción guarda su nombre, sus roles y permisos de ahora, y nunca el correo', () => {
     enableOffline(eva);
     expect(offlineOption.get()?.person).toEqual({
       userId: eva.userId,
       name: eva.name,
-      role: eva.role,
+      roles: eva.roles,
+      permissions: eva.permissions,
+      rolesChangedBy: null,
+      rolesChangedAt: null,
     });
     updateOffline({ ...eva, name: 'Eva R.' });
     expect(offlineOption.get()?.person.name).toBe('Eva R.');
+    // Le sacaron un permiso (02 · R7.9): se guarda el de ahora.
+    updateOffline({ ...eva, name: 'Eva R.', permissions: ['users.view'] });
+    expect(offlineOption.get()?.person.permissions).toEqual(['users.view']);
     updateOffline({ ...eva, name: 'Eva R.' });
     updateOffline({ ...eva, userId: 'otra', name: 'Otra' });
     expect(offlineOption.get()?.person.name).toBe('Eva R.');

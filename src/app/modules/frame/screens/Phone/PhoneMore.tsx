@@ -6,7 +6,7 @@
 import { Fragment } from 'preact';
 import { useWaiting } from '../../../../platform/waiting.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { initials, useFrame } from '../../context.ts';
+import { initials, roleNames, useFrame } from '../../context.ts';
 import { exists, moreOptions, type Option, openOption, unavailable } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
@@ -30,7 +30,7 @@ export function PhoneMore() {
         <span class="avatar">{initials(person.name)}</span>
         <div>
           <b>{person.name}</b>
-          <small>{person.role}</small>
+          <small>{roleNames(person)}</small>
         </div>
       </section>
       <MoreList />

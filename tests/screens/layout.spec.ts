@@ -2,8 +2,9 @@
 // hacia el costado en los anchos de siempre, y que en lo angosto se usen los textos cortos. Con
 // sesión, el marco; sin sesión, la entrada.
 import { expect, type Page, test } from '@playwright/test';
+import { administrator } from './person.ts';
 
-const person = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', role: 'Administrador' };
+const person = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', ...administrator };
 
 async function withSession(page: Page): Promise<void> {
   await page.route('**/api/start', async (route) => {

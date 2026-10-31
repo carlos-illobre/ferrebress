@@ -4,7 +4,7 @@
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { type Place, px } from '../../behavior/usePanels.ts';
-import { initials, useFrame } from '../../context.ts';
+import { initials, roleNames, useFrame } from '../../context.ts';
 import { texts } from '../../texts.ts';
 import { LightText, Pending } from '../Pending/Pending.tsx';
 import { CloseForKeyboard } from './More.tsx';
@@ -60,11 +60,11 @@ function PersonMini() {
       data-mark=""
       data-key="s"
       data-name={person.name}
-      data-detail={person.role}
+      data-detail={roleNames(person)}
       aria-haspopup="dialog"
       aria-expanded={panels.open === 'person'}
       aria-controls="person-card"
-      aria-label={`${person.name}, ${person.role}`}
+      aria-label={`${person.name}, ${roleNames(person)}`}
       onClick={(event) => panels.toggle('person', event.currentTarget)}
       {...useLabel()}
     >
@@ -88,7 +88,7 @@ function PersonCard({ open }: { open: boolean }) {
         <span class="avatar">{initials(person.name)}</span>
         <div>
           <b>{person.name}</b>
-          <small>{person.role}</small>
+          <small>{roleNames(person)}</small>
         </div>
       </div>
       <Button doing={texts.signingOut} onPress={signOut} size="small" icon="log-out" shortcut="s">
