@@ -2,6 +2,7 @@
 // sesiones y celulares, y la pantalla montada con un servidor de mentira.
 import type { AccessResponse, PersonRow } from '@ferrebress/shared/contracts/users';
 import { render, screen, within } from '@testing-library/preact';
+import { vi } from 'vitest';
 import { syncServerTime } from '../../platform/server/clock.ts';
 import { fakeServer, type Reply } from '../../testing/fake-server.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
@@ -84,8 +85,19 @@ export const access: AccessResponse = {
   ],
 };
 
-export function openUsers(routes: Record<string, Reply | Reply[]> = {}, testing = true) {
+// `wide`: con la computadora que elige sola a la primera persona; si no, como en lo angosto, para
+// que cada prueba elija a quien quiera.
+export function openUsers(
+  routes: Record<string, Reply | Reply[]> = {},
+  testing = true,
+  wide = false,
+) {
   syncServerTime(now);
+  const media = window.matchMedia.bind(window);
+  if (!wide)
+    vi.stubGlobal('matchMedia', (query: string) =>
+      query.includes('min-width') ? { matches: false, media: query } : media(query),
+    );
   const server = fakeServer({ '/api/users': { body: { people } }, ...routes });
   render(
     <>

@@ -206,6 +206,10 @@ una sola vez para el servidor y la aplicación.
   perdió un celular» y las confirmaciones (dar de baja y Cerrar todas). En la computadora la lista y la
   tarjeta van lado a lado; en lo angosto, elegir a alguien muestra solo su tarjeta, que entra desde la
   derecha, y es un paso de la historia: el botón atrás vuelve a la lista (`back-step`).
+- **Al abrir, en la computadora,** queda elegida la primera de la lista (la propia), así la tarjeta
+  nunca está vacía (pedido de Carlos); en lo angosto no, porque la tarjeta taparía la lista.
+- **«Autorizar a alguien», en la computadora,** abre con el cursor en la caja del nombre (00 · R2.2,
+  pedido de Carlos); en el celular no, para que no se abra el teclado (R2.12).
 - **El estado:** la lista entera se pide al abrir la opción; el buscador, los filtros (Todas, Activas,
   Sin entrar, De baja) y el orden de R3.1 los hace la aplicación sobre esa lista. La tarjeta se pide al
   elegir a alguien. No se guarda nada en el dispositivo.

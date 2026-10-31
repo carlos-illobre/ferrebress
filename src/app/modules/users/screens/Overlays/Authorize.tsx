@@ -38,6 +38,7 @@ export function Authorize() {
             value={name}
             autocomplete="off"
             maxLength={80}
+            data-autofocus=""
             onInput={(event) => setName(event.currentTarget.value)}
           />
           <small>{t.nameHint}</small>

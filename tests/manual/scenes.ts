@@ -69,6 +69,10 @@ export async function answerUsers(page: Page | BrowserContext, person: Person): 
   await page.route('**/api/users', (route) =>
     route.fulfill({ json: { people }, headers: header() }),
   );
+  // La tarjeta de la primera, que la computadora abre sola.
+  await page.route('**/api/users/*/access', (route) =>
+    route.fulfill({ json: { sessions: [], phones: [] }, headers: header() }),
+  );
 }
 
 async function signedIn(page: Page, person: Person): Promise<void> {
@@ -123,6 +127,8 @@ export const scenes: Scene[] = [
     prepare: async (page) => {
       await signedIn(page, ana);
       await expect(page.getByRole('button', { name: /Salir/ })).toBeVisible();
+      // La tarjeta de la primera de la lista, que se abre sola, ya cargada.
+      await expect(page.getByText(/No te podés dar de baja vos/)).toBeVisible();
     },
     points: {
       card: (page) => page.getByRole('region', { name: 'Tu sesión' }),

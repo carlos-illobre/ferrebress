@@ -154,9 +154,10 @@ describe('autorizar a alguien', () => {
     await waitFor(() => expect(server.bodies('/api/users/sofia/activate')).toHaveLength(2));
   });
 
-  it('Cancelar cierra sin autorizar', async () => {
+  it('Cancelar cierra sin autorizar; en la computadora el cursor arranca en el nombre', async () => {
     openUsers();
     await openAuthorize();
+    expect(document.activeElement).toBe(field(/Nombre/));
     fireEvent.click(within(dialog()).getByRole('button', { name: /Cancelar/ }));
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
   });

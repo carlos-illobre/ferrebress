@@ -90,6 +90,12 @@ export function useUsers() {
     if (online && !unconfirmed && !list.people) void list.load();
   }, [online, unconfirmed]);
   const shown = list.people ? visible(list.people, filter, search) : [];
+  // En la computadora, la tarjeta nunca queda vacía: sin nadie elegido, el primero de la lista (la
+  // propia). En lo angosto la tarjeta tapa la lista, así que no se abre sola.
+  const first = shown[0]?.id;
+  useEffect(() => {
+    if (first && !card.selected && matchMedia('(min-width: 900px)').matches) card.select(first);
+  }, [first, card.selected]);
   const person = list.people?.find((one) => one.id === card.selected);
   return {
     ...list,

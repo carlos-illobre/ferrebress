@@ -37,6 +37,12 @@ describe('la tarjeta de una persona', () => {
     expect(inCard().getByRole('button', { name: /Cerrar todas/ })).toBeTruthy();
   });
 
+  it('en la computadora, al abrir queda elegida la primera de la lista', async () => {
+    openUsers({ '/api/users/ruben/access': { body: { sessions: [], phones: [] } } }, true, true);
+    await waitFor(() => expect(row(/Rubén/).getAttribute('aria-current')).toBe('true'));
+    expect(await inCard().findByText(/No te podés dar de baja vos/)).toBeTruthy();
+  });
+
   it('users-R5.3, R5.6: «Cerrar» y «Quitar», sin confirmación, y lo que no había', async () => {
     const empty = { sessions: [], phones: [] };
     const server = openUsers({

@@ -1,7 +1,8 @@
 // El diálogo que frena todo (el bloqueo de la versión, «Algo salió mal»): un velo encima de la
 // aplicación y la tarjeta al centro; en el celular, una hoja abajo. Mientras está abierto, lo de
 // atrás queda inerte: ni el mouse ni Tab llegan (00 · R5.5). En la computadora el cursor arranca
-// en el botón principal, así Enter lo toca; en el celular no (00 · R2.12). Tocar afuera no lo
+// en su caja de texto principal, si tiene, o en el botón principal, así Enter lo toca; en el celular
+// no (00 · R2.12). Tocar afuera no lo
 // cierra: se sacude.
 import type { ComponentChildren } from 'preact';
 import { createPortal } from 'preact/compat';
@@ -29,7 +30,9 @@ export function Dialog({
   useEffect(() => {
     const app = document.getElementById('app') as HTMLElement;
     app.inert = true;
-    if (!isPhone()) box.current?.querySelector<HTMLElement>('[data-primary]')?.focus();
+    // La caja de texto principal, si tiene (data-autofocus, 00 · R2.2); si no, el botón principal.
+    const first = box.current?.querySelector<HTMLElement>('[data-autofocus]');
+    if (!isPhone()) (first ?? box.current?.querySelector<HTMLElement>('[data-primary]'))?.focus();
     return () => {
       app.inert = false;
     };
