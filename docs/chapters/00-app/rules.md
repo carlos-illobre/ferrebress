@@ -17,7 +17,7 @@ ambiente de pruebas.
   - Depósito: Stock · Compras · Contar.
   - Negocio: Resumen. Negocio es para los números del negocio.
   - Más: Anomalías · Procesos · Mejoras y errores · Usuarios · Configuración · Administración ·
-    Manual. Usuarios tiene sus pestañas: Usuarios · Auditoría (la auditoría registra lo que hacen
+    Manual. Usuarios tiene sus pestañas: Usuarios · Roles · Auditoría (la auditoría registra lo que hacen
     las personas; administrarlas y ver lo que hicieron no es parte del negocio). En el celular, Más es una
     sola lista, sin grupos, en este mismo orden.
 - **R1.7** El nombre de cada parte, opción y pestaña tiene que tener sentido para lo que abre. Dos
