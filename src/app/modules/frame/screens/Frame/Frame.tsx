@@ -29,8 +29,9 @@ export type FrameProps = {
   testing: boolean;
   onSignOut: () => unknown;
   setting?: SettingRow | undefined;
-  // La pantalla de cada opción que ya existe, por su id: las pone cada módulo, por App.
-  screens?: Partial<Record<string, ComponentType>> | undefined;
+  // La pantalla de cada opción que ya existe, por su id: las pone cada módulo, por App. Sabe si es el
+  // ambiente de pruebas, donde lo que todavía no existe se ve con «Pronto» (R1.3).
+  screens?: Partial<Record<string, ComponentType<{ testing: boolean }>>> | undefined;
   children?: ComponentChildren;
 };
 
@@ -75,7 +76,7 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
         <Side />
         <PhoneTop />
         <main class="work-area" aria-label={texts.workArea}>
-          {Screen ? <Screen /> : children}
+          {Screen ? <Screen testing={testing} /> : children}
         </main>
         <PhoneMore />
         <PhoneNav />

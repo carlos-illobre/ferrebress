@@ -1,7 +1,7 @@
 // La dirección, como un valor compartido: el menú la cambia y lo que la muestra se entera. Atrás y
 // adelante del navegador funcionan, y la dirección que abre la aplicación (el QR del celular lleva
-// /link#<código>) se lee una vez y se puede limpiar. Qué pantalla corresponde a cada dirección
-// llega con la primera pantalla de trabajo (módulo 03).
+// /link#<código>) se lee una vez y se puede limpiar. Qué pantalla corresponde a cada dirección lo
+// decide el marco, con la dirección de cada opción del menú.
 import { createStore } from './store.ts';
 
 // `state` es lo que guardó quien navegó (por ejemplo, desde dónde se abrió el manual).

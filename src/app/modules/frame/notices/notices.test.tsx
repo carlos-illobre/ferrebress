@@ -163,20 +163,21 @@ describe('«Algo salió mal»', () => {
     all();
     document.body.insertAdjacentHTML(
       'beforeend',
-      '<nav><button aria-current="page"><span class="part-name">Vender</span></button></nav><button id="guardar">Guardar<kbd>G</kbd></button><input aria-label="Buscar" /><div data-private><button id="secreto">Ana</button></div>',
+      '<nav><button aria-current="page"><span class="part-name">Vender</span></button></nav><button id="guardar">Guardar<kbd>G</kbd></button><input aria-label="Buscar" /><div data-private><button id="secreto">Ana</button></div><button id="fila"><span data-private>Beto</span> Administrador</button>',
     );
     fireEvent.click(document.getElementById('guardar') as Element);
     screen.getByLabelText('Buscar').dispatchEvent(new Event('change', { bubbles: true }));
     document.body.insertAdjacentHTML('beforeend', '<input id="sin-nombre" />');
     document.getElementById('sin-nombre')?.dispatchEvent(new Event('change', { bubbles: true }));
     fireEvent.click(document.getElementById('secreto') as Element);
+    fireEvent.click(document.getElementById('fila') as Element);
     act(() => {
       dispatchEvent(new Event('error'));
     });
     const dialog = await screen.findByRole('alertdialog', { name: 'Algo salió mal' });
     expect(within(dialog).getByText(/Vender · Escribió en «Buscar»/)).toBeTruthy();
     expect(within(dialog).getByText('Vender · Tocó «Guardar»')).toBeTruthy();
-    expect(dialog.textContent).not.toContain('Ana');
+    expect(dialog.textContent).not.toMatch(/Ana|Beto/);
     expect(within(dialog).getByText(/^Código F-\d{4} · /)).toBeTruthy();
     await waitFor(() =>
       expect(within(dialog).getByRole('img', { name: 'La pantalla cuando pasó' })).toBeTruthy(),

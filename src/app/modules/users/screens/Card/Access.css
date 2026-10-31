@@ -1,0 +1,80 @@
+/* Las sesiones y los celulares de la tarjeta, y sus notas (maquetas de 02). */
+@layer screens {
+  .users-item-text span {
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-2);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .users-note .icon {
+    margin-top: 2px;
+  }
+  .users-section {
+    display: grid;
+    gap: var(--s2);
+  }
+  .users-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 36px;
+  }
+  .users-section-head h3 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 700;
+  }
+  .users-section-head h3 span {
+    margin-left: var(--s1);
+    color: var(--text-3);
+  }
+  .users-items {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .users-item {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--s3);
+    padding: 10px var(--s3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .users-item-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--sunken);
+    color: var(--text-2);
+  }
+  .users-item-text {
+    display: grid;
+    min-width: 0;
+  }
+  .users-item-text b {
+    font-size: 15px;
+    line-height: 20px;
+  }
+  .users-nothing {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .users-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-3);
+  }
+}

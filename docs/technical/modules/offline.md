@@ -272,8 +272,9 @@ Nada nuevo de `realtime`.
   si se puede; el aviso nuevo (`OfflineFingerNotice`, en verde, desde la maqueta) reemplaza a
   «Para entrar hace falta internet». Sin conexión, el logo baja para que la pastilla no lo tape (ya
   está así). Al volver sin confirmar, el aviso de arriba `not-confirmed`, como el de sesión vencida.
-- **Más** (`frame/screens/Phone/`): el renglón «Trabajar sin conexión» con su interruptor, en
-  «Ajustes», desde `mockups/app-frame/final/`. El marco no conoce las reglas: `App.tsx` le pasa el
+- **Más** (`frame/screens/Phone/`): el renglón «Trabajar sin conexión» con su interruptor, debajo de
+  Configuración (mientras Configuración no existe, después de Usuarios), desde
+  `mockups/app-frame/final/`. Más es una sola lista, sin grupos (00 · R1.2). El marco no conoce las reglas: `App.tsx` le pasa el
   renglón (qué dice, si está prendido y qué hace al tocarlo), como le pasa hoy `onSignOut`.
 - Los textos, en `sign-in/texts.ts`.
 

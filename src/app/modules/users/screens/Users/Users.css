@@ -1,0 +1,145 @@
+/* Usuarios (docs/design/mockups/users-a/final/): la cabecera con sus pestañas y la disposición, en
+   la computadora la lista y la tarjeta lado a lado; en lo angosto, una debajo de la otra. Sin
+   conexión, gris. */
+@layer screens {
+  .users {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .users-content {
+    flex: 1;
+    min-height: 0;
+  }
+  .users-head {
+    display: flex;
+    align-items: center;
+    gap: var(--s4);
+    padding: var(--s5) var(--s8) 0;
+  }
+  .users-title {
+    margin: 0;
+    font-size: 28px;
+    line-height: 34px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .users-actions {
+    display: flex;
+    gap: var(--s2);
+    margin-left: auto;
+  }
+  .users-tabs {
+    display: flex;
+    gap: var(--s6);
+    margin-top: var(--s3);
+    padding: 0 var(--s8);
+    border-bottom: 1px solid var(--border);
+  }
+  .users-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    height: 44px;
+    margin-bottom: -1px;
+    padding: 0;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: none;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--text-3);
+  }
+  .users-tab[aria-current] {
+    border-bottom-color: var(--pine);
+    color: var(--pine);
+    font-weight: 800;
+  }
+  .users-soon {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 var(--s2);
+    border-radius: 999px;
+    background: var(--sunken);
+    color: var(--text-2);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .users-offline {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    margin: var(--s3) var(--s8) 0;
+    padding: var(--s2) var(--s4);
+    border-radius: var(--radius);
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+    font-size: 14px;
+    font-weight: 650;
+  }
+  .users-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 392px;
+    gap: var(--s6);
+    height: 100%;
+    padding: var(--s5) var(--s8);
+  }
+  .users-left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s4);
+    min-height: 0;
+  }
+
+  .users[data-off] .users-content,
+  .users[data-off] .users-actions,
+  .users[data-off] .users-bar {
+    filter: grayscale(1);
+    opacity: 0.55;
+  }
+
+  @media (max-width: 899px) {
+    .users-head {
+      padding: var(--s2) var(--s4) 0;
+    }
+    .users-tabs {
+      gap: var(--s1);
+      margin: var(--s3) var(--s4) 0;
+      padding: var(--s1);
+      border: 0;
+      border-radius: var(--radius);
+      background: var(--sunken);
+    }
+    .users-tab {
+      flex: 1;
+      justify-content: center;
+      height: 40px;
+      margin: 0;
+      border: 0;
+      border-radius: 10px;
+    }
+    .users-tab[aria-current] {
+      background: var(--surface);
+      box-shadow: var(--shadow-1);
+    }
+    .users-offline {
+      margin: var(--s3) var(--s4) 0;
+    }
+    .users-content {
+      overflow: auto;
+    }
+    .users-body {
+      display: block;
+      height: auto;
+      padding: var(--s3) var(--s4) var(--s4);
+    }
+    .users-left {
+      gap: var(--s3);
+    }
+  }
+}

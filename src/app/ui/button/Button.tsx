@@ -11,7 +11,7 @@ export type ButtonProps = {
   // Qué hace, en palabras, para la barra de espera de 2 segundos.
   doing: string;
   onPress: () => unknown;
-  look?: 'common' | 'action' | 'dark' | 'plain' | 'danger';
+  look?: 'common' | 'action' | 'dark' | 'plain' | 'danger' | 'soft' | 'red';
   size?: 'small' | 'large';
   icon?: IconName;
   // Alt más esta tecla lo aprieta en la computadora (una letra o un número).

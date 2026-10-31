@@ -4,11 +4,13 @@ import type { Browser, Page } from '@playwright/test';
 
 const origin = () => String(process.env.E2E_ORIGIN);
 
-export async function computer(browser: Browser): Promise<Page> {
+// `userAgent`: para distinguir una computadora de otra por su nombre («Firefox en Linux»).
+export async function computer(browser: Browser, userAgent?: string): Promise<Page> {
   const context = await browser.newContext({
     baseURL: origin(),
     viewport: { width: 1366, height: 768 },
     reducedMotion: 'reduce',
+    ...(userAgent && { userAgent }),
   });
   return context.newPage();
 }

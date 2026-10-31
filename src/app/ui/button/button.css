@@ -65,6 +65,18 @@
     box-shadow: none;
     color: var(--error-text);
   }
+  /* Lo chico que se repite en una lista (Cerrar, Quitar), y lo que confirma algo que no se deshace. */
+  .button-soft {
+    background: var(--sunken);
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .button-red {
+    background: var(--error);
+    border-color: var(--error);
+    box-shadow: none;
+    color: #fff;
+  }
   .button-plain {
     background: transparent;
     border-color: transparent;

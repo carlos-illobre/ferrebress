@@ -1,0 +1,215 @@
+/* La tarjeta de una persona (maquetas de 02): al costado en la computadora; en lo angosto, encima
+   de la lista, entrando desde la derecha. */
+@layer screens {
+  .users-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: var(--s4);
+    min-height: 0;
+    padding: var(--s5);
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-2);
+  }
+  .users-card > * {
+    min-width: 0;
+  }
+  .users-card.empty {
+    justify-items: center;
+    align-content: center;
+    gap: 6px;
+    text-align: center;
+    color: var(--text-2);
+  }
+  .users-card.empty > .icon {
+    color: var(--text-3);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .users-card:not(.empty) {
+      animation: users-fade 200ms var(--ease) both;
+    }
+  }
+  @keyframes users-fade {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+  .users-back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s1);
+    justify-self: start;
+    height: 40px;
+    padding: 0 var(--s2) 0 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 650;
+    color: var(--pine-text);
+  }
+  .users-card-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .users-who {
+    flex: 1;
+    min-width: 0;
+  }
+  .users-who-name,
+  .users-who-email {
+    display: flex;
+    align-items: center;
+    gap: var(--s1);
+    min-height: 32px;
+  }
+  .users-who-name > span:first-child {
+    overflow: hidden;
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .users-who-email > span:first-child {
+    overflow: hidden;
+    font-size: 14px;
+    color: var(--text-2);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .users-pencil,
+  .users-bound {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: var(--radius-small);
+    background: none;
+    color: var(--text-3);
+  }
+  .users-edit {
+    display: grid;
+    gap: var(--s1);
+  }
+  .users-edit input {
+    width: 100%;
+    height: 40px;
+    padding: 0 var(--s3);
+    border: 1px solid var(--pine);
+    border-radius: 10px;
+    outline: 0;
+    box-shadow: 0 0 0 4px rgb(18 56 47 / 0.12);
+    font: inherit;
+    font-weight: 650;
+  }
+  .users-edit-help {
+    font-size: 14px;
+    color: var(--text-3);
+  }
+  .users-edit.wrong input {
+    border-color: var(--error);
+    box-shadow: 0 0 0 4px rgb(215 55 42 / 0.12);
+  }
+  .users-edit.wrong .users-edit-help {
+    font-weight: 650;
+    color: var(--error-text);
+  }
+  .users-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .users-when {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s1);
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .users-when .users-last {
+    font-weight: 500;
+  }
+  .users-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s3);
+    margin: 0;
+    padding: var(--s3) var(--s4);
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+  }
+  .users-notice.urgent {
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+  }
+  .users-notice.pine {
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .users-card-foot {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    padding-top: var(--s4);
+    border-top: 1px solid var(--border);
+  }
+  .users-foot-hint {
+    font-size: 14px;
+    color: var(--text-2);
+  }
+
+  @media (max-width: 899px) {
+    .users-card.empty {
+      display: none;
+    }
+    .users-card {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      align-content: start;
+      padding: var(--s2) var(--s4) var(--s8);
+      border: 0;
+      border-radius: 0;
+      background: var(--background);
+      box-shadow: none;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .users-card:not(.empty) {
+        animation: users-push 280ms var(--ease) both;
+      }
+    }
+    @keyframes users-push {
+      from {
+        transform: translateX(100%);
+      }
+    }
+    .users-card-head {
+      flex-direction: column;
+      text-align: center;
+    }
+    .users-who-name,
+    .users-who-email {
+      justify-content: center;
+    }
+    .users-pills {
+      justify-content: center;
+    }
+    .users-card-foot {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+}

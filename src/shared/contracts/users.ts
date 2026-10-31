@@ -51,6 +51,7 @@ export type SessionRow = {
   id: string;
   deviceLabel: string;
   way: Way;
+  isPhone: boolean;
   createdAt: number;
   lastUsedAt: number;
 };

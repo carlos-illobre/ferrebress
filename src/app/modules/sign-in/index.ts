@@ -20,3 +20,6 @@ export {
   signOut,
   unknownToServer,
 } from './session.ts';
+
+// Volver a confirmar quién es (02 · R3.8): la hoja se baja recién cuando hace falta.
+export const loadConfirmSheet = () => import('./screens/Sheets/ConfirmSheet.tsx');

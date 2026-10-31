@@ -247,8 +247,8 @@ de un capítulo es un renglón en `icons.ts`.
 - **Lo de abajo:** sin sesión, la entrada **se desmonta** mientras el manual está abierto (no tiene
   nada a medio hacer, y así se cierran su canal del QR y la renovación de Google, ADR-003); al volver
   se monta de nuevo. Con sesión, el marco queda montado (guarda lo que se estaba haciendo, E37) pero
-  con `inert` y oculto: no se lee ni se toca. Cuando llegue el módulo 03, la pantalla de trabajo
-  tampoco se desmonta con `/manual`.
+  con `inert` y oculto: no se lee ni se toca. La pantalla de trabajo tampoco se desmonta con
+  `/manual`: el manual no es una opción de trabajo, así que debajo sigue la que estaba.
 - **Lo de arriba:** el aviso de versión nueva, «Hay que actualizar» y «Algo salió mal» van encima
   del manual. Si la sesión se cierra con el manual abierto, la entrada aparece recién al volver.
 - **En el ambiente de pruebas** el manual lleva el marco y el cartel, como toda pantalla (R10.1).

@@ -33,9 +33,14 @@ function remember(what: string): void {
   steps.length = Math.min(steps.length, keptSteps);
 }
 
+// Lo privado (un nombre, un correo) no entra en los pasos: ni lo que está dentro de algo marcado,
+// ni un botón que lleva algo marcado adentro (el renglón de una persona).
+const isPrivate = (target: Element) =>
+  !!target.closest('[data-private]') || !!target.querySelector('[data-private]');
+
 function onClick(event: Event): void {
   const target = (event.target as Element).closest('button, a, [role="button"]');
-  if (target && !target.closest('[data-private]')) remember(`Tocó «${labelOf(target)}»`);
+  if (target && !isPrivate(target)) remember(`Tocó «${labelOf(target)}»`);
 }
 
 function onChange(event: Event): void {

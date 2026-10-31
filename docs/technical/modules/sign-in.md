@@ -436,8 +436,9 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
   después y la barra a los 2 s, que muestra el marco. El botón de `ui/` la usa sola; mientras
   espera, volver a tocarlo no hace nada. Las búsquedas (R7.4) llegan con la primera que haya.
 - **`platform/router`:** la dirección es un valor compartido, que el menú cambia. Atrás y adelante
-  del navegador funcionan. Hoy el área de trabajo está en blanco (00), así que nada elige pantalla
-  por la dirección; eso llega con la primera pantalla de trabajo.
+  del navegador funcionan. Cada opción del menú tiene su dirección (`frame/menu.ts`); el marco
+  muestra la pantalla de la opción de la dirección, o la primera que existe (00 · R1.4), y cada
+  módulo le pasa su pantalla por `App.tsx`.
 - **`platform/server/realtime`:** el canal temporal (SSE con `fetch`, § 5) y la lectura de la cabecera.
   Cada tema declara qué permiso hace falta para escucharlo. La conexión directa entre dispositivos
   llega con el módulo 03; no se arma una interfaz de estrategias hasta que haya una segunda forma.
@@ -534,8 +535,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   | `/api/start` con la sesión ya en memoria | 0 (quién es la persona también queda en memoria) |
   | `/api/sign-in/google/nonce` | 0 |
   | El primero de una sesión después de reiniciar | 2 (la sesión y la persona); sin prueba, porque la prueba no reinicia el servidor |
-  | Entrar con Google | hasta 3 (buscar la cuenta, guardar `google_subject` la primera vez, crear la sesión); en el celular, hasta 4, porque mira si ya tiene huella para no ofrecerla |
-  | Entrar con la huella | 4 (la credencial, su contador, la persona, crear la sesión) |
+  | Entrar con Google | 3 (buscar la cuenta, crear la sesión y anotar la entrada, 02 · R3.2); la primera vez, una más para atar `google_subject`; en el celular, una más, porque mira si ya tiene huella para no ofrecerla |
+  | Entrar con la huella | 5 (la credencial, su contador, la persona, crear la sesión y anotar la entrada) |
   | Leer un código | hasta 3 (la sesión, si el celular tiene huella, la persona para vincularla) |
   | Aprobar un código | hasta 5 (las de la huella y la sesión de la computadora) |
 

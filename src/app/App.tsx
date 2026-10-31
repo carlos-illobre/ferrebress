@@ -36,12 +36,16 @@ import {
   usePhoneCode,
   watchOffline,
 } from './modules/sign-in/index.ts';
+import { UsersSlot } from './modules/users/index.ts';
 import { readStored, store } from './platform/device/storage.ts';
 import { clearHash, navigate, route } from './platform/router.ts';
 import { sessionClosed } from './platform/server/api.ts';
 import { useReconnect } from './platform/server/reconnect.ts';
 import { useStore } from './platform/store.ts';
 import { Toasts } from './ui/toast/Toast.tsx';
+
+// La pantalla de cada opción del menú que ya existe.
+const screens = { users: UsersSlot };
 
 // Sin conexión al abrir, no se sabe nada del servidor: se sigue con lo guardado (R3.6), también
 // el último ambiente, para que el de pruebas siga con su marco y su menú (00 · R10.1).
@@ -170,7 +174,7 @@ export function App() {
     <>
       {who && (
         <div class="behind-manual" hidden={manual} inert={manual}>
-          <Frame person={who} testing={testing} onSignOut={leave} setting={setting} />
+          <Frame {...{ person: who, testing, setting, screens }} onSignOut={leave} />
         </div>
       )}
       {entrance && (

@@ -105,10 +105,15 @@ describe('la aplicación al abrir', () => {
     const server = fakeServer({ '/api/start': startReply({ person: ana }) });
     render(<App />);
     await screen.findByRole('region', { name: 'Tu sesión' });
+    // Al abrir, la primera opción que existe pide lo suyo (Usuarios, su lista); después, nada.
+    await waitFor(() => expect(server.sent.map((one) => one.path)).toContain('/api/users'), {
+      timeout: 5000,
+    });
+    const opened = server.sent.length;
     vi.useFakeTimers();
     await later(2 * 60 * 60_000);
     vi.useRealTimers();
-    expect(server.sent).toHaveLength(1);
+    expect(server.sent).toHaveLength(opened);
   });
 
   it('sin sesión, al volver la conexión no pregunta por ninguna', async () => {

@@ -35,6 +35,10 @@ export const signInApi = {
   cancel: (secret: string) => api<Ok>('/api/sign-in/codes/cancel', { secret }),
   claim: (permit: string, proofPublicKey: string) =>
     api<SignInResponse>('/api/sign-in/codes/claim', { permit, proofPublicKey }),
+  // Volver a confirmar quién es, sin salir (02 · R3.8).
+  confirmGoogle: (credential: string) => api<Ok>('/api/session/confirm/google', { credential }),
+  confirmPasskeyOptions: () => api<Json>('/api/session/confirm/passkey/options', {}),
+  confirmPasskey: (response: Json) => api<Ok>('/api/session/confirm/passkey', { response }),
   // Confirmar una entrada sin conexión (15 · R3).
   offline: (entry: Omit<OfflineSignInBody, 'response'> & { response: Json }) =>
     api<SignInResponse | { ended: true }>('/api/sign-in/offline', entry),

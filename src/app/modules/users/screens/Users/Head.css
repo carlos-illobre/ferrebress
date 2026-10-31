@@ -1,0 +1,45 @@
+/* «Se perdió un celular» y «Autorizar a alguien» en el celular (maqueta aprobada). */
+@layer screens {
+  .users-bar {
+    padding: var(--s3) var(--s4);
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .users-bar .button {
+    width: 100%;
+    min-height: 52px;
+    font-size: 17px;
+  }
+  .users-lost b {
+    display: block;
+    font-size: 16px;
+    line-height: 22px;
+  }
+  .users-lost small {
+    display: block;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .users-lost {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 20px;
+    align-items: center;
+    gap: var(--s3);
+    width: 100%;
+    padding: var(--s3) 14px;
+    border: 1px solid var(--error);
+    border-radius: var(--radius-card);
+    background: var(--error-soft);
+    font: inherit;
+    text-align: left;
+    color: var(--error-text);
+  }
+  .users-lost-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: var(--surface);
+  }
+}

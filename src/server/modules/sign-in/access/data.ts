@@ -49,6 +49,7 @@ function card(db: Db) {
           'id',
           'device_label as deviceLabel',
           'way',
+          'is_phone as isPhone',
           'created_at as createdAt',
           'last_used_at as lastUsedAt',
         ])

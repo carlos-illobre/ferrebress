@@ -22,7 +22,8 @@ export const ana: Person = {
 };
 
 // La cabecera del servidor, de producción.
-export const header = () => ({ 'X-Ferrebress': `v=screens; t=${Date.now()}; e=production` });
+// La hora del servidor, la misma del reloj fijo: lo que dice «hace…» no cambia de un día a otro.
+export const header = () => ({ 'X-Ferrebress': `v=screens; t=${now.getTime()}; e=production` });
 
 export const start = (person?: Person): StartResponse => ({
   environment: 'production',
@@ -40,13 +41,45 @@ export async function answerStart(page: Page, person?: Person): Promise<void> {
   );
 }
 
+// La lista de Usuarios, que el marco abre al entrar: la persona y dos más, inventadas.
+const hour = 3_600_000;
+const row = (id: string, name: string, lastSignInAt: number | null, self = false) => ({
+  id,
+  name,
+  displayName: name,
+  email: self ? ana.email : `${id}@example.com`,
+  active: true,
+  self,
+  authorizedAt: now.getTime() - 900 * hour,
+  authorizedBy: null,
+  deactivatedAt: null,
+  lastSignInAt,
+  neverSignedIn: lastSignInAt === null,
+  version: 1,
+  sessions: lastSignInAt === null ? 0 : 1,
+  phones: 0,
+});
+
+async function answerUsers(page: Page, person: Person): Promise<void> {
+  const people = [
+    row(person.userId, person.name, now.getTime() - 2 * hour, true),
+    row('lucia', 'Lucía Fernández', now.getTime() - 50 * hour),
+    row('pedro', 'Pedro Giménez', null),
+  ];
+  await page.route('**/api/users', (route) =>
+    route.fulfill({ json: { people }, headers: header() }),
+  );
+}
+
 async function signedIn(page: Page, person: Person): Promise<void> {
   await page.addInitScript((saved) => localStorage.setItem('session', JSON.stringify(saved)), {
     sessionId: 's',
     person,
   });
   await answerStart(page, person);
+  await answerUsers(page, person);
   await page.goto('/');
+  await page.locator('.users-row').first().waitFor({ state: 'attached' });
 }
 
 async function entrance(page: Page): Promise<void> {
@@ -92,7 +125,7 @@ export const scenes: Scene[] = [
       await expect(page.getByRole('button', { name: /Salir/ })).toBeVisible();
     },
     points: {
-      card: (page) => page.getByText(ana.name),
+      card: (page) => page.getByRole('region', { name: 'Tu sesión' }),
       'sign-out': (page) => page.getByRole('button', { name: /Salir/ }),
     },
   },

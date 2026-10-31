@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { newVersion } from '../../platform/server/api.ts';
-import { media, open, person } from './frame-test-kit.tsx';
+import { media, open, person, withPath } from './frame-test-kit.tsx';
 import { Dialogs, registerWork, watchBackground, watchCrashes } from './index.ts';
+import { moreOptions, type Option } from './menu.ts';
 import { crash, reportCrash } from './notices/crash/crash.ts';
 import { discardWork, halfDone } from './work.ts';
 
@@ -21,6 +22,17 @@ describe('lo que el marco cuida', () => {
     const { side } = open({ screens: { users: () => <p>La pantalla de Usuarios</p> } });
     expect(side.querySelector('[aria-current="page"]')?.textContent).toContain('Más');
     expect(screen.getByRole('main').textContent).toBe('La pantalla de Usuarios');
+  });
+
+  it('app-E01: en pruebas, sin ninguna opción que exista, queda abierta la primera parte', () => {
+    withPath(moreOptions.find((option) => option.id === 'users') as Option, undefined, () => {
+      const { side } = open();
+      expect(
+        within(side)
+          .getByRole('button', { name: /Vender/ })
+          .getAttribute('aria-current'),
+      ).toBe('page');
+    });
   });
 
   it('app-E30c: con algo a medio hacer, la versión nueva no se aplica sola en segundo plano', () => {

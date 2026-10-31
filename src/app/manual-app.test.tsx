@@ -35,6 +35,10 @@ describe('el manual en la aplicación', () => {
     const { sent } = fakeServer({ '/api/start': startReply({ person: ana }), ...manualFiles });
     render(<App />);
     await screen.findByRole('region', { name: 'Tu sesión' });
+    // Lo que pide Usuarios, la primera opción, al abrir.
+    await waitFor(() => expect(sent.map((one) => one.path)).toContain('/api/users'), {
+      timeout: 5000,
+    });
     const before = sent.length;
     fireEvent.click(screen.getAllByRole('button', { name: /^Más/ })[0] as HTMLElement);
     fireEvent.click(await screen.findByRole('button', { name: /Manual/ }));

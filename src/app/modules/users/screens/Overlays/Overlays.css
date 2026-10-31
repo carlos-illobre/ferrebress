@@ -1,0 +1,136 @@
+/* Lo que se abre encima de Usuarios: autorizar, «Se perdió un celular» y las confirmaciones
+   (maquetas de 02). Al centro en la computadora; una hoja abajo en el celular (Dialog). */
+@layer screens {
+  .users-dialog {
+    width: min(480px, calc(100vw - 32px));
+    padding: var(--s6);
+  }
+  .users-dialog h2 {
+    margin: 0 0 var(--s1);
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+  }
+  .users-lead {
+    margin: var(--s1) 0 0;
+    font-size: 15px;
+    color: var(--text-2);
+  }
+  .users-dialog-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--s2);
+    margin-top: var(--s6);
+  }
+  .users-authorize form {
+    display: grid;
+    gap: var(--s4);
+  }
+  .users-authorize .users-dialog-foot {
+    margin-top: var(--s1);
+  }
+  .users-field {
+    display: grid;
+    gap: 6px;
+  }
+  .users-field > span {
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--text-2);
+  }
+  .users-field input {
+    height: 52px;
+    padding: 0 var(--s4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    outline: none;
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .users-field input:focus {
+    border-color: var(--pine);
+    box-shadow: 0 0 0 4px rgb(18 56 47 / 0.12);
+  }
+  .users-field small {
+    font-size: 14px;
+    color: var(--text-3);
+  }
+  .users-field.wrong input {
+    border-color: var(--error);
+    box-shadow: 0 0 0 4px rgb(215 55 42 / 0.12);
+  }
+  .users-field .users-field-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 650;
+    color: var(--error-text);
+  }
+  .users-consequences {
+    display: grid;
+    gap: 10px;
+    margin: var(--s4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .users-consequences li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 15px;
+    line-height: 22px;
+  }
+  .users-consequences .icon {
+    margin-top: 1px;
+    color: var(--text-2);
+  }
+  .users-options {
+    display: grid;
+    gap: var(--s2);
+    max-height: 50vh;
+    margin-top: var(--s4);
+    overflow: auto;
+  }
+  /* Cada opción es un renglón como los de la tarjeta (.users-item), que se toca. */
+  .users-option {
+    background: var(--surface);
+    font: inherit;
+    text-align: left;
+    color: var(--ink);
+  }
+  .users-option:hover,
+  .users-option[aria-pressed="true"] {
+    border-color: var(--pine);
+  }
+  .users-radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-strong);
+    border-radius: 999px;
+  }
+  .users-option[aria-pressed="true"] .users-radio {
+    border: 6px solid var(--pine);
+  }
+
+  @media (max-width: 899px) {
+    .users-dialog {
+      width: 100%;
+    }
+    /* En el celular, el correo primero (maqueta). */
+    .users-field-email {
+      order: -1;
+    }
+    .users-authorize h2,
+    .users-authorize .users-lead {
+      order: -2;
+    }
+    .users-dialog-foot .button {
+      flex: 1;
+      min-height: 52px;
+    }
+  }
+}

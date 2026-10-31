@@ -152,16 +152,17 @@ una sola vez para el servidor y la aplicación.
 - **Autorizar:** valida, normaliza el correo (minúsculas, sin espacios), guarda `authorized_by` e
   inserta. El índice único de `email` es la última palabra si dos autorizan el mismo a la vez.
 - **Entrar** (cambia en `sign-in`): al abrir una sesión se anotan `way`, `is_phone` y `passkey_id`, y
-  `users.recordSignIn(userId, at)` anota la última entrada con la hora del servidor. La primera vez
-  con Google, atar la cuenta, guardar `google_name` y anotar la entrada son una sola escritura. Una
+  `users.recordSignIn(userId, at)` anota la última entrada con la hora del servidor, solo si sigue
+  activa: si la dieron de baja mientras entraba, la sesión recién creada se cierra y no entra. La
+  primera vez con Google, atar la cuenta y guardar `google_name` es una escritura aparte, antes. Una
   entrada sin conexión cuenta cuando el servidor la confirma, abra sesión o no (`ended`), con la hora
   de la confirmación.
 - **Dar de baja:** la transacción de § 5 pone `active = false` y `deactivated_at`, y publica
   `user.deactivated`; en `sign-in`, en la misma transacción, se cierran sus sesiones (`deactivated`)
   y se borran sus huellas.
 - **Dar de alta:** `active = true`, `deactivated_at` nulo. Las huellas no vuelven (R4.2).
-- **Renombrar:** publica `user.renamed`; `sign-in` olvida a esa persona de su memoria, así
-  `/api/start` devuelve el nombre nuevo.
+- **Renombrar:** cambia el nombre y publica `user.renamed` en la misma transacción; al confirmarla,
+  `sign-in` olvida a esa persona de su memoria, así `/api/start` devuelve el nombre nuevo.
 - **Cerrar, Cerrar todas y Cortar** cierran con el motivo `revoked`, el que ya hace que el
   dispositivo vuelva a la entrada con «Tu sesión se cerró desde otro dispositivo» en su próximo
   pedido (01 · R3.5). Nada en tiempo real: se entera con su próximo pedido, sin consultas propias.
@@ -209,7 +210,9 @@ una sola vez para el servidor y la aplicación.
   elegir a alguien. No se guarda nada en el dispositivo.
 - **Sin conexión:** gris. Al volver la conexión se prende sola, con la lista que tenía, sin pedirla de
   nuevo: no es un pedido automático (`mobile-data.md` no cambia). Un cambio sobre un dato viejo lo
-  frena la `version` (§ 5).
+  frena la `version` (§ 5). Con una entrada sin conexión que el servidor todavía no confirmó (15 · R3),
+  la lista espera a esa confirmación: antes, su sesión no existe en el servidor y el pedido la daría
+  por cerrada.
 - **«Entró hace 3 días»** se calcula con la hora del servidor que la aplicación ya tiene
   (`platform/server/clock`), no con la del dispositivo.
 - **La propia:** la tarjeta no ofrece dar de baja y dice «No te podés dar de baja vos: lo tiene que
@@ -221,9 +224,8 @@ una sola vez para el servidor y la aplicación.
   usan las suyas: Alt Z autorizar, Alt I «Se perdió un celular», Alt D cerrar todas, Alt B dar de
   baja o borrar, Alt L dar de alta, `/` buscar; en la tarjeta, «Cerrar» y «Quitar» con las flechas y
   Enter (R5.8).
-- **`data-private`:** nombres y correos. **Arreglo del 01:** en «Algo salió mal», la marca va hoy
-  dentro del botón y no en él, así que el nombre de la persona entra en los últimos pasos; se pone en
-  el botón.
+- **`data-private`:** nombres y correos. En «Algo salió mal», ni lo que está dentro de algo marcado
+  ni un botón que lleva algo marcado adentro (el renglón de una persona) entra en los últimos pasos.
 
 ## 9. Seguridad
 
@@ -279,9 +281,9 @@ una sola vez para el servidor y la aplicación.
 | Seguridad | Un pedido que llega mientras se cierra su sesión no la vuelve a guardar; las rutas no dan el `device_id` ni el identificador de la huella; un celular de otra persona da `404`; los dos límites nuevos |
 | Metas | Las que cuentan las consultas de cada ruta |
 
-**De punta a punta:** se proponen a Carlos antes de escribirlas (CLAUDE.md). La candidata es una
-sola: cerrar la sesión de un dispositivo desde otro y ver que el primero vuelve a la entrada con «Tu
-sesión se cerró desde otro dispositivo». Cruza dos navegadores, la cookie y la memoria del servidor.
+**De punta a punta** (`tests/e2e/users.spec.ts`, aprobada por Carlos): una sola, cerrar la sesión de
+una computadora desde otra y ver que la primera vuelve a la entrada con «Tu sesión se cerró desde otro
+dispositivo» con su próximo pedido. Cruza dos navegadores, la cookie y la memoria del servidor.
 
 ## 12. Tareas
 

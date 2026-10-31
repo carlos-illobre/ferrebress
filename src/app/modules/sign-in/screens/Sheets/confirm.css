@@ -1,0 +1,45 @@
+/* Volver a confirmar quién es (02 · R3.8): una tarjeta chica al centro, o una hoja en el celular,
+   con el botón de Google en su marco y, en un celular con huella, la huella. */
+@layer screens {
+  .confirm-sheet {
+    display: grid;
+    justify-items: center;
+    gap: var(--s3);
+    width: min(400px, calc(100vw - 32px));
+    padding: var(--s6);
+    text-align: center;
+  }
+  .confirm-sheet h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .confirm-sheet p {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .confirm-icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .confirm-google {
+    width: 100%;
+    max-width: 320px;
+    height: 48px;
+    border: 0;
+  }
+  .confirm-sheet .button {
+    width: 100%;
+  }
+  .confirm-sheet .confirm-failed {
+    color: var(--error-text);
+    font-weight: 700;
+  }
+}

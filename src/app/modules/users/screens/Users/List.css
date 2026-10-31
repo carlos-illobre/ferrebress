@@ -1,0 +1,248 @@
+/* La lista de personas (maquetas de 02): sus renglones, el círculo con las iniciales y las
+   pastillas. */
+@layer screens {
+  /* La lista */
+  .users-list {
+    flex: 1;
+    min-height: 0;
+    margin: 0 -6px;
+    padding: 0 6px var(--s2);
+    overflow: auto;
+  }
+  .users-group {
+    display: flex;
+    gap: 6px;
+    margin: 0;
+    padding: var(--s1) var(--s1) var(--s2);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-2);
+  }
+  .users-group span {
+    color: var(--text-3);
+  }
+  section + section > .users-group {
+    padding-top: var(--s4);
+  }
+  .users-last {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s1);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+  .users-last.never {
+    color: var(--urgent-text);
+  }
+  .users-counts {
+    display: flex;
+    gap: 10px;
+    min-height: 20px;
+  }
+  .users-counts span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s1);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-2);
+  }
+  .users-avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: var(--sunken);
+    color: var(--text-2);
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .users-avatar.tone-1 {
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .users-avatar.large {
+    width: 56px;
+    height: 56px;
+    font-size: 18px;
+  }
+  .users-avatar.off {
+    background: var(--sunken);
+    color: var(--text-3);
+  }
+  .users-pill {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--sunken);
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+  .users-name .users-pill {
+    height: 24px;
+    padding: 0 var(--s2);
+  }
+  .users-pill.pine {
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .users-pill.pine.off {
+    background: var(--sunken);
+    color: var(--text-2);
+  }
+  .users-pill.you {
+    background: var(--action-soft);
+    color: var(--action-text);
+  }
+  .users-pill.off:not(.pine) {
+    border: 1px dashed var(--border-strong);
+    background: var(--surface);
+  }
+  /* Dos renglones: cuándo entró arriba de sus cantidades. En el celular, «Administrador · Entró …»
+     en una línea y las cantidades arriba a la derecha (maqueta). */
+  .users-row {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto 132px 16px;
+    grid-template-areas: "face body role last arrow" "face body role counts arrow";
+    align-items: center;
+    column-gap: var(--s3);
+    row-gap: 2px;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    font: inherit;
+    text-align: left;
+    color: var(--ink);
+  }
+  .users-row > .users-avatar {
+    grid-area: face;
+  }
+  .users-row-body {
+    grid-area: body;
+  }
+  .users-row-meta {
+    display: contents;
+  }
+  .users-row-meta > .users-pill {
+    grid-area: role;
+  }
+  .users-row-meta > .users-last {
+    grid-area: last;
+  }
+  .users-row > .users-counts {
+    grid-area: counts;
+  }
+  .users-row > .icon {
+    grid-area: arrow;
+  }
+  .users-row + .users-row {
+    margin-top: var(--s2);
+  }
+  .users-row > .icon,
+  .users-dot {
+    color: var(--text-3);
+  }
+  .users-row.chosen {
+    border-color: var(--pine);
+    box-shadow:
+      0 0 0 1px var(--pine),
+      var(--shadow-1);
+  }
+  .users-row.off {
+    border-style: dashed;
+    border-color: var(--border-strong);
+    background: transparent;
+    box-shadow: none;
+  }
+  .users-row.off.chosen {
+    border-style: solid;
+    border-color: var(--pine);
+  }
+  .users-row-body {
+    display: grid;
+    min-width: 0;
+  }
+  .users-name {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    min-width: 0;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 700;
+  }
+  .users-name em {
+    overflow: hidden;
+    font-style: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .users-row.off .users-name {
+    color: var(--text-2);
+  }
+  .users-email {
+    overflow: hidden;
+    font-size: 14px;
+    color: var(--text-2);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .users-empty {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    padding: var(--s12) var(--s4);
+    text-align: center;
+    color: var(--text-2);
+  }
+  .users-empty > .icon {
+    color: var(--text-3);
+  }
+
+  @media (max-width: 899px) {
+    .users-list {
+      overflow: visible;
+    }
+    .users-row {
+      grid-template-columns: 40px minmax(0, 1fr) auto;
+      grid-template-areas: "face body counts" "face meta arrow";
+      padding: var(--s3) var(--s3) var(--s3) 14px;
+    }
+    .users-row > .users-avatar {
+      align-self: start;
+      margin-top: 2px;
+    }
+    .users-row-meta {
+      display: flex;
+      grid-area: meta;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .users-row-meta > .users-pill {
+      height: auto;
+      padding: 0;
+      background: none;
+      gap: var(--s1);
+    }
+    .users-row > .users-counts {
+      align-self: start;
+      gap: var(--s2);
+    }
+  }
+}

@@ -1,0 +1,152 @@
+/* Las cuentas de arriba, el buscador y los filtros (maquetas de 02). */
+@layer screens {
+  /* Las cuentas */
+  .users-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--s2);
+  }
+  .users-stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: var(--s3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .users-stat > div {
+    display: grid;
+  }
+  .users-stat b {
+    font-size: 24px;
+    line-height: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .users-stat span {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+  .users-stat-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .users-stat.urgent {
+    border-color: transparent;
+    background: var(--urgent-soft);
+  }
+  .users-stat.urgent b {
+    color: var(--urgent-text);
+  }
+  .users-stat.urgent .users-stat-icon {
+    background: var(--surface);
+    color: var(--urgent-text);
+  }
+  /* El buscador y los filtros */
+  .users-filters {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .users-search {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+    height: 44px;
+    padding: 0 var(--s2) 0 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    color: var(--text-3);
+  }
+  .users-search:focus-within {
+    border-color: var(--pine);
+    box-shadow: 0 0 0 4px rgb(18 56 47 / 0.12);
+  }
+  .users-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .users-chips {
+    display: flex;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .users-chip {
+    flex: none;
+    height: 40px;
+    padding: 0 var(--s3);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 650;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+  .users-chip span {
+    opacity: 0.8;
+  }
+  .users-chip[aria-pressed="true"] {
+    border-color: var(--pine);
+    background: var(--pine);
+    color: #fff;
+  }
+
+  @media (max-width: 899px) {
+    .users-stats {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      padding: var(--s3) var(--s1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      box-shadow: var(--shadow-1);
+    }
+    .users-stat {
+      justify-content: center;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      text-align: center;
+    }
+    .users-stat + .users-stat {
+      border-left: 1px solid var(--border);
+    }
+    /* Los filtros bajan de renglón: nada se corre al costado (pedido de Carlos). */
+    .users-filters {
+      flex-wrap: wrap;
+    }
+    .users-search {
+      flex-basis: 100%;
+    }
+    .users-chips {
+      flex-wrap: wrap;
+    }
+  }
+}
