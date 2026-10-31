@@ -17,6 +17,11 @@ test('atrás cierra la cámara y queda la entrada', async ({ page }) => {
   await page.getByRole('button', { name: /Escanear código QR/ }).tap();
   const camera = page.getByRole('dialog', { name: 'Escanear el código' });
   await expect(camera).toBeVisible();
+  // La cámara suma su paso al historial recién después de dibujarse: en una máquina lenta, «atrás»
+  // antes de eso saldría de la página.
+  await expect
+    .poll(() => page.evaluate(() => (history.state as { step?: string } | null)?.step))
+    .toBeTruthy();
   await page.goBack();
   await expect(camera).toHaveCount(0);
   await expect(page.getByRole('region', { name: 'Entrar' })).toBeVisible();
