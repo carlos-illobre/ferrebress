@@ -27,7 +27,7 @@ const lucia = {
       way: 'google',
       isPhone: false,
       createdAt: at(50),
-      lastUsedAt: at(0.25),
+      lastUsedAt: at(0.31), // 18 min y medio: lejos del borde del minuto
     },
     {
       id: 's2',
