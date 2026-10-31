@@ -16,8 +16,8 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
 - **R1.1** Cada persona la prende o la apaga en su celular, en Más. Cuando exista Configuración
   (capítulo 04), va ahí. Solo está en el celular: la computadora no tiene huella propia (01 · R2.4)
   y sin conexión no se entra.
-- **R1.2** Solo la ve quien tiene el permiso «Trabajar sin conexión», que da y quita un
-  Administrador (capítulo 02). Mientras no exista Personas, lo tienen los Administradores.
+- **R1.2** Solo la ve quien tiene el permiso «Trabajar sin conexión», que se da con un rol
+  (02 · R7). Al instalar lo tiene el rol Administrador, como todo permiso (02 · R7.4).
 - **R1.3** Para prenderla hace falta conexión y la huella de esa persona vinculada en ese celular
   (01 · R2.2). Sin la huella vinculada, la opción no aparece, y sin conexión la huella de la entrada
   sigue apagada.

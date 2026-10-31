@@ -138,7 +138,7 @@
 
 > Sirve hasta 24 horas desde la última vez que usaste Ferrebress con internet en este celular.
 
-> Hoy lo pueden prender los Administradores.
+> Lo puede prender quien tiene el permiso «Trabajar sin conexión»: pedíselo a quien administra los roles.
 
 > Si tu sesión se cerró desde otro dispositivo, para volver a entrar hace falta internet.
 
