@@ -12,13 +12,15 @@ const linkRow = (name: RegExp) =>
 describe('la tarjeta en el celular', () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it('«Cortar sesión» pide confirmar «Cerrar todas»; «Cambiar rol» y el historial, todavía no', async () => {
+  it('«Cortar sesión» pide confirmar «Cerrar todas»; «Cambiar rol» lleva a sus roles; el historial, todavía no', async () => {
     openUsers({ '/api/users/graciela/access': { body: access } });
     await screen.findByText('Rubén Paredes');
     fireEvent.click(row(/Graciela/));
     await inCard().findByText('Chrome en Windows');
+    const scrolled = vi.fn();
+    (document.getElementById('users-roles') as HTMLElement).scrollIntoView = scrolled;
     fireEvent.click(tile(/Cambiar rol/));
-    expect(toast()).toBe('Cambiar rol · pronto. Todavía no está.');
+    expect(scrolled).toHaveBeenCalled();
     fireEvent.click(linkRow(/Historial de acceso/));
     expect(toast()).toBe('Historial de acceso · pronto. Todavía no está.');
     fireEvent.click(inCard().getByRole('button', { name: /Ver historial/ }));

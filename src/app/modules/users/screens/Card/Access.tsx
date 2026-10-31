@@ -25,14 +25,16 @@ function Session({ person, session }: { person: PersonRow; session: SessionRow }
         <span>{t.sessionLine(wayNames[session.way], sinceOf(session.createdAt, nowMs()))}</span>
         <span>{t.usedSession(sinceOf(session.lastUsedAt, nowMs()))}</span>
       </span>
-      <Button
-        look="soft"
-        size="small"
-        doing={t.close}
-        onPress={() => closeSession(users, person, session)}
-      >
-        {t.close}
-      </Button>
+      {users.may.cutOver(person) && (
+        <Button
+          look="soft"
+          size="small"
+          doing={t.close}
+          onPress={() => closeSession(users, person, session)}
+        >
+          {t.close}
+        </Button>
+      )}
     </li>
   );
 }
@@ -50,14 +52,16 @@ function Phone({ person, phone }: { person: PersonRow; phone: PhoneRow }) {
         <span>{t.linked(dateOf(phone.createdAt, nowMs()))}</span>
         <span>{t.usedPhone(used)}</span>
       </span>
-      <Button
-        look="soft"
-        size="small"
-        doing={t.remove}
-        onPress={() => removePhone(users, person, phone.id)}
-      >
-        {t.remove}
-      </Button>
+      {users.may.cutOver(person) && (
+        <Button
+          look="soft"
+          size="small"
+          doing={t.remove}
+          onPress={() => removePhone(users, person, phone.id)}
+        >
+          {t.remove}
+        </Button>
+      )}
     </li>
   );
 }
@@ -80,7 +84,7 @@ function Sessions({ person, sessions }: { person: PersonRow; sessions: SessionRo
           {texts.sessionsCount} <span>{sessions.length}</span>
         </h3>
         <Soon className="users-history phone-only" name={t.history} />
-        {sessions.length > 0 && (
+        {sessions.length > 0 && users.may.cutOver(person) && (
           <Button
             size="small"
             icon="log-out"

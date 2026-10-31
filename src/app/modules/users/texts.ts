@@ -236,3 +236,12 @@ export const roleTexts = {
   changed: 'Rol guardado',
   deleted: (name: string) => `Rol «${name}» borrado`,
 };
+
+// Los roles de una persona en su tarjeta (R7.5).
+export const personRoleTexts = {
+  title: (name: string) => `Roles de ${name}`,
+  hint: '· tildá los que tiene',
+  willDo: 'Va a poder',
+  save: 'Guardar los roles',
+  undo: 'Deshacer',
+};

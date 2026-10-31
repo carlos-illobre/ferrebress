@@ -33,7 +33,9 @@ function WhoCan({ rows }: { rows: RoleRow[] }) {
       {permissions.map((one) => (
         <div key={one.id} class="roles-bar">
           <span>{one.name}</span>
-          <meter min={0} max={Math.max(holders.size, 1)} value={withIt(one.id)} />
+          <span class="roles-meter" aria-hidden="true">
+            <span style={{ width: `${(100 * withIt(one.id)) / Math.max(holders.size, 1)}%` }} />
+          </span>
           <b>{withIt(one.id)}</b>
         </div>
       ))}

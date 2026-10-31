@@ -55,8 +55,15 @@
   /* El buscador y los filtros */
   .users-filters {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--s2);
+  }
+  /* El filtro por rol va en su propia fila, y se corre de costado si no entra (E54). */
+  .users-role-chips {
+    flex-basis: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
   .users-search {
     display: flex;

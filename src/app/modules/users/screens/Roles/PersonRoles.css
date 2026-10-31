@@ -1,0 +1,60 @@
+/* Los roles de una persona en su tarjeta (maqueta users-person-roles): la lista para tildar y, debajo,
+   lo que va a poder con de qué rol le viene. */
+.person-roles {
+  display: grid;
+  gap: var(--s3);
+  margin-top: var(--s4);
+}
+
+.person-roles h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.person-roles h3 small {
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+.person-roles h4 {
+  margin: var(--s2) 0 0;
+  font-size: 16px;
+}
+
+.person-roles-save {
+  display: flex;
+  gap: var(--s3);
+  justify-content: flex-end;
+}
+
+.person-abilities {
+  display: grid;
+  gap: var(--s2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.person-abilities li {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: var(--s3);
+  align-items: center;
+  color: var(--text-3);
+}
+
+.person-from {
+  overflow: hidden;
+  color: var(--text-2);
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.person-abilities li.on {
+  color: var(--ink);
+}
+
+.person-abilities li.on .icon {
+  color: var(--success-text);
+}

@@ -1,5 +1,5 @@
 // Lo que la tarjeta suma en el celular (referencia de Carlos): tres botones arriba (cortar sus
-// sesiones, quitar su huella y cambiar el rol, que llega con la etapa b) y tres renglones abajo (su
+// sesiones, quitar su huella y cambiar sus roles, que lleva a «Roles de…») y tres renglones abajo (su
 // huella, sus dispositivos y su historial, que llega con la Auditoría). Hacen lo mismo que la tarjeta
 // de la computadora: no hay ninguna acción nueva.
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
@@ -48,21 +48,21 @@ export function Tiles({ person }: { person: PersonRow }) {
       name: t.cutSessions,
       tone: 'red',
       act: () => users.open({ kind: 'close-all', person }),
-      off: sessions.length === 0 || !users.online,
+      off: sessions.length === 0 || !users.online || !users.may.cutOver(person),
     },
     {
       icon: 'fingerprint',
       name: t.removePasskey,
       tone: 'orange',
       act: removeOne,
-      off: phones.length === 0 || !users.online,
+      off: phones.length === 0 || !users.online || !users.may.cutOver(person),
     },
     {
       icon: 'user-check',
       name: t.changeRole,
       tone: 'green',
-      act: () => showToast(t.soon(t.changeRole)),
-      soon: true,
+      act: () => scrollTo('users-roles'),
+      off: !users.may.roles,
     },
   ];
   return (

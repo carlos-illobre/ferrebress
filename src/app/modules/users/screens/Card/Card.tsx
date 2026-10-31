@@ -9,25 +9,38 @@ import { activate, change, remove } from '../../actions.ts';
 import { dateOf, nowMs } from '../../logic.ts';
 import { useUsersContext } from '../../state.ts';
 import { cardTexts as t, texts } from '../../texts.ts';
+import { PersonRoles } from '../Roles/PersonRoles.tsx';
 import { Avatar, LastSignIn, Roles } from '../Users/List.tsx';
 import { Access, Note } from './Access.tsx';
 import { Editable } from './Edit.tsx';
 import { Rows, Tiles } from './Phone.tsx';
 import './Card.css';
 
+// El nombre se cambia con «Administrar personas»; el correo, además, si nunca entró y no tiene más
+// permisos que quien mira (R7.11).
 function Who({ person }: { person: PersonRow }) {
   const users = useUsersContext();
   return (
     <div class="users-who" data-private="">
-      <Editable
-        className="users-who-name"
-        value={person.name ?? ''}
-        shown={person.displayName}
-        label={t.editName}
-        placeholder={t.namePlaceholder(person.neverSignedIn)}
-        save={(value) => change(users, person, 'name', value)}
-      />
-      {person.neverSignedIn ? (
+      {users.may.manage ? (
+        <Editable
+          className="users-who-name"
+          value={person.name ?? ''}
+          shown={person.displayName}
+          label={t.editName}
+          placeholder={t.namePlaceholder(person.neverSignedIn)}
+          save={(value) => change(users, person, 'name', value)}
+        />
+      ) : (
+        <div class="users-who-name">
+          <span>{person.displayName}</span>
+        </div>
+      )}
+      {person.neverSignedIn && !users.may.manageOver(person) ? (
+        <div class="users-who-email">
+          <span>{person.email}</span>
+        </div>
+      ) : person.neverSignedIn ? (
         <Editable
           className="users-who-email"
           value={person.email}
@@ -92,9 +105,13 @@ function Middle({ person }: { person: PersonRow }) {
   );
 }
 
+// Dar de alta y de baja: «Administrar personas» y no sobre quien tiene más (R7.11); borrar el alta,
+// «Administrar personas».
 function Foot({ person }: { person: PersonRow }) {
   const users = useUsersContext();
   if (person.self) return <Note>{t.selfNote}</Note>;
+  if (!users.may.manage) return null;
+  if (!person.active && !users.may.manageOver(person)) return null;
   if (!person.active)
     return (
       <Button
@@ -122,6 +139,7 @@ function Foot({ person }: { person: PersonRow }) {
         <span class="users-foot-hint">{t.deleteHint}</span>
       </>
     );
+  if (!users.may.manageOver(person)) return null;
   return (
     <Button
       look="danger"
@@ -157,6 +175,7 @@ export function Card() {
         <Who person={person} />
       </div>
       <Pills person={person} />
+      {users.may.roles && <PersonRoles person={person} />}
       <Middle person={person} />
       <div class="users-card-foot">
         <Foot person={person} />

@@ -62,9 +62,19 @@
   font-size: 14px;
 }
 
-.roles-bar meter {
-  width: 100%;
+.roles-meter {
+  display: block;
   height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--sunken-2);
+}
+
+.roles-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--pine);
 }
 
 .roles-bar b {
@@ -184,6 +194,10 @@
 .role-card-name {
   font-size: 20px;
   font-weight: 700;
+}
+
+.role-card-description {
+  font-size: 14px;
 }
 
 .role-card-head small,
