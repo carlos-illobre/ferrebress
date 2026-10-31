@@ -39,7 +39,7 @@ export const chapter = `# Entrar
 1. Tocá «Continuar con Google».
    Captura: desktop-entrance · google · Continuar con Google
 2. Elegí tu cuenta.
-   Ícono: fingerprint
+   Captura: desktop-entrance · qr · El código
 
 > Solo entran las cuentas autorizadas.
 
@@ -50,6 +50,7 @@ export const chapter = `# Entrar
 - Ícono: fingerprint
 
 1. Poné el dedo.
+   Captura: phone-entrance · finger · Ingresar con huella
 `;
 
 export type Files = Record<string, string | Buffer>;
@@ -59,6 +60,8 @@ export const base = (): Files => ({
   'sign-in.md': chapter,
   'media/desktop-entrance.webp': webp(),
   'media/desktop-entrance.json': scene(),
+  'media/phone-entrance.webp': webp(),
+  'media/phone-entrance.json': scene('phone', { finger: [50, 60] }),
   'media/phone-to-computer.webm': webm(),
   'media/phone-to-computer.end.webp': webp(),
 });

@@ -7,7 +7,6 @@ import { isName, type Problems, problemAt, splitDots, textProblem } from './text
 export type ParsedStep = {
   text: string;
   line: number;
-  icon?: string;
   capture?: { scene: string; point: string; label: string; line: number };
 };
 
@@ -60,10 +59,8 @@ function readStep(reader: Reader, task: ParsedTask, number: number, text: string
 
 function readStepKey(reader: Reader, step: ParsedStep | undefined, key: string, value: string) {
   if (!step) return void report(reader, `«${key}» va debajo de un paso`);
-  if (key === 'Ícono') {
-    step.icon = value;
-    return;
-  }
+  // Cada paso muestra la pantalla de la aplicación: un ícono solo no le dice nada a quien lee.
+  if (key === 'Ícono') return void report(reader, 'un paso lleva su captura, no un ícono');
   const [scene = '', point = '', label = '', ...rest] = splitDots(value);
   if (rest.length > 0 || !isName(scene) || !isName(point) || label === '')
     return void report(reader, 'la captura es «escena · punto · rótulo»');

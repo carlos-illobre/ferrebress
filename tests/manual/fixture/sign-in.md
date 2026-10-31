@@ -13,10 +13,8 @@
 
 1. Abrí Ferrebress en la computadora. A la derecha aparece un código cuadrado.
    Captura: desktop-entrance · qr · El código
-2. En el celular, tocá «Escanear código QR».
+2. En el celular, tocá «Escanear código QR» y poné la huella.
    Captura: phone-entrance · scan · Escanear código QR
-3. Poné la huella en el celular.
-   Ícono: fingerprint
 
 > El código cambia cada minuto y sirve una sola vez.
 
@@ -35,9 +33,7 @@
 - Dispositivo: celular
 - Ícono: log-in
 
-1. Tocá «Continuar con Google».
+1. Tocá «Continuar con Google» y elegí tu cuenta.
    Captura: phone-entrance · google · Continuar con Google
-2. Elegí tu cuenta.
-   Ícono: user-round
 
 > Solo entran las cuentas que autorizó un Administrador.

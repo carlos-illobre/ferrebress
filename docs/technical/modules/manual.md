@@ -73,10 +73,8 @@ común y tiene una forma fija:
 
 1. Abrí Ferrebress en la computadora. A la derecha aparece un código cuadrado.
    Captura: desktop-entrance · qr · El código
-2. En el celular, abrí Ferrebress y tocá «Escanear código QR».
+2. En el celular, abrí Ferrebress, tocá «Escanear código QR» y apuntá al código.
    Captura: phone-entrance · scan · Escanear código QR
-3. Poné la huella en el celular.
-   Ícono: fingerprint
 
 > El código cambia cada minuto y sirve una sola vez.
 ```
@@ -91,8 +89,11 @@ común y tiene una forma fija:
 - **Captura:** la escena (§ 3), el punto que se señala y su rótulo. Si la escena es del otro
   dispositivo (lo dice la escena, no el renglón), el paso se muestra igual, con «En el celular» o
   «En la computadora» (R6.3).
-- **Un paso sin captura** lleva su `Ícono:` (si no, el de la tarea) y lo muestra grande sobre la
-  captura anterior, velada; si es el primero, solo.
+- **Cada paso tiene su captura** (R6.5): la pantalla de la aplicación es lo que le da contexto a
+  quien lee; un ícono solo no le dice nada. Lo que pasa fuera de Ferrebress (elegir la cuenta de
+  Google, apuntar la cámara, poner el dedo) se dice en el paso que tiene la pantalla. La pantalla
+  todavía sabe mostrar un paso sin captura (el ícono de la tarea, grande), pero el lector no lo deja
+  pasar.
 - **Los consejos** (`>`): en la computadora, el consejo *i* sale en el paso *i*, y el último se
   repite en los que siguen, como la maqueta; en el celular, por el lugar, solo en el último paso de
   la tarea, el último consejo. Todos juntos en «Todos los pasos».
@@ -118,7 +119,7 @@ armar la aplicación, y deja en `dist/manual/`:
 id o un archivo repetido, un archivo de `docs/manual/` que no está en la lista (así no desaparece
 en silencio al reordenar), un título distinto del nombre, un ícono que no está en el juego del
 manual (§ 5), una clave desconocida o que falta, un dispositivo que no es `computadora` ni
-`celular`, un destino de `→` que no existe, una escena o un punto que no existen, un punto fuera de
+`celular`, un destino de `→` que no existe, un paso sin captura o con `Ícono:`, una escena o un punto que no existen, un punto fuera de
 0 a 100, un archivo de `media/` que nadie usa, uno pasado de tope o cuyo contenido no es lo que dice
 su nombre (se miran los primeros bytes).
 

@@ -124,7 +124,8 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   abren, también en producción. Entrar sin conexión se explica
   en «Entrar», donde lo busca quien no puede entrar; «Trabajar sin conexión» lleva ahí.
 - **R6.5** Cada capítulo tiene texto simple, para quien atiende una ferretería sin saber de
-  informática, pasos y capturas de la aplicación de verdad. Las capturas y los clips se sacan sin
+  informática, pasos y capturas de la aplicación de verdad: cada paso con su captura, porque la
+  pantalla es lo que le da contexto a quien lee (un ícono solo no le dice nada). Las capturas y los clips se sacan sin
   el marco ni el cartel del ambiente de pruebas, y con datos de una cuenta de demostración. Lo que
   el manual señala en una captura se marca con un aro, y su nombre va al costado, con una flecha
   hacia el aro, para que no se confunda con la pantalla; se lee entero aunque salga de la captura. Un clip

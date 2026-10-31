@@ -24,9 +24,14 @@ function iconOf(context: Context, icon: string, line: number): string {
 }
 
 function stepOf(context: Context, step: ParsedStep, taskIcon: string): Step {
-  const icon = iconOf(context, step.icon ?? taskIcon, step.line);
+  const icon = iconOf(context, taskIcon, step.line);
   const wanted = step.capture;
-  if (!wanted) return { text: step.text, icon };
+  if (!wanted) {
+    // Lo que pasa fuera de Ferrebress (Google, la cámara, el dedo) se dice en el paso que tiene la
+    // pantalla de la aplicación.
+    context.problems.push(problemAt(context.file, step.line, 'el paso no tiene captura'));
+    return { text: step.text, icon };
+  }
   const scene = context.media.scenes.get(wanted.scene);
   const point = scene?.points[wanted.point];
   if (!scene || !point) {

@@ -4,7 +4,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { describe, expect, it } from 'vitest';
 import { manualIcons } from '../../src/app/modules/manual/icons.ts';
 import type { Chapter, ManualIndex, SearchTask } from '../../src/shared/contracts/manual.ts';
-import { base, build, chapter, json, list, problemsOf, readme } from './manual-test-kit.ts';
+import { base, build, chapter, json, problemsOf, readme } from './manual-test-kit.ts';
 import { serveManual } from './serve.ts';
 
 describe('buildManual', () => {
@@ -14,6 +14,7 @@ describe('buildManual', () => {
     expect([...files.keys()].sort()).toEqual([
       'index.json',
       'media/desktop-entrance.webp',
+      'media/phone-entrance.webp',
       'media/phone-to-computer.end.webp',
       'media/phone-to-computer.webm',
       'search-computer.json',
@@ -68,7 +69,7 @@ describe('buildManual', () => {
             label: 'Continuar con Google',
           },
         },
-        { text: 'Elegí tu cuenta.', icon: 'fingerprint' },
+        { text: 'Elegí tu cuenta.', icon: 'log-in', capture: { scene: 'desktop-entrance' } },
       ],
     });
     expect(json<SearchTask[]>(files, 'search-computer.json')).toEqual([
@@ -94,11 +95,11 @@ describe('buildManual', () => {
     ]);
   });
 
-  it('sin media/, un capítulo sin capturas igual se arma', () => {
-    const plain = chapter
-      .replace(/ {3}Captura: .*\n/, '')
-      .replace('- Clip: phone-to-computer\n', '');
-    expect(build({ 'README.md': readme(list), 'sign-in.md': plain }).problems).toEqual([]);
+  it('frena un paso sin captura: cada paso muestra la pantalla de la aplicación', () => {
+    const plain = chapter.replace(/ {3}Captura: .*\n/, '');
+    expect(build({ ...base(), 'sign-in.md': plain }).problems).toEqual([
+      'docs/manual/sign-in.md:15: el paso no tiene captura',
+    ]);
   });
 
   it('frena sin README.md, sin la sección de la lista o con un renglón mal escrito', () => {

@@ -106,7 +106,8 @@ describe('buildManual, lo que frena', () => {
     ).toEqual(
       expect.arrayContaining([
         'docs/manual/sign-in.md:11: no existe el clip «otro»',
-        'docs/manual/sign-in.md:13: el ícono «nada» no está en el manual',
+        'docs/manual/sign-in.md:14: un paso lleva su captura, no un ícono',
+        'docs/manual/sign-in.md:13: el paso no tiene captura',
         'docs/manual/sign-in.md:16: no existe la escena «otra»',
         'docs/manual/sign-in.md:18: no existe el punto «nada» en «desktop-entrance»',
       ]),

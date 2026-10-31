@@ -14,14 +14,12 @@
 
 1. Abrí Ferrebress en la computadora. A la derecha aparece un código cuadrado.
    Captura: desktop-entrance · qr · El código
-2. En el celular, abrí Ferrebress y tocá «Escanear código QR».
+2. En el celular, abrí Ferrebress, tocá «Escanear código QR» y apuntá al código de la computadora.
    Captura: phone-entrance · scan · Escanear código QR
-3. Apuntá el celular al código de la computadora.
-   Ícono: scan-barcode
-4. El celular pregunta «¿Entrar en Chrome en Windows?». Tocá que sí y poné la huella.
-   Ícono: fingerprint
-5. Listo: la computadora entra sola, sin tocar nada más.
-   Ícono: circle-check
+3. El celular pregunta «¿Entrar en Chrome en Windows?». Tocá que sí y poné la huella.
+   Captura: phone-link-confirm · yes · Sí, entrar con la huella
+4. Listo: la computadora entra sola, sin tocar nada más.
+   Captura: desktop-frame-sign-out · first · Ya entraste
 
 > El código cambia cada minuto y sirve una sola vez.
 
@@ -36,12 +34,10 @@
 - Ícono: log-in
 - Aclaración: Si no tenés el celular a mano.
 
-1. Tocá «Continuar con Google».
+1. Tocá «Continuar con Google» y elegí tu cuenta. Después de salir, Google siempre te pregunta cuál.
    Captura: desktop-entrance · google · Continuar con Google
-2. Elegí tu cuenta. Después de salir, Google siempre te pregunta cuál.
-   Ícono: user-round
-3. Entrás a Ferrebress, a la primera opción del menú.
-   Ícono: circle-check
+2. Entrás a Ferrebress, a la primera opción del menú.
+   Captura: desktop-frame-sign-out · first · Ya entraste
 
 > Solo entran las cuentas que autorizó un Administrador. Si dice que tu cuenta no está autorizada, pedile que agregue tu correo.
 
@@ -55,7 +51,7 @@
 1. Los botones se apagan y la entrada dice «Para entrar hace falta internet».
    Captura: desktop-entrance-offline · notice · Hace falta internet
 2. Cuando vuelve internet, los botones se prenden solos. No hace falta recargar.
-   Ícono: refresh-cw
+   Captura: desktop-entrance · google · Los botones, prendidos
 
 ## Si pasa mucho tiempo
 
@@ -64,8 +60,10 @@
 - Ícono: clock
 - Aclaración: Por seguridad, la sesión se cierra sola.
 
-1. Si pasás una hora sin usar Ferrebress, o a las 8 horas de haber entrado, aparece la entrada encima de lo que estabas haciendo.
+1. Si pasás una hora sin usar Ferrebress, o a las 8 horas de haber entrado, aparece la entrada encima de lo que estabas haciendo, con «Tu sesión venció».
+   Captura: desktop-session-expired · notice · Tu sesión venció
 2. Entrás de nuevo con tu cuenta y seguís donde estabas. No se pierde nada.
+   Captura: desktop-frame-sign-out · first · Donde estabas
 
 > Si entra otra persona, lo que quedó a medio hacer se descarta.
 
@@ -88,12 +86,8 @@
 - Dispositivo: celular
 - Ícono: log-in
 
-1. Tocá «Continuar con Google».
+1. Tocá «Continuar con Google» y elegí tu cuenta. La primera vez te pregunta «¿Entrar con la huella la próxima vez?»: tocá que sí y poné la huella.
    Captura: phone-entrance · google · Continuar con Google
-2. Elegí tu cuenta.
-   Ícono: user-round
-3. La primera vez te pregunta «¿Entrar con la huella la próxima vez?». Tocá que sí y poné la huella.
-   Ícono: fingerprint
 
 > Solo entran las cuentas que autorizó un Administrador.
 
@@ -104,9 +98,8 @@
 - Ícono: fingerprint
 - Marca: La forma más rápida / La más rápida
 
-1. Tocá «Ingresar con huella».
+1. Tocá «Ingresar con huella» y poné el dedo. Entrás.
    Captura: phone-entrance · fingerprint · Ingresar con huella
-2. Poné el dedo. Entrás.
 
 > Cada celular tiene una sola cuenta con huella.
 
@@ -118,14 +111,12 @@
 - Clip: phone-to-computer
 - Aclaración: La computadora muestra un código; el celular lo lee.
 
-1. Tocá «Escanear código QR».
+1. Tocá «Escanear código QR» y apuntá al código de la computadora.
    Captura: phone-entrance · scan · Escanear código QR
-2. Apuntá al código de la computadora.
-   Ícono: scan-barcode
-3. Te pregunta «¿Entrar en Chrome en Windows?». Tocá que sí y poné la huella.
-   Ícono: fingerprint
-4. La computadora entra sola.
-   Ícono: circle-check
+2. Te pregunta «¿Entrar en Chrome en Windows?». Tocá que sí y poné la huella.
+   Captura: phone-link-confirm · yes · Sí, entrar con la huella
+3. La computadora entra sola.
+   Captura: desktop-frame-sign-out · first · La computadora entró
 
 > Los dos en el mismo Wi-Fi del local.
 
@@ -160,7 +151,7 @@
 1. Sin «Trabajar sin conexión», los botones se apagan y dice «Para entrar hace falta internet».
    Captura: phone-google-offline · notice · Hace falta internet
 2. Cuando vuelve, se prenden solos.
-   Ícono: refresh-cw
+   Captura: phone-entrance · google · Los botones, prendidos
 
 ## Salir
 

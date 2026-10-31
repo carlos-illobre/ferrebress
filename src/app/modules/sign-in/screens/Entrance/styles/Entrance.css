@@ -17,6 +17,14 @@
     margin: 0;
     padding: 0;
   }
+  /* Encima de lo que se estaba haciendo (01 · R3.4): si la sesión termina con el marco abierto, la
+     entrada lo tapa entero y lo de abajo queda como estaba. El celular ya ocupa la ventana. */
+  .behind-manual ~ .sign-in {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    overflow-y: auto;
+  }
   .sign-in .marked {
     outline-color: var(--sign-in-orange);
     outline-offset: 3px;

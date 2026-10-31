@@ -135,6 +135,7 @@ export const scenes: Scene[] = [
     points: {
       card: (page) => page.getByRole('region', { name: 'Tu sesión' }),
       'sign-out': (page) => page.getByRole('button', { name: /Salir/ }),
+      first: (page) => page.getByRole('heading', { name: 'Usuarios', level: 1 }),
     },
   },
   {
