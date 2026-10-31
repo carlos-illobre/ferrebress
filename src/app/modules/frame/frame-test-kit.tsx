@@ -26,7 +26,9 @@ export function open({
   onSignOut = vi.fn<() => unknown>(),
   setting,
   screens,
+  who = person,
 }: {
+  who?: FrameProps['person'];
   testing?: boolean;
   onSignOut?: Mock<() => unknown>;
   setting?: SettingRow;
@@ -35,7 +37,7 @@ export function open({
   render(
     <>
       <Frame
-        person={person}
+        person={who}
         testing={testing}
         onSignOut={onSignOut}
         setting={setting}

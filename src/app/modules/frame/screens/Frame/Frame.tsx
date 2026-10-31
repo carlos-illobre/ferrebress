@@ -3,6 +3,7 @@
 // página para los dos anchos: desde 900 px es la computadora y debajo, el celular (ADR-002).
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { ComponentChildren, ComponentType } from 'preact';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { route } from '../../../../platform/router.ts';
 import { online as onlineStore } from '../../../../platform/server/api.ts';
 import { useStore } from '../../../../platform/store.ts';
@@ -12,9 +13,11 @@ import { usePanels } from '../../behavior/usePanels.ts';
 import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
 import { useTip } from '../../behavior/useTip.ts';
 import { FrameContext, type FrameState, type SettingRow, shake } from '../../context.ts';
-import { exists, moreOptions, type Option, optionAt, parts } from '../../menu.ts';
+import { allowed, firstOption, type Option, optionAt } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
+import { Lost, type LostPermission } from '../NoPermission/Lost.tsx';
+import { goToFirst, NoPermission } from '../NoPermission/NoPermission.tsx';
 import { PhoneNav } from '../Phone/Phone.tsx';
 import { PhoneMore } from '../Phone/PhoneMore.tsx';
 import { PhoneSheets } from '../Phone/PhoneSheets.tsx';
@@ -34,16 +37,13 @@ export type FrameProps = {
   children?: ComponentChildren;
 };
 
-// La opción abierta (R1.4): la primera del menú que exista; sin ninguna, Vender.
-const firstOption = () =>
-  [...parts, ...moreOptions].find((option) => exists(option) && !option.over)?.id ??
-  (parts[0] as Option).id;
-
 export function Frame({ person, testing, onSignOut, setting, screens, children }: FrameProps) {
   const online = useStore(onlineStore);
-  // La opción abierta es la de la dirección; en cualquier otra, la primera (R1.4).
-  const current = optionAt(useStore(route).path)?.id ?? firstOption();
+  // La opción abierta es la de la dirección; en cualquier otra, la primera que puede usar (R1.4).
+  const opened = optionAt(useStore(route).path);
+  const current = opened?.id ?? firstOption(person).id;
   const Screen = screens?.[current];
+  const lost = useLostPermission(person, opened);
   const collapse = useCollapse();
   const panels = usePanels();
   const phoneMore = usePhoneMore();
@@ -74,8 +74,15 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
       >
         <Side />
         <main class="work-area" aria-label={texts.workArea}>
-          {Screen ? <Screen /> : children}
+          {opened?.permission && !allowed(opened, person) ? (
+            <NoPermission option={{ ...opened, permission: opened.permission }} />
+          ) : Screen ? (
+            <Screen />
+          ) : (
+            children
+          )}
         </main>
+        {lost.now && <Lost lost={lost.now} onGo={lost.go} />}
         <PhoneMore />
         <PhoneNav />
         <WaitNotice />
@@ -87,6 +94,23 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
       {testing && <TestEnvironment />}
     </FrameContext.Provider>
   );
+}
+
+// R7.8: si con los permisos nuevos ya no puede usar la pantalla abierta, lo dice y la deja.
+function useLostPermission(person: Person, opened: Option | undefined) {
+  const before = useRef(person);
+  const [now, setNow] = useState<LostPermission>();
+  useEffect(() => {
+    const was = before.current;
+    before.current = person;
+    if (opened && was !== person && allowed(opened, was) && !allowed(opened, person))
+      setNow({ option: opened, before: was, after: person });
+  }, [person, opened]);
+  const go = useCallback(() => {
+    setNow(undefined);
+    goToFirst(person);
+  }, [person]);
+  return { now, go };
 }
 
 const frameClass = ({ collapsed, phase }: ReturnType<typeof useCollapse>, moreOpen: boolean) =>

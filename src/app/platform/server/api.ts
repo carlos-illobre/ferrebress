@@ -24,6 +24,8 @@ export const sessionClosed = createStore<string | undefined>(undefined);
 // Cuándo contestó bien el servidor por última vez, con la hora del dispositivo: lo escucha quien
 // necesita saber del último contacto (entrar sin conexión, 15 · R2.2), sin que esto sepa para qué.
 export const lastReply = createStore<number | undefined>(undefined);
+// La huella de los permisos de la sesión que trajo la última respuesta (02 · R7.8).
+export const permissionsHash = createStore<string | undefined>(undefined);
 
 addEventListener('online', () => online.set(true));
 addEventListener('offline', () => online.set(false));
@@ -82,4 +84,5 @@ function readServerHeader(response: Response): void {
   if (!header) return;
   syncServerTime(header.serverTime);
   if (header.version !== appVersion) newVersion.set(true);
+  if (header.permissions) permissionsHash.set(header.permissions);
 }

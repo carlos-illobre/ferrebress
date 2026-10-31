@@ -7,7 +7,7 @@ import { Fragment } from 'preact';
 import { useWaiting } from '../../../../platform/waiting.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { initials, roleNames, useFrame } from '../../context.ts';
-import { exists, moreOptions, type Option, openOption, unavailable } from '../../menu.ts';
+import { exists, moreFor, type Option, openOption, unavailable } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './PhoneMore.css';
@@ -41,10 +41,11 @@ export function PhoneMore() {
 
 // Las opciones. El interruptor de otro módulo va debajo de Configuración.
 function MoreList() {
+  const { person } = useFrame();
   return (
     <div>
       <ul class="phone-more-card phone-more-group">
-        {moreOptions.map((option) => (
+        {moreFor(person).map((option) => (
           <Fragment key={option.id}>
             <li>
               <MoreOption option={option} />

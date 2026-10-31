@@ -1,6 +1,7 @@
 // El menú (00 · R1.1 y R1.2): las cinco partes en su orden, y las opciones de Más. Una opción sin
 // pantalla todavía no existe: dice «Pronto» y no se abre, en pruebas y en producción (R1.3). Cada
 // módulo, cuando llegue, le pone su pantalla a la opción que le toca.
+import { can, type PermissionId } from '@ferrebress/shared/contracts/permissions';
 import { navigate } from '../../platform/router.ts';
 import type { IconName } from '../../ui/icon/Icon.tsx';
 
@@ -18,6 +19,8 @@ export type Option = {
   needsInternet?: boolean;
   // Se abre encima de todo y no es una pantalla de trabajo (el manual): al entrar no se abre (R1.4).
   over?: boolean;
+  // El permiso que pide: sin él, no aparece (R1.8, 02 · R7.7).
+  permission?: PermissionId;
 };
 
 export const parts: Option[] = [
@@ -61,6 +64,7 @@ const settings: Option[] = [
     detail: 'Quién entra y desde dónde',
     path: '/users',
     needsInternet: true,
+    permission: 'users.view',
   },
   {
     id: 'deviceSettings',
@@ -93,6 +97,22 @@ const settings: Option[] = [
 export const moreOptions: Option[] = [...business, ...settings];
 
 export const exists = (option: Option) => option.path !== undefined;
+
+type Who = { permissions: readonly string[] };
+
+// Lo que la persona puede usar (R1.8): lo que no pide permiso, o aquello cuyo permiso tiene.
+export const allowed = (option: Option, person: Who) =>
+  !option.permission || can(person, option.permission);
+
+// El menú y Más de la persona, sin lo que no puede usar.
+export const partsFor = (person: Who) => parts.filter((option) => allowed(option, person));
+export const moreFor = (person: Who) => moreOptions.filter((option) => allowed(option, person));
+
+// La primera opción del menú que existe y que la persona puede usar (R1.4); sin ninguna, Vender.
+export const firstOption = (person: Who): Option =>
+  [...parts, ...moreOptions].find(
+    (option) => exists(option) && !option.over && allowed(option, person),
+  ) ?? (parts[0] as Option);
 
 export const unavailable = (option: Option, online: boolean) => !!option.needsInternet && !online;
 

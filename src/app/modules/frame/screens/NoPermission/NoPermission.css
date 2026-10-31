@@ -1,0 +1,248 @@
+/* «Sin permiso» (maqueta app-no-permission, variante 1): la puerta a la izquierda y lo que explica a
+   la derecha, en una tarjeta al centro; en el celular, una columna, con los botones abajo. */
+.no-permission {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s8);
+  max-width: 840px;
+  margin: var(--s12) auto;
+  padding: var(--s8);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-1);
+}
+
+.no-permission-door {
+  display: grid;
+  place-items: center;
+  width: 144px;
+  height: 144px;
+  border-radius: 32px;
+  background: var(--sunken);
+  color: var(--pine);
+}
+
+.no-permission h1 {
+  margin: 0 0 var(--s4);
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.no-permission-needs {
+  display: flex;
+  gap: var(--s3);
+  align-items: center;
+  padding: var(--s3) var(--s4);
+  border-radius: var(--radius);
+  background: var(--sunken);
+}
+
+.no-permission-needs b,
+.no-permission-needs small {
+  display: block;
+}
+
+.no-permission-needs small,
+.no-permission-roles small,
+.no-permission-head {
+  color: var(--text-2);
+}
+
+.no-permission-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  color: var(--pine-text);
+}
+
+.no-permission-head {
+  display: flex;
+  justify-content: space-between;
+  margin: var(--s5) 0 var(--s2);
+  font-size: 14px;
+}
+
+.no-permission-roles {
+  display: grid;
+  gap: var(--s2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.no-permission-roles li {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: var(--s3);
+  align-items: center;
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.no-permission-roles .no-permission-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--pine-soft);
+}
+
+.no-permission-faces {
+  display: flex;
+}
+
+.no-permission-faces .avatar {
+  width: 28px;
+  height: 28px;
+  margin-left: -6px;
+  font-size: 12px;
+  border: 2px solid var(--surface);
+}
+
+.no-permission-granted,
+.no-permission-yours,
+.no-permission-nobody {
+  margin: var(--s3) 0 0;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.no-permission-yours {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  align-items: center;
+}
+
+.no-permission-yours .pill {
+  padding: 2px var(--s3);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--ink);
+}
+
+.no-permission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  margin-top: var(--s5);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 899px) {
+  .no-permission {
+    grid-template-columns: 1fr;
+    gap: var(--s5);
+    margin: 0;
+    padding: var(--s5) var(--s4) var(--s12);
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .no-permission-door {
+    width: 96px;
+    height: 96px;
+    border-radius: 24px;
+  }
+
+  .no-permission-needs {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .no-permission-needs .no-permission-icon {
+    background: var(--pine-soft);
+  }
+
+  .no-permission-actions {
+    position: sticky;
+    bottom: 0;
+    flex-wrap: nowrap;
+    border-top: 0;
+  }
+
+  .no-permission-actions .button:first-child {
+    flex: 1;
+  }
+}
+
+/* «Ya no tenés permiso»: el diálogo con lo que cambió y la cuenta hasta irse. */
+.lost-permission h2 {
+  display: flex;
+  gap: var(--s3);
+  align-items: center;
+  margin: 0 0 var(--s3);
+  font-size: 20px;
+}
+
+.lost-permission-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  background: var(--urgent-soft);
+  color: var(--urgent-text);
+}
+
+.lost-permission-roles {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s2) var(--s4);
+  align-items: center;
+  margin: var(--s3) 0;
+}
+
+.lost-permission-roles dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin: 0;
+}
+
+.lost-permission .pill {
+  padding: 2px var(--s3);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+}
+
+.lost-permission .pill-gone {
+  border-color: transparent;
+  background: var(--sunken-2);
+  color: var(--text-2);
+  text-decoration: line-through;
+}
+
+.lost-permission-kept {
+  display: flex;
+  gap: var(--s2);
+  align-items: center;
+  padding: var(--s3) var(--s4);
+  border-radius: var(--radius);
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+
+.lost-permission footer {
+  display: flex;
+  gap: var(--s4);
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--s4);
+}
+
+.lost-permission-count b {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--pine);
+  border-radius: 50%;
+}

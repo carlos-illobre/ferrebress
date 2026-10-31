@@ -5,7 +5,7 @@
 import { useContext } from 'preact/hooks';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { FrameContext, useFrame } from '../../context.ts';
-import { exists, moreOptions, type Option, openOption, parts } from '../../menu.ts';
+import { exists, moreOptions, type Option, openOption, partsFor } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './Phone.css';
@@ -30,12 +30,12 @@ export function PhoneLight() {
 }
 
 export function PhoneNav() {
-  const { phoneMore, current } = useFrame();
+  const { phoneMore, current, person } = useFrame();
   // Más queda elegida también con una de sus opciones abierta.
   const inMore = phoneMore.open || moreOptions.some((option) => option.id === current);
   return (
     <nav class="phone-nav phone-only" aria-label={texts.menu}>
-      {parts.map((option) => (
+      {partsFor(person).map((option) => (
         <PhonePart key={option.id} option={option} />
       ))}
       <button

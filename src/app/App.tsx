@@ -35,6 +35,7 @@ import {
   useOfflineSetting,
   usePhoneCode,
   watchOffline,
+  watchPermissions,
 } from './modules/sign-in/index.ts';
 import { UsersSlot } from './modules/users/index.ts';
 import { readStored, store } from './platform/device/storage.ts';
@@ -121,7 +122,7 @@ function useStart(scanned: (code: string) => void) {
     });
     const retry = () => void recheck();
     addEventListener('online', retry);
-    const stops = [watchCrashes(), watchBackground(), watchOffline()];
+    const stops = [watchCrashes(), watchBackground(), watchOffline(), watchPermissions()];
     return () => {
       removeEventListener('online', retry);
       for (const stop of stops) stop();

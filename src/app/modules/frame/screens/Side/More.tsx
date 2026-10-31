@@ -4,7 +4,7 @@
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { type Place, px } from '../../behavior/usePanels.ts';
 import { useFrame } from '../../context.ts';
-import { moreOptions } from '../../menu.ts';
+import { moreFor, moreOptions } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { MenuItem } from './MenuItem.tsx';
 
@@ -42,7 +42,7 @@ export function More() {
           data-panel=""
           style={{ left: px(place.left), top: px(place.top) }}
         >
-          {moreOptions.map((option) => (
+          {moreFor(frame.person).map((option) => (
             <li key={option.id}>
               <MenuItem option={option} />
             </li>

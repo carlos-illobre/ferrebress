@@ -8,6 +8,7 @@ export { pendingEntries } from './offline/pending.ts';
 export { sendPending } from './offline/send.ts';
 export { useOfflineSetting } from './offline/setting.ts';
 export { watchOffline } from './offline/watch.ts';
+export { watchPermissions } from './permissions-watch.ts';
 export { Entrance } from './screens/Entrance/Entrance.tsx';
 export { Camera } from './screens/Sheets/Camera.tsx';
 export { CodeSheet } from './screens/Sheets/CodeSheet.tsx';
