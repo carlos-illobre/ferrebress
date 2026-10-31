@@ -85,12 +85,8 @@ export async function answerUsers(page: Page | BrowserContext, person: Person): 
   await page.route('**/api/users', (route) =>
     route.fulfill({ json: { people, roles: sceneRoles }, headers: header() }),
   );
-  await page.route('**/api/roles', (route) =>
-    route.fulfill({
-      json: { roles: sceneRoleRows(people.map((one) => one.id)) },
-      headers: header(),
-    }),
-  );
+  const roles = { roles: sceneRoleRows(people.map((one) => one.id)) };
+  await page.route('**/api/roles', (route) => route.fulfill({ json: roles, headers: header() }));
   // La tarjeta de la primera, que la computadora abre sola.
   await page.route('**/api/users/*/access', (route) =>
     route.fulfill({ json: { sessions: [], phones: [] }, headers: header() }),
