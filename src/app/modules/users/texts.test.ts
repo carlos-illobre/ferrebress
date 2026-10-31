@@ -1,6 +1,6 @@
 // Los textos que cambian con la cantidad o con quién (maquetas de 02).
 import { describe, expect, it } from 'vitest';
-import { doneTexts as done, dialogTexts as t } from './texts.ts';
+import { cardTexts, doneTexts as done, dialogTexts as t } from './texts.ts';
 
 describe('los textos de Usuarios', () => {
   it('lo que pasa al dar de baja, según lo que tiene', () => {
@@ -20,6 +20,8 @@ describe('los textos de Usuarios', () => {
 
   it('lo que se dice al terminar', () => {
     expect(done.nameCleared(true)).toBe('Nombre borrado: se ve su correo');
+    expect(cardTexts.passkeys(1)).toBe('1 registrada');
+    expect(cardTexts.devices(1)).toBe('1 con sesión');
     expect(done.closedAll(0)).toBe('No había sesiones abiertas');
     expect(done.closedAll(1)).toBe('Se cerró la sesión');
     expect(done.phoneRemoved(false)).toBe('Celular quitado: ya no entra con la huella');

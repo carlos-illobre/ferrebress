@@ -228,14 +228,14 @@ describe('la tarjeta de una persona', () => {
     expect(row(/Sofía/).classList.contains('off')).toBe(false);
   });
 
-  it('en lo angosto, la tarjeta es un paso atrás: «Volver a la lista» y el botón atrás vuelven', async () => {
+  it('en lo angosto, la tarjeta es un paso atrás: «‹ Usuarios» y el botón atrás vuelven', async () => {
     vi.stubGlobal('matchMedia', (query: string) => ({
       matches: query.includes('max-width'),
       media: query,
     }));
     openUsers({ '/api/users/graciela/access': { body: access } });
     await choose(/Graciela/);
-    fireEvent.click(screen.getByRole('button', { name: /Volver a la lista/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Usuarios$/ }));
     expect(card().textContent).toContain('Elegí a alguien');
     fireEvent.click(row(/Graciela/));
     act(() => {

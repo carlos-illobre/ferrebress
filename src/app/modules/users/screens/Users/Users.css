@@ -104,8 +104,9 @@
   }
 
   @media (max-width: 899px) {
+    /* Sin la cabecera del marco: el título arriba, con la luz debajo (pedido de Carlos). */
     .users-head {
-      padding: var(--s2) var(--s4) 0;
+      padding: calc(var(--s6) + env(safe-area-inset-top)) var(--s4) 0;
     }
     .users-tabs {
       gap: var(--s1);
@@ -123,9 +124,15 @@
       border: 0;
       border-radius: 10px;
     }
+    /* Con su ícono y su color, se ve que se elige (pedido de Carlos): la abierta, en pino. */
     .users-tab[aria-current] {
-      background: var(--surface);
+      background: var(--pine);
       box-shadow: var(--shadow-1);
+      color: #fff;
+    }
+    .users-tab.soon {
+      background: var(--surface);
+      color: var(--text-2);
     }
     .users-offline {
       margin: var(--s3) var(--s4) 0;

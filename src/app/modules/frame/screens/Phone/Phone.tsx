@@ -1,40 +1,31 @@
-// El marco del celular (00 · R1.1): arriba el logotipo, la persona y la luz; abajo, el menú con las
-// cinco partes. Más es una pantalla entera (PhoneMore); la luz abre una hoja con lo pendiente. Sin
+// El marco del celular (00 · R1.1): abajo, el menú con las cinco partes; la luz la pone cada pantalla
+// debajo de su título. Más es una pantalla entera (PhoneMore); la luz abre una hoja con lo pendiente. Sin
 // teclas: en el celular no hay atajos (00 · R2).
-import logo from '../../../../styles/brand/logo-on-light.webp';
+
+import { useContext } from 'preact/hooks';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { initials, useFrame } from '../../context.ts';
+import { FrameContext, useFrame } from '../../context.ts';
 import { exists, moreOptions, type Option, openOption, parts, shown } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './Phone.css';
 
-export function PhoneTop() {
-  const { person, panels, phoneMore } = useFrame();
+// La luz del celular (01 · R6): «● En línea · todo enviado», que abre lo pendiente. No hay cabecera
+// del marco (sin logotipo ni persona, pedido de Carlos): cada pantalla la pone debajo de su título,
+// como Más.
+export function PhoneLight() {
+  // Fuera del marco (una pantalla sola, en sus pruebas) no hay luz.
+  const frame = useContext(FrameContext);
+  if (!frame) return null;
   return (
-    <>
-      <header class="phone-top phone-only">
-        <img class="phone-logo" src={logo} alt="Ferrebress" width={109} height={28} />
-        <button
-          type="button"
-          class="phone-avatar"
-          data-private=""
-          aria-label={`${person.name} · ${texts.more}`}
-          onClick={phoneMore.show}
-        >
-          <span class="avatar">{initials(person.name)}</span>
-        </button>
-      </header>
-      <button
-        type="button"
-        class="phone-light phone-only"
-        aria-haspopup="dialog"
-        onClick={() => panels.toggle('phonePending')}
-      >
-        <LightText />
-        <Icon name="chevron-right" size="small" />
-      </button>
-    </>
+    <button
+      type="button"
+      class="phone-light phone-only"
+      aria-haspopup="dialog"
+      onClick={() => frame.panels.toggle('phonePending')}
+    >
+      <LightText />
+    </button>
   );
 }
 

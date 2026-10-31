@@ -14,7 +14,7 @@ import { Card } from '../Card/Card.tsx';
 import { Authorize } from '../Overlays/Authorize.tsx';
 import { ConfirmCloseAll, ConfirmDeactivate } from '../Overlays/Confirm.tsx';
 import { Lost } from '../Overlays/Lost.tsx';
-import { AuthorizeButton, Head, LostRow } from './Head.tsx';
+import { AuthorizeButton, Head, LostButton } from './Head.tsx';
 import { List } from './List.tsx';
 import { Filters, Stats } from './Summary.tsx';
 import './Users.css';
@@ -79,7 +79,6 @@ function Body() {
     <div class="users-body">
       <div class="users-left">
         <Stats />
-        <LostRow />
         <Filters />
         <List />
       </div>
@@ -89,7 +88,7 @@ function Body() {
 }
 
 export function Users({ testing }: { testing: boolean }) {
-  const users = useUsers();
+  const users = { ...useUsers(), testing };
   const narrow = matchMedia('(max-width: 899px)').matches;
   return (
     <UsersContext.Provider value={users}>
@@ -97,6 +96,7 @@ export function Users({ testing }: { testing: boolean }) {
         class={users.selected ? 'users with-card' : 'users'}
         aria-label={texts.title}
         data-off={users.online ? undefined : ''}
+        data-tools={users.tools}
       >
         <Head testing={testing} />
         {!users.online && (
@@ -109,6 +109,7 @@ export function Users({ testing }: { testing: boolean }) {
           <Body />
         </div>
         <div class="users-bar phone-only">
+          <LostButton />
           <AuthorizeButton />
         </div>
       </section>

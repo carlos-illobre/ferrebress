@@ -12,6 +12,7 @@ import { cardTexts as t, texts } from '../../texts.ts';
 import { Avatar, LastSignIn, Role } from '../Users/List.tsx';
 import { Access, Note } from './Access.tsx';
 import { Editable } from './Edit.tsx';
+import { Rows, Tiles } from './Phone.tsx';
 import './Card.css';
 
 function Who({ person }: { person: PersonRow }) {
@@ -82,7 +83,13 @@ function Middle({ person }: { person: PersonRow }) {
         <span>{t.neverHint(person.email)}</span>
       </p>
     );
-  return <Access person={person} />;
+  return (
+    <>
+      <Tiles person={person} />
+      <Access person={person} />
+      <Rows />
+    </>
+  );
 }
 
 function Foot({ person }: { person: PersonRow }) {
@@ -146,7 +153,10 @@ export function Card() {
         {t.back}
       </button>
       <div class="users-card-head">
-        <Avatar person={person} large />
+        <span class="users-face">
+          <Avatar person={person} large />
+          {person.active && person.sessions > 0 && <span class="users-live" aria-hidden="true" />}
+        </span>
         <Who person={person} />
       </div>
       <Pills person={person} />

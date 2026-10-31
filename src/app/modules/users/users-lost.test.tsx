@@ -77,7 +77,7 @@ describe('«Se perdió un celular» (users-R5.7)', () => {
     }
   });
 
-  it('también los propios, con «(vos)»; en el celular se abre desde su renglón', async () => {
+  it('también los propios, con «(vos)»; en el celular se abre desde la barra de abajo', async () => {
     openUsers({
       '/api/lost-phones': {
         body: {
@@ -88,7 +88,7 @@ describe('«Se perdió un celular» (users-R5.7)', () => {
       },
     });
     await screen.findByText('Rubén Paredes', { selector: '.users-name em' });
-    fireEvent.click(document.querySelector('.users-lost') as HTMLElement);
+    fireEvent.click(document.querySelector('.users-bar button') as HTMLElement);
     expect(
       await within(dialog()).findByRole('button', { name: /Rubén Paredes \(vos\)/ }),
     ).toBeTruthy();

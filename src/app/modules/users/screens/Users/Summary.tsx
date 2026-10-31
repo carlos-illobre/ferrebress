@@ -17,11 +17,11 @@ function Stat({
   icon: IconName;
   n: number;
   label: string;
-  tone?: string;
+  tone: string;
 }) {
   return (
-    <div class={tone ? `users-stat ${tone}` : 'users-stat'}>
-      <span class="users-stat-icon desktop-only">
+    <div class={`users-stat ${tone}`}>
+      <span class="users-stat-icon">
         <Icon name={icon} />
       </span>
       <div>
@@ -37,9 +37,9 @@ export function Stats() {
   const n = counts(users.people as PersonRow[]);
   return (
     <div class="users-stats">
-      <Stat icon="users" n={n.active} label={texts.stats.active} />
-      <Stat icon="monitor" n={n.sessions} label={texts.stats.sessions} />
-      <Stat icon="fingerprint" n={n.phones} label={texts.stats.phones} />
+      <Stat icon="users" n={n.active} label={texts.stats.active} tone="green" />
+      <Stat icon="monitor" n={n.sessions} label={texts.stats.sessions} tone="amber" />
+      <Stat icon="fingerprint" n={n.phones} label={texts.stats.phones} tone="orange" />
       <Stat icon="hourglass" n={n.never} label={texts.stats.never} tone="urgent desktop-only" />
     </div>
   );

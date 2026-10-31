@@ -56,6 +56,22 @@ describe('la lista de Usuarios', () => {
     expect(screen.getByText('Buscá por nombre o por correo.')).toBeTruthy();
   });
 
+  it('en el celular, buscar y filtrar se abren desde sus íconos; un punto dice que hay algo puesto', async () => {
+    openUsers();
+    await screen.findByText('Rubén Paredes');
+    const section = document.querySelector('.users') as HTMLElement;
+    const search = screen.getByRole('button', { name: 'Buscar a una persona' });
+    const filters = screen.getByRole('button', { name: 'Qué personas ver' });
+    fireEvent.click(search);
+    expect(section.dataset.tools).toBe('search');
+    fireEvent.click(filters);
+    expect(section.dataset.tools).toBe('filters');
+    fireEvent.click(screen.getByRole('button', { name: /De baja/ }));
+    expect(filters.querySelector('.users-tool-dot')).not.toBeNull();
+    fireEvent.click(filters);
+    expect(section.dataset.tools).toBeUndefined();
+  });
+
   it('si no se pudo traer la lista, lo dice y se reintenta', async () => {
     openUsers({
       '/api/users': [{ status: 500, body: { error: 'internal' } }, { body: { people: [] } }],

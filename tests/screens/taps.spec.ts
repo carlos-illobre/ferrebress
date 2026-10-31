@@ -77,7 +77,7 @@ test.describe('en el celular', () => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Más', exact: true }).tap();
     const more = page.getByRole('region', { name: 'Más' });
-    await more.locator('.phone-more-light').tap();
+    await more.locator('.phone-light').tap();
     await expect(page.getByRole('dialog')).toBeVisible();
   });
 });

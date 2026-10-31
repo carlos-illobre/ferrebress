@@ -13,7 +13,6 @@ export const texts = {
   soon: 'Pronto',
   authorize: 'Autorizar a alguien',
   lost: 'Se perdió un celular',
-  lostDetail: 'Cortá su sesión y su huella',
   stats: {
     active: 'Pueden entrar',
     sessions: 'Sesiones',
@@ -46,7 +45,18 @@ export const texts = {
 export const cardTexts = {
   choose: 'Elegí a alguien',
   chooseHint: 'Su tarjeta aparece acá.',
-  back: 'Volver a la lista',
+  back: 'Usuarios',
+  // La tarjeta en el celular (referencia de Carlos): tres botones arriba y tres renglones abajo.
+  cutSessions: 'Cortar sesión',
+  removePasskey: 'Quitar huella',
+  changeRole: 'Cambiar rol',
+  history: 'Ver historial',
+  passkeyRow: 'Huella digital',
+  passkeys: (n: number) => (n === 1 ? '1 registrada' : `${n} registradas`),
+  devicesRow: 'Dispositivos',
+  devices: (n: number) => (n === 1 ? '1 con sesión' : `${n} con sesión`),
+  historyRow: 'Historial de acceso',
+  soon: (name: string) => `${name} · pronto. Todavía no está.`,
   editName: 'Cambiar el nombre',
   editEmail: 'Cambiar el correo',
   bound:

@@ -76,7 +76,9 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 ## 4. La conexión
 
 - **R4.1** Una luz de conexión, siempre a la vista, dice uno de tres estados: «En línea · todo
-  enviado», «Sin conexión · N por enviar» o «Enviando…».
+  enviado», «Sin conexión · N por enviar» o «Enviando…». En el celular va debajo del título de cada
+  pantalla, que empieza arriba de todo: el celular no tiene cabecera con el logotipo ni la persona
+  (la persona y «Salir» están en Más).
 - **R4.2** Al tocarla, muestra el detalle de lo que está por enviar: qué es, de cuándo y quién lo
   hizo.
 - **R4.3** La luz no consulta nada por su cuenta: dice lo que muestran las respuestas del servidor y

@@ -6,6 +6,7 @@ import type { PersonRow, PhoneRow, SessionRow } from '@ferrebress/shared/contrac
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
+import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { closeSession, removePhone } from '../../actions.ts';
 import { dateOf, nowMs, sinceOf, wayNames } from '../../logic.ts';
 import { useUsersContext } from '../../state.ts';
@@ -73,11 +74,12 @@ function Note({ children }: { children: preact.ComponentChildren }) {
 function Sessions({ person, sessions }: { person: PersonRow; sessions: SessionRow[] }) {
   const users = useUsersContext();
   return (
-    <section class="users-section">
+    <section class="users-section" id="users-sessions">
       <div class="users-section-head">
         <h3>
           {texts.sessionsCount} <span>{sessions.length}</span>
         </h3>
+        {users.testing && <Soon className="users-history phone-only" name={t.history} />}
         {sessions.length > 0 && (
           <Button
             size="small"
@@ -110,7 +112,7 @@ function Sessions({ person, sessions }: { person: PersonRow; sessions: SessionRo
 
 function Phones({ person, phones }: { person: PersonRow; phones: PhoneRow[] }) {
   return (
-    <section class="users-section">
+    <section class="users-section" id="users-phones">
       <div class="users-section-head">
         <h3>
           {texts.phonesCount} {!person.self && <span>{phones.length}</span>}
@@ -144,6 +146,16 @@ export function Access({ person }: { person: PersonRow }) {
       <Sessions person={person} sessions={access.sessions} />
       <Phones person={person} phones={access.phones} />
     </>
+  );
+}
+
+// Lo que todavía no está (el historial es la Auditoría, capítulo 05): lo dice al tocarlo.
+export function Soon({ name, className }: { name: string; className: string }) {
+  return (
+    <button type="button" class={className} onClick={() => showToast(t.soon(name))}>
+      {name}
+      <Icon name="chevron-right" size="small" />
+    </button>
   );
 }
 

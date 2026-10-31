@@ -117,28 +117,35 @@
   }
 
   @media (max-width: 899px) {
+    /* Tres tarjetas con su ícono de color arriba (referencia de Carlos). */
     .users-stats {
       grid-template-columns: repeat(3, 1fr);
-      gap: 0;
-      padding: var(--s3) var(--s1);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      background: var(--surface);
-      box-shadow: var(--shadow-1);
     }
     .users-stat {
+      flex-direction: column;
       justify-content: center;
-      padding: 0;
-      border: 0;
-      border-radius: 0;
-      background: none;
-      box-shadow: none;
+      gap: var(--s1);
+      padding: var(--s3) var(--s1);
       text-align: center;
     }
-    .users-stat + .users-stat {
-      border-left: 1px solid var(--border);
+    .users-stat-icon {
+      width: 40px;
+      height: 40px;
     }
-    /* Los filtros bajan de renglón: nada se corre al costado (pedido de Carlos). */
+    .users-stat.green .users-stat-icon {
+      background: var(--success-soft);
+      color: var(--success-text);
+    }
+    .users-stat.amber .users-stat-icon {
+      background: var(--urgent-soft);
+      color: var(--urgent-text);
+    }
+    .users-stat.orange .users-stat-icon {
+      background: var(--action-soft);
+      color: var(--action-text);
+    }
+    /* El buscador y los filtros se abren desde sus íconos de la cabecera (pedido de Carlos); los
+       filtros bajan de renglón: nada se corre al costado. */
     .users-filters {
       flex-wrap: wrap;
     }
@@ -147,6 +154,13 @@
     }
     .users-chips {
       flex-wrap: wrap;
+    }
+    .users:not([data-tools="search"]) .users-search,
+    .users:not([data-tools="filters"]) .users-chips {
+      display: none;
+    }
+    .users:not([data-tools]) .users-filters {
+      display: none;
     }
   }
 }

@@ -208,6 +208,17 @@ una sola vez para el servidor y la aplicación.
   derecha, y es un paso de la historia: el botón atrás vuelve a la lista (`back-step`).
 - **Al abrir, en la computadora,** queda elegida la primera de la lista (la propia), así la tarjeta
   nunca está vacía (pedido de Carlos); en lo angosto no, porque la tarjeta taparía la lista.
+- **Las pestañas** Usuarios · Auditoría llevan su ícono; en el celular, la abierta va en pino y la
+  otra en blanco, así se ve que se eligen (pedido de Carlos).
+- **En el celular** (referencia de Carlos): la cabecera es el título con la luz debajo y dos íconos,
+  buscar y filtrar, que abren cada uno su parte (un punto dice que hay algo puesto); las cuentas, en
+  tres tarjetas con su ícono de color; abajo, «Se perdió un celular» como botón secundario neutro (no
+  es un aviso: sin rojo) al lado de «Autorizar a alguien». La tarjeta
+  tiene arriba «‹ Usuarios» y tres botones: «Cortar sesión» (Cerrar todas), «Quitar huella» (con un
+  solo celular lo quita; con más, lleva a la lista) y «Cambiar rol» («Pronto» hasta la etapa b); las
+  sesiones en una sola tarjeta con «Ver historial» («Pronto»); abajo, tres renglones que llevan a cada
+  parte (Huella digital, Dispositivos e Historial de acceso, este con «Pronto» hasta el 05) y «Dar de
+  baja» con borde rojo. En la computadora no cambia nada.
 - **«Autorizar a alguien», en la computadora,** abre con el cursor en la caja del nombre (00 · R2.2,
   pedido de Carlos); en el celular no, para que no se abra el teclado (R2.12).
 - **El estado:** la lista entera se pide al abrir la opción; el buscador, los filtros (Todas, Activas,

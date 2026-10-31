@@ -73,6 +73,23 @@ function useCard() {
   return { selected, access, select, loadAccess };
 }
 
+// Qué se ve de la lista: el filtro, lo buscado y, en el celular, si el buscador o los filtros están
+// abiertos desde sus íconos de la cabecera (pedido de Carlos).
+function useView() {
+  const [filter, setFilter] = useState<Filter>('all');
+  const [search, setSearch] = useState('');
+  const [tools, setTools] = useState<'search' | 'filters'>();
+  return {
+    filter,
+    setFilter,
+    search,
+    setSearch,
+    tools,
+    toggleTools: (which: 'search' | 'filters') =>
+      setTools((open) => (open === which ? undefined : which)),
+  };
+}
+
 export function useUsers() {
   const list = useList();
   const card = useCard();
@@ -83,13 +100,12 @@ export function useUsers() {
   const [overlay, setOverlay] = useState<Overlay>();
   // Lo que hay que repetir después de confirmar quién es (R3.8).
   const [retry, setRetry] = useState<{ again: () => unknown }>();
-  const [filter, setFilter] = useState<Filter>('all');
-  const [search, setSearch] = useState('');
+  const view = useView();
   // Al abrir; sin conexión, cuando vuelve (con la lista que ya tenía no se pide de nuevo).
   useEffect(() => {
     if (online && !unconfirmed && !list.people) void list.load();
   }, [online, unconfirmed]);
-  const shown = list.people ? visible(list.people, filter, search) : [];
+  const shown = list.people ? visible(list.people, view.filter, view.search) : [];
   // En la computadora, la tarjeta nunca queda vacía: sin nadie elegido, el primero de la lista (la
   // propia). En lo angosto la tarjeta tapa la lista, así que no se abre sola.
   const first = shown[0]?.id;
@@ -109,14 +125,12 @@ export function useUsers() {
     retry,
     confirmFirst: (again: () => unknown) => setRetry({ again }),
     confirmed: () => setRetry(undefined),
-    filter,
-    setFilter,
-    search,
-    setSearch,
+    ...view,
   };
 }
 
-export type Users = ReturnType<typeof useUsers>;
+// `testing`: el ambiente de pruebas, donde lo que todavía no está se ve con «Pronto» (00 · R1.3).
+export type Users = ReturnType<typeof useUsers> & { testing: boolean };
 
 export const UsersContext = createContext<Users | undefined>(undefined);
 export const useUsersContext = () => useContext(UsersContext) as Users;

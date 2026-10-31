@@ -15,7 +15,7 @@ import { FrameContext, type FrameState, type SettingRow, shake } from '../../con
 import { exists, moreOptions, optionAt, parts } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
-import { PhoneNav, PhoneTop } from '../Phone/Phone.tsx';
+import { PhoneNav } from '../Phone/Phone.tsx';
 import { PhoneMore } from '../Phone/PhoneMore.tsx';
 import { PhoneSheets } from '../Phone/PhoneSheets.tsx';
 import { Side } from '../Side/Side.tsx';
@@ -74,7 +74,6 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
         data-layer=""
       >
         <Side />
-        <PhoneTop />
         <main class="work-area" aria-label={texts.workArea}>
           {Screen ? <Screen testing={testing} /> : children}
         </main>

@@ -1,41 +1,25 @@
-/* El marco del celular (docs/design/mockups/app-frame/final/, debajo de 900 px): la cabecera, la luz,
+/* El marco del celular (docs/design/mockups/app-frame/final/, debajo de 900 px): la luz, sin cabecera,
    el menú de abajo con la elegida en naranja, sin fondo ni raya, y la hoja de lo pendiente, que
    sube por encima del menú. */
 @layer screens {
   @media (max-width: 899px) {
-    .phone-top {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 40px 16px 0;
-    }
-    .phone-logo {
-      height: 28px;
-      width: auto;
-      margin-right: auto;
-    }
-    .phone-avatar {
-      border: 0;
-      padding: 0;
-      background: none;
-    }
     .phone-light {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin: 8px 16px 0;
-      height: 36px;
-      padding: 0 12px;
-      align-self: flex-start;
+      min-height: 32px;
+      padding: 0;
       border: 0;
-      border-radius: 999px;
-      background: var(--success-soft);
-      color: var(--success-text);
+      background: none;
+      color: var(--text-2);
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 650;
+    }
+    .phone-light .light-dot {
+      width: 8px;
+      height: 8px;
     }
     [data-net="offline"] .phone-light {
-      background: var(--urgent-soft);
       color: var(--urgent-text);
     }
     .phone-nav {

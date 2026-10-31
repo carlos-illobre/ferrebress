@@ -2,6 +2,7 @@ import { act, fireEvent, screen, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { later } from '../../testing/later.ts';
 import { media, open, withPath } from './frame-test-kit.tsx';
+import { PhoneLight } from './index.ts';
 import { moreOptions, type Option, parts } from './menu.ts';
 
 describe('el marco en el celular', () => {
@@ -93,10 +94,12 @@ describe('el marco en el celular', () => {
     ).toEqual(['Usuarios', 'Manual']);
   });
 
-  it('en el celular, lo que no está lo dice una tostada que se va sola; la luz abre lo pendiente', async () => {
+  it('en el celular, lo que no está lo dice una tostada que se va sola; la luz, bajo el título de la pantalla, abre lo pendiente', async () => {
     vi.useFakeTimers();
     media({ phone: true });
-    open();
+    // Sin cabecera del marco: la pantalla pone la luz debajo de su título.
+    open({ screens: { users: () => <PhoneLight /> } });
+    expect(document.querySelector('.phone-logo')).toBeNull();
     const phoneNav = screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement;
     fireEvent.click(within(phoneNav).getByRole('button', { name: /Catálogo/ }));
     expect(screen.getByRole('status').textContent).toBe('Catálogo · pronto. Todavía no está.');
@@ -109,8 +112,12 @@ describe('el marco en el celular', () => {
         'Todo enviado',
       ),
     ).toBeTruthy();
-    fireEvent.click(document.querySelector('.phone-avatar') as Element);
-    expect(screen.getByRole('region', { name: 'Más' })).toBeTruthy();
+    fireEvent.click(
+      within(screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement).getByRole(
+        'button',
+        { name: /Más/ },
+      ),
+    );
     fireEvent.click(
       within(screen.getByRole('region', { name: 'Más' })).getByRole('button', { name: /En línea/ }),
     );

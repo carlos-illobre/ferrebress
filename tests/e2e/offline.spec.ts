@@ -35,5 +35,5 @@ test('offline-E07, E11, E15: entra sin conexión con la huella después de salir
   await page.context().setOffline(false);
   expect((await confirmed).status()).toBe(200);
   await expect(page.getByRole('button', { name: 'Más', exact: true })).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Entrar' })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: 'Entrar', exact: true })).toHaveCount(0);
 });

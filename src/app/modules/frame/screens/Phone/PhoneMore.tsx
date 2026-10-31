@@ -22,11 +22,7 @@ export function PhoneMore() {
         <h1 class="title" id="phone-more-title">
           {texts.more}
         </h1>
-        <button
-          type="button"
-          class="phone-more-light"
-          onClick={() => panels.toggle('phonePending')}
-        >
+        <button type="button" class="phone-light" onClick={() => panels.toggle('phonePending')}>
           <LightText />
         </button>
       </header>

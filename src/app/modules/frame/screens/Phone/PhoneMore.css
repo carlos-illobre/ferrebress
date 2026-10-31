@@ -1,8 +1,8 @@
-/* Más en el celular (docs/design/mockups/app-frame/final/): reemplaza la cabecera, la luz y el área
-   de trabajo; el menú de abajo queda a la vista. Entra con un fundido y una subida corta. */
+/* Más en el celular (docs/design/mockups/app-frame/final/): reemplaza el área de trabajo; el menú de
+   abajo queda a la vista. Entra con un fundido y una subida corta. */
 @layer screens {
   @media (max-width: 899px) {
-    .more-open :is(.phone-top, .phone-light, .work-area) {
+    .more-open .work-area {
       display: none;
     }
     .phone-more {
@@ -23,26 +23,6 @@
   }
   .phone-more-head .title {
     margin: 0;
-  }
-  .phone-more-light {
-    justify-self: start;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 32px;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--text-2);
-    font-size: 14px;
-    font-weight: 650;
-  }
-  .phone-more-light .light-dot {
-    width: 8px;
-    height: 8px;
-  }
-  [data-net="offline"] .phone-more-light {
-    color: var(--urgent-text);
   }
   .phone-more-card {
     margin-top: 12px;
