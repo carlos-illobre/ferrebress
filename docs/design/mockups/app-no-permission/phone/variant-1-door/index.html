@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sin permiso · 1 · La puerta que explica · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/stage.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; margin: 0; }
+  .celu-pestanas[hidden] { display: none; }
+  .celu-pantalla { position: relative; overflow: hidden; padding: 0; }
+  .vista { position: absolute; inset: 0; overflow: auto; padding: 12px 16px 16px; transition: opacity var(--t-nav) var(--curva), transform var(--t-nav) var(--curva); }
+  .vista[hidden] { display: block; opacity: 0; transform: translateX(24px); pointer-events: none; visibility: hidden; }
+  .neutro { display: grid; gap: 12px; align-content: start; }
+
+  .dibujo { width: 96px; height: 96px; border-radius: 28px; background: var(--hundido); display: grid; place-items: center; margin: 8px 0 16px; }
+  .dibujo svg { width: 72px; height: 72px; }
+  .candado-arco { transform-origin: 60px 52px; animation: arco 1.6s var(--rebote) .3s both; }
+  @keyframes arco { 0% { transform: translateY(-8px); } 30% { transform: none; } 40% { transform: rotate(-4deg); } 55% { transform: rotate(3deg); } 70%, 100% { transform: none; } }
+  h1 { margin: 0; font-size: 24px; line-height: 30px; font-weight: 800; letter-spacing: -.02em; }
+  .falta { margin-top: 14px; display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: center; padding: 12px; border-radius: var(--r); background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-1); }
+  .falta .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--pino-suave); color: var(--pino); display: grid; place-items: center; }
+  .falta b { font-size: 16px; line-height: 22px; display: block; }
+  .falta small { font-size: 14px; line-height: 20px; color: var(--texto-2); display: block; }
+  .rot { margin: 20px 4px 8px; font-size: 14px; font-weight: 650; color: var(--texto-2); display: flex; justify-content: space-between; }
+  .tienen { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); }
+  .tiene { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 10px 14px; min-height: 56px; }
+  .tiene + .tiene { border-top: 1px solid var(--borde); }
+  .tiene b { font-size: 15px; display: block; }
+  .tiene small { font-size: 14px; color: var(--texto-2); }
+  .tiene .cara { width: 30px; height: 30px; }
+  .dar { margin: 12px 4px 0; font-size: 14px; line-height: 20px; color: var(--texto-2); display: flex; gap: 8px; }
+  .dar .i { flex: none; margin-top: 2px; }
+  .dar b { color: var(--tinta); }
+  .barra-accion { display: grid; grid-template-columns: 1fr 56px; gap: 8px; transition: opacity var(--t) var(--curva), transform var(--t) var(--curva); }
+  .barra-accion[hidden] { display: grid; opacity: 0; transform: translateY(8px); pointer-events: none; visibility: hidden; position: absolute; left: 0; right: 0; bottom: 76px; }
+  .barra-accion .btn-icono { width: 56px; min-height: 56px; border-radius: 14px; }
+
+  .venta { padding: 16px; display: grid; gap: 10px; }
+  .venta .cab { display: flex; justify-content: space-between; align-items: center; }
+  .venta .total { font-size: 28px; font-weight: 800; }
+  .peso { font-size: .6em; margin-right: 2px; }
+  .pastilla.chica { height: 26px; padding: 0 10px; }
+  .pastilla.tachada { text-decoration: line-through; background: var(--hundido); color: var(--texto-3); }
+
+  /* «Ya no tenés permiso»: hoja que sube */
+  .hoja h2 { margin-top: 4px; }
+  .hoja p { margin: 0; font-size: 15px; line-height: 22px; color: var(--texto-2); }
+  .hoja p b { color: var(--tinta); }
+  .hoja .ic-d { width: 48px; height: 48px; border-radius: 14px; background: var(--urgente-suave); color: var(--urgente-texto); display: grid; place-items: center; margin-bottom: 12px; }
+  .roles-cambio { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .sigue { margin-top: 14px; }
+  .hoja .btn-accion { width: 100%; margin-top: 16px; position: relative; overflow: hidden; }
+  .hoja .btn-accion .llena { position: absolute; inset: 0; background: rgba(255,255,255,.18); transform-origin: left; transform: scaleX(0); }
+  .hoja .btn-accion.corre .llena { transition: transform 5s linear; transform: scaleX(1); }
+  .hoja .btn-accion span { position: relative; }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="celu-cabecera"><span class="t-titulo" id="titulo">Usuarios</span></div>
+  <button class="celu-estado"><span class="punto"></span><span>En línea · todo enviado</span></button>
+  <nav class="celu-pestanas" id="pest-usuarios" hidden><a class="activa" data-no-ir>Usuarios</a><a data-no-ir>Auditoría</a></nav>
+  <nav class="celu-pestanas" id="pest-vender" hidden><a class="activa" data-no-ir>Vender</a><a data-ir="today-sales">Ventas de hoy</a></nav>
+
+  <div class="celu-pantalla">
+    <div class="vista" id="v-sin" hidden>
+      <div class="dibujo" aria-hidden="true">
+        <svg viewBox="0 0 120 120">
+          <rect x="20" y="96" width="80" height="6" rx="3" fill="#E3DFD5"/>
+          <g class="candado-arco"><path d="M42 54V40a18 18 0 0 1 36 0v14" fill="none" stroke="#12382F" stroke-width="8" stroke-linecap="round"/></g>
+          <rect x="30" y="52" width="60" height="44" rx="12" fill="#12382F"/>
+          <circle cx="60" cy="72" r="6" fill="#F4F2EC"/><rect x="57" y="74" width="6" height="12" rx="3" fill="#F4F2EC"/>
+        </svg>
+      </div>
+      <h1>No tenés permiso para Usuarios</h1>
+      <div class="falta"><span class="ic"><i class="i" data-i="eye"></i></span><div><b>Falta «Ver las personas»</b><small>Abre la lista y la tarjeta de cada persona.</small></div></div>
+      <div class="rot"><span>Lo tienen</span><span>7 personas</span></div>
+      <div class="tienen" id="tienen"></div>
+      <div class="dar"><i class="i i-s" data-i="key-round"></i><span>Te lo dan <b>Rubén</b> o <b>Graciela</b>.</span></div>
+    </div>
+
+    <div class="vista neutro" id="v-usuarios" hidden>
+      <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div>
+      <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div>
+      <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div>
+      <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris c"></span><span class="gris m"></span></span><span class="gris"></span></div>
+      <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div>
+    </div>
+
+    <div class="vista neutro" id="v-vender" hidden>
+      <div class="tarjeta venta" id="venta">
+        <div class="cab"><span class="t-renglon">Tu venta en curso</span><span class="pastilla logro chica"><i class="i i-s" data-i="check"></i>Intacta</span></div>
+        <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div>
+        <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div>
+        <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div>
+        <div class="cab"><span class="t-detalle">3 renglones</span><span class="total"><span class="peso">$</span>48.000</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="barra-accion" id="acc" hidden>
+    <button class="btn btn-accion grande" id="ir"><i class="i i-l" data-i="shopping-cart"></i>Ir a Vender</button>
+    <button class="btn btn-icono" id="compartir" aria-label="Pedírselo"><i class="i i-l" data-i="share-2"></i></button>
+  </div>
+
+  <nav class="nav-inferior">
+    <a data-ir="sales" id="m-vender"><i class="i" data-i="shopping-cart"></i>Vender<span class="insignia">3</span></a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a class="activo" data-ir="more" id="m-mas"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+
+  <div class="velo" id="velo"></div>
+  <section class="hoja" id="h-perdido" role="alertdialog" aria-modal="true" aria-labelledby="hp-t">
+    <div class="asa"></div>
+    <span class="ic-d"><i class="i i-l" data-i="user-x"></i></span>
+    <h2 id="hp-t">Ya no tenés permiso para Usuarios</h2>
+    <p><b>Graciela</b> te sacó «Encargado de turno».</p>
+    <div class="roles-cambio"><span class="pastilla contorno chica">Vendedor</span><span class="pastilla chica tachada">Encargado de turno</span></div>
+    <div class="aviso logro sigue"><i class="i" data-i="circle-check"></i><span>Tu venta sigue: 3 renglones · $&nbsp;48.000.</span></div>
+    <button class="btn btn-accion grande" id="ir-ya"><span class="llena"></span><i class="i i-l" data-i="shopping-cart"></i><span>Ir a Vender · <b id="seg">5</b></span></button>
+  </section>
+</div>
+
+<script src="../../shared/data.js"></script>
+<script>
+(function () {
+  var D = window.NP, $ = function (id) { return document.getElementById(id); };
+  var timers = [], tick = null, state = "";
+
+  $("tienen").innerHTML = D.holders.map(function (h) {
+    return '<div class="tiene"><div><b>' + h.name + "</b><small>" + h.people.length + " personas</small></div>" + D.pila(h.people, 4) + "</div>";
+  }).join("");
+
+  function clear() { timers.forEach(clearTimeout); timers = []; clearInterval(tick); }
+  function show(v) {
+    ["v-sin", "v-usuarios", "v-vender"].forEach(function (id) { $(id).hidden = id !== v; });
+    var vend = v === "v-vender";
+    $("titulo").textContent = vend ? "Vender" : "Usuarios";
+    $("pest-vender").hidden = !vend;
+    $("pest-usuarios").hidden = v !== "v-usuarios";
+    $("acc").hidden = v !== "v-sin";
+    $("m-vender").classList.toggle("activo", vend);
+    $("m-mas").classList.toggle("activo", !vend);
+  }
+  function sheet(open) {
+    $("velo").classList.toggle("abierto", open);
+    $("h-perdido").classList.toggle("abierta", open);
+  }
+  function goVender(fromLost) {
+    clear(); sheet(false); state = "vender";
+    show("v-vender");
+    var v = $("venta"); v.classList.remove("recien", "entra"); void v.offsetWidth; v.classList.add("entra", "recien");
+    STAGE.vibrate(10);
+    if (fromLost) setTimeout(function () { STAGE.toast("Usuarios ya no está en Más"); }, 500);
+  }
+
+  window.ESCENAS = {
+    direccion: function () {
+      clear(); sheet(false); state = "sin"; show("v-sin");
+      var a = document.querySelector(".candado-arco"); a.style.animation = "none"; void a.offsetWidth; a.style.animation = "";
+    },
+    perdido: function () {
+      clear(); sheet(false); state = "usando"; show("v-usuarios");
+      timers.push(setTimeout(function () {
+        state = "perdido"; sheet(true); STAGE.vibrate([10, 40, 10]);
+        var b = $("ir-ya"); b.classList.remove("corre"); void b.offsetWidth; b.classList.add("corre");
+        var n = 5; $("seg").textContent = n;
+        tick = setInterval(function () { n--; $("seg").textContent = Math.max(n, 0); if (n <= 0) goVender(true); }, 1000);
+      }, 1400));
+    }
+  };
+
+  $("ir").addEventListener("click", function () { goVender(false); });
+  $("ir-ya").addEventListener("click", function () { goVender(true); });
+  $("velo").addEventListener("click", function () { if (state === "perdido") goVender(true); });
+  $("compartir").addEventListener("click", function () { D.copy(D.request); STAGE.toast("Pedido listo para mandar a Rubén o Graciela"); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && state === "perdido") goVender(true); });
+})();
+</script>
+<script src="../../shared/stage.js"></script>
+</body>
+</html>

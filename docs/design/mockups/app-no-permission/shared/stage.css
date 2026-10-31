@@ -1,0 +1,38 @@
+/* Sin permiso: lo que comparten las tres variantes y que no es parte del diseño.
+   La lengüeta oscura de arriba a la derecha elige el caso de la maqueta. */
+
+.escenario { position: fixed; top: 12px; right: 12px; z-index: 200; display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: #1A1D1B; box-shadow: var(--sombra-3); font-family: inherit; }
+.escenario button { height: 36px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: rgba(255,255,255,.72); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.escenario button[aria-pressed="true"] { background: rgba(255,255,255,.14); color: #fff; }
+.escenario button:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.escenario .i { width: 16px; height: 16px; }
+.celu-escenario { position: fixed; top: 2px; right: 8px; left: 8px; justify-content: space-between; border-radius: 12px; }
+.celu-escenario button { padding: 0 8px; }
+
+/* Tostada común */
+.tostadas { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 90; display: grid; gap: 8px; justify-items: center; pointer-events: none; }
+.celu .tostadas { position: absolute; bottom: 96px; }
+
+/* Lo neutro de detrás: renglones grises, sin contenido de otro módulo */
+.gris { display: block; height: 14px; border-radius: 99px; background: var(--hundido-2); }
+.gris.c { width: 40%; } .gris.m { width: 62%; } .gris.l { width: 84%; }
+.fila-gris { display: grid; grid-template-columns: 44px 1fr 80px; gap: 14px; align-items: center; padding: 14px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); }
+.fila-gris + .fila-gris { margin-top: 8px; }
+.fila-gris .bloque { width: 44px; height: 44px; border-radius: 12px; background: var(--hundido); }
+.fila-gris .lin { display: grid; gap: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; transition-duration: 1ms !important; transition-delay: 0ms !important; }
+}
+/* Caras: iniciales en círculo, apiladas */
+.cara { width: 36px; height: 36px; border-radius: 99px; display: inline-grid; place-items: center; font-weight: 800; font-size: 14px; flex: none; background: var(--hundido); color: var(--texto-2); border: 2px solid var(--superficie); position: relative; }
+.cara.g { width: 40px; height: 40px; }
+.cara.p1 { background: var(--pino-suave); color: var(--pino-texto); }
+.cara.p2 { background: #EFE7DA; color: #6F5330; }
+.cara.p3 { background: #E4ECF2; color: #2F5470; }
+.pila { display: inline-flex; align-items: center; }
+.pila .cara + .cara { margin-left: -6px; }
+.pila .mas { font-size: 14px; font-weight: 700; color: var(--texto-2); margin-left: 6px; }
+.btn:focus-visible, .btn:focus { outline: 3px solid rgba(18, 56, 47, .28); outline-offset: 2px; }
+.btn:focus:not(:focus-visible) { outline: none; }
+.celu-estado { border: 0; background: none; font: inherit; font-size: 14px; width: auto; text-align: left; }

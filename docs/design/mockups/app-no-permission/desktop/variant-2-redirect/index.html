@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sin permiso · 2 · Te dejo en lo tuyo · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/stage.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  .pantalla { position: relative; overflow: hidden; }
+  .pestanas[hidden] { display: none; }
+  .vista { position: absolute; inset: 20px 32px 24px; display: grid; gap: 16px; align-content: start; transition: opacity var(--t-nav) var(--curva), transform var(--t-nav) var(--curva); }
+  .vista[hidden] { display: grid; opacity: 0; pointer-events: none; visibility: hidden; }
+  .vista.se-va { opacity: 0; transform: translateX(48px) scale(.98); transition: opacity var(--t-nav) var(--curva-salida), transform var(--t-nav) var(--curva-salida); }
+  .vista.llega { animation: llega var(--t-nav) var(--curva) both; }
+  @keyframes llega { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+
+  /* La sub opción de Más que se va cuando pierde el permiso */
+  .nav-sub { overflow: hidden; transform-origin: top; transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--curva); }
+  .nav-sub.se-fue { opacity: 0; transform: scaleY(0); }
+  .nav-sub[hidden] { display: none; }
+  .nav-sub a .i { width: 16px; height: 16px; margin-right: 8px; }
+
+  /* Lo neutro */
+  .resumenes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .venta { padding: 20px; display: grid; gap: 12px; }
+  .venta .cab { display: flex; justify-content: space-between; align-items: baseline; }
+  .venta .total { font-size: 32px; font-weight: 800; }
+  .peso { font-size: .6em; margin-right: 2px; }
+  .pastilla.chica { height: 26px; padding: 0 10px; }
+
+  /* El pase: baja desde las pestañas, encima de la pantalla nueva, y se puede abrir */
+  .pase { position: absolute; left: 32px; right: 32px; top: 12px; z-index: 30; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-3); overflow: hidden; transform: translateY(-16px); opacity: 0; pointer-events: none; transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--rebote); }
+  .pase.ver { transform: none; opacity: 1; pointer-events: auto; }
+  .pase .linea { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 14px 14px 14px 16px; }
+  .pase .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--hundido); color: var(--tinta); display: grid; place-items: center; }
+  .pase.perdido .ic { background: var(--urgente-suave); color: var(--urgente-texto); }
+  .pase .tt b { font-size: 16px; line-height: 22px; display: block; }
+  .pase .tt span { font-size: 14px; line-height: 20px; color: var(--texto-2); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pase .abrir .i { transition: transform var(--t) var(--curva); }
+  .pase.abierto .abrir .i { transform: rotate(180deg); }
+  .pase .cuerpo { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; padding: 4px 20px 20px 74px; opacity: 0; transform: translateY(-8px); transition: opacity var(--t) var(--curva), transform var(--t) var(--curva); }
+  .pase.abierto .cuerpo { opacity: 1; transform: none; }
+  .pase .cuerpo[hidden] { display: none; }
+  .bloq h3 { margin: 0 0 8px; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .tienen { display: grid; gap: 6px; }
+  .tiene { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 6px 8px 6px 12px; border: 1px solid var(--borde); border-radius: var(--r); font-size: 15px; font-weight: 700; }
+  .tiene .cara { width: 30px; height: 30px; }
+  .dar { margin-top: 10px; display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--texto-2); }
+  .dar b { color: var(--tinta); }
+  .dar .btn { margin-left: auto; }
+  /* El mapa chico de lo tuyo: las cinco partes, prendidas o con candado */
+  .mapa { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .parte { border-radius: 12px; padding: 10px 8px; display: grid; justify-items: center; gap: 4px; font-size: 14px; font-weight: 700; background: var(--pino-suave); color: var(--pino); position: relative; }
+  .parte.no { background: var(--hundido); color: var(--texto-3); }
+  .parte small { font-size: 14px; font-weight: 600; opacity: .8; }
+  .mas-lista { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .op { height: 30px; padding: 0 10px; border-radius: 99px; font-size: 14px; font-weight: 650; display: inline-flex; gap: 6px; align-items: center; background: var(--pino-suave); color: var(--pino-texto); }
+  .op.no { background: var(--hundido); color: var(--texto-3); }
+  .op.pedida { background: var(--superficie); border: 1.5px dashed var(--texto-3); color: var(--tinta); }
+  .op .i { width: 14px; height: 14px; }
+  .reloj { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--pino); opacity: .5; transform-origin: left; transform: scaleX(0); }
+  .pase.cuenta .reloj { animation: reloj 8s linear both; }
+  .pase.cuenta:hover .reloj, .pase.abierto .reloj { animation-play-state: paused; }
+  @keyframes reloj { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <div class="lado-marca"><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button class="btn btn-fantasma" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <a class="nav-item" id="m-vender" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span><span class="insignia">3</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item" id="m-mas" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="nav-sub" id="sub-usuarios" hidden><a class="activo" data-no-ir><i class="i" data-i="users"></i>Usuarios</a></div>
+    <div class="pie">
+      <button class="luz"><span class="punto"></span><span>En línea · todo enviado</span><i class="i i-s" data-i="chevron-right"></i></button>
+      <div class="persona"><div class="usuario"><span class="avatar">MQ</span><div class="txt"><div style="font-weight:750;font-size:15px">Matías Quiroga</div><div class="t-detalle" id="mis-roles">Vendedor</div></div></div><button class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <header class="cabecera"><div class="t-titulo" id="titulo">Vender</div></header>
+    <nav class="pestanas" id="pest-vender"><a class="activa" data-no-ir>Vender</a><a data-ir="today-sales">Ventas de hoy</a></nav>
+    <nav class="pestanas" id="pest-usuarios" hidden><a class="activa" data-no-ir>Usuarios</a><a data-no-ir>Auditoría</a></nav>
+    <section class="pantalla">
+      <div class="vista" id="v-usuarios" hidden>
+        <div class="resumenes"><div class="resumen"><span class="ico"><i class="i" data-i="users"></i></span><div><div class="va">9</div><div class="et">Personas</div></div></div><div class="resumen"><span class="ico"><i class="i" data-i="smartphone"></i></span><div><span class="gris" style="width:80px"></span></div></div><div class="resumen"><span class="ico"><i class="i" data-i="clock"></i></span><div><span class="gris" style="width:80px"></span></div></div></div>
+        <div><div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div><div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div><div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div><div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris c"></span><span class="gris m"></span></span><span class="gris"></span></div></div>
+      </div>
+      <div class="vista" id="v-vender">
+        <div class="tarjeta venta" id="venta" style="margin-top:96px">
+          <div class="cab"><span class="t-seccion">Tu venta en curso</span><span class="pastilla logro chica"><i class="i i-s" data-i="check"></i>Como la dejaste</span></div>
+          <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div>
+          <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div>
+          <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div>
+          <div class="cab"><span class="t-detalle">3 renglones</span><span class="total"><span class="peso">$</span>48.000</span></div>
+        </div>
+      </div>
+
+      <aside class="pase" id="pase" role="status" aria-live="polite">
+        <div class="linea">
+          <span class="ic"><i class="i" data-i="lock-keyhole"></i></span>
+          <div class="tt"><b id="pase-t">No tenés permiso para Usuarios: te dejé en Vender.</b><span id="pase-d">Hace falta «Ver las personas». Lo tienen: Administrador, Encargado de turno, Oficina y personal.</span></div>
+          <button class="btn chico abrir" id="abrir" aria-expanded="false"><span id="abrir-t">Ver quién</span><i class="i i-s" data-i="chevron-down"></i><span class="kbd">Alt Q</span></button>
+          <button class="btn btn-fantasma btn-icono chico" id="cerrar" aria-label="Cerrar"><i class="i" data-i="x"></i></button>
+        </div>
+        <div class="cuerpo" id="cuerpo" hidden>
+          <div class="bloq">
+            <h3>Lo tienen</h3>
+            <div class="tienen" id="tienen"></div>
+            <div class="dar"><i class="i i-s" data-i="key-round"></i><span>Te lo dan <b>Rubén Paredes</b> o <b>Graciela Benítez</b></span><button class="btn chico" id="copiar"><i class="i i-s" data-i="copy"></i>Copiar el pedido <span class="kbd">Alt C</span></button></div>
+          </div>
+          <div class="bloq">
+            <h3>Lo tuyo, como Vendedor</h3>
+            <div class="mapa" id="mapa"></div>
+            <div class="mas-lista" id="mas-lista"></div>
+          </div>
+        </div>
+        <span class="reloj"></span>
+      </aside>
+    </section>
+  </main>
+</div>
+
+<script src="../../shared/data.js"></script>
+<script>
+(function () {
+  var D = window.NP, $ = function (id) { return document.getElementById(id); };
+  var timers = [], state = "";
+
+  $("tienen").innerHTML = D.holders.map(function (h) { return '<div class="tiene"><span>' + h.name + "</span>" + D.pila(h.people, 4) + "</div>"; }).join("");
+  var parts = [["Vender", "shopping-cart", 1, "2 de 2"], ["Catálogo", "tags", 1, "1 de 3"], ["Depósito", "package", 1, "1 de 3"], ["Negocio", "chart-column", 0, "—"], ["Más", "ellipsis", 1, "2 de 7"]];
+  $("mapa").innerHTML = parts.map(function (p) { return '<div class="parte' + (p[2] ? "" : " no") + '"><i class="i" data-i="' + (p[2] ? p[1] : "lock") + '"></i>' + p[0] + "<small>" + p[3] + "</small></div>"; }).join("");
+  $("mas-lista").innerHTML = '<span class="op"><i class="i" data-i="check"></i>Mejoras y errores</span><span class="op"><i class="i" data-i="check"></i>Configuración</span><span class="op pedida"><i class="i" data-i="lock"></i>Usuarios</span>';
+  window.pintarIconos($("pase"));
+
+  function clear() { timers.forEach(clearTimeout); timers = []; }
+  function pase(show, opts) {
+    var p = $("pase");
+    p.classList.remove("ver", "cuenta", "perdido");
+    expand(false);
+    if (!show) return;
+    if (opts && opts.perdido) p.classList.add("perdido");
+    void p.offsetWidth;
+    p.classList.add("ver");
+    if (opts && opts.cuenta) { p.classList.add("cuenta"); timers.push(setTimeout(function () { if (!p.classList.contains("abierto")) pase(false); }, 8000)); }
+  }
+  function expand(open) {
+    var p = $("pase");
+    p.classList.toggle("abierto", open);
+    $("cuerpo").hidden = !open;
+    $("abrir").setAttribute("aria-expanded", String(open));
+    $("abrir-t").textContent = open ? "Menos" : "Ver quién";
+  }
+  function setScreen(vend) {
+    $("titulo").textContent = vend ? "Vender" : "Usuarios";
+    $("pest-vender").hidden = !vend; $("pest-usuarios").hidden = vend;
+    $("m-vender").classList.toggle("activo", vend); $("m-mas").classList.toggle("activo", !vend);
+  }
+  function enterVender() {
+    var vv = $("v-vender"), vu = $("v-usuarios");
+    vu.hidden = true; vu.classList.remove("se-va");
+    vv.hidden = false; vv.classList.remove("llega"); void vv.offsetWidth; vv.classList.add("llega");
+    setScreen(true);
+    var v = $("venta"); v.classList.remove("recien"); void v.offsetWidth; v.classList.add("recien");
+  }
+
+  window.ESCENAS = {
+    // No hay pantalla de «sin permiso»: abre directo lo primero que puede usar, y el pase explica
+    direccion: function () {
+      clear(); state = "sin"; $("mis-roles").textContent = "Vendedor";
+      $("sub-usuarios").hidden = true;
+      $("pase-t").textContent = "No tenés permiso para Usuarios: te dejé en Vender.";
+      $("pase-d").textContent = "Hace falta «Ver las personas». Lo tienen: Administrador, Encargado de turno, Oficina y personal.";
+      enterVender();
+      pase(false); timers.push(setTimeout(function () { pase(true); }, 250));
+    },
+    perdido: function () {
+      clear(); state = "usando"; pase(false); $("mis-roles").textContent = "Vendedor · Encargado de turno";
+      $("v-vender").hidden = true; $("v-usuarios").hidden = false; $("v-usuarios").classList.remove("se-va");
+      var sub = $("sub-usuarios"); sub.hidden = false; sub.classList.remove("se-fue");
+      setScreen(false);
+      timers.push(setTimeout(function () {
+        state = "perdido"; $("mis-roles").textContent = "Vendedor";
+        // Usuarios se va hacia la derecha y la opción se pliega en el menú; Vender llega desde la izquierda
+        $("v-usuarios").classList.add("se-va");
+        sub.classList.add("se-fue");
+        timers.push(setTimeout(function () {
+          sub.hidden = true; enterVender();
+          $("pase-t").textContent = "Ya no tenés permiso para Usuarios: Graciela Benítez te sacó «Encargado de turno».";
+          $("pase-d").textContent = "Tu venta en curso sigue como la dejaste. Hace falta «Ver las personas» para volver.";
+          pase(true, { perdido: true, cuenta: true });
+        }, 340));
+      }, 1400));
+    }
+  };
+
+  $("abrir").addEventListener("click", function () { expand(!$("pase").classList.contains("abierto")); });
+  $("cerrar").addEventListener("click", function () { pase(false); });
+  $("copiar").addEventListener("click", function () { D.copy(D.request); STAGE.toast("Copiado: «…me falta Ver las personas. ¿Me lo das?»"); });
+  document.addEventListener("keydown", function (e) {
+    var k = (e.key || "").toLowerCase();
+    if (e.altKey && k === "q") { e.preventDefault(); if ($("pase").classList.contains("ver")) $("abrir").click(); }
+    else if (e.altKey && k === "c") { e.preventDefault(); if ($("pase").classList.contains("abierto")) $("copiar").click(); }
+    else if (e.key === "Escape") { if ($("pase").classList.contains("abierto")) expand(false); else pase(false); }
+  });
+})();
+</script>
+<script src="../../shared/stage.js"></script>
+</body>
+</html>

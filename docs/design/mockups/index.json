@@ -428,6 +428,43 @@
      "path": "mockups/users-person-roles/phone/variant-3-keyring/index.html"
     }
    ]
+  },
+  {
+   "id": "app-no-permission",
+   "title": "Sin permiso",
+   "module": "02 · Personas",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "1 · La puerta que explica",
+     "path": "mockups/app-no-permission/desktop/variant-1-door/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · Te dejo en lo tuyo",
+     "path": "mockups/app-no-permission/desktop/variant-2-redirect/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · El llavero",
+     "path": "mockups/app-no-permission/desktop/variant-3-keyring/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · La puerta que explica",
+     "path": "mockups/app-no-permission/phone/variant-1-door/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · Te dejo en lo tuyo",
+     "path": "mockups/app-no-permission/phone/variant-2-redirect/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · El llavero",
+     "path": "mockups/app-no-permission/phone/variant-3-keyring/index.html"
+    }
+   ]
   }
  ]
 }

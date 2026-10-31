@@ -1,0 +1,87 @@
+/* Variante 3, «El llavero»: la pantalla entera es una sola pieza, oscura, sin marco ni menú.
+   Rompe a propósito la calma del lenguaje (fondo pino lleno). */
+.escena { --claro: rgba(255, 255, 255, .92); --medio: rgba(255, 255, 255, .7); --tenue: rgba(255, 255, 255, .14);
+  position: relative; background: radial-gradient(120% 90% at 20% 30%, #1B4A3F 0%, #12382F 55%, #0E2E27 100%); color: var(--claro); overflow: hidden; }
+
+/* El llavero */
+.llavero { display: block; overflow: visible; }
+.llavero .cuerpo { fill: #EDE8DC; stroke: #CEC8BA; stroke-width: 1.5; }
+.llavero .agujero { fill: #12382F; }
+.llavero .llave.tuya { animation: cuelga 900ms var(--rebote) both; animation-delay: calc(var(--i) * 70ms + 150ms); transform-origin: 0 0; }
+@keyframes cuelga { from { opacity: 0; transform: rotate(-14deg) translateY(-10px); } to { opacity: 1; transform: none; } }
+.llavero .llave.hueco .cuerpo { fill: rgba(232, 84, 28, .2); stroke: #FF8A5B; stroke-width: 3; stroke-dasharray: 7 5; }
+.llavero .llave.hueco .agujero { fill: none; stroke: #E8541C; stroke-width: 2; stroke-dasharray: 3 4; }
+.llavero .llave.hueco path:first-child { stroke: #E8541C; stroke-dasharray: 3 4; }
+.llavero .llave.hueco { animation: late 2.4s ease-in-out infinite; }
+@keyframes late { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+.llavero .llave.tarde { opacity: 0; animation: none; transition: opacity 600ms var(--curva) 500ms; }
+.llavero.cayo .llave.tarde { opacity: 1; }
+.llavero .llave.perdida .cuerpo { fill: #FFFFFF; stroke: #E8541C; stroke-width: 2.5; }
+.llavero .llave.perdida { transform-origin: 0 0; }
+.llavero.cayo .llave.perdida { animation: cae 1100ms cubic-bezier(.5, 0, .9, .6) both; }
+@keyframes cae { 0% { transform: none; } 18% { transform: rotate(10deg); } 30% { transform: rotate(-6deg) translateY(4px); } 100% { transform: translate(60px, 520px) rotate(70deg); opacity: 0; } }
+.balanceo { transform-origin: 220px 16px; animation: balanceo 6s ease-in-out infinite; }
+@keyframes balanceo { 0%, 100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg); } }
+
+/* Textos */
+.escena h1 { margin: 0; font-size: 40px; line-height: 46px; font-weight: 800; letter-spacing: -.025em; color: #fff; }
+.escena .pre[hidden] { display: none; }
+.escena .pre { font-size: 14px; font-weight: 650; color: var(--medio); display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+.escena p.lead { margin: 12px 0 0; font-size: 17px; line-height: 26px; color: var(--medio); }
+.escena p.lead b { color: #fff; }
+.chip-llave { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 99px; background: rgba(232, 84, 28, .16); color: #FFB894; font-weight: 750; font-size: 14px; border: 1px dashed rgba(232, 84, 28, .6); }
+.tienen-l { margin-top: 20px; display: grid; gap: 8px; }
+.tienen-l .rot { font-size: 14px; font-weight: 650; color: var(--medio); }
+.caras { display: flex; flex-wrap: wrap; gap: 8px; }
+.cara-n { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px 0 4px; border-radius: 99px; background: var(--tenue); font-size: 14px; font-weight: 700; color: #fff; }
+.cara-n .cara { width: 32px; height: 32px; border: 0; }
+.cara-n.da { box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .5); }
+.cara-n small { font-weight: 600; color: var(--medio); font-size: 14px; }
+
+/* Mantener para pedir */
+.mantener { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 10px; height: 56px; padding: 0 20px; border-radius: 16px; border: 0; background: var(--accion); color: #fff; font: inherit; font-size: 17px; font-weight: 750; cursor: pointer; box-shadow: 0 10px 28px -10px rgba(232, 84, 28, .8); user-select: none; -webkit-user-select: none; touch-action: none; transition: transform var(--t-micro) var(--curva); }
+.mantener:active { transform: scale(.98); }
+.mantener .llena { position: absolute; inset: 0; background: rgba(255, 255, 255, .28); transform-origin: left; transform: scaleX(0); }
+.mantener.cargando .llena { transition: transform 900ms linear; transform: scaleX(1); }
+.mantener > *:not(.llena) { position: relative; }
+.mantener .kbd { background: rgba(255, 255, 255, .16); border-color: rgba(255, 255, 255, .35); color: #fff; }
+.mantener:focus-visible { outline: 3px solid rgba(255, 255, 255, .5); outline-offset: 3px; }
+.ayuda-p { font-size: 14px; color: var(--medio); margin-top: 8px; }
+.pedida { display: none; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 16px; background: rgba(30, 158, 98, .18); color: #A8EBC8; font-weight: 700; font-size: 15px; animation: entra var(--t-nav) var(--rebote) both; }
+.pedida.ver { display: inline-flex; }
+.pedida small { display: block; font-weight: 500; color: var(--medio); font-size: 14px; }
+
+/* Las puertas: lo que sí puede usar */
+.puertas h2 { margin: 0 0 12px; font-size: 20px; font-weight: 750; color: #fff; }
+.puerta { width: 100%; display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 18px; border: 0; background: var(--superficie); color: var(--tinta); text-align: left; font: inherit; cursor: pointer; box-shadow: 0 12px 28px -14px rgba(0, 0, 0, .5); transition: transform var(--t) var(--curva), opacity var(--t) var(--curva); }
+.puerta + .puerta { margin-top: 10px; }
+.puerta:hover { transform: translateX(4px); }
+.puerta:focus-visible { outline: 3px solid #FFB894; outline-offset: 3px; }
+.puerta .ic { width: 52px; height: 52px; border-radius: 14px; background: var(--hundido); color: var(--pino); display: grid; place-items: center; }
+.puerta.primera .ic { background: var(--accion-suave); color: var(--accion-texto); }
+.puerta b { font-size: 17px; line-height: 22px; display: block; }
+.puerta span.d { font-size: 14px; line-height: 20px; color: var(--texto-2); display: block; }
+.puerta .der-p { display: flex; gap: 8px; align-items: center; color: var(--texto-3); }
+.puerta .anillo { width: 32px; height: 32px; position: relative; display: none; }
+.puerta .anillo.ver { display: block; }
+.puerta .anillo svg { width: 32px; height: 32px; transform: rotate(-90deg); }
+.puerta .anillo circle { fill: none; stroke-width: 3.5; }
+.puerta .anillo .f { stroke: var(--hundido-2); }
+.puerta .anillo .v { stroke: var(--accion); stroke-linecap: round; stroke-dasharray: 81.7; stroke-dashoffset: 0; }
+.puerta .anillo.corre .v { transition: stroke-dashoffset 6s linear; stroke-dashoffset: 81.7; }
+.puerta .anillo b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 14px; color: var(--tinta); }
+.puerta.entrando { transform: scale(1.04); }
+.escena.saliendo .lado, .escena.saliendo .arriba { opacity: 0; transform: scale(.97); transition: opacity var(--t-nav) var(--curva-salida), transform var(--t-nav) var(--curva-salida); }
+.mis-llaves { margin-top: 16px; font-size: 14px; color: var(--medio); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mis-llaves span.k { height: 28px; padding: 0 10px; border-radius: 99px; background: var(--tenue); color: #fff; font-weight: 650; display: inline-flex; align-items: center; gap: 6px; }
+.mis-llaves .i { width: 14px; height: 14px; }
+
+/* Lo que tenía abierto, claro, que se hunde y deja ver el llavero */
+.antes { position: absolute; inset: 0; background: var(--fondo); color: var(--tinta); z-index: 20; padding: 28px 32px; display: grid; gap: 12px; align-content: start; transition: opacity 420ms var(--curva-salida), transform 420ms var(--curva-salida); }
+.antes[hidden] { display: none; }
+.antes.se-hunde { opacity: 0; transform: scale(.94); }
+@keyframes entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.escena .entra-t { animation: entra var(--t-nav) var(--curva) both; }
+.tag-falta { display: flex; justify-content: center; margin-top: 4px; }
+.tag-falta .chip-llave { height: 32px; font-size: 14px; }
+.mantener[hidden] { display: none; }

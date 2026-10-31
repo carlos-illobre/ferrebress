@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sin permiso · 3 · El llavero · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/stage.css">
+<link rel="stylesheet" href="../../shared/keyring.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; margin: 0; }
+  .celu.escena { display: flex; flex-direction: column; }
+  .barra-estado { color: #fff; }
+  .barra-estado svg rect { stroke: #fff; fill: #fff; }
+  .scroll { flex: 1; min-height: 0; overflow: auto; padding: 0 16px 24px; }
+  .arriba { display: flex; align-items: center; justify-content: space-between; padding: 4px 0 0; transition: opacity var(--t-nav), transform var(--t-nav); }
+  .arriba img { height: 28px; width: auto; }
+  .yo .avatar { width: 36px; height: 36px; }
+  .lado { transition: opacity var(--t-nav), transform var(--t-nav); }
+  #llavero { margin: 4px -8px 0; }
+  #llavero .llavero { width: 100%; height: 180px; }
+  .tag-falta { display: none; }
+  .escena h1 { font-size: 30px; line-height: 36px; margin-top: 8px; }
+  .escena p.lead { font-size: 16px; line-height: 24px; }
+  .mantener { width: 100%; justify-content: center; }
+  .pedida.ver { display: flex; }
+  .puertas { margin: 20px 0 8px; }
+  .puertas h2 { font-size: 18px; }
+  .mis-llaves { display: none; }
+  .antes { padding: 56px 16px; }
+  .home-ind { background: #fff; opacity: .6; }
+</style>
+</head>
+<body>
+<div class="celu escena" id="escena">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2"/></svg></span></div>
+  <div class="scroll">
+    <header class="arriba">
+      <img src="../../../../common/brand/logo-on-dark.png" alt="Ferrebress" width="109" height="28">
+      <span class="yo"><span class="avatar">MQ</span></span>
+    </header>
+    <div class="lado" id="llavero"></div>
+    <div class="lado">
+      <div class="pre" id="pre"><i class="i i-s" data-i="link"></i>Abriste un enlace a Usuarios</div>
+      <h1 id="t">Te falta una llave</h1>
+      <p class="lead" id="lead"></p>
+    </div>
+    <div class="lado puertas">
+      <h2>Seguí con lo tuyo</h2>
+      <div id="puertas"></div>
+    </div>
+    <div class="lado">
+      <div class="tienen-l">
+        <span class="rot">La tienen</span>
+        <div class="caras" id="caras"></div>
+      </div>
+      <div style="margin-top:20px">
+        <button class="mantener" id="pedir"><span class="llena"></span><i class="i" data-i="hand"></i><span>Mantené para pedirla</span></button>
+        <div class="pedida" id="pedida"><i class="i" data-i="send"></i><div>Se la pediste a Rubén y a Graciela<small>Te avisamos cuando te la den.</small></div></div>
+      </div>
+      <div class="mis-llaves" id="mis-llaves"></div>
+    </div>
+  </div>
+  <span class="home-ind"></span>
+
+  <div class="antes" id="antes" hidden>
+    <div class="t-titulo">Usuarios</div>
+    <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div>
+    <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div>
+    <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div>
+  </div>
+</div>
+
+<script src="../../shared/data.js"></script>
+<script src="../../shared/keyring.js"></script>
+<script src="../../shared/keyring-ui.js"></script>
+<script src="../../shared/stage.js"></script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sin permiso · 1 · La puerta que explica · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/stage.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  .pantalla { position: relative; overflow: hidden; }
+  .pestanas[hidden] { display: none; }
+  .neutro { align-content: start; }
+  .vista { position: absolute; inset: 20px 32px 24px; transition: opacity var(--t-nav) var(--curva), transform var(--t-nav) var(--curva); }
+  .vista[hidden] { display: block; opacity: 0; transform: translateY(8px); pointer-events: none; visibility: hidden; }
+
+  /* La puerta: una tarjeta que explica, centrada en el área */
+  #v-sin { display: grid; place-items: center; }
+  .puerta { width: 840px; display: grid; grid-template-columns: 144px minmax(0, 1fr); gap: 32px; padding: 32px; }
+  .dibujo { width: 144px; height: 144px; border-radius: 32px; background: var(--hundido); display: grid; place-items: center; }
+  .dibujo svg { width: 104px; height: 104px; }
+  .candado-arco { transform-origin: 60px 52px; animation: arco 1.6s var(--rebote) .3s both; }
+  @keyframes arco { 0% { transform: translateY(-8px); } 30% { transform: none; } 40% { transform: rotate(-4deg); } 55% { transform: rotate(3deg); } 70%, 100% { transform: none; } }
+  .puerta .de { margin-top: 4px; font-size: 14px; color: var(--texto-3); display: flex; gap: 6px; align-items: center; }
+  .puerta h1 { margin: 0; font-size: 28px; line-height: 34px; font-weight: 800; letter-spacing: -.02em; }
+  .falta { margin-top: 16px; display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; padding: 12px 14px; border-radius: var(--r); background: var(--hundido); }
+  .falta .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--superficie); color: var(--pino); display: grid; place-items: center; box-shadow: var(--sombra-1); }
+  .falta b { font-size: 16px; line-height: 22px; display: block; }
+  .falta small { font-size: 14px; line-height: 20px; color: var(--texto-2); display: block; }
+  .rot { margin: 20px 0 8px; font-size: 14px; font-weight: 650; color: var(--texto-2); display: flex; justify-content: space-between; }
+  .tienen { display: grid; gap: 6px; }
+  .tiene { display: grid; grid-template-columns: 36px 1fr auto 92px; gap: 12px; align-items: center; padding: 8px 12px 8px 8px; border: 1px solid var(--borde); border-radius: var(--r); background: var(--superficie); }
+  .tiene .esc { width: 36px; height: 36px; border-radius: 10px; background: var(--pino-suave); color: var(--pino); display: grid; place-items: center; }
+  .tiene b { font-size: 15px; }
+  .tiene .n { text-align: right; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .tiene .cara { width: 32px; height: 32px; }
+  .dar { margin-top: 12px; font-size: 14px; line-height: 20px; color: var(--texto-2); display: flex; gap: 8px; align-items: flex-start; }
+  .dar .i { flex: none; margin-top: 1px; }
+  .dar b { color: var(--tinta); font-weight: 700; }
+  .vos { margin-top: 12px; display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--texto-2); font-weight: 600; }
+  .acc { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--borde); display: flex; gap: 8px; align-items: center; }
+  .acc .dir { margin-left: auto; font-size: 14px; color: var(--texto-3); display: flex; gap: 6px; align-items: center; }
+
+  /* Lo neutro de detrás */
+  .neutro { display: grid; gap: 16px; }
+  .neutro .resumenes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .neutro .resumen .gris { width: 80px; }
+  .venta { padding: 20px; display: grid; gap: 12px; max-width: 640px; }
+  .venta .cab { display: flex; justify-content: space-between; align-items: baseline; }
+  .venta .total { font-size: 32px; font-weight: 800; }
+  .peso { font-size: .6em; margin-right: 2px; }
+
+  /* «Ya no tenés permiso»: un diálogo con la cuenta regresiva */
+  .velo { position: fixed; inset: 0; background: rgba(26,29,27,.3); }
+  .dialogo { width: 520px; }
+  .dialogo .cab-d { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+  .dialogo .ic-d { width: 48px; height: 48px; border-radius: 14px; background: var(--urgente-suave); color: var(--urgente-texto); display: grid; place-items: center; flex: none; }
+  .dialogo h2 { margin: 0; }
+  .dialogo p { margin: 0; font-size: 15px; line-height: 22px; color: var(--texto-2); }
+  .dialogo p b { color: var(--tinta); }
+  .antes { margin-top: 16px; display: grid; gap: 8px; }
+  .antes .linea { display: flex; gap: 8px; align-items: center; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .antes .linea > span:first-child { width: 72px; }
+  .pastilla.chica { height: 26px; padding: 0 10px; }
+  .pastilla.tachada { text-decoration: line-through; background: var(--hundido); color: var(--texto-3); }
+  .sigue { margin-top: 16px; }
+  .cuenta { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 650; color: var(--texto-2); }
+  .anillo { width: 36px; height: 36px; position: relative; flex: none; }
+  .anillo svg { width: 36px; height: 36px; transform: rotate(-90deg); }
+  .anillo circle { fill: none; stroke-width: 4; }
+  .anillo .fondo { stroke: var(--hundido-2); }
+  .anillo .va { stroke: var(--pino); stroke-linecap: round; stroke-dasharray: 94.25; stroke-dashoffset: 0; }
+  .anillo.corre .va { transition: stroke-dashoffset 5s linear; stroke-dashoffset: 94.25; }
+  .anillo b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 14px; font-weight: 800; color: var(--tinta); }
+  .dialogo .pie-d { justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <div class="lado-marca"><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button class="btn btn-fantasma" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <a class="nav-item" id="m-vender" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span><span class="insignia">3</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item activo" id="m-mas" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <button class="luz"><span class="punto"></span><span>En línea · todo enviado</span><i class="i i-s" data-i="chevron-right"></i></button>
+      <div class="persona"><div class="usuario"><span class="avatar">MQ</span><div class="txt"><div style="font-weight:750;font-size:15px">Matías Quiroga</div><div class="t-detalle" id="mis-roles">Vendedor</div></div></div><button class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <header class="cabecera"><div class="t-titulo" id="titulo">Usuarios</div></header>
+    <nav class="pestanas" id="pest-usuarios"><a class="activa" data-no-ir>Usuarios</a><a data-no-ir>Auditoría</a></nav>
+    <nav class="pestanas" id="pest-vender" hidden><a class="activa" data-no-ir>Vender</a><a data-ir="today-sales">Ventas de hoy</a></nav>
+    <section class="pantalla">
+
+      <!-- R7.7: abrió por la dirección algo que no puede usar -->
+      <div class="vista" id="v-sin" hidden>
+        <article class="tarjeta-2 puerta" aria-labelledby="sin-t">
+          <div class="dibujo" aria-hidden="true">
+            <svg viewBox="0 0 120 120">
+              <rect x="20" y="96" width="80" height="6" rx="3" fill="#E3DFD5"/>
+              <g class="candado-arco"><path d="M42 54V40a18 18 0 0 1 36 0v14" fill="none" stroke="#12382F" stroke-width="8" stroke-linecap="round"/></g>
+              <rect x="30" y="52" width="60" height="44" rx="12" fill="#12382F"/>
+              <rect x="30" y="52" width="60" height="10" rx="5" fill="#fff" opacity=".08"/>
+              <circle cx="60" cy="72" r="6" fill="#F4F2EC"/><rect x="57" y="74" width="6" height="12" rx="3" fill="#F4F2EC"/>
+            </svg>
+          </div>
+          <div>
+            <h1 id="sin-t">No tenés permiso para Usuarios</h1>
+            <div class="de"><i class="i i-s" data-i="link"></i>Abriste ferrebress.com.ar/users</div>
+            <div class="falta">
+              <span class="ic"><i class="i" data-i="eye"></i></span>
+              <div><b>Hace falta «Ver las personas»</b><small>Deja abrir Usuarios: la lista y la tarjeta de cada persona, con sus sesiones y sus celulares con huella.</small></div>
+            </div>
+            <div class="rot"><span>Lo tienen</span><span>3 roles · 7 personas</span></div>
+            <div class="tienen" id="tienen"></div>
+            <div class="dar"><i class="i i-s" data-i="key-round"></i><span>Te lo puede dar quien tiene «Administrar roles»: <b>Rubén Paredes</b> o <b>Graciela Benítez</b>.</span></div>
+            <div class="vos">Vos tenés <span class="pastilla contorno chica">Vendedor</span></div>
+            <div class="acc">
+              <button class="btn btn-accion" id="ir"><i class="i i-s" data-i="shopping-cart"></i>Ir a Vender <span class="kbd">Enter</span></button>
+              <button class="btn" id="copiar"><i class="i i-s" data-i="copy"></i>Copiar el pedido <span class="kbd">Alt C</span></button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- R7.8: lo estaba usando (neutro) -->
+      <div class="vista neutro" id="v-usuarios" hidden>
+        <div class="resumenes"><div class="resumen"><span class="ico"><i class="i" data-i="users"></i></span><div><div class="va">9</div><div class="et">Personas</div></div></div><div class="resumen"><span class="ico"><i class="i" data-i="smartphone"></i></span><div><span class="gris"></span></div></div><div class="resumen"><span class="ico"><i class="i" data-i="clock"></i></span><div><span class="gris"></span></div></div></div>
+        <div><div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div><div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div><div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div><div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris c"></span><span class="gris m"></span></span><span class="gris"></span></div></div>
+      </div>
+
+      <!-- Su primera opción, neutra, con lo que estaba escribiendo intacto -->
+      <div class="vista neutro" id="v-vender" hidden>
+        <div class="tarjeta venta" id="venta">
+          <div class="cab"><span class="t-seccion">Tu venta en curso</span><span class="pastilla logro chica"><i class="i i-s" data-i="check"></i>Como la dejaste</span></div>
+          <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div>
+          <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div>
+          <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div>
+          <div class="cab"><span class="t-detalle">3 renglones</span><span class="total"><span class="peso">$</span>48.000</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="velo" id="velo"></div>
+<div class="dialogo" id="d-perdido" role="alertdialog" aria-modal="true" aria-labelledby="dp-t">
+  <div class="cab-d"><span class="ic-d"><i class="i" data-i="user-x"></i></span><h2 id="dp-t">Ya no tenés permiso para Usuarios</h2></div>
+  <p><b>Graciela Benítez</b> te sacó «Encargado de turno» recién. Lo demás sigue igual.</p>
+  <div class="antes">
+    <div class="linea"><span>Tenías</span><span class="pastilla contorno chica">Vendedor</span><span class="pastilla chica tachada">Encargado de turno</span></div>
+    <div class="linea"><span>Tenés</span><span class="pastilla contorno chica">Vendedor</span></div>
+  </div>
+  <div class="aviso logro sigue"><i class="i" data-i="circle-check"></i><span>Tu venta en curso sigue como la dejaste: 3 renglones · $&nbsp;48.000.</span></div>
+  <div class="pie-d">
+    <div class="cuenta"><span class="anillo" id="anillo"><svg viewBox="0 0 36 36"><circle class="fondo" cx="18" cy="18" r="15"/><circle class="va" cx="18" cy="18" r="15"/></svg><b id="seg">5</b></span>Te llevo a Vender</div>
+    <button class="btn btn-accion" id="ir-ya"><i class="i i-s" data-i="shopping-cart"></i>Ir a Vender ahora <span class="kbd">Enter</span></button>
+  </div>
+</div>
+
+<script src="../../shared/data.js"></script>
+<script>
+(function () {
+  var D = window.NP, $ = function (id) { return document.getElementById(id); };
+  var timers = [], tick = null, state = "";
+
+  $("tienen").innerHTML = D.holders.map(function (h) {
+    return '<div class="tiene"><span class="esc"><i class="i i-s" data-i="' + h.icon + '"></i></span><b>' + h.name + "</b>" + D.pila(h.people, 4) +
+      '<span class="n">' + h.people.length + (h.people.length === 1 ? " persona" : " personas") + "</span></div>";
+  }).join("");
+
+  function clear() { timers.forEach(clearTimeout); timers = []; clearInterval(tick); }
+  function show(v) {
+    ["v-sin", "v-usuarios", "v-vender"].forEach(function (id) { $(id).hidden = id !== v; });
+    var vend = v === "v-vender";
+    $("titulo").textContent = vend ? "Vender" : "Usuarios";
+    $("pest-vender").hidden = !vend;
+    $("pest-usuarios").hidden = v !== "v-usuarios";
+    $("m-vender").classList.toggle("activo", vend);
+    $("m-mas").classList.toggle("activo", !vend);
+  }
+  function dialog(open) {
+    $("velo").classList.toggle("abierto", open);
+    $("d-perdido").classList.toggle("abierto", open);
+  }
+  function goVender(fromLost) {
+    clear(); dialog(false); state = "vender";
+    show("v-vender");
+    var v = $("venta"); v.classList.remove("recien", "entra"); void v.offsetWidth; v.classList.add("entra", "recien");
+    if (fromLost) setTimeout(function () { STAGE.toast("Usuarios ya no está en Más"); }, 500);
+  }
+
+  window.ESCENAS = {
+    direccion: function () {
+      clear(); dialog(false); state = "sin"; $("mis-roles").textContent = "Vendedor";
+      show("v-sin");
+      var a = document.querySelector(".candado-arco"); a.style.animation = "none"; void a.offsetWidth; a.style.animation = "";
+      setTimeout(function () { $("ir").focus(); }, 50);
+    },
+    perdido: function () {
+      clear(); dialog(false); state = "usando"; $("mis-roles").textContent = "Vendedor · Encargado de turno";
+      show("v-usuarios");
+      // Su próximo pedido trae los permisos nuevos (R7.6, R7.8)
+      timers.push(setTimeout(function () {
+        state = "perdido"; $("mis-roles").textContent = "Vendedor";
+        dialog(true);
+        var an = $("anillo"); an.classList.remove("corre"); void an.offsetWidth; an.classList.add("corre");
+        var n = 5; $("seg").textContent = n;
+        tick = setInterval(function () { n--; $("seg").textContent = Math.max(n, 0); if (n <= 0) goVender(true); }, 1000);
+        $("ir-ya").focus();
+      }, 1400));
+    }
+  };
+
+  // Ir a Vender: en la maqueta muestra la primera opción neutra; navigate.js lleva a Vender si se toca dos veces
+  $("ir").addEventListener("click", function (e) { e.stopPropagation(); e.preventDefault(); goVender(false); }, true);
+  $("ir-ya").addEventListener("click", function () { goVender(true); });
+  $("velo").addEventListener("click", function () { if (state === "perdido") goVender(true); });
+  $("copiar").addEventListener("click", function () { D.copy(D.request); STAGE.toast("Copiado: «…me falta Ver las personas. ¿Me lo das?»"); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey && (e.key === "c" || e.key === "C") && state === "sin") { e.preventDefault(); $("copiar").click(); }
+    else if (e.key === "Enter" && (state === "sin" || state === "perdido")) { e.preventDefault(); goVender(state === "perdido"); }
+    else if (e.key === "Escape" && state === "perdido") { goVender(true); }
+  });
+})();
+</script>
+<script src="../../shared/stage.js"></script>
+</body>
+</html>

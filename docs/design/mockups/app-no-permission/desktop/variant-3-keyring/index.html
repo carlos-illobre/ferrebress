@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sin permiso · 3 · El llavero · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/stage.css">
+<link rel="stylesheet" href="../../shared/keyring.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { margin: 0; }
+  .escena { height: 100vh; min-height: 768px; display: grid; grid-template-rows: auto 1fr; }
+  .arriba { display: flex; align-items: center; gap: 16px; padding: 24px 40px 0; transition: opacity var(--t-nav), transform var(--t-nav); }
+  .arriba img { height: 32px; width: auto; }
+  .yo { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 14px 0 4px; border-radius: 99px; background: var(--tenue); font-size: 14px; font-weight: 700; }
+  .yo .avatar { width: 32px; height: 32px; }
+  .yo small { font-weight: 600; color: var(--medio); font-size: 14px; }
+  .arriba .esc { margin-left: auto; font-size: 14px; color: var(--medio); display: flex; gap: 8px; align-items: center; }
+  .arriba .kbd { background: transparent; border-color: rgba(255,255,255,.35); color: #fff; }
+  .lados { display: grid; grid-template-columns: 320px minmax(0, 1fr) 420px; gap: 36px; align-items: center; padding: 0 40px 32px; }
+  .lado { transition: opacity var(--t-nav), transform var(--t-nav); }
+  #llavero .llavero { width: 320px; height: 240px; }
+  .texto { align-self: center; }
+  .puertas { align-self: center; }
+</style>
+</head>
+<body>
+<div class="escena" id="escena">
+  <header class="arriba">
+    <img src="../../../../common/brand/logo-on-dark.png" alt="Ferrebress" width="125" height="32">
+    <span class="yo"><span class="avatar">MQ</span>Matías Quiroga <small>· Vendedor</small></span>
+    <span class="esc">Mantené <span class="kbd">P</span> para pedirla · <span class="kbd">1</span>–<span class="kbd">4</span> para entrar · <span class="kbd">Enter</span> Vender</span>
+  </header>
+  <div class="lados">
+    <div class="lado" id="llavero"></div>
+    <div class="lado texto">
+      <div class="pre" id="pre"><i class="i i-s" data-i="link"></i>Abriste ferrebress.com.ar/users</div>
+      <h1 id="t">Te falta una llave</h1>
+      <p class="lead" id="lead"></p>
+      <div class="tienen-l">
+        <span class="rot">La tienen, en Administrador, Encargado de turno y Oficina y personal</span>
+        <div class="caras" id="caras"></div>
+      </div>
+      <div style="margin-top:24px">
+        <button class="mantener" id="pedir"><span class="llena"></span><i class="i" data-i="hand"></i><span>Mantené para pedirla</span><span class="kbd">P</span></button>
+        <div class="pedida" id="pedida"><i class="i" data-i="send"></i><div>Se la pediste a Rubén y a Graciela<small>Te avisamos acá cuando te la den.</small></div></div>
+      </div>
+      <div class="mis-llaves" id="mis-llaves"></div>
+    </div>
+    <div class="lado puertas">
+      <h2>Seguí con lo tuyo</h2>
+      <div id="puertas"></div>
+    </div>
+  </div>
+
+  <!-- Lo que tenía abierto (caso «Lo perdió usándola»): claro, neutro -->
+  <div class="antes" id="antes" hidden>
+    <div class="t-titulo">Usuarios</div>
+    <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div>
+    <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris l"></span><span class="gris c"></span></span><span class="gris"></span></div>
+    <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris m"></span><span class="gris c"></span></span><span class="gris"></span></div>
+    <div class="fila-gris"><span class="bloque"></span><span class="lin"><span class="gris c"></span><span class="gris m"></span></span><span class="gris"></span></div>
+  </div>
+</div>
+
+<script src="../../shared/data.js"></script>
+<script src="../../shared/keyring.js"></script>
+<script src="../../shared/keyring-ui.js"></script>
+<script src="../../shared/stage.js"></script>
+</body>
+</html>
