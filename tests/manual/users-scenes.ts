@@ -78,9 +78,15 @@ const button = (name: string | RegExp) => (page: Page) =>
 const inDialog = (name: string) => (page: Page) =>
   page.getByRole('alertdialog').getByRole('button', { name, exact: true });
 
+// El diálogo enfoca su caja (o su botón) y apaga lo de atrás después de dibujarse: hasta que lo
+// hizo, lo que se escribe o se toca puede quedar con el foco en otro lado.
+const opened = (page: Page) => expect(page.locator('#app')).toHaveAttribute('inert', '');
+
 async function users(page: Page): Promise<void> {
   await signedIn(page, ana, answerPeople);
   await shown(page.locator('.users-row')).waitFor();
+  // En la computadora se abre sola la tarjeta de la primera: que termine de cargar antes de seguir.
+  await expect(page.locator('.users-card [aria-busy]')).toHaveCount(0);
 }
 
 async function choose(page: Page, name: string): Promise<void> {
@@ -97,6 +103,7 @@ async function luciaCard(page: Page): Promise<void> {
 async function authorizeFilled(page: Page): Promise<void> {
   await users(page);
   await button('Autorizar a alguien')(page).click();
+  await opened(page);
   await page
     .getByRole('alertdialog')
     .getByRole('textbox', { name: /^Nombre/ })
@@ -107,6 +114,7 @@ async function authorizeFilled(page: Page): Promise<void> {
 async function deactivating(page: Page): Promise<void> {
   await luciaCard(page);
   await button('Dar de baja')(page).click();
+  await opened(page);
   await expect(page.getByRole('alertdialog')).toBeVisible();
 }
 
@@ -143,6 +151,7 @@ export const userScenes: Scene[] = [
     prepare: async (page) => {
       await users(page);
       await button('Se perdió un celular')(page).click();
+      await opened(page);
       await page
         .getByRole('alertdialog')
         .getByRole('button', { name: /Lucía Fernández/ })
@@ -203,6 +212,7 @@ export const userScenes: Scene[] = [
     prepare: async (page) => {
       await users(page);
       await button('Buscar usuario')(page).click();
+      await opened(page);
       await page.getByRole('alertdialog').getByRole('searchbox').fill('luc');
     },
     points: {
