@@ -214,9 +214,13 @@ una sola vez para el servidor y la aplicación.
   (`platform/server/clock`), no con la del dispositivo.
 - **La propia:** la tarjeta no ofrece dar de baja y dice «No te podés dar de baja vos: lo tiene que
   hacer otro Administrador» (E03).
-- **El teclado** (00 · R2): las teclas de la maqueta (Alt U autorizar, Alt I «Se perdió un celular»,
-  Alt T cerrar todas, Alt B dar de baja o borrar, Alt A dar de alta, `/` buscar), solo con Alt; en la
-  tarjeta, «Cerrar» y «Quitar» con las flechas y Enter (R5.8).
+- **El menú:** Usuarios es una opción de Más, entre «Mejoras y errores» y «Configuración», con Alt S
+  y sus pestañas Usuarios · Auditoría (Auditoría, «Pronto» hasta la etapa b). En el celular, Más es
+  una sola lista, sin grupos, en el mismo orden que la computadora.
+- **El teclado** (00 · R2): el menú está siempre a la vista, así que las teclas de la pantalla no
+  usan las suyas: Alt Z autorizar, Alt I «Se perdió un celular», Alt D cerrar todas, Alt B dar de
+  baja o borrar, Alt L dar de alta, `/` buscar; en la tarjeta, «Cerrar» y «Quitar» con las flechas y
+  Enter (R5.8).
 - **`data-private`:** nombres y correos. **Arreglo del 01:** en «Algo salió mal», la marca va hoy
   dentro del botón y no en él, así que el nombre de la persona entra en los últimos pasos; se pone en
   el botón.
