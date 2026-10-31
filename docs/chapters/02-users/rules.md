@@ -18,11 +18,13 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   persona cargada: después de instalar no crea a nadie. No usa la configuración del ambiente. Ese
   primer Administrador tiene el rol Administrador (R7.4) y es una persona más: se la puede dar de
   baja como a cualquiera (R4).
-- **R1.3** Nunca queda nadie que administre: siempre hay al menos una persona activa con
-  «Administrar personas» y al menos una con «Administrar roles» (pueden ser la misma o no). Nadie se
+- **R1.3** Nunca queda nadie que administre: siempre hay al menos una persona activa que ya entró
+  alguna vez con «Administrar personas» y al menos una con «Administrar roles» (pueden ser la misma o
+  no); quien nunca entró no cuenta, porque todavía no administra. Nadie se
   da de baja a sí mismo ni se quita a sí mismo ninguno de esos dos permisos, por ningún camino:
-  sacándose un rol, cambiando los permisos de un rol que tiene o borrándolo. El servidor lo controla
-  siempre, también si dos personas hacen esos cambios al mismo tiempo.
+  sacándose un rol, cambiando los permisos de un rol que tiene o borrándolo. Vale para todo cambio
+  que lo pueda romper, también borrar a alguien. El servidor lo controla siempre, también si dos
+  personas hacen esos cambios al mismo tiempo.
 
 ## 2. Dónde está
 
@@ -79,6 +81,9 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   - sigue en la lista, como dada de baja.
 - **R4.2** **Dar de alta de nuevo** a alguien dado de baja lo deja entrar otra vez, con la misma
   cuenta de Google. Sus celulares con huella no vuelven: los vincula de nuevo.
+- **R4.3** **La baja conserva los roles:** mientras está de baja no cuenta como que los tiene (no
+  figura en «Lo tienen» de R7.7); al darla de alta vuelve con los mismos. Un rol que tiene una
+  persona dada de baja no se puede borrar, como cualquier otro que alguien tenga (R7.3).
 
 ## 5. Sesiones y celulares con huella de cada persona
 
@@ -137,8 +142,9 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   | Cortar sesiones y huellas | Cerrar una sesión o todas, quitar un celular con huella y «Se perdió un celular» de cualquier persona |
   | Administrar roles | Abrir la pestaña Roles, armar los roles y darles o quitarles roles a las personas |
 
-  «Administrar personas» y «Cortar sesiones y huellas» incluyen «Ver las personas»: al tildar
-  cualquiera de los dos en un rol, se tilda solo y no se puede destildar mientras estén. Los demás
+  «Administrar personas», «Cortar sesiones y huellas» y «Administrar roles» incluyen «Ver las
+  personas»: al tildar cualquiera de los tres en un rol, se tilda solo y no se puede destildar
+  mientras estén. Los demás
   capítulos suman los suyos; hoy, «Trabajar sin conexión» (15 · R1.2), en su grupo «Sin conexión».
 - **R7.2** **Lo que no pide ningún permiso:** entrar, salir y el manual; la configuración del propio
   dispositivo (salvo «Trabajar sin conexión», que pide su permiso, 15 · R1.2), y ver y cerrar las sesiones propias y cortar el propio celular perdido, en
@@ -179,6 +185,11 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   (15 · etapa b).
 - **R7.10** **Las personas que ya estaban** cuando llega esta etapa quedan con el rol Administrador,
   que es lo que podían hacer hasta ahora.
+- **R7.11** **Nadie actúa sobre quien tiene más:** sobre una persona que tiene algún permiso que
+  uno no tiene no se puede cambiarle el correo, darla de baja o de alta, ni cerrarle sesiones o
+  quitarle celulares con huella (tampoco con «Se perdió un celular»): esos botones no aparecen y el
+  servidor lo rechaza. Así nadie se da acceso cambiando el correo de alguien con más permisos ni saca
+  a quien tiene más.
 
 ## Escenarios
 
@@ -336,3 +347,13 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
 - **E57** **Dado** un rol con la descripción «Atiende el mostrador y cobra», **cuando** se elige el
   rol de una persona o se mira la lista de roles, **entonces** la descripción se ve debajo del
   nombre; **dado** un rol sin descripción, se guarda igual y no muestra nada.
+- **E58** **Dado** alguien con «Administrar personas» y «Cortar sesiones y huellas» pero sin
+  «Administrar roles», **cuando** abre la tarjeta de un Administrador que todavía no entró,
+  **entonces** no puede cambiarle el correo, ni darlo de baja, ni cortarle sesiones o huellas; el
+  servidor también lo rechaza si se lo pide directo.
+- **E59** **Dado** dos personas activas con «Administrar personas», una que ya entró y otra que nunca
+  entró, **cuando** alguien quiere dar de baja a la que ya entró, **entonces** no se guarda: la que
+  nunca entró no cuenta. Borrar a alguien también pasa por ese control.
+- **E60** **Dado** una persona con el rol «Encargado» dada de baja, **cuando** se mira el rol,
+  **entonces** no figura en «Lo tienen» y el rol no se puede borrar; **cuando** se la da de alta,
+  vuelve con «Encargado».

@@ -29,7 +29,9 @@ Reglas completas en [rules.md](rules.md).
   administrar roles); roles armables con nombre y descripción opcional, que se duplican y se borran solo si nadie los
   tiene; al instalar, solo Administrador, que recibe todo permiso nuevo; cada persona activa tiene
   al menos un rol; el servidor controla cada pedido; lo que no se puede usar no aparece, y por la
-  dirección dice qué permiso falta; sin conexión, los últimos permisos conocidos (R7).
+  dirección dice qué permiso falta; sin conexión, los últimos permisos conocidos; nadie actúa sobre
+  quien tiene más permisos; solo cuenta como quien administra quien ya entró; la baja conserva los
+  roles (R7, R1.3, R4.3).
 
 ## Lo que falta decidir
 
