@@ -127,8 +127,10 @@ function useLostPermission(person: Person, opened: Option | undefined) {
   useEffect(() => {
     const was = before.current;
     before.current = person;
-    if (opened && was !== person && allowed(opened, was) && !allowed(opened, person))
-      setNow({ option: opened, before: was, after: person });
+    // La que se veía: la de la dirección o, sin ninguna, la primera que podía usar (R1.4).
+    const shown = opened ?? firstOption(was);
+    if (was !== person && allowed(shown, was) && !allowed(shown, person))
+      setNow({ option: shown, before: was, after: person });
   }, [person, opened]);
   const go = useCallback(() => {
     setNow(undefined);

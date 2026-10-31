@@ -140,4 +140,22 @@ describe('el marco con permisos', () => {
     expect(await within(main).findByText('1 persona')).toBeTruthy();
     expect(main.textContent).toContain('1 rol · 1 persona');
   });
+
+  it('R7.8: también si la abrió por ser la primera, sin la dirección', async () => {
+    media();
+    fakeServer({ '/api/permissions/users.view/holders': { body: holders } });
+    navigate('/', { replace: true });
+    const frame = (who: Person) => (
+      <div id="app">
+        <Frame person={who} testing={false} onSignOut={() => {}} screens={{ users }} />
+      </div>
+    );
+    const { rerender } = render(frame(person));
+    expect(screen.getByRole('main').textContent).toBe('La pantalla de Usuarios');
+    rerender(frame(seller));
+    expect(
+      await screen.findByRole('alertdialog', { name: 'Ya no tenés permiso para Usuarios' }),
+    ).toBeTruthy();
+    expect(screen.getByRole('main').textContent).not.toContain('La pantalla de Usuarios');
+  });
 });
