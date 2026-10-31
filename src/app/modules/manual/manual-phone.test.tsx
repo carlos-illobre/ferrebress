@@ -81,6 +81,9 @@ describe('el manual en el celular', () => {
     serveManual();
     show({ device: 'phone' });
     await loaded();
+    const fold = screen.getByRole('button', { name: 'Trabajar sin conexión' });
+    expect(fold.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(fold);
     const group = screen.getByRole('heading', { name: 'Trabajar sin conexión' });
     fireEvent.click(within(group.nextElementSibling as HTMLElement).getByRole('button'));
     await waitFor(() => expect(within(sheet()).getByText('Prendé la opción.')).toBeTruthy());

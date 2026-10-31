@@ -30,7 +30,11 @@ describe('el manual en la computadora', () => {
     serveManual();
     show();
     await loaded();
-    expect(screen.getByText('Próximos capítulos')).toBeTruthy();
+    // Plegados: se abren tocando su título.
+    const next = screen.getByRole('button', { name: 'Próximos capítulos' });
+    expect(next.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByText('Vender')).toBeNull();
+    fireEvent.click(next);
     expect(screen.getByText('Vender').parentElement?.textContent).toContain('Pronto');
     // R10.1: en pruebas, el manual lleva el cartel del ambiente, como toda pantalla.
     expect(screen.getByText(/Ambiente de prueba/)).toBeTruthy();

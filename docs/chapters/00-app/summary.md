@@ -20,7 +20,8 @@ Lo que vale para toda la aplicación. Reglas completas en [rules.md](rules.md).
   sin nada a medio hacer, se actualiza sola; si el servidor ya no la entiende, se bloquea con
   «Actualizar» (R5).
 - **Manual:** desde la entrada de la computadora y desde Más → Manual; selector de dispositivo,
-  buscador, «pronto» para lo que falta, solo en pruebas; necesita internet (R6).
+  buscador, capítulos plegables, «pronto» para lo que falta; cada paso con su captura; necesita
+  internet (R6).
 - **Esperas:** nada antes de 300 ms, marca de espera después, barra pasados 2 s; búsquedas con 150
   ms de espera y cancelando la anterior (R7).
 - **Formatos:** «$ 45.500» sin decimales por omisión; cantidades con su unidad; la hora del

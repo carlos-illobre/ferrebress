@@ -136,6 +136,10 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 - **R6.7** «Volver» lleva a donde se estaba (la entrada o la aplicación) y nombra esa pantalla
   («Volver a la entrada», «Volver a Vender»).
 - **R6.8** Necesita internet y no se guarda en el dispositivo.
+- **R6.9** En la lista de la izquierda, cada capítulo se abre y se cierra tocando su título, para
+  que la lista no abrume; se pueden tener varios abiertos. Arranca abierto el de la tarea que se
+  está leyendo (o el primero), y se abre solo el de una tarea que se abre desde el buscador. Los
+  próximos capítulos, con «pronto», arrancan cerrados.
 
 ## 7. Las esperas y las búsquedas
 

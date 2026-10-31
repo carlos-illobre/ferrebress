@@ -45,6 +45,43 @@ export function Row({
   );
 }
 
+// El título de un capítulo, que lo abre y lo cierra (pedido de Carlos: sin plegar, la lista abruma).
+// Se abren varios a la vez; la flecha mira abajo con el capítulo abierto.
+export function Group({
+  icon,
+  name,
+  open,
+  onToggle,
+  apart,
+  children,
+}: {
+  icon?: string;
+  name: string;
+  open: boolean;
+  onToggle: () => void;
+  apart?: boolean;
+  children: ComponentChildren;
+}) {
+  return (
+    <>
+      <h2 class={apart ? 'manual-group apart' : 'manual-group'}>
+        <button
+          type="button"
+          class="manual-fold"
+          aria-expanded={open}
+          data-mark=""
+          onClick={onToggle}
+        >
+          {icon && <Glyph name={icon} size="small" />}
+          <span>{name}</span>
+          <Glyph name="chevron-right" size="small" />
+        </button>
+      </h2>
+      {open && children}
+    </>
+  );
+}
+
 export const detailOf = (task: TaskSummary) => (
   <>
     {texts.steps(task.steps)}

@@ -192,4 +192,28 @@
       padding: 0;
     }
   }
+  /* El título plegable: todo el renglón se toca; la flecha gira con el capítulo abierto. */
+  .manual-fold {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--s2);
+    min-height: 40px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .manual-fold > span {
+    flex: 1;
+  }
+  .manual-fold > .icon:last-child {
+    transition: transform 160ms var(--ease);
+  }
+  .manual-fold[aria-expanded="true"] > .icon:last-child {
+    transform: rotate(90deg);
+  }
 }

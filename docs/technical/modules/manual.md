@@ -230,7 +230,7 @@ En el arranque van solo `index.ts`, `ManualSlot.tsx` y `place/`; lo demás se ba
 | `view.ts` | Lo que reciben las pantallas (`View`) y si la ventana es angosta |
 | `texts.ts` | Los textos de la pantalla (no los del manual) |
 | `screens/Manual/` | La página: cabecera, tareas y paso a paso |
-| `screens/Tasks/` | La lista de tareas (`Rows`) y lo encontrado (`Results`) |
+| `screens/Tasks/` | La lista de tareas (`Rows`), con cada capítulo plegable (`Group`, R6.9: los abiertos viven en la pantalla, no se guardan), y lo encontrado (`Results`) |
 | `screens/Guide/` | El paso a paso, con su avance; en el celular, una hoja |
 | `screens/Stage/` | La captura con su aro y su rótulo (`Shot`), el clip (`Clip`) y el ícono de un paso sin captura |
 | `screens/AllSteps/` | El capítulo entero, para leerlo de corrido; en el celular, otra hoja |
