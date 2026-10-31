@@ -4,7 +4,8 @@ import { act, fireEvent, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate } from '../../platform/router.ts';
 import { online } from '../../platform/server/api.ts';
-import { media, open } from './frame-test-kit.tsx';
+import { media, open, withPath } from './frame-test-kit.tsx';
+import { moreOptions, type Option } from './menu.ts';
 
 const sideMore = (side: HTMLElement) => within(side).getByRole('button', { name: /^Más/ });
 
@@ -15,19 +16,21 @@ describe('el Manual en Más', () => {
     navigate('/', { replace: true });
   });
 
-  it('en la computadora guarda la parte abierta; en producción, sin parte, «app»', () => {
+  it('en la computadora guarda la opción abierta', () => {
     media();
     const { side } = open();
     fireEvent.click(sideMore(side));
     fireEvent.click(within(side).getByRole('button', { name: /Manual/ }));
-    expect(history.state).toEqual({ from: 'sell' });
+    expect(history.state).toEqual({ from: 'users' });
   });
 
-  it('en producción, sin parte abierta, vuelve a Ferrebress', () => {
+  it('en producción, sin ninguna opción que exista, vuelve a Ferrebress', () => {
     media();
-    const { side } = open({ testing: false });
-    fireEvent.click(sideMore(side));
-    fireEvent.click(within(side).getByRole('button', { name: /Manual/ }));
+    withPath(moreOptions.find((option) => option.id === 'users') as Option, undefined, () => {
+      const { side } = open({ testing: false });
+      fireEvent.click(sideMore(side));
+      fireEvent.click(within(side).getByRole('button', { name: /Manual/ }));
+    });
     expect(history.state).toEqual({ from: 'app' });
   });
 

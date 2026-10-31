@@ -3,7 +3,8 @@
 import { render, screen } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
 import { Toasts } from '../../ui/toast/Toast.tsx';
-import { Frame, type SettingRow } from './index.ts';
+import { Frame, type FrameProps, type SettingRow } from './index.ts';
+import type { Option } from './menu.ts';
 
 export const person = {
   userId: 'u1',
@@ -23,14 +24,22 @@ export function open({
   testing = true,
   onSignOut = vi.fn<() => unknown>(),
   setting,
+  screens,
 }: {
   testing?: boolean;
   onSignOut?: Mock<() => unknown>;
   setting?: SettingRow;
+  screens?: FrameProps['screens'];
 } = {}): { onSignOut: Mock<() => unknown>; side: HTMLElement } {
   render(
     <>
-      <Frame person={person} testing={testing} onSignOut={onSignOut} setting={setting} />
+      <Frame
+        person={person}
+        testing={testing}
+        onSignOut={onSignOut}
+        setting={setting}
+        screens={screens}
+      />
       <Toasts />
     </>,
   );
@@ -45,3 +54,16 @@ export const alt = (key: string) => {
 export const press = (key: string) => {
   window.dispatchEvent(new KeyboardEvent('keydown', { key }));
 };
+
+// Una opción del menú que, para la prueba, ya existe (o deja de existir, con `undefined`).
+export function withPath(option: Option, path: string | undefined, run: () => void): void {
+  const before = option.path;
+  if (path === undefined) delete option.path;
+  else option.path = path;
+  try {
+    run();
+  } finally {
+    if (before === undefined) delete option.path;
+    else option.path = before;
+  }
+}

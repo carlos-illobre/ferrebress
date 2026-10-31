@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/preact'
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { newVersion } from '../../platform/server/api.ts';
 import { media, open, person } from './frame-test-kit.tsx';
-import { Dialogs, parts, registerWork, watchBackground, watchCrashes } from './index.ts';
+import { Dialogs, registerWork, watchBackground, watchCrashes } from './index.ts';
 import { crash, reportCrash } from './notices/crash/crash.ts';
 import { discardWork, halfDone } from './work.ts';
 
@@ -16,11 +16,11 @@ describe('lo que el marco cuida', () => {
     crash.set(undefined);
   });
 
-  it('app-E03: al abrir, abre la primera opción del menú', () => {
+  it('app-E03: al abrir, abre la primera opción del menú que existe, con su pantalla', () => {
     media();
-    const { side } = open();
-    const current = side.querySelector('[aria-current="page"]');
-    expect(current?.textContent).toContain(parts[0]?.name);
+    const { side } = open({ screens: { users: () => <p>La pantalla de Usuarios</p> } });
+    expect(side.querySelector('[aria-current="page"]')?.textContent).toContain('Más');
+    expect(screen.getByRole('main').textContent).toBe('La pantalla de Usuarios');
   });
 
   it('app-E30c: con algo a medio hacer, la versión nueva no se aplica sola en segundo plano', () => {

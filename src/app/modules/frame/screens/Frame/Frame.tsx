@@ -2,7 +2,8 @@
 // pantalla de la opción abierta; mientras no exista ningún módulo, el área está en blanco. Una sola
 // página para los dos anchos: desde 900 px es la computadora y debajo, el celular (ADR-002).
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
-import type { ComponentChildren } from 'preact';
+import type { ComponentChildren, ComponentType } from 'preact';
+import { route } from '../../../../platform/router.ts';
 import { online as onlineStore } from '../../../../platform/server/api.ts';
 import { useStore } from '../../../../platform/store.ts';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
@@ -11,7 +12,7 @@ import { usePanels } from '../../behavior/usePanels.ts';
 import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
 import { useTip } from '../../behavior/useTip.ts';
 import { FrameContext, type FrameState, type SettingRow, shake } from '../../context.ts';
-import { exists, moreOptions, parts } from '../../menu.ts';
+import { exists, moreOptions, optionAt, parts } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
 import { PhoneNav, PhoneTop } from '../Phone/Phone.tsx';
@@ -28,6 +29,8 @@ export type FrameProps = {
   testing: boolean;
   onSignOut: () => unknown;
   setting?: SettingRow | undefined;
+  // La pantalla de cada opción que ya existe, por su id: las pone cada módulo, por App.
+  screens?: Partial<Record<string, ComponentType>> | undefined;
   children?: ComponentChildren;
 };
 
@@ -36,8 +39,11 @@ const firstOption = (testing: boolean) =>
   [...parts, ...moreOptions].find((option) => exists(option) && !option.over)?.id ??
   (testing ? parts[0]?.id : undefined);
 
-export function Frame({ person, testing, onSignOut, setting, children }: FrameProps) {
+export function Frame({ person, testing, onSignOut, setting, screens, children }: FrameProps) {
   const online = useStore(onlineStore);
+  // La opción abierta es la de la dirección; en cualquier otra, la primera (R1.4).
+  const current = optionAt(useStore(route).path)?.id ?? firstOption(testing);
+  const Screen = current ? screens?.[current] : undefined;
   const collapse = useCollapse();
   const panels = usePanels();
   const phoneMore = usePhoneMore();
@@ -46,7 +52,7 @@ export function Frame({ person, testing, onSignOut, setting, children }: FramePr
     person,
     testing,
     online,
-    current: firstOption(testing),
+    current,
     collapse,
     panels,
     phoneMore,
@@ -69,7 +75,7 @@ export function Frame({ person, testing, onSignOut, setting, children }: FramePr
         <Side />
         <PhoneTop />
         <main class="work-area" aria-label={texts.workArea}>
-          {children}
+          {Screen ? <Screen /> : children}
         </main>
         <PhoneMore />
         <PhoneNav />

@@ -22,11 +22,10 @@ describe('el marco', () => {
       .filter(Boolean);
     expect(names).toEqual(['Vender', 'Catálogo', 'Depósito', 'Negocio', 'Más']);
     expect(within(side).getAllByText('Pronto')).toHaveLength(4);
-    expect(
-      within(side)
-        .getByRole('button', { name: /Vender/ })
-        .getAttribute('aria-current'),
-    ).toBe('page');
+    // Lo primero que existe es Usuarios, en Más (R1.4).
+    expect(within(side).getByRole('button', { name: /Más/ }).getAttribute('aria-current')).toBe(
+      'page',
+    );
     expect(within(side).getByText('En línea · todo enviado')).toBeTruthy();
     const card = screen.getByRole('region', { name: 'Tu sesión' });
     expect(within(card).getByText('Rubén Paredes')).toBeTruthy();
@@ -40,13 +39,13 @@ describe('el marco', () => {
 
   it('app-E02b, app-E52: en producción solo está lo que existe, y no hay marco magenta', () => {
     const { side } = open({ testing: false });
-    // Solo Más, que tiene el manual.
+    // Solo Más, que tiene Usuarios y el manual.
     expect(
       within(side)
         .queryAllByRole('listitem')
         .map((item) => item.textContent),
     ).toEqual([expect.stringContaining('Más')]);
-    expect(side.querySelector('[aria-current="page"]')).toBeNull();
+    expect(side.querySelector('[aria-current="page"]')?.textContent).toContain('Más');
     expect(document.querySelector('.test-frame')).toBeNull();
   });
 
@@ -197,7 +196,7 @@ describe('el marco', () => {
 
   it('app-E01: abre la primera opción que existe, y tocar una que existe la abre', () => {
     const catalog = parts[1] as Option;
-    const manual = moreOptions[5] as Option;
+    const manual = moreOptions.find((option) => option.id === 'manual') as Option;
     catalog.path = '/catalog';
     manual.path = '/manual';
     try {

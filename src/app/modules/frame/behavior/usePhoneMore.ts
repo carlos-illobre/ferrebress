@@ -2,6 +2,7 @@
 // trabajo, y el menú de abajo queda a la vista con Más elegida. Abrirla suma un paso al historial,
 // así el botón atrás del celular la cierra y vuelve a donde se estaba.
 import { useEffect, useState } from 'preact/hooks';
+import { type Option, openOption } from '../menu.ts';
 
 export function usePhoneMore() {
   const [open, setOpen] = useState(false);
@@ -23,6 +24,11 @@ export function usePhoneMore() {
     // Solo se llama con Más a la vista: vuelve como el botón atrás.
     hide() {
       history.back();
+    },
+    // Abre una opción en lugar de Más: reemplaza su paso del historial.
+    leave(option: Option) {
+      setOpen(false);
+      openOption(option, 'more', true);
     },
   };
 }

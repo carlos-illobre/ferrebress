@@ -2,9 +2,10 @@
 // dibujados en la aplicación, sin bajar nada, y solo los que usa alguna pantalla.
 import './icon.css';
 import { menuShapes } from './menu-shapes.tsx';
+import { peopleShapes } from './people-shapes.tsx';
 import { shapes } from './shapes.tsx';
 
-const all = { ...shapes, ...menuShapes };
+const all = { ...shapes, ...menuShapes, ...peopleShapes };
 
 export type IconName = keyof typeof all;
 

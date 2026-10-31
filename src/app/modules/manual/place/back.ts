@@ -1,10 +1,10 @@
 // A dónde vuelve «Volver» (00 · R6.7, diseño del manual, § 5): quien abre el manual guarda en la
-// historia de dónde viene, de una lista cerrada (la entrada, una parte del menú o Más), y el nombre
+// historia de dónde viene, de una lista cerrada (la entrada, una opción del menú o Más), y el nombre
 // que se muestra sale de esa lista, nunca de un texto guardado. Sin de dónde (se escribió la
 // dirección), «Ir a Ferrebress» lleva al principio; `app` (Más sin una parte abierta) dice
 // «Ferrebress». Nunca lleva a una dirección que venga de afuera.
 import { navigate } from '../../../platform/router.ts';
-import { parts } from '../../frame/index.ts';
+import { moreOptions, parts } from '../../frame/index.ts';
 
 // A dónde vuelve «Volver»: el nombre largo (computadora), el corto (celular) y cómo.
 export type Back = { long: string; short: string; go: (open: number) => void };
@@ -19,7 +19,12 @@ const places: Record<string, string> = {
   entrance: 'la entrada',
   more: 'Más',
   app: 'Ferrebress',
-  ...Object.fromEntries(parts.map((part) => [part.id, part.name])),
+  ...Object.fromEntries(
+    [...parts, ...moreOptions.filter((option) => !option.over)].map((option) => [
+      option.id,
+      option.name,
+    ]),
+  ),
 };
 
 const shortNames: Record<string, string> = { entrance: 'Entrada' };

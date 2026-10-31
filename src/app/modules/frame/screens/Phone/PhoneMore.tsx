@@ -1,13 +1,13 @@
 // Más en el celular (maqueta del marco): una pantalla entera con el título, la luz, la persona, las
-// opciones en dos grupos con su ícono y qué son, y «Salir» aparte (01 · R5.1). Lo que todavía no
-// existe dice «Pronto» y no lleva flecha, porque no se abre (00 · R1.3); en producción no está, y un
-// grupo sin nada no se muestra. Debajo de Configuración puede ir un interruptor de otro módulo (hoy,
-// «Trabajar sin conexión», 15 · R1).
+// opciones en una sola lista, en el orden de la computadora, con su ícono y qué son, y «Salir» aparte
+// (00 · R1.2, 01 · R5.1). Lo que todavía no existe dice «Pronto» y no lleva flecha, porque no se abre
+// (00 · R1.3); en producción no está. Debajo de Configuración puede ir un interruptor de otro módulo
+// (hoy, «Trabajar sin conexión», 15 · R1).
 import { Fragment } from 'preact';
 import { useWaiting } from '../../../../platform/waiting.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { initials, useFrame } from '../../context.ts';
-import { exists, moreGroups, type Option, openOption, shown, unavailable } from '../../menu.ts';
+import { exists, moreOptions, type Option, openOption, shown, unavailable } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './PhoneMore.css';
@@ -37,33 +37,28 @@ export function PhoneMore() {
           <small>{person.role}</small>
         </div>
       </section>
-      {moreGroups.map((group) => (
-        <MoreGroup key={group.title} title={group.title} options={group.options} />
-      ))}
+      <MoreList />
       <SignOutRow />
     </section>
   );
 }
 
-// Un grupo de opciones. El interruptor de otro módulo va debajo de Configuración; si Configuración
-// todavía no se muestra (en producción), va primero en su grupo. Un grupo vacío no se muestra.
-function MoreGroup({ title, options }: { title: string; options: Option[] }) {
-  const { setting, testing } = useFrame();
-  const visible = shown(options, testing);
-  const settingHere = !!setting && options.some((option) => option.id === settingsAfter);
-  const settingFirst = settingHere && !visible.some((option) => option.id === settingsAfter);
-  if (visible.length === 0 && !settingHere) return null;
+// Las opciones. El interruptor de otro módulo va debajo de Configuración; si Configuración todavía
+// no se muestra (en producción), va donde iría: después de Usuarios.
+function MoreList() {
+  const { testing } = useFrame();
+  const visible = shown(moreOptions, testing);
+  const settingAlone = !visible.some((option) => option.id === settingsAfter);
   return (
     <div>
-      <h2 class="phone-more-group-title">{title}</h2>
       <ul class="phone-more-card phone-more-group">
-        {settingFirst && <SettingOption />}
         {visible.map((option) => (
           <Fragment key={option.id}>
             <li>
               <MoreOption option={option} />
             </li>
             {option.id === settingsAfter && <SettingOption />}
+            {settingAlone && option.id === settingAloneAfter && <SettingOption />}
           </Fragment>
         ))}
       </ul>
@@ -72,19 +67,21 @@ function MoreGroup({ title, options }: { title: string; options: Option[] }) {
 }
 
 const settingsAfter = 'deviceSettings';
+const settingAloneAfter = 'users';
 
 function MoreOption({ option }: { option: Option }) {
-  const { notYet, online } = useFrame();
+  const { notYet, online, phoneMore } = useFrame();
   const soon = !exists(option);
   const off = unavailable(option, online);
+  // Una pantalla de trabajo reemplaza a Más (atrás vuelve a donde se estaba antes de Más); el manual
+  // se abre encima.
+  const open = () => (option.over ? openOption(option, 'more') : phoneMore.leave(option));
   return (
     <button
       type="button"
       class="phone-more-option"
       disabled={off}
-      onClick={(event) =>
-        option.path ? openOption(option, 'more') : notYet(event.currentTarget, option.name)
-      }
+      onClick={(event) => (option.path ? open() : notYet(event.currentTarget, option.name))}
     >
       <span class={option.tone ? `phone-more-icon ${option.tone}` : 'phone-more-icon'}>
         <Icon name={option.icon} />

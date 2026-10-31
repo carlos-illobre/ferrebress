@@ -54,6 +54,15 @@ const business: Option[] = [
 
 const settings: Option[] = [
   {
+    id: 'users',
+    name: 'Usuarios',
+    icon: 'users',
+    shortcut: 's',
+    detail: 'Quién entra y desde dónde',
+    path: '/users',
+    needsInternet: true,
+  },
+  {
     id: 'deviceSettings',
     name: 'Configuración',
     icon: 'settings',
@@ -80,13 +89,8 @@ const settings: Option[] = [
   },
 ];
 
+// Más, en el mismo orden en la computadora y en el celular, sin grupos (00 · R1.2).
 export const moreOptions: Option[] = [...business, ...settings];
-
-// Más en el celular las muestra en dos grupos.
-export const moreGroups = [
-  { title: 'Del negocio', options: business },
-  { title: 'Ajustes', options: settings },
-];
 
 export const exists = (option: Option) => option.path !== undefined;
 
@@ -94,8 +98,13 @@ export const unavailable = (option: Option, online: boolean) => !!option.needsIn
 
 // Abre una opción y guarda de dónde se viene (la parte abierta, o Más), para que «Volver» vuelva ahí
 // (el manual, 00 · R6.7).
-export const openOption = (option: Option, from = 'app') =>
-  option.path && navigate(option.path, { state: { from } });
+export const openOption = (option: Option, from = 'app', replace = false) =>
+  option.path && navigate(option.path, { state: { from }, replace });
+
+// La opción de una dirección: la que la tiene como suya.
+// El manual no cuenta: se abre encima de la pantalla, que sigue debajo (R1.4).
+export const optionAt = (path: string) =>
+  [...parts, ...moreOptions].find((option) => option.path === path && !option.over);
 
 // Lo que se ve del menú: en pruebas, todo; en producción, solo lo que existe.
 export const shown = (options: Option[], testing: boolean) =>

@@ -4,7 +4,7 @@
 import logo from '../../../../styles/brand/logo-on-light.webp';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { initials, useFrame } from '../../context.ts';
-import { exists, type Option, openOption, parts, shown } from '../../menu.ts';
+import { exists, moreOptions, type Option, openOption, parts, shown } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './Phone.css';
@@ -39,7 +39,9 @@ export function PhoneTop() {
 }
 
 export function PhoneNav() {
-  const { testing, phoneMore } = useFrame();
+  const { testing, phoneMore, current } = useFrame();
+  // Más queda elegida también con una de sus opciones abierta.
+  const inMore = phoneMore.open || moreOptions.some((option) => option.id === current);
   return (
     <nav class="phone-nav phone-only" aria-label={texts.menu}>
       {shown(parts, testing).map((option) => (
@@ -48,7 +50,7 @@ export function PhoneNav() {
       <button
         type="button"
         class="phone-part opens"
-        aria-current={phoneMore.open ? 'page' : undefined}
+        aria-current={inMore ? 'page' : undefined}
         onClick={phoneMore.show}
       >
         <span class="phone-part-icon">

@@ -1,7 +1,7 @@
 import { act, fireEvent, screen, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { later } from '../../testing/later.ts';
-import { media, open } from './frame-test-kit.tsx';
+import { media, open, withPath } from './frame-test-kit.tsx';
 import { moreOptions, type Option, parts } from './menu.ts';
 
 describe('el marco en el celular', () => {
@@ -26,7 +26,8 @@ describe('el marco en el celular', () => {
     ).toBe(false);
     expect(document.querySelector('.frame')?.classList.contains('more-open')).toBe(true);
     expect(within(screenMore).getByText('Rubén Paredes')).toBeTruthy();
-    expect(within(screenMore).getByText('Del negocio')).toBeTruthy();
+    // Una sola lista, sin grupos (00 · R1.2).
+    expect(screenMore.querySelectorAll('.phone-more-group')).toHaveLength(1);
     expect(within(screenMore).getByText('Lo que no coincide')).toBeTruthy();
     expect(within(screenMore).getAllByText('Pronto')).toHaveLength(5);
     const anomalies = within(screenMore).getByRole('button', { name: /Anomalías/ });
@@ -56,7 +57,7 @@ describe('el marco en el celular', () => {
     expect(toggle).toHaveBeenCalledOnce();
   });
 
-  it('app-E02b, offline-E01: en producción, sin grupos vacíos, y el interruptor primero en Ajustes', () => {
+  it('app-E02b, offline-E01: en producción, solo lo que existe, y el interruptor después de Usuarios', () => {
     const setting = {
       name: 'Trabajar sin conexión',
       detail: 'Hasta 24 horas',
@@ -71,13 +72,12 @@ describe('el marco en el celular', () => {
       ),
     );
     const screenMore = screen.getByRole('region', { name: 'Más' });
-    expect(within(screenMore).queryByText('Del negocio')).toBeNull();
     expect(within(screenMore).queryByText('Pronto')).toBeNull();
     const row = screen.getByRole('switch', { name: /Trabajar sin conexión/ });
-    expect(row.closest('ul')?.previousElementSibling?.textContent).toBe('Ajustes');
+    expect(row.closest('li')?.previousElementSibling?.textContent).toContain('Usuarios');
   });
 
-  it('app-E02b: en producción, Más tiene solo lo que existe (el manual), sin grupos vacíos', () => {
+  it('app-E02b: en producción, Más tiene solo lo que existe (Usuarios y el manual)', () => {
     open({ testing: false });
     fireEvent.click(
       within(screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement).getByRole(
@@ -86,9 +86,11 @@ describe('el marco en el celular', () => {
       ),
     );
     const screenMore = screen.getByRole('region', { name: 'Más' });
-    expect(within(screenMore).queryByText('Del negocio')).toBeNull();
-    expect(within(screenMore).getByText('Ajustes')).toBeTruthy();
-    expect(within(screenMore).getByRole('button', { name: /Manual/ })).toBeTruthy();
+    expect(
+      within(screenMore.querySelector('.phone-more-group') as HTMLElement)
+        .getAllByRole('button')
+        .map((button) => button.querySelector('b')?.textContent),
+    ).toEqual(['Usuarios', 'Manual']);
   });
 
   it('en el celular, lo que no está lo dice una tostada que se va sola; la luz abre lo pendiente', async () => {
@@ -116,28 +118,28 @@ describe('el marco en el celular', () => {
   });
 
   it('se sale de Más tocando la parte abierta o con el botón atrás del celular', () => {
-    open();
-    const phoneNav = screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement;
-    const more = within(phoneNav).getByRole('button', { name: /Más/ });
     // happy-dom no vuelve atrás de verdad: se ve que lo pide y se hace como el navegador.
     const back = vi.spyOn(history, 'back').mockImplementation(() => {
       dispatchEvent(new PopStateEvent('popstate'));
     });
-    fireEvent.click(more);
-    fireEvent.click(more);
-    act(() => {
-      fireEvent.click(within(phoneNav).getByRole('button', { name: /Vender/ }));
+    withPath(parts[0] as Option, '/', () => {
+      open();
+      const phoneNav = screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement;
+      const more = within(phoneNav).getByRole('button', { name: /Más/ });
+      fireEvent.click(more);
+      fireEvent.click(more);
+      act(() => {
+        fireEvent.click(within(phoneNav).getByRole('button', { name: /Vender/ }));
+      });
+      expect(back).toHaveBeenCalledOnce();
+      expect(screen.queryByRole('region', { name: 'Más' })).toBeNull();
+      back.mockRestore();
+      fireEvent.click(more);
+      act(() => {
+        dispatchEvent(new PopStateEvent('popstate'));
+      });
+      expect(screen.queryByRole('region', { name: 'Más' })).toBeNull();
     });
-    expect(back).toHaveBeenCalledOnce();
-    expect(screen.queryByRole('region', { name: 'Más' })).toBeNull();
-    back.mockRestore();
-    fireEvent.click(more);
-    act(() => {
-      dispatchEvent(new PopStateEvent('popstate'));
-    });
-    expect(screen.queryByRole('region', { name: 'Más' })).toBeNull();
-    fireEvent.click(within(phoneNav).getByRole('button', { name: /Vender/ }));
-    expect(screen.getByRole('status').textContent).toBe('Vender · pronto. Todavía no está.');
   });
 
   it('en el celular, una opción que existe se abre, desde el menú de abajo o desde Más', () => {

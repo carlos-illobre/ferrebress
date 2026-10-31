@@ -23,6 +23,9 @@ export function More() {
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls="more-options"
+        aria-current={
+          moreOptions.some((option) => option.id === frame.current) ? 'page' : undefined
+        }
         onClick={(event) => frame.panels.toggle('more', event.currentTarget)}
       >
         <Icon name="ellipsis" />

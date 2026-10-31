@@ -39,7 +39,7 @@ describe('el manual en la aplicación', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /^Más/ })[0] as HTMLElement);
     fireEvent.click(await screen.findByRole('button', { name: /Manual/ }));
     expect(location.pathname).toBe('/manual');
-    expect(history.state).toEqual({ from: 'sell' });
+    expect(history.state).toEqual({ from: 'users' });
     const page = (await screen.findByRole('heading', { name: '¿Qué querés hacer?' })).closest(
       '.manual-page',
     ) as HTMLElement;
@@ -52,7 +52,7 @@ describe('el manual en la aplicación', () => {
     expect(asked.length).toBeGreaterThan(0);
     expect(asked.every((path) => path.startsWith('/manual/'))).toBe(true);
     const back = vi.spyOn(history, 'go').mockImplementation(() => navigate('/', { replace: true }));
-    fireEvent.click(within(page).getByRole('button', { name: /Volver a Vender/ }));
+    fireEvent.click(within(page).getByRole('button', { name: /Volver a Usuarios/ }));
     expect(back).toHaveBeenCalledWith(-1);
     await waitFor(() => expect(document.querySelector('.manual-page')).toBeNull());
     expect(behind.hidden).toBe(false);
