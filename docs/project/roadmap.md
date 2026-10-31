@@ -116,6 +116,11 @@ No se construyen ahora; el diseño no les cierra la puerta.
   el modo clásico y se elige con un selector en la pestaña Roles, para quien tiene «Administrar
   roles», que se muda a Administración cuando exista (06); el director de arte arma también la
   pestaña Roles en modo llavero; no se pide un permiso desde la aplicación, solo se copia el pedido.
+  Para retomarlo: las maquetas son `docs/design/mockups/users-person-roles/{desktop,phone}/variant-3-keyring/`
+  y `docs/design/mockups/app-no-permission/{desktop,phone}/variant-3-keyring/`, con sus ideas en el
+  `art-director-notes.md` de cada carpeta; las reglas del modo clásico (02 · R7) valen igual, y
+  el llavero solo cambia cómo se ven y se tocan los roles. Antes de programarlo: paso 1 (preguntas
+  del selector y del manual), paso 2 (la pestaña Roles en llavero) y el resto de los pasos.
 - [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales.
 - [ ] T111 [carlos] Probar en el ambiente de pruebas que la sesión vence (01 · R3.1, R3.5): 60
   minutos sin usarla, o 8 horas desde que se entró, y que al volver a entrar se sigue donde se
