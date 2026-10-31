@@ -20,6 +20,10 @@ export const texts = {
     never: 'Sin entrar aún',
   },
   searchLabel: 'Buscar a una persona',
+  // En el celular, buscar y filtrar van en un diálogo (pedido de Carlos).
+  searchUser: 'Buscar usuario',
+  searchDone: (n: number) => (n === 1 ? 'Ver 1 persona' : `Ver ${n} personas`),
+  searchClear: 'Limpiar',
   search: words('Buscá por nombre o correo', 'Buscar'),
   filters: { all: 'Todas', active: 'Activas', never: 'Sin entrar', off: 'De baja' },
   filtersLabel: 'Qué personas ver',

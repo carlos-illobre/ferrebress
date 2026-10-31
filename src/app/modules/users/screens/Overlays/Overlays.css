@@ -133,4 +133,17 @@
       min-height: 52px;
     }
   }
+  .users-find {
+    display: grid;
+    gap: var(--s4);
+  }
+  .users-find h2 {
+    margin: 0;
+  }
+  .users-find .users-chips {
+    flex-wrap: wrap;
+  }
+  .users-find .users-dialog-foot {
+    margin-top: 0;
+  }
 }

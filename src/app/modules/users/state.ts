@@ -18,7 +18,8 @@ export type Overlay =
   | { kind: 'authorize' }
   | { kind: 'lost' }
   | { kind: 'deactivate'; person: PersonRow }
-  | { kind: 'close-all'; person: PersonRow };
+  | { kind: 'close-all'; person: PersonRow }
+  | { kind: 'search' };
 
 type Failed = Extract<ApiResult<unknown>, { ok: false }>;
 
@@ -73,20 +74,15 @@ function useCard() {
   return { selected, access, select, loadAccess };
 }
 
-// Qué se ve de la lista: el filtro, lo buscado y, en el celular, si el buscador o los filtros están
-// abiertos desde sus íconos de la cabecera (pedido de Carlos).
+// Qué se ve de la lista: el filtro y lo buscado.
 function useView() {
   const [filter, setFilter] = useState<Filter>('all');
   const [search, setSearch] = useState('');
-  const [tools, setTools] = useState<'search' | 'filters'>();
   return {
     filter,
     setFilter,
     search,
     setSearch,
-    tools,
-    toggleTools: (which: 'search' | 'filters') =>
-      setTools((open) => (open === which ? undefined : which)),
   };
 }
 

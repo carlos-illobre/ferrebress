@@ -17,30 +17,24 @@
     font-size: 14px;
     white-space: nowrap;
   }
-  .users-tools {
-    display: flex;
-    gap: var(--s2);
-    margin-left: auto;
-  }
+  /* «Buscar usuario» en el celular: una pastilla al lado del título. */
   .users-tool {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    border: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 40px;
+    margin-left: auto;
+    padding: 0 var(--s4);
+    border: 1px solid var(--border-strong);
     border-radius: 999px;
-    background: var(--sunken);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 650;
     color: var(--ink);
   }
-  .users-tool[aria-expanded="true"] {
-    background: var(--pine);
-    color: #fff;
-  }
   .users-tool-dot {
-    position: absolute;
-    top: 8px;
-    right: 8px;
     width: 8px;
     height: 8px;
     border-radius: 999px;

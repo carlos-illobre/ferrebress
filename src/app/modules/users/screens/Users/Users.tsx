@@ -14,6 +14,7 @@ import { Card } from '../Card/Card.tsx';
 import { Authorize } from '../Overlays/Authorize.tsx';
 import { ConfirmCloseAll, ConfirmDeactivate } from '../Overlays/Confirm.tsx';
 import { Lost } from '../Overlays/Lost.tsx';
+import { Search } from '../Overlays/Search.tsx';
 import { AuthorizeButton, Head, LostButton } from './Head.tsx';
 import { List } from './List.tsx';
 import { Filters, Stats } from './Summary.tsx';
@@ -37,6 +38,7 @@ function Overlay() {
   if (!overlay) return null;
   if (overlay.kind === 'authorize') return <Authorize />;
   if (overlay.kind === 'lost') return <Lost />;
+  if (overlay.kind === 'search') return <Search />;
   if (overlay.kind === 'deactivate') return <ConfirmDeactivate person={overlay.person} />;
   return <ConfirmCloseAll person={overlay.person} />;
 }
@@ -96,7 +98,6 @@ export function Users() {
         class={users.selected ? 'users with-card' : 'users'}
         aria-label={texts.title}
         data-off={users.online ? undefined : ''}
-        data-tools={users.tools}
       >
         <Head />
         {!users.online && (

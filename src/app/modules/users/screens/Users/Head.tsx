@@ -25,32 +25,21 @@ export function AuthorizeButton() {
   );
 }
 
-// El buscador y los filtros en el celular: dos íconos redondos al lado del título que abren cada uno
-// su parte debajo; un punto dice que hay un filtro o una búsqueda puestos.
-function PhoneTools() {
+// Buscar en el celular: un botón «Buscar usuario» que abre el diálogo con la caja y los filtros
+// (pedido de Carlos); un punto dice que hay una búsqueda o un filtro puestos.
+function SearchButton() {
   const users = useUsersContext();
-  const tool = (
-    which: 'search' | 'filters',
-    icon: 'search' | 'sliders-horizontal',
-    label: string,
-    on: boolean,
-  ) => (
+  const on = users.search.trim() !== '' || users.filter !== 'all';
+  return (
     <button
       type="button"
-      class="users-tool"
-      aria-label={label}
-      aria-expanded={users.tools === which}
-      onClick={() => users.toggleTools(which)}
+      class="users-tool phone-only"
+      onClick={() => users.open({ kind: 'search' })}
     >
-      <Icon name={icon} />
+      <Icon name="search" size="small" />
+      {texts.searchUser}
       {on && <span class="users-tool-dot" aria-hidden="true" />}
     </button>
-  );
-  return (
-    <div class="users-tools phone-only">
-      {tool('search', 'search', texts.searchLabel, users.search.trim() !== '')}
-      {tool('filters', 'sliders-horizontal', texts.filtersLabel, users.filter !== 'all')}
-    </div>
   );
 }
 
@@ -63,7 +52,7 @@ export function Head() {
           <h1 class="users-title">{texts.title}</h1>
           <PhoneLight />
         </div>
-        <PhoneTools />
+        <SearchButton />
         <div class="users-actions desktop-only">
           <Button
             icon="smartphone"

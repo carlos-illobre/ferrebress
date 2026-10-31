@@ -144,23 +144,5 @@
       background: var(--action-soft);
       color: var(--action-text);
     }
-    /* El buscador y los filtros se abren desde sus íconos de la cabecera (pedido de Carlos); los
-       filtros bajan de renglón: nada se corre al costado. */
-    .users-filters {
-      flex-wrap: wrap;
-    }
-    .users-search {
-      flex-basis: 100%;
-    }
-    .users-chips {
-      flex-wrap: wrap;
-    }
-    .users:not([data-tools="search"]) .users-search,
-    .users:not([data-tools="filters"]) .users-chips {
-      display: none;
-    }
-    .users:not([data-tools]) .users-filters {
-      display: none;
-    }
   }
 }

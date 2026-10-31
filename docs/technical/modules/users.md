@@ -210,9 +210,11 @@ una sola vez para el servidor y la aplicación.
   nunca está vacía (pedido de Carlos); en lo angosto no, porque la tarjeta taparía la lista.
 - **Las pestañas** Usuarios · Auditoría llevan su ícono; en el celular, la abierta va en pino y la
   otra en blanco, así se ve que se eligen (pedido de Carlos).
-- **En el celular** (referencia de Carlos): la cabecera es el título con la luz debajo y dos íconos,
-  buscar y filtrar, que abren cada uno su parte (un punto dice que hay algo puesto); las cuentas, en
-  tres tarjetas con su ícono de color; abajo, «Se perdió un celular» como botón secundario neutro (no
+- **En el celular** (referencia de Carlos): la cabecera es el título con la luz debajo y el botón
+  «Buscar usuario», que abre un diálogo como el de «Autorizar a alguien» con la caja para buscar y los
+  filtros: la lista cambia mientras se escribe, «Limpiar» saca todo y el botón principal dice cuántas
+  personas se ven (un punto en «Buscar usuario» dice que hay algo puesto); las cuentas, en tres
+  tarjetas con su ícono de color; abajo, «Se perdió un celular» como botón secundario neutro (no
   es un aviso: sin rojo) al lado de «Autorizar a alguien». La tarjeta
   tiene arriba «‹ Usuarios» y tres botones: «Cortar sesión» (Cerrar todas), «Quitar huella» (con un
   solo celular lo quita; con más, lleva a la lista) y «Cambiar rol» («Pronto» hasta la etapa b); las

@@ -56,20 +56,27 @@ describe('la lista de Usuarios', () => {
     expect(screen.getByText('Buscá por nombre o por correo.')).toBeTruthy();
   });
 
-  it('en el celular, buscar y filtrar se abren desde sus íconos; un punto dice que hay algo puesto', async () => {
+  it('en el celular, «Buscar usuario» abre un diálogo con la caja y los filtros', async () => {
     openUsers();
     await screen.findByText('Rubén Paredes');
-    const section = document.querySelector('.users') as HTMLElement;
-    const search = screen.getByRole('button', { name: 'Buscar a una persona' });
-    const filters = screen.getByRole('button', { name: 'Qué personas ver' });
-    fireEvent.click(search);
-    expect(section.dataset.tools).toBe('search');
-    fireEvent.click(filters);
-    expect(section.dataset.tools).toBe('filters');
-    fireEvent.click(screen.getByRole('button', { name: /De baja/ }));
-    expect(filters.querySelector('.users-tool-dot')).not.toBeNull();
-    fireEvent.click(filters);
-    expect(section.dataset.tools).toBeUndefined();
+    const open = screen.getByRole('button', { name: 'Buscar usuario' });
+    fireEvent.click(open);
+    const dialog = await screen.findByRole('alertdialog', { name: 'Buscar usuario' });
+    const box = within(dialog).getByRole('searchbox');
+    fireEvent.input(box, { target: { value: 'graciela' } });
+    expect(names()).toEqual(['Graciela Benítez']);
+    expect(within(dialog).getByRole('button', { name: 'Ver 1 persona' })).toBeTruthy();
+    fireEvent.input(box, { target: { value: '' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: /De baja/ }));
+    expect(names()).toEqual(['Sofía Blanco']);
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Ver 1 persona' }));
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+    expect(open.querySelector('.users-tool-dot')).not.toBeNull();
+    fireEvent.click(open);
+    fireEvent.click(screen.getByRole('button', { name: 'Limpiar' }));
+    expect(names()).toHaveLength(4);
+    fireEvent.click(screen.getByRole('button', { name: 'Ver 4 personas' }));
+    expect(open.querySelector('.users-tool-dot')).toBeNull();
   });
 
   it('si no se pudo traer la lista, lo dice y se reintenta', async () => {
