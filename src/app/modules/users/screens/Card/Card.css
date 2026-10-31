@@ -196,17 +196,6 @@
         transform: translateX(100%);
       }
     }
-    .users-card-head {
-      flex-direction: column;
-      text-align: center;
-    }
-    .users-who-name,
-    .users-who-email {
-      justify-content: center;
-    }
-    .users-pills {
-      justify-content: center;
-    }
     .users-card-foot {
       flex-direction: column;
       align-items: stretch;

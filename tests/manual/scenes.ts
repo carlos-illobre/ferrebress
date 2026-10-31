@@ -62,7 +62,8 @@ const row = (id: string, name: string, lastSignInAt: number | null, self = false
 
 export async function answerUsers(page: Page | BrowserContext, person: Person): Promise<void> {
   const people = [
-    row(person.userId, person.name, now.getTime() - 2 * hour, true),
+    // Lejos del borde de la hora: con 2 horas justas, unos milisegundos cambian el texto.
+    row(person.userId, person.name, now.getTime() - 2.5 * hour, true),
     row('lucia', 'Lucía Fernández', now.getTime() - 50 * hour),
     row('pedro', 'Pedro Giménez', null),
   ];

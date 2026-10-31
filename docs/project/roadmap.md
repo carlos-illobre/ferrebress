@@ -108,6 +108,9 @@ No se construyen ahora; el diseño no les cierra la puerta.
   se hace a mano con el talonario. Lo guardado en el celular va cifrado con una clave que solo da
   la huella (PRF de la passkey), si no es costoso. Perder lo no enviado (el celular roto o borrado)
   es un riesgo aceptado.
+- [ ] T113 [agente] Quién está en línea, en vivo: un punto de color junto a las iniciales de cada
+  persona, en la lista y en la tarjeta de Usuarios, en el celular y en la computadora, que cambia
+  solo cuando la persona abre o deja la aplicación (el servidor sabe quién la tiene abierta).
 - [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales.
 - [ ] T111 [carlos] Probar en el ambiente de pruebas que la sesión vence (01 · R3.1, R3.5): 60
   minutos sin usarla, o 8 horas desde que se entró, y que al volver a entrar se sigue donde se

@@ -153,10 +153,7 @@ export function Card() {
         {t.back}
       </button>
       <div class="users-card-head">
-        <span class="users-face">
-          <Avatar person={person} large />
-          {person.active && person.sessions > 0 && <span class="users-live" aria-hidden="true" />}
-        </span>
+        <Avatar person={person} large />
         <Who person={person} />
       </div>
       <Pills person={person} />

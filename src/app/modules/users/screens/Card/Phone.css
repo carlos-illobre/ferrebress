@@ -1,21 +1,8 @@
-/* La tarjeta en el celular (referencia de Carlos): la cabecera al centro, tres botones con su
+/* La tarjeta en el celular (referencia de Carlos): las iniciales a la izquierda del nombre y
+   el correo (pedido de Carlos), tres botones con su
    ícono, las sesiones y los celulares en tarjetas blancas, tres renglones que llevan a cada parte y
    «Dar de baja» con borde rojo. En la computadora no cambia nada. */
 @layer screens {
-  .users-face {
-    position: relative;
-    display: inline-flex;
-  }
-  .users-live {
-    position: absolute;
-    right: 2px;
-    bottom: 2px;
-    width: 14px;
-    height: 14px;
-    border: 2px solid var(--surface);
-    border-radius: 999px;
-    background: var(--success);
-  }
   .users-tiles {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

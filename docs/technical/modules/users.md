@@ -216,7 +216,7 @@ una sola vez para el servidor y la aplicación.
   personas se ven (un punto en «Buscar usuario» dice que hay algo puesto); las cuentas, en tres
   tarjetas con su ícono de color; abajo, «Se perdió un celular» como botón secundario neutro (no
   es un aviso: sin rojo) al lado de «Autorizar a alguien». La tarjeta
-  tiene arriba «‹ Usuarios» y tres botones: «Cortar sesión» (Cerrar todas), «Quitar huella» (con un
+  tiene arriba «‹ Usuarios», las iniciales a la izquierda del nombre y del correo, y tres botones: «Cortar sesión» (Cerrar todas), «Quitar huella» (con un
   solo celular lo quita; con más, lleva a la lista) y «Cambiar rol» («Pronto» hasta la etapa b); las
   sesiones en una sola tarjeta con «Ver historial» («Pronto»); abajo, tres renglones que llevan a cada
   parte (Huella digital, Dispositivos e Historial de acceso, este con «Pronto» hasta el 05) y «Dar de
