@@ -19,6 +19,30 @@ async function newRole(page: Page, name: string, permission: string) {
   await expect(page.locator('.toast')).toContainText(`Rol «${name}» creado`);
 }
 
+// Autorizar a alguien con esos roles.
+async function authorize(page: Page, email: string, roles: string[]) {
+  await page.locator('.users-tab', { hasText: 'Usuarios' }).click();
+  await page
+    .getByRole('button', { name: /Autorizar a alguien/ })
+    .first()
+    .click();
+  const dialog = page.getByRole('alertdialog', { name: 'Autorizar a alguien' });
+  await dialog.getByRole('textbox', { name: /Correo/ }).fill(email);
+  for (const role of roles)
+    await dialog.getByRole('checkbox', { name: new RegExp(role) }).check({ force: true });
+  await dialog.getByRole('button', { name: /^Autorizar/ }).click();
+  await expect(page.locator('.toast')).toContainText('Autorizada');
+}
+
+// Sacarle un rol desde su tarjeta.
+async function takeRole(page: Page, email: string, role: string) {
+  await page.locator('.users-row', { hasText: email }).click();
+  const roles = page.getByRole('group', { name: /Roles de/ });
+  await roles.getByRole('checkbox', { name: new RegExp(role) }).uncheck({ force: true });
+  await page.getByRole('button', { name: /Guardar los roles/ }).click();
+  await expect(page.locator('.toast')).toContainText('guardados');
+}
+
 test('a quien le sacan el rol con Usuarios abierto ve «Ya no tenés permiso» y Usuarios desaparece', async ({
   browser,
 }) => {
@@ -33,17 +57,7 @@ test('a quien le sacan el rol con Usuarios abierto ve «Ya no tenés permiso» y
   await expect(admin.getByRole('region', { name: 'Usuarios' })).toBeVisible();
   await newRole(admin, watcher, 'Ver las personas');
   await newRole(admin, offline, 'Trabajar sin conexión');
-  await admin.locator('.users-tab', { hasText: 'Usuarios' }).click();
-  await admin
-    .getByRole('button', { name: /Autorizar a alguien/ })
-    .first()
-    .click();
-  const dialog = admin.getByRole('alertdialog', { name: 'Autorizar a alguien' });
-  await dialog.getByRole('textbox', { name: /Correo/ }).fill(email);
-  await dialog.getByRole('checkbox', { name: new RegExp(watcher) }).check({ force: true });
-  await dialog.getByRole('checkbox', { name: new RegExp(offline) }).check({ force: true });
-  await dialog.getByRole('button', { name: /^Autorizar/ }).click();
-  await expect(admin.locator('.toast')).toContainText('Autorizada');
+  await authorize(admin, email, [watcher, offline]);
 
   const other = await computer(
     browser,
@@ -56,11 +70,7 @@ test('a quien le sacan el rol con Usuarios abierto ve «Ya no tenés permiso» y
   await expect(other.getByRole('button', { name: /Autorizar a alguien/ })).toHaveCount(0);
 
   // Le sacan «Mira» y le queda el otro rol.
-  await admin.locator('.users-row', { hasText: email }).click();
-  const roles = admin.getByRole('group', { name: /Roles de/ });
-  await roles.getByRole('checkbox', { name: new RegExp(watcher) }).uncheck({ force: true });
-  await admin.getByRole('button', { name: /Guardar los roles/ }).click();
-  await expect(admin.locator('.toast')).toContainText('guardados');
+  await takeRole(admin, email, watcher);
 
   // Con su próximo pedido se entera, sin volver a entrar.
   await other.locator('.users-row').first().click();

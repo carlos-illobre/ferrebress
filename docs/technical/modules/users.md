@@ -416,8 +416,11 @@ Migración `003-roles` del esquema `users`, con claves foráneas:
 
 - **`users`** tiene los roles, sus permisos, quién los tiene y las reglas (`roles.ts`: el nombre único,
   al menos un permiso, lo incluido, quedar sin quien administre y «nadie sobre quien tiene más»). Su
-  fachada suma `permissionsOf(userId)` (los permisos de la persona activa: la unión de sus roles) y
-  `rolesOf(userIds)`.
+  fachada suma `permissionsOf(userId)` (los permisos de la persona activa: la unión de sus roles),
+  `outranks(asking, target)` y `outranking(asking, userIds)` (R7.11, de una o de varias en una
+  consulta) y `profileOf(user)` (sus roles con nombre, sus permisos y quién le cambió los roles, en
+  una consulta, para la persona de `sign-in`). La lista de Usuarios trae, de cada persona, si tiene
+  más permisos que quien mira (`outranks`), así la aplicación no muestra sus botones.
 - **La plataforma** suma el paso `permissions.require(id)` (`platform/permissions.ts`), como la sesión
   del pedido: `users` le da cómo saber los permisos de alguien y cualquier módulo lo pide en sus
   rutas sin importar a `users`. Va después de `sessions.require`.
@@ -425,9 +428,10 @@ Migración `003-roles` del esquema `users`, con claves foráneas:
   memoria de sesiones (§ 6), para la de permisos y la de personas de `sign-in`: un cambio sube el
   contador antes y después de confirmar, y lo leído de la base se guarda solo si el contador no cambió
   mientras se leía. Así un permiso quitado no puede quedar guardado.
-- **Lo que borra la memoria:** todo cambio de roles, de sus permisos, de quién los tiene, una baja o un
-  alta publican, al confirmar, `user.roles-changed` (con las personas afectadas) o `role.changed`;
-  `users` borra sus permisos y `sign-in` olvida a esas personas, así `/api/start` devuelve lo nuevo.
+- **Lo que borra la memoria:** todo cambio de roles, de sus permisos, de quién los tiene o una baja
+  publican, al confirmar, `users.permissions-changed` (con las personas afectadas, o todas si cambió
+  un rol); `users` borra sus permisos y `sign-in` olvida a esas personas, así `/api/start` devuelve
+  lo nuevo.
   Un servidor solo (constitución, IX): vale desde el próximo pedido (R7.6) sin consultas extra. Con
   varias copias del servidor esto no alcanza: queda anotado para cuando haga falta escalar.
 - **`sign-in`** deja de inventar `role: 'Administrador'`: la persona de `/api/start` y de entrar
