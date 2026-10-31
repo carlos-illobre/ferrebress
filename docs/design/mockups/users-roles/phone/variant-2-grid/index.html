@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · Roles · 2 · La grilla · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/roles.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; margin: 0; }
+  .celu-pestanas a { font-size: 14px; }
+  .celu-pantalla { overflow: auto; padding-bottom: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .linea { display: flex; gap: 12px; font-size: 14px; color: var(--texto-2); font-weight: 600; padding: 0 4px; }
+  .linea b { color: var(--tinta); font-weight: 800; }
+  .marco { overflow-x: auto; scroll-snap-type: x mandatory; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); flex: none; }
+  table { border-collapse: separate; border-spacing: 0; }
+  th, td { padding: 0; border-bottom: 1px solid var(--borde); }
+  tr:last-child td { border-bottom: 0; }
+  .c0 { position: sticky; left: 0; z-index: 2; background: var(--superficie); width: 142px; min-width: 142px; max-width: 142px; text-align: left; border-right: 1px solid var(--borde); padding: 10px 12px; }
+  thead .c0 { vertical-align: bottom; font-size: 14px; color: var(--texto-2); font-weight: 650; }
+  .col { min-width: 100px; width: 100px; scroll-snap-align: end; }
+  .col-cab { padding: 10px 6px; display: grid; justify-items: center; gap: 6px; width: 100%; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; }
+  .col-cab .nom { font-size: 14px; font-weight: 750; line-height: 18px; text-align: center; min-height: 36px; display: grid; align-items: end; }
+  .col-cab .pila .cara { width: 32px; height: 32px; font-size: 14px; }
+  .col-cab .pila .cara + .cara { margin-left: -4px; }
+  .col-cab .pila .mas { font-size: 14px; margin-left: 2px; }
+  .col-cab .estado { height: 24px; }
+  .col-cab .pastilla { height: 24px; padding: 0 8px; }
+  .grupo td { background: var(--fondo); font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 6px 12px; }
+  tbody .c0 { font-size: 14px; font-weight: 700; line-height: 18px; }
+  tbody .c0 button { border: 0; background: none; padding: 0; font: inherit; color: inherit; text-align: left; display: flex; gap: 6px; align-items: flex-start; cursor: pointer; }
+  tbody .c0 .i { color: var(--texto-3); flex: none; margin-top: 1px; }
+  td.cel { text-align: center; height: 64px; position: relative; }
+  .tilde { width: 40px; height: 40px; }
+  .tilde.add, .tilde.rem { box-shadow: 0 0 0 3px var(--superficie), 0 0 0 5px var(--urgente); }
+  .tilde.rem { border-style: dashed; }
+  .saved .tilde { box-shadow: 0 0 0 3px var(--superficie), 0 0 0 5px var(--logro); }
+  .gone { opacity: .45; pointer-events: none; }
+  .nuevo-col { min-width: 100px; }
+  .nuevo-btn { margin: 8px; width: 84px; height: 96px; border: 1.5px dashed var(--borde-fuerte); border-radius: var(--r); background: none; color: var(--texto-2); font-weight: 700; font-size: 14px; display: grid; place-items: center; align-content: center; gap: 4px; }
+  .desliza { display: flex; justify-content: center; gap: 6px; align-items: center; font-size: 14px; color: var(--texto-3); }
+  .aviso-celda { position: absolute; left: 16px; right: 16px; bottom: 164px; z-index: 30; margin: 0; box-shadow: var(--sombra-3); }
+  [hidden] { display: none !important; }
+  .barra-accion { display: flex; gap: 8px; align-items: center; }
+  .barra-accion .btn { flex: 1; }
+  .barra-accion .cuantos { flex: none; display: grid; line-height: 1.2; font-size: 14px; color: var(--texto-2); padding-right: 4px; }
+  .barra-accion .cuantos b { color: var(--tinta); font-size: 16px; }
+  .barra-accion .cuantos.mal b { color: var(--error-texto); }
+  .hoja .lead { margin: 4px 0 0; color: var(--texto-2); font-size: 15px; line-height: 22px; }
+  .opciones-rol { display: grid; gap: 4px; margin-top: 12px; }
+  .opciones-rol button { display: flex; gap: 12px; align-items: center; height: 52px; padding: 0 12px; border: 0; background: none; border-radius: 12px; font-weight: 650; font-size: 16px; text-align: left; }
+  .opciones-rol button:active { background: var(--hundido); }
+  .opciones-rol .rojo { color: var(--error-texto); }
+  .opciones-rol .porque { padding: 0 12px; }
+  .gente { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 8px 12px; border: 1px solid var(--borde); border-radius: var(--r); }
+  .gente + .gente { margin-top: 8px; }
+  .gente[aria-checked="true"] { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino); }
+  .gente small { display: block; font-size: 14px; color: var(--texto-2); }
+  .gente .porque { grid-column: 1 / -1; }
+  .elegir { margin-top: 16px; }
+  .cartel-red { display: none; margin: 8px 16px 0; }
+  body.offline .cartel-red { display: flex; }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="celu-cabecera"><span class="t-titulo">Usuarios</span></div>
+  <button class="celu-estado"><span class="punto"></span><span data-luz>En línea · todo enviado</span></button>
+  <nav class="celu-pestanas"><a data-ir="users">Usuarios</a><a class="activa" data-no-ir aria-current="page">Roles</a><a class="pestana-pronto" data-no-ir aria-disabled="true" title="Pronto">Auditoría</a></nav>
+  <div class="aviso urgente cartel-red"><i class="i" data-i="wifi-off"></i>Sin conexión: Roles vuelve sola cuando vuelva la conexión.</div>
+  <div class="celu-pantalla zona-red">
+    <div class="linea" id="linea"></div>
+    <div class="marco" id="marco"><table id="grilla"></table></div>
+    <div class="desliza"><i class="i i-s" data-i="move-horizontal"></i>Deslizá para ver los otros roles</div>
+  </div>
+  <div class="aviso error aviso-celda" id="aviso" hidden><i class="i" data-i="circle-alert"></i><span></span></div>
+  <div class="barra-accion zona-red" id="barra"></div>
+  <nav class="nav-inferior">
+    <a data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a class="activo" data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+
+  <section class="hoja" id="h-perm" role="dialog" aria-modal="true"><div class="asa"></div><h2></h2><p class="lead"></p><div class="pie-d uno"><button class="btn" data-cerrar>Entendido</button></div></section>
+  <section class="hoja" id="h-rol" role="dialog" aria-modal="true"><div class="asa"></div><h2></h2><p class="lead"></p><div class="opciones-rol" id="h-rol-op"></div></section>
+  <section class="hoja" id="h-nombre" role="dialog" aria-modal="true"><div class="asa"></div><h2>Nombre del rol</h2>
+    <div class="campo-real" style="margin-top:12px"><input id="h-nombre-in" autocomplete="off" enterkeyhint="done"><div class="err" style="display:none"></div></div>
+    <div class="porque error" id="h-nombre-err" hidden><i class="i i-s" data-i="circle-alert"></i><span></span></div>
+    <div class="pie-d"><button class="btn" data-cerrar>Cancelar</button><button class="btn btn-oscuro" id="h-nombre-ok">Listo</button></div></section>
+  <section class="hoja" id="h-dar" role="dialog" aria-modal="true"><div class="asa"></div><h2>Quiénes tienen «<span></span>»</h2><p class="lead">Tocá para darlo o sacarlo.</p><div class="elegir" id="h-dar-lista"></div>
+    <div class="pie-d"><button class="btn" data-cerrar>Cancelar</button><button class="btn btn-oscuro" id="h-dar-ok">Listo</button></div></section>
+  <section class="hoja" id="h-ver" role="dialog" aria-modal="true"><div class="asa"></div><h2>Qué cambia al guardar</h2><p class="lead">Así queda en la auditoría.</p><ul class="cambios" id="h-ver-lista"></ul>
+    <div class="pie-d"><button class="btn" data-cerrar>Seguir</button><button class="btn btn-accion" id="h-ver-ok">Guardar</button></div></section>
+</div>
+
+<script src="../../shared/roles.js"></script>
+<script src="../../shared/grid.js"></script>
+<script>
+(function () {
+  var R = window.ROLES, G = window.GRID, t = document.getElementById("grilla"), cur = null;
+
+  function draw() {
+    var live = R.roles.filter(function (r) { return !r.gone; });
+    document.getElementById("linea").innerHTML = "<span><b>" + live.length + "</b> roles</span><span><b>7</b> personas</span>";
+    var h = '<thead><tr><th class="c0">Tocá un rol para cambiarlo</th>' + R.roles.map(function (r) {
+      var ch = G.changes().filter(function (c) { return c.role === r; }).length, isNew = !G.origOf(r.id);
+      return '<th class="col' + (r.gone ? " gone" : "") + '"><button class="col-cab" data-col="' + r.id + '"><span class="nom">' + (R.esc(r.name) || "Sin nombre") + "</span>" + R.pila(r.people, 2) + '<span class="estado">' +
+        (r.gone ? '<span class="pastilla error">Se borra</span>' : isNew ? '<span class="pastilla urgente">Nuevo</span>' : ch ? '<span class="pastilla urgente">' + ch + (ch === 1 ? " cambio" : " cambios") + "</span>" : r.people.indexOf("RP") >= 0 ? '<span class="pastilla vos">El tuyo</span>' : "") + "</span></button></th>";
+    }).join("") + '<th class="nuevo-col"><button class="nuevo-btn" id="col-nueva"><i class="i" data-i="plus"></i>Nuevo rol</button></th></tr></thead><tbody>';
+    h += '<tr class="grupo"><td class="c0">' + R.GROUP + '</td><td colspan="' + (R.roles.length + 1) + '"></td></tr>';
+    R.PERMS.forEach(function (p) {
+      h += '<tr><td class="c0"><button data-info="' + p.id + '">' + p.name + '<i class="i i-s" data-i="info"></i></button></td>' + R.roles.map(function (r) {
+        var on = R.has(r, p.id), tied = R.tied(r, p.id), st = G.cellState(r, p.id);
+        return '<td class="cel' + (r.gone ? " gone" : "") + '" data-r="' + r.id + '" data-p="' + p.id + '"><button class="tilde ' + (tied ? "atada " : "") + st + '" role="checkbox" aria-checked="' + on + '" aria-label="' + R.esc(r.name) + ": " + p.name + '"><i class="i i-s" data-i="' + (tied ? "lock" : "check") + '" data-trazo="3"></i></button></td>';
+      }).join("") + "<td></td></tr>";
+    });
+    t.innerHTML = h + "</tbody>"; R.icons(t);
+    drawBar();
+  }
+  function drawBar() {
+    var ch = G.changes(), probs = G.problems(), b = document.getElementById("barra");
+    if (!ch.length) b.innerHTML = '<button class="btn grande" id="btn-nuevo"><i class="i i-l" data-i="shield-plus"></i>Nuevo rol</button>';
+    else b.innerHTML = '<span class="cuantos' + (probs.length ? " mal" : "") + '"><b>' + ch.length + (ch.length === 1 ? " cambio" : " cambios") + '</b><span>' + (probs.length ? "falta arreglar" : "sin guardar") + '</span></span><button class="btn grande" id="b-ver" style="flex:0 0 auto;padding:0 14px">Ver</button><button class="btn btn-accion grande" id="b-guardar"' + (probs.length ? " disabled" : "") + '>Guardar</button>';
+    R.icons(b);
+    var av = document.getElementById("aviso");
+    if (probs.length) { av.hidden = false; av.querySelector("span").textContent = probs[0].msg; } else av.hidden = true;
+  }
+  function say(msg, td) {
+    var av = document.getElementById("aviso"); av.hidden = false; av.querySelector("span").textContent = msg;
+    av.classList.remove("no"); void av.offsetWidth; av.classList.add("no");
+    if (td) { var b = td.querySelector(".tilde"); b.classList.remove("no"); void b.offsetWidth; b.classList.add("no"); }
+    if (navigator.vibrate) try { navigator.vibrate([20, 30, 20]); } catch (e) {}
+    clearTimeout(say.tm); say.tm = setTimeout(drawBar, 3500);
+  }
+
+  t.addEventListener("click", function (e) {
+    var el;
+    if ((el = e.target.closest(".tilde"))) {
+      var td = el.closest("td"), r = R.role(td.dataset.r), pid = td.dataset.p;
+      if (R.has(r, pid)) { var why = R.whyNotRemove(r, pid); if (why && why.indexOf("al menos un permiso") < 0) { say(why, td); return; } }
+      var x = document.getElementById("marco").scrollLeft;
+      R.toggle(r, pid); draw(); document.getElementById("marco").scrollLeft = x;
+      if (navigator.vibrate) try { navigator.vibrate(10); } catch (e2) {}
+    } else if ((el = e.target.closest("[data-info]"))) {
+      var p = R.perm(el.dataset.info), hp = document.getElementById("h-perm");
+      hp.querySelector("h2").textContent = p.name; hp.querySelector(".lead").textContent = p.exp + (p.incl ? " Incluye «Ver las personas»." : ""); R.open(hp);
+    } else if ((el = e.target.closest("[data-col]"))) openRole(R.role(el.dataset.col));
+    else if (e.target.closest("#col-nueva")) addRole();
+  });
+
+  function openRole(r) {
+    cur = r;
+    var hr = document.getElementById("h-rol"), del = R.whyNotDelete(r);
+    hr.querySelector("h2").textContent = r.name || "Rol nuevo";
+    hr.querySelector(".lead").textContent = R.permsCount(r) + " · " + R.peopleCount(r);
+    document.getElementById("h-rol-op").innerHTML = r.gone ? '<button data-op="undel"><i class="i" data-i="undo-2"></i>No borrarlo</button>' :
+      '<button data-op="ren"><i class="i" data-i="pencil"></i>Cambiar el nombre</button><button data-op="dar"><i class="i" data-i="users"></i>Quiénes lo tienen</button><button data-op="dup"><i class="i" data-i="copy"></i>Duplicar</button>' +
+      '<button data-op="del" class="rojo"' + (del ? " disabled style=\"opacity:.45\"" : "") + '><i class="i" data-i="trash-2"></i>Borrar</button>' + (del ? '<span class="porque"><i class="i i-s" data-i="info"></i>' + del + "</span>" : "");
+    R.icons(hr); R.open(hr);
+  }
+  document.getElementById("h-rol-op").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-op]"); if (!b || b.disabled) return;
+    var op = b.dataset.op; R.close();
+    setTimeout(function () {
+      if (op === "ren") rename(cur);
+      else if (op === "dar") give(cur);
+      else if (op === "dup") { var id = "r" + Date.now(); R.roles.splice(R.roles.indexOf(cur) + 1, 0, { id: id, name: cur.name + " (copia)", perms: cur.perms.slice(), people: [], last: "" }); draw(); rename(R.role(id)); }
+      else if (op === "del") { if (!G.origOf(cur.id)) R.roles.splice(R.roles.indexOf(cur), 1); else cur.gone = true; draw(); }
+      else if (op === "undel") { cur.gone = false; draw(); }
+    }, 200);
+  });
+  function addRole() {
+    var id = "r" + Date.now(); R.roles.push({ id: id, name: "", perms: [], people: [], last: "" }); draw();
+    document.getElementById("marco").scrollTo({ left: 9999, behavior: "smooth" });
+    rename(R.role(id));
+  }
+  function rename(r) {
+    cur = r; var i = document.getElementById("h-nombre-in"); i.value = r.name; i.placeholder = "Por ejemplo, Cajero de turno";
+    document.getElementById("h-nombre-err").hidden = true; R.open(document.getElementById("h-nombre")); setTimeout(function () { i.focus(); i.select(); }, 80);
+  }
+  function nameOk() {
+    var v = document.getElementById("h-nombre-in").value.trim(), why = R.whyNotName(v, cur), er = document.getElementById("h-nombre-err");
+    if (why) { er.hidden = false; er.querySelector("span").textContent = why; return; }
+    cur.name = v; R.close(); draw();
+  }
+  document.getElementById("h-nombre-ok").addEventListener("click", nameOk);
+  document.getElementById("h-nombre-in").addEventListener("keydown", function (e) { if (e.key === "Enter") nameOk(); });
+
+  var sel = {};
+  function give(r) { cur = r; sel = {}; r.people.forEach(function (p) { sel[p] = true; }); document.querySelector("#h-dar h2 span").textContent = r.name; drawGive(); R.open(document.getElementById("h-dar")); }
+  function drawGive(wp, msg) {
+    var box = document.getElementById("h-dar-lista");
+    box.innerHTML = Object.keys(R.PEOPLE).map(function (p) {
+      var other = R.roles.filter(function (x) { return x !== cur && x.people.indexOf(p) >= 0; }).map(function (x) { return x.name; });
+      return '<div class="gente' + (wp === p ? " no" : "") + '" role="checkbox" aria-checked="' + !!sel[p] + '" data-pick="' + p + '">' + R.cara(p, "g") + "<span><b>" + R.PEOPLE[p].name + "</b><small>" + (other.length ? "También: " + other.join(", ") : "Ningún otro rol") + '</small></span><span class="tilde" aria-checked="' + !!sel[p] + '"><i class="i i-s" data-i="check" data-trazo="3"></i></span>' + (wp === p ? '<span class="porque error"><i class="i i-s" data-i="circle-alert"></i>' + msg + "</span>" : "") + "</div>";
+    }).join("");
+    R.icons(box);
+  }
+  document.getElementById("h-dar-lista").addEventListener("click", function (e) {
+    var el = e.target.closest("[data-pick]"); if (!el) return; var p = el.dataset.pick;
+    if (sel[p] && cur.people.indexOf(p) >= 0) { var why = R.whyNotUnassign(cur, p); if (why) { drawGive(p, why); return; } }
+    sel[p] = !sel[p]; drawGive();
+  });
+  document.getElementById("h-dar-ok").addEventListener("click", function () {
+    var add = Object.keys(sel).filter(function (p) { return sel[p] && cur.people.indexOf(p) < 0; }), rem = cur.people.filter(function (p) { return !sel[p]; });
+    R.close(); if (!add.length && !rem.length) return;
+    var apply = function () {
+      cur.people = cur.people.filter(function (p) { return sel[p]; }).concat(add);
+      G.orig.forEach(function (o) { if (o.id === cur.id) o.people = cur.people.slice(); }); draw();
+      R.toast(add.length ? R.names(add) + (add.length > 1 ? " ya lo tienen" : " ya lo tiene") : "Se lo sacaste a " + R.names(rem));
+    };
+    if (add.length) setTimeout(function () { R.reauth("Darle «" + cur.name + "» a " + R.names(add), apply); }, 250); else apply();
+  });
+
+  function save() {
+    if (G.problems().length || !G.changes().length) return;
+    var go = function () {
+      var touched = G.changes().filter(function (c) { return c.pid; }).map(function (c) { return [c.role.id, c.pid]; }), n = G.changes().length;
+      var x = document.getElementById("marco").scrollLeft; G.save(); draw(); document.getElementById("marco").scrollLeft = x;
+      touched.forEach(function (k) { var td = t.querySelector('td[data-r="' + k[0] + '"][data-p="' + k[1] + '"]'); if (td) { td.classList.add("saved"); setTimeout(function () { td.classList.remove("saved"); }, 1200); } });
+      if (navigator.vibrate) try { navigator.vibrate([10, 40, 10]); } catch (e) {}
+      R.toast(n + (n === 1 ? " cambio guardado" : " cambios guardados"));
+    };
+    if (R.isOpen()) R.close();
+    if (G.needsReauth()) setTimeout(function () { R.reauth("Guardar " + G.changes().length + " cambios que dan acceso", go); }, 250); else go();
+  }
+  document.getElementById("barra").addEventListener("click", function (e) {
+    if (e.target.closest("#btn-nuevo")) addRole();
+    else if (e.target.closest("#b-guardar")) save();
+    else if (e.target.closest("#b-ver")) { document.getElementById("h-ver-lista").innerHTML = G.listHTML(); R.icons(document.getElementById("h-ver")); R.open(document.getElementById("h-ver")); }
+  });
+  document.getElementById("h-ver-ok").addEventListener("click", save);
+  draw();
+})();
+</script>
+</body>
+</html>

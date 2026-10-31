@@ -1,0 +1,79 @@
+/* Variante 3 · Decilo: frases, fichas, propuesta y escucha. */
+.frase { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); padding: 20px 24px 12px; transition: border-color var(--t), box-shadow var(--t); }
+.frase + .frase { margin-top: 12px; }
+.frase.vista { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino), var(--sombra-1); }
+.frase .texto { margin: 0; font-size: 20px; line-height: 40px; font-weight: 550; color: var(--texto-2); letter-spacing: -.005em; }
+.quien-rol { color: var(--tinta); font-weight: 800; border-radius: 8px; padding: 2px 4px; margin-left: -4px; cursor: text; outline: none; transition: background var(--t-micro); }
+.quien-rol:hover { background: var(--hundido); }
+.quien-rol.editando { background: var(--superficie); box-shadow: 0 0 0 2px var(--pino), 0 0 0 6px rgba(18,56,47,.12); }
+.ficha { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; margin: 0 2px; border-radius: 99px; font-size: 17px; font-weight: 700; vertical-align: middle; line-height: 1; cursor: pointer; transition: transform var(--t-micro) var(--curva), background var(--t-micro), opacity var(--t); white-space: nowrap; }
+.ficha:active { transform: scale(.96); }
+.ficha:focus-visible { outline: 3px solid rgba(18,56,47,.35); outline-offset: 2px; }
+.ficha.perm { background: var(--pino-suave); color: var(--pino-texto); }
+.ficha.perm.atada { background: var(--hundido); color: var(--texto-2); cursor: help; }
+.ficha.gente { background: var(--hundido); color: var(--tinta); padding-left: 3px; }
+.ficha.gente .cara { width: 28px; height: 28px; border: 0; font-size: 14px; }
+.ficha .x { opacity: .45; transition: opacity var(--t-micro); }
+.ficha:hover .x { opacity: 1; }
+.ficha.mas { background: transparent; border: 1.5px dashed var(--borde-fuerte); color: var(--texto-2); }
+.ficha.mas:hover { border-color: var(--pino); color: var(--pino); }
+.ficha.se-va-ficha { opacity: 0; transform: scale(.8); }
+@keyframes brota { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
+.ficha.brota { animation: brota 360ms var(--rebote); box-shadow: 0 0 0 2px var(--logro); }
+.nw { white-space: nowrap; }
+.nadie-txt { color: var(--texto-3); }
+.frase-pie { display: flex; align-items: center; gap: 4px; margin: 8px -8px 0; flex-wrap: wrap; }
+.frase-pie .btn { color: var(--texto-2); min-height: 36px; font-size: 14px; }
+.frase-pie .rojo { color: var(--error-texto); }
+.frase-pie .ult { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; font-size: 14px; color: var(--texto-3); }
+.frase .msg { display: flex; gap: 6px; align-items: flex-start; margin: 4px 0 6px; padding: 10px 12px; border-radius: var(--r); background: var(--error-suave); color: var(--error-texto); font-size: 14px; font-weight: 650; line-height: 20px; }
+.frase .msg[hidden] { display: none; }
+.frase .msg .i { flex: none; margin-top: 2px; }
+
+.menu-ficha { position: absolute; z-index: 70; width: 288px; background: var(--superficie); border: 1px solid var(--borde); border-radius: 14px; box-shadow: var(--sombra-3); padding: 6px; display: grid; animation: entra var(--t) var(--curva) both; }
+.menu-ficha button { display: flex; gap: 10px; align-items: center; min-height: 48px; padding: 6px 10px; border: 0; background: none; border-radius: 10px; text-align: left; font-size: 15px; cursor: pointer; }
+.menu-ficha button:hover, .menu-ficha button:focus-visible { background: var(--hundido); outline: none; }
+.menu-ficha button .i { color: var(--pino); flex: none; }
+.menu-ficha small { display: block; font-size: 14px; color: var(--texto-2); line-height: 18px; }
+.menu-ficha .cara { width: 32px; height: 32px; border: 0; }
+
+/* El que escribe o dice */
+.dijiste { display: flex; gap: 8px; align-items: center; font-size: 15px; font-weight: 650; color: var(--texto-2); }
+.respuesta { font-size: 18px; line-height: 28px; font-weight: 650; margin: 12px 0 0; }
+.respuesta.mal { color: var(--error-texto); }
+.opcion-p { position: relative; width: 100%; display: grid; gap: 4px; text-align: left; padding: 14px 44px 14px 16px; margin-top: 10px; border: 1px solid var(--borde); border-radius: var(--r-tarjeta); background: var(--superficie); box-shadow: var(--sombra-1); cursor: pointer; transition: border-color var(--t-micro), transform var(--t-micro) var(--curva); }
+.opcion-p:hover { border-color: var(--pino); }
+.opcion-p:active { transform: scale(.99); }
+.opcion-p.sola { cursor: default; padding-right: 16px; }
+.opcion-p b { font-size: 17px; }
+.opcion-p span { font-size: 15px; color: var(--texto-2); line-height: 22px; }
+.opcion-p .tag { font-size: 14px; font-weight: 700; color: var(--texto-2); }
+.opcion-p .tag.rec { color: var(--logro-texto); }
+.opcion-p .flecha { position: absolute; right: 16px; top: 50%; margin-top: -10px; color: var(--texto-3); }
+.pie-p { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+/* Escuchando: lo único oscuro, porque la tarea lo pide */
+.escucha { position: fixed; inset: 0; z-index: 80; background: rgba(18,56,47,.96); color: #fff; display: grid; place-items: center; align-content: center; gap: 28px; opacity: 0; pointer-events: none; transition: opacity var(--t-nav) var(--curva); text-align: center; padding: 24px; }
+.celu .escucha { position: absolute; }
+.escucha.abierto { opacity: 1; pointer-events: auto; }
+.escucha .ondas { display: flex; gap: 6px; align-items: center; height: 72px; }
+.escucha .ondas span { width: 6px; height: 72px; border-radius: 99px; background: #fff; transform: scaleY(.2); animation: onda 900ms ease-in-out infinite; }
+.escucha .ondas span:nth-child(2n) { animation-delay: -300ms; }
+.escucha .ondas span:nth-child(3n) { animation-delay: -600ms; animation-duration: 700ms; }
+.escucha .ondas span:nth-child(5n) { animation-delay: -150ms; animation-duration: 1100ms; }
+@keyframes onda { 0%, 100% { transform: scaleY(.2); } 50% { transform: scaleY(1); } }
+.escucha .oido { font-size: 28px; line-height: 38px; font-weight: 750; max-width: 760px; min-height: 76px; letter-spacing: -.01em; }
+.escucha .oido:empty::before { content: "Te escucho…"; opacity: .6; }
+.escucha .btn { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.25); color: #fff; box-shadow: none; }
+.escucha .ayuda-v { font-size: 15px; opacity: .7; }
+
+.sug { height: 40px; padding: 0 14px; border-radius: 99px; border: 1px solid var(--borde-fuerte); background: var(--superficie); font-size: 14px; font-weight: 650; color: var(--texto-2); cursor: pointer; white-space: nowrap; transition: border-color var(--t-micro), transform var(--t-micro) var(--curva); }
+.sug:hover { border-color: var(--pino); color: var(--pino); }
+.sug:active { transform: scale(.97); }
+
+/* Así lo ve */
+.ve-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ve-lista li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 21px; font-weight: 600; padding: 8px 10px; border-radius: 10px; }
+.ve-lista li .i { flex: none; margin-top: 2px; }
+.ve-lista li.si { background: var(--logro-suave); color: var(--logro-texto); }
+.ve-lista li.no-ve { color: var(--texto-3); text-decoration: line-through; text-decoration-color: rgba(107,112,107,.4); }

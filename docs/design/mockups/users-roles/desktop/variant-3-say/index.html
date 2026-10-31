@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · Roles · 3 · Decilo · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/roles.css">
+<link rel="stylesheet" href="../../shared/say.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { height: 100vh; overflow: hidden; }
+  .hoja-entera { height: 100vh; display: grid; grid-template-rows: 64px 1fr; }
+  .tope { display: flex; align-items: center; gap: 16px; padding: 0 32px; border-bottom: 1px solid var(--borde); background: var(--fondo); }
+  .tope .volver { display: inline-flex; gap: 4px; align-items: center; height: 40px; padding: 0 12px 0 6px; border-radius: 10px; color: var(--texto-2); font-weight: 700; text-decoration: none; cursor: pointer; }
+  .tope .volver:hover { background: var(--hundido); }
+  .tope img { height: 28px; }
+  .tope .miga { font-weight: 700; color: var(--texto-2); display: flex; gap: 8px; align-items: center; }
+  .tope .miga a { color: var(--texto-2); cursor: pointer; text-decoration: none; }
+  .tope .miga a:hover { color: var(--pino); }
+  .tope .miga b { color: var(--tinta); }
+  .tope .der { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+  .tope .luz { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 99px; background: var(--logro-suave); color: var(--logro-texto); font-weight: 700; font-size: 14px; border: 0; cursor: pointer; }
+  .tope .luz .punto { width: 8px; height: 8px; border-radius: 99px; background: currentColor; }
+  body.offline .tope .luz { background: var(--urgente-suave); color: var(--urgente-texto); }
+  .cuerpo { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 32px; padding: 0 32px 0 32px; min-height: 0; max-width: 1366px; }
+  .izq { overflow: auto; padding: 28px 8px 40px 0; min-height: 0; }
+  h1 { margin: 0; font-size: 32px; line-height: 40px; font-weight: 800; letter-spacing: -.02em; }
+  .bajada { margin: 6px 0 20px; font-size: 16px; color: var(--texto-2); }
+  .composer { display: flex; gap: 8px; align-items: center; padding: 8px 8px 8px 20px; background: var(--superficie); border: 1px solid var(--borde-fuerte); border-radius: 20px; box-shadow: var(--sombra-2); transition: border-color var(--t), box-shadow var(--t); }
+  .composer:focus-within { border-color: var(--pino); box-shadow: 0 0 0 4px rgba(18,56,47,.12), var(--sombra-2); }
+  .composer input { flex: 1; border: 0; outline: 0; font-size: 18px; font-weight: 600; background: none; min-width: 0; height: 48px; }
+  .composer input::placeholder { color: var(--texto-3); font-weight: 500; }
+  .mic { width: 56px; height: 56px; border-radius: 16px; padding: 0; }
+  .mic svg { width: 26px; height: 26px; }
+  #sugerencias { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 0; }
+  #propuesta { margin-top: 16px; padding: 20px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-2); }
+  #propuesta[hidden] { display: none; }
+  .titulo-frases { display: flex; justify-content: space-between; align-items: baseline; margin: 32px 0 12px; }
+  .titulo-frases .t-detalle { display: flex; gap: 6px; align-items: center; }
+  .der-col { padding: 28px 0 24px; min-height: 0; overflow: auto; }
+  #ve { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); padding: 20px; display: grid; gap: 16px; }
+  #ve h2 { margin: 0; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  #ve .rol-v { font-size: 20px; font-weight: 800; margin-top: 2px; color: var(--tinta); }
+  .mini { border: 1px solid var(--borde); border-radius: 14px; background: var(--fondo); padding: 12px; display: grid; gap: 8px; }
+  .mini .t { font-weight: 800; font-size: 16px; }
+  .mini .tabs { display: flex; gap: 6px; }
+  .mini .tabs span { height: 30px; padding: 0 12px; border-radius: 8px; display: grid; place-items: center; font-size: 14px; font-weight: 700; transition: opacity var(--t), transform var(--t) var(--curva); }
+  .mini .tabs .on { background: var(--superficie); box-shadow: var(--sombra-1); color: var(--pino); }
+  .mini .tabs .off { opacity: .25; transform: scale(.94); text-decoration: line-through; }
+  .nota-v { font-size: 14px; color: var(--texto-3); line-height: 20px; display: flex; gap: 6px; }
+  .nota-v .i { flex: none; margin-top: 2px; }
+  .kbd-l { display: flex; gap: 8px; flex-wrap: wrap; font-size: 14px; color: var(--texto-3); margin-top: 16px; align-items: center; }
+  .gris-cartel { position: fixed; left: 50%; top: 76px; transform: translateX(-50%); z-index: 9; }
+  .tostadas { bottom: 24px; }
+</style>
+</head>
+<body>
+<div class="hoja-entera">
+  <header class="tope">
+    <a class="volver" data-ir="more" title="Volver a Más (Escape)"><i class="i" data-i="chevron-left"></i>Más</a>
+    <span class="miga"><a data-ir="users">Usuarios</a><span>·</span><b>Roles</b><span class="pronto" title="Auditoría llega con su capítulo">Auditoría · Pronto</span></span>
+    <div class="der">
+      <button class="luz" data-luz title="En la maqueta: tocala para simular que se corta la conexión"><span class="punto"></span><span data-luz-texto>En línea · todo enviado</span></button>
+      <span class="avatar" title="Rubén Paredes · Administrador">RP</span>
+    </div>
+  </header>
+  <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· se ve lo último, vuelve sola</small></div>
+  <div class="cuerpo zona-red">
+    <div class="izq">
+      <h1>¿Qué tiene que poder hacer cada uno?</h1>
+      <p class="bajada">Decilo como se lo dirías a alguien del negocio. Te muestro cómo queda antes de hacerlo.</p>
+      <div class="composer">
+        <i class="i" data-i="sparkles" style="color:var(--texto-3)"></i>
+        <input id="dicho" placeholder="Por ejemplo: que Pedro también pueda cortar sesiones" autocomplete="off" aria-label="Qué querés cambiar">
+        <button class="btn btn-fantasma" id="enviar">Probar <span class="kbd">Enter</span></button>
+        <button class="btn btn-oscuro mic" id="mic" aria-label="Decirlo en voz alta (Alt H)" title="Decirlo en voz alta (Alt H)"><i class="i" data-i="mic"></i></button>
+      </div>
+      <div id="sugerencias"></div>
+      <section id="propuesta" hidden aria-live="polite"><div data-cuerpo></div></section>
+
+      <div class="titulo-frases"><span class="t-seccion">Los roles, en una frase</span><span class="t-detalle"><i class="i i-s" data-i="mouse-pointer-click"></i>Tocá una palabra para cambiarla</span></div>
+      <div id="frases"></div>
+      <div class="kbd-l"><span class="kbd">/</span>escribir <span class="kbd">Alt H</span>hablar <span class="kbd">Tab</span>recorrer las fichas <span class="kbd">Supr</span>sacar la ficha <span class="kbd">Enter</span>abrir</div>
+    </div>
+    <aside class="der-col">
+      <section id="ve" aria-live="polite">
+        <div><h2>Así lo ve quien tiene</h2><div class="rol-v" data-ve-nombre></div></div>
+        <div class="mini"><span class="t">Más → Usuarios</span><div class="tabs" data-ve-tabs></div></div>
+        <ul class="ve-lista" data-ve-lista></ul>
+        <div class="nota-v"><i class="i i-s" data-i="info"></i>Lo que no puede usar no le aparece. Con varios roles, puede todo lo que permita cualquiera.</div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="escucha" id="escucha" role="dialog" aria-label="Escuchando">
+  <div class="ondas" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="oido" data-oido></div>
+  <div class="ayuda-v">En la maqueta se escribe sola una de las sugerencias</div>
+  <button class="btn" data-parar><i class="i" data-i="x"></i>Parar</button>
+</div>
+
+<script src="../../shared/roles.js"></script>
+<script src="../../shared/say.js"></script>
+<script src="../../shared/say-ui.js"></script>
+<script>window.SAYUI.init(false);</script>
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · Roles · 1 · El rol y su tarjeta · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/roles.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  .pantalla { display: grid; grid-template-columns: minmax(0,1fr) 420px; gap: 24px; padding-top: 20px; padding-bottom: 20px; overflow: hidden; position: relative; }
+  .izq { display: flex; flex-direction: column; min-height: 0; gap: 16px; }
+  .arriba { display: grid; grid-template-columns: 200px 1fr; gap: 8px; }
+  .resumenes { display: grid; gap: 8px; }
+  .resumen { padding: 12px 14px; gap: 12px; }
+  .resumen .ico { width: 36px; height: 36px; }
+  .resumen .va { font-size: 24px; line-height: 28px; font-weight: 800; }
+  .quien-puede { padding: 14px 16px; display: grid; gap: 10px; }
+  .quien-puede h3 { margin: 0; font-size: 14px; font-weight: 650; color: var(--texto-2); display: flex; justify-content: space-between; }
+  .qp { display: grid; grid-template-columns: 200px 1fr 44px; align-items: center; gap: 12px; font-size: 14px; font-weight: 650; }
+  .qp .barra { height: 8px; }
+  .qp .barra > b { background: var(--pino); transform-origin: left; transition: transform var(--t-nav) var(--curva); width: 100%; display: block; }
+  .qp .n { text-align: right; color: var(--texto-2); font-variant-numeric: tabular-nums; }
+  .grupo { font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 0 4px; display: flex; justify-content: space-between; align-items: center; }
+  .grupo .t-detalle { font-weight: 500; }
+  #lista { flex: 1; min-height: 0; overflow: auto; margin: 0 -6px; padding: 2px 6px 8px; }
+  .fila { width: 100%; display: grid; grid-template-columns: 44px minmax(0,1fr) 150px 92px 16px; align-items: center; gap: 14px; padding: 12px 14px; text-align: left; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); transition: border-color var(--t-micro), transform var(--t-micro) var(--curva); cursor: pointer; }
+  .fila + .fila { margin-top: 8px; }
+  .fila:active { transform: scale(.995); }
+  .fila:focus-visible { outline: 3px solid rgba(18,56,47,.3); outline-offset: 2px; }
+  .fila.elegida { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino), var(--sombra-1); }
+  .escudo { width: 44px; height: 44px; border-radius: 12px; background: var(--hundido); color: var(--texto-2); display: grid; place-items: center; }
+  .elegida .escudo { background: var(--pino-suave); color: var(--pino); }
+  .nom { font-weight: 700; font-size: 16px; line-height: 22px; display: flex; gap: 8px; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .det { display: block; font-size: 14px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .puntos { display: flex; gap: 4px; margin-top: 6px; }
+  .puntos span { width: 22px; height: 6px; border-radius: 99px; background: var(--hundido-2); transition: background var(--t); }
+  .puntos span.si { background: var(--pino); }
+  .cuantas { display: grid; justify-items: end; line-height: 1.1; }
+  .cuantas b { font-size: 24px; font-weight: 800; }
+  .cuantas span { font-size: 14px; font-weight: 600; color: var(--texto-2); }
+  .cuantas.cero b { color: var(--texto-3); }
+  .flecha { color: var(--texto-3); }
+  .pastilla.chica { height: 24px; padding: 0 8px; }
+
+  #ficha { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-2); min-height: 0; overflow: auto; }
+  .ficha-in { padding: 20px; display: grid; gap: 18px; }
+  .fundido { animation: fundido var(--t) var(--curva); }
+  @keyframes fundido { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .cab { display: flex; gap: 14px; align-items: center; }
+  .cab .escudo { width: 56px; height: 56px; border-radius: 16px; background: var(--pino-suave); color: var(--pino); }
+  .cab .escudo svg { width: 28px; height: 28px; }
+  .cab .q { flex: 1; min-width: 0; }
+  .nombre-ed { display: flex; align-items: center; gap: 4px; min-height: 32px; }
+  .nombre-ed .t-seccion { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ed { width: 100%; height: 40px; border-radius: 10px; border: 1px solid var(--pino); box-shadow: 0 0 0 4px rgba(18,56,47,.12); padding: 0 12px; font-weight: 650; outline: 0; font-size: 16px; }
+  .ed.mal { border-color: var(--error); box-shadow: 0 0 0 4px rgba(215,55,42,.12); }
+  .btn-icono.chico { width: 32px; min-height: 32px; color: var(--texto-3); border: 0; box-shadow: none; background: none; }
+  .sec { display: grid; gap: 8px; }
+  .sec-cab { display: flex; justify-content: space-between; align-items: center; min-height: 36px; }
+  .sec-cab .t-detalle b { color: var(--tinta); }
+  .permiso { display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid var(--borde); border-radius: var(--r); transition: border-color var(--t), background var(--t); }
+  .permiso.on { border-color: rgba(18,56,47,.25); background: #FAFBF9; }
+  .permiso .ic { width: 36px; height: 36px; border-radius: 10px; background: var(--hundido); color: var(--texto-2); display: grid; place-items: center; transition: background var(--t), color var(--t); }
+  .permiso.on .ic { background: var(--pino-suave); color: var(--pino); }
+  .permiso b { font-size: 15px; line-height: 20px; display: block; }
+  .permiso small { font-size: 14px; line-height: 20px; color: var(--texto-2); display: block; }
+  .permiso .porque { grid-column: 2 / -1; }
+  .gente { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 8px 8px 8px 12px; border: 1px solid var(--borde); border-radius: var(--r); }
+  .gente b { font-size: 15px; }
+  .gente .pastilla { height: 24px; padding: 0 8px; margin-left: 6px; }
+  .gente .porque { grid-column: 1 / -1; }
+  .pie-ficha { display: flex; gap: 8px; align-items: center; padding-top: 16px; border-top: 1px solid var(--borde); flex-wrap: wrap; }
+  .pie-ficha .porque { flex-basis: 100%; }
+  .ultimo { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--texto-3); }
+
+  /* Diálogo de rol nuevo / duplicar */
+  .dialogo { width: 560px; }
+  .dialogo .lead { margin: 4px 0 0; color: var(--texto-2); font-size: 15px; line-height: 22px; }
+  .marcar { display: grid; gap: 8px; margin-top: 16px; }
+  .marcar .permiso { cursor: pointer; }
+  .err { display: flex; gap: 6px; align-items: center; font-size: 14px; font-weight: 650; color: var(--error-texto); margin-top: 6px; }
+  .err[hidden] { display: none; }
+  .elegir { display: grid; gap: 8px; margin-top: 16px; max-height: 320px; overflow: auto; }
+  .elegir .gente { cursor: pointer; }
+  .elegir .gente[aria-checked="true"] { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino); }
+  .gris-cartel { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 5; }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <div class="lado-marca"><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button class="btn btn-fantasma" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <a class="nav-item" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item activo" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <button class="luz" data-luz title="En la maqueta: tocala para simular que se corta la conexión"><span class="punto"></span><span data-luz-texto>En línea · todo enviado</span><i class="i i-s" data-i="chevron-right"></i></button>
+      <div class="persona"><div class="usuario"><span class="avatar">RP</span><div class="txt"><div style="font-weight:750;font-size:15px">Rubén Paredes</div><div class="t-detalle">Administrador</div></div></div><button class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <header class="cabecera">
+      <div class="t-titulo">Usuarios</div>
+      <div class="acciones zona-red"><button class="btn btn-accion" id="btn-nuevo"><i class="i i-s" data-i="shield-plus"></i>Nuevo rol <span class="kbd">Alt N</span></button></div>
+    </header>
+    <nav class="pestanas"><a data-ir="users">Usuarios</a><a class="activa" data-no-ir aria-current="page">Roles</a><a class="pestana-pronto" data-no-ir aria-disabled="true">Auditoría <span class="pronto">Pronto</span></a></nav>
+    <section class="pantalla">
+      <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· se ve lo último, vuelve sola</small></div>
+      <div class="izq zona-red">
+        <div class="arriba">
+          <div class="resumenes">
+            <div class="resumen"><span class="ico"><i class="i" data-i="shield"></i></span><div><div class="va" id="n-roles">4</div><div class="et">Roles</div></div></div>
+            <div class="resumen"><span class="ico"><i class="i" data-i="users"></i></span><div><div class="va">7</div><div class="et">Personas</div></div></div>
+          </div>
+          <div class="tarjeta quien-puede" aria-label="Quién puede qué">
+            <h3><span>Quién puede qué, sumando sus roles</span><span>de 7 personas</span></h3>
+            <div id="qp"></div>
+          </div>
+        </div>
+        <div class="grupo"><span>Los roles del negocio</span><span class="t-detalle">↑ ↓ para recorrer · Enter para abrir</span></div>
+        <div id="lista" role="listbox" aria-label="Roles"></div>
+      </div>
+      <aside id="ficha" class="zona-red" aria-label="El rol elegido"></aside>
+    </section>
+  </main>
+</div>
+
+<!-- Rol nuevo o duplicado: nada se guarda hasta «Crear el rol» (R7.3, E38) -->
+<div class="dialogo" id="d-rol" role="dialog" aria-modal="true" aria-labelledby="d-rol-t">
+  <h2 id="d-rol-t">Nuevo rol</h2>
+  <p class="lead" id="d-rol-lead">Un nombre y lo que deja hacer. Después se lo das a las personas.</p>
+  <div class="campo-real" style="margin-top:16px"><label for="d-nombre">Nombre</label><input id="d-nombre" placeholder="Por ejemplo, Encargado de depósito" autocomplete="off"><div class="err" id="d-nombre-err" hidden><i class="i i-s" data-i="circle-alert"></i><span></span></div></div>
+  <div class="marcar" id="d-perms"></div>
+  <div class="err" id="d-perms-err" hidden><i class="i i-s" data-i="circle-alert"></i><span>Elegí al menos un permiso.</span></div>
+  <div class="pie-d"><button class="btn btn-fantasma" data-cerrar>Cancelar</button><button class="btn btn-accion" id="d-crear">Crear el rol <span class="kbd">Enter</span></button></div>
+</div>
+
+<!-- Darle este rol a alguien -->
+<div class="dialogo" id="d-dar" role="dialog" aria-modal="true" aria-labelledby="d-dar-t">
+  <h2 id="d-dar-t">Darle «<span></span>»</h2>
+  <p class="lead">Puede todo lo de este rol desde su próximo pedido, sin volver a entrar.</p>
+  <div class="elegir" id="d-dar-lista"></div>
+  <div class="pie-d"><button class="btn btn-fantasma" data-cerrar>Cancelar</button><button class="btn btn-accion" id="d-dar-ok" disabled>Darle el rol</button></div>
+</div>
+
+<!-- Borrar: solo si nadie lo tiene -->
+<div class="dialogo" id="d-borrar" role="dialog" aria-modal="true">
+  <h2>¿Borrar «<span></span>»?</h2>
+  <p class="lead">Nadie lo tiene, así que nadie pierde nada. Queda anotado en la auditoría.</p>
+  <div class="pie-d"><button class="btn btn-fantasma" data-cerrar>Cancelar</button><button class="btn btn-rojo" id="d-borrar-ok"><i class="i i-s" data-i="trash-2"></i>Borrar el rol</button></div>
+</div>
+
+<script src="../../shared/roles.js"></script>
+<script>
+(function () {
+  var R = window.ROLES, sel = "enc", lista = document.getElementById("lista"), ficha = document.getElementById("ficha");
+  var renaming = false, warn = null; // warn: {kind, key, msg}
+
+  function peopleWith(pid) {
+    var s = {};
+    R.roles.forEach(function (r) { if (R.has(r, pid)) r.people.forEach(function (p) { s[p] = 1; }); });
+    return Object.keys(s).length;
+  }
+  function drawQp() {
+    document.getElementById("qp").innerHTML = R.PERMS.map(function (p) {
+      var n = peopleWith(p.id);
+      return '<div class="qp"><span>' + p.name + '</span><span class="barra"><b style="transform:scaleX(' + (n / 7) + ')"></b></span><span class="n">' + n + "</span></div>";
+    }).join("");
+    document.querySelectorAll("#qp .qp").forEach(function (q) { q.style.marginTop = "0"; });
+    document.getElementById("n-roles").textContent = R.roles.length;
+  }
+
+  function drawList(entering) {
+    lista.innerHTML = R.roles.map(function (r) {
+      var n = r.people.length;
+      return '<button class="fila' + (r.id === sel ? " elegida" : "") + (r.id === entering ? " entra recien" : "") + '" role="option" aria-selected="' + (r.id === sel) + '" data-id="' + r.id + '">' +
+        '<span class="escudo"><i class="i" data-i="' + (r.fixed ? "shield-check" : "shield") + '"></i></span>' +
+        '<span style="min-width:0"><span class="nom">' + R.esc(r.name) + (r.people.indexOf("RP") >= 0 ? ' <span class="pastilla accion chica">El tuyo</span>' : "") + '</span>' +
+        '<span class="det">' + r.perms.map(function (p) { return R.perm(p).name; }).join(" · ") + "</span>" +
+        '<span class="puntos" aria-hidden="true">' + R.PERMS.map(function (p) { return '<span class="' + (R.has(r, p.id) ? "si" : "") + '"></span>'; }).join("") + "</span></span>" +
+        '<span>' + R.pila(r.people) + "</span>" +
+        '<span class="cuantas' + (n ? "" : " cero") + '"><b>' + n + '</b><span>' + (n === 1 ? "persona" : "personas") + "</span></span>" +
+        '<i class="i flecha" data-i="chevron-right"></i></button>';
+    }).join("");
+    R.icons(lista);
+  }
+
+  function drawCard(animate) {
+    var r = R.role(sel);
+    if (!r) { ficha.innerHTML = ""; return; }
+    var del = R.whyNotDelete(r);
+    var h = '<div class="ficha-in' + (animate ? " fundido" : "") + '">' +
+      '<div class="cab"><span class="escudo"><i class="i" data-i="' + (r.fixed ? "shield-check" : "shield") + '"></i></span><div class="q">' +
+      (renaming
+        ? '<div class="nombre-ed"><input class="ed" id="ren" value="' + R.esc(r.name) + '" aria-label="Nombre del rol"></div>' + (warn && warn.kind === "name" ? '<div class="porque error" style="margin-top:6px"><i class="i i-s" data-i="circle-alert"></i>' + warn.msg + "</div>" : '<div class="t-detalle" style="margin-top:4px">Enter guarda · Escape deja como estaba</div>')
+        : '<div class="nombre-ed"><span class="t-seccion">' + R.esc(r.name) + '</span><button class="btn-icono chico" id="btn-ren" aria-label="Cambiar el nombre" title="Cambiar el nombre (Alt R)"><i class="i i-s" data-i="pencil"></i></button></div>' +
+          '<div class="t-detalle">' + R.permsCount(r) + " · " + R.peopleCount(r) + "</div>") +
+      "</div></div>" +
+      '<div class="sec"><div class="sec-cab"><span class="t-renglon">Qué deja hacer</span><span class="t-detalle">Parte <b>' + R.GROUP + "</b></span></div>" +
+      R.PERMS.map(function (p) {
+        var on = R.has(r, p.id), tied = R.tied(r, p.id), w = warn && warn.kind === "perm" && warn.key === p.id;
+        return '<div class="permiso' + (on ? " on" : "") + (w ? " no" : "") + '"><span class="ic"><i class="i" data-i="' + p.icon + '"></i></span><span><b>' + p.name + "</b><small>" + p.exp + "</small></span>" +
+          '<button class="llave' + (tied ? " atada" : "") + '" role="switch" aria-checked="' + on + '" aria-label="' + p.name + '" data-perm="' + p.id + '"></button>' +
+          (tied ? '<span class="porque pino"><i class="i i-s" data-i="lock"></i>Va incluido en ' + R.tiedBy(r) + ".</span>" : "") +
+          (w ? '<span class="porque error"><i class="i i-s" data-i="circle-alert"></i>' + warn.msg + "</span>" : "") + "</div>";
+      }).join("") +
+      '<div class="porque"><i class="i i-s" data-i="info"></i>Vale enseguida para ' + (r.people.length ? (r.people.length === 1 ? "la persona que lo tiene" : "las " + r.people.length + " personas que lo tienen") : "quien lo tenga") + ", desde su próximo pedido.</div></div>" +
+      '<div class="sec"><div class="sec-cab"><span class="t-renglon">Quiénes lo tienen <span class="t-detalle">' + r.people.length + '</span></span><button class="btn chico" id="btn-dar"><i class="i i-s" data-i="user-plus"></i>Darle este rol <span class="kbd">Alt G</span></button></div>' +
+      (r.people.length ? r.people.map(function (pid) {
+        var w = warn && warn.kind === "person" && warn.key === pid;
+        return '<div class="gente' + (w ? " no" : "") + '" data-p="' + pid + '">' + R.cara(pid, "g") + "<span><b>" + R.PEOPLE[pid].name + "</b>" + (R.PEOPLE[pid].me ? '<span class="pastilla vos">Vos</span>' : "") + "</span>" +
+          '<button class="btn btn-fantasma chico" data-quitar="' + pid + '">Sacárselo</button>' + (w ? '<span class="porque error"><i class="i i-s" data-i="circle-alert"></i>' + warn.msg + "</span>" : "") + "</div>";
+      }).join("") : '<div class="porque"><i class="i i-s" data-i="info"></i>Nadie lo tiene todavía.</div>') +
+      "</div>" +
+      '<div class="pie-ficha"><button class="btn" id="btn-dup"><i class="i i-s" data-i="copy"></i>Duplicar <span class="kbd">Alt D</span></button>' +
+      '<button class="btn btn-peligro" id="btn-borrar"' + (del ? " disabled" : "") + '><i class="i i-s" data-i="trash-2"></i>Borrar</button>' +
+      (del ? '<span class="porque"><i class="i i-s" data-i="info"></i>' + del + "</span>" : "") +
+      '<span class="ultimo"><i class="i i-s" data-i="history"></i>' + r.last + "</span></div></div>";
+    ficha.innerHTML = h; R.icons(ficha);
+    if (renaming) { var i = document.getElementById("ren"); i.focus(); i.select(); }
+    var w = ficha.querySelector(".no"); if (w) w.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  function redraw(entering, animateCard) { drawQp(); drawList(entering); drawCard(animateCard); }
+
+  function choose(id) { sel = id; renaming = false; warn = null; drawList(); drawCard(true); }
+
+  lista.addEventListener("click", function (e) { var f = e.target.closest(".fila"); if (f) choose(f.dataset.id); });
+  lista.addEventListener("keydown", function (e) {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    var i = R.roles.indexOf(R.role(sel)) + (e.key === "ArrowDown" ? 1 : -1);
+    if (i < 0 || i >= R.roles.length) return;
+    choose(R.roles[i].id);
+    lista.querySelector('[data-id="' + sel + '"]').focus();
+  });
+
+  ficha.addEventListener("click", function (e) {
+    var r = R.role(sel), t;
+    if ((t = e.target.closest("[data-perm]"))) {
+      var pid = t.dataset.perm;
+      if (R.has(r, pid)) {
+        var why = R.whyNotRemove(r, pid);
+        if (why) { warn = { kind: "perm", key: pid, msg: why }; drawCard(); return; }
+        R.toggle(r, pid); warn = null; redraw();
+        var name = R.perm(pid).name;
+        R.toast(r.name + " ya no puede «" + name + "»", function () { R.toggle(r, pid); redraw(); });
+      } else {
+        R.reauth("Sumarle «" + R.perm(pid).name + "» a " + r.name, function () {
+          R.toggle(r, pid); warn = null; redraw();
+          R.toast(r.name + " ahora puede «" + R.perm(pid).name + "»", function () { R.toggle(r, pid); redraw(); });
+        });
+      }
+    } else if (e.target.closest("#btn-ren")) { renaming = true; warn = null; drawCard(); }
+    else if ((t = e.target.closest("[data-quitar]"))) {
+      var p = t.dataset.quitar, why2 = R.whyNotUnassign(r, p);
+      if (why2) { warn = { kind: "person", key: p, msg: why2 }; drawCard(); return; }
+      var row = t.closest(".gente"); row.classList.add("sale");
+      setTimeout(function () {
+        r.people.splice(r.people.indexOf(p), 1); warn = null; redraw();
+        R.toast("Le sacaste «" + r.name + "» a " + R.PEOPLE[p].name, function () { r.people.push(p); redraw(); });
+      }, 200);
+    }
+    else if (e.target.closest("#btn-dar")) openGive();
+    else if (e.target.closest("#btn-dup")) openRole(r);
+    else if (e.target.closest("#btn-borrar")) openDelete();
+  });
+  ficha.addEventListener("keydown", function (e) {
+    if (e.target.id !== "ren") return;
+    var r = R.role(sel);
+    if (e.key === "Escape") { e.stopPropagation(); renaming = false; warn = null; drawCard(); }
+    if (e.key === "Enter") {
+      var v = e.target.value.trim(), why = R.whyNotName(v, r);
+      if (why) { warn = { kind: "name", msg: why }; drawCard(); return; }
+      var before = r.name; r.name = v; renaming = false; warn = null; redraw();
+      R.toast("«" + before + "» ahora se llama «" + v + "»", function () { r.name = before; redraw(); });
+    }
+  });
+
+  /* ---- Rol nuevo o duplicado ---- */
+  var dRol = document.getElementById("d-rol"), draft = null;
+  function openRole(from) {
+    draft = { perms: from ? from.perms.slice() : [] };
+    document.getElementById("d-rol-t").textContent = from ? "Duplicar «" + from.name + "»" : "Nuevo rol";
+    document.getElementById("d-rol-lead").textContent = from ? "Un rol nuevo con sus mismos permisos, para cambiarle lo que haga falta. No se guarda hasta que lo creás." : "Un nombre y lo que deja hacer. Después se lo das a las personas.";
+    var n = document.getElementById("d-nombre"); n.value = from ? from.name + " (copia)" : "";
+    document.getElementById("d-nombre-err").hidden = true; n.parentNode.classList.remove("mal");
+    document.getElementById("d-perms-err").hidden = true;
+    drawDraft(); R.open(dRol);
+    setTimeout(function () { n.focus(); n.select(); }, 80);
+  }
+  function drawDraft() {
+    var box = document.getElementById("d-perms");
+    box.innerHTML = R.PERMS.map(function (p) {
+      var on = draft.perms.indexOf(p.id) >= 0, tied = R.tied(draft, p.id);
+      return '<div class="permiso' + (on ? " on" : "") + '" data-dp="' + p.id + '"><span class="ic"><i class="i" data-i="' + p.icon + '"></i></span><span><b>' + p.name + "</b><small>" + p.exp + "</small></span>" +
+        '<span class="llave' + (tied ? " atada" : "") + '" role="switch" aria-checked="' + on + '"></span>' +
+        (tied ? '<span class="porque pino"><i class="i i-s" data-i="lock"></i>Va incluido en ' + R.tiedBy(draft) + ".</span>" : "") + "</div>";
+    }).join("");
+    R.icons(box);
+  }
+  document.getElementById("d-perms").addEventListener("click", function (e) {
+    var t = e.target.closest("[data-dp]"); if (!t) return;
+    var pid = t.dataset.dp;
+    if (R.tied(draft, pid)) { t.classList.remove("no"); void t.offsetWidth; t.classList.add("no"); return; }
+    R.toggle(draft, pid); document.getElementById("d-perms-err").hidden = true; drawDraft();
+  });
+  function create() {
+    var n = document.getElementById("d-nombre"), why = R.whyNotName(n.value), bad = false;
+    var ne = document.getElementById("d-nombre-err");
+    if (why) { ne.hidden = false; ne.querySelector("span").textContent = why; n.parentNode.classList.add("mal"); bad = true; } else { ne.hidden = true; n.parentNode.classList.remove("mal"); }
+    if (!draft.perms.length) { document.getElementById("d-perms-err").hidden = false; bad = true; }
+    if (bad) { dRol.classList.remove("no"); void dRol.offsetWidth; return; }
+    var name = n.value.trim(), perms = draft.perms.slice();
+    R.close();
+    R.reauth("Crear el rol «" + name + "»", function () {
+      var id = "r" + Date.now();
+      R.roles.push({ id: id, name: name, perms: perms, people: [], last: "Rubén Paredes lo creó · recién" });
+      sel = id; renaming = false; warn = null; redraw(id, true);
+      R.toast("Rol «" + name + "» creado. Dáselo a quien corresponda.");
+      var f = lista.querySelector('[data-id="' + id + '"]'); if (f) f.scrollIntoView({ block: "nearest" });
+    });
+  }
+  document.getElementById("d-crear").addEventListener("click", create);
+  document.getElementById("d-nombre").addEventListener("keydown", function (e) { if (e.key === "Enter") create(); });
+
+  /* ---- Darle este rol a alguien ---- */
+  var dDar = document.getElementById("d-dar"), picked = {};
+  function openGive() {
+    var r = R.role(sel); picked = {};
+    dDar.querySelector("h2 span").textContent = r.name;
+    var free = Object.keys(R.PEOPLE).filter(function (p) { return r.people.indexOf(p) < 0; });
+    var box = document.getElementById("d-dar-lista");
+    box.innerHTML = free.length ? free.map(function (p) {
+      var has = R.roles.filter(function (x) { return x.people.indexOf(p) >= 0; }).map(function (x) { return x.name; }).join(", ");
+      return '<div class="gente" role="checkbox" aria-checked="false" tabindex="0" data-pick="' + p + '">' + R.cara(p, "g") + '<span><b>' + R.PEOPLE[p].name + '</b><small class="t-detalle" style="display:block">Hoy: ' + has + '</small></span><span class="tilde" aria-hidden="true"><i class="i i-s" data-i="check"></i></span></div>';
+    }).join("") : '<div class="porque"><i class="i i-s" data-i="info"></i>Todas las personas ya lo tienen.</div>';
+    R.icons(box); document.getElementById("d-dar-ok").disabled = true; R.open(dDar);
+  }
+  document.getElementById("d-dar-lista").addEventListener("click", function (e) {
+    var t = e.target.closest("[data-pick]"); if (!t) return;
+    var p = t.dataset.pick; picked[p] = !picked[p];
+    t.setAttribute("aria-checked", !!picked[p]); t.querySelector(".tilde").setAttribute("aria-checked", !!picked[p]);
+    document.getElementById("d-dar-ok").disabled = !Object.keys(picked).some(function (k) { return picked[k]; });
+  });
+  document.getElementById("d-dar-ok").addEventListener("click", function () {
+    var r = R.role(sel), ids = Object.keys(picked).filter(function (k) { return picked[k]; });
+    R.close();
+    R.reauth("Darle «" + r.name + "» a " + R.names(ids), function () {
+      ids.forEach(function (p) { r.people.push(p); }); redraw();
+      ids.forEach(function (p) { var el = ficha.querySelector('[data-p="' + p + '"]'); if (el) el.classList.add("entra", "recien"); });
+      R.toast(R.names(ids) + (ids.length > 1 ? " ya tienen" : " ya tiene") + " «" + r.name + "»", function () { ids.forEach(function (p) { r.people.splice(r.people.indexOf(p), 1); }); redraw(); });
+    });
+  });
+
+  /* ---- Borrar ---- */
+  var dBorrar = document.getElementById("d-borrar");
+  function openDelete() { var r = R.role(sel); if (R.whyNotDelete(r)) return; dBorrar.querySelector("h2 span").textContent = r.name; R.open(dBorrar); }
+  document.getElementById("d-borrar-ok").addEventListener("click", function () {
+    var r = R.role(sel), i = R.roles.indexOf(r); R.close();
+    var f = lista.querySelector('[data-id="' + r.id + '"]'); if (f) f.classList.add("sale");
+    setTimeout(function () {
+      R.roles.splice(i, 1); sel = R.roles[Math.max(0, i - 1)].id; redraw(null, true);
+      R.toast("Borraste «" + r.name + "»", function () { R.roles.splice(i, 0, r); sel = r.id; redraw(r.id, true); });
+    }, 200);
+  });
+
+  document.getElementById("btn-nuevo").addEventListener("click", function () { openRole(null); });
+  R.keys.n = function () { openRole(null); };
+  R.keys.d = function () { openRole(R.role(sel)); };
+  R.keys.r = function () { renaming = true; warn = null; drawCard(); };
+  R.keys.g = openGive;
+
+  redraw();
+})();
+</script>
+</body>
+</html>

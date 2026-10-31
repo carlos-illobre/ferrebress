@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · Roles · 2 · La grilla · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/roles.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  .pantalla { padding-top: 20px; padding-bottom: 20px; display: flex; flex-direction: column; gap: 16px; overflow: hidden; position: relative; }
+  .linea { display: flex; align-items: center; gap: 16px; font-size: 15px; color: var(--texto-2); font-weight: 600; }
+  .linea b { color: var(--tinta); font-weight: 800; }
+  .linea .sep { width: 4px; height: 4px; border-radius: 99px; background: var(--borde-fuerte); }
+  .linea .ayuda { margin-left: auto; display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--texto-3); }
+  .marco-grilla { flex: 1; min-height: 0; overflow: auto; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; }
+  th, td { padding: 0; border-bottom: 1px solid var(--borde); }
+  thead th { position: sticky; top: 0; z-index: 3; background: var(--superficie); vertical-align: bottom; }
+  .c0 { position: sticky; left: 0; z-index: 2; background: var(--superficie); width: 340px; min-width: 340px; text-align: left; border-right: 1px solid var(--borde); }
+  thead .c0 { z-index: 4; padding: 16px 20px; font-size: 14px; color: var(--texto-2); font-weight: 650; }
+  .col { min-width: 150px; width: 150px; text-align: center; }
+  td.col, .cel { position: relative; }
+  .col-cab { padding: 12px 10px 10px; display: grid; justify-items: center; gap: 6px; position: relative; }
+  .col-cab .nom { font-size: 15px; font-weight: 750; line-height: 20px; max-width: 132px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .col-cab .esc { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: var(--hundido); color: var(--texto-2); }
+  .col-cab .esc.adm { background: var(--pino-suave); color: var(--pino); }
+  .col-cab .menu-btn { position: absolute; top: 8px; right: 6px; width: 32px; height: 32px; border-radius: 8px; border: 0; background: none; color: var(--texto-3); display: grid; place-items: center; cursor: pointer; }
+  .col-cab .menu-btn:hover { background: var(--hundido); }
+  .col-cab .cambio { height: 24px; }
+  .quien { border: 0; background: none; padding: 4px 6px; border-radius: 99px; cursor: pointer; min-height: 40px; display: grid; place-items: center; }
+  .quien:hover { background: var(--hundido); }
+  .quien .cara { width: 32px; height: 32px; }
+  .col-cab input { width: 132px; height: 36px; border-radius: 10px; border: 1px solid var(--pino); box-shadow: 0 0 0 4px rgba(18,56,47,.12); padding: 0 10px; font-weight: 700; font-size: 15px; text-align: center; outline: 0; }
+  .col-cab input.mal { border-color: var(--error); box-shadow: 0 0 0 4px rgba(215,55,42,.12); }
+  .grupo td { background: var(--fondo); padding: 8px 20px; font-size: 14px; font-weight: 700; color: var(--texto-2); text-align: left; }
+  .grupo .c0 { background: var(--fondo); }
+  tbody .c0 { padding: 10px 20px; }
+  tbody .c0 b { display: flex; gap: 10px; align-items: center; font-size: 15px; }
+  tbody .c0 b .i { color: var(--texto-2); }
+  tbody .c0 small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); margin: 2px 0 0 30px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 290px; }
+  td.cel { text-align: center; position: relative; transition: background var(--t-micro); }
+  tr.perm:hover td, td.cruz { background: #FAFAF7; }
+  tr.perm:hover .c0 { background: #FAFAF7; }
+  .cel .tilde { position: relative; }
+  .cel .tilde.add, .cel .tilde.rem { box-shadow: 0 0 0 3px var(--superficie), 0 0 0 5px var(--urgente); }
+  .cel .tilde:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--superficie), 0 0 0 5px var(--pino); }
+  .cel .tilde.rem { border-style: dashed; }
+  .saved .tilde { box-shadow: 0 0 0 3px var(--superficie), 0 0 0 5px var(--logro); transition: box-shadow 1s; }
+  .gone { opacity: .45; }
+  .gone .tilde { pointer-events: none; }
+  .gone-cab { background: repeating-linear-gradient(135deg, transparent 0 8px, rgba(215,55,42,.06) 8px 16px); }
+  .tienen td { border-bottom: 0; padding: 12px 8px; }
+  .tienen .c0 { padding: 12px 20px; font-weight: 700; font-size: 15px; }
+  .tienen .col-pie { display: grid; justify-items: center; gap: 8px; }
+  .tienen .pila .cara { width: 32px; height: 32px; }
+  .nuevo-col { min-width: 160px; vertical-align: middle; }
+  .nuevo-btn { margin: 12px; width: calc(100% - 24px); min-height: 88px; border: 1.5px dashed var(--borde-fuerte); border-radius: var(--r); background: none; color: var(--texto-2); font-weight: 700; font-size: 15px; display: grid; place-items: center; gap: 4px; cursor: pointer; transition: border-color var(--t), color var(--t); }
+  .nuevo-btn:hover { border-color: var(--pino); color: var(--pino); }
+  .globo { position: absolute; z-index: 6; left: 50%; top: calc(100% - 6px); transform: translateX(-50%); width: 260px; padding: 10px 12px; border-radius: 12px; background: var(--tinta); color: #fff; font-size: 14px; line-height: 20px; font-weight: 600; text-align: left; box-shadow: var(--sombra-3); animation: entra var(--t) var(--curva) both; }
+  .globo::before { content: ""; position: absolute; top: -6px; left: 50%; margin-left: -6px; border: 6px solid transparent; border-top: 0; border-bottom-color: var(--tinta); }
+  .menu-rol { position: absolute; z-index: 7; top: 40px; right: 6px; width: 200px; background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; box-shadow: var(--sombra-3); padding: 6px; display: grid; text-align: left; animation: entra var(--t) var(--curva) both; }
+  .menu-rol button { display: flex; gap: 10px; align-items: center; height: 40px; padding: 0 10px; border: 0; background: none; border-radius: 8px; font-weight: 650; font-size: 15px; cursor: pointer; }
+  .menu-rol button:hover { background: var(--hundido); }
+  .menu-rol button.rojo { color: var(--error-texto); }
+  .menu-rol .kbd { margin-left: auto; }
+  /* La barra de los cambios: sube cuando hay algo para guardar */
+  .barra-cambios { display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 16px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-3); transform: translateY(16px); opacity: 0; pointer-events: none; transition: transform var(--t-nav) var(--curva), opacity var(--t) var(--curva); }
+  .barra-cambios.ver { transform: none; opacity: 1; pointer-events: auto; }
+  .barra-cambios .cuenta { width: 32px; height: 32px; border-radius: 99px; background: var(--urgente-suave); color: var(--urgente-texto); display: grid; place-items: center; font-weight: 800; }
+  .barra-cambios .txt { flex: 1; display: grid; font-size: 14px; color: var(--texto-2); }
+  .barra-cambios .txt b { color: var(--tinta); font-size: 15px; }
+  .barra-cambios .txt.mal b { color: var(--error-texto); }
+  .dialogo { width: 560px; }
+  .dialogo .lead { margin: 4px 0 0; color: var(--texto-2); font-size: 15px; line-height: 22px; }
+  .elegir { display: grid; gap: 8px; margin-top: 16px; }
+  .gente { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 8px 12px; border: 1px solid var(--borde); border-radius: var(--r); cursor: pointer; }
+  .gente[aria-checked="true"] { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino); }
+  .gente small { display: block; font-size: 14px; color: var(--texto-2); }
+  .gente .porque { grid-column: 1 / -1; }
+  .gris-cartel { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 9; }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <div class="lado-marca"><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button class="btn btn-fantasma" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <a class="nav-item" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item activo" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <button class="luz" data-luz title="En la maqueta: tocala para simular que se corta la conexión"><span class="punto"></span><span data-luz-texto>En línea · todo enviado</span><i class="i i-s" data-i="chevron-right"></i></button>
+      <div class="persona"><div class="usuario"><span class="avatar">RP</span><div class="txt"><div style="font-weight:750;font-size:15px">Rubén Paredes</div><div class="t-detalle">Administrador</div></div></div><button class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <header class="cabecera">
+      <div class="t-titulo">Usuarios</div>
+      <div class="acciones zona-red"><button class="btn" id="btn-nuevo"><i class="i i-s" data-i="shield-plus"></i>Nuevo rol <span class="kbd">Alt N</span></button></div>
+    </header>
+    <nav class="pestanas"><a data-ir="users">Usuarios</a><a class="activa" data-no-ir aria-current="page">Roles</a><a class="pestana-pronto" data-no-ir aria-disabled="true">Auditoría <span class="pronto">Pronto</span></a></nav>
+    <section class="pantalla">
+      <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· se ve lo último, vuelve sola</small></div>
+      <div class="linea zona-red" id="linea"></div>
+      <div class="marco-grilla zona-red" id="marco"><table id="grilla" aria-label="Permisos de cada rol"></table></div>
+      <div class="barra-cambios zona-red" id="barra" aria-live="polite">
+        <span class="cuenta" id="b-n">0</span>
+        <span class="txt" id="b-txt"></span>
+        <button class="btn btn-fantasma" id="b-ver"><i class="i i-s" data-i="eye"></i>Ver qué cambia <span class="kbd">Alt V</span></button>
+        <button class="btn btn-fantasma" id="b-desc">Descartar</button>
+        <button class="btn btn-accion" id="b-guardar"><i class="i i-s" data-i="check"></i>Guardar <span class="kbd">Alt G</span></button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="dialogo" id="d-ver" role="dialog" aria-modal="true">
+  <h2>Qué cambia al guardar</h2>
+  <p class="lead">Así queda anotado en la auditoría, con lo que había y lo que queda.</p>
+  <ul class="cambios" id="d-ver-lista"></ul>
+  <div class="pie-d"><button class="btn btn-fantasma" data-cerrar>Seguir editando</button><button class="btn btn-accion" id="d-ver-ok"><i class="i i-s" data-i="check"></i>Guardar</button></div>
+</div>
+
+<div class="dialogo" id="d-dar" role="dialog" aria-modal="true">
+  <h2>Quiénes tienen «<span></span>»</h2>
+  <p class="lead">Tocá para darlo o sacarlo. Se guarda al tocar «Listo».</p>
+  <div class="elegir" id="d-dar-lista"></div>
+  <div class="pie-d"><button class="btn btn-fantasma" data-cerrar>Cancelar</button><button class="btn btn-accion" id="d-dar-ok">Listo</button></div>
+</div>
+
+<script src="../../shared/roles.js"></script>
+<script src="../../shared/grid.js"></script>
+<script>
+(function () {
+  var R = window.ROLES, G = window.GRID, t = document.getElementById("grilla"), editing = null, globo = null, menuFor = null, justSaved = false;
+
+  function drawLine() {
+    var live = R.roles.filter(function (r) { return !r.gone; });
+    var admRoles = {}; R.roles.forEach(function (r) { if (!r.gone && R.has(r, "roles")) r.people.forEach(function (p) { admRoles[p] = 1; }); });
+    document.getElementById("linea").innerHTML = "<span><b>" + live.length + "</b> roles</span><span class=\"sep\"></span><span><b>7</b> personas</span><span class=\"sep\"></span><span><b>" + Object.keys(admRoles).length + "</b> pueden administrar roles</span>" +
+      '<span class="ayuda"><i class="i i-s" data-i="keyboard"></i>Flechas para moverte · Espacio tilda · Enter en un nombre lo cambia</span>';
+    R.icons(document.getElementById("linea"));
+  }
+
+  function cab(r) {
+    var ch = G.changes().filter(function (c) { return c.role === r; }).length;
+    var isNew = !G.origOf(r.id);
+    var nameHTML = editing === r.id
+      ? '<input id="ed-' + r.id + '" value="' + R.esc(r.name) + '" placeholder="Nombre del rol" aria-label="Nombre del rol">'
+      : '<span class="nom" title="Doble clic para cambiar el nombre">' + (R.esc(r.name) || '<span style="color:var(--texto-3)">Sin nombre</span>') + "</span>";
+    return '<th class="col' + (r.gone ? " gone-cab" : "") + '" data-col="' + r.id + '"><div class="col-cab"><span class="esc' + (r.fixed ? " adm" : "") + '"><i class="i i-s" data-i="' + (r.fixed ? "shield-check" : "shield") + '"></i></span>' + nameHTML +
+      '<button class="quien" data-dar="' + r.id + '" title="Quiénes lo tienen"' + (r.gone ? " disabled" : "") + '>' + R.pila(r.people, 3) + '</button><span class="cambio">' + (r.gone ? '<span class="pastilla error chica" style="height:24px">Se borra</span>' : isNew ? '<span class="pastilla urgente" style="height:24px">Nuevo</span>' : ch ? '<span class="pastilla urgente" style="height:24px">' + ch + (ch === 1 ? " cambio" : " cambios") + "</span>" : r.people.indexOf("RP") >= 0 ? '<span class="pastilla vos" style="height:24px">El tuyo</span>' : "") + "</span>" +
+      '<button class="menu-btn" data-menu="' + r.id + '" aria-label="Más opciones de ' + R.esc(r.name) + '"><i class="i i-s" data-i="ellipsis-vertical"></i></button>' +
+      (menuFor === r.id ? menuHTML(r) : "") + "</div></th>";
+  }
+  function menuHTML(r) {
+    if (r.gone) return '<div class="menu-rol"><button data-act="undel"><i class="i i-s" data-i="undo-2"></i>No borrarlo</button></div>';
+    return '<div class="menu-rol"><button data-act="ren"><i class="i i-s" data-i="pencil"></i>Cambiar el nombre</button><button data-act="dar"><i class="i i-s" data-i="users"></i>Quiénes lo tienen</button><button data-act="dup"><i class="i i-s" data-i="copy"></i>Duplicar</button><button data-act="del" class="rojo"><i class="i i-s" data-i="trash-2"></i>Borrar</button></div>';
+  }
+
+  function draw() {
+    var cols = R.roles;
+    var h = '<thead><tr><th class="c0">Permiso<span style="display:block;font-weight:500;color:var(--texto-3);margin-top:4px">Tocá las caras de un rol para ver quiénes lo tienen y dárselo a alguien</span></th>' + cols.map(cab).join("") + '<th class="nuevo-col"><button class="nuevo-btn" id="col-nueva"><i class="i" data-i="plus"></i>Nuevo rol</button></th></tr></thead><tbody>';
+    h += '<tr class="grupo"><td class="c0">' + R.GROUP + "</td>" + cols.map(function () { return "<td></td>"; }).join("") + "<td></td></tr>";
+    R.PERMS.forEach(function (p, pi) {
+      h += '<tr class="perm"><td class="c0" title="' + p.exp + '"><b><i class="i i-s" data-i="' + p.icon + '"></i>' + p.name + "</b><small>" + p.exp + "</small></td>";
+      cols.forEach(function (r, ci) {
+        var on = R.has(r, p.id), tied = R.tied(r, p.id), st = G.cellState(r, p.id);
+        h += '<td class="cel' + (r.gone ? " gone" : "") + (justSaved && st === "" && G.origOf(r.id) ? "" : "") + '" data-r="' + r.id + '" data-p="' + p.id + '"><button class="tilde ' + (tied ? "atada " : "") + st + '" role="checkbox" aria-checked="' + on + '" aria-label="' + R.esc(r.name) + ": " + p.name + '" data-x="' + ci + '" data-y="' + pi + '" tabindex="' + (ci === 0 && pi === 0 ? 0 : -1) + '"><i class="i i-s" data-i="' + (tied ? "lock" : "check") + '" data-trazo="3"></i></button></td>';
+      });
+      h += "<td></td></tr>";
+    });
+    h += "</tbody>";
+    t.innerHTML = h; R.icons(t);
+    drawLine(); drawBar();
+    if (editing) { var i = document.getElementById("ed-" + editing); if (i) { i.focus(); i.select(); } }
+  }
+
+  function drawBar() {
+    var ch = G.changes(), b = document.getElementById("barra"), probs = G.problems();
+    b.classList.toggle("ver", ch.length > 0);
+    document.getElementById("b-n").textContent = ch.length;
+    var roles = {}; ch.forEach(function (c) { roles[c.role.id] = 1; });
+    var n = Object.keys(roles).length, aff = G.affected();
+    var tx = document.getElementById("b-txt");
+    tx.classList.toggle("mal", probs.length > 0);
+    tx.innerHTML = probs.length ? "<b>" + probs[0].msg + "</b><span>Arreglalo para poder guardar.</span>"
+      : "<b>" + ch.length + (ch.length === 1 ? " cambio" : " cambios") + " en " + n + (n === 1 ? " rol" : " roles") + "</b><span>" + (aff ? "Vale para " + aff + (aff === 1 ? " persona" : " personas") + " desde su próximo pedido, sin volver a entrar." : "Nadie los tiene todavía.") + "</span>";
+    document.getElementById("b-guardar").disabled = probs.length > 0;
+    document.getElementById("d-ver-ok").disabled = probs.length > 0;
+  }
+
+  function balloon(td, msg) {
+    if (globo) globo.remove();
+    globo = document.createElement("div"); globo.className = "globo"; globo.innerHTML = msg; td.appendChild(globo);
+    var bt = td.querySelector(".tilde"); if (bt) { bt.classList.remove("no"); void bt.offsetWidth; bt.classList.add("no"); }
+    var g = globo; setTimeout(function () { if (g === globo) { g.remove(); globo = null; } }, 3200);
+  }
+
+  function toggleCell(td) {
+    var r = R.role(td.dataset.r), pid = td.dataset.p;
+    if (r.gone) return;
+    if (R.has(r, pid)) {
+      var why = R.whyNotRemove(r, pid);
+      if (why && !(why.indexOf("al menos un permiso") >= 0)) { balloon(td, why); return; }
+    }
+    R.toggle(r, pid); var x = td.querySelector(".tilde").dataset.x, y = td.querySelector(".tilde").dataset.y;
+    draw(); focusCell(+x, +y);
+  }
+  var kbd = false;
+  function focusCell(x, y) {
+    var b = t.querySelector('.tilde[data-x="' + x + '"][data-y="' + y + '"]');
+    if (!b) return;
+    t.querySelectorAll(".tilde").forEach(function (o) { o.tabIndex = -1; }); b.tabIndex = 0; b.focus({ preventScroll: !kbd });
+  }
+
+  t.addEventListener("click", function (e) {
+    var el;
+    kbd = false;
+    if ((el = e.target.closest(".tilde"))) { toggleCell(el.closest("td")); return; }
+    if ((el = e.target.closest("[data-menu]"))) { menuFor = menuFor === el.dataset.menu ? null : el.dataset.menu; draw(); return; }
+    if ((el = e.target.closest("[data-act]"))) {
+      var r = R.role(menuFor), act = el.dataset.act; menuFor = null;
+      if (act === "ren") { editing = r.id; draw(); }
+      else if (act === "dup") dup(r);
+      else if (act === "dar") give(r);
+      else if (act === "undel") { r.gone = false; draw(); }
+      else if (act === "del") {
+        var why = R.whyNotDelete(r); draw();
+        if (why) { balloon(t.querySelector('th[data-col="' + r.id + '"]'), why); return; }
+        if (!G.origOf(r.id)) { R.roles.splice(R.roles.indexOf(r), 1); draw(); return; }
+        r.gone = true; draw();
+      }
+      return;
+    }
+    if ((el = e.target.closest("[data-dar]"))) { give(R.role(el.dataset.dar)); return; }
+    if (e.target.closest("#col-nueva")) { addRole(); return; }
+    if (menuFor) { menuFor = null; draw(); }
+  });
+  t.addEventListener("dblclick", function (e) { var th = e.target.closest(".nom"); if (th) { editing = th.closest("th").dataset.col; draw(); } });
+  t.addEventListener("keydown", function (e) {
+    var b = e.target.closest(".tilde");
+    if (e.target.tagName === "INPUT") {
+      if (e.key === "Enter" || e.key === "Escape") { e.preventDefault(); e.stopPropagation(); commitName(e.target, e.key === "Escape"); }
+      return;
+    }
+    if (!b) return;
+    var x = +b.dataset.x, y = +b.dataset.y;
+    kbd = true;
+    if (e.key === "ArrowRight") { e.preventDefault(); focusCell(x + 1, y); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); focusCell(x - 1, y); }
+    else if (e.key === "ArrowDown") { e.preventDefault(); focusCell(x, y + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); focusCell(x, y - 1); }
+    else if (e.key === " ") { e.preventDefault(); toggleCell(b.closest("td")); }
+    else if (e.key === "Enter") { e.preventDefault(); editing = R.roles[x].id; draw(); }
+  });
+  t.addEventListener("focusout", function (e) { if (e.target.tagName === "INPUT" && editing) commitName(e.target, false); });
+  function commitName(input, cancel) {
+    var r = R.role(editing); if (!r) return;
+    editing = null;
+    if (!cancel) r.name = input.value.trim();
+    draw();
+    var why = R.whyNotName(r.name, r);
+    if (why) balloon(t.querySelector('th[data-col="' + r.id + '"]'), why);
+  }
+
+  function addRole() {
+    var id = "r" + Date.now();
+    R.roles.push({ id: id, name: "", perms: [], people: [], last: "" });
+    editing = id; draw();
+    var th = t.querySelector('th[data-col="' + id + '"]'); th.classList.add("entra");
+    document.getElementById("marco").scrollTo({ left: 9999, behavior: "smooth" });
+  }
+  function dup(r) {
+    var id = "r" + Date.now(), name = r.name + " (copia)";
+    R.roles.splice(R.roles.indexOf(r) + 1, 0, { id: id, name: name, perms: r.perms.slice(), people: [], last: "" });
+    editing = id; draw();
+    t.querySelector('th[data-col="' + id + '"]').classList.add("entra");
+  }
+
+  /* Quiénes lo tienen: dar y sacar en un solo lugar */
+  var dDar = document.getElementById("d-dar"), cur = null, sel = {};
+  function give(r) {
+    cur = r; sel = {}; r.people.forEach(function (p) { sel[p] = true; });
+    dDar.querySelector("h2 span").textContent = r.name;
+    drawGive(); R.open(dDar);
+  }
+  function drawGive(warnP, msg) {
+    var box = document.getElementById("d-dar-lista");
+    box.innerHTML = Object.keys(R.PEOPLE).map(function (p) {
+      var other = R.roles.filter(function (x) { return x !== cur && x.people.indexOf(p) >= 0; }).map(function (x) { return x.name; });
+      return '<div class="gente' + (warnP === p ? " no" : "") + '" role="checkbox" tabindex="0" aria-checked="' + !!sel[p] + '" data-pick="' + p + '">' + R.cara(p, "g") + "<span><b>" + R.PEOPLE[p].name + (R.PEOPLE[p].me ? ' <span class="pastilla vos" style="height:24px">Vos</span>' : "") + "</b><small>" + (other.length ? "También: " + other.join(", ") : "Ningún otro rol") + '</small></span><span class="tilde" aria-checked="' + !!sel[p] + '"><i class="i i-s" data-i="check" data-trazo="3"></i></span>' +
+        (warnP === p ? '<span class="porque error"><i class="i i-s" data-i="circle-alert"></i>' + msg + "</span>" : "") + "</div>";
+    }).join("");
+    R.icons(box);
+  }
+  document.getElementById("d-dar-lista").addEventListener("click", function (e) {
+    var el = e.target.closest("[data-pick]"); if (!el) return;
+    var p = el.dataset.pick;
+    if (sel[p] && cur.people.indexOf(p) >= 0) { var why = R.whyNotUnassign(cur, p); if (why) { drawGive(p, why); return; } }
+    sel[p] = !sel[p]; drawGive();
+  });
+  document.getElementById("d-dar-ok").addEventListener("click", function () {
+    var add = Object.keys(sel).filter(function (p) { return sel[p] && cur.people.indexOf(p) < 0; });
+    var rem = cur.people.filter(function (p) { return !sel[p]; });
+    R.close();
+    if (!add.length && !rem.length) return;
+    var apply = function () {
+      cur.people = cur.people.filter(function (p) { return sel[p]; }).concat(add);
+      G.orig.forEach(function (o) { if (o.id === cur.id) o.people = cur.people.slice(); });
+      draw();
+      R.toast((add.length ? R.names(add) + (add.length > 1 ? " ya tienen" : " ya tiene") + " «" + cur.name + "»" : "") + (add.length && rem.length ? " · " : "") + (rem.length ? "Se lo sacaste a " + R.names(rem) : ""));
+    };
+    if (add.length) R.reauth("Darle «" + cur.name + "» a " + R.names(add), apply); else apply();
+  });
+
+  /* Guardar, ver y descartar */
+  var dVer = document.getElementById("d-ver");
+  function openDiff() { if (!G.changes().length) return; document.getElementById("d-ver-lista").innerHTML = G.listHTML(); R.icons(dVer); R.open(dVer); }
+  function save() {
+    if (G.problems().length || !G.changes().length) return;
+    var go = function () {
+      var touched = G.changes().filter(function (c) { return c.pid; }).map(function (c) { return [c.role.id, c.pid]; });
+      var n = G.changes().length;
+      G.save(); draw();
+      touched.forEach(function (k) { var td = t.querySelector('td[data-r="' + k[0] + '"][data-p="' + k[1] + '"]'); if (td) { td.classList.add("saved"); setTimeout(function () { td.classList.remove("saved"); }, 1200); } });
+      R.toast(n + (n === 1 ? " cambio guardado" : " cambios guardados") + " · quedaron en la auditoría");
+    };
+    if (R.isOpen()) R.close();
+    if (G.needsReauth()) R.reauth("Guardar " + G.changes().length + " cambios que dan acceso", go); else go();
+  }
+  document.getElementById("b-ver").addEventListener("click", openDiff);
+  document.getElementById("b-guardar").addEventListener("click", save);
+  document.getElementById("d-ver-ok").addEventListener("click", save);
+  document.getElementById("b-desc").addEventListener("click", function () { G.discard(); editing = null; draw(); R.toast("Volvió todo a como estaba"); });
+  document.getElementById("btn-nuevo").addEventListener("click", addRole);
+  R.keys.n = addRole; R.keys.v = openDiff; R.keys.g = save;
+  document.addEventListener("click", function (e) { if (menuFor && !e.target.closest(".col-cab")) { menuFor = null; draw(); } });
+
+  draw();
+})();
+</script>
+</body>
+</html>

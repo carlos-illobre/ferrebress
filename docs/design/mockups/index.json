@@ -354,6 +354,43 @@
      "path": "mockups/users-a3/phone/variant-3-split/index.html"
     }
    ]
+  },
+  {
+   "id": "users-roles",
+   "title": "Usuarios · Roles",
+   "module": "02 · Personas",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "1 · El rol y su tarjeta",
+     "path": "mockups/users-roles/desktop/variant-1-card/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · La grilla",
+     "path": "mockups/users-roles/desktop/variant-2-grid/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · Decilo",
+     "path": "mockups/users-roles/desktop/variant-3-say/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · El rol y su tarjeta",
+     "path": "mockups/users-roles/phone/variant-1-card/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · La grilla",
+     "path": "mockups/users-roles/phone/variant-2-grid/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · Decilo",
+     "path": "mockups/users-roles/phone/variant-3-say/index.html"
+    }
+   ]
   }
  ]
 }

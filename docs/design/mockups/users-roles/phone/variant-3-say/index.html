@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · Roles · 3 · Decilo · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/roles.css">
+<link rel="stylesheet" href="../../shared/say.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; margin: 0; }
+  .tope { display: flex; align-items: center; gap: 4px; padding: 0 12px; height: 48px; }
+  .tope .cerrar { width: 44px; height: 44px; border-radius: 99px; display: grid; place-items: center; color: var(--tinta); cursor: pointer; }
+  .tope .miga { font-size: 14px; font-weight: 700; color: var(--texto-2); display: flex; gap: 6px; }
+  .tope .miga a { color: var(--texto-2); }
+  .tope .luz { margin-left: auto; display: flex; gap: 6px; align-items: center; height: 32px; padding: 0 10px; border-radius: 99px; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; border: 0; }
+  .tope .luz .punto { width: 8px; height: 8px; border-radius: 99px; background: currentColor; }
+  body.offline .tope .luz { background: var(--urgente-suave); color: var(--urgente-texto); }
+  h1 { margin: 4px 16px 12px; font-size: 28px; line-height: 34px; font-weight: 800; letter-spacing: -.02em; }
+  .lista { flex: 1; min-height: 0; overflow: auto; padding: 0 16px 16px; }
+  .frase { padding: 16px 16px 8px; }
+  .frase .texto { font-size: 17px; line-height: 38px; }
+  .ficha { font-size: 15px; height: 32px; padding: 0 9px; }
+  .ficha.gente .cara { width: 26px; height: 26px; }
+  .frase-pie .ult { display: none; }
+  .abajo { flex: none; padding: 10px 0 30px; background: rgba(244,242,236,.94); backdrop-filter: blur(12px); border-top: 1px solid var(--borde); }
+  #sugerencias { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 10px; scrollbar-width: none; }
+  #sugerencias::-webkit-scrollbar { display: none; }
+  .composer { display: flex; gap: 8px; align-items: center; padding: 0 16px; }
+  .campo-c { flex: 1; display: flex; align-items: center; height: 56px; padding: 0 6px 0 16px; border-radius: 99px; background: var(--superficie); border: 1px solid var(--borde-fuerte); box-shadow: var(--sombra-1); }
+  .campo-c:focus-within { border-color: var(--pino); box-shadow: 0 0 0 4px rgba(18,56,47,.12); }
+  .campo-c input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 16px; font-weight: 600; }
+  .campo-c input::placeholder { color: var(--texto-3); font-weight: 500; }
+  #enviar { width: 44px; height: 44px; border-radius: 99px; border: 0; background: var(--hundido); color: var(--tinta); display: grid; place-items: center; }
+  .mic { width: 64px; height: 64px; border-radius: 99px; padding: 0; flex: none; }
+  .mic svg { width: 28px; height: 28px; }
+  .hoja .mini { border: 1px solid var(--borde); border-radius: 14px; background: var(--fondo); padding: 12px; display: grid; gap: 8px; margin: 12px 0; }
+  .hoja .mini .t { font-weight: 800; }
+  .hoja .mini .tabs { display: flex; gap: 6px; }
+  .hoja .mini .tabs span { height: 32px; padding: 0 12px; border-radius: 8px; display: grid; place-items: center; font-size: 14px; font-weight: 700; }
+  .hoja .mini .tabs .on { background: var(--superficie); box-shadow: var(--sombra-1); color: var(--pino); }
+  .hoja .mini .tabs .off { opacity: .25; text-decoration: line-through; }
+  .hoja .rol-v { font-size: 22px; font-weight: 800; }
+  .hoja h2 { font-size: 14px; color: var(--texto-2); font-weight: 650; }
+  .pie-p { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .pie-p .btn { width: 100%; }
+  .menu-ficha { width: 300px; }
+  .gris-cartel { position: absolute; left: 50%; top: 100px; transform: translateX(-50%); z-index: 9; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="tope">
+    <a class="cerrar" data-ir="more" aria-label="Volver a Más"><i class="i i-l" data-i="x"></i></a>
+    <span class="miga"><a data-ir="users">Usuarios</a>·<b style="color:var(--tinta)">Roles</b></span>
+    <button class="luz" data-luz><span class="punto"></span><span data-luz-texto>En línea</span></button>
+  </div>
+  <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· vuelve sola</small></div>
+  <h1 class="zona-red">¿Qué puede cada uno?</h1>
+  <div class="lista zona-red"><div id="frases"></div></div>
+  <div class="abajo zona-red">
+    <div id="sugerencias"></div>
+    <div class="composer">
+      <div class="campo-c"><input id="dicho" placeholder="Escribí qué cambiar…" autocomplete="off" enterkeyhint="send" aria-label="Qué querés cambiar"><button id="enviar" aria-label="Probar"><i class="i" data-i="arrow-right"></i></button></div>
+      <button class="btn btn-oscuro mic" id="mic" aria-label="Decirlo en voz alta"><i class="i" data-i="mic"></i></button>
+    </div>
+  </div>
+  <span class="home-ind"></span>
+
+  <section class="hoja" id="propuesta" role="dialog" aria-modal="true"><div class="asa"></div><div data-cuerpo></div></section>
+  <section class="hoja" id="ve" role="dialog" aria-modal="true"><div class="asa"></div>
+    <h2>Así lo ve quien tiene</h2><div class="rol-v" data-ve-nombre></div>
+    <div class="mini"><span class="t">Más → Usuarios</span><div class="tabs" data-ve-tabs></div></div>
+    <ul class="ve-lista" data-ve-lista></ul>
+    <div class="pie-d uno"><button class="btn" data-cerrar>Listo</button></div>
+  </section>
+
+  <div class="escucha" id="escucha" role="dialog" aria-label="Escuchando">
+    <div class="ondas" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="oido" data-oido style="font-size:24px;line-height:32px"></div>
+    <div class="ayuda-v">En la maqueta se escribe sola una sugerencia</div>
+    <button class="btn" data-parar><i class="i" data-i="x"></i>Parar</button>
+  </div>
+</div>
+
+<script src="../../shared/roles.js"></script>
+<script src="../../shared/say.js"></script>
+<script src="../../shared/say-ui.js"></script>
+<script>window.SAYUI.init(true);</script>
+</body>
+</html>
