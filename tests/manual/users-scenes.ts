@@ -109,6 +109,9 @@ async function authorizeFilled(page: Page): Promise<void> {
     .getByRole('textbox', { name: /^Nombre/ })
     .fill('Marta Ruiz');
   await page.getByRole('alertdialog').getByLabel('Correo de Google').fill('marta@example.com');
+  // Escribir mueve el diálogo lo justo para que a veces asome su barra de desplazamiento: sin
+  // ella, la captura sale idéntica en cada máquina.
+  await page.addStyleTag({ content: '.dialog { scrollbar-width: none; }' });
 }
 
 async function deactivating(page: Page): Promise<void> {
