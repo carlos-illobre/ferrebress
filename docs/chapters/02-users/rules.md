@@ -123,7 +123,7 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
 - **R6.1** Cada cambio queda en la auditoría, con quién lo hizo y a quién: autorizar, cambiar el
   nombre o el correo, borrar, dar de baja, dar de alta, cerrar una sesión, cerrar todas, quitar un
   celular con huella, cortar un celular perdido, darle o quitarle un rol a una persona, y crear,
-  duplicar, renombrar, cambiar los permisos o borrar un rol (con lo que había antes y lo que quedó).
+  duplicar, renombrar, cambiar la descripción o los permisos, o borrar un rol (con lo que había antes y lo que quedó).
 
 ## 7. Roles y permisos
 
@@ -143,11 +143,14 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   dispositivo, y ver y cerrar las sesiones propias y cortar el propio celular perdido, en
   Configuración (capítulo 04; hasta que exista, solo lo hace quien tiene los permisos de R7.1);
   avisar un error o pedir una mejora (capítulo 12).
-- **R7.3** **Un rol** es un grupo de permisos con un nombre. Se crea con un nombre y sus permisos, se
-  renombra, se le cambian los permisos y se duplica (uno nuevo a partir de otro, para cambiarle lo
-  que haga falta). Tiene un nombre que no se repite (sin distinguir mayúsculas) y al menos un
-  permiso: si no, no se guarda y se dice por qué. Se borra solo si nadie lo tiene: primero hay que
-  sacárselo a las personas. Un cambio de permisos vale enseguida para todos los que lo tienen.
+- **R7.3** **Un rol** es un grupo de permisos con un nombre y, si se quiere, una descripción de
+  hasta 200 letras que explica para quién es («Atiende el mostrador y cobra; no ve costos»). La
+  descripción se ve en la lista de roles y al elegir los roles de una persona. Se crea con un nombre
+  y sus permisos, se renombra, se le cambian la descripción y los permisos, y se duplica (uno nuevo
+  a partir de otro, para cambiarle lo que haga falta). Tiene un nombre que no se repite (sin
+  distinguir mayúsculas) y al menos un permiso: si no, no se guarda y se dice por qué. Se borra solo
+  si nadie lo tiene: primero hay que sacárselo a las personas. Un cambio de permisos vale enseguida
+  para todos los que lo tienen.
 - **R7.4** **Al instalar** el sistema hay un solo rol, Administrador, con todos los permisos que
   existen. Cada permiso nuevo que trae un capítulo se le suma solo al rol Administrador, así siempre
   hay alguien que lo puede usar y repartir; a los demás roles, recién cuando alguien se lo agrega.
@@ -325,3 +328,6 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
 - **E56** **Dado** alguien con «Administrar roles», **cuando** se saca a sí mismo el rol que se lo da
   o le quita ese permiso a un rol que tiene, **entonces** no se guarda y se le dice que lo tiene que
   hacer otra persona.
+- **E57** **Dado** un rol con la descripción «Atiende el mostrador y cobra», **cuando** se elige el
+  rol de una persona o se mira la lista de roles, **entonces** la descripción se ve debajo del
+  nombre; **dado** un rol sin descripción, se guarda igual y no muestra nada.

@@ -26,7 +26,7 @@ Reglas completas en [rules.md](rules.md).
 - **La auditoría:** cada cambio, con quién y a quién; los de roles, con lo que había y lo que quedó
   (R6).
 - **Roles y permisos:** cuatro permisos fijos (ver, administrar personas, cortar sesiones y huellas,
-  administrar roles); roles armables con nombre, que se duplican y se borran solo si nadie los
+  administrar roles); roles armables con nombre y descripción opcional, que se duplican y se borran solo si nadie los
   tiene; al instalar, solo Administrador, que recibe todo permiso nuevo; cada persona activa tiene
   al menos un rol; el servidor controla cada pedido; lo que no se puede usar no aparece, y por la
   dirección dice qué permiso falta; sin conexión, los últimos permisos conocidos (R7).
