@@ -16,6 +16,8 @@ export type UsersTables = {
     deactivated_at: Date | null;
     version: Generated<number>;
     created_at: Generated<Date>;
+    roles_changed_by: string | null;
+    roles_changed_at: Date | null;
   };
 };
 
@@ -31,9 +33,18 @@ const columns = [
   'deactivated_at as deactivatedAt',
   'version',
   'created_at as createdAt',
+  'roles_changed_by as rolesChangedBy',
+  'roles_changed_at as rolesChangedAt',
+  // Sus roles (02 · R3.1), que guarda la tabla de los roles; lo que se acaba de guardar en la misma
+  // sentencia no se ve.
+  sql<string[]>`array(select role_id::text from users.user_roles where user_id = users.id)`.as(
+    'roleIds',
+  ),
 ] as const;
 
 type Db = Kysely<UsersTables>;
+// Quién tiene cada rol, que crea la migración de los roles: para autorizar con sus roles.
+type WithRoles = UsersTables & { 'users.user_roles': { user_id: string; role_id: string } };
 
 // Buscar personas.
 function finding(db: Db) {
@@ -90,19 +101,27 @@ function signingIn(db: Db) {
           select ${id}, ${email}, ${name} where not exists (select 1 from users.users)`.execute(
           trx,
         );
-        return inserted.numAffectedRows === 1n;
+        if (inserted.numAffectedRows !== 1n) return false;
+        // El rol del sistema (02 · R7.4), que crea la migración de los roles.
+        await sql`insert into users.user_roles (user_id, role_id)
+          select ${id}, id from users.roles where system`.execute(trx);
+        return true;
       }),
   };
 }
 
-// Autorizar y borrar a alguien (R3.3, R3.7).
-function authorizing(db: Db) {
-  return {
-    // Devuelve la persona como quedó, o nada si el correo ya estaba.
-    insert: (
-      user: Pick<User, 'id' | 'email' | 'name' | 'authorizedBy'>,
-    ): Promise<User | undefined> =>
-      db
+type NewUser = Pick<User, 'id' | 'email' | 'name' | 'authorizedBy'>;
+
+// Con sus roles (R3.3), en una sola sentencia: un rol que no existe la frena entera (la clave
+// foránea, `23503`). Devuelve la persona como quedó, o nada si el correo ya estaba.
+function insertWithRoles(
+  db: Db,
+  user: NewUser,
+  roleIds: readonly string[],
+): Promise<User | undefined> {
+  return (db as Kysely<WithRoles>)
+    .with('u', (qb) =>
+      qb
         .insertInto('users.users')
         .values({
           id: user.id,
@@ -111,8 +130,28 @@ function authorizing(db: Db) {
           authorized_by: user.authorizedBy,
         })
         .onConflict((oc) => oc.column('email').doNothing())
-        .returning(columns)
-        .executeTakeFirst(),
+        .returning(columns),
+    )
+    .with('r', (qb) =>
+      qb
+        .insertInto('users.user_roles')
+        .columns(['user_id', 'role_id'])
+        .expression(
+          qb
+            .selectFrom('u')
+            .select(['u.id', sql<string>`unnest(${roleIds}::uuid[])`.as('role_id')]),
+        )
+        .returning('user_id'),
+    )
+    .selectFrom('u')
+    .selectAll()
+    .executeTakeFirst();
+}
+
+// Autorizar y borrar a alguien (R3.3, R3.7).
+function authorizing(db: Db) {
+  return {
+    insert: (user: NewUser, roleIds: readonly string[]) => insertWithRoles(db, user, roleIds),
 
     // Borrar, solo si nunca entró (R3.7).
     remove: async (id: string, version: number): Promise<boolean> =>
@@ -168,18 +207,6 @@ function status(db: Db) {
         .where('active', '=', false)
         .returning(columns)
         .executeTakeFirst(),
-
-    // Las activas, bloqueadas en orden (así dos bajas no se traban): la baja cuenta con ellas.
-    lockActiveIds: async (trx: Db): Promise<string[]> =>
-      (
-        await trx
-          .selectFrom('users.users')
-          .select('id')
-          .where('active', '=', true)
-          .orderBy('id')
-          .forUpdate()
-          .execute()
-      ).map((row) => row.id),
 
     deactivate: (trx: Db, id: string, version: number, at: Date) =>
       trx

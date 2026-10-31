@@ -38,7 +38,10 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
     const entry = await kit.offlineEntry(linked);
     expect((await kit.send(linked, entry)).status).toBe(200);
     // La huella se puso horas antes: para autorizar a alguien no cuenta como reciente (02 · R3.8).
-    expect((await linked.phone.request('/api/users', { email: 'x@example.com' })).body).toEqual({
+    expect(
+      (await linked.phone.request('/api/users', { email: 'x@example.com', roles: [randomUUID()] }))
+        .body,
+    ).toEqual({
       error: 'confirm-first',
     });
     linked.phone.cookie = '';

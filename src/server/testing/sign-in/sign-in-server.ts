@@ -1,8 +1,10 @@
 // Un servidor con personas y entrar, y lo que necesita una prueba para hablarle como la
 // aplicación: el origen, el dispositivo, la llave de prueba y la cookie de la sesión.
 import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
+import type { Kysely } from 'kysely';
 import { createServer } from '../../app.ts';
 import { addFirstAdministrator } from '../../modules/users/first.ts';
+import { type RolesTables, rolesData } from '../../modules/users/roles-data.ts';
 import { createModules } from '../../modules.ts';
 import type { Clock } from '../../platform/clock.ts';
 import { appHeaders, testConfig } from '../config.ts';
@@ -30,12 +32,15 @@ export async function createSignInServer(clock?: Clock, options: SignInServerOpt
   });
   // La primera persona, como la carga la instalación (02 · R1.2).
   await addFirstAdministrator(server.platform.db, server.platform.clock, 'admin@example.com');
-  // Da de baja a alguien como lo hace Usuarios, desde otra persona activa que se suma para eso: así
-  // la regla de no quedarse sin nadie no frena las pruebas que dan de baja a la única.
+  // Da de baja a alguien como lo hace Usuarios, desde otra persona activa que se suma para eso, es
+  // Administrador y ya entró: así la regla de no quedarse sin nadie (02 · R1.3) no frena las pruebas
+  // que dan de baja a la única.
   const deactivate = async (userId: string) => {
-    const other = (await people().authorize(userId, `otra-${userId}@example.com`)) as {
-      user: { id: string };
-    };
+    const system = await rolesData(server.platform.db as Kysely<RolesTables>).systemRoleId();
+    const other = (await people().authorize(userId, `otra-${userId}@example.com`, null, [
+      system,
+    ])) as { user: { id: string } };
+    await users.recordSignIn(other.user.id, server.platform.clock.now());
     const user = (await users.findById(userId)) as { version: number };
     return people().deactivate(other.user.id, userId, user.version);
   };
@@ -84,7 +89,8 @@ async function request(
   );
   const cookie = response.headers.get('Set-Cookie');
   if (cookie) device.cookie = cookie.includes('Max-Age=0') ? '' : (cookie.split(';')[0] as string);
-  return { status: response.status, body: await response.json(), cookie };
+  const header = response.headers.get('X-Ferrebress');
+  return { status: response.status, body: await response.json(), cookie, header };
 }
 
 // Un dispositivo: su identificador, su llave de prueba y la cookie que le dio el servidor.

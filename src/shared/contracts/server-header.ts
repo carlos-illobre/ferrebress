@@ -6,10 +6,17 @@ export const serverHeaderName = `X-${product.name}`;
 export const environments = ['testing', 'production', 'e2e'] as const;
 export type Environment = (typeof environments)[number];
 
-export type ServerHeader = { version: string; serverTime: number; environment: Environment };
+// `permissions`: con sesión, la huella de los permisos de quien pregunta (02 · R7.8).
+export type ServerHeader = {
+  version: string;
+  serverTime: number;
+  environment: Environment;
+  permissions?: string;
+};
 
 export const formatServerHeader = (header: ServerHeader): string =>
-  `v=${header.version}; t=${header.serverTime}; e=${header.environment}`;
+  `v=${header.version}; t=${header.serverTime}; e=${header.environment}` +
+  (header.permissions ? `; p=${header.permissions}` : '');
 
 export function parseServerHeader(value: string | null): ServerHeader | undefined {
   const fields = Object.fromEntries(
@@ -18,5 +25,6 @@ export function parseServerHeader(value: string | null): ServerHeader | undefine
   const environment = environments.find((name) => name === fields.e);
   const serverTime = Number(fields.t);
   if (!fields.v || !environment || !Number.isSafeInteger(serverTime)) return undefined;
-  return { version: fields.v, serverTime, environment };
+  const permissions = /^[0-9a-f]{8}$/.test(fields.p ?? '') ? fields.p : undefined;
+  return { version: fields.v, serverTime, environment, ...(permissions && { permissions }) };
 }

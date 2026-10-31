@@ -14,20 +14,27 @@ export type RequestSession = {
 
 type Resolve = (c: Context) => Promise<RequestSession | Response>;
 
+// Lo que se hace con la sesión ya resuelta, antes de la ruta: los permisos la usan para dejar su
+// huella en la cabecera de cualquier respuesta con sesión (diseño de 02, § 20).
+type OnSession = (c: Context, session: RequestSession) => Promise<void>;
+
 export function createSessionGate() {
   let resolve: Resolve = async () => {
     throw new Error('Nadie dio cómo se resuelve la sesión');
   };
+  const hooks: OnSession[] = [];
   const require: MiddlewareHandler = async (c, next) => {
     const session = await resolve(c);
     if (session instanceof Response) return session;
     c.set('session', session);
+    for (const hook of hooks) await hook(c, session);
     await next();
   };
   return {
     provide: (given: Resolve) => {
       resolve = given;
     },
+    onSession: (hook: OnSession) => void hooks.push(hook),
     require,
   };
 }

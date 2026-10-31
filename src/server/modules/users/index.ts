@@ -4,11 +4,15 @@
 // carga a la primera persona (02, § 7).
 import type { Kysely } from 'kysely';
 import type { Platform, ServerModule } from '../../platform/modules.ts';
+import { type Access, createAccess } from './access.ts';
 import { type UsersTables, usersData } from './data.ts';
 import { addFirstAdministrator } from './first.ts';
 import { createUsers } from './migrations/001-users.ts';
 import { addPeople } from './migrations/002-people.ts';
+import { addRoles } from './migrations/003-roles.ts';
 import { createPeople, type People } from './people.ts';
+import { createRoleChanges } from './role-changes.ts';
+import { registerRoleRoutes } from './roles-routes.ts';
 import { type AccessCounts, registerPeopleRoutes } from './routes.ts';
 import {
   cleanName,
@@ -23,6 +27,9 @@ declare module '../../platform/events.ts' {
   interface ServerEvents {
     'user.deactivated': { userId: string };
     'user.renamed': { userId: string };
+    // Cambiaron los permisos de esas personas (o de todas, al cambiar un rol): se olvidan los que
+    // estaban en memoria (diseño de 02, § 17).
+    'users.permissions-changed': { userIds: string[] | 'all' };
   }
 }
 
@@ -33,24 +40,37 @@ export { displayName };
 export function createUsersModule({ accessCounts }: { accessCounts: AccessCounts }) {
   let platform: Platform;
   let people: People;
+  let access: Access;
   const data = () => usersData(platform.db as Kysely<UsersTables>);
 
   const module: ServerModule = {
     name: 'users',
     schema: {
       schema: 'users',
-      migrations: { '001-users': createUsers, '002-people': addPeople },
+      migrations: { '001-users': createUsers, '002-people': addPeople, '003-roles': addRoles },
     },
     async register(given) {
       platform = given;
       people = createPeople(given);
-      registerPeopleRoutes(given, people, () => data().findAll(), accessCounts);
+      access = createAccess(given);
+      given.permissions.provide(access.permissionsOf);
+      await access.addNewPermissions();
+      registerPeopleRoutes(given, people, () => data().findAll(), accessCounts, access);
+      registerRoleRoutes(given, createRoleChanges(given), access);
       const first = given.config.E2E_FIRST_ADMIN_EMAIL;
       if (first) await addFirstAdministrator(given.db, given.clock, first);
     },
   };
 
-  const users = {
+  const users = facade(data, () => access);
+
+  // Lo que se hace desde Usuarios; existe después de registrar el módulo.
+  return { module, users, people: () => people };
+}
+
+// Lo que usan los otros módulos.
+function facade(data: () => ReturnType<typeof usersData>, access: () => Access) {
+  return {
     findById: (id: string) => data().findById(id),
     findByIds: (ids: string[]) => data().findByIds(ids),
 
@@ -72,10 +92,12 @@ export function createUsersModule({ accessCounts }: { accessCounts: AccessCounts
     // R3.2: cuándo entró por última vez, con la hora del servidor. Solo si sigue activa: dice si lo
     // estaba (02, § 5).
     recordSignIn: (id: string, at: Date) => data().recordSignIn(id, at),
-  };
 
-  // Lo que se hace desde Usuarios; existe después de registrar el módulo.
-  return { module, users, people: () => people };
+    // Los permisos de una persona activa (la unión de sus roles; R7.1), y si `target` tiene alguno
+    // que `asking` no tiene (R7.11).
+    permissionsOf: (id: string) => access().permissionsOf(id),
+    outranks: (asking: string, target: string) => access().outranks(asking, target),
+  };
 }
 
-export type Users = ReturnType<typeof createUsersModule>['users'];
+export type Users = ReturnType<typeof facade>;

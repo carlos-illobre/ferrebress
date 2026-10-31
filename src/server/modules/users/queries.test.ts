@@ -20,27 +20,32 @@ describe('las consultas de cada ruta de Usuarios', () => {
     admin = createDevice(kit.server);
     await admin.signInWithGoogle({ sub: 'sub-admin', email: 'admin@example.com' });
     await admin.request('/api/start');
+    // Sus permisos, ya en memoria (diseño de 02, § 17).
+    await admin.request('/api/users');
   });
 
   it('las de las personas', async () => {
     for (let i = 0; i < 3; i++) await kit.linkedPhone();
     const counts: Record<string, number> = {};
     counts.list = await count('/api/users');
-    const person = (await admin.request('/api/users', { email: 'nueva@example.com' })).body.person;
-    counts.authorize = await count('/api/users', { email: 'otra@example.com' });
+    const roles = [(await admin.request('/api/users')).body.roles[0].id];
+    const person = (await admin.request('/api/users', { email: 'nueva@example.com', roles })).body
+      .person;
+    counts.authorize = await count('/api/users', { email: 'otra@example.com', roles });
     counts.rename = await count(`/api/users/${person.id}`, { version: 1, name: 'Nueva' });
     counts.email = await count(`/api/users/${person.id}`, { version: 2, email: 'n@example.com' });
     counts.deactivate = await count(`/api/users/${person.id}/deactivate`, { version: 3 });
     counts.activate = await count(`/api/users/${person.id}/activate`, { version: 4 });
     counts.remove = await count(`/api/users/${person.id}/delete`, { version: 5 });
     // Las escrituras con aviso abren una transacción: el comienzo y la confirmación cuentan.
+    // El correo, la baja y el alta suman la de R7.11: los permisos de la persona.
     expect(counts).toEqual({
-      list: 3,
+      list: 4,
       authorize: 1,
       rename: 3,
-      email: 1,
-      deactivate: 6,
-      activate: 1,
+      email: 2,
+      deactivate: 8,
+      activate: 2,
       remove: 1,
     });
   });

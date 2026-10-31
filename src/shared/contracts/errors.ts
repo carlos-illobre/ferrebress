@@ -7,6 +7,8 @@ export type PlatformErrorCode =
   | 'too-many-attempts'
   | 'update-required'
   | 'not-found'
+  // Falta un permiso; la respuesta dice cuál (02 · R7.6).
+  | 'forbidden'
   | 'unexpected';
 
 // Entrar (capítulos 01 y 15).
@@ -32,7 +34,14 @@ export type UsersErrorCode =
   // Otra persona la cambió antes: la respuesta trae cómo está ahora.
   | 'changed'
   // Hace falta pasar por Google o la huella de los últimos 5 minutos (R3.8).
-  | 'confirm-first';
+  | 'confirm-first'
+  // Roles (R7): el nombre ya está, alguien lo tiene, es el Administrador, una persona sin roles, y
+  // la persona tiene permisos que quien lo pide no tiene (R7.11).
+  | 'role-name-taken'
+  | 'role-in-use'
+  | 'system-role'
+  | 'no-roles'
+  | 'outranked';
 
 export type ErrorCode = PlatformErrorCode | SignInErrorCode | UsersErrorCode;
 

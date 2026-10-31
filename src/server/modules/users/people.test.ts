@@ -25,8 +25,11 @@ describe('las personas, desde Usuarios', () => {
   afterAll(() => server.close());
 
   const list = async () => (await admin.request('/api/users')).body.people;
-  const authorize = (email: string, name?: string) =>
-    admin.request('/api/users', { email, ...(name !== undefined && { name }) });
+  // Con el rol Administrador, el primero de la lista (02 · R3.3).
+  const authorize = async (email: string, name?: string) => {
+    const roles = [(await admin.request('/api/users')).body.roles[0].id];
+    return admin.request('/api/users', { email, roles, ...(name !== undefined && { name }) });
+  };
 
   it('users-E08, E12: autorizar deja a la persona con «Todavía no entró» y se ve su correo', async () => {
     const authorized = await authorize('Juan@Example.com');

@@ -12,6 +12,11 @@ export type User = {
   deactivatedAt: Date | null;
   version: number;
   createdAt: Date;
+  // Quién le cambió los roles por última vez, y cuándo (R7.8).
+  rolesChangedBy: string | null;
+  rolesChangedAt: Date | null;
+  // Los ids de sus roles (R3.1).
+  roleIds: string[];
 };
 
 export const normalizeEmail = (email: string): string => email.trim().toLowerCase();
@@ -36,10 +41,6 @@ export const displayName = (user: Pick<User, 'name' | 'googleName' | 'email'>): 
 // R3.6, R3.7: sin cuenta de Google atada ni entrada anotada.
 export const neverSignedIn = (user: Pick<User, 'googleSubject' | 'lastSignInAt'>): boolean =>
   user.googleSubject === null && user.lastSignInAt === null;
-
-// R1.3: dar de baja a `id` dejaría sin ninguna persona activa.
-export const wouldLeaveNobody = (activeIds: string[], id: string): boolean =>
-  activeIds.includes(id) && activeIds.length <= 1;
 
 export type GoogleMatch =
   | { kind: 'found'; user: User; link: boolean }

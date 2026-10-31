@@ -24,8 +24,11 @@ describe('cambiar el correo, desde Usuarios', () => {
   afterAll(() => server.close());
 
   const _list = async () => (await admin.request('/api/users')).body.people;
-  const authorize = (email: string, name?: string) =>
-    admin.request('/api/users', { email, ...(name !== undefined && { name }) });
+  // Con el rol Administrador, el primero de la lista (02 · R3.3).
+  const authorize = async (email: string, name?: string) => {
+    const roles = [(await admin.request('/api/users')).body.roles[0].id];
+    return admin.request('/api/users', { email, roles, ...(name !== undefined && { name }) });
+  };
 
   it('users-R3.6, R3.8: cambiar solo el correo no toca el nombre y pide confirmar; sin nada, 400', async () => {
     const ana = (await authorize('ana@example.com', 'Ana del mostrador')).body.person;

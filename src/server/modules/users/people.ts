@@ -6,7 +6,10 @@ import type { AfterCommit } from '../../platform/events.ts';
 import { newId } from '../../platform/ids.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { type UsersTables, usersData } from './data.ts';
-import { cleanName, normalizeEmail, type User, wouldLeaveNobody } from './rules.ts';
+import { Rollback } from './role-changes.ts';
+import { administrationProblem } from './roles.ts';
+import { type RolesTables, rolesData } from './roles-data.ts';
+import { cleanName, normalizeEmail, type User } from './rules.ts';
 
 // Por qué un cambio no se guardó: otra persona lo cambió antes (`changed`), ya entró, es la propia, o
 // quedaría sin nadie activo que administre.
@@ -16,7 +19,8 @@ export type Refusal =
   | 'already-entered'
   | 'self'
   | 'last-administrator'
-  | 'email-taken';
+  | 'email-taken'
+  | 'bad-request';
 
 // `unchanged`: ya estaba así (dada de alta o de baja); se contesta cómo está, sin anotar nada.
 export type Outcome = { user: User; unchanged?: true } | { refused: Refusal; user?: User };
@@ -39,15 +43,8 @@ export function createPeople(platform: Platform) {
   const data = () => usersData(platform.db as Kysely<UsersTables>);
 
   return {
-    async authorize(asking: string, email: string, name?: string | null): Promise<Outcome> {
-      const user = {
-        id: newId(platform.clock),
-        email: normalizeEmail(email),
-        name: cleanName(name),
-      };
-      const inserted = await data().insert({ ...user, authorizedBy: asking });
-      return inserted ? { user: inserted } : { refused: 'email-taken' };
-    },
+    authorize: (asking: string, email: string, name: string | null | undefined, roles: string[]) =>
+      authorize(platform, asking, { email, name, roles }),
 
     // Sin `name`, el nombre no cambia (el contrato); con el correo, puede cambiar a la vez.
     async change(id: string, version: number, change: { name?: string | null; email?: string }) {
@@ -76,9 +73,31 @@ export function createPeople(platform: Platform) {
   };
 }
 
-// R1.3: nunca la propia, y nunca la última activa. Con las activas bloqueadas en orden, dos bajas a
-// la vez se esperan, y la segunda ve que quedaría sin nadie (E05). Lo de después de confirmar (sign-in
-// pone al día su memoria) corre al final.
+// Autorizar con sus roles (R3.3), en una sola sentencia: el correo repetido no guarda nada, y un rol
+// que no existe tampoco.
+async function authorize(
+  platform: Platform,
+  asking: string,
+  given: { email: string; name: string | null | undefined; roles: string[] },
+): Promise<Outcome> {
+  const user = {
+    id: newId(platform.clock),
+    email: normalizeEmail(given.email),
+    name: cleanName(given.name),
+    authorizedBy: asking,
+  };
+  try {
+    const inserted = await usersData(platform.db as Kysely<UsersTables>).insert(user, given.roles);
+    return inserted ? { user: { ...inserted, roleIds: given.roles } } : { refused: 'email-taken' };
+  } catch (error) {
+    if ((error as { code?: string }).code === '23503') return { refused: 'bad-request' };
+    throw error;
+  }
+}
+
+// R1.3: nunca la propia, y nunca dejar sin quien administre. Bajo el bloqueo de quien administra
+// (diseño de 02, § 19), cuenta antes y después; si queda alguien sin poder, se deshace. Lo de después
+// de confirmar (sign-in cierra sus sesiones, se olvidan sus permisos) corre al final.
 async function deactivate(
   platform: Platform,
   asking: string,
@@ -87,19 +106,34 @@ async function deactivate(
 ): Promise<Outcome> {
   if (asking === id) return { refused: 'self' };
   const data = usersData(platform.db as Kysely<UsersTables>);
-  const { outcome, after } = await platform.db.transaction().execute(async (trx) => {
-    const locked = trx as Kysely<UsersTables>;
-    if (wouldLeaveNobody(await data.lockActiveIds(locked), id))
-      return { outcome: { refused: 'last-administrator' as const }, after: [] };
-    const user = await data.deactivate(locked, id, version, platform.clock.now());
-    if (!user) return { outcome: undefined, after: [] };
-    return {
-      outcome: { user },
-      after: await platform.events.publish('user.deactivated', { userId: id }, trx),
-    };
-  });
-  for (const then of after) then();
-  return outcome ?? whyNot(data, id, version, 'as-is');
+  try {
+    const { outcome, after } = await platform.db.transaction().execute(async (trx) => {
+      const roles = rolesData(trx as Kysely<RolesTables>);
+      const before = await roles.lockAndCount(asking);
+      const user = await data.deactivate(
+        trx as Kysely<UsersTables>,
+        id,
+        version,
+        platform.clock.now(),
+      );
+      if (!user) return { outcome: undefined, after: [] };
+      const problem = administrationProblem(before, await roles.administration(asking));
+      if (problem) throw new Rollback(problem);
+      const events = platform.events;
+      return {
+        outcome: { user },
+        after: [
+          ...(await events.publish('user.deactivated', { userId: id }, trx)),
+          ...(await events.publish('users.permissions-changed', { userIds: [id] }, trx)),
+        ],
+      };
+    });
+    for (const then of after) then();
+    return outcome ?? whyNot(data, id, version, 'as-is');
+  } catch (error) {
+    if (error instanceof Rollback) return { refused: error.refusal as Refusal };
+    throw error;
+  }
 }
 
 // Cambiar el nombre y avisarlo en la misma transacción: quien lo recuerda en memoria se pone al día

@@ -15,6 +15,7 @@ import { bySchema, createGuards, readBody } from '../../platform/guards.ts';
 import { fail, uuidParams } from '../../platform/http.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { sessionOf } from '../../platform/session.ts';
+import type { Access } from './access.ts';
 import type { Outcome, People } from './people.ts';
 import { displayName, neverSignedIn, type User } from './rules.ts';
 
@@ -55,31 +56,43 @@ export function rowOf(
     neverSignedIn: neverSignedIn(user),
     version: user.version,
     ...counts,
+    roleIds: user.roleIds,
   };
 }
 
-const statusOf = { 'not-found': 404, 'email-taken': 409 } as const;
+const statusOf = { 'not-found': 404, 'email-taken': 409, 'bad-request': 400 } as const;
 
 type Route = {
   platform: Platform;
   people: People;
+  access: Access;
   guards: ReturnType<typeof createGuards>;
   limited: MiddlewareHandler;
 };
+
+// R7.11: sobre una persona con algún permiso que quien lo pide no tiene, no.
+const notOutranked =
+  (access: Access): MiddlewareHandler =>
+  async (c, next) =>
+    (await access.outranks(sessionOf(c).userId, c.req.param('id') as string))
+      ? fail(c, 403, 'outranked')
+      : await next();
 
 export function registerPeopleRoutes(
   platform: Platform,
   people: People,
   findAll: () => Promise<User[]>,
   accessCounts: AccessCounts,
+  access: Access,
 ) {
   const guards = createGuards(platform, {
     event: 'users.throttled',
     window: usersSettings.throttledAudit,
   });
   const limited = guards.limit((c) => [`users:session:${sessionOf(c).id}`], usersSettings.changes);
-  const route = { platform, people, guards, limited };
-  platform.http.get('/api/users', platform.sessions.require, async (c) => {
+  const route = { platform, people, access, guards, limited };
+  const view = platform.permissions.require('users.view');
+  platform.http.get('/api/users', platform.sessions.require, view, async (c) => {
     const asking = sessionOf(c);
     const all = await findAll();
     const counts = await accessCounts(
@@ -88,6 +101,7 @@ export function registerPeopleRoutes(
     );
     return c.json<PeopleResponse>({
       people: all.map((user) => rowOf(user, asking.userId, counts.get(user.id))),
+      roles: await access.rolesForList(),
     });
   });
   registerChanges(route);
@@ -117,29 +131,40 @@ function answer({ platform, guards }: Route, c: Context, outcome: Outcome, type:
 }
 
 // R3.8: con Google o la huella de los últimos minutos.
-function confirmed(platform: Platform, c: Context) {
+export function confirmed(platform: Platform, c: Context) {
   const at = sessionOf(c).confirmedAt;
   return !!at && platform.clock.now().getTime() - at.getTime() < usersSettings.confirmWithinMs;
 }
 
+// El correo, como autorizar, pide confirmar (R3.8) y no se le cambia a quien tiene más (R7.11).
+async function emailRefused(platform: Platform, access: Access, c: Context) {
+  if (!confirmed(platform, c)) return 'confirm-first';
+  if (await access.outranks(sessionOf(c).userId, c.req.param('id') as string)) return 'outranked';
+  return undefined;
+}
+
 // Autorizar, cambiar el nombre o el correo, y borrar.
 function registerChanges(route: Route) {
-  const { platform, people, guards, limited } = route;
-  const { http, sessions } = platform;
+  const { platform, people, guards, limited, access } = route;
+  const { http, sessions, permissions } = platform;
+  const [manage, id] = [permissions.require('users.manage'), uuidParams('id')];
   const authorizing = readBody(bySchema(authorizeBody));
-  http.post('/api/users', sessions.require, limited, authorizing.step, async (c) => {
+  // Autorizar da roles: pide también «Administrar roles» (R3.3).
+  const authorize = [manage, permissions.require('roles.manage')];
+  http.post('/api/users', sessions.require, ...authorize, limited, authorizing.step, async (c) => {
     if (!confirmed(platform, c)) return fail(c, 403, 'confirm-first');
-    const { email, name } = authorizing.of(c);
-    const outcome = await people.authorize(sessionOf(c).userId, email, name);
+    const { email, name, roles } = authorizing.of(c);
+    if (roles.length === 0) return fail(c, 400, 'no-roles');
+    const outcome = await people.authorize(sessionOf(c).userId, email, name, roles);
     return answer(route, c, outcome, 'user.authorized');
   });
   const changing = readBody(bySchema(changeBody));
-  const id = uuidParams('id');
-  http.post('/api/users/:id', sessions.require, id, limited, changing.step, async (c) => {
+  http.post('/api/users/:id', sessions.require, manage, id, limited, changing.step, async (c) => {
     const { version, name, email } = changing.of(c);
-    // Sin nada que cambiar no es un pedido; el correo, como autorizar, pide confirmar (R3.8).
+    // Sin nada que cambiar no es un pedido.
     if (name === undefined && email === undefined) return fail(c, 400, 'bad-request');
-    if (email !== undefined && !confirmed(platform, c)) return fail(c, 403, 'confirm-first');
+    const refused = email !== undefined && (await emailRefused(platform, access, c));
+    if (refused) return fail(c, 403, refused);
     const outcome = await people.change(c.req.param('id'), version, {
       ...(name !== undefined && { name }),
       ...(email !== undefined && { email }),
@@ -147,37 +172,40 @@ function registerChanges(route: Route) {
     return answer(route, c, outcome, email === undefined ? 'user.renamed' : 'user.email-changed');
   });
   const versioned = readBody(bySchema(versionBody));
-  http.post('/api/users/:id/delete', sessions.require, id, limited, versioned.step, async (c) => {
-    const target = c.req.param('id');
-    const removed = await people.remove(target, versioned.of(c).version);
-    if (!('removed' in removed)) return answer(route, c, removed, 'user.deleted');
-    guards.record(c, 'user.deleted', {
-      userId: sessionOf(c).userId,
-      data: { targetUserId: target },
-    });
-    return c.json({ removed: true });
-  });
-}
-
-// Dar de baja y de alta.
-function registerStatus(route: Route) {
-  const { platform, people, limited } = route;
-  const { http, sessions } = platform;
-  const versioned = readBody(bySchema(versionBody));
-  const id = uuidParams('id');
   http.post(
-    '/api/users/:id/deactivate',
+    '/api/users/:id/delete',
     sessions.require,
+    manage,
     id,
     limited,
     versioned.step,
     async (c) => {
-      const asking = sessionOf(c).userId;
-      const outcome = await people.deactivate(asking, c.req.param('id'), versioned.of(c).version);
-      return answer(route, c, outcome, 'user.deactivated');
+      const target = c.req.param('id');
+      const removed = await people.remove(target, versioned.of(c).version);
+      if (!('removed' in removed)) return answer(route, c, removed, 'user.deleted');
+      guards.record(c, 'user.deleted', {
+        userId: sessionOf(c).userId,
+        data: { targetUserId: target },
+      });
+      return c.json({ removed: true });
     },
   );
-  http.post('/api/users/:id/activate', sessions.require, id, limited, versioned.step, async (c) => {
+}
+
+// Dar de baja y de alta.
+function registerStatus(route: Route) {
+  const { platform, people, limited, access } = route;
+  const { http, sessions } = platform;
+  const versioned = readBody(bySchema(versionBody));
+  const id = uuidParams('id');
+  // Dar de baja y de alta: «Administrar personas», y no sobre quien tiene más (R7.11).
+  const status = [platform.permissions.require('users.manage'), id, notOutranked(access), limited];
+  http.post('/api/users/:id/deactivate', sessions.require, ...status, versioned.step, async (c) => {
+    const asking = sessionOf(c).userId;
+    const outcome = await people.deactivate(asking, c.req.param('id'), versioned.of(c).version);
+    return answer(route, c, outcome, 'user.deactivated');
+  });
+  http.post('/api/users/:id/activate', sessions.require, ...status, versioned.step, async (c) => {
     if (!confirmed(platform, c)) return fail(c, 403, 'confirm-first');
     const asking = sessionOf(c).userId;
     const outcome = await people.activate(asking, c.req.param('id'), versioned.of(c).version);

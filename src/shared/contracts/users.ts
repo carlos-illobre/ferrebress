@@ -1,13 +1,16 @@
 // La forma de lo que entra y sale de las rutas de Usuarios (diseño de 02, § 4), con largos máximos
 // para cada campo. La usan el servidor para validar y la aplicación para armar los pedidos.
 import * as z from 'zod/mini';
+import { type RoleSummary, roleIds } from './roles.ts';
 
 const version = z.int().check(z.minimum(1), z.maximum(2 ** 31 - 1));
 const name = z.nullable(z.string().check(z.maxLength(80)));
 
-export const authorizeBody = z.object({
+// Autorizar pide al menos un rol, elegido a mano (R3.3).
+export const authorizeBody = z.strictObject({
   email: z.email().check(z.maxLength(254)),
   name: z.optional(name),
+  roles: roleIds,
 });
 
 // Sin `name`, no cambia; `name` vacío o nulo, vuelve al de Google. Sin `email`, no cambia.
@@ -39,9 +42,12 @@ export type PersonRow = {
   version: number;
   sessions: number;
   phones: number;
+  // Sus roles (R3.1), también los de una persona dada de baja (R4.3).
+  roleIds: string[];
 };
 
-export type PeopleResponse = { people: PersonRow[] };
+// `roles`: los nombres para las pastillas y el filtro por rol (R3.1), una sola vez.
+export type PeopleResponse = { people: PersonRow[]; roles: RoleSummary[] };
 export type PersonResponse = { person: PersonRow };
 
 // Cómo entró una sesión (R5.2).

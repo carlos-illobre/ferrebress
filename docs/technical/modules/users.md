@@ -455,10 +455,15 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
   - `GET /api/users` pide `users.view` y suma, una sola vez, la lista de roles (id, nombre y
     descripción) y los ids de los roles de cada persona: con eso salen las pastillas y el filtro por
     rol (R3.1, E54) sin pedir `roles.manage`. Una consulta más (4).
-  - Autorizar pide `users.manage` y `roles.manage` y suma `roles` (al menos uno): 3 consultas.
-  - Cambiar el nombre y borrar piden `users.manage`; borrar pasa por el control de § 19 (E59).
+  - Autorizar pide `users.manage` y `roles.manage` y suma `roles` (al menos uno), en la misma
+    sentencia que guarda a la persona: un rol que no existe la frena por la clave foránea (`400`).
+    Sigue en 1 consulta.
+  - Cambiar el nombre y borrar piden `users.manage`. Borrar no necesita el control de § 19 (E59):
+    solo se borra a quien nunca entró, que no cuenta como quien administra, y la condición se
+    comprueba en la misma sentencia que borra.
   - Cambiar el correo, dar de baja y de alta piden `users.manage` y que la persona no tenga más
-    permisos que quien lo hace (R7.11, `403 outranked`). La baja pasa a § 19: 7 consultas.
+    permisos que quien lo hace (R7.11, `403 outranked`): una consulta más cada una (2, 8 y 2). La
+    baja pasa a § 19, con el bloqueo y el primer conteo en una sola consulta.
   - Ver las sesiones y los celulares pide `users.view`; cerrar, cerrar todas, cortar y «Se perdió un
     celular», `users.cut` y R7.11 (un celular de alguien con más permisos no aparece en «Se perdió un
     celular»).
@@ -479,7 +484,7 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 
 - **Nunca sin quien administre** (R1.3, E04, E05, E56, E59): todo cambio que puede sacar
   `users.manage` o `roles.manage` (cambiar los permisos de un rol, borrarlo, cambiar los roles de
-  alguien, dar de baja y borrar a alguien) corre en una transacción que primero bloquea la fila del
+  alguien, dar de baja a alguien) corre en una transacción que primero bloquea la fila del
   rol `system` (`select … for update`; hay uno solo, § 15): todos esos cambios pasan de a uno. Dentro,
   aplica el cambio y cuenta, con una consulta, cuántas personas activas que ya entraron tienen cada uno
   de los dos permisos y si quien lo hace los sigue teniendo. Si alguno queda en cero,

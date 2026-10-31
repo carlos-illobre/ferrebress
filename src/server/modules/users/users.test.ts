@@ -1,10 +1,11 @@
-import { sql } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createServer } from '../../app.ts';
 import { testConfig } from '../../testing/config.ts';
 import { addFirstAdministrator } from './first.ts';
 import { createUsersModule, type Users } from './index.ts';
 import type { People } from './people.ts';
+import { type RolesTables, rolesData } from './roles-data.ts';
 
 describe('las personas', () => {
   let server: Awaited<ReturnType<typeof createServer>>;
@@ -95,7 +96,10 @@ describe('las personas', () => {
   });
 
   it('dos primeras entradas con Google a la vez: una ata la cuenta y la otra no entra (02, § 5)', async () => {
-    await people.authorize('00000000-0000-7000-8000-000000000001', 'doble@example.com');
+    const system = await rolesData(server.platform.db as Kysely<RolesTables>).systemRoleId();
+    await people.authorize('00000000-0000-7000-8000-000000000001', 'doble@example.com', null, [
+      system,
+    ]);
     const both = await Promise.all([
       users.matchGoogle('sub-doble', 'doble@example.com', 'Uno'),
       users.matchGoogle('sub-doble-2', 'doble@example.com', 'Dos'),

@@ -112,7 +112,11 @@ function stamp({ version, environment, clock }: HttpOptions): MiddlewareHandler 
   return async (c, next) => {
     await next();
     const serverTime = clock.now().getTime();
-    c.header(serverHeaderName, formatServerHeader({ version, serverTime, environment }));
+    const permissions = c.get('permissionsHash') as string | undefined;
+    c.header(
+      serverHeaderName,
+      formatServerHeader({ version, serverTime, environment, ...(permissions && { permissions }) }),
+    );
     c.header('Cache-Control', 'no-store');
   };
 }

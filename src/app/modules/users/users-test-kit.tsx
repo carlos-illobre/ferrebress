@@ -28,6 +28,7 @@ export const person = (
   version: 1,
   sessions: 0,
   phones: 0,
+  roleIds: [],
   ...fields,
 });
 

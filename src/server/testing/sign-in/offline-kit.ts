@@ -68,10 +68,14 @@ export async function createOfflineKit() {
   let ip = 0;
   let account = 0;
 
-  // Una cuenta autorizada, como la dará de alta el módulo 02.
-  const authorize = (email: string) =>
-    sql`insert into users.users (id, email, active, created_at)
-      values (${randomUUID()}, ${email}, true, now())`.execute(server.platform.db);
+  // Una cuenta autorizada como Administrador (02 · R7.4): tiene todos los permisos.
+  const authorize = async (email: string) => {
+    const id = randomUUID();
+    await sql`insert into users.users (id, email, active, created_at)
+      values (${id}, ${email}, true, now())`.execute(server.platform.db);
+    await sql`insert into users.user_roles (user_id, role_id)
+      select ${id}, id from users.roles where system`.execute(server.platform.db);
+  };
 
   const newAccount = async () => {
     const claims = { sub: `sub-${++account}`, email: `persona${account}@example.com` };
