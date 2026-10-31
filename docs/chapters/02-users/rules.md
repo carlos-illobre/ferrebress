@@ -53,10 +53,11 @@ Administrador. **Etapa b:** roles y permisos; se escribe al llegar a ella.
   baja el viejo. Así ninguna cuenta puede quedar entrando con un correo que ya no figura.
 - **R3.7** **Borrar** se puede solo a quien nunca entró (un alta equivocada): desaparece del todo,
   sin confirmación, porque no hay nada que perder. A quien entró alguna vez solo se lo da de baja.
-- **R3.8** **Autorizar a alguien y dar de alta** piden haber entrado con Google o con la huella hace
+- **R3.8** **Autorizar a alguien, cambiar el correo y dar de alta** piden haber entrado con Google o con la huella hace
   menos de 5 minutos en ese dispositivo. Si no, la aplicación pide tocar «Continuar con Google» o
   poner la huella, y sigue sola con lo que se estaba haciendo. Así una sesión que quedó abierta en la
-  computadora del mostrador no le sirve a cualquiera para darse acceso.
+  computadora del mostrador no le sirve a cualquiera para darse acceso (cambiar el correo de alguien
+  que nunca entró es, en la práctica, autorizar a otra cuenta).
 
 ## 4. Dar de baja y de alta
 
@@ -91,11 +92,14 @@ Administrador. **Etapa b:** roles y permisos; se escribe al llegar a ella.
 - **R5.6** **«Quitar»** un celular con huella, sin confirmación (se arregla vinculándolo de nuevo):
   - ese celular deja de entrar con la huella y de aprobar la entrada de una computadora;
   - se cierra la sesión abierta en ese celular, si hay: es el caso del celular perdido;
+  - se cierran también las computadoras que ese celular hizo entrar con el código QR, porque quien
+    lo tiene pudo hacer entrar a la suya;
   - se le apaga «Trabajar sin conexión» (15 · R1.5), y una entrada sin conexión hecha después no
     se confirma (15 · R3.2).
 - **R5.7** **«Se perdió un celular»**, a mano arriba de la lista, junta R5.3 y R5.6 para el caso
   urgente: se elige de quién es y cuál de sus celulares (si tiene uno solo, ya está elegido), y
-  «Cortar» cierra las sesiones de ese celular y le quita la huella, de un toque y sin confirmación,
+  «Cortar» cierra las sesiones de ese celular y las de las computadoras que él hizo entrar con el
+  código QR, y le quita la huella, de un toque y sin confirmación,
   como «Cerrar» y «Quitar». Muestra qué cortó. Solo aparecen las personas que tienen algún celular
   para cortar, y de cada una, los celulares con una sesión abierta o con su huella; también los
   propios, salvo el que se está usando.
