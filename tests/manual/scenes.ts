@@ -42,8 +42,8 @@ export async function answerStart(page: Page, person?: Person): Promise<void> {
 }
 
 // La lista de Usuarios, que el marco abre al entrar: la persona y dos más, inventadas.
-const hour = 3_600_000;
-const row = (id: string, name: string, lastSignInAt: number | null, self = false) => ({
+export const hour = 3_600_000;
+export const row = (id: string, name: string, lastSignInAt: number | null, self = false) => ({
   id,
   name,
   displayName: name,
@@ -76,13 +76,14 @@ export async function answerUsers(page: Page | BrowserContext, person: Person): 
   );
 }
 
-async function signedIn(page: Page, person: Person): Promise<void> {
+// Con la sesión guardada; `answer` contesta lo de Usuarios (las escenas de 02 traen más personas).
+export async function signedIn(page: Page, person: Person, answer = answerUsers): Promise<void> {
   await page.addInitScript((saved) => localStorage.setItem('session', JSON.stringify(saved)), {
     sessionId: 's',
     person,
   });
   await answerStart(page, person);
-  await answerUsers(page, person);
+  await answer(page, person);
   await page.goto('/');
   await page.locator('.users-row').first().waitFor({ state: 'attached' });
 }

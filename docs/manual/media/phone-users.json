@@ -1,0 +1,21 @@
+{
+  "device": "phone",
+  "width": 585,
+  "height": 1266,
+  "points": {
+    "search": [
+      75,
+      6.8
+    ],
+    "authorize": [
+      73.5,
+      84.8
+    ],
+    "lost": [
+      26.5,
+      84.8
+    ]
+  },
+  "hash": "8b3d9364df0820087ca4d7cdc440ff2f9371b81aaacda28b2f9fe5753ba20773",
+  "file": "7ebc138635e7e0c3f76e6705c22eee42b06f9e15f86dd5621f3f3e58bd800fd9"
+}

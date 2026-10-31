@@ -1,0 +1,17 @@
+{
+  "device": "phone",
+  "width": 585,
+  "height": 1266,
+  "points": {
+    "box": [
+      54.6,
+      74.2
+    ],
+    "chips": [
+      50,
+      83.9
+    ]
+  },
+  "hash": "feae6470ed92b287ae3bd308f3ceef7c640e26acc3dba29f6af950dee5e53880",
+  "file": "58ed77565d8403a7f809423d93e580c564bfc69cd7f2fce94d07bc00cbc23d38"
+}

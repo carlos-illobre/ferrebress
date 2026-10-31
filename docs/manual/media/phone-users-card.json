@@ -1,0 +1,21 @@
+{
+  "device": "phone",
+  "width": 585,
+  "height": 1266,
+  "points": {
+    "cut": [
+      18.7,
+      31.8
+    ],
+    "passkey": [
+      50,
+      31.8
+    ],
+    "close": [
+      83.6,
+      49.9
+    ]
+  },
+  "hash": "53b050d1024dca6a0255c92fdce4d10886708f6d9807a0e3966491589893b53b",
+  "file": "eb0e0e422d4c600e234b14eb30b80605517eb9e5d98f0c0798347f8d3a13633b"
+}
