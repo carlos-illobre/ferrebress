@@ -2,10 +2,13 @@
 import { act, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 import { startKeyboard } from '../../platform/keyboard.ts';
-import { openUsers } from './users-test-kit.tsx';
+import { openUsers, roles } from './users-test-kit.tsx';
 
 const lost = (phones: object[]) => ({
-  body: { people: [{ userId: 'graciela', displayName: 'Graciela Benítez', self: false, phones }] },
+  body: {
+    roles,
+    people: [{ userId: 'graciela', displayName: 'Graciela Benítez', self: false, phones }],
+  },
 });
 
 describe('las teclas de Usuarios en la computadora (00 · R2.8)', () => {

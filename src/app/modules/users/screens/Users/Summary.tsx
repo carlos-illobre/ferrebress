@@ -3,7 +3,7 @@
 // van en el diálogo de «Buscar usuario» (pedido de Carlos).
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
-import { counts, type Filter } from '../../logic.ts';
+import { counts, type Filter, holdersOf } from '../../logic.ts';
 import { useUsersContext } from '../../state.ts';
 import { texts } from '../../texts.ts';
 import './Summary.css';
@@ -93,12 +93,43 @@ export function Chips() {
   );
 }
 
+// El filtro por rol (E54): todos, o los que tienen cada uno, con cuántas personas.
+export function RoleChips() {
+  const users = useUsersContext();
+  const people = users.people as PersonRow[];
+  return (
+    <fieldset class="users-chips users-role-chips">
+      <legend class="visually-hidden">{texts.rolesLabel}</legend>
+      <button
+        type="button"
+        class="users-chip"
+        aria-pressed={!users.role}
+        onClick={() => users.setRole(undefined)}
+      >
+        {texts.allRoles}
+      </button>
+      {users.roles.map((role) => (
+        <button
+          key={role.id}
+          type="button"
+          class="users-chip"
+          aria-pressed={users.role === role.id}
+          onClick={() => users.setRole(role.id)}
+        >
+          {role.name} <span>{holdersOf(people, role.id)}</span>
+        </button>
+      ))}
+    </fieldset>
+  );
+}
+
 // En la computadora, el buscador y los filtros arriba de la lista; en el celular, en un diálogo.
 export function Filters() {
   return (
     <div class="users-filters desktop-only">
       <SearchBox slash />
       <Chips />
+      <RoleChips />
     </div>
   );
 }

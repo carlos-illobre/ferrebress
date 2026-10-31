@@ -5,11 +5,27 @@ import { render, screen, within } from '@testing-library/preact';
 import { vi } from 'vitest';
 import { syncServerTime } from '../../platform/server/clock.ts';
 import { fakeServer, type Reply } from '../../testing/fake-server.ts';
+import { administrator } from '../../testing/person.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
+import { person as me } from '../sign-in/index.ts';
 import { Users } from './screens/Users/Users.tsx';
 
 // La hora que dice el servidor de mentira en cada respuesta.
 export const now = 1_700_000_000_000;
+
+// Los roles que trae la lista: el Administrador, que tienen todas las personas de las pruebas.
+const adminRole = (administrator.roles[0] as { id: string }).id;
+export const roles = [{ id: adminRole, name: 'Administrador', description: 'Puede todo.' }];
+// Los mismos, como los trae la pestaña Roles.
+export const roleRows = [
+  {
+    ...(roles[0] as (typeof roles)[number]),
+    system: true,
+    version: 1,
+    permissions: [...administrator.permissions],
+    holders: ['ruben', 'graciela'],
+  },
+];
 const hour = 3_600_000;
 const day = 24 * hour;
 
@@ -28,7 +44,8 @@ export const person = (
   version: 1,
   sessions: 0,
   phones: 0,
-  roleIds: [],
+  roleIds: [adminRole],
+  outranks: false,
   ...fields,
 });
 
@@ -86,16 +103,30 @@ export const access: AccessResponse = {
   ],
 };
 
+// Quien mira: Rubén, Administrador (con todos los permisos), salvo que la prueba diga otra cosa.
+export const viewer = {
+  userId: 'ruben',
+  name: 'Rubén Paredes',
+  email: 'ruben@example.com',
+  ...administrator,
+};
+
 // `wide`: con la computadora que elige sola a la primera persona; si no, como en lo angosto, para
 // que cada prueba elija a quien quiera.
+
 export function openUsers(routes: Record<string, Reply | Reply[]> = {}, wide = false) {
   syncServerTime(now);
+  if (!me.get()) me.set(viewer);
   const media = window.matchMedia.bind(window);
   if (!wide)
     vi.stubGlobal('matchMedia', (query: string) =>
       query.includes('min-width') ? { matches: false, media: query } : media(query),
     );
-  const server = fakeServer({ '/api/users': { body: { people } }, ...routes });
+  const server = fakeServer({
+    '/api/users': { body: { people, roles } },
+    '/api/roles': { body: { roles: roleRows } },
+    ...routes,
+  });
   render(
     <>
       <div id="app" data-layer="">

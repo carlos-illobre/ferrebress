@@ -38,9 +38,9 @@ describe('las consultas de cada ruta de Usuarios', () => {
     counts.activate = await count(`/api/users/${person.id}/activate`, { version: 4 });
     counts.remove = await count(`/api/users/${person.id}/delete`, { version: 5 });
     // Las escrituras con aviso abren una transacción: el comienzo y la confirmación cuentan.
-    // El correo, la baja y el alta suman la de R7.11: los permisos de la persona.
+    // La lista, el correo, la baja y el alta suman la de R7.11: los permisos de las personas.
     expect(counts).toEqual({
-      list: 4,
+      list: 5,
       authorize: 1,
       rename: 3,
       email: 2,

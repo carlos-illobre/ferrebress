@@ -14,11 +14,10 @@ const besideEmail = ['email-taken', 'bad-request'];
 // así un correo repetido se dice junto al campo (R3.3).
 export async function authorize(
   users: Users,
-  name: string,
-  email: string,
+  given: { name: string; email: string; roles: string[] },
   again: () => unknown,
 ): Promise<string | undefined> {
-  const result = await usersApi.authorize(email.trim(), name.trim());
+  const result = await usersApi.authorize(given.email.trim(), given.name.trim(), given.roles);
   if (!result.ok) {
     if (besideEmail.includes(result.error)) return result.error;
     if (!confirmFirst(users, result, again)) refused(users, result);

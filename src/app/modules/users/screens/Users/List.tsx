@@ -1,5 +1,5 @@
 // La lista (R3.1): en grupos, «Pueden entrar» y «Dadas de baja», cada persona con su nombre, su
-// correo, «Administrador», cuándo entró y sus cantidades. Tocarla abre su tarjeta. Una dada de baja
+// correo, sus roles, cuándo entró y sus cantidades. Tocarla abre su tarjeta. Una dada de baja
 // se ve con el borde punteado y sin fondo, sin leer la letra chica.
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
@@ -26,11 +26,19 @@ export function Avatar({ person, large }: { person: PersonRow; large?: boolean }
   );
 }
 
-export function Role({ person }: { person: PersonRow }) {
+// Sus roles, una pastilla por cada uno (R3.1).
+export function Roles({ person }: { person: PersonRow }) {
+  const { roles } = useUsersContext();
   return (
-    <span class={person.active ? 'users-pill pine' : 'users-pill pine off'}>
-      <Icon name="shield-check" size="small" />
-      {texts.role}
+    <span class="users-roles">
+      {roles
+        .filter((role) => person.roleIds.includes(role.id))
+        .map((role) => (
+          <span key={role.id} class={person.active ? 'users-pill pine' : 'users-pill pine off'}>
+            <Icon name="shield-check" size="small" />
+            {role.name}
+          </span>
+        ))}
     </span>
   );
 }
@@ -87,7 +95,7 @@ function Row({ person }: { person: PersonRow }) {
         <span class="users-email">{noName ? <Say words={texts.noName} /> : person.email}</span>
       </span>
       <span class="users-row-meta">
-        <Role person={person} />
+        <Roles person={person} />
         <span class="users-dot phone-only">·</span>
         <LastSignIn person={person} />
       </span>

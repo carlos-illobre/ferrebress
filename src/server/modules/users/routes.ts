@@ -41,6 +41,7 @@ export function rowOf(
   user: User,
   askingUserId: string,
   counts = { sessions: 0, phones: 0 },
+  outranks = false,
 ): PersonRow {
   return {
     id: user.id,
@@ -57,6 +58,7 @@ export function rowOf(
     version: user.version,
     ...counts,
     roleIds: user.roleIds,
+    outranks,
   };
 }
 
@@ -99,8 +101,14 @@ export function registerPeopleRoutes(
       all.map((user) => user.id),
       asking,
     );
+    const above = await access.outranking(
+      asking.userId,
+      all.map((user) => user.id),
+    );
     return c.json<PeopleResponse>({
-      people: all.map((user) => rowOf(user, asking.userId, counts.get(user.id))),
+      people: all.map((user) =>
+        rowOf(user, asking.userId, counts.get(user.id), above.has(user.id)),
+      ),
       roles: await access.rolesForList(),
     });
   });

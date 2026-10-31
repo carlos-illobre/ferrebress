@@ -12,5 +12,6 @@ export {
   watchBackground,
 } from './notices/update/update.ts';
 export { Frame, type FrameProps, TestEnvironment } from './screens/Frame/Frame.tsx';
+export { permissionIcons } from './screens/NoPermission/NoPermission.tsx';
 export { PhoneLight } from './screens/Phone/Phone.tsx';
 export { discardWork, halfDone, registerWork, type Work } from './work.ts';

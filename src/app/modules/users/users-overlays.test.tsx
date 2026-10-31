@@ -3,13 +3,14 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
-import { graciela, openUsers, person, row, toast } from './users-test-kit.tsx';
+import { graciela, openUsers, person, roles, row, toast } from './users-test-kit.tsx';
 
 const dialog = () => screen.getByRole('alertdialog');
 const field = (name: RegExp) => within(dialog()).getByRole('textbox', { name }) as HTMLInputElement;
 const type = (input: HTMLInputElement, value: string) =>
   fireEvent.input(input, { target: { value } });
 const authorizeButton = () => within(dialog()).getByRole('button', { name: /^Autorizar/ });
+const tick = (name: RegExp) => fireEvent.click(within(dialog()).getByRole('checkbox', { name }));
 const openAuthorize = async () => {
   await screen.findByText('Rubén Paredes');
   fireEvent.click(screen.getAllByRole('button', { name: /Autorizar a alguien/ })[0] as HTMLElement);
@@ -30,7 +31,7 @@ describe('autorizar a alguien', () => {
   it('users-E10, E09, E08: sin forma de correo o ya cargado, se dice junto al correo; si no, queda elegida', async () => {
     const server = openUsers({
       '/api/users': [
-        { body: { people: [] } },
+        { body: { roles, people: [] } },
         { status: 409, body: { error: 'email-taken' } },
         { body: { person: nueva } },
       ],
@@ -45,8 +46,9 @@ describe('autorizar a alguien', () => {
     expect((await within(dialog()).findByRole('alert')).textContent).toContain(
       'no tiene forma de correo',
     );
-    expect(server.sent).toHaveLength(1);
+    expect(server.bodies('/api/users')).toHaveLength(1);
     type(field(/Correo/), 'Nueva@Example.com ');
+    tick(/Administrador/);
     expect(within(dialog()).queryByRole('alert')).toBeNull();
     fireEvent.click(authorizeButton());
     expect((await within(dialog()).findByRole('alert')).textContent).toContain('ya está cargado');
@@ -57,6 +59,7 @@ describe('autorizar a alguien', () => {
     expect(row(/Nueva/).getAttribute('aria-current')).toBe('true');
     expect(server.bodies('/api/users').at(-1)).toEqual({
       email: 'Nueva@Example.com',
+      roles: [roles[0]?.id],
       name: 'Nueva',
     });
   });
@@ -65,7 +68,7 @@ describe('autorizar a alguien', () => {
     const frame = googleFrame();
     const server = openUsers({
       '/api/users': [
-        { body: { people: [graciela] } },
+        { body: { roles, people: [graciela] } },
         { status: 403, body: { error: 'confirm-first' } },
         { body: { person: nueva } },
       ],
@@ -77,6 +80,7 @@ describe('autorizar a alguien', () => {
       screen.getAllByRole('button', { name: /Autorizar a alguien/ })[0] as HTMLElement,
     );
     type(field(/Correo/), 'nueva@example.com');
+    tick(/Administrador/);
     fireEvent.click(authorizeButton());
     expect(await screen.findByRole('alertdialog', { name: 'Confirmá que sos vos' })).toBeTruthy();
     frame.ready();
@@ -91,7 +95,7 @@ describe('autorizar a alguien', () => {
     const frame = googleFrame();
     const server = openUsers({
       '/api/users': [
-        { body: { people: [graciela] } },
+        { body: { roles, people: [graciela] } },
         { status: 403, body: { error: 'confirm-first' } },
         { status: 409, body: { error: 'email-taken' } },
       ],
@@ -103,6 +107,7 @@ describe('autorizar a alguien', () => {
       screen.getAllByRole('button', { name: /Autorizar a alguien/ })[0] as HTMLElement,
     );
     type(field(/Correo/), 'graciela@example.com');
+    tick(/Administrador/);
     fireEvent.click(authorizeButton());
     await screen.findByRole('alertdialog', { name: 'Confirmá que sos vos' });
     frame.ready();
@@ -119,7 +124,7 @@ describe('autorizar a alguien', () => {
   it('si el servidor falla, lo dice y no cierra', async () => {
     openUsers({
       '/api/users': [
-        { body: { people: [graciela] } },
+        { body: { roles, people: [graciela] } },
         { status: 500, body: { error: 'internal' } },
       ],
     });
@@ -128,6 +133,7 @@ describe('autorizar a alguien', () => {
       screen.getAllByRole('button', { name: /Autorizar a alguien/ })[0] as HTMLElement,
     );
     type(field(/Correo/), 'nueva@example.com');
+    tick(/Administrador/);
     fireEvent.click(authorizeButton());
     await waitFor(() => expect(toast()).toBe('No se pudo. Probá de nuevo.'));
     expect(dialog()).toBeTruthy();
@@ -137,7 +143,7 @@ describe('autorizar a alguien', () => {
     const frame = googleFrame();
     const sofia = person({ id: 'sofia', displayName: 'Sofía Blanco', active: false });
     const server = openUsers({
-      '/api/users': { body: { people: [sofia] } },
+      '/api/users': { body: { roles, people: [sofia] } },
       '/api/users/sofia/activate': [
         { status: 403, body: { error: 'confirm-first' } },
         { body: { person: { ...sofia, active: true, version: 2 } } },

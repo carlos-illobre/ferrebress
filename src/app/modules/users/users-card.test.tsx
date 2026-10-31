@@ -95,6 +95,7 @@ describe('la tarjeta de una persona', () => {
     }
     expect(server.sent.map((one) => one.path)).toEqual([
       '/api/users',
+      '/api/roles',
       '/api/users/graciela/access',
     ]);
     expect(row(/Graciela/).classList.contains('off')).toBe(false);
@@ -235,7 +236,7 @@ describe('la tarjeta de una persona', () => {
     }));
     openUsers({ '/api/users/graciela/access': { body: access } });
     await choose(/Graciela/);
-    fireEvent.click(screen.getByRole('button', { name: /^Usuarios$/ }));
+    fireEvent.click(document.querySelector('.users-back') as HTMLElement);
     expect(card().textContent).toContain('Elegí a alguien');
     fireEvent.click(row(/Graciela/));
     act(() => {

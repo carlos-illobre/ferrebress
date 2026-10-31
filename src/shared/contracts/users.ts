@@ -44,6 +44,9 @@ export type PersonRow = {
   phones: number;
   // Sus roles (R3.1), también los de una persona dada de baja (R4.3).
   roleIds: string[];
+  // Tiene algún permiso que quien mira no tiene (R7.11): sus botones no aparecen. Lo trae la lista;
+  // la respuesta de un cambio dice `false` y la aplicación conserva el de la lista.
+  outranks: boolean;
 };
 
 // `roles`: los nombres para las pastillas y el filtro por rol (R3.1), una sola vez.

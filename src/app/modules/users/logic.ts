@@ -28,13 +28,25 @@ const inFilter: Record<Filter, (person: PersonRow) => boolean> = {
   off: (person) => !person.active,
 };
 
-export function visible(people: PersonRow[], filter: Filter, search: string): PersonRow[] {
+// `role`: solo quienes tienen ese rol (E54); sin él, todos.
+export function visible(
+  people: PersonRow[],
+  filter: Filter,
+  search: string,
+  role?: string,
+): PersonRow[] {
   const wanted = plain(search.trim());
   return ordered(people).filter(
     (person) =>
-      inFilter[filter](person) && plain(`${person.displayName} ${person.email}`).includes(wanted),
+      inFilter[filter](person) &&
+      (!role || person.roleIds.includes(role)) &&
+      plain(`${person.displayName} ${person.email}`).includes(wanted),
   );
 }
+
+// Cuántas personas tiene cada rol, para su filtro.
+export const holdersOf = (people: PersonRow[], role: string) =>
+  people.filter((person) => person.roleIds.includes(role)).length;
 
 // Las cuentas de arriba y de los filtros: las sesiones y los celulares, de las activas.
 export function counts(people: PersonRow[]) {

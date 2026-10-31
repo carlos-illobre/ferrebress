@@ -15,7 +15,7 @@ import { Authorize } from '../Overlays/Authorize.tsx';
 import { ConfirmCloseAll, ConfirmDeactivate } from '../Overlays/Confirm.tsx';
 import { Lost } from '../Overlays/Lost.tsx';
 import { Search } from '../Overlays/Search.tsx';
-import { AuthorizeButton, Head, LostButton } from './Head.tsx';
+import { AuthorizeButton, Head, LostButton, NewRoleButton } from './Head.tsx';
 import { List } from './List.tsx';
 import { Filters, Stats } from './Summary.tsx';
 import './Users.css';
@@ -61,8 +61,21 @@ function CardStep() {
   return null;
 }
 
+type RolesScreen = Awaited<ReturnType<typeof loadRoles>>['Roles'];
+const loadRoles = () => import('../Roles/Roles.tsx');
+
+// La pestaña Roles, que se baja recién al abrirla (diseño de 02, § 20).
+function RolesTab() {
+  const [screen, setScreen] = useState<{ Roles: RolesScreen }>();
+  useEffect(() => {
+    void loadRoles().then((loaded) => setScreen({ Roles: loaded.Roles }));
+  }, []);
+  return screen ? <screen.Roles /> : null;
+}
+
 function Body() {
   const users = useUsersContext();
+  if (users.tab === 'roles' && users.people) return <RolesTab />;
   if (!users.people)
     return users.failed ? (
       <div class="users-empty">
@@ -110,8 +123,14 @@ export function Users() {
           <Body />
         </div>
         <div class="users-bar phone-only">
-          <LostButton />
-          <AuthorizeButton />
+          {users.tab === 'roles' ? (
+            <NewRoleButton />
+          ) : (
+            <>
+              <LostButton />
+              <AuthorizeButton />
+            </>
+          )}
         </div>
       </section>
       {narrow && users.selected && <CardStep />}

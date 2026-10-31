@@ -454,7 +454,8 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 - **Cambian las de la etapa a:**
   - `GET /api/users` pide `users.view` y suma, una sola vez, la lista de roles (id, nombre y
     descripción) y los ids de los roles de cada persona: con eso salen las pastillas y el filtro por
-    rol (R3.1, E54) sin pedir `roles.manage`. Una consulta más (4).
+    rol (R3.1, E54) sin pedir `roles.manage`; y de cada persona, si tiene algún permiso que quien
+    mira no tiene (`outranks`, R7.11), así sus botones no aparecen. Dos consultas más (5).
   - Autorizar pide `users.manage` y `roles.manage` y suma `roles` (al menos uno), en la misma
     sentencia que guarda a la persona: un rol que no existe la frena por la clave foránea (`400`).
     Sigue en 1 consulta.

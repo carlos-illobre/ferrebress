@@ -18,6 +18,7 @@ const person = (fields: Partial<PersonRow>): PersonRow => ({
   sessions: 0,
   phones: 0,
   roleIds: [],
+  outranks: false,
   ...fields,
 });
 

@@ -4,7 +4,7 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
 import { pendingEntries } from '../sign-in/index.ts';
-import { openUsers, row } from './users-test-kit.tsx';
+import { openUsers, roles, row } from './users-test-kit.tsx';
 
 const names = () =>
   [...document.querySelectorAll('.users-row .users-name em')].map((one) => one.textContent);
@@ -81,7 +81,7 @@ describe('la lista de Usuarios', () => {
 
   it('si no se pudo traer la lista, lo dice y se reintenta', async () => {
     openUsers({
-      '/api/users': [{ status: 500, body: { error: 'internal' } }, { body: { people: [] } }],
+      '/api/users': [{ status: 500, body: { error: 'internal' } }, { body: { roles, people: [] } }],
     });
     expect(screen.getByText('Buscando a las personas')).toBeTruthy();
     fireEvent.click(await screen.findByRole('button', { name: /Reintentar/ }));
@@ -104,7 +104,8 @@ describe('la lista de Usuarios', () => {
     await waitFor(() =>
       expect(document.querySelector('.users')?.hasAttribute('data-off')).toBe(false),
     );
-    expect(server.sent).toHaveLength(1);
+    // La lista y, con «Administrar roles», los roles.
+    expect(server.sent.map((one) => one.path)).toEqual(['/api/users', '/api/roles']);
   });
 
   it('con una entrada sin conexión por confirmar, espera a que el servidor la confirme (15 · R3)', async () => {

@@ -111,6 +111,9 @@ describe('los cambios de roles', () => {
       [`/api/users/${target.id}/activate`, { version }],
     ] as const)
       expect((await boss.device.request(path, body)).body).toEqual({ error: 'outranked' });
+    const seen = (await boss.device.request('/api/users')).body.people;
+    const outranks = (id: string) => seen.find((one: { id: string }) => one.id === id).outranks;
+    expect([outranks(target.id), outranks(boss.id)]).toEqual([true, false]);
     const renamed = await boss.device.request(`/api/users/${target.id}`, { version, name: 'Jefa' });
     expect(renamed.status).toBe(200);
   });

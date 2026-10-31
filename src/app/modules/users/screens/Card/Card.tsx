@@ -9,7 +9,7 @@ import { activate, change, remove } from '../../actions.ts';
 import { dateOf, nowMs } from '../../logic.ts';
 import { useUsersContext } from '../../state.ts';
 import { cardTexts as t, texts } from '../../texts.ts';
-import { Avatar, LastSignIn, Role } from '../Users/List.tsx';
+import { Avatar, LastSignIn, Roles } from '../Users/List.tsx';
 import { Access, Note } from './Access.tsx';
 import { Editable } from './Edit.tsx';
 import { Rows, Tiles } from './Phone.tsx';
@@ -59,7 +59,7 @@ function Pills({ person }: { person: PersonRow }) {
   return (
     <div class="users-pills">
       {person.self && <span class="users-pill you">{texts.you}</span>}
-      <Role person={person} />
+      <Roles person={person} />
       {!person.active && <span class="users-pill off">{texts.deactivated}</span>}
       <span class="users-when">
         <LastSignIn person={person} /> · {when}

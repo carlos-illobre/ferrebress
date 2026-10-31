@@ -1,11 +1,14 @@
 // «Se perdió un celular» (02 · R5.7): de quién, cuál y «Cortar».
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
-import { access, openUsers, row, toast } from './users-test-kit.tsx';
+import { access, openUsers, roles, row, toast } from './users-test-kit.tsx';
 
 const dialog = () => screen.getByRole('alertdialog');
 const lost = (phones: object[]) => ({
-  body: { people: [{ userId: 'graciela', displayName: 'Graciela Benítez', self: false, phones }] },
+  body: {
+    roles,
+    people: [{ userId: 'graciela', displayName: 'Graciela Benítez', self: false, phones }],
+  },
 });
 const android = {
   id: 'f1',
@@ -96,7 +99,10 @@ describe('«Se perdió un celular» (users-R5.7)', () => {
 
   it('sin nadie con celulares, lo dice; si no se pudo preguntar, también', async () => {
     openUsers({
-      '/api/lost-phones': [{ body: { people: [] } }, { status: 500, body: { error: 'internal' } }],
+      '/api/lost-phones': [
+        { body: { roles, people: [] } },
+        { status: 500, body: { error: 'internal' } },
+      ],
     });
     await openLost();
     expect(await within(dialog()).findByText(/Nadie tiene un celular/)).toBeTruthy();

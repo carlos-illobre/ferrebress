@@ -4,7 +4,7 @@ import { Button } from '../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { useUsersContext } from '../../state.ts';
 import { dialogTexts as d, texts } from '../../texts.ts';
-import { Chips, SearchBox } from '../Users/Summary.tsx';
+import { Chips, RoleChips, SearchBox } from '../Users/Summary.tsx';
 import './Overlays.css';
 
 export function Search() {
@@ -18,6 +18,7 @@ export function Search() {
       <h2>{texts.searchUser}</h2>
       <SearchBox />
       <Chips />
+      <RoleChips />
       <div class="users-dialog-foot">
         <Button look="plain" doing={texts.searchClear} onPress={clear}>
           {texts.searchClear}

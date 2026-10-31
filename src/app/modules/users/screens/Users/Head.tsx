@@ -6,11 +6,12 @@ import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { PhoneLight } from '../../../frame/index.ts';
 import { useUsersContext } from '../../state.ts';
-import { texts } from '../../texts.ts';
+import { roleTexts, texts } from '../../texts.ts';
 import './Head.css';
 
 export function AuthorizeButton() {
   const users = useUsersContext();
+  if (!users.may.authorize) return null;
   return (
     <Button
       look="action"
@@ -21,6 +22,26 @@ export function AuthorizeButton() {
       disabled={!users.online}
     >
       {texts.authorize}
+    </Button>
+  );
+}
+
+// Un rol nuevo (R7.3), en la pestaña Roles.
+export function NewRoleButton() {
+  const users = useUsersContext();
+  return (
+    <Button
+      look="action"
+      icon="shield"
+      shortcut="n"
+      doing={roleTexts.newRole}
+      onPress={() => {
+        users.setDraft(undefined);
+        users.setRoleCard('new');
+      }}
+      disabled={!users.online}
+    >
+      {roleTexts.newRole}
     </Button>
   );
 }
@@ -54,23 +75,47 @@ export function Head() {
         </div>
         <SearchButton />
         <div class="users-actions desktop-only">
-          <Button
-            icon="smartphone"
-            shortcut="i"
-            doing={texts.lost}
-            onPress={() => users.open({ kind: 'lost' })}
-            disabled={!users.online}
-          >
-            {texts.lost}
-          </Button>
-          <AuthorizeButton />
+          {users.tab === 'roles' ? (
+            <NewRoleButton />
+          ) : (
+            <>
+              {users.may.cut && (
+                <Button
+                  icon="smartphone"
+                  shortcut="i"
+                  doing={texts.lost}
+                  onPress={() => users.open({ kind: 'lost' })}
+                  disabled={!users.online}
+                >
+                  {texts.lost}
+                </Button>
+              )}
+              <AuthorizeButton />
+            </>
+          )}
         </div>
       </header>
       <nav class="users-tabs" aria-label={texts.tabs}>
-        <span class="users-tab" aria-current="page">
+        <button
+          type="button"
+          class="users-tab"
+          aria-current={users.tab === 'people' ? 'page' : undefined}
+          onClick={() => users.setTab('people')}
+        >
           <Icon name="users" size="small" />
           {texts.title}
-        </span>
+        </button>
+        {users.may.roles && (
+          <button
+            type="button"
+            class="users-tab"
+            aria-current={users.tab === 'roles' ? 'page' : undefined}
+            onClick={() => users.setTab('roles')}
+          >
+            <Icon name="shield-check" size="small" />
+            {texts.rolesTab}
+          </button>
+        )}
         <button
           type="button"
           class="users-tab soon"
@@ -89,6 +134,7 @@ export function Head() {
 // alguien» en la barra de abajo; no es un aviso, así que no va en rojo (pedido de Carlos).
 export function LostButton() {
   const users = useUsersContext();
+  if (!users.may.cut) return null;
   return (
     <Button
       icon="smartphone"
