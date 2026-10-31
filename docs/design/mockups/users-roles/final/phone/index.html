@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuarios · Roles · final · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../shared/frame.css">
+<link rel="stylesheet" href="../shared/roles.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; margin: 0; }
+  .celu-pestanas a { font-size: 14px; gap: 4px; display: flex; align-items: center; justify-content: center; }
+  .celu-pestanas .pronto { height: 22px; padding: 0 6px; }
+  .celu-pantalla { overflow: auto; padding-bottom: 16px; }
+  .qp-card { padding: 14px 16px; display: grid; gap: 8px; }
+  .qp-card h3 { margin: 0 0 2px; font-size: 14px; font-weight: 650; color: var(--texto-2); display: flex; justify-content: space-between; }
+  .qp { display: grid; grid-template-columns: 1fr 72px 20px; gap: 10px; align-items: center; font-size: 14px; font-weight: 650; }
+  .qp .barra { height: 6px; }
+  .qp .barra > b { display: block; width: 100%; background: var(--pino); transform-origin: left; transition: transform var(--t-nav) var(--curva); }
+  .qp .n { text-align: right; color: var(--texto-2); }
+  .grupo { font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 20px 4px 8px; }
+  .rol { width: 100%; display: grid; grid-template-columns: 44px minmax(0,1fr) 20px; gap: 12px; align-items: center; padding: 14px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); text-align: left; transition: transform var(--t-micro) var(--curva); }
+  .rol + .rol { margin-top: 8px; }
+  .rol:active { transform: scale(.98); }
+  .escudo { width: 44px; height: 44px; border-radius: 12px; background: var(--hundido); color: var(--texto-2); display: grid; place-items: center; }
+  .nom { font-weight: 700; font-size: 16px; line-height: 22px; display: flex; gap: 8px; align-items: center; }
+  .nom .pastilla { height: 24px; padding: 0 8px; }
+  .det { font-size: 14px; color: var(--texto-2); white-space: nowrap; display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .puntos { display: flex; gap: 3px; }
+  .puntos span { width: 16px; height: 6px; border-radius: 99px; background: var(--hundido-2); }
+  .puntos span.si { background: var(--pino); }
+  .rol .pila { margin-left: auto; }
+  .rol .cara { width: 30px; height: 30px; font-size: 14px; }
+  .flecha { color: var(--texto-3); }
+
+  /* La página del rol: entra desde la derecha, como en el iPhone */
+  #pag { position: absolute; left: 0; right: 0; top: 44px; bottom: 76px; background: var(--fondo); z-index: 20; display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--t-nav) var(--curva); box-shadow: -12px 0 24px -16px rgba(26,29,27,.25); }
+  #pag.abierta { transform: none; }
+  #pag:not(.abierta) { box-shadow: none; }
+  .pag-cab { display: flex; align-items: center; gap: 4px; padding: 4px 8px 0; height: 48px; }
+  .volver { display: inline-flex; align-items: center; gap: 2px; background: none; border: 0; color: var(--pino); font-weight: 700; font-size: 16px; height: 44px; padding: 0 8px; }
+  .pag-cuerpo { flex: 1; overflow: auto; padding: 4px 16px 24px; display: grid; gap: 20px; align-content: start; }
+  .cab { display: flex; gap: 14px; align-items: center; }
+  .cab .escudo { width: 56px; height: 56px; border-radius: 16px; background: var(--pino-suave); color: var(--pino); }
+  .cab .escudo svg { width: 28px; height: 28px; }
+  .cab .t-titulo { font-size: 24px; line-height: 30px; }
+  .ren { display: flex; gap: 8px; align-items: center; }
+  .ren button { border: 0; background: none; color: var(--texto-3); width: 44px; height: 44px; display: grid; place-items: center; }
+  .ed { width: 100%; height: 48px; border-radius: 12px; border: 1px solid var(--pino); box-shadow: 0 0 0 4px rgba(18,56,47,.12); padding: 0 12px; font-weight: 700; font-size: 18px; outline: 0; }
+  .sec { display: grid; gap: 8px; }
+  .sec-cab { display: flex; justify-content: space-between; align-items: center; min-height: 36px; }
+  .permiso { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 14px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); }
+  .permiso b { font-size: 16px; line-height: 22px; display: flex; align-items: center; gap: 8px; }
+  .permiso b .i { color: var(--texto-2); }
+  .permiso.on b .i { color: var(--pino); }
+  .permiso small { grid-column: 1 / -1; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .permiso .porque { grid-column: 1 / -1; }
+  .gente { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 8px 8px 8px 12px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r); }
+  .gente b { font-size: 16px; }
+  .gente .pastilla { height: 24px; padding: 0 8px; margin-left: 6px; }
+  .gente .porque { grid-column: 1 / -1; }
+  .botones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ultimo { display: flex; gap: 8px; font-size: 14px; color: var(--texto-3); }
+  .err { display: flex; gap: 6px; align-items: center; font-size: 14px; font-weight: 650; color: var(--error-texto); margin-top: 6px; }
+  .err[hidden] { display: none; }
+  .hoja .lead { margin: 4px 0 0; color: var(--texto-2); font-size: 15px; line-height: 22px; }
+  .marcar { display: grid; gap: 8px; margin-top: 16px; }
+  .elegir { display: grid; gap: 8px; margin-top: 16px; }
+  .elegir .gente[aria-checked="true"] { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino); }
+  .cartel-red { display: none; margin: 8px 16px 0; }
+  body.offline .cartel-red { display: flex; }
+
+  /* Maqueta final */
+  .rol .desc-rol { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 2px; }
+  .cab .desc-rol { margin-top: 4px; }
+  .edicion { display: grid; gap: 8px; }
+  .hoja .sec-cab { margin-top: 16px; min-height: 0; }
+  .hoja .grupos { margin-top: 8px; }
+  .grupo-perms .permiso { box-shadow: none; }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="celu-cabecera"><span class="t-titulo">Usuarios</span></div>
+  <button class="celu-estado"><span class="punto"></span><span data-luz>En línea · todo enviado</span></button>
+  <nav class="celu-pestanas"><a data-ir="users">Usuarios</a><a class="activa" data-no-ir aria-current="page">Roles</a><a class="pestana-pronto" data-no-ir aria-disabled="true" title="Pronto">Auditoría</a></nav>
+  <div class="aviso urgente cartel-red"><i class="i" data-i="wifi-off"></i>Sin conexión: Roles vuelve sola cuando vuelva la conexión.</div>
+  <div class="celu-pantalla zona-red">
+    <div class="tarjeta qp-card"><h3><span>Quién puede qué</span><span>de 7 personas</span></h3><div id="qp" style="display:grid;gap:8px"></div></div>
+    <div class="grupo">4 roles</div>
+    <div id="lista"></div>
+  </div>
+  <div class="barra-accion zona-red"><button class="btn btn-accion grande" style="width:100%" id="btn-nuevo"><i class="i i-l" data-i="shield-plus"></i>Nuevo rol</button></div>
+
+  <section id="pag" aria-label="El rol"></section>
+
+  <nav class="nav-inferior">
+    <a data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a class="activo" data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+
+  <section class="hoja" id="h-rol" role="dialog" aria-modal="true">
+    <div class="asa"></div>
+    <h2 id="h-rol-t">Nuevo rol</h2>
+    <p class="lead" id="h-rol-lead">Un nombre y lo que deja hacer.</p>
+    <div class="campo-real" style="margin-top:16px"><label for="h-nombre">Nombre</label><input id="h-nombre" placeholder="Por ejemplo, Encargado de depósito" autocomplete="off" enterkeyhint="next"><div class="err" id="h-nombre-err" hidden><i class="i i-s" data-i="circle-alert"></i><span></span></div></div>
+    <div class="campo-real campo-desc" style="margin-top:16px"><label for="h-desc">Descripción (si querés)</label><textarea id="h-desc" rows="2" maxlength="200" placeholder="Para quién es" enterkeyhint="done"></textarea><div class="ayuda"><span>Se ve en la lista y al elegir los roles de alguien.</span><span class="contador" id="h-desc-n">0 / 200</span></div></div>
+    <div class="sec-cab"><span class="t-renglon">Qué deja hacer</span></div>
+    <div class="grupos" id="h-perms"></div>
+    <div class="err" id="h-perms-err" hidden><i class="i i-s" data-i="circle-alert"></i><span>Elegí al menos un permiso.</span></div>
+    <div class="pie-d"><button class="btn" data-cerrar>Cancelar</button><button class="btn btn-accion" id="h-crear">Crear el rol</button></div>
+  </section>
+
+  <section class="hoja" id="h-dar" role="dialog" aria-modal="true">
+    <div class="asa"></div>
+    <h2>Darle «<span></span>»</h2>
+    <p class="lead">Desde su próximo pedido, sin volver a entrar.</p>
+    <div class="elegir" id="h-dar-lista"></div>
+    <div class="pie-d"><button class="btn" data-cerrar>Cancelar</button><button class="btn btn-accion" id="h-dar-ok" disabled>Darle el rol</button></div>
+  </section>
+
+  <section class="hoja" id="h-borrar" role="dialog" aria-modal="true">
+    <div class="asa"></div>
+    <h2>¿Borrar «<span></span>»?</h2>
+    <p class="lead">Nadie lo tiene, así que nadie pierde nada.</p>
+    <div class="pie-d"><button class="btn" data-cerrar>Cancelar</button><button class="btn btn-rojo" id="h-borrar-ok"><i class="i i-s" data-i="trash-2"></i>Borrar</button></div>
+  </section>
+</div>
+
+<script src="../shared/roles.js"></script>
+<script>
+(function () {
+  var R = window.ROLES, sel = null, lista = document.getElementById("lista"), pag = document.getElementById("pag");
+  var editing = false, warn = null;
+
+  function peopleWith(pid) { var s = {}; R.roles.forEach(function (r) { if (R.has(r, pid)) r.people.forEach(function (p) { s[p] = 1; }); }); return Object.keys(s).length; }
+  function drawQp() {
+    document.getElementById("qp").innerHTML = R.PERMS.map(function (p) {
+      var n = peopleWith(p.id);
+      return '<div class="qp"><span>' + p.name + '</span><span class="barra"><b style="transform:scaleX(' + (n / 7) + ')"></b></span><span class="n">' + n + "</span></div>";
+    }).join("");
+    document.querySelector(".grupo").textContent = R.roles.length + " roles";
+  }
+  function drawList(entering) {
+    lista.innerHTML = R.roles.map(function (r) {
+      return '<button class="rol' + (r.id === entering ? " entra recien" : "") + '" data-id="' + r.id + '"><span class="escudo"><i class="i" data-i="' + (r.fixed ? "shield-check" : "shield") + '"></i></span>' +
+        '<span style="min-width:0"><span class="nom">' + R.esc(r.name) + (r.people.indexOf("RP") >= 0 ? '<span class="pastilla accion">El tuyo</span>' : "") + "</span>" +
+        (r.desc ? '<span class="desc-rol">' + R.esc(r.desc) + "</span>" : "") +
+        '<span class="det"><span class="puntos">' + R.PERMS.map(function (p) { return '<span class="' + (R.has(r, p.id) ? "si" : "") + '"></span>'; }).join("") + "</span>" + R.permsCount(r) + R.pila(r.people, 3) + "</span></span>" +
+        '<i class="i flecha" data-i="chevron-right"></i></button>';
+    }).join("");
+    R.icons(lista);
+  }
+  function drawPage() {
+    var r = R.role(sel); if (!r) return;
+    var del = R.whyNotDelete(r), d = r.desc || "";
+    pag.innerHTML = '<div class="pag-cab"><button class="volver" id="volver"><i class="i" data-i="chevron-left"></i>Roles</button></div><div class="pag-cuerpo">' +
+      '<div class="cab"><span class="escudo"><i class="i" data-i="' + (r.fixed ? "shield-check" : "shield") + '"></i></span><div style="flex:1;min-width:0">' +
+      (editing ? '<div class="edicion" id="edicion"><input class="ed" id="ren" value="' + R.esc(r.name) + '" aria-label="Nombre del rol" enterkeyhint="next" autocomplete="off">' + (warn && warn.kind === "name" ? '<div class="porque error"><i class="i i-s" data-i="circle-alert"></i>' + warn.msg + "</div>" : "") +
+          '<div class="campo-desc"><textarea id="ren-desc" rows="3" maxlength="' + R.DESC_MAX + '" aria-label="Descripción del rol" placeholder="Para quién es (si querés)" enterkeyhint="done">' + R.esc(d) + '</textarea><div class="ayuda"><span>Listo guarda</span><span class="contador" id="ren-n">' + d.length + " / " + R.DESC_MAX + "</span></div></div></div>"
+        : '<div class="ren"><span class="t-titulo">' + R.esc(r.name) + '</span><button id="btn-ren" aria-label="Cambiar el nombre o la descripción"><i class="i" data-i="pencil"></i></button></div>' + (d ? '<span class="desc-rol">' + R.esc(d) + "</span>" : "") + '<div class="t-detalle">' + R.peopleCount(r) + "</div>") +
+      "</div></div>" +
+      '<div class="sec"><div class="sec-cab"><span class="t-seccion">Qué deja hacer</span></div>' +
+      R.GROUPS.map(function (g) {
+        var ps = R.permsOf(g.id);
+        return '<div class="parte-p"><i class="i i-s" data-i="' + g.icon + '"></i>' + g.name + '<span class="cuenta">' + R.countIn(r, g.id) + " de " + ps.length + "</span></div>" + ps.map(permRow).join("");
+      }).join("") + "</div>" +
+      '<div class="sec"><div class="sec-cab"><span class="t-seccion">Quiénes lo tienen</span><button class="btn chico" id="btn-dar"><i class="i i-s" data-i="user-plus"></i>Darlo</button></div>' +
+      (r.people.length ? r.people.map(function (pid) {
+        var w = warn && warn.kind === "person" && warn.key === pid;
+        return '<div class="gente' + (w ? " no" : "") + '" data-p="' + pid + '">' + R.cara(pid, "g") + "<span><b>" + R.first(pid) + " " + R.PEOPLE[pid].name.split(" ")[1] + "</b>" + (R.PEOPLE[pid].me ? '<span class="pastilla vos">Vos</span>' : "") + '</span><button class="btn btn-fantasma chico" data-quitar="' + pid + '" aria-label="Sacárselo a ' + R.PEOPLE[pid].name + '"><i class="i" data-i="x"></i></button>' +
+          (w ? '<span class="porque error"><i class="i i-s" data-i="circle-alert"></i>' + warn.msg + "</span>" : "") + "</div>";
+      }).join("") : '<div class="porque"><i class="i i-s" data-i="info"></i>Nadie lo tiene todavía.</div>') + "</div>" +
+      '<div class="botones"><button class="btn" id="btn-dup"><i class="i i-s" data-i="copy"></i>Duplicar</button><button class="btn btn-peligro" id="btn-borrar"' + (del ? " disabled" : "") + '><i class="i i-s" data-i="trash-2"></i>Borrar</button></div>' +
+      (del ? '<div class="porque" style="margin-top:-12px"><i class="i i-s" data-i="info"></i>' + del + "</div>" : "") +
+      '<div class="ultimo"><i class="i i-s" data-i="history"></i>' + r.last + "</div></div>";
+    R.icons(pag);
+    if (editing) { var i = document.getElementById("ren"); i.focus(); i.select(); }
+    var w = pag.querySelector(".no"); if (w) w.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    function permRow(p) {
+      var on = R.has(r, p.id), tied = R.tied(r, p.id), w = warn && warn.kind === "perm" && warn.key === p.id;
+      return '<div class="permiso' + (on ? " on" : "") + (w ? " no" : "") + '"><b><i class="i" data-i="' + p.icon + '"></i>' + p.name + '</b><button class="llave' + (tied ? " atada" : "") + '" role="switch" aria-checked="' + on + '" aria-label="' + p.name + '" data-perm="' + p.id + '"></button><small>' + p.exp + "</small>" +
+        (tied ? '<span class="porque pino"><i class="i i-s" data-i="lock"></i>Va incluido en ' + R.tiedBy(r) + ".</span>" : "") +
+        (w ? '<span class="porque error"><i class="i i-s" data-i="circle-alert"></i>' + warn.msg + "</span>" : "") + "</div>";
+    }
+  }
+  function redraw(entering) { drawQp(); drawList(entering); if (sel) drawPage(); }
+
+  lista.addEventListener("click", function (e) {
+    var f = e.target.closest(".rol"); if (!f) return;
+    sel = f.dataset.id; editing = false; warn = null; drawPage();
+    requestAnimationFrame(function () { pag.classList.add("abierta"); });
+  });
+  pag.addEventListener("click", function (e) {
+    var r = R.role(sel), t;
+    if (e.target.closest("#volver")) { pag.classList.remove("abierta"); return; }
+    if ((t = e.target.closest("[data-perm]"))) {
+      var pid = t.dataset.perm;
+      if (R.has(r, pid)) {
+        var why = R.whyNotRemove(r, pid);
+        if (why) { warn = { kind: "perm", key: pid, msg: why }; drawPage(); if (navigator.vibrate) try { navigator.vibrate([20, 30, 20]); } catch (x) {} return; }
+        R.toggle(r, pid); warn = null; redraw();
+        R.toast("Ya no puede «" + R.perm(pid).name + "»", function () { R.toggle(r, pid); redraw(); });
+      } else R.reauth("Sumarle «" + R.perm(pid).name + "» a " + r.name, function () {
+        R.toggle(r, pid); warn = null; redraw();
+        R.toast("Ahora puede «" + R.perm(pid).name + "»", function () { R.toggle(r, pid); redraw(); });
+      });
+    } else if (e.target.closest("#btn-ren")) { editing = true; warn = null; drawPage(); }
+    else if ((t = e.target.closest("[data-quitar]"))) {
+      var p = t.dataset.quitar, why2 = R.whyNotUnassign(r, p);
+      if (why2) { warn = { kind: "person", key: p, msg: why2 }; drawPage(); return; }
+      t.closest(".gente").classList.add("sale");
+      setTimeout(function () { r.people.splice(r.people.indexOf(p), 1); warn = null; redraw(); R.toast("Le sacaste el rol a " + R.first(p), function () { r.people.push(p); redraw(); }); }, 200);
+    } else if (e.target.closest("#btn-dar")) openGive();
+    else if (e.target.closest("#btn-dup")) openRole(r);
+    else if (e.target.closest("#btn-borrar")) { document.querySelector("#h-borrar h2 span").textContent = r.name; R.open(document.getElementById("h-borrar")); }
+  });
+  // El nombre y la descripción se cambian juntos: «Siguiente» del teclado pasa a la descripción,
+  // «Listo» guarda, y tocar afuera también guarda
+  function saveEdit() {
+    var r = R.role(sel), v = document.getElementById("ren").value.trim(), d = document.getElementById("ren-desc").value.trim();
+    var why = R.whyNotName(v, r);
+    if (why) { warn = { kind: "name", msg: why }; drawPage(); document.getElementById("ren").value = v; document.getElementById("ren-desc").value = d; return; }
+    var before = { name: r.name, desc: r.desc || "" };
+    editing = false; warn = null;
+    if (v === before.name && d === before.desc) { drawPage(); return; }
+    r.name = v; r.desc = d; redraw();
+    R.toast(v !== before.name ? "Ahora se llama «" + v + "»" : "Descripción cambiada", function () { r.name = before.name; r.desc = before.desc; redraw(); });
+  }
+  pag.addEventListener("input", function (e) {
+    if (e.target.id === "ren-desc") { var n = document.getElementById("ren-n"); n.textContent = e.target.value.length + " / " + R.DESC_MAX; n.classList.toggle("lleno", e.target.value.length >= R.DESC_MAX); }
+  });
+  pag.addEventListener("keydown", function (e) {
+    if (e.target.id !== "ren" && e.target.id !== "ren-desc") return;
+    if (e.key === "Escape") { e.stopPropagation(); editing = false; warn = null; drawPage(); }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (e.target.id === "ren") document.getElementById("ren-desc").focus(); else saveEdit();
+    }
+  });
+  pag.addEventListener("focusout", function (e) {
+    if (!editing || !e.target.closest("#edicion")) return;
+    setTimeout(function () { if (editing && !(document.activeElement && document.activeElement.closest("#edicion"))) saveEdit(); }, 0);
+  });
+
+  // Volver deslizando desde el borde izquierdo
+  var sx = null;
+  pag.addEventListener("touchstart", function (e) { var x = e.touches[0].clientX - pag.getBoundingClientRect().left; sx = x < 24 ? x : null; }, { passive: true });
+  pag.addEventListener("touchend", function (e) { if (sx !== null && e.changedTouches[0].clientX - pag.getBoundingClientRect().left - sx > 80) pag.classList.remove("abierta"); sx = null; });
+
+  /* Rol nuevo o duplicado */
+  var hRol = document.getElementById("h-rol"), draft = null;
+  function openRole(from) {
+    draft = { perms: from ? from.perms.slice() : [], open: {} };
+    draft.open[R.GROUPS[0].id] = true;
+    document.getElementById("h-rol-t").textContent = from ? "Duplicar «" + from.name + "»" : "Nuevo rol";
+    document.getElementById("h-rol-lead").textContent = from ? "Con sus mismos permisos y su descripción. No se guarda hasta que lo creás." : "Un nombre y lo que deja hacer.";
+    var n = document.getElementById("h-nombre"); n.value = from ? from.name + " (copia)" : "";
+    hDesc.value = from ? (from.desc || "") : ""; countDesc();
+    document.getElementById("h-nombre-err").hidden = true; n.parentNode.classList.remove("mal"); document.getElementById("h-perms-err").hidden = true;
+    drawDraft(); R.open(hRol);
+  }
+  var hDesc = document.getElementById("h-desc"), hDescN = document.getElementById("h-desc-n");
+  function countDesc() { hDescN.textContent = hDesc.value.length + " / " + R.DESC_MAX; hDescN.classList.toggle("lleno", hDesc.value.length >= R.DESC_MAX); }
+  hDesc.addEventListener("input", countDesc);
+  hDesc.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); hDesc.blur(); } });
+  document.getElementById("h-nombre").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); hDesc.focus(); } });
+  // Los permisos, agrupados por parte de la aplicación; cada grupo se abre y se cierra
+  function drawDraft(opening) {
+    var box = document.getElementById("h-perms");
+    box.innerHTML = R.GROUPS.map(function (g) {
+      var ps = R.permsOf(g.id), n = R.countIn(draft, g.id), open = !!draft.open[g.id];
+      return '<section class="grupo-p' + (n ? " con" : "") + '">' +
+        '<button type="button" class="grupo-cab" aria-expanded="' + open + '" aria-controls="hg-' + g.id + '" data-gbtn="' + g.id + '">' +
+        '<span class="ic"><i class="i" data-i="' + g.icon + '"></i></span><span style="min-width:0"><b>' + g.name + "</b><small>" + g.sub + "</small></span>" +
+        '<span class="cuenta">' + n + " de " + ps.length + '</span><i class="i giro" data-i="chevron-down"></i></button>' +
+        '<div class="grupo-perms' + (opening === g.id ? " abre" : "") + '" id="hg-' + g.id + '"' + (open ? "" : " hidden") + ">" +
+        ps.map(function (p) {
+          var on = draft.perms.indexOf(p.id) >= 0, tied = R.tied(draft, p.id);
+          return '<div class="permiso' + (on ? " on" : "") + '" data-dp="' + p.id + '"><b><i class="i" data-i="' + p.icon + '"></i>' + p.name + '</b><span class="llave' + (tied ? " atada" : "") + '" role="switch" aria-checked="' + on + '" aria-label="' + p.name + '"></span>' +
+            (tied ? '<span class="porque pino"><i class="i i-s" data-i="lock"></i>Va incluido en ' + R.tiedBy(draft) + ".</span>" : "") + "</div>";
+        }).join("") + "</div></section>";
+    }).join("");
+    R.icons(box);
+  }
+  document.getElementById("h-perms").addEventListener("click", function (e) {
+    var g = e.target.closest("[data-gbtn]");
+    if (g) { var id = g.dataset.gbtn; draft.open[id] = !draft.open[id]; drawDraft(draft.open[id] ? id : null); return; }
+    var t = e.target.closest("[data-dp]"); if (!t) return;
+    if (R.tied(draft, t.dataset.dp)) { t.classList.remove("no"); void t.offsetWidth; t.classList.add("no"); return; }
+    R.toggle(draft, t.dataset.dp); document.getElementById("h-perms-err").hidden = true; drawDraft();
+  });
+  document.getElementById("h-crear").addEventListener("click", function () {
+    var n = document.getElementById("h-nombre"), why = R.whyNotName(n.value), ne = document.getElementById("h-nombre-err"), bad = false;
+    if (why) { ne.hidden = false; ne.querySelector("span").textContent = why; n.parentNode.classList.add("mal"); bad = true; } else { ne.hidden = true; n.parentNode.classList.remove("mal"); }
+    if (!draft.perms.length) { document.getElementById("h-perms-err").hidden = false; bad = true; }
+    if (bad) return;
+    var name = n.value.trim(), desc = hDesc.value.trim(), perms = draft.perms.slice(); R.close();
+    R.reauth("Crear el rol «" + name + "»", function () {
+      var id = "r" + Date.now(); R.roles.push({ id: id, name: name, desc: desc, perms: perms, people: [], last: "Lo creaste recién" });
+      pag.classList.remove("abierta"); sel = null; redraw(id);
+      R.toast("Rol «" + name + "» creado");
+      var f = lista.querySelector('[data-id="' + id + '"]'); if (f) f.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
+  });
+
+  /* Darlo */
+  var hDar = document.getElementById("h-dar"), picked = {};
+  function openGive() {
+    var r = R.role(sel); picked = {};
+    hDar.querySelector("h2 span").textContent = r.name;
+    var free = Object.keys(R.PEOPLE).filter(function (p) { return r.people.indexOf(p) < 0; });
+    var box = document.getElementById("h-dar-lista");
+    box.innerHTML = free.map(function (p) {
+      return '<div class="gente" role="checkbox" aria-checked="false" data-pick="' + p + '">' + R.cara(p, "g") + "<span><b>" + R.PEOPLE[p].name + '</b></span><span class="tilde" aria-hidden="true"><i class="i i-s" data-i="check"></i></span></div>';
+    }).join("") || '<div class="porque">Todas las personas ya lo tienen.</div>';
+    R.icons(box); document.getElementById("h-dar-ok").disabled = true; R.open(hDar);
+  }
+  document.getElementById("h-dar-lista").addEventListener("click", function (e) {
+    var t = e.target.closest("[data-pick]"); if (!t) return;
+    var p = t.dataset.pick; picked[p] = !picked[p];
+    t.setAttribute("aria-checked", !!picked[p]); t.querySelector(".tilde").setAttribute("aria-checked", !!picked[p]);
+    document.getElementById("h-dar-ok").disabled = !Object.keys(picked).some(function (k) { return picked[k]; });
+  });
+  document.getElementById("h-dar-ok").addEventListener("click", function () {
+    var r = R.role(sel), ids = Object.keys(picked).filter(function (k) { return picked[k]; }); R.close();
+    R.reauth("Darle «" + r.name + "» a " + R.names(ids), function () {
+      ids.forEach(function (p) { r.people.push(p); }); redraw();
+      ids.forEach(function (p) { var el = pag.querySelector('[data-p="' + p + '"]'); if (el) el.classList.add("entra", "recien"); });
+      R.toast(R.names(ids) + (ids.length > 1 ? " ya lo tienen" : " ya lo tiene"), function () { ids.forEach(function (p) { r.people.splice(r.people.indexOf(p), 1); }); redraw(); });
+    });
+  });
+
+  document.getElementById("h-borrar-ok").addEventListener("click", function () {
+    var r = R.role(sel), i = R.roles.indexOf(r); R.close(); pag.classList.remove("abierta");
+    setTimeout(function () {
+      var f = lista.querySelector('[data-id="' + r.id + '"]'); if (f) f.classList.add("sale");
+      setTimeout(function () { R.roles.splice(i, 1); sel = null; redraw(); R.toast("Borraste «" + r.name + "»", function () { R.roles.splice(i, 0, r); redraw(r.id); }); }, 200);
+    }, 320);
+  });
+  document.getElementById("btn-nuevo").addEventListener("click", function () { openRole(null); });
+  redraw();
+})();
+</script>
+</body>
+</html>

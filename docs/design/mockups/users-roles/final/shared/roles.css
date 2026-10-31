@@ -1,0 +1,125 @@
+/* Roles: piezas que comparten las tres variantes, sobre common.css y frame.css. */
+
+/* Pestaña «Pronto» (Auditoría es de otro capítulo) */
+.pestana-pronto { display: inline-flex; align-items: center; gap: 8px; color: var(--texto-3) !important; cursor: default !important; }
+.pronto { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 999px; background: var(--hundido); color: var(--texto-2); font-size: 14px; font-weight: 700; }
+
+/* Caras: iniciales en círculo, apiladas */
+.cara { width: 36px; height: 36px; border-radius: 99px; display: inline-grid; place-items: center; font-weight: 800; font-size: 14px; flex: none; background: var(--hundido); color: var(--texto-2); border: 2px solid var(--superficie); position: relative; }
+.cara.g { width: 40px; height: 40px; }
+.cara.p1 { background: var(--pino-suave); color: var(--pino-texto); }
+.cara.p2 { background: #EFE7DA; color: #6F5330; }
+.cara.p3 { background: #E4ECF2; color: #2F5470; }
+.pila { display: inline-flex; align-items: center; }
+.pila .cara + .cara { margin-left: -6px; }
+.pila .mas { font-size: 14px; font-weight: 700; color: var(--texto-2); margin-left: 6px; }
+.nadie { font-size: 14px; font-weight: 600; color: var(--texto-3); }
+
+/* Interruptor: apagado gris, prendido pino. El que está atado (incluido), con candado. */
+.llave { position: relative; width: 48px; height: 28px; border-radius: 99px; background: var(--hundido-2); border: 0; padding: 0; flex: none; cursor: pointer; transition: background var(--t) var(--curva); }
+.llave::after { content: ""; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 99px; background: #fff; box-shadow: 0 1px 3px rgba(26,29,27,.25); transition: transform var(--t) var(--rebote); }
+.llave[aria-checked="true"] { background: var(--pino); }
+.llave[aria-checked="true"]::after { transform: translateX(20px); }
+.llave.atada { background: var(--pino-2, #2C5A4E); opacity: .55; cursor: not-allowed; }
+.llave:focus-visible { outline: 3px solid rgba(18,56,47,.35); outline-offset: 2px; }
+
+/* Casilla redonda (la grilla) */
+.tilde { width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--borde-fuerte); background: var(--superficie); display: inline-grid; place-items: center; color: #fff; cursor: pointer; transition: background var(--t-micro), border-color var(--t-micro), transform var(--t-micro) var(--curva); }
+.tilde:active { transform: scale(.92); }
+.tilde svg { opacity: 0; transform: scale(.6); transition: opacity var(--t) var(--curva), transform var(--t) var(--rebote); }
+.tilde[aria-checked="true"] { background: var(--pino); border-color: var(--pino); }
+.tilde[aria-checked="true"] svg { opacity: 1; transform: none; }
+.tilde.atada { background: var(--pino-suave); border-color: var(--pino-suave); color: var(--pino-texto); cursor: not-allowed; }
+.tilde.atada svg { opacity: 1; transform: none; }
+
+/* Aviso al lado de lo que no se puede (R1.3, R7.1, R7.3) */
+.porque { display: flex; gap: 6px; align-items: flex-start; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--texto-2); }
+.porque .i { flex: none; margin-top: 1px; }
+.porque.error { color: var(--error-texto); }
+.porque.pino { color: var(--pino-texto); }
+
+/* Sacudón corto para un «no se puede» */
+@keyframes no { 0%,100% { transform: none; } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.no { animation: no 240ms var(--curva); }
+
+/* Confirmar que sos vos (R3.8) */
+.reauth { text-align: center; }
+.reauth .sello { width: 72px; height: 72px; margin: 4px auto 12px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino); position: relative; }
+.reauth .sello svg { width: 36px; height: 36px; }
+.reauth .sello::after { content: ""; position: absolute; inset: -6px; border-radius: 99px; border: 3px solid var(--pino); opacity: 0; }
+.reauth.mirando .sello::after { animation: pulso 900ms var(--curva) infinite; }
+@keyframes pulso { from { opacity: .6; transform: scale(.9); } to { opacity: 0; transform: scale(1.25); } }
+.reauth.listo .sello { background: var(--logro-suave); color: var(--logro); }
+.reauth p { color: var(--texto-2); margin: 4px 0 0; font-size: 15px; line-height: 22px; }
+.reauth .que { margin: 16px 0 0; padding: 12px 16px; border-radius: var(--r); background: var(--hundido); font-weight: 650; font-size: 15px; text-align: left; display: flex; gap: 10px; }
+.btn-google { gap: 10px; }
+.btn-google .g { width: 20px; height: 20px; }
+
+/* Lo que cambia (antes → después), como lo anota la auditoría */
+.cambios { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
+.cambios li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--borde); border-radius: var(--r); font-size: 15px; line-height: 22px; }
+.cambios .signo { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; }
+.cambios .signo.mas { background: var(--logro-suave); color: var(--logro-texto); }
+.cambios .signo.menos { background: var(--error-suave); color: var(--error-texto); }
+.cambios small { display: block; font-size: 14px; color: var(--texto-2); }
+
+/* La tostada con «Deshacer» */
+.tostada .deshacer { margin-left: 8px; background: none; border: 0; color: #fff; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-size: 15px; }
+
+/* El fondo de los diálogos en la computadora */
+.dialogo { max-height: calc(100vh - 48px); overflow: auto; }
+.dialogo .pie-d .btn { min-width: 112px; }
+
+/* Celular: hoja de abajo (copiada de Usuarios en el celular) */
+.celu .velo { position: absolute; }
+.celu .hoja { max-height: 780px; overflow: auto; }
+.celu .hoja .pie-d { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+.celu .hoja .pie-d.uno { grid-template-columns: 1fr; }
+.celu .hoja .pie-d .btn { width: 100%; }
+.celu .tostadas { position: absolute; left: 16px; right: 16px; bottom: 164px; transform: none; }
+.celu-estado { background: none; border: 0; cursor: pointer; text-align: left; }
+
+/* Movimiento: con «reducir movimiento», nada se mueve */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+}
+
+/* ---------- Maqueta final ---------- */
+
+/* Las teclas se ven solo mientras Alt está apretado (00 · R2.9) */
+.kbd { display: none !important; }
+body.alt .kbd { display: inline-flex !important; }
+
+/* La descripción del rol, optativa (R7.3, E57): debajo del nombre */
+.desc-rol { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+.contador { white-space: nowrap; font-size: 14px; font-weight: 600; color: var(--texto-3); font-variant-numeric: tabular-nums; }
+.contador.lleno { color: var(--error-texto); }
+.campo-desc { display: grid; gap: 6px; }
+.campo-desc .ayuda { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+.campo-desc textarea { width: 100%; min-height: 72px; resize: none; font: inherit; font-size: 16px; line-height: 22px; padding: 12px 16px; border: 1px solid var(--borde-fuerte); border-radius: var(--r); background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra-1); outline: 0; }
+.campo-desc textarea:focus { border-color: var(--pino); box-shadow: 0 0 0 4px rgba(18,56,47,.12); }
+
+/* Nuevo rol y Duplicar: los permisos agrupados por parte de la aplicación, cada grupo se abre y
+   se cierra (pedido de Carlos, tomado de la referencia de Copilot) */
+.grupos { display: grid; gap: 8px; margin-top: 16px; }
+.grupo-p { border: 1px solid var(--borde); border-radius: var(--r-tarjeta); background: var(--superficie); }
+.grupo-cab { width: 100%; display: grid; grid-template-columns: 36px minmax(0,1fr) auto 20px; gap: 12px; align-items: center; padding: 12px; background: none; border: 0; border-radius: var(--r-tarjeta); text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.grupo-cab:focus-visible { outline: 3px solid rgba(18,56,47,.3); outline-offset: 2px; }
+.grupo-cab .ic { width: 36px; height: 36px; border-radius: 10px; background: var(--hundido); color: var(--texto-2); display: grid; place-items: center; }
+.grupo-p.con .grupo-cab .ic { background: var(--pino-suave); color: var(--pino); }
+.grupo-cab b { display: block; font-size: 16px; line-height: 22px; }
+.grupo-cab small { display: block; font-size: 14px; line-height: 20px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.grupo-cab .cuenta { font-size: 14px; font-weight: 700; color: var(--texto-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.grupo-p.con .grupo-cab .cuenta { color: var(--pino-texto); }
+.grupo-cab .giro { color: var(--texto-3); transition: transform var(--t) var(--curva); }
+.grupo-cab[aria-expanded="true"] .giro { transform: rotate(180deg); }
+.grupo-perms { display: grid; gap: 8px; padding: 0 12px 12px; }
+.grupo-perms[hidden] { display: none; }
+.grupo-perms.abre { animation: abre-grupo var(--t) var(--curva); }
+@keyframes abre-grupo { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+/* La tarjeta del rol: los permisos bajo el nombre de su parte */
+.parte-p { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 4px 4px 0; }
+.parte-p .i { color: var(--texto-3); }
+.parte-p .cuenta { margin-left: auto; font-weight: 600; color: var(--texto-3); }
+.celu .grupo-cab small { white-space: normal; }
