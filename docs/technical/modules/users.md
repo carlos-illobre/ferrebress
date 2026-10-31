@@ -2,7 +2,7 @@
 
 Cómo se construye la etapa a del capítulo [02 · Personas](../../chapters/02-users/rules.md):
 personas y sesiones, con el único rol Administrador. La etapa b (roles y permisos) tendrá su propia
-parte de este diseño. Lo aprueba Carlos antes de programar (constitución, pasos 3 a 5). Las
+parte de este diseño. **Aprobado por Carlos.** Las
 revisiones independientes están en [users-design-review.md](users-design-review.md) y
 [users-security-review.md](users-security-review.md); este diseño ya las incorpora.
 
@@ -271,6 +271,7 @@ una sola vez para el servidor y la aplicación.
 | E28 | Cada cambio deja su línea, con quién y a quién, después de confirmar |
 | E29 | De la pantalla: sin conexión, gris; al volver, se prende sin pedir nada |
 | E30 | De las rutas: un cambio con una versión vieja da `changed` |
+| E33 | De las rutas: autorizar y dar de alta con una sesión vieja dan `confirm-first`; después de confirmar con Google o la huella (de la misma persona), pasan. De la pantalla: la hoja pide confirmar y repite el pedido sola |
 | Seguridad | Un pedido que llega mientras se cierra su sesión no la vuelve a guardar; las rutas no dan el `device_id` ni el identificador de la huella; un celular de otra persona da `404`; los dos límites nuevos |
 | Metas | Las que cuentan las consultas de cada ruta |
 
@@ -290,19 +291,25 @@ sesión se cerró desde otro dispositivo». Cruza dos navegadores, la cookie y l
    de «Algo salió mal». Depende de 2.
 5. **Entrar anota** cómo y cuándo, sin pisar el nombre, con los controles de § 5. Depende de 2 y 4.
 6. **Las rutas de `users`** (§ 4, § 5). Depende de 1 y 2.
-7. **Las rutas de `sign-in`,** con la función que pone al día la memoria, y la baja que borra huellas.
-   Depende de 1, 4 y 5.
+7. **Las rutas de `sign-in`,** con la función que pone al día la memoria, la baja que borra huellas y
+   volver a confirmar con Google o la huella (§ 13). Depende de 1, 4 y 5.
 8. **Las cantidades** conectadas en `app.ts`. Depende de 6 y 7.
 9. **La aplicación:** el menú (con Carlos), la pantalla y sus piezas. Depende de 6 y 7.
 10. **Las pruebas de § 11, la documentación al día y la de punta a punta,** si Carlos la aprueba.
 
-## 13. Lo que decide Carlos
+## 13. Pasar por Google o la huella antes de autorizar o de dar de alta (R3.8)
 
-- **Pasar por Google o la huella antes de autorizar o de dar de alta** (revisión de seguridad, 7).
-  Con una sesión abierta, quien sea (un cliente frente a la computadora del mostrador) puede autorizar
-  su propio Gmail en diez segundos y entrar después desde su casa. Propuesta: pedir haber pasado por
-  Google o por la huella en los últimos 5 minutos para esas dos acciones, como ya se pide para
-  vincular la huella; si no, la pantalla pide tocar Google o poner la huella. Si no, al menos queda
-  «Autorizada el … por …» a la vista, que este diseño ya incluye.
-- **«Dada de alta de nuevo hoy»,** que muestra la maqueta, es historia: va en la auditoría, no en la
-  tabla. La tarjeta muestra «Dada de baja el …» mientras lo está; al darla de alta, nada.
+- **En la sesión** se guarda también cuándo se puso la huella por última vez (`passkey_at`), además
+  de `google_at`, que ya está. Autorizar y dar de alta comprueban en el servidor que alguna de las dos
+  sea de hace menos de 5 minutos (la misma regla que vincular la huella, `linkPasskeyWithinMs`); si no,
+  `403 confirm-first`.
+- **Volver a confirmar sin salir:** `POST /api/session/confirm/google` (el pase de Google, con su
+  `nonce`) y `POST /api/session/confirm/passkey` (una firma de la huella de esa persona en ese
+  celular) actualizan `google_at` o `passkey_at` de la sesión del pedido, sin abrir otra. La huella y
+  Google tienen que ser de la misma persona de la sesión; si no, `403` y se anota.
+- **La aplicación:** con `confirm-first`, una hoja pide «Continuar con Google» (el botón de su marco,
+  como en la entrada) o, en un celular con huella, la huella; al pasar, repite el pedido sola.
+- **La computadora que entró con el celular** no tiene Google reciente: lo pasa en esa hoja.
+- **«Dada de alta de nuevo hoy»,** que mostraba la maqueta, es historia: va en la auditoría. La tarjeta
+  muestra «Dada de baja el …» mientras lo está; al darla de alta, nada (lo decidió Carlos).
+- **La prueba de punta a punta** propuesta en § 11 está aprobada.

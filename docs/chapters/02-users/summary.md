@@ -15,7 +15,7 @@ Reglas completas en [rules.md](rules.md).
 - **Las personas:** activas y dadas de baja, con «Vos», la pastilla «Administrador» y cuándo entró
   por última vez; autorizar es nombre y correo de cualquier cuenta de Google, sin mandar correos;
   el nombre escrito manda sobre el de Google; el correo se cambia y la persona se borra solo si
-  nunca entró (R3).
+  nunca entró; autorizar y dar de alta piden Google o la huella de los últimos 5 minutos (R3).
 - **Baja y alta:** la baja, con confirmación, cierra las sesiones y quita los celulares con huella;
   el alta deja entrar de nuevo, vinculando otra vez la huella (R4).
 - **Sesiones y huellas:** en la tarjeta de cada persona, con dispositivo, cómo y cuándo entró y

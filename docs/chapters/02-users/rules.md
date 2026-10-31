@@ -53,6 +53,10 @@ Administrador. **Etapa b:** roles y permisos; se escribe al llegar a ella.
   baja el viejo. Así ninguna cuenta puede quedar entrando con un correo que ya no figura.
 - **R3.7** **Borrar** se puede solo a quien nunca entró (un alta equivocada): desaparece del todo,
   sin confirmación, porque no hay nada que perder. A quien entró alguna vez solo se lo da de baja.
+- **R3.8** **Autorizar a alguien y dar de alta** piden haber entrado con Google o con la huella hace
+  menos de 5 minutos en ese dispositivo. Si no, la aplicación pide tocar «Continuar con Google» o
+  poner la huella, y sigue sola con lo que se estaba haciendo. Así una sesión que quedó abierta en la
+  computadora del mostrador no le sirve a cualquiera para darse acceso.
 
 ## 4. Dar de baja y de alta
 
@@ -187,6 +191,10 @@ Administrador. **Etapa b:** roles y permisos; se escribe al llegar a ella.
   entrada con su próximo pedido, ya no entra con la huella ni sin conexión, y se ve qué se cortó.
 - **E32** **Dado** una persona con dos celulares, **cuando** se la elige en «Se perdió un celular»,
   **entonces** hay que elegir cuál antes de cortar; el otro sigue como estaba.
+
+- **E33** **Dado** una sesión abierta hace más de 5 minutos, **cuando** se autoriza a alguien o se da de
+  alta a una persona, **entonces** la aplicación pide Google o la huella; al pasar, se guarda sin volver
+  a escribir nada.
 
 ### Lo que queda anotado y la conexión
 
