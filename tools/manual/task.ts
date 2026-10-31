@@ -68,6 +68,9 @@ function checkKeys(context: Context, task: ParsedTask): void {
   const missing = required.filter((key) => !task.keys.has(key));
   if (missing.length > 0) report(task.line, `a la tarea le falta ${missing.join(', ')}`);
   if (task.steps.length === 0) report(task.line, 'la tarea no tiene pasos');
+  // El título orienta a quien lee: la pregunta que la tarea contesta (R6.5).
+  if (!/^¿.+\?$/.test(task.title))
+    report(task.line, 'el título de la tarea es una pregunta: «¿…?»');
   const checks: [string, (value: string) => boolean, string][] = [
     ['Id', isName, 'el id va en inglés, con guiones'],
     ['Dispositivo', (value) => value in deviceNames, 'el dispositivo es «computadora» o «celular»'],

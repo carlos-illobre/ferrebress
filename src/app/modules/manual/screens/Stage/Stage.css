@@ -76,10 +76,10 @@
     position: absolute;
     inset: 0;
     border-radius: 99px;
-    border: 3px solid var(--action);
+    border: 3px solid var(--marker);
   }
   .manual-ring::before {
-    background: rgb(232 84 28 / 0.14);
+    background: var(--marker-soft);
   }
   .manual-ring-label {
     position: absolute;
@@ -87,50 +87,37 @@
     display: inline-flex;
     align-items: center;
     gap: var(--s1);
-    padding: var(--s1) 10px var(--s1) 6px;
+    padding: var(--s1) 10px;
     border-radius: var(--radius-small);
-    background: var(--action);
+    background: var(--marker);
     color: #fff;
     font-size: 14px;
     font-weight: 750;
     white-space: nowrap;
-    box-shadow: var(--shadow-action);
+    box-shadow: 0 4px 12px rgb(31 95 224 / 0.3);
     pointer-events: none;
   }
-  .manual-ring-arrow {
-    width: 18px;
-    height: 18px;
-    flex: none;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+  /* La línea que une el aro con su rótulo: la ubica Shot.tsx. */
+  .manual-ring-line {
+    position: absolute;
+    z-index: 2;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--marker);
+    transform-origin: 0 50%;
+    pointer-events: none;
   }
   .manual-ring-label.to-right.to-down {
-    transform: translate(18px, 18px);
+    transform: translate(40px, 36px);
   }
   .manual-ring-label.to-left.to-down {
-    transform: translate(calc(-100% - 18px), 18px);
-    flex-direction: row-reverse;
-    padding: var(--s1) 6px var(--s1) 10px;
-  }
-  .manual-ring-label.to-left.to-down .manual-ring-arrow {
-    transform: scaleX(-1);
+    transform: translate(calc(-100% - 40px), 36px);
   }
   .manual-ring-label.to-right.to-up {
-    transform: translate(18px, calc(-100% - 18px));
-  }
-  .manual-ring-label.to-right.to-up .manual-ring-arrow {
-    transform: scaleY(-1);
+    transform: translate(40px, calc(-100% - 36px));
   }
   .manual-ring-label.to-left.to-up {
-    transform: translate(calc(-100% - 18px), calc(-100% - 18px));
-    flex-direction: row-reverse;
-    padding: var(--s1) 6px var(--s1) 10px;
-  }
-  .manual-ring-label.to-left.to-up .manual-ring-arrow {
-    transform: scale(-1, -1);
+    transform: translate(calc(-100% - 40px), calc(-100% - 36px));
   }
   .manual-other {
     position: absolute;

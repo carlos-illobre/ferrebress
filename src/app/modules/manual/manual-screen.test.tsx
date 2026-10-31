@@ -47,7 +47,7 @@ describe('el manual en la computadora', () => {
     expect(screen.queryByText(/Ambiente de prueba/)).toBeNull();
   });
 
-  it('pasa de paso y de tarea; el último dice «Terminado»; el número, la frase y el consejo cambian', async () => {
+  it('pasa de paso, de tarea y al capítulo que sigue; el número, la frase y el consejo cambian', async () => {
     serveManual();
     show();
     await waitFor(() => expect(within(guide()).getByText('Mirá el código.')).toBeTruthy());
@@ -68,7 +68,8 @@ describe('el manual en la computadora', () => {
     fireEvent.click(screen.getByRole('button', { name: /Siguiente: Entrar con Google/ }));
     await waitFor(() => expect(within(guide()).getByText('Elegí tu cuenta.')).toBeTruthy());
     fireEvent.click(screen.getByRole('button', { name: /^Siguiente/ }));
-    expect(screen.getByRole('button', { name: /Terminado/ })).toBeTruthy();
+    // La última del capítulo sigue con la primera del que viene (pedido de Carlos).
+    expect(screen.getByRole('button', { name: /Siguiente: Contar/ })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Paso anterior' }));
     fireEvent.click(screen.getByRole('button', { name: 'Paso anterior' }));
     expect(within(guide()).getByText('Poné la huella.')).toBeTruthy();

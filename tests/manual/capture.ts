@@ -4,7 +4,7 @@
 // viejas («corré pnpm manual:media»).
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Locator, type Page, test } from '@playwright/test';
 import { type Scene as SceneFile, sha256 } from '../../tools/manual/media.ts';
 import { closedContext, devices, expectClean, mediaDir, phoneData, toWebp } from './media.ts';
 import { now, type Scene, scenes } from './scenes.ts';
@@ -14,12 +14,21 @@ import { userScenes } from './users-scenes.ts';
 
 const checking = process.env.MANUAL_CHECK === '1';
 
+// En un botón con ícono, el aro va sobre el ícono, no en el medio del renglón (pedido de Carlos).
+async function boxOf(target: Locator) {
+  const button = await target.evaluate(
+    (element) => element.tagName === 'BUTTON' || element.getAttribute('role') === 'button',
+  );
+  const icon = target.locator('svg').first();
+  return button && (await icon.count()) > 0 ? icon.boundingBox() : target.boundingBox();
+}
+
 // El centro de cada punto, en porcentaje de la pantalla.
 async function measure(page: Page, scene: Scene): Promise<Record<string, [number, number]>> {
   const viewport = page.viewportSize() as { width: number; height: number };
   const points: Record<string, [number, number]> = {};
   for (const [name, locate] of Object.entries(scene.points)) {
-    const box = await locate(page).boundingBox();
+    const box = await boxOf(locate(page));
     if (!box) throw new Error(`${scene.name}: el punto «${name}» no se ve`);
     const percent = (at: number, size: number) => Math.round((at / size) * 1000) / 10;
     points[name] = [

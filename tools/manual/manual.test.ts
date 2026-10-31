@@ -28,7 +28,7 @@ describe('buildManual', () => {
       {
         id: 'google',
         device: 'computer',
-        title: 'Entrar con Google',
+        title: '¿Cómo se entra con Google?',
         icon: 'log-in',
         tag: { long: 'La forma más rápida', short: 'La más rápida' },
         clip: 'phone-to-computer',
@@ -37,7 +37,7 @@ describe('buildManual', () => {
       {
         id: 'finger',
         device: 'phone',
-        title: 'Entrar con la huella',
+        title: '¿Cómo se entra con la huella?',
         icon: 'fingerprint',
         steps: 1,
       },
@@ -76,7 +76,7 @@ describe('buildManual', () => {
       {
         chapter: 'sign-in',
         task: 'google',
-        title: 'Entrar con Google',
+        title: '¿Cómo se entra con Google?',
         note: 'Si no tenés el celular.',
         texts: [
           'Tocá «Continuar con Google».',
@@ -89,7 +89,7 @@ describe('buildManual', () => {
       {
         chapter: 'sign-in',
         task: 'finger',
-        title: 'Entrar con la huella',
+        title: '¿Cómo se entra con la huella?',
         texts: ['Poné el dedo.'],
       },
     ]);

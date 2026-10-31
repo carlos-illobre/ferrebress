@@ -3,7 +3,7 @@
 - Computadora: Para usar Ferrebress en la computadora primero hay que entrar.
 - Celular: En el celular entrás con Google la primera vez y después con la huella.
 
-## Entrar con el celular
+## ¿Cómo se entra con el celular?
 
 - Id: phone
 - Dispositivo: computadora
@@ -18,7 +18,7 @@
 
 > El código cambia cada minuto y sirve una sola vez.
 
-## Entrar con Google
+## ¿Cómo se entra con Google?
 
 - Id: google
 - Dispositivo: computadora
@@ -27,7 +27,7 @@
 1. Tocá «Continuar con Google».
    Captura: desktop-entrance · google · Continuar con Google
 
-## Entrar con Google
+## ¿Cómo se entra con Google?
 
 - Id: google
 - Dispositivo: celular

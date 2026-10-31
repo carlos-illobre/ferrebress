@@ -38,6 +38,20 @@ export const tasksOf = (index: ManualIndex, chapter: string | undefined, device:
     .find((entry) => entry.id === chapter)
     ?.tasks?.filter((task) => task.device === device) ?? [];
 
+// La tarea que sigue en el manual: la próxima del capítulo o, al terminarlo, la primera del capítulo
+// que sigue (pedido de Carlos: «Terminado» no llevaba a ningún lado).
+export function taskAfter(
+  index: ManualIndex,
+  chapter: string | undefined,
+  task: string,
+  device: Device,
+) {
+  const all = index.chapters.flatMap((entry) =>
+    tasksOf(index, entry.id, device).map((one) => ({ chapter: entry.id, task: one })),
+  );
+  return all[all.findIndex((one) => one.chapter === chapter && one.task.id === task) + 1];
+}
+
 // La primera tarea del manual para un dispositivo: el paso a paso de la computadora arranca ahí.
 export function firstTask(index: ManualIndex, device: Device) {
   for (const chapter of index.chapters) {
@@ -95,9 +109,12 @@ function move(state: ManualState, index: ManualIndex, way: 1 | -1): ManualState 
   if (!task) return state;
   const step = state.step + way;
   if (step >= 0 && step < task.steps) return { ...state, step, direction: way, clip: false };
-  const other = tasks[at + way];
-  if (other) return open(state, state.chapter as string, other, way > 0 ? 0 : other.steps - 1);
-  return way > 0 ? { ...state, sheet: false } : state;
+  if (way > 0) {
+    const after = taskAfter(index, state.chapter, task.id, state.device);
+    return after ? open(state, after.chapter, after.task, 0) : { ...state, sheet: false };
+  }
+  const before = tasks[at - 1];
+  return before ? open(state, state.chapter as string, before, before.steps - 1) : state;
 }
 
 export function reduce(state: ManualState, action: Action, index: ManualIndex): ManualState {

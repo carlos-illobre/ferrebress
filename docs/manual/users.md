@@ -3,7 +3,7 @@
 - Computadora: En Más → Usuarios ves quién puede entrar a Ferrebress, autorizás a alguien nuevo y cortás sus sesiones o su huella si hace falta. Hace falta internet.
 - Celular: En Más → Usuarios ves quién puede entrar, autorizás a alguien nuevo y, si se pierde un celular, lo cortás en un toque. Hace falta internet.
 
-## Autorizar a alguien
+## ¿Cómo se autoriza a un usuario?
 
 - Id: authorize
 - Dispositivo: computadora
@@ -23,7 +23,7 @@
 
 > Si hace más de 5 minutos que entraste, te pide «Continuar con Google» o la huella antes de autorizar, y después sigue solo. Así nadie usa una computadora que quedó abierta para darse acceso.
 
-## Buscar a una persona
+## ¿Cómo se busca a un usuario?
 
 - Id: search
 - Dispositivo: computadora
@@ -36,7 +36,7 @@
 3. Tocá a la persona. Su tarjeta aparece a la derecha.
    Captura: desktop-users · person · La persona
 
-## Cambiar el nombre o el correo
+## ¿Cómo se cambia el nombre o el correo?
 
 - Id: edit
 - Dispositivo: computadora
@@ -53,7 +53,7 @@
 
 > Cuando la persona ya entró, su cuenta de Google queda atada a ella. Para que use otra cuenta, autorizá el correo nuevo y dale de baja a la vieja.
 
-## Cerrar sesiones y quitar la huella
+## ¿Cómo se cortan las sesiones y la huella de un usuario?
 
 - Id: sessions
 - Dispositivo: computadora
@@ -71,7 +71,7 @@
 
 > Tus propios celulares van en Configuración.
 
-## Se perdió un celular
+## ¿Qué se hace si se perdió un celular?
 
 - Id: lost
 - Dispositivo: computadora
@@ -88,7 +88,7 @@
 
 > Si el celular aparece, se vincula de nuevo.
 
-## Dar de baja y de alta
+## ¿Cómo se da de baja o de alta a un usuario?
 
 - Id: deactivate
 - Dispositivo: computadora
@@ -106,7 +106,7 @@
 
 > Al darle de alta, entra con su misma cuenta de Google. Sus celulares con huella los vincula de nuevo.
 
-## Autorizar a alguien
+## ¿Cómo se autoriza a un usuario?
 
 - Id: authorize
 - Dispositivo: celular
@@ -121,7 +121,7 @@
 
 > Si hace más de 5 minutos que entraste, te pide la huella o Google antes de autorizar.
 
-## Buscar a una persona
+## ¿Cómo se busca a un usuario?
 
 - Id: search
 - Dispositivo: celular
@@ -136,7 +136,7 @@
 
 > Un punto naranja en «Buscar usuario» avisa que quedó una búsqueda o un filtro puesto. «Limpiar» lo saca.
 
-## Cerrar sesiones y quitar la huella
+## ¿Cómo se cortan las sesiones y la huella de un usuario?
 
 - Id: sessions
 - Dispositivo: celular
@@ -151,7 +151,7 @@
 4. Para cerrar una sola sesión, tocá «Cerrar» al lado de esa.
    Captura: phone-users-card · close · Cerrar
 
-## Se perdió un celular
+## ¿Qué se hace si se perdió un celular?
 
 - Id: lost
 - Dispositivo: celular
@@ -165,7 +165,7 @@
 3. Tocá «Cortar». Se cierra su sesión y se le quita la huella, sin preguntar.
    Captura: phone-users-lost · cut · Cortar
 
-## Dar de baja y de alta
+## ¿Cómo se da de baja o de alta a un usuario?
 
 - Id: deactivate
 - Dispositivo: celular

@@ -62,7 +62,7 @@ común y tiene una forma fija:
 - Computadora: Para usar Ferrebress en la computadora primero hay que entrar. …
 - Celular: En el celular entrás con Google la primera vez y después con la huella. …
 
-## Entrar con el celular
+## ¿Cómo se entra con el celular?
 
 - Id: phone-to-computer
 - Dispositivo: computadora
@@ -81,6 +81,7 @@ común y tiene una forma fija:
 
 - **`# Título`** tiene que ser igual al nombre del renglón de la lista. Debajo, la introducción
   de cada dispositivo.
+- **`## Título`** de cada tarea: la pregunta que contesta, entre «¿» y «?» (R6.5).
 - **Id:** obligatorio, en inglés, único en el capítulo para cada dispositivo (las dos «Salir» son
   `sign-out`). Con él la dirección nombra la tarea; cambiar el título no rompe nada.
 - **Dispositivo:** `computadora` o `celular` (R6.3).
@@ -119,7 +120,7 @@ armar la aplicación, y deja en `dist/manual/`:
 id o un archivo repetido, un archivo de `docs/manual/` que no está en la lista (así no desaparece
 en silencio al reordenar), un título distinto del nombre, un ícono que no está en el juego del
 manual (§ 5), una clave desconocida o que falta, un dispositivo que no es `computadora` ni
-`celular`, un destino de `→` que no existe, un paso sin captura o con `Ícono:`, una escena o un punto que no existen, un punto fuera de
+`celular`, un destino de `→` que no existe, un título de tarea que no es una pregunta, un paso sin captura o con `Ícono:`, una escena o un punto que no existen, un punto fuera de
 0 a 100, un archivo de `media/` que nadie usa, uno pasado de tope o cuyo contenido no es lo que dice
 su nombre (se miran los primeros bytes).
 
@@ -167,7 +168,8 @@ copia), para que las letras salgan iguales.
   escáner rechaza otro origen.
 - **Encerrado:** el navegador solo puede pedir a la dirección del servidor de mentira; cualquier
   otro pedido se corta y la corrida falla.
-- **Los puntos se ubican solos:** el programa mide dónde quedó cada elemento y guarda su centro, en
+- **Los puntos se ubican solos:** el programa mide dónde quedó cada elemento y guarda su centro (en
+  un botón con ícono, el del ícono, para que el aro caiga sobre él y no en el medio del renglón), en
   porcentaje de la captura, en `docs/manual/media/<escena>.json`, uno por escena (así dos sesiones
   que escriben capítulos distintos no se pisan). Ahí van también el dispositivo, la huella de la
   captura sin comprimir y la del `.webp` que se publica.
@@ -309,7 +311,8 @@ buscador y las capturas. Cambiarlo cierra «Todos los pasos» y vuelve al princi
 - **La captura:** se achica entera si es más alta que el lugar (no se recorta: el punto quedaría
   corrido).
 - **El aro y su rótulo:** el aro va sobre la captura, en el porcentaje de la escena; el rótulo, al
-  costado y en diagonal, con una flecha hacia el aro (R6.5). Cambia de lado cerca de un borde y
+  costado y en diagonal, unido al aro por una línea que va del borde del aro a la esquina del
+  rótulo, todo en `--marker`, el azul del manual (R6.5). Cambia de lado cerca de un borde y
   puede salir de la captura para leerse entero: va en la capa del paso, no dentro de la captura, y
   se ubica midiendo dónde quedó el aro.
 - **Las posiciones se ponen por CSSOM** (`element.style.setProperty` en un efecto), nunca con

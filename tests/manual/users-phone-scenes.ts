@@ -34,7 +34,8 @@ export const phoneUserScenes: Scene[] = [
       search: button('Buscar usuario'),
       authorize: button('Autorizar a alguien'),
       lost: button('Se perdió un celular'),
-      person: (page) => page.locator('.users-row', { hasText: 'Lucía Fernández' }),
+      person: (page) =>
+        page.locator('.users-row', { hasText: 'Lucía Fernández' }).locator('.users-avatar'),
     },
   },
   {

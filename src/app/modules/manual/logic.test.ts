@@ -181,13 +181,15 @@ describe('el estado del manual', () => {
     expect(reduce(start, { type: 'previous' }, index)).toBe(start);
   });
 
-  it('después de la última tarea, en el celular cierra la hoja', () => {
+  it('después de la última tarea de un capítulo sigue el que viene; después de la última del manual, cierra la hoja', () => {
     const last = reduce(
       start,
       { type: 'openTask', chapter: 'sign-in', task: 'google', step: 1 },
       index,
     );
-    expect(reduce(last, { type: 'next' }, index)).toMatchObject({ sheet: false, task: 'google' });
+    const next = reduce(last, { type: 'next' }, index);
+    expect(next).toMatchObject({ chapter: 'stock', task: 'count', step: 0, sheet: true });
+    expect(reduce(next, { type: 'next' }, index)).toMatchObject({ sheet: false, task: 'count' });
   });
 
   it('elegir otro dispositivo vuelve al principio de ese manual', () => {

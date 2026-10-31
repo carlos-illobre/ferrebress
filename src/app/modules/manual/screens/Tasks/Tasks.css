@@ -74,7 +74,7 @@
   .manual-task {
     width: 100%;
     display: grid;
-    grid-template-columns: 40px 1fr auto;
+    grid-template-columns: 40px 1fr;
     gap: var(--s3);
     align-items: center;
     padding: var(--s3);
@@ -119,9 +119,6 @@
     font-size: 14px;
     line-height: 20px;
     color: var(--text-2);
-  }
-  .manual-task > .icon:last-child {
-    color: var(--text-3);
   }
   .manual-coming {
     display: flex;
@@ -178,7 +175,7 @@
       gap: var(--s2);
     }
     .manual-task {
-      grid-template-columns: 44px 1fr auto;
+      grid-template-columns: 44px 1fr;
       border-radius: var(--radius-card);
       border-color: var(--border);
       background: var(--surface);

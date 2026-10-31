@@ -15,6 +15,9 @@ paso 9 de cada uno (constitución). La aplicación lo arma desde estos archivos;
 - **Un capítulo** tiene su título (el mismo nombre que en la lista), la introducción de cada
   dispositivo y sus tareas, en el orden en que salen. La forma de cada tarea está en
   [sign-in.md](sign-in.md).
+- **El título de cada tarea es una pregunta** que orienta a quien lee, y la tarea es su respuesta:
+  «¿Cómo se autoriza a un usuario?». El lector rechaza un título que no empieza con «¿» y termina
+  con «?».
 - **Cada paso tiene su captura** de la aplicación: es lo que le da contexto a quien lee. Lo que pasa
   fuera de Ferrebress (Google, la cámara, el dedo) se dice en el paso que tiene la pantalla. El
   lector rechaza un paso sin captura.

@@ -90,6 +90,7 @@ describe('buildManual, lo que frena', () => {
         'docs/manual/sign-in.md:12: clave desconocida: «Color»',
         'docs/manual/sign-in.md:13: la clave «Id» está dos veces',
         'docs/manual/sign-in.md:6: la tarea no tiene pasos',
+        'docs/manual/sign-in.md:6: el título de la tarea es una pregunta: «¿…?»',
         'docs/manual/sign-in.md:8: el id va en inglés, con guiones',
         'docs/manual/sign-in.md:9: el dispositivo es «computadora» o «celular»',
         'docs/manual/sign-in.md:11: la marca es «entera / corta»',

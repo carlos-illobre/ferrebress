@@ -1,7 +1,7 @@
 // Los capítulos plegables de la lista del manual (00 · R6.9).
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { loaded, media, serveManual, show } from './manual-test-kit.tsx';
+import { chapter, loaded, media, serveManual, show } from './manual-test-kit.tsx';
 
 const fold = (name: string) => screen.getByRole('button', { name });
 
@@ -36,5 +36,25 @@ describe('los capítulos del manual, plegables', () => {
     fireEvent.click(await screen.findByRole('button', { name: /^Entrar con Google/ }));
     fireEvent.input(search, { target: { value: '' } });
     await waitFor(() => expect(fold('Entrar').getAttribute('aria-expanded')).toBe('true'));
+  });
+
+  it('R6.10: la última tarea del manual dice «Terminado»', async () => {
+    const stock = {
+      id: 'stock',
+      name: 'Stock',
+      intro: { computer: 'Contás.', phone: 'Contás.' },
+      tasks: [
+        {
+          ...chapter.tasks[0],
+          id: 'count',
+          title: 'Contar',
+          steps: [{ text: 'Contá.', icon: 'package' }],
+        },
+      ],
+    };
+    serveManual({ 'stock.json': stock });
+    show({ at: '/manual?d=computer&c=stock&t=count&p=1' });
+    await loaded();
+    await waitFor(() => expect(screen.getByRole('button', { name: /Terminado/ })).toBeTruthy());
   });
 });

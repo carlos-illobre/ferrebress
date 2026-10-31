@@ -1,6 +1,7 @@
-// Los renglones de la lista de tareas del manual: una tarea (con su ícono, su nombre, el detalle y la
-// flecha), los capítulos que faltan con «Pronto» y el texto con lo buscado resaltado como <mark>,
-// armado con Preact y nunca como HTML (revisión de seguridad, 1).
+// Los renglones de la lista de tareas del manual: una tarea (con su ícono, su nombre y el detalle;
+// sin flecha, que se confundía con la de plegar el capítulo, pedido de Carlos), los capítulos que
+// faltan con «Pronto» y el texto con lo buscado resaltado como <mark>, armado con Preact y nunca
+// como HTML (revisión de seguridad, 1).
 import type { ChapterEntry, TaskSummary } from '@ferrebress/shared/contracts/manual';
 import type { ComponentChildren } from 'preact';
 import { marks } from '../../search.ts';
@@ -39,7 +40,6 @@ export function Row({
           <span class="manual-task-name">{name}</span>
           <span class="manual-task-detail">{detail}</span>
         </span>
-        <Glyph name="chevron-right" />
       </button>
     </li>
   );

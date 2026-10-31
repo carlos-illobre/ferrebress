@@ -53,6 +53,10 @@
   --success: #1e9e62;
   --success-soft: #e2f4ea;
   --success-text: #11764a;
+  /* Lo que el manual señala en sus capturas: un azul que la aplicación no usa, para que no se
+     confunda con sus botones (pedido de Carlos). */
+  --marker: #1f5fe0;
+  --marker-soft: rgb(31 95 224 / 0.14);
 
   --font: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
 

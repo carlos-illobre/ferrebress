@@ -3,7 +3,7 @@
 - Computadora: Para usar Ferrebress en la computadora primero hay que entrar. Lo más rápido es con el celular: mirás un código y ponés la huella. No hay contraseñas.
 - Celular: En el celular entrás con Google la primera vez y después con la huella. Desde el celular también hacés entrar a la computadora.
 
-## Entrar con el celular
+## ¿Cómo se entra con el celular?
 
 - Id: phone
 - Dispositivo: computadora
@@ -27,7 +27,7 @@
 
 > Si el celular no tenía la sesión abierta, con esa misma huella entran los dos. Si el celular todavía no entra con la huella, primero entrás con Google en el celular y te pide ponerla.
 
-## Entrar con Google
+## ¿Cómo se entra con Google?
 
 - Id: google
 - Dispositivo: computadora
@@ -41,7 +41,7 @@
 
 > Solo entran las cuentas que autorizó un Administrador. Si dice que tu cuenta no está autorizada, pedile que agregue tu correo.
 
-## Si no hay internet
+## ¿Qué pasa si no hay internet?
 
 - Id: no-internet
 - Dispositivo: computadora
@@ -53,7 +53,7 @@
 2. Cuando vuelve internet, los botones se prenden solos. No hace falta recargar.
    Captura: desktop-entrance · google · Los botones, prendidos
 
-## Si pasa mucho tiempo
+## ¿Por qué pide entrar de nuevo?
 
 - Id: timeout
 - Dispositivo: computadora
@@ -67,7 +67,7 @@
 
 > Si entra otra persona, lo que quedó a medio hacer se descarta.
 
-## Salir
+## ¿Cómo se sale?
 
 - Id: sign-out
 - Dispositivo: computadora
@@ -80,7 +80,7 @@
 
 > Se puede salir aunque no haya internet.
 
-## Entrar con Google
+## ¿Cómo se entra con Google?
 
 - Id: google
 - Dispositivo: celular
@@ -91,7 +91,7 @@
 
 > Solo entran las cuentas que autorizó un Administrador.
 
-## Entrar con la huella
+## ¿Cómo se entra con la huella?
 
 - Id: fingerprint
 - Dispositivo: celular
@@ -103,7 +103,7 @@
 
 > Cada celular tiene una sola cuenta con huella.
 
-## Hacer entrar a la computadora
+## ¿Cómo se hace entrar a la computadora?
 
 - Id: computer
 - Dispositivo: celular
@@ -122,7 +122,7 @@
 
 > Si dice «Para entrar a la computadora, conectá este celular al mismo Wi-Fi», pasate al Wi-Fi del local.
 
-## Entrar sin internet
+## ¿Cómo se entra sin internet?
 
 - Id: offline
 - Dispositivo: celular
@@ -142,7 +142,7 @@
 
 > Si tu sesión se cerró desde otro dispositivo, para volver a entrar hace falta internet.
 
-## Si no hay internet
+## ¿Qué pasa si no hay internet?
 
 - Id: no-internet
 - Dispositivo: celular
@@ -153,7 +153,7 @@
 2. Cuando vuelve, se prenden solos.
    Captura: phone-entrance · google · Los botones, prendidos
 
-## Salir
+## ¿Cómo se sale?
 
 - Id: sign-out
 - Dispositivo: celular

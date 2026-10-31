@@ -4,7 +4,7 @@
 // ← y → pasan de paso (data-arrows de la capa, diseño del manual, § 5).
 import type { Task } from '@ferrebress/shared/contracts/manual';
 import { useCaptures } from '../../files/media.ts';
-import { tasksOf } from '../../state.ts';
+import { taskAfter, tasksOf } from '../../state.ts';
 import { texts } from '../../texts.ts';
 import type { View } from '../../view.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
@@ -65,9 +65,8 @@ function CloseSheet({ view }: { view: View }) {
 }
 
 function nextLabel(view: View, task: Task) {
-  const tasks = tasksOf(view.index, view.state.chapter, view.state.device);
   const last = view.state.step === task.steps.length - 1;
-  const next = tasks[tasks.findIndex((one) => one.id === task.id) + 1];
+  const next = taskAfter(view.index, view.state.chapter, task.id, view.state.device)?.task;
   if (!last) return texts.next;
   if (next) return view.narrow ? texts.nextTaskShort(next.title) : texts.nextTask(next.title);
   return view.narrow ? texts.doneShort : texts.done;

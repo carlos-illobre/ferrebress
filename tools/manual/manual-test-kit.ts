@@ -27,7 +27,7 @@ export const chapter = `# Entrar
 - Computadora: Entrás con el celular.
 - Celular: Entrás con la huella.
 
-## Entrar con Google
+## ¿Cómo se entra con Google?
 
 - Id: google
 - Dispositivo: computadora
@@ -43,7 +43,7 @@ export const chapter = `# Entrar
 
 > Solo entran las cuentas autorizadas.
 
-## Entrar con la huella
+## ¿Cómo se entra con la huella?
 
 - Id: finger
 - Dispositivo: celular

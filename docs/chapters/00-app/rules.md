@@ -125,10 +125,13 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   en «Entrar», donde lo busca quien no puede entrar; «Trabajar sin conexión» lleva ahí.
 - **R6.5** Cada capítulo tiene texto simple, para quien atiende una ferretería sin saber de
   informática, pasos y capturas de la aplicación de verdad: cada paso con su captura, porque la
-  pantalla es lo que le da contexto a quien lee (un ícono solo no le dice nada). Las capturas y los clips se sacan sin
+  pantalla es lo que le da contexto a quien lee (un ícono solo no le dice nada). Cada tarea se
+  titula con la pregunta que contesta, para orientar a quien lee: «¿Cómo se autoriza a un
+  usuario?». Las capturas y los clips se sacan sin
   el marco ni el cartel del ambiente de pruebas, y con datos de una cuenta de demostración. Lo que
-  el manual señala en una captura se marca con un aro, y su nombre va al costado, con una flecha
-  hacia el aro, para que no se confunda con la pantalla; se lee entero aunque salga de la captura. Un clip
+  el manual señala en una captura se marca con un aro (en un botón con ícono, sobre el ícono), y su nombre va al costado, unido al aro por
+  una línea; el aro, la línea y el nombre van en un azul propio del manual, que la aplicación no
+  usa, para que no se confundan con la pantalla; se lee entero aunque salga de la captura. Un clip
   solo donde la funcionalidad es lo bastante grande para verla en video; es un video de la
   aplicación programada, arranca cuando se lo pide, sin sonido.
 - **R6.6** Tiene un buscador: muestra lo encontrado del dispositivo elegido, con su capítulo, y lleva
@@ -140,6 +143,10 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   que la lista no abrume; se pueden tener varios abiertos. Arranca abierto el de la tarea que se
   está leyendo (o el primero), y se abre solo el de una tarea que se abre desde el buscador. Los
   próximos capítulos, con «pronto», arrancan cerrados.
+  Las tareas de la lista no llevan flecha: la única flecha es la de plegar el capítulo.
+- **R6.10** El botón del último paso de una tarea lleva a la que sigue en el manual (la próxima del
+  capítulo o, al terminarlo, la primera del que viene) y la nombra: «Siguiente: …». Dice
+  «Terminado» solo en la última tarea del manual; en el celular, cierra la hoja.
 
 ## 7. Las esperas y las búsquedas
 
