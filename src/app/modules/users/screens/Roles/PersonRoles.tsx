@@ -7,8 +7,9 @@ import { useState } from 'preact/hooks';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { saveRoles } from '../../role-actions.ts';
+import { personRoleTexts as t } from '../../role-texts.ts';
 import { useUsersContext } from '../../state.ts';
-import { refusalTexts, personRoleTexts as t } from '../../texts.ts';
+import { refusalTexts } from '../../texts.ts';
 import { RolePicker } from './RolePicker.tsx';
 import './PersonRoles.css';
 

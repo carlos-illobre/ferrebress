@@ -4,8 +4,8 @@
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { showToast } from '../../ui/toast/Toast.tsx';
 import { type RoleDraft, usersApi } from './api.ts';
+import { roleTexts } from './role-texts.ts';
 import { confirmFirst, refused, type Users } from './state.ts';
-import { roleTexts } from './texts.ts';
 
 type Result =
   | Awaited<ReturnType<typeof usersApi.changeRole>>

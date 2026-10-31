@@ -1,7 +1,8 @@
 // El menú (00 · R1.1 y R1.2): las cinco partes en su orden, y las opciones de Más. Una opción sin
 // pantalla todavía no existe: dice «Pronto» y no se abre, en pruebas y en producción (R1.3). Cada
 // módulo, cuando llegue, le pone su pantalla a la opción que le toca.
-import { can, type PermissionId } from '@ferrebress/shared/contracts/permissions';
+import { can } from '@ferrebress/shared/contracts/can';
+import type { PermissionId } from '@ferrebress/shared/contracts/permissions';
 import { navigate } from '../../platform/router.ts';
 import type { IconName } from '../../ui/icon/Icon.tsx';
 
@@ -107,6 +108,10 @@ export const allowed = (option: Option, person: Who) =>
 // El menú y Más de la persona, sin lo que no puede usar.
 export const partsFor = (person: Who) => parts.filter((option) => allowed(option, person));
 export const moreFor = (person: Who) => moreOptions.filter((option) => allowed(option, person));
+
+// Ir a la primera opción que sí puede usar (R1.4, 02 · R7.7).
+export const goToFirst = (person: Who) =>
+  navigate(firstOption(person).path ?? '/', { replace: true });
 
 // La primera opción del menú que existe y que la persona puede usar (R1.4); sin ninguna, Vender.
 export const firstOption = (person: Who): Option =>

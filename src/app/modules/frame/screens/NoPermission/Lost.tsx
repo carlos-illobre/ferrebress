@@ -7,15 +7,22 @@ import { useEffect, useState } from 'preact/hooks';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { firstOption, type Option } from '../../menu.ts';
-import { texts } from '../../texts.ts';
+import type { Option } from '../../menu.ts';
+import { words } from './texts.ts';
 
-const words = texts.noPermission;
 export const lostSeconds = 5;
 
 export type LostPermission = { option: Option; before: Person; after: Person };
 
-export function Lost({ lost, onGo }: { lost: LostPermission; onGo: () => void }) {
+export function Lost({
+  lost,
+  first,
+  onGo,
+}: {
+  lost: LostPermission;
+  first: Option;
+  onGo: () => void;
+}) {
   const [left, setLeft] = useState(lostSeconds);
   useEffect(() => {
     const timer = setInterval(() => setLeft((seconds) => seconds - 1), 1000);
@@ -27,7 +34,6 @@ export function Lost({ lost, onGo }: { lost: LostPermission; onGo: () => void })
   const { before, after } = lost;
   const kept = new Set(after.roles.map((role) => role.id));
   const removed = before.roles.filter((role) => !kept.has(role.id)).map((role) => role.name);
-  const first = firstOption(after);
   return (
     <Dialog label={words.lostTitle(lost.option.name)} className="lost-permission">
       <h2>

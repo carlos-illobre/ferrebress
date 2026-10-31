@@ -2,7 +2,7 @@
 // trae en la cabecera la huella de los permisos de la sesión; si no es la de la persona que tiene la
 // aplicación, vuelve a pedir /api/start, una vez por huella nueva, y la persona queda al día. El marco
 // arma el menú de nuevo y, si la pantalla abierta ya no se puede usar, lo dice.
-import { permissionsHash as hashOf } from '@ferrebress/shared/contracts/permissions';
+import { permissionsHash as hashOf } from '@ferrebress/shared/contracts/can';
 import { permissionsHash } from '../../platform/server/api.ts';
 import { signInApi } from './api.ts';
 import { confirmed, person } from './session.ts';

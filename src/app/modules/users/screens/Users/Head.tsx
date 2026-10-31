@@ -5,8 +5,9 @@ import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { PhoneLight } from '../../../frame/index.ts';
+import { roleTexts } from '../../role-texts.ts';
 import { useUsersContext } from '../../state.ts';
-import { roleTexts, texts } from '../../texts.ts';
+import { texts } from '../../texts.ts';
 import './Head.css';
 
 export function AuthorizeButton() {

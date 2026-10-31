@@ -13,11 +13,10 @@ import { usePanels } from '../../behavior/usePanels.ts';
 import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
 import { useTip } from '../../behavior/useTip.ts';
 import { FrameContext, type FrameState, type SettingRow, shake } from '../../context.ts';
-import { allowed, firstOption, type Option, optionAt } from '../../menu.ts';
+import { allowed, firstOption, goToFirst, type Option, optionAt } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
-import { Lost, type LostPermission } from '../NoPermission/Lost.tsx';
-import { goToFirst, NoPermission } from '../NoPermission/NoPermission.tsx';
+import type { LostPermission } from '../NoPermission/Lost.tsx';
 import { PhoneNav } from '../Phone/Phone.tsx';
 import { PhoneMore } from '../Phone/PhoneMore.tsx';
 import { PhoneSheets } from '../Phone/PhoneSheets.tsx';
@@ -73,16 +72,15 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
         data-layer=""
       >
         <Side />
-        <main class="work-area" aria-label={texts.workArea}>
-          {opened?.permission && !allowed(opened, person) ? (
-            <NoPermission option={{ ...opened, permission: opened.permission }} />
-          ) : Screen ? (
-            <Screen />
-          ) : (
-            children
-          )}
-        </main>
-        {lost.now && <Lost lost={lost.now} onGo={lost.go} />}
+        <Work person={person} opened={opened} Screen={Screen}>
+          {children}
+        </Work>
+        {lost.now && (
+          <Later
+            load={loadLost}
+            props={{ lost: lost.now, first: firstOption(person), onGo: lost.go }}
+          />
+        )}
         <PhoneMore />
         <PhoneNav />
         <WaitNotice />
@@ -93,6 +91,59 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
       <Tips />
       {testing && <TestEnvironment />}
     </FrameContext.Provider>
+  );
+}
+
+// «Sin permiso» y el aviso de permiso perdido se bajan recién cuando hacen falta: el arranque no
+// crece (diseño de 02, § 22).
+const loadNoPermission = () =>
+  import('../NoPermission/NoPermission.tsx').then((loaded) => loaded.NoPermission);
+const loadLost = () => import('../NoPermission/Lost.tsx').then((loaded) => loaded.Lost);
+
+function Later<P extends object>({
+  load,
+  props,
+}: {
+  load: () => Promise<ComponentType<P>>;
+  props: P;
+}) {
+  const [loaded, setLoaded] = useState<{ Screen: ComponentType<P> }>();
+  useEffect(() => {
+    void load().then((Screen) => setLoaded({ Screen }));
+  }, [load]);
+  return loaded ? <loaded.Screen {...props} /> : null;
+}
+
+// El área de trabajo: la pantalla de la opción abierta, o «Sin permiso» si no la puede usar (R7.7).
+function Work({
+  person,
+  opened,
+  Screen,
+  children,
+}: {
+  person: Person;
+  opened: Option | undefined;
+  Screen: ComponentType | undefined;
+  children?: ComponentChildren;
+}) {
+  const blocked = opened?.permission && !allowed(opened, person) ? opened.permission : undefined;
+  return (
+    <main class="work-area" aria-label={texts.workArea}>
+      {opened && blocked ? (
+        <Later
+          load={loadNoPermission}
+          props={{
+            option: { ...opened, permission: blocked },
+            first: firstOption(person),
+            go: () => goToFirst(person),
+          }}
+        />
+      ) : Screen ? (
+        <Screen />
+      ) : (
+        children
+      )}
+    </main>
   );
 }
 

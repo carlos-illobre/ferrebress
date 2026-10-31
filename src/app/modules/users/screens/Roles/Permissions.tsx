@@ -8,7 +8,8 @@ import {
 } from '@ferrebress/shared/contracts/permissions';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { permissionIcons } from '../../../frame/index.ts';
-import { roleTexts as t } from '../../texts.ts';
+import { roleTexts as t } from '../../role-texts.ts';
+import './Permissions.css';
 
 // En cuál de los tildados va incluido, si va.
 const includedIn = (id: PermissionId, chosen: readonly string[]) =>

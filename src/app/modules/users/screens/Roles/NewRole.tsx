@@ -5,9 +5,10 @@ import { useState } from 'preact/hooks';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { createRole } from '../../role-actions.ts';
+import { roleTexts as t } from '../../role-texts.ts';
 import { useUsersContext } from '../../state.ts';
-import { roleTexts as t } from '../../texts.ts';
 import { Permissions, toggled } from './Permissions.tsx';
+import './RoleCard.css';
 
 function Problem({ text }: { text: string | undefined }) {
   if (!text) return null;

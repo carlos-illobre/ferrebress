@@ -470,7 +470,8 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 - **«Algo salió mal»:** las piezas que muestran datos personales llevan la marca `data-private`, y
   la captura las tapa (00 · R9.4).
 - **Todas las bibliotecas se sirven desde el propio origen**, empaquetadas; ninguna desde un CDN.
-- **El QR:** se dibuja con `qrcode-generator` (unos 20 KB); se lee con `BarcodeDetector` y, donde
+- **El QR:** se dibuja con `qrcode-generator` (unos 20 KB), que se baja recién cuando la entrada de
+  la computadora lo muestra, así no pesa en el arranque; se lee con `BarcodeDetector` y, donde
   no existe, con ZXing, que se baja recién al tocar «Escanear». Lee un cuadro cada 250 ms hasta que
   se cierra la cámara; lo que no es una dirección de este origen se descarta y sigue leyendo.
 - **Las pantallas:** la entrada, desde `docs/design/mockups/sign-in/adapted/`, y en el celular la

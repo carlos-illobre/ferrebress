@@ -46,7 +46,9 @@ describe('el marco con permisos', () => {
     navigate('/users');
     open({ who: seller, screens: { users } });
     const main = screen.getByRole('main');
-    expect(within(main).getByRole('heading').textContent).toBe('No tenés permiso para Usuarios');
+    expect((await within(main).findByRole('heading')).textContent).toBe(
+      'No tenés permiso para Usuarios',
+    );
     expect(main.textContent).toContain('«Ver las personas»');
     expect(await within(main).findByText('Administrador')).toBeTruthy();
     expect(main.textContent).toContain('1 rol · 2 personas');
@@ -66,7 +68,7 @@ describe('el marco con permisos', () => {
     expect(route.get().path).toBe('/');
   });
 
-  it('users-E48: le sacan el permiso con Usuarios abierto: lo dice y a los 5 segundos va a la primera opción', () => {
+  it('users-E48: le sacan el permiso con Usuarios abierto: lo dice y a los 5 segundos va a la primera opción', async () => {
     media();
     vi.useFakeTimers();
     fakeServer({ '/api/permissions/users.view/holders': { body: holders } });
@@ -80,6 +82,9 @@ describe('el marco con permisos', () => {
     const { rerender } = render(frame(person));
     expect(screen.getByRole('main').textContent).toBe('La pantalla de Usuarios');
     rerender(frame(seller));
+    await act(async () => {
+      await vi.dynamicImportSettled();
+    });
     const dialog = screen.getByRole('alertdialog', { name: 'Ya no tenés permiso para Usuarios' });
     expect(dialog.textContent).toContain('Graciela Benítez te sacó «Administrador» recién.');
     expect(dialog.textContent).toContain('Te llevo a Vender');
@@ -105,7 +110,7 @@ describe('el marco con permisos', () => {
     expect(main.textContent).toContain('Ana, Beto o Ceci.');
   });
 
-  it('R7.8: si cambiaron los permisos de un rol que tiene, lo dice sin nombrar quién ni qué rol', () => {
+  it('R7.8: si cambiaron los permisos de un rol que tiene, lo dice sin nombrar quién ni qué rol', async () => {
     media();
     fakeServer({ '/api/permissions/users.view/holders': { body: holders } });
     navigate('/users');
@@ -116,7 +121,7 @@ describe('el marco con permisos', () => {
     );
     const { rerender } = render(frame(person));
     rerender(frame({ ...person, permissions: ['offline.work'], rolesChangedBy: null }));
-    const dialog = screen.getByRole('alertdialog');
+    const dialog = await screen.findByRole('alertdialog');
     expect(dialog.textContent).toContain('Alguien te cambió los permisos de un rol recién.');
     expect(dialog.querySelector('.pill-gone')).toBeNull();
     fireEvent.click(within(dialog).getByRole('button', { name: /Ir a Vender ahora/ }));

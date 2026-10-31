@@ -5,7 +5,7 @@ import { codeSeconds } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useState } from 'preact/hooks';
 import isotype from '../../../../../styles/brand/isotype.svg';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
-import { linkUrl, qrPath } from '../../../codes/qr.ts';
+import { linkUrl } from '../../../codes/qr.ts';
 import { useComputerCode } from '../../../codes/useComputerCode.ts';
 import { minutes } from '../../../notice.ts';
 import { texts } from '../../../texts.ts';
@@ -24,10 +24,23 @@ function useCountdown(since: number): number {
   return secondsLeft(now, since);
 }
 
+type Draw = typeof import('../../../codes/qr-draw.ts')['qrPath'];
+let drawing: Promise<Draw> | undefined;
+
+// El dibujo del QR, que se baja una sola vez y recién cuando hace falta.
+function useQrPath(code: string | undefined) {
+  const [draw, setDraw] = useState<{ qrPath: Draw }>();
+  useEffect(() => {
+    drawing ??= import('../../../codes/qr-draw.ts').then((loaded) => loaded.qrPath);
+    void drawing.then((qrPath) => setDraw({ qrPath }));
+  }, []);
+  return code && draw ? draw.qrPath(linkUrl(code)) : undefined;
+}
+
 export function QrBlock() {
   const { code, read, since } = useComputerCode(true);
   const left = useCountdown(since);
-  const qr = code ? qrPath(linkUrl(code)) : undefined;
+  const qr = useQrPath(code);
   return (
     <div class="qr-block">
       <div class="qr-col">

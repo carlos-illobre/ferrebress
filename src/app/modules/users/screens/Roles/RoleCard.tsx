@@ -7,10 +7,12 @@ import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { changeRole, removeRole, saveRoles } from '../../role-actions.ts';
+import { roleTexts as t } from '../../role-texts.ts';
 import { useUsersContext } from '../../state.ts';
-import { refusalTexts, roleTexts as t } from '../../texts.ts';
+import { refusalTexts } from '../../texts.ts';
 import { Editable } from '../Card/Edit.tsx';
 import { Permissions, toggled } from './Permissions.tsx';
+import './RoleCard.css';
 
 // Cambiar el nombre o la descripción: lo que no se puede usar se dice junto al campo.
 function useSave(role: RoleRow) {

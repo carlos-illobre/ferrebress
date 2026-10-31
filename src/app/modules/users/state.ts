@@ -2,7 +2,7 @@
 // persona elegida y su tarjeta, pedida al elegirla; y lo que está abierto encima. No se guarda nada
 // en el dispositivo. Lo comparten las piezas por UsersContext.
 
-import { can } from '@ferrebress/shared/contracts/permissions';
+import { can } from '@ferrebress/shared/contracts/can';
 import type { RoleRow, RoleSummary } from '@ferrebress/shared/contracts/roles';
 import type { AccessResponse, PersonRow } from '@ferrebress/shared/contracts/users';
 import { createContext } from 'preact';

@@ -1,33 +1,9 @@
-// La pestaña Roles (02 · R7.1, R7.3, E35 a E40, E57): cuántos hay y quién puede qué, la lista, la
-// tarjeta de un rol con sus permisos, quiénes lo tienen, darlo y sacarlo, duplicar, borrar y crear.
-import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
+// La pestaña Roles (02 · R7.1, R7.3, E34 a E40, E57): cuántos hay y quién puede qué, la lista, la
+// tarjeta de un rol con sus permisos, quiénes lo tienen, darlo y sacarlo, duplicar y borrar.
+import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
+import { all, encRow, openRoles, roleCard, rolesRoute } from './users-roles-kit.tsx';
 import { graciela, openUsers, person, roleRows, roles, ruben, toast } from './users-test-kit.tsx';
-
-const shift = { id: 'enc', name: 'Encargado de turno', description: 'Abre y cierra el local' };
-const lucia = person({ id: 'lucia', displayName: 'Lucía Fernández', roleIds: ['enc'] });
-const encRow = {
-  ...shift,
-  system: false,
-  version: 3,
-  permissions: ['users.cut', 'users.view'],
-  holders: ['lucia'],
-};
-const all = { roles: [...roles, shift], people: [ruben, graciela, lucia] };
-const rolesRoute = { body: { roles: [...roleRows, encRow] } };
-
-const openRoles = async (routes = {}) => {
-  const server = openUsers({ '/api/users': { body: all }, '/api/roles': rolesRoute, ...routes });
-  await screen.findByText('Rubén Paredes');
-  fireEvent.click(screen.getByRole('button', { name: /^Roles$/ }));
-  await screen.findByText('Los roles del negocio');
-  // El primero queda elegido solo.
-  await waitFor(() => expect(document.querySelector('.role-card')).toBeTruthy());
-  return server;
-};
-const roleCard = () => within(document.querySelector('.role-card') as HTMLElement);
-const settle = () => act(async () => {});
 
 describe('la pestaña Roles', () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -147,68 +123,6 @@ describe('la pestaña Roles', () => {
     });
   });
 
-  it('users-E35, E50: «Nuevo rol» arranca vacío; sin confirmar quién es, lo pide y lo crea solo', async () => {
-    const frame = googleFrame();
-    const created = { ...encRow, id: 'caja', name: 'Caja', version: 1, holders: [] };
-    const server = await openRoles({
-      '/api/roles': [
-        rolesRoute,
-        { status: 403, body: { error: 'confirm-first' } },
-        { body: { role: created } },
-        { body: { roles: [...roleRows, encRow, created] } },
-      ],
-      '/api/start': startReply(),
-      '/api/session/confirm/google': {},
-    });
-    fireEvent.click(screen.getAllByRole('button', { name: /Nuevo rol/ })[0] as HTMLElement);
-    const name = roleCard().getByRole('textbox', { name: 'Nombre' }) as HTMLInputElement;
-    expect(name.value).toBe('');
-    fireEvent.input(name, { target: { value: 'Caja' } });
-    fireEvent.click(roleCard().getByRole('switch', { name: 'Trabajar sin conexión' }));
-    fireEvent.click(roleCard().getByRole('button', { name: /Crear el rol/ }));
-    expect(await screen.findByRole('alertdialog', { name: 'Confirmá que sos vos' })).toBeTruthy();
-    frame.ready();
-    await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(1));
-    frame.credential('pase');
-    await waitFor(() => expect(toast()).toBe('Rol «Caja» creado'));
-    await waitFor(() => expect(document.querySelector('.role-new')).toBeNull());
-  });
-
-  it('cancelar un rol nuevo lo cierra sin crearlo', async () => {
-    const server = await openRoles();
-    fireEvent.click(screen.getAllByRole('button', { name: /Nuevo rol/ })[0] as HTMLElement);
-    fireEvent.click(roleCard().getByRole('button', { name: 'Cancelar' }));
-    await settle();
-    expect(document.querySelector('.role-new')).toBeNull();
-    expect(server.bodies('/api/roles').filter(Boolean)).toEqual([]);
-  });
-
-  it('users-E50: agregarle un permiso o darle un rol a alguien pide confirmar y sigue solo', async () => {
-    const frame = googleFrame();
-    const confirm = { status: 403, body: { error: 'confirm-first' } };
-    const server = await openRoles({
-      '/api/roles/enc': [confirm, { body: { role: encRow } }],
-      '/api/users/graciela/roles': [confirm, { body: { roles: [] } }],
-      '/api/start': startReply(),
-      '/api/session/confirm/google': {},
-    });
-    fireEvent.click(screen.getByText('Encargado de turno', { selector: 'b' }));
-    fireEvent.click(roleCard().getByRole('switch', { name: 'Administrar roles' }));
-    await screen.findByRole('alertdialog', { name: 'Confirmá que sos vos' });
-    frame.ready();
-    await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(1));
-    frame.credential('pase');
-    await waitFor(() => expect(server.bodies('/api/roles/enc')).toHaveLength(2));
-    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
-    fireEvent.change(roleCard().getByRole('combobox'), { target: { value: '' } });
-    fireEvent.change(roleCard().getByRole('combobox'), { target: { value: 'graciela' } });
-    await screen.findByRole('alertdialog', { name: 'Confirmá que sos vos' });
-    frame.ready();
-    await waitFor(() => expect(server.bodies('/api/start').length).toBeGreaterThan(1));
-    frame.credential('pase');
-    await waitFor(() => expect(server.bodies('/api/users/graciela/roles')).toHaveLength(2));
-  });
-
   it('mientras trae los roles, lo dice; «Usuarios» vuelve a la lista', async () => {
     openUsers({ '/api/roles': 'waiting' });
     await screen.findByText('Rubén Paredes');
@@ -256,33 +170,5 @@ describe('la pestaña Roles', () => {
     await screen.findByText('Rubén Paredes');
     fireEvent.click(screen.getByRole('button', { name: /^Roles$/ }));
     expect(await screen.findByText('de 0 personas')).toBeTruthy();
-  });
-
-  it('si al repetirlo después de confirmar el nombre ya está, lo dice y sigue en el rol nuevo', async () => {
-    const frame = googleFrame();
-    const server = await openRoles({
-      '/api/roles': [
-        rolesRoute,
-        { status: 403, body: { error: 'confirm-first' } },
-        { status: 409, body: { error: 'role-name-taken' } },
-        rolesRoute,
-      ],
-      '/api/start': startReply(),
-      '/api/session/confirm/google': {},
-    });
-    fireEvent.click(screen.getAllByRole('button', { name: /Nuevo rol/ })[0] as HTMLElement);
-    fireEvent.input(roleCard().getByRole('textbox', { name: 'Nombre' }), {
-      target: { value: 'Administrador' },
-    });
-    fireEvent.click(roleCard().getByRole('switch', { name: 'Trabajar sin conexión' }));
-    fireEvent.click(roleCard().getByRole('button', { name: /Crear el rol/ }));
-    await screen.findByRole('alertdialog', { name: 'Confirmá que sos vos' });
-    frame.ready();
-    await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(1));
-    frame.credential('pase');
-    await waitFor(() =>
-      expect(toast()).toBe('Ya hay un rol con ese nombre (sin importar mayúsculas).'),
-    );
-    expect(document.querySelector('.role-new')).toBeTruthy();
   });
 });

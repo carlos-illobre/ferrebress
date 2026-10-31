@@ -5,33 +5,27 @@
 import { type PermissionId, permissionOf } from '@ferrebress/shared/contracts/permissions';
 import type { HoldersResponse } from '@ferrebress/shared/contracts/roles';
 import { useEffect, useState } from 'preact/hooks';
-import { navigate } from '../../../../platform/router.ts';
 import { api } from '../../../../platform/server/api.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
-import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { initials, useFrame } from '../../context.ts';
-import { firstOption, type Option } from '../../menu.ts';
-import { texts } from '../../texts.ts';
+import type { Option } from '../../menu.ts';
+import { permissionIcons } from '../../permission-icons.ts';
+import { words } from './texts.ts';
 import './NoPermission.css';
 
-const words = texts.noPermission;
-
-// El ícono de cada permiso, el mismo en la pestaña Roles.
-export const permissionIcons: Record<PermissionId, IconName> = {
-  'users.view': 'eye',
-  'users.manage': 'users',
-  'users.cut': 'ban',
-  'roles.manage': 'shield',
-  'offline.work': 'wifi-off',
-};
-
-// Ir a la primera opción que sí puede usar (R1.4).
-export const goToFirst = (person: { permissions: readonly string[] }) =>
-  navigate(firstOption(person).path ?? '/', { replace: true });
-
-export function NoPermission({ option }: { option: Option & { permission: PermissionId } }) {
+// `first`: la primera opción que sí puede usar, y cómo ir (las da el marco).
+export function NoPermission({
+  option,
+  first,
+  go,
+}: {
+  option: Option & { permission: PermissionId };
+  first: Option;
+  go: () => void;
+}) {
   const { person } = useFrame();
   const permission = permissionOf(option.permission);
   const [holders, setHolders] = useState<HoldersResponse>();
@@ -40,7 +34,6 @@ export function NoPermission({ option }: { option: Option & { permission: Permis
       (reply) => reply.ok && setHolders(reply.data),
     );
   }, [option.permission]);
-  const first = firstOption(person);
   const copy = async () => {
     await navigator.clipboard.writeText(words.request(person.name, permission.name, option.name));
     showToast(words.copied, 'copy');
@@ -73,13 +66,7 @@ export function NoPermission({ option }: { option: Option & { permission: Permis
           ))}
         </p>
         <div class="no-permission-actions">
-          <Button
-            look="action"
-            icon={first.icon}
-            doing={words.going}
-            onPress={() => goToFirst(person)}
-            primary
-          >
+          <Button look="action" icon={first.icon} doing={words.going} onPress={go} primary>
             {words.goTo(first.name)}
           </Button>
           <Button icon="copy" doing={words.copying} onPress={copy} shortcut="c">
