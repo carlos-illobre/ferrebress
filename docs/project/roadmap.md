@@ -23,7 +23,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 |---|---|---|---|---|---|
 | 00 | `app` | Las reglas generales de la aplicación: el marco, el menú, el teclado, la conexión, la versión nueva, el manual, las esperas, los formatos | No se construye solo: cada regla se construye con el primer módulo que la necesita | — | Reglas aprobadas |
 | 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | Hecho: Carlos lo probó y lo aprobó, con su manual |
-| 02 | `users` | En dos etapas. **a. Personas y sesiones:** autorizar, cambiar y dar de baja personas, y cerrar a distancia sus sesiones y quitar sus celulares con huella, todavía con el único rol Administrador. **b. Roles y permisos:** permisos fijos que define cada módulo, roles armados por el negocio, la aplicación y el servidor que respetan los permisos, y las protecciones para no quedarse sin quien administre | La a, para que entre alguien más que el primer Administrador y para resolver un celular perdido; la b, justo después, porque la usan todos los módulos que siguen | a: 01; b: 02a | a: hecha, con su manual en el capítulo «Personas»; b: en curso, paso 2 |
+| 02 | `users` | En dos etapas. **a. Personas y sesiones:** autorizar, cambiar y dar de baja personas, y cerrar a distancia sus sesiones y quitar sus celulares con huella, todavía con el único rol Administrador. **b. Roles y permisos:** permisos fijos que define cada módulo, roles armados por el negocio, la aplicación y el servidor que respetan los permisos, y las protecciones para no quedarse sin quien administre | La a, para que entre alguien más que el primer Administrador y para resolver un celular perdido; la b, justo después, porque la usan todos los módulos que siguen | a: 01; b: 02a | a: hecha, con su manual en el capítulo «Personas»; b: en curso, paso 3 |
 | 03 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para leer los códigos del catálogo | 01 | Libre |
 | 04 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo, formatos) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
 | 05 | `audit-log` | La auditoría (lo que hacen las personas): guardarla y consultarla, en Más → Usuarios → Auditoría | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba | 01 | Libre |
@@ -111,6 +111,11 @@ No se construyen ahora; el diseño no les cierra la puerta.
 - [ ] T113 [agente] Quién está en línea, en vivo: un punto de color junto a las iniciales de cada
   persona, en la lista y en la tarjeta de Usuarios, en el celular y en la computadora, que cambia
   solo cuando la persona abre o deja la aplicación (el servidor sabe quién la tiene abierta).
+- [ ] T114 [agente] El modo llavero de los roles (02): cada rol es una llave, como en las variantes 3
+  del director de «Los roles de una persona» y «Sin permiso». Lo que ya decidió Carlos: convive con
+  el modo clásico y se elige con un selector en la pestaña Roles, para quien tiene «Administrar
+  roles», que se muda a Administración cuando exista (06); el director de arte arma también la
+  pestaña Roles en modo llavero; no se pide un permiso desde la aplicación, solo se copia el pedido.
 - [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales.
 - [ ] T111 [carlos] Probar en el ambiente de pruebas que la sesión vence (01 · R3.1, R3.5): 60
   minutos sin usarla, o 8 horas desde que se entró, y que al volver a entrar se sigue donde se

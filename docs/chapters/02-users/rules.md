@@ -165,11 +165,15 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   el próximo pedido de esa persona, sin volver a entrar.
 - **R7.7** **Lo que no se puede usar no aparece:** ni en el menú, ni en Más, ni como pestaña, ni como
   botón. Si se abre por la dirección algo que no se puede usar, se ve «No tenés permiso para
-  <pantalla>: hace falta «<permiso>». Lo tienen: <roles>.» y un botón para ir a la primera opción que
-  sí se puede usar.
+  <pantalla>: hace falta «<permiso>»», con para qué sirve ese permiso, los roles que lo tienen y
+  quiénes son, quién se lo puede dar (quien tiene «Administrar roles»), los roles propios, un botón
+  para ir a la primera opción que sí se puede usar y «Copiar el pedido», que copia un texto listo
+  para mandárselo a quien lo puede dar. La aplicación no manda el pedido.
 - **R7.8** **Si le cambian los permisos mientras usa la aplicación,** con su próximo pedido el menú y
   la pantalla se actualizan. Si está en una pantalla que ya no puede usar, ve «Ya no tenés permiso
-  para <pantalla>» y va a su primera opción; lo que estaba escribiendo en otra parte no se pierde.
+  para <pantalla>», con quién le sacó qué rol, los roles que tenía y los que tiene, y que lo que
+  estaba haciendo en otra parte sigue como lo dejó; a los 5 segundos va solo a su primera opción, o
+  antes si toca «Ir a <opción>».
 - **R7.9** **Sin conexión** se usan los permisos que la persona tenía la última vez que habló con el
   servidor; al volver la conexión se actualizan, y lo hecho sin permiso el servidor lo rechaza
   (15 · etapa b).
