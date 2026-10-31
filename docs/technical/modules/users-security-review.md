@@ -12,7 +12,7 @@ el [ADR-004](../adr/ADR-004-audit-log-in-sqlite.md), el [diseño de 01](sign-in.
 depende el diseño: `src/server/modules/users/`, `src/server/modules/sign-in/` (sesiones, huellas,
 Google y sin conexión), `src/server/platform/` (`http.ts`, `guards.ts`, `events.ts`, `config.ts`,
 `storage/audit.ts`), `src/app/modules/frame/notices/crash/crash.ts`, `deploy/oracle/install.sh` y
-`tests/e2e/stack/start.ts`. Todavía no hay revisión del diseño (`users-design-review.md`).
+`tests/e2e/stack/start.ts`. Cómo quedó cada punto después de programar, en la tabla del [paso 7](#paso-7-el-código).
 
 Lo que decidió Carlos no se discute: en la etapa a cualquiera con sesión puede hacer todo (R1.1);
 autorizar es solo nombre y correo, de cualquier dominio (R3.3); «Cerrar», «Quitar» y «Cortar» van
@@ -392,3 +392,272 @@ Además de las de § 12, cada riesgo con una prueba que lo intenta y falla:
 - [CVE-2026-6991 (INCIBE)](https://www.incibe.es/incibe-cert/alerta-temprana/vulnerabilidades/cve-2026-6991)
 - [CVE-2026-6991 (secualive)](https://secualive.jp/en/feed/nvd/vulnerability/detailinfo/CVE-2026-6991/)
 - [Fallas conocidas de zod (OpenCVE)](https://opencve.alliance.unm.edu/cve/?vendor=zod)
+
+---
+
+## Paso 7: el código
+
+Revisión del código programado (commits `7460c43`, `49c367c` y `a58221a`) contra el [diseño](users.md)
+aprobado (§ 5, § 6, § 9 y § 13) y las [reglas](../../chapters/02-users/rules.md). Leí las rutas de
+`src/server/modules/users/` y de `src/server/modules/sign-in/access/`, lo que cambió en `sign-in`
+(`sessions/store.ts`, `open.ts`, `require.ts`, `offline/routes.ts`, `passkeys/`, `codes/`, `index.ts`),
+`platform/session.ts`, `config.ts`, `http.ts`, `guards.ts`, `limits/rate-limit.ts`, el comando
+`first-administrator.ts`, `deploy/oracle/install.sh`, la pantalla `src/app/modules/users/`,
+`ConfirmSheet.tsx` y `frame/notices/crash/crash.ts`, y sus pruebas.
+
+**Lo que comprobé corriendo:** una prueba de sondeo, fuera del repositorio, contra el servidor de
+prueba (`createSignInServer`, PGlite): los puntos 13, 14 y 17 de abajo pasan como se describen.
+`pnpm audit --prod`: «No known vulnerabilities found». Lo demás sale de leer el código; donde no lo
+pude comprobar, lo digo.
+
+### Resumen
+
+Lo que el diseño prometía, en general está: la memoria de sesiones ya no vuelve a guardar una sesión
+que se cierra (contador de cierres, con su prueba), la baja cierra sesiones y borra huellas en la
+misma transacción y pone la memoria al día después de confirmar, las bajas bloquean las activas en
+orden, «nunca entró» va en el mismo `where`, la apertura de una sesión vuelve a mirar si la persona
+sigue activa (también sin conexión y por el código QR), ninguna respuesta da el `device_id` ni el
+identificador de WebAuthn, y nadie se da de alta a sí mismo.
+
+Queda **un agujero que frena**: **cambiar el correo** de alguien que nunca entró no pide pasar por
+Google ni por la huella, y es lo mismo que autorizar un correo nuevo. Con eso, la sesión abierta en el
+mostrador que R3.8 quiere cerrar sigue sirviendo para darse acceso. Y uno de **disponibilidad** que
+conviene arreglar antes de que otro módulo use `sessions.require`: 31 cookies inventadas desde la
+dirección del local dejan a todos los del local sin poder usar Usuarios por un minuto, aunque tengan
+sesión.
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 13 | Cambiar el correo de quien nunca entró no pide Google ni la huella: es autorizar sin R3.8 | **Frena** |
+| 14 | El límite de cookies desconocidas frena también a las sesiones válidas de esa dirección | Mejora (la más urgente) |
+| 15 | Una entrada sin conexión confirmada cuenta como huella «de recién», aunque sea de horas antes | Mejora |
+| 16 | «Cortar» un celular no cierra las computadoras que ese celular aprobó por QR | Mejora |
+| 17 | Un identificador que no es UUID en la dirección da 500 y deja una traza por pedido | Mejora |
+| 18 | Los rechazos de las rutas de sesiones y celulares no se anotan | Mejora |
+| 19 | «Algo salió mal»: la captura muestra lo escrito al autorizar, el buscador y las tostadas con nombre | Mejora |
+| 20 | Cortar contra una entrada con esa misma huella, a la vez | Mejora |
+| 21 | R3.8 depende de que la computadora del mostrador no tenga la cuenta de Google abierta | Mejora (decide Carlos) |
+| 22 | Pruebas que faltan para riesgos que el diseño dice cubrir | Mejora |
+
+### 13 · Cambiar el correo de quien nunca entró se saltea R3.8 (`users/routes.ts:136-143`, `users/people.ts:51-58`) — **Frena**
+
+`POST /api/users` y `POST /api/users/:id/activate` llaman a `confirmed()` (líneas 130 y 165);
+`POST /api/users/:id` no. Para quien nunca entró, cambiar el correo es exactamente autorizar otro
+correo: la fila queda activa, sin `google_subject`, y la primera entrada con Google con ese correo la
+ata a la cuenta de quien la pidió.
+
+**El ataque, paso a paso** (lo corrí en la prueba de sondeo):
+
+1. La computadora del mostrador queda con la sesión de un empleado abierta, hace más de 5 minutos
+   que no pasó por Google. Alguien que no trabaja ahí (un cliente, un ex empleado) va a Más →
+   Usuarios. «Autorizar a alguien» le pide Google: no puede.
+2. Toca el filtro «Sin entrar». Hay alguien recién autorizado que todavía no entró (lo normal en la
+   semana en que entra un empleado nuevo). Toca el lápiz del correo, escribe su Gmail y Enter. El
+   servidor contesta `200`: `{"email":"atacante@gmail.com","active":true,"neverSignedIn":true}`.
+3. Desde su casa entra con Google con ese Gmail: `200`, `role: "Administrador"`. Ya no depende de la
+   sesión del mostrador; desde ahí puede autorizar a quien quiera.
+
+La lista sigue mostrando «Todavía no entró» con el correo nuevo hasta que entra; después, con el
+nombre de Google del atacante (el escrito se borró, ver «Fuera de seguridad»). La auditoría tiene
+`user.email-changed`, pero no hay pantalla para leerla hasta el 05.
+
+**Qué propongo:** que cambiar el correo pida lo mismo que autorizar (`confirm-first` si `email` viene
+en el cuerpo); la aplicación ya sabe repetir el pedido después de la hoja de confirmar. Cambiar solo
+el nombre puede seguir sin pedirlo. Que R3.8 lo diga («autorizar, cambiar el correo de quien nunca
+entró y dar de alta») y una prueba de la ruta: con la sesión de hace 6 minutos, cambiar el correo da
+`403 confirm-first`; después de confirmar, pasa. Media hora.
+
+### 14 · El límite de cookies desconocidas frena a las sesiones válidas (`sign-in/sessions/require.ts:40`) — Mejora, la más urgente
+
+`requestSession` mira `limiter.exceeded("session:unknown:<dirección>")` **antes** de buscar la
+cookie, en memoria o en la base. Pasado el tope (30 por minuto), contesta `429` a todo pedido con
+sesión desde esa dirección, también a los de sesiones que están en memoria y no costarían nada.
+
+**El ataque** (lo corrí): desde la misma dirección pública que el local (un cliente en el wifi del
+local, o cualquiera que comparta la dirección del proveedor de datos móviles, que en Argentina
+suelen ser compartidas), 31 pedidos a `/api/users` con `__Host-session=inventada<n>`. La sesión del
+Administrador, que un momento antes recibía `200`, recibe `429 too-many-attempts` por 60 segundos.
+Repetido cada minuto, nadie del local usa Usuarios (ni la hoja de confirmar, que también va con
+`sessions.require`). Hoy alcanza solo a Usuarios; cuando Vender y los demás módulos usen la misma
+puerta (para eso está, diseño § 3), deja al local sin trabajar. No hace falta cuenta, ni conocer a
+nadie: solo estar detrás de la misma dirección.
+
+**Qué propongo:** buscar primero en la memoria (sin costo) y aplicar el tope solo a lo que iría a la
+base: una cookie que está en memoria nunca se frena. Después de reiniciar el servidor, una sesión
+válida todavía no está en memoria; para que tampoco se frene, el pase puede llevar una marca que el
+servidor reconoce sin la base (por ejemplo, los últimos 8 bytes como HMAC del resto con un secreto del
+proceso: una cookie inventada no la tiene y se descarta sin consulta ni cuenta). La primera parte es
+media hora; la marca, una hora más, con la prueba: con el tope pasado desde una dirección, una sesión
+válida de esa dirección sigue recibiendo `200`.
+
+### 15 · La entrada sin conexión confirmada cuenta como huella reciente (`sign-in/sessions/open.ts:60`, `offline/routes.ts:142`) — Mejora
+
+`openSession` pone `passkeyAt = now` siempre que hay `passkeyId`. La confirmación sin conexión pasa
+`passkeyId: row.credentialId`, así que la sesión que abre el servidor cuando vuelve la conexión queda
+«confirmada con la huella» en ese momento, aunque la huella se puso horas antes (hasta 24). R3.8
+pide haberla puesto hace menos de 5 minutos.
+
+**El ataque:** un empleado entra sin conexión a la mañana en su celular y lo deja desbloqueado sobre
+el mostrador. Vuelve internet; el celular manda lo pendiente y el servidor abre la sesión con
+`passkeyAt` de ahora. Durante esos 5 minutos, quien agarre el celular autoriza su Gmail desde Más →
+Usuarios sin poner ninguna huella. La ventana depende de cuándo vuelve la conexión, así que es difícil
+de provocar a propósito; queda como mejora.
+
+**Qué propongo:** que la entrada sin conexión abra la sesión con `passkeyAt` nulo (la firma no es de
+ahora); se pasa `passkeyId` para cortar y un `passkeyAt` aparte, solo en los caminos con firma fresca.
+Una línea y una prueba.
+
+### 16 · «Cortar» no alcanza a las computadoras que aprobó ese celular (`sign-in/codes/computer/computer-routes.ts:75-80`, `access/data.ts:131-151`) — Mejora
+
+La sesión de la computadora que entra con el código QR se abre sin `passkeyId` (y `is_phone` falso).
+`cutPhone` cierra por `device_id` o `passkey_id`, así que no la toca, y «Se perdió un celular» no la
+muestra.
+
+**El ataque:** alguien se queda con el celular de un empleado y sabe su PIN. Lee el código QR de su
+propia computadora y lo aprueba con la huella: tiene una sesión en la computadora, hasta 8 horas. El
+Administrador abre «Se perdió un celular», corta ese celular y ve «se cerró la sesión y se quitó la
+huella»: cree que terminó. La computadora sigue adentro. Lo arregla «Cerrar todas» (R5.4 lo prevé),
+pero la pantalla de cortar no lo sugiere.
+
+**Qué propongo:** guardar en la sesión de la computadora el `passkey_id` de la huella que la aprobó
+(está en el permiso que la computadora canjea) y que cortar cierre también esas. Si no, que el aviso
+de «Cortar» diga «Si con ese celular entró a una computadora, usá Cerrar todas». Una hora, con la
+prueba.
+
+### 17 · Un identificador que no es UUID da 500 (`users/routes.ts:138-167`, `sign-in/access/routes.ts:34-93`) — Mejora
+
+§ 9 dice que los identificadores de la dirección son UUID; ninguna ruta lo valida. Las columnas son
+`uuid`, así que `GET /api/users/no-es-uuid/access` o `POST /api/users/no-es-uuid/sessions/no/close`
+dan `500 unexpected` (lo corrí) y cada uno deja un `console.error` con la traza. Con sesión, cualquiera
+llena el registro del servidor sin límite en las rutas `GET`. No da acceso a nada.
+
+**Qué propongo:** un paso de la plataforma que valide los parámetros con forma de UUID y conteste
+`404 not-found` (lo mismo que para uno que no existe), en las ocho rutas que llevan `:id`, `:sessionId` o `:phoneId`. Media hora, con una prueba
+por ruta.
+
+### 18 · Los rechazos de sesiones y celulares no se anotan (`sign-in/access/routes.ts:94-95`, `:80`) — Mejora
+
+§ 9 pide anotar los rechazos (`self`, `404`) una vez por minuto, y `users` lo hace (`users.rejected`).
+Las rutas de `sign-in/access` no: «Cortar» con un celular de otra persona o inventado (`404`) o el
+propio (`409 self`) no dejan nada, y «Cerrar» con una sesión que no es de esa persona devuelve
+`200 { closed: 0 }` (no `404`, como dice § 4) y tampoco deja nada. Quien prueba identificadores de
+celulares no queda registrado. Propongo `access.rejected` con quién, a quién, el motivo y el
+identificador pedido, con la misma ventana. Media hora.
+
+### 19 · La captura de «Algo salió mal» muestra datos personales (`users/screens/Overlays/Authorize.tsx:37-61`, `Users/Summary.tsx:60`, `ui/toast/Toast.tsx:25`) — Mejora
+
+El arreglo de los pasos está (`crash.ts:38-39`, un botón que contiene algo marcado no entra, con su
+prueba). Pero la captura solo tapa lo marcado `data-private`, y quedan sin marcar:
+
+- los campos de «Autorizar a alguien» (nombre y correo que se están escribiendo);
+- el buscador de la lista (donde se escribe un nombre);
+- las tostadas, que dicen «Se borró el alta de juan@gmail.com», «Juan Pérez quedó dada de baja»,
+  «… puede entrar otra vez» durante 2,4 segundos.
+
+Si algo falla con eso a la vista, la captura (que «Avisar y seguir» guarda en el dispositivo y el
+módulo 12 va a mandar) lleva el nombre o el correo, contra 00 · R9.4. Que `html-to-image` copia el
+valor de los campos lo sé por la biblioteca; no lo corrí. **Qué propongo:** `data-private` en esos
+dos campos y en la tostada cuando el texto lleva un nombre o un correo (un parámetro de `showToast`).
+Una prueba de la pantalla. Media hora.
+
+### 20 · Cortar a la vez que se entra con esa huella (`sign-in/access/data.ts:131-151`, `sessions/open.ts`) — Mejora
+
+`cutPhone` borra la huella y después cierra sesiones, en dos sentencias sin transacción, y entrar con
+la huella no vuelve a mirar si la huella sigue al crear la sesión (sí mira si la persona sigue activa,
+`recordSignIn`). Si una entrada con esa huella crea su sesión justo después del `update` de cortar,
+queda abierta con una huella ya borrada. Hace falta poner la huella justo en ese milisegundo, así que
+no se puede provocar a propósito; queda como mejora. **Qué propongo:** cortar en una transacción, y
+que `openSession`, cuando trae `passkeyId`, haga lo mismo que con la persona: después de crear la
+sesión, comprobar que la huella sigue y, si no, cerrarla. Una consulta más por entrada con huella;
+una hora.
+
+### 21 · R3.8 contra una computadora con la cuenta de Google abierta — Mejora, lo decide Carlos
+
+La hoja de confirmar ofrece «Continuar con Google». Si en la computadora del mostrador el navegador
+tiene abierta la cuenta de Google del empleado (lo común si lee su correo ahí), quien está frente a
+la sesión abandonada toca el botón, elige la cuenta y queda confirmado sin ninguna contraseña. R3.8
+protege solo si Google pide algo. No es un error del código; es un límite de la regla. **Qué
+propondría a Carlos:** decir en el manual que en la computadora del mostrador no se deja abierta la
+cuenta de Google, o pedir en la confirmación `prompt=login` / `max_age` (Google vuelve a pedir la
+contraseña; no lo comprobé con el botón que usa la aplicación). Costo: un texto, o una hora si se
+toca el pedido a Google.
+
+### 22 · Pruebas que faltan — Mejora
+
+Comparando con «Qué tiene que tener una prueba» del paso 4 y con § 11:
+
+| Riesgo | Prueba | Estado |
+|---|---|---|
+| Un pedido de la sesión que se cierra no la vuelve a guardar | `sessions/memory.test.ts` | Está |
+| Dar de alta la propia da `self` | `people.test.ts` (E04) | Está |
+| Cookies inventadas sobre el tope, sin consultar | `access.test.ts` | Está; falta la contraria: una sesión válida de esa dirección no se frena (punto 14) |
+| 60 cambios por minuto por sesión | — | **Falta** |
+| Cambiar el correo o borrar mientras entra por primera vez | `users.test.ts` (dos entradas a la vez) | En parte: falta el cruce correo contra entrada |
+| Después de quitar, Google en ese celular ofrece la huella y no trae `offline` | `access.test.ts` (E26) | Está para «Quitar»; falta para la baja |
+| Una sesión abierta con la huella desde otro identificador se cierra al quitarla | — | **Falta** (el código lo hace: `passkey_id`) |
+| Ninguna respuesta trae `device_id` ni el identificador de WebAuthn | `access.test.ts:40` | Solo la tarjeta; falta `/api/lost-phones` |
+| Cada rechazo deja su fila | `people.test.ts` (R6.1) | Solo `users`; falta `sign-in/access` (punto 18) |
+| Con `testing` o `production`, nada crea a la primera persona | `config.test.ts` | Está |
+| Nombre de Google de 4 KB recortado, sin caracteres de dirección | — | **Falta** (el código lo hace: `cleanName`) |
+| Tocar una persona no deja su nombre en los pasos | `notices.test.tsx` | Está |
+| Cambiar el correo pide confirmar | — | **Falta** (punto 13) |
+| Dos bajas a la vez (E05), contra PostgreSQL | A mano, según § 5 | No lo pude comprobar: no corrí PostgreSQL |
+
+### Cómo quedó cada punto del paso 4
+
+| # | Punto | Estado en el código |
+|---|---|---|
+| 1 | La caché de sesiones | Resuelto: contador de cierres (`store.ts:84-90`), memoria y auditoría después de confirmar; `409 self` al dar de alta |
+| 2 | Límites | En parte: están los dos, pero el de cookies frena a las válidas (punto 14) y el de cambios no tiene prueba |
+| 3 | Activa y nunca entró, al escribir | Resuelto: `where` en correo, borrar y `linkGoogle`; `recordSignIn` solo si sigue activa, con la sesión cerrada si no |
+| 4 | `phoneOwners` | Resuelto en cortar y en la baja |
+| 5 | Sesiones con la huella desde otro identificador | Resuelto con `passkey_id`, salvo la computadora del QR (punto 16) |
+| 6 | Identificadores a la vista | Resuelto: `public_id` y el `id` de la sesión; nunca `device_id` ni la credencial |
+| 7 | Una sesión ajena se vuelve acceso | Carlos eligió R3.8 y está programado, pero se saltea cambiando el correo (punto 13) |
+| 8 | Auditoría | En parte: después de confirmar y con los rechazos de `users`; faltan los de `sign-in/access` (punto 18). El comando no anota, como decidió el diseño (`authorized_by` nulo) |
+| 9 | Primer Administrador | Resuelto: variable solo en `e2e` (rechazada en otros ambientes, con prueba), tabla bloqueada, solo `DATABASE_URL`, correo entre comillas en `install.sh`. El comando valida el correo con `includes('@')`, no con el contrato (abajo) |
+| 10 | Lo que entra | En parte: cuerpos con zod, versión acotada, nombres limpios y cortados; los parámetros de la dirección, no (punto 17); sin NFC |
+| 11 | «Algo salió mal» | Resuelto en los pasos; quedan la captura (punto 19) |
+| 12 | Dos bajas que se traban | Resuelto con `order by id` |
+
+### Lo demás, punto por punto
+
+- **Entrar sin permiso:** fuera de los puntos 13, 15 y 21, nada. Ninguna ruta crea a alguien sin
+  sesión; el primer Administrador solo sale del comando o, en `e2e`, de una variable que la
+  configuración rechaza en otro ambiente (`config.ts:48-50`). Confirmar con Google exige un `nonce`
+  dado por el servidor y el mismo `google_subject`; con la huella, un desafío atado a esa sesión y una
+  huella de la misma persona (probado en `access.test.ts`).
+- **Una cuenta dada de baja:** no entra por ningún camino. Google la rechaza en `matchGoogleAccount`;
+  la huella, el código QR y sin conexión no tienen huella (se borraron en la transacción), y si la baja
+  llega mientras entra, `recordSignIn` falla y la sesión recién creada se cierra (pruebas en
+  `sessions.test.ts:183` y `offline.test.ts`, E16 a E16c). Las sesiones que tenía salen de la memoria
+  después de confirmar. Leí el orden de las escrituras y no encontré una ventana en la que la sesión
+  nueva quede en memoria después de la baja: `remember` corre en la misma vuelta que la respuesta de
+  `recordSignIn`, antes de que la baja pueda terminar.
+- **Permisos y lo ajeno:** en la etapa a todos pueden todo (R1.1). Las rutas de sesiones y celulares
+  nombran a la persona y filtran por ella (`phoneOf` y `closeSessions` con `user_id`): un celular de
+  otra da `404` (con prueba). «Cerrar» con una sesión de otra devuelve `200` con cero en vez de
+  `404` (punto 18); no da nada.
+- **La aplicación en el navegador:** no guarda nada nuevo en el dispositivo; no hay HTML inyectado
+  (Preact escapa y la aplicación prohíbe `dangerouslySetInnerHTML`). La política de contenido y
+  `frame-ancestors` no cambian. Solo el punto 19.
+- **Datos personales:** la lista, las sesiones y los celulares se quedan entre el servidor y la
+  aplicación; a terceros no sale nada nuevo. La dirección de internet no sale en ninguna respuesta.
+- **Abuso:** puntos 14 y 17. Las rutas `GET` con sesión (`/api/users`, la tarjeta, `/api/lost-phones`)
+  no tienen tope; es un riesgo de alguien de adentro y se puede dejar.
+- **Sin conexión:** punto 15. Una huella quitada no confirma nada y la baja da `not-authorized` sin
+  revelar si la firma servía.
+- **El despliegue:** solo cambia `install.sh`, que corre el comando con el correo entre comillas y
+  acepta el «ya había personas» (código 2). Caddy, puertos, volúmenes y contenedores, sin cambios. El
+  `.env` viejo con `INITIAL_ADMIN_EMAIL` no rompe nada.
+- **El comando:** valida el correo con `includes('@')`, sin largo máximo ni la forma de correo del
+  contrato: un correo mal escrito deja una instalación sin nadie que entre y el comando ya no deja
+  corregirlo. No es un ataque (lo corre quien instala); propongo usar `authorizeBody` del contrato.
+  Diez minutos. No comprobé qué muestran sus errores si la base no responde.
+- **Dependencias:** ninguna nueva en estos commits. `pnpm audit --prod`: sin fallas conocidas.
+
+### Fuera de seguridad
+
+- **Cambiar solo el correo borra el nombre escrito** (`users/people.ts:52-56`): `cleanName(undefined)`
+  da `null` y `changeEmail` lo guarda. El contrato dice «sin `name`, no cambia». Lo vi en la prueba de
+  sondeo: una persona autorizada como «Nuevo» quedó con `name: null` al cambiarle el correo.
