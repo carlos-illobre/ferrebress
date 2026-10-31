@@ -13,8 +13,15 @@ export type SessionRow = {
   createdAt: Date;
   lastUsedAt: Date;
   googleAt: Date | null;
+  // Cómo se entró, si es un celular, con qué huella y cuándo se la puso por última vez (02, § 2).
+  way: Way;
+  isPhone: boolean;
+  passkeyId: string | null;
+  passkeyAt: Date | null;
   closedReason: ClosedReason | null;
 };
+
+export type Way = 'google' | 'passkey' | 'qr' | 'offline';
 
 export type SessionsTables = {
   'sign_in.sessions': {
@@ -28,6 +35,10 @@ export type SessionsTables = {
     created_at: Date;
     last_used_at: Date;
     google_at: Date | null;
+    way: Way;
+    is_phone: boolean;
+    passkey_id: string | null;
+    passkey_at: Date | null;
     closed_at: Date | null;
     closed_reason: ClosedReason | null;
   };
@@ -43,6 +54,10 @@ const columns = [
   'created_at as createdAt',
   'last_used_at as lastUsedAt',
   'google_at as googleAt',
+  'way',
+  'is_phone as isPhone',
+  'passkey_id as passkeyId',
+  'passkey_at as passkeyAt',
   'closed_reason as closedReason',
 ] as const;
 
@@ -64,6 +79,10 @@ function finding(db: Kysely<SessionsTables>) {
           created_at: row.createdAt,
           last_used_at: row.lastUsedAt,
           google_at: row.googleAt,
+          way: row.way,
+          is_phone: row.isPhone,
+          passkey_id: row.passkeyId,
+          passkey_at: row.passkeyAt,
         })
         .execute();
     },

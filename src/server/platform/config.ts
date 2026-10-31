@@ -19,7 +19,9 @@ const configSchema = z.object({
   GOOGLE_ISSUER: z.url(),
   GOOGLE_JWKS_URL: z.url(),
   GOOGLE_SCRIPT_URL: z.url(),
-  INITIAL_ADMIN_EMAIL: z.email(),
+  // Solo en las pruebas de punta a punta: la persona que el arranque carga en la base en memoria,
+  // que el comando del primer Administrador no ve (diseño de 02, § 7).
+  E2E_FIRST_ADMIN_EMAIL: z.optional(z.email()),
   TRUSTED_PROXY: text,
 });
 
@@ -43,6 +45,9 @@ export function readConfig(env: Record<string, string | undefined>): Config {
 // de punta a punta solo corren con la base en memoria: un .env de la máquina con ENVIRONMENT=e2e
 // por error no arranca (revisión de seguridad, 35).
 function assertRealGoogle(config: Config): void {
+  if (config.ENVIRONMENT !== 'e2e' && config.E2E_FIRST_ADMIN_EMAIL) {
+    throw new ConfigError('E2E_FIRST_ADMIN_EMAIL solo vale con ENVIRONMENT=e2e');
+  }
   if (config.ENVIRONMENT === 'e2e') {
     if (config.DATABASE_URL === 'memory://') return;
     throw new ConfigError('Con ENVIRONMENT=e2e, DATABASE_URL tiene que ser memory://');

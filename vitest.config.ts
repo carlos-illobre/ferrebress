@@ -31,6 +31,7 @@ export default defineConfig({
       exclude: [
         'tools/cli.ts',
         'src/server/main.ts',
+        'src/server/first-administrator.ts',
         'src/app/main.tsx',
         'src/app/sw.ts',
         'src/app/google-button.ts',

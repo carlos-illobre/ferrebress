@@ -110,7 +110,7 @@ describe('entrar con Google', () => {
     const admin = (await server.users.matchGoogle('sub-admin', 'admin@example.com', 'Ana')) as {
       user: { id: string };
     };
-    await server.users.deactivate(admin.user.id);
+    await server.deactivate(admin.user.id);
     expect((await device.request('/api/start')).body.person).toBeUndefined();
     const again = await createDevice(server).signInWithGoogle({
       sub: 'sub-admin',
@@ -190,7 +190,7 @@ describe('las llaves de Google', () => {
     const { createSignInModule } = await import('../index.ts');
     const { createUsersModule } = await import('../../users/index.ts');
     const { testConfig } = await import('../../../testing/config.ts');
-    const { module, users } = createUsersModule();
+    const { module, users } = createUsersModule({ accessCounts: async () => new Map() });
     const server = await createServer(testConfig, [module, createSignInModule({ users })]);
     const headers = (await import('../../../testing/config.ts')).appHeaders();
     expect((await server.http.request('/api/start', { headers })).status).toBe(200);

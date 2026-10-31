@@ -43,6 +43,21 @@ const nodeRemoteAddress = (c: Context): string | undefined =>
 export const fail = (c: Context, status: ContentfulStatusCode, error: ErrorCode, extra = {}) =>
   c.json({ error, ...extra }, status);
 
+// Un rechazo que se decide en el fondo de un camino (abrir una sesión de alguien que dieron de baja
+// mientras entraba): se lanza y la plataforma lo contesta, sin repetir la rama en cada ruta.
+export class Refused extends Error {
+  readonly status: ContentfulStatusCode;
+  readonly code: ErrorCode;
+  readonly extra: object;
+
+  constructor(status: ContentfulStatusCode, code: ErrorCode, extra: object = {}) {
+    super(code);
+    this.status = status;
+    this.code = code;
+    this.extra = extra;
+  }
+}
+
 export function createHttp(options: HttpOptions): Http {
   const http: Http = new Hono();
   const reject = rejecter(options);
@@ -56,6 +71,7 @@ export function createHttp(options: HttpOptions): Http {
   http.onError((error, c) => {
     // Un cuerpo que no es JSON es un pedido mal hecho, no una falla: sin traza en el registro.
     if (error instanceof SyntaxError) return reject(c, 'body');
+    if (error instanceof Refused) return fail(c, error.status, error.code, error.extra);
     console.error(error);
     return fail(c, 500, 'unexpected');
   });

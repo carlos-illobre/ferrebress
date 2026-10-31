@@ -5,7 +5,7 @@ import type { Kysely } from 'kysely';
 import { createGuards } from '../../platform/guards.ts';
 import { createOneUse } from '../../platform/limits/one-use.ts';
 import type { Platform } from '../../platform/modules.ts';
-import type { User, Users } from '../users/index.ts';
+import { displayName, type User, type Users } from '../users/index.ts';
 import { createScreens } from './codes/computer/screens.ts';
 import type { GoogleSettings } from './google/verify.ts';
 import { type PasskeysTables, passkeysData } from './passkeys/data.ts';
@@ -27,6 +27,12 @@ function createPeople(users: Users) {
       known.set(userId, shown);
       return shown;
     },
+    // Varias de una vez, con una sola consulta para las que no están en memoria.
+    async ofMany(userIds: string[]): Promise<Map<string, Person>> {
+      const missing = userIds.filter((id) => !known.has(id));
+      for (const user of await users.findByIds(missing)) known.set(user.id, person(user));
+      return new Map(userIds.map((id) => [id, known.get(id) as Person]));
+    },
     update(user: User): void {
       if (known.has(user.id)) known.set(user.id, person(user));
     },
@@ -36,7 +42,7 @@ function createPeople(users: Users) {
 
 const person = (user: User): Person => ({
   userId: user.id,
-  name: user.name ?? user.email,
+  name: displayName(user),
   email: user.email,
   // Hasta el módulo 02, todas las personas son Administrador.
   role: 'Administrador',
@@ -49,6 +55,12 @@ export type SignInDependencies = {
   google: GoogleSettings;
   wait: (ms: number) => Promise<void>;
 };
+
+const { throttledAudit } = signInSettings.limits;
+
+// Los desafíos de la huella: para entrar, para vincular la huella de una sesión o para volver a
+// confirmar quién es (02 · R3.8).
+type Challenge = { purpose: 'sign-in' } | { purpose: 'link' | 'confirm'; sessionId: string };
 
 export function createContext(platform: Platform, { users, google, wait }: SignInDependencies) {
   return {
@@ -64,11 +76,7 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
       }),
     ),
     nonces: createOneUse<true>(platform.clock, signInSettings.nonce),
-    // Los desafíos de la huella: para entrar, o para vincular la huella de una sesión.
-    challenges: createOneUse<{ purpose: 'sign-in' } | { purpose: 'link'; sessionId: string }>(
-      platform.clock,
-      signInSettings.challenge,
-    ),
+    challenges: createOneUse<Challenge>(platform.clock, signInSettings.challenge),
     passkeys: passkeysData(platform.db as Kysely<PasskeysTables>),
     // De quién es la huella de cada celular, ya consultada (diseño de 15, § 10): así /api/start con
     // la sesión en memoria sigue sin consultar la base. Vincular la actualiza.
@@ -78,10 +86,7 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
       origin: platform.config.PUBLIC_ORIGIN,
     },
     // Anotar en la auditoría y frenar por límite de intentos (platform/guards.ts).
-    ...createGuards(platform, {
-      event: 'sign-in.throttled',
-      window: signInSettings.limits.throttledAudit,
-    }),
+    ...createGuards(platform, { event: 'sign-in.throttled', window: throttledAudit }),
     person,
     people: createPeople(users),
     wait,

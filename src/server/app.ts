@@ -7,6 +7,7 @@ import { createEvents } from './platform/events.ts';
 import { createHttp } from './platform/http.ts';
 import { createRateLimiter } from './platform/limits/rate-limit.ts';
 import type { Platform, ServerModule } from './platform/modules.ts';
+import { createSessionGate } from './platform/session.ts';
 import { openAuditLog } from './platform/storage/audit.ts';
 import { migrate, openDatabase } from './platform/storage/db.ts';
 
@@ -46,6 +47,7 @@ export async function createServer(
   const closing: (() => Promise<void>)[] = [];
   const platform: Platform = {
     ...{ config, db, audit, clock, limiter, events: createEvents(), http },
+    sessions: createSessionGate(),
     every(ms, job) {
       const run = () => job().catch((error: unknown) => console.error(error));
       stops.push(schedule(ms, run));

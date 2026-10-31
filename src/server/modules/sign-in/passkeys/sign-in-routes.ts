@@ -61,6 +61,7 @@ async function signInWithPasskey(
   const session = await openSession(ctx, c, {
     userId: user.id,
     proofPublicKey,
+    passkeyId: found.passkey.id,
     data: { method: 'passkey' },
   });
   return c.json<SignInResponse>({

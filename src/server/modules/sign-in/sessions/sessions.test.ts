@@ -120,7 +120,7 @@ describe('la sesión', () => {
     const { body } = await other.signInWithGoogle(admin);
     const deactivated = await server.users.matchGoogle(admin.sub, admin.email, 'Ana');
     expect(deactivated.kind).toBe('found');
-    await server.users.deactivate(body.person.userId);
+    await server.deactivate(body.person.userId);
     expect(await personOf(device)).toBeUndefined();
     expect(await personOf(other)).toBeUndefined();
     const reasons = await sql<{
@@ -178,5 +178,19 @@ describe('la sesión', () => {
     now += minutes(30 * 24 * 60 + 1);
     await server.runJobs();
     expect(await rows()).toEqual([]);
+  });
+
+  it('users-R1 (02, § 5): si la dan de baja mientras entra, la sesión recién abierta se cierra y no entra', async () => {
+    const { recordSignIn } = server.users;
+    // La baja llega entre que se crea la sesión y se anota la entrada.
+    server.users.recordSignIn = async () => false;
+    const device = createDevice(server);
+    const entered = await device.signInWithGoogle(admin);
+    server.users.recordSignIn = recordSignIn;
+    expect(entered).toMatchObject({ status: 403, body: { error: 'not-authorized' } });
+    expect(entered.cookie).toBeNull();
+    const open = await sql<{ n: number }>`select count(*)::int as n from sign_in.sessions
+      where device_id = ${device.id} and closed_at is null`.execute(server.platform.db);
+    expect(open.rows[0]?.n).toBe(0);
   });
 });

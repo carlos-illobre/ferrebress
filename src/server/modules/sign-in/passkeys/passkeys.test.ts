@@ -170,7 +170,7 @@ describe('la huella del celular', () => {
     await device.signInWithGoogle({ sub: 'sub-baja', email: 'baja-huella@example.com' });
     const authenticator = newAuthenticator();
     await link(device, authenticator);
-    await server.users.deactivate(id);
+    await server.deactivate(id);
     device.cookie = '';
     expect(await signIn(device, authenticator)).toMatchObject({
       status: 401,

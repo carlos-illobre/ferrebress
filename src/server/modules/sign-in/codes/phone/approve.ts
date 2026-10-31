@@ -112,13 +112,13 @@ async function withPasskey(
   if (user instanceof Response) return user;
   return (await optionalSession(ctx, c))
     ? { userId: user.id }
-    : signInPhone(ctx, c, user.id, proofPublicKey);
+    : signInPhone(ctx, c, { userId: user.id, passkeyId: passkey.id }, proofPublicKey);
 }
 
 async function signInPhone(
   ctx: SignInContext,
   c: Context,
-  userId: string,
+  { userId, passkeyId }: { userId: string; passkeyId: string },
   proofPublicKey: string | undefined,
 ): Promise<Approval> {
   const key = proofKeyOf(proofPublicKey);
@@ -126,6 +126,7 @@ async function signInPhone(
   await openSession(ctx, c, {
     userId,
     proofPublicKey: key,
+    passkeyId,
     data: { method: 'passkey', via: 'qr' },
   });
   return { userId };

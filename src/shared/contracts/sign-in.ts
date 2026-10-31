@@ -66,6 +66,12 @@ export const passkeySignInBody = z.object({
 
 export type PasskeySignInBody = z.infer<typeof passkeySignInBody>;
 
+// Volver a confirmar con Google o la huella sin salir (diseño de 02, § 13).
+export const confirmGoogleBody = z.object({
+  credential: z.string().check(z.minLength(1), z.maxLength(4096)),
+});
+export const confirmPasskeyBody = z.object({ response: webAuthnResponse });
+
 // Entrar a la computadora con el celular (diseño de 01, § 5).
 // Abrir la pantalla con el QR: `tab` identifica la pestaña y sobrevive a recargarla, así una
 // recarga reemplaza su pantalla en lugar de sumar otra.

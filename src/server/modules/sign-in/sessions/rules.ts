@@ -16,3 +16,10 @@ export function closedReasonOf(
   if (now.getTime() - session.lastUsedAt.getTime() >= limits.idleMs) return 'idle';
   return null;
 }
+
+// Cuándo confirmó por última vez quién es en esta sesión, con Google o la huella (02 · R3.8): la más
+// nueva de las dos, o ninguna (la computadora que entró con el celular).
+export function confirmedAtOf(session: { googleAt: Date | null; passkeyAt: Date | null }) {
+  const times = [session.googleAt, session.passkeyAt].filter((at): at is Date => at !== null);
+  return times.length > 0 ? new Date(Math.max(...times.map(Number))) : null;
+}

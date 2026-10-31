@@ -2,9 +2,11 @@
 // aprobar una computadora y el permiso de la computadora): la crea con la llave de prueba del
 // dispositivo, deja la cookie y lo anota en la auditoría.
 import type { Context } from 'hono';
+import { Refused } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
-import { deviceLabel } from '../device.ts';
+import { deviceLabel, isPhone } from '../device.ts';
 import { writeSessionCookie } from './cookie.ts';
+import type { Way } from './data.ts';
 import { isProofKey } from './proof.ts';
 
 // La llave de prueba que mandó el dispositivo, si es una P-256 bien formada.
@@ -28,15 +30,23 @@ export const withProofKey =
 type Opening = {
   userId: string;
   proofPublicKey: Uint8Array;
-  // Cómo entró, para la auditoría.
-  data: { method: string; via?: string };
+  // Cómo entró, para la sesión (02, § 2) y para la auditoría.
+  data: { method: Way; via?: string };
   googleAt?: Date;
+  // La huella con la que entró, si entró con una.
+  passkeyId?: string;
   // El nombre del dispositivo; si no, el del navegador que pide.
   label?: string;
+  // Lo que se contesta si la dieron de baja mientras entraba; si no, 401 `not-authorized`.
+  refused?: Refused;
 };
 
+// Abre la sesión y recién después anota la entrada, solo si la persona sigue activa (02, § 5). Si la
+// dieron de baja mientras entraba, la sesión recién creada se cierra: una baja a la vez o cerró esta
+// sesión o la deja para que la cierre esto, nunca abierta.
 export async function openSession(ctx: SignInContext, c: Context, opening: Opening) {
-  const { token, session } = await ctx.store.create({
+  const now = ctx.platform.clock.now();
+  const fields = {
     userId: opening.userId,
     // Todo pedido trae el dispositivo: sin él, platform/http lo rechaza antes.
     deviceId: c.get('deviceId') as string,
@@ -44,8 +54,18 @@ export async function openSession(ctx: SignInContext, c: Context, opening: Openi
     ipAddress: c.get('ipAddress'),
     proofPublicKey: opening.proofPublicKey,
     googleAt: opening.googleAt ?? null,
-  });
-  writeSessionCookie(c, token);
+    way: opening.data.method,
+    isPhone: isPhone(c.req.header('User-Agent'), c.req.header('Sec-CH-UA-Mobile')),
+    passkeyId: opening.passkeyId ?? null,
+    passkeyAt: opening.passkeyId ? now : null,
+  };
+  const created = await ctx.store.create(fields);
+  if (!(await ctx.users.recordSignIn(opening.userId, now))) {
+    await ctx.store.close(created.session.id, 'deactivated');
+    throw opening.refused ?? new Refused(401, 'not-authorized');
+  }
+  ctx.store.remember(created);
+  writeSessionCookie(c, created.token);
   ctx.record(c, 'sign-in.succeeded', { userId: opening.userId, data: opening.data });
-  return session;
+  return created.session;
 }

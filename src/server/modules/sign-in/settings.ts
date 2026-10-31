@@ -29,6 +29,8 @@ export const signInSettings = {
     failedPerAccount: { max: 20, windowMs: hour },
     // Los pedidos sin sesión, por dirección (diseño de 01, § 8): /api/start y las salidas pendientes.
     start: { max: 30, windowMs: minute },
+    // Las cookies que no son de ninguna sesión, por dirección: cada una cuesta una consulta (02, § 9).
+    unknownSession: { max: 30, windowMs: minute },
     // Un rechazo por límite se anota una vez por ventana (revisión de seguridad, punto 19).
     throttledAudit: { max: 1, windowMs: minute },
   },

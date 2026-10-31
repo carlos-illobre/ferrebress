@@ -98,15 +98,15 @@ una sola vez para el servidor y la aplicación.
 |---|---|---|---|
 | `GET /api/users` | Todas las personas: id, nombre escrito, nombre que se muestra, correo, activa, autorizada el y por quién (o «la instalación»), dada de baja el, última entrada, nunca entró, versión y sus cantidades | 3 | users |
 | `POST /api/users` | Autorizar: `{ email, name? }`. `409 email-taken` | 1 | users |
-| `POST /api/users/:id` | Cambiar: `{ version, name?, email? }`. Sin `name`, no cambia; `name` vacío, vuelve al de Google. El correo, solo si nunca entró (`409 already-entered`) | 1 a 2 | users |
+| `POST /api/users/:id` | Cambiar: `{ version, name?, email? }`. Sin `name`, no cambia; `name` vacío, vuelve al de Google. El correo, solo si nunca entró (`409 already-entered`) | 1 el correo; 3 el nombre, que se avisa en una transacción; una más si se rechaza | users |
 | `POST /api/users/:id/delete` | `{ version }`. Borrar, solo si nunca entró | 1 a 2 | users |
-| `POST /api/users/:id/deactivate` | `{ version }`. `409 self` si es la propia | 4 | users |
+| `POST /api/users/:id/deactivate` | `{ version }`. `409 self` si es la propia | 6, con el comienzo y la confirmación de la transacción | users |
 | `POST /api/users/:id/activate` | `{ version }`. `409 self` si es la propia | 1 a 2 | users |
 | `GET /api/users/:id/access` | Sus sesiones abiertas y sus celulares con huella, sin la sesión del pedido ni, en la propia, sus celulares | 2 | sign-in |
 | `POST /api/users/:id/sessions/:sessionId/close` | «Cerrar» (R5.3). La sesión del pedido no se puede (se sale con «Salir») | 1 | sign-in |
 | `POST /api/users/:id/sessions/close` | «Cerrar todas» (R5.4), salvo la del pedido | 1 | sign-in |
-| `POST /api/users/:id/phones/:phoneId/cut` | `{ from: 'card' \| 'lost' }`. «Quitar» (R5.6) y «Cortar» (R5.7) son la misma operación: cierra las sesiones de esa persona en ese celular (y las abiertas con su huella) y borra la huella. El celular del pedido no se puede | 2 | sign-in |
-| `GET /api/lost-phones` | Las personas con algún celular para cortar y sus celulares (con sesión abierta o con huella), sin el celular del pedido | 3 | sign-in |
+| `POST /api/users/:id/phones/:phoneId/cut` | `{ from: 'card' \| 'lost' }`. «Quitar» (R5.6) y «Cortar» (R5.7) son la misma operación: cierra las sesiones de esa persona en ese celular (y las abiertas con su huella) y borra la huella. El celular del pedido no se puede | 3 a 4 | sign-in |
+| `GET /api/lost-phones` | Las personas con algún celular para cortar y sus celulares (con sesión abierta o con huella), sin el celular del pedido | 3; 2 si los nombres ya están en memoria | sign-in |
 
 - **`phoneId`:** el `public_id` de la huella o, si el celular solo tiene una sesión, el `id` de la
   sesión. Lo resuelve el servidor; la aplicación nunca ve el `device_id` ni el identificador de

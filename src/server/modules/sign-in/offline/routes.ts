@@ -58,6 +58,12 @@ async function confirm(ctx: SignInContext, c: Context, confirming: Confirming) {
   const passkey = await ctx.passkeys.findActive(response.id);
   const deviceId = c.get('deviceId') as string;
   const ours = passkey && passkey.userId === body.userId && passkey.deviceId === deviceId;
+  // Dada de baja, sus huellas se borraron (02 · R4.1): sin huella no hay prueba, pero sí se le dice
+  // lo mismo que a una cuenta no autorizada (15 · R3.2, E16).
+  if (!passkey && (await ctx.users.findById(body.userId))?.active === false) {
+    recordOnce(ctx, c, { userId: body.userId, reason: 'deactivated' });
+    return fail(c, 401, 'not-authorized');
+  }
   if (!ours || !canOpen(body, proof)) {
     recordOnce(ctx, c, {
       userId: body.userId,
@@ -125,10 +131,15 @@ async function finish(
   ctx.record(c, type, { userId: row.userId, data: audited(row) });
   if (row.reason === 'deactivated') return fail(c, 401, 'not-authorized');
   if (row.result === 'rejected') return notConfirmed(c);
-  if (row.result === 'ended') return c.json({ ended: true });
+  if (row.result === 'ended') {
+    // Confirmada aunque no abra sesión: cuenta como entrada (02 · R3.2).
+    await ctx.users.recordSignIn(row.userId, row.receivedAt);
+    return c.json({ ended: true });
+  }
   const session = await openSession(ctx, c, {
     userId: row.userId,
     proofPublicKey: row.proofPublicKey,
+    passkeyId: row.credentialId,
     data: { method: 'offline' },
   });
   await data.linkSession(row.id, session.id);

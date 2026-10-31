@@ -23,6 +23,17 @@ export type SignInErrorCode =
   | 'offline-not-confirmed'
   | 'offline-already-confirmed';
 
-export type ErrorCode = PlatformErrorCode | SignInErrorCode;
+// Usuarios (capítulo 02).
+export type UsersErrorCode =
+  | 'email-taken'
+  | 'already-entered'
+  | 'self'
+  | 'last-administrator'
+  // Otra persona la cambió antes: la respuesta trae cómo está ahora.
+  | 'changed'
+  // Hace falta pasar por Google o la huella de los últimos 5 minutos (R3.8).
+  | 'confirm-first';
+
+export type ErrorCode = PlatformErrorCode | SignInErrorCode | UsersErrorCode;
 
 export type ErrorBody = { error: ErrorCode } & Record<string, unknown>;

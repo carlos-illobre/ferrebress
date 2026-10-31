@@ -124,9 +124,10 @@ export async function savePasskey(
   credential: Credential,
 ) {
   const now = ctx.platform.clock.now();
-  await ctx.passkeys.revokeOwn(session.userId, session.deviceId, now);
+  await ctx.passkeys.revokeOwn(session.userId, session.deviceId);
   const passkey = { ...credential, userId: session.userId, deviceId: session.deviceId };
-  const saved = await ctx.passkeys.insert(passkey, now);
+  // El celular se llama como su sesión: «Chrome en Android» (02 · R5.5).
+  const saved = await ctx.passkeys.insert(passkey, now, session.deviceLabel);
   if (saved) ctx.phoneOwners.set(session.deviceId, session.userId);
   else ctx.phoneOwners.delete(session.deviceId);
   if (!saved) {

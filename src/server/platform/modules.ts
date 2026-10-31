@@ -6,6 +6,7 @@ import type { Config } from './config.ts';
 import type { Events } from './events.ts';
 import type { Http } from './http.ts';
 import type { RateLimiter } from './limits/rate-limit.ts';
+import type { SessionGate } from './session.ts';
 import type { AuditLog } from './storage/audit.ts';
 import type { ModuleSchema } from './storage/db.ts';
 
@@ -18,6 +19,8 @@ export type Platform = {
   limiter: RateLimiter;
   events: Events;
   http: Http;
+  // La sesión del pedido: sign-in da cómo se resuelve; cualquier módulo la exige con `require`.
+  sessions: SessionGate;
   // Un trabajo que corre cada tanto, sin frenar el cierre del proceso.
   every(ms: number, job: () => Promise<void>): void;
   // Lo que hay que hacer antes de cerrar (escribir lo que quedó en memoria).

@@ -1,6 +1,6 @@
 // Las consultas de las huellas de cada celular a la base. Un celular tiene a lo sumo una huella
 // activa (R2.3): la base lo garantiza con un índice único.
-import type { Kysely } from 'kysely';
+import type { Generated, Kysely } from 'kysely';
 
 export type Passkey = {
   id: string;
@@ -20,6 +20,8 @@ export type PasskeysTables = {
     created_at: Date;
     last_used_at: Date | null;
     revoked_at: Date | null;
+    public_id: Generated<string>;
+    device_label: string;
   };
 };
 
@@ -53,7 +55,7 @@ function finding(db: Kysely<PasskeysTables>) {
 function writing(db: Kysely<PasskeysTables>) {
   return {
     // Vincula la huella; si el celular ya tiene otra cuenta, no la guarda y devuelve false.
-    insert: async (passkey: Passkey, at: Date): Promise<boolean> => {
+    insert: async (passkey: Passkey, at: Date, deviceLabel: string): Promise<boolean> => {
       const { id, userId, deviceId, publicKey, counter } = passkey;
       const values = {
         id,
@@ -62,6 +64,7 @@ function writing(db: Kysely<PasskeysTables>) {
         public_key: publicKey,
         counter,
         created_at: at,
+        device_label: deviceLabel,
       };
       const result = await db
         .insertInto('sign_in.passkeys')
@@ -71,16 +74,30 @@ function writing(db: Kysely<PasskeysTables>) {
       return result.numInsertedOrUpdatedRows === 1n;
     },
 
-    // Revoca la huella activa de esa persona en ese celular, si tenía, para volver a vincularla.
-    revokeOwn: async (userId: string, deviceId: string, at: Date): Promise<void> => {
+    // Quita la huella de esa persona en ese celular, si tenía, para volver a vincularla. Las huellas
+    // quitadas se borran (diseño de 02, § 2).
+    revokeOwn: async (userId: string, deviceId: string): Promise<void> => {
       await db
-        .updateTable('sign_in.passkeys')
-        .set({ revoked_at: at })
+        .deleteFrom('sign_in.passkeys')
         .where('user_id', '=', userId)
         .where('device_id', '=', deviceId)
-        .where('revoked_at', 'is', null)
         .execute();
     },
+  };
+}
+
+// Lo que borra la baja: todas las huellas de una persona.
+function removing(db: Kysely<PasskeysTables>) {
+  return {
+    // Borra todas las huellas de una persona (su baja) y dice de qué celulares eran.
+    removeForUser: async (trx: Kysely<PasskeysTables>, userId: string): Promise<string[]> =>
+      (
+        await trx
+          .deleteFrom('sign_in.passkeys')
+          .where('user_id', '=', userId)
+          .returning('device_id')
+          .execute()
+      ).map((row) => row.device_id),
 
     markUsed: async (id: string, counter: number, at: Date): Promise<void> => {
       await db
@@ -92,4 +109,8 @@ function writing(db: Kysely<PasskeysTables>) {
   };
 }
 
-export const passkeysData = (db: Kysely<PasskeysTables>) => ({ ...finding(db), ...writing(db) });
+export const passkeysData = (db: Kysely<PasskeysTables>) => ({
+  ...finding(db),
+  ...writing(db),
+  ...removing(db),
+});

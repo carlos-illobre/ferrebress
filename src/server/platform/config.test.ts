@@ -12,7 +12,6 @@ const valid = {
   GOOGLE_ISSUER: 'https://accounts.google.com',
   GOOGLE_JWKS_URL: 'https://www.googleapis.com/oauth2/v3/certs',
   GOOGLE_SCRIPT_URL: 'https://accounts.google.com/gsi/client',
-  INITIAL_ADMIN_EMAIL: 'admin@example.com',
   TRUSTED_PROXY: '172.20.0.2',
 };
 
@@ -51,5 +50,12 @@ describe('la configuración del .env', () => {
     expect(() => readConfig({ ...e2e, DATABASE_URL: 'postgres://u:p@db/x' })).toThrow(
       /DATABASE_URL tiene que ser memory/,
     );
+  });
+
+  it('la persona de las pruebas de punta a punta solo vale en ese ambiente (02, § 7)', () => {
+    const first = { E2E_FIRST_ADMIN_EMAIL: 'admin@example.com' };
+    const e2e = { ...valid, ...first, ENVIRONMENT: 'e2e', DATABASE_URL: 'memory://' };
+    expect(readConfig(e2e).E2E_FIRST_ADMIN_EMAIL).toBe('admin@example.com');
+    expect(() => readConfig({ ...valid, ...first })).toThrow(/solo vale con ENVIRONMENT=e2e/);
   });
 });

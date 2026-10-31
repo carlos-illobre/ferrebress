@@ -2,8 +2,8 @@
 // aplicación: el origen, el dispositivo, la llave de prueba y la cookie de la sesión.
 import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
 import { createServer } from '../../app.ts';
-import { createSignInModule } from '../../modules/sign-in/index.ts';
-import { createUsersModule } from '../../modules/users/index.ts';
+import { addFirstAdministrator } from '../../modules/users/first.ts';
+import { createModules } from '../../modules.ts';
 import type { Clock } from '../../platform/clock.ts';
 import { appHeaders, testConfig } from '../config.ts';
 import { createTestGoogle } from './google.ts';
@@ -15,13 +15,12 @@ export type SignInServerOptions = { wait?: (ms: number) => Promise<void> };
 
 export async function createSignInServer(clock?: Clock, options: SignInServerOptions = {}) {
   const google = await createTestGoogle(testConfig.GOOGLE_CLIENT_ID);
-  const { module: usersModule, users } = createUsersModule();
+  const { modules, users, people } = createModules({ googleKeys: google.keys, ...options });
   const jobs: (() => void)[] = [];
   const schedule = (_: number, run: () => void) => {
     jobs.push(run);
     return () => {};
   };
-  const modules = [usersModule, createSignInModule({ users, googleKeys: google.keys, ...options })];
   // Cuántas consultas a la base hizo el servidor: las pruebas miran cuántas suma cada pedido.
   const queries = { count: 0 };
   const server = await createServer(testConfig, modules, {
@@ -29,6 +28,17 @@ export async function createSignInServer(clock?: Clock, options: SignInServerOpt
     schedule,
     onQuery: () => void queries.count++,
   });
+  // La primera persona, como la carga la instalación (02 · R1.2).
+  await addFirstAdministrator(server.platform.db, server.platform.clock, 'admin@example.com');
+  // Da de baja a alguien como lo hace Usuarios, desde otra persona activa que se suma para eso: así
+  // la regla de no quedarse sin nadie no frena las pruebas que dan de baja a la única.
+  const deactivate = async (userId: string) => {
+    const other = (await people().authorize(userId, `otra-${userId}@example.com`)) as {
+      user: { id: string };
+    };
+    const user = (await users.findById(userId)) as { version: number };
+    return people().deactivate(other.user.id, userId, user.version);
+  };
   // Corre ya los trabajos periódicos, como si hubiera pasado su tiempo.
   const runJobs = async () => {
     for (const job of jobs) job();
@@ -40,7 +50,7 @@ export async function createSignInServer(clock?: Clock, options: SignInServerOpt
     await run();
     return queries.count - before;
   };
-  return { ...server, users, google, runJobs, countQueries };
+  return { ...server, users, people: people(), deactivate, google, runJobs, countQueries };
 }
 
 export type SignInServer = Awaited<ReturnType<typeof createSignInServer>>;

@@ -85,7 +85,7 @@ export default async function start(): Promise<() => Promise<void>> {
       GOOGLE_ISSUER: google.issuer,
       GOOGLE_JWKS_URL: google.issuer,
       GOOGLE_SCRIPT_URL: `${origin}/e2e-google.js`,
-      INITIAL_ADMIN_EMAIL: adminEmail,
+      E2E_FIRST_ADMIN_EMAIL: adminEmail,
       TRUSTED_PROXY: '127.0.0.1',
     },
   });

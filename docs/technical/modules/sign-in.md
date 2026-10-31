@@ -100,8 +100,8 @@ Dos esquemas de PostgreSQL. Los identificadores son UUID v7, generados por quien
 | `created_at` | `timestamptz` | |
 
 Índices únicos sobre `email` y `google_subject`. En este módulo todos son Administrador (el rol
-llega en el 02). El primero se crea al arrancar el servidor con el correo de la configuración, si no
-existe.
+llega en el 02). El primero se carga al instalar, con el comando del diseño de 02 (§ 7). Las
+columnas que suma Usuarios están en ese diseño (§ 2).
 
 ### `sign_in.sessions`
 
@@ -504,7 +504,6 @@ cuándo (hora del servidor), el dispositivo y la dirección de internet.
 | `GOOGLE_CLIENT_ID` | El cliente OAuth |
 | `GOOGLE_ISSUER`, `GOOGLE_JWKS_URL` | Quién emite el pase de Google y dónde están sus llaves; en las pruebas, un emisor de prueba |
 | `GOOGLE_SCRIPT_URL` | El script del botón de Google; en las pruebas de punta a punta, uno de prueba |
-| `INITIAL_ADMIN_EMAIL` | El primer Administrador |
 | `TRUSTED_PROXY` | La dirección de Caddy, la única de la que se acepta la dirección de internet |
 
 - **Si falta una variable,** el servidor no arranca y dice su nombre, nunca un valor.

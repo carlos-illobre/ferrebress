@@ -71,7 +71,8 @@ describe('las consultas de cada pedido', () => {
     expect(await server.countQueries(() => google(phone, phonePass))).toBeLessThanOrEqual(4);
   });
 
-  it('entrar con la huella: 4; leer un código: hasta 3; aprobarlo: hasta 5', async () => {
+  // Entrar anota la última entrada, solo si la persona sigue activa (02, § 5): una consulta más.
+  it('entrar con la huella: 5; leer un código: hasta 3; aprobarlo: hasta 5', async () => {
     const ip = '190.7.9.1';
     const phone = createDevice(server, { ip, userAgent: androidPhone });
     await phone.signInWithGoogle(admin);
@@ -90,7 +91,7 @@ describe('las consultas de cada pedido', () => {
       await server.countQueries(async () => {
         entered = (await signIn()).status;
       }),
-    ).toBe(4);
+    ).toBe(5);
     expect(entered).toBe(200);
     // Entró con la huella: la persona no estaba en memoria, la busca una vez y después ya no.
     expect((await phone.request('/api/start')).body.person).toMatchObject({ email: admin.email });

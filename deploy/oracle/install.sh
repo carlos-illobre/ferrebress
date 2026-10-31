@@ -78,7 +78,6 @@ if unset_value POSTGRES_PASSWORD; then
     fill DATABASE_URL "postgres://ferrebress:$password@db/ferrebress" # secretlint-disable-line
 fi
 fill GOOGLE_CLIENT_ID "$GOOGLE_CLIENT_ID"
-fill INITIAL_ADMIN_EMAIL "$ADMIN_EMAIL"
 # La base de ciudades ya no se usa: se saca lo que haya dejado una instalación anterior.
 current=$(grep -v -e '^GEO_DIR=' -e '^# La base de ciudades' <<<"$current")
 sudo rm -rf "$home/ferrebress/geo"
@@ -116,6 +115,20 @@ headers=$(curl -sI "https://$DOMAIN/")
 grep -qi '^content-security-policy:' <<<"$headers" && grep -qi '^strict-transport-security:' <<<"$headers" \
     || fail "faltan las cabeceras de seguridad en https://$DOMAIN/"
 ok "cabeceras de seguridad presentes"
+
+step "El primer Administrador"
+# Solo en una instalación nueva: el comando se niega si ya hay personas (02 · R1.2).
+code=0
+as_user <<FIN || code=$?
+set -euo pipefail
+cd "$home/ferrebress"
+docker compose exec -T server node src/server/first-administrator.ts "$ADMIN_EMAIL" </dev/null
+FIN
+case $code in
+    0) ok "$ADMIN_EMAIL cargado" ;;
+    2) ok "ya había personas: no se cargó a nadie" ;;
+    *) fail "no se pudo cargar al primer Administrador" ;;
+esac
 
 cat <<FIN
 

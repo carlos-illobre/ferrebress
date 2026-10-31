@@ -7,7 +7,7 @@ import {
 } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
 import { byAddress, byAddressAndDevice, readBody } from '../../../platform/guards.ts';
-import { fail } from '../../../platform/http.ts';
+import { fail, Refused } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
 import { isPhone } from '../device.ts';
 import { ownerOf, withOffline } from '../offline/phone-owner.ts';
@@ -107,6 +107,8 @@ async function signInWithGoogle(
     proofPublicKey,
     googleAt: ctx.platform.clock.now(),
     data: { method: 'google' },
+    // La dieron de baja mientras entraba (02, § 5).
+    refused: new Refused(403, 'not-authorized', { email: identity.email }),
   });
   // Se ofrece la huella a un celular sin huella vinculada (R2.2); la computadora nunca (R2.4).
   const phone = isPhone(c.req.header('User-Agent'), c.req.header('Sec-CH-UA-Mobile'));

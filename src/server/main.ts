@@ -3,14 +3,12 @@
 // app.ts y en cada módulo (vitest.config.ts).
 import { serve } from '@hono/node-server';
 import { createServer } from './app.ts';
-import { createSignInModule } from './modules/sign-in/index.ts';
-import { createUsersModule } from './modules/users/index.ts';
+import { createModules } from './modules.ts';
 import { readConfig } from './platform/config.ts';
 
 const config = readConfig(process.env);
-const { module: users, users: usersFacade } = createUsersModule();
-const signIn = createSignInModule({ users: usersFacade });
-const { http, close } = await createServer(config, [users, signIn]);
+const { modules } = createModules();
+const { http, close } = await createServer(config, modules);
 // En IPv4: así la conexión de Caddy llega con su dirección tal cual (platform/http).
 const server = serve({ fetch: http.fetch, port: config.PORT, hostname: '0.0.0.0' });
 

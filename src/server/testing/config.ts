@@ -17,7 +17,6 @@ export const testConfig: Config = {
   GOOGLE_ISSUER: 'https://accounts.google.com',
   GOOGLE_JWKS_URL: 'https://www.googleapis.com/oauth2/v3/certs',
   GOOGLE_SCRIPT_URL: 'https://accounts.google.com/gsi/client',
-  INITIAL_ADMIN_EMAIL: 'admin@example.com',
   TRUSTED_PROXY: '172.20.0.2',
 };
 

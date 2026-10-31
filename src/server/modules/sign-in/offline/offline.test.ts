@@ -77,23 +77,48 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
     expect((await otherPhone.request('/api/sign-in/offline', elsewhere)).status).toBe(401);
   });
 
-  it('offline-E16: si la cuenta se dio de baja mientras tanto, no se confirma y queda anotado', async () => {
+  it('offline-E16: si la cuenta se dio de baja mientras tanto, no se confirma y dice no autorizada', async () => {
     const linked = await kit.linkedPhone();
-    await kit.server.users.deactivate(linked.userId);
-    linked.phone.cookie = '';
     const entry = await kit.offlineEntry(linked);
+    await kit.server.deactivate(linked.userId);
+    linked.phone.cookie = '';
     expect(await kit.send(linked, entry)).toMatchObject({
       status: 401,
       body: { error: 'not-authorized' },
     });
-    expect(await kit.rowOf(entry.id)).toEqual({ result: 'rejected', reason: 'deactivated' });
-    expect(kit.auditOf(entry.id)).toMatchObject({
+    // La baja borró su huella (02 · R4.1): sin prueba, no queda fila; sí, una línea en la auditoría.
+    expect(await kit.rowOf(entry.id)).toBeUndefined();
+    const lines = kit.server.platform.audit.read(new Date().getUTCFullYear());
+    expect(lines.at(-1)).toMatchObject({
       type: 'sign-in.offline-rejected',
-      userId: linked.userId,
-      data: { reason: 'deactivated' },
+      data: { userId: linked.userId, reason: 'deactivated' },
     });
-    // Repetirla dice lo mismo.
+  });
+
+  it('offline-E16b: si la baja llega mientras se confirma, con la huella todavía, queda rechazada', async () => {
+    const linked = await kit.linkedPhone();
+    const entry = await kit.offlineEntry(linked);
+    // La huella ya se leyó y la persona, recién después, está inactiva.
+    await sql`update users.users set active = false where id = ${linked.userId}`.execute(
+      kit.server.platform.db,
+    );
+    linked.phone.cookie = '';
+    expect((await kit.send(linked, entry)).body.error).toBe('not-authorized');
+    expect(await kit.rowOf(entry.id)).toEqual({ result: 'rejected', reason: 'deactivated' });
+    // Repetirla dice lo mismo que una rechazada.
     expect((await kit.send(linked, entry)).body.error).toBe('offline-not-confirmed');
+  });
+
+  it('offline-E16c: si la baja llega justo al abrir la sesión, la cierra y dice no autorizada', async () => {
+    const linked = await kit.linkedPhone();
+    const entry = await kit.offlineEntry(linked);
+    linked.phone.cookie = '';
+    const { recordSignIn } = kit.server.users;
+    kit.server.users.recordSignIn = async () => false;
+    const sent = await kit.send(linked, entry);
+    kit.server.users.recordSignIn = recordSignIn;
+    expect(sent).toMatchObject({ status: 401, body: { error: 'not-authorized' } });
+    expect((await linked.phone.request('/api/start')).body.person).toBeUndefined();
   });
 
   it('offline-R3.1: llegada más de 24 horas después del último contacto con sesión, no se confirma', async () => {
@@ -134,14 +159,15 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
     });
   });
 
-  it('las consultas: /api/start desde el celular, ninguna con la sesión en memoria; confirmar, como mucho 9', async () => {
+  // Confirmar anota la última entrada (02 · R3.2): una más que antes.
+  it('las consultas: /api/start desde el celular, ninguna con la sesión en memoria; confirmar, como mucho 10', async () => {
     const linked = await kit.linkedPhone();
     await linked.phone.request('/api/start');
     expect(await kit.server.countQueries(() => linked.phone.request('/api/start'))).toBe(0);
     linked.phone.cookie = '';
     const entry = await kit.offlineEntry(linked);
     const count = await kit.server.countQueries(() => kit.send(linked, entry));
-    expect(count).toBeLessThanOrEqual(9);
+    expect(count).toBeLessThanOrEqual(10);
   });
 
   it('offline-E01 a E04: la persona trae `offline` solo con su huella en este celular', async () => {
