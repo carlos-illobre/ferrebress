@@ -661,3 +661,285 @@ Comparando con «Qué tiene que tener una prueba» del paso 4 y con § 11:
 - **Cambiar solo el correo borra el nombre escrito** (`users/people.ts:52-56`): `cleanName(undefined)`
   da `null` y `changeEmail` lo guarda. El contrato dice «sin `name`, no cambia». Lo vi en la prueba de
   sondeo: una persona autorizada como «Nuevo» quedó con `name: null` al cambiarle el correo.
+
+---
+
+# Etapa b · roles y permisos
+
+## Paso 4: el diseño
+
+Revisión independiente de las secciones 14 a 24 del [diseño](users.md), desde el punto de vista de
+alguien que quiere hacer lo que su rol no le deja. Leí la constitución, la sección 7 de las
+[reglas](../../chapters/02-users/rules.md) (R7.1 a R7.10, E34 a E57) y los cambios a R1.1, R1.3,
+R3.3, R3.8, R5.1 y R6.1, las filas 2 a 4 de [las pantallas](../../chapters/02-users/screens.md), y
+el código del que el diseño parte: `users/routes.ts`, `people.ts`, `rules.ts`, `index.ts`;
+`sign-in/context.ts` (la memoria de personas y el `role: 'Administrador'` fijo), `index.ts`,
+`offline/rules.ts` y `offline/routes.ts`; `platform/session.ts` y `platform/http.ts` (la cabecera
+`X-Ferrebress`); y en la aplicación `sign-in/session.ts`, `offline/option.ts`, `offline/watch.ts` y
+`platform/device/storage.ts`.
+
+Lo que decidió Carlos no se discute: quien tiene «Administrar roles» puede darse todo (R7.2, § 21);
+quitar no pide confirmar (R3.8); «Sin permiso» muestra a cualquiera con sesión quiénes tienen un
+permiso (R7.7); «Administrar personas» cambia el correo y da de alta (R7.1). Se señala lo que esas
+decisiones permiten y el diseño no cubre. Todo sale de leer el diseño y el código: no hay código de
+la etapa b para correr ningún ataque.
+
+### Resumen
+
+El diseño pone el control donde tiene que estar: cada ruta lo decide en el servidor con un paso de la
+plataforma, después de la sesión; la aplicación solo esconde. Dar acceso pide Google o la huella
+recientes, y todo lo que puede dejar sin quien administre pasa de a uno detrás de un mismo bloqueo.
+
+Pero **la etapa a deja dos puertas que la etapa b no cierra**, porque se pensaron cuando todos eran
+Administrador: **cambiar el correo** y **borrar** no miran los permisos de la persona afectada. Con
+solo «Administrar personas», alguien se queda con el rol de otro cambiándole el correo, y con
+«Borrar» puede dejar al sistema sin nadie que reparta roles y quedar como el único que administra.
+Y «Sin permiso» muestra el correo de quien todavía no entró a cualquiera con sesión.
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 23 | Con solo «Administrar personas», cambiar el correo o dar de alta le da a otra cuenta el rol de esa persona | **Frena** |
+| 24 | «Borrar» no pasa por el control de § 19: deja al sistema sin «Administrar roles» | **Frena** |
+| 25 | «Sin permiso» muestra el correo de quien no entró y a personas dadas de baja | **Frena** |
+| 26 | La memoria de permisos: una lectura en vuelo y la memoria de personas de `sign-in`, que no se enteran | Mejora |
+| 27 | Quien tiene menos permisos puede dar de baja o cortar una y otra vez a los Administradores | Mejora (decide Carlos) |
+| 28 | Una ruta nueva sin su paso: nada lo detecta salvo la prueba que escribe quien la agrega | Mejora |
+| 29 | Lo que entra: listas con repetidos, cuántos roles, nombres que se ven iguales, `system`, el límite | Mejora |
+| 30 | La auditoría: el tope de `forbidden`, `confirm-first`, lo que suma el arranque | Mejora |
+| 31 | El arranque borra los permisos que no conoce: volver a una versión anterior los pierde | Mejora |
+
+### 23 · Con solo «Administrar personas», cambiar el correo o dar de alta le da a otra cuenta el rol de esa persona (§ 18 «Cambian las de la etapa a»; R3.3, R3.6, R7.1) — **Frena**
+
+R3.3 dice que autorizar pide los dos permisos «como da permisos», y R3.8 ya reconoce que «cambiar el
+correo de alguien que nunca entró es, en la práctica, autorizar a otra cuenta». Pero § 18 deja
+cambiar el correo y dar de alta solo con `users.manage`.
+
+**El ataque por el correo**, de un Encargado con «Administrar personas» y sin «Administrar roles»:
+
+1. Mira la lista (tiene `users.view`, que viene incluido) y ve a alguien con la pastilla
+   «Administrador» y «Todavía no entró»: es lo normal recién autorizado, hasta que esa persona entra.
+2. Le cambia el correo por una segunda cuenta de Gmail suya. El servidor le pide confirmar: pone su
+   propia huella o su propio Google, y pasa (R3.8 pide que sea él, no que pueda dar el rol).
+3. Entra con esa segunda cuenta: la persona es suya, con el rol Administrador.
+4. Desde ahí se da todo a sí mismo. La auditoría lo deja como `user.email-changed`, que no dice que
+   hubo un cambio de permisos.
+
+**El ataque por el alta**, del mismo Encargado: los roles de quien está dado de baja se quedan
+(§ 15 no los borra y el traspaso de R7.10 le da Administrador a todos los que ya estaban, también a
+los dados de baja). Si controla una cuenta dada de baja con un rol más alto (su correo viejo, que se
+dio de baja como dice R3.6 al cambiar de cuenta, o la de un compañero que se fue y le pasa el
+acceso), la da de alta y entra con más de lo que tiene.
+
+**Qué propondría a Carlos**, una de dos (cambia R7.1, que es regla):
+
+- **a)** cambiar el correo y dar de alta piden también «Administrar roles», como autorizar. Lo más
+  simple: dos líneas en § 18 y sus pruebas. Media hora.
+- **b)** se pueden con «Administrar personas» solo si la persona afectada no tiene ningún permiso que
+  quien lo hace no tenga; si no, `403 forbidden` con el permiso que falta. Más fino; una consulta más
+  (los permisos de la persona afectada, que la memoria de § 17 ya tiene). Una hora.
+
+En los dos casos, la línea de la auditoría suma los roles de la persona (`user.email-changed` y
+`user.activated` con `roles`), así se ve que fue acceso.
+
+### 24 · «Borrar» no pasa por el control de § 19 (§ 5 «Borrar no necesita el bloqueo», § 19) — **Frena**
+
+§ 5 dice que borrar no necesita bloquear «porque quien borra está activo y la persona borrada nunca
+entró». Valía cuando todos eran Administrador. Ahora quien borra puede no tener «Administrar roles»,
+y § 19 cuenta a las personas activas que tienen cada permiso **aunque nunca hayan entrado**.
+
+**El ataque**, del mismo Encargado con «Administrar personas» (sin «Administrar roles»), cuando hay
+un Administrador A que entra y otro B recién autorizado que todavía no entró:
+
+1. Da de baja a A. § 19 cuenta: queda B activo con los dos permisos, así que pasa.
+2. Borra a B, que nunca entró. Borrar no bloquea ni cuenta: pasa.
+3. Ya no hay ninguna persona activa con «Administrar roles». Nadie puede darle ni quitarle roles a
+   nadie, ni a él. A no puede volver: darla de alta es de «Administrar personas», y el único que lo
+   tiene es él. Queda como el único que administra, y solo se arregla tocando la base.
+
+Sin el ataque pasa lo mismo por error: un Administrador recién autorizado con el correo mal escrito
+cuenta como administrador, aunque nunca vaya a poder entrar.
+
+**Qué propongo:** que borrar pase por el control de § 19 (el mismo bloqueo y la misma cuenta) y que
+la cuenta de § 19 solo cuente a quien **ya entró**; lo segundo es de la regla (R1.3 dice «persona
+activa») y lo decide Carlos. Recién instalado no traba nada: con una sola persona no hay nada que
+dar de baja. Una prueba que haga los tres pasos y espere `last-administrator` en el segundo. Una
+hora.
+
+### 25 · «Sin permiso» muestra el correo de quien no entró y a personas dadas de baja (§ 18 `GET /api/permissions/:id/holders`, § 21) — **Frena**
+
+§ 21 dice que la ruta da «nombres (no correos)». Pero el nombre que se muestra (R3.4,
+`users/rules.ts:displayName`) es el escrito, si no el de Google y **si no el correo**: quien se
+autorizó sin nombre y todavía no entró se muestra con su correo. Y § 18 no dice que sean solo las
+personas activas.
+
+**El ataque:** cualquiera con sesión, sin «Ver las personas» (un Cajero), pide
+`GET /api/permissions/users.view/holders`, `…/roles.manage/holders` y así cada permiso de la lista,
+que es pública (está en el código de la aplicación). Recibe los nombres de casi todo el personal y el
+correo de cada persona autorizada sin nombre que todavía no entró, más los de quienes ya se fueron si
+la baja no los saca. Es justo lo que R7.1 reserva a «Ver las personas».
+
+**Qué propongo:** la ruta da solo personas activas, y de cada una el nombre escrito o el de Google;
+sin ninguno de los dos, «Alguien que todavía no entró» y nunca el correo. Una prueba con una persona
+sin nombre y una dada de baja. Media hora.
+
+### 26 · La memoria de permisos (§ 17 «La memoria de permisos», § 20 «Saber que cambió», R7.6, R7.8, R7.9) — Mejora
+
+Dos cosas.
+
+**a) Una lectura en vuelo.** § 17 borra los permisos de la memoria «al confirmar». Es el mismo caso
+del punto 1 de la etapa a, más chico: un pedido de esa persona que no la encontró en memoria empieza
+a leer de la base **antes** de que se confirme el cambio, la base le da lo de antes, el cambio se
+confirma, la memoria se borra y recién entonces ese pedido guarda lo que leyó. La persona queda con
+los permisos viejos **sin vencimiento**, hasta el próximo cambio de roles o un reinicio. Hace falta
+que no esté en memoria justo en ese momento (otro cambio de hace instantes, un reinicio), así que no
+se provoca a voluntad; si pasa, el servidor deja de cumplir R7.6 sin que nadie lo note. **Qué
+propongo:** el mismo contador que ya usa la memoria de sesiones (§ 6): lo leído se guarda solo si no
+hubo un cambio mientras se leía. Una prueba que mete un pedido en ese momento. Una hora.
+
+**b) La memoria de personas de `sign-in` no se entera.** Hoy `sign-in/context.ts` guarda en memoria
+la persona que devuelve `/api/start` y solo la olvida con `user.deactivated` y `user.renamed`. § 17
+dice que esa persona pasa a llevar roles, permisos y el último cambio, pero no dice que esa memoria
+se borre al cambiar roles. Si no se borra:
+
+- la cabecera `p=` cambia (si sale de la memoria de `users`), la aplicación vuelve a pedir
+  `/api/start` y recibe los permisos de antes: no se ve «Ya no tenés permiso» (R7.8, E48);
+- esa persona vieja es la que el celular guarda en el dispositivo para trabajar sin conexión
+  (R7.9): sin conexión sigue viendo lo que ya no puede;
+- si `offline: true` se decide con esa persona, un celular al que le sacaron «Trabajar sin
+  conexión» lo sigue recibiendo hasta que se reinicie el servidor.
+
+El servidor igual rechaza (el paso de § 17 mira la otra memoria), así que no es un acceso; es que la
+regla no se cumple. **Qué propongo:** una sola memoria (la de `users`, que `sign-in` lee por la
+fachada) o un evento `user.roles-changed` que `sign-in` escucha como `user.renamed`, publicado por
+cada camino de § 19 a todas las personas que tocó (un cambio de los permisos de un rol toca a todos
+los que lo tienen). Y `canWorkOffline` lee `offline.work` de esa misma memoria. Media hora y la
+prueba de E48 hecha contra `/api/start`, no solo contra una ruta con permiso.
+
+### 27 · Quien tiene menos permisos puede dar de baja o cortar una y otra vez a los Administradores (R1.3, R5.3, R7.1; § 18) — Mejora, lo decide Carlos
+
+Con roles, «Administrar personas» y «Cortar sesiones y huellas» se pueden dar a alguien que no es
+Administrador, y valen contra cualquiera:
+
+- un Encargado con «Cortar sesiones y huellas» toca «Cerrar todas» sobre el Administrador cada vez
+  que entra, y le quita la huella: el Administrador no puede trabajar mientras ese Encargado tenga el
+  permiso, y para sacárselo tiene que entrar. El límite es de 60 por minuto, más que suficiente.
+- un Encargado con «Administrar personas» da de baja a todos los Administradores menos uno (R1.3
+  solo exige que quede uno).
+
+No da acceso a nada que no tenga (por eso no frena), pero es una forma de que alguien de adentro
+deje sin trabajar a quien está por encima. **Qué propondría a Carlos:** que dar de baja, cerrar
+sesiones, quitar celulares, cambiar el correo y dar de alta a alguien con un permiso que quien lo
+hace no tiene, pida ese permiso (la opción b del punto 23, que resuelve los dos). Lo mismo que el
+punto 23 b: una hora. Si prefiere dejarlo como está, que quede dicho en el manual que esos dos
+permisos son de confianza.
+
+### 28 · Una ruta nueva sin su paso (§ 21 «Quién puede») — Mejora
+
+§ 21 reconoce el riesgo y lo cubre con una prueba por ruta que pide sin permiso. Eso protege las
+rutas de hoy; una ruta que agregue otro módulo sin su paso y sin su prueba pasa `pnpm check` sin que
+nadie lo note, y la constitución pide que los límites se controlen con herramientas. **Qué
+propongo:** una prueba que recorre las rutas registradas en Hono (`http.routes`) y las compara con
+una tabla escrita a mano, `ruta → permiso | 'session' | 'public'`: una ruta que no está en la tabla
+o que no lleva el paso que la tabla dice, falla. Cada módulo que llega suma sus filas. Una hora.
+
+### 29 · Lo que entra de afuera (§ 18, § 21 «Lo que entra de afuera») — Mejora
+
+- **Ids repetidos.** `{ permissions: ['users.view', 'users.view'] }` o `{ roles: [id, id] }` chocan
+  con la clave de `role_permissions` o de `user_roles` y dan 500 con traza en el registro, uno por
+  pedido. Que el contrato los saque (`new Set`) o los rechace con 400. Cinco minutos.
+- **Cuántos.** «Acotadas» no dice cuánto: tope para `permissions` (los de la lista) y para `roles`
+  (por ejemplo 50), y un tope total de roles (por ejemplo 100), así nadie llena la tabla ni hace
+  pesada `GET /api/roles`. Diez minutos.
+- **Nombres que se ven iguales.** El índice sobre `lower(name)` no ve iguales «Acción» escrito con la
+  tilde junta y con la tilde aparte, ni «Cajero» con una «а» cirílica. Con eso alguien con
+  «Administrar roles» puede armar un «Cajero» que en realidad es casi un Administrador para que otro
+  se lo dé a alguien sin darse cuenta. Como ese alguien ya puede darse todo, es poco; pero normalizar
+  a NFC antes de guardar y comparar cuesta una línea (`.normalize('NFC')` en `cleanName`, que sirve
+  también a los nombres de las personas, como ya decía el punto 10) y resuelve el caso de las
+  tildes. La letra de otro alfabeto no la resuelve NFC: para eso no propongo nada, porque cuesta
+  más de lo que protege; la pantalla de los roles de una persona ya muestra qué suma cada rol.
+- **`system`.** Que el contrato de crear y cambiar un rol sea estricto: un `system: true` en el
+  cuerpo se rechaza, así nadie arma un segundo rol que reciba solo los permisos nuevos (R7.4). Con su
+  prueba. Cinco minutos.
+- **«Agrega» se decide en el servidor y dentro de la transacción.** Si el pedido da algún rol (o
+  algún permiso, contando lo incluido) que no estaba, pide confirmar (R3.8). La comparación tiene que
+  ser contra lo que hay en la base con esa `version`, no contra lo que dice la aplicación: un
+  intercambio (sacar A y poner B) es dar. Que § 18 lo diga y que E50 tenga el caso del intercambio.
+- **El límite de 60 cambios por minuto** de la etapa a no figura en las rutas de roles: que § 18 lo
+  diga (el mismo `limited`).
+
+### 30 · La auditoría (§ 18 «Sin el permiso», § 21 «La auditoría», § 16 «Un permiso nuevo») — Mejora
+
+- **El tope de `forbidden`.** El de la etapa a usa la clave `motivo:persona afectada`
+  (`users/routes.ts`, `answer`), y en las rutas sin persona (los roles) la persona es `new`. Con
+  `forbidden`, el primer intento de cualquiera tapa por un minuto los de todos los demás: si un Cajero
+  se equivoca primero, el que prueba rutas a propósito no queda anotado. Además el rechazo sale del
+  paso de la plataforma, que no es de `users`. **Qué propongo:** que el paso anote
+  `permission.rejected` con quién, el permiso, la ruta y la dirección, con la clave
+  `quién:permiso`. Quince minutos.
+- **`confirm-first`** no se anota. Un intento de dar acceso desde una sesión vieja es justo lo que
+  R3.8 quiere frenar: que quede una línea, con el mismo tope. Cinco minutos.
+- **Lo que suma el arranque.** Cuando el servidor le suma un permiso nuevo al rol Administrador
+  (R7.4) cambia los permisos de un rol, y R6.1 pide que eso quede. Que anote `role.changed` sin
+  `userId` («el sistema»), con lo que sumó. El traspaso de la migración, igual, una vez.
+
+### 31 · El arranque borra los permisos que no conoce (§ 16 «Un permiso que ya no está en la lista… lo borra el arranque») — Mejora
+
+Si alguna vez se despliega una versión anterior (para deshacer un error), su arranque no conoce los
+permisos de la nueva y los borra de todos los roles y, si los saca también de `known_permissions`, al
+volver a la nueva los cuenta como nuevos y se los da solo al Administrador. Los roles que los tenían
+los pierden sin que nadie los toque, y sin línea en la auditoría. No da acceso (pierde), pero deja a
+gente sin poder trabajar y no se nota de dónde vino. **Qué propongo:** que el arranque solo ignore
+los que no conoce, sin borrarlos ni de `role_permissions` ni de `known_permissions`; se borran recién
+cuando un capítulo saca un permiso a propósito, con una migración. Diez minutos.
+
+### Lo demás, punto por punto
+
+- **Entrar sin permiso:** nada nuevo además de los puntos 23 y 24. El rol `system` lo da solo el
+  comando, la carga de `e2e` y el traspaso; ninguna ruta crea a alguien sin sesión.
+- **Permisos y lo ajeno:** § 19 cubre sacarse a sí mismo por los cuatro caminos que nombra (y el 24
+  suma el quinto). Que una cuenta dada de baja no pueda nada lo da la etapa a (sus sesiones se
+  cierran); `permissionsOf` de una persona dada de baja devuelve nada, que conviene probar igual.
+  Una pantalla que la aplicación esconde se puede pedir igual al servidor: la cubre E47. Lo que
+  devuelve `403 forbidden` (el id del permiso que falta) no revela nada que la lista pública no diga.
+- **La cabecera `p=`:** es de los permisos de quien pide; no da nada de otro. Ocho caracteres alcanzan
+  para notar un cambio. Si llega a faltar en una respuesta (un pedido sin sesión), la aplicación no
+  tiene que tomarlo como «cambió».
+- **La aplicación en el navegador:** los nombres de rol y las descripciones van como texto (Preact
+  escapa) y con las reglas de texto de la etapa a. Los permisos guardados en el dispositivo
+  (`localStorage`, junto a la persona que ya se guarda) los puede cambiar quien tiene el celular: solo
+  le muestran botones, el servidor rechaza. Al salir se olvidan con la sesión. «Copiar el pedido» pone
+  nombres de compañeros en el portapapeles por decisión de quien lo toca; no sale nada solo. La
+  política de contenido y `frame-ancestors` no cambian.
+- **Datos personales:** fuera del punto 25, nada nuevo sale del servidor. `last_roles_change` guarda
+  ids de roles y de quien cambió, y lo ve solo la persona.
+- **Abuso:** el bloqueo de § 19 lo toman cambios cortos; quien tiene «Administrar roles» podría
+  encadenar cambios, pero con el límite del punto 29 son pocos. `GET /api/permissions/:id/holders`
+  no tiene tope (dos consultas, gente de adentro): se puede dejar así.
+- **Sin conexión:** la entrada sin conexión se juzga con `offline.work` en el momento de confirmarla,
+  que es lo correcto. Cuando lleguen las ventas sin conexión (15, etapa b), su diseño tiene que decir
+  contra qué permisos se juzga lo hecho sin conexión: el servidor no puede creerle la hora al
+  celular, así que lo más simple es los permisos que tenía la persona en su último contacto con
+  sesión.
+- **El despliegue:** no cambia (Caddy, puertos, contenedores, `.env`). Salvo el punto 31.
+- **Dependencias:** el diseño no suma ninguna biblioteca. No corrí `pnpm audit` en este paso: no hay
+  código nuevo.
+- **Para quien revise el diseño, fuera de seguridad:** quien tiene «Administrar roles» sin «Ver las
+  personas» no puede leer `GET /api/users`, y la pestaña Roles necesita los nombres de quiénes tienen
+  cada rol y elegir a quién dárselo (pantalla 2). Si se arregla devolviendo nombres en
+  `GET /api/roles`, que sean los mismos datos que el punto 25 (sin correos).
+
+### Qué tiene que tener una prueba (para el paso 7)
+
+| Riesgo | Qué intenta la prueba |
+|---|---|
+| Cada ruta pide su permiso | El inventario del punto 28 y, por ruta, sin el permiso: `403 forbidden`, nada cambia, la sesión sigue (E47) |
+| Escalar por el correo o el alta (23) | Con solo `users.manage`, cambiar el correo de un Administrador que no entró y dar de alta a uno dado de baja: rechazado según lo que elija Carlos |
+| Dejar sin «Administrar roles» (24) | Baja de A con B sin entrar, y después borrar a B: rechazado |
+| Sacarse a sí mismo (E56) | Por los cinco caminos: sacarse el rol, quitarle el permiso al rol propio, borrarlo, darse de baja y, si aplica, cambiarse los roles por otros sin el permiso |
+| «Sin permiso» sin correos (25) | Una persona sin nombre que no entró y una dada de baja con el permiso: ninguna da su correo; la dada de baja no figura |
+| La memoria de permisos (26) | Un pedido que lee la base mientras se confirma un cambio no deja los permisos viejos; después de sacar un rol, `/api/start` ya no los trae y `offline` deja de venir sin `offline.work` |
+| Dar acceso pide confirmar (E50) | Dar un rol, intercambiar uno por otro y agregar un permiso que trae otro incluido, con una sesión vieja: `confirm-first`; sacar, no |
+| Lo que entra (29) | Ids repetidos dan 400, no 500; `system: true` en el cuerpo se rechaza; dos nombres iguales en NFC y NFD chocan |
+| La auditoría (30) | Dos `forbidden` de dos personas en el mismo minuto dejan dos líneas; `confirm-first` deja la suya; el arranque que suma un permiso deja `role.changed` |
+| El bloqueo de § 19 | A mano, contra PostgreSQL, con dos conexiones, como dice § 19 |
