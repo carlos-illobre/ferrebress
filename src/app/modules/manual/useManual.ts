@@ -87,7 +87,7 @@ function useChapter(
 }
 
 // Lo escrito en el buscador, lo buscado (150 ms después de dejar de escribir, R7.4) y lo encontrado.
-function useSearch(index: ManualIndex | Failure | undefined, device: Device, testing: boolean) {
+function useSearch(index: ManualIndex | Failure | undefined, device: Device) {
   const [query, setQuery] = useState('');
   const [searched, setSearched] = useState('');
   const [tasks, setTasks] = useState<Partial<Record<Device, SearchTask[] | Failure>>>({});
@@ -107,17 +107,17 @@ function useSearch(index: ManualIndex | Failure | undefined, device: Device, tes
   const found = useMemo(
     () =>
       typeof index === 'object' && Array.isArray(ready)
-        ? searchManual(searched, index, ready, testing)
+        ? searchManual(searched, index, ready)
         : undefined,
-    [index, ready, searched, testing],
+    [index, ready, searched],
   );
   return { query, setQuery, searched, found, searchFailed: typeof ready === 'string' };
 }
 
-export function useManual(device: Device, testing: boolean, narrow: boolean) {
+export function useManual(device: Device, narrow: boolean) {
   const { index, state, setState, early } = useIndex(device, !narrow);
   const chapter = useChapter(index, state?.chapter, early, state?.task);
-  const search = useSearch(index, state?.device ?? device, testing);
+  const search = useSearch(index, state?.device ?? device);
   const act = (action: Action) =>
     // Solo se usa con el manual cargado: el índice y el estado ya están.
     setState((now) => reduce(now as ManualState, action, index as ManualIndex));

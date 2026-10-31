@@ -17,7 +17,6 @@ export type View = {
   searched: string;
   found: Found | undefined;
   searchFailed: boolean;
-  testing: boolean;
   narrow: boolean;
 };
 

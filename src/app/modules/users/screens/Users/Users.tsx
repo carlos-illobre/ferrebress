@@ -87,8 +87,8 @@ function Body() {
   );
 }
 
-export function Users({ testing }: { testing: boolean }) {
-  const users = { ...useUsers(), testing };
+export function Users() {
+  const users = useUsers();
   const narrow = matchMedia('(max-width: 899px)').matches;
   return (
     <UsersContext.Provider value={users}>
@@ -98,7 +98,7 @@ export function Users({ testing }: { testing: boolean }) {
         data-off={users.online ? undefined : ''}
         data-tools={users.tools}
       >
-        <Head testing={testing} />
+        <Head />
         {!users.online && (
           <p class="users-offline" role="status">
             <Icon name="wifi-off" size="small" />

@@ -87,11 +87,7 @@ export const access: AccessResponse = {
 
 // `wide`: con la computadora que elige sola a la primera persona; si no, como en lo angosto, para
 // que cada prueba elija a quien quiera.
-export function openUsers(
-  routes: Record<string, Reply | Reply[]> = {},
-  testing = true,
-  wide = false,
-) {
+export function openUsers(routes: Record<string, Reply | Reply[]> = {}, wide = false) {
   syncServerTime(now);
   const media = window.matchMedia.bind(window);
   if (!wide)
@@ -102,7 +98,7 @@ export function openUsers(
   render(
     <>
       <div id="app" data-layer="">
-        <Users testing={testing} />
+        <Users />
       </div>
       <Toasts />
     </>,

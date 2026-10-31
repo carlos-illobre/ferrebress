@@ -23,8 +23,8 @@ ambiente de pruebas.
 - **R1.7** El nombre de cada parte, opción y pestaña tiene que tener sentido para lo que abre. Dos
   pantallas van dentro de una misma parte u opción solo si tienen algo en común, y el nombre de esa
   parte u opción dice qué es eso en común.
-- **R1.3** En el ambiente de pruebas, lo que todavía no existe aparece en el menú con la marca
-  «Pronto» y no se puede abrir. En producción no aparece hasta que existe.
+- **R1.3** Lo que todavía no existe aparece con la marca «Pronto» y no se puede abrir, en el ambiente
+  de pruebas y en producción: en el menú, en Más y dentro de las pantallas.
 - **R1.4** Al abrir la aplicación se abre siempre la primera opción del menú que exista (el manual
   no cuenta: se abre encima de lo demás). No se recuerda la última parte usada ni cómo quedó el
   menú.
@@ -120,8 +120,8 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   dónde se hace, para que la tarea no quede cortada.
 - **R6.4** Tiene un capítulo por módulo, en el orden que elige Carlos, que puede cambiar cuando
   quiera; hoy, el del menú, y después los módulos que no están en el menú, en el orden en que se
-  programan. En el ambiente de pruebas, los que todavía no están
-  escritos dicen «pronto» y no se abren; en producción no aparecen. Entrar sin conexión se explica
+  programan. Los que todavía no están escritos dicen «pronto» y no se
+  abren, también en producción. Entrar sin conexión se explica
   en «Entrar», donde lo busca quien no puede entrar; «Trabajar sin conexión» lleva ahí.
 - **R6.5** Cada capítulo tiene texto simple, para quien atiende una ferretería sin saber de
   informática, pasos y capturas de la aplicación de verdad. Las capturas y los clips se sacan sin
@@ -187,10 +187,10 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 - **E01** **Dado** que la aplicación se abre, **cuando** carga, **entonces** muestra el menú con
   Vender · Catálogo · Depósito · Negocio · Más, a la izquierda en la computadora y abajo en el
   celular, y abre la primera opción que exista.
-- **E02** **Dado** el menú en el ambiente de pruebas, **cuando** se mira una opción que todavía no
-  existe, **entonces** dice «Pronto» y al tocarla no pasa nada.
-- **E02b** **Dado** el menú en producción, **cuando** se lo mira, **entonces** solo están las opciones
-  que existen.
+- **E02** **Dado** el menú, **cuando** se mira una opción que todavía no existe, **entonces** dice
+  «Pronto» y al tocarla no pasa nada.
+- **E02b** **Dado** el menú en producción, **cuando** se lo mira, **entonces** está igual que en el
+  ambiente de pruebas: también lo que todavía no existe, con «Pronto».
 - **E03** **Dado** que se usó la aplicación en otra parte y se la cerró, **cuando** se la vuelve a
   abrir, **entonces** abre la primera opción del menú, no la última usada.
 - **E03b** **Dado** el menú agrandado en la computadora, **cuando** se toca el botón de minimizar,

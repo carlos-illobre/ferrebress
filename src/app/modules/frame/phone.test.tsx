@@ -58,7 +58,7 @@ describe('el marco en el celular', () => {
     expect(toggle).toHaveBeenCalledOnce();
   });
 
-  it('app-E02b, offline-E01: en producción, solo lo que existe, y el interruptor después de Usuarios', () => {
+  it('app-E02b, offline-E01: en producción también lo que falta, con «Pronto», y el interruptor debajo de Configuración', () => {
     const setting = {
       name: 'Trabajar sin conexión',
       detail: 'Hasta 24 horas',
@@ -73,12 +73,12 @@ describe('el marco en el celular', () => {
       ),
     );
     const screenMore = screen.getByRole('region', { name: 'Más' });
-    expect(within(screenMore).queryByText('Pronto')).toBeNull();
+    expect(within(screenMore).getAllByText('Pronto').length).toBeGreaterThan(0);
     const row = screen.getByRole('switch', { name: /Trabajar sin conexión/ });
-    expect(row.closest('li')?.previousElementSibling?.textContent).toContain('Usuarios');
+    expect(row.closest('li')?.previousElementSibling?.textContent).toContain('Configuración');
   });
 
-  it('app-E02b: en producción, Más tiene solo lo que existe (Usuarios y el manual)', () => {
+  it('app-E02b: en producción, Más tiene todas sus opciones, en el orden de la computadora', () => {
     open({ testing: false });
     fireEvent.click(
       within(screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement).getByRole(
@@ -91,7 +91,15 @@ describe('el marco en el celular', () => {
       within(screenMore.querySelector('.phone-more-group') as HTMLElement)
         .getAllByRole('button')
         .map((button) => button.querySelector('b')?.textContent),
-    ).toEqual(['Usuarios', 'Manual']);
+    ).toEqual([
+      'Anomalías',
+      'Procesos',
+      'Mejoras y errores',
+      'Usuarios',
+      'Configuración',
+      'Administración',
+      'Manual',
+    ]);
   });
 
   it('en el celular, lo que no está lo dice una tostada que se va sola; la luz, bajo el título de la pantalla, abre lo pendiente', async () => {

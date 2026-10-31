@@ -26,7 +26,7 @@ describe('el manual en la computadora', () => {
     expect(location.search).toBe('?d=phone&c=sign-in&t=offline&p=1');
   });
 
-  it('app-E35, R10.1: en pruebas, los capítulos que faltan con «Pronto» y el cartel; en producción no', async () => {
+  it('app-E35, R10.1: los capítulos que faltan con «Pronto», también en producción; el cartel, solo en pruebas', async () => {
     serveManual();
     show();
     await loaded();
@@ -39,7 +39,7 @@ describe('el manual en la computadora', () => {
     serveManual();
     show({ testing: false });
     await loaded();
-    expect(screen.queryByText('Próximos capítulos')).toBeNull();
+    expect(screen.getAllByText('Próximos capítulos').length).toBeGreaterThan(0);
     expect(screen.queryByText(/Ambiente de prueba/)).toBeNull();
   });
 

@@ -70,8 +70,8 @@ describe('el buscador', () => {
   });
 
   it('app-E36: desde dos letras, con todas las palabras, una fila por tarea y al paso que coincidió', () => {
-    expect(searchManual('h', index, tasks, true)).toBeUndefined();
-    const found = searchManual('huella', index, tasks, true);
+    expect(searchManual('h', index, tasks)).toBeUndefined();
+    const found = searchManual('huella', index, tasks);
     expect(found?.groups).toEqual([
       {
         chapter: index.chapters[0],
@@ -86,12 +86,12 @@ describe('el buscador', () => {
         ],
       },
     ]);
-    expect(searchManual('codigo cambia', index, tasks, false)?.groups[0]?.hits[0]).toMatchObject({
+    expect(searchManual('codigo cambia', index, tasks)?.groups[0]?.hits[0]).toMatchObject({
       snippet: 'El código cambia.',
       step: 0,
     });
-    expect(searchManual('mismo wi', index, tasks, false)?.groups[0]?.hits[0]?.step).toBe(1);
-    expect(searchManual('escribis', index, tasks, false)?.groups[0]?.hits[0]).toMatchObject({
+    expect(searchManual('mismo wi', index, tasks)?.groups[0]?.hits[0]?.step).toBe(1);
+    expect(searchManual('escribis', index, tasks)?.groups[0]?.hits[0]).toMatchObject({
       snippet: 'No escribís nada.',
       step: 0,
     });
@@ -101,7 +101,7 @@ describe('el buscador', () => {
     const hostile = ['(a+)+$', '[', '\\', '.*', 'a'.repeat(10_000)];
     const started = performance.now();
     for (const query of hostile) {
-      expect(() => searchManual(query, index, tasks, true)).not.toThrow();
+      expect(() => searchManual(query, index, tasks)).not.toThrow();
       expect(
         marks('Poné la huella.', query)
           .map((piece) => piece.text)
@@ -109,39 +109,40 @@ describe('el buscador', () => {
       ).toBe('Poné la huella.');
     }
     expect(performance.now() - started).toBeLessThan(50);
-    expect(searchManual(`huella${' '.repeat(60)}xyz`, index, tasks, true)?.groups).toHaveLength(1);
+    expect(searchManual(`huella${' '.repeat(60)}xyz`, index, tasks)?.groups).toHaveLength(1);
   });
 
   it('lo que coincide con el título va primero; si solo coincide el título, muestra la aclaración o el primer paso', () => {
-    const found = searchManual('entrar', index, tasks, false);
+    const found = searchManual('entrar', index, tasks);
     expect(found?.groups[0]?.hits.map((hit) => [hit.task, hit.snippet])).toEqual([
       ['phone', 'No escribís nada.'],
       ['google', 'Elegí tu cuenta.'],
     ]);
-    const cuenta = searchManual('google cuenta', index, tasks, false);
+    const cuenta = searchManual('google cuenta', index, tasks);
     expect(cuenta?.groups[0]?.hits[0]?.snippet).toBe('Elegí tu cuenta.');
-    expect(searchManual('celular nada', index, tasks, false)?.groups[0]?.hits[0]?.snippet).toBe(
+    expect(searchManual('celular nada', index, tasks)?.groups[0]?.hits[0]?.snippet).toBe(
       'No escribís nada.',
     );
   });
 
   it('con dos tareas, la que coincide en el título va primero', () => {
-    expect(searchManual('el', index, tasks, false)?.groups[0]?.hits.map((hit) => hit.task)).toEqual(
-      ['phone', 'google'],
-    );
+    expect(searchManual('el', index, tasks)?.groups[0]?.hits.map((hit) => hit.task)).toEqual([
+      'phone',
+      'google',
+    ]);
   });
 
   it('una tarea del buscador que el índice ya no tiene (una versión vieja) lleva al primer paso', () => {
     const old = [{ chapter: 'sign-in', task: 'vieja', title: 'Vieja', texts: ['Algo viejo.'] }];
-    expect(searchManual('viejo', index, old, false)?.groups[0]?.hits[0]?.step).toBe(0);
+    expect(searchManual('viejo', index, old)?.groups[0]?.hits[0]?.step).toBe(0);
   });
 
-  it('en pruebas, los capítulos que faltan cuyo nombre coincide; en producción no; nada, sin grupos', () => {
-    expect(searchManual('vender', index, tasks, true)).toEqual({
+  it('los capítulos que faltan cuyo nombre coincide, también en producción; nada, sin grupos', () => {
+    expect(searchManual('vender', index, tasks)).toEqual({
       groups: [],
       soon: [index.chapters[1]],
     });
-    expect(searchManual('vender', index, tasks, false)).toEqual({ groups: [], soon: [] });
+    expect(searchManual('nada parecido', index, tasks)).toEqual({ groups: [], soon: [] });
   });
 
   it('marca lo buscado en el texto original, con sus tildes', () => {

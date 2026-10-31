@@ -1,6 +1,5 @@
 // La cabecera de Usuarios: el título, «Se perdió un celular» y «Autorizar a alguien», y las
-// pestañas Usuarios · Auditoría (Auditoría es del capítulo 05: en pruebas con «Pronto»; en
-// producción no está, 00 · R1.3). En el celular
+// pestañas Usuarios · Auditoría (Auditoría es del capítulo 05: con «Pronto», 00 · R1.3). En el celular
 // «Se perdió un celular» va arriba de la lista y «Autorizar a alguien», abajo (maqueta).
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
@@ -55,7 +54,7 @@ function PhoneTools() {
   );
 }
 
-export function Head({ testing }: { testing: boolean }) {
+export function Head() {
   const users = useUsersContext();
   return (
     <>
@@ -83,17 +82,15 @@ export function Head({ testing }: { testing: boolean }) {
           <Icon name="users" size="small" />
           {texts.title}
         </span>
-        {testing && (
-          <button
-            type="button"
-            class="users-tab soon"
-            onClick={() => showToast(`${texts.audit} · pronto. Todavía no está.`)}
-          >
-            <Icon name="file-text" size="small" />
-            {texts.audit}
-            <span class="users-soon">{texts.soon}</span>
-          </button>
-        )}
+        <button
+          type="button"
+          class="users-tab soon"
+          onClick={() => showToast(`${texts.audit} · pronto. Todavía no está.`)}
+        >
+          <Icon name="file-text" size="small" />
+          {texts.audit}
+          <span class="users-soon">{texts.soon}</span>
+        </button>
       </nav>
     </>
   );

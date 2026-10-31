@@ -12,7 +12,7 @@ export type FrameState = {
   person: Person;
   testing: boolean;
   online: boolean;
-  current: string | undefined;
+  current: string;
   collapse: ReturnType<typeof useCollapse>;
   panels: ReturnType<typeof usePanels>;
   phoneMore: ReturnType<typeof usePhoneMore>;

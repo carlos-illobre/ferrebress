@@ -57,12 +57,4 @@ describe('la tarjeta en el celular', () => {
     await waitFor(() => expect((tile(/Quitar huella/) as HTMLButtonElement).disabled).toBe(true));
     expect((tile(/Cortar sesión/) as HTMLButtonElement).disabled).toBe(true);
   });
-
-  it('en producción no aparece lo que todavía no está: ni «Cambiar rol» ni el historial', async () => {
-    openUsers({ '/api/users/graciela/access': { body: access } }, false);
-    await screen.findByText('Rubén Paredes');
-    fireEvent.click(row(/Graciela/));
-    await inCard().findByText('Chrome en Windows');
-    expect(card().textContent).not.toMatch(/Cambiar rol|Historial|Ver historial|Pronto/);
-  });
 });

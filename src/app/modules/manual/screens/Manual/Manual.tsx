@@ -112,12 +112,12 @@ export function Manual({
   back: Back;
 }) {
   const narrow = useNarrow();
-  const manual = useManual(device, testing, narrow);
+  const manual = useManual(device, narrow);
   const { index, state } = manual;
   return (
     <div class="manual-page" data-layer="" data-arrows="">
       {typeof index === 'object' && state ? (
-        <Loaded view={{ ...manual, index, state, testing, narrow }} back={back} />
+        <Loaded view={{ ...manual, index, state, narrow }} back={back} />
       ) : (
         index !== undefined && <NeedsInternet back={back} />
       )}

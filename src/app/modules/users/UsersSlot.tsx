@@ -9,10 +9,8 @@ import './UsersSlot.css';
 // Su texto vive acá y no en texts.ts: este archivo va en el arranque y texts.ts no.
 const offline = 'Sin conexión: Usuarios vuelve sola cuando vuelva la conexión.';
 
-export function UsersSlot({ testing }: { testing: boolean }) {
-  const [screen, setScreen] = useState<
-    { Users: ComponentType<{ testing: boolean }> } | 'offline'
-  >();
+export function UsersSlot() {
+  const [screen, setScreen] = useState<{ Users: ComponentType } | 'offline'>();
   useEffect(() => {
     import('./screens/Users/Users.tsx').then(
       (loaded) => setScreen({ Users: loaded.Users }),
@@ -28,5 +26,5 @@ export function UsersSlot({ testing }: { testing: boolean }) {
         {offline}
       </p>
     );
-  return screen ? <screen.Users testing={testing} /> : null;
+  return screen ? <screen.Users /> : null;
 }

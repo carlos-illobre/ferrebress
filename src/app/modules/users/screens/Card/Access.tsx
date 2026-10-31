@@ -79,7 +79,7 @@ function Sessions({ person, sessions }: { person: PersonRow; sessions: SessionRo
         <h3>
           {texts.sessionsCount} <span>{sessions.length}</span>
         </h3>
-        {users.testing && <Soon className="users-history phone-only" name={t.history} />}
+        <Soon className="users-history phone-only" name={t.history} />
         {sessions.length > 0 && (
           <Button
             size="small"

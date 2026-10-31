@@ -15,13 +15,13 @@ describe('el lugar de Usuarios', () => {
 
   it('con red, un código que no se puede bajar pide actualizar', async () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
-    render(<UsersSlot testing />);
+    render(<UsersSlot />);
     await waitFor(() => expect(updateRequired.get()).toBe(true));
   });
 
   it('sin red, dice «Sin conexión»', async () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
-    render(<UsersSlot testing />);
+    render(<UsersSlot />);
     expect((await screen.findByRole('status')).textContent).toContain('Sin conexión');
   });
 });

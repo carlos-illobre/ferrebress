@@ -37,14 +37,9 @@ describe('el marco', () => {
     );
   });
 
-  it('app-E02b, app-E52: en producción solo está lo que existe, y no hay marco magenta', () => {
+  it('app-E02b, app-E52: en producción también está lo que falta, con «Pronto», sin el marco magenta', () => {
     const { side } = open({ testing: false });
-    // Solo Más, que tiene Usuarios y el manual.
-    expect(
-      within(side)
-        .queryAllByRole('listitem')
-        .map((item) => item.textContent),
-    ).toEqual([expect.stringContaining('Más')]);
+    expect(within(side).getAllByText('Pronto')).toHaveLength(4);
     expect(side.querySelector('[aria-current="page"]')?.textContent).toContain('Más');
     expect(document.querySelector('.test-frame')).toBeNull();
   });
@@ -204,7 +199,7 @@ describe('el marco', () => {
       const item = within(side).getByRole('button', { name: /Catálogo/ });
       expect(item.getAttribute('aria-current')).toBe('page');
       expect(item.querySelector('.coming-soon')).toBeNull();
-      expect(within(side).queryByRole('button', { name: /Vender/ })).toBeNull();
+      expect(within(side).getByRole('button', { name: /Vender/ }).textContent).toContain('Pronto');
       fireEvent.click(item);
       expect(location.pathname).toBe('/catalog');
       fireEvent.click(within(side).getByRole('button', { name: /Más/ }));

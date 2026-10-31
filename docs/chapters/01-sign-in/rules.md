@@ -148,8 +148,7 @@ enviar es «Salir» (R5.2).
 - **R6.1** Al entrar se llega al marco (capítulo 00): el menú, la luz de conexión y la tarjeta de
   la persona con su nombre, su rol y «Salir»; el área de trabajo, en blanco.
 - **R6.2** Al entrar se abre la pantalla de la primera opción del menú. Mientras no exista ningún
-  otro módulo, esa pantalla está en blanco y, en el ambiente de pruebas, todas las opciones del
-  menú dicen «Pronto».
+  otro módulo, esa pantalla está en blanco y todas las opciones del menú dicen «Pronto».
 
 ## 7. La entrada
 

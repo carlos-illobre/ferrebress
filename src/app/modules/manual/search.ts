@@ -47,7 +47,6 @@ export function searchManual(
   query: string,
   index: ManualIndex,
   tasks: SearchTask[],
-  testing: boolean,
 ): Found | undefined {
   const words = wordsOf(query);
   if (words.join(' ').length < minQuery) return undefined;
@@ -61,11 +60,10 @@ export function searchManual(
       .sort((a, b) => score(b, words) - score(a, words));
     return hits.length > 0 ? [{ chapter, hits }] : [];
   });
-  const soon = testing
-    ? index.chapters.filter(
-        (chapter) => !chapter.tasks && !chapter.goesTo && hasAll(chapter.name, words),
-      )
-    : [];
+  // Lo que todavía no está escrito también se encuentra, con «Pronto» (00 · R6.4).
+  const soon = index.chapters.filter(
+    (chapter) => !chapter.tasks && !chapter.goesTo && hasAll(chapter.name, words),
+  );
   return { groups, soon };
 }
 

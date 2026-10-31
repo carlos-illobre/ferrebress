@@ -1,6 +1,6 @@
 // La lista de Usuarios (02 · R3.1, R3.2, R2.2): el orden, lo que dice cada renglón, el buscador y
 // los filtros, y sin conexión.
-import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/preact';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
 import { pendingEntries } from '../sign-in/index.ts';
@@ -109,12 +109,9 @@ describe('la lista de Usuarios', () => {
     await screen.findByText('Rubén Paredes');
   });
 
-  it('Auditoría todavía no está: en pruebas dice «Pronto»; en producción no aparece', async () => {
+  it('Auditoría todavía no está: dice «Pronto»', async () => {
     openUsers();
     fireEvent.click(screen.getByRole('button', { name: /Auditoría/ }));
     expect(document.querySelector('.toast')?.textContent).toContain('Auditoría · pronto');
-    cleanup();
-    openUsers({}, false);
-    expect(screen.queryByRole('button', { name: /Auditoría/ })).toBeNull();
   });
 });

@@ -65,10 +65,9 @@ export async function closedContext(
   return { context, escaped };
 }
 
-// Lo que no puede salir nunca: el ambiente de pruebas ni lo que todavía no existe.
+// Lo que no puede salir nunca: el ambiente de pruebas.
 export async function expectClean(page: Page | Frame): Promise<void> {
   await expect(page.locator('.test-frame')).toHaveCount(0);
-  await expect(page.getByText('Pronto', { exact: true })).toHaveCount(0);
 }
 
 // Pasa una imagen PNG a WebP del ancho pedido con el canvas de Chromium, bajando la calidad hasta que

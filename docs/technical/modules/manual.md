@@ -44,8 +44,7 @@ Cada renglón, separado por «·»: el identificador (el nombre del módulo, en 
 ícono y, al final, una de tres cosas:
 
 - **un archivo:** el capítulo está escrito;
-- **nada:** el capítulo falta; en el ambiente de pruebas dice «Pronto» y no se abre, y en producción
-  no aparece (R6.4);
+- **nada:** el capítulo falta; dice «Pronto» y no se abre, también en producción (R6.4);
 - **`→ <capítulo>: <tarea> (<dispositivo>), …`:** el capítulo lleva a tareas de otro, una por
   dispositivo (R6.4: «Trabajar sin conexión» lleva a «Entrar»). Abre la del dispositivo elegido;
   si no hay, el renglón no sale con ese dispositivo.
@@ -289,8 +288,8 @@ buscador y las capturas. Cambiarlo cierra «Todos los pasos» y vuelve al princi
 
 ### Los capítulos que faltan (R6.4, E35)
 
-`App` le pasa al manual si es el ambiente de pruebas. En pruebas, debajo de los escritos va
-«Próximos capítulos» con los que faltan y «Pronto»; en producción no van. El orden es siempre el de
+`App` le pasa al manual si es el ambiente de pruebas, para su cartel. Debajo de los escritos va
+«Próximos capítulos» con los que faltan y «Pronto», también en producción. El orden es siempre el de
 `README.md`.
 
 ### El buscador (R6.6, R7.4, E36), como la maqueta

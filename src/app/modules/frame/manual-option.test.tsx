@@ -24,14 +24,14 @@ describe('el Manual en Más', () => {
     expect(history.state).toEqual({ from: 'users' });
   });
 
-  it('en producción, sin ninguna opción que exista, vuelve a Ferrebress', () => {
+  it('sin ninguna opción que exista, guarda la primera parte, que queda abierta', () => {
     media();
     withPath(moreOptions.find((option) => option.id === 'users') as Option, undefined, () => {
       const { side } = open({ testing: false });
       fireEvent.click(sideMore(side));
       fireEvent.click(within(side).getByRole('button', { name: /Manual/ }));
     });
-    expect(history.state).toEqual({ from: 'app' });
+    expect(history.state).toEqual({ from: 'sell' });
   });
 
   it('sin conexión, gris y con «Sin conexión», en la computadora y en Más del celular', () => {

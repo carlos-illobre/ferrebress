@@ -129,8 +129,7 @@ export function useUsers() {
   };
 }
 
-// `testing`: el ambiente de pruebas, donde lo que todavía no está se ve con «Pronto» (00 · R1.3).
-export type Users = ReturnType<typeof useUsers> & { testing: boolean };
+export type Users = ReturnType<typeof useUsers>;
 
 export const UsersContext = createContext<Users | undefined>(undefined);
 export const useUsersContext = () => useContext(UsersContext) as Users;

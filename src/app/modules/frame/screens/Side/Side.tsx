@@ -4,7 +4,7 @@ import isotype from '../../../../styles/brand/isotype.svg';
 import logo from '../../../../styles/brand/logo-on-light.webp';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { useFrame } from '../../context.ts';
-import { parts, shown } from '../../menu.ts';
+import { parts } from '../../menu.ts';
 import { texts } from '../../texts.ts';
 import { MenuItem } from './MenuItem.tsx';
 import { More } from './More.tsx';
@@ -14,7 +14,6 @@ import './SideFooter.css';
 import './collapse.css';
 
 export function Side() {
-  const { testing } = useFrame();
   return (
     <nav class="side desktop-only" id="side" aria-label={texts.menu}>
       <div class="side-background" aria-hidden="true" />
@@ -25,7 +24,7 @@ export function Side() {
         <CollapseButton />
       </div>
       <ul class="menu">
-        {shown(parts, testing).map((option) => (
+        {parts.map((option) => (
           <li key={option.id}>
             <MenuItem option={option} />
           </li>

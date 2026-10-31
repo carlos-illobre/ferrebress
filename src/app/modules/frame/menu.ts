@@ -1,6 +1,6 @@
 // El menú (00 · R1.1 y R1.2): las cinco partes en su orden, y las opciones de Más. Una opción sin
-// pantalla todavía no existe: en pruebas dice «Pronto» y no se abre; en producción no aparece
-// (R1.3). Cada módulo, cuando llegue, le pone su pantalla a la opción que le toca.
+// pantalla todavía no existe: dice «Pronto» y no se abre, en pruebas y en producción (R1.3). Cada
+// módulo, cuando llegue, le pone su pantalla a la opción que le toca.
 import { navigate } from '../../platform/router.ts';
 import type { IconName } from '../../ui/icon/Icon.tsx';
 
@@ -98,14 +98,10 @@ export const unavailable = (option: Option, online: boolean) => !!option.needsIn
 
 // Abre una opción y guarda de dónde se viene (la parte abierta, o Más), para que «Volver» vuelva ahí
 // (el manual, 00 · R6.7).
-export const openOption = (option: Option, from = 'app', replace = false) =>
+export const openOption = (option: Option, from: string, replace = false) =>
   option.path && navigate(option.path, { state: { from }, replace });
 
 // La opción de una dirección: la que la tiene como suya.
 // El manual no cuenta: se abre encima de la pantalla, que sigue debajo (R1.4).
 export const optionAt = (path: string) =>
   [...parts, ...moreOptions].find((option) => option.path === path && !option.over);
-
-// Lo que se ve del menú: en pruebas, todo; en producción, solo lo que existe.
-export const shown = (options: Option[], testing: boolean) =>
-  testing ? options : options.filter(exists);

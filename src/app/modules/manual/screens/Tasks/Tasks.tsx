@@ -84,7 +84,7 @@ function Contents({ view }: { view: View }) {
           <GoesTo key={entry.id} view={view} entry={entry} />
         ) : null,
       )}
-      {view.testing && missing.length > 0 && (
+      {missing.length > 0 && (
         <>
           <h2 class="manual-group apart">{texts.nextChapters}</h2>
           <Soon chapters={missing} />

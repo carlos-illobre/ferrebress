@@ -12,7 +12,7 @@ import { usePanels } from '../../behavior/usePanels.ts';
 import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
 import { useTip } from '../../behavior/useTip.ts';
 import { FrameContext, type FrameState, type SettingRow, shake } from '../../context.ts';
-import { exists, moreOptions, optionAt, parts } from '../../menu.ts';
+import { exists, moreOptions, type Option, optionAt, parts } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
 import { PhoneNav } from '../Phone/Phone.tsx';
@@ -29,22 +29,21 @@ export type FrameProps = {
   testing: boolean;
   onSignOut: () => unknown;
   setting?: SettingRow | undefined;
-  // La pantalla de cada opción que ya existe, por su id: las pone cada módulo, por App. Sabe si es el
-  // ambiente de pruebas, donde lo que todavía no existe se ve con «Pronto» (R1.3).
-  screens?: Partial<Record<string, ComponentType<{ testing: boolean }>>> | undefined;
+  // La pantalla de cada opción que ya existe, por su id: las pone cada módulo, por App.
+  screens?: Partial<Record<string, ComponentType>> | undefined;
   children?: ComponentChildren;
 };
 
-// La opción abierta (R1.4): la primera del menú que exista; en pruebas, sin ninguna, Vender.
-const firstOption = (testing: boolean) =>
+// La opción abierta (R1.4): la primera del menú que exista; sin ninguna, Vender.
+const firstOption = () =>
   [...parts, ...moreOptions].find((option) => exists(option) && !option.over)?.id ??
-  (testing ? parts[0]?.id : undefined);
+  (parts[0] as Option).id;
 
 export function Frame({ person, testing, onSignOut, setting, screens, children }: FrameProps) {
   const online = useStore(onlineStore);
   // La opción abierta es la de la dirección; en cualquier otra, la primera (R1.4).
-  const current = optionAt(useStore(route).path)?.id ?? firstOption(testing);
-  const Screen = current ? screens?.[current] : undefined;
+  const current = optionAt(useStore(route).path)?.id ?? firstOption();
+  const Screen = screens?.[current];
   const collapse = useCollapse();
   const panels = usePanels();
   const phoneMore = usePhoneMore();
@@ -75,7 +74,7 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
       >
         <Side />
         <main class="work-area" aria-label={texts.workArea}>
-          {Screen ? <Screen testing={testing} /> : children}
+          {Screen ? <Screen /> : children}
         </main>
         <PhoneMore />
         <PhoneNav />

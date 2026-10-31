@@ -10,7 +10,7 @@ paso 9 de cada uno (constitución). La aplicación lo arma desde estos archivos;
   nada más.
 - **Un renglón** tiene, separados por «·», el identificador (el nombre del módulo, en inglés), el
   nombre, el ícono y, al final, el archivo del capítulo si está escrito. Sin archivo, el capítulo
-  falta: en el ambiente de pruebas dice «Pronto». Con `→ <capítulo>: <tarea> (<dispositivo>), …`,
+  falta: dice «Pronto». Con `→ <capítulo>: <tarea> (<dispositivo>), …`,
   lleva a esas tareas de otro capítulo, una por dispositivo.
 - **Un capítulo** tiene su título (el mismo nombre que en la lista), la introducción de cada
   dispositivo y sus tareas, en el orden en que salen. La forma de cada tarea está en

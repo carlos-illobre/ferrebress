@@ -42,7 +42,7 @@ export function Tiles({ person }: { person: PersonRow }) {
     phones.length === 1
       ? removePhone(users, person, (phones[0] as { id: string }).id)
       : scrollTo('users-phones');
-  const all: Tile[] = [
+  const tiles: Tile[] = [
     {
       icon: 'lock',
       name: t.cutSessions,
@@ -65,7 +65,6 @@ export function Tiles({ person }: { person: PersonRow }) {
       soon: true,
     },
   ];
-  const tiles = all.filter((tile) => users.testing || !tile.soon);
   return (
     <div class="users-tiles phone-only">
       {tiles.map((tile) => (
@@ -103,11 +102,9 @@ export function Rows() {
       <Row icon="monitor" name={t.devicesRow} act={() => scrollTo('users-sessions')}>
         {t.devices(sessions)}
       </Row>
-      {users.testing && (
-        <Row icon="clock" name={t.historyRow} act={() => showToast(t.soon(t.historyRow))}>
-          Pronto
-        </Row>
-      )}
+      <Row icon="clock" name={t.historyRow} act={() => showToast(t.soon(t.historyRow))}>
+        Pronto
+      </Row>
     </div>
   );
 }

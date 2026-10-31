@@ -38,7 +38,7 @@ describe('la tarjeta de una persona', () => {
   });
 
   it('en la computadora, al abrir queda elegida la primera de la lista', async () => {
-    openUsers({ '/api/users/ruben/access': { body: { sessions: [], phones: [] } } }, true, true);
+    openUsers({ '/api/users/ruben/access': { body: { sessions: [], phones: [] } } }, true);
     await waitFor(() => expect(row(/Rubén/).getAttribute('aria-current')).toBe('true'));
     expect(await inCard().findByText(/No te podés dar de baja vos/)).toBeTruthy();
   });
