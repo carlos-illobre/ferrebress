@@ -4,6 +4,7 @@ import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { Kysely } from 'kysely';
 import { createGuards } from '../../platform/guards.ts';
 import { createOneUse } from '../../platform/limits/one-use.ts';
+import { createGuardedMemory } from '../../platform/memory.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { displayName, type User, type Users } from '../users/index.ts';
 import { createScreens } from './codes/computer/screens.ts';
@@ -14,39 +15,34 @@ import { codeSettings, signInSettings } from './settings.ts';
 
 // Quién es cada persona con sesión, como la muestra la aplicación, en memoria: así /api/start con
 // la sesión ya en memoria no consulta la base (diseño de 01, § 12). Solo para mostrar: si sigue
-// activa se mira siempre en la base. Darla de baja cierra sus sesiones y la olvida acá; el nombre
-// cambia solo al entrar con Google, que la actualiza si ya estaba.
+// activa se mira siempre en la base. Con contador (diseño de 02, § 17): un cambio de roles o de sus
+// permisos, una baja o un nombre nuevo la olvidan, y lo que se leía mientras tanto no se guarda.
 function createPeople(users: Users) {
-  const known = new Map<string, Person>();
+  const known = createGuardedMemory<string, Person>();
+  const names = new Map<string, string>();
+  const build = async (user: User): Promise<Person> => ({
+    userId: user.id,
+    name: displayName(user),
+    email: user.email,
+    ...(await users.profileOf(user)),
+  });
   return {
-    async of(userId: string): Promise<Person> {
-      const cached = known.get(userId);
-      if (cached) return cached;
-      // Con la sesión abierta, la persona existe.
-      const shown = person((await users.findById(userId)) as User);
-      known.set(userId, shown);
-      return shown;
+    // Con `user`, si recién se leyó; si no, se lee.
+    of: (userId: string, user?: User): Promise<Person> =>
+      known.load(userId, async () => build(user ?? ((await users.findById(userId)) as User))),
+    // Los nombres de varias, con una sola consulta para las que no están en memoria.
+    async namesOf(userIds: string[]): Promise<Map<string, string>> {
+      const missing = userIds.filter((id) => !names.has(id));
+      for (const user of await users.findByIds(missing)) names.set(user.id, displayName(user));
+      return new Map(userIds.map((id) => [id, names.get(id) as string]));
     },
-    // Varias de una vez, con una sola consulta para las que no están en memoria.
-    async ofMany(userIds: string[]): Promise<Map<string, Person>> {
-      const missing = userIds.filter((id) => !known.has(id));
-      for (const user of await users.findByIds(missing)) known.set(user.id, person(user));
-      return new Map(userIds.map((id) => [id, known.get(id) as Person]));
+    forget(userIds: readonly string[] | 'all'): void {
+      known.forget(userIds);
+      if (userIds === 'all') names.clear();
+      else for (const id of userIds) names.delete(id);
     },
-    update(user: User): void {
-      if (known.has(user.id)) known.set(user.id, person(user));
-    },
-    forget: (userId: string) => void known.delete(userId),
   };
 }
-
-const person = (user: User): Person => ({
-  userId: user.id,
-  name: displayName(user),
-  email: user.email,
-  // Hasta el módulo 02, todas las personas son Administrador.
-  role: 'Administrador',
-});
 
 // Lo que viene de afuera del módulo: las personas, Google y cómo esperar (las pruebas cambian los
 // dos últimos).
@@ -87,7 +83,6 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
     },
     // Anotar en la auditoría y frenar por límite de intentos (platform/guards.ts).
     ...createGuards(platform, { event: 'sign-in.throttled', window: throttledAudit }),
-    person,
     people: createPeople(users),
     wait,
     screens: createScreens(platform.clock),

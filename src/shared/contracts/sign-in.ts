@@ -2,6 +2,7 @@
 // para cada campo (revisión de seguridad, punto 7). La usan el servidor para validar y la
 // aplicación para armar los pedidos.
 import * as z from 'zod/mini';
+import type { PermissionId } from './permissions.ts';
 import type { Environment } from './server-header.ts';
 
 const base64url = (max: number) =>
@@ -30,7 +31,12 @@ export type Person = {
   userId: string;
   name: string;
   email: string;
-  role: string;
+  // Sus roles y lo que puede (02 · R7.1): la unión de los permisos de sus roles.
+  roles: { id: string; name: string }[];
+  permissions: PermissionId[];
+  // Quién le cambió los roles por última vez y cuándo, para «Ya no tenés permiso» (02 · R7.8).
+  rolesChangedBy: string | null;
+  rolesChangedAt: number | null;
   // Solo con sesión, desde un celular con la huella de esta persona y con el permiso: puede prender
   // «Trabajar sin conexión» (15 · R1).
   offline?: true;

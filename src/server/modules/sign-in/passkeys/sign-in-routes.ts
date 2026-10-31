@@ -64,12 +64,13 @@ async function signInWithPasskey(
     passkeyId: found.passkey.id,
     data: { method: 'passkey' },
   });
+  const person = await ctx.people.of(user.id, user);
   return c.json<SignInResponse>({
     // Entró con su propia huella en este celular (15 · R1).
     person: {
-      ...ctx.person(user),
+      ...person,
       ...(found.passkey.deviceId === c.get('deviceId') &&
-        canWorkOffline(user) && { offline: true }),
+        canWorkOffline(person) && { offline: true }),
     },
     sessionId: session.id,
     offerPasskey: false,

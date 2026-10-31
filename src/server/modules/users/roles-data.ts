@@ -63,12 +63,46 @@ function readingHolders(db: Db) {
           .$if(activeOnly, (query) => query.where('u.active', '=', true))
           .execute()
       ).map((row) => row.permission),
+
+    // Los permisos de varias personas, también dadas de baja, en una consulta (R7.11).
+    permissionsOfMany: (userIds: readonly string[]) =>
+      userIds.length === 0
+        ? Promise.resolve([])
+        : db
+            .selectFrom('users.user_roles as ur')
+            .innerJoin('users.role_permissions as rp', 'rp.role_id', 'ur.role_id')
+            .select(['ur.user_id as userId', 'rp.permission'])
+            .distinct()
+            .where('ur.user_id', 'in', userIds)
+            .execute(),
   };
 }
 
 // Leer los roles de una persona y si existe.
 function readingPeople(db: Db) {
   return {
+    // Sus roles con nombre, sus permisos (nada si está dada de baja) y quién le cambió los roles
+    // por última vez, en una consulta (R7.1, R7.8).
+    profileOf: async (userId: string, changedBy: string | null) => {
+      const { rows } = await sql<{
+        roles: { id: string; name: string }[];
+        permissions: string[];
+        changer: { name: string | null; googleName: string | null; email: string } | null;
+      }>`select
+          coalesce((select json_agg(json_build_object('id', r.id, 'name', r.name)
+              order by r.system desc, lower(r.name))
+            from users.user_roles ur join users.roles r on r.id = ur.role_id
+            where ur.user_id = ${userId}), '[]'::json) as roles,
+          array(select distinct rp.permission
+            from users.user_roles ur
+            join users.role_permissions rp on rp.role_id = ur.role_id
+            join users.users u on u.id = ur.user_id
+            where ur.user_id = ${userId} and u.active order by 1) as permissions,
+          (select json_build_object('name', c.name, 'googleName', c.google_name, 'email', c.email)
+            from users.users c where c.id = ${changedBy}) as changer`.execute(db);
+      return rows[0] as (typeof rows)[number];
+    },
+
     roleIdsOf: async (userId: string): Promise<string[]> =>
       (
         await db

@@ -4,6 +4,7 @@
 // (o del futuro) no se acepta: las entradas se guardan 30 días, y una más vieja ya no tendría su
 // fila para impedir que se use dos veces.
 import { offlineWindowHours } from '@ferrebress/shared/contracts/offline-sign-in';
+import { can } from '@ferrebress/shared/contracts/permissions';
 import type { ClosedReason } from '../sessions/rules.ts';
 
 const minute = 60_000;
@@ -28,8 +29,10 @@ export type OfflineReason =
   | 'too-late'
   | 'too-old';
 
-// Hasta el módulo 02, todas las personas activas son Administrador, que tiene el permiso.
-export const canWorkOffline = (user: { active: boolean }): boolean => user.active;
+// Con el permiso «Trabajar sin conexión» (02 · R7.1, 15 · R1.2). Una persona dada de baja no tiene
+// ningún permiso.
+export const canWorkOffline = (person: { permissions: readonly string[] }): boolean =>
+  can(person, 'offline.work');
 
 export type Judged = {
   user: { active: boolean };

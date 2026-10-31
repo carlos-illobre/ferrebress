@@ -118,34 +118,41 @@ function insertWithRoles(
   db: Db,
   user: NewUser,
   roleIds: readonly string[],
-): Promise<User | undefined> {
-  return (db as Kysely<WithRoles>)
-    .with('u', (qb) =>
-      qb
-        .insertInto('users.users')
-        .values({
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          authorized_by: user.authorizedBy,
-        })
-        .onConflict((oc) => oc.column('email').doNothing())
-        .returning(columns),
-    )
-    .with('r', (qb) =>
-      qb
-        .insertInto('users.user_roles')
-        .columns(['user_id', 'role_id'])
-        .expression(
-          qb
-            .selectFrom('u')
-            .select(['u.id', sql<string>`unnest(${roleIds}::uuid[])`.as('role_id')]),
-        )
-        .returning('user_id'),
-    )
-    .selectFrom('u')
-    .selectAll()
-    .executeTakeFirst();
+): Promise<(User & { roleNames: string[] }) | undefined> {
+  return (
+    (db as Kysely<WithRoles>)
+      .with('u', (qb) =>
+        qb
+          .insertInto('users.users')
+          .values({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            authorized_by: user.authorizedBy,
+          })
+          .onConflict((oc) => oc.column('email').doNothing())
+          .returning(columns),
+      )
+      .with('r', (qb) =>
+        qb
+          .insertInto('users.user_roles')
+          .columns(['user_id', 'role_id'])
+          .expression(
+            qb
+              .selectFrom('u')
+              .select(['u.id', sql<string>`unnest(${roleIds}::uuid[])`.as('role_id')]),
+          )
+          .returning('user_id'),
+      )
+      .selectFrom('u')
+      .selectAll()
+      // Los nombres de sus roles, para la auditoría (R6.1).
+      .select(
+        sql<string[]>`array(select name from users.roles where id = any(${roleIds}::uuid[])
+        order by system desc, lower(name))`.as('roleNames'),
+      )
+      .executeTakeFirst()
+  );
 }
 
 // Autorizar y borrar a alguien (R3.3, R3.7).

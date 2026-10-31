@@ -51,7 +51,7 @@ export function registerLinkRoutes(ctx: SignInContext): void {
     const refusedSave = await savePasskey(ctx, c, session, credential);
     if (refusedSave) return refusedSave;
     // Con la huella vinculada, ya puede prender «Trabajar sin conexión» (15 · R1.3).
-    const offline = canWorkOffline({ active: true });
+    const offline = canWorkOffline({ permissions: await ctx.users.permissionsOf(session.userId) });
     return c.json<LinkPasskeyResponse>({ ok: true, offline });
   });
 }

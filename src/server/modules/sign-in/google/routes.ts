@@ -8,6 +8,7 @@ import {
 import type { Context } from 'hono';
 import { byAddress, byAddressAndDevice, readBody } from '../../../platform/guards.ts';
 import { fail, Refused } from '../../../platform/http.ts';
+import type { GoogleMatch } from '../../users/index.ts';
 import type { SignInContext } from '../context.ts';
 import { isPhone } from '../device.ts';
 import { ownerOf, withOffline } from '../offline/phone-owner.ts';
@@ -68,6 +69,28 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
   );
 }
 
+// Un pase bueno de alguien que no está autorizado: cuenta como intento fallido de esa cuenta.
+function notAuthorized(
+  ctx: SignInContext,
+  c: Context,
+  failed: {
+    identity: { subject: string; email: string };
+    match: Extract<GoogleMatch, { kind: 'not-authorized' }>;
+    accountKey: string;
+  },
+) {
+  const { identity, match, accountKey } = failed;
+  ctx.platform.limiter.hit(accountKey, limits.failedPerAccount);
+  const data = {
+    method: 'google',
+    reason: match.reason,
+    subject: identity.subject,
+    ...(match.user && { storedSubject: match.user.googleSubject }),
+  };
+  ctx.record(c, 'sign-in.rejected', { email: identity.email, data });
+  return fail(c, 403, 'not-authorized', { email: identity.email });
+}
+
 async function signInWithGoogle(
   ctx: SignInContext,
   c: Context,
@@ -90,18 +113,10 @@ async function signInWithGoogle(
     return ctx.throttle(c, [accountKey], limits.failedPerAccount) as Response;
   }
   const match = await ctx.users.matchGoogle(identity.subject, identity.email, identity.name);
-  if (match.kind === 'not-authorized') {
-    ctx.platform.limiter.hit(accountKey, limits.failedPerAccount);
-    const data = {
-      method: 'google',
-      reason: match.reason,
-      subject: identity.subject,
-      ...(match.user && { storedSubject: match.user.googleSubject }),
-    };
-    ctx.record(c, 'sign-in.rejected', { email: identity.email, data });
-    return fail(c, 403, 'not-authorized', { email: identity.email });
-  }
-  ctx.people.update(match.user);
+  if (match.kind === 'not-authorized')
+    return notAuthorized(ctx, c, { identity, match, accountKey });
+  // Entrar con Google puede traer otro nombre: lo de antes se olvida.
+  ctx.people.forget([match.user.id]);
   const session = await openSession(ctx, c, {
     userId: match.user.id,
     proofPublicKey,
@@ -115,9 +130,10 @@ async function signInWithGoogle(
   const owner = phone ? await ownerOf(ctx, session.deviceId) : undefined;
   const offerPasskey = phone && !owner;
   // Con su propia huella en este celular, puede prender «Trabajar sin conexión» (15 · R1).
-  const offline = owner === match.user.id && canWorkOffline(match.user);
+  const person = await ctx.people.of(match.user.id, match.user);
+  const offline = owner === match.user.id && canWorkOffline(person);
   return c.json<SignInResponse>({
-    person: { ...ctx.person(match.user), ...(offline && { offline: true }) },
+    person: { ...person, ...(offline && { offline: true }) },
     sessionId: session.id,
     offerPasskey,
   });

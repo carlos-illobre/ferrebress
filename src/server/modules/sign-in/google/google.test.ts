@@ -1,3 +1,4 @@
+import { permissionIds } from '@ferrebress/shared/contracts/permissions';
 import { sql } from 'kysely';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
@@ -27,7 +28,14 @@ describe('entrar con Google', () => {
     });
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
-      person: { name: 'Ana Gómez', email: 'admin@example.com', role: 'Administrador' },
+      person: {
+        name: 'Ana Gómez',
+        email: 'admin@example.com',
+        roles: [{ id: expect.any(String), name: 'Administrador' }],
+        permissions: [...permissionIds].sort(),
+        rolesChangedBy: null,
+        rolesChangedAt: null,
+      },
       offerPasskey: false,
     });
     expect(response.cookie).toMatch(

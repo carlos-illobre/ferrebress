@@ -535,8 +535,8 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   | `/api/start` con la sesión ya en memoria | 0 (quién es la persona también queda en memoria) |
   | `/api/sign-in/google/nonce` | 0 |
   | El primero de una sesión después de reiniciar | 2 (la sesión y la persona); sin prueba, porque la prueba no reinicia el servidor |
-  | Entrar con Google | 3 (buscar la cuenta, crear la sesión y anotar la entrada, 02 · R3.2); la primera vez, una más para atar `google_subject`; en el celular, una más, porque mira si ya tiene huella para no ofrecerla |
-  | Entrar con la huella | 5 (la credencial, su contador, la persona, crear la sesión y anotar la entrada) |
+  | Entrar con Google | 4 (buscar la cuenta, crear la sesión, anotar la entrada, 02 · R3.2, y sus roles y permisos, 02 · R7.1); la primera vez, una más para atar `google_subject`; en el celular, una más, porque mira si ya tiene huella para no ofrecerla |
+  | Entrar con la huella | 5 (la credencial, su contador, la persona, crear la sesión y anotar la entrada); sus roles y permisos, si no estaban en memoria, una más |
   | Leer un código | hasta 3 (la sesión, si el celular tiene huella, la persona para vincularla) |
   | Aprobar un código | hasta 5 (las de la huella y la sesión de la computadora) |
 

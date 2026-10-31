@@ -29,7 +29,6 @@ export async function withOffline(
   { person, deviceId }: { person: Person; deviceId: string },
 ): Promise<Person> {
   if (!isPhone(c.req.header('User-Agent'), c.req.header('Sec-CH-UA-Mobile'))) return person;
-  // Con la sesión abierta, la persona está activa.
-  const can = (await ownerOf(ctx, deviceId)) === person.userId && canWorkOffline({ active: true });
+  const can = (await ownerOf(ctx, deviceId)) === person.userId && canWorkOffline(person);
   return can ? { ...person, offline: true } : person;
 }

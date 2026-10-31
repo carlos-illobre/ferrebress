@@ -23,7 +23,10 @@ export type Refusal =
   | 'bad-request';
 
 // `unchanged`: ya estaba así (dada de alta o de baja); se contesta cómo está, sin anotar nada.
-export type Outcome = { user: User; unchanged?: true } | { refused: Refusal; user?: User };
+// `audit`: lo que se suma a su línea de la auditoría.
+export type Outcome =
+  | { user: User; unchanged?: true; audit?: Record<string, unknown> }
+  | { refused: Refusal; user?: User };
 
 // Lo que no se tocó: o no existe, o cambió (y se devuelve como está), o con la misma versión no
 // hacía falta (`same`: ya estaba dada de baja o de alta) o ya entró.
@@ -88,7 +91,9 @@ async function authorize(
   };
   try {
     const inserted = await usersData(platform.db as Kysely<UsersTables>).insert(user, given.roles);
-    return inserted ? { user: { ...inserted, roleIds: given.roles } } : { refused: 'email-taken' };
+    if (!inserted) return { refused: 'email-taken' };
+    const { roleNames, ...saved } = inserted;
+    return { user: { ...saved, roleIds: given.roles }, audit: { roles: roleNames } };
   } catch (error) {
     if ((error as { code?: string }).code === '23503') return { refused: 'bad-request' };
     throw error;

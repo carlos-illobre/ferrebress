@@ -96,7 +96,7 @@ async function judge(ctx: SignInContext, c: Context, confirming: Confirming, pas
   const active = user?.active === true;
   const reason = rejectionOf({
     user: { active },
-    allowed: active && canWorkOffline({ active }),
+    allowed: active && canWorkOffline({ permissions: await ctx.users.permissionsOf(body.userId) }),
     lastSession,
     now,
     signedAt: new Date(body.signedAt),
@@ -144,7 +144,7 @@ async function finish(
   });
   await data.linkSession(row.id, session.id);
   // Confirmada, la persona existe y está activa, con su huella en este celular y el permiso.
-  const person = { ...ctx.person(user as User), offline: true };
+  const person = { ...(await ctx.people.of(row.userId, user as User)), offline: true };
   return c.json({ person, sessionId: session.id, offerPasskey: false });
 }
 

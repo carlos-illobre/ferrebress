@@ -466,7 +466,9 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
     baja pasa a § 19, con el bloqueo y el primer conteo en una sola consulta.
   - Ver las sesiones y los celulares pide `users.view`; cerrar, cerrar todas, cortar y «Se perdió un
     celular», `users.cut` y R7.11 (un celular de alguien con más permisos no aparece en «Se perdió un
-    celular»).
+    celular»): una consulta más cada una, los permisos de esas personas en una sola.
+  - Entrar con Google o con la huella y `/api/start` sin la persona en memoria suman sus roles, sus
+    permisos y quién le cambió los roles, en una consulta.
 - **Sin el permiso:** `403 { error: 'forbidden', permission }`, sin cerrar la sesión (R7.6).
 - **Lo que da acceso pide confirmar** (R3.8, § 13): crear un rol, agregarle permisos y darle un rol a
   alguien (también al autorizar) dan `403 confirm-first` si Google o la huella son de hace más de 5
@@ -535,8 +537,8 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
   (§ 18). Quien lo tiene puede darse todo: es lo esperado, y Carlos lo sabe (paso 1).
 - **Nadie sobre quien tiene más** (R7.11): cambiar el correo de alguien con más permisos que todavía
   no entró era una forma de darse acceso (revisión de seguridad, 23); se rechaza `outranked`.
-- **Nunca sin quien administre:** § 19, en el servidor; borrar también pasa por ahí, y solo cuenta
-  quien ya entró (revisión de seguridad, 24).
+- **Nunca sin quien administre:** § 19, en el servidor, y solo cuenta quien ya entró (revisión de
+  seguridad, 24). Borrar no puede dejar sin nadie: solo se borra a quien nunca entró (§ 18).
 - **Lo que ve cualquiera con sesión:** `GET /api/permissions/:id/holders` da solo nombres de personas
   activas, nunca correos. El id del permiso se valida contra la lista.
 - **La auditoría** (R6.1): `role.created`, `role.changed` (con lo que había y lo que quedó, con los

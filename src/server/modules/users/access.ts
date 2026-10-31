@@ -2,7 +2,11 @@
 // activa (la unión de sus roles), guardados en memoria hasta que cambian; si una persona tiene más
 // que otra (R7.11); los roles de cada una para las pastillas (R3.1); quiénes tienen un permiso
 // («Sin permiso», R7.7); y, al arrancar, los permisos nuevos que se le suman al Administrador (R7.4).
-import { isPermission, permissionIds } from '@ferrebress/shared/contracts/permissions';
+import {
+  isPermission,
+  type PermissionId,
+  permissionIds,
+} from '@ferrebress/shared/contracts/permissions';
 import type { HoldersResponse, RoleSummary } from '@ferrebress/shared/contracts/roles';
 import type { Kysely } from 'kysely';
 import { createGuardedMemory } from '../../platform/memory.ts';
@@ -13,8 +17,8 @@ import { displayName } from './rules.ts';
 
 export function createAccess(platform: Platform) {
   const data = () => rolesData(platform.db as Kysely<RolesTables>);
-  const memory = createGuardedMemory<string, string[]>();
-  const permissionsOf = (userId: string): Promise<string[]> =>
+  const memory = createGuardedMemory<string, PermissionId[]>();
+  const permissionsOf = (userId: string): Promise<PermissionId[]> =>
     memory.load(userId, async () =>
       (await data().permissionsOf(userId, true)).filter(isPermission),
     );
@@ -38,6 +42,9 @@ export function createAccess(platform: Platform) {
       );
     },
 
+    outranking: async (asking: string, userIds: readonly string[]) =>
+      outranking(await permissionsOf(asking), await data().permissionsOfMany(userIds)),
+
     rolesForList: () => rolesForList(data()),
     holders: (permission: string, names: Names) => holdersOf(data(), permission, names),
 
@@ -57,6 +64,11 @@ export function createAccess(platform: Platform) {
 
 type Data = ReturnType<typeof rolesData>;
 type Names = Map<string, Parameters<typeof displayName>[0]>;
+
+// De esas personas, las que tienen algún permiso que no está en `mine` (R7.11).
+function outranking(mine: readonly string[], rows: { userId: string; permission: string }[]) {
+  return new Set(rows.filter((row) => !mine.includes(row.permission)).map((row) => row.userId));
+}
 
 // Los roles para las pastillas y el filtro (R3.1).
 async function rolesForList(data: Data): Promise<RoleSummary[]> {

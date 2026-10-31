@@ -74,7 +74,8 @@ function registerRoutes(ctx: SignInContext) {
 }
 
 // La baja cierra sus sesiones y borra sus huellas en la misma transacción; la memoria se pone al día
-// después de confirmarla. Un nombre nuevo hace olvidar el viejo (02, § 6).
+// después de confirmarla. Un nombre nuevo hace olvidar el viejo (02, § 6), y un cambio de roles, lo
+// que podía (02, § 17).
 function listenToUsers(ctx: SignInContext) {
   const { events } = ctx.platform;
   events.on('user.deactivated', async ({ userId }, trx) => {
@@ -82,15 +83,22 @@ function listenToUsers(ctx: SignInContext) {
     const phones = await ctx.passkeys.removeForUser(trx as never, userId);
     return () => {
       closed();
-      ctx.people.forget(userId);
+      ctx.people.forget([userId]);
       for (const deviceId of phones) ctx.phoneOwners.delete(deviceId);
     };
   });
+  // Cambiaron sus roles o los permisos de un rol: la persona de /api/start se arma de nuevo (02 · R7.6).
+  events.on(
+    'users.permissions-changed',
+    async ({ userIds }) =>
+      () =>
+        ctx.people.forget(userIds),
+  );
   events.on(
     'user.renamed',
     async ({ userId }) =>
       () =>
-        ctx.people.forget(userId),
+        ctx.people.forget([userId]),
   );
 }
 

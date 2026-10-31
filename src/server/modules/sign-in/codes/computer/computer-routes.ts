@@ -79,7 +79,8 @@ async function claim(ctx: SignInContext, c: Context) {
     approvedBy: (permit as { approvedBy: string }).approvedBy,
     data: { method: 'qr' },
   });
-  return c.json({ person: ctx.person(user), sessionId: session.id, offerPasskey: false });
+  const person = await ctx.people.of(user.id, user);
+  return c.json({ person, sessionId: session.id, offerPasskey: false });
 }
 
 type Stream = Parameters<Parameters<typeof streamSSE>[1]>[0];

@@ -114,7 +114,10 @@ function answer({ platform, guards }: Route, c: Context, outcome: Outcome, type:
   const asking = sessionOf(c).userId;
   if (!('refused' in outcome)) {
     if (!outcome.unchanged)
-      guards.record(c, type, { userId: asking, data: { targetUserId: outcome.user.id } });
+      guards.record(c, type, {
+        userId: asking,
+        data: { targetUserId: outcome.user.id, ...outcome.audit },
+      });
     return c.json<PersonResponse>({ person: rowOf(outcome.user, asking) });
   }
   const target = c.req.param('id') ?? 'new';

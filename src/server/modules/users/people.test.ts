@@ -218,6 +218,11 @@ describe('las personas, desde Usuarios', () => {
         'users.rejected',
       ]),
     );
+    // Autorizar anota también sus roles, con nombre (diseño de 02, § 21).
+    expect(lines.find((line) => line.type === 'user.authorized')?.data).toEqual({
+      targetUserId: expect.any(String),
+      roles: ['Administrador'],
+    });
     expect(lines.find((line) => line.type === 'user.deactivated')).toMatchObject({
       userId: adminId,
       data: { targetUserId: expect.any(String) },

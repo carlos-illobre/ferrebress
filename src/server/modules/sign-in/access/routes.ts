@@ -11,7 +11,7 @@ import {
   cutBody,
   type LostPhonesResponse,
 } from '@ferrebress/shared/contracts/users';
-import type { Context } from 'hono';
+import type { Context, MiddlewareHandler } from 'hono';
 import { bySchema, readBody } from '../../../platform/guards.ts';
 import { fail, uuidParams } from '../../../platform/http.ts';
 import { sessionOf } from '../../../platform/session.ts';
@@ -27,29 +27,73 @@ const time = (at: Date | null) => (at ? at.getTime() : null);
 type Data = ReturnType<typeof accessData>;
 
 export function registerAccessRoutes(ctx: SignInContext) {
-  const { http, sessions } = ctx.platform;
+  const { http, sessions, permissions } = ctx.platform;
   const data = accessData(ctx.platform.db as never);
   const limited = ctx.limit((c) => [`users:session:${sessionOf(c).id}`], changes);
+  const cuts = permissions.require('users.cut');
+  // Cortar: «Cortar sesiones y huellas», y no a quien tiene más (R7.11).
+  const notOutranked: MiddlewareHandler = async (c, next) =>
+    (await ctx.users.outranks(sessionOf(c).userId, c.req.param('id') as string))
+      ? refuse(ctx, c, 403, 'outranked')
+      : await next();
 
   const ids = (...names: string[]) => uuidParams('id', ...names);
-  http.get('/api/users/:id/access', sessions.require, ids(), (c) => access(ctx, data, c));
+  registerCutting(ctx, data, { ids, cuts, notOutranked, limited });
+  http.get('/api/lost-phones', sessions.require, cuts, async (c) =>
+    c.json<LostPhonesResponse>(await lostPhones(ctx, data, sessionOf(c), ctx.platform.clock.now())),
+  );
+  http.get(
+    '/api/users/:id/access',
+    sessions.require,
+    permissions.require('users.view'),
+    ids(),
+    (c) => access(ctx, data, c),
+  );
+}
+
+type Steps = {
+  ids: (...names: string[]) => MiddlewareHandler;
+  cuts: MiddlewareHandler;
+  notOutranked: MiddlewareHandler;
+  limited: MiddlewareHandler;
+};
+
+// «Cerrar», «Cerrar todas», «Quitar» y «Cortar».
+function registerCutting(
+  ctx: SignInContext,
+  data: Data,
+  { ids, cuts, notOutranked, limited }: Steps,
+) {
+  const { http, sessions } = ctx.platform;
   http.post(
     '/api/users/:id/sessions/:sessionId/close',
     sessions.require,
+    cuts,
     ids('sessionId'),
+    notOutranked,
     limited,
     (c) => closeSessions(ctx, data, c, c.req.param('sessionId')),
   );
-  http.post('/api/users/:id/sessions/close', sessions.require, ids(), limited, (c) =>
-    closeSessions(ctx, data, c, null),
+  http.post(
+    '/api/users/:id/sessions/close',
+    sessions.require,
+    cuts,
+    ids(),
+    notOutranked,
+    limited,
+    (c) => closeSessions(ctx, data, c, null),
   );
   const cutting = readBody(bySchema(cutBody));
   const cutRoute = '/api/users/:id/phones/:phoneId/cut';
-  http.post(cutRoute, sessions.require, ids('phoneId'), limited, cutting.step, (c) =>
-    cut(ctx, data, c, cutting.of(c).from),
-  );
-  http.get('/api/lost-phones', sessions.require, async (c) =>
-    c.json<LostPhonesResponse>(await lostPhones(ctx, data, sessionOf(c), ctx.platform.clock.now())),
+  http.post(
+    cutRoute,
+    sessions.require,
+    cuts,
+    ids('phoneId'),
+    notOutranked,
+    limited,
+    cutting.step,
+    (c) => cut(ctx, data, c, cutting.of(c).from),
   );
 }
 
@@ -78,7 +122,7 @@ async function access(ctx: SignInContext, data: Data, c: Context) {
 }
 
 // Un rechazo, anotado una vez por minuto por motivo y persona, como los de las personas (R6.1).
-function refuse(ctx: SignInContext, c: Context, status: 404 | 409, code: ErrorCode) {
+function refuse(ctx: SignInContext, c: Context, status: 403 | 404 | 409, code: ErrorCode) {
   const target = c.req.param('id') as string;
   const key = `audit:access:${code}:${target}`;
   if (ctx.platform.limiter.hit(key, signInSettings.limits.throttledAudit).allowed)
@@ -120,7 +164,7 @@ async function cut(ctx: SignInContext, data: Data, c: Context, from: 'card' | 'l
   const done = await data.cutPhone(userId, phone.deviceId, ctx.platform.clock.now());
   ctx.store.ended(done.sessionIds, userId, 'revoked');
   ctx.phoneOwners.delete(phone.deviceId);
-  ctx.people.forget(userId);
+  ctx.people.forget([userId]);
   const response = { sessions: done.sessionIds.length, passkey: done.passkey };
   const type = from === 'card' ? 'passkey.removed' : 'phone.cut';
   ctx.record(c, type, { userId: asking.userId, data: { targetUserId: userId, ...response } });

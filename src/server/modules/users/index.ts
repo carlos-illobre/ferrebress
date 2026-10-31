@@ -2,6 +2,7 @@
 // usan de users. Publica `user.deactivated` y `user.renamed`, así sign-in cierra las sesiones y
 // olvida lo que recordaba sin que users lo conozca. En las pruebas de punta a punta, el arranque
 // carga a la primera persona (02, § 7).
+import { isPermission, type PermissionId } from '@ferrebress/shared/contracts/permissions';
 import type { Kysely } from 'kysely';
 import type { Platform, ServerModule } from '../../platform/modules.ts';
 import { type Access, createAccess } from './access.ts';
@@ -12,6 +13,7 @@ import { addPeople } from './migrations/002-people.ts';
 import { addRoles } from './migrations/003-roles.ts';
 import { createPeople, type People } from './people.ts';
 import { createRoleChanges } from './role-changes.ts';
+import { type RolesTables, rolesData } from './roles-data.ts';
 import { registerRoleRoutes } from './roles-routes.ts';
 import { type AccessCounts, registerPeopleRoutes } from './routes.ts';
 import {
@@ -62,14 +64,30 @@ export function createUsersModule({ accessCounts }: { accessCounts: AccessCounts
     },
   };
 
-  const users = facade(data, () => access);
+  const users = facade(
+    () => platform,
+    data,
+    () => access,
+  );
 
   // Lo que se hace desde Usuarios; existe después de registrar el módulo.
   return { module, users, people: () => people };
 }
 
+// Los roles de una persona como los muestra la aplicación (diseño de 02, § 20).
+export type Profile = {
+  roles: { id: string; name: string }[];
+  permissions: PermissionId[];
+  rolesChangedBy: string | null;
+  rolesChangedAt: number | null;
+};
+
 // Lo que usan los otros módulos.
-function facade(data: () => ReturnType<typeof usersData>, access: () => Access) {
+function facade(
+  platform: () => Platform,
+  data: () => ReturnType<typeof usersData>,
+  access: () => Access,
+) {
   return {
     findById: (id: string) => data().findById(id),
     findByIds: (ids: string[]) => data().findByIds(ids),
@@ -97,6 +115,21 @@ function facade(data: () => ReturnType<typeof usersData>, access: () => Access) 
     // que `asking` no tiene (R7.11).
     permissionsOf: (id: string) => access().permissionsOf(id),
     outranks: (asking: string, target: string) => access().outranks(asking, target),
+    outranking: (asking: string, userIds: readonly string[]) =>
+      access().outranking(asking, userIds),
+
+    // Sus roles con nombre, sus permisos y quién le cambió los roles por última vez y cuándo (R7.8).
+    async profileOf(user: User): Promise<Profile> {
+      const { roles, permissions, changer } = await rolesData(
+        platform().db as Kysely<RolesTables>,
+      ).profileOf(user.id, user.rolesChangedBy);
+      return {
+        roles,
+        permissions: permissions.filter(isPermission),
+        rolesChangedBy: changer && displayName(changer),
+        rolesChangedAt: user.rolesChangedAt?.getTime() ?? null,
+      };
+    },
   };
 }
 

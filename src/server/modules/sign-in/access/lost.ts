@@ -40,15 +40,18 @@ export async function lostPhones(
       lastUsedAt: newer(phone.lastUsedAt, s.lastUsedAt),
     });
   }
+  // Ni el que se está usando, ni los de quien tiene más permisos (R7.11).
   const mine = (phone: Phone) => phone.deviceId === asking.deviceId;
+  const users = [...new Set([...phones.values()].map((p) => p.userId))];
+  const above = await ctx.users.outranking(asking.userId, users);
   const byUser = Map.groupBy(
-    [...phones.values()].filter((p) => !mine(p)),
+    [...phones.values()].filter((p) => !mine(p) && !above.has(p.userId)),
     (p) => p.userId,
   );
-  const names = await ctx.people.ofMany([...byUser.keys()]);
+  const names = await ctx.people.namesOf([...byUser.keys()]);
   const people = [...byUser].map(([userId, list]) => ({
     userId,
-    displayName: names.get(userId)?.name as string,
+    displayName: names.get(userId) as string,
     self: userId === asking.userId,
     phones: list.map(({ userId: _, deviceId: __, ...phone }) => phone),
   }));

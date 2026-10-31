@@ -62,6 +62,22 @@ function inspect(server: SignInServer) {
   return { rowOf, auditOf };
 }
 
+// Le deja a la persona un solo rol nuevo, con esos permisos, como si se lo cambiara Usuarios: la
+// memoria se entera con el mismo aviso (02, § 17).
+async function onlyWith(server: SignInServer, userId: string, permissions: string[]) {
+  const { db, events } = server.platform;
+  const after = await db.transaction().execute(async (trx) => {
+    const role = randomUUID();
+    await sql`insert into users.roles (id, name) values (${role}, ${`Rol ${role}`})`.execute(trx);
+    for (const permission of permissions)
+      await sql`insert into users.role_permissions values (${role}, ${permission})`.execute(trx);
+    await sql`delete from users.user_roles where user_id = ${userId}`.execute(trx);
+    await sql`insert into users.user_roles values (${userId}, ${role})`.execute(trx);
+    return events.publish('users.permissions-changed', { userIds: [userId] }, trx);
+  });
+  for (const then of after) then();
+}
+
 export async function createOfflineKit() {
   const clock = { now: new Date('2026-10-29T08:00:00Z').getTime() };
   const server: SignInServer = await createSignInServer({ now: () => new Date(clock.now) });
@@ -100,5 +116,9 @@ export async function createOfflineKit() {
     linked.phone.request('/api/sign-in/offline', body);
   const offlineEntry = (linked: Signer, change = {}, signed: Signed = {}) =>
     signEntry(clock.now, linked, change, signed);
-  return { clock, server, newAccount, linkedPhone, offlineEntry, send, ...inspect(server) };
+  return {
+    ...{ clock, server, newAccount, linkedPhone, offlineEntry, send },
+    onlyWith: (userId: string, permissions: string[]) => onlyWith(server, userId, permissions),
+    ...inspect(server),
+  };
 }

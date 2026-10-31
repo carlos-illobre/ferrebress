@@ -63,6 +63,7 @@ describe('las consultas de cada ruta de Usuarios', () => {
     });
     counts.close = await count(`/api/users/${linked.userId}/sessions/${sessions[0].id}/close`, {});
     counts.closeAll = await count(`/api/users/${linked.userId}/sessions/close`, {});
-    expect(counts).toEqual({ access: 2, lost: 3, lostAgain: 2, cut: 3, close: 2, closeAll: 1 });
+    // Cortar y «Se perdió un celular» suman la de R7.11: los permisos de esas personas.
+    expect(counts).toEqual({ access: 2, lost: 4, lostAgain: 3, cut: 4, close: 3, closeAll: 2 });
   });
 });
