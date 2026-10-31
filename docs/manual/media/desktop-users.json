@@ -34,6 +34,18 @@
     "deactivate": [
       75.9,
       94.7
+    ],
+    "filters": [
+      53.1,
+      32.9
+    ],
+    "person": [
+      42.7,
+      56.3
+    ],
+    "sessions": [
+      76.2,
+      43.2
     ]
   },
   "hash": "ffafc414064edb101f9c7d0a129cc51bce94d33b71ea399aff332ba26331d006",

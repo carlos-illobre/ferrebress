@@ -11,7 +11,7 @@
 - Aclaración: Para que una persona nueva pueda entrar.
 
 1. En el menú de la izquierda, tocá Más y elegí Usuarios. También se abre con Alt S.
-   Ícono: users
+   Captura: desktop-more-users · users · Usuarios
 2. Tocá «Autorizar a alguien», arriba a la derecha.
    Captura: desktop-users · authorize · Autorizar a alguien
 3. Escribí su nombre y su correo de Google. El nombre puede quedar vacío: se ve el de Google cuando entre.
@@ -32,9 +32,9 @@
 1. Escribí parte de su nombre o de su correo en el buscador. También se abre con la tecla «/».
    Captura: desktop-users · search · Buscador
 2. Al lado están los filtros: todas, activas, las que todavía no entraron y las dadas de baja.
-   Ícono: filter
+   Captura: desktop-users · filters · Filtros
 3. Tocá a la persona. Su tarjeta aparece a la derecha.
-   Ícono: user-round
+   Captura: desktop-users · person · La persona
 
 ## Cambiar el nombre o el correo
 
@@ -61,7 +61,7 @@
 - Aclaración: Para sacar a alguien de un dispositivo sin darle de baja.
 
 1. En su tarjeta están sus sesiones abiertas: en qué dispositivo, cómo entró y cuándo la usó por última vez.
-   Ícono: monitor
+   Captura: desktop-users · sessions · Sesiones abiertas
 2. «Cerrar» cierra una sesión. Ese dispositivo vuelve a la entrada.
    Captura: desktop-users · close · Cerrar
 3. «Cerrar todas» las cierra de una vez, y te pregunta antes. Es lo que se hace si no sabés cuál es.
@@ -116,10 +116,8 @@
    Captura: phone-more-users · users · Usuarios
 2. Tocá «Autorizar a alguien», abajo.
    Captura: phone-users · authorize · Autorizar a alguien
-3. Escribí su correo de Google y, si querés, su nombre. Tocá «Autorizar».
+3. Escribí su correo de Google y, si querés, su nombre. Tocá «Autorizar». Después avisale que ya puede entrar: Ferrebress no le manda ningún correo.
    Captura: phone-users-authorize · yes · Autorizar
-4. Avisale que ya puede entrar: Ferrebress no le manda ningún correo.
-   Ícono: send
 
 > Si hace más de 5 minutos que entraste, te pide la huella o Google antes de autorizar.
 
@@ -145,7 +143,7 @@
 - Ícono: monitor
 
 1. Tocá a la persona. Se abre su tarjeta.
-   Ícono: user-round
+   Captura: phone-users · person · La persona
 2. «Cortar sesión» cierra todas sus sesiones, y te pregunta antes.
    Captura: phone-users-card · cut · Cortar sesión
 3. «Quitar huella» le saca la huella a su celular y cierra su sesión ahí.
@@ -162,10 +160,10 @@
 
 1. En Usuarios, tocá «Se perdió un celular», abajo.
    Captura: phone-users · lost · Se perdió un celular
-2. Elegí de quién es y cuál de sus celulares.
-   Ícono: user-round
+2. Elegí de quién es y cuál de sus celulares. Si tiene uno solo, ya está elegido.
+   Captura: phone-users-lost · phone · El celular
 3. Tocá «Cortar». Se cierra su sesión y se le quita la huella, sin preguntar.
-   Ícono: circle-check
+   Captura: phone-users-lost · cut · Cortar
 
 ## Dar de baja y de alta
 
@@ -174,8 +172,8 @@
 - Ícono: ban
 
 1. En su tarjeta, bajá hasta el final y tocá «Dar de baja».
-   Ícono: ban
+   Captura: phone-users-foot · deactivate · Dar de baja
 2. Te dice qué va a pasar. Tocá «Dar de baja» para confirmar.
    Captura: phone-users-deactivate · yes · Confirmar
 3. Para que vuelva, tocá su nombre en «Dadas de baja» y «Dar de alta».
-   Ícono: refresh-cw
+   Captura: phone-users-off · activate · Dar de alta

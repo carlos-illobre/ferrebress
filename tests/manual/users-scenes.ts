@@ -72,35 +72,35 @@ async function answerPeople(page: Page | BrowserContext, _person: Person): Promi
   await page.route('**/api/lost-phones', answer(lost));
 }
 
-const shown = (locator: Locator) => locator.filter({ visible: true }).first();
-const button = (name: string | RegExp) => (page: Page) =>
+export const shown = (locator: Locator) => locator.filter({ visible: true }).first();
+export const button = (name: string | RegExp) => (page: Page) =>
   shown(page.getByRole('button', { name, exact: typeof name === 'string' }));
-const inDialog = (name: string) => (page: Page) =>
+export const inDialog = (name: string) => (page: Page) =>
   page.getByRole('alertdialog').getByRole('button', { name, exact: true });
 
 // El diálogo enfoca su caja (o su botón) y apaga lo de atrás después de dibujarse: hasta que lo
 // hizo, lo que se escribe o se toca puede quedar con el foco en otro lado.
-const opened = (page: Page) => expect(page.locator('#app')).toHaveAttribute('inert', '');
+export const opened = (page: Page) => expect(page.locator('#app')).toHaveAttribute('inert', '');
 
-async function users(page: Page): Promise<void> {
+export async function users(page: Page): Promise<void> {
   await signedIn(page, ana, answerPeople);
   await shown(page.locator('.users-row')).waitFor();
   // En la computadora se abre sola la tarjeta de la primera: que termine de cargar antes de seguir.
   await expect(page.locator('.users-card [aria-busy]')).toHaveCount(0);
 }
 
-async function choose(page: Page, name: string): Promise<void> {
+export async function choose(page: Page, name: string): Promise<void> {
   await users(page);
   // Sin esperar a que quede quieta: con el reloj fijo, la lista que se desliza nunca termina.
   await page.locator('.users-row', { hasText: name }).dispatchEvent('click');
 }
 
-async function luciaCard(page: Page): Promise<void> {
+export async function luciaCard(page: Page): Promise<void> {
   await choose(page, 'Lucía Fernández');
   await expect(shown(page.getByText('Chrome en Windows'))).toBeVisible();
 }
 
-async function authorizeFilled(page: Page): Promise<void> {
+export async function authorizeFilled(page: Page): Promise<void> {
   await users(page);
   await button('Autorizar a alguien')(page).click();
   await opened(page);
@@ -114,14 +114,30 @@ async function authorizeFilled(page: Page): Promise<void> {
   await page.addStyleTag({ content: '.dialog { scrollbar-width: none; }' });
 }
 
-async function deactivating(page: Page): Promise<void> {
+export async function deactivating(page: Page): Promise<void> {
   await luciaCard(page);
   await button('Dar de baja')(page).click();
   await opened(page);
   await expect(page.getByRole('alertdialog')).toBeVisible();
 }
 
-const authorizePoints = {
+export async function lostChosen(page: Page): Promise<void> {
+  await users(page);
+  await button('Se perdió un celular')(page).click();
+  await opened(page);
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: /Lucía Fernández/ })
+    .click();
+}
+
+export const lostPoints = {
+  phone: (page: Page) =>
+    page.getByRole('alertdialog').getByRole('button', { name: /Chrome en Android/ }),
+  cut: inDialog('Cortar'),
+};
+
+export const authorizePoints = {
   email: (page: Page) => page.getByRole('alertdialog').getByLabel('Correo de Google'),
   yes: inDialog('Autorizar'),
 };
@@ -140,7 +156,19 @@ export const userScenes: Scene[] = [
       'close-all': button('Cerrar todas'),
       remove: button('Quitar'),
       deactivate: button('Dar de baja'),
+      filters: (page) => shown(page.locator('.users-chips')),
+      person: (page) => page.locator('.users-row', { hasText: 'Lucía Fernández' }),
+      sessions: (page) => shown(page.locator('#users-sessions h3')),
     },
+  },
+  {
+    name: 'desktop-more-users',
+    device: 'computer',
+    prepare: async (page) => {
+      await users(page);
+      await page.getByRole('button', { name: /^Más/ }).first().click();
+    },
+    points: { users: button(/^Usuarios/) },
   },
   {
     name: 'desktop-users-authorize',
@@ -151,20 +179,8 @@ export const userScenes: Scene[] = [
   {
     name: 'desktop-users-lost',
     device: 'computer',
-    prepare: async (page) => {
-      await users(page);
-      await button('Se perdió un celular')(page).click();
-      await opened(page);
-      await page
-        .getByRole('alertdialog')
-        .getByRole('button', { name: /Lucía Fernández/ })
-        .click();
-    },
-    points: {
-      phone: (page) =>
-        page.getByRole('alertdialog').getByRole('button', { name: /Chrome en Android/ }),
-      cut: inDialog('Cortar'),
-    },
+    prepare: lostChosen,
+    points: lostPoints,
   },
   {
     name: 'desktop-users-never',
@@ -183,60 +199,5 @@ export const userScenes: Scene[] = [
     device: 'computer',
     prepare: (page) => choose(page, 'Sofía Blanco'),
     points: { activate: button('Dar de alta') },
-  },
-  {
-    name: 'phone-more-users',
-    device: 'phone',
-    prepare: async (page) => {
-      await users(page);
-      await page.getByRole('button', { name: 'Más', exact: true }).click();
-    },
-    points: { users: button(/^Usuarios/) },
-  },
-  {
-    name: 'phone-users',
-    device: 'phone',
-    prepare: users,
-    points: {
-      search: button('Buscar usuario'),
-      authorize: button('Autorizar a alguien'),
-      lost: button('Se perdió un celular'),
-    },
-  },
-  {
-    name: 'phone-users-authorize',
-    device: 'phone',
-    prepare: authorizeFilled,
-    points: authorizePoints,
-  },
-  {
-    name: 'phone-users-search',
-    device: 'phone',
-    prepare: async (page) => {
-      await users(page);
-      await button('Buscar usuario')(page).click();
-      await opened(page);
-      await page.getByRole('alertdialog').getByRole('searchbox').fill('luc');
-    },
-    points: {
-      box: (page) => page.getByRole('alertdialog').getByRole('searchbox'),
-      chips: (page) => page.getByRole('alertdialog').locator('.users-chips'),
-    },
-  },
-  {
-    name: 'phone-users-card',
-    device: 'phone',
-    prepare: luciaCard,
-    points: {
-      cut: button('Cortar sesión'),
-      passkey: button('Quitar huella'),
-      close: button('Cerrar'),
-    },
-  },
-  {
-    name: 'phone-users-deactivate',
-    device: 'phone',
-    prepare: deactivating,
-    points: { yes: inDialog('Dar de baja') },
   },
 ];
