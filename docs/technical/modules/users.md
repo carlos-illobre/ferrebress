@@ -2,7 +2,7 @@
 
 Cómo se construye el capítulo [02 · Personas](../../chapters/02-users/rules.md). Las secciones 1 a 13
 son la etapa a (personas y sesiones), **aprobada por Carlos**; las 14 a 24, la etapa b (roles y
-permisos), **corregida con sus dos revisiones, para que la apruebe Carlos**. Las
+permisos), corregida con sus dos revisiones y **aprobada por Carlos**, con la prueba de punta a punta. Las
 revisiones independientes están en [users-design-review.md](users-design-review.md) y
 [users-security-review.md](users-security-review.md); este diseño ya las incorpora.
 
@@ -567,7 +567,7 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 | E58 | De las rutas: cambiar el correo, dar de baja o de alta y cortar a alguien con más permisos dan `outranked`; de la pantalla, los botones no aparecen |
 | E60 | De las rutas y de la pantalla: la baja conserva los roles y no figura en «Lo tienen» |
 
-**De punta a punta:** se propone una sola, a aprobar por Carlos antes de escribirla: a una persona con
+**De punta a punta** (aprobada por Carlos): una sola; a una persona con
 Usuarios abierto otra le saca el rol en otro navegador, y la primera ve «Ya no tenés permiso» con su
 próximo pedido y Usuarios desaparece. Cruza dos navegadores, las dos memorias del servidor y la
 cabecera; una unitaria no lo cubre entero.
