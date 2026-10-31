@@ -4,7 +4,8 @@
 // se anota una vez por minuto por persona y permiso. Con cualquier sesión deja la huella de los
 // permisos en el pedido, que la cabecera lleva para que la aplicación sepa que cambiaron (R7.8).
 import type { Context, MiddlewareHandler } from 'hono';
-import { type PermissionId, permissionsHash } from '../../shared/contracts/permissions.ts';
+import { permissionsHash } from '../../shared/contracts/can.ts';
+import type { PermissionId } from '../../shared/contracts/permissions.ts';
 import type { Clock } from './clock.ts';
 import { fail } from './http.ts';
 import type { RateLimiter } from './limits/rate-limit.ts';

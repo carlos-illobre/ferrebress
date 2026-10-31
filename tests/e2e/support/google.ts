@@ -32,9 +32,10 @@ export const googleState = (frame: Frame) =>
     return { nonce: google.nonce, forgot: google.forgot };
   });
 
-export async function signInWithGoogle(page: Page): Promise<void> {
+// Con `email`, otra persona autorizada en vez del primer Administrador.
+export async function signInWithGoogle(page: Page, email?: string): Promise<void> {
   const frame = await googleButton(page);
   const { nonce } = await googleState(frame);
-  const pass = await credential(nonce);
+  const pass = await credential(nonce, email);
   await frame.evaluate((pass) => (window as WithGoogle).e2eGoogle?.signIn(pass), pass);
 }

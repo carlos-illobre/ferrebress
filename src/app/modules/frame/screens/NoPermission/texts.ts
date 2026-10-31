@@ -1,5 +1,4 @@
-// Los textos de «Sin permiso» y de «Ya no tenés permiso» (02 · R7.7, R7.8), que se bajan con sus
-// pantallas: el arranque no los trae.
+// Los textos de «Sin permiso» y de «Ya no tenés permiso» (02 · R7.7, R7.8).
 import type { Words } from '../../../../ui/say/Say.tsx';
 
 export const words = {

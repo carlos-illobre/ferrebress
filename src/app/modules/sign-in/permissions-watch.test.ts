@@ -1,6 +1,6 @@
 // Saber que cambiaron los permisos (02 · R7.8): con otra huella en la cabecera, se vuelve a pedir la
 // persona una vez por huella, y queda al día.
-import { permissionsHash as hashOf } from '@ferrebress/shared/contracts/permissions';
+import { permissionsHash as hashOf } from '@ferrebress/shared/contracts/can';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { permissionsHash } from '../../platform/server/api.ts';
 import { fakeServer } from '../../testing/fake-server.ts';

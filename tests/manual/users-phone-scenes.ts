@@ -55,7 +55,10 @@ export const phoneUserScenes: Scene[] = [
     },
     points: {
       box: (page) => page.getByRole('alertdialog').getByRole('searchbox'),
-      chips: (page) => page.getByRole('alertdialog').locator('.users-chip[aria-pressed="true"]'),
+      chips: (page) =>
+        page
+          .getByRole('alertdialog')
+          .locator('.users-chips:not(.users-role-chips) .users-chip[aria-pressed="true"]'),
     },
   },
   {

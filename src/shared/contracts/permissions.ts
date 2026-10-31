@@ -75,7 +75,3 @@ export function withIncluded(ids: readonly PermissionId[]): PermissionId[] {
   for (const id of ids) for (const included of permissionOf(id).includes) all.add(included);
   return [...all].sort();
 }
-
-// Si la persona puede, y la huella de sus permisos: viven aparte, sin la lista, así el arranque de
-// la aplicación no la baja.
-export { can, permissionsHash } from './can.ts';

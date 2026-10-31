@@ -3,7 +3,17 @@
 
 import { type BrowserContext, expect, type Locator, type Page } from '@playwright/test';
 import type { Person } from '../../src/shared/contracts/sign-in.ts';
-import { ana, header, hour, now, row, type Scene, signedIn } from './scenes.ts';
+import {
+  ana,
+  header,
+  hour,
+  now,
+  row,
+  type Scene,
+  sceneRoleRows,
+  sceneRoles,
+  signedIn,
+} from './scenes.ts';
 
 const at = (hours: number) => now.getTime() - hours * hour;
 
@@ -65,7 +75,8 @@ const lost = {
 async function answerPeople(page: Page | BrowserContext, _person: Person): Promise<void> {
   const answer = (json: unknown) => (route: { fulfill: (o: object) => Promise<void> }) =>
     route.fulfill({ json, headers: header() });
-  await page.route('**/api/users', answer({ people }));
+  await page.route('**/api/users', answer({ people, roles: sceneRoles }));
+  await page.route('**/api/roles', answer({ roles: sceneRoleRows(people.map((one) => one.id)) }));
   await page.route('**/api/users/*/access', (route) =>
     answer(route.request().url().includes('/lucia/') ? lucia : { sessions: [], phones: [] })(route),
   );

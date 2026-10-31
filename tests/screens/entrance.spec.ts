@@ -45,12 +45,15 @@ test.describe('en el celular', () => {
   // hora, la huella queda prendida y el aviso dice hasta cuándo.
   test('la entrada en el celular sin conexión, con la huella', async ({ page, context }) => {
     const contact = now.getTime() - 3_600_000;
-    await page.addInitScript((at) => {
-      Object.defineProperty(navigator, 'userAgentData', { get: () => ({ mobile: true }) });
-      const person = { userId: 'u1', name: 'Ana', email: 'a@x.com', ...administrator };
-      localStorage.setItem('offline-option', JSON.stringify({ person, revoked: false }));
-      localStorage.setItem('offline-contact', JSON.stringify({ at, maxSeenAt: at }));
-    }, contact);
+    const person = { userId: 'u1', name: 'Ana', email: 'a@x.com', ...administrator };
+    await page.addInitScript(
+      ({ at, person }) => {
+        Object.defineProperty(navigator, 'userAgentData', { get: () => ({ mobile: true }) });
+        localStorage.setItem('offline-option', JSON.stringify({ person, revoked: false }));
+        localStorage.setItem('offline-contact', JSON.stringify({ at, maxSeenAt: at }));
+      },
+      { at: contact, person },
+    );
     await ready(page);
     await context.setOffline(true);
     await expect(page.getByText(/Sin conexión: podés entrar con la huella hasta/)).toBeVisible();

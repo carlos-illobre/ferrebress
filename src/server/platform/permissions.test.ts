@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { describe, expect, it } from 'vitest';
-import { permissionsHash } from '../../shared/contracts/permissions.ts';
+import { permissionsHash } from '../../shared/contracts/can.ts';
 import { createRateLimiter } from './limits/rate-limit.ts';
 import { createPermissionGate, permissionsHashOf, permissionsOf } from './permissions.ts';
 import { createSessionGate } from './session.ts';

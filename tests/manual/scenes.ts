@@ -45,6 +45,15 @@ export async function answerStart(page: Page, person?: Person): Promise<void> {
   );
 }
 
+// Los roles de las escenas: el Administrador, que tienen todos (02 · R7.4).
+const adminRole = ana.roles[0] as { id: string; name: string };
+export const sceneRoles = [
+  { ...adminRole, description: 'Puede todo: las personas, sus sesiones y los roles.' },
+];
+export const sceneRoleRows = (holders: string[]) => [
+  { ...sceneRoles[0], system: true, version: 1, permissions: [...permissionIds], holders },
+];
+
 // La lista de Usuarios, que el marco abre al entrar: la persona y dos más, inventadas.
 export const hour = 3_600_000;
 export const row = (id: string, name: string, lastSignInAt: number | null, self = false) => ({
@@ -62,6 +71,8 @@ export const row = (id: string, name: string, lastSignInAt: number | null, self 
   version: 1,
   sessions: lastSignInAt === null ? 0 : 1,
   phones: 0,
+  roleIds: [adminRole.id],
+  outranks: false,
 });
 
 export async function answerUsers(page: Page | BrowserContext, person: Person): Promise<void> {
@@ -72,7 +83,13 @@ export async function answerUsers(page: Page | BrowserContext, person: Person): 
     row('pedro', 'Pedro Giménez', null),
   ];
   await page.route('**/api/users', (route) =>
-    route.fulfill({ json: { people }, headers: header() }),
+    route.fulfill({ json: { people, roles: sceneRoles }, headers: header() }),
+  );
+  await page.route('**/api/roles', (route) =>
+    route.fulfill({
+      json: { roles: sceneRoleRows(people.map((one) => one.id)) },
+      headers: header(),
+    }),
   );
   // La tarjeta de la primera, que la computadora abre sola.
   await page.route('**/api/users/*/access', (route) =>

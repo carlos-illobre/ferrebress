@@ -5,17 +5,17 @@
   "points": {
     "cut": [
       18.7,
-      28.8
+      71.4
     ],
     "passkey": [
       50,
-      28.8
+      71.4
     ],
     "close": [
       83.6,
-      49.9
+      89.6
     ]
   },
-  "hash": "b7704381fb17af8beb8aa1bc81e87fa9225cd68514161282883f7776b8e58502",
-  "file": "671e7ee9346e49d24cd887a34386c1d5b0dc68449b097447add4039a2d5f6327"
+  "hash": "af3a5bdd3a318195fdbe41f1801245384ba03d50fddd20d95a33daa21bb7da04",
+  "file": "a7805f238c19f8b843230f003067c0382b874f116820d2452500e8ea5aa0ed52"
 }

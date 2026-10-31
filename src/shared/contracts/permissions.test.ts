@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { can, isPermission, permissions, permissionsHash, withIncluded } from './permissions.ts';
+import { can, permissionsHash } from './can.ts';
+import { isPermission, permissions, withIncluded } from './permissions.ts';
 
 describe('los permisos (02 · R7.1)', () => {
   it('cada uno tiene su parte, su nombre y su explicación, y lo que incluye existe', () => {

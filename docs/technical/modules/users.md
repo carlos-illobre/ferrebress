@@ -554,7 +554,9 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 - `/api/start`: cero con la persona en memoria; dos si no. Es el pedido de cada apertura.
 - Las de cada ruta, en la tabla de § 18, cada una con su prueba que las cuenta.
 - `GET /api/roles` con 20 roles y 100 personas: menos de 30 ms y 10 KB.
-- La pestaña Roles y «Sin permiso» se bajan recién al abrirse: el arranque no crece.
+- La pestaña Roles se baja recién al abrirse. «Sin permiso» va en el arranque (bajarlo aparte partía
+  el código común en otro archivo); el lugar lo deja el dibujo del QR de la entrada, que ahora se
+  baja recién cuando se muestra.
 
 ## 23. Pruebas
 

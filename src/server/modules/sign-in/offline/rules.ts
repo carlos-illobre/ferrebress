@@ -3,8 +3,9 @@
 // las horas que manda el celular se guardan, pero no deciden nada, salvo que una firma muy vieja
 // (o del futuro) no se acepta: las entradas se guardan 30 días, y una más vieja ya no tendría su
 // fila para impedir que se use dos veces.
+
+import { can } from '@ferrebress/shared/contracts/can';
 import { offlineWindowHours } from '@ferrebress/shared/contracts/offline-sign-in';
-import { can } from '@ferrebress/shared/contracts/permissions';
 import type { ClosedReason } from '../sessions/rules.ts';
 
 const minute = 60_000;
