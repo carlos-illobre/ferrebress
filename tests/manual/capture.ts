@@ -14,19 +14,20 @@ import { userScenes } from './users-scenes.ts';
 
 const checking = process.env.MANUAL_CHECK === '1';
 
-// En un botón con ícono, el aro va sobre el ícono, no en el medio del renglón; en una caja de texto,
-// sobre el ícono de su etiqueta, como la lupa del buscador; en un aviso, sobre su ícono (pedido de
-// Carlos).
+// En los botones y las opciones de los menús con ícono, el aro va sobre el ícono y no en el medio
+// (pedido de Carlos); también en una caja de texto (el de su etiqueta, como la lupa del buscador) y
+// en un aviso. Un interruptor se señala a él: indica la acción.
+// Qué es lo señalado, para saber dónde buscar su ícono.
+const kindOf = (target: Locator) =>
+  target.evaluate((element) => {
+    const role = element.getAttribute('role');
+    if (element.tagName === 'BUTTON' || role === 'button') return 'button';
+    if (element.tagName === 'INPUT') return 'input';
+    return element.closest('.notice') ? 'notice' : 'other';
+  });
+
 async function boxOf(target: Locator) {
-  const kind = await target.evaluate((element) =>
-    element.tagName === 'BUTTON' || element.getAttribute('role') === 'button'
-      ? 'button'
-      : element.tagName === 'INPUT'
-        ? 'input'
-        : element.closest('.notice')
-          ? 'notice'
-          : 'other',
-  );
+  const kind = await kindOf(target);
   const holders = {
     button: target,
     input: target.locator('xpath=ancestor::label[1]'),

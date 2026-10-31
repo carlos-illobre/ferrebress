@@ -168,9 +168,10 @@ copia), para que las letras salgan iguales.
   escáner rechaza otro origen.
 - **Encerrado:** el navegador solo puede pedir a la dirección del servidor de mentira; cualquier
   otro pedido se corta y la corrida falla.
-- **Los puntos se ubican solos:** el programa mide dónde quedó cada elemento y guarda su centro (en
-  un botón con ícono, el del ícono, para que el aro caiga sobre él y no en el medio del renglón; en
-  una caja de texto, el ícono de su etiqueta; en un aviso, su ícono), en
+- **Los puntos se ubican solos:** el programa mide dónde quedó cada elemento y guarda su centro (en un
+  botón o una opción de un menú con ícono, el del ícono, para que el aro caiga sobre él y no en el
+  medio; en una caja de texto, el de su etiqueta; en un aviso, el suyo; en el botón de Google, su G;
+  un interruptor se señala a él, porque indica la acción), en
   porcentaje de la captura, en `docs/manual/media/<escena>.json`, uno por escena (así dos sesiones
   que escriben capítulos distintos no se pisan). Ahí van también el dispositivo, la huella de la
   captura sin comprimir y la del `.webp` que se publica.

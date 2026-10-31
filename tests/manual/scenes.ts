@@ -94,6 +94,10 @@ async function entrance(page: Page): Promise<void> {
   await expect(page.locator('.google[data-drawn] iframe')).toBeVisible();
 }
 
+// La G del botón de Google, que se dibuja en su propio marco: el aro va sobre ella (pedido de Carlos).
+const googleMark = (page: Page) =>
+  page.frameLocator('.google iframe').locator('[role="button"] > span').first();
+
 const offlineNotice = (page: Page) => page.getByText('Para entrar hace falta internet');
 const buttonIcon = (name: RegExp) => (page: Page) =>
   page.getByRole('button', { name }).locator('svg').first();
@@ -111,7 +115,7 @@ export const scenes: Scene[] = [
       await entrance(page);
       await expect(page.locator('.qr > svg > path')).toBeVisible();
     },
-    points: { qr: (page) => page.locator('.qr'), google: (page) => page.locator('.google') },
+    points: { qr: (page) => page.locator('.qr'), google: googleMark },
   },
   {
     name: 'desktop-entrance-offline',
@@ -143,7 +147,7 @@ export const scenes: Scene[] = [
     device: 'phone',
     prepare: entrance,
     points: {
-      google: (page) => page.locator('.google'),
+      google: googleMark,
       fingerprint: buttonIcon(/Ingresar con huella/),
       scan: buttonIcon(/Escanear código QR/),
     },

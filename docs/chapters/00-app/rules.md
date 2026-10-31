@@ -129,7 +129,7 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   titula con la pregunta que contesta, para orientar a quien lee: «¿Cómo se autoriza a un
   usuario?». Las capturas y los clips se sacan sin
   el marco ni el cartel del ambiente de pruebas, y con datos de una cuenta de demostración. Lo que
-  el manual señala en una captura se marca con un aro (en un botón con ícono, sobre el ícono), y su nombre va al costado, unido al aro por
+  el manual señala en una captura se marca con un aro (en un botón o una opción de un menú con ícono, sobre el ícono; un interruptor, sobre él), y su nombre va al costado, unido al aro por
   una línea; el aro, la línea y el nombre van en un azul propio del manual, que la aplicación no
   usa, para que no se confundan con la pantalla; se lee entero aunque salga de la captura. Un clip
   solo donde la funcionalidad es lo bastante grande para verla en video; es un video de la
