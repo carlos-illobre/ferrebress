@@ -89,4 +89,50 @@ describe('el marco con permisos', () => {
     expect(screen.queryByRole('alertdialog')).toBeNull();
     expect(route.get().path).toBe('/');
   });
+
+  it('R7.7: sin ningún rol que lo tenga lo dice; con tres que lo dan, los separa con comas', async () => {
+    media();
+    fakeServer({
+      '/api/permissions/users.view/holders': {
+        body: { roles: [], grantedBy: ['Ana', 'Beto', 'Ceci'] },
+      },
+    });
+    navigate('/users');
+    open({ who: seller, screens: { users } });
+    const main = screen.getByRole('main');
+    expect(await within(main).findByText('Ningún rol lo tiene todavía.')).toBeTruthy();
+    expect(main.textContent).toContain('0 roles · 0 personas');
+    expect(main.textContent).toContain('Ana, Beto o Ceci.');
+  });
+
+  it('R7.8: si cambiaron los permisos de un rol que tiene, lo dice sin nombrar quién ni qué rol', () => {
+    media();
+    fakeServer({ '/api/permissions/users.view/holders': { body: holders } });
+    navigate('/users');
+    const frame = (who: Person) => (
+      <div id="app">
+        <Frame person={who} testing={false} onSignOut={() => {}} screens={{ users }} />
+      </div>
+    );
+    const { rerender } = render(frame(person));
+    rerender(frame({ ...person, permissions: ['offline.work'], rolesChangedBy: null }));
+    const dialog = screen.getByRole('alertdialog');
+    expect(dialog.textContent).toContain('Alguien te cambió los permisos de un rol recién.');
+    expect(dialog.querySelector('.pill-gone')).toBeNull();
+    fireEvent.click(within(dialog).getByRole('button', { name: /Ir a Vender ahora/ }));
+  });
+
+  it('R7.7: con un rol y una persona, en singular', async () => {
+    media();
+    fakeServer({
+      '/api/permissions/users.view/holders': {
+        body: { roles: [{ id: 'r1', name: 'Administrador', people: ['Ana'] }], grantedBy: ['Ana'] },
+      },
+    });
+    navigate('/users');
+    open({ who: seller, screens: { users } });
+    const main = screen.getByRole('main');
+    expect(await within(main).findByText('1 persona')).toBeTruthy();
+    expect(main.textContent).toContain('1 rol · 1 persona');
+  });
 });

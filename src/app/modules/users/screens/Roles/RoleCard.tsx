@@ -17,7 +17,7 @@ function useSave(role: RoleRow) {
   const users = useUsersContext();
   return async (field: 'name' | 'description', value: string) => {
     const text = value.trim();
-    if (field === 'name' && !text) return t.noName;
+    if (field === 'name' && !text) return 'role-no-name';
     await changeRole(users, role, { [field]: field === 'name' ? text : text || null });
     return undefined;
   };
@@ -56,7 +56,8 @@ function Head({ role }: { role: RoleRow }) {
 // Quiénes lo tienen (personas activas, R4.3), con «Sacárselo», y a quién dárselo.
 function Holders({ role }: { role: RoleRow }) {
   const users = useUsersContext();
-  const people = users.people ?? [];
+  // La pestaña se abre con la lista ya traída.
+  const people = users.people as PersonRow[];
   const holders = people.filter((one) => role.holders.includes(one.id));
   const others = people.filter((one) => one.active && !one.roleIds.includes(role.id));
   const take = (person: PersonRow) =>

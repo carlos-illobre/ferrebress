@@ -35,7 +35,8 @@ function Box({ props, done }: { props: Props; done: () => void }) {
         ref={input}
         aria-label={props.label}
         aria-invalid={!!error}
-        value={props.value}
+        // Sin controlar: al borrar el aviso no vuelve al texto de antes lo que se está escribiendo.
+        defaultValue={props.value}
         placeholder={props.placeholder}
         autocomplete="off"
         onKeyDown={(event) => void keys(event)}

@@ -20,7 +20,6 @@ type Tile = {
   tone: string;
   act: () => unknown;
   off?: boolean;
-  soon?: boolean;
 };
 
 function TileButton({ tile }: { tile: Tile }) {
@@ -28,7 +27,6 @@ function TileButton({ tile }: { tile: Tile }) {
     <button type="button" class={`users-tile ${tile.tone}`} disabled={tile.off} onClick={tile.act}>
       <Icon name={tile.icon} />
       <span>{tile.name}</span>
-      {tile.soon && <small>Pronto</small>}
     </button>
   );
 }

@@ -1,8 +1,9 @@
 // La pestaña Roles (R7.3; maqueta users-roles, variante 1, «El rol y su tarjeta»): cuántos roles y
 // personas hay, quién puede qué sumando sus roles, la lista de roles con sus permisos y quiénes los
 // tienen, y al costado la tarjeta del rol elegido o el rol nuevo. Se baja recién al abrirla.
-import { permissions } from '@ferrebress/shared/contracts/permissions';
+import { permissionOf, permissions } from '@ferrebress/shared/contracts/permissions';
 import type { RoleRow } from '@ferrebress/shared/contracts/roles';
+import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useEffect } from 'preact/hooks';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { person as me } from '../../../sign-in/index.ts';
@@ -12,8 +13,6 @@ import { roleTexts as t } from '../../texts.ts';
 import { NewRole } from './NewRole.tsx';
 import { RoleCard } from './RoleCard.tsx';
 import './Roles.css';
-
-const nameOf = (id: string) => permissions.find((one) => one.id === id)?.name ?? id;
 
 // Quién puede qué (maqueta): cuántas personas activas tienen cada permiso de Usuarios.
 function WhoCan({ rows }: { rows: RoleRow[] }) {
@@ -64,7 +63,7 @@ function Stats({ rows }: { rows: RoleRow[] }) {
 function Row({ role }: { role: RoleRow }) {
   const users = useUsersContext();
   const mine = me.get()?.roles.some((one) => one.id === role.id);
-  const people = users.people ?? [];
+  const people = users.people as PersonRow[];
   const faces = people.filter((one) => role.holders.includes(one.id)).slice(0, 4);
   return (
     <button
@@ -82,7 +81,7 @@ function Row({ role }: { role: RoleRow }) {
           {role.name}
           {mine && <span class="users-pill you">{t.yours}</span>}
         </b>
-        <small>{role.permissions.map(nameOf).join(' · ')}</small>
+        <small>{role.permissions.map((id) => permissionOf(id).name).join(' · ')}</small>
       </span>
       <span class="roles-faces" aria-hidden="true" data-private="">
         {faces.length === 0

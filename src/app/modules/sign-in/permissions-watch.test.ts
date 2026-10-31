@@ -40,6 +40,16 @@ describe('los permisos que cambian', () => {
     stop();
   });
 
+  it('sin conexión, la persona sigue como estaba', async () => {
+    person.set(ana);
+    fakeServer({ '/api/start': 'offline' });
+    const stop = watchPermissions();
+    permissionsHash.set('33333333');
+    await settle();
+    expect(person.get()).toEqual(ana);
+    stop();
+  });
+
   it('sin sesión no pide nada', async () => {
     const server = fakeServer({});
     const stop = watchPermissions();

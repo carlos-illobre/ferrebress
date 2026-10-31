@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { api, newVersion, online, sessionClosed, updateRequired } from './api.ts';
+import { api, newVersion, online, permissionsHash, sessionClosed, updateRequired } from './api.ts';
 import { serverNow } from './clock.ts';
 
 const serverHeader = (version = 'app-test') => ({
@@ -45,6 +45,12 @@ describe('hablar con el servidor', () => {
     expect(newVersion.get()).toBe(true);
     answer(200, {}, {});
     await api('/api/start');
+  });
+
+  it('02 · R7.8: guarda la huella de los permisos que trae la cabecera', async () => {
+    answer(200, {}, { 'X-Ferrebress': 'v=app-test; t=1793102400000; e=testing; p=0a1b2c3d' });
+    await api('/api/users');
+    expect(permissionsHash.get()).toBe('0a1b2c3d');
   });
 
   it('sin conexión lo anota, y con la próxima respuesta vuelve (lo que usan app-E24 y E26)', async () => {

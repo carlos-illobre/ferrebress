@@ -11,10 +11,11 @@ type Result =
   | Awaited<ReturnType<typeof usersApi.changeRole>>
   | Awaited<ReturnType<typeof usersApi.setRoles>>;
 
-// Si salió, vuelve a traer todo y lo dice; si no, confirma o dice por qué. Dice si salió.
-async function settle(users: Users, result: Result, done: string, again: () => unknown) {
+// Si salió, vuelve a traer todo y lo dice; si no, confirma (lo que da algo, `again`) o dice por
+// qué. Dice si salió.
+async function settle(users: Users, result: Result, done: string, again?: () => unknown) {
   if (!result.ok) {
-    if (!confirmFirst(users, result, again)) {
+    if (!again || !confirmFirst(users, result, again)) {
       refused(users, result);
       await users.reload();
     }
@@ -39,8 +40,8 @@ export async function createRole(users: Users, draft: RoleDraft): Promise<string
     const id = await createRole(users, draft);
     if (id) users.setRoleCard(id);
   };
-  const ok = await settle(users, result, roleTexts.created(draft.name), again);
-  return ok && result.ok ? result.data.role.id : undefined;
+  if (!(await settle(users, result, roleTexts.created(draft.name), again))) return undefined;
+  return (result as Extract<typeof result, { ok: true }>).data.role.id;
 }
 
 export async function changeRole(
@@ -58,6 +59,6 @@ export async function removeRole(
   role: { id: string; version: number; name: string },
 ) {
   const result = await usersApi.deleteRole(role.id, role.version);
-  const ok = await settle(users, result as Result, roleTexts.deleted(role.name), () => {});
+  const ok = await settle(users, result as Result, roleTexts.deleted(role.name));
   if (ok) users.setRoleCard(undefined);
 }
