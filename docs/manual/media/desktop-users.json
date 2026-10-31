@@ -21,19 +21,19 @@
     ],
     "close": [
       92.6,
-      98.8
+      52
     ],
     "close-all": [
       87.6,
-      90
+      43.2
     ],
     "remove": [
       92.6,
-      129
+      82.2
     ],
     "deactivate": [
       72.5,
-      141.5
+      91.8
     ],
     "filters": [
       41.8,
@@ -45,9 +45,9 @@
     ],
     "sessions": [
       76.2,
-      90
+      43.2
     ]
   },
-  "hash": "6394958b4dc87b03ad6f832d69c4725848479729e9cec90e63ca1a8dd5164501",
-  "file": "60dced13878dc00e28adc3eb703ab938f371b16370f949fa70321214f3e16122"
+  "hash": "09cde6c762846ce3d256717ac5e57ff7bd56854315d4469f988d37f62490f67e",
+  "file": "eec84e04d9fe6960e43f7d1d86667cfa2722e2ed1cb70ac8908a3bbad357bb22"
 }

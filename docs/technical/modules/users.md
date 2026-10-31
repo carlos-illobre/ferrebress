@@ -528,7 +528,9 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
   permisos agrupados por parte también al crear (§ 16, screens.md). Los nombres de las personas, de
   la lista de Usuarios, que `roles.manage` incluye (R7.1).
 - **Los roles de una persona** (maquetas `users-person-roles`: la 1 en la computadora y la 2 en el
-  celular, con interruptores de roles): en la tarjeta y en el diálogo de autorizar.
+  celular, con interruptores de roles): en la tarjeta y en el diálogo de autorizar. En la tarjeta van
+  debajo de sus sesiones y celulares, y en la computadora el pie (dar de baja, de alta, borrar) queda
+  fijo abajo, así sigue a la vista.
 - **Lo que se esconde** (R7.7, R7.11): los botones de Usuarios se arman con `can()` y comparando los
   permisos de la persona con los propios; el servidor igual rechaza.
 

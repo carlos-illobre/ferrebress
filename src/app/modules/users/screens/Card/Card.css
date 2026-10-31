@@ -159,12 +159,18 @@
     background: var(--pine-soft);
     color: var(--pine-text);
   }
+  /* En la computadora, el pie queda a la vista al pie de la tarjeta aunque lo de arriba no entre (con
+     los roles de la persona, R7.5). */
   .users-card-foot {
+    position: sticky;
+    bottom: calc(-1 * var(--s5));
     display: flex;
     align-items: center;
     gap: var(--s3);
-    padding-top: var(--s4);
+    margin: 0 calc(-1 * var(--s5)) calc(-1 * var(--s5));
+    padding: var(--s4) var(--s5) var(--s5);
     border-top: 1px solid var(--border);
+    background: var(--surface);
   }
   .users-foot-hint {
     font-size: 14px;
@@ -197,8 +203,12 @@
       }
     }
     .users-card-foot {
+      position: static;
       flex-direction: column;
       align-items: stretch;
+      margin: 0;
+      padding: var(--s4) 0 0;
+      background: none;
     }
   }
 }

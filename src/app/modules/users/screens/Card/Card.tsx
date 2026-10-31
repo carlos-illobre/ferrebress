@@ -175,8 +175,8 @@ export function Card() {
         <Who person={person} />
       </div>
       <Pills person={person} />
-      {users.may.roles && <PersonRoles person={person} />}
       <Middle person={person} />
+      {users.may.roles && <PersonRoles person={person} />}
       <div class="users-card-foot">
         <Foot person={person} />
       </div>
