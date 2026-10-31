@@ -1,0 +1,62 @@
+/* Variante 1 · La tarjeta: los roles como una lista que se tilda, y lo que queda pudiendo. */
+.filtro-roles { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; scrollbar-width: none; flex: none; }
+.filtro-roles .chip { cursor: pointer; flex: none; }
+.filtro-roles .chip .n { font-weight: 800; opacity: .7; }
+
+.rol-fila { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--fondo); }
+.rol-fila + .rol-fila { margin-top: 8px; }
+.rol-fila .ico { width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino-texto); }
+.rol-fila .nom { font-weight: 750; font-size: 16px; line-height: 22px; }
+.rol-fila .desc { font-size: 14px; line-height: 20px; color: var(--texto-2); }
+.rol-fila .permi { display: flex; gap: 4px; color: var(--texto-3); }
+.rol-fila.nuevo { animation: entra var(--t-nav) var(--rebote); }
+@keyframes entra { from { opacity: 0; transform: translateY(8px); } }
+
+/* La lista que se tilda */
+.tildar { display: grid; gap: 8px; }
+.opc { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--borde); background: var(--superficie); cursor: pointer; text-align: left; width: 100%; transition: border-color var(--t), background var(--t), transform var(--t-micro) var(--curva); }
+.opc:active { transform: scale(.985); }
+.opc .caja { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--borde-fuerte); display: grid; place-items: center; color: #fff; transition: background var(--t), border-color var(--t); }
+.opc .caja svg { opacity: 0; transform: scale(.4); transition: transform var(--t) var(--rebote), opacity var(--t); }
+.opc.si { border-color: var(--pino); background: var(--pino-suave); }
+.opc.si .caja { background: var(--pino); border-color: var(--pino); }
+.opc.si .caja svg { opacity: 1; transform: none; }
+.opc .nom { font-weight: 750; font-size: 16px; line-height: 22px; display: flex; gap: 8px; align-items: center; }
+.opc .desc { font-size: 14px; line-height: 20px; color: var(--texto-2); }
+.opc .tecla { align-self: start; }
+.opc .cuantos { font-size: 14px; color: var(--texto-3); font-weight: 650; white-space: nowrap; }
+.opc.tiembla { animation: tiembla 360ms var(--curva); }
+@keyframes tiembla { 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+
+/* Lo que puede, con quién se lo da */
+.puede { display: grid; gap: 2px; margin-top: 4px; }
+.puede .p { display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; align-items: center; min-height: 40px; padding: 0 4px; font-size: 15px; font-weight: 600; transition: opacity var(--t); }
+.puede .p .por { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; color: var(--texto-3); font-weight: 600; text-align: right; }
+.puede .p.no { color: var(--texto-3); }
+.puede .p.no .marca-p { color: var(--borde-fuerte); }
+.puede .p .marca-p { color: var(--pino-texto); }
+.puede .p.suma { color: var(--logro-texto); }
+.puede .p.suma .marca-p { color: var(--logro); }
+.puede .p.suma .por::before { content: "Suma · "; color: var(--logro-texto); font-weight: 750; }
+.puede .p.saca { color: var(--error-texto); }
+.puede .p.saca .marca-p { color: var(--error); }
+.puede .p.saca .por::before { content: "Pierde · "; font-weight: 750; color: var(--error-texto); }
+.puede .p.cambia { animation: entra var(--t) var(--curva); }
+
+.editor-pie { display: flex; gap: 8px; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--borde); }
+.editor-pie .info { flex: 1; font-size: 14px; color: var(--texto-2); font-weight: 600; }
+.aviso.v1 { margin-top: 10px; animation: entra var(--t) var(--curva); }
+.solo-lectura { font-size: 14px; color: var(--texto-3); }
+.celu .opc .tecla { display: none; }
+.aut-grid { display: grid; grid-template-columns: 1fr 340px; gap: 28px; }
+.aut-der { background: var(--fondo); border-radius: 16px; padding: 4px 16px 12px; align-self: start; margin-top: 52px; }
+.aut-der .puede .p .por { display: none; }
+.dialogo .tildar { gap: 6px; }
+.dialogo .opc, .tarjeta-p .opc { padding: 8px 12px; }
+.tarjeta-p .opc > span:nth-child(2), .dialogo .opc > span:nth-child(2) { min-width: 0; }
+.tarjeta-p .opc .desc, .dialogo .opc .desc { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tarjeta-p .opc .cuantos { display: none; }
+.tarjeta-p .opc .tecla { align-self: center; }
+.tarjeta-p .puede .p { min-height: 34px; }
+.tarjeta-p .tildar { gap: 6px; }
+.pagina .rol-fila { background: var(--superficie); border: 1px solid var(--borde); }

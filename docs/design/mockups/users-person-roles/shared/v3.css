@@ -1,0 +1,98 @@
+/* Variante 3 · El llavero. Cada rol es una llave; la persona, un llavero. Se cuelgan y se sacan
+   arrastrando (o tocando, o con 1–5). PROPUESTA: un metal por rol, fuera de la paleta. */
+:root {
+  --laton-1: #B8913A; --laton-2: #E8D08A; --laton-t: #6E5414;
+  --cobre-1: #A85A31; --cobre-2: #E2A27C; --cobre-t: #7A3A16;
+  --acero-1: #6C7A84; --acero-2: #C7D0D6; --acero-t: #3D4A53;
+  --niquel-1: #9A9EA2; --niquel-2: #EEF0F1; --niquel-t: #50565B;
+  --pavon-1: #2B3134; --pavon-2: #67717A; --pavon-t: #2B3134;
+}
+.pantalla.v3 { display: grid; grid-template-columns: 250px 1fr 340px; gap: 20px; overflow: hidden; padding-top: 16px; }
+.pantalla.v3 > * { min-width: 0; min-height: 0; }
+.v3 .pers { grid-template-columns: 36px 1fr; padding: 8px 10px; gap: 10px; }
+.v3 .pers .av { width: 36px; height: 36px; }
+.v3 .pers .chev { display: none; }
+.v3 .pers .roles { justify-content: flex-start; margin-top: 2px; gap: 4px; }
+.v3 .pers .cor { display: none; }
+.v3 .pastilla.rol { height: 24px; padding: 0 8px 0 6px; background: var(--hundido); color: var(--texto-2); gap: 5px; }
+.v3 .pastilla.rol .i-s { display: none; }
+.mdot { width: 12px; height: 12px; border-radius: 99px; flex: none; box-shadow: inset 0 -2px 0 rgba(0,0,0,.15); }
+.m-laton { background: linear-gradient(135deg, var(--laton-2), var(--laton-1)); }
+.m-cobre { background: linear-gradient(135deg, var(--cobre-2), var(--cobre-1)); }
+.m-acero { background: linear-gradient(135deg, var(--acero-2), var(--acero-1)); }
+.m-niquel { background: linear-gradient(135deg, var(--niquel-2), var(--niquel-1)); border: 1px solid var(--borde-fuerte); }
+.m-pavon { background: linear-gradient(135deg, var(--pavon-2), var(--pavon-1)); }
+
+/* El escenario: la etiqueta de la persona, la cadena, el aro y las llaves */
+.escena { position: relative; border-radius: 24px; background: radial-gradient(120% 80% at 50% 0%, #fff 0%, var(--fondo) 70%); border: 1px solid var(--borde); overflow: hidden; display: flex; flex-direction: column; align-items: center; transition: box-shadow var(--t); }
+.escena.encima { box-shadow: inset 0 0 0 3px var(--pino); }
+.etiqueta { margin-top: 24px; position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 18px 12px 30px; background: #FBF6EA; border: 1px solid #E5DAC0; border-radius: 10px 18px 18px 10px; box-shadow: var(--sombra-2); z-index: 2; max-width: 92%; }
+.etiqueta::before { content: ""; position: absolute; left: 10px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 99px; background: var(--fondo); box-shadow: inset 0 1px 2px rgba(0,0,0,.25); }
+.etiqueta .av { width: 44px; height: 44px; border-radius: 99px; display: grid; place-items: center; font-weight: 800; flex: none; }
+.etiqueta .nom { font-weight: 800; font-size: 20px; line-height: 26px; letter-spacing: -.01em; }
+.etiqueta input { border: 0; border-bottom: 1.5px dashed #CDBF9E; background: transparent; font: inherit; font-size: 16px; font-weight: 700; width: 260px; height: 32px; outline: none; display: block; }
+.etiqueta input:focus { border-bottom-color: var(--pino); }
+.etiqueta input + input { font-weight: 500; font-size: 15px; }
+.cadena { width: 4px; height: 24px; background: repeating-linear-gradient(to bottom, #9AA0A4 0 6px, transparent 6px 8px); border-radius: 2px; z-index: 1; }
+.aro-zona { position: relative; width: 420px; height: 262px; flex: none; }
+.aro { position: absolute; left: 50%; top: 0; width: 120px; height: 120px; margin-left: -60px; border-radius: 99px; border: 7px solid #B9BEC2; box-shadow: inset 0 2px 3px rgba(0,0,0,.18), 0 2px 3px rgba(0,0,0,.12); background: transparent; z-index: 3; }
+.aro::after { content: ""; position: absolute; inset: -7px; border-radius: 99px; border: 2px solid rgba(255,255,255,.7); clip-path: inset(0 50% 50% 0); }
+.colgada { position: absolute; left: 50%; top: 60px; width: 0; height: 0; z-index: 2; }
+.colgada .giro { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.colgada .llave { position: absolute; left: -30px; top: 42px; cursor: grab; transform-origin: 30px 18px; touch-action: none; }
+.colgada .llave.entra { animation: balanceo 900ms var(--curva); }
+.colgada .llave.cae { animation: cae 420ms var(--curva-salida) forwards; }
+.colgada .llave.tiembla { animation: tiembla 420ms var(--curva); }
+@keyframes balanceo { 0% { opacity: 0; transform: translateY(-30px) rotate(-18deg) scale(.8); } 35% { opacity: 1; transform: rotate(12deg); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(3deg); } }
+@keyframes cae { to { opacity: 0; transform: translateY(80px) rotate(25deg); } }
+@keyframes tiembla { 20% { transform: rotate(-9deg); } 40% { transform: rotate(8deg); } 60% { transform: rotate(-5deg); } 80% { transform: rotate(3deg); } }
+.vacio { position: absolute; left: 0; right: 0; top: 150px; text-align: center; color: var(--texto-3); font-weight: 650; font-size: 15px; }
+.vacio .i { display: block; margin: 0 auto 6px; width: 28px; height: 28px; }
+
+.abre { margin: auto 0 0; padding: 12px 20px 16px; width: 100%; display: grid; gap: 10px; justify-items: center; }
+.abre .et { font-size: 14px; font-weight: 650; color: var(--texto-2); }
+.abre .puertas { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.puerta { display: inline-flex; gap: 6px; align-items: center; height: 32px; padding: 0 12px; border-radius: 99px; background: var(--superficie); border: 1px solid var(--borde); font-size: 14px; font-weight: 650; color: var(--texto-3); transition: opacity var(--t); }
+.puerta.si { color: var(--pino-texto); border-color: var(--pino-suave); background: var(--pino-suave); }
+.puerta.si.nueva { animation: pop var(--t-nav) var(--rebote); }
+@keyframes pop { from { opacity: 0; transform: scale(.85); } }
+.escena .acciones-aut { display: flex; gap: 8px; margin-top: 4px; }
+.escena .aviso { position: absolute; top: 116px; left: 50%; transform: translateX(-50%); z-index: 5; max-width: 420px; box-shadow: var(--sombra-3); animation: pop var(--t) var(--curva); }
+
+/* El tablero */
+.tablero { border-radius: 24px; padding: 18px; display: flex; flex-direction: column; gap: 10px; overflow: auto;
+  background-color: var(--hundido); background-image: radial-gradient(circle, rgba(26,29,27,.13) 1.6px, transparent 2px); background-size: 20px 20px; }
+.tablero .tit { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.tablero .ayuda { font-size: 14px; color: var(--texto-2); font-weight: 600; margin-top: -6px; }
+.gancho { display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-1); cursor: grab; touch-action: none; user-select: none; transition: transform var(--t-micro) var(--curva), opacity var(--t); }
+.gancho:active { cursor: grabbing; }
+.gancho .mini { width: 36px; height: 72px; display: grid; place-items: center; }
+.gancho .nom { font-weight: 750; font-size: 16px; line-height: 21px; }
+.gancho .desc { font-size: 14px; line-height: 19px; color: var(--texto-2); }
+.gancho .perm { display: flex; gap: 4px; margin-top: 4px; color: var(--texto-3); }
+.gancho .lado { display: grid; justify-items: end; gap: 6px; }
+.gancho.puesta { background: var(--fondo); box-shadow: none; }
+.fantasma { position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none; filter: drop-shadow(0 16px 20px rgba(0,0,0,.25)); }
+
+/* Celular */
+.celu .escena { border-radius: 0; border: 0; background: radial-gradient(120% 70% at 50% 0%, #fff 0%, var(--fondo) 70%); height: 100%; }
+.celu .etiqueta { margin-top: 8px; padding: 10px 14px 10px 26px; }
+.celu .etiqueta .nom { font-size: 18px; }
+.celu .etiqueta input { width: 220px; }
+.celu .aro-zona { width: 358px; height: 262px; transform: scale(.86); transform-origin: 50% 0; margin-bottom: -36px; }
+.celu .cadena { height: 22px; }
+.celu .abre { padding: 0 12px 8px; }
+.celu .bandeja { flex: none; display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px 14px; scrollbar-width: none; background-color: var(--hundido); background-image: radial-gradient(circle, rgba(26,29,27,.12) 1.6px, transparent 2px); background-size: 18px 18px; border-top: 1px solid var(--borde); }
+.celu .bandeja .gancho { flex: none; width: 128px; grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 8px; gap: 2px; }
+.celu .bandeja .gancho .desc, .celu .bandeja .gancho .lado, .celu .bandeja .gancho .perm { display: none; }
+.celu .bandeja .gancho .nom { font-size: 14px; line-height: 18px; }
+.celu .bandeja .gancho.puesta .nom::after { content: ""; }
+.celu .bandeja .gancho.puesta { opacity: .5; }
+.celu .bandeja-ayuda { font-size: 14px; color: var(--texto-2); font-weight: 650; padding: 8px 16px 0; background: var(--hundido); }
+.celu .pagina .cuerpo.v3c { padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+.celu .escena .aviso { top: 96px; max-width: 330px; }
+.leyenda { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-top: 0; padding: 0 16px; font-size: 14px; font-weight: 700; color: var(--texto-2); position: relative; z-index: 4; }
+.leyenda > span { display: inline-flex; gap: 6px; align-items: center; }
+.abre { margin-top: auto; }
+.celu .leyenda { margin-top: 0; }
+.celu .bandeja .gancho .lado { display: none; }

@@ -391,6 +391,43 @@
      "path": "mockups/users-roles/phone/variant-3-say/index.html"
     }
    ]
+  },
+  {
+   "id": "users-person-roles",
+   "title": "Usuarios · Los roles de una persona",
+   "module": "02 · Personas",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "1 · La tarjeta",
+     "path": "mockups/users-person-roles/desktop/variant-1-card/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · Lo que puede hacer",
+     "path": "mockups/users-person-roles/desktop/variant-2-abilities/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · El llavero",
+     "path": "mockups/users-person-roles/desktop/variant-3-keyring/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · La tarjeta",
+     "path": "mockups/users-person-roles/phone/variant-1-card/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · Lo que puede hacer",
+     "path": "mockups/users-person-roles/phone/variant-2-abilities/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · El llavero",
+     "path": "mockups/users-person-roles/phone/variant-3-keyring/index.html"
+    }
+   ]
   }
  ]
 }

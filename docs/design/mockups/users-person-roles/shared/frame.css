@@ -1,0 +1,88 @@
+/* Lo común a las tres variantes: el marco de Usuarios, la lista de personas, la tostada y el
+   pedido de Google o la huella. Cada variante pone lo suyo en la tarjeta y en «Autorizar». */
+.app { grid-template-columns: 216px 1fr; }
+.marca img { height: 30px; width: auto; }
+.lateral a { cursor: pointer; text-decoration: none; }
+.cabecera .acciones .btn { cursor: pointer; }
+.pantalla.lista-tarjeta { display: grid; grid-template-columns: 1fr 470px; gap: 24px; overflow: hidden; }
+.col-lista { display: flex; flex-direction: column; min-height: 0; }
+.col-lista .buscar { display: flex; gap: 8px; margin-bottom: 12px; }
+.col-lista .buscar .campo { flex: 1; height: 44px; }
+.lista { overflow: auto; padding: 2px 2px 24px; margin: -2px; display: grid; gap: 8px; align-content: start; }
+.grupo-tit { font-size: 14px; font-weight: 650; color: var(--texto-2); padding: 8px 4px 0; }
+
+.pers { display: grid; grid-template-columns: 40px 1fr auto 16px; gap: 12px; align-items: center; padding: 10px 14px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); cursor: pointer; text-align: left; transition: transform var(--t-micro) var(--curva); }
+.pers:active { transform: scale(.99); }
+.pers.elegida { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino), var(--sombra-1); }
+.pers.baja { background: transparent; box-shadow: none; border-style: dashed; }
+.pers.baja .nom { color: var(--texto-2); text-decoration: line-through; text-decoration-color: var(--borde-fuerte); }
+.pers .av { width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; font-weight: 800; font-size: 14px; }
+.pers .nom { font-weight: 700; font-size: 16px; line-height: 22px; display: flex; gap: 8px; align-items: center; }
+.pers .cor { font-size: 14px; color: var(--texto-2); line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pers .roles { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 260px; }
+.pers .chev { color: var(--texto-3); }
+.vos { display: inline-flex; height: 24px; padding: 0 8px; border-radius: 99px; background: var(--accion-suave); color: var(--accion-texto); font-size: 14px; font-weight: 700; align-items: center; }
+.pastilla.rol { background: var(--pino-suave); color: var(--pino-texto); }
+.pastilla.rol .i-s { width: 15px; height: 15px; }
+
+/* La tarjeta de la persona (derecha en la computadora) */
+.tarjeta-p { background: var(--superficie); border: 1px solid var(--borde); border-radius: 20px; box-shadow: var(--sombra-2); overflow: auto; min-height: 0; padding: 24px; }
+.tarjeta-p .cab { display: flex; gap: 16px; align-items: center; }
+.tarjeta-p .cab .av { width: 56px; height: 56px; border-radius: 99px; display: grid; place-items: center; font-weight: 800; font-size: 18px; }
+.tarjeta-p .cab .nom { font-size: 22px; line-height: 28px; font-weight: 800; letter-spacing: -.01em; }
+.sec-tit { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 750; margin: 22px 0 10px; }
+.sec-tit .n { color: var(--texto-3); font-weight: 700; }
+.sec-tit .btn { margin-left: auto; }
+.resto { margin-top: 20px; border-top: 1px solid var(--borde); padding-top: 16px; color: var(--texto-3); font-size: 14px; display: grid; gap: 8px; }
+.resto .fila { display: flex; gap: 10px; align-items: center; height: 44px; padding: 0 12px; border-radius: var(--r); background: var(--fondo); }
+
+/* Tostada y velo */
+.tostadas { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 90; display: grid; gap: 8px; justify-items: center; pointer-events: none; }
+.tostadas .tostada { pointer-events: auto; animation: tostada-in var(--t-nav) var(--rebote); }
+.tostadas .tostada.fuera { opacity: 0; transform: translateY(8px); transition: opacity var(--t) var(--curva-salida), transform var(--t) var(--curva-salida); }
+.tostadas .tostada button { background: rgba(255,255,255,.14); border: 0; color: #fff; font-weight: 750; border-radius: 10px; height: 32px; padding: 0 10px; font-size: 14px; }
+@keyframes tostada-in { from { opacity: 0; transform: translateY(12px) scale(.96); } }
+.velo { position: fixed; inset: 0; background: rgba(26,29,27,.3); z-index: 60; opacity: 0; transition: opacity var(--t-nav) var(--curva); }
+.velo.abierto { opacity: 1; }
+.dialogo { position: fixed; z-index: 70; left: 50%; top: 50%; width: 560px; max-height: 720px; overflow: auto; transform: translate(-50%, -46%) scale(.98); opacity: 0; background: var(--superficie); border-radius: var(--r-hoja); box-shadow: var(--sombra-3); padding: 28px; transition: transform var(--t-nav) var(--curva), opacity var(--t) var(--curva); }
+.dialogo.abierto { transform: translate(-50%, -50%); opacity: 1; }
+.dialogo h2 { margin: 0 0 4px; font-size: 24px; line-height: 30px; font-weight: 800; letter-spacing: -.02em; }
+.dialogo .pie { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+.etq { display: block; font-size: 14px; font-weight: 650; color: var(--texto-2); margin: 16px 0 6px; }
+input.entrada { width: 100%; height: 48px; padding: 0 14px; border-radius: var(--r); border: 1px solid var(--borde-fuerte); background: var(--superficie); font-size: 16px; font-weight: 600; outline: none; }
+input.entrada:focus { border-color: var(--pino); box-shadow: 0 0 0 4px rgba(18,56,47,.12); }
+
+/* Confirmá que sos vos (R3.8) */
+.reauth { text-align: center; }
+.reauth .sello { width: 72px; height: 72px; border-radius: 99px; margin: 4px auto 16px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino); }
+.reauth .sello .i { width: 36px; height: 36px; }
+.reauth .sello.ok { background: var(--logro-suave); color: var(--logro-texto); }
+.reauth .sello.leyendo { animation: latido 900ms var(--curva) infinite; }
+@keyframes latido { 50% { transform: scale(1.08); } }
+.btn-google { gap: 10px; }
+.btn-google .g { width: 20px; height: 20px; }
+
+/* ----- Celular ----- */
+body.celu-body { width: 390px; }
+.celu .celu-cabecera .btn { margin-left: auto; }
+.celu .lista { padding: 2px 2px 120px; }
+.celu .pers { grid-template-columns: 40px 1fr 16px; }
+.celu .pers .roles { justify-content: flex-start; max-width: none; margin-top: 4px; }
+.celu .pers .cor { display: none; }
+.pagina { position: absolute; inset: 0; background: var(--fondo); z-index: 20; display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--t-nav) var(--curva); box-shadow: -12px 0 32px rgba(26,29,27,.08); }
+.pagina.abierta { transform: none; }
+.pagina .volver { display: flex; align-items: center; gap: 4px; height: 44px; padding: 0 12px; color: var(--pino); font-weight: 750; background: none; border: 0; font-size: 16px; }
+.pagina .cuerpo { flex: 1; overflow: auto; padding: 4px 16px 120px; }
+.hoja { position: absolute; left: 0; right: 0; bottom: 0; z-index: 70; background: var(--superficie); border-radius: 24px 24px 0 0; box-shadow: var(--sombra-3); max-height: 92%; display: flex; flex-direction: column; transform: translateY(100%); transition: transform var(--t-nav) var(--curva); }
+.hoja.abierta { transform: none; }
+.hoja .asa { width: 40px; height: 5px; border-radius: 99px; background: var(--borde-fuerte); margin: 8px auto 4px; flex: none; }
+.hoja .hc { overflow: auto; padding: 8px 16px 16px; }
+.hoja .hp { padding: 12px 16px 24px; border-top: 1px solid var(--borde); display: grid; gap: 8px; }
+.celu .velo { position: absolute; }
+.celu .tostadas { position: absolute; bottom: 160px; width: 358px; }
+.col-lista, .pantalla.lista-tarjeta > * { min-width: 0; }
+.nav-item.activo::before { display: none; }
+.pagina .cab { display: flex; gap: 14px; align-items: center; margin-top: 4px; }
+.pagina .cab .av { width: 52px; height: 52px; border-radius: 99px; display: grid; place-items: center; font-weight: 800; font-size: 18px; flex: none; }
+.pagina .cab .nom { font-size: 22px; line-height: 28px; font-weight: 800; letter-spacing: -.01em; }
+.celu .opc .cuantos { display: none; }

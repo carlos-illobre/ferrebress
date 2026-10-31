@@ -1,0 +1,84 @@
+/* Variante 2 · Lo que puede hacer: se elige qué puede, y la pantalla deduce los roles. */
+.pantalla.v2 { display: grid; grid-template-columns: 330px 1fr; gap: 24px; overflow: hidden; }
+.pantalla.v2 > * { min-width: 0; }
+.v2 .pers { grid-template-columns: 40px 1fr 16px; }
+.v2 .pers .roles { justify-content: flex-start; max-width: none; margin-top: 4px; }
+.v2 .pers .cor { display: none; }
+.v2 .pers .cor { white-space: nowrap; }
+.panel { background: var(--superficie); border: 1px solid var(--borde); border-radius: 20px; box-shadow: var(--sombra-2); padding: 24px 28px; overflow: auto; display: flex; flex-direction: column; }
+.panel .cab { display: flex; gap: 16px; align-items: center; }
+.panel .cab .av { width: 52px; height: 52px; border-radius: 99px; display: grid; place-items: center; font-weight: 800; font-size: 18px; }
+.panel .cab .nom { font-size: 22px; line-height: 28px; font-weight: 800; }
+.pregunta { font-size: 20px; font-weight: 750; letter-spacing: -.01em; margin: 20px 0 12px; display: flex; align-items: center; gap: 10px; }
+.pregunta .t-detalle { font-weight: 600; margin-left: auto; }
+
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.tile { position: relative; display: grid; grid-template-rows: auto 1fr; gap: 10px; padding: 14px; border-radius: 16px; border: 1px solid var(--borde); background: var(--fondo); text-align: left; cursor: pointer; min-height: 128px; transition: background var(--t), border-color var(--t), transform var(--t-micro) var(--curva); }
+.tile:active { transform: scale(.98); }
+.tile .arriba { display: flex; align-items: center; justify-content: space-between; }
+.tile .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--superficie); color: var(--texto-2); transition: background var(--t), color var(--t); }
+.tile .nom { font-weight: 750; font-size: 16px; line-height: 21px; }
+.tile .fr { font-size: 14px; line-height: 19px; color: var(--texto-2); margin-top: 2px; }
+.tile .kbd { position: absolute; right: 12px; bottom: 12px; }
+.tile.si { background: var(--superficie); border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino), var(--sombra-1); }
+.tile.si .ic { background: var(--pino); color: #fff; }
+.tile.fijo { cursor: default; }
+.tile.fijo .nota { font-size: 14px; color: var(--pino-texto); font-weight: 650; }
+.tile.tiembla { animation: tiembla 360ms var(--curva); }
+@keyframes tiembla { 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+
+/* Interruptor */
+.sw { width: 44px; height: 26px; border-radius: 99px; background: var(--borde-fuerte); position: relative; flex: none; transition: background var(--t); }
+.sw::after { content: ""; position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 99px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform var(--t) var(--rebote); }
+.si .sw { background: var(--pino); }
+.si .sw::after { transform: translateX(18px); }
+
+/* Eso es: los roles que salen */
+.esoes { margin-top: 16px; padding: 14px 16px; border-radius: 16px; background: var(--fondo); display: grid; gap: 8px; }
+.esoes .fila { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.esoes .et { font-size: 14px; font-weight: 650; color: var(--texto-2); margin-right: 4px; }
+.esoes .pastilla { height: 32px; font-size: 15px; animation: pop var(--t-nav) var(--rebote); }
+.esoes .pastilla.saca { background: var(--error-suave); color: var(--error-texto); text-decoration: line-through; }
+.esoes .pastilla.nueva { background: var(--logro-suave); color: var(--logro-texto); }
+@keyframes pop { from { opacity: 0; transform: scale(.85); } }
+.esoes .aviso { margin: 0; }
+.opciones { display: grid; gap: 6px; }
+.opciones button { display: flex; gap: 10px; align-items: center; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--borde-fuerte); background: var(--superficie); font-weight: 650; font-size: 15px; cursor: pointer; }
+.opciones button .t-detalle { margin-left: auto; }
+.opciones button.elegida { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino); }
+
+/* Igual que alguien */
+.igual { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+.igual button { flex: none; display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 14px 0 6px; border-radius: 99px; border: 1px solid var(--borde-fuerte); background: var(--superficie); cursor: pointer; font-weight: 650; font-size: 15px; }
+.igual button .av { width: 36px; height: 36px; border-radius: 99px; display: grid; place-items: center; font-weight: 800; font-size: 14px; }
+.igual button .t-detalle { font-weight: 600; }
+.igual button.elegida { border-color: var(--pino); background: var(--pino-suave); }
+
+.panel .pie { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 16px; }
+.panel .pie .info { flex: 1; font-size: 14px; color: var(--texto-2); font-weight: 600; display: flex; gap: 6px; align-items: center; }
+
+/* Celular */
+.celu .tiles { grid-template-columns: 1fr; gap: 8px; }
+.celu .tile { grid-template-columns: 40px 1fr 44px; grid-template-rows: none; align-items: center; min-height: 72px; padding: 12px; gap: 12px; }
+.celu .tile .arriba { display: contents; }
+.celu .tile .arriba .sw { grid-column: 3; grid-row: 1; }
+.celu .tile .kbd { display: none; }
+.celu .pregunta { font-size: 18px; margin: 18px 0 10px; }
+.celu .pregunta .t-detalle { display: none; }
+.celu .barra-v2 { position: absolute; left: 0; right: 0; bottom: 0; z-index: 25; padding: 12px 16px 24px; background: rgba(255,255,255,.95); backdrop-filter: blur(12px); border-top: 1px solid var(--borde); box-shadow: 0 -8px 24px -12px rgba(26,29,27,.15); transform: translateY(110%); transition: transform var(--t-nav) var(--curva); }
+.celu .barra-v2.visible { transform: none; }
+.celu .barra-v2 .esoes { margin: 0 0 10px; padding: 0; background: none; }
+.celu .pagina .cuerpo { padding-bottom: 220px; }
+.v2-aut .tiles { grid-template-columns: repeat(3, 1fr); }
+.celu .v2-aut .tiles { grid-template-columns: 1fr; }
+/* Computadora, segunda pasada: fichas en dos columnas, en renglón, para que entre todo sin bajar */
+.tiles, .v2-aut .tiles { grid-template-columns: 1fr 1fr; gap: 8px; }
+.tile { grid-template-columns: 40px 1fr auto 44px; grid-template-rows: none; align-items: center; min-height: 72px; padding: 10px 14px; gap: 12px; }
+.tile .arriba { display: contents; }
+.tile .arriba .ic { grid-column: 1; grid-row: 1; }
+.tile .arriba .sw { grid-column: 4; grid-row: 1; }
+.tile > span:nth-child(2) { grid-column: 2; grid-row: 1; min-width: 0; }
+.tile .kbd { position: static; grid-column: 3; grid-row: 1; }
+.tile .fr { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.celu .tile .fr { white-space: normal; }
+.pregunta { margin: 16px 0 10px; }
