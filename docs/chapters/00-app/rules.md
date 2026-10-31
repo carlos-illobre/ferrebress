@@ -25,9 +25,11 @@ ambiente de pruebas.
   parte u opción dice qué es eso en común.
 - **R1.3** Lo que todavía no existe aparece con la marca «Pronto» y no se puede abrir, en el ambiente
   de pruebas y en producción: en el menú, en Más y dentro de las pantallas.
-- **R1.4** Al abrir la aplicación se abre siempre la primera opción del menú que exista (el manual
-  no cuenta: se abre encima de lo demás). No se recuerda la última parte usada ni cómo quedó el
-  menú.
+- **R1.8** Lo que la persona no puede usar por sus permisos no aparece en el menú, en Más ni en
+  las pestañas (02 · R7.7).
+- **R1.4** Al abrir la aplicación se abre siempre la primera opción del menú que exista y que la
+  persona pueda usar (el manual no cuenta: se abre encima de lo demás). No se recuerda la última
+  parte usada ni cómo quedó el menú.
 - **R1.6** En la computadora, un botón minimiza el menú a solo sus íconos y lo vuelve a agrandar.
   Minimizado, cada ícono dice su nombre al pasar el mouse o al llegar con la marca del teclado.
   Cada vez que se abre la aplicación, el menú arranca agrandado (R1.4).
