@@ -18,6 +18,8 @@ export type SessionRow = {
   isPhone: boolean;
   passkeyId: string | null;
   passkeyAt: Date | null;
+  // La huella del celular que aprobó la entrada de esta computadora con el QR.
+  approvedBy: string | null;
   closedReason: ClosedReason | null;
 };
 
@@ -39,6 +41,7 @@ export type SessionsTables = {
     is_phone: boolean;
     passkey_id: string | null;
     passkey_at: Date | null;
+    approved_by: string | null;
     closed_at: Date | null;
     closed_reason: ClosedReason | null;
   };
@@ -58,6 +61,7 @@ const columns = [
   'is_phone as isPhone',
   'passkey_id as passkeyId',
   'passkey_at as passkeyAt',
+  'approved_by as approvedBy',
   'closed_reason as closedReason',
 ] as const;
 
@@ -83,6 +87,7 @@ function finding(db: Kysely<SessionsTables>) {
           is_phone: row.isPhone,
           passkey_id: row.passkeyId,
           passkey_at: row.passkeyAt,
+          approved_by: row.approvedBy,
         })
         .execute();
     },

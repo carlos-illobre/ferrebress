@@ -42,6 +42,7 @@ export const graciela = person({
   displayName: 'Graciela Benítez',
   sessions: 2,
   phones: 1,
+  authorizedBy: 'ruben',
 });
 export const pedro = person({
   id: 'pedro',

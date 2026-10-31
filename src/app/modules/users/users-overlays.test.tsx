@@ -3,7 +3,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
-import { access, graciela, openUsers, person, row, toast } from './users-test-kit.tsx';
+import { graciela, openUsers, person, row, toast } from './users-test-kit.tsx';
 
 const dialog = () => screen.getByRole('alertdialog');
 const field = (name: RegExp) => within(dialog()).getByRole('textbox', { name }) as HTMLInputElement;
@@ -87,6 +87,35 @@ describe('autorizar a alguien', () => {
     expect(server.bodies('/api/session/confirm/google')).toEqual([{ credential: 'pase' }]);
   });
 
+  it('users-R3.3, R3.8: después de confirmar, un correo repetido se dice junto al campo', async () => {
+    const frame = googleFrame();
+    const server = openUsers({
+      '/api/users': [
+        { body: { people: [graciela] } },
+        { status: 403, body: { error: 'confirm-first' } },
+        { status: 409, body: { error: 'email-taken' } },
+      ],
+      '/api/start': startReply(),
+      '/api/session/confirm/google': {},
+    });
+    await screen.findByText('Graciela Benítez');
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /Autorizar a alguien/ })[0] as HTMLElement,
+    );
+    type(field(/Correo/), 'graciela@example.com');
+    fireEvent.click(authorizeButton());
+    await screen.findByRole('alertdialog', { name: 'Confirmá que sos vos' });
+    frame.ready();
+    await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(1));
+    frame.credential('pase');
+    await waitFor(() => expect(server.bodies('/api/users').filter(Boolean)).toHaveLength(2));
+    const form = await screen.findByRole('alertdialog', { name: 'Autorizar a alguien' });
+    expect((await within(form).findByRole('alert')).textContent).toContain('ya está cargado');
+    expect((within(form).getByRole('textbox', { name: /Correo/ }) as HTMLInputElement).value).toBe(
+      'graciela@example.com',
+    );
+  });
+
   it('si el servidor falla, lo dice y no cierra', async () => {
     openUsers({
       '/api/users': [
@@ -130,107 +159,5 @@ describe('autorizar a alguien', () => {
     await openAuthorize();
     fireEvent.click(within(dialog()).getByRole('button', { name: /Cancelar/ }));
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
-  });
-});
-
-const lost = (phones: object[]) => ({
-  body: { people: [{ userId: 'graciela', displayName: 'Graciela Benítez', self: false, phones }] },
-});
-const android = {
-  id: 'f1',
-  deviceLabel: 'Chrome en Android',
-  sessions: 1,
-  passkey: true,
-  lastUsedAt: 1,
-};
-const iphone = {
-  id: 's9',
-  deviceLabel: 'Safari en iPhone',
-  sessions: 2,
-  passkey: false,
-  lastUsedAt: null,
-};
-
-describe('«Se perdió un celular» (users-R5.7)', () => {
-  const openLost = async () => {
-    await screen.findByText('Rubén Paredes');
-    fireEvent.click(
-      screen.getAllByRole('button', { name: /Se perdió un celular/ })[0] as HTMLElement,
-    );
-  };
-
-  it('users-E31, E32: de quién, cuál y «Cortar», que dice qué cortó', async () => {
-    const server = openUsers({
-      '/api/lost-phones': lost([android, iphone]),
-      '/api/users/graciela/access': { body: access },
-      '/api/users/graciela/phones/s9/cut': { body: { sessions: 2, passkey: false } },
-    });
-    fireEvent.click(await screen.findByText('Graciela Benítez', { selector: '.users-name em' }));
-    await openLost();
-    fireEvent.click(await within(dialog()).findByRole('button', { name: /Graciela Benítez/ }));
-    expect(dialog().querySelector('h2')?.textContent).toBe('¿Cuál celular de Graciela Benítez?');
-    const cut = within(dialog()).getByRole('button', { name: /Cortar/ }) as HTMLButtonElement;
-    expect(cut.disabled).toBe(true);
-    const which = within(dialog()).getByRole('button', { name: /Safari en iPhone/ });
-    expect(which.textContent).toContain('2 sesiones abiertas');
-    fireEvent.click(which);
-    fireEvent.click(cut);
-    await waitFor(() =>
-      expect(toast()).toBe(
-        'Cortado: Safari en iPhone de Graciela Benítez. Se cerraron sus 2 sesiones',
-      ),
-    );
-    expect(server.bodies('/api/users/graciela/phones/s9/cut')).toEqual([{ from: 'lost' }]);
-    expect(row(/Graciela/).querySelector('.users-counts')?.textContent).toBe('1');
-  });
-
-  it('con un solo celular ya está elegido; si no había nada, lo dice', async () => {
-    openUsers({
-      '/api/lost-phones': lost([android]),
-      '/api/users/graciela/phones/f1/cut': [
-        { body: { sessions: 1, passkey: true } },
-        { body: { sessions: 0, passkey: false } },
-        { status: 500, body: { error: 'internal' } },
-      ],
-    });
-    for (const said of [
-      'Se cerró su sesión y se le quitó la huella',
-      'no había nada que cortar',
-      'No se pudo',
-    ]) {
-      await openLost();
-      fireEvent.click(await within(dialog()).findByRole('button', { name: /Graciela Benítez/ }));
-      expect(dialog().querySelector('h2')?.textContent).toBe('El celular de Graciela Benítez');
-      fireEvent.click(within(dialog()).getByRole('button', { name: /Cortar/ }));
-      await waitFor(() => expect(toast()).toContain(said));
-    }
-  });
-
-  it('también los propios, con «(vos)»; en el celular se abre desde su renglón', async () => {
-    openUsers({
-      '/api/lost-phones': {
-        body: {
-          people: [
-            { userId: 'ruben', displayName: 'Rubén Paredes', self: true, phones: [android] },
-          ],
-        },
-      },
-    });
-    await screen.findByText('Rubén Paredes', { selector: '.users-name em' });
-    fireEvent.click(document.querySelector('.users-lost') as HTMLElement);
-    expect(
-      await within(dialog()).findByRole('button', { name: /Rubén Paredes \(vos\)/ }),
-    ).toBeTruthy();
-  });
-
-  it('sin nadie con celulares, lo dice; si falla, también queda vacío', async () => {
-    openUsers({
-      '/api/lost-phones': [{ body: { people: [] } }, { status: 500, body: { error: 'internal' } }],
-    });
-    await openLost();
-    expect(await within(dialog()).findByText(/Nadie tiene un celular/)).toBeTruthy();
-    fireEvent.click(within(dialog()).getByRole('button', { name: /Cancelar/ }));
-    await openLost();
-    expect(await within(dialog()).findByText(/Nadie tiene un celular/)).toBeTruthy();
   });
 });

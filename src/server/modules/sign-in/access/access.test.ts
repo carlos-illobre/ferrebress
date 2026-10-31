@@ -140,6 +140,19 @@ describe('las sesiones y los celulares, desde Usuarios', () => {
     expect(
       (await admin.request(`/api/users/${adminId}/phones/${mine.id}/cut`, { from: 'card' })).status,
     ).toBe(404);
+    // Una sesión de otra persona tampoco existe para esta; y cada rechazo queda anotado.
+    const [session] = (await admin.request(`/api/users/${linked.userId}/access`)).body.sessions;
+    expect(
+      (await admin.request(`/api/users/${adminId}/sessions/${session.id}/close`, {})).status,
+    ).toBe(404);
+    expect(kit.server.platform.audit.read(2026).at(-1)).toMatchObject({
+      type: 'users.rejected',
+      data: { targetUserId: adminId, reason: 'not-found' },
+    });
+    expect((await admin.request('/api/users/x/access')).status).toBe(404);
+    expect(
+      (await admin.request(`/api/users/${adminId}/phones/x/cut`, { from: 'card' })).status,
+    ).toBe(404);
   });
 
   it('users-R3.8: confirmar con la huella propia sirve; con otra cuenta de Google o la huella de otra persona, no', async () => {
@@ -200,5 +213,9 @@ describe('las sesiones y los celulares, desde Usuarios', () => {
       expect((await stranger.request('/api/users')).status).toBe(429);
     });
     expect(queries).toBe(0);
+    // Quien ya tiene su sesión en memoria, desde la misma dirección, sigue trabajando.
+    const neighbor = createDevice(kit.server, { ip: '181.5.5.5' });
+    await neighbor.signInWithGoogle({ sub: 'sub-admin', email: 'admin@example.com' });
+    expect((await neighbor.request('/api/users')).status).toBe(200);
   });
 });

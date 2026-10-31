@@ -68,7 +68,7 @@ describe('la lista de Usuarios', () => {
   it('users-R2.2: sin conexión, gris y con lo último; abierta sin conexión, la pide al volver', async () => {
     act(() => online.set(false));
     const server = openUsers();
-    expect(screen.getByRole('status').textContent).toContain('Usuarios necesita conexión');
+    expect(screen.getByRole('status').textContent).toContain('Sin conexión');
     expect(server.sent).toHaveLength(0);
     for (const button of screen.getAllByRole('button', { name: /Autorizar a alguien/ }))
       expect((button as HTMLButtonElement).disabled).toBe(true);

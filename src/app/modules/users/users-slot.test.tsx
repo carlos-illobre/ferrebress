@@ -19,9 +19,9 @@ describe('el lugar de Usuarios', () => {
     await waitFor(() => expect(updateRequired.get()).toBe(true));
   });
 
-  it('sin red, dice que necesita conexión', async () => {
+  it('sin red, dice «Sin conexión»', async () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
     render(<UsersSlot testing />);
-    expect((await screen.findByRole('status')).textContent).toContain('Usuarios necesita conexión');
+    expect((await screen.findByRole('status')).textContent).toContain('Sin conexión');
   });
 });

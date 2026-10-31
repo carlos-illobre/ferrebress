@@ -32,15 +32,24 @@ function Confirm({ retry, close }: { retry: () => unknown; close: () => void }) 
   return sheet ? <sheet.Sheet onConfirmed={retry} onClose={close} /> : null;
 }
 
-function Overlays() {
-  const users = useUsersContext();
-  const overlay = users.overlay;
+function Overlay() {
+  const { overlay } = useUsersContext();
   if (!overlay) return null;
   if (overlay.kind === 'authorize') return <Authorize />;
   if (overlay.kind === 'lost') return <Lost />;
   if (overlay.kind === 'deactivate') return <ConfirmDeactivate person={overlay.person} />;
-  if (overlay.kind === 'close-all') return <ConfirmCloseAll person={overlay.person} />;
-  return <Confirm retry={overlay.retry} close={users.close} />;
+  return <ConfirmCloseAll person={overlay.person} />;
+}
+
+// Lo de encima y, más arriba todavía, volver a confirmar quién es.
+function Overlays() {
+  const users = useUsersContext();
+  return (
+    <>
+      <Overlay />
+      {users.retry && <Confirm retry={users.retry.again} close={users.confirmed} />}
+    </>
+  );
 }
 
 // En lo angosto, la tarjeta abierta es un paso del historial: atrás vuelve a la lista.

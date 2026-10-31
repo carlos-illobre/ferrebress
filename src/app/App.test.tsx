@@ -17,6 +17,10 @@ import { newVersion, sessionClosed } from './platform/server/api.ts';
 import { fakeServer } from './testing/fake-server.ts';
 import { later } from './testing/later.ts';
 
+// Estas pruebas son de la aplicación, no de Usuarios (la primera opción del menú): su lugar queda
+// vacío y no pide nada.
+vi.mock('./modules/users/index.ts', () => ({ UsersSlot: () => null }));
+
 vi.mock('./modules/sign-in/codes/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
 
 const reading = {
@@ -105,15 +109,10 @@ describe('la aplicación al abrir', () => {
     const server = fakeServer({ '/api/start': startReply({ person: ana }) });
     render(<App />);
     await screen.findByRole('region', { name: 'Tu sesión' });
-    // Al abrir, la primera opción que existe pide lo suyo (Usuarios, su lista); después, nada.
-    await waitFor(() => expect(server.sent.map((one) => one.path)).toContain('/api/users'), {
-      timeout: 5000,
-    });
-    const opened = server.sent.length;
     vi.useFakeTimers();
     await later(2 * 60 * 60_000);
     vi.useRealTimers();
-    expect(server.sent).toHaveLength(opened);
+    expect(server.sent).toHaveLength(1);
   });
 
   it('sin sesión, al volver la conexión no pregunta por ninguna', async () => {

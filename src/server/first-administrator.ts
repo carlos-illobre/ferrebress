@@ -1,7 +1,7 @@
 // El comando del primer Administrador (02 · R1.2; diseño de 02, § 7): carga a la primera persona de
 // una instalación, solo si no hay ninguna. Toma del ambiente solo DATABASE_URL: el correo nunca sale
-// de la configuración. Queda fuera de la cobertura, como main.ts: lo que hace se prueba en
-// modules/users/first.ts.
+// de la configuración. Queda fuera de la cobertura, como main.ts: lo que hace (modules/users/first.ts)
+// se prueba en modules/users/users.test.ts.
 //   docker compose exec server node src/server/first-administrator.ts <correo> [nombre]
 import { addFirstAdministrator } from './modules/users/first.ts';
 import { createUsersModule } from './modules/users/index.ts';

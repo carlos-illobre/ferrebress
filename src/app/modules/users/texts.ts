@@ -40,7 +40,7 @@ export const texts = {
   loading: 'Buscando a las personas',
   loadFailed: 'No se pudo traer la lista.',
   retry: 'Reintentar',
-  offline: 'Usuarios necesita conexión. Vuelve sola cuando haya.',
+  offline: 'Sin conexión · se ve lo último, vuelve sola',
 };
 
 export const cardTexts = {
@@ -55,6 +55,8 @@ export const cardTexts = {
     never ? 'Vacío: se ve su correo' : 'Vacío: vuelve al de Google',
   editHelp: 'Enter guarda · Esc cancela',
   authorizedAt: (date: string) => `Autorizada el ${date}`,
+  // El primer Administrador, que cargó el comando al instalar (R1.2).
+  installed: (date: string) => `Desde la instalación, el ${date}`,
   deactivatedAt: (date: string) => `Dada de baja el ${date}`,
   neverHint: (email: string) =>
     `Todavía no entró. Avisale que entre con Google con ${email}: Ferrebress no le manda ningún correo.`,

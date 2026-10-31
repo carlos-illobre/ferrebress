@@ -18,7 +18,8 @@ export type Refusal =
   | 'last-administrator'
   | 'email-taken';
 
-export type Outcome = { user: User } | { refused: Refusal; user?: User };
+// `unchanged`: ya estaba así (dada de alta o de baja); se contesta cómo está, sin anotar nada.
+export type Outcome = { user: User; unchanged?: true } | { refused: Refusal; user?: User };
 
 // Lo que no se tocó: o no existe, o cambió (y se devuelve como está), o con la misma versión no
 // hacía falta (`same`: ya estaba dada de baja o de alta) o ya entró.
@@ -31,7 +32,7 @@ async function whyNot(
   const user = await data.findById(id);
   if (!user) return { refused: 'not-found' };
   if (user.version !== version) return { refused: 'changed', user };
-  return same === 'as-is' ? { user } : { refused: 'already-entered', user };
+  return same === 'as-is' ? { user, unchanged: true } : { refused: 'already-entered', user };
 }
 
 export function createPeople(platform: Platform) {
@@ -48,11 +49,12 @@ export function createPeople(platform: Platform) {
       return inserted ? { user: inserted } : { refused: 'email-taken' };
     },
 
+    // Sin `name`, el nombre no cambia (el contrato); con el correo, puede cambiar a la vez.
     async change(id: string, version: number, change: { name?: string | null; email?: string }) {
-      const name = cleanName(change.name);
+      const name = change.name === undefined ? undefined : cleanName(change.name);
       const changed =
         change.email === undefined
-          ? await rename(platform, id, version, name)
+          ? await rename(platform, id, version, name ?? null)
           : await data().changeEmail(id, version, normalizeEmail(change.email), name);
       return changed ? { user: changed } : whyNot(data(), id, version, 'already-entered');
     },

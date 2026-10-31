@@ -60,7 +60,7 @@ const row = (id: string, name: string, lastSignInAt: number | null, self = false
   phones: 0,
 });
 
-async function answerUsers(page: Page, person: Person): Promise<void> {
+export async function answerUsers(page: Page | BrowserContext, person: Person): Promise<void> {
   const people = [
     row(person.userId, person.name, now.getTime() - 2 * hour, true),
     row('lucia', 'Lucía Fernández', now.getTime() - 50 * hour),

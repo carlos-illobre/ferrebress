@@ -18,7 +18,7 @@ export function Authorize() {
   const [error, setError] = useState<string>();
   const send = async () => {
     if (!looksLikeEmail(email)) return setError(refusalTexts['bad-request']);
-    const refused = await authorize(users, name, email);
+    const refused = await authorize(users, name, email, send);
     if (refused) setError(refusalTexts[refused]);
   };
   return (
@@ -32,7 +32,7 @@ export function Authorize() {
       >
         <h2>{t.authorizeTitle}</h2>
         <p class="users-lead">{t.authorizeLead}</p>
-        <label class="users-field users-field-name">
+        <label class="users-field users-field-name" data-private="">
           <span>{t.name}</span>
           <input
             value={name}

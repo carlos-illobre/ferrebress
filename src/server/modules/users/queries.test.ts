@@ -58,6 +58,6 @@ describe('las consultas de cada ruta de Usuarios', () => {
     });
     counts.close = await count(`/api/users/${linked.userId}/sessions/${sessions[0].id}/close`, {});
     counts.closeAll = await count(`/api/users/${linked.userId}/sessions/close`, {});
-    expect(counts).toEqual({ access: 2, lost: 3, lostAgain: 2, cut: 3, close: 1, closeAll: 1 });
+    expect(counts).toEqual({ access: 2, lost: 3, lostAgain: 2, cut: 3, close: 2, closeAll: 1 });
   });
 });

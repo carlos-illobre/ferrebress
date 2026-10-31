@@ -27,6 +27,7 @@ export type NewSession = Pick<
   | 'isPhone'
   | 'passkeyId'
   | 'passkeyAt'
+  | 'approvedBy'
 >;
 
 const keyOf = (token: string): string => createHash('sha256').update(token).digest('hex');
@@ -165,6 +166,8 @@ export function sessionStoreOf(data: Data, clock: Clock, onEnded: OnEnded) {
     remember: ({ token, session }: { token: string; session: Session }) =>
       void memory.byKey.set(keyOf(token), session),
     resolve: (token: string) => resolveSession(deps, token),
+    // Si el pase es de una sesión que ya está en memoria (sin consultar la base).
+    knows: (token: string) => memory.byKey.has(keyOf(token)),
     findById: (id: string) => data.findById(id),
 
     ...closing(deps),

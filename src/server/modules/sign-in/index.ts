@@ -13,6 +13,7 @@ import { registerGoogleRoutes } from './google/routes.ts';
 import { createSignIn } from './migrations/001-sign-in.ts';
 import { createOffline } from './migrations/002-offline.ts';
 import { addAccess } from './migrations/003-access.ts';
+import { addApproved } from './migrations/004-approved.ts';
 import { registerOfflineRoutes } from './offline/routes.ts';
 import { offlineSettings } from './offline/rules.ts';
 import { registerLinkRoutes } from './passkeys/link-routes.ts';
@@ -42,6 +43,7 @@ export function createSignInModule(options: SignInOptions) {
         '001-sign-in': createSignIn,
         '002-offline': createOffline,
         '003-access': addAccess,
+        '004-approved': addApproved,
       },
     },
     register(platform) {

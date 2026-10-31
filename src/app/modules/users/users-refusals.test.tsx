@@ -2,6 +2,7 @@
 // no está y un error cualquiera.
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
 import { access, inCard, openUsers, row, ruben, toast } from './users-test-kit.tsx';
 
 const choose = async (name: RegExp) => {
@@ -75,5 +76,28 @@ describe('los rechazos en la tarjeta', () => {
     );
     expect(row(/Graciela/).classList.contains('off')).toBe(false);
     expect(row(/pedro/)).toBeTruthy();
+  });
+
+  it('users-R3.8: cambiar el correo pide confirmar y lo repite solo; un correo repetido lo dice', async () => {
+    const frame = googleFrame();
+    const server = openUsers({
+      '/api/users/pedro': [
+        { status: 403, body: { error: 'confirm-first' } },
+        { status: 409, body: { error: 'email-taken' } },
+      ],
+      '/api/start': startReply(),
+      '/api/session/confirm/google': {},
+    });
+    await choose(/pedro/);
+    fireEvent.click(inCard().getByRole('button', { name: 'Cambiar el correo' }));
+    const input = inCard().getByRole('textbox') as HTMLInputElement;
+    input.value = 'graciela@example.com';
+    press(input, 'Enter');
+    await screen.findByRole('alertdialog', { name: 'Confirmá que sos vos' });
+    frame.ready();
+    await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(1));
+    frame.credential('pase');
+    await waitFor(() => expect(server.bodies('/api/users/pedro')).toHaveLength(2));
+    await waitFor(() => expect(toast()).toContain('ya está cargado'));
   });
 });

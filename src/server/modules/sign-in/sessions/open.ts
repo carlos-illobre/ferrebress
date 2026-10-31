@@ -35,6 +35,8 @@ type Opening = {
   googleAt?: Date;
   // La huella con la que entró, si entró con una.
   passkeyId?: string;
+  // La computadora que entró con el QR: la huella del celular que la aprobó.
+  approvedBy?: string;
   // El nombre del dispositivo; si no, el del navegador que pide.
   label?: string;
   // Lo que se contesta si la dieron de baja mientras entraba; si no, 401 `not-authorized`.
@@ -57,7 +59,9 @@ export async function openSession(ctx: SignInContext, c: Context, opening: Openi
     way: opening.data.method,
     isPhone: isPhone(c.req.header('User-Agent'), c.req.header('Sec-CH-UA-Mobile')),
     passkeyId: opening.passkeyId ?? null,
-    passkeyAt: opening.passkeyId ? now : null,
+    // La huella recién puesta (02 · R3.8); una entrada sin conexión la puso horas antes.
+    passkeyAt: opening.passkeyId && opening.data.method !== 'offline' ? now : null,
+    approvedBy: opening.approvedBy ?? null,
   };
   const created = await ctx.store.create(fields);
   if (!(await ctx.users.recordSignIn(opening.userId, now))) {

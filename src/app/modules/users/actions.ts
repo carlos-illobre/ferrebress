@@ -10,15 +10,18 @@ import { doneTexts } from './texts.ts';
 // Los rechazos que se dicen junto al campo del correo, sin tostada.
 const besideEmail = ['email-taken', 'bad-request'];
 
+// `again`: lo que repite el pedido después de confirmar quién es, con el diálogo todavía abierto,
+// así un correo repetido se dice junto al campo (R3.3).
 export async function authorize(
   users: Users,
   name: string,
   email: string,
+  again: () => unknown,
 ): Promise<string | undefined> {
   const result = await usersApi.authorize(email.trim(), name.trim());
   if (!result.ok) {
     if (besideEmail.includes(result.error)) return result.error;
-    if (!confirmFirst(users, result, () => authorize(users, name, email))) refused(users, result);
+    if (!confirmFirst(users, result, again)) refused(users, result);
     return undefined;
   }
   users.put(result.data.person);
@@ -31,11 +34,14 @@ export async function authorize(
 }
 
 // Cambiar el nombre (vacío vuelve al de Google, R3.5) o el correo (solo si nunca entró, R3.6).
+// Cambiar el correo pide confirmar quién es (R3.8): la caja ya se cerró, así que al repetirlo
+// (`again`) lo que iría junto al campo se dice en una tostada.
 export async function change(
   users: Users,
   person: PersonRow,
   field: 'name' | 'email',
   value: string,
+  again = false,
 ): Promise<string | undefined> {
   const text = value.trim();
   const result = await usersApi.change(
@@ -44,20 +50,22 @@ export async function change(
     field === 'name' ? { name: text || null } : { email: text },
   );
   if (!result.ok) {
-    if (field === 'email' && besideEmail.includes(result.error)) return result.error;
-    refused(users, result, person.id);
+    if (field === 'email' && besideEmail.includes(result.error) && !again) return result.error;
+    if (!confirmFirst(users, result, () => change(users, person, field, value, true)))
+      refused(users, result, person.id);
     return undefined;
   }
   users.put(result.data.person);
-  const said =
-    field === 'email'
-      ? doneTexts.emailSaved
-      : text
-        ? doneTexts.nameSaved
-        : doneTexts.nameCleared(person.neverSignedIn);
-  showToast(said, 'check');
+  showToast(changedSaying(person, field, text), 'check');
   return undefined;
 }
+
+const changedSaying = (person: PersonRow, field: 'name' | 'email', text: string) =>
+  field === 'email'
+    ? doneTexts.emailSaved
+    : text
+      ? doneTexts.nameSaved
+      : doneTexts.nameCleared(person.neverSignedIn);
 
 // Borrar, solo a quien nunca entró, sin confirmación (R3.7).
 export async function remove(users: Users, person: PersonRow) {

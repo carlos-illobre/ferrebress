@@ -1,6 +1,6 @@
 // La tarjeta de una persona (02 · R3.5 a R3.7, R4, R5): sus sesiones y celulares, cambiar el nombre
 // o el correo, borrar el alta, dar de baja y de alta, y los rechazos del servidor.
-import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   access,
@@ -74,6 +74,31 @@ describe('la tarjeta de una persona', () => {
     await choose(/Graciela/);
     fireEvent.click((await inCard().findAllByRole('button', { name: 'Quitar' }))[0] as HTMLElement);
     await waitFor(() => expect(toast()).toContain('no había nada que cortar'));
+  });
+
+  it('users-E20, E24: cancelar «Dar de baja» o «Cerrar todas» no cambia nada', async () => {
+    const server = openUsers({ '/api/users/graciela/access': { body: access } });
+    await choose(/Graciela/);
+    await inCard().findByText('Chrome en Windows');
+    for (const name of [/Dar de baja/, /Cerrar todas/]) {
+      fireEvent.click(inCard().getByRole('button', { name }));
+      fireEvent.click(
+        within(screen.getByRole('alertdialog')).getByRole('button', { name: /Cancelar/ }),
+      );
+      await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    }
+    expect(server.sent.map((one) => one.path)).toEqual([
+      '/api/users',
+      '/api/users/graciela/access',
+    ]);
+    expect(row(/Graciela/).classList.contains('off')).toBe(false);
+    expect(card().textContent).toContain('Autorizada el');
+  });
+
+  it('users-R1.2: el primer Administrador dice «Desde la instalación»', async () => {
+    openUsers({ '/api/users/ruben/access': { body: { sessions: [], phones: [] } } });
+    await choose(/Rubén/);
+    expect(card().textContent).toContain('Desde la instalación');
   });
 
   it('users-R5.4: «Cerrar todas» pide confirmación y dice cuántas cerró', async () => {

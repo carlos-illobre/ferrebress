@@ -43,6 +43,15 @@ const nodeRemoteAddress = (c: Context): string | undefined =>
 export const fail = (c: Context, status: ContentfulStatusCode, error: ErrorCode, extra = {}) =>
   c.json({ error, ...extra }, status);
 
+// Los identificadores de la dirección tienen forma de UUID: si no, no existe (404), sin llegar a la
+// base, que con otra forma daría un error (diseño de 02, § 9).
+export const uuidParams =
+  (...names: string[]): MiddlewareHandler =>
+  async (c, next) =>
+    names.every((name) => uuid.test(String(c.req.param(name))))
+      ? next()
+      : fail(c, 404, 'not-found');
+
 // Un rechazo que se decide en el fondo de un camino (abrir una sesión de alguien que dieron de baja
 // mientras entraba): se lanza y la plataforma lo contesta, sin repetir la rama en cada ruta.
 export class Refused extends Error {

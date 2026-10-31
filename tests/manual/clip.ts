@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { type Browser, expect, type Frame, type Page, test } from '@playwright/test';
 import type { ReadCodeResponse } from '../../src/shared/contracts/sign-in.ts';
 import { closedContext, expectClean, mediaDir, toWebp } from './media.ts';
-import { ana, header, now, start } from './scenes.ts';
+import { ana, answerUsers, header, now, start } from './scenes.ts';
 
 const name = 'phone-to-computer';
 const size = { width: 1280, height: 720 };
@@ -51,6 +51,8 @@ async function recording(browser: Browser, baseURL: string, scene: { entered: bo
   await closed.context.route('**/api/sign-in/codes/read', (route) =>
     route.fulfill({ json: read, headers: header() }),
   );
+  // La computadora que entró abre Usuarios, la primera opción del menú.
+  await answerUsers(closed.context, ana);
   return closed;
 }
 

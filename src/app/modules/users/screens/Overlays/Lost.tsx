@@ -10,7 +10,7 @@ import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { usersApi } from '../../api.ts';
 import { nowMs, sinceOf } from '../../logic.ts';
 import { refused, type Users, useUsersContext } from '../../state.ts';
-import { doneTexts, dialogTexts as t } from '../../texts.ts';
+import { doneTexts, somethingFailed, dialogTexts as t } from '../../texts.ts';
 import './Overlays.css';
 
 type Owner = LostPhonesResponse['people'][number];
@@ -94,13 +94,19 @@ function Which({
   );
 }
 
+const leadOf = (people: Owner[] | 'failed' | undefined) =>
+  people === 'failed' ? somethingFailed : people?.length === 0 ? t.lostNobody : t.lostWhoLead;
+
 export function Lost() {
   const users = useUsersContext();
-  const [people, setPeople] = useState<Owner[]>();
+  // `failed`: no se pudo preguntar; vacío: nadie tiene celulares para cortar.
+  const [people, setPeople] = useState<Owner[] | 'failed'>();
   const [owner, setOwner] = useState<Owner>();
   const [chosen, setChosen] = useState<string>();
   useEffect(() => {
-    void usersApi.lostPhones().then((result) => setPeople(result.ok ? result.data.people : []));
+    void usersApi
+      .lostPhones()
+      .then((result) => setPeople(result.ok ? result.data.people : 'failed'));
   }, []);
   const choose = (picked: Owner) => {
     setOwner(picked);
@@ -112,7 +118,7 @@ export function Lost() {
     : one
       ? t.lostOne(owner.displayName)
       : t.lostWhich(owner.displayName);
-  const lead = owner ? t.lostLead : people?.length === 0 ? t.lostNobody : t.lostWhoLead;
+  const lead = owner ? t.lostLead : leadOf(people);
   return (
     <Dialog label={title} className="users-dialog">
       <h2 data-private="">{title}</h2>
@@ -120,7 +126,7 @@ export function Lost() {
       {owner ? (
         <Which owner={owner} chosen={chosen} choose={setChosen} />
       ) : (
-        <Who people={people ?? []} choose={choose} />
+        <Who people={Array.isArray(people) ? people : []} choose={choose} />
       )}
       <div class="users-dialog-foot">
         <Button look="plain" doing={t.cancel} onPress={users.close} closes>

@@ -79,12 +79,12 @@ borran a los 30 días) y ya hay uno por persona.
   desde Usuarios.
 - **Sin ciclos:** `sign-in` ya recibe la fachada de `users` al crearse. `users` recibe de `sign-in`,
   al crearse, una función: `accessCounts(userIds, asking)`, cuántas sesiones abiertas y celulares con
-  huella tiene cada persona, sin lo de quien pregunta que no se muestra (R5.2, R5.5). El armado del
-  servidor (`app.ts`, que se prueba) las conecta, no `main.ts`.
-- **La sesión del pedido, para cualquier módulo** (código común, tarea propia): `sign-in` registra un
-  paso que lee la cookie y deja la sesión en el pedido (`c.get('session')`), y la plataforma da un
-  `requireSession` genérico que solo la lee. Así `users` sabe quién pregunta sin importar `sign-in`, y
-  sirve a todos los módulos que vienen.
+  huella tiene cada persona, sin lo de quien pregunta que no se muestra (R5.2, R5.5). Las conecta
+  `src/server/modules.ts`, que usan `main.ts` y las pruebas.
+- **La sesión del pedido, para cualquier módulo** (`platform/session.ts`): `sign-in` le da a la
+  plataforma cómo leerla (`sessions.provide`) y cualquier módulo la pide con `sessions.require` y la
+  lee con `sessionOf(c)`: quién es, su sesión, su dispositivo y cuándo confirmó quién es por última
+  vez (R3.8). Así `users` sabe quién pregunta sin importar `sign-in`.
 - **Los eventos del proceso**, para que `sign-in` reaccione sin que `users` lo conozca:
   `user.deactivated` (ya está) y `user.renamed` (nuevo).
 
@@ -103,7 +103,7 @@ una sola vez para el servidor y la aplicación.
 | `POST /api/users/:id/deactivate` | `{ version }`. `409 self` si es la propia | 6, con el comienzo y la confirmación de la transacción | users |
 | `POST /api/users/:id/activate` | `{ version }`. `409 self` si es la propia | 1 a 2 | users |
 | `GET /api/users/:id/access` | Sus sesiones abiertas y sus celulares con huella, sin la sesión del pedido ni, en la propia, sus celulares | 2 | sign-in |
-| `POST /api/users/:id/sessions/:sessionId/close` | «Cerrar» (R5.3). La sesión del pedido no se puede (se sale con «Salir») | 1 | sign-in |
+| `POST /api/users/:id/sessions/:sessionId/close` | «Cerrar» (R5.3). La sesión del pedido no se puede (se sale con «Salir»); una de otra persona da `404` | 2 | sign-in |
 | `POST /api/users/:id/sessions/close` | «Cerrar todas» (R5.4), salvo la del pedido | 1 | sign-in |
 | `POST /api/users/:id/phones/:phoneId/cut` | `{ from: 'card' \| 'lost' }`. «Quitar» (R5.6) y «Cortar» (R5.7) son la misma operación: cierra las sesiones de esa persona en ese celular (y las abiertas con su huella) y borra la huella. El celular del pedido no se puede | 3 a 4 | sign-in |
 | `GET /api/lost-phones` | Las personas con algún celular para cortar y sus celulares (con sesión abierta o con huella), sin el celular del pedido | 3; 2 si los nombres ya están en memoria | sign-in |
@@ -133,9 +133,10 @@ una sola vez para el servidor y la aplicación.
   `where google_subject is null and last_sign_in_at is null`. Entrar con Google ata la cuenta con
   `where id = ? and email = ? and google_subject is null`; si no tocó nada (lo borraron o le cambiaron
   el correo mientras entraba), la entrada se rechaza como no autorizada.
-- **Activa, al abrir la sesión:** abrir una sesión, por cualquier camino, lee a la persona con
-  `for share` dentro de su transacción, y dar de baja la bloquea con `for update`: una entrada y una
-  baja no se cruzan. Si se cruzaran, la sesión nueva sería de alguien dado de baja.
+- **Activa, al abrir la sesión:** abrir una sesión, por cualquier camino, primero la crea y después
+  anota la entrada con `where active` (`users.recordSignIn`). Si no tocó ninguna fila, la dieron de
+  baja mientras entraba: la sesión recién creada se cierra y la entrada se rechaza. Una baja a la vez,
+  o cerró esa sesión con las demás, o la deja para que la cierre la entrada: nunca queda abierta.
 - **Nunca sin Administrador activo** (R1.3, E05): dar de baja bloquea las filas de las personas
   activas (`select … where active order by id for update`; el orden evita que dos bajas se traben),
   cuenta y recién entonces cambia. Como nadie se da de baja a sí mismo y quien da de baja está activo,
@@ -238,12 +239,16 @@ una sola vez para el servidor y la aplicación.
   (§ 5), en el servidor.
 - **Lo que entra de afuera:** los cuerpos, con zod y largos máximos (correo 254, nombre 80, el de
   Google se corta en 80); los nombres sin caracteres de control ni de dirección del texto; los
-  identificadores de la dirección, UUID; la `version`, un entero entre 1 y 2³¹ − 1.
+  identificadores de la dirección, UUID (`uuidParams` de la plataforma: con otra forma, `404` sin
+  llegar a la base); la `version`, un entero entre 1 y 2³¹ − 1.
 - **Ver o cambiar lo ajeno:** las rutas de sesiones y celulares nombran a la persona y comprueban que
   la sesión o el celular sean suyos antes de cortar; si no, `404`.
-- **Abuso:** hoy ninguna ruta con sesión tiene límite. Se agregan dos, en la plataforma: los cambios de
-  Usuarios, 60 por minuto por sesión; y las cookies que no corresponden a ninguna sesión, 30 por minuto
-  por dirección (cada una cuesta una consulta).
+- **Abuso:** dos límites, en la plataforma: los cambios de Usuarios, 60 por minuto por sesión; y las
+  cookies que no corresponden a ninguna sesión, 30 por minuto por dirección (cada una cuesta una
+  consulta). Una sesión que ya está en la memoria del servidor no la frena ese tope: quien comparte la
+  dirección del local no deja sin trabajar a los demás.
+- **Una computadora que entró con el QR** recuerda con qué huella se aprobó (`approved_by`, migración
+  `004-approved`): cortar ese celular la cierra también (R5.6, R5.7).
 - **Secretos:** ninguno nuevo.
 - **El comando del primer Administrador** solo corre dentro del servidor: no hay ruta que cree a
   alguien sin sesión.
@@ -251,9 +256,11 @@ una sola vez para el servidor y la aplicación.
   hizo y la persona afectada va en `data.targetUserId` (el 05 la va a buscar ahí). Las líneas:
   `user.authorized`, `user.renamed`, `user.email-changed`, `user.deleted`, `user.deactivated`,
   `user.activated`, `session.closed`, `sessions.closed-all`, `passkey.removed` y `phone.cut`. Cerrar
-  sesiones deja además una `session.ended` por sesión, como ya hace hoy. Los rechazos (`self`,
-  `last-administrator`, `changed`, `404`) se anotan una vez por minuto por motivo y persona, como los
-  de la plataforma. Arreglo del 01: `session.ended` se anota hoy antes de confirmar; pasa a después.
+  sesiones deja además una `session.ended` por sesión. Los rechazos (`self`, `last-administrator`,
+  `changed`, `404`, también los de cerrar y cortar) se anotan como `users.rejected` una vez por minuto
+  por motivo y persona; pasado el límite de cambios, `users.throttled`; una confirmación de Google o la
+  huella que no es de esa persona, `session.confirm-rejected`. Dar de alta o de baja a quien ya estaba
+  así contesta cómo está y no anota nada. `session.ended` se anota después de confirmar.
 
 ## 10. Metas de performance
 
@@ -303,18 +310,23 @@ dispositivo» con su próximo pedido. Cruza dos navegadores, la cookie y la memo
 9. **La aplicación:** el menú (con Carlos), la pantalla y sus piezas. Depende de 6 y 7.
 10. **Las pruebas de § 11, la documentación al día y la de punta a punta,** si Carlos la aprueba.
 
-## 13. Pasar por Google o la huella antes de autorizar o de dar de alta (R3.8)
+## 13. Pasar por Google o la huella antes de autorizar, cambiar el correo o dar de alta (R3.8)
 
 - **En la sesión** se guarda también cuándo se puso la huella por última vez (`passkey_at`), además
-  de `google_at`, que ya está. Autorizar y dar de alta comprueban en el servidor que alguna de las dos
+  de `google_at`, que ya está; una entrada sin conexión no la pone, porque la huella se puso horas
+  antes. Autorizar, cambiar el correo y dar de alta comprueban en el servidor que alguna de las dos
   sea de hace menos de 5 minutos (la misma regla que vincular la huella, `linkPasskeyWithinMs`); si no,
   `403 confirm-first`.
 - **Volver a confirmar sin salir:** `POST /api/session/confirm/google` (el pase de Google, con su
-  `nonce`) y `POST /api/session/confirm/passkey` (una firma de la huella de esa persona en ese
-  celular) actualizan `google_at` o `passkey_at` de la sesión del pedido, sin abrir otra. La huella y
-  Google tienen que ser de la misma persona de la sesión; si no, `403` y se anota.
+  `nonce`) y, con el desafío de `POST /api/session/confirm/passkey/options`, `POST
+  /api/session/confirm/passkey` (una firma de la huella de esa persona) actualizan `google_at` o
+  `passkey_at` de la sesión del pedido, sin abrir otra. La huella y Google tienen que ser de la misma
+  persona de la sesión; si no, `403` y se anota.
 - **La aplicación:** con `confirm-first`, una hoja pide «Continuar con Google» (el botón de su marco,
-  como en la entrada) o, en un celular con huella, la huella; al pasar, repite el pedido sola.
+  como en la entrada) o, en un celular con huella, la huella; al pasar, repite el pedido sola. La hoja
+  va encima de lo que se estaba haciendo, que sigue abierto: un correo repetido se dice junto al campo
+  de «Autorizar a alguien»; al cambiar el correo en la tarjeta, en una tostada. La hoja se baja recién
+  cuando hace falta (`loadConfirmSheet` de `sign-in`).
 - **La computadora que entró con el celular** no tiene Google reciente: lo pasa en esa hoja.
 - **«Dada de alta de nuevo hoy»,** que mostraba la maqueta, es historia: va en la auditoría. La tarjeta
   muestra «Dada de baja el …» mientras lo está; al darla de alta, nada (lo decidió Carlos).

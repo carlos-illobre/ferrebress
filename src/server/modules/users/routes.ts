@@ -1,6 +1,6 @@
 // Las rutas de Usuarios para las personas (diseño de 02, § 4): la lista y autorizar, cambiar,
 // borrar, dar de baja y de alta. Todas con sesión; los cambios, con un límite por sesión, y
-// autorizar y dar de alta, con Google o la huella de los últimos 5 minutos (R3.8). Cada cambio queda
+// autorizar, cambiar el correo y dar de alta, con Google o la huella de los últimos 5 minutos (R3.8). Cada cambio queda
 // en la auditoría, y cada rechazo, una vez por minuto por motivo y persona (R6.1).
 import {
   authorizeBody,
@@ -12,7 +12,7 @@ import {
 } from '@ferrebress/shared/contracts/users';
 import type { Context, MiddlewareHandler } from 'hono';
 import { bySchema, createGuards, readBody } from '../../platform/guards.ts';
-import { fail } from '../../platform/http.ts';
+import { fail, uuidParams } from '../../platform/http.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { sessionOf } from '../../platform/session.ts';
 import type { Outcome, People } from './people.ts';
@@ -23,7 +23,7 @@ export const usersSettings = {
   // Los cambios desde Usuarios, por sesión (02, § 9).
   changes: { max: 60, windowMs: minute },
   throttledAudit: { max: 1, windowMs: minute },
-  // Autorizar y dar de alta, con Google o la huella de hace menos de esto (R3.8).
+  // Autorizar, cambiar el correo y dar de alta, con Google o la huella de hace menos de esto (R3.8).
   confirmWithinMs: 5 * minute,
 };
 
@@ -99,7 +99,8 @@ export function registerPeopleRoutes(
 function answer({ platform, guards }: Route, c: Context, outcome: Outcome, type: string) {
   const asking = sessionOf(c).userId;
   if (!('refused' in outcome)) {
-    guards.record(c, type, { userId: asking, data: { targetUserId: outcome.user.id } });
+    if (!outcome.unchanged)
+      guards.record(c, type, { userId: asking, data: { targetUserId: outcome.user.id } });
     return c.json<PersonResponse>({ person: rowOf(outcome.user, asking) });
   }
   const target = c.req.param('id') ?? 'new';
@@ -133,8 +134,12 @@ function registerChanges(route: Route) {
     return answer(route, c, outcome, 'user.authorized');
   });
   const changing = readBody(bySchema(changeBody));
-  http.post('/api/users/:id', sessions.require, limited, changing.step, async (c) => {
+  const id = uuidParams('id');
+  http.post('/api/users/:id', sessions.require, id, limited, changing.step, async (c) => {
     const { version, name, email } = changing.of(c);
+    // Sin nada que cambiar no es un pedido; el correo, como autorizar, pide confirmar (R3.8).
+    if (name === undefined && email === undefined) return fail(c, 400, 'bad-request');
+    if (email !== undefined && !confirmed(platform, c)) return fail(c, 403, 'confirm-first');
     const outcome = await people.change(c.req.param('id'), version, {
       ...(name !== undefined && { name }),
       ...(email !== undefined && { email }),
@@ -142,11 +147,14 @@ function registerChanges(route: Route) {
     return answer(route, c, outcome, email === undefined ? 'user.renamed' : 'user.email-changed');
   });
   const versioned = readBody(bySchema(versionBody));
-  http.post('/api/users/:id/delete', sessions.require, limited, versioned.step, async (c) => {
-    const id = c.req.param('id');
-    const removed = await people.remove(id, versioned.of(c).version);
+  http.post('/api/users/:id/delete', sessions.require, id, limited, versioned.step, async (c) => {
+    const target = c.req.param('id');
+    const removed = await people.remove(target, versioned.of(c).version);
     if (!('removed' in removed)) return answer(route, c, removed, 'user.deleted');
-    guards.record(c, 'user.deleted', { userId: sessionOf(c).userId, data: { targetUserId: id } });
+    guards.record(c, 'user.deleted', {
+      userId: sessionOf(c).userId,
+      data: { targetUserId: target },
+    });
     return c.json({ removed: true });
   });
 }
@@ -156,12 +164,20 @@ function registerStatus(route: Route) {
   const { platform, people, limited } = route;
   const { http, sessions } = platform;
   const versioned = readBody(bySchema(versionBody));
-  http.post('/api/users/:id/deactivate', sessions.require, limited, versioned.step, async (c) => {
-    const asking = sessionOf(c).userId;
-    const outcome = await people.deactivate(asking, c.req.param('id'), versioned.of(c).version);
-    return answer(route, c, outcome, 'user.deactivated');
-  });
-  http.post('/api/users/:id/activate', sessions.require, limited, versioned.step, async (c) => {
+  const id = uuidParams('id');
+  http.post(
+    '/api/users/:id/deactivate',
+    sessions.require,
+    id,
+    limited,
+    versioned.step,
+    async (c) => {
+      const asking = sessionOf(c).userId;
+      const outcome = await people.deactivate(asking, c.req.param('id'), versioned.of(c).version);
+      return answer(route, c, outcome, 'user.deactivated');
+    },
+  );
+  http.post('/api/users/:id/activate', sessions.require, id, limited, versioned.step, async (c) => {
     if (!confirmed(platform, c)) return fail(c, 403, 'confirm-first');
     const asking = sessionOf(c).userId;
     const outcome = await people.activate(asking, c.req.param('id'), versioned.of(c).version);

@@ -1,7 +1,9 @@
 // Lo que Usuarios ve y corta de las sesiones y las huellas de cada persona (02 · R5; diseño de 02,
 // § 4): la tarjeta, «Cerrar», «Cerrar todas», «Quitar» y «Se perdió un celular», que es la misma
-// operación que «Quitar». Todo con sesión y con el límite de cambios por sesión. La memoria se pone
-// al día en un solo lugar, después de cada cierre (02, § 6).
+// operación que «Quitar». Todo con sesión, con los identificadores de la dirección en forma de UUID y
+// con el límite de cambios por sesión. Cada rechazo queda en la auditoría.
+
+import type { ErrorCode } from '@ferrebress/shared/contracts/errors';
 import {
   type AccessResponse,
   type ClosedResponse,
@@ -11,7 +13,7 @@ import {
 } from '@ferrebress/shared/contracts/users';
 import type { Context } from 'hono';
 import { bySchema, readBody } from '../../../platform/guards.ts';
-import { fail } from '../../../platform/http.ts';
+import { fail, uuidParams } from '../../../platform/http.ts';
 import { sessionOf } from '../../../platform/session.ts';
 import type { SignInContext } from '../context.ts';
 import { signInSettings } from '../settings.ts';
@@ -29,15 +31,21 @@ export function registerAccessRoutes(ctx: SignInContext) {
   const data = accessData(ctx.platform.db as never);
   const limited = ctx.limit((c) => [`users:session:${sessionOf(c).id}`], changes);
 
-  http.get('/api/users/:id/access', sessions.require, (c) => access(ctx, data, c));
-  http.post('/api/users/:id/sessions/:sessionId/close', sessions.require, limited, (c) =>
-    closeSessions(ctx, data, c, c.req.param('sessionId')),
+  const ids = (...names: string[]) => uuidParams('id', ...names);
+  http.get('/api/users/:id/access', sessions.require, ids(), (c) => access(ctx, data, c));
+  http.post(
+    '/api/users/:id/sessions/:sessionId/close',
+    sessions.require,
+    ids('sessionId'),
+    limited,
+    (c) => closeSessions(ctx, data, c, c.req.param('sessionId')),
   );
-  http.post('/api/users/:id/sessions/close', sessions.require, limited, (c) =>
+  http.post('/api/users/:id/sessions/close', sessions.require, ids(), limited, (c) =>
     closeSessions(ctx, data, c, null),
   );
   const cutting = readBody(bySchema(cutBody));
-  http.post('/api/users/:id/phones/:phoneId/cut', sessions.require, limited, cutting.step, (c) =>
+  const cutRoute = '/api/users/:id/phones/:phoneId/cut';
+  http.post(cutRoute, sessions.require, ids('phoneId'), limited, cutting.step, (c) =>
     cut(ctx, data, c, cutting.of(c).from),
   );
   http.get('/api/lost-phones', sessions.require, async (c) =>
@@ -69,10 +77,25 @@ async function access(ctx: SignInContext, data: Data, c: Context) {
   });
 }
 
-// «Cerrar» una (`id`) o «Cerrar todas» (nulo), nunca la del pedido (R5.3, R5.4).
+// Un rechazo, anotado una vez por minuto por motivo y persona, como los de las personas (R6.1).
+function refuse(ctx: SignInContext, c: Context, status: 404 | 409, code: ErrorCode) {
+  const target = c.req.param('id') as string;
+  const key = `audit:access:${code}:${target}`;
+  if (ctx.platform.limiter.hit(key, signInSettings.limits.throttledAudit).allowed)
+    ctx.record(c, 'users.rejected', {
+      userId: sessionOf(c).userId,
+      data: { targetUserId: target, reason: code },
+    });
+  return fail(c, status, code);
+}
+
+// «Cerrar» una (`id`) o «Cerrar todas» (nulo), nunca la del pedido (R5.3, R5.4). Una que ya estaba
+// cerrada no es un error; una que no es de esa persona, o que no existe, da 404 (02, § 4).
 async function closeSessions(ctx: SignInContext, data: Data, c: Context, id: string | null) {
   const asking = sessionOf(c);
   const userId = c.req.param('id') as string;
+  if (id && (await ctx.store.findById(id))?.userId !== userId)
+    return refuse(ctx, c, 404, 'not-found');
   ctx.store.beginClose();
   const ids = await data.closeSessions(userId, id, asking.id, ctx.platform.clock.now());
   ctx.store.ended(ids, userId, 'revoked');
@@ -91,8 +114,8 @@ async function cut(ctx: SignInContext, data: Data, c: Context, from: 'card' | 'l
   const asking = sessionOf(c);
   const userId = c.req.param('id') as string;
   const phone = await data.phoneOf(userId, c.req.param('phoneId') as string);
-  if (!phone) return fail(c, 404, 'not-found');
-  if (phone.deviceId === asking.deviceId) return fail(c, 409, 'self');
+  if (!phone) return refuse(ctx, c, 404, 'not-found');
+  if (phone.deviceId === asking.deviceId) return refuse(ctx, c, 409, 'self');
   ctx.store.beginClose();
   const done = await data.cutPhone(userId, phone.deviceId, ctx.platform.clock.now());
   ctx.store.ended(done.sessionIds, userId, 'revoked');

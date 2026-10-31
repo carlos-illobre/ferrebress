@@ -22,7 +22,8 @@ import { signInSettings } from '../../settings.ts';
 import type { Screen } from '../computer/screens.ts';
 import { sameNetwork } from '../network.ts';
 
-type Approval = { userId: string } | Response;
+// Quién aprobó, y con qué huella.
+type Approval = { userId: string; passkeyId: string } | Response;
 
 type ApproveBody = ApproveCodeBody;
 
@@ -69,14 +70,20 @@ async function approve(ctx: SignInContext, c: Context, body: ApproveBody) {
     body.kind === 'registration'
       ? await withNewPasskey(ctx, c, body.response as never, challenge)
       : await withPasskey(ctx, c, body.response as never, challenge, body.proofPublicKey);
-  return approval instanceof Response ? approval : grant(ctx, c, screen, approval.userId);
+  return approval instanceof Response ? approval : grant(ctx, c, screen, approval);
 }
 
 // La computadora recibe por su canal el permiso de un uso, que cambia por su sesión.
-function grant(ctx: SignInContext, c: Context, screen: Screen, userId: string) {
+function grant(
+  ctx: SignInContext,
+  c: Context,
+  screen: Screen,
+  { userId, passkeyId }: { userId: string; passkeyId: string },
+) {
   ctx.screens.release(screen);
   // Sin tope total y reemplazando al anterior de la pantalla, siempre hay permiso (context.ts).
-  const permit = ctx.permits.issue(screen.id, { screenId: screen.id, userId }) as string;
+  const approval = { screenId: screen.id, userId, approvedBy: passkeyId };
+  const permit = ctx.permits.issue(screen.id, approval) as string;
   screen.notify?.({ type: 'approved', permit });
   ctx.record(c, 'code.approved', { userId });
   return c.json({ ok: true });
@@ -95,7 +102,12 @@ async function withNewPasskey(
   if (refused) return refused;
   const credential = await verifyRegistration(ctx, response, challenge);
   if (!credential) return fail(c, 401, 'not-authorized');
-  return (await savePasskey(ctx, c, session, credential)) ?? { userId: session.userId };
+  return (
+    (await savePasskey(ctx, c, session, credential)) ?? {
+      userId: session.userId,
+      passkeyId: credential.id,
+    }
+  );
 }
 
 // E13, E16: la huella ya vinculada. Si el celular no tenía sesión, entra también.
@@ -111,7 +123,7 @@ async function withPasskey(
   const user = await checkAssertion(ctx, c, passkey, response, challenge);
   if (user instanceof Response) return user;
   return (await optionalSession(ctx, c))
-    ? { userId: user.id }
+    ? { userId: user.id, passkeyId: passkey.id }
     : signInPhone(ctx, c, { userId: user.id, passkeyId: passkey.id }, proofPublicKey);
 }
 
@@ -129,5 +141,5 @@ async function signInPhone(
     passkeyId,
     data: { method: 'passkey', via: 'qr' },
   });
-  return { userId };
+  return { userId, passkeyId };
 }

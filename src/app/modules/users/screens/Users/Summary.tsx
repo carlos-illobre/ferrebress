@@ -54,7 +54,7 @@ export function Filters() {
   const n = counts(users.people as PersonRow[]);
   return (
     <div class="users-filters">
-      <label class="users-search">
+      <label class="users-search" data-private="">
         <Icon name="search" />
         <span class="visually-hidden">{texts.searchLabel}</span>
         <input

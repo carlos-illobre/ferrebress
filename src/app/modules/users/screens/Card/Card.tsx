@@ -49,9 +49,12 @@ function Who({ person }: { person: PersonRow }) {
 }
 
 function Pills({ person }: { person: PersonRow }) {
+  const authorized = dateOf(person.authorizedAt, nowMs());
   const when = person.deactivatedAt
     ? t.deactivatedAt(dateOf(person.deactivatedAt, nowMs()))
-    : t.authorizedAt(dateOf(person.authorizedAt, nowMs()));
+    : person.authorizedBy
+      ? t.authorizedAt(authorized)
+      : t.installed(authorized);
   return (
     <div class="users-pills">
       {person.self && <span class="users-pill you">{texts.you}</span>}

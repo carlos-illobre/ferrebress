@@ -1,3 +1,4 @@
+import { sql } from 'kysely';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { testConfig } from '../../../testing/config.ts';
 import { createAuthenticator } from '../../../testing/sign-in/authenticator.ts';
@@ -72,6 +73,19 @@ describe('entrar a la computadora con el celular', () => {
     expect(claimed.headers.get('Set-Cookie')).toContain('__Host-session=');
     expect((await screen.claim(permit)).status).toBe(400);
     await screen.close();
+    // Cortar ese celular desde otra computadora cierra también la que él hizo entrar (02 · R5.6).
+    const office = computer();
+    const userId = (await office.signInWithGoogle(admin)).body.person.userId;
+    // Los celulares propios no van en la tarjeta: se cortan desde «Se perdió un celular».
+    const lost = (await office.request('/api/lost-phones')).body.people;
+    const phoneId = lost[0].phones.find((phone: { passkey: boolean }) => phone.passkey).id;
+    const cut = await office.request(`/api/users/${userId}/phones/${phoneId}/cut`, {
+      from: 'lost',
+    });
+    expect(cut.body.sessions).toBeGreaterThanOrEqual(2);
+    const open = await sql<{ n: number }>`select count(*)::int as n from sign_in.sessions
+      where approved_by is not null and closed_at is null`.execute(server.platform.db);
+    expect(open.rows[0]?.n).toBe(0);
   });
 
   it('sign-in-E13b: desde otra red el celular no puede aprobar y la computadora sigue con su código', async () => {

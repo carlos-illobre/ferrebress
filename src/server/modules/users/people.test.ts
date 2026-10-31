@@ -143,6 +143,12 @@ describe('las personas, desde Usuarios', () => {
     ).toBe(403);
     const back = await admin.request(`/api/users/${juan.id}/activate`, { version: 2 });
     expect(back.body.person).toMatchObject({ active: true, deactivatedAt: null });
+    // Dar de alta a quien ya está dado de alta contesta cómo está, sin anotar nada.
+    const lines = server.platform.audit.read(2026).length;
+    expect((await admin.request(`/api/users/${juan.id}/activate`, { version: 3 })).status).toBe(
+      200,
+    );
+    expect(server.platform.audit.read(2026)).toHaveLength(lines);
     expect(
       (await createDevice(server).signInWithGoogle({ sub: 'sub-juan', email: 'juan@example.com' }))
         .status,

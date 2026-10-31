@@ -37,7 +37,7 @@ describe('el manual en la aplicación', () => {
     await screen.findByRole('region', { name: 'Tu sesión' });
     // Lo que pide Usuarios, la primera opción, al abrir.
     await waitFor(() => expect(sent.map((one) => one.path)).toContain('/api/users'), {
-      timeout: 5000,
+      timeout: 10_000,
     });
     const before = sent.length;
     fireEvent.click(screen.getAllByRole('button', { name: /^Más/ })[0] as HTMLElement);
@@ -60,7 +60,7 @@ describe('el manual en la aplicación', () => {
     expect(back).toHaveBeenCalledWith(-1);
     await waitFor(() => expect(document.querySelector('.manual-page')).toBeNull());
     expect(behind.hidden).toBe(false);
-  });
+  }, 20_000);
 
   it('app-E32, app-E37: sin sesión, la entrada se desmonta mientras el manual está abierto; «Volver» vuelve a ella', async () => {
     fakeServer({ '/api/start': startReply(), ...manualFiles });

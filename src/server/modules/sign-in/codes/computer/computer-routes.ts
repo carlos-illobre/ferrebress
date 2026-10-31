@@ -76,6 +76,7 @@ async function claim(ctx: SignInContext, c: Context) {
     userId: user.id,
     proofPublicKey,
     label: screen.deviceLabel,
+    approvedBy: (permit as { approvedBy: string }).approvedBy,
     data: { method: 'qr' },
   });
   return c.json({ person: ctx.person(user), sessionId: session.id, offerPasskey: false });

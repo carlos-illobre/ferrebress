@@ -94,12 +94,15 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
     // El permiso que la computadora cambia por su sesión, una vez y por 30 segundos. Uno por
     // pantalla: uno nuevo reemplaza al anterior sin usar, así siempre se puede dar. Sin tope total:
     // ya lo tienen las pantallas, y uno de una pantalla cerrada vence a los 30 segundos.
-    permits: createOneUse<{ screenId: string; userId: string }>(platform.clock, {
-      ttlMs: codeSettings.permitTtlMs,
-      maxTotal: Number.POSITIVE_INFINITY,
-      maxPerOwner: 1,
-      replaceOldest: true,
-    }),
+    permits: createOneUse<{ screenId: string; userId: string; approvedBy: string }>(
+      platform.clock,
+      {
+        ttlMs: codeSettings.permitTtlMs,
+        maxTotal: Number.POSITIVE_INFINITY,
+        maxPerOwner: 1,
+        replaceOldest: true,
+      },
+    ),
   };
 }
 

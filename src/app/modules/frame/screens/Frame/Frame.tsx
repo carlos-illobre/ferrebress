@@ -1,5 +1,5 @@
 // El marco (capítulo 00, 01 · R6): el menú, la luz de conexión, la persona y, en el medio, la
-// pantalla de la opción abierta; mientras no exista ningún módulo, el área está en blanco. Una sola
+// pantalla de la opción abierta, la de la dirección (o la primera que existe, R1.4). Una sola
 // página para los dos anchos: desde 900 px es la computadora y debajo, el celular (ADR-002).
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { ComponentChildren, ComponentType } from 'preact';

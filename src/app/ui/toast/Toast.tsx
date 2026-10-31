@@ -22,7 +22,8 @@ export function Toasts() {
   const shown = useStore(current);
   if (!shown) return null;
   return (
-    <div class="toast" role="status">
+    // Puede decir un nombre o un correo: no va en la captura de «Algo salió mal».
+    <div class="toast" role="status" data-private="">
       <Icon name={shown.icon} />
       <span>
         <Say words={shown.words} />

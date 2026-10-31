@@ -1,7 +1,7 @@
-// Las consultas de lo que Usuarios muestra y corta de las sesiones y las huellas (diseño de 02, § 4):
-// cada una, una sola consulta. Una sesión «abierta» es la sin cerrar y sin vencer (60 minutos sin uso
+// Las consultas de lo que Usuarios muestra y corta de las sesiones y las huellas (diseño de 02, § 4;
+// cuántas hace cada ruta, en su tabla). Una sesión «abierta» es la sin cerrar y sin vencer (60 minutos sin uso
 // y 8 horas), mirando las horas y no solo `closed_at`, porque la limpieza corre una vez por día.
-import { type Kysely, sql } from 'kysely';
+import { type ExpressionBuilder, type Kysely, sql } from 'kysely';
 import type { PasskeysTables } from '../passkeys/data.ts';
 import type { SessionsTables } from '../sessions/data.ts';
 import type { SessionLimits } from '../sessions/rules.ts';
@@ -106,6 +106,19 @@ function lost(db: Db) {
   };
 }
 
+type Where = ExpressionBuilder<SessionsTables, 'sign_in.sessions'>;
+
+// Las sesiones de un celular: las de ese dispositivo y, si tiene huella, las abiertas con ella desde
+// otro identificador y las de las computadoras que ella aprobó con el QR.
+const onThatPhone = (eb: Where, deviceId: string, passkeyId: string | undefined) =>
+  passkeyId
+    ? eb.or([
+        eb('device_id', '=', deviceId),
+        eb('passkey_id', '=', passkeyId),
+        eb('approved_by', '=', passkeyId),
+      ])
+    : eb('device_id', '=', deviceId);
+
 // Lo que se corta: un celular, una sesión o todas, y volver a confirmar.
 function cutting(db: Db) {
   return {
@@ -126,8 +139,9 @@ function cutting(db: Db) {
         .executeTakeFirst();
     },
 
-    // Cierra las sesiones de esa persona en ese celular y las abiertas con su huella desde otro
-    // identificador (02, § 2), y borra su huella ahí. Devuelve qué cerró y si había huella.
+    // Cierra las sesiones de esa persona en ese celular, las abiertas con su huella desde otro
+    // identificador (02, § 2) y las de las computadoras que esa huella hizo entrar con el QR (R5.6), y
+    // borra su huella ahí. Devuelve qué cerró y si había huella.
     cutPhone: async (userId: string, deviceId: string, at: Date) => {
       const passkey = await db
         .deleteFrom('sign_in.passkeys')
@@ -140,11 +154,7 @@ function cutting(db: Db) {
         .set({ closed_at: at, closed_reason: 'revoked' })
         .where('user_id', '=', userId)
         .where('closed_at', 'is', null)
-        .where((eb) =>
-          passkey
-            ? eb.or([eb('device_id', '=', deviceId), eb('passkey_id', '=', passkey.id)])
-            : eb('device_id', '=', deviceId),
-        )
+        .where((eb) => onThatPhone(eb, deviceId, passkey?.id))
         .returning('id')
         .execute();
       return { sessionIds: closed.map((row) => row.id), passkey: passkey !== undefined };

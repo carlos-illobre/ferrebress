@@ -21,6 +21,7 @@ const row: SessionRow = {
   isPhone: true,
   passkeyId: null,
   passkeyAt: null,
+  approvedBy: null,
   closedReason: null,
 };
 

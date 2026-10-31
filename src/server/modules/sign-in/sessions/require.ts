@@ -30,15 +30,18 @@ export async function optionalSession(
 }
 
 // La sesión del pedido para cualquier módulo (diseño de 02, § 3), con el límite de las cookies que no
-// son de ninguna sesión, por dirección (02, § 9): pasado el límite, ni se consulta la base.
+// son de ninguna sesión, por dirección (02, § 9): pasado el límite, ni se consulta la base. Una sesión
+// que ya está en memoria pasa igual, así quien comparte la dirección no frena a los demás.
 export async function requestSession(
   ctx: SignInContext,
   c: Context,
 ): Promise<RequestSession | Response> {
   const key = `session:unknown:${c.get('ipAddress')}`;
   const window = signInSettings.limits.unknownSession;
-  if (ctx.platform.limiter.exceeded(key, window)) return ctx.throttle(c, [key], window) as Response;
   const token = readSessionCookie(c);
+  const known = !!token && ctx.store.knows(token);
+  if (!known && ctx.platform.limiter.exceeded(key, window))
+    return ctx.throttle(c, [key], window) as Response;
   const resolved = token ? await ctx.store.resolve(token) : undefined;
   if (resolved?.kind !== 'open') {
     const reason = resolved?.reason ?? 'unknown';

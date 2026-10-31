@@ -12,14 +12,13 @@ import { usersApi } from './api.ts';
 import { type Filter, visible } from './logic.ts';
 import { refusalTexts, somethingFailed } from './texts.ts';
 
-// Lo que se abre encima: autorizar, «Se perdió un celular», las dos confirmaciones y volver a
-// confirmar quién es (con lo que hay que repetir).
+// Lo que se abre encima: autorizar, «Se perdió un celular» y las dos confirmaciones. Volver a
+// confirmar quién es va aparte, encima de lo que haya, así autorizar sigue abierto debajo.
 export type Overlay =
   | { kind: 'authorize' }
   | { kind: 'lost' }
   | { kind: 'deactivate'; person: PersonRow }
-  | { kind: 'close-all'; person: PersonRow }
-  | { kind: 'confirm'; retry: () => unknown };
+  | { kind: 'close-all'; person: PersonRow };
 
 type Failed = Extract<ApiResult<unknown>, { ok: false }>;
 
@@ -82,6 +81,8 @@ export function useUsers() {
   // y un pedido la daría por cerrada (15 · R3). Se espera a que la confirme.
   const unconfirmed = useStore(pendingEntries) > 0;
   const [overlay, setOverlay] = useState<Overlay>();
+  // Lo que hay que repetir después de confirmar quién es (R3.8).
+  const [retry, setRetry] = useState<{ again: () => unknown }>();
   const [filter, setFilter] = useState<Filter>('all');
   const [search, setSearch] = useState('');
   // Al abrir; sin conexión, cuando vuelve (con la lista que ya tenía no se pide de nuevo).
@@ -99,6 +100,9 @@ export function useUsers() {
     overlay,
     open: setOverlay,
     close: () => setOverlay(undefined),
+    retry,
+    confirmFirst: (again: () => unknown) => setRetry({ again }),
+    confirmed: () => setRetry(undefined),
     filter,
     setFilter,
     search,
@@ -115,7 +119,7 @@ export const useUsersContext = () => useContext(UsersContext) as Users;
 // repite lo que se estaba haciendo. Dice si era eso.
 export function confirmFirst(users: Users, result: Failed, retry: () => unknown): boolean {
   if (result.error !== 'confirm-first') return false;
-  users.open({ kind: 'confirm', retry });
+  users.confirmFirst(retry);
   return true;
 }
 

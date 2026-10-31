@@ -1,4 +1,4 @@
-// Las consultas de las personas a la base: cada una, una sola consulta. Las que dependen de que nadie
+// Las consultas de las personas a la base, cada una de una escritura o una lectura. Las que dependen de que nadie
 // cambie la fila a la vez llevan la condición en el mismo `where` (diseño de 02, § 5).
 import { type Generated, type Kysely, sql } from 'kysely';
 import type { User } from './rules.ts';
@@ -142,10 +142,10 @@ function changing(db: Db) {
         .executeTakeFirst(),
 
     // El correo, solo si nunca entró (R3.6).
-    changeEmail: (id: string, version: number, email: string, name: string | null) =>
+    changeEmail: (id: string, version: number, email: string, name?: string | null) =>
       db
         .updateTable('users.users')
-        .set({ email, name, version: bump() })
+        .set({ email, ...(name !== undefined && { name }), version: bump() })
         .where('id', '=', id)
         .where('version', '=', version)
         .where('google_subject', 'is', null)

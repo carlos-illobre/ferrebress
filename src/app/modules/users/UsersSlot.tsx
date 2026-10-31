@@ -7,7 +7,7 @@ import { updateRequired } from '../../platform/server/api.ts';
 import './UsersSlot.css';
 
 // Su texto vive acá y no en texts.ts: este archivo va en el arranque y texts.ts no.
-const offline = 'Usuarios necesita conexión. Vuelve sola cuando haya.';
+const offline = 'Sin conexión: Usuarios vuelve sola cuando vuelva la conexión.';
 
 export function UsersSlot({ testing }: { testing: boolean }) {
   const [screen, setScreen] = useState<
