@@ -52,7 +52,7 @@ paralelo»).
 
 | Parte | Qué incluye | Estado |
 |---|---|---|
-| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
+| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | En curso: 02a (la sesión del pedido, límites, cliente de la API) |
 | Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
 
 ## Tareas pendientes de la base
