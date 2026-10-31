@@ -14,13 +14,27 @@ import { userScenes } from './users-scenes.ts';
 
 const checking = process.env.MANUAL_CHECK === '1';
 
-// En un botón con ícono, el aro va sobre el ícono, no en el medio del renglón (pedido de Carlos).
+// En un botón con ícono, el aro va sobre el ícono, no en el medio del renglón; en una caja de texto,
+// sobre el ícono de su etiqueta, como la lupa del buscador; en un aviso, sobre su ícono (pedido de
+// Carlos).
 async function boxOf(target: Locator) {
-  const button = await target.evaluate(
-    (element) => element.tagName === 'BUTTON' || element.getAttribute('role') === 'button',
+  const kind = await target.evaluate((element) =>
+    element.tagName === 'BUTTON' || element.getAttribute('role') === 'button'
+      ? 'button'
+      : element.tagName === 'INPUT'
+        ? 'input'
+        : element.closest('.notice')
+          ? 'notice'
+          : 'other',
   );
-  const icon = target.locator('svg').first();
-  return button && (await icon.count()) > 0 ? icon.boundingBox() : target.boundingBox();
+  const holders = {
+    button: target,
+    input: target.locator('xpath=ancestor::label[1]'),
+    notice: target.locator('xpath=ancestor-or-self::*[contains(@class, "notice")][1]'),
+    other: undefined,
+  };
+  const icon = holders[kind]?.locator('svg').first();
+  return icon && (await icon.count()) > 0 ? icon.boundingBox() : target.boundingBox();
 }
 
 // El centro de cada punto, en porcentaje de la pantalla.

@@ -146,7 +146,8 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   Las tareas de la lista no llevan flecha: la única flecha es la de plegar el capítulo.
 - **R6.10** El botón del último paso de una tarea lleva a la que sigue en el manual (la próxima del
   capítulo o, al terminarlo, la primera del que viene) y la nombra: «Siguiente: …». Dice
-  «Terminado» solo en la última tarea del manual; en el celular, cierra la hoja.
+  «Terminado» solo en la última tarea del manual; en el celular, cierra la hoja. En la
+  computadora, la lista de la izquierda acompaña: la tarea que se lee siempre se ve.
 
 ## 7. Las esperas y las búsquedas
 

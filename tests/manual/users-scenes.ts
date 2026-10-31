@@ -156,7 +156,7 @@ export const userScenes: Scene[] = [
       'close-all': button('Cerrar todas'),
       remove: button('Quitar'),
       deactivate: button('Dar de baja'),
-      filters: (page) => shown(page.locator('.users-chips')),
+      filters: (page) => shown(page.locator('.users-chip[aria-pressed="true"]')),
       person: (page) =>
         page.locator('.users-row', { hasText: 'Lucía Fernández' }).locator('.users-avatar'),
       sessions: (page) => shown(page.locator('#users-sessions h3')),

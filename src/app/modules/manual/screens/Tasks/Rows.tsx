@@ -4,6 +4,7 @@
 // como HTML (revisión de seguridad, 1).
 import type { ChapterEntry, TaskSummary } from '@ferrebress/shared/contracts/manual';
 import type { ComponentChildren } from 'preact';
+import { useEffect, useRef } from 'preact/hooks';
 import { marks } from '../../search.ts';
 import { texts } from '../../texts.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
@@ -24,10 +25,16 @@ export function Row({
   className?: string;
 }) {
   const classes = ['manual-task', active && 'active', className].filter(Boolean).join(' ');
+  const button = useRef<HTMLButtonElement>(null);
+  // La tarea que se lee se ve en la lista: al pasar con «Siguiente», la lista acompaña (R6.10).
+  useEffect(() => {
+    if (active) button.current?.scrollIntoView({ block: 'nearest' });
+  }, [active]);
   return (
     <li>
       <button
         type="button"
+        ref={button}
         class={classes}
         data-mark=""
         onClick={onOpen}

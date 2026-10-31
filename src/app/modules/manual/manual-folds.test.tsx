@@ -57,4 +57,16 @@ describe('los capítulos del manual, plegables', () => {
     await loaded();
     await waitFor(() => expect(screen.getByRole('button', { name: /Terminado/ })).toBeTruthy());
   });
+
+  it('R6.10: al pasar a otra tarea, la lista la muestra', async () => {
+    const shown = vi.fn();
+    vi.spyOn(HTMLElement.prototype, 'scrollIntoView').mockImplementation(shown);
+    serveManual();
+    show({ at: '/manual?d=computer&c=sign-in&t=phone&p=3' });
+    await loaded();
+    shown.mockClear();
+    fireEvent.click(await screen.findByRole('button', { name: /Siguiente: / }));
+    await waitFor(() => expect(shown).toHaveBeenCalledWith({ block: 'nearest' }));
+    vi.restoreAllMocks();
+  });
 });
