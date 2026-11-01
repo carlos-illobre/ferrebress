@@ -1188,3 +1188,202 @@ así que es poco; un tope (por ejemplo 100, `409 too-many-roles`) cuesta diez mi
 | «Sin permiso» y la baja (25) | Una persona dada de baja con el permiso no figura en «Lo tienen» ni en quién lo puede dar |
 | Borrar no deja sin quien administre (24) | Dar de baja al único que entró, con otro Administrador que nunca entró: `last-administrator` |
 | El bloqueo de § 19 | A mano, contra PostgreSQL, con dos conexiones, como dice § 19, y anotado dónde quedó |
+
+# Pantalla de roles rehecha (diseño)
+
+Revisión de lo que cambió en el [diseño](users.md) para R7.12 (buscar un rol) y R7.13 (armar un rol de
+una vez), con E61 a E65 de las [reglas](../../chapters/02-users/rules.md): `give` y `take` en
+`POST /api/roles` y `POST /api/roles/:id` (§ 18), la transacción y el bloqueo de § 19, confirmar una
+sola vez (R3.8, § 13), la auditoría (§ 21), lo que entra, y en la aplicación la búsqueda y la guarda
+del router (§ 20). Lo de antes no se repite. Leí además el código del que parte la pantalla
+(`platform/router.ts`, `frame/menu.ts`, `Frame.tsx`, `users/screens/Users/Users.tsx`,
+`sign-in/session.ts`, `platform/settings.ts`); no hay código nuevo para correr ningún ataque.
+
+## Resumen
+
+Lo central está bien pensado: `give` y `take` dicen solo qué cambia, van dentro de la misma
+transacción y detrás del mismo bloqueo que cualquier cambio de roles, con los mismos controles
+(quedar sin quien administre, sacarse a sí mismo, confirmar al dar) y con el permiso de quien pide
+mirado de nuevo bajo el bloqueo (cierra el punto 32 también por este camino). Si el pedido da algo se
+decide contra la base, así un intercambio o una persona que ya tenía el rol no engañan al control; y
+como se guarda todo junto, no hay forma de que la confirmación cubra una parte y otra quede sin
+confirmar. Buscar no pide nada al servidor y usa datos que quien tiene «Administrar roles» ya ve con
+«Ver las personas». Los topes (200 por lista, sin repetidos, sin el mismo id en las dos) entran
+holgados en el límite de 64 KB del cuerpo (`platform/settings.ts:3`).
+
+**No encontré nada que frene.** Quedan mejoras: lo que dice el servidor cuando la persona ya no está,
+los cambios que no cambian nada, de qué se acuerda la aplicación cuando la pantalla se va, lo que no se
+marca como privado y lo que la hoja de confirmar no dice.
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 39 | Darle el rol a una persona borrada mientras se armaba da `500`, no un error con su nombre | Mejora |
+| 40 | Lo que no cambia nada no tiene que subir la versión, ni anotar, ni decir «te cambió los roles» | Mejora |
+| 41 | El borrador y la guarda: cuándo mueren y qué navegación no preguntan | Mejora |
+| 42 | Lo nuevo que muestra nombres y correos no está marcado `data-private` | Mejora |
+| 43 | La hoja de confirmar no dice qué se va a dar | Mejora |
+| 44 | Duplicar no dice que arranca sin personas | Mejora |
+| 45 | La auditoría de `give` y `take`: el rechazo `person-inactive` y cómo se juntan las líneas | Mejora |
+
+### 39 · Darle el rol a una persona borrada mientras se armaba da `500` (§ 18 «Las personas de un rol», § 21 «Las personas de un rol») — Mejora
+
+§ 21 dice «solo personas que existen (UUID y clave foránea)», y § 18 que la primera consulta bloquea
+las filas y trae si cada una está activa. No dice qué pasa con un id que no trae ninguna fila.
+
+**Cómo se da**, sin mala intención: A arma el rol «Cajero» y elige a Juan, que nunca entró. B, con
+«Administrar personas», borra el alta de Juan (R3.7). A toca «Guardar rol»: la consulta que bloquea no
+trae a Juan, el control de «activa» no lo ve (no hay fila que mirar), el `insert` choca con la clave
+foránea y la transacción termina en `500`, con la traza en el registro y «Algo salió mal» en la
+pantalla en vez del renglón de Juan. A propósito, cualquiera con «Administrar roles» llena el registro
+de trazas mandando ids inventados (con el límite de 60 por minuto). No guarda nada a medias.
+
+**Qué propongo:** que la consulta que bloquea compare lo que trajo con lo pedido y un id que falta dé
+`409 person-inactive` (o uno propio, `person-gone`) con su `userId`, antes de escribir. En `take`, un
+id que no existe no cambia nada, como sacar un rol que no tiene. Una prueba de E65 con un id que no
+existe. Diez minutos.
+
+### 40 · Lo que no cambia nada no tiene que subir la versión, ni anotar, ni decir «te cambió los roles» (§ 18 «Las personas de un rol», § 21 «La auditoría») — Mejora
+
+§ 18 dice que dar un rol que ya tiene o sacar uno que no tiene «no cambia nada», pero que hay una
+consulta que «sube su `version` y anota `roles_changed_by`», y § 21 una `user.roles-changed` «por
+cada persona a la que se le dio o se le sacó». No dice que eso sea solo para las que cambiaron de
+verdad.
+
+**Si se hace con la lista entera:** quien tiene «Administrar roles» manda `give` con todas las
+personas que ya tienen el rol. A cada una le sube la versión (la tarjeta que otro tiene abierta da
+`409 changed` al guardar), le pone su nombre en `roles_changed_by` (la persona ve, si algo le cambia
+después, que se lo cambió él), y la auditoría muestra cambios de roles con antes igual a después, que
+tapan los de verdad. También publica `users.permissions-changed` sin motivo. No da acceso, pero
+ensucia justo lo que sirve para saber quién le dio qué a quién.
+
+**Qué propongo:** que el `insert` y el `delete` devuelvan las filas que de verdad tocaron
+(`returning user_id`) y que la versión, `roles_changed_by`, la línea de la auditoría y el aviso de la
+memoria vayan solo a esas; si un pedido no cambia nada del rol ni de nadie, no deja línea. Sigue en un
+número fijo de consultas. Una prueba: `give` de alguien que ya lo tiene no sube su versión ni deja
+línea. Diez minutos.
+
+### 41 · El borrador y la guarda: cuándo mueren y qué navegación no preguntan (§ 20 «Lo que se arma», «Salir sin guardar»; `users/screens/Users/Users.tsx:78`) — Mejora
+
+§ 20 dice dónde vive la regla del borrador (`role-draft.ts`) y que la pantalla pone la guarda «mientras
+hay cambios», pero no dónde vive el borrador armado, ni que la guarda y el aviso de `beforeunload` se
+saquen cuando la pantalla se va por algo que no es salir a mano.
+
+**Dos casos que se ven en el código de hoy:**
+
+1. **La computadora del mostrador.** A arma un rol, le da «Encargado» a alguien y no guarda. Toca
+   «Salir» (`sign-in/session.ts:93`: no recarga la página, solo deja de haber persona) o le cierran la
+   sesión desde otro dispositivo. B entra en la misma pestaña. Si el borrador vive en un estado del
+   módulo (como `users/state.ts`) y no en la pantalla, B abre Roles y encuentra el rol de A a medio
+   armar, con «Guardar rol» encendido; lo guarda creyendo que es suyo y confirma con su Google. Si la
+   guarda sigue puesta, B tampoco puede salir de esa pestaña sin que le pregunte por cambios que no
+   hizo.
+2. **Le sacan «Administrar roles» y conserva «Ver las personas».** Usuarios sigue permitido, así que no
+   aparece «Ya no tenés permiso» (`Frame.tsx:132` mira la opción, no la pestaña), y la pestaña Roles se
+   dibuja con solo `tab === 'roles'`, sin mirar `may.roles` (`Users.tsx:78`). Sigue viendo los roles
+   y su borrador, y la guarda le pregunta si sale. El servidor rechaza todo lo que guarde (por eso no
+   frena), pero R7.8 no se cumple.
+
+**Qué propongo:** que § 20 diga que el borrador vive en la pantalla del rol (se pierde al desmontarla),
+que la guarda y `beforeunload` se sacan al desmontarla, que la pestaña Roles se cierra cuando la persona
+deja de tener `roles.manage`, y que las navegaciones que fuerza el marco (`goToFirst` de «Ya no tenés
+permiso» y «Sin permiso», la entrada al cerrarse la sesión, salir) no pasan por la guarda (un
+`navigate(path, { force: true })`). Pruebas: del router, `force` no pregunta; de la pantalla, salir con
+cambios y entrar de nuevo deja la lista sin borrador; sacarle `roles.manage` cierra la pestaña. Media
+hora.
+
+### 42 · Lo nuevo que muestra nombres y correos no está marcado `data-private` (§ 20 «La pestaña Roles»; § 8 «`data-private`») — Mejora
+
+Los puntos 11 y 19 mostraron que la regla general de § 8 no alcanza si no se nombra cada lugar. La
+pantalla nueva suma varios que § 20 no nombra: el buscador de la lista (donde se escribe un nombre o
+un correo, R7.12), el renglón de cada persona en «Quiénes lo tienen» y su «Deshacer» (un botón cuya
+etiqueta lleva el nombre), el buscador «Darle este rol a…» y sus resultados, las iniciales de la
+tarjeta del rol, el aviso de arriba que «dice quién» (E65) y la vista previa si nombra personas.
+
+**Cómo se filtra:** algo falla con el rol abierto; «Algo salió mal» guarda la captura y los últimos
+pasos («Tocó «Deshacer Juan Pérez»», el buscador con «juan@gmail.com» escrito) y el módulo 12 los manda
+afuera, contra 00 · R9.4.
+
+**Qué propongo:** que § 20 liste esos lugares con `data-private` (el renglón entero, no solo el texto,
+como pide el punto 11) y que el aviso de error con nombre lo lleve también. Una prueba de la pantalla
+que toque «Deshacer» de una persona y mire que el paso no tiene su nombre, y una de captura que mire
+que el buscador sale tapado. Media hora.
+
+### 43 · La hoja de confirmar no dice qué se va a dar (§ 18 «Lo que da acceso pide confirmar», § 13 «La aplicación») — Mejora
+
+Con la pantalla nueva, un solo «Guardar rol» puede llevar muchos cambios, y uno solo de ellos (una
+persona más en «Quiénes lo tienen», un permiso tildado en un grupo plegado) es el que pide confirmar.
+La hoja de § 13 dice que hay que confirmar, no qué.
+
+**El ataque**, en la computadora del mostrador con la sesión del Encargado abierta desde la mañana:
+
+1. Un Cajero abre Roles › «Encargado», corrige la descripción que el Encargado le había pedido y, de
+   paso, se agrega a sí mismo en «Quiénes lo tienen».
+2. «Guardar rol» da `confirm-first` y aparece la hoja. Le dice al Encargado: «te pide confirmar lo de
+   la descripción».
+3. El Encargado toca «Continuar con Google» y la aplicación repite el pedido sola: el Cajero queda con
+   «Encargado».
+
+Hace falta engañar al Encargado (y el punto 21 ya dice que, con su cuenta de Google abierta en esa
+computadora, ni siquiera eso), por eso no frena; pero la hoja es el último lugar donde se ve.
+
+**Qué propongo:** que la hoja, cuando viene del rol, diga lo que da según el borrador («Le das
+«Encargado» a Pedro Gómez», «Suma «Administrar roles»»); el servidor sigue decidiendo si hace falta.
+Que `role-draft` lo arme (una función pura más, con su prueba). Media hora.
+
+### 44 · Duplicar no dice que arranca sin personas (§ 20 «Lo que se arma») — Mejora
+
+E38 dice que el duplicado tiene «sus mismos permisos»; § 20 dice que el borrador «sale de duplicar
+uno» y que arranca encendido, sin decir si trae a quienes tienen el original en `give`. Si los trae,
+duplicar «Administrador» y guardar le da a cada Administrador una copia; después, sacarle
+«Administrador» a uno (por ejemplo, a quien se va) no le saca nada, porque la copia le da lo mismo, y
+quien lo hace no lo nota en la tarjeta de esa persona sin mirar rol por rol.
+
+**Qué propongo:** una línea en § 20: el duplicado arranca sin personas (`give` vacío). Una prueba de
+`role-draft`. Cinco minutos.
+
+### 45 · La auditoría de `give` y `take` (§ 21 «La auditoría») — Mejora
+
+- **`person-inactive` no se anota.** § 21 lleva a `users.rejected` `confirm-first`, `outranked` y
+  `no-roles`, no `person-inactive`. Darle un rol a alguien dado de baja es el primer paso para
+  devolverle acceso con un alta; que quede su línea, con el mismo tope. Cinco minutos.
+- **Las líneas de un mismo guardado.** Un pedido deja la línea del rol y hasta 400 de personas. Que
+  todas lleven el mismo identificador del pedido (o que las de personas digan el rol y que vinieron
+  de la pestaña Roles), así se lee como un solo cambio; y que se escriban en una sola sentencia, como
+  promete el número fijo de consultas de § 18 (si la auditoría escribe de a una línea, ese número no
+  se cumple y el bloqueo de § 19 se alarga con cada persona). Diez minutos.
+
+### Lo demás, punto por punto
+
+- **Entrar sin permiso:** nada nuevo. Las dos rutas siguen pidiendo `roles.manage` y una sesión.
+- **Permisos y lo ajeno:** `give` y `take` aceptan cualquier persona, también quien tiene más: es lo
+  que § 21 ya acepta (quien tiene «Administrar roles» se puede dar todo). Sacarle un rol a 200
+  personas de una vez, sin confirmar, desde una sesión vieja ya se podía de a una con el límite de 60
+  por minuto; no cambia lo que se puede hacer. La `version` del rol frena dos guardados del mismo rol;
+  la de cada persona no se mira, pero el conteo de «sin roles» se hace bajo el bloqueo, así una
+  tarjeta y la pestaña no pueden dejar a alguien sin roles entre las dos.
+- **Lo que entra de afuera:** contratos estrictos (`take` en crear da `400`), ids UUID, 200 por lista,
+  sin repetidos ni el mismo id en las dos; entra en 64 KB. Nada más que agregar, salvo el punto 39.
+- **La aplicación en el navegador:** buscar es en la aplicación, sin pedidos y sin poner lo escrito
+  en la dirección (conviene que siga así: un correo en la dirección queda en el historial). Nombres y
+  descripciones como texto (Preact escapa). Lo demás, en los puntos 41 y 42.
+- **Datos personales:** buscar por correo usa lo que «Ver las personas» ya trae; nada nuevo sale del
+  servidor. Lo que puede salir, en el punto 42.
+- **Abuso:** el bloqueo de § 19 se toma con un número fijo de consultas para cualquier cantidad de
+  personas (si se cumple lo del punto 45); el `for update` de las personas no se traba con otro cambio
+  de roles porque todos esperan primero la fila del rol `system`.
+- **Sin conexión:** la pestaña Roles no se usa sin conexión (`inert`); nada nuevo.
+- **El despliegue y las dependencias:** no cambian; el diseño no suma bibliotecas.
+
+### Qué tiene que tener una prueba (para el paso 7)
+
+| Riesgo | Qué intenta la prueba |
+|---|---|
+| Confirmar al dar (E50, E62) | Con una sesión vieja: `give` de alguien sin el rol da `confirm-first` y no guarda nada; `give` de alguien que ya lo tiene y `take` solos, no lo piden; crear con `give`, sí |
+| Sacarse a sí mismo y dejar sin quien administre | `take` de sí mismo en un rol con `roles.manage` da `self`; `take` del último que entró con el permiso da `last-administrator`; en los dos, el nombre del rol que venía en el mismo pedido no cambia |
+| Personas que no pueden (E65, 39) | Una dada de baja y un id que no existe dan su error con `userId`, no `500`, y no se guarda nada |
+| Lo que entra | 201 ids, un id repetido, el mismo id en `give` y `take`, un id que no es UUID y `take` al crear: `400` |
+| Un pedido en camino | Quien perdió `roles.manage` mientras el pedido esperaba el bloqueo: `forbidden` y nada cambia |
+| Lo que no cambia nada (40) | `give` de quien ya lo tiene no sube su versión, ni deja línea, ni cambia `roles_changed_by` |
+| La auditoría (45) | Un guardado con nombre, permisos y dos personas deja una línea del rol y dos de personas, con el mismo pedido; `person-inactive` deja su línea |
+| La guarda (41) | Del router: `force` no pregunta; de la pantalla: salir y volver a entrar no deja borrador; sin `roles.manage` la pestaña se cierra |
+| Privado (42) | El paso de «Deshacer» y el buscador no llevan nombres ni correos |

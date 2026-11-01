@@ -448,9 +448,9 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 
 | Ruta | Permiso | Qué hace | Consultas |
 |---|---|---|---|
-| `GET /api/roles` | `roles.manage` | Los roles con descripción, permisos, versión y quiénes los tienen (ids de personas activas). Los nombres y las versiones de las personas, de `GET /api/users` | 3 |
-| `POST /api/roles` | `roles.manage` | Crear (también duplicar, que arma el cuerpo en la aplicación): `{ name, description?, permissions, give? }`. `409 role-name-taken`, `400` sin permisos, `409 too-many-roles` con 100 roles | 12, con § 19 y las personas |
-| `POST /api/roles/:id` | `roles.manage` | Guardar todo junto (R7.13): `{ version, name?, description?, permissions?, give?, take? }`; un nombre que ya tiene otro, `409 role-name-taken` | 16, con § 19 y las personas |
+| `GET /api/roles` | `roles.manage` | Los roles con descripción, permisos y versión. Quiénes los tienen sale de `GET /api/users`, que ya trae los roles de cada persona, activas y dadas de baja (E60) | 2 |
+| `POST /api/roles` | `roles.manage` | Crear (también duplicar, que arma el cuerpo en la aplicación): `{ name, description?, permissions, give? }`. `409 role-name-taken`, `400` sin permisos, `409 too-many-roles` con 100 roles | 8 + 4 con personas, con § 19 |
+| `POST /api/roles/:id` | `roles.manage` | Guardar todo junto (R7.13): `{ version, name?, description?, permissions?, give?, take? }`; un nombre que ya tiene otro, `409 role-name-taken` | 12 + 4 con personas, con § 19 |
 | `POST /api/roles/:id/delete` | `roles.manage` | `{ version }`. `409 role-in-use` si alguien lo tiene (también una persona dada de baja), `409 system-role` si es el Administrador | 7, con § 19 |
 | `POST /api/users/:id/roles` | `roles.manage` | Los roles de una persona: `{ version, roles }`, al menos uno (`400 no-roles`). La usan la tarjeta de la persona y el diálogo de autorizar; la pestaña Roles no (sus personas van con el rol) | 12, con § 19 |
 | `GET /api/permissions/:id/holders` | sesión | Para «Sin permiso» (R7.7): los roles que tienen ese permiso y, de las personas activas que lo tienen, solo el nombre (nunca el correo: sin nombre, «Sin nombre»); quiénes tienen `roles.manage` | 4 |
@@ -478,18 +478,30 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 - **Las personas de un rol, con el rol** (R7.13, E62, E63, E65): `give` y `take` son los ids de las
   personas a las que se les da o se les saca el rol, no el conjunto entero, así no se pisa lo que
   otro cambió en la tarjeta de una persona mientras tanto. Todo va en la transacción de § 19: el rol
-  primero (en uno nuevo, se crea y sus personas se le dan con su id), y las personas después, con un
-  número fijo de consultas para cualquier cantidad: una que bloquea sus filas (`for update`) y trae,
-  de cada una, si está activa y cuántos roles tiene; una que inserta, una que borra y una que sube su
-  `version` y anota `roles_changed_by` y `roles_changed_at`. Dar un rol que ya tiene o sacar uno que
-  no tiene no es error: no cambia nada. Si una persona no está activa (`409 person-inactive`) o se
-  quedaría sin roles (`400 no-roles`), no se guarda nada, ni el rol. Como mucho 200 en cada lista, sin
-  repetidos y sin el mismo id en las dos.
-- **Qué se dice y de quién** (E65): cada error del rol lleva `{ error, userId? }`, con la persona que lo
-  causó si es por una, así la pantalla lo muestra en su renglón. La aplicación controla antes lo que
-  ya sabe (sin nombre, sin permisos, un nombre que ya está en la lista, alguien que se quedaría sin
-  roles) y muestra todos a la vez; el servidor tiene la última palabra y devuelve el primero que
-  encuentra.
+  primero (en uno nuevo, se crea y sus personas se le dan con su id) y las personas después, en
+  cuatro consultas para cualquier cantidad:
+  1. Una que bloquea las filas pedidas (`for update`, ordenadas por id) y trae de cada una si está
+     activa y sus roles (`array_agg`). Un id que no trajo (inventado, o el alta que borraron mientras
+     se armaba el rol) da `409 person-missing` con su `userId`; una dada de baja, `409
+     person-inactive`; quien se quedaría sin roles (contando solo los que de verdad tiene y saca),
+     `400 no-roles`; quien pasaría de 50 roles, `400 too-many-roles`. En cualquiera, no se guarda
+     nada, ni el rol.
+  2. `insert … on conflict do nothing returning` y 3. `delete … returning`: dicen a quiénes se les dio
+     y sacó de verdad. Dar a quien ya lo tiene o sacar a quien no lo tiene no cambia nada.
+  4. Solo a esas personas: subir su `version` y anotar `roles_changed_by` y `roles_changed_at`. Solo
+     ellas van a la memoria (§ 17) y a la auditoría.
+
+  Las 8 o 12 del rol son las de antes: el bloqueo de § 19 con el permiso de quien pide, la versión,
+  el nombre, los permisos (borrar y poner), el control de quien administra y, al confirmar, la
+  memoria. Como mucho 200 ids en cada lista, sin repetidos y sin el mismo id en las dos (`400`).
+- **La `version` del rol** sube solo si cambian su nombre, su descripción o sus permisos, y
+  `role.changed` va solo en ese caso; se compara siempre, aunque solo cambien sus personas.
+- **Qué se dice y de quién** (E65): cada error del rol lleva `{ error, userId?, permission? }`: la
+  persona que lo causó, si es por una, y el permiso, si es por uno (`self`: quien guarda se sacaría
+  «Administrar roles» o «Administrar personas»), así la pantalla lo muestra en su renglón. La
+  aplicación controla antes lo que ya sabe (sin nombre, sin permisos, un nombre que ya está en la
+  lista, alguien que se quedaría sin roles, sacarse a sí mismo un permiso de R1.3) y muestra todos a
+  la vez; el servidor tiene la última palabra y devuelve el primero que encuentra.
 - **Sin el permiso:** `403 { error: 'forbidden', permission }`, sin cerrar la sesión (R7.6).
 - **Lo que da acceso pide confirmar** (R3.8, § 13): crear un rol, agregarle permisos y darle un rol a
   alguien (también al autorizar y con `give`) dan `403 confirm-first` si Google o la huella son de
@@ -502,7 +514,7 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
   etapa a; ids UUID.
 - **El límite de 60 cambios por minuto por sesión** de la etapa a vale también para las rutas de roles.
 - **Los errores nuevos,** con su texto en la aplicación: `role-name-taken`, `role-in-use`,
-  `system-role`, `no-roles`, `person-inactive`, `outranked`, `forbidden` y los que ya estaban
+  `system-role`, `no-roles`, `person-inactive`, `person-missing`, `too-many-roles`, `outranked`, `forbidden` y los que ya estaban
   (`self`, `last-administrator`, `changed`).
 
 ## 19. Lo que pasa a la vez
@@ -522,8 +534,9 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 - **Dos cambian lo mismo:** `version` en `roles` y en `users` (la etapa a); cambiar los roles de
   alguien sube la `version` de esa persona. Guardar un rol pide la `version` del rol, no la de sus
   personas: `give` y `take` dicen solo qué cambia (§ 18). Si otro cambió el rol mientras se editaba,
-  `409 changed` y la pantalla lo dice sin perder lo armado: «Otra persona cambió este rol. Volvé a
-  abrirlo para ver cómo quedó».
+  `409 changed`: la aplicación trae el rol de nuevo, vuelve a poner encima lo que cambió el borrador
+  (sabe qué es, por `toRequest`) y avisa «Otra persona cambió este rol mientras lo armabas: tus
+  cambios quedaron encima de lo nuevo. Revisalos y guardá». No se pierde nada.
 - **La prueba:** como en § 5, PGlite atiende una conexión a la vez; la unitaria prueba la regla y el
   bloqueo se comprueba a mano contra PostgreSQL.
 
@@ -546,8 +559,13 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 - **«Sin permiso»** (R7.7, maqueta aprobada `app-no-permission/variant-1-door`): es del marco
   (`modules/frame/screens/NoPermission`), porque vale para cualquier opción. Pide
   `/api/permissions/:id/holders` y arma «Copiar el pedido» en el portapapeles.
-- **La pestaña Roles** (maqueta final `users-roles/final/`, aprobada): `modules/users/screens/Roles/`,
-  que se baja recién al abrirla. Dos vistas que ocupan la pestaña, nunca a la vez:
+- **La pestaña Roles** (maqueta final `users-roles/final/`, aprobada): `modules/users/roles/`, que se
+  baja recién al abrirla, con `screens/` (lo de abajo), `draft.ts`, `search.ts`, `actions.ts` y
+  `texts.ts`. Los roles de una persona (`PersonRoles`, `RolePicker`, de la tarjeta y de autorizar) van
+  a `modules/users/person-roles/`. Cada vista tiene su dirección: `/users/roles` la lista,
+  `/users/roles/new` el rol nuevo y `/users/roles/<id>` uno que existe, así atrás vuelve a la lista y
+  se puede recargar. Sin «Administrar roles» la pestaña no está, y si se pierde usándola se cierra
+  como cualquier pantalla (R7.8). Dos vistas que ocupan la pestaña, nunca a la vez:
   - **La lista** (`Roles.tsx`, R7.12): el buscador, «Nuevo rol» y una tarjeta por rol (`RoleRow.tsx`)
     con su ícono, nombre, descripción, cuántos permisos, cuántas personas y sus iniciales (en el
     celular, los dos números en recuadros y como mucho dos círculos). Sin coincidencias, «Crear el rol
@@ -559,24 +577,45 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
     tienen, lo dado y lo sacado marcado hasta guardar con «Deshacer», y «Darle este rol a…», que busca
     entre las personas activas) y, en la computadora, `RolePreview.tsx`. En el celular, una columna
     con «Guardar rol» y «Cancelar» fijos abajo, y «Duplicar» y «Borrar el rol» al final.
-  - **Lo que se arma** vive en un borrador, `role-draft.ts` (reglas, sin Preact): sale de un rol (o
-    vacío, o de duplicar uno), cambia con funciones puras (tildar con lo incluido de § 16, dar, sacar,
+  - **Lo que se arma** vive en un borrador, `draft.ts` (reglas, sin Preact), en el estado de la
+    pantalla del rol: se pierde al salir de ella o al «Salir», así en la computadora del mostrador
+    nadie encuentra un rol a medio armar de otro. Sale de un rol (o vacío, o de duplicar uno: con el
+    nombre «Copia de …», la descripción y los permisos, y sin personas), cambia con funciones puras (tildar con lo incluido de § 16, dar, sacar,
     deshacer), dice si hay cambios (`isDirty`), los errores que ya se saben (`validate`) y arma el
     pedido (`toRequest`: solo lo que cambió, con `give` y `take`). «Guardar rol» está apagado, en gris,
     mientras `isDirty` es falso; en un duplicado arranca encendido.
-  - **Buscar** (`role-search.ts`, reglas): sin mayúsculas ni tildes (la misma `plain` de `logic.ts`,
-    que pasa a un archivo propio de `users`), sobre el nombre, la descripción, el nombre de sus
+  - **Buscar** (`search.ts`, reglas): sin mayúsculas ni tildes, con `plain`, que hoy está dos veces
+    (`users/logic.ts` y `manual/search.ts`) y pasa a `platform/text.ts`, sobre el nombre, la descripción, el nombre de sus
     permisos y el nombre y el correo de quienes lo tienen. Todo en la aplicación, con lo que ya trajeron
     `GET /api/roles` y `GET /api/users`: buscar no pide nada al servidor. El texto de cada rol se arma
     una vez por lista, no en cada tecla.
   - **Salir sin guardar:** «Cancelar» descarta y vuelve a la lista. Cualquier otra salida (el camino,
-    la pestaña, otra opción del menú, atrás) pasa por el router, que suma una guarda
-    (`platform/router.ts`, `guardNavigation(ask)`): mientras haya una, `navigate` y el atrás del
-    navegador le preguntan antes de cambiar la dirección (el atrás vuelve a poner el paso que sacó y
-    lo saca de nuevo si se descarta). La pantalla del rol la pone mientras hay cambios y muestra
+    la pestaña, otra opción del menú, atrás) cambia la dirección, y el router suma una guarda
+    (`platform/router.ts`, `guardNavigation(ask)`) que actúa solo cuando cambia la dirección: las
+    hojas que se abren encima del rol (`useBackStep`: «Darle este rol a…», confirmar) suman un paso
+    con la misma dirección y su atrás las cierra sin preguntar. Al atrás que cambia la dirección la
+    guarda le vuelve a poner el paso y, si se descarta, sale. La pantalla del rol pone la guarda
+    mientras hay cambios y la saca al desmontarse o al descartar, así no pregunta dos veces; muestra
     «¿Descartar los cambios del rol?» con «Seguir editando» (el foco arranca ahí) y «Descartar».
-    Cerrar o recargar la pestaña del navegador con cambios usa el aviso propio del navegador
-    (`beforeunload`), que no se puede diseñar.
+    «Duplicar» con cambios pregunta lo mismo antes de copiar el rol guardado. Las salidas que fuerza
+    el marco (R7.8 «Ya no tenés permiso», la sesión cerrada a distancia, «Salir») usan
+    `navigate(…, { force: true })`, que no pregunta: el borrador se pierde. Cerrar o recargar la
+    pestaña del navegador con cambios usa el aviso propio del navegador (`beforeunload`, puesto y
+    sacado con la guarda), que no se puede diseñar.
+  - **Sin conexión** (R2.2): la pestaña se ve gris como el resto de Usuarios; un borrador abierto se
+    conserva y «Guardar rol» espera la conexión, diciéndolo al lado.
+  - **Teclado** (constitución II, maqueta): las teclas de los botones con Alt (Alt G guardar, Alt N
+    nuevo rol), Enter en el nombre guarda, Esc en la pantalla del rol es «Cancelar» (pregunta si hay
+    cambios), y al abrir un rol el foco va al nombre en la computadora; en el celular, a nada.
+  - **Confirmar que sos vos** (R3.8): la hoja dice qué da lo que se guarda, según el borrador («Le das
+    «Encargado» a Lucía», «Le sumás «Anular una venta»»), para que no pase escondido un cambio que da
+    acceso; el servidor sigue decidiendo si hace falta.
+  - **Datos personales** (`data-private`, § 8): el buscador de la lista, cada renglón de «Quiénes lo
+    tienen» entero (con «Deshacer»), «Darle este rol a…» y su buscador, las iniciales de la lista y
+    los avisos de error que nombran a alguien.
+  - **Quiénes lo tienen** sale de los roles de cada persona de `GET /api/users`: las activas, con
+    «Sacárselo»; las dadas de baja, en una línea aparte («También lo tienen, dadas de baja: …»), que
+    no se tocan (E60).
   - **Guardar:** un solo pedido (§ 18). Si da `confirm-first`, pide Google o la huella (§ 13) y lo
     repite; si da otro error, el borrador queda como estaba y el error va en su lugar (el campo, el
     grupo, el renglón de la persona) y en un aviso arriba. Al guardar, vuelve a la lista, con el rol
@@ -617,10 +656,12 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 - **La auditoría** (R6.1): `role.created`, `role.changed` y `role.deleted`, con el id del rol y cómo
   era antes y cómo quedó (nombre, descripción y permisos), así se lee aunque se renombre o se borre;
   `user.roles-changed` (antes y después, con nombres), `role.permissions-added` (el arranque) y
-  `user.authorized` suma sus roles. Guardar un rol con sus personas deja la línea del rol y una
-  `user.roles-changed` por cada persona a la que se le dio o se le sacó, en la misma transacción. Un pedido sin el permiso deja `permission.denied`, un evento de la
-  plataforma, con tope por minuto según quién pide y qué permiso; `confirm-first`, `outranked` y
-  `no-roles` quedan como `users.rejected`, una vez por minuto por motivo y por quien lo pide.
+  `user.authorized` suma sus roles. Guardar un rol con sus personas deja, después de confirmar
+  (ADR-004), la línea del rol si cambió y una `user.roles-changed` por cada persona a la que de
+  verdad se le dio o se le sacó, con antes y después, todas con el mismo id del pedido y escritas en
+  una sola sentencia. Un pedido sin el permiso deja `permission.denied`, un evento de la
+  plataforma, con tope por minuto según quién pide y qué permiso; `confirm-first`, `outranked`,
+  `no-roles`, `self`, `person-inactive` y `person-missing` quedan como `users.rejected`, una vez por minuto por motivo y por quien lo pide.
 
 ## 22. Metas de performance
 
@@ -654,11 +695,11 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 | E56, E59, E04, E05 | De la regla: sacarse a sí mismo y dejar sin quien administre, por cada camino (también borrar), contando solo a quien ya entró; el bloqueo, a mano |
 | E58 | De las rutas: cambiar el correo, dar de baja o de alta y cortar a alguien con más permisos dan `outranked`; de la pantalla, los botones no aparecen |
 | E60 | De las rutas y de la pantalla: la baja conserva los roles y no figura en «Lo tienen» |
-| E61 | De `role-search` (nombre, descripción, permiso, nombre y correo de quien lo tiene; sin tildes ni mayúsculas) y de la pantalla: sin coincidencias, «Crear el rol «…»» abre uno con ese nombre |
+| E61 | De `search` (nombre, descripción, permiso, nombre y correo de quien lo tiene; sin tildes ni mayúsculas) y de la pantalla: sin coincidencias, «Crear el rol «…»» abre uno con ese nombre |
 | E62 | De la ruta: nombre, permisos, `give` y `take` en un pedido, una sola línea por cambio en la auditoría, `confirm-first` una vez; de la pantalla: nada se pide hasta «Guardar rol», que está apagado sin cambios |
 | E63 | De la ruta: crear con `give` deja el rol creado y a la persona con él |
-| E64 | De `role-draft` y de la pantalla: «Cancelar» vuelve a como estaba; el camino, la pestaña, el menú y atrás preguntan; «Seguir editando» no pierde nada. Del router: la guarda frena `navigate` y el atrás |
-| E65 | De la ruta: un nombre repetido, o sacarle el rol a quien se quedaría sin ninguno, o una persona dada de baja, no guardan nada (tampoco el rol) y dicen quién; de la pantalla: el error en su lugar |
+| E64 | De `draft` y de la pantalla: «Cancelar» vuelve a como estaba; el camino, la pestaña, el menú y atrás preguntan; «Seguir editando» no pierde nada. Del router: la guarda frena `navigate` y el atrás que cambian la dirección, no el atrás de una hoja, ni `force`; se saca al desmontar. Duplicar arranca sin personas |
+| E65 | De la ruta: un nombre repetido, sacarle el rol a quien se quedaría sin ninguno, una persona dada de baja o que no existe, o sacarse a sí mismo «Administrar roles», no guardan nada (tampoco el rol) y dicen quién o qué permiso; dar a quien ya lo tiene no cambia su versión ni deja línea; de la pantalla: el error en su lugar. `409 changed` vuelve a poner el borrador encima. Lo marcado `data-private` no sale en «Algo salió mal» |
 
 **De punta a punta** (aprobada por Carlos): una sola, y la pantalla de roles rehecha no suma otra: lo
 suyo (guardar todo junto, preguntar antes de salir) lo cubren las unitarias de la ruta, del borrador,
@@ -687,10 +728,11 @@ cabecera; una unitaria no lo cubre entero.
 **La pantalla de roles rehecha** (R7.12, R7.13), con las pruebas de E61 a E65 primero:
 
 7. **La guarda del router** (`platform/router.ts`): código común, tarea propia. Sin dependencias.
-8. **`give` y `take` en las rutas de roles,** con sus errores, el conteo de consultas y la auditoría.
-   Sin dependencias.
-9. **`role-draft.ts` y `role-search.ts`** (y `plain` en su archivo). Sin dependencias.
-10. **La pestaña Roles:** la lista, la pantalla del rol, el diálogo de descartar y borrar lo anterior.
+8. **`give` y `take` en las rutas de roles,** con sus errores, el conteo de consultas y la auditoría;
+   `GET /api/roles` sin quiénes los tienen. Sin dependencias.
+9. **`draft.ts` y `search.ts`** (y `plain` en `platform/text.ts`, código común). Sin dependencias.
+10. **La pestaña Roles:** las direcciones, la lista, la pantalla del rol, el diálogo de descartar, la
+    hoja de confirmar con lo que da, mover los roles de una persona a su carpeta y borrar lo anterior.
     Depende de 7, 8 y 9.
 11. **Las capturas** (pruebas de captura de la pestaña y del manual) **y el manual** (tareas de roles).
     Depende de 10.
