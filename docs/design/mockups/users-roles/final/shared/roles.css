@@ -164,3 +164,7 @@
   .is-arriving, .is-arriving::after, .is-view-in, .perm-group-body.is-opening, .btn.is-waiting .i { animation: none; }
   .perm-group-chevron, .role-row, .perm-check, .give-option { transition: none; }
 }
+
+/* «Guardar rol» sin cambios: naranja apagado, sin sombra; se enciende con el primer cambio. */
+#save:disabled { opacity: 1; background: var(--accion-suave); color: var(--accion-texto); box-shadow: none; cursor: default; }
+#save:disabled .kbd { opacity: .6; }

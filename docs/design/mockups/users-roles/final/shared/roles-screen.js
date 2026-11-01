@@ -117,7 +117,11 @@
     renderHolders();
     renderPreview();
     renderErrors();
+    renderSave();
   }
+
+  /* «Guardar rol» arranca apagado y se enciende con el primer cambio, para llamar la atención. */
+  function renderSave() { $("#save").disabled = !M.isDirty(draft); }
 
   function renderCount() {
     var n = $("#role-description").value.length;
@@ -232,10 +236,12 @@
     else if (showErrors) renderHolders();
     renderPreview();
     if (showErrors) { renderGroups(); renderErrors(); }
+    renderSave();
   }
 
   /* ---------- Guardar: todo junto, o nada (R7.13) ---------- */
   function save() {
+    if (!M.isDirty(draft)) return;
     showErrors = true;
     var e = M.validate(draft);
     renderGroups(); renderHolders(); renderErrors();
@@ -341,7 +347,7 @@
   });
 
   $("#role-name").addEventListener("input", function () { draft.name = this.value; changed("name"); });
-  $("#role-description").addEventListener("input", function () { draft.description = this.value; renderCount(); renderPreview(); });
+  $("#role-description").addEventListener("input", function () { draft.description = this.value; renderCount(); renderPreview(); renderSave(); });
   $("#perm-groups").addEventListener("click", function (e) {
     var head = e.target.closest(".perm-group-head");
     if (!head) return;
