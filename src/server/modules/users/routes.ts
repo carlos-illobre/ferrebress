@@ -15,8 +15,8 @@ import { bySchema, createGuards, readBody } from '../../platform/guards.ts';
 import { fail, uuidParams } from '../../platform/http.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { sessionOf } from '../../platform/session.ts';
-import type { Access } from './access.ts';
 import type { Outcome, People } from './people.ts';
+import type { Access } from './roles/access.ts';
 import { displayName, neverSignedIn, type User } from './rules.ts';
 
 const minute = 60_000;

@@ -4,10 +4,10 @@
 import { parseServerHeader } from '@ferrebress/shared/contracts/server-header';
 import { sql } from 'kysely';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createRolesKit, type RolesKit } from '../../testing/users/roles-kit.ts';
+import { createRolesKit, type RolesKit } from '../../../testing/users/roles-kit.ts';
+import { createPeople } from '../people.ts';
 import { createAccess } from './access.ts';
-import { createPeople } from './people.ts';
-import { createRoleChanges } from './role-changes.ts';
+import { createRoleChanges } from './changes.ts';
 
 describe('los cambios de roles', () => {
   let kit: RolesKit;

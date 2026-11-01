@@ -6,9 +6,9 @@ import type { AfterCommit } from '../../platform/events.ts';
 import { newId } from '../../platform/ids.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { type UsersTables, usersData } from './data.ts';
-import { Rollback } from './role-changes.ts';
-import { administrationProblem } from './roles.ts';
-import { type RolesTables, rolesData } from './roles-data.ts';
+import { Rollback } from './roles/changes.ts';
+import { type RolesTables, rolesData } from './roles/data.ts';
+import { administrationProblem } from './roles/rules.ts';
 import { cleanName, normalizeEmail, type User } from './rules.ts';
 
 // Por qué un cambio no se guardó: otra persona lo cambió antes (`changed`), ya entró, es la propia, o

@@ -2,11 +2,11 @@
 // rol o un permiso mira solo a las personas activas (R4.3); quién administra, además, solo a las que
 // ya entraron (R1.3).
 import { type Kysely, sql } from 'kysely';
-import type { Administration } from './roles.ts';
-import { type Role, type RolesTables, roleColumns } from './roles-tables.ts';
-import { writingHolders, writingPermissions, writingRoles } from './roles-writing.ts';
+import type { Administration } from './rules.ts';
+import { type Role, type RolesTables, roleColumns } from './tables.ts';
+import { writingHolders, writingPermissions, writingRoles } from './writing.ts';
 
-export type { Role, RolesTables } from './roles-tables.ts';
+export type { Role, RolesTables } from './tables.ts';
 
 type Db = Kysely<RolesTables>;
 

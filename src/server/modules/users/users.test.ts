@@ -5,7 +5,7 @@ import { testConfig } from '../../testing/config.ts';
 import { addFirstAdministrator } from './first.ts';
 import { createUsersModule, type Users } from './index.ts';
 import type { People } from './people.ts';
-import { type RolesTables, rolesData } from './roles-data.ts';
+import { type RolesTables, rolesData } from './roles/data.ts';
 
 describe('las personas', () => {
   let server: Awaited<ReturnType<typeof createServer>>;

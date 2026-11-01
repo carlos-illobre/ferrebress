@@ -4,7 +4,7 @@ import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
 import type { Kysely } from 'kysely';
 import { createServer } from '../../app.ts';
 import { addFirstAdministrator } from '../../modules/users/first.ts';
-import { type RolesTables, rolesData } from '../../modules/users/roles-data.ts';
+import { type RolesTables, rolesData } from '../../modules/users/roles/data.ts';
 import { createModules } from '../../modules.ts';
 import type { Clock } from '../../platform/clock.ts';
 import { appHeaders, testConfig } from '../config.ts';

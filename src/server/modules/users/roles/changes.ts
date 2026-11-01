@@ -6,11 +6,11 @@
 import { withIncluded } from '@ferrebress/shared/contracts/permissions';
 import { maxRoleDescription, maxRoleName } from '@ferrebress/shared/contracts/roles';
 import type { Kysely, Transaction } from 'kysely';
-import type { AfterCommit } from '../../platform/events.ts';
-import { newId } from '../../platform/ids.ts';
-import type { Platform } from '../../platform/modules.ts';
-import { administrationProblem, cleanRoleText, gives } from './roles.ts';
-import { type Role, type RolesTables, rolesData } from './roles-data.ts';
+import type { AfterCommit } from '../../../platform/events.ts';
+import { newId } from '../../../platform/ids.ts';
+import type { Platform } from '../../../platform/modules.ts';
+import { type Role, type RolesTables, rolesData } from './data.ts';
+import { administrationProblem, cleanRoleText, gives } from './rules.ts';
 
 export type RoleRefusal =
   | 'not-found'

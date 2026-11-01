@@ -2,7 +2,7 @@
 // crear, cambiar y borrar roles, darlos al autorizar y qué permite cada uno.
 import { permissionIds } from '@ferrebress/shared/contracts/permissions';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createRolesKit, type RolesKit } from '../../testing/users/roles-kit.ts';
+import { createRolesKit, type RolesKit } from '../../../testing/users/roles-kit.ts';
 
 describe('los roles, desde Usuarios', () => {
   let kit: RolesKit;

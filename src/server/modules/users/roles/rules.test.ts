@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { administrationProblem, cleanRoleText, gives, outranks } from './roles.ts';
+import { administrationProblem, cleanRoleText, gives, outranks } from './rules.ts';
 
 describe('las reglas de los roles (02 · R7, R1.3)', () => {
   it('un nombre de rol: NFC, sin caracteres de control, sin espacios de más, con tope', () => {

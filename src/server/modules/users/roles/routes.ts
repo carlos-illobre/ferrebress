@@ -14,15 +14,15 @@ import {
 } from '@ferrebress/shared/contracts/roles';
 import type { Context, MiddlewareHandler } from 'hono';
 import type { Kysely } from 'kysely';
-import { bySchema, createGuards, type Guards, readBody } from '../../platform/guards.ts';
-import { fail, uuidParams } from '../../platform/http.ts';
-import type { Platform } from '../../platform/modules.ts';
-import { sessionOf } from '../../platform/session.ts';
+import { bySchema, createGuards, type Guards, readBody } from '../../../platform/guards.ts';
+import { fail, uuidParams } from '../../../platform/http.ts';
+import type { Platform } from '../../../platform/modules.ts';
+import { sessionOf } from '../../../platform/session.ts';
+import { type UsersTables, usersData } from '../data.ts';
+import { confirmed, usersSettings } from '../routes.ts';
 import type { Access } from './access.ts';
-import { type UsersTables, usersData } from './data.ts';
-import type { RoleChanges, RoleOutcome } from './role-changes.ts';
-import { type RolesTables, rolesData } from './roles-data.ts';
-import { confirmed, usersSettings } from './routes.ts';
+import type { RoleChanges, RoleOutcome } from './changes.ts';
+import { type RolesTables, rolesData } from './data.ts';
 
 const statusOf: Record<string, 400 | 403 | 404> = {
   'not-found': 404,

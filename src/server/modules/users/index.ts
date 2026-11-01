@@ -5,16 +5,16 @@
 import { isPermission, type PermissionId } from '@ferrebress/shared/contracts/permissions';
 import type { Kysely } from 'kysely';
 import type { Platform, ServerModule } from '../../platform/modules.ts';
-import { type Access, createAccess } from './access.ts';
 import { type UsersTables, usersData } from './data.ts';
 import { addFirstAdministrator } from './first.ts';
 import { createUsers } from './migrations/001-users.ts';
 import { addPeople } from './migrations/002-people.ts';
 import { addRoles } from './migrations/003-roles.ts';
 import { createPeople, type People } from './people.ts';
-import { createRoleChanges } from './role-changes.ts';
-import { type RolesTables, rolesData } from './roles-data.ts';
-import { registerRoleRoutes } from './roles-routes.ts';
+import { type Access, createAccess } from './roles/access.ts';
+import { createRoleChanges } from './roles/changes.ts';
+import { type RolesTables, rolesData } from './roles/data.ts';
+import { registerRoleRoutes } from './roles/routes.ts';
 import { type AccessCounts, registerPeopleRoutes } from './routes.ts';
 import {
   cleanName,

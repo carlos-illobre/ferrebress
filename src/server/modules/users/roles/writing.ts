@@ -1,7 +1,7 @@
 // Las escrituras de los roles a la base (diseño de 02, §§ 15, 18 y 19): los roles y sus permisos,
 // quién tiene cada uno y los permisos que el sistema ya conoce. Con la versión que vio quien cambia.
 import { type Kysely, sql } from 'kysely';
-import { type RolesTables, roleColumns } from './roles-tables.ts';
+import { type RolesTables, roleColumns } from './tables.ts';
 
 type Db = Kysely<RolesTables>;
 const bump = () => sql<number>`version + 1`;

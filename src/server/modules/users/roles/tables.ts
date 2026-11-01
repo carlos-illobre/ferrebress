@@ -1,6 +1,6 @@
 // Las tablas de los roles y sus columnas (diseño de 02, § 15), para leerlas y escribirlas.
 import type { Generated } from 'kysely';
-import type { UsersTables } from './data.ts';
+import type { UsersTables } from '../data.ts';
 
 export type RolesTables = UsersTables & {
   'users.roles': {

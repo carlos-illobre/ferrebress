@@ -9,11 +9,11 @@ import {
 } from '@ferrebress/shared/contracts/permissions';
 import type { HoldersResponse, RoleSummary } from '@ferrebress/shared/contracts/roles';
 import type { Kysely } from 'kysely';
-import { createGuardedMemory } from '../../platform/memory.ts';
-import type { Platform } from '../../platform/modules.ts';
-import { outranks } from './roles.ts';
-import { type RolesTables, rolesData } from './roles-data.ts';
-import { displayName } from './rules.ts';
+import { createGuardedMemory } from '../../../platform/memory.ts';
+import type { Platform } from '../../../platform/modules.ts';
+import { displayName } from '../rules.ts';
+import { type RolesTables, rolesData } from './data.ts';
+import { outranks } from './rules.ts';
 
 export function createAccess(platform: Platform) {
   const data = () => rolesData(platform.db as Kysely<RolesTables>);
