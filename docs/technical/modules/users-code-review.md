@@ -828,3 +828,241 @@ La etapa b agregó bastante de lo no funcional. Parte por parte:
 ya casi no tienen negocio adentro, pero el motor de roles tiene los dos permisos que «administran»
 escritos en el SQL y el marco tiene el menú mezclado con la navegación; conviene esperar a que un
 segundo módulo pida sus permisos para fijar la forma.
+
+# Pantalla de roles rehecha (R7.12, R7.13, E61 a E65)
+
+Lo revisado: `git diff 03e3875..HEAD -- src tests` (servidor `roles/holding.ts`, `changes.ts`,
+`lock.ts`, `routes.ts`, `writing.ts`, el contrato `shared/contracts/roles.ts`; aplicación
+`modules/users/roles/`, `platform/router.ts`, `platform/text.ts`, `users/state.ts`,
+`screens/Users/`, `screens/PersonRoles/`, `frame/menu.ts`, `frame/permission-icons.ts`, `ui/icon/` y
+la hoja de confirmar de `sign-in`), contra `rules.md` (R7.12, R7.13, E61 a E65), la maqueta
+`users-roles/final/` (`changes.md` y `shared/roles-screen.js`) y el diseño (§§ 14 y 18 a 24).
+No corrí las pruebas ni las de punta a punta ni miré capturas: lo de pantallas sale de leer el
+código, el CSS y la maqueta.
+
+## Resumen
+
+Frenan el cierre: el teclado de la pestaña (Alt N choca con «Negocio» y faltan atajos y el foco de
+00 · R2), la prueba de punta a punta de roles que quedó con la pantalla vieja, el error de «sacarse lo
+suyo» que no aparece en su lugar (y la prueba que dice que sí) y una regresión en el resaltado del
+buscador del manual por el `plain` nuevo. El servidor (`give`/`take`, el bloqueo, las cuatro
+consultas, la auditoría) cumple el diseño y sus pruebas lo comprueban de verdad.
+
+## 1. Escenarios sin cumplir
+
+1. **E65 / R7.13: «sacarse lo suyo» no se dice en su lugar.** Frena.
+   - Dónde: `roles/screens/RolePermissions.tsx:22-58` (`Item` no recibe los errores; `selfGroup`,
+     l. 103-104, solo despliega el grupo), `RoleHolders.tsx:86` (solo mira `errors.people`),
+     `draft.ts:205-215` (`selfLoss` no dice si fue por un permiso destildado o por sacarse el rol).
+   - Qué dicen: el diseño (§ 18, «así la pantalla lo muestra en su renglón»; § 20, «el error va en
+     su lugar») y la maqueta («quitarse a uno mismo … junto a ese permiso; sacarse a uno mismo el rol
+     que los da … junto a esa persona»).
+   - Qué hace: el texto «Te sacarías «…»» sale solo en el aviso de arriba. La prueba
+     `users-roles-confirm.test.tsx:63` se llama «sacarse lo suyo, al permiso» pero en la l. 81
+     comprueba que el texto aparece **una** vez, es decir, que no está en el permiso.
+   - Corrección: que `validate` devuelva `self: { permission, via: 'permission' | 'person' }`
+     (con `take.includes(me)` se sabe), mostrar `selfProblem` debajo del permiso o del renglón propio,
+     y que la prueba espere dos apariciones.
+2. **E65: quien pasaría de 50 roles recibe un motivo equivocado.** Mejora.
+   - Dónde: `roles/actions.ts:19-26`; el texto, `users/texts.ts:148`.
+   - Qué hace: el servidor devuelve `too-many-roles` con `userId` (`holding.ts:20`), pero `placed` no
+     lo ubica y la aplicación muestra «Ya hay 100 roles: borrá alguno…», que es el tope de roles del
+     negocio, no el de la persona.
+   - Corrección: sumar `too-many-roles` a `DraftErrors.people` cuando trae `userId`, con un texto
+     propio («X ya tiene 50 roles»).
+3. E61, E62, E63 y E64 se cumplen, y sus pruebas los nombran y los comprueban: `search.test.ts`,
+   `draft.test.ts`, `holding.test.ts`, `queries.test.ts` (12 y 15 consultas con 1 y con 50 personas),
+   `users-roles*.test.tsx` y `router.test.ts`.
+
+## 2. Comentarios de cabecera y carpetas
+
+4. **`server/modules/users/roles/routes.ts:166-167`.** Mejora. Dice que «Darle este rol» y
+   «Sacárselo» desde el rol usan `POST /api/users/:id/roles` «que mandan el conjunto nuevo». Ya no es
+   así: van con `give`/`take` en `POST /api/roles/:id` (diseño § 18: «la pestaña Roles no»). Hay que
+   reescribirlo como «la tarjeta y el diálogo de autorizar».
+5. **`roles/screens/RolePreview.css:1-4`.** Mejora. La cabecera dice «la vista previa», pero la
+   primera regla también estiliza `.role-step`, que es de `RoleSteps.css`. Hay que llevar esa regla
+   a `RoleSteps.css` o decirlo en la cabecera.
+6. **`roles/screens/` tiene 19 archivos,** a uno del tope de 20. Mejora. Hay dos conceptos claros:
+   la lista (`RoleList`, `RoleRow`, `Roles.css`, `RoleRow.css`) y el rol (`RoleScreen` y lo que
+   cuelga de él). Conviene separarlos en `list/` y `role/` antes de que el próximo archivo lo
+   obligue.
+7. Las demás cabeceras dicen lo que el código hace hoy.
+
+## 3. Pruebas que miran por dentro
+
+8. Nada grave. Las pruebas de la pantalla van por roles y textos accesibles, y las del servidor por
+   la API. Hay dos excepciones aceptables: `holding.test.ts:177-193` y `queries.test.ts` cargan filas
+   con SQL directo, y lo explican (el límite de cambios por minuto). `router.test.ts` simula atrás con
+   `replaceState` más `popstate`, que es la interfaz del navegador y no la del router.
+
+## 4. El diseño
+
+9. **El teclado (diseño § 20, maqueta, 00 · R2.2, R2.6, R2.8).** Frena.
+   - **Alt N «Nuevo rol»** (`RoleList.tsx:45`) choca con «Negocio» (`frame/menu.ts:31`). Los dos
+     están en la misma capa (`Frame.tsx:73`) y `keyboard.ts:143-147` toca el primero que encuentra,
+     que es el del menú lateral. La maqueta usa **Alt O** justamente por eso («no chocan con las del
+     menú (V, C, P, N, …)»). El diseño § 20 también dice Alt N, así que está mal en los dos lados.
+   - **Faltan atajos que pide R2.8 y que la maqueta fija:** Alt A Cancelar, Alt R «Darle este rol
+     a…», Alt L el camino «Roles»; «Duplicar» va con D (`RoleActions.tsx:42`) y la maqueta dice U.
+   - **La lista no pone el cursor en el buscador** (R2.2), **no tiene `data-slash`** («/» de la
+     maqueta) y **Enter sin marca no hace la acción principal** (R2.6: «Nuevo rol» o «Crear el rol
+     «…»»). El buscador es `RoleList.tsx:32-41`.
+   - Corrección: `shortcut="o"` en «Nuevo rol», las teclas de la maqueta en los botones,
+     `data-autofocus` (solo en la computadora) y `data-slash` en el buscador, Enter en el buscador
+     igual que en `RoleInfo.tsx:37-40`, y una prueba de teclas como `users-keys.test.tsx`. Corregir
+     Alt N en el diseño.
+10. **Sin conexión (§ 20: «“Guardar rol” espera la conexión, diciéndolo al lado»).** Mejora.
+    - Qué hace: `users-content` queda `inert` sin conexión (`Users.tsx:126`) y «Guardar rol» se
+      apaga, pero nada lo dice: `texts.offlineSave` no se usa.
+    - Tampoco se usan `loadFailed`, `retry` ni `clear` (`roles/texts.ts:11,21,22,69`). Si
+      `GET /api/roles` falla, `Roles.tsx:47-52` queda en «Trayendo los roles…» para siempre.
+    - Corrección: mostrar `offlineSave` al lado del botón, y `loadFailed` con «Reintentar» cuando
+      falla la carga. O borrar esos textos y corregir el diseño.
+11. **Esc en la pantalla del rol** (§ 20: «Esc … es “Cancelar” (pregunta si hay cambios)»). Mejora,
+    en el documento.
+    - Qué hace: el código no lo hace. `closes` en «Cancelar» (`RoleActions.tsx:73`) no tiene efecto,
+      porque la pantalla está en la capa base y `onEscape` solo saca la marca (`keyboard.ts:117-121`).
+    - Así está bien: la maqueta y 00 · R2.7 dicen que Esc saca la marca, y un Esc que descarta el
+      borrador sería peligroso.
+    - Corrección: quitar la frase del diseño y el `closes` sobrante.
+12. **«Salir»** (§ 20: «usan `navigate(…, { force: true })`»). Mejora, en el documento. Salir no
+    navega: el marco se desmonta y la guarda se saca al desmontar (`RoleScreen.tsx:37-40`). El
+    efecto es el mismo; hay que corregir la frase.
+13. Las rutas, el contrato, `give`/`take`, `person-missing`/`person-inactive`/`no-roles`/
+    `too-many-roles` con `userId`, la versión que sube solo si cambia el rol, las cuatro consultas
+    para cualquier cantidad, `409 changed` con el borrador encima, la guarda del router y la carga
+    aparte de la pestaña coinciden con §§ 18 a 20 y 22.
+
+## 5. Seguridad
+
+14. Lo de § 21 para `give`/`take` está hecho:
+    - Ids UUID, sin repetidos, como mucho 200, y sin la misma persona en las dos listas
+      (`contracts/roles.ts:21-44`).
+    - Bajo el bloqueo del rol del sistema, con las filas ordenadas por id (`writing.ts:83-99`).
+    - Solo personas activas y que existen.
+    - `confirm-first` al dar, dentro de la transacción (`holding.ts:45`, `changes.ts:43,96`).
+    - Quedar sin quien administre y `self`, con el permiso (`lock.ts:71-78`).
+    - En la auditoría, una línea por persona que cambió de verdad, con el mismo id de guardado
+      (`routes.ts:61-75`).
+    - `users.rejected` con tope para cada rechazo.
+    - `data-private` en los renglones, el buscador, el selector, los avisos y la lista de la hoja de
+      confirmar.
+15. **Falta la prueba de § 23 (E65): «lo marcado `data-private` no sale en “Algo salió mal”»** para
+    la pestaña Roles. Mejora. No encontré ninguna en `users-roles*.test.tsx`. Hay que sumarla:
+    nombrar a una persona en un error y mirar que los últimos pasos no la lleven.
+
+## 6. Reglas inventadas
+
+16. **La vista previa del Administrador** cambia el pie a «El Administrador recibe solo cada permiso
+    nuevo y no se borra.» (`RolePreview.tsx:52`, `texts.ts:68`). La maqueta tiene siempre «Podés
+    cambiar este rol cuando quieras…». Mejora: o se le muestra a Carlos, o se vuelve al texto de la
+    maqueta.
+17. Fuera de eso, no encontré comportamiento que no pida una regla, la maqueta o el diseño.
+
+## 7. Simpleza y repetición
+
+18. **«Las personas activas que tienen este rol» está cuatro veces.** Mejora.
+    - Dónde: `search.ts:14`, `RoleRow.tsx:39`, `paths.ts:13-16` y, con las dadas de baja,
+      `RoleHolders.tsx:67-69`.
+    - Además, `RoleRow` lo recalcula por cada rol en cada tecla, aunque el índice de búsqueda ya lo
+      tiene.
+    - Hay dos `holdersOf` con significados distintos: `draft.ts:101` (quiénes lo tendrán al guardar)
+      y `paths.ts:13` (quiénes lo tienen hoy).
+    - Corrección: dejar uno solo (`activeHolders(people, roleId)`) y renombrar el del borrador
+      (`holdersAfterSave`).
+19. **El aviso de «alguien tiene este rol» está dos veces**, con «este» y con «ese»:
+    `roles/texts.ts:101` y `users/texts.ts:145`. Mejora: que quede uno.
+
+## 8. Documentación que quedó atrás
+
+20. **`tests/e2e/roles.spec.ts:16-19` sigue con la pantalla vieja.** Frena.
+    - Qué hace: busca un `switch` por permiso (ahora son casillas) y espera el aviso «Rol «…»
+      creado» (ahora es «Se creó el rol «…».»). La única prueba de punta a punta del módulo va a
+      fallar.
+    - `pnpm check` no corre las de punta a punta, por eso está en verde. No la corrí.
+    - Corrección: `getByRole('checkbox', …)` y el texto nuevo.
+21. **Diseño § 20:** Alt N (punto 9), Esc (punto 11), «Salir» con `force` (punto 12) y el aviso sin
+    conexión (punto 10) no describen lo que hace el código. Mejora.
+22. **La tarea 11 del § 24** (las pruebas de captura de la pestaña y el manual de roles) no está en
+    este cambio: `tests/screens/` no tiene la pestaña y `docs/manual/users.md` no la nombra. No lo
+    cuento como hallazgo del código, pero la etapa no cierra sin eso.
+
+## 9. Pantallas
+
+No miré capturas. Lo que sigue sale de comparar los textos y el código con
+`shared/roles-screen.js` de la maqueta. Todo es mejora.
+
+23. **Textos distintos de la maqueta aprobada:**
+    - Sin coincidencias: «No hay ningún rol con «…».» en vez de «Ningún rol coincide con «…».», y
+      falta la línea «Se busca por el nombre o la descripción…» (`texts.ts:13`).
+    - «Lo va a tener al guardar» y «Se lo saca al guardar» en vez de «Se lo das al guardar» y «Se lo
+      sacás al guardar» (`texts.ts:56-57`).
+    - Nadie lo tiene: «Todavía nadie lo tiene.» en vez de «Nadie lo tiene todavía. Dáselo a alguien,
+      o guardalo y asignalo después.» (`texts.ts:59`).
+    - La línea de las dadas de baja (`texts.ts:58`).
+    - El aviso de arriba: «Revisá lo marcado:» en vez de «Corregí lo que está marcado en rojo: <cuáles>.»
+      (`texts.ts:72`).
+24. **Vista previa:** en un rol nuevo debería decir «Así se verá este rol una vez creado.»; hoy dice
+    siempre «Así va a quedar cuando lo guardes.» (`RolePreview.tsx:21`).
+25. **Borrar un rol que alguien tiene:** la maqueta dice quiénes («No se puede borrar: lo tienen …
+    (dada de baja). Primero hay que sacárselo.»); el código da un aviso genérico
+    (`RoleActions.tsx:21-22`).
+26. **Quiénes lo tienen:**
+    - Falta la pastilla «Vos» en el renglón propio.
+    - A quien recibe el rol en el borrador, la maqueta le deja «Sacárselo» y el código le pone
+      «Deshacer» (`RoleHolders.tsx:34-53`). Es menor, pero hay que elegir uno y anotarlo.
+27. El celular (la columna, el pie fijo, «Duplicar» y «Borrar» al final, sin vista previa) está
+    armado en el código y el CSS. No lo comprobé con capturas.
+
+## 10. Regresión fuera del módulo
+
+28. **El resaltado del buscador del manual se corre después de un «·».** Frena.
+    - Dónde: `manual/search.ts:13-14` con `platform/text.ts:3-7`.
+    - Qué hace: `plain` saca todo `\p{Diacritic}`, que incluye caracteres sueltos como «·», «^», «`»,
+      «´» y «¨» (lo comprobé con node: `plain('·') === ''`). Antes `normalize` sacaba solo las marcas
+      combinadas (U+0300 a U+036F). Ahora `normalize` devuelve un texto más corto que el original, y
+      `marks` (l. 72-88) marca las letras equivocadas después de un «·», que el manual usa.
+    - Corrección: en `plain`, `/\p{M}/gu` en vez de `\p{Diacritic}`, o en `normalize`
+      `(plain(letter) || letter)[0]`. Y una prueba de `marks` con «·».
+
+## Lo que se podría extraer a una librería
+
+- **La guarda de navegación** (`app/platform/router.ts:20-82`: `guardNavigation`, `passGuard`, el
+  `popstate` que vuelve a poner el paso, `beforeunload` y `force`).
+  - Sirve a cualquier aplicación de una página con historial: preguntar antes de dejar algo sin
+    guardar, sin frenar las hojas que suman un paso con la misma dirección.
+  - No tiene nada del negocio. Lo único que la ata es que supone el contrato de `useBackStep`
+    (una hoja = misma dirección).
+  - Iría a la base de la aplicación, junto con `back-step.ts`.
+  - Para extraerla fácil: pasarla a `platform/navigation-guard.ts` con `useBackStep` al lado, y
+    escribir en la cabecera ese contrato.
+- **`plain`** (`app/platform/text.ts`).
+  - Es genérico.
+  - Iría a la base de la aplicación (o a `shared/`, si el servidor llega a buscar).
+  - Antes hay que arreglar el punto 28.
+- **Dar y sacar por diferencia** (`server/.../roles/writing.ts:80-124` y `holding.ts`): bloquear las
+  filas en orden, `insert … on conflict do nothing returning` y `delete … returning`, y marcar solo
+  a quien cambió.
+  - Es un patrón para cualquier relación muchos a muchos con auditoría.
+  - Lo ata a Ferrebress: las tablas `users.*` y las reglas de roles en el mismo archivo
+    (`holdingProblem`).
+  - Iría a la base del servidor.
+  - Para extraerlo fácil: separar las tres sentencias en un ayudante genérico por tabla y columna, y
+    dejar las reglas en `holding.ts`.
+- **El rechazo con detalle** (`lock.ts:28-44`: `Rollback` con `{ userId?, permission? }`).
+  - Sirve a cualquier transacción que tenga que decir qué fila falló.
+  - Lo ata a Ferrebress: la lista `Refused` en el mismo archivo.
+  - Iría a la base del servidor.
+  - Para extraerlo fácil: que `Rollback` sea genérico en el motivo.
+- **La hoja de confirmar con «qué da»** (`ConfirmSheet.tsx`, prop `what`).
+  - El patrón (pedir la identidad diciendo para qué) sirve a otro proyecto con la misma identidad.
+  - Lo ata a Ferrebress: los textos y Google o la huella.
+  - Iría a identidad.
+- **El borrador con «solo lo que cambió»** (`draft.ts`: `isDirty`, `toRequest`, `reapply`).
+  - Es regla de roles. El patrón se repetirá en otros módulos, pero hoy no hay nada genérico que
+    sacar.
+
+**Hoy no conviene extraer nada:** la guarda del router es lo único listo, es chica y vive bien en
+`platform/`. Lo demás todavía tiene el negocio en el mismo archivo, y conviene esperar a que un
+segundo módulo use el mismo patrón para fijar la forma.
