@@ -21,9 +21,9 @@ describe('los roles, desde Usuarios', () => {
         system: true,
         version: 1,
         permissions: [...permissionIds].sort(),
-        holders: [kit.adminId],
       },
     ]);
+    expect((await kit.row(kit.adminId)).roleIds).toEqual([roles[0].id]);
     expect(kit.audited('role.permissions-added')).toHaveLength(1);
   });
 
@@ -41,7 +41,6 @@ describe('los roles, desde Usuarios', () => {
           description: 'Atiende el mostrador y cobra',
           system: false,
           permissions: ['users.cut', 'users.view'],
-          holders: [],
         },
       },
     });
@@ -80,8 +79,6 @@ describe('los roles, desde Usuarios', () => {
     const { version } = await kit.row(juan.id);
     await kit.admin.request(`/api/users/${juan.id}/deactivate`, { version });
     expect((await remove(id)).body).toEqual({ error: 'role-in-use' });
-    const { roles } = (await kit.admin.request('/api/roles')).body;
-    expect(roles.find((role: { id: string }) => role.id === id).holders).toEqual([]);
     expect((await kit.row(juan.id)).roleIds).toContain(id);
     expect((await remove(await kit.systemRole())).body).toEqual({ error: 'system-role' });
     const unused = await kit.role('Sin nadie', ['users.view']);

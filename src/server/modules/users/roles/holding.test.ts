@@ -1,0 +1,156 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { createRolesKit, type RolesKit } from '../../../testing/users/roles-kit.ts';
+
+describe('guardar un rol con sus personas, todo junto (02 · R7.13)', () => {
+  let kit: RolesKit;
+  beforeAll(async () => {
+    kit = await createRolesKit();
+  });
+  afterAll(() => kit.server.close());
+
+  const roleOf = async (id: string) =>
+    (await kit.admin.request('/api/roles')).body.roles.find(
+      (role: { id: string }) => role.id === id,
+    );
+  const save = async (id: string, body: Record<string, unknown>) =>
+    kit.admin.request(`/api/roles/${id}`, { version: (await roleOf(id)).version, ...body });
+  const missing = '00000000-0000-7000-8000-000000000000';
+
+  it('users-E63: crear con personas deja el rol creado y a esas personas con él', async () => {
+    const view = await kit.role('Base', ['users.view']);
+    const ana = await kit.person([view]);
+    const created = await kit.admin.request('/api/roles', {
+      name: 'Encargado',
+      permissions: ['users.cut'],
+      give: [ana.id],
+    });
+    expect(created.status).toBe(200);
+    const id = created.body.role.id;
+    expect((await kit.row(ana.id)).roleIds.sort()).toEqual([view, id].sort());
+    expect(kit.audited('user.roles-changed').at(-1)?.data).toMatchObject({
+      target: ana.id,
+      before: ['Base'],
+      after: expect.arrayContaining(['Base', 'Encargado']),
+    });
+  });
+
+  it('users-E62: el nombre, los permisos y las personas en un pedido; confirmar una sola vez', async () => {
+    const view = await kit.role('Ve todo', ['users.view']);
+    const extra = await kit.role('Extra', ['offline.work']);
+    const beto = await kit.person([view, extra]);
+    const caro = await kit.person([view]);
+    const before = (await roleOf(extra)).version;
+    kit.later();
+    const body = {
+      name: 'Extra plus',
+      permissions: ['offline.work', 'users.view'],
+      give: [caro.id],
+      take: [beto.id],
+    };
+    expect((await save(extra, body)).body).toEqual({ error: 'confirm-first' });
+    expect((await roleOf(extra)).name).toBe('Extra');
+    expect((await kit.row(caro.id)).roleIds).toEqual([view]);
+    await kit.reconfirm();
+    const saved = await save(extra, body);
+    expect(saved.status).toBe(200);
+    expect(saved.body.role).toMatchObject({ name: 'Extra plus', version: before + 1 });
+    expect((await kit.row(caro.id)).roleIds.sort()).toEqual([view, extra].sort());
+    expect((await kit.row(beto.id)).roleIds).toEqual([view]);
+    const changes = kit.audited('user.roles-changed').slice(-2);
+    expect(changes.map((one) => one.data?.target).sort()).toEqual([beto.id, caro.id].sort());
+    expect(kit.audited('role.changed').at(-1)?.data).toMatchObject({ target: 'Extra plus' });
+  });
+
+  it('users-E62: cambiar solo las personas no sube la versión del rol ni deja su línea', async () => {
+    const view = await kit.role('Solo mira', ['users.view']);
+    const dani = await kit.person([view]);
+    const { version } = await roleOf(view);
+    const lines = kit.audited('role.changed').length;
+    expect((await save(view, { take: [], give: [dani.id] })).status).toBe(200);
+    expect((await roleOf(view)).version).toBe(version);
+    expect(kit.audited('role.changed').length).toBe(lines);
+  });
+
+  it('users-E62: dar a quien ya lo tiene o sacar a quien no lo tiene no cambia a esa persona', async () => {
+    const view = await kit.role('Mirada', ['users.view']);
+    const other = await kit.role('Otra cosa', ['offline.work']);
+    const eva = await kit.person([view]);
+    const { version } = await kit.row(eva.id);
+    const lines = kit.audited('user.roles-changed').length;
+    expect((await save(view, { give: [eva.id] })).status).toBe(200);
+    expect((await save(other, { take: [eva.id] })).status).toBe(200);
+    expect((await kit.row(eva.id)).version).toBe(version);
+    expect(kit.audited('user.roles-changed').length).toBe(lines);
+  });
+
+  it('users-E65: quien se quedaría sin roles no deja guardar nada, y dice quién', async () => {
+    const only = await kit.role('Único', ['users.view']);
+    const fede = await kit.person([only]);
+    const reply = await save(only, { name: 'Único cambiado', take: [fede.id] });
+    expect(reply.status).toBe(400);
+    expect(reply.body).toEqual({ error: 'no-roles', userId: fede.id });
+    expect((await roleOf(only)).name).toBe('Único');
+    expect((await kit.row(fede.id)).roleIds).toEqual([only]);
+  });
+
+  it('users-E65: una persona dada de baja o que no existe no deja guardar nada, y dice cuál', async () => {
+    const view = await kit.role('Para dar', ['users.view']);
+    const gus = await kit.person([view]);
+    const { version } = await kit.row(gus.id);
+    await kit.admin.request(`/api/users/${gus.id}/deactivate`, { version });
+    const fresh = await kit.role('Nuevito', ['offline.work']);
+    expect((await save(fresh, { name: 'Otro nombre', give: [gus.id] })).body).toEqual({
+      error: 'person-inactive',
+      userId: gus.id,
+    });
+    expect((await save(fresh, { give: [missing] })).body).toEqual({
+      error: 'person-missing',
+      userId: missing,
+    });
+    expect((await roleOf(fresh)).name).toBe('Nuevito');
+    const creating = { name: 'No va', permissions: ['users.view'], give: [missing] };
+    expect((await kit.admin.request('/api/roles', creating)).status).toBe(409);
+    const names = (await kit.admin.request('/api/roles')).body.roles.map(
+      (role: { name: string }) => role.name,
+    );
+    expect(names).not.toContain('No va');
+  });
+
+  it('users-E65: un nombre repetido no da el rol a nadie', async () => {
+    const view = await kit.role('Repetible', ['users.view']);
+    const other = await kit.role('Distinto', ['offline.work']);
+    const hugo = await kit.person([view]);
+    expect((await save(other, { name: 'repetible', give: [hugo.id] })).body).toEqual({
+      error: 'role-name-taken',
+    });
+    expect((await kit.row(hugo.id)).roleIds).toEqual([view]);
+  });
+
+  it('users-E56, E65: sacarse a sí mismo «Administrar roles» no se guarda y dice qué permiso', async () => {
+    const system = await kit.systemRole();
+    const view = await kit.role('Del admin', ['users.view']);
+    await kit.setRoles(kit.adminId, [system, view]);
+    expect((await save(system, { take: [kit.adminId] })).body).toEqual({
+      error: 'self',
+      permission: 'roles.manage',
+    });
+    expect((await kit.row(kit.adminId)).roleIds).toContain(system);
+  });
+
+  it('lo que entra: el mismo id en las dos listas, repetidos o de más, no pasan', async () => {
+    const view = await kit.role('Listas', ['users.view']);
+    const ivan = await kit.person([view]);
+    for (const body of [
+      { give: [ivan.id], take: [ivan.id] },
+      { give: [ivan.id, ivan.id] },
+      { give: Array.from({ length: 201 }, () => crypto.randomUUID()) },
+      { give: ['no-es-un-id'] },
+    ])
+      expect((await save(view, body)).status).toBe(400);
+  });
+
+  it('users-E60: la lista de roles ya no dice quiénes los tienen: sale de la de Usuarios', async () => {
+    const roles = (await kit.admin.request('/api/roles')).body.roles;
+    expect(roles.every((role: object) => !('holders' in role))).toBe(true);
+  });
+});

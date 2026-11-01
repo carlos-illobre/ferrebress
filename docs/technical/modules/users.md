@@ -450,7 +450,7 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 |---|---|---|---|
 | `GET /api/roles` | `roles.manage` | Los roles con descripción, permisos y versión. Quiénes los tienen sale de `GET /api/users`, que ya trae los roles de cada persona, activas y dadas de baja (E60) | 2 |
 | `POST /api/roles` | `roles.manage` | Crear (también duplicar, que arma el cuerpo en la aplicación): `{ name, description?, permissions, give? }`. `409 role-name-taken`, `400` sin permisos, `409 too-many-roles` con 100 roles | 8 + 4 con personas, con § 19 |
-| `POST /api/roles/:id` | `roles.manage` | Guardar todo junto (R7.13): `{ version, name?, description?, permissions?, give?, take? }`; un nombre que ya tiene otro, `409 role-name-taken` | 12 + 4 con personas, con § 19 |
+| `POST /api/roles/:id` | `roles.manage` | Guardar todo junto (R7.13): `{ version, name?, description?, permissions?, give?, take? }`; un nombre que ya tiene otro, `409 role-name-taken` | 11 + 4 con personas, con § 19 |
 | `POST /api/roles/:id/delete` | `roles.manage` | `{ version }`. `409 role-in-use` si alguien lo tiene (también una persona dada de baja), `409 system-role` si es el Administrador | 7, con § 19 |
 | `POST /api/users/:id/roles` | `roles.manage` | Los roles de una persona: `{ version, roles }`, al menos uno (`400 no-roles`). La usan la tarjeta de la persona y el diálogo de autorizar; la pestaña Roles no (sus personas van con el rol) | 12, con § 19 |
 | `GET /api/permissions/:id/holders` | sesión | Para «Sin permiso» (R7.7): los roles que tienen ese permiso y, de las personas activas que lo tienen, solo el nombre (nunca el correo: sin nombre, «Sin nombre»); quiénes tienen `roles.manage` | 4 |
@@ -484,14 +484,14 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
      activa y sus roles (`array_agg`). Un id que no trajo (inventado, o el alta que borraron mientras
      se armaba el rol) da `409 person-missing` con su `userId`; una dada de baja, `409
      person-inactive`; quien se quedaría sin roles (contando solo los que de verdad tiene y saca),
-     `400 no-roles`; quien pasaría de 50 roles, `400 too-many-roles`. En cualquiera, no se guarda
+     `400 no-roles`; quien pasaría de 50 roles, `409 too-many-roles`. En cualquiera, no se guarda
      nada, ni el rol.
   2. `insert … on conflict do nothing returning` y 3. `delete … returning`: dicen a quiénes se les dio
      y sacó de verdad. Dar a quien ya lo tiene o sacar a quien no lo tiene no cambia nada.
   4. Solo a esas personas: subir su `version` y anotar `roles_changed_by` y `roles_changed_at`. Solo
      ellas van a la memoria (§ 17) y a la auditoría.
 
-  Las 8 o 12 del rol son las de antes: el bloqueo de § 19 con el permiso de quien pide, la versión,
+  Las 8 o 11 del rol son las de antes (la respuesta del cambio lee el rol en 2): el bloqueo de § 19 con el permiso de quien pide, la versión,
   el nombre, los permisos (borrar y poner), el control de quien administra y, al confirmar, la
   memoria. Como mucho 200 ids en cada lista, sin repetidos y sin el mismo id en las dos (`400`).
 - **La `version` del rol** sube solo si cambian su nombre, su descripción o sus permisos, y

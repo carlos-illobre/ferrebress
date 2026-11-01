@@ -1,5 +1,6 @@
 // Cuántas consultas a la base hace cada ruta de Usuarios (diseño de 02, § 4), con la sesión del
 // pedido ya en memoria: que no aparezca una de más, ni una dentro de un bucle por persona.
+import { sql } from 'kysely';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createOfflineKit } from '../../testing/sign-in/offline-kit.ts';
 import { createDevice } from '../../testing/sign-in/sign-in-server.ts';
@@ -90,12 +91,51 @@ describe('las consultas de cada ruta de Usuarios', () => {
     // Bajo el bloqueo de § 19: el comienzo, el bloqueo con el primer conteo, el segundo conteo y la
     // confirmación, más lo propio de cada cambio.
     expect(counts).toEqual({
-      list: 3,
+      list: 2,
       create: 8,
-      change: 12,
+      change: 11,
       setRoles: 12,
       remove: 7,
       holders: 4,
     });
+  });
+
+  it('las de guardar un rol con sus personas: cuatro más, sean una o cincuenta (diseño de 02, § 18)', async () => {
+    // Cargadas directo en la base: por la API, cincuenta pasarían el límite de cambios por minuto.
+    const system = (await admin.request('/api/users')).body.roles[0].id;
+    const people = async (n: number) => {
+      const ids = Array.from({ length: n }, () => crypto.randomUUID());
+      await sql`insert into users.users (id, email)
+        select id, id || '@example.com' from unnest(${ids}::uuid[]) as id`.execute(
+        kit.server.platform.db,
+      );
+      await sql`insert into users.user_roles (user_id, role_id)
+        select id, ${system}::uuid from unnest(${ids}::uuid[]) as id`.execute(
+        kit.server.platform.db,
+      );
+      return ids;
+    };
+    const counts: Record<string, number> = {};
+    for (const n of [1, 50]) {
+      const give = await people(n);
+      // El cambio anterior borró los permisos en memoria: se vuelven a leer antes de contar.
+      await admin.request('/api/roles');
+      let created = '';
+      counts[`create${n}`] = await kit.server.countQueries(async () => {
+        const reply = await admin.request('/api/roles', {
+          name: `Con ${n}`,
+          permissions: ['users.view'],
+          give,
+        });
+        created = reply.body.role.id;
+      });
+      counts[`change${n}`] = await count(`/api/roles/${created}`, {
+        version: 1,
+        name: `Con ${n}, cambiado`,
+        permissions: ['users.cut'],
+        take: give,
+      });
+    }
+    expect(counts).toEqual({ create1: 12, change1: 15, create50: 12, change50: 15 });
   });
 });

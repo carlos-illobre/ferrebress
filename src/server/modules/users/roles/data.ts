@@ -4,7 +4,7 @@
 import { type Kysely, sql } from 'kysely';
 import type { Administration } from './rules.ts';
 import { type Role, type RolesTables, roleColumns } from './tables.ts';
-import { writingHolders, writingPermissions, writingRoles } from './writing.ts';
+import { writingHolders, writingPermissions, writingRoleHolders, writingRoles } from './writing.ts';
 
 export type { Role, RolesTables } from './tables.ts';
 
@@ -160,6 +160,7 @@ export const rolesData = (db: Db) => ({
   ...readingPeople(db),
   ...writingRoles(db),
   ...writingHolders(db),
+  ...writingRoleHolders(db),
   ...writingPermissions(db),
   // Antes del cambio, bloqueando (§ 19); después, solo contando.
   lockAndCount: (asking: string) => administration(db, asking, true),

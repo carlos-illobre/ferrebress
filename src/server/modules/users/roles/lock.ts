@@ -7,7 +7,7 @@ import type { Kysely, Transaction } from 'kysely';
 import type { AfterCommit } from '../../../platform/events.ts';
 import type { Platform } from '../../../platform/modules.ts';
 import { type RolesTables, rolesData } from './data.ts';
-import { administrationProblem } from './rules.ts';
+import { type Administration, administrationProblem } from './rules.ts';
 
 export type Refused =
   | 'not-found'
@@ -17,23 +17,34 @@ export type Refused =
   | 'role-in-use'
   | 'system-role'
   | 'too-many-roles'
+  | 'no-roles'
+  | 'person-inactive'
+  | 'person-missing'
   | 'self'
   | 'last-administrator'
   | 'confirm-first'
   | 'forbidden';
 
+// De quién o de qué permiso es el rechazo, para mostrarlo en su lugar (diseño de 02, § 18).
+export type RefusalDetail = { userId?: string; permission?: string };
+
 // Deshace la transacción y dice por qué.
 export class Rollback extends Error {
   readonly refusal: Refused;
-  constructor(refusal: Refused) {
+  readonly detail: RefusalDetail;
+  constructor(refusal: Refused, detail: RefusalDetail = {}) {
     super(refusal);
     this.refusal = refusal;
+    this.detail = detail;
   }
 }
 
-export const refuse = (refusal: Refused): never => {
-  throw new Rollback(refusal);
+export const refuse = (refusal: Refused, detail?: RefusalDetail): never => {
+  throw new Rollback(refusal, detail);
 };
+
+// A quién le cambiaron los roles al guardar un rol, para la auditoría.
+export type PersonChange = { userId: string; before: string[]; after: string[] };
 
 export type Data = ReturnType<typeof rolesData>;
 
@@ -43,15 +54,28 @@ export type Done<T> = {
   result: T;
   audit: Record<string, unknown>;
   affects: string[] | 'all';
+  people?: PersonChange[];
   also?: (trx: Transaction<unknown>) => Promise<AfterCommit[]>;
 };
 
-export type LockOutcome<T> = { result: T; audit: Record<string, unknown> } | { refused: Refused };
+export type LockOutcome<T> =
+  | { result: T; audit: Record<string, unknown>; people: PersonChange[] }
+  | { refused: Refused; detail: RefusalDetail };
 
 const notify = (platform: Platform, affects: string[] | 'all', trx: Transaction<unknown>) =>
   affects.length === 0
     ? Promise.resolve([])
     : platform.events.publish('users.permissions-changed', { userIds: affects }, trx);
+
+// R1.3 después del cambio: si quien lo hace se sacó lo suyo, dice qué permiso (diseño de 02, § 18).
+async function checkAdministration(data: Data, before: Administration, asking: string) {
+  const after = await data.administration(asking);
+  const problem = administrationProblem(before, after);
+  const lostRoles = before.askingManagesRoles && !after.askingManagesRoles;
+  if (problem === 'self')
+    refuse('self', { permission: lostRoles ? 'roles.manage' : 'users.manage' });
+  if (problem) refuse(problem);
+}
 
 export async function underLock<T>(
   platform: Platform,
@@ -66,19 +90,18 @@ export async function underLock<T>(
       if (!(need === 'users.manage' ? before.askingManages : before.askingManagesRoles))
         refuse('forbidden');
       const done = await work(data, trx as Transaction<unknown>);
-      const problem = administrationProblem(before, await data.administration(asking));
-      if (problem) refuse(problem);
+      await checkAdministration(data, before, asking);
       const sent = trx as Transaction<unknown>;
-      const after = [
+      const then = [
         ...(await notify(platform, done.affects, sent)),
         ...((await done.also?.(sent)) ?? []),
       ];
-      return { done, after };
+      return { done, after: then };
     });
     for (const then of after) then();
-    return { result: done.result, audit: done.audit };
+    return { result: done.result, audit: done.audit, people: done.people ?? [] };
   } catch (error) {
-    if (error instanceof Rollback) return { refused: error.refusal };
+    if (error instanceof Rollback) return { refused: error.refusal, detail: error.detail };
     throw error;
   }
 }

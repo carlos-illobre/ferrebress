@@ -42,7 +42,9 @@ export type UsersErrorCode =
   | 'system-role'
   | 'no-roles'
   | 'outranked'
-  | 'too-many-roles';
+  | 'too-many-roles'
+  | 'person-inactive'
+  | 'person-missing';
 
 export type ErrorCode = PlatformErrorCode | SignInErrorCode | UsersErrorCode;
 

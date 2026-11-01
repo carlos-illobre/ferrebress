@@ -59,7 +59,7 @@ describe('los límites de los roles', () => {
     const changes = createRoleChanges(kit.server.platform);
     expect(
       await changes.create(ana.id, true, { name: 'Mío', permissions: ['users.manage'] }),
-    ).toEqual({ refused: 'forbidden' });
+    ).toEqual({ refused: 'forbidden', detail: {} });
     const people = createPeople(kit.server.platform);
     expect(await people.deactivate(ana.id, kit.adminId, 1)).toEqual({ refused: 'forbidden' });
   });

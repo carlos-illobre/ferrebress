@@ -84,11 +84,15 @@ describe('los cambios de roles', () => {
     const system = await kit.systemRole();
     const view = await kit.role('Solo ve', ['users.view']);
     await kit.person([system]);
-    expect((await kit.setRoles(kit.adminId, [view])).body).toEqual({ error: 'self' });
+    expect((await kit.setRoles(kit.adminId, [view])).body).toEqual({
+      error: 'self',
+      permission: 'roles.manage',
+    });
     const { version } = await roleOf(system);
     const removing = { version, permissions: ['users.view', 'users.manage'] };
     expect((await kit.admin.request(`/api/roles/${system}`, removing)).body).toEqual({
       error: 'self',
+      permission: 'roles.manage',
     });
     expect((await roleOf(system)).permissions).toContain('roles.manage');
   });
