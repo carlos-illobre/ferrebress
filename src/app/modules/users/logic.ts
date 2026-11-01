@@ -3,6 +3,7 @@
 // con la hora del servidor. Sin pantallas: lo prueban las pruebas de la lógica.
 import type { PersonRow, Way } from '@ferrebress/shared/contracts/users';
 import { serverNow } from '../../platform/server/clock.ts';
+import { plain } from '../../platform/text.ts';
 
 export type Filter = 'all' | 'active' | 'never' | 'off';
 
@@ -13,13 +14,6 @@ const rank = (person: PersonRow) => (person.self ? 0 : person.active ? 1 : 2);
 // R3.1: la propia, después las activas y al final las dadas de baja, cada grupo por nombre.
 export const ordered = (people: PersonRow[]) =>
   [...people].sort((a, b) => rank(a) - rank(b) || byName(a, b));
-
-// Sin mayúsculas ni tildes: «lucia» encuentra a «Lucía».
-const plain = (text: string) =>
-  text
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase();
 
 const inFilter: Record<Filter, (person: PersonRow) => boolean> = {
   all: () => true,

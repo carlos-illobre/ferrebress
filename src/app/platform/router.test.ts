@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { clearHash, navigate, route } from './router.ts';
+import { clearHash, guardNavigation, navigate, route } from './router.ts';
 
 describe('las direcciones', () => {
   it('ir a una dirección la cambia y avisa', () => {
@@ -43,5 +43,80 @@ describe('las direcciones', () => {
     expect(history.state).toEqual({ from: 'entrance' });
     navigate('/manual', { replace: true, state: { from: 'sell' } });
     expect(route.get().state).toEqual({ from: 'sell' });
+  });
+});
+
+describe('la guarda: preguntar antes de dejar algo sin guardar (02 · R7.13, E64)', () => {
+  // El navegador de las pruebas no recorre el historial: atrás es cambiar la dirección y avisar.
+  const back = (path: string, state: unknown = null) => {
+    history.replaceState(state, '', path);
+    dispatchEvent(new PopStateEvent('popstate'));
+  };
+
+  it('ir a otra dirección pregunta, y no se va hasta que se acepta', () => {
+    navigate('/users/roles/a');
+    const asks: (() => void)[] = [];
+    const release = guardNavigation((go) => asks.push(go));
+    navigate('/sell');
+    expect(location.pathname).toBe('/users/roles/a');
+    expect(asks).toHaveLength(1);
+    asks[0]?.();
+    expect(location.pathname).toBe('/sell');
+    // Al aceptar, la guarda se va: no vuelve a preguntar.
+    navigate('/users');
+    expect(location.pathname).toBe('/users');
+    expect(asks).toHaveLength(1);
+    release();
+  });
+
+  it('lo que fuerza el marco no pregunta; la misma dirección tampoco', () => {
+    navigate('/users/roles/b');
+    const ask = vi.fn();
+    const release = guardNavigation(ask);
+    navigate('/users/roles/b', { replace: true, state: { step: 1 } });
+    navigate('/sell', { force: true });
+    expect(location.pathname).toBe('/sell');
+    expect(ask).not.toHaveBeenCalled();
+    release();
+  });
+
+  it('sacarla deja ir sin preguntar y saca el aviso del navegador', () => {
+    navigate('/users/roles/c');
+    const ask = vi.fn();
+    const release = guardNavigation(ask);
+    const leaving = new Event('beforeunload', { cancelable: true });
+    dispatchEvent(leaving);
+    expect(leaving.defaultPrevented).toBe(true);
+    release();
+    const again = new Event('beforeunload', { cancelable: true });
+    dispatchEvent(again);
+    expect(again.defaultPrevented).toBe(false);
+    navigate('/sell');
+    expect(ask).not.toHaveBeenCalled();
+    // Sacar una guarda vieja no saca la que vino después.
+    const other = vi.fn();
+    const next = guardNavigation(other);
+    release();
+    navigate('/users');
+    expect(other).toHaveBeenCalledTimes(1);
+    next();
+  });
+
+  it('atrás que cambia la dirección vuelve a donde estaba y pregunta; atrás de una hoja no', () => {
+    navigate('/users/roles/d');
+    const asks: (() => void)[] = [];
+    const release = guardNavigation((go) => asks.push(go));
+    const backward = vi.spyOn(history, 'back').mockImplementation(() => back('/users/roles'));
+    back('/users/roles/d', { step: 'hoja' });
+    expect(asks).toHaveLength(0);
+    back('/users/roles');
+    expect(location.pathname).toBe('/users/roles/d');
+    expect(route.get().path).toBe('/users/roles/d');
+    expect(asks).toHaveLength(1);
+    asks[0]?.();
+    expect(backward).toHaveBeenCalledOnce();
+    expect(route.get().path).toBe('/users/roles');
+    backward.mockRestore();
+    release();
   });
 });

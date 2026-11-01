@@ -4,15 +4,14 @@
 // capítulo en el orden de la lista, con el fragmento que coincidió. Nunca arma una expresión regular
 // con lo que se escribe.
 import type { ChapterEntry, ManualIndex, SearchTask } from '@ferrebress/shared/contracts/manual';
+import { plain } from '../../platform/text.ts';
 
 export const minQuery = 2;
 export const maxQuery = 60;
 
 // Letra por letra, para que cada posición del texto normalizado sea la misma del original.
 export const normalize = (text: string) =>
-  [...text]
-    .map((letter) => letter.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()[0] ?? '')
-    .join('');
+  [...text].map((letter) => plain(letter)[0] ?? '').join('');
 
 const wordsOf = (query: string) => normalize(query.slice(0, maxQuery)).split(/\s+/).filter(Boolean);
 

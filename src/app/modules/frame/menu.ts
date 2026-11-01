@@ -109,9 +109,10 @@ export const allowed = (option: Option, person: Who) =>
 export const partsFor = (person: Who) => parts.filter((option) => allowed(option, person));
 export const moreFor = (person: Who) => moreOptions.filter((option) => allowed(option, person));
 
-// Ir a la primera opción que sí puede usar (R1.4, 02 · R7.7).
+// Ir a la primera opción que sí puede usar (R1.4, 02 · R7.7). Lo impone el marco (también «Ya no
+// tenés permiso», 02 · R7.8): no pregunta por lo que no se guardó.
 export const goToFirst = (person: Who) =>
-  navigate(firstOption(person).path ?? '/', { replace: true });
+  navigate(firstOption(person).path ?? '/', { replace: true, force: true });
 
 // La primera opción del menú que existe y que la persona puede usar (R1.4); sin ninguna, Vender.
 export const firstOption = (person: Who): Option =>
