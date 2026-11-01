@@ -186,10 +186,11 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
 - **R7.10** **Las personas que ya estaban** cuando llega esta etapa quedan con el rol Administrador,
   que es lo que podían hacer hasta ahora.
 - **R7.11** **Nadie actúa sobre quien tiene más:** sobre una persona que tiene algún permiso que
-  uno no tiene no se puede cambiarle el correo, darla de baja o de alta, ni cerrarle sesiones o
-  quitarle celulares con huella (tampoco con «Se perdió un celular»): esos botones no aparecen y el
-  servidor lo rechaza. Así nadie se da acceso cambiando el correo de alguien con más permisos ni saca
-  a quien tiene más.
+  uno no tiene no se puede cambiarle el correo, darla de baja o de alta, borrar su alta, ni cerrarle
+  sesiones o quitarle celulares con huella (tampoco con «Se perdió un celular»): esos botones no
+  aparecen y el servidor lo rechaza. El nombre sí se le puede cambiar: no da acceso y sirve para
+  corregirlo. Así nadie se da acceso cambiando el correo de alguien con más permisos ni saca a quien
+  tiene más.
 
 ## Escenarios
 
