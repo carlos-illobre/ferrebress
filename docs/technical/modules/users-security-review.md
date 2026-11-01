@@ -943,3 +943,248 @@ cuando un capítulo saca un permiso a propósito, con una migración. Diez minut
 | Lo que entra (29) | Ids repetidos dan 400, no 500; `system: true` en el cuerpo se rechaza; dos nombres iguales en NFC y NFD chocan |
 | La auditoría (30) | Dos `forbidden` de dos personas en el mismo minuto dejan dos líneas; `confirm-first` deja la suya; el arranque que suma un permiso deja `role.changed` |
 | El bloqueo de § 19 | A mano, contra PostgreSQL, con dos conexiones, como dice § 19 |
+
+## Paso 7: el código
+
+Revisión del código de la etapa b contra las secciones 14 a 24 del [diseño](users.md), desde el
+punto de vista de alguien con sesión y pocos permisos que quiere darse acceso, ver lo que no le toca,
+actuar sobre quien tiene más o dejar el sistema sin quien administre. Leí los commits desde «Roles y
+permisos en el servidor de Usuarios» hasta el del paso 7: `platform/{permissions,memory,session,events,http}.ts`;
+en `users`, `index.ts`, `access.ts`, `roles.ts`, `role-changes.ts`, `roles-data.ts`,
+`roles-writing.ts`, `roles-routes.ts`, `routes.ts`, `people.ts`, `data.ts` y la migración
+`003-roles`; en `sign-in`, `context.ts`, `index.ts`, `access/{routes,lost,confirm}.ts`,
+`sessions/{require,rules}.ts`, `google/routes.ts`, `passkeys/*-routes.ts` y `offline/`; los contratos
+`permissions`, `can`, `roles`, `users`, `sign-in` y `server-header`; la prueba que recorre las rutas;
+y en la aplicación `sign-in/session.ts`, `offline/option.ts`, `permissions-watch.ts`, el marco
+(`NoPermission`, `Lost`) y `users/state.ts`.
+
+Además de leer, corrí las pruebas del servidor que tocan esto (12 archivos, 63 pruebas, todas pasan)
+y **sondas propias** contra el servidor de prueba (PGlite), con un programa aparte fuera del
+repositorio, sin tocar el código: borrar a un Administrador que no entró con solo «Administrar
+personas»; qué rechazos de R7.11 y R3.8 quedan anotados; «Sin permiso» con una persona dada de baja;
+quien solo tiene «Administrar roles» sacándole todo a un Administrador; y una baja y un cambio de rol
+pedidos por alguien que ya perdió el permiso. Lo que dicen las sondas está en cada punto. El bloqueo de
+§ 19 contra PostgreSQL de verdad, con dos conexiones, **no lo pude comprobar** (PGlite atiende una a la
+vez y no hay una base PostgreSQL en esta máquina), y no encontré constancia de que se haya hecho a mano
+como pide § 19. `pnpm audit --prod`: «No known vulnerabilities found». La etapa no suma
+dependencias.
+
+### Resumen
+
+Lo que más importaba quedó bien hecho. Cada ruta de `/api` dice lo que pide y una prueba lo controla
+contra las rutas que tiene Hono: sin el permiso da `403 forbidden` antes de leer el cuerpo y sin
+cerrar la sesión, y el paso falla cerrado si nadie le dio cómo saber los permisos. Los cuatro puntos
+que frenaban el diseño se cerraron: cambiar el correo, dar de baja y de alta y cortar no se pueden
+sobre quien tiene más (R7.11, comprobado con la sonda: los cuatro dan `outranked`); R1.3 cuenta solo a
+quien ya entró, así borrar a quien nunca entró no puede dejar sin quien administre; «Sin permiso» da
+solo nombres de personas activas, nunca correos (comprobado también con una dada de baja); y las dos
+memorias de permisos (la del paso y la persona de `/api/start`) se olvidan al confirmar, con el
+contador que no deja guardar una lectura vieja. Dar acceso pide Google o la huella recientes, y si un
+cambio da algo se decide dentro de la transacción, contra la base (también el intercambio de un rol
+por otro). La entrada sin conexión ya no cuenta como confirmación reciente.
+
+**No encontré nada que frene.** Quedan mejoras: la más seria es que el permiso de quien pide se mira
+una sola vez, fuera de la transacción, así un pedido que estaba en camino cuando le sacaron el permiso
+(o cuando lo dieron de baja) se guarda igual; con tres o más personas que administran, eso rompe E05.
+Las demás son de auditoría (los rechazos de R7.11 y de R3.8 en las rutas de personas no quedan
+anotados, y un rol renombrado pierde su nombre de antes), lo que R7.11 no nombra (borrar y renombrar a
+quien tiene más) y dos detalles chicos.
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 32 | Un pedido que pasó el control antes de perder el permiso se guarda igual: rompe E05 con tres o más | Mejora |
+| 33 | Con solo «Administrar personas» se puede borrar o renombrar a quien tiene más | Mejora (decide Carlos) |
+| 34 | Los rechazos `outranked` y `confirm-first` de las rutas de personas no quedan en la auditoría | Mejora |
+| 35 | La auditoría de un rol no guarda su id, ni el nombre ni la descripción de antes | Mejora |
+| 36 | Dar de alta no avisa que cambiaron los permisos de esa persona | Mejora |
+| 37 | La prueba que recorre las rutas no mira las registradas para todos los métodos | Mejora |
+| 38 | No hay tope de cuántos roles se crean | Mejora |
+
+### 32 · Un pedido que pasó el control antes de perder el permiso se guarda igual (`users/people.ts:106-142`, `users/role-changes.ts:44-74`, `users/roles-data.ts:127-155`) — Mejora
+
+El permiso de quien pide lo mira el paso de la plataforma (`platform/permissions.ts:47-50`), con la
+memoria, **antes** de la transacción. Dentro de la transacción de § 19 no se vuelve a mirar si quien
+pide sigue activo y con el permiso de la ruta: solo se compara «antes» y «después» para `self` y se
+cuenta para `last-administrator`. Las funciones de `users` lo dejan pasar; lo comprobé llamándolas
+directo:
+
+- `people.deactivate(B, A, versión)` con B **ya dado de baja** y una tercera persona C que
+  administra: A queda dada de baja.
+- `roleChanges.change(B, …)` con B al que ya le sacaron el rol Administrador y le quedó «Cajero»:
+  le suma «Administrar roles» y «Administrar personas» a «Cajero», y B vuelve a tenerlos.
+
+Por la API eso solo pasa con un pedido que ya pasó la sesión y el permiso cuando el otro cambio
+confirma, en el tiempo que va del paso a la transacción (la consulta de R7.11 y leer el cuerpo: unos
+milisegundos). Cómo se da:
+
+1. A, B y C tienen «Administrar personas». A y B se dan de baja uno al otro casi a la vez (E05).
+2. El pedido de B pasa el paso; antes de que abra su transacción, la de A confirma: B queda de baja.
+3. La transacción de B empieza **después**: su primera cuenta ya ve a B dado de baja, así que «antes»
+   y «después» dicen que B no administra y no hay `self`; queda C, así que no hay
+   `last-administrator`. A queda dada de baja también. E05 dice que solo una de las dos se guarda.
+
+Si la transacción de B empezó **antes** de que A confirmara (esperando el bloqueo), hoy se salva de
+casualidad: la primera cuenta, `lockAndCount`, toma la foto de la base al empezar la sentencia, antes
+de esperar el bloqueo (así trabaja PostgreSQL con `read committed`; lo sé por cómo funciona, no lo
+pude probar), así que «antes» todavía ve a B con el permiso, «después» no, y sale `self`. Es frágil:
+cualquier cambio que separe el bloqueo de la cuenta lo deja pasar también.
+
+Con los roles es igual: un pedido de B que suma permisos a un rol que tiene, en camino cuando A le saca
+el rol Administrador, se guarda (la versión que mira es la del rol, que el cambio de A no tocó). No da
+a B nada que no tuviera un instante antes y la ventana es de milisegundos, por eso no frena; pero es
+exactamente el «una cuenta dada de baja sigue pudiendo algo» que no debería pasar.
+
+**Qué propongo:** dentro de la transacción de § 19, después de tomar el bloqueo, una cuenta nueva (una
+sentencia aparte, así ve lo confirmado) que diga si quien pide sigue activo y con el permiso que la
+ruta pide (`users.manage` para la baja, `roles.manage` para los roles); si no, `forbidden` y se
+deshace. Esa misma cuenta sirve de «antes» y deja de depender de la foto vieja. Una prueba que llame a
+la baja y al cambio de rol con alguien que ya lo perdió y espere el rechazo. Media hora.
+
+### 33 · Con solo «Administrar personas» se puede borrar o renombrar a quien tiene más (`users/routes.ts:173-203`; R7.11) — Mejora, lo decide Carlos
+
+R7.11 nombra cambiar el correo, dar de baja y de alta y cortar; no borrar ni cambiar el nombre. La
+sonda lo confirma: un Encargado con «Administrar personas» y «Cortar sesiones y huellas» borra a un
+Administrador recién autorizado que todavía no entró (`200 { removed: true }`), y la prueba E58 ya
+muestra que lo renombra. La aplicación muestra esos botones, así que coincide con el servidor.
+
+- **Borrar:** Carlos autoriza a un encargado nuevo como Administrador; antes de que entre, el
+  Encargado lo borra. Para volver a autorizarlo hace falta «Administrar personas» y «Administrar
+  roles». No le da acceso a nada y R1.3 no se rompe (quien no entró no cuenta), pero es sacar a quien
+  tiene más, que es lo que R7.11 quiere evitar.
+- **Renombrar:** le cambia el nombre al Administrador («Cajero Pedro») o se pone a sí mismo el de él.
+  Ese nombre es el que ven todos en «Sin permiso», en «Lo tienen», en «Ya no tenés permiso» («Te lo
+  sacó…») y en la lista. Sirve para engañar a un compañero sobre a quién pedirle un permiso o quién
+  le sacó uno. La auditoría guarda el cambio de nombre, así que se puede rastrear.
+
+**Qué propondría a Carlos:** sumar borrar y cambiar el nombre a la lista de R7.11 (en el servidor es
+el mismo `notOutranked` en dos rutas más y su prueba; en la aplicación, `manageOver` en esos dos
+botones): media hora. Si prefiere dejarlo, que el manual diga que «Administrar personas» puede
+renombrar y borrar a cualquiera que no entró.
+
+### 34 · Los rechazos `outranked` y `confirm-first` de las rutas de personas no quedan en la auditoría (`users/routes.ts:76-81`, `:151-155`, `:166`, `:178`, `:220`) — Mejora
+
+En las rutas de personas, `outranked` (el paso `notOutranked` y `emailRefused`) y `confirm-first`
+(autorizar, cambiar el correo y dar de alta) contestan con `fail` directo, sin pasar por `answer`. La
+sonda lo muestra: el Encargado intenta cambiarle el correo, darlo de baja y de alta a un
+Administrador, y cerrarle las sesiones; los cuatro dan `outranked` y solo el último (que es de
+`sign-in`, `access/routes.ts:124-134`) queda anotado. Lo mismo con `confirm-first` al autorizar y al
+cambiar el correo: ninguna línea. En las rutas de roles, en cambio, sí se anotan
+(`roles-routes.ts:58-69`). § 21 dice que `confirm-first` «también se anota», y un intento de R7.11 es
+justo el de alguien que quiere actuar sobre quien tiene más: es lo primero que hay que poder ver.
+
+Además el tope de las líneas de rechazo de las personas sigue con la clave `motivo:persona afectada`
+(`routes.ts:131-132`; en autorizar, `new`): el primer rechazo de cualquiera tapa por un minuto los del
+mismo motivo de todos los demás sobre esa persona. Las de roles y la del paso ya usan quién pide.
+
+**Qué propongo:** que esos rechazos pasen por `answer` (o por el mismo `refuse` que usa `sign-in`), con
+la clave `motivo:quién pide`. Una prueba que haga los cuatro intentos y cuente cuatro líneas. Quince
+minutos.
+
+### 35 · La auditoría de un rol no guarda su id, ni el nombre ni la descripción de antes (`users/roles-routes.ts:70-73`, `users/role-changes.ts:115-124`) — Mejora
+
+`role.changed` anota `{ target: <nombre nuevo>, before: <permisos>, after: <permisos> }`.
+Renombrar o cambiar la descripción deja una línea con los mismos permisos antes y después, y sin el
+nombre de antes ni el id del rol. Quien tiene «Administrar roles» puede cambiarle el nombre al rol
+Administrador por «Cajero» y al Cajero por «Administrador» (para que otro con ese permiso le dé el rol
+equivocado a alguien), y la auditoría muestra dos líneas `role.changed` con un nombre cada una y nada
+que diga de cuál a cuál; como no está el id, tampoco se pueden seguir las líneas de un mismo rol a
+través de sus nombres. R6.1 pide «con lo que había antes y lo que quedó». `role.created` tampoco guarda
+el id.
+
+**Qué propongo:** sumar a `role.created`, `role.changed` y `role.deleted` el id del rol, y a
+`role.changed` el nombre y la descripción de antes y de después. Diez minutos y su prueba.
+
+### 36 · Dar de alta no avisa que cambiaron los permisos de esa persona (`users/people.ts:68-72`) — Mejora
+
+La baja publica `users.permissions-changed`; el alta no. Si en el instante de la baja llega un pedido
+de esa persona que la memoria guarda ya sin permisos (el mismo caso del punto 26, a la inversa), al
+darla de alta sigue sin poder nada (todo `403 forbidden`, con el menú armado con lo de `/api/start`)
+hasta el próximo cambio de roles o un reinicio. No es un acceso, es alguien que queda trabado sin que
+se vea por qué; no lo pude provocar por la API (hace falta ese instante). **Qué propongo:** que el alta
+publique `users.permissions-changed` con esa persona, como la baja. Cinco minutos.
+
+### 37 · La prueba que recorre las rutas no mira las registradas para todos los métodos (`src/server/routes-permissions.test.ts:66`) — Mejora
+
+La prueba deja afuera las rutas con método `ALL`, porque así figuran los pasos comunes
+(`platform/http.ts:73-78`). Una ruta que un módulo registre con `http.all('/api/…')`, o un `use` que
+conteste, no está en la tabla y pasa sin que nadie lo note. Hoy no hay ninguna. **Qué propongo:** en vez
+de sacar todas las `ALL`, comparar las `ALL` contra la lista de los pasos comunes que se esperan.
+Cinco minutos.
+
+### 38 · No hay tope de cuántos roles se crean (`users/role-changes.ts:99-112`) — Mejora
+
+El paso 4 (punto 29) proponía un tope total. Quien tiene «Administrar roles» puede crear roles de a 60
+por minuto por sesión, con varias sesiones, y cada uno se suma a `GET /api/users` (la lista de roles
+para las pastillas), a `GET /api/roles` y a «Sin permiso». Es gente de adentro que ya puede darse todo,
+así que es poco; un tope (por ejemplo 100, `409 too-many-roles`) cuesta diez minutos.
+
+### Cómo quedó cada punto del paso 4 (etapa b)
+
+| # | Cómo quedó |
+|---|---|
+| 23 | Resuelto con R7.11: cambiar el correo, dar de baja y de alta piden que la persona no tenga más (`routes.ts:76-81`, `:151-155`, `:213`). Prueba E58 y sonda. El correo y el alta, además, piden confirmar |
+| 24 | Resuelto: R1.3 cuenta solo a quien ya entró (`roles-data.ts:145`) y borrar es solo de quien nunca entró, así no baja la cuenta. Prueba E59 (por el camino de los roles); el de la baja con alguien que nunca entró no tiene prueba propia |
+| 25 | Resuelto: solo personas activas y «Sin nombre» en vez del correo (`access.ts:79-104`). La prueba mira que no haya `@`; la de una persona dada de baja no está (la sonda lo comprobó) |
+| 26 | Resuelto: la memoria con contador (`platform/memory.ts`), con su prueba; `sign-in` olvida a la persona con `users.permissions-changed` (`sign-in/index.ts:92`) y «Trabajar sin conexión» mira el permiso en los cinco lugares (pruebas E48 contra `/api/start` y E52). Queda el alta (punto 36) |
+| 27 | Resuelto para la baja, el alta y cortar (R7.11, también en «Se perdió un celular»). Queda borrar y renombrar (punto 33). Quien tiene «Administrar roles» le puede sacar los roles a un Administrador (la sonda lo hizo): es lo que § 21 acepta, porque igual se puede dar todo |
+| 28 | Resuelto con la prueba que recorre las rutas, salvo las de todos los métodos (punto 37) |
+| 29 | Resuelto: repetidos y `system` dan 400, con tope de permisos y de 50 roles por persona, nombres en NFC, «da algo» dentro de la transacción (prueba E50, con el intercambio) y el límite de 60 por minuto en las rutas de roles (`roles-routes.ts:92`). Falta el tope total (punto 38) |
+| 30 | El paso anota `permission.denied` con quién, el permiso, la ruta y la dirección, con la clave `quién:permiso`; el arranque anota `role.permissions-added`. `confirm-first` se anota en los roles pero no en las personas (punto 34) |
+| 31 | Resuelto en el arranque: no borra los permisos que no conoce (prueba E51). Pero guardar los permisos de un rol borra todos y escribe los que manda la aplicación (`roles-writing.ts:79-85`), que solo conoce los de su lista: en una versión anterior, editar un rol le saca los permisos de la nueva. No da acceso; lo anoto para quien revise el diseño |
+
+### Lo demás, punto por punto
+
+- **Entrar sin permiso:** nada nuevo. Ninguna ruta crea a alguien sin sesión; el rol del sistema lo
+  dan solo la migración, el comando y la carga de las pruebas de punta a punta. La computadora que
+  entró con el código QR no tiene confirmación (`confirmedAt` nulo) y la entrada sin conexión tampoco
+  (`sessions/open.ts:63`), así que ninguna de las dos da acceso sin pasar por Google o la huella.
+- **Permisos y lo ajeno:** cortar un celular o cerrar una sesión de otro mira que el celular o la
+  sesión sean de la persona de la dirección (`access/routes.ts:141`, `:160`), así no se puede poner a
+  alguien de menos en la dirección y el celular de un Administrador en el cuerpo. La lista de Usuarios
+  y la tarjeta muestran correos y sesiones de quien tiene más a quien tiene «Ver las personas»: es lo
+  que dice R7.1. Lo que la aplicación esconde (`users/state.ts:105-117`) coincide con lo que el
+  servidor rechaza, salvo lo del punto 33, que tampoco esconde.
+- **Carreras:** los cambios que pueden dejar sin quien administre pasan de a uno detrás de la fila del
+  rol del sistema; dos cambios sobre la misma persona o el mismo rol los frena la versión (cambiar los
+  roles sube la de la persona); dos roles con el mismo nombre los frena el índice. Borrar un rol
+  (sin bloqueo) a la vez que se le da a alguien termina, por cómo funcionan las claves foráneas, en un
+  `500` para uno de los dos, sin dejar nada a medias; no lo pude probar con dos conexiones.
+- **Memorias:** las dos se olvidan después de confirmar y el contador no deja guardar lo que se leía
+  mientras tanto (lo revisé caso por caso: una lectura que termina antes del olvido la borra el olvido,
+  una que termina después no se guarda). No vencen nunca: si alguien arregla roles tocando la base a
+  mano, el servidor sigue con lo de antes hasta reiniciarse. Conviene que lo diga la operación del
+  servidor (el ADR-014 o el manual de quien administra la máquina).
+  Las dos tienen como tope la cantidad de personas.
+- **Lo que entra de afuera:** contratos estrictos; ids UUID; permisos contra la lista; nombres y
+  descripciones sin caracteres de control y en NFC; las consultas nuevas en SQL van con parámetros
+  (`profileOf`, el alta con roles, el arranque). `GET /api/permissions/:permission/holders` valida el
+  permiso contra la lista (404 si no está).
+- **La aplicación en el navegador:** nombres de roles y personas como texto (Preact escapa; no hay
+  `innerHTML` nuevo). Los roles y permisos guardados en el dispositivo (la sesión y la opción sin
+  conexión, sin el correo) solo deciden qué botones se ven. La cabecera `p=` es de los propios
+  permisos y la aplicación pide `/api/start` una sola vez por huella nueva, así no entra en un ciclo.
+- **Datos personales:** «Sin permiso» sin correos (comprobado). En «Ya no tenés permiso», quién le
+  cambió los roles se muestra con `displayName`, que cae al correo si esa persona no tiene nombre
+  escrito ni de Google; quien cambia roles ya entró con Google, así que es raro, y lo ve solo la
+  persona afectada. Se arregla igual que en «Sin permiso» («Sin nombre»), en `users/index.ts:129`.
+- **Abuso:** «Sin permiso» lee a todas las personas en cada pedido, sin tope; es de gente con sesión y
+  ya se aceptó en el paso 4. Lo demás tiene el límite de 60 cambios por minuto por sesión.
+- **Sin conexión:** confirmar una entrada sin conexión mira «Trabajar sin conexión» en ese momento, y
+  vincular la huella sin el permiso no lo ofrece (pruebas E52). Lo hecho sin conexión todavía no
+  existe (15, etapa b).
+- **Auditoría:** además de los puntos 34 y 35, `user.email-changed` y `user.activated` no dicen los
+  roles de la persona (el paso 4 lo proponía para ver que fue un acceso); con R7.11 pesa menos, porque
+  ya no se le puede hacer a quien tiene más.
+- **El despliegue:** no cambia.
+- **Dependencias:** ninguna nueva; `pnpm audit --prod` limpio.
+
+### Las pruebas que faltan
+
+| Riesgo | Qué intentaría la prueba |
+|---|---|
+| Un pedido en camino (32) | La baja y el cambio de rol llamados con alguien que ya perdió el permiso o está de baja: rechazados |
+| R7.11 en borrar y renombrar (33) | Si Carlos lo suma: con solo «Administrar personas», borrar y renombrar a un Administrador que no entró dan `outranked` |
+| Rechazos anotados (34) | Cuatro intentos `outranked` y dos `confirm-first` sobre personas dejan sus líneas, también de dos personas distintas en el mismo minuto |
+| «Sin permiso» y la baja (25) | Una persona dada de baja con el permiso no figura en «Lo tienen» ni en quién lo puede dar |
+| Borrar no deja sin quien administre (24) | Dar de baja al único que entró, con otro Administrador que nunca entró: `last-administrator` |
+| El bloqueo de § 19 | A mano, contra PostgreSQL, con dos conexiones, como dice § 19, y anotado dónde quedó |
