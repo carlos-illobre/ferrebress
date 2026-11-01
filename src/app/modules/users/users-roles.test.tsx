@@ -84,11 +84,12 @@ describe('la pestaña Roles (02 · R7.12, R7.13)', () => {
     expect(role().queryByRole('checkbox', { name: /^Ver las personas/ })).toBeNull();
   });
 
-  it('users-E64: «Cancelar» vuelve a la lista sin pedir nada', async () => {
+  it('users-E64: no hay «Cancelar»; sin cambios, volver a la lista no pregunta ni pide nada', async () => {
     const server = await openRoles({}, '/users/roles/enc');
-    typeIn('Nombre del rol', 'Otro nombre');
-    fireEvent.click(role().getAllByRole('button', { name: 'Cancelar' })[0] as HTMLElement);
+    expect(role().queryByRole('button', { name: /Cancelar/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Volver a los roles' }));
     await screen.findByRole('button', { name: 'Abrir «Encargado de turno»' });
+    expect(screen.queryByRole('alertdialog')).toBeNull();
     expect(server.bodies('/api/roles/enc')).toEqual([]);
   });
 

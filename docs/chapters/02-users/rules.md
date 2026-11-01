@@ -167,8 +167,8 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   pantalla: el nombre y la descripción, los permisos y quiénes lo tienen (darle el rol a una persona
   activa o sacárselo). Nada se guarda hasta «Guardar rol» (en uno nuevo, «Crear el rol»), que guarda
   todo junto: si algo no se puede guardar (R7.3, R7.5, E56, R1.3), no se guarda nada y se dice qué
-  y por qué. «Cancelar» deshace todo. Si se sale con cambios sin guardar (volver a la lista, otra
-  opción del menú o atrás), se pregunta «¿Descartar los cambios del rol?», con «Seguir editando» y
+  y por qué. No hay «Cancelar»: salir es descartar. Si se sale con cambios sin guardar (volver a la
+  lista, otra opción del menú o atrás), se pregunta «¿Descartar los cambios del rol?», con «Seguir editando» y
   «Descartar». Si lo que se guarda da acceso (darle el rol a alguien o sumar un permiso), pide
   Google o la huella (R3.8) una sola vez.
 - **R7.4** **Al instalar** el sistema hay un solo rol, Administrador, con todos los permisos que
@@ -380,9 +380,10 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   guarda todo junto y pide Google o la huella una sola vez si la sesión tiene más de 5 minutos.
 - **E63** **Dado** un rol nuevo con nombre, permisos y una persona elegida, **cuando** se toca «Crear
   el rol», **entonces** queda creado y esa persona ya lo tiene.
-- **E64** **Dado** un rol con cambios sin guardar, **cuando** se toca «Cancelar», **entonces** vuelve
-  a como estaba; **cuando** se quiere salir por otro lado, se pregunta «¿Descartar los cambios del
-  rol?» y con «Seguir editando» queda todo como estaba.
+- **E64** **Dado** un rol con cambios sin guardar, **cuando** se quiere salir (volver a la lista,
+  otra opción del menú o atrás), **entonces** se pregunta «¿Descartar los cambios del rol?»: con
+  «Seguir editando» queda todo como estaba y con «Descartar» sale y el rol queda como estaba;
+  **dado** un rol sin cambios, sale sin preguntar.
 - **E65** **Dado** un rol con cambios, uno de los cuales no se puede guardar (el nombre repetido, o
   sacarle el rol a una persona que se quedaría sin ninguno), **cuando** se toca «Guardar rol»,
   **entonces** no se guarda nada y se dice cuál y por qué.

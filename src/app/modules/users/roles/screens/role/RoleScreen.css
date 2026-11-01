@@ -1,7 +1,7 @@
 /* La pantalla de un rol (maqueta users-roles/final): arriba el camino, el título y los botones, que
    quedan fijos al bajar, y lo que no se pudo guardar; los pasos, en RoleSteps.css y
    RolePermissions.css, y la vista previa, en RolePreview.css. Sin cambios, «Guardar rol» va apagado
-   en gris (pedido de Carlos). En el celular, «‹ Roles» para volver y «Guardar rol» y «Cancelar» fijos
+   en gris (pedido de Carlos). En el celular, «‹ Roles» para volver y «Guardar rol» fijo
    abajo, encima del menú. */
 @layer screens {
   /* Las tarjetas blancas de los pasos y de la vista previa. */

@@ -1,7 +1,7 @@
 // La pantalla de un rol, nuevo o que existe (02 · R7.13; maqueta users-roles/final): el camino para
 // volver, el título, los botones y, debajo, los tres pasos y la vista previa. Lo que se arma vive en
 // el borrador de esta pantalla y se pierde al salir de ella. Nada se guarda hasta «Guardar rol», que
-// guarda todo junto; «Cancelar» lo descarta. Salir por otro lado con cambios pregunta antes.
+// guarda todo junto. Salir con cambios pregunta antes de descartarlos.
 
 import type { RoleRow } from '@ferrebress/shared/contracts/roles';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
@@ -127,7 +127,6 @@ export function RoleScreen({ start }: { start: Draft }) {
     setDraftState(next);
     saving.recheck(next);
   };
-  const cancel = () => navigate(listPath, { force: true });
   const title = draft.id ? start.name : t.newTitle;
   return (
     <section class="role-screen" aria-label={title}>
@@ -148,7 +147,7 @@ export function RoleScreen({ start }: { start: Draft }) {
         </nav>
         <h2 class="role-title">{title}</h2>
         <p class="role-lead">{t.lead}</p>
-        <RoleActions draft={draft} dirty={dirty} save={saving.save} cancel={cancel} />
+        <RoleActions draft={draft} dirty={dirty} save={saving.save} />
       </header>
       <Problems
         errors={saving.errors}
@@ -174,9 +173,6 @@ export function RoleScreen({ start }: { start: Draft }) {
           disabled={!dirty || !users.online}
         >
           {draft.id ? t.save : t.create}
-        </Button>
-        <Button look="plain" doing={t.cancel} onPress={cancel}>
-          {t.cancel}
         </Button>
       </div>
       {asking && (

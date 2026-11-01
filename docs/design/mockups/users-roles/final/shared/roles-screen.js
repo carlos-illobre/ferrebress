@@ -380,7 +380,7 @@
   });
   $("#give-role").addEventListener("click", openGive);
   $("#save").addEventListener("click", save);
-  $("#cancel").addEventListener("click", function () { backToList(); }); // «Cancelar» deshace todo, sin preguntar (E64)
+  if ($("#cancel")) $("#cancel").addEventListener("click", function () { backToList(); }); // «Cancelar» deshace todo, sin preguntar (E64)
   $("#crumb-roles").addEventListener("click", function () { leave(backToList); });
   $("#duplicate").addEventListener("click", function () {
     var source = M.draftFrom(M.role(draft.id));
@@ -446,7 +446,7 @@
   }
   var keys = {
     list: { o: "#new-role" },
-    editor: { g: "#save", a: "#cancel", u: "#duplicate", b: "#delete", r: "#give-role", l: "#crumb-roles" },
+    editor: { g: "#save", u: "#duplicate", b: "#delete", r: "#give-role", l: "#crumb-roles" },
     discard: { t: "#discard-ok" },
     identity: { o: "#identity-ok" },
     give: {}

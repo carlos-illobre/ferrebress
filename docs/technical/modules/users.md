@@ -579,7 +579,8 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
     `GivePicker.tsx`, que busca entre las personas activas) y, en la computadora, `RolePreview.tsx`.
     Los botones, en `RoleActions.tsx`; lo que no se pudo guardar, en `Problems.tsx`; «¿Descartar…?»,
     en `Discard.tsx`; y lo que da acceso, en palabras, en `gives.ts`. En el celular, una columna
-    con «Guardar rol» y «Cancelar» fijos abajo, y «Duplicar» y «Borrar el rol» al final.
+    con «Guardar rol» fijo abajo, y «Duplicar» y «Borrar el rol» al final. No hay «Cancelar»: salir
+    es descartar (pedido de Carlos).
   - **Lo que se arma** vive en un borrador, `draft.ts` (reglas, sin Preact), en el estado de la
     pantalla del rol: se pierde al salir de ella o al «Salir», así en la computadora del mostrador
     nadie encuentra un rol a medio armar de otro. Sale de un rol (o vacío, o de duplicar uno: con el
@@ -592,7 +593,7 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
     permisos y el nombre y el correo de quienes lo tienen. Todo en la aplicación, con lo que ya trajeron
     `GET /api/roles` y `GET /api/users`: buscar no pide nada al servidor. El texto de cada rol se arma
     una vez por lista, no en cada tecla.
-  - **Salir sin guardar:** «Cancelar» descarta y vuelve a la lista. Cualquier otra salida (el camino,
+  - **Salir sin guardar:** cualquier salida (el camino,
     la pestaña, otra opción del menú, atrás) cambia la dirección, y el router suma una guarda
     (`platform/router.ts`, `guardNavigation(ask)`) que actúa solo cuando cambia la dirección: las
     hojas que se abren encima del rol (`useBackStep`: «Darle este rol a…», confirmar) suman un paso
@@ -612,7 +613,7 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
     conserva y «Guardar rol» espera la conexión, diciéndolo al lado. Si no se pudieron traer los
     roles, lo dice con «Reintentar».
   - **Teclado** (constitución II, maqueta): las teclas de la maqueta, que no chocan con las del menú:
-    Alt O nuevo rol, Alt G guardar, Alt A cancelar, Alt U duplicar, Alt B borrar, Alt R «Darle este
+    Alt O nuevo rol, Alt G guardar, Alt U duplicar, Alt B borrar, Alt R «Darle este
     rol a…», Alt L el camino «Roles» y, en «¿Descartar…?», Alt T descartar (Esc es «Seguir
     editando»). En la lista, el cursor arranca en el buscador, / lleva a él, Esc lo vacía y Enter abre
     el primer rol (o crea uno con lo escrito). En el rol, el cursor arranca en el nombre y Enter ahí
@@ -710,7 +711,7 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 | E61 | De `search` (nombre, descripción, permiso, nombre y correo de quien lo tiene; sin tildes ni mayúsculas) y de la pantalla: sin coincidencias, «Crear el rol «…»» abre uno con ese nombre |
 | E62 | De la ruta: nombre, permisos, `give` y `take` en un pedido, una sola línea por cambio en la auditoría, `confirm-first` una vez; de la pantalla: nada se pide hasta «Guardar rol», que está apagado sin cambios |
 | E63 | De la ruta: crear con `give` deja el rol creado y a la persona con él |
-| E64 | De `draft` y de la pantalla: «Cancelar» vuelve a como estaba; el camino, la pestaña, el menú y atrás preguntan; «Seguir editando» no pierde nada. Del router: la guarda frena `navigate` y el atrás que cambian la dirección, no el atrás de una hoja, ni `force`; se saca al desmontar. Duplicar arranca sin personas |
+| E64 | De `draft` y de la pantalla: sin cambios sale sin preguntar; con cambios, el camino, la pestaña, el menú y atrás preguntan; «Seguir editando» no pierde nada. Del router: la guarda frena `navigate` y el atrás que cambian la dirección, no el atrás de una hoja, ni `force`; se saca al desmontar. Duplicar arranca sin personas |
 | E65 | De la ruta: un nombre repetido, sacarle el rol a quien se quedaría sin ninguno, una persona dada de baja o que no existe, o sacarse a sí mismo «Administrar roles», no guardan nada (tampoco el rol) y dicen quién o qué permiso; dar a quien ya lo tiene no cambia su versión ni deja línea; de la pantalla: el error en su lugar. `409 changed` vuelve a poner el borrador encima. Lo marcado `data-private` no sale en «Algo salió mal» |
 
 **De punta a punta** (aprobada por Carlos): una sola, y la pantalla de roles rehecha no suma otra: lo

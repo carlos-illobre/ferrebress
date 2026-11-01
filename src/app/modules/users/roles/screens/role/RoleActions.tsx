@@ -1,6 +1,7 @@
 // Los botones del rol (02 · R7.3, R7.13). En la computadora, arriba a la derecha: «Duplicar» y
-// «Borrar el rol» en uno que existe, «Cancelar» y «Guardar rol», apagado en gris hasta el primer
-// cambio. En el celular, «Guardar rol» y «Cancelar» van fijos abajo y «Duplicar» y «Borrar el rol»
+// «Borrar el rol» en uno que existe, y «Guardar rol», apagado en gris hasta el primer cambio. Sin
+// «Cancelar»: salir es descartar, y con cambios pregunta antes (pedido de Carlos). En el celular,
+// «Guardar rol» va fijo abajo y «Duplicar» y «Borrar el rol»
 // al final del rol, porque arriba no entran. El Administrador no muestra «Borrar el rol» (R7.4).
 
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
@@ -65,18 +66,15 @@ function Existing({ draft, keys }: { draft: Draft; keys: boolean }) {
   );
 }
 
-type Props = { draft: Draft; dirty: boolean; save: () => unknown; cancel: () => void };
+type Props = { draft: Draft; dirty: boolean; save: () => unknown };
 
-export function RoleActions({ draft, dirty, save, cancel }: Props) {
+export function RoleActions({ draft, dirty, save }: Props) {
   const users = useUsersContext();
   return (
     <div class="role-actions desktop-only">
       {!users.online && <small class="role-offline">{t.offlineSave}</small>}
       <Existing draft={draft} keys />
       {draft.id && <span class="role-actions-gap" aria-hidden="true" />}
-      <Button look="plain" shortcut="a" doing={t.cancel} onPress={cancel}>
-        {t.cancel}
-      </Button>
       <Button
         look="action"
         icon="save"

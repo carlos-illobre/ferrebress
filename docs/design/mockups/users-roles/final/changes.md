@@ -48,7 +48,7 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
   coincide con «…»» y «Crear el rol «…»», que abre un rol nuevo con eso de nombre. Sin los recuadros
   de cuentas ni «Quién puede qué». Tocar un rol abre su pantalla.
 - **La pantalla del rol ocupa la pestaña,** con el camino «Roles › <nombre>» (o «Crear rol») y el
-  título («Crear nuevo rol» o el nombre). Arriba a la derecha, «Cancelar» y «Guardar rol» (en uno
+  título («Crear nuevo rol» o el nombre). Arriba a la derecha, «Guardar rol» (en uno
   nuevo, «Crear el rol»); en uno que existe, además «Duplicar» y «Borrar el rol».
 - **«1 Información del rol»** con «n/200»; **«2 Asignar permisos»**, un grupo plegable por parte de la
   aplicación con ícono, detalle y «n de m», y adentro una casilla por permiso con su explicación, en
@@ -56,14 +56,14 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
   de Carlos).
 - **«3 Quiénes lo tienen»** (la imagen no lo tiene): cada persona con «Sacárselo», y «Darle este rol
   a…», que abre un buscador de personas activas. También en el rol nuevo.
-- **Nada se guarda hasta «Guardar rol» / «Crear el rol»;** «Cancelar» deshace todo. Salir con
+- **Nada se guarda hasta «Guardar rol» / «Crear el rol»;** no hay «Cancelar». Salir con
   cambios (el camino «Roles», la pestaña, otra opción del menú o atrás del navegador) pregunta
   «¿Descartar los cambios del rol?» con «Seguir editando» y «Descartar».
 - **Vista previa a la derecha, solo en la computadora:** ícono, nombre, descripción y por grupo
   cuántos permisos da, con marca verde (da alguno) o gris (ninguno), y al pie «Podés cambiar este
   rol cuando quieras desde la lista de roles.». Se actualiza mientras se escribe y se tilda.
 - **Celular:** una columna, sin vista previa, «‹ Roles» para volver, cada permiso con su nombre
-  solo, y «Guardar rol» / «Crear el rol» y «Cancelar» fijos abajo, como en la imagen. «Duplicar» y
+  solo, y «Guardar rol» / «Crear el rol» fijo abajo, como en la imagen. «Duplicar» y
   «Borrar el rol» van al final del rol, porque arriba no entran.
 
 ## Por las reglas aprobadas (`docs/chapters/02-users/rules.md` y `00-app/rules.md`)
@@ -109,8 +109,8 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
   - Enter sin marca: en el buscador, «Nuevo rol» (o «Crear el rol «…»» si nada coincide); en el
     nombre, «Guardar rol» (R2.6).
   - Las teclas se ven solo con Alt apretado (R2.9) y no chocan con las del menú (V, C, P, N, M, E,
-    Z, S) ni con las del navegador: Alt O Nuevo rol; Alt G Guardar rol o Crear el rol; Alt A
-    Cancelar; Alt U Duplicar; Alt B Borrar el rol; Alt R Darle este rol a…; Alt L el camino
+    Z, S) ni con las del navegador: Alt O Nuevo rol; Alt G Guardar rol o Crear el rol; Alt U
+    Duplicar; Alt B Borrar el rol; Alt R Darle este rol a…; Alt L el camino
     «Roles»; en los diálogos, Alt T Descartar y Alt O Continuar con Google.
 - **En el celular (00 · R2.12)** el cursor nunca arranca en una caja de texto, tampoco en el buscador
   de personas.
@@ -123,8 +123,7 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
   pantalla del rol, y «Nuevo rol» la de la lista. El gris de adentro de cada grupo de permisos es
   más suave que el fondo de la aplicación (mitad fondo, mitad blanco), como en la referencia, para
   que no parezca un hueco hasta el fondo (pedido de Carlos). El mismo gris va en la tarjeta del rol
-  de la vista previa. «Cancelar» va como botón de solo texto (`.btn-fantasma`), no blanco con
-  borde. Los avatares toman los tonos suaves del lenguaje, con variables y sin colores sueltos.
+  de la vista previa. Los avatares toman los tonos suaves del lenguaje, con variables y sin colores sueltos.
 - **En el celular, cada rol de la lista es una tarjeta con más peso** (pedido de Carlos): una franja
   pino a la izquierda, el nombre más grande y, abajo, los dos datos en recuadros gris suave con el
   número en grande: «🔑 15 permisos» y las iniciales con «2 personas» (como mucho dos círculos: con
@@ -153,3 +152,5 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
 - Sin red ni nada pesado: los íconos Lucide van en `icons-extra.js` (suma `user-minus` y `save`).
 
 Todo lo que no figura acá sigue la imagen de Carlos.
+- **Sin «Cancelar»** en la pantalla del rol (pedido de Carlos): salir es descartar; con cambios,
+  pregunta «¿Descartar los cambios del rol?» antes.
