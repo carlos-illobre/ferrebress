@@ -119,7 +119,9 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
 - **Colores de la imagen llevados a «Mostrador»:** las casillas tildadas, los números de sección y el
   ícono del rol van en pino (lo elegido), no en verde; el verde queda para la marca de la vista
   previa que pidió Carlos (logro: «da algo»). «Guardar rol» es la única acción naranja de la
-  pantalla del rol, y «Nuevo rol» la de la lista. «Cancelar» va como botón de solo texto
+  pantalla del rol, y «Nuevo rol» la de la lista. El gris de adentro de cada grupo de permisos es
+  más suave que el fondo de la aplicación (mitad fondo, mitad blanco), como en la referencia, para
+  que no parezca un hueco hasta el fondo (pedido de Carlos). «Cancelar» va como botón de solo texto
   (`.btn-fantasma`), no blanco con borde. Los avatares toman los tonos suaves del lenguaje, con
   variables y sin colores sueltos.
 - **Lo de arriba del rol (el camino, el título y los botones) queda fijo al bajar,** y la vista

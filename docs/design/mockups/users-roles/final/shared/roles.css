@@ -95,7 +95,7 @@
 .perm-group-count.is-some { color: var(--pino-texto); font-weight: 750; }
 .perm-group-chevron { color: var(--texto-3); transition: transform var(--t) var(--curva); }
 .perm-group-head[aria-expanded="true"] .perm-group-chevron { transform: rotate(180deg); }
-.perm-group-body { display: grid; gap: 4px 24px; padding: 12px 16px 16px; margin: 0 8px 8px; border-radius: 10px; background: var(--fondo); }
+.perm-group-body { display: grid; gap: 4px 24px; padding: 12px 16px 16px; margin: 0 8px 8px; border-radius: 10px; background: color-mix(in srgb, var(--fondo) 50%, var(--superficie)); }
 .perm-group-body[hidden] { display: none; }
 .perm-group-body.is-opening { animation: role-arrive var(--t) var(--curva) both; }
 
