@@ -4,7 +4,9 @@
 
 import type { RoleResponse } from '@ferrebress/shared/contracts/roles';
 import { api } from '../../../platform/server/api.ts';
-import { type Draft, type DraftErrors, toRequest } from './draft.ts';
+import { type Draft, type DraftErrors, type PersonError, toRequest } from './draft.ts';
+
+const personErrors = ['no-roles', 'person-inactive', 'person-missing', 'too-many-roles'];
 
 export type SaveOutcome =
   | { ok: true; id: string }
@@ -20,8 +22,7 @@ function placed(error: string, detail: Record<string, unknown>): DraftErrors | u
   const userId = detail.userId as string | undefined;
   if (error === 'role-name-taken') return { name: 'role-name-taken' };
   if (error === 'self') return { self: detail.permission as 'roles.manage' | 'users.manage' };
-  if (userId && (error === 'no-roles' || error === 'person-inactive' || error === 'person-missing'))
-    return { people: { [userId]: error } };
+  if (userId && personErrors.includes(error)) return { people: { [userId]: error as PersonError } };
   return undefined;
 }
 

@@ -4,17 +4,49 @@
 import type { RoleRow as Row } from '@ferrebress/shared/contracts/roles';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useMemo, useState } from 'preact/hooks';
-import { navigate, route } from '../../../../platform/router.ts';
-import { useStore } from '../../../../platform/store.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { useUsersContext } from '../../state.ts';
-import { type NewState, newPath } from '../paths.ts';
-import { filterRoles, searchIndex } from '../search.ts';
-import { rolesTexts as t } from '../texts.ts';
+import { isPhone } from '../../../../../platform/device/device.ts';
+import { navigate, route } from '../../../../../platform/router.ts';
+import { useStore } from '../../../../../platform/store.ts';
+import { Button } from '../../../../../ui/button/Button.tsx';
+import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { useUsersContext } from '../../../state.ts';
+import { type NewState, newPath } from '../../paths.ts';
+import { filterRoles, searchIndex } from '../../search.ts';
+import { rolesTexts as t } from '../../texts.ts';
 import { RoleRow } from './RoleRow.tsx';
 
 const openNew = (state: NewState = {}) => navigate(newPath, { state });
+
+// En la computadora el cursor arranca en el buscador; en el celular no (00 · R2.12).
+const focusOnDesktop = (input: HTMLInputElement | null) => {
+  if (input && !isPhone() && document.activeElement === document.body) input.focus();
+};
+
+// Enter sin nada marcado abre el primero, o crea uno con lo escrito (00 · R2.6).
+const openFirst = () =>
+  (
+    document.querySelector('.roles-rows [data-mark], .roles-nothing [data-mark]') as HTMLElement
+  ).click();
+
+function SearchBox({ query, setQuery }: { query: string; setQuery: (query: string) => void }) {
+  return (
+    <label class="roles-search" data-private="">
+      <Icon name="search" size="small" />
+      <input
+        type="search"
+        value={query}
+        placeholder={matchMedia('(max-width: 899px)').matches ? t.searchShort : t.search}
+        aria-label={t.search}
+        data-slash=""
+        data-clear=""
+        autocomplete="off"
+        ref={focusOnDesktop}
+        onInput={(event) => setQuery(event.currentTarget.value)}
+        onKeyDown={(event) => event.key === 'Enter' && openFirst()}
+      />
+    </label>
+  );
+}
 
 export function RoleList() {
   const users = useUsersContext();
@@ -29,20 +61,11 @@ export function RoleList() {
   return (
     <section class="roles-list" aria-label={t.list}>
       <div class="roles-bar">
-        <label class="roles-search" data-private="">
-          <Icon name="search" size="small" />
-          <input
-            type="search"
-            value={query}
-            placeholder={matchMedia('(max-width: 899px)').matches ? t.searchShort : t.search}
-            aria-label={t.search}
-            onInput={(event) => setQuery(event.currentTarget.value)}
-          />
-        </label>
+        <SearchBox query={query} setQuery={setQuery} />
         <Button
           look="action"
           icon="plus"
-          shortcut="n"
+          shortcut="o"
           doing={t.newRole}
           onPress={() => openNew()}
           disabled={!users.online}
@@ -53,7 +76,8 @@ export function RoleList() {
       {shown.length === 0 ? (
         <div class="roles-nothing">
           <Icon name="search" size="large" />
-          <p data-private="">{t.nothing(wanted)}</p>
+          <b data-private="">{t.nothing(wanted)}</b>
+          <p>{t.nothingHint}</p>
           <Button
             icon="plus"
             doing={t.createNamed(wanted)}

@@ -10,7 +10,9 @@ export const newPath = `${listPath}/new`;
 export type NewState = { name?: string; duplicate?: string };
 
 // Las personas activas que tienen ese rol; las dadas de baja no (E60).
-export const holdersOf = (
-  people: { id: string; active: boolean; roleIds: string[] }[],
+export const activeHolders = <T extends { active: boolean; roleIds: string[] }>(
+  people: T[],
   id: string,
-) => people.filter((one) => one.active && one.roleIds.includes(id)).map((one) => one.id);
+) => people.filter((one) => one.active && one.roleIds.includes(id));
+
+export const ids = (people: { id: string }[]) => people.map((one) => one.id);

@@ -44,7 +44,7 @@ export const refuse = (refusal: Refused, detail?: RefusalDetail): never => {
 };
 
 // A quién le cambiaron los roles al guardar un rol, para la auditoría.
-export type PersonChange = { userId: string; before: string[]; after: string[] };
+export type PersonChange = { userId: string; roleId: string; before: string[]; after: string[] };
 
 export type Data = ReturnType<typeof rolesData>;
 

@@ -31,9 +31,9 @@ describe('quiénes tienen el rol, y lo que da acceso (02 · R7.13, R3.8)', () =>
       '/users/roles/enc',
     );
     fireEvent.click(holder('Lucía Fernández').getByRole('button', { name: 'Sacárselo' }));
-    expect(holder('Lucía Fernández').getByText('Se lo saca al guardar')).toBeTruthy();
+    expect(holder('Lucía Fernández').getByText('Se lo sacás al guardar')).toBeTruthy();
     await give('Martín Sosa');
-    expect(holder('Martín Sosa').getByText('Lo va a tener al guardar')).toBeTruthy();
+    expect(holder('Martín Sosa').getByText('Se lo das al guardar')).toBeTruthy();
     fireEvent.click(holder('Lucía Fernández').getByRole('button', { name: 'Deshacer' }));
     fireEvent.click(saveButton());
     await waitFor(() =>
@@ -56,7 +56,8 @@ describe('quiénes tienen el rol, y lo que da acceso (02 · R7.13, R3.8)', () =>
     );
     fireEvent.click(holder('Lucía Fernández').getByRole('button', { name: 'Sacárselo' }));
     fireEvent.click(saveButton());
-    expect(await screen.findAllByText(/Lucía Fernández se quedaría sin roles/)).toHaveLength(2);
+    expect(await screen.findAllByText(/Lucía Fernández se quedaría sin roles/)).toHaveLength(1);
+    expect(screen.getByText(/Corregí lo que está marcado en rojo: Lucía Fernández\./)).toBeTruthy();
     expect(server.bodies('/api/roles/enc')).toEqual([]);
   });
 
@@ -67,6 +68,7 @@ describe('quiénes tienen el rol, y lo que da acceso (02 · R7.13, R3.8)', () =>
           { status: 409, body: { error: 'person-inactive', userId: 'martin' } },
           { status: 409, body: { error: 'self', permission: 'roles.manage' } },
           { status: 409, body: { error: 'person-missing', userId: 'martin' } },
+          { status: 409, body: { error: 'person-missing', userId: 'nadie' } },
           { status: 409, body: { error: 'too-many-requests' } },
         ],
       },
@@ -76,11 +78,13 @@ describe('quiénes tienen el rol, y lo que da acceso (02 · R7.13, R3.8)', () =>
     fireEvent.click(saveButton());
     expect(
       await screen.findAllByText('Martín Sosa está dada de baja: no se le puede dar el rol.'),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
     fireEvent.click(saveButton());
-    expect(await screen.findAllByText(/Te sacarías «Administrar roles»/)).toHaveLength(1);
+    expect(await screen.findByText(/marcado en rojo: «Administrar roles»\./)).toBeTruthy();
     fireEvent.click(saveButton());
-    expect(await screen.findAllByText(/la borraron mientras armabas el rol/)).toHaveLength(2);
+    expect(await screen.findAllByText(/la borraron mientras armabas el rol/)).toHaveLength(1);
+    fireEvent.click(saveButton());
+    expect(await screen.findByText(/marcado en rojo: una persona que ya no está\./)).toBeTruthy();
     fireEvent.click(saveButton());
     await waitFor(() => expect(toast()).toBe('Demasiados cambios seguidos. Esperá un minuto.'));
   });
@@ -99,7 +103,9 @@ describe('quiénes tienen el rol, y lo que da acceso (02 · R7.13, R3.8)', () =>
     expect(role().getByText('También lo tienen, dadas de baja: Sofía Blanco.')).toBeTruthy();
     fireEvent.click(role().getAllByRole('button', { name: /Borrar el rol/ })[0] as HTMLElement);
     await waitFor(() =>
-      expect(toast()).toBe('Alguien tiene este rol: primero sacáselo a esas personas.'),
+      expect(toast()).toBe(
+        'No se puede borrar: lo tienen Lucía Fernández, Sofía Blanco (dada de baja). Primero hay que sacárselo.',
+      ),
     );
   });
 
@@ -124,14 +130,14 @@ describe('quiénes tienen el rol, y lo que da acceso (02 · R7.13, R3.8)', () =>
     expect((role().getByLabelText(/Nombre del rol/) as HTMLInputElement).value).toBe(
       'Copia de Encargado de turno',
     );
-    expect(role().getByText('Todavía nadie lo tiene.')).toBeTruthy();
+    expect(role().getByText(/Nadie lo tiene todavía/)).toBeTruthy();
     expect(saveButton().disabled).toBe(false);
   });
 
-  it('el Administrador no se borra: no muestra el botón y lo dice al pie', async () => {
+  it('el Administrador no se borra: no muestra el botón', async () => {
     await openRoles({}, `/users/roles/${roleRows[0]?.id}`);
     expect(role().queryByRole('button', { name: /Borrar el rol/ })).toBeNull();
-    expect(role().getByText(/El Administrador recibe solo cada permiso nuevo/)).toBeTruthy();
+    expect(role().getByText(/Podés cambiar este rol cuando quieras/)).toBeTruthy();
   });
 
   it('users-E50, E62: con la confirmación vieja dice qué da, confirma una vez y lo repite', async () => {

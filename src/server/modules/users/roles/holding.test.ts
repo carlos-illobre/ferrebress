@@ -208,4 +208,23 @@ describe('guardar un rol con sus personas, todo junto (02 · R7.13)', () => {
       permission: 'users.manage',
     });
   });
+
+  it('seguridad 49: con la confirmación vieja, sacar a alguien o dar a quien ya lo tiene no la piden', async () => {
+    const view = await kit.role('Viejo', ['users.view']);
+    const extra = await kit.role('Extra viejo', ['offline.work']);
+    const lola = await kit.person([view, extra]);
+    const memo = await kit.person([view]);
+    kit.later();
+    expect((await save(extra, { take: [lola.id] })).status).toBe(200);
+    expect((await save(view, { give: [memo.id] })).status).toBe(200);
+    expect((await kit.row(lola.id)).roleIds).toEqual([view]);
+    await kit.reconfirm();
+  });
+
+  it('seguridad 49: al crear no se saca a nadie', async () => {
+    const view = await kit.role('Para sacar', ['users.view']);
+    const ofe = await kit.person([view]);
+    const body = { name: 'Con take', permissions: ['users.view'], take: [ofe.id] };
+    expect((await kit.admin.request('/api/roles', body)).status).toBe(400);
+  });
 });

@@ -3,21 +3,49 @@
 // de baja, en una línea aparte, que no se tocan; y «Darle este rol a…», que busca entre las activas.
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useState } from 'preact/hooks';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { initialsOf } from '../../logic.ts';
-import { useUsersContext } from '../../state.ts';
-import { type Draft, type DraftErrors, give, holdersOf, take, undo } from '../draft.ts';
-import { rolesTexts as t } from '../texts.ts';
+import { Button } from '../../../../../ui/button/Button.tsx';
+import { initialsOf } from '../../../logic.ts';
+import { useUsersContext } from '../../../state.ts';
+import {
+  type Draft,
+  type DraftErrors,
+  give,
+  holdersOf,
+  type PersonError,
+  take,
+  undo,
+} from '../../draft.ts';
+import { rolesTexts as t } from '../../texts.ts';
 import { GivePicker } from './GivePicker.tsx';
-import { personProblem } from './Problems.tsx';
+import { personProblem, selfProblem } from './Problems.tsx';
 
 type Change = (draft: Draft) => void;
+
+// Qué le pasa al guardar (o su correo) y, si no se puede, por qué.
+function Note(props: {
+  person: PersonRow;
+  given: boolean;
+  taken: boolean;
+  error: PersonError | undefined;
+  self: string | undefined;
+}) {
+  const { person, given, taken } = props;
+  return (
+    <>
+      <span>{given ? t.willGet : taken ? t.willLose : person.email}</span>
+      {props.error && <small class="role-error">{personProblem(props.error, person)}</small>}
+      {props.self && taken && <small class="role-error">{selfProblem(props.self)}</small>}
+    </>
+  );
+}
 
 function Holder(props: {
   person: PersonRow;
   draft: Draft;
   change: Change;
-  error: string | undefined;
+  error: PersonError | undefined;
+  // Se sacaría a sí misma lo que la deja administrar (E56): el motivo va en su renglón.
+  self: string | undefined;
 }) {
   const { person, draft, change } = props;
   const given = draft.give.includes(person.id);
@@ -27,9 +55,11 @@ function Holder(props: {
     <li class={`role-holder ${state}`} data-private="">
       <span class="role-holder-face">{initialsOf(person)}</span>
       <span class="role-holder-name">
-        <b>{person.displayName}</b>
-        <span>{given ? t.willGet : taken ? t.willLose : person.email}</span>
-        {props.error && <small class="role-error">{personProblem(props.error, person)}</small>}
+        <b>
+          {person.displayName}
+          {person.self && <span class="role-you">{t.you}</span>}
+        </b>
+        <Note person={person} given={given} taken={taken} error={props.error} self={props.self} />
       </span>
       {given || taken ? (
         <Button
@@ -84,6 +114,7 @@ export function RoleHolders({ draft, change, errors }: Props) {
             draft={draft}
             change={change}
             error={errors?.people?.[person.id]}
+            self={person.self ? errors?.self : undefined}
           />
         ))}
       </ul>
@@ -92,7 +123,7 @@ export function RoleHolders({ draft, change, errors }: Props) {
           {t.alsoInactive(inactive.map((one) => one.displayName).join(', '))}
         </p>
       )}
-      <Button icon="user-plus" doing={t.giveTo} onPress={() => setPicking(true)}>
+      <Button icon="user-plus" shortcut="r" doing={t.giveTo} onPress={() => setPicking(true)}>
         {t.giveTo}
       </Button>
       {picking && (

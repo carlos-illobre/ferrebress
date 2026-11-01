@@ -70,7 +70,13 @@ function recordDone(
   for (const one of outcome.people)
     guards.record(c, 'user.roles-changed', {
       userId: asking,
-      data: { target: one.userId, before: one.before, after: one.after, ...save },
+      data: {
+        target: one.userId,
+        roleId: one.roleId,
+        before: one.before,
+        after: one.after,
+        ...save,
+      },
     });
 }
 
@@ -83,7 +89,7 @@ function answering(platform: Platform, guards: Guards): Answer {
       if (platform.limiter.hit(key, usersSettings.throttledAudit).allowed)
         guards.record(c, 'users.rejected', {
           userId: asking,
-          data: { target, reason: outcome.refused },
+          data: { target, reason: outcome.refused, ...outcome.detail },
         });
       return fail(c, statusOf[outcome.refused] ?? 409, outcome.refused, outcome.detail);
     }
@@ -163,8 +169,8 @@ function registerRoleEdits({ platform, changes, answer, manage }: RoleRoute) {
   });
 }
 
-// Los roles de una persona (R7.5): la tarjeta y «Darle este rol» o «Sacárselo» desde el rol, que
-// mandan el conjunto nuevo.
+// Los roles de una persona (R7.5): la tarjeta de la persona y el diálogo de autorizar, que mandan el
+// conjunto nuevo. La pestaña Roles da y saca con el rol, en give y take.
 function registerHolding({ platform, changes, answer, manage }: RoleRoute) {
   const setting = readBody(bySchema(userRolesBody));
   const id = uuidParams('id');

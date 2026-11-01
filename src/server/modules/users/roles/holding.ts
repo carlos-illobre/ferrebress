@@ -48,8 +48,8 @@ export async function setHolders(
     const row = rows.get(userId) as { roleNames: string[]; roleIds: string[] };
     const others = row.roleNames.filter((_, i) => row.roleIds[i] !== role.id);
     return giving
-      ? { userId, before: others, after: [...others, role.name].sort() }
-      : { userId, before: row.roleNames, after: others };
+      ? { userId, roleId: role.id, before: others, after: [...others, role.name].sort() }
+      : { userId, roleId: role.id, before: row.roleNames, after: others };
   };
   return [...given.map((id) => changeOf(id, true)), ...taken.map((id) => changeOf(id, false))];
 }

@@ -133,6 +133,15 @@
   .role-holder.taken .role-holder-name b {
     text-decoration: line-through;
   }
+  .role-you {
+    margin-left: var(--s2);
+    padding: 1px var(--s2);
+    border-radius: 999px;
+    background: var(--action-soft);
+    color: var(--action-text);
+    font-size: 13px;
+    font-weight: 700;
+  }
   .role-none,
   .role-inactive {
     margin: 0;

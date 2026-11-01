@@ -4,22 +4,25 @@
 // al final del rol, porque arriba no entran. El Administrador no muestra «Borrar el rol» (R7.4).
 
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import { navigate } from '../../../../platform/router.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
-import { refusalText, useUsersContext } from '../../state.ts';
-import { removeRole } from '../actions.ts';
-import type { Draft } from '../draft.ts';
-import { listPath, newPath } from '../paths.ts';
-import { rolesTexts as t } from '../texts.ts';
+import { navigate } from '../../../../../platform/router.ts';
+import { Button } from '../../../../../ui/button/Button.tsx';
+import { showToast } from '../../../../../ui/toast/Toast.tsx';
+import { refusalText, useUsersContext } from '../../../state.ts';
+import { removeRole } from '../../actions.ts';
+import type { Draft } from '../../draft.ts';
+import { listPath, newPath } from '../../paths.ts';
+import { rolesTexts as t } from '../../texts.ts';
 
 // Borrar: si alguien lo tiene, también dado de baja, lo dice sin preguntar al servidor (R7.3, E39).
 function useRemove(draft: Draft) {
   const users = useUsersContext();
   return async () => {
     const id = draft.id as string;
-    if ((users.people as PersonRow[]).some((one) => one.roleIds.includes(id)))
-      return showToast(t.inUse, 'triangle-alert');
+    const holding = (users.people as PersonRow[]).filter((one) => one.roleIds.includes(id));
+    const names = holding.map((one) =>
+      one.active ? one.displayName : t.inactiveMark(one.displayName),
+    );
+    if (names.length > 0) return showToast(t.inUse(names), 'triangle-alert');
     const result = await removeRole({ id, version: draft.version });
     if (!result.ok) return showToast(refusalText(result.error), 'triangle-alert');
     await users.reload();
@@ -39,7 +42,7 @@ function Existing({ draft, keys }: { draft: Draft; keys: boolean }) {
     <>
       <Button
         icon="copy"
-        {...(keys && { shortcut: 'd' })}
+        {...(keys && { shortcut: 'u' })}
         doing={t.duplicate}
         onPress={duplicate(draft)}
         disabled={!users.online}
@@ -68,9 +71,10 @@ export function RoleActions({ draft, dirty, save, cancel }: Props) {
   const users = useUsersContext();
   return (
     <div class="role-actions desktop-only">
+      {!users.online && <small class="role-offline">{t.offlineSave}</small>}
       <Existing draft={draft} keys />
       {draft.id && <span class="role-actions-gap" aria-hidden="true" />}
-      <Button look="plain" doing={t.cancel} onPress={cancel} closes>
+      <Button look="plain" shortcut="a" doing={t.cancel} onPress={cancel}>
         {t.cancel}
       </Button>
       <Button

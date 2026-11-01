@@ -3,11 +3,11 @@
 // su recuadro, y como mucho dos círculos (pedido de Carlos).
 import type { RoleRow as Row } from '@ferrebress/shared/contracts/roles';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import { navigate } from '../../../../platform/router.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { initialsOf } from '../../logic.ts';
-import { rolePath } from '../paths.ts';
-import { rolesTexts as t } from '../texts.ts';
+import { navigate } from '../../../../../platform/router.ts';
+import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { initialsOf } from '../../../logic.ts';
+import { activeHolders, rolePath } from '../../paths.ts';
+import { rolesTexts as t } from '../../texts.ts';
 import './RoleRow.css';
 
 const tones = 5;
@@ -36,7 +36,7 @@ export function RoleRow({
   people: PersonRow[];
   arriving: boolean;
 }) {
-  const holders = people.filter((one) => one.active && one.roleIds.includes(role.id));
+  const holders = activeHolders(people, role.id);
   const count = role.permissions.length;
   return (
     <button

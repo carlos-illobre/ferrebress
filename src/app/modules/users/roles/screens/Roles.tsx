@@ -5,15 +5,16 @@ import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useEffect } from 'preact/hooks';
 import { navigate, route } from '../../../../platform/router.ts';
 import { useStore } from '../../../../platform/store.ts';
+import { Button } from '../../../../ui/button/Button.tsx';
 import { addShapes } from '../../../../ui/icon/Icon.tsx';
 import { rolesShapes } from '../../../../ui/icon/roles-shapes.tsx';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { useUsersContext } from '../../state.ts';
 import { duplicateOf, emptyDraft, fromRole } from '../draft.ts';
-import { holdersOf, listPath, type NewState } from '../paths.ts';
+import { activeHolders, ids, listPath, type NewState } from '../paths.ts';
 import { rolesTexts as t } from '../texts.ts';
-import { RoleList } from './RoleList.tsx';
-import { RoleScreen } from './RoleScreen.tsx';
+import { RoleList } from './list/RoleList.tsx';
+import { RoleScreen } from './role/RoleScreen.tsx';
 import './Roles.css';
 
 addShapes(rolesShapes);
@@ -37,13 +38,22 @@ function OpenedRole({ id }: { id: string }) {
     if (!role) navigate(listPath, { replace: true, force: true });
   }, [role]);
   return role ? (
-    <RoleScreen start={fromRole(role, holdersOf(users.people as PersonRow[], id))} />
+    <RoleScreen start={fromRole(role, ids(activeHolders(users.people as PersonRow[], id)))} />
   ) : null;
 }
 
 export function Roles() {
   const users = useUsersContext();
   const { path, state } = useStore(route);
+  if (users.rolesFailed && !users.roleRows)
+    return (
+      <div class="roles-tab roles-empty">
+        <b>{t.loadFailed}</b>
+        <Button icon="refresh-cw" doing={t.retry} onPress={users.loadRoles}>
+          {t.retry}
+        </Button>
+      </div>
+    );
   if (!users.roleRows || !users.people)
     return (
       <p class="roles-tab roles-empty" aria-busy="true">

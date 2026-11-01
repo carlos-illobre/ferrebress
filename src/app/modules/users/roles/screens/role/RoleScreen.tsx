@@ -5,25 +5,33 @@
 
 import type { RoleRow } from '@ferrebress/shared/contracts/roles';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import { useEffect, useState } from 'preact/hooks';
-import { isPhone } from '../../../../platform/device/device.ts';
-import { guardNavigation, navigate } from '../../../../platform/router.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
-import { usersApi } from '../../api.ts';
-import { refusalText, useUsersContext } from '../../state.ts';
-import { somethingFailed } from '../../texts.ts';
-import { type SaveOutcome, saveDraft } from '../actions.ts';
-import { type Draft, type DraftErrors, hasErrors, isDirty, reapply, validate } from '../draft.ts';
-import { rolesTexts as t } from '../texts.ts';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { isPhone } from '../../../../../platform/device/device.ts';
+import { guardNavigation, navigate } from '../../../../../platform/router.ts';
+import { Button } from '../../../../../ui/button/Button.tsx';
+import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { showToast } from '../../../../../ui/toast/Toast.tsx';
+import { registerWork } from '../../../../frame/index.ts';
+import { usersApi } from '../../../api.ts';
+import { refusalText, useUsersContext } from '../../../state.ts';
+import { somethingFailed } from '../../../texts.ts';
+import { type SaveOutcome, saveDraft } from '../../actions.ts';
+import {
+  type Draft,
+  type DraftErrors,
+  hasErrors,
+  isDirty,
+  reapply,
+  validate,
+} from '../../draft.ts';
+import { rolesTexts as t } from '../../texts.ts';
 import { Discard } from './Discard.tsx';
 import { whatItGives } from './gives.ts';
 import './RoleScreen.css';
 import './RoleSteps.css';
 import './RolePermissions.css';
 import './RolePreview.css';
-import { holdersOf, listPath } from '../paths.ts';
+import { activeHolders, ids, listPath } from '../../paths.ts';
 import { Problems } from './Problems.tsx';
 import { ExtraActions, RoleActions } from './RoleActions.tsx';
 import { RoleHolders } from './RoleHolders.tsx';
@@ -59,7 +67,7 @@ function useSave(draft: Draft, setDraft: (draft: Draft) => void) {
     const [roles, people] = await Promise.all([usersApi.roles(), usersApi.people()]);
     const role = roles.ok && roles.data.roles.find((one) => one.id === draft.id);
     if (!role || !people.ok) return showToast(somethingFailed, 'triangle-alert');
-    setDraft(reapply(draft, role, holdersOf(people.data.people, role.id)));
+    setDraft(reapply(draft, role, ids(activeHolders(people.data.people, role.id))));
     setNotice(t.changedOver);
     await users.reload();
   };
@@ -88,11 +96,32 @@ function useSave(draft: Draft, setDraft: (draft: Draft) => void) {
   return { errors, notice, save, recheck };
 }
 
+// Lo armado es trabajo a medio hacer (01 · E25, E26): si después de una sesión cerrada entra otra
+// persona, se descarta, junto con la hoja de confirmar que hubiera abierta (revisión de seguridad,
+// 46); y la versión nueva no se aplica sola encima (00 · R5.6).
+function useHalfDone(dirty: boolean) {
+  const users = useUsersContext();
+  const pending = useRef(dirty);
+  pending.current = dirty;
+  useEffect(
+    () =>
+      registerWork({
+        pending: () => pending.current,
+        discard: () => {
+          users.confirmed();
+          navigate(listPath, { replace: true, force: true });
+        },
+      }),
+    [],
+  );
+}
+
 export function RoleScreen({ start }: { start: Draft }) {
   const users = useUsersContext();
   const [draft, setDraftState] = useState(start);
   const dirty = isDirty(draft);
   const { asking, stopAsking } = useLeaveGuard(dirty);
+  useHalfDone(dirty);
   const saving = useSave(draft, setDraftState);
   const change = (next: Draft) => {
     setDraftState(next);
@@ -107,6 +136,7 @@ export function RoleScreen({ start }: { start: Draft }) {
           <button
             type="button"
             class="role-back"
+            data-key="l"
             aria-label={t.backLabel}
             onClick={() => navigate(listPath)}
           >
@@ -149,7 +179,13 @@ export function RoleScreen({ start }: { start: Draft }) {
           {t.cancel}
         </Button>
       </div>
-      {asking && <Discard go={asking} stay={stopAsking} />}
+      {asking && (
+        <Discard
+          go={asking}
+          stay={stopAsking}
+          lead={draft.id ? t.discardLead(start.name) : t.discardLeadNew}
+        />
+      )}
     </section>
   );
 }

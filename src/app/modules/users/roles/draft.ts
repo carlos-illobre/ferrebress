@@ -176,11 +176,14 @@ export function reapply(draft: Draft, role: RoleRow, holders: string[]): Draft {
   };
 }
 
+// Lo que impide darle o sacarle el rol a una persona (E65).
+export type PersonError = 'no-roles' | 'person-inactive' | 'person-missing' | 'too-many-roles';
+
 // Lo que se sabe sin preguntarle al servidor (R7.3, R7.5, E56); el servidor tiene la última palabra.
 export type DraftErrors = {
   name?: 'role-no-name' | 'role-name-taken';
   permissions?: true;
-  people?: Record<string, 'no-roles' | 'person-inactive' | 'person-missing'>;
+  people?: Record<string, PersonError>;
   self?: 'roles.manage' | 'users.manage';
 };
 

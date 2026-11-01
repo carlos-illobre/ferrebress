@@ -601,15 +601,22 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
     mientras hay cambios y la saca al desmontarse o al descartar, así no pregunta dos veces; muestra
     «¿Descartar los cambios del rol?» con «Seguir editando» (el foco arranca ahí) y «Descartar».
     «Duplicar» con cambios pregunta lo mismo antes de copiar el rol guardado. Las salidas que fuerza
-    el marco (R7.8 «Ya no tenés permiso», la sesión cerrada a distancia, «Salir») usan
-    `navigate(…, { force: true })`, que no pregunta: el borrador se pierde. Cerrar o recargar la
+    el marco (R7.8 «Ya no tenés permiso», al cerrarse la pestaña Roles por perder «Administrar roles»)
+    usan `navigate(…, { force: true })`, que no pregunta: el borrador se pierde. Lo armado es trabajo
+    a medio hacer del marco (`registerWork`): si después de una sesión cerrada entra otra persona, se
+    descarta con la hoja de confirmar que hubiera abierta, y la versión nueva no se aplica sola
+    encima (revisión de seguridad, 46). Cerrar o recargar la
     pestaña del navegador con cambios usa el aviso propio del navegador (`beforeunload`, puesto y
     sacado con la guarda), que no se puede diseñar.
   - **Sin conexión** (R2.2): la pestaña se ve gris como el resto de Usuarios; un borrador abierto se
-    conserva y «Guardar rol» espera la conexión, diciéndolo al lado.
-  - **Teclado** (constitución II, maqueta): las teclas de los botones con Alt (Alt G guardar, Alt N
-    nuevo rol), Enter en el nombre guarda, Esc en la pantalla del rol es «Cancelar» (pregunta si hay
-    cambios), y al abrir un rol el foco va al nombre en la computadora; en el celular, a nada.
+    conserva y «Guardar rol» espera la conexión, diciéndolo al lado. Si no se pudieron traer los
+    roles, lo dice con «Reintentar».
+  - **Teclado** (constitución II, maqueta): las teclas de la maqueta, que no chocan con las del menú:
+    Alt O nuevo rol, Alt G guardar, Alt A cancelar, Alt U duplicar, Alt B borrar, Alt R «Darle este
+    rol a…», Alt L el camino «Roles» y, en «¿Descartar…?», Alt T descartar (Esc es «Seguir
+    editando»). En la lista, el cursor arranca en el buscador, / lleva a él, Esc lo vacía y Enter abre
+    el primer rol (o crea uno con lo escrito). En el rol, el cursor arranca en el nombre y Enter ahí
+    guarda. En el celular, el cursor no arranca en ningún lado.
   - **Confirmar que sos vos** (R3.8): la hoja dice qué da lo que se guarda, según el borrador («Le das
     «Encargado» a Lucía», «Le sumás «Anular una venta»»), para que no pase escondido un cambio que da
     acceso; el servidor sigue decidiendo si hace falta.
@@ -662,8 +669,9 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
   `user.roles-changed` (antes y después, con nombres), `role.permissions-added` (el arranque) y
   `user.authorized` suma sus roles. Guardar un rol con sus personas deja, después de confirmar
   (ADR-004), la línea del rol si cambió y una `user.roles-changed` por cada persona a la que de
-  verdad se le dio o se le sacó, con antes y después, todas con el mismo id del pedido y escritas en
-  una sola sentencia. Un pedido sin el permiso deja `permission.denied`, un evento de la
+  verdad se le dio o se le sacó, con antes y después y el id del rol, todas con el mismo id del
+  guardado. La auditoría escribe cada tanda en una transacción por archivo (revisión de seguridad,
+  48). Un rechazo dice también de quién o de qué permiso. Un pedido sin el permiso deja `permission.denied`, un evento de la
   plataforma, con tope por minuto según quién pide y qué permiso; `confirm-first`, `outranked`,
   `no-roles`, `self`, `person-inactive` y `person-missing` quedan como `users.rejected`, una vez por minuto por motivo y por quien lo pide.
 

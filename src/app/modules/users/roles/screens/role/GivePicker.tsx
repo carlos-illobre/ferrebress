@@ -2,13 +2,13 @@
 // por nombre o correo. Suma un paso al historial: atrás la cierra sin preguntar por el rol.
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useState } from 'preact/hooks';
-import { useBackStep } from '../../../../platform/back-step.ts';
-import { plain } from '../../../../platform/text.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { initialsOf } from '../../logic.ts';
-import { rolesTexts as t } from '../texts.ts';
+import { useBackStep } from '../../../../../platform/back-step.ts';
+import { plain } from '../../../../../platform/text.ts';
+import { Button } from '../../../../../ui/button/Button.tsx';
+import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
+import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { initialsOf } from '../../../logic.ts';
+import { rolesTexts as t } from '../../texts.ts';
 
 type Props = { candidates: PersonRow[]; pick: (id: string) => void; close: () => void };
 

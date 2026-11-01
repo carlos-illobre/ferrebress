@@ -1,24 +1,24 @@
 // La vista previa del rol (maqueta users-roles/final), solo en la computadora: cómo se ve el rol y,
 // por parte de la aplicación, cuántos permisos da, con una marca verde si da alguno o gris si no. Al
-// pie, que se puede cambiar cuando se quiera, o que el Administrador no se borra (R7.4).
+// pie, que se puede cambiar cuando se quiera.
 import {
   type PermissionGroup,
   permissionGroups,
   permissions,
 } from '@ferrebress/shared/contracts/permissions';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { groupIcons } from '../../../frame/index.ts';
-import type { Draft } from '../draft.ts';
-import { rolesTexts as t } from '../texts.ts';
+import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { groupIcons } from '../../../../frame/index.ts';
+import type { Draft } from '../../draft.ts';
+import { rolesTexts as t } from '../../texts.ts';
 
 const groups = Object.keys(permissionGroups) as PermissionGroup[];
 
 export function RolePreview({ draft }: { draft: Draft }) {
-  const name = draft.name.trim() || t.newTitle;
+  const name = draft.name.trim() || t.name;
   return (
     <aside class="role-preview desktop-only" aria-label={t.preview}>
       <h3>{t.preview}</h3>
-      <p class="role-preview-lead">{t.previewLead}</p>
+      <p class="role-preview-lead">{draft.id ? t.previewLead : t.previewLeadNew}</p>
       <div class="role-preview-card">
         <span class="roles-icon">
           <Icon name={draft.system ? 'shield-check' : 'users'} />
@@ -49,7 +49,7 @@ export function RolePreview({ draft }: { draft: Draft }) {
       </ul>
       <p class="role-preview-note">
         <Icon name="info" size="small" />
-        {draft.system ? t.systemNote : t.editLater}
+        {t.editLater}
       </p>
     </aside>
   );

@@ -4,6 +4,17 @@
    en gris (pedido de Carlos). En el celular, «‹ Roles» para volver y «Guardar rol» y «Cancelar» fijos
    abajo, encima del menú. */
 @layer screens {
+  /* Las tarjetas blancas de los pasos y de la vista previa. */
+  .role-step,
+  .role-preview {
+    display: grid;
+    gap: var(--s3);
+    padding: var(--s5);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
   .role-head {
     position: sticky;
     top: 0;
@@ -70,6 +81,10 @@
     display: flex;
     gap: var(--s2);
     align-items: center;
+  }
+  .role-offline {
+    color: var(--text-3);
+    font-size: 14px;
   }
   .role-actions-gap {
     width: 1px;

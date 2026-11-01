@@ -32,8 +32,11 @@ const createTable = `create table if not exists events (
 export function openAuditLog(path: string): AuditLog {
   const files = yearFiles(path);
   const pending: AuditEvent[] = [];
+  // Cada tanda, en una transacción por archivo: una sola escritura a disco, no una por línea
+  // (revisión de seguridad de 02, 48).
   const flush = (): void => {
-    for (const event of pending.splice(0)) write(files.open(event.at.getUTCFullYear()), event);
+    const byYear = Map.groupBy(pending.splice(0), (event) => event.at.getUTCFullYear());
+    for (const [year, events] of byYear) writeAll(files.open(year), events);
   };
   const timer = setInterval(flush, flushEveryMs);
   timer.unref();
@@ -79,12 +82,21 @@ function yearFiles(path: string) {
 
 const fileName = (path: string, year: number): string => join(path, `${year}.sqlite`);
 
-function write(file: DatabaseSync, { type, at, userId, deviceId, ipAddress, ...rest }: AuditEvent) {
-  file
-    .prepare(
-      'insert into events (at, type, user_id, device_id, ip_address, payload) values (?, ?, ?, ?, ?, ?)',
-    )
-    .run(at.getTime(), type, userId ?? null, deviceId ?? null, ipAddress ?? null, compress(rest));
+function writeAll(file: DatabaseSync, events: AuditEvent[]) {
+  const insert = file.prepare(
+    'insert into events (at, type, user_id, device_id, ip_address, payload) values (?, ?, ?, ?, ?, ?)',
+  );
+  file.exec('begin');
+  for (const { type, at, userId, deviceId, ipAddress, ...rest } of events)
+    insert.run(
+      at.getTime(),
+      type,
+      userId ?? null,
+      deviceId ?? null,
+      ipAddress ?? null,
+      compress(rest),
+    );
+  file.exec('commit');
 }
 
 function readEvents(file: DatabaseSync): AuditEvent[] {

@@ -38,7 +38,7 @@ describe('la pestaña Roles (02 · R7.12, R7.13)', () => {
     expect(screen.queryByRole('button', { name: 'Abrir «Administrador»' })).toBeNull();
     expect(rowOf('Encargado de turno')).toBeTruthy();
     search('Cajero');
-    expect(screen.getByText('No hay ningún rol con «Cajero».')).toBeTruthy();
+    expect(screen.getByText('Ningún rol coincide con «Cajero».')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Crear el rol «Cajero»' }));
     await screen.findByText('Crear nuevo rol', { selector: 'h2' });
     expect((role().getByLabelText(/Nombre del rol/) as HTMLInputElement).value).toBe('Cajero');
@@ -104,7 +104,7 @@ describe('la pestaña Roles (02 · R7.12, R7.13)', () => {
     const again = await screen.findByRole('alertdialog', {
       name: '¿Descartar los cambios del rol?',
     });
-    fireEvent.click(within(again).getByRole('button', { name: 'Descartar' }));
+    fireEvent.click(within(again).getByRole('button', { name: /^Descartar/ }));
     await settle();
     expect(route.get().path).toBe('/users');
   });
@@ -114,11 +114,15 @@ describe('la pestaña Roles (02 · R7.12, R7.13)', () => {
     expect(saveButton().disabled).toBe(true);
     typeIn('Nombre del rol', 'encargado de turno');
     fireEvent.click(saveButton());
-    expect(await screen.findByText('No se guardó nada. Revisá lo marcado:')).toBeTruthy();
-    expect(role().getAllByText(/Ya hay un rol con ese nombre/)).toHaveLength(2);
-    expect(role().getAllByText('Tildá al menos un permiso.')).toHaveLength(2);
+    expect(
+      await screen.findByText(
+        /No se guardó nada. Corregí lo que está marcado en rojo: el nombre, los permisos\./,
+      ),
+    ).toBeTruthy();
+    expect(role().getAllByText(/Ya hay un rol con ese nombre/)).toHaveLength(1);
+    expect(role().getAllByText('Tildá al menos un permiso.')).toHaveLength(1);
     typeIn('Nombre del rol', '  ');
-    expect(role().getAllByText('Ponele un nombre.')).toHaveLength(2);
+    expect(role().getAllByText('Ponele un nombre.')).toHaveLength(1);
     expect(server.bodies('/api/roles').filter(Boolean)).toEqual([]);
   });
 
@@ -183,7 +187,7 @@ describe('la pestaña Roles (02 · R7.12, R7.13)', () => {
     );
     typeIn('Nombre del rol', 'Cajero');
     fireEvent.click(saveButton());
-    expect(await screen.findAllByText(/Ya hay un rol con ese nombre/)).toHaveLength(2);
+    expect(await screen.findAllByText(/Ya hay un rol con ese nombre/)).toHaveLength(1);
     fireEvent.click(saveButton());
     await waitFor(() => expect(toast()).toBe('No se pudo. Probá de nuevo.'));
     fireEvent.click(saveButton());

@@ -121,12 +121,14 @@ function useMay() {
 // Los roles con sus permisos, para quien los administra (R7.3). Quiénes los tienen sale de la lista.
 function useRoleRows(may: boolean) {
   const [rows, setRows] = useState<RoleRow[]>();
+  const [failed, setFailed] = useState(false);
   const loadRoles = async () => {
     if (!may) return;
     const result = await usersApi.roles();
+    setFailed(!result.ok);
     if (result.ok) setRows(result.data.roles);
   };
-  return { roleRows: rows, loadRoles };
+  return { roleRows: rows, loadRoles, rolesFailed: failed };
 }
 
 // Lo que hay que repetir después de confirmar quién es (R3.8), y qué da, para decirlo.

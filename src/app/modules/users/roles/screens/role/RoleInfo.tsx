@@ -2,8 +2,8 @@
 // cuánto queda de las 200 letras. En la computadora el cursor arranca en el nombre; Enter guarda.
 import { maxRoleDescription, maxRoleName } from '@ferrebress/shared/contracts/roles';
 import { useEffect, useRef } from 'preact/hooks';
-import type { Draft, DraftErrors } from '../draft.ts';
-import { rolesTexts as t } from '../texts.ts';
+import type { Draft, DraftErrors } from '../../draft.ts';
+import { rolesTexts as t } from '../../texts.ts';
 import { nameProblem } from './Problems.tsx';
 
 type Props = {

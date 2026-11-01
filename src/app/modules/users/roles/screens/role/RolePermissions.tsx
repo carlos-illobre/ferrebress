@@ -9,24 +9,28 @@ import {
   permissions,
 } from '@ferrebress/shared/contracts/permissions';
 import { useState } from 'preact/hooks';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { groupIcons, permissionIcons } from '../../../frame/index.ts';
-import { type Draft, type DraftErrors, tiedBy, toggle } from '../draft.ts';
-import { rolesTexts as t } from '../texts.ts';
+import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { groupIcons, permissionIcons } from '../../../../frame/index.ts';
+import { type Draft, type DraftErrors, tiedBy, toggle } from '../../draft.ts';
+import { rolesTexts as t } from '../../texts.ts';
+import { selfProblem } from './Problems.tsx';
 
 const groups = Object.keys(permissionGroups) as PermissionGroup[];
 const inGroup = (group: PermissionGroup) => permissions.filter((one) => one.group === group);
 const quoted = (ids: PermissionId[]) =>
   ids.map((id) => `«${permissions.find((one) => one.id === id)?.name}»`);
 
+// `self`: el permiso que quien guarda se sacaría a sí mismo (E56); el motivo va en su renglón.
 function Item({
   draft,
   change,
   id,
+  self,
 }: {
   draft: Draft;
   change: (draft: Draft) => void;
   id: PermissionId;
+  self: string | undefined;
 }) {
   const permission = permissions.find((one) => one.id === id) as (typeof permissions)[number];
   const on = draft.permissions.includes(id);
@@ -52,6 +56,7 @@ function Item({
             <span class="phone-only">{t.tiedShort(quoted(tied))}</span>
           </small>
         )}
+        {self === id && !on && <small class="role-error">{selfProblem(id)}</small>}
       </span>
     </label>
   );
@@ -63,6 +68,7 @@ function Group(props: {
   group: PermissionGroup;
   open: boolean;
   flip: () => void;
+  self: string | undefined;
 }) {
   const { draft, group } = props;
   const items = inGroup(group);
@@ -91,7 +97,7 @@ function Group(props: {
       {props.open && (
         <div class="role-group-body">
           {items.map((one) => (
-            <Item key={one.id} draft={draft} change={props.change} id={one.id} />
+            <Item key={one.id} draft={draft} change={props.change} id={one.id} self={props.self} />
           ))}
         </div>
       )}
@@ -125,6 +131,7 @@ export function RolePermissions({ draft, change, errors }: Props) {
             change={change}
             group={group}
             open={open.includes(group) || selfGroup(errors) === group}
+            self={errors?.self}
             flip={flip(group)}
           />
         ))}

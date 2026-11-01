@@ -6,12 +6,13 @@ import { permissionOf } from '@ferrebress/shared/contracts/permissions';
 import type { RoleRow } from '@ferrebress/shared/contracts/roles';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { plain } from '../../../platform/text.ts';
+import { activeHolders } from './paths.ts';
 
 export type SearchIndex = { role: RoleRow; text: string }[];
 
 export function searchIndex(roles: RoleRow[], people: PersonRow[]): SearchIndex {
   return roles.map((role) => {
-    const holders = people.filter((one) => one.active && one.roleIds.includes(role.id));
+    const holders = activeHolders(people, role.id);
     const words = [
       role.name,
       role.description ?? '',

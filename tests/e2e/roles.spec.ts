@@ -6,17 +6,22 @@ import { expect, type Page, test } from '@playwright/test';
 import { computer } from './support/devices.ts';
 import { signInWithGoogle } from './support/google.ts';
 
-// Un rol nuevo, desde la pestaña Roles, con un solo permiso.
-async function newRole(page: Page, name: string, permission: string) {
+// Un rol nuevo, desde la pestaña Roles, con un solo permiso (de esa parte, que puede estar plegada).
+async function newRole(page: Page, name: string, permission: string, part: string) {
   await page.locator('.users-tab', { hasText: 'Roles' }).click();
   await page
     .getByRole('button', { name: /Nuevo rol/ })
     .first()
     .click();
-  await page.getByRole('textbox', { name: 'Nombre' }).fill(name);
-  await page.getByRole('switch', { name: permission }).click();
-  await page.getByRole('button', { name: /Crear el rol/ }).click();
-  await expect(page.locator('.toast')).toContainText(`Rol «${name}» creado`);
+  await page.getByRole('textbox', { name: 'Nombre del rol' }).fill(name);
+  const box = page.getByRole('checkbox', { name: new RegExp(`^${permission}`) });
+  if (!(await box.isVisible())) await page.locator('.role-group-head', { hasText: part }).click();
+  await box.check();
+  await page
+    .getByRole('button', { name: /Crear el rol/ })
+    .first()
+    .click();
+  await expect(page.locator('.toast')).toContainText(`Se creó el rol «${name}».`);
 }
 
 // Autorizar a alguien con esos roles.
@@ -55,8 +60,8 @@ test('a quien le sacan el rol con Usuarios abierto ve «Ya no tenés permiso» y
   await admin.goto('/');
   await signInWithGoogle(admin);
   await expect(admin.getByRole('region', { name: 'Usuarios' })).toBeVisible();
-  await newRole(admin, watcher, 'Ver las personas');
-  await newRole(admin, offline, 'Trabajar sin conexión');
+  await newRole(admin, watcher, 'Ver las personas', 'Usuarios');
+  await newRole(admin, offline, 'Trabajar sin conexión', 'Sin conexión');
   await authorize(admin, email, [watcher, offline]);
 
   const other = await computer(
