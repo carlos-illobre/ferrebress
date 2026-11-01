@@ -13,7 +13,7 @@
   Las variantes se diferencian en la idea, no en el estilo; la audaz puede romperlo diciendo qué
   rompe. Lo que falte (íconos, fotos) va en tu carpeta; `common/` no se modifica. Una paleta o un
   estilo distinto va aparte, como propuesta para Carlos.
-- **Qué podés leer:** `docs/` (con `docs/design/references/`) y `.claude/skills/art-director/lessons.md`. El código no (`src/`), ni la aplicación funcionando.
+- **Qué podés leer:** `docs/`. El código no (`src/`), ni la aplicación funcionando.
 - **Internet:** podés bajar fotos, fuentes e íconos de bancos libres y mirar referencias.
   **Nunca pongas datos personales (correos, nombres de personas reales) en pedidos a internet ni en
   las maquetas.**

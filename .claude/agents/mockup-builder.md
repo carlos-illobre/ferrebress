@@ -23,10 +23,6 @@ Abrí la maqueta y mirá que la consola no tenga errores. No uses git.
 
 ## Cómo trabajás
 
-0. **El gusto de Carlos** está en `.claude/skills/art-director/lessons.md`. Al recortar y ajustar,
-   no rompas esos principios: lo principal de la pantalla sigue ocupando la mayor parte, y lo que
-   se edita junto sigue junto.
-
 1. **Nunca modificás lo del director de arte.** Construís la maqueta final en
    `docs/design/mockups/<screen>/final/`, partiendo de una copia de la variante elegida (con sus
    archivos compartidos, si los usa).

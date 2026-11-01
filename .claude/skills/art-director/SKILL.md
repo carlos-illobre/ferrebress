@@ -43,7 +43,6 @@ dice, los dos). Ejemplo: `/art-director stock, phone`.
    - Capítulo: docs/chapters/NN-<module>/
    - Qué hace, en una línea: <lo que logra la persona, sin decir cómo se ve>
    - Lo que dijo Carlos (información, no límite): «<sus palabras, textuales>» (si no dijo nada, no va)
-   - Versión de afuera para superar: docs/design/references/<id>/ (si Carlos no pasó una, no va)
 
    Al terminar, lo que pide el brief y la pantalla en docs/design/mockups/index.json. Sin commit.
    Devolvé las ideas, tu preferida y qué rompe cada una.
@@ -70,13 +69,7 @@ dice, los dos). Ejemplo: `/art-director stock, phone`.
    y lo que contradice una regla o queda fuera del capítulo. Antes de pasárselo, quien lanzó al
    agente abre las tres y comprueba que de verdad son tres ideas distintas y que la audaz rompe
    algo; si no, la devuelve.
-5. **La versión de afuera.** Carlos puede pasar, junto a las tres, una versión hecha con otra
-   herramienta (por ejemplo, Copilot). Se guarda en `docs/design/references/<id>/` y se muestra
-   al lado de las tres. Si Carlos prefiere algo de esa versión, o explica por qué una es mejor que
-   otra, se anota en `.claude/skills/art-director/lessons.md`: el caso, sus palabras textuales y
-   el principio general que deja, o se refuerza uno que ya está. Así cada vez que corre, el
-   director de arte parte de lo aprendido.
-6. **Cuando Carlos elige,** se anota la variante en el `screens.md` del capítulo. **El director de
+5. **Cuando Carlos elige,** se anota la variante en el `screens.md` del capítulo. **El director de
    arte no ajusta su maqueta:** diseña sin restricciones. Lo que Carlos pida cambiar y lo que las
    reglas exijan lo aplica el maquetador (agente `mockup-builder`), que construye la maqueta final en `final/`.
 
