@@ -4,6 +4,9 @@
   display: grid;
   align-content: start;
   gap: var(--s3);
+  /* Como la tarjeta de una persona: si no entra, se desplaza ella sola. */
+  min-height: 0;
+  overflow: auto;
   padding: var(--s5);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
@@ -65,9 +68,15 @@
   border-radius: var(--radius);
 }
 
+.role-holder span {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .role-holder small {
   color: var(--text-2);
   font-size: 13px;
+  text-align: right;
 }
 
 .role-give {
@@ -91,4 +100,12 @@
   gap: var(--s3);
   justify-content: flex-end;
   margin-top: var(--s2);
+}
+
+@media (max-width: 899px) {
+  .role-card {
+    overflow: visible;
+    padding: var(--s4);
+    border-color: var(--pine);
+  }
 }

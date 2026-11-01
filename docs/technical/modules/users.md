@@ -526,7 +526,9 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
   (`modules/frame/screens/NoPermission`), porque vale para cualquier opción. Pide
   `/api/permissions/:id/holders` y arma «Copiar el pedido» en el portapapeles.
 - **La pestaña Roles** (maqueta `users-roles/variant-1-card`): `modules/users/screens/Roles/`, que se
-  baja recién al abrirla, con lo que la maqueta no muestra y piden las reglas: la descripción y los
+  baja recién al abrirla. En la computadora la tarjeta del rol va al costado y se desplaza sola; en lo
+  angosto, tocar un rol lo despliega debajo de su renglón y tocarlo de nuevo lo pliega (pedido de
+  Carlos); con lo que la maqueta no muestra y piden las reglas: la descripción y los
   permisos agrupados por parte también al crear (§ 16, screens.md). Los nombres de las personas, de
   la lista de Usuarios, que `roles.manage` incluye (R7.1).
 - **Los roles de una persona** (maquetas `users-person-roles`: la 1 en la computadora y la 2 en el

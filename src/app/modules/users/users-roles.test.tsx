@@ -171,4 +171,26 @@ describe('la pestaña Roles', () => {
     fireEvent.click(screen.getByRole('button', { name: /^Roles$/ }));
     expect(await screen.findByText('de 0 personas')).toBeTruthy();
   });
+
+  it('en lo angosto, tocar un rol lo despliega debajo y tocarlo de nuevo lo pliega', async () => {
+    openUsers({ '/api/users': { body: all }, '/api/roles': rolesRoute });
+    await screen.findByText('Rubén Paredes');
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('max-width'),
+      media: query,
+    }));
+    fireEvent.click(screen.getByRole('button', { name: /^Roles$/ }));
+    await screen.findByText('Los roles del negocio');
+    expect(document.querySelector('.role-card')).toBeNull();
+    const row = screen
+      .getByText('Encargado de turno', { selector: 'b' })
+      .closest('button') as HTMLElement;
+    fireEvent.click(row);
+    expect(row.getAttribute('aria-expanded')).toBe('true');
+    expect(row.nextElementSibling?.classList.contains('role-card')).toBe(true);
+    fireEvent.click(row);
+    expect(document.querySelector('.role-card')).toBeNull();
+    fireEvent.click(screen.getAllByRole('button', { name: /Nuevo rol/ })[0] as HTMLElement);
+    expect(document.querySelector('.roles-list .role-new')).toBeTruthy();
+  });
 });

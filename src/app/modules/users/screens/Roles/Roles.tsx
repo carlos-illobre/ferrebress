@@ -4,6 +4,7 @@
 import { permissionOf, permissions } from '@ferrebress/shared/contracts/permissions';
 import type { RoleRow } from '@ferrebress/shared/contracts/roles';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
+import { Fragment } from 'preact';
 import { useEffect } from 'preact/hooks';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { person as me } from '../../../sign-in/index.ts';
@@ -13,6 +14,10 @@ import { useUsersContext } from '../../state.ts';
 import { NewRole } from './NewRole.tsx';
 import { RoleCard } from './RoleCard.tsx';
 import './Roles.css';
+
+// En lo angosto el rol se despliega debajo de su renglón (pedido de Carlos); en la computadora, la
+// tarjeta va al costado.
+const narrow = () => matchMedia('(max-width: 899px)').matches;
 
 // Quién puede qué (maqueta): cuántas personas activas tienen cada permiso de Usuarios.
 function WhoCan({ rows }: { rows: RoleRow[] }) {
@@ -85,7 +90,11 @@ function Row({ role }: { role: RoleRow }) {
       class="roles-row"
       data-mark=""
       aria-current={users.roleCard === role.id ? 'true' : undefined}
-      onClick={() => users.setRoleCard(role.id)}
+      aria-expanded={narrow() ? users.roleCard === role.id : undefined}
+      // En lo angosto se despliega debajo y, tocado de nuevo, se pliega.
+      onClick={() =>
+        users.setRoleCard(narrow() && users.roleCard === role.id ? undefined : role.id)
+      }
     >
       <span class="roles-row-icon">
         <Icon name={role.system ? 'shield-check' : 'shield'} />
@@ -122,9 +131,10 @@ function Row({ role }: { role: RoleRow }) {
 export function Roles() {
   const users = useUsersContext();
   const rows = users.roleRows;
-  // Sin ninguno elegido, el primero, como la tarjeta de una persona.
+  // En la computadora, sin ninguno elegido, el primero, como la tarjeta de una persona. En lo
+  // angosto arrancan todos plegados.
   useEffect(() => {
-    if (rows?.[0] && !users.roleCard) users.setRoleCard(rows[0].id);
+    if (rows?.[0] && !users.roleCard && !narrow()) users.setRoleCard(rows[0].id);
   }, [rows, users.roleCard]);
   if (!rows)
     return (
@@ -142,12 +152,17 @@ export function Roles() {
         </div>
         <h3 class="roles-list-title">{t.list}</h3>
         <div class="roles-list">
+          {narrow() && users.roleCard === 'new' && <NewRole />}
           {rows.map((role) => (
-            <Row key={role.id} role={role} />
+            <Fragment key={role.id}>
+              <Row role={role} />
+              {narrow() && chosen === role && <RoleCard role={role} />}
+            </Fragment>
           ))}
         </div>
       </div>
-      {users.roleCard === 'new' ? <NewRole /> : chosen ? <RoleCard role={chosen} /> : null}
+      {!narrow() &&
+        (users.roleCard === 'new' ? <NewRole /> : chosen ? <RoleCard role={chosen} /> : null)}
     </div>
   );
 }

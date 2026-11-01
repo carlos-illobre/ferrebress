@@ -160,10 +160,16 @@ describe('autorizar a alguien', () => {
     await waitFor(() => expect(server.bodies('/api/users/sofia/activate')).toHaveLength(2));
   });
 
-  it('Cancelar cierra sin autorizar; en la computadora el cursor arranca en el nombre', async () => {
+  it('Cancelar cierra sin autorizar; en la computadora el cursor arranca en el correo', async () => {
     openUsers();
     await openAuthorize();
-    expect(document.activeElement).toBe(field(/Nombre/));
+    expect(document.activeElement).toBe(field(/Correo/));
+    // Primero el correo, después el nombre, que es opcional (pedido de Carlos).
+    const fields = within(dialog())
+      .getAllByRole('textbox')
+      .map((one) => one.closest('label')?.textContent);
+    expect(fields[0]).toContain('Correo de Google');
+    expect(fields[1]).toContain('Nombre');
     fireEvent.click(within(dialog()).getByRole('button', { name: /Cancelar/ }));
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
   });

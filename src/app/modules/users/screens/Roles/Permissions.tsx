@@ -44,8 +44,8 @@ export function Permissions({
                     <Icon name={permissionIcons[one.id]} />
                   </span>
                   <div>
-                    <b>{one.name}</b>
-                    <small>{one.explanation}</small>
+                    <b class="role-permission-name">{one.name}</b>
+                    <small class="role-permission-detail">{one.explanation}</small>
                     {by && (
                       <small class="role-included">
                         <Icon name="lock" size="small" />

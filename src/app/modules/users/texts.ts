@@ -174,7 +174,8 @@ export const dialogTexts = {
   cancel: 'Cancelar',
   authorizeTitle: 'Autorizar a alguien',
   authorizeYes: 'Autorizar',
-  authorizeLead: 'Su nombre y su correo de Google. No se le manda ningún correo: avisale vos.',
+  authorizeLead:
+    'Su correo de Google y, si querés, su nombre. No se le manda ningún correo: avisale vos.',
   authorizeRoles: 'Sus roles',
   name: 'Nombre',
   nameHint: 'Puede quedar vacío: se ve el de Google cuando entre.',

@@ -1,4 +1,4 @@
-// Autorizar a alguien (R3.3): su nombre, que puede quedar vacío, su correo de Google y sus roles,
+// Autorizar a alguien (R3.3): su correo de Google, su nombre, que puede quedar vacío, y sus roles,
 // ninguno tildado de antemano (E42). Un correo sin forma de correo o ya cargado se dice junto al
 // campo, sin perder lo escrito; sin ningún rol, junto a los roles.
 import { useState } from 'preact/hooks';
@@ -57,6 +57,7 @@ function EmailField(props: {
         placeholder={t.emailPlaceholder}
         autocomplete="off"
         maxLength={254}
+        data-autofocus=""
         aria-invalid={!!props.error}
         onInput={(event) => props.onInput(event.currentTarget.value)}
       />
@@ -94,17 +95,6 @@ export function Authorize() {
       >
         <h2>{t.authorizeTitle}</h2>
         <p class="users-lead">{t.authorizeLead}</p>
-        <label class="users-field users-field-name" data-private="">
-          <span>{t.name}</span>
-          <input
-            value={name}
-            autocomplete="off"
-            maxLength={80}
-            data-autofocus=""
-            onInput={(event) => setName(event.currentTarget.value)}
-          />
-          <small>{t.nameHint}</small>
-        </label>
         <EmailField
           email={email}
           error={error}
@@ -113,6 +103,16 @@ export function Authorize() {
             setError(undefined);
           }}
         />
+        <label class="users-field users-field-name" data-private="">
+          <span>{t.name}</span>
+          <input
+            value={name}
+            autocomplete="off"
+            maxLength={80}
+            onInput={(event) => setName(event.currentTarget.value)}
+          />
+          <small>{t.nameHint}</small>
+        </label>
         <RolesField
           chosen={roles}
           missing={noRoles}

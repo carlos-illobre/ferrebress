@@ -14,7 +14,7 @@
    Captura: desktop-more-users · users · Usuarios
 2. Tocá «Autorizar a alguien», arriba a la derecha.
    Captura: desktop-users · authorize · Autorizar a alguien
-3. Escribí su nombre y su correo de Google. El nombre puede quedar vacío: se ve el de Google cuando entre.
+3. Escribí su correo de Google y, si querés, su nombre: si queda vacío, se ve el de Google cuando entre. Tildá al menos uno de sus roles.
    Captura: desktop-users-authorize · email · Su correo de Google
 4. Tocá «Autorizar». Avisale vos que ya puede entrar: Ferrebress no le manda ningún correo.
    Captura: desktop-users-authorize · yes · Autorizar

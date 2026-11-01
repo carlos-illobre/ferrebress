@@ -191,11 +191,19 @@
   }
 
   .roles-row {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr auto auto;
   }
 
-  .roles-faces,
+  /* La flecha gira cuando el rol está desplegado. */
   .roles-row > .icon {
+    transition: transform var(--time) var(--ease);
+  }
+
+  .roles-row[aria-expanded="true"] > .icon {
+    transform: rotate(90deg);
+  }
+
+  .roles-faces {
     display: none;
   }
 }

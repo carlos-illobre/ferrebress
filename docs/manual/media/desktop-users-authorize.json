@@ -5,13 +5,13 @@
   "points": {
     "email": [
       50,
-      55.9
+      40
     ],
     "yes": [
       58,
       78.5
     ]
   },
-  "hash": "ffb8e2a44a3935e97b2ef72fad0f8b564a2636b3c50fc365d0dba82fe68e2991",
-  "file": "7d341971f8ac5680c25199a8bdc43a28ab4aa7ff7a3de83220f7e0b62b268dc3"
+  "hash": "b978101925aa88de024f5a53164b0bc623cd8bd75e772c59b13f388fda96d8b0",
+  "file": "fdec9d7ccd255b3802134985de93d51037e681e3db48281a2bae04b1ad358d41"
 }
