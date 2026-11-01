@@ -1,0 +1,57 @@
+/* Usuarios · celular (tercera ronda): piezas que comparten las tres variantes.
+   Solo lo que el lenguaje común no trae: avatar de persona, hoja, tostada, sin conexión. */
+body { width: 390px; margin: 0; }
+.celu-estado { background: none; border: 0; cursor: pointer; text-align: left; }
+body.offline .celu-estado .punto { background: var(--urgente); }
+.celu-pestanas a { cursor: pointer; }
+
+/* Persona: avatar redondo con sus iniciales; la dada de baja, gris y con ⊘ */
+.cara { width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; font-weight: 800; font-size: 14px; flex: none; position: relative; }
+.cara.g { width: 64px; height: 64px; font-size: 22px; }
+.cara.baja { background: var(--hundido) !important; color: var(--texto-3) !important; }
+.cara.baja::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 16px; height: 16px; border-radius: 99px; background: var(--superficie); border: 2px solid var(--superficie);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B706B' stroke-width='3' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m5.6 5.6 12.8 12.8'/%3E%3C/svg%3E"); background-size: cover; }
+.cara.nunca { background: var(--superficie) !important; border: 1.5px dashed var(--urgente); color: var(--urgente-texto) !important; }
+
+/* Hoja que sube (320 ms) y velo al 30 % */
+.velo { position: absolute; inset: 0; background: rgba(26, 29, 27, .3); opacity: 0; pointer-events: none; transition: opacity var(--t-nav) var(--curva); z-index: 40; }
+.velo.abierto { opacity: 1; pointer-events: auto; }
+.hoja { position: absolute; left: 0; right: 0; bottom: 0; max-height: 760px; overflow: auto; background: var(--superficie); border-radius: var(--r-hoja) var(--r-hoja) 0 0; box-shadow: var(--sombra-3); padding: 8px 16px 32px; z-index: 41; transform: translateY(105%); transition: transform var(--t-nav) var(--curva); }
+.hoja.abierta { transform: none; }
+.hoja .asa { width: 40px; height: 5px; border-radius: 99px; background: var(--hundido-2); margin: 0 auto 16px; }
+.hoja h2 { margin: 0 0 4px; font-size: 20px; line-height: 26px; font-weight: 750; letter-spacing: -.01em; }
+.hoja .pie-d { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+.hoja .pie-d.uno { grid-template-columns: 1fr; }
+.etq { display: block; font-size: 14px; font-weight: 650; color: var(--texto-2); margin: 16px 0 6px; }
+.entrada { width: 100%; height: 52px; padding: 0 16px; border-radius: var(--r); border: 1px solid var(--borde-fuerte); background: var(--superficie); font-size: 16px; font-weight: 600; outline: 0; }
+.entrada:focus { border-color: var(--pino); box-shadow: 0 0 0 4px rgba(18, 56, 47, .12); }
+.entrada.mal { border-color: var(--error); box-shadow: 0 0 0 4px rgba(215, 55, 42, .12); }
+.error-campo { display: none; gap: 6px; align-items: center; color: var(--error-texto); font-size: 14px; font-weight: 650; margin-top: 6px; }
+.error-campo.ver { display: flex; }
+.btn-rojo { background: var(--error); border-color: var(--error); color: #fff; box-shadow: none; }
+.lista-que { margin: 12px 0 0; padding: 12px 16px; border-radius: var(--r); background: var(--hundido); display: grid; gap: 6px; font-size: 15px; font-weight: 600; list-style: none; }
+.lista-que li { display: flex; gap: 8px; align-items: center; }
+
+/* Opción elegible (celular perdido): renglón con círculo; lo elegido, borde pino y círculo lleno */
+.opcion { width: 100%; display: grid; grid-template-columns: 40px minmax(0, 1fr) 24px; gap: 12px; align-items: center; padding: 12px; text-align: left; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); }
+.opcion + .opcion { margin-top: 8px; }
+.opcion .o { width: 22px; height: 22px; border-radius: 99px; border: 2px solid var(--borde-fuerte); }
+.opcion.elegida { border-color: var(--pino); box-shadow: 0 0 0 1px var(--pino); }
+.opcion.elegida .o { border: 7px solid var(--pino); }
+.ico40 { width: 40px; height: 40px; border-radius: 10px; background: var(--hundido); display: grid; place-items: center; color: var(--texto-2); }
+
+/* Tostada: sube desde abajo con fundido */
+.tostadas { position: absolute; left: 16px; right: 16px; bottom: 164px; z-index: 60; display: grid; gap: 8px; justify-items: center; pointer-events: none; }
+.tostada { opacity: 0; transform: translateY(12px); transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--rebote); max-width: 100%; line-height: 20px; }
+.tostada.ver { opacity: 1; transform: none; }
+
+/* Algo que se va: se corre 24 px y se desvanece; algo que llega: sube 8 px con rebote */
+.se-va { transform: translateX(24px); opacity: 0; transition: transform var(--t) var(--curva-salida), opacity var(--t) var(--curva-salida); }
+.llega { animation: llega var(--t-nav) var(--rebote); }
+.llega-borde { box-shadow: 0 0 0 2px var(--logro) !important; transition: box-shadow 1s; }
+@keyframes llega { from { opacity: 0; transform: translateY(8px); } }
+
+/* Sin conexión (R2.2): gris, se lee y no se toca */
+.cartel-red { display: none; margin: 8px 16px 0; }
+body.offline .cartel-red { display: flex; }
+body.offline .zona-red { filter: grayscale(1); opacity: .55; pointer-events: none; user-select: none; }

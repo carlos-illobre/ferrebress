@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Usuarios · Roles · Final · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../shared/frame.css">
+<link rel="stylesheet" href="../shared/roles.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* La pestaña: la lista y la pantalla del rol se turnan en el mismo lugar */
+  .roles-screen { flex: 1; min-height: 0; overflow: auto; position: relative; padding: 0 32px 32px; }
+  .gris-cartel { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 5; }
+
+  /* Lista */
+  .role-list { display: grid; gap: 16px; padding-top: 20px; max-width: 1086px; }
+  .role-list[hidden] { display: none; }
+  .role-row { grid-template-columns: 48px minmax(0, 1fr) 132px 272px 16px; grid-template-areas: "icon main perms holders arrow"; }
+
+  /* Pantalla del rol */
+  .role-editor[hidden] { display: none; }
+  .role-head { position: sticky; top: 0; z-index: 3; display: flex; gap: 24px; align-items: flex-end; padding: 16px 0 16px; background: var(--fondo); }
+  .role-head-text { flex: 1; min-width: 0; }
+  .role-head-actions { display: flex; gap: 8px; align-items: center; flex: none; }
+  .role-extra { display: flex; gap: 8px; align-items: center; }
+  .role-extra[hidden] { display: none; }
+  .role-head-actions .separator { width: 1px; height: 28px; background: var(--borde-fuerte); margin: 0 4px; }
+  .role-save-error { margin-bottom: 16px; }
+  .role-body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
+  .role-main { display: grid; gap: 16px; min-width: 0; }
+  .perm-group-body { grid-template-columns: 1fr 1fr; }
+
+  /* Vista previa: solo en la computadora */
+  .role-preview { position: sticky; top: 116px; max-height: calc(100vh - 242px); overflow: auto; padding: 20px; display: grid; gap: 12px; }
+  .role-preview-title { margin: 0; font-size: 18px; line-height: 24px; font-weight: 750; }
+  .role-preview-lead { margin: 2px 0 0; }
+  .preview-card { display: grid; justify-items: center; text-align: center; gap: 4px; padding: 16px; border-radius: var(--r); background: var(--fondo); }
+  .preview-card .role-icon { grid-area: auto; width: 56px; height: 56px; margin-bottom: 4px; }
+  .preview-name { font-size: 17px; line-height: 24px; font-weight: 750; overflow-wrap: anywhere; }
+  .preview-name.is-placeholder { color: var(--texto-3); }
+  .preview-description { font-size: 14px; line-height: 20px; color: var(--texto-2); overflow-wrap: anywhere; }
+  .preview-groups { list-style: none; margin: 0; padding: 0; display: grid; }
+  .preview-group { display: grid; grid-template-columns: 40px minmax(0, 1fr) 24px; gap: 12px; align-items: center; padding: 6px 0; }
+  .preview-group + .preview-group { border-top: 1px solid var(--borde); }
+  .preview-group-text { display: grid; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .preview-group-name { font-size: 15px; font-weight: 700; color: var(--tinta); }
+  .preview-mark { width: 24px; height: 24px; border-radius: 99px; display: grid; place-items: center; background: var(--hundido-2); color: var(--texto-2); }
+  .preview-mark.is-on { background: var(--logro); color: #fff; }
+  .preview-mark .i { width: 14px; height: 14px; stroke-width: 3; }
+
+  /* Diálogos */
+  .dialogo .lead { margin: 4px 0 0; color: var(--texto-2); font-size: 15px; line-height: 22px; }
+  .dialogo .role-search { box-shadow: none; }
+
+  /* Las teclas se ven solo mientras Alt está apretado (00 · R2.9) */
+  .kbd { display: none !important; }
+  body.alt .kbd { display: inline-flex !important; }
+  /* Auditoría es del módulo 05: «Pronto» y no se abre (00 · R1.3) */
+  .pestanas .pestana-pronto { display: inline-flex; align-items: center; gap: 8px; color: var(--texto-3); cursor: default; }
+  .pronto { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 999px; background: var(--hundido); color: var(--texto-2); font-size: 14px; font-weight: 700; }
+</style>
+</head>
+<body data-device="desktop">
+<div class="app">
+  <nav class="lateral" aria-label="Menú">
+    <div class="lado-marca"><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button class="btn btn-fantasma" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <a class="nav-item" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item activo" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <button class="luz" data-luz title="En la maqueta: tocala para simular que se corta la conexión"><span class="punto"></span><span data-luz-texto>En línea · todo enviado</span><i class="i i-s" data-i="chevron-right"></i></button>
+      <div class="persona"><div class="usuario"><span class="avatar">RP</span><div class="txt"><div style="font-weight:750;font-size:15px">Rubén Paredes</div><div class="t-detalle">Administrador</div></div></div><button class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+
+  <main class="contenido">
+    <header class="cabecera"><h1 class="t-titulo" style="margin:0">Usuarios</h1></header>
+    <nav class="pestanas" aria-label="Usuarios">
+      <a href="../../../users-a/final/desktop/index.html" data-tab="users" data-no-ir>Usuarios</a>
+      <a class="activa" data-tab="roles" data-no-ir aria-current="page">Roles</a>
+      <a class="pestana-pronto" data-no-ir aria-disabled="true">Auditoría <span class="pronto">Pronto</span></a>
+    </nav>
+
+    <section class="roles-screen" id="roles-screen">
+      <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· se ve lo último, vuelve sola</small></div>
+
+      <!-- La lista de roles (R7.12) -->
+      <div class="role-list zona-red" id="role-list">
+        <div class="role-list-bar">
+          <label class="role-search"><i class="i" data-i="search"></i><input id="role-search" placeholder="Buscá un rol, un permiso o una persona" autocomplete="off" aria-label="Buscar un rol"><button type="button" class="role-search-clear" id="role-search-clear" aria-label="Borrar la búsqueda" hidden><i class="i i-s" data-i="x"></i></button><span class="kbd">/</span></label>
+          <button type="button" class="btn btn-accion" id="new-role"><i class="i i-s" data-i="plus"></i>Nuevo rol <span class="kbd">Alt O</span></button>
+        </div>
+        <div class="role-rows" id="role-rows"></div>
+      </div>
+
+      <!-- La pantalla del rol (R7.13) -->
+      <div class="role-editor zona-red" id="role-editor" hidden>
+        <div class="role-head">
+          <div class="role-head-text">
+            <nav class="role-crumbs" aria-label="Camino"><button type="button" class="role-crumb" id="crumb-roles">Roles <span class="kbd">Alt L</span></button><i class="i i-s" data-i="chevron-right"></i><span class="role-crumb-current" id="role-crumb-current">Crear rol</span></nav>
+            <h2 class="t-titulo role-title" id="role-title">Crear nuevo rol</h2>
+            <p class="t-detalle role-subtitle">Definí el nombre, la descripción y los permisos de este rol.</p>
+          </div>
+          <div class="role-head-actions">
+            <span class="role-extra" id="role-extra">
+            <button type="button" class="btn" id="duplicate"><i class="i i-s" data-i="copy"></i>Duplicar <span class="kbd">Alt U</span></button>
+            <button type="button" class="btn btn-peligro" id="delete"><i class="i i-s" data-i="trash-2"></i>Borrar el rol <span class="kbd">Alt B</span></button>
+            <span class="separator" aria-hidden="true"></span>
+            </span>
+            <button type="button" class="btn btn-fantasma" id="cancel">Cancelar <span class="kbd">Alt A</span></button>
+            <button type="button" class="btn btn-accion" id="save"><i class="i i-s" data-i="save"></i><span id="save-label">Guardar rol</span> <span class="kbd">Alt G</span></button>
+          </div>
+        </div>
+        <div class="aviso error role-save-error" id="save-error" role="alert" hidden><i class="i" data-i="circle-alert"></i><span id="save-error-text"></span></div>
+
+        <div class="role-body">
+          <div class="role-main">
+            <section class="tarjeta role-section" aria-labelledby="sec-info">
+              <div class="role-section-head"><span class="role-step">1</span><h3 class="role-section-title" id="sec-info">Información del rol</h3></div>
+              <div class="role-field" id="field-name">
+                <label class="role-label" for="role-name">Nombre del rol</label>
+                <input class="role-input" id="role-name" maxlength="60" autocomplete="off" placeholder="Por ejemplo, Cajero">
+                <p class="field-error" id="name-error" hidden><i class="i i-s" data-i="circle-alert"></i><span></span></p>
+              </div>
+              <div class="role-field">
+                <label class="role-label" for="role-description">Descripción <span style="font-weight:500;color:var(--texto-3)">(para quién es; puede quedar vacía)</span></label>
+                <textarea class="role-textarea" id="role-description" maxlength="200" rows="2" placeholder="Por ejemplo, Atiende el mostrador y cobra; no ve costos."></textarea>
+                <span class="role-count" id="description-count">0/200</span>
+              </div>
+            </section>
+
+            <section class="tarjeta role-section" aria-labelledby="sec-perms">
+              <div class="role-section-head"><span class="role-step">2</span><h3 class="role-section-title" id="sec-perms">Asignar permisos</h3><p class="role-section-lead">Seleccioná los permisos que tendrá este rol. Valen enseguida para todos los que lo tienen.</p></div>
+              <p class="field-error" id="perms-error" hidden><i class="i i-s" data-i="circle-alert"></i><span></span></p>
+              <div class="perm-groups" id="perm-groups"></div>
+            </section>
+
+            <section class="tarjeta role-section" aria-labelledby="sec-people">
+              <div class="role-section-head"><span class="role-step">3</span><h3 class="role-section-title" id="sec-people">Quiénes lo tienen <span class="role-section-count" id="holders-count">0</span></h3><p class="role-section-lead">Darle el rol a alguien le suma sus permisos; sacárselo se los quita, si no los tiene por otro rol.</p></div>
+              <div class="holder-list" id="holders"></div>
+              <div class="holders-foot"><button type="button" class="btn" id="give-role" data-mark><i class="i i-s" data-i="user-plus"></i>Darle este rol a… <span class="kbd">Alt R</span></button></div>
+              <p class="holders-note" id="holders-note" hidden></p>
+            </section>
+          </div>
+
+          <aside class="tarjeta role-preview" id="role-preview" aria-label="Vista previa del rol">
+            <div><h3 class="role-preview-title">Vista previa del rol</h3><p class="t-detalle role-preview-lead" id="preview-lead"></p></div>
+            <div class="preview-card" id="preview-card"></div>
+            <ul class="preview-groups" id="preview-groups"></ul>
+            <div class="aviso pino"><i class="i" data-i="info"></i><span>Podés cambiar este rol cuando quieras desde la lista de roles.</span></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="velo"></div>
+
+<div class="dialogo" id="discard" role="alertdialog" aria-labelledby="discard-title">
+  <h2 id="discard-title">¿Descartar los cambios del rol?</h2>
+  <p class="lead" id="discard-lead"></p>
+  <div class="pie-d"><button type="button" class="btn btn-fantasma" data-cerrar data-autofocus>Seguir editando <span class="kbd claro">Esc</span></button><button type="button" class="btn btn-rojo" id="discard-ok">Descartar <span class="kbd">Alt T</span></button></div>
+</div>
+
+<div class="dialogo" id="give" role="dialog" aria-labelledby="give-title">
+  <h2 id="give-title">Darle este rol a…</h2>
+  <p class="lead">Solo personas activas. Se lo das al guardar el rol.</p>
+  <label class="role-search give-search"><i class="i" data-i="search"></i><input id="give-search" placeholder="Buscá por nombre o correo" autocomplete="off" aria-label="Buscar una persona"></label>
+  <div class="give-options" id="give-options"></div>
+  <div class="pie-d"><button type="button" class="btn btn-fantasma" data-cerrar>Cancelar <span class="kbd claro">Esc</span></button></div>
+</div>
+
+<div class="dialogo" id="identity" role="dialog" aria-labelledby="identity-title">
+  <h2 id="identity-title">Confirmá que sos vos</h2>
+  <p class="lead">Lo que vas a guardar da acceso, y entraste hace más de 5 minutos. Se pide una sola vez para todo:</p>
+  <ul class="identity-what" id="identity-what"></ul>
+  <div class="pie-d"><button type="button" class="btn btn-fantasma" data-cerrar>Cancelar <span class="kbd claro">Esc</span></button><button type="button" class="btn btn-accion" id="identity-ok" data-autofocus><i class="i i-s" data-i="refresh-cw"></i><span id="identity-ok-label">Continuar con Google</span> <span class="kbd">Alt O</span></button></div>
+</div>
+
+<div class="tostadas"></div>
+
+<script src="../shared/ui.js"></script>
+<script src="../shared/roles-model.js"></script>
+<script src="../shared/roles-screen.js"></script>
+</body>
+</html>

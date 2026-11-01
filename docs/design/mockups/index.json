@@ -362,6 +362,21 @@
    "variants": [
     {
      "device": "desktop",
+     "name": "Final",
+     "path": "mockups/users-roles/final/desktop/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/users-roles/final/phone/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "Referencia de Carlos",
+     "path": "mockups/users-roles/reference/copilot-role.webp"
+    },
+    {
+     "device": "desktop",
      "name": "1 · El rol y su tarjeta",
      "path": "mockups/users-roles/desktop/variant-1-card/index.html"
     },
