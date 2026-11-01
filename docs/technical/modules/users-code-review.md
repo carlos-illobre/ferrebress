@@ -423,3 +423,408 @@ El módulo agregó y cambió bastante de lo no funcional. Parte por parte:
 del negocio adentro (la confirmación con los 5 minutos en `users`, el límite con nombre de módulo, el
 menú junto a la navegación), y conviene esperar a que el segundo módulo con pantalla use el lugar que
 se baja al abrir y la pantalla por dirección antes de fijar su forma.
+
+---
+
+# Revisión del código · 02 · Personas (`users`), etapa b: roles y permisos
+
+Revisión del paso 7 de la etapa b: los commits desde `304b123` («Roles y permisos en el servidor de
+Usuarios») hasta `a9d5a8f`, contra el [capítulo](../../chapters/02-users/rules.md) (R7, los cambios a
+R1 a R6, E34 a E60 y los de la etapa a que cambian), 00 · R1.4 y R1.8, 15 · R1.2, las
+[pantallas](../../chapters/02-users/screens.md) (filas 2 a 4), el [diseño](users.md) (§§ 14 a 24) y sus
+revisiones.
+
+**Qué corrí y qué no.**
+
+- Las unitarias de lo que tocó la etapa: del servidor (`modules/users`, `routes-permissions`,
+  `platform`, `sign-in/access`, `sign-in/offline/permission`, `shared`), 24 archivos y 122 pruebas; de
+  la aplicación (`modules/users`, `frame`, `sign-in/permissions-watch`, `sign-in/offline`), 25 archivos
+  y 146 pruebas. Todas pasan.
+- Pruebas aparte, en el scratchpad, sin tocar el código: contra el servidor de prueba (PGlite) para los
+  puntos 1.1, 1.4, 4.1, 5.2 y 5.4; y **contra PostgreSQL de verdad** (`postgres:17-alpine`, un
+  contenedor descartable) para § 19: 40 rondas de cada par a la vez entre dos personas que administran
+  (baja contra baja, sacarse los roles uno al otro, baja contra sacar roles). En las 120 se guardó uno
+  solo y nunca quedó nadie con «Administrar personas» (ver 4.5 por el motivo que devuelve).
+- Capturas de la aplicación armada (computadora 1366 × 768 y celular 390 × 844) con una API de
+  mentira, en la imagen de Playwright, para el punto 9.
+- **No corrí** `pnpm check` completo, ni las e2e (`tests/e2e/roles.spec.ts` y las demás), ni el
+  comando del primer Administrador, ni «Copiar el pedido» en un navegador de verdad (el portapapeles).
+  No miré con Alt apretado.
+
+Gravedad: **Frena** (se arregla antes de cerrar), **Conviene** o **Menor**.
+
+## Resumen
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 1.1 | Renombrar un rol con un nombre que ya está da `500` | **Frena** |
+| 1.2 | E57: la descripción no se ve en la lista de roles; la prueba mira la tarjeta | **Frena** |
+| 1.3 | E53 / R7.10: el traspaso de la migración no tiene prueba | **Frena** |
+| 1.4 | E55 / R6.1: renombrar y cambiar la descripción no dejan antes y después; borrar no deja lo que tenía | **Frena** |
+| 1.5 | E46 / R7.7 en el celular: «Cortar sesiones», «Quitar huella» y «Cambiar sus roles» aparecen apagados | **Frena** |
+| 1.6 | R7.8: «Ya no tenés permiso» culpa a quien le cambió los roles la última vez | **Frena** |
+| 4.1 | § 22: las rutas de roles no tienen la prueba que cuenta sus consultas, y hacen más que las de § 18 | **Frena** |
+| 9.1 | Los roles de una persona en el celular no siguen la variante 2 aprobada | **Frena** |
+| 4.2 | El arranque suma los permisos nuevos sin transacción | Conviene |
+| 5.1 | `confirm-first` y `outranked` de las rutas de personas no quedan en la auditoría | Conviene |
+| 5.2 | Nombres de personas sin `data-private` en «Sin permiso», «Ya no tenés permiso» y Roles | Conviene |
+| 2.x | Comentarios de cabecera que quedaron atrás; `users/` sin subcarpeta de roles | Conviene / Menor |
+| 4.3 a 4.6 | Otras diferencias con el diseño | Conviene / Menor |
+| 9.2 a 9.4 | Otras diferencias con las maquetas | Conviene / Menor |
+
+## 1. Escenarios sin cumplir
+
+### 1.1 Renombrar un rol con un nombre que ya está da `500` — **Frena**
+
+- **Dónde:** `src/server/modules/users/roles-writing.ts:20-31` (`updateRole`, sin manejar el índice
+  único) y `role-changes.ts:115-124`.
+- **Qué dicen:** R7.3 y E37 («cuando se guarda otro como «encargado»… no se guarda y se dice por
+  qué»); § 18, `409 role-name-taken`.
+- **Qué hace:** crear lo controla con `on conflict do nothing`, pero cambiar el nombre choca con el
+  índice `roles_name` y sale como error de la base. Comprobado: `POST /api/roles/:id { name:
+  'encargado' }` con «Encargado» existente devuelve `500 { error: 'unexpected' }`. La aplicación dice
+  «No se pudo» en vez de «Ya hay un rol con ese nombre». La prueba de E37
+  (`roles-routes.test.ts:55-69`) solo prueba crear.
+
+### 1.2 E57: la descripción no se ve en la lista de roles — **Frena**
+
+- **Dónde:** `src/app/modules/users/screens/Roles/Roles.tsx:84`; prueba
+  `users-roles.test.tsx:11-21`.
+- **Qué dicen:** E57, «cuando se elige el rol de una persona **o se mira la lista de roles**, la
+  descripción se ve debajo del nombre»; R7.3.
+- **Qué hace:** cada renglón de la lista muestra debajo del nombre sus permisos, no la descripción; la
+  descripción solo está en la tarjeta del rol elegido (y en el selector de roles, que sí cumple). La
+  prueba que nombra E57 busca «Puede todo.» en la tarjeta, así que pasa igual.
+
+### 1.3 E53 / R7.10: el traspaso no tiene prueba — **Frena**
+
+- **Dónde:** `migrations/003-roles.ts:34-35` (el `insert … select` que le da el Administrador a todas
+  las personas que ya estaban); prueba `roles-routes.test.ts:14-28`.
+- **Qué hace:** la prueba «users-E34, E53» arranca una instalación nueva cuyo primer Administrador
+  recibe el rol por `addFirst` (`data.ts`), no por la migración. Ninguna prueba migra una base con
+  personas cargadas con `002-people` y mira que queden con el rol Administrador y, después del
+  arranque, con todos los permisos. Si ese `insert` fallara, nada lo diría.
+
+### 1.4 E55 / R6.1: la auditoría de los roles no dice lo de antes en todos los cambios — **Frena**
+
+- **Dónde:** `role-changes.ts:123` (`changeRole` devuelve solo los permisos de antes y después),
+  `role-changes.ts:136` (`removeRole` devuelve `before: []`), `roles-routes.ts:70-73`.
+- **Qué dicen:** R6.1, «crear, duplicar, renombrar, cambiar la descripción o los permisos, o borrar un
+  rol (con lo que había antes y lo que quedó)»; E55; § 21.
+- **Qué hace (comprobado):** renombrar «Encargado» a «Jefe» deja `{ target: 'Jefe', before: [permisos],
+  after: [los mismos] }`: el nombre viejo no queda en ningún lado. Cambiar la descripción deja la misma
+  línea, sin la descripción. Borrar deja `{ target, before: [], after: [] }`, sin los permisos que tenía.
+
+### 1.5 E46 / R7.7 en el celular: botones apagados en vez de no estar — **Frena**
+
+- **Dónde:** `src/app/modules/users/screens/Card/Phone.tsx:43-65` (`Tiles`).
+- **Qué dicen:** R7.7, «lo que no se puede usar no aparece… ni como botón»; E46, sin «Cerrar todas» ni
+  «Quitar»; 00 · R1.5, las mismas reglas en los dos.
+- **Qué hace:** en el celular, «Cortar sesiones» y «Quitar huella» se ven **apagados** para quien no
+  tiene «Cortar sesiones y huellas» o mira a alguien con más permisos, y «Cambiar sus roles» se ve
+  apagado sin «Administrar roles». En la computadora no aparecen. La prueba de E46
+  (`users-permissions.test.tsx:94-106`) busca los nombres de la computadora y no los de estos botones.
+
+### 1.6 R7.8: «Ya no tenés permiso» nombra a la persona equivocada — **Frena**
+
+- **Dónde:** `frame/screens/NoPermission/texts.ts:25-26` y `Lost.tsx:45`; `roles_changed_by` solo lo
+  escribe `setUserRoles` (`roles-writing.ts:53-64`); prueba `frame/permissions.test.tsx:113-128`.
+- **Qué hace:** si lo que cambió fueron los permisos de un rol (no sus roles), el texto dice «<quien
+  le cambió los roles la última vez> te cambió los permisos de un rol recién». Esa persona puede no
+  tener nada que ver y haberlo hecho hace semanas. La prueba se llama «lo dice sin nombrar quién ni qué
+  rol», pero arma la persona con `rolesChangedBy: null`; con cualquier persona que alguna vez tuvo un
+  cambio de roles, el texto nombra a alguien. Comprobado en el servidor: después de que Beto le saca un
+  permiso al rol de Juan, `/api/start` de Juan trae `rolesChangedBy` sin cambiar.
+
+### Lo demás
+
+E34 a E45, E47 a E52, E54, E56, E58 a E60 tienen su prueba y la prueba comprueba lo que dice, con dos
+salvedades menores: E47 no comprueba que «no cambia nada» (pide con un id que no existe), y E04 por el
+camino «quitarle el permiso al rol» desde otra persona no tiene prueba (lo comprobé aparte: da
+`409 last-administrator`). E05 se comprueba a mano (§ 19); lo hice contra PostgreSQL y se cumple.
+
+## 2. Comentarios de cabecera y carpetas
+
+- `src/server/modules/users/people.ts:1-3`: dice que «los bloqueos» están en `data.ts`; el de la baja
+  ahora es `lockAndCount` de `roles-data.ts`. — Conviene.
+- `src/server/modules/users/index.ts:1-4`: dice que publica `user.deactivated` y `user.renamed`; ahora
+  también `users.permissions-changed`, da los permisos a la plataforma y suma al Administrador los
+  permisos nuevos al arrancar. — Menor.
+- `src/server/modules/users/routes.ts:1-4`: dice que cada rechazo queda anotado; `confirm-first` y
+  `outranked` no (5.1). No nombra los permisos de cada ruta. — Menor.
+- `src/app/modules/users/screens/Roles/RolePicker.tsx:1-3`: dice que el número de cada rol «lo tilda con
+  el teclado»; no hay nada que lo haga (el `<kbd>` de la línea 38 no tiene `data-key` ni manejador). —
+  Conviene (la pantalla promete algo que no hace).
+- `src/app/modules/users/screens/Roles/RoleCard.tsx:1-4`: «borrarlo si nadie lo tiene»; el botón
+  aparece siempre, salvo en el Administrador, y el servidor dice que no. `roleTexts.removeHint`
+  (`role-texts.ts:32`) quedó sin usar. — Menor.
+- `src/app/modules/users/state.ts:1-3` y `screens/Users/Users.tsx:1-4`: no nombran la pestaña Roles, el
+  rol abierto, el borrador ni lo que puede quien mira. — Menor.
+- **Carpeta** `src/server/modules/users/`: 21 archivos sueltos, y siete son de los roles (`roles.ts`,
+  `roles-data.ts`, `roles-writing.ts`, `roles-tables.ts`, `roles-routes.ts`, `role-changes.ts`,
+  `access.ts`, más sus pruebas). Irían juntos en `users/roles/`, como `sign-in/` agrupa `access/` u
+  `offline/`. — Conviene.
+- En la aplicación, `modules/users/` suma `role-actions.ts` y `role-texts.ts` a la raíz, con diez
+  archivos de prueba `users-*.test.tsx`; se lee bien, pero las pruebas podrían ir en una subcarpeta. —
+  Menor.
+
+## 3. Pruebas que miran por dentro
+
+- `roles-changes.test.ts:121-138` (E51): borra filas de `users.known_permissions` y
+  `users.role_permissions` con SQL y llama `createAccess` directo. Simular «un capítulo trae un permiso
+  nuevo» sin tocar las tablas pediría poder pasarle la lista al arranque. — Menor.
+- `roles-changes.test.ts:164-183`: arma una plataforma con una base `Proxy` que falla y llama
+  `createPeople` y `createRoleChanges` directo, para cubrir las ramas del `catch`. — Menor.
+- `src/server/testing/sign-in/offline-kit.ts:65-79` (`onlyWith`): las pruebas de `sign-in` escriben en
+  las tablas de `users` y publican su evento a mano; un cambio del esquema de roles las rompe. Podría
+  usar las rutas de roles, como `roles-kit.ts`. — Conviene.
+- `users-roles.test.tsx:13-20` y `frame/permissions.test.tsx:126`: buscan por clases de CSS
+  (`.roles-body`, `.roles-row .users-pill`, `.role-note`, `.pill-gone`) y por `textContent` pegado
+  («2Roles»). Rompen al cambiar el marcado sin cambiar lo que se ve. — Menor.
+- `routes-permissions.test.ts:64-67` lee `http.routes` de Hono: es lo que pide § 21, está bien.
+
+## 4. El diseño
+
+### 4.1 § 22: sin prueba que cuente las consultas de las rutas de roles — **Frena**
+
+- **Qué dice:** § 22, «las de cada ruta, en la tabla de § 18, cada una con su prueba que las cuenta»;
+  también el paso de permisos (0 o 1), `/api/start` (0 o 2) y `GET /api/roles` con 20 roles y 100
+  personas (30 ms, 10 KB).
+- **Qué hace:** `queries.test.ts` cuenta solo las rutas de personas y de sesiones (esas coinciden con
+  § 18). Ninguna prueba cuenta `GET/POST /api/roles`, `POST /api/roles/:id`, borrar, `POST
+  /api/users/:id/roles` ni `holders`, ni mide `GET /api/roles`. Medido con `countQueries`, contando el
+  comienzo y la confirmación de la transacción como hace la etapa a:
+
+  | Ruta | § 18 | Medido |
+  |---|---|---|
+  | `GET /api/roles` | 3 | 3 |
+  | `POST /api/roles` | 4 | 8 (la transacción, el rol, borrar e insertar permisos, y `rowOf` vuelve a leer las tres tablas) |
+  | `POST /api/roles/:id` | 8 | 11 (`rowOf` otra vez) |
+  | `POST /api/roles/:id/delete` | 3 | 4 |
+  | `POST /api/users/:id/roles` | 7 | 11 |
+  | `GET /api/permissions/:id/holders` | 2 | 4 (`findAll` y las tres tablas) |
+  | `/api/start` sin la persona en memoria / con ella | 2 / 0 | 2 / 0 |
+
+  `GET /api/roles` con 20 roles y 96 personas: 7,2 KB y 3,7 ms en PGlite. Hay que bajar las
+  consultas o corregir § 18, y en los dos casos sumar la prueba.
+
+### 4.2 El arranque suma los permisos nuevos sin transacción — Conviene
+
+- **Dónde:** `access.ts:52-61` y `roles-writing.ts:88-102`.
+- **Qué dice:** § 16, «en una transacción, con su línea en la auditoría».
+- **Qué hace:** anota el permiso en `known_permissions` y, en otra sentencia sobre `platform.db`, se lo
+  suma al rol del sistema. Si el proceso se corta entre las dos, el permiso queda «conocido» y el
+  Administrador no lo recibe nunca (R7.4).
+
+### 4.3 La memoria con contador: un solo aumento, no «antes y después» — Menor (documentación)
+
+- `platform/memory.ts:1-25` sube el contador solo al olvidar, después de confirmar; § 17 dice «antes y
+  después de confirmar». Lo que hace el código alcanza (una lectura que termina antes del olvido la
+  borra el olvido; una que lo cruza no se guarda) y su cabecera lo explica; § 17 quedó atrás.
+
+### 4.4 La cabecera `p=` no va en todas las respuestas — Menor (documentación)
+
+- `platform/permissions.ts:26-30`: la huella la deja el paso de la sesión, así que va solo en las rutas
+  con `sessions.require`. `/api/start` no la lleva (no hace falta: trae la persona). § 20 dice «cada
+  respuesta».
+
+### 4.5 Bajo el bloqueo, el segundo cambio puede contestar `self` en vez de `last-administrator` — Menor
+
+- **Dónde:** `roles-data.ts:127-155`: el bloqueo y el primer conteo van en la misma sentencia, así que
+  el conteo «de antes» sale de la foto tomada antes de esperar el bloqueo.
+- **Qué pasó contra PostgreSQL:** de las 120 rondas, en 119 el segundo recibió `self` («Eso te lo tiene
+  que hacer otra persona…») aunque lo que lo frenó es que el primero ya le había sacado el permiso o
+  dado de baja. La regla se cumple siempre (nunca quedó nadie sin administrar); el motivo que ve la
+  persona no es el cierto. Separar el bloqueo en su propia sentencia antes de contar lo arregla.
+
+### 4.6 Dar de alta no avisa que cambiaron los permisos — Menor
+
+- `people.ts:68-72`: la baja publica `users.permissions-changed`; el alta no. Si algo leyó los permisos
+  de la persona mientras estaba de baja (un pedido en vuelo justo al darla de baja, que lee `[]` después
+  del olvido), al darla de alta queda sin permisos en la memoria hasta el próximo cambio de roles o un
+  reinicio. No lo reproduje; es una carrera chica, y publicar también en el alta la cierra.
+
+### Lo que está como dice
+
+Las tablas, índices y claves de § 15; la lista de § 16 con lo incluido; `permissions.require` después
+de la sesión y el `403 forbidden` con el permiso; la prueba que recorre las rutas; la fachada de § 17;
+R7.11 en el correo, la baja, el alta, los cortes y «Se perdió un celular»; el bloqueo único de § 19; la
+persona de `/api/start` con roles, permisos y quién se los cambió; la persona guardada sin conexión con
+sus permisos; `offline.work` en los cinco lugares; la pestaña Roles que se baja al abrirla; la e2e
+aprobada.
+
+## 5. Seguridad
+
+### 5.1 `confirm-first` y `outranked` de las rutas de personas no quedan en la auditoría — Conviene
+
+- **Dónde:** `users/routes.ts:166`, `178` y `220` (`fail(c, 403, 'confirm-first')` y el `outranked` del
+  correo) y `76-81` (`notOutranked` de la baja y el alta).
+- **Qué dice:** § 21, «`confirm-first` también se anota»; la cabecera del archivo, «cada rechazo».
+- **Qué hace (comprobado):** autorizar con la confirmación vieja y dar de baja a quien tiene más dan
+  `403` sin ninguna línea. Las rutas de roles y las de `sign-in/access` sí los anotan. Justo esos dos
+  son los intentos de darse acceso o sacar a quien tiene más que la auditoría tendría que mostrar.
+
+### 5.2 Nombres de personas sin `data-private` — Conviene
+
+- **Dónde:** `NoPermission.tsx:82-124` (las iniciales y los nombres de «Te lo puede dar»), `Lost.tsx:45`
+  («Graciela te sacó…»), `PersonRoles.tsx:48-50` («Roles de Luis»), `RoleCard.tsx:85-103` (el
+  selector «Darle este rol a…» con nombres) y la tostada `role-texts.ts:43`.
+- **Qué dice:** 00 · R9.4 y el diseño de 01: lo que muestra datos personales lleva `data-private`, así
+  la captura de «Algo salió mal» lo tapa. Es lo mismo que la etapa a dejó en 5.7.
+
+### 5.3 Lo demás de § 21
+
+Cerrado por defecto (la prueba recorre las rutas), darse acceso solo con `roles.manage` y Google o la
+huella recientes, R7.11, nunca sin quien administre (comprobado contra PostgreSQL), `holders` sin
+correos y con el id validado, y `permission.denied` con tope: están como dice. Con una salvedad
+menor: `holders` junta las personas **por nombre** (`access.ts:87-89`), así que dos personas con el
+mismo nombre, o dos «Sin nombre», cuentan como una, y «Sin permiso» dice menos personas de las que hay
+(`NoPermission.tsx:83`).
+
+## 6. Reglas inventadas
+
+- **Autorizar con un rol que ya no existe** (lo borraron mientras el diálogo estaba abierto) devuelve
+  `bad-request` (`people.ts`, el `catch` de `23503`), y la aplicación lo muestra junto al correo como
+  «Eso no tiene forma de correo» (`actions.ts:11`). — Menor.
+- **«Darle este rol a…»** de la pestaña Roles ofrece solo personas activas (`RoleCard.tsx:64`); en la
+  tarjeta, a una dada de baja se le pueden cambiar los roles. Ninguna regla dice ni lo uno ni lo otro. —
+  Menor.
+- Los textos dan por hecho que hay un solo rol: «lo tiene que hacer otro Administrador»
+  (`texts.ts:95`, E03 dice «otra persona») y «El Administrador no se borra» (`texts.ts:146`), aunque el
+  rol se puede renombrar (R7.4, E40). — Menor.
+
+## 7. Simpleza y repetición
+
+- `roleRows` (`roles-routes.ts:34-48`) y `holdersOf` (`access.ts:79-104`) leen las mismas tres tablas
+  y agrupan igual; y `rowOf` (`roles-routes.ts:114-115`) relee todos los roles para devolver uno, que es
+  lo que suma consultas en 4.1. — Conviene.
+- `people.ts` importa `Rollback` de `role-changes.ts` y repite a mano el `inTransaction` (bloqueo,
+  conteo, rechazo, eventos) para la baja. — Conviene.
+- `notOutranked` está dos veces: `users/routes.ts:76-81` y `sign-in/access/routes.ts:35-38` (uno anota
+  y el otro no, ver 5.1). — Conviene.
+- El esquema `version` está copiado en `shared/contracts/users.ts:6` y `roles.ts:6`; el límite
+  `{ max: 60, windowMs: 60_000 }` sigue repetido en `sign-in/access/routes.ts:24` (etapa a, punto 7). —
+  Menor.
+- Dos cosas se llaman `permissionsHash`: la función de `shared/contracts/can.ts` y la memoria de
+  `platform/server/api.ts:28`; `permissions-watch.ts:5` tiene que renombrar una al importarla. — Menor.
+- Las listas de permisos de cada rol se ordenan por id (`roles-routes.ts:41-45`), así el renglón del
+  Administrador dice «Trabajar sin conexión · Administrar roles · Cortar…» en vez del orden de R7.1. —
+  Menor.
+
+## 8. Documentación que quedó atrás
+
+- § 18: los números de consultas de las rutas de roles (4.1).
+- § 16: «en una transacción» (4.2); § 17: el contador «antes y después» (4.3); § 20: la huella «en cada
+  respuesta» (4.4).
+- `POST /api/users/:id/roles` contesta `{ roles }`, sin la versión nueva de la persona; la aplicación
+  vuelve a pedir la lista. Funciona, pero § 18 no dice qué devuelve. — Menor.
+- El manual (`docs/manual/users.md`) no tiene las tareas de roles y «Autorizar a alguien» no nombra los
+  roles. Es del paso 9, pero § 24.6 lo puso en la tarea 6; lo dejo anotado.
+
+## 9. Pantallas
+
+Comparé capturas propias con las maquetas aprobadas.
+
+### 9.1 Los roles de una persona en el celular — **Frena**
+
+- **Maqueta aprobada** (screens.md, fila 3): la variante 2 del celular, «¿Qué puede hacer Martín?»,
+  «Igual que alguien», interruptores (de roles, no de permisos), lo que puede abajo y el pie fijo con
+  «Darle un rol pide confirmar que sos vos» y «Guardar».
+- **La aplicación** (`PersonRoles.tsx`): muestra en el celular lo mismo que en la computadora: «Roles de
+  Luis · tildá los que tiene», casillas, «Va a poder» y «Guardar los roles» en el medio de la tarjeta.
+  No tiene la pregunta, ni «Igual que alguien», ni los interruptores, ni el pie fijo.
+
+### 9.2 «Sin permiso» y «Ya no tenés permiso» — Conviene
+
+Aprobadas «tal cual».
+
+- **Computadora:** falta el título «Usuarios» de la página y el renglón «Abriste
+  ferrebress.com.ar/users»; el candado es de trazo fino y chico, no el lleno de la maqueta.
+- **Celular:** falta la cabecera «Usuarios · En línea»; «Ir a…» y «Copiar el pedido» no quedan fijos
+  abajo (la maqueta tiene «Ir a Vender» ancho y un botón de compartir al lado); los renglones de «Lo
+  tienen» van sueltos, no en una sola caja con «2 personas» debajo del nombre.
+- **«Ya no tenés permiso»** (por el código, sin captura): el ícono es un candado en vez del de la
+  persona tachada sobre amarillo; el nombre de quien lo hizo no va en negrita; la cuenta regresiva es un
+  número sin el aro.
+
+### 9.3 La pestaña Roles — Conviene
+
+- **Computadora:** los renglones no tienen la barra de segmentos de los permisos ni el aviso «↑ ↓ para
+  recorrer · Enter para abrir»; el ícono de «Cortar sesiones y huellas» es «prohibido» y no la tijera, y
+  el de «Administrar personas» es el de personas y no el de la persona con engranaje.
+- **Celular:** la maqueta no tiene las dos cuentas (roles y personas) arriba; «Quién puede qué, sumando
+  sus roles» se pega con «de 4 personas» («sus rolesde 4 personas»); cada renglón muestra los permisos
+  cortados y «2 personas», no la barra, «N permisos» y las caras; la pestaña elegida es verde oscura y
+  la maqueta, blanca; arriba sigue «Buscar usuario», que en Roles no busca nada.
+
+### 9.4 Usuarios con roles — Menor
+
+- Con dos pastillas, el nombre se corta («Graciela …»): la maqueta pone las pastillas una debajo de la
+  otra.
+- En la tarjeta de la computadora los roles van debajo de las sesiones y la maqueta los pone arriba:
+  § 20 lo dice así, lo tomo como decidido.
+
+## 10. Lo que se podría extraer a una librería
+
+La etapa b agregó bastante de lo no funcional. Parte por parte:
+
+- **El paso de permisos** (`src/server/platform/permissions.ts`) **y el gancho de la sesión**
+  (`platform/session.ts`, `onSession`).
+  - Serviría a cualquier servidor Hono con permisos fijos por ruta: exigir uno, `403` con el que falta,
+    anotar el rechazo con tope y dejar la huella en el pedido.
+  - Lo ata a Ferrebress: el tipo `PermissionId` de la lista del negocio y el nombre del evento
+    `permission.denied`.
+  - Iría a la base del servidor (o a identidad).
+  - Para extraerlo fácil: que `createPermissionGate` sea genérico en el tipo del id.
+- **La memoria con contador** (`platform/memory.ts`).
+  - No tiene nada del negocio: está lista.
+  - Iría a la base del servidor.
+- **Cerrado por defecto** (`src/server/routes-permissions.test.ts`).
+  - El patrón «cada ruta registrada declara qué pide; sin sesión 401, sin permiso 403» sirve a
+    cualquier proyecto.
+  - Lo ata a Ferrebress: la tabla de rutas vive en la prueba, junto con `roles-kit`.
+  - Iría a calidad.
+  - Para extraerlo fácil: un ayudante `everyRouteDeclares(http, tabla, pedirSin)` y que la tabla quede
+    en cada proyecto.
+- **La huella de los permisos en la cabecera y quien la mira** (`shared/contracts/server-header.ts`,
+  `can.ts`, `app/platform/server/api.ts`, `app/modules/sign-in/permissions-watch.ts`).
+  - Sirve a cualquier aplicación que quiera enterarse de un cambio de permisos sin pedidos extra.
+  - Lo ata a Ferrebress: el nombre de la cabecera sale del producto, y quien mira llama a
+    `signInApi.start` y a la sesión de `sign-in`.
+  - Iría a la base de la aplicación y a la del servidor.
+  - Para extraerlo fácil: que el que mira reciba por parámetro cómo volver a pedir la persona.
+- **El catálogo de permisos** (`shared/contracts/permissions.ts`: grupos, lo que incluye, `withIncluded`)
+  **y `can()`**.
+  - La forma sirve a cualquier proyecto; la lista es del negocio.
+  - Lo ata a Ferrebress: la forma y la lista están en el mismo archivo.
+  - Iría a identidad.
+  - Para extraerlo fácil: un `definePermissions(grupos, lista)` aparte de la lista.
+- **Roles con «nunca sin quien administre» y «nadie sobre quien tiene más»** (`users/roles.ts`,
+  `roles-data.ts`, `role-changes.ts`, `access.ts`, la migración `003-roles` con `known_permissions` y
+  el rol del sistema).
+  - Es un motor de roles que le sirve a otro proyecto con la misma identidad.
+  - Lo ata a Ferrebress: `'users.manage'` y `'roles.manage'` escritos en el SQL
+    (`roles-data.ts:137-146`), el esquema `users` y los textos de la auditoría.
+  - Iría a identidad.
+  - Para extraerlo fácil: que los permisos que «administran» lleguen como parámetro, y que lo
+    genérico quede en la subcarpeta `roles/` del punto 2.
+- **El marco con permisos** (`frame/menu.ts`: `allowed`, `firstOption`, `goToFirst`; `Frame.tsx`:
+  `Work`, `useLostPermission`; `screens/NoPermission/`).
+  - Sirve a cualquier aplicación con este marco.
+  - Lo ata a Ferrebress: las opciones del menú en el mismo archivo que la lógica, «en Ferrebress» en
+    el texto del pedido (`NoPermission/texts.ts:23`) y los íconos de cada permiso en
+    `frame/permission-icons.ts`.
+  - Iría al marco.
+  - Para extraerlo fácil: separar la lista de opciones de `menu.ts` y recibir los íconos y el nombre
+    del producto por parámetro.
+- **Piezas visuales:** los interruptores agrupados con candado (`Roles/Permissions.tsx`) y el selector
+  con casillas y descripción (`Roles/RolePicker.tsx`).
+  - Sirven a otro proyecto en castellano.
+  - Lo ata a Ferrebress: leen `roleTexts` y la lista de permisos directamente.
+  - Irían a piezas visuales.
+  - Para extraerlo fácil: recibir los textos y la lista por parámetro.
+
+**Hoy no conviene extraer nada:** hay un solo proyecto. La memoria con contador y el paso de permisos
+ya casi no tienen negocio adentro, pero el motor de roles tiene los dos permisos que «administran»
+escritos en el SQL y el marco tiene el menú mezclado con la navegación; conviene esperar a que un
+segundo módulo pida sus permisos para fijar la forma.
