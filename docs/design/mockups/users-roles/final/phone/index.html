@@ -42,10 +42,9 @@
   .role-stat.is-empty { color: var(--texto-3); }
   .role-stat.is-empty > .i { color: var(--texto-3); }
 
-  /* Cada permiso con su ícono, en el celular (pedido de Carlos) */
-  .perm-item { grid-template-columns: 22px 36px minmax(0, 1fr); align-items: center; }
-  .perm-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--superficie); border: 1px solid var(--borde); color: var(--texto-2); }
-  .perm-check:checked + .perm-icon { background: var(--pino-suave); border-color: transparent; color: var(--pino); }
+  /* En el celular, el permiso va solo con su nombre: casilla, ícono y nombre centrados */
+  .perm-item { align-items: center; }
+  .perm-item > .perm-check { margin-top: 0; }
 
   /* La pantalla del rol entra desde la derecha, como iPhone, y tapa la lista (no el menú) */
   .role-editor { position: absolute; left: 0; right: 0; top: 44px; bottom: 76px; z-index: 20; background: var(--fondo); display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--t-nav) var(--curva); }

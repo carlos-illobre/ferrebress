@@ -3,7 +3,7 @@
 Quién puede entrar, autorizar y dar de baja, y las sesiones y celulares con huella de cada persona.
 Reglas completas en [rules.md](rules.md).
 
-**Estado:** etapa a (personas y sesiones), aprobada. Etapa b (roles y permisos), aprobada; la pantalla de roles se rehace (R7.12 y R7.13 nuevas, a aprobar).
+**Estado:** etapa a (personas y sesiones), aprobada. Etapa b (roles y permisos), aprobada; la pantalla de roles se rehace (R7.12 y R7.13, aprobadas).
 
 ## Cada regla en una línea
 

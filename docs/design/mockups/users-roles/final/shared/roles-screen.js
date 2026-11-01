@@ -147,7 +147,7 @@
         var id = "perm-" + p.id;
         return '<label class="perm-item' + (tied.length ? " is-tied" : "") + '" for="' + id + '" data-mark>' +
           '<input type="checkbox" class="perm-check" id="' + id + '" data-perm="' + p.id + '"' + (on ? " checked" : "") + (tied.length ? " disabled" : "") + ">" +
-          (desktop ? "" : '<span class="perm-icon">' + ico(p.icon) + "</span>") + // en el celular, cada permiso con su ícono (pedido de Carlos)
+          '<span class="perm-icon">' + ico(p.icon) + "</span>" + // cada permiso con su ícono (pedido de Carlos)
           '<span class="perm-text"><span class="perm-name">' + esc(p.name) + "</span>" +
           (desktop ? '<span class="perm-explanation">' + esc(p.exp) + "</span>" : "") +
           (tied.length ? '<span class="perm-tied">' + ico("lock", "i-s") + "<span>" + (desktop ? "Va incluido en " : "Lo incluye ") +

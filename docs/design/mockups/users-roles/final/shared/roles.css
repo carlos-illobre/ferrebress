@@ -101,7 +101,7 @@
 .perm-group-body[hidden] { display: none; }
 .perm-group-body.is-opening { animation: role-arrive var(--t) var(--curva) both; }
 
-.perm-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 4px; border-radius: 8px; cursor: pointer; }
+.perm-item { display: grid; grid-template-columns: 22px 36px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 4px; border-radius: 8px; cursor: pointer; }
 .perm-item.is-tied { cursor: default; }
 .perm-check { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; margin: 0; border-radius: 6px; border: 2px solid var(--borde-fuerte); background: var(--superficie) center / 14px no-repeat; cursor: pointer; transition: transform var(--t-micro) var(--curva); }
 .perm-check:active { transform: scale(.9); }
@@ -170,3 +170,8 @@
 /* «Guardar rol» sin cambios: naranja apagado, sin sombra; se enciende con el primer cambio. */
 #save:disabled { opacity: 1; background: var(--accion-suave); color: var(--accion-texto); box-shadow: none; cursor: default; }
 #save:disabled .kbd { opacity: .6; }
+
+/* Cada permiso con su ícono (pedido de Carlos): blanco sin tildar, pino suave tildado. */
+.perm-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--superficie); border: 1px solid var(--borde); color: var(--texto-2); }
+.perm-check:checked + .perm-icon { background: var(--pino-suave); border-color: transparent; color: var(--pino); }
+.perm-item > .perm-check { margin-top: 7px; }

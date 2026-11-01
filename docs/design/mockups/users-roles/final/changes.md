@@ -129,8 +129,9 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
   pino a la izquierda, el nombre más grande y, abajo, los dos datos en recuadros gris suave con el
   número en grande: «🔑 15 permisos» y las iniciales con «2 personas» (como mucho dos círculos: con
   más de dos personas, una inicial y «+N»). La computadora queda como se aprobó.
-- **En el celular, cada permiso lleva su ícono** al lado de la casilla, que se pone pino suave al
-  tildarlo (pedido de Carlos). Los íconos de los grupos de ejemplo también son de ejemplo.
+- **Cada permiso lleva su ícono** al lado de la casilla, en la computadora y en el celular, que se
+  pone pino suave al tildarlo (pedido de Carlos). Los íconos de los grupos de ejemplo también son de
+  ejemplo.
 - **«Guardar rol» arranca apagado** (naranja suave, sin sombra, sin tocarse) y se pone naranja fuerte
   con el primer cambio, para que llame la atención; si se deshace el cambio, vuelve a apagarse. En
   un duplicado arranca encendido, porque la copia todavía no se guardó (pedido de Carlos).
