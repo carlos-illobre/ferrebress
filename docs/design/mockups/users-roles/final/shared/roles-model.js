@@ -20,29 +20,29 @@ window.RolesModel = (function () {
   /* Un grupo por parte de la aplicación, en el orden del menú. */
   var GROUPS = [
     { id: "sales", name: "Vender", icon: "shopping-cart", detail: "Cobrar, descuentos y anulaciones", example: true, perms: [
-      { id: "sell", name: "Vender", short: "Vender", exp: "Armar una venta y cobrarla." },
-      { id: "discount", name: "Hacer descuentos", exp: "Bajar el precio de un renglón o de toda la venta." },
-      { id: "void", name: "Anular una venta", exp: "Anular una venta ya cobrada, con su motivo." },
-      { id: "all-sales", name: "Ver las ventas de todos", exp: "Ver las ventas de hoy de cualquier persona, no solo las propias." }
+      { id: "sell", icon: "banknote", name: "Vender", short: "Vender", exp: "Armar una venta y cobrarla." },
+      { id: "discount", icon: "percent", name: "Hacer descuentos", exp: "Bajar el precio de un renglón o de toda la venta." },
+      { id: "void", icon: "ban", name: "Anular una venta", exp: "Anular una venta ya cobrada, con su motivo." },
+      { id: "all-sales", icon: "receipt", name: "Ver las ventas de todos", exp: "Ver las ventas de hoy de cualquier persona, no solo las propias." }
     ] },
     { id: "catalog", name: "Catálogo", icon: "tags", detail: "Productos, precios y costos", example: true, perms: [
-      { id: "products", name: "Cargar productos", exp: "Crear y cambiar productos, sus fotos y sus códigos." },
-      { id: "prices", name: "Cambiar precios", exp: "Cambiar los precios y las listas de precios." },
-      { id: "costs", name: "Ver los costos", exp: "Ver lo que costó cada producto y su margen." }
+      { id: "products", icon: "package-plus", name: "Cargar productos", exp: "Crear y cambiar productos, sus fotos y sus códigos." },
+      { id: "prices", icon: "badge-dollar-sign", name: "Cambiar precios", exp: "Cambiar los precios y las listas de precios." },
+      { id: "costs", icon: "coins", name: "Ver los costos", exp: "Ver lo que costó cada producto y su margen." }
     ] },
     { id: "stock", name: "Depósito", icon: "package", detail: "Stock, compras y conteos", example: true, perms: [
-      { id: "see-stock", name: "Ver el stock", exp: "Ver cuánto hay de cada producto y dónde está." },
-      { id: "purchases", name: "Cargar compras", exp: "Recibir mercadería y cargar la factura del proveedor." },
-      { id: "count", name: "Contar", exp: "Contar una estantería y corregir el stock." }
+      { id: "see-stock", icon: "boxes", name: "Ver el stock", exp: "Ver cuánto hay de cada producto y dónde está." },
+      { id: "purchases", icon: "truck", name: "Cargar compras", exp: "Recibir mercadería y cargar la factura del proveedor." },
+      { id: "count", icon: "clipboard-list", name: "Contar", exp: "Contar una estantería y corregir el stock." }
     ] },
     { id: "users", name: "Usuarios", icon: "users", detail: "Personas, sesiones y roles", perms: [
-      { id: "see-people", name: "Ver las personas", exp: "Abrir Usuarios: la lista y la tarjeta de cada persona, con sus sesiones y sus celulares con huella." },
-      { id: "manage-people", name: "Administrar personas", includes: "see-people", exp: "Cambiar el nombre y el correo, borrar, dar de baja y de alta; autorizar, junto con «Administrar roles»." },
-      { id: "cut-sessions", name: "Cortar sesiones y huellas", includes: "see-people", exp: "Cerrar una sesión o todas, quitar un celular con huella y «Se perdió un celular» de cualquier persona." },
-      { id: "manage-roles", name: "Administrar roles", includes: "see-people", exp: "Abrir la pestaña Roles, armar los roles y darles o quitarles roles a las personas." }
+      { id: "see-people", icon: "eye", name: "Ver las personas", exp: "Abrir Usuarios: la lista y la tarjeta de cada persona, con sus sesiones y sus celulares con huella." },
+      { id: "manage-people", icon: "user-cog", name: "Administrar personas", includes: "see-people", exp: "Cambiar el nombre y el correo, borrar, dar de baja y de alta; autorizar, junto con «Administrar roles»." },
+      { id: "cut-sessions", icon: "scissors", name: "Cortar sesiones y huellas", includes: "see-people", exp: "Cerrar una sesión o todas, quitar un celular con huella y «Se perdió un celular» de cualquier persona." },
+      { id: "manage-roles", icon: "shield", name: "Administrar roles", includes: "see-people", exp: "Abrir la pestaña Roles, armar los roles y darles o quitarles roles a las personas." }
     ] },
     { id: "offline", name: "Sin conexión", icon: "wifi-off", detail: "Entrar con la huella cuando se corta internet", perms: [
-      { id: "work-offline", name: "Trabajar sin conexión", exp: "Prender en su celular la entrada con la huella sin conexión." }
+      { id: "work-offline", icon: "wifi-off", name: "Trabajar sin conexión", exp: "Prender en su celular la entrada con la huella sin conexión." }
     ] }
   ];
 

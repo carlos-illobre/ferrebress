@@ -25,12 +25,27 @@
   /* Lista */
   .role-list-bar { margin-bottom: 12px; }
   .role-list-bar .btn { flex: none; padding: 0 14px; }
-  .role-row { grid-template-columns: 44px minmax(0, 1fr) 16px; grid-template-areas: "icon main arrow" "icon perms arrow" "icon holders arrow"; gap: 4px 12px; padding: 12px 12px 12px 14px; }
+  /* La tarjeta de cada rol: nombre y descripción arriba; abajo, los dos números en grande, cada uno
+     en su recuadro gris suave, para que los datos se lean de un vistazo (pedido de Carlos). */
+  .role-row { grid-template-columns: 44px minmax(0, 1fr) 16px; grid-template-areas: "icon main arrow" "stats stats stats"; gap: 12px; padding: 14px; overflow: hidden; }
+  .role-row::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 4px 4px 0; background: var(--pino); }
   .role-row:active { transform: scale(.98); }
   .role-icon { width: 44px; height: 44px; align-self: start; }
+  .role-row-name { font-size: 17px; font-weight: 800; }
   .role-row-description { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .role-row-main { margin-bottom: 2px; }
-  .role-row-holders { gap: 8px; }
+  .role-row-arrow { align-self: center; }
+  .role-row-stats { grid-area: stats; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .role-stat { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 8px 10px; border-radius: 12px; background: var(--gris-suave); color: var(--texto-2); font-size: 14px; font-weight: 650; white-space: nowrap; }
+  .role-stat > .i { color: var(--pino); }
+  .role-stat b { font-size: 20px; line-height: 24px; font-weight: 800; color: var(--pino); }
+  .role-stat .avatar-stack .avatar { width: 26px; height: 26px; font-size: 11px; }
+  .role-stat.is-empty { color: var(--texto-3); }
+  .role-stat.is-empty > .i { color: var(--texto-3); }
+
+  /* Cada permiso con su ícono, en el celular (pedido de Carlos) */
+  .perm-item { grid-template-columns: 22px 36px minmax(0, 1fr); align-items: center; }
+  .perm-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--superficie); border: 1px solid var(--borde); color: var(--texto-2); }
+  .perm-check:checked + .perm-icon { background: var(--pino-suave); border-color: transparent; color: var(--pino); }
 
   /* La pantalla del rol entra desde la derecha, como iPhone, y tapa la lista (no el menú) */
   .role-editor { position: absolute; left: 0; right: 0; top: 44px; bottom: 76px; z-index: 20; background: var(--fondo); display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--t-nav) var(--curva); }

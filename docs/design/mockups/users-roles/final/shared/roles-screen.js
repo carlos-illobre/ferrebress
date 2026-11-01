@@ -30,7 +30,7 @@
   function holdersText(n) { return n === 0 ? "Nadie lo tiene" : n === 1 ? "Lo tiene 1 persona" : "Lo tienen " + n + " personas"; }
   function stack(ids) {
     if (!ids.length) return "";
-    var max = desktop ? 4 : 3;
+    var max = desktop ? 4 : ids.length > 2 ? 1 : 2; // en el celular, como mucho dos círculos, para que entre
     var h = ids.slice(0, max).map(function (id) { return avatar(M.person(id)); }).join("");
     if (ids.length > max) h += '<span class="avatar avatar-more">+' + (ids.length - max) + "</span>";
     return '<span class="avatar-stack">' + h + "</span>";
@@ -41,8 +41,14 @@
       '<span class="role-icon">' + ico(r.icon) + "</span>" +
       '<span class="role-row-main"><span class="role-row-name">' + esc(r.name) + "</span>" +
       (r.description ? '<span class="role-row-description">' + esc(r.description) + "</span>" : "") + "</span>" +
-      '<span class="role-row-perms">' + ico("key-round", "i-s") + M.plural(r.perms.length, "permiso", "permisos") + "</span>" +
-      '<span class="role-row-holders' + (h.length ? "" : " is-empty") + '">' + stack(h) + "<span>" + holdersText(h.length) + "</span></span>" +
+      (desktop ?
+        '<span class="role-row-perms">' + ico("key-round", "i-s") + M.plural(r.perms.length, "permiso", "permisos") + "</span>" +
+        '<span class="role-row-holders' + (h.length ? "" : " is-empty") + '">' + stack(h) + "<span>" + holdersText(h.length) + "</span></span>" :
+        // En el celular, los números en grande, cada uno en su recuadro (pedido de Carlos).
+        '<span class="role-row-stats">' +
+          '<span class="role-stat">' + ico("key-round") + "<b>" + r.perms.length + "</b><span>" + (r.perms.length === 1 ? "permiso" : "permisos") + "</span></span>" +
+          '<span class="role-stat' + (h.length ? "" : " is-empty") + '">' + (h.length ? stack(h) + "<b>" + h.length + "</b><span>" + (h.length === 1 ? "persona" : "personas") + "</span>" : ico("users") + "<span>Nadie lo tiene</span>") + "</span>" +
+        "</span>") +
       ico("chevron-right", "role-row-arrow") + "</button>";
   }
   function renderList(arrivingId) {
@@ -141,6 +147,7 @@
         var id = "perm-" + p.id;
         return '<label class="perm-item' + (tied.length ? " is-tied" : "") + '" for="' + id + '" data-mark>' +
           '<input type="checkbox" class="perm-check" id="' + id + '" data-perm="' + p.id + '"' + (on ? " checked" : "") + (tied.length ? " disabled" : "") + ">" +
+          (desktop ? "" : '<span class="perm-icon">' + ico(p.icon) + "</span>") + // en el celular, cada permiso con su ícono (pedido de Carlos)
           '<span class="perm-text"><span class="perm-name">' + esc(p.name) + "</span>" +
           (desktop ? '<span class="perm-explanation">' + esc(p.exp) + "</span>" : "") +
           (tied.length ? '<span class="perm-tied">' + ico("lock", "i-s") + "<span>" + (desktop ? "Va incluido en " : "Lo incluye ") +
