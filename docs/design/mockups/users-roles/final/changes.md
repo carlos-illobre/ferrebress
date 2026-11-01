@@ -52,7 +52,8 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
   nuevo, «Crear el rol»); en uno que existe, además «Duplicar» y «Borrar el rol».
 - **«1 Información del rol»** con «n/200»; **«2 Asignar permisos»**, un grupo plegable por parte de la
   aplicación con ícono, detalle y «n de m», y adentro una casilla por permiso con su explicación, en
-  dos columnas en la computadora; arrancan desplegados los grupos que tienen algo tildado.
+  dos columnas en la computadora; al abrir el rol, solo el primer grupo arranca desplegado (pedido
+  de Carlos).
 - **«3 Quiénes lo tienen»** (la imagen no lo tiene): cada persona con «Sacárselo», y «Darle este rol
   a…», que abre un buscador de personas activas. También en el rol nuevo.
 - **Nada se guarda hasta «Guardar rol» / «Crear el rol»;** «Cancelar» deshace todo. Salir con
@@ -122,12 +123,11 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
   pantalla del rol, y «Nuevo rol» la de la lista. El gris de adentro de cada grupo de permisos es
   más suave que el fondo de la aplicación (mitad fondo, mitad blanco), como en la referencia, para
   que no parezca un hueco hasta el fondo (pedido de Carlos). El mismo gris va en la tarjeta del rol
-  de la vista previa.
+  de la vista previa. «Cancelar» va como botón de solo texto (`.btn-fantasma`), no blanco con
+  borde. Los avatares toman los tonos suaves del lenguaje, con variables y sin colores sueltos.
 - **«Guardar rol» arranca apagado** (naranja suave, sin sombra, sin tocarse) y se pone naranja fuerte
   con el primer cambio, para que llame la atención; si se deshace el cambio, vuelve a apagarse. En
-  un duplicado arranca encendido, porque la copia todavía no se guardó (pedido de Carlos). «Cancelar» va como botón de solo texto
-  (`.btn-fantasma`), no blanco con borde. Los avatares toman los tonos suaves del lenguaje, con
-  variables y sin colores sueltos.
+  un duplicado arranca encendido, porque la copia todavía no se guardó (pedido de Carlos).
 - **Lo de arriba del rol (el camino, el título y los botones) queda fijo al bajar,** y la vista
   previa también, con su propio desplazamiento: en 1366 × 768 la pantalla del rol no entra entera,
   y así «Guardar rol» y la vista previa no se pierden.

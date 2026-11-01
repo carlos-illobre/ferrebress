@@ -65,8 +65,7 @@
   function openEditor(d, opts) {
     opts = opts || {};
     draft = d; showErrors = false; arrivingPerson = null; openGroups = {};
-    M.GROUPS.forEach(function (g) { if (M.groupCount(d, g)) openGroups[g.id] = true; });
-    if (!d.perms.length) openGroups[M.GROUPS[0].id] = false;
+    openGroups[M.GROUPS[0].id] = true; // al abrir, solo el primer grupo desplegado (pedido de Carlos)
     $("#role-name").value = d.name;
     $("#role-description").value = d.description;
     renderEditor();
