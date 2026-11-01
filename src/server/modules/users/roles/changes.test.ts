@@ -47,8 +47,13 @@ describe('los cambios de roles', () => {
     expect((await ana.device.request('/api/users')).status).toBe(200);
     expect(kit.audited('role.changed').at(-1)?.data).toEqual({
       target: 'Otro',
-      before: ['offline.work'],
-      after: ['offline.work', 'roles.manage', 'users.view'],
+      roleId: other,
+      before: { name: 'Otro', description: null, permissions: ['offline.work'] },
+      after: {
+        name: 'Otro',
+        description: null,
+        permissions: ['offline.work', 'roles.manage', 'users.view'],
+      },
     });
   });
 

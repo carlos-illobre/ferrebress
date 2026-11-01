@@ -1,14 +1,13 @@
-// Lo que se hace con las personas desde Usuarios (02 · R3, R4; diseño de 02, §§ 4 a 6): autorizar,
-// cambiar el nombre o el correo, borrar, dar de baja y de alta. Cada cambio lleva la versión que vio
-// quien cambia; las reglas están en rules.ts y los bloqueos, en data.ts.
+// Lo que se hace con las personas desde Usuarios (02 · R3, R4; diseño de 02, §§ 4 a 6 y 19):
+// autorizar con sus roles, cambiar el nombre o el correo, borrar, dar de baja y de alta. Cada cambio
+// lleva la versión que vio quien cambia; las reglas están en rules.ts y el bloqueo de la baja, en
+// roles/lock.ts.
 import type { Kysely } from 'kysely';
 import type { AfterCommit } from '../../platform/events.ts';
 import { newId } from '../../platform/ids.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { type UsersTables, usersData } from './data.ts';
-import { Rollback } from './roles/changes.ts';
-import { type RolesTables, rolesData } from './roles/data.ts';
-import { administrationProblem } from './roles/rules.ts';
+import { refuse, underLock } from './roles/lock.ts';
 import { cleanName, normalizeEmail, type User } from './rules.ts';
 
 // Por qué un cambio no se guardó: otra persona lo cambió antes (`changed`), ya entró, es la propia, o
@@ -20,7 +19,8 @@ export type Refusal =
   | 'self'
   | 'last-administrator'
   | 'email-taken'
-  | 'bad-request';
+  | 'bad-request'
+  | 'forbidden';
 
 // `unchanged`: ya estaba así (dada de alta o de baja); se contesta cómo está, sin anotar nada.
 // `audit`: lo que se suma a su línea de la auditoría.
@@ -67,7 +67,7 @@ export function createPeople(platform: Platform) {
 
     async activate(asking: string, id: string, version: number): Promise<Outcome> {
       if (asking === id) return { refused: 'self' };
-      const user = await data().activate(id, version);
+      const user = await activate(platform, id, version);
       return user ? { user } : whyNot(data(), id, version, 'as-is');
     },
 
@@ -100,9 +100,9 @@ async function authorize(
   }
 }
 
-// R1.3: nunca la propia, y nunca dejar sin quien administre. Bajo el bloqueo de quien administra
-// (diseño de 02, § 19), cuenta antes y después; si queda alguien sin poder, se deshace. Lo de después
-// de confirmar (sign-in cierra sus sesiones, se olvidan sus permisos) corre al final.
+// R1.3: nunca la propia, y nunca dejar sin quien administre: corre bajo el bloqueo de quien
+// administra (diseño de 02, § 19), con «Administrar personas». Lo de después de confirmar (sign-in
+// cierra sus sesiones, se olvidan sus permisos) corre al final.
 async function deactivate(
   platform: Platform,
   asking: string,
@@ -110,35 +110,34 @@ async function deactivate(
   version: number,
 ): Promise<Outcome> {
   if (asking === id) return { refused: 'self' };
-  const data = usersData(platform.db as Kysely<UsersTables>);
-  try {
-    const { outcome, after } = await platform.db.transaction().execute(async (trx) => {
-      const roles = rolesData(trx as Kysely<RolesTables>);
-      const before = await roles.lockAndCount(asking);
-      const user = await data.deactivate(
+  const outcome = await underLock(platform, asking, 'users.manage', async (_, trx) => {
+    const user =
+      (await usersData(trx as Kysely<UsersTables>).deactivate(
         trx as Kysely<UsersTables>,
         id,
         version,
         platform.clock.now(),
-      );
-      if (!user) return { outcome: undefined, after: [] };
-      const problem = administrationProblem(before, await roles.administration(asking));
-      if (problem) throw new Rollback(problem);
-      const events = platform.events;
-      return {
-        outcome: { user },
-        after: [
-          ...(await events.publish('user.deactivated', { userId: id }, trx)),
-          ...(await events.publish('users.permissions-changed', { userIds: [id] }, trx)),
-        ],
-      };
-    });
-    for (const then of after) then();
-    return outcome ?? whyNot(data, id, version, 'as-is');
-  } catch (error) {
-    if (error instanceof Rollback) return { refused: error.refusal as Refusal };
-    throw error;
-  }
+      )) ?? refuse('changed');
+    const also = (sent: typeof trx) =>
+      platform.events.publish('user.deactivated', { userId: id }, sent);
+    return { result: user, audit: {}, affects: [id], also };
+  });
+  if (!('refused' in outcome)) return { user: outcome.result };
+  if (outcome.refused !== 'changed') return { refused: outcome.refused as Refusal };
+  return whyNot(usersData(platform.db as Kysely<UsersTables>), id, version, 'as-is');
+}
+
+// Dar de alta, y avisar que cambiaron sus permisos: vuelve con sus roles (R4.3, seguridad 36).
+async function activate(platform: Platform, id: string, version: number) {
+  const { user, after } = await platform.db.transaction().execute(async (trx) => {
+    const user = await usersData(trx as Kysely<UsersTables>).activate(id, version);
+    const after: AfterCommit[] = user
+      ? await platform.events.publish('users.permissions-changed', { userIds: [id] }, trx)
+      : [];
+    return { user, after };
+  });
+  for (const then of after) then();
+  return user;
 }
 
 // Cambiar el nombre y avisarlo en la misma transacción: quien lo recuerda en memoria se pone al día

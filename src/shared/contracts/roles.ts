@@ -9,6 +9,8 @@ const distinct = <T>(list: T[]) => new Set(list).size === list.length;
 export const maxRoleName = 40;
 export const maxRoleDescription = 200;
 export const maxRolesPerPerson = 50;
+// Cuántos roles puede tener el negocio (revisión de seguridad, 38).
+export const maxRoles = 100;
 
 const roleName = z.string().check(z.minLength(1), z.maxLength(maxRoleName));
 const description = z.nullable(z.string().check(z.maxLength(maxRoleDescription)));

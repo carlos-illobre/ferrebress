@@ -1,81 +1,15 @@
 // Lo que se hace con los roles (02 · R7, R1.3, R3.8; diseño de 02, §§ 18 y 19): crearlos, cambiarlos,
-// borrarlos y darle roles a una persona. Lo que puede dejar sin quien administre corre bloqueando la
-// fila del rol del sistema, cuenta antes y después y se deshace si queda alguien sin poder. Dar algo
-// sin haber confirmado quién es (R3.8) también se deshace. Al confirmar, avisa que cambiaron los
-// permisos (`users.permissions-changed`), así se olvida lo que estaba en memoria.
+// borrarlos y darle roles a una persona. Todo corre bajo el bloqueo de lock.ts, con «Administrar
+// roles». Dar algo sin haber confirmado quién es (R3.8) se deshace. Cada cambio deja en la
+// auditoría lo de antes y lo de después, con nombres e id, así se lee aunque el rol se renombre o se
+// borre.
 import { withIncluded } from '@ferrebress/shared/contracts/permissions';
-import { maxRoleDescription, maxRoleName } from '@ferrebress/shared/contracts/roles';
-import type { Kysely, Transaction } from 'kysely';
-import type { AfterCommit } from '../../../platform/events.ts';
+import { maxRoleDescription, maxRoleName, maxRoles } from '@ferrebress/shared/contracts/roles';
 import { newId } from '../../../platform/ids.ts';
 import type { Platform } from '../../../platform/modules.ts';
-import { type Role, type RolesTables, rolesData } from './data.ts';
-import { administrationProblem, cleanRoleText, gives } from './rules.ts';
-
-export type RoleRefusal =
-  | 'not-found'
-  | 'changed'
-  | 'bad-request'
-  | 'role-name-taken'
-  | 'role-in-use'
-  | 'system-role'
-  | 'self'
-  | 'last-administrator'
-  | 'confirm-first';
-
-// Lo que cambió, para la auditoría: los permisos o los roles de antes y de después.
-export type Changed<T> = { result: T; before: string[]; after: string[] };
-export type RoleOutcome<T> = Changed<T> | { refused: RoleRefusal };
-
-// Deshace la transacción y dice por qué.
-export class Rollback extends Error {
-  readonly refusal: RoleRefusal;
-  constructor(refusal: RoleRefusal) {
-    super(refusal);
-    this.refusal = refusal;
-  }
-}
-
-type Work<T> = (
-  data: ReturnType<typeof rolesData>,
-) => Promise<Changed<T> & { affects: string[] | 'all' }>;
-
-// Corre `work` en una transacción; con `guard`, bajo el bloqueo de § 19 y con el control de R1.3.
-async function inTransaction<T>(
-  platform: Platform,
-  asking: string,
-  guard: boolean,
-  work: Work<T>,
-): Promise<RoleOutcome<T>> {
-  try {
-    const { changed, after } = await platform.db.transaction().execute(async (trx) => {
-      const data = rolesData(trx as Kysely<RolesTables>);
-      const before = guard ? await data.lockAndCount(asking) : undefined;
-      const changed = await work(data);
-      const problem = before && administrationProblem(before, await data.administration(asking));
-      if (problem) throw new Rollback(problem);
-      const userIds = changed.affects;
-      const after: AfterCommit[] =
-        userIds.length === 0
-          ? []
-          : await platform.events.publish(
-              'users.permissions-changed',
-              { userIds },
-              trx as Transaction<unknown>,
-            );
-      return { changed, after };
-    });
-    for (const then of after) then();
-    return { result: changed.result, before: changed.before, after: changed.after };
-  } catch (error) {
-    if (error instanceof Rollback) return { refused: error.refusal };
-    throw error;
-  }
-}
-
-const refuse = (refusal: RoleRefusal): never => {
-  throw new Rollback(refusal);
-};
+import type { Role } from './data.ts';
+import { type Data, type Done, refuse, underLock } from './lock.ts';
+import { cleanRoleText, gives } from './rules.ts';
 
 const clean = (fields: Pick<RoleFields, 'name' | 'description'>) => ({
   ...(fields.name !== undefined && {
@@ -92,14 +26,22 @@ export type RoleFields = {
   permissions?: string[] | undefined;
 };
 
-type Data = ReturnType<typeof rolesData>;
 type NewRole = RoleFields & { name: string; permissions: string[] };
 
-// Crear (también duplicar): da permisos, pide confirmar (R3.8).
+// Cómo es un rol para la auditoría.
+const shownAs = (role: Pick<Role, 'name' | 'description'>, permissions: readonly string[]) => ({
+  name: role.name,
+  description: role.description,
+  permissions: [...permissions].sort(),
+});
+
+// Crear (también duplicar): da permisos, pide confirmar (R3.8). Con un tope de roles (seguridad, 38).
 const createRole =
-  (platform: Platform, confirmed: boolean, fields: NewRole) => async (data: Data) => {
+  (platform: Platform, confirmed: boolean, fields: NewRole) =>
+  async (data: Data): Promise<Done<Role>> => {
     if (!confirmed) refuse('confirm-first');
-    const after = withIncluded(fields.permissions as never);
+    if ((await data.roles()).length >= maxRoles) refuse('too-many-roles');
+    const permissions = withIncluded(fields.permissions as never);
     const { name, description } = clean(fields);
     const role =
       (await data.insertRole({
@@ -107,34 +49,46 @@ const createRole =
         name: name as string,
         description: description ?? null,
       })) ?? refuse('role-name-taken');
-    await data.setPermissions(role.id, after);
-    return { result: role, before: [], after, affects: [] as string[] };
+    await data.setPermissions(role.id, permissions);
+    const after = shownAs(role, permissions);
+    return { result: role, audit: { roleId: role.id, before: null, after }, affects: [] };
   };
+
+// Un nombre que ya tiene otro rol, sin importar mayúsculas: el índice único lo rechaza (`23505`).
+const renamed = async (data: Data, id: string, version: number, fields: RoleFields) => {
+  try {
+    return await data.updateRole(id, version, clean(fields));
+  } catch (error) {
+    if ((error as { code?: string }).code === '23505') refuse('role-name-taken');
+    throw error;
+  }
+};
 
 // Cambiar el nombre, la descripción o los permisos; agregar permisos pide confirmar (R3.8).
 const changeRole =
-  (confirmed: boolean, id: string, version: number, fields: RoleFields) => async (data: Data) => {
+  (confirmed: boolean, id: string, version: number, fields: RoleFields) =>
+  async (data: Data): Promise<Done<Role>> => {
+    const old = (await data.roleById(id)) ?? refuse('not-found');
     const before = await permissionsOfRole(data, id);
-    const role =
-      (await data.updateRole(id, version, clean(fields))) ?? refuse(await whyNot(data, id));
-    const after = fields.permissions ? withIncluded(fields.permissions as never) : before;
-    if (gives(before, after) && !confirmed) refuse('confirm-first');
-    if (fields.permissions) await data.setPermissions(id, after);
-    return { result: role, before, after, affects: 'all' as const };
+    const role = (await renamed(data, id, version, fields)) ?? refuse('changed');
+    const permissions = fields.permissions ? withIncluded(fields.permissions as never) : before;
+    if (gives(before, permissions) && !confirmed) refuse('confirm-first');
+    if (fields.permissions) await data.setPermissions(id, permissions);
+    const audit = { roleId: id, before: shownAs(old, before), after: shownAs(role, permissions) };
+    return { result: role, audit, affects: 'all' };
   };
 
-// Por qué no se guardó un cambio con versión: otro lo cambió antes, o ya no está.
-const whyNot = async (data: Data, id: string): Promise<RoleRefusal> =>
-  (await data.roleById(id)) ? 'changed' : 'not-found';
-
 // Borrar: ni el del sistema ni uno que alguien tiene (R7.3, R7.4).
-const removeRole = (id: string, version: number) => async (data: Data) => {
-  const role = (await data.roleById(id)) ?? refuse('not-found');
-  if (role.system) refuse('system-role');
-  if (role.version !== version) refuse('changed');
-  if (!(await data.deleteRole(id, version))) refuse('role-in-use');
-  return { result: { name: role.name }, before: [], after: [], affects: [] as string[] };
-};
+const removeRole =
+  (id: string, version: number) =>
+  async (data: Data): Promise<Done<{ name: string }>> => {
+    const role = (await data.roleById(id)) ?? refuse('not-found');
+    if (role.system) refuse('system-role');
+    if (role.version !== version) refuse('changed');
+    const before = shownAs(role, await permissionsOfRole(data, id));
+    if (!(await data.deleteRole(id, version))) refuse('role-in-use');
+    return { result: { name: role.name }, audit: { roleId: id, before, after: null }, affects: [] };
+  };
 
 type Setting = { asking: string; confirmed: boolean; userId: string; version: number };
 
@@ -142,7 +96,7 @@ type Setting = { asking: string; confirmed: boolean; userId: string; version: nu
 // con nombres: así se lee aunque el rol se borre.
 const setRolesOf =
   (platform: Platform, { asking, confirmed, userId, version }: Setting, roleIds: string[]) =>
-  async (data: Data) => {
+  async (data: Data): Promise<Done<string[]>> => {
     // Todos los roles existen: los de antes, por la clave foránea; los nuevos, se controla acá.
     const names = new Map((await data.roles()).map((role) => [role.id, role.name]));
     const nameOf = (roleId: string) => names.get(roleId) as string;
@@ -154,25 +108,21 @@ const setRolesOf =
       refuse((await data.userExists(userId)) ? 'changed' : 'not-found');
     if (gives(permissionsBefore, await data.permissionsOf(userId, false)) && !confirmed)
       refuse('confirm-first');
-    const after = roleIds.map(nameOf);
-    return { result: roleIds, before: before.map(nameOf), after, affects: [userId] };
+    const audit = { before: before.map(nameOf), after: roleIds.map(nameOf) };
+    return { result: roleIds, audit, affects: [userId] };
   };
 
 export function createRoleChanges(platform: Platform) {
+  const run = <T>(asking: string, work: (data: Data) => Promise<Done<T>>) =>
+    underLock(platform, asking, 'roles.manage', work);
   return {
     create: (asking: string, confirmed: boolean, fields: NewRole) =>
-      inTransaction<Role>(platform, asking, false, createRole(platform, confirmed, fields)),
+      run(asking, createRole(platform, confirmed, fields)),
     change: (asking: string, confirmed: boolean, id: string, version: number, fields: RoleFields) =>
-      inTransaction<Role>(platform, asking, true, changeRole(confirmed, id, version, fields)),
-    remove: (asking: string, id: string, version: number) =>
-      inTransaction<{ name: string }>(platform, asking, false, removeRole(id, version)),
+      run(asking, changeRole(confirmed, id, version, fields)),
+    remove: (asking: string, id: string, version: number) => run(asking, removeRole(id, version)),
     setUserRoles: (setting: Setting, roleIds: string[]) =>
-      inTransaction<string[]>(
-        platform,
-        setting.asking,
-        true,
-        setRolesOf(platform, setting, roleIds),
-      ),
+      run(setting.asking, setRolesOf(platform, setting, roleIds)),
   };
 }
 
@@ -183,3 +133,4 @@ const permissionsOfRole = async (data: Data, roleId: string) =>
     .sort();
 
 export type RoleChanges = ReturnType<typeof createRoleChanges>;
+export type { LockOutcome as RoleOutcome, Refused as RoleRefusal } from './lock.ts';

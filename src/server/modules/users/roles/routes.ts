@@ -3,7 +3,7 @@
 // el límite de cambios de Usuarios; lo que da algo pide Google o la huella reciente (R3.8). Cada
 // cambio queda en la auditoría con lo de antes y lo de después, con nombres (así se lee aunque el
 // rol se borre); cada rechazo, una vez por minuto por motivo y por quien lo pide.
-import { isPermission } from '@ferrebress/shared/contracts/permissions';
+import { isPermission, type PermissionId } from '@ferrebress/shared/contracts/permissions';
 import {
   changeRoleBody,
   createRoleBody,
@@ -28,6 +28,7 @@ const statusOf: Record<string, 400 | 403 | 404> = {
   'not-found': 404,
   'bad-request': 400,
   'confirm-first': 403,
+  forbidden: 403,
 };
 
 // Los roles como los ve la pestaña: sus permisos y quiénes los tienen (personas activas, R4.3).
@@ -69,7 +70,7 @@ function answering(platform: Platform, guards: Guards): Answer {
     }
     guards.record(c, type, {
       userId: asking,
-      data: { target, before: outcome.before, after: outcome.after },
+      data: { target, ...outcome.audit },
     });
     return undefined;
   };
@@ -124,7 +125,9 @@ function registerRoleEdits({ platform, changes, answer, manage }: RoleRoute) {
     const outcome = await changes.create(sessionOf(c).userId, confirmed(platform, c), body);
     if ('refused' in outcome) return answer(c, outcome, 'role.created', body.name);
     answer(c, outcome, 'role.created', outcome.result.name);
-    return c.json({ role: await rowOf(platform, outcome.result.id) });
+    // Recién creado, nadie lo tiene: se arma con lo que ya se sabe.
+    const { permissions } = outcome.audit.after as { permissions: PermissionId[] };
+    return c.json({ role: { ...outcome.result, permissions, holders: [] } });
   });
   const changing = readBody(bySchema(changeRoleBody));
   http.post('/api/roles/:id', sessions.require, ...manage, id, changing.step, async (c) => {

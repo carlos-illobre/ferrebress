@@ -50,7 +50,10 @@ export function createAccess(platform: Platform) {
 
     // R7.4: los permisos que el sistema todavía no conocía se le suman al Administrador; queda anotado.
     async addNewPermissions(): Promise<void> {
-      const added = await data().addNewPermissions(permissionIds);
+      // En una transacción (§ 16): anotarlos y sumarlos al Administrador van juntos.
+      const added = await platform.db
+        .transaction()
+        .execute((trx) => rolesData(trx as Kysely<RolesTables>).addNewPermissions(permissionIds));
       if (added.length === 0) return;
       memory.forget('all');
       platform.audit.record({
@@ -84,9 +87,9 @@ async function holdersOf(data: Data, permission: string, names: Names): Promise<
     const user = names.get(userId);
     return user && (user.name ?? user.googleName) ? displayName(user) : 'Sin nombre';
   };
-  const peopleWith = (allowed: (roleId: string) => boolean) => [
-    ...new Set(holders.filter((row) => allowed(row.roleId)).map((row) => nameOf(row.userId))),
-  ];
+  // Cada persona una vez, aunque dos tengan el mismo nombre.
+  const peopleWith = (allowed: (roleId: string) => boolean) =>
+    [...new Set(holders.filter((row) => allowed(row.roleId)).map((row) => row.userId))].map(nameOf);
   const rolesWith = (wanted: string) =>
     new Set(granting.filter((row) => row.permission === wanted).map((row) => row.roleId));
   const having = rolesWith(permission);

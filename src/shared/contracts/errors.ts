@@ -41,7 +41,8 @@ export type UsersErrorCode =
   | 'role-in-use'
   | 'system-role'
   | 'no-roles'
-  | 'outranked';
+  | 'outranked'
+  | 'too-many-roles';
 
 export type ErrorCode = PlatformErrorCode | SignInErrorCode | UsersErrorCode;
 

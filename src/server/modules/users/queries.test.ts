@@ -38,15 +38,16 @@ describe('las consultas de cada ruta de Usuarios', () => {
     counts.activate = await count(`/api/users/${person.id}/activate`, { version: 4 });
     counts.remove = await count(`/api/users/${person.id}/delete`, { version: 5 });
     // Las escrituras con aviso abren una transacción: el comienzo y la confirmación cuentan.
-    // La lista, el correo, la baja y el alta suman la de R7.11: los permisos de las personas.
+    // La lista, el correo, la baja, el alta y borrar suman la de R7.11: los permisos de las personas.
+    // El alta avisa que cambiaron sus permisos, en una transacción (comienzo y confirmación).
     expect(counts).toEqual({
       list: 5,
       authorize: 1,
       rename: 3,
       email: 2,
       deactivate: 8,
-      activate: 2,
-      remove: 1,
+      activate: 4,
+      remove: 2,
     });
   });
 
@@ -65,5 +66,36 @@ describe('las consultas de cada ruta de Usuarios', () => {
     counts.closeAll = await count(`/api/users/${linked.userId}/sessions/close`, {});
     // Cortar y «Se perdió un celular» suman la de R7.11: los permisos de esas personas.
     expect(counts).toEqual({ access: 2, lost: 4, lostAgain: 3, cut: 4, close: 3, closeAll: 2 });
+  });
+
+  it('las de los roles', async () => {
+    const counts: Record<string, number> = {};
+    counts.list = await count('/api/roles');
+    const body = { name: 'Medido', permissions: ['users.view'] };
+    let created = '';
+    counts.create = await kit.server.countQueries(async () => {
+      created = (await admin.request('/api/roles', body)).body.role.id;
+    });
+    counts.change = await count(`/api/roles/${created}`, {
+      version: 1,
+      permissions: ['users.cut'],
+    });
+    const { userId } = await kit.linkedPhone();
+    const roles = [created];
+    counts.setRoles = await count(`/api/users/${userId}/roles`, { version: 1, roles });
+    const system = (await admin.request('/api/users')).body.roles[0].id;
+    await admin.request(`/api/users/${userId}/roles`, { version: 2, roles: [system] });
+    counts.remove = await count(`/api/roles/${created}/delete`, { version: 2 });
+    counts.holders = await count('/api/permissions/roles.manage/holders');
+    // Bajo el bloqueo de § 19: el comienzo, el bloqueo con el primer conteo, el segundo conteo y la
+    // confirmación, más lo propio de cada cambio.
+    expect(counts).toEqual({
+      list: 3,
+      create: 8,
+      change: 12,
+      setRoles: 12,
+      remove: 7,
+      holders: 4,
+    });
   });
 });

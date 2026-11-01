@@ -63,7 +63,8 @@ describe('lo que pide cada ruta de /api', () => {
   it('cada ruta registrada dice lo que pide', () => {
     const registered = new Set(
       (kit.server.http.routes as { method: string; path: string }[])
-        .filter((route) => route.path.startsWith('/api/') && route.method !== 'ALL')
+        // Los pasos de todas las rutas (`/api/*`) no son rutas; una ruta para todos los métodos, sí.
+        .filter((route) => route.path.startsWith('/api/') && !route.path.endsWith('*'))
         .map((route) => `${route.method} ${route.path}`),
     );
     expect([...registered].sort()).toEqual(Object.keys(routes).sort());

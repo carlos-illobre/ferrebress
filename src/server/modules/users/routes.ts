@@ -2,6 +2,8 @@
 // borrar, dar de baja y de alta. Todas con sesión; los cambios, con un límite por sesión, y
 // autorizar, cambiar el correo y dar de alta, con Google o la huella de los últimos 5 minutos (R3.8). Cada cambio queda
 // en la auditoría, y cada rechazo, una vez por minuto por motivo y persona (R6.1).
+
+import type { ErrorCode } from '@ferrebress/shared/contracts/errors';
 import {
   authorizeBody,
   changeBody,
@@ -62,7 +64,12 @@ export function rowOf(
   };
 }
 
-const statusOf = { 'not-found': 404, 'email-taken': 409, 'bad-request': 400 } as const;
+const statusOf = {
+  'not-found': 404,
+  'email-taken': 409,
+  'bad-request': 400,
+  forbidden: 403,
+} as const;
 
 type Route = {
   platform: Platform;
@@ -72,12 +79,30 @@ type Route = {
   limited: MiddlewareHandler;
 };
 
+// Un rechazo, anotado una vez por minuto por motivo y por quien lo pide (R6.1, seguridad 34).
+function rejected(
+  { platform, guards }: Route,
+  c: Context,
+  status: 400 | 403 | 404 | 409,
+  code: ErrorCode,
+  extra: Record<string, unknown> = {},
+) {
+  const asking = sessionOf(c).userId;
+  const key = `audit:users:${code}:${asking}`;
+  if (platform.limiter.hit(key, usersSettings.throttledAudit).allowed)
+    guards.record(c, 'users.rejected', {
+      userId: asking,
+      data: { targetUserId: c.req.param('id') ?? 'new', reason: code },
+    });
+  return fail(c, status, code, extra);
+}
+
 // R7.11: sobre una persona con algún permiso que quien lo pide no tiene, no.
 const notOutranked =
-  (access: Access): MiddlewareHandler =>
+  (route: Route): MiddlewareHandler =>
   async (c, next) =>
-    (await access.outranks(sessionOf(c).userId, c.req.param('id') as string))
-      ? fail(c, 403, 'outranked')
+    (await route.access.outranks(sessionOf(c).userId, c.req.param('id') as string))
+      ? rejected(route, c, 403, 'outranked')
       : await next();
 
 export function registerPeopleRoutes(
@@ -116,9 +141,9 @@ export function registerPeopleRoutes(
   registerStatus(route);
 }
 
-// La respuesta de un cambio: la persona como quedó, o el rechazo, anotado una vez por minuto por
-// motivo y persona.
-function answer({ platform, guards }: Route, c: Context, outcome: Outcome, type: string) {
+// La respuesta de un cambio: la persona como quedó, o el rechazo, anotado.
+function answer(route: Route, c: Context, outcome: Outcome, type: string) {
+  const { guards } = route;
   const asking = sessionOf(c).userId;
   if (!('refused' in outcome)) {
     if (!outcome.unchanged)
@@ -128,17 +153,10 @@ function answer({ platform, guards }: Route, c: Context, outcome: Outcome, type:
       });
     return c.json<PersonResponse>({ person: rowOf(outcome.user, asking) });
   }
-  const target = c.req.param('id') ?? 'new';
-  const key = `audit:users:${outcome.refused}:${target}`;
-  if (platform.limiter.hit(key, usersSettings.throttledAudit).allowed)
-    guards.record(c, 'users.rejected', {
-      userId: asking,
-      data: { targetUserId: target, reason: outcome.refused },
-    });
   const status =
     outcome.refused in statusOf ? statusOf[outcome.refused as keyof typeof statusOf] : 409;
   const person = outcome.user ? { person: rowOf(outcome.user, asking) } : {};
-  return fail(c, status, outcome.refused, person);
+  return rejected(route, c, status, outcome.refused, person);
 }
 
 // R3.8: con Google o la huella de los últimos minutos.
@@ -163,9 +181,9 @@ function registerChanges(route: Route) {
   // Autorizar da roles: pide también «Administrar roles» (R3.3).
   const authorize = [manage, permissions.require('roles.manage')];
   http.post('/api/users', sessions.require, ...authorize, limited, authorizing.step, async (c) => {
-    if (!confirmed(platform, c)) return fail(c, 403, 'confirm-first');
+    if (!confirmed(platform, c)) return rejected(route, c, 403, 'confirm-first');
     const { email, name, roles } = authorizing.of(c);
-    if (roles.length === 0) return fail(c, 400, 'no-roles');
+    if (roles.length === 0) return rejected(route, c, 400, 'no-roles');
     const outcome = await people.authorize(sessionOf(c).userId, email, name, roles);
     return answer(route, c, outcome, 'user.authorized');
   });
@@ -175,7 +193,7 @@ function registerChanges(route: Route) {
     // Sin nada que cambiar no es un pedido.
     if (name === undefined && email === undefined) return fail(c, 400, 'bad-request');
     const refused = email !== undefined && (await emailRefused(platform, access, c));
-    if (refused) return fail(c, 403, refused);
+    if (refused) return rejected(route, c, 403, refused);
     const outcome = await people.change(c.req.param('id'), version, {
       ...(name !== undefined && { name }),
       ...(email !== undefined && { email }),
@@ -183,11 +201,13 @@ function registerChanges(route: Route) {
     return answer(route, c, outcome, email === undefined ? 'user.renamed' : 'user.email-changed');
   });
   const versioned = readBody(bySchema(versionBody));
+  // Borrar el alta: tampoco sobre quien tiene más (R7.11).
   http.post(
     '/api/users/:id/delete',
     sessions.require,
     manage,
     id,
+    notOutranked(route),
     limited,
     versioned.step,
     async (c) => {
@@ -210,14 +230,14 @@ function registerStatus(route: Route) {
   const versioned = readBody(bySchema(versionBody));
   const id = uuidParams('id');
   // Dar de baja y de alta: «Administrar personas», y no sobre quien tiene más (R7.11).
-  const status = [platform.permissions.require('users.manage'), id, notOutranked(access), limited];
+  const status = [platform.permissions.require('users.manage'), id, notOutranked(route), limited];
   http.post('/api/users/:id/deactivate', sessions.require, ...status, versioned.step, async (c) => {
     const asking = sessionOf(c).userId;
     const outcome = await people.deactivate(asking, c.req.param('id'), versioned.of(c).version);
     return answer(route, c, outcome, 'user.deactivated');
   });
   http.post('/api/users/:id/activate', sessions.require, ...status, versioned.step, async (c) => {
-    if (!confirmed(platform, c)) return fail(c, 403, 'confirm-first');
+    if (!confirmed(platform, c)) return rejected(route, c, 403, 'confirm-first');
     const asking = sessionOf(c).userId;
     const outcome = await people.activate(asking, c.req.param('id'), versioned.of(c).version);
     return answer(route, c, outcome, 'user.activated');

@@ -448,11 +448,11 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 | Ruta | Permiso | Qué hace | Consultas |
 |---|---|---|---|
 | `GET /api/roles` | `roles.manage` | Los roles con descripción, permisos, versión y quiénes los tienen (ids de personas activas). Los nombres y las versiones de las personas, de `GET /api/users` | 3 |
-| `POST /api/roles` | `roles.manage` | Crear (también duplicar, que arma el cuerpo en la aplicación): `{ name, description?, permissions }`. `409 role-name-taken`, `400` sin permisos | 4, en una transacción |
-| `POST /api/roles/:id` | `roles.manage` | Cambiar `{ version, name?, description?, permissions? }` | 8, en una transacción con el control de § 19 |
-| `POST /api/roles/:id/delete` | `roles.manage` | `{ version }`. `409 role-in-use` si alguien lo tiene (también una persona dada de baja), `409 system-role` si es el Administrador | 3 |
-| `POST /api/users/:id/roles` | `roles.manage` | Los roles de una persona: `{ version, roles }`, al menos uno (`400 no-roles`). Es la que usan la tarjeta y «Darle este rol» y «Sacárselo» de la pestaña Roles, con el conjunto nuevo | 7, con § 19 |
-| `GET /api/permissions/:id/holders` | sesión | Para «Sin permiso» (R7.7): los roles que tienen ese permiso y, de las personas activas que lo tienen, solo el nombre (nunca el correo: sin nombre, «Sin nombre»); quiénes tienen `roles.manage` | 2 |
+| `POST /api/roles` | `roles.manage` | Crear (también duplicar, que arma el cuerpo en la aplicación): `{ name, description?, permissions }`. `409 role-name-taken`, `400` sin permisos, `409 too-many-roles` con 100 roles | 8, con § 19 |
+| `POST /api/roles/:id` | `roles.manage` | Cambiar `{ version, name?, description?, permissions? }`; un nombre que ya tiene otro, `409 role-name-taken` | 12, con § 19 |
+| `POST /api/roles/:id/delete` | `roles.manage` | `{ version }`. `409 role-in-use` si alguien lo tiene (también una persona dada de baja), `409 system-role` si es el Administrador | 7, con § 19 |
+| `POST /api/users/:id/roles` | `roles.manage` | Los roles de una persona: `{ version, roles }`, al menos uno (`400 no-roles`). Es la que usan la tarjeta y «Darle este rol» y «Sacárselo» de la pestaña Roles, con el conjunto nuevo | 12, con § 19 |
+| `GET /api/permissions/:id/holders` | sesión | Para «Sin permiso» (R7.7): los roles que tienen ese permiso y, de las personas activas que lo tienen, solo el nombre (nunca el correo: sin nombre, «Sin nombre»); quiénes tienen `roles.manage` | 4 |
 | `GET /api/start` | ninguno | Ya estaba; la persona suma roles, permisos y quién le cambió los roles | 0 con la persona en memoria; 2 si no |
 
 - **Cambian las de la etapa a:**
@@ -489,10 +489,12 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
 
 ## 19. Lo que pasa a la vez
 
-- **Nunca sin quien administre** (R1.3, E04, E05, E56, E59): todo cambio que puede sacar
-  `users.manage` o `roles.manage` (cambiar los permisos de un rol, borrarlo, cambiar los roles de
-  alguien, dar de baja a alguien) corre en una transacción que primero bloquea la fila del
-  rol `system` (`select … for update`; hay uno solo, § 15): todos esos cambios pasan de a uno. Dentro,
+- **Nunca sin quien administre** (R1.3, E04, E05, E56, E59): todo cambio de roles (crear, cambiar,
+  borrar, cambiar los roles de alguien) y la baja corren en una transacción que primero bloquea la fila del
+  rol `system` (`select … for update`; hay uno solo, § 15): todos esos cambios pasan de a uno. Bajo
+  el bloqueo, quien lo pide tiene que seguir activo y con el permiso que hace falta (`roles.manage`, o
+  `users.manage` para la baja): un pedido que estaba en camino cuando se lo sacaron da `403
+  forbidden` y no guarda nada (revisión de seguridad, 32). Dentro,
   aplica el cambio y cuenta, con una consulta, cuántas personas activas que ya entraron tienen cada uno
   de los dos permisos y si quien lo hace los sigue teniendo. Si alguno queda en cero,
   `last-administrator`; si quien lo hace perdió alguno, `self`; en los dos casos se deshace.
@@ -548,11 +550,12 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
   seguridad, 24). Borrar no puede dejar sin nadie: solo se borra a quien nunca entró (§ 18).
 - **Lo que ve cualquiera con sesión:** `GET /api/permissions/:id/holders` da solo nombres de personas
   activas, nunca correos. El id del permiso se valida contra la lista.
-- **La auditoría** (R6.1): `role.created`, `role.changed` (con lo que había y lo que quedó, con los
-  nombres de los roles y no solo los ids, así se lee aunque el rol se borre), `role.deleted`,
-  `user.roles-changed` (antes y después), `role.permissions-added` (el arranque) y `user.authorized`
-  suma sus roles. Un pedido sin el permiso deja `permission.denied`, un evento de la plataforma, con
-  tope por minuto según quién pide y qué permiso; `confirm-first` también se anota.
+- **La auditoría** (R6.1): `role.created`, `role.changed` y `role.deleted`, con el id del rol y cómo
+  era antes y cómo quedó (nombre, descripción y permisos), así se lee aunque se renombre o se borre;
+  `user.roles-changed` (antes y después, con nombres), `role.permissions-added` (el arranque) y
+  `user.authorized` suma sus roles. Un pedido sin el permiso deja `permission.denied`, un evento de la
+  plataforma, con tope por minuto según quién pide y qué permiso; `confirm-first`, `outranked` y
+  `no-roles` quedan como `users.rejected`, una vez por minuto por motivo y por quien lo pide.
 
 ## 22. Metas de performance
 

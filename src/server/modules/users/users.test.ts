@@ -89,9 +89,10 @@ describe('las personas', () => {
       user: { active: false },
     });
     expect(deactivated).toEqual([juan]);
-    // La única activa es la propia: nadie la puede dar de baja, ni siquiera otro que ya no está.
+    // Quien ya está dado de baja no puede dar de baja a nadie: bajo el bloqueo se vuelve a mirar si
+    // quien lo pide sigue pudiendo (revisión de seguridad, 32).
     expect(await people.deactivate(juan, admin.user.id, admin.user.version)).toEqual({
-      refused: 'last-administrator',
+      refused: 'forbidden',
     });
   });
 
