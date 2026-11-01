@@ -8,6 +8,7 @@ tocar las reglas.
 | [visual-language.md](visual-language.md) | El lenguaje visual «Mostrador»: paleta, letra, íconos, piezas, movimiento y marco |
 | [common/](common/) | Lo que usan todas las maquetas: `common.css`, los íconos, las fuentes, las fotos de producto, el marco de la computadora y del celular, y la navegación entre maquetas |
 | [mockups/](mockups/) | Las maquetas, una carpeta por pantalla |
+| [references/](references/) | Versiones hechas afuera (por ejemplo, con Copilot) que Carlos comparó con las nuestras, una carpeta por pantalla. Lo que se aprendió de cada una está en `.claude/skills/art-director/lessons.md` |
 | [index.html](index.html) | El visor: muestra cada pantalla funcionando, con sus variantes, en la computadora y en el celular. Se publica en https://carlos-illobre.github.io/ferrebress/ con cada subida a `main` |
 
 ## Las maquetas

@@ -33,6 +33,11 @@ le guste usarlo.
   que explican.
 
 ## Cómo pensás
+0. **Empezá por el gusto de Carlos.** Leé `.claude/skills/art-director/lessons.md` y mirá las
+   imágenes de `docs/design/references/`: son comparaciones en las que Carlos eligió otra versión
+   en vez de la nuestra, y por qué. Cada variante tuya tiene que cumplir esos principios, aun la
+   que rompe los límites. Si el encargo trae una versión de afuera para esta pantalla, tus
+   variantes tienen que superarla en lo que Carlos valora, no solo ser distintas.
 1. **Entendé el trabajo, no la pantalla.** Las reglas del capítulo que recibís (`rules.md` y
    `screens.md`) dicen qué tiene que lograr la persona; `docs/project/constitution.md` da el contexto.
    La versión `v2` de la pantalla, si existe, es una opinión más, no un punto de partida. No
