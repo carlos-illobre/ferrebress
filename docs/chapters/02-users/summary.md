@@ -3,7 +3,7 @@
 Quién puede entrar, autorizar y dar de baja, y las sesiones y celulares con huella de cada persona.
 Reglas completas en [rules.md](rules.md).
 
-**Estado:** etapa a (personas y sesiones), aprobada. Etapa b (roles y permisos), aprobada.
+**Estado:** etapa a (personas y sesiones), aprobada. Etapa b (roles y permisos), aprobada; la pantalla de roles se rehace (R7.12 y R7.13 nuevas, a aprobar).
 
 ## Cada regla en una línea
 
@@ -31,7 +31,9 @@ Reglas completas en [rules.md](rules.md).
   al menos un rol; el servidor controla cada pedido; lo que no se puede usar no aparece, y por la
   dirección dice qué permiso falta; sin conexión, los últimos permisos conocidos; nadie actúa sobre
   quien tiene más permisos; solo cuenta como quien administra quien ya entró; la baja conserva los
-  roles (R7, R1.3, R4.3).
+  roles; los roles se buscan por nombre, descripción, permiso o persona, y cada uno se arma en su
+  pantalla (datos, permisos y quiénes lo tienen) y se guarda todo junto con «Guardar rol», que
+  pregunta antes de descartar lo que no se guardó (R7, R1.3, R4.3).
 
 ## Lo que falta decidir
 

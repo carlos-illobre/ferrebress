@@ -158,6 +158,19 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   distinguir mayúsculas) y al menos un permiso: si no, no se guarda y se dice por qué. Se borra solo
   si nadie lo tiene: primero hay que sacárselo a las personas. Un cambio de permisos vale enseguida
   para todos los que lo tienen.
+- **R7.12** **Buscar un rol:** la lista de roles muestra de cada uno su nombre, su descripción,
+  cuántos permisos da, cuántas personas lo tienen y quiénes son. Se filtra mientras se escribe, sin
+  distinguir mayúsculas ni acentos, por el nombre o la descripción del rol, el nombre de alguno de
+  sus permisos o el nombre o el correo de alguien que lo tiene. Si nada coincide, lo dice y ofrece
+  crear un rol con lo escrito como nombre.
+- **R7.13** **Armar un rol de una vez:** el rol, nuevo o que ya existe, se arma en su propia
+  pantalla: el nombre y la descripción, los permisos y quiénes lo tienen (darle el rol a una persona
+  activa o sacárselo). Nada se guarda hasta «Guardar rol» (en uno nuevo, «Crear el rol»), que guarda
+  todo junto: si algo no se puede guardar (R7.3, R7.5, E56, R1.3), no se guarda nada y se dice qué
+  y por qué. «Cancelar» deshace todo. Si se sale con cambios sin guardar (volver a la lista, otra
+  opción del menú o atrás), se pregunta «¿Descartar los cambios del rol?», con «Seguir editando» y
+  «Descartar». Si lo que se guarda da acceso (darle el rol a alguien o sumar un permiso), pide
+  Google o la huella (R3.8) una sola vez.
 - **R7.4** **Al instalar** el sistema hay un solo rol, Administrador, con todos los permisos que
   existen. Cada permiso nuevo que trae un capítulo se le suma solo al rol Administrador, así siempre
   hay alguien que lo puede usar y repartir; a los demás roles, recién cuando alguien se lo agrega.
@@ -358,3 +371,18 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
 - **E60** **Dado** una persona con el rol «Encargado» dada de baja, **cuando** se mira el rol,
   **entonces** no figura en «Lo tienen» y el rol no se puede borrar; **cuando** se la da de alta,
   vuelve con «Encargado».
+- **E61** **Dado** los roles «Encargado» («Abre y cierra el local») y «Cajero», **cuando** se busca
+  «encar», «local», «cortar sesiones» o el nombre de alguien que tiene «Encargado», **entonces** se
+  ve solo «Encargado»; **cuando** se busca algo que ningún rol tiene, se dice que no hay y se ofrece
+  crear un rol con ese nombre.
+- **E62** **Dado** el rol «Encargado» abierto, **cuando** se le cambia la descripción, se le suma un
+  permiso y se le da a una persona, **entonces** nada cambia para nadie hasta «Guardar rol», que lo
+  guarda todo junto y pide Google o la huella una sola vez si la sesión tiene más de 5 minutos.
+- **E63** **Dado** un rol nuevo con nombre, permisos y una persona elegida, **cuando** se toca «Crear
+  el rol», **entonces** queda creado y esa persona ya lo tiene.
+- **E64** **Dado** un rol con cambios sin guardar, **cuando** se toca «Cancelar», **entonces** vuelve
+  a como estaba; **cuando** se quiere salir por otro lado, se pregunta «¿Descartar los cambios del
+  rol?» y con «Seguir editando» queda todo como estaba.
+- **E65** **Dado** un rol con cambios, uno de los cuales no se puede guardar (el nombre repetido, o
+  sacarle el rol a una persona que se quedaría sin ninguno), **cuando** se toca «Guardar rol»,
+  **entonces** no se guarda nada y se dice cuál y por qué.
