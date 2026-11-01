@@ -132,7 +132,7 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
 - **Cada permiso lleva su ícono** al lado de la casilla, en la computadora y en el celular, que se
   pone pino suave al tildarlo (pedido de Carlos). Los íconos de los grupos de ejemplo también son de
   ejemplo.
-- **«Guardar rol» arranca apagado** (naranja suave, sin sombra, sin tocarse) y se pone naranja fuerte
+- **«Guardar rol» arranca apagado** (gris, sin sombra, sin tocarse) y se pone naranja fuerte
   con el primer cambio, para que llame la atención; si se deshace el cambio, vuelve a apagarse. En
   un duplicado arranca encendido, porque la copia todavía no se guardó (pedido de Carlos).
 - **Lo de arriba del rol (el camino, el título y los botones) queda fijo al bajar,** y la vista

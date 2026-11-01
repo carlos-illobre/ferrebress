@@ -168,7 +168,7 @@
 }
 
 /* «Guardar rol» sin cambios: naranja apagado, sin sombra; se enciende con el primer cambio. */
-#save:disabled { opacity: 1; background: var(--accion-suave); color: var(--accion-texto); box-shadow: none; cursor: default; }
+#save:disabled { opacity: 1; background: var(--hundido); border-color: var(--borde); color: var(--texto-3); box-shadow: none; cursor: default; }
 #save:disabled .kbd { opacity: .6; }
 
 /* Cada permiso con su ícono (pedido de Carlos): blanco sin tildar, pino suave tildado. */
