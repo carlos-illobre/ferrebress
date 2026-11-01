@@ -145,6 +145,7 @@ export const refusalTexts: Record<string, string> = {
   'role-in-use': 'Alguien tiene ese rol: primero sacáselo a esas personas.',
   'system-role': 'El Administrador no se borra.',
   'role-no-name': 'Ponele un nombre.',
+  'too-many-roles': 'Ya hay 100 roles: borrá alguno que no se use antes de crear otro.',
   changed: 'Alguien la cambió recién: ahora se ve como quedó. Revisala y probá de nuevo.',
   'not-found': 'Ya no está: alguien la borró recién.',
   'too-many-requests': 'Demasiados cambios seguidos. Esperá un minuto.',

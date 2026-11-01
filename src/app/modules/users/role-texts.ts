@@ -13,6 +13,7 @@ export const roleTexts = {
   yours: 'El tuyo',
   nobody: 'Nadie',
   holders: (n: number) => (n === 1 ? 'persona' : 'personas'),
+  permissionsCount: (n: number) => (n === 1 ? '1 permiso' : `${n} permisos`),
   summary: (permissions: number, people: number) =>
     `${permissions} ${permissions === 1 ? 'permiso' : 'permisos'} · Lo ${people === 1 ? 'tiene' : 'tienen'} ${people} ${people === 1 ? 'persona' : 'personas'}`,
   whatItDoes: 'Qué deja hacer',
@@ -49,6 +50,12 @@ export const roleTexts = {
 // Los roles de una persona en su tarjeta (R7.5).
 export const personRoleTexts = {
   title: (name: string) => `Roles de ${name}`,
+  question: (name: string) => `¿Qué puede hacer ${name}?`,
+  like: 'Igual que alguien',
+  likeWho: 'Copiar los roles de…',
+  thatIs: 'Eso es:',
+  confirmHint: 'Darle un rol pide confirmar que sos vos',
+  saveShort: 'Guardar',
   hint: '· tildá los que tiene',
   willDo: 'Va a poder',
   save: 'Guardar los roles',

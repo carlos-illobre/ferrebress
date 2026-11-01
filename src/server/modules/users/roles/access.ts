@@ -48,21 +48,23 @@ export function createAccess(platform: Platform) {
     rolesForList: () => rolesForList(data()),
     holders: (permission: string, names: Names) => holdersOf(data(), permission, names),
 
-    // R7.4: los permisos que el sistema todavía no conocía se le suman al Administrador; queda anotado.
-    async addNewPermissions(): Promise<void> {
-      // En una transacción (§ 16): anotarlos y sumarlos al Administrador van juntos.
-      const added = await platform.db
-        .transaction()
-        .execute((trx) => rolesData(trx as Kysely<RolesTables>).addNewPermissions(permissionIds));
-      if (added.length === 0) return;
-      memory.forget('all');
-      platform.audit.record({
-        type: 'role.permissions-added',
-        at: platform.clock.now(),
-        data: { role: 'system', permissions: added },
-      });
-    },
+    addNewPermissions: () => addNewPermissions(platform, memory),
   };
+}
+
+// R7.4: los permisos que el sistema todavía no conocía se le suman al Administrador, en una
+// transacción (§ 16); queda anotado.
+async function addNewPermissions(platform: Platform, memory: { forget: (keys: 'all') => void }) {
+  const added = await platform.db
+    .transaction()
+    .execute((trx) => rolesData(trx as Kysely<RolesTables>).addNewPermissions(permissionIds));
+  if (added.length === 0) return;
+  memory.forget('all');
+  platform.audit.record({
+    type: 'role.permissions-added',
+    at: platform.clock.now(),
+    data: { role: 'system', permissions: added },
+  });
 }
 
 type Data = ReturnType<typeof rolesData>;

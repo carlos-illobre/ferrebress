@@ -45,6 +45,7 @@ export function NoPermission({
       </div>
       <div class="no-permission-body">
         <h1>{words.title(option.name)}</h1>
+        <p class="no-permission-path">{words.opened(`${location.host}${option.path as string}`)}</p>
         <div class="no-permission-needs">
           <span class="no-permission-icon">
             <Icon name={permissionIcons[option.permission]} />
@@ -90,7 +91,7 @@ function Holders({ holders }: { holders: HoldersResponse }) {
       {holders.roles.length === 0 ? (
         <p class="no-permission-nobody">{words.nobody}</p>
       ) : (
-        <ul class="no-permission-roles">
+        <ul class="no-permission-roles" data-private="">
           {holders.roles.map((role) => (
             <li key={role.id}>
               <span class="no-permission-icon">
@@ -110,7 +111,7 @@ function Holders({ holders }: { holders: HoldersResponse }) {
         </ul>
       )}
       {holders.grantedBy.length > 0 && (
-        <p class="no-permission-granted">
+        <p class="no-permission-granted" data-private="">
           <Say words={words.grantedBy} />{' '}
           {holders.grantedBy.map((name, index) => (
             <span key={name}>

@@ -1,6 +1,6 @@
 // Elegir los roles de una persona (R7.5; maqueta users-person-roles, variante 1): cada rol con su
-// descripción, tildado si lo tiene, y su número, que lo tilda con el teclado. Lo usan autorizar y la
-// tarjeta. No guarda nada: avisa el conjunto nuevo.
+// descripción, tildado si lo tiene, y su número, que lo tilda con el teclado si el cursor está en
+// la lista. Lo usan autorizar y la tarjeta. No guarda nada: avisa el conjunto nuevo.
 import type { RoleSummary } from '@ferrebress/shared/contracts/roles';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import './RolePicker.css';
@@ -19,7 +19,16 @@ export function RolePicker({
   const toggle = (id: string) =>
     onChange(chosen.includes(id) ? chosen.filter((one) => one !== id) : [...chosen, id]);
   return (
-    <fieldset class="role-picker">
+    // Con el cursor en la lista, su número lo tilda o lo destilda (00 · R2).
+    <fieldset
+      class="role-picker"
+      onKeyDown={(event) => {
+        const role = /^[1-9]$/.test(event.key) ? roles[Number(event.key) - 1] : undefined;
+        if (!role || event.altKey || event.ctrlKey || event.metaKey) return;
+        event.preventDefault();
+        toggle(role.id);
+      }}
+    >
       <legend class="visually-hidden">{label}</legend>
       {roles.map((role, index) => (
         <label key={role.id} class={chosen.includes(role.id) ? 'role-pick on' : 'role-pick'}>

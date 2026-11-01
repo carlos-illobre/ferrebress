@@ -124,6 +124,8 @@ function Foot({ person }: { person: PersonRow }) {
         {t.activate}
       </Button>
     );
+  // Borrar el alta: tampoco sobre quien tiene más (R7.11).
+  if (person.neverSignedIn && !users.may.manageOver(person)) return null;
   if (person.neverSignedIn)
     return (
       <>

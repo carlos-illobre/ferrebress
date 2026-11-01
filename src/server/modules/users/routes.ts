@@ -172,9 +172,9 @@ async function emailRefused(platform: Platform, access: Access, c: Context) {
   return undefined;
 }
 
-// Autorizar, cambiar el nombre o el correo, y borrar.
+// Autorizar y cambiar el nombre o el correo.
 function registerChanges(route: Route) {
-  const { platform, people, guards, limited, access } = route;
+  const { platform, people, limited, access } = route;
   const { http, sessions, permissions } = platform;
   const [manage, id] = [permissions.require('users.manage'), uuidParams('id')];
   const authorizing = readBody(bySchema(authorizeBody));
@@ -200,6 +200,14 @@ function registerChanges(route: Route) {
     });
     return answer(route, c, outcome, email === undefined ? 'user.renamed' : 'user.email-changed');
   });
+  registerRemove(route);
+}
+
+// Borrar el alta, solo si nunca entró (R3.7).
+function registerRemove(route: Route) {
+  const { platform, people, guards, limited } = route;
+  const { http, sessions, permissions } = platform;
+  const [manage, id] = [permissions.require('users.manage'), uuidParams('id')];
   const versioned = readBody(bySchema(versionBody));
   // Borrar el alta: tampoco sobre quien tiene más (R7.11).
   http.post(
@@ -225,7 +233,7 @@ function registerChanges(route: Route) {
 
 // Dar de baja y de alta.
 function registerStatus(route: Route) {
-  const { platform, people, limited, access } = route;
+  const { platform, people, limited } = route;
   const { http, sessions } = platform;
   const versioned = readBody(bySchema(versionBody));
   const id = uuidParams('id');

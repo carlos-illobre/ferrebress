@@ -23,8 +23,14 @@
   color: var(--pine);
 }
 
-.no-permission h1 {
+.no-permission-path {
   margin: 0 0 var(--s4);
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.no-permission h1 {
+  margin: 0 0 var(--s1);
   font-size: 28px;
   line-height: 1.2;
 }
@@ -243,6 +249,9 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  border: 3px solid var(--pine);
   border-radius: 50%;
+  /* El aro que se vacía con la cuenta (maqueta). */
+  background:
+    radial-gradient(var(--surface) 58%, transparent 60%),
+    conic-gradient(var(--pine) calc(var(--part) * 360deg), var(--sunken-2) 0);
 }

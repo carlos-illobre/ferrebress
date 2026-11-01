@@ -85,7 +85,7 @@ function Holders({ role }: { role: RoleRow }) {
         </div>
       ))}
       {others.length > 0 && (
-        <label class="role-give">
+        <label class="role-give" data-private="">
           <span>{t.giveTo}</span>
           <select
             value=""

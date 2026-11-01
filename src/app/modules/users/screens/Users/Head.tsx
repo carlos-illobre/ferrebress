@@ -51,6 +51,8 @@ export function NewRoleButton() {
 // (pedido de Carlos); un punto dice que hay una búsqueda o un filtro puestos.
 function SearchButton() {
   const users = useUsersContext();
+  // En la pestaña Roles no hay nada que buscar.
+  if (users.tab === 'roles') return null;
   const on = users.search.trim() !== '' || users.filter !== 'all';
   return (
     <button

@@ -51,6 +51,7 @@
 
 .roles-who-can header {
   display: flex;
+  gap: var(--s3);
   justify-content: space-between;
   margin-bottom: var(--s2);
   font-size: 14px;
@@ -144,6 +145,23 @@
   display: flex;
 }
 
+.roles-segments {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.roles-segments i {
+  width: 22px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--sunken-2);
+}
+
+.roles-segments i.on {
+  background: var(--pine);
+}
+
 .roles-faces .users-avatar {
   width: 30px;
   height: 30px;
@@ -167,8 +185,9 @@
     grid-template-columns: 1fr;
   }
 
+  /* En el celular, sin las cuentas de arriba (maqueta). */
   .roles-stats {
-    grid-template-columns: 1fr 1fr;
+    display: none;
   }
 
   .roles-row {

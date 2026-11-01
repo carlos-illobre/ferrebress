@@ -60,6 +60,20 @@ function Stats({ rows }: { rows: RoleRow[] }) {
   );
 }
 
+// Un segmento por permiso, lleno si el rol lo tiene (maqueta).
+function Segments({ role }: { role: RoleRow }) {
+  return (
+    <span class="roles-segments" title={t.permissionsCount(role.permissions.length)}>
+      {permissions.map((one) => (
+        <i
+          key={one.id}
+          class={(role.permissions as string[]).includes(one.id) ? 'on' : undefined}
+        />
+      ))}
+    </span>
+  );
+}
+
 function Row({ role }: { role: RoleRow }) {
   const users = useUsersContext();
   const mine = me.get()?.roles.some((one) => one.id === role.id);
@@ -81,7 +95,11 @@ function Row({ role }: { role: RoleRow }) {
           {role.name}
           {mine && <span class="users-pill you">{t.yours}</span>}
         </b>
-        <small>{role.permissions.map((id) => permissionOf(id).name).join(' · ')}</small>
+        {/* E57: la descripción debajo del nombre; sin ella, sus permisos. */}
+        <small>
+          {role.description ?? role.permissions.map((id) => permissionOf(id).name).join(' · ')}
+        </small>
+        <Segments role={role} />
       </span>
       <span class="roles-faces" aria-hidden="true" data-private="">
         {faces.length === 0

@@ -120,9 +120,12 @@ describe('el marco con permisos', () => {
       </div>
     );
     const { rerender } = render(frame(person));
-    rerender(frame({ ...person, permissions: ['offline.work'], rolesChangedBy: null }));
+    // Sigue con los mismos roles: cambiaron los permisos de uno. Quien le cambió los roles alguna vez
+    // no tiene nada que ver: no se lo nombra.
+    rerender(frame({ ...person, permissions: ['offline.work'], rolesChangedBy: 'Graciela' }));
     const dialog = await screen.findByRole('alertdialog');
-    expect(dialog.textContent).toContain('Alguien te cambió los permisos de un rol recién.');
+    expect(dialog.textContent).toContain('Cambiaron los permisos de un rol que tenés.');
+    expect(dialog.textContent).not.toContain('Graciela');
     expect(dialog.querySelector('.pill-gone')).toBeNull();
     fireEvent.click(within(dialog).getByRole('button', { name: /Ir a Vender ahora/ }));
   });
@@ -152,10 +155,13 @@ describe('el marco con permisos', () => {
     );
     const { rerender } = render(frame(person));
     expect(screen.getByRole('main').textContent).toBe('La pantalla de Usuarios');
-    rerender(frame(seller));
+    rerender(frame({ ...seller, rolesChangedBy: null }));
     expect(
       await screen.findByRole('alertdialog', { name: 'Ya no tenés permiso para Usuarios' }),
     ).toBeTruthy();
+    expect(screen.getByRole('alertdialog').textContent).toContain(
+      'Alguien te sacó «Administrador»',
+    );
     expect(screen.getByRole('main').textContent).not.toContain('La pantalla de Usuarios');
   });
 });

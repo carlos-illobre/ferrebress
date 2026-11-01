@@ -20,6 +20,8 @@ type Tile = {
   tone: string;
   act: () => unknown;
   off?: boolean;
+  // Sin el permiso no aparece (R7.7); `off` es que no hay nada que hacer.
+  allowed: boolean;
 };
 
 function TileButton({ tile }: { tile: Tile }) {
@@ -46,28 +48,32 @@ export function Tiles({ person }: { person: PersonRow }) {
       name: t.cutSessions,
       tone: 'red',
       act: () => users.open({ kind: 'close-all', person }),
-      off: sessions.length === 0 || !users.online || !users.may.cutOver(person),
+      off: sessions.length === 0 || !users.online,
+      allowed: users.may.cutOver(person),
     },
     {
       icon: 'fingerprint',
       name: t.removePasskey,
       tone: 'orange',
       act: removeOne,
-      off: phones.length === 0 || !users.online || !users.may.cutOver(person),
+      off: phones.length === 0 || !users.online,
+      allowed: users.may.cutOver(person),
     },
     {
       icon: 'user-check',
       name: t.changeRole,
       tone: 'green',
       act: () => scrollTo('users-roles'),
-      off: !users.may.roles,
+      allowed: users.may.roles,
     },
   ];
   return (
     <div class="users-tiles phone-only">
-      {tiles.map((tile) => (
-        <TileButton key={tile.name} tile={tile} />
-      ))}
+      {tiles
+        .filter((tile) => tile.allowed)
+        .map((tile) => (
+          <TileButton key={tile.name} tile={tile} />
+        ))}
     </div>
   );
 }

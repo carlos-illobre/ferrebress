@@ -109,4 +109,13 @@ describe('los límites de los roles', () => {
     });
     expect(created).toMatchObject({ status: 409, body: { error: 'too-many-roles' } });
   });
+
+  it('una falla de la base al cambiar un rol no se toma por un nombre repetido', async () => {
+    // Ya hay 100 roles (la prueba de antes): se usa el Administrador.
+    const id = await kit.systemRole();
+    const changes = createRoleChanges(kit.server.platform);
+    await expect(
+      changes.change(kit.adminId, true, id, 2 ** 40, { name: 'Otro' }),
+    ).rejects.toThrow();
+  });
 });

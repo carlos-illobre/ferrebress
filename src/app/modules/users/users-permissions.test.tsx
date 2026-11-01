@@ -55,6 +55,8 @@ describe('Usuarios según los permisos', () => {
       '/api/users/lucia/roles': { body: { roles: [admin] } },
     });
     await choose(/Lucía/);
+    await new Promise((r) => setTimeout(r, 300));
+    console.log('CARD', document.querySelector('.users-card')?.textContent);
     const picker = await inCard().findByRole('group', { name: 'Roles de Lucía' });
     const abilities = () =>
       (document.querySelector('.person-abilities') as HTMLElement).textContent;
@@ -128,10 +130,61 @@ describe('Usuarios según los permisos', () => {
     fireEvent.click(document.querySelector('.users-back') as HTMLElement);
     fireEvent.click(row(/Nuevo/));
     expect(inCard().queryByRole('button', { name: /Cambiar el correo/ })).toBeNull();
-    expect(inCard().getByRole('button', { name: /Borrar/ })).toBeTruthy();
+    // R7.11: tampoco se borra su alta.
+    expect(inCard().queryByRole('button', { name: /Borrar/ })).toBeNull();
     fireEvent.click(document.querySelector('.users-back') as HTMLElement);
     fireEvent.click(row(/De baja/));
     expect(inCard().queryByRole('button', { name: /Dar de alta/ })).toBeNull();
     await act(async () => {});
+  });
+
+  it('users-E43, R7.5: en el celular, interruptores de roles, «Igual que alguien» y el pie con «Guardar»', async () => {
+    // Angosto: lo de la computadora no, lo del celular sí.
+    const phone = (query: string) => ({ matches: query.includes('max-width'), media: query });
+    const server = openUsers({
+      '/api/users': all,
+      '/api/roles': { body: { roles: [...roleRows, shiftRow] } },
+      '/api/users/lucia/access': { body: access },
+      '/api/users/lucia/roles': { body: { roles: [admin] } },
+    });
+    vi.stubGlobal('matchMedia', phone);
+    await choose(/Lucía/);
+    const roles = await inCard().findByRole('group', { name: '¿Qué puede hacer Lucía?' });
+    expect(inCard().queryByRole('button', { name: /^Guardar$/ })).toBeNull();
+    const like = inCard().getByRole('combobox', { name: /Igual que alguien/ });
+    fireEvent.change(like, { target: { value: '' } });
+    fireEvent.change(like, { target: { value: 'graciela' } });
+    expect(
+      within(roles).getByRole('switch', { name: 'Administrador' }).getAttribute('aria-checked'),
+    ).toBe('true');
+    const foot = document.querySelector('.person-foot') as HTMLElement;
+    expect(foot.textContent).toContain('Darle un rol pide confirmar que sos vos');
+    expect(foot.querySelector('.gone')?.textContent).toBe('Encargado de turno');
+    fireEvent.click(within(roles).getByRole('switch', { name: 'Administrador' }));
+    fireEvent.click(within(foot).getByRole('button', { name: /^Guardar$/ }));
+    expect((await inCard().findByRole('alert')).textContent).toContain('al menos un rol');
+    fireEvent.click(within(roles).getByRole('switch', { name: 'Administrador' }));
+    fireEvent.click(inCard().getByRole('button', { name: /^Guardar$/ }));
+    await waitFor(() =>
+      expect(server.bodies('/api/users/lucia/roles')).toEqual([{ version: 1, roles: [admin] }]),
+    );
+  });
+
+  it('en la computadora, el número de un rol lo tilda con el cursor en la lista', async () => {
+    openUsers({
+      '/api/users': all,
+      '/api/roles': { body: { roles: [...roleRows, shiftRow] } },
+      '/api/users/lucia/access': { body: access },
+    });
+    await choose(/Lucía/);
+    const picker = await inCard().findByRole('group', { name: 'Roles de Lucía' });
+    const first = within(picker).getByRole('checkbox', {
+      name: /Administrador/,
+    }) as HTMLInputElement;
+    fireEvent.keyDown(first, { key: '1' });
+    expect(first.checked).toBe(true);
+    fireEvent.keyDown(first, { key: '1', altKey: true });
+    fireEvent.keyDown(first, { key: 'x' });
+    expect(first.checked).toBe(true);
   });
 });

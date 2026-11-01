@@ -3,6 +3,7 @@ import type { Words } from '../../../../ui/say/Say.tsx';
 
 export const words = {
   title: (screen: string) => `No tenés permiso para ${screen}`,
+  opened: (address: string) => `Abriste ${address}`,
   needs: { long: 'Hace falta', short: 'Falta' },
   holders: 'Lo tienen',
   count: (roles: number, people: number) =>
@@ -22,8 +23,12 @@ export const words = {
   request: (name: string, permission: string, screen: string) =>
     `Hola, soy ${name}. ¿Me podés dar el permiso «${permission}» en Ferrebress? Lo necesito para usar ${screen}.`,
   lostTitle: (screen: string) => `Ya no tenés permiso para ${screen}`,
-  lostBy: (by: string | null, removed: string[]) =>
-    `${by ?? 'Alguien'} te ${removed.length > 0 ? `sacó ${removed.map((role) => `«${role}»`).join(' y ')}` : 'cambió los permisos de un rol'} recién. Lo demás sigue igual.`,
+  // Quién le sacó qué rol, si le cambiaron los roles; si cambiaron los permisos de un rol que tiene,
+  // no se sabe quién: no se nombra a nadie.
+  someone: 'Alguien',
+  tookAway: (removed: string[]) =>
+    ` te sacó ${removed.map((role) => `«${role}»`).join(' y ')} recién. Lo demás sigue igual.`,
+  roleChanged: 'Cambiaron los permisos de un rol que tenés. Lo demás sigue igual.',
   had: 'Tenías',
   have: 'Tenés',
   kept: 'Lo que estabas haciendo en otra parte sigue como lo dejaste.',

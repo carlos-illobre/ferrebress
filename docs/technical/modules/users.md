@@ -530,7 +530,11 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
   permisos agrupados por parte también al crear (§ 16, screens.md). Los nombres de las personas, de
   la lista de Usuarios, que `roles.manage` incluye (R7.1).
 - **Los roles de una persona** (maquetas `users-person-roles`: la 1 en la computadora y la 2 en el
-  celular, con interruptores de roles): en la tarjeta y en el diálogo de autorizar. En la tarjeta van
+  celular, con interruptores de roles): en la tarjeta y en el diálogo de autorizar. En el celular,
+  «¿Qué puede hacer…?», «Igual que alguien» (copia los roles de otra persona activa), un interruptor
+  por rol, lo que va a poder y, si algo cambió, el pie fijo con lo que gana y lo que pierde, «Darle un
+  rol pide confirmar que sos vos» y «Guardar». En la computadora, los roles para tildar (su número los
+  tilda con el cursor en la lista). En la tarjeta van
   debajo de sus sesiones y celulares, y en la computadora el pie (dar de baja, de alta, borrar) queda
   fijo abajo, así sigue a la vista.
 - **Lo que se esconde** (R7.7, R7.11): los botones de Usuarios se arman con `can()` y comparando los

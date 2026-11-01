@@ -42,7 +42,14 @@ export function Lost({
         </span>
         {words.lostTitle(lost.option.name)}
       </h2>
-      <p>{words.lostBy(after.rolesChangedBy, removed)}</p>
+      {removed.length > 0 ? (
+        <p data-private="">
+          <b>{after.rolesChangedBy ?? words.someone}</b>
+          {words.tookAway(removed)}
+        </p>
+      ) : (
+        <p>{words.roleChanged}</p>
+      )}
       <dl class="lost-permission-roles">
         <dt>{words.had}</dt>
         <dd>
@@ -67,7 +74,8 @@ export function Lost({
       </p>
       <footer>
         <span class="lost-permission-count" aria-live="polite">
-          <b>{Math.max(left, 0)}</b> {words.leaving(first.name)}
+          <b style={{ '--part': String(Math.max(left, 0) / lostSeconds) }}>{Math.max(left, 0)}</b>{' '}
+          {words.leaving(first.name)}
         </span>
         <Button look="action" icon={first.icon} doing={words.going} onPress={onGo} primary>
           {words.goNow(first.name)}

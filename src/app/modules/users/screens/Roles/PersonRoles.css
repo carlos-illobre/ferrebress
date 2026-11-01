@@ -58,3 +58,103 @@
 .person-abilities li.on .icon {
   color: var(--success-text);
 }
+
+/* El celular (variante 2): interruptores de roles y el pie fijo con lo que cambia y «Guardar». */
+.person-like {
+  display: grid;
+  gap: var(--s1);
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.person-like select {
+  padding: var(--s3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font: inherit;
+}
+
+.person-switches {
+  display: grid;
+  gap: var(--s2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.person-switch {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--s3);
+  align-items: center;
+  padding: var(--s3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--sunken);
+}
+
+.person-switch.on {
+  border: 2px solid var(--pine);
+  background: var(--surface);
+}
+
+.person-switch-name,
+.person-switch-detail {
+  display: block;
+}
+
+.person-switch-detail {
+  color: var(--text-2);
+}
+
+.person-switch-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--pine);
+}
+
+.person-switch.on .person-switch-icon {
+  background: var(--pine);
+  color: var(--surface);
+}
+
+.person-foot {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: var(--s2);
+  margin: 0 calc(-1 * var(--s4));
+  padding: var(--s3) var(--s4) var(--s4);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.person-diff {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  align-items: center;
+  margin: 0;
+  color: var(--text-2);
+}
+
+.person-diff .gone {
+  background: var(--error-soft);
+  color: var(--error-text);
+  text-decoration: line-through;
+}
+
+.person-confirm {
+  display: flex;
+  gap: var(--s1);
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  color: var(--text-2);
+  font-size: 14px;
+}
