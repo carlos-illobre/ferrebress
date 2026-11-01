@@ -38,7 +38,7 @@
   .role-preview { position: sticky; top: 116px; max-height: calc(100vh - 242px); overflow: auto; padding: 20px; display: grid; gap: 12px; }
   .role-preview-title { margin: 0; font-size: 18px; line-height: 24px; font-weight: 750; }
   .role-preview-lead { margin: 2px 0 0; }
-  .preview-card { display: grid; justify-items: center; text-align: center; gap: 4px; padding: 16px; border-radius: var(--r); background: var(--fondo); }
+  .preview-card { display: grid; justify-items: center; text-align: center; gap: 4px; padding: 16px; border-radius: var(--r); background: var(--gris-suave); }
   .preview-card .role-icon { grid-area: auto; width: 56px; height: 56px; margin-bottom: 4px; }
   .preview-name { font-size: 17px; line-height: 24px; font-weight: 750; overflow-wrap: anywhere; }
   .preview-name.is-placeholder { color: var(--texto-3); }
@@ -136,7 +136,7 @@
             </section>
 
             <section class="tarjeta role-section" aria-labelledby="sec-perms">
-              <div class="role-section-head"><span class="role-step">2</span><h3 class="role-section-title" id="sec-perms">Asignar permisos</h3><p class="role-section-lead">Seleccioná los permisos que tendrá este rol. Valen enseguida para todos los que lo tienen.</p></div>
+              <div class="role-section-head"><span class="role-step">2</span><h3 class="role-section-title" id="sec-perms">Asignar permisos</h3><p class="role-section-lead">Seleccioná los permisos que tendrá este rol. Al guardar, valen para todos los que lo tienen.</p></div>
               <p class="field-error" id="perms-error" hidden><i class="i i-s" data-i="circle-alert"></i><span></span></p>
               <div class="perm-groups" id="perm-groups"></div>
             </section>

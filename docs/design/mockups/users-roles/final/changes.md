@@ -121,7 +121,8 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
   previa que pidió Carlos (logro: «da algo»). «Guardar rol» es la única acción naranja de la
   pantalla del rol, y «Nuevo rol» la de la lista. El gris de adentro de cada grupo de permisos es
   más suave que el fondo de la aplicación (mitad fondo, mitad blanco), como en la referencia, para
-  que no parezca un hueco hasta el fondo (pedido de Carlos).
+  que no parezca un hueco hasta el fondo (pedido de Carlos). El mismo gris va en la tarjeta del rol
+  de la vista previa.
 - **«Guardar rol» arranca apagado** (naranja suave, sin sombra, sin tocarse) y se pone naranja fuerte
   con el primer cambio, para que llame la atención; si se deshace el cambio, vuelve a apagarse. En
   un duplicado arranca encendido, porque la copia todavía no se guardó (pedido de Carlos). «Cancelar» va como botón de solo texto
