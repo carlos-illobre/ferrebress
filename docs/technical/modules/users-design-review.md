@@ -1029,3 +1029,254 @@ una consulta sobre tablas chicas.
   no: conviene que lo diga hasta el paso 5.
 - **La prueba de punta a punta propuesta** (§ 23) está bien justificada (dos navegadores, la memoria
   del servidor y la cabecera); con b4.2 resuelto, además, es la que atraparía el bucle de `/api/start`.
+
+---
+
+# Pantalla de roles rehecha
+
+Revisión de lo que el [diseño](users.md) suma para R7.12 y R7.13 (E61 a E65): § 14 (primer punto),
+§ 18 (`POST /api/roles`, `POST /api/roles/:id`, «Las personas de un rol, con el rol», «Qué se dice y
+de quién», confirmar una sola vez, `person-inactive`), § 19 («Dos cambian lo mismo»), § 20 («La
+pestaña Roles»), § 21 (auditoría y «Las personas de un rol»), § 22, § 23 (E61 a E65 y la de punta a
+punta) y § 24 (tareas 7 a 11). Leí la constitución, R7.3, R7.5, R7.8, R7.12, R7.13 y E60 a E65 del
+[capítulo 02](../../chapters/02-users/rules.md), la [arquitectura](../architecture.md) (auditoría
+después de confirmar, ADR-004), la maqueta final `users-roles/final/` (`changes.md` y
+`shared/roles-model.js`) y, porque el diseño dice cambiarlos o reusarlos, `src/app/platform/router.ts`,
+`src/app/platform/back-step.ts`, `src/app/modules/users/logic.ts`, `src/app/modules/manual/search.ts`
+y lo que hay hoy en `src/app/modules/users/screens/Roles/`. No usé el historial de git: comparé
+contra lo que el diseño dice hoy. No corrí nada ni abrí la maqueta en un navegador. Misma escala:
+**Frena** o **Mejora**.
+
+## Resumen
+
+| # | Punto | Gravedad |
+|---|---|---|
+| r1 | La guarda del router choca con `back-step`, y la vista del rol no tiene su paso ni su dirección | Frena |
+| r2 | La guarda frena la salida forzada de «Ya no tenés permiso» (R7.8) | Frena |
+| r3 | «Sacarse a uno mismo» no tiene lugar en la pantalla (E65) | Frena |
+| r4 | La auditoría «en la misma transacción» contradice ADR-004 | Mejora |
+| r5 | El conteo de consultas no cierra con la auditoría de cada persona; lo que no cambió | Mejora |
+| r6 | La `version` del rol cuando solo cambian sus personas | Mejora |
+| r7 | `409 changed` pierde lo armado | Mejora |
+| r8 | `GET /api/roles` repite quién tiene cada rol; las personas dadas de baja | Mejora |
+| r9 | `plain` ya está dos veces | Mejora |
+| r10 | Dónde van `role-draft.ts` y `role-search.ts`, y qué se borra de `screens/Roles/` | Mejora |
+| r11 | Lo que la maqueta pide y § 20 no dice (duplicar con cambios, teclado, sin conexión) | Mejora |
+| r12 | Ids que no existen en `give` y `take`; el tope de 50 roles por persona | Mejora |
+
+## r-1. Escenarios sin cubrir
+
+### r1. La guarda del router choca con `back-step`, y la vista del rol no tiene su paso ni su dirección (Frena)
+
+- **Dónde:** § 20, «Salir sin guardar»; § 24, tarea 7; § 23, E64.
+- **Qué propone el diseño:** `guardNavigation(ask)` en `platform/router.ts`; mientras haya una,
+  `navigate` y el atrás del navegador preguntan; «el atrás vuelve a poner el paso que sacó y lo saca
+  de nuevo si se descarta».
+- **Qué veo:**
+  - El diseño no dice si abrir un rol cambia la dirección o suma un paso al historial. La maqueta sí
+    (`pushState`: «abrir un rol suma un paso, y volver con cambios pregunta antes»), y E64 y R7.13
+    piden que «atrás» vuelva a la lista. Si la vista del rol no es un paso, el atrás del celular sale
+    de la pestaña Roles (o de Usuarios) en lugar de volver a la lista, con o sin cambios.
+  - Hoy los pasos de una vista que va encima (la tarjeta de Usuarios, la cámara, el manual) son de
+    `platform/back-step.ts`, que escucha `popstate` por su cuenta y no pasa por el router. Una guarda
+    en el `popstate` del router se dispararía también al cerrar con atrás cualquier cosa abierta
+    encima del rol que use `back-step` (el buscador de «Darle este rol a…» en el celular, la hoja de
+    confirmar de § 13, el propio diálogo de descartar si lo usa): preguntaría «¿Descartar los cambios
+    del rol?» cuando solo se cerraba una hoja. Y si la vista del rol usa `back-step`, su `close` corre
+    antes o sin la guarda, según el orden de los oyentes.
+  - `popstate` llega con la dirección ya cambiada: «vuelve a poner el paso» necesita saber cuál era
+    (con `history.forward()` o un `pushState` del mismo estado), y al descartar hay que sacar la guarda
+    antes de volver, o vuelve a preguntar. El diseño no lo dice.
+- **Qué propongo:** que el diseño fije las dos cosas. Opción A (más simple): la vista del rol es un
+  paso de `back-step` (como la tarjeta de Usuarios, § 8) y `useBackStep` suma un `ask` opcional: con
+  cambios, el atrás vuelve a poner su paso y pregunta; la guarda del router queda solo para
+  `navigate` a otra dirección (el camino, la pestaña, el menú). Opción B: la vista del rol tiene su
+  dirección (`/users/roles/<id>`, `/users/roles/new`) y todo pasa por el router, con la guarda solo
+  cuando cambia la dirección, no en los pasos de `back-step`. La A no agrega direcciones ni toca el
+  marco; la B deja abrir un rol por la dirección. En las dos, la prueba del router o de `back-step`
+  cubre: cerrar una hoja encima no pregunta, y «Descartar» sale sin volver a preguntar.
+
+### r2. La guarda frena la salida forzada de «Ya no tenés permiso» (Frena)
+
+- **Dónde:** § 20, «Salir sin guardar» y «Saber que cambió»; R7.8.
+- **Qué veo:** si a quien está armando un rol le sacan «Administrar roles», R7.8 pide «Ya no tenés
+  permiso» y, a los 5 segundos, ir solo a la primera opción. Con la guarda puesta, ese `navigate`
+  abre «¿Descartar los cambios del rol?» y la salida queda esperando un toque, sobre una pantalla que
+  ya no se puede usar ni guardar (el servidor da `403`). Lo mismo con una sesión cerrada a distancia
+  o salir. El diseño no dice qué salidas saltean la guarda.
+- **Qué propongo:** `navigate(path, { force: true })` (o que la guarda la saque el marco antes) para
+  las salidas que no son de la persona: sin permiso, sesión cerrada, salir. Decir en § 20 que el
+  borrador se pierde en esos casos (no hay dónde guardarlo) y sumarlo a la prueba de E48/E49 o a la
+  de E64.
+
+### r3. «Sacarse a uno mismo» no tiene lugar en la pantalla (Frena)
+
+- **Dónde:** § 18, «Qué se dice y de quién»; § 20, `validate` y «Guardar».
+- **Qué propone el diseño:** el error lleva `{ error, userId? }`; la aplicación controla antes «sin
+  nombre, sin permisos, un nombre que ya está en la lista, alguien que se quedaría sin roles».
+- **Qué veo:** la maqueta aprobada (y `roles-model.js`, `validate`) marca además, en su lugar,
+  quitarse a uno mismo «Administrar personas» o «Administrar roles» (junto a ese permiso) y sacarse
+  el rol que los da (junto a la persona). La lista de `validate` del diseño no los tiene, y si el
+  servidor responde `self` o `last-administrator` por un permiso quitado, `{ error, userId? }` no dice
+  qué permiso: la pantalla no puede ponerlo «en su lugar» como piden E65 y la maqueta.
+- **Qué propongo:** sumar a `validate` el control de uno mismo (la aplicación tiene sus roles y
+  permisos de `/api/start` y los permisos de cada rol de `GET /api/roles`), y que el error del servidor
+  sea `{ error, userId?, permission? }`, así `self` y `last-administrator` caen en el renglón o en el
+  permiso. Una prueba de E65 con ese caso.
+
+## r-2. Performance
+
+### r4. La auditoría «en la misma transacción» contradice ADR-004 (Mejora)
+
+- **Dónde:** § 21, «Guardar un rol con sus personas deja la línea del rol y una `user.roles-changed`
+  por cada persona…, en la misma transacción».
+- **Qué veo:** la auditoría es un archivo SQLite escrito después de confirmar y por tandas (§ 9,
+  arquitectura, ADR-004). No puede ir en la transacción de PostgreSQL; escrito así, invita a anotarla
+  antes de confirmar.
+- **Qué propongo:** «después de confirmar, todas juntas en una tanda; si no se confirma, ninguna».
+
+### r5. El conteo de consultas no cierra con la auditoría de cada persona (Mejora)
+
+- **Dónde:** § 18, filas de `POST /api/roles` (12) y `POST /api/roles/:id` (16), y «Las personas de
+  un rol»; § 22.
+- **Qué veo:**
+  - No pude comprobar 12 ni 16: el diseño no da el desglose. Contando lo que nombra (el bloqueo del
+    `system`, quien pide, el rol con su versión, sus permisos, las cuatro de las personas, el conteo
+    de § 19) llego a unas 11 a 14; la diferencia no se puede revisar.
+  - `user.roles-changed` va «antes y después, con nombres» (§ 21), pero la consulta que bloquea a las
+    personas trae solo «si está activa y cuántos roles tiene». Para el antes y el después hacen falta
+    los ids y los nombres de sus roles: otra consulta que la lista no nombra.
+  - «Dar un rol que ya tiene o sacar uno que no tiene no cambia nada», pero la consulta que sube la
+    `version` y anota `roles_changed_by` y la auditoría «por cada persona a la que se le dio o se le
+    sacó» no dicen que miran solo a quien de verdad cambió. Si no, quien no cambió recibe otra
+    `version` (y un `409 changed` en una tarjeta abierta), un «Ya no tenés permiso» con un «quién»
+    falso y una línea de auditoría vacía.
+  - `no-roles` con «cuántos roles tiene» falla si la persona está en `take` sin tener el rol: tiene
+    un solo rol, otro, y se la marcaría.
+- **Qué propongo:** que la consulta que bloquea traiga de cada persona sus ids de roles (con
+  `array_agg`, ordenada por id para bloquear siempre en el mismo orden) y que de ahí salgan el «se
+  quedaría sin roles» y el antes; que el `insert … on conflict do nothing returning user_id` y el
+  `delete … returning user_id` digan quién cambió de verdad, y que la `version`, `roles_changed_by`,
+  el evento y la auditoría usen solo esos. Y el desglose de los 12 y los 16 en el diseño, como en la
+  etapa a.
+
+Lo demás de performance está bien: buscar no pide nada al servidor, con meta (5 ms con 100 roles y
+100 personas) y el texto de cada rol armado una vez por lista; guardar es un solo pedido con un número
+fijo de consultas y su prueba con 1 y con 50; la pestaña se baja al abrirse.
+
+## r-3. Simpleza
+
+### r6. La `version` del rol cuando solo cambian sus personas (Mejora)
+
+- **Dónde:** § 19, «Dos cambian lo mismo».
+- **Qué veo:** guardar pide la `version` del rol, pero no dice si se sube cuando solo cambian sus
+  personas (`give`/`take` sin nombre, descripción ni permisos), ni si en ese caso queda la línea
+  `role.changed` (§ 21) sin nada que contar. Si se sube, dos que le dan el rol a personas distintas a
+  la vez chocan sin motivo, siendo `give` y `take` diferencias justamente para no chocar.
+- **Qué propongo:** la `version` del rol se compara siempre y se sube solo si cambian el nombre, la
+  descripción o los permisos; `role.changed` solo en ese caso. Escribirlo.
+
+### r7. `409 changed` pierde lo armado (Mejora)
+
+- **Dónde:** § 19, «Otra persona cambió este rol. Volvé a abrirlo para ver cómo quedó».
+- **Qué veo:** el borrador queda en pantalla, pero la única salida es volver a abrir el rol, que lo
+  descarta (y pasa por «¿Descartar…?»). Ese texto, además, no está en las reglas ni en la maqueta.
+- **Qué propongo:** opción A, «Traer lo nuevo y conservar mis cambios»: la aplicación pide de nuevo
+  `GET /api/roles` y vuelve a aplicar lo que el borrador cambió (los permisos tildados y destildados,
+  `give` y `take`, el nombre y la descripción si los tocó) sobre el rol nuevo; `role-draft.ts` ya
+  sabe qué cambió (`toRequest`). Opción B, dejarlo como está y anotar el texto en `screens.md`. Es un
+  caso raro con tres personas; la B alcanza si Carlos lo prefiere.
+
+## r-4. Repetición
+
+### r8. `GET /api/roles` repite quién tiene cada rol; las personas dadas de baja (Mejora)
+
+- **Dónde:** § 18, `GET /api/roles` («quiénes los tienen (ids de personas activas)», 3 consultas);
+  § 20, «La lista», `RoleHolders.tsx`.
+- **Qué veo:** la pestaña ahora pide siempre `GET /api/users`, que ya trae los ids de los roles de
+  cada persona (y `holdersOf` ya existe en `logic.ts`). Las personas del rol salen de ahí sin que
+  `GET /api/roles` las repita. Además, la maqueta pide en el rol «que también lo tienen» las dadas de
+  baja y su nombre en «No se puede borrar: lo tienen … Carla Domínguez (dada de baja)»; con solo ids
+  de activas, eso sale únicamente de `GET /api/users`. § 20 no lo nombra.
+- **Qué propongo:** sacar quiénes lo tienen de `GET /api/roles` (3 → 2 consultas) y calcularlo en la
+  aplicación con `holdersOf`, activas y dadas de baja; nombrar en `RoleHolders.tsx` la línea de las
+  dadas de baja (E60, R4.3).
+
+### r9. `plain` ya está dos veces (Mejora)
+
+- **Dónde:** § 20, «Buscar»: `plain` «pasa a un archivo propio de `users`».
+- **Qué veo:** `src/app/modules/manual/search.ts` ya saca tildes y mayúsculas por su lado. Moverla
+  dentro de `users` deja la repetición (constitución XII, 3) y es tecnología sin negocio.
+- **Qué propongo:** `plain` en `src/app/platform/` (o `src/shared/` si el servidor la va a usar) y
+  que el manual la use, si su búsqueda letra por letra lo permite; si no, decir por qué se queda.
+
+## r-5. Seguridad
+
+Lo nuevo está cubierto: `give` y `take` pasan por el bloqueo de § 19 con los mismos controles que
+cambiar los roles de una persona (quedar sin quien administre, uno mismo, confirmar al dar); lo que da
+acceso se decide en la transacción contra la base y `confirm-first` deshace todo; las listas se
+acotan (200, sin repetidos ni el mismo id en las dos), los ids son UUID; la búsqueda de personas usa
+la lista que `users.view` ya muestra. Falta una cosa:
+
+### r12. Ids que no existen en `give` y `take`; el tope de 50 roles por persona (Mejora)
+
+- **Dónde:** § 18, «Las personas de un rol» y «Lo que entra»; § 21.
+- **Qué veo:** un id de `take` que no existe se borra sin efecto, y uno de `give` lo frena la clave
+  foránea con un `400` sin `userId`; el diseño no dice cuál de los dos ni si es `person-inactive`.
+  «50 roles por persona» vale para `POST /api/users/:id/roles`, pero con `give` alguien puede pasar
+  ese tope (hay hasta 100 roles).
+- **Qué propongo:** la consulta que bloquea ya trae a cada persona: la que falta, `400` con su
+  `userId`, antes de tocar nada. Sobre el tope: o se controla también con `give`, o se saca el de 50
+  (con 100 roles como techo, no protege nada). Sumar `person-inactive` y `self` a lo que queda en
+  `users.rejected`, o decir por qué no.
+
+## r-6. Fronteras
+
+Sin observaciones: `role-draft.ts` y `role-search.ts` son reglas sin Preact, la guarda va en
+`platform/` sin negocio, y los íconos se toman de la fachada de `frame` (`permissionIcons`, ya
+exportado en `frame/index.ts`).
+
+### r10. Dónde van `role-draft.ts` y `role-search.ts`, y qué se borra de `screens/Roles/` (Mejora)
+
+- **Dónde:** § 20; § 24, tareas 9 y 10.
+- **Qué veo:** el diseño no dice en qué carpeta van los dos archivos de reglas. En la raíz de
+  `src/app/modules/users/` ya están `role-actions.ts` y `role-texts.ts`: con estos dos son cuatro con
+  el mismo concepto, que la constitución (XII, «Carpetas chicas») pide juntar. Y `screens/Roles/` hoy
+  tiene `NewRole`, `Permissions`, `PersonRoles`, `Problem`, `RoleCard`, `RolePicker` y `Roles`: «borrar
+  lo anterior» no dice cuáles se van y cuáles siguen (`PersonRoles` y `RolePicker` son de la tarjeta
+  de la persona). Con las seis piezas nuevas y su CSS, la carpeta se acerca a 20.
+- **Qué propongo:** `src/app/modules/users/roles/` con `actions.ts`, `texts.ts`, `draft.ts` y
+  `search.ts`; en § 20, la lista de lo que se borra de `screens/Roles/` y, si `PersonRoles` y
+  `RolePicker` son de la persona, que pasen a `screens/Card/` u otra carpeta suya.
+
+## r-7. Sin conexión, hora y escala
+
+### r11. Lo que la maqueta pide y § 20 no dice (Mejora)
+
+- **Dónde:** § 20, «La pestaña Roles».
+- **Qué veo:** la maqueta aprobada manda sobre el diseño, pero hay tres cosas que el diseño no
+  traslada y el desarrollador tiene que decidir:
+  - **Duplicar con cambios sin guardar** pregunta antes de descartarlos (maqueta, E38). No es una
+    navegación: la guarda no lo cubre.
+  - **Sin conexión** (R2.2): la pestaña se pone gris. No dice qué pasa con un borrador abierto; como
+    en Usuarios (§ 8), debería quedar como estaba y prenderse sola al volver.
+  - **El teclado** (00 · R2): el cursor en el buscador y en el nombre, `/`, la marca con ↑ ↓, Enter
+    sin marca, las teclas Alt O, G, A, U, B, R, L, T; en el celular, el cursor nunca en una caja. § 8
+    las lista para Usuarios; § 20 no nombra ninguna.
+- **Qué propongo:** una línea por cada una en § 20 y, para el teclado, «las de la maqueta» con la
+  lista, así `pnpm check` (o la prueba de teclas) controla que no chocan con las del menú.
+
+La hora: la única nueva, `roles_changed_at`, la pone el servidor. Escala: con 100 personas y 100 roles,
+la búsqueda es en memoria y guardar es un número fijo de consultas bajo un solo bloqueo; nada que no
+escale. El módulo no atiende clientes ni proveedores.
+
+## r-8. Mejoras
+
+- **La hoja de confirmar** (§ 13) en la pestaña Roles: la maqueta dice que «lista lo que da acceso»;
+  `role-draft.ts` ya lo sabe. Una línea en § 20 «Guardar».
+- **Las pruebas** (§ 23): E64 debería sumar «cerrar una hoja encima del rol con atrás no pregunta» y
+  «Descartar sale sin volver a preguntar» (r1), y E65 el caso de uno mismo (r3). La de punta a punta
+  no hace falta: lo justifica bien.
+- **Las tareas** (§ 24): «sin dependencias» en 7, 8 y 9 vale porque las tareas 1 a 6 están hechas
+  (roadmap: «b: en curso, la pantalla de roles se rehace»); conviene decirlo. Si r1 va por la opción
+  A, la tarea 7 es en `back-step.ts`, no en `router.ts`.
