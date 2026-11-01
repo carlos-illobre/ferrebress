@@ -9,7 +9,6 @@ import {
   changeBody,
   type PeopleResponse,
   type PersonResponse,
-  type PersonRow,
   versionBody,
 } from '@ferrebress/shared/contracts/users';
 import type { Context, MiddlewareHandler } from 'hono';
@@ -19,7 +18,8 @@ import type { Platform } from '../../platform/modules.ts';
 import { sessionOf } from '../../platform/session.ts';
 import type { Outcome, People } from './people.ts';
 import type { Access } from './roles/access.ts';
-import { displayName, neverSignedIn, type User } from './rules.ts';
+import { rowOf } from './row.ts';
+import type { User } from './rules.ts';
 
 const minute = 60_000;
 export const usersSettings = {
@@ -36,33 +36,6 @@ export type AccessCounts = (
   userIds: string[],
   asking: ReturnType<typeof sessionOf>,
 ) => Promise<Map<string, { sessions: number; phones: number }>>;
-
-const time = (at: Date | null) => (at ? at.getTime() : null);
-
-export function rowOf(
-  user: User,
-  askingUserId: string,
-  counts = { sessions: 0, phones: 0 },
-  outranks = false,
-): PersonRow {
-  return {
-    id: user.id,
-    name: user.name,
-    displayName: displayName(user),
-    email: user.email,
-    active: user.active,
-    self: user.id === askingUserId,
-    authorizedAt: user.createdAt.getTime(),
-    authorizedBy: user.authorizedBy,
-    deactivatedAt: time(user.deactivatedAt),
-    lastSignInAt: time(user.lastSignInAt),
-    neverSignedIn: neverSignedIn(user),
-    version: user.version,
-    ...counts,
-    roleIds: user.roleIds,
-    outranks,
-  };
-}
 
 const statusOf = {
   'not-found': 404,

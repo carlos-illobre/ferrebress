@@ -9,6 +9,7 @@ import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import type { Option } from '../../menu.ts';
 import { words } from './texts.ts';
+import './Lost.css';
 
 export const lostSeconds = 5;
 
