@@ -10,6 +10,7 @@ import { saveRoles } from '../../role-actions.ts';
 import { personRoleTexts as t } from '../../role-texts.ts';
 import { useUsersContext } from '../../state.ts';
 import { refusalTexts } from '../../texts.ts';
+import { Problem } from './Problem.tsx';
 import { RolePicker } from './RolePicker.tsx';
 import './Permissions.css';
 import './PersonRoles.css';
@@ -56,16 +57,6 @@ function useChosen(person: PersonRow) {
       return saveRoles(users, person, chosen);
     },
   };
-}
-
-function Problem({ text }: { text: string | undefined }) {
-  if (!text) return null;
-  return (
-    <p class="users-field-error" role="alert">
-      <Icon name="triangle-alert" size="small" />
-      {text}
-    </p>
-  );
 }
 
 const narrow = () => matchMedia('(max-width: 899px)').matches;

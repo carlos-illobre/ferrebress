@@ -3,22 +3,12 @@
 import type { PermissionId } from '@ferrebress/shared/contracts/permissions';
 import { useState } from 'preact/hooks';
 import { Button } from '../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { createRole } from '../../role-actions.ts';
 import { roleTexts as t } from '../../role-texts.ts';
 import { useUsersContext } from '../../state.ts';
 import { Permissions, toggled } from './Permissions.tsx';
+import { Problem } from './Problem.tsx';
 import './RoleCard.css';
-
-function Problem({ text }: { text: string | undefined }) {
-  if (!text) return null;
-  return (
-    <p class="users-field-error" role="alert">
-      <Icon name="triangle-alert" size="small" />
-      {text}
-    </p>
-  );
-}
 
 export function NewRole() {
   const users = useUsersContext();
