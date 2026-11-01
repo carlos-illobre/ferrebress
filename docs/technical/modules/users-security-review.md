@@ -1387,3 +1387,146 @@ quien lo hace no lo nota en la tarjeta de esa persona sin mirar rol por rol.
 | La auditoría (45) | Un guardado con nombre, permisos y dos personas deja una línea del rol y dos de personas, con el mismo pedido; `person-inactive` deja su línea |
 | La guarda (41) | Del router: `force` no pregunta; de la pantalla: salir y volver a entrar no deja borrador; sin `roles.manage` la pestaña se cierra |
 | Privado (42) | El paso de «Deshacer» y el buscador no llevan nombres ni correos |
+
+# Pantalla de roles rehecha (código)
+
+Revisión del código de la etapa b (`git diff 03e3875..HEAD -- src tests`): `give` y `take` en
+`POST /api/roles` y `POST /api/roles/:id` (`roles/holding.ts`, `changes.ts`, `lock.ts`, `routes.ts`,
+`writing.ts`, `shared/contracts/roles.ts`), la pestaña nueva (`app/modules/users/roles/`), la hoja de
+confirmar y la guarda del router. Corrí `npx vitest run src/server/modules/users/roles
+src/app/platform/router.test.ts src/app/modules/users`: 21 archivos, 147 pruebas, todas pasan.
+`pnpm audit --prod`: sin fallas conocidas; el cambio no suma dependencias. No probé nada contra
+PostgreSQL ni en el navegador: lo que digo de la sesión cerrada a distancia (punto 46) y del disco
+(punto 48) sale de leer el código, no de correrlo.
+
+## Resumen
+
+El servidor hace lo que dice el diseño: `give` y `take` corren dentro del bloqueo de `lock.ts`, con el
+permiso de quien pide mirado de nuevo bajo el bloqueo; la persona que falta o está dada de baja da
+`409` con su `userId` antes de escribir; solo cuenta quien cambió de verdad (`returning user_id`); dar
+a alguien sin confirmación reciente se deshace entero, nombre incluido; los contratos son estrictos y
+con tope. Del lado de la aplicación, la hoja de confirmar dice qué da, el duplicado arranca sin
+personas, lo que nombra personas lleva `data-private` y las salidas que impone el marco usan
+`force`. **No encontré nada que frene.** Queda un camino que la guarda no cubre (la sesión cerrada a
+distancia o vencida, punto 46) y faltan pruebas de varios riesgos que el diseño da por cubiertos.
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 46 | El rol a medio armar sobrevive a la sesión cerrada a distancia o vencida y lo guarda quien entra después | Mejora |
+| 47 | El rechazo de una persona no dice cuál en la auditoría; las líneas de personas no dicen el rol | Mejora |
+| 48 | Un guardado escribe hasta 401 líneas de auditoría, cada una con su escritura a disco, en el hilo del servidor | Mejora |
+| 49 | Riesgos cubiertos sin la prueba que los intenta | Mejora |
+
+## Los puntos de la revisión del diseño
+
+| # | Qué pedía | Cómo quedó |
+|---|---|---|
+| 39 | La persona que ya no está: error con su id, no `500` | Resuelto: `holding.ts:17` da `person-missing` con `userId`, antes de escribir; prueba `holding.test.ts` «una persona dada de baja o que no existe», también al crear. `take` de un id que no existe también lo rechaza (no «no cambia nada»): el diseño corregido (§ 21, tabla de E65) lo acepta así |
+| 40 | Lo que no cambia nada no sube versiones ni deja líneas | Resuelto: `writing.ts` `giveRole`/`takeRole` con `returning`, `markRolesChanged` solo a esas; `changes.ts:154` sin línea del rol si no cambió nada suyo. Prueba de versión y de líneas; `roles_changed_by` no se mira (punto 49) |
+| 41 | El borrador muere con la pantalla; `force` en las salidas del marco; la pestaña se cierra sin el permiso | En parte: el borrador vive en `RoleScreen` (`useState`, línea 93), `goToFirst` y `useRolesTabClosing` usan `force`, con pruebas (`router.test.ts` «lo que fuerza el marco no pregunta», `users-roles.test.tsx` «users-E48»). Falta la sesión cerrada a distancia o vencida: punto 46 |
+| 42 | `data-private` en todo lo que nombra personas | Resuelto en el código: buscador de la lista, iniciales (`RoleRow.tsx`), cada renglón de «Quiénes lo tienen» con su «Deshacer», la línea de las dadas de baja, «Darle este rol a…» con su buscador y sus resultados, el aviso de errores (`Problems.tsx`) y la lista de la hoja de confirmar (`ConfirmSheet.tsx`). `crash.ts` saca de los pasos todo botón dentro de algo marcado. Sin prueba: punto 49 |
+| 43 | La hoja de confirmar dice qué da | Resuelto: `gives.ts` y `ConfirmSheet` `what`; lo que se confirma es lo que se repite (`RoleScreen.tsx:74` guarda la función con el mismo borrador). Prueba `users-roles-confirm.test.tsx` «dice qué da, confirma una vez y lo repite» |
+| 44 | El duplicado arranca sin personas | Resuelto: `duplicateOf`; pruebas en `draft.test.ts` y `users-roles-confirm.test.tsx` «users-E38, E39» |
+| 45 | `person-inactive` en la auditoría; las líneas de un guardado, juntas | En parte: el rechazo deja `users.rejected` (camino general de `routes.ts:84`) y las líneas llevan el mismo `save` (`routes.ts:67`); falta quién en el rechazo y prueba: puntos 47 y 49. Las líneas se escriben después de la transacción, así no alargan el bloqueo |
+
+### 46 · El rol a medio armar sobrevive a la sesión cerrada a distancia o vencida (`roles/screens/RoleScreen.tsx:93`; `App.tsx:178`; `sign-in/session.ts:45`) — Mejora
+
+El diseño (§ 20, «Lo que se arma») promete que el borrador «se pierde al salir de ella o al «Salir», así
+en la computadora del mostrador nadie encuentra un rol a medio armar de otro», y que la sesión cerrada
+a distancia usa `force`. Con «Salir» se cumple: `person` queda vacío y el marco se desmonta. Con la
+sesión cerrada desde otro dispositivo o vencida, no: `api.ts:78` solo pone `sessionClosed`, la entrada
+aparece encima y el marco sigue montado debajo con la persona de antes (`App.tsx:178`, sin `key`). El
+módulo tiene el mecanismo para esto (E26: `discardWork()` en `session.ts:45` cuando entra otra
+persona), pero la pantalla del rol no se anota con `registerWork`.
+
+**Cómo se da**, en la computadora del mostrador:
+
+1. A, con «Administrar roles», abre «Encargado», le da el rol a Pedro y no guarda (o queda abierta la
+   hoja de confirmar, que vive en `users.retry`).
+2. Desde el celular, alguien cierra la sesión de esa computadora (R5.3), o la sesión vence.
+3. B, que también tiene «Administrar roles», entra en esa misma pestaña. `enter()` llama a
+   `discardWork()`, que no conoce el borrador; el marco no se rehace; la dirección sigue en
+   `/users/roles/<id>`. B ve el rol con «Le das «Encargado» a Pedro» marcado y «Guardar rol» encendido.
+4. B toca «Guardar rol». Como acaba de entrar con Google, su sesión cuenta como confirmada
+   (`users/routes.ts:136`): no aparece ni la hoja que diría qué da. Pedro queda con «Encargado», con
+   `roles_changed_by` y la auditoría a nombre de B.
+
+No da a nadie algo que A no pudiera dar, por eso no frena; pero hace que un cambio que da acceso quede
+firmado por quien no lo decidió, justo lo que § 20 dice evitar, y contradice E26.
+
+**Qué propongo:** que `RoleScreen` se anote con `registerWork({ pending: () => dirty, discard })`,
+donde `discard` cierra la hoja de confirmar pendiente (`users.confirmed()`) y vuelve a la lista con
+`navigate(listPath, { replace: true, force: true })`; con la misma persona (E25) sigue donde estaba.
+Alternativa más amplia: `key={who.userId}` en el `Frame` de `App.tsx`, que descarta todo lo de la
+persona anterior en cualquier módulo (pero rompe E25 si no se cuida). Una prueba de la pantalla: con
+cambios sin guardar, entrar como otra persona deja la lista sin borrador y sin hoja; como la misma, el
+borrador sigue. Media hora.
+
+### 47 · El rechazo de una persona no dice cuál en la auditoría; las líneas de personas no dicen el rol (`roles/routes.ts:84`, `routes.ts:71`) — Mejora
+
+- `users.rejected` anota `{ target: <id del rol>, reason }` pero no el `detail.userId` que ya tiene el
+  rechazo. Darle un rol a alguien dado de baja (el primer paso para devolverle acceso, punto 45) queda
+  como «`person-inactive` en el rol X», sin saber a quién se lo quisieron dar.
+- Si un guardado solo cambia personas, no hay línea del rol (correcto, punto 40) y las de personas
+  tienen `save`, `before` y `after` con nombres, pero no el `roleId`: el `save` no se puede juntar con
+  nada que diga qué rol fue, y si dos roles se llamaron igual en distintos momentos no se distinguen.
+
+**Qué propongo:** sumar `...outcome.detail` a la línea de `users.rejected` y `roleId` a cada línea
+`user.roles-changed` que sale de `recordDone`. Diez minutos, con la prueba del punto 49.
+
+### 48 · Un guardado escribe hasta 401 líneas de auditoría, cada una con su escritura a disco (`platform/storage/audit.ts:82`) — Mejora
+
+Con `give` y `take` de 200 personas cada uno, un pedido deja una línea del rol y 400 de personas. El
+registro las junta de a 100 (`batchSize`) pero `write` hace un `insert` suelto por línea, sin
+transacción: en SQLite cada uno es su propia transacción, con su sincronización a disco, y corre
+sincrónico en el hilo de Node. Quien tiene «Administrar roles» puede alternar dar y sacar el mismo rol a
+200 personas (cambios de verdad, así el punto 40 no los frena) hasta 60 veces por minuto por sesión:
+unas 24 000 escrituras a disco por minuto que frenan al servidor entero mientras tanto. No medí
+cuánto tarda cada una en la máquina del local (depende del disco); el riesgo es de disponibilidad y lo
+corre alguien de confianza, por eso es mejora. El mismo `write` sirve para todo el sistema.
+
+**Qué propongo:** que `flush` escriba la tanda dentro de `BEGIN … COMMIT` (una sincronización por tanda)
+con la sentencia preparada una sola vez. Cinco minutos, con una prueba de `audit.test.ts` que escriba
+una tanda y la lea completa.
+
+### 49 · Riesgos cubiertos sin la prueba que los intenta (`holding.test.ts`, `limits.test.ts`, `users-roles*.test.tsx`) — Mejora
+
+El código hace lo correcto en todos estos casos (lo leí), pero ninguna prueba lo intenta:
+
+| Riesgo (tabla de la revisión del diseño) | Qué falta |
+|---|---|
+| Confirmar al dar | Con la confirmación vieja: `take` de una persona real (la prueba usa `take: []`) y `give` de quien ya lo tiene no la piden |
+| Sacarse a sí mismo y quedar sin quien administre | `take` del último que entró con el permiso da `last-administrator`; en `self` y en ese, con un `name` en el mismo pedido, el nombre no cambia |
+| Lo que entra | `take` al crear (`POST /api/roles`) da `400` |
+| Un pedido en camino | Lo mismo que `limits.test.ts` «seguridad 32», con `change` y `give` en vez de `create` |
+| Lo que no cambia nada (40) | `roles_changed_by` no cambia al dar a quien ya lo tiene |
+| La auditoría (45, 47) | Las líneas de un guardado llevan el mismo `save`; `person-inactive` deja `users.rejected` con su `userId` |
+| La sesión que cambia (46) | Entrar como otra persona descarta el borrador |
+| Privado (42) | Tocar «Deshacer» y elegir en «Darle este rol a…» no dejan pasos con nombre (`crash.ts`), y el buscador y los renglones llevan `data-private` |
+
+Una hora, todas unitarias o de la pantalla.
+
+### Lo demás, punto por punto
+
+- **Entrar sin permiso:** las rutas siguen detrás de `sessions.require`, `roles.manage` y el límite de
+  60 por minuto; nada nuevo.
+- **Permisos y lo ajeno:** el permiso se mira de nuevo bajo el bloqueo (`lock.ts:91`); `give` sin
+  confirmación se deshace aunque el nombre o los permisos hayan pasado (`holding.ts:45` dentro de la
+  transacción; prueba «users-E62 … confirmar una sola vez»). Quien se quedaría sin roles, más de 50
+  roles, sacarse lo suyo: rechazados con quién o qué permiso, con pruebas.
+- **Lo que entra:** UUID, 200 por lista, sin repetidos ni el mismo id en las dos; todo cabe en 64 KB.
+  Un UUID en mayúsculas pasa el contrato y `apart`, pero no coincide con la fila que trae la base y da
+  `person-missing`: no sirve para saltar los controles. Las consultas nuevas de `writing.ts` van con
+  parámetros (`sql` de Kysely), sin texto armado a mano.
+- **La aplicación en el navegador:** buscar no pide nada al servidor ni pone lo escrito en la
+  dirección; los nombres se muestran como texto (Preact escapa). «Crear el rol «…»» lleva lo buscado
+  en `history.state` y como nombre del rol nuevo, sin `data-private`: si alguien buscó un correo que
+  ningún rol tiene y tocó ese botón, el correo queda como título del rol. Es el nombre que eligió para
+  un rol y no merece más que saberlo.
+- **Datos personales:** nada nuevo sale del servidor; lo que se ve en la pantalla, en el punto 42.
+- **Abuso:** el bloqueo se toma con un número fijo de consultas (cuatro para las personas); lo del
+  disco, en el punto 48.
+- **Sin conexión:** la pestaña queda `inert` sin conexión; nada nuevo.
+- **Auditoría:** cada cambio de verdad deja su línea, con antes y después por nombre; los rechazos, una
+  vez por minuto por motivo y persona. Lo que falta, en el punto 47.
+- **El despliegue y las dependencias:** no cambian; `pnpm audit --prod` sin fallas.
