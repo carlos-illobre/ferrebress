@@ -4,11 +4,16 @@ import './icon.css';
 import type { VNode } from 'preact';
 import { menuShapes } from './menu-shapes.tsx';
 import type { peopleShapes } from './people-shapes.tsx';
+import type { rolesShapes } from './roles-shapes.tsx';
 import { shapes } from './shapes.tsx';
 
 const all: Record<string, VNode> = { ...shapes, ...menuShapes };
 
-export type IconName = keyof typeof shapes | keyof typeof menuShapes | keyof typeof peopleShapes;
+export type IconName =
+  | keyof typeof shapes
+  | keyof typeof menuShapes
+  | keyof typeof peopleShapes
+  | keyof typeof rolesShapes;
 
 // Los íconos de una pantalla que se baja a pedido llegan con ella.
 export function addShapes(more: Record<string, VNode>): void {

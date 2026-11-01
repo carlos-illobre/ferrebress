@@ -12,7 +12,6 @@ import { useUsersContext } from '../../state.ts';
 import { refusalTexts } from '../../texts.ts';
 import { Problem } from './Problem.tsx';
 import { RolePicker } from './RolePicker.tsx';
-import './Permissions.css';
 import './PersonRoles.css';
 
 const firstName = (person: PersonRow) => person.displayName.split(/[\s@]/)[0] as string;

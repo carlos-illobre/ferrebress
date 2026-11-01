@@ -18,7 +18,8 @@ import './confirm.css';
 
 const t = confirmTexts;
 
-type Props = { onConfirmed: () => unknown; onClose: () => void };
+// `what`: lo que da lo que se va a guardar, en palabras, para que no pase escondido (02 · R3.8).
+type Props = { onConfirmed: () => unknown; onClose: () => void; what?: string[] };
 
 // El botón de Google: pide un nonce nuevo y, con el pase, confirma.
 function GoogleConfirm({ confirm }: { confirm: (credential: string) => void }) {
@@ -47,7 +48,7 @@ async function withPasskey(): Promise<boolean> {
   return !!response && (await signInApi.confirmPasskey(response)).ok;
 }
 
-export function ConfirmSheet({ onConfirmed, onClose }: Props) {
+export function ConfirmSheet({ onConfirmed, onClose, what = [] }: Props) {
   const [failed, setFailed] = useState(false);
   const done = async (ok: boolean) => {
     setFailed(!ok);
@@ -63,6 +64,13 @@ export function ConfirmSheet({ onConfirmed, onClose }: Props) {
       </span>
       <h2>{t.title}</h2>
       <p>{t.lead}</p>
+      {what.length > 0 && (
+        <ul class="confirm-what" data-private="">
+          {what.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      )}
       <GoogleConfirm
         confirm={(credential) =>
           void signInApi.confirmGoogle(credential).then((result) => done(result.ok))

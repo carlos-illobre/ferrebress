@@ -50,8 +50,8 @@ const adminRole = ana.roles[0] as { id: string; name: string };
 export const sceneRoles = [
   { ...adminRole, description: 'Puede todo: las personas, sus sesiones y los roles.' },
 ];
-export const sceneRoleRows = (holders: string[]) => [
-  { ...sceneRoles[0], system: true, version: 1, permissions: [...permissionIds], holders },
+export const sceneRoleRows = () => [
+  { ...sceneRoles[0], system: true, version: 1, permissions: [...permissionIds] },
 ];
 
 // La lista de Usuarios, que el marco abre al entrar: la persona y dos más, inventadas.
@@ -85,7 +85,7 @@ export async function answerUsers(page: Page | BrowserContext, person: Person): 
   await page.route('**/api/users', (route) =>
     route.fulfill({ json: { people, roles: sceneRoles }, headers: header() }),
   );
-  const roles = { roles: sceneRoleRows(people.map((one) => one.id)) };
+  const roles = { roles: sceneRoleRows() };
   await page.route('**/api/roles', (route) => route.fulfill({ json: roles, headers: header() }));
   // La tarjeta de la primera, que la computadora abre sola.
   await page.route('**/api/users/*/access', (route) =>

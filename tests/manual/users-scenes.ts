@@ -76,7 +76,7 @@ async function answerPeople(page: Page | BrowserContext, _person: Person): Promi
   const answer = (json: unknown) => (route: { fulfill: (o: object) => Promise<void> }) =>
     route.fulfill({ json, headers: header() });
   await page.route('**/api/users', answer({ people, roles: sceneRoles }));
-  await page.route('**/api/roles', answer({ roles: sceneRoleRows(people.map((one) => one.id)) }));
+  await page.route('**/api/roles', answer({ roles: sceneRoleRows() }));
   await page.route('**/api/users/*/access', (route) =>
     answer(route.request().url().includes('/lucia/') ? lucia : { sessions: [], phones: [] })(route),
   );

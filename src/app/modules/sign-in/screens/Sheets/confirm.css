@@ -20,6 +20,19 @@
     font-size: 14px;
     line-height: 1.45;
   }
+  .confirm-what {
+    display: grid;
+    gap: var(--s1);
+    width: 100%;
+    margin: 0;
+    padding: var(--s3) var(--s4);
+    border-radius: var(--radius);
+    background: var(--sunken);
+    list-style: none;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+  }
   .confirm-icon {
     display: grid;
     place-items: center;

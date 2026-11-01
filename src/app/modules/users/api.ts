@@ -1,6 +1,6 @@
 // Las llamadas al servidor de Usuarios, una sola vez (diseño de 02, § 4). Todas necesitan conexión.
 
-import type { RoleResponse, RolesResponse } from '@ferrebress/shared/contracts/roles';
+import type { RolesResponse } from '@ferrebress/shared/contracts/roles';
 import type {
   AccessResponse,
   ClosedResponse,
@@ -31,15 +31,8 @@ export const usersApi = {
   cut: (id: string, phoneId: string, from: 'card' | 'lost') =>
     api<CutResponse>(`${at(id)}/phones/${encodeURIComponent(phoneId)}/cut`, { from }),
   lostPhones: () => api<LostPhonesResponse>('/api/lost-phones'),
-  // Los roles (R7.3, R7.5).
+  // Los roles (R7.3, R7.5); crearlos, guardarlos y borrarlos, en roles/actions.ts.
   roles: () => api<RolesResponse>('/api/roles'),
-  createRole: (role: RoleDraft) => api<RoleResponse>('/api/roles', role),
-  changeRole: (id: string, version: number, change: Partial<RoleDraft>) =>
-    api<RoleResponse>(`/api/roles/${encodeURIComponent(id)}`, { version, ...change }),
-  deleteRole: (id: string, version: number) =>
-    api<{ removed: true }>(`/api/roles/${encodeURIComponent(id)}/delete`, { version }),
   setRoles: (id: string, version: number, roles: string[]) =>
     api<{ roles: string[] }>(`${at(id)}/roles`, { version, roles }),
 };
-
-export type RoleDraft = { name: string; description: string | null; permissions: string[] };

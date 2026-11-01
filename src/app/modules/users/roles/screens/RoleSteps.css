@@ -1,0 +1,182 @@
+/* Los pasos del rol en sus tarjetas blancas: la información, quiénes lo tienen y elegir a quién
+   dárselo (maqueta users-roles/final). */
+@layer screens {
+  .role-steps {
+    display: grid;
+    gap: var(--s4);
+    min-width: 0;
+  }
+  .role-step-head {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 2px var(--s3);
+    align-items: center;
+  }
+  .role-step-head h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 750;
+  }
+  .role-step-head p {
+    grid-column: 2;
+    margin: 0;
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .role-step-number {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--pine);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .role-field {
+    display: grid;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 650;
+  }
+  .role-field i {
+    color: var(--text-3);
+    font-style: normal;
+    font-weight: 500;
+  }
+  .role-field input,
+  .role-field textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .role-field input:focus,
+  .role-field textarea:focus {
+    border-color: var(--pine);
+    outline: 0;
+    box-shadow: 0 0 0 4px rgb(18 56 47 / 0.12);
+  }
+  .role-field input[aria-invalid="true"] {
+    border-color: var(--error);
+  }
+  .role-count {
+    justify-self: end;
+    color: var(--text-3);
+    font-size: 14px;
+  }
+  .role-count.full {
+    color: var(--urgent-text);
+  }
+  .role-error {
+    color: var(--error-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .role-holders {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .role-holder,
+  .role-pick-person {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 4px var(--s3);
+    align-items: center;
+    padding: 10px var(--s3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .role-holder.given {
+    border-color: var(--pine);
+    background: var(--pine-soft);
+  }
+  .role-holder.taken {
+    border-style: dashed;
+    border-color: var(--border-strong);
+    background: transparent;
+  }
+  .role-holder-face {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .role-holder-name {
+    display: grid;
+    min-width: 0;
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .role-holder-name b {
+    overflow: hidden;
+    color: var(--ink);
+    font-size: 15px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .role-holder.taken .role-holder-name b {
+    text-decoration: line-through;
+  }
+  .role-none,
+  .role-inactive {
+    margin: 0;
+    color: var(--text-3);
+    font-size: 14px;
+  }
+  .role-step > .button {
+    justify-self: start;
+  }
+  .role-discard,
+  .role-pick {
+    display: grid;
+    gap: var(--s3);
+    width: min(440px, calc(100vw - 32px));
+    padding: var(--s6);
+  }
+  .role-discard h2,
+  .role-pick h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .role-pick-list {
+    display: grid;
+    gap: var(--s2);
+    max-height: 50vh;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    list-style: none;
+  }
+  .role-pick-person {
+    width: 100%;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+}
+
+@layer widths {
+  @media (max-width: 899px) {
+    .role-step {
+      padding: var(--s4);
+    }
+  }
+}

@@ -9,7 +9,7 @@ import { activate, change, remove } from '../../actions.ts';
 import { dateOf, nowMs } from '../../logic.ts';
 import { useUsersContext } from '../../state.ts';
 import { cardTexts as t, texts } from '../../texts.ts';
-import { PersonRoles } from '../Roles/PersonRoles.tsx';
+import { PersonRoles } from '../PersonRoles/PersonRoles.tsx';
 import { Avatar, LastSignIn, Roles } from '../Users/List.tsx';
 import { Access, Note } from './Access.tsx';
 import { Editable } from './Edit.tsx';

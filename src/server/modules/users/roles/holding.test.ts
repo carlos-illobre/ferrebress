@@ -1,3 +1,4 @@
+import { sql } from 'kysely';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createRolesKit, type RolesKit } from '../../../testing/users/roles-kit.ts';
 
@@ -152,5 +153,59 @@ describe('guardar un rol con sus personas, todo junto (02 · R7.13)', () => {
   it('users-E60: la lista de roles ya no dice quiénes los tienen: sale de la de Usuarios', async () => {
     const roles = (await kit.admin.request('/api/roles')).body.roles;
     expect(roles.every((role: object) => !('holders' in role))).toBe(true);
+  });
+
+  it('users-E50: dar el rol con la confirmación vieja la pide; con una versión vieja, otro lo cambió', async () => {
+    const view = await kit.role('Para confirmar', ['users.view']);
+    const juli = await kit.person([view]);
+    const other = await kit.role('Lo de Juli', ['offline.work']);
+    const { version } = await roleOf(other);
+    kit.later();
+    expect((await save(other, { give: [juli.id] })).body).toEqual({ error: 'confirm-first' });
+    expect((await save(other, { take: [] })).status).toBe(200);
+    await kit.reconfirm();
+    const stale = await kit.admin.request(`/api/roles/${other}`, {
+      version: version + 5,
+      give: [juli.id],
+    });
+    expect(stale.body).toEqual({ error: 'changed' });
+  });
+
+  it('quien ya tiene 50 roles no recibe uno más', async () => {
+    const view = await kit.role('Cincuenta', ['users.view']);
+    const kai = await kit.person([view]);
+    await sql`insert into users.roles (id, name)
+      select gen_random_uuid(), 'Relleno ' || n from generate_series(1, 49) as n`.execute(
+      kit.server.platform.db,
+    );
+    await sql`insert into users.user_roles (user_id, role_id)
+      select ${kai.id}::uuid, id from users.roles where name like 'Relleno %'`.execute(
+      kit.server.platform.db,
+    );
+    const extra = await kit.role('El 51', ['offline.work']);
+    expect((await save(extra, { give: [kai.id] })).body).toEqual({
+      error: 'too-many-roles',
+      userId: kai.id,
+    });
+    await sql`delete from users.user_roles where role_id in (select id from users.roles where name like 'Relleno %')`.execute(
+      kit.server.platform.db,
+    );
+    await sql`delete from users.roles where name like 'Relleno %'`.execute(kit.server.platform.db);
+  });
+
+  it('users-E56: sacarse a sí mismo solo «Administrar personas» dice ese permiso', async () => {
+    const system = await kit.systemRole();
+    const roles = await kit.role('Solo roles', ['roles.manage']);
+    const people = await kit.role('Solo personas', ['users.manage']);
+    await kit.setRoles(kit.adminId, [system, roles, people]);
+    const { version } = await roleOf(system);
+    await kit.admin.request(`/api/roles/${system}`, {
+      version,
+      permissions: ['roles.manage', 'users.view', 'users.cut', 'offline.work'],
+    });
+    expect((await save(people, { take: [kit.adminId] })).body).toEqual({
+      error: 'self',
+      permission: 'users.manage',
+    });
   });
 });

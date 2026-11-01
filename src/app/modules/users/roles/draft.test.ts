@@ -145,4 +145,16 @@ describe('el borrador de un rol (02 · R7.13)', () => {
       give: ['beto'],
     });
   });
+
+  it('dar a quien ya lo tenía después de sacárselo lo deja como estaba; sacar a quien se le daba, también', () => {
+    const draft = fromRole(role(), ['ana']);
+    expect(give(take(draft, 'ana'), 'ana')).toMatchObject({ give: [], take: [] });
+    expect(take(give(draft, 'beto'), 'beto')).toMatchObject({ give: [], take: [] });
+  });
+
+  it('duplicar uno sin descripción la deja vacía; un nombre cambiado queda encima del rol nuevo', () => {
+    expect(duplicateOf(role({ description: null })).description).toBe('');
+    const draft = { ...fromRole(role(), []), name: 'Mío' };
+    expect(reapply(draft, role({ version: 9, name: 'De otro' }), []).name).toBe('Mío');
+  });
 });

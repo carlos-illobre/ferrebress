@@ -5,6 +5,7 @@ import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { person as me } from '../sign-in/index.ts';
+import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
 import {
   access,
   graciela,
@@ -21,7 +22,7 @@ import {
 
 const admin = roles[0]?.id as string;
 const shift = { id: 'enc', name: 'Encargado de turno', description: null };
-const shiftRow = { ...shift, system: false, version: 1, permissions: ['users.view'], holders: [] };
+const shiftRow = { ...shift, system: false, version: 1, permissions: ['users.view'] };
 const lucia = person({ id: 'lucia', displayName: 'Lucía Fernández', roleIds: ['enc'] });
 const all = { body: { roles: [...roles, shift], people: [ruben, graciela, lucia] } };
 const choose = async (name: RegExp) => {
@@ -52,11 +53,12 @@ describe('Usuarios según los permisos', () => {
       '/api/users': all,
       '/api/roles': { body: { roles: [...roleRows, shiftRow] } },
       '/api/users/lucia/access': { body: access },
-      '/api/users/lucia/roles': { body: { roles: [admin] } },
+      '/api/users/lucia/roles': [
+        { status: 409, body: { error: 'self' } },
+        { body: { roles: [admin] } },
+      ],
     });
     await choose(/Lucía/);
-    await new Promise((r) => setTimeout(r, 300));
-    console.log('CARD', document.querySelector('.users-card')?.textContent);
     const picker = await inCard().findByRole('group', { name: 'Roles de Lucía' });
     const abilities = () =>
       (document.querySelector('.person-abilities') as HTMLElement).textContent;
@@ -71,8 +73,39 @@ describe('Usuarios según los permisos', () => {
     fireEvent.click(within(picker).getByRole('checkbox', { name: /Administrador/ }));
     fireEvent.click(within(picker).getByRole('checkbox', { name: /Encargado/ }));
     fireEvent.click(inCard().getByRole('button', { name: /Guardar los roles/ }));
+    await waitFor(() => expect(toast()).toMatch(/te lo tiene que hacer otra persona/));
+    const save = inCard().getByRole('button', { name: /Guardar los roles/ });
+    await waitFor(() => expect(save.getAttribute('aria-busy')).not.toBe('true'));
+    fireEvent.click(save);
     await waitFor(() => expect(toast()).toBe('Roles de Lucía Fernández guardados'));
-    expect(server.bodies('/api/users/lucia/roles')).toEqual([{ version: 1, roles: [admin] }]);
+    expect(server.bodies('/api/users/lucia/roles')).toEqual([
+      { version: 1, roles: [admin] },
+      { version: 1, roles: [admin] },
+    ]);
+  });
+
+  it('users-E50: darle un rol desde su tarjeta con la confirmación vieja pide confirmar y lo repite', async () => {
+    const frame = googleFrame();
+    const server = openUsers({
+      '/api/users': all,
+      '/api/roles': { body: { roles: [...roleRows, shiftRow] } },
+      '/api/users/lucia/access': { body: access },
+      '/api/users/lucia/roles': [
+        { status: 403, body: { error: 'confirm-first' } },
+        { body: { roles: [admin] } },
+      ],
+      '/api/start': startReply(),
+      '/api/session/confirm/google': {},
+    });
+    await choose(/Lucía/);
+    const picker = await inCard().findByRole('group', { name: 'Roles de Lucía' });
+    fireEvent.click(within(picker).getByRole('checkbox', { name: /Administrador/ }));
+    fireEvent.click(inCard().getByRole('button', { name: /Guardar los roles/ }));
+    expect(await screen.findByRole('alertdialog', { name: 'Confirmá que sos vos' })).toBeTruthy();
+    frame.ready();
+    await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(1));
+    frame.credential('pase');
+    await waitFor(() => expect(server.bodies('/api/users/lucia/roles')).toHaveLength(2));
   });
 
   it('users-E42: autorizar no se manda sin ningún rol tildado', async () => {

@@ -1,0 +1,94 @@
+/* La vista previa del rol, solo en la computadora (maqueta users-roles/final). */
+@layer screens {
+  .role-step,
+  .role-preview {
+    display: grid;
+    gap: var(--s3);
+    padding: var(--s5);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .role-preview {
+    position: sticky;
+    top: 132px;
+  }
+  .role-preview-lead {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .role-preview h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 750;
+  }
+  .role-preview-card {
+    display: grid;
+    gap: 4px;
+    justify-items: center;
+    padding: var(--s4);
+    border-radius: var(--radius);
+    background: var(--soft);
+    text-align: center;
+  }
+  .role-preview-card .roles-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 4px;
+  }
+  .role-preview-card b {
+    font-size: 17px;
+    overflow-wrap: anywhere;
+  }
+  .role-preview-card span {
+    color: var(--text-2);
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  .role-preview-groups {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .role-preview-groups li {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 24px;
+    gap: var(--s3);
+    align-items: center;
+    padding: 6px 0;
+  }
+  .role-preview-groups li + li {
+    border-top: 1px solid var(--border);
+  }
+  .role-preview-groups li > span:nth-child(2) {
+    display: grid;
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .role-mark {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--sunken-2);
+    color: var(--text-2);
+  }
+  .role-mark.on {
+    background: var(--success);
+    color: #fff;
+  }
+  .role-preview-note {
+    display: flex;
+    gap: var(--s2);
+    margin: 0;
+    padding: var(--s3);
+    border-radius: var(--radius);
+    background: var(--pine-soft);
+    color: var(--pine-text);
+    font-size: 14px;
+  }
+}

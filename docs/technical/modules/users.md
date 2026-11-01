@@ -560,13 +560,14 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
   (`modules/frame/screens/NoPermission`), porque vale para cualquier opción. Pide
   `/api/permissions/:id/holders` y arma «Copiar el pedido» en el portapapeles.
 - **La pestaña Roles** (maqueta final `users-roles/final/`, aprobada): `modules/users/roles/`, que se
-  baja recién al abrirla, con `screens/` (lo de abajo), `draft.ts`, `search.ts`, `actions.ts` y
-  `texts.ts`. Los roles de una persona (`PersonRoles`, `RolePicker`, de la tarjeta y de autorizar) van
-  a `modules/users/person-roles/`. Cada vista tiene su dirección: `/users/roles` la lista,
+  baja recién al abrirla, con `screens/` (lo de abajo), `draft.ts`, `search.ts`, `actions.ts`,
+  `paths.ts` (las direcciones y quiénes tienen cada rol) y `texts.ts`. Los roles de una persona
+  (`PersonRoles`, `RolePicker`, de la tarjeta y de autorizar) van a `screens/PersonRoles/`, con sus
+  textos en `role-texts.ts` y su guardado en `role-actions.ts`. Cada vista tiene su dirección: `/users/roles` la lista,
   `/users/roles/new` el rol nuevo y `/users/roles/<id>` uno que existe, así atrás vuelve a la lista y
   se puede recargar. Sin «Administrar roles» la pestaña no está, y si se pierde usándola se cierra
   como cualquier pantalla (R7.8). Dos vistas que ocupan la pestaña, nunca a la vez:
-  - **La lista** (`Roles.tsx`, R7.12): el buscador, «Nuevo rol» y una tarjeta por rol (`RoleRow.tsx`)
+  - **La lista** (`RoleList.tsx` y `RoleRow.tsx`, R7.12; `Roles.tsx` elige la vista por la dirección): el buscador, «Nuevo rol» y una tarjeta por rol (`RoleRow.tsx`)
     con su ícono, nombre, descripción, cuántos permisos, cuántas personas y sus iniciales (en el
     celular, los dos números en recuadros y como mucho dos círculos). Sin coincidencias, «Crear el rol
     «…»» abre uno nuevo con lo escrito como nombre.
@@ -574,8 +575,10 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
     `RoleInfo.tsx` (paso 1, con «n/200»), `RolePermissions.tsx` (paso 2: un grupo plegable por parte,
     con su ícono y «n de m»; al abrir, solo el primero desplegado; cada permiso con su ícono y, en la
     computadora, su explicación; lo incluido con candado), `RoleHolders.tsx` (paso 3: quienes lo
-    tienen, lo dado y lo sacado marcado hasta guardar con «Deshacer», y «Darle este rol a…», que busca
-    entre las personas activas) y, en la computadora, `RolePreview.tsx`. En el celular, una columna
+    tienen, lo dado y lo sacado marcado hasta guardar con «Deshacer», y «Darle este rol a…»,
+    `GivePicker.tsx`, que busca entre las personas activas) y, en la computadora, `RolePreview.tsx`.
+    Los botones, en `RoleActions.tsx`; lo que no se pudo guardar, en `Problems.tsx`; «¿Descartar…?»,
+    en `Discard.tsx`; y lo que da acceso, en palabras, en `gives.ts`. En el celular, una columna
     con «Guardar rol» y «Cancelar» fijos abajo, y «Duplicar» y «Borrar el rol» al final.
   - **Lo que se arma** vive en un borrador, `draft.ts` (reglas, sin Preact), en el estado de la
     pantalla del rol: se pierde al salir de ella o al «Salir», así en la computadora del mostrador
@@ -622,7 +625,8 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
     resaltado, y pide de nuevo `GET /api/roles` y `GET /api/users`.
   - **Lo que se borra de la pantalla anterior:** la tarjeta al costado, «Quién puede qué», las cuentas
     de arriba, los segmentos y el rol que se despliega debajo de su renglón.
-  Los íconos de los permisos y de las partes, en `frame/permission-icons.ts`, como en «Sin permiso».
+  Los íconos de los permisos y de las partes, en `frame/permission-icons.ts`, como en «Sin permiso»;
+  los que solo usa la pestaña, en `ui/icon/roles-shapes.tsx`, que llegan con ella.
   Los nombres y correos de las personas, de la lista de Usuarios, que `roles.manage` incluye (R7.1).
 - **Los roles de una persona** (maquetas `users-person-roles`: la 1 en la computadora y la 2 en el
   celular, con interruptores de roles): en la tarjeta y en el diálogo de autorizar. En el celular,

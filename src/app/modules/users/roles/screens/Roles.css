@@ -1,0 +1,194 @@
+/* La pestaña Roles (maqueta users-roles/final): la lista con el buscador y las tarjetas de los
+   roles. La pantalla de un rol, en RoleScreen.css. El gris de adentro de las tarjetas es más suave
+   que el fondo: mitad fondo, mitad blanco (pedido de Carlos). */
+@layer screens {
+  .roles-list,
+  .role-screen {
+    --soft: color-mix(in srgb, var(--background) 50%, var(--surface));
+  }
+  /* La pestaña se desplaza sola, con el margen de Usuarios a los costados. */
+  .roles-tab {
+    height: 100%;
+    overflow: auto;
+    padding: 0 var(--s8);
+  }
+  .roles-empty {
+    padding: var(--s8);
+    color: var(--text-2);
+  }
+  .roles-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s4);
+    max-width: 1086px;
+    padding-top: var(--s5);
+  }
+  .roles-bar {
+    display: flex;
+    gap: var(--s2);
+    align-items: center;
+  }
+  .roles-search {
+    display: flex;
+    flex: 1;
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+    height: 44px;
+    padding: 0 var(--s3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    color: var(--text-3);
+  }
+  .roles-search:focus-within {
+    border-color: var(--pine);
+    box-shadow: 0 0 0 4px rgb(18 56 47 / 0.12);
+  }
+  .roles-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .roles-rows {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .roles-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) 132px 272px 16px;
+    gap: 4px var(--s4);
+    align-items: center;
+    width: 100%;
+    padding: 14px var(--s4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: transform var(--time-micro) var(--ease);
+  }
+  .roles-row:hover {
+    border-color: var(--border-strong);
+  }
+  .roles-row:active {
+    transform: scale(0.995);
+  }
+  .roles-row.arriving {
+    animation: roles-arrive var(--time-nav) var(--bounce) both;
+  }
+  .roles-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--pine-soft);
+    color: var(--pine);
+  }
+  .roles-main {
+    display: grid;
+    min-width: 0;
+  }
+  .roles-main b {
+    font-size: 16px;
+    line-height: 22px;
+  }
+  .roles-main span {
+    overflow: hidden;
+    color: var(--text-2);
+    font-size: 14px;
+    line-height: 20px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .roles-stats {
+    display: contents;
+  }
+  .roles-stat,
+  .roles-stat > span {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    min-width: 0;
+    color: var(--text-2);
+    font-size: 14px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  .roles-stat b {
+    font-weight: 650;
+  }
+  .roles-stat.empty {
+    color: var(--text-3);
+  }
+  .roles-faces {
+    display: inline-flex;
+  }
+  .roles-face {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--surface);
+    border-radius: 50%;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+    font-size: 12px;
+    font-weight: 800;
+    box-sizing: content-box;
+  }
+  .roles-face + .roles-face {
+    margin-left: -8px;
+  }
+  .roles-face.tone-0 {
+    background: var(--action-soft);
+    color: var(--action-text);
+  }
+  .roles-face.tone-2 {
+    background: var(--success-soft);
+    color: var(--success-text);
+  }
+  .roles-face.tone-3,
+  .roles-face.more {
+    background: var(--sunken-2);
+    color: var(--ink);
+  }
+  .roles-face.tone-4 {
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+  }
+  .roles-nothing {
+    display: grid;
+    gap: var(--s2);
+    justify-items: center;
+    padding: var(--s10) var(--s4);
+    color: var(--text-2);
+    text-align: center;
+  }
+  @keyframes roles-arrive {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .roles-row.arriving {
+      animation: none;
+    }
+  }
+}

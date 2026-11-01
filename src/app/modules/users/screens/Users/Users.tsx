@@ -15,7 +15,7 @@ import { Authorize } from '../Overlays/Authorize.tsx';
 import { ConfirmCloseAll, ConfirmDeactivate } from '../Overlays/Confirm.tsx';
 import { Lost } from '../Overlays/Lost.tsx';
 import { Search } from '../Overlays/Search.tsx';
-import { AuthorizeButton, Head, LostButton, NewRoleButton } from './Head.tsx';
+import { AuthorizeButton, Head, LostButton } from './Head.tsx';
 import { List } from './List.tsx';
 import { Filters, Stats } from './Summary.tsx';
 import './Users.css';
@@ -25,12 +25,13 @@ addShapes(peopleShapes);
 type Sheet = Awaited<ReturnType<typeof loadConfirmSheet>>['ConfirmSheet'];
 
 // La hoja de volver a confirmar quién es, que se baja recién ahora.
-function Confirm({ retry, close }: { retry: () => unknown; close: () => void }) {
+function Confirm(props: { retry: () => unknown; close: () => void; what: string[] }) {
+  const { retry, close } = props;
   const [sheet, setSheet] = useState<{ Sheet: Sheet }>();
   useEffect(() => {
     void loadConfirmSheet().then((loaded) => setSheet({ Sheet: loaded.ConfirmSheet }));
   }, []);
-  return sheet ? <sheet.Sheet onConfirmed={retry} onClose={close} /> : null;
+  return sheet ? <sheet.Sheet onConfirmed={retry} onClose={close} what={props.what} /> : null;
 }
 
 function Overlay() {
@@ -49,7 +50,9 @@ function Overlays() {
   return (
     <>
       <Overlay />
-      {users.retry && <Confirm retry={users.retry.again} close={users.confirmed} />}
+      {users.retry && (
+        <Confirm retry={users.retry.again} close={users.confirmed} what={users.retry.what} />
+      )}
     </>
   );
 }
@@ -62,7 +65,7 @@ function CardStep() {
 }
 
 type RolesScreen = Awaited<ReturnType<typeof loadRoles>>['Roles'];
-const loadRoles = () => import('../Roles/Roles.tsx');
+const loadRoles = () => import('../../roles/screens/Roles.tsx');
 
 // La pestaña Roles, que se baja recién al abrirla (diseño de 02, § 20).
 function RolesTab() {
@@ -111,6 +114,7 @@ export function Users() {
         class={users.selected ? 'users with-card' : 'users'}
         aria-label={texts.title}
         data-off={users.online ? undefined : ''}
+        data-in-role={users.inRole ? '' : undefined}
       >
         <Head />
         {!users.online && (
@@ -122,16 +126,12 @@ export function Users() {
         <div class="users-content" inert={!users.online}>
           <Body />
         </div>
-        <div class="users-bar phone-only">
-          {users.tab === 'roles' ? (
-            <NewRoleButton />
-          ) : (
-            <>
-              <LostButton />
-              <AuthorizeButton />
-            </>
-          )}
-        </div>
+        {users.tab === 'people' && (
+          <div class="users-bar phone-only">
+            <LostButton />
+            <AuthorizeButton />
+          </div>
+        )}
       </section>
       {narrow && users.selected && <CardStep />}
       <Overlays />

@@ -5,7 +5,6 @@ import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { PhoneLight } from '../../../frame/index.ts';
-import { roleTexts } from '../../role-texts.ts';
 import { useUsersContext } from '../../state.ts';
 import { texts } from '../../texts.ts';
 import './Head.css';
@@ -23,26 +22,6 @@ export function AuthorizeButton() {
       disabled={!users.online}
     >
       {texts.authorize}
-    </Button>
-  );
-}
-
-// Un rol nuevo (R7.3), en la pestaña Roles.
-export function NewRoleButton() {
-  const users = useUsersContext();
-  return (
-    <Button
-      look="action"
-      icon="shield"
-      shortcut="n"
-      doing={roleTexts.newRole}
-      onPress={() => {
-        users.setDraft(undefined);
-        users.setRoleCard('new');
-      }}
-      disabled={!users.online}
-    >
-      {roleTexts.newRole}
     </Button>
   );
 }
@@ -78,9 +57,7 @@ export function Head() {
         </div>
         <SearchButton />
         <div class="users-actions desktop-only">
-          {users.tab === 'roles' ? (
-            <NewRoleButton />
-          ) : (
+          {users.tab === 'people' && (
             <>
               {users.may.cut && (
                 <Button

@@ -1,0 +1,178 @@
+/* La pantalla de un rol (maqueta users-roles/final): arriba el camino, el título y los botones, que
+   quedan fijos al bajar, y lo que no se pudo guardar; los pasos, en RoleSteps.css y
+   RolePermissions.css, y la vista previa, en RolePreview.css. Sin cambios, «Guardar rol» va apagado
+   en gris (pedido de Carlos). En el celular, «‹ Roles» para volver y «Guardar rol» y «Cancelar» fijos
+   abajo, encima del menú. */
+@layer screens {
+  .role-head {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "crumbs crumbs" "title actions" "lead actions";
+    gap: 2px var(--s6);
+    align-items: end;
+    padding: var(--s4) 0;
+    background: var(--background);
+  }
+  .role-crumbs {
+    grid-area: crumbs;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: var(--text-2);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .role-crumbs > span {
+    overflow: hidden;
+    color: var(--ink);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .role-back {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 2px 4px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--text-2);
+    font: inherit;
+    cursor: pointer;
+  }
+  .role-back:hover {
+    color: var(--pine);
+    text-decoration: underline;
+  }
+  .role-back .icon {
+    display: none;
+  }
+  .role-title {
+    grid-area: title;
+    margin: 0;
+    overflow: hidden;
+    font-size: 28px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .role-lead {
+    grid-area: lead;
+    margin: 0;
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .role-actions {
+    grid-area: actions;
+    display: flex;
+    gap: var(--s2);
+    align-items: center;
+  }
+  .role-actions-gap {
+    width: 1px;
+    height: 28px;
+    margin: 0 4px;
+    background: var(--border-strong);
+  }
+  .role-screen .button-action:disabled {
+    border-color: var(--border);
+    background: var(--sunken);
+    color: var(--text-3);
+    box-shadow: none;
+    opacity: 1;
+  }
+  .role-problems,
+  .role-notice {
+    display: flex;
+    gap: var(--s3);
+    align-items: flex-start;
+    margin: 0;
+    padding: var(--s3) var(--s4);
+    border-radius: var(--radius);
+    font-size: 15px;
+  }
+  .role-problems {
+    border: 1px solid var(--error);
+    background: var(--error-soft);
+    color: var(--error-text);
+  }
+  .role-problems ul {
+    margin: var(--s1) 0 0;
+    padding-left: var(--s5);
+  }
+  .role-notice {
+    border: 1px solid var(--urgent);
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+  }
+  .role-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--s6);
+    align-items: start;
+  }
+  .role-extra {
+    display: flex;
+    gap: var(--s2);
+  }
+  .role-discard p {
+    margin: 0;
+    color: var(--text-2);
+  }
+  .role-discard-foot {
+    display: flex;
+    gap: var(--s2);
+    justify-content: flex-end;
+  }
+}
+
+@layer widths {
+  @media (max-width: 899px) {
+    .users[data-in-role] .users-head,
+    .users[data-in-role] .users-tabs {
+      display: none;
+    }
+    .role-screen {
+      padding-bottom: 150px;
+    }
+    .role-head {
+      position: static;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "crumbs" "title" "lead";
+      padding: var(--s2) 0 0;
+    }
+    .role-crumbs > .icon,
+    .role-crumbs > span {
+      display: none;
+    }
+    .role-back {
+      color: var(--pine-text);
+      font-size: 17px;
+    }
+    .role-back .icon {
+      display: block;
+    }
+    .role-title {
+      font-size: 26px;
+      white-space: normal;
+    }
+    .role-columns {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .role-foot {
+      position: fixed;
+      right: 0;
+      bottom: calc(76px + env(safe-area-inset-bottom));
+      left: 0;
+      z-index: 4;
+      display: grid;
+      gap: 4px;
+      padding: var(--s3) var(--s4);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+  }
+}

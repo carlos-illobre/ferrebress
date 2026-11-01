@@ -7,11 +7,11 @@ import type { RoleRow, RoleSummary } from '@ferrebress/shared/contracts/roles';
 import type { AccessResponse, PersonRow } from '@ferrebress/shared/contracts/users';
 import { createContext } from 'preact';
 import { useContext, useEffect, useState } from 'preact/hooks';
+import { navigate, route } from '../../platform/router.ts';
 import { type ApiResult, online as onlineStore } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
 import { showToast } from '../../ui/toast/Toast.tsx';
 import { person as me, pendingEntries } from '../sign-in/index.ts';
-import type { RoleDraft } from './api.ts';
 import { usersApi } from './api.ts';
 import { type Filter, visible } from './logic.ts';
 import { refusalTexts, somethingFailed } from './texts.ts';
@@ -85,20 +85,21 @@ function useCard() {
   return { selected, access, select, loadAccess };
 }
 
+export const rolesPath = '/users/roles';
+
 // Qué se ve de la lista: el filtro y lo buscado.
 function useView() {
   const [filter, setFilter] = useState<Filter>('all');
   const [search, setSearch] = useState('');
   const [role, setRole] = useState<string>();
-  // La pestaña: las personas o, con «Administrar roles», los roles (R7.3).
-  const [tab, setTab] = useState<'people' | 'roles'>('people');
-  // El rol abierto en la pestaña Roles, o uno nuevo (con lo de otro, al duplicar).
-  const [roleCard, setRoleCard] = useState<string>();
-  const [draft, setDraft] = useState<RoleDraft>();
-  return {
-    ...{ filter, setFilter, search, setSearch, role, setRole, tab, setTab },
-    ...{ roleCard, setRoleCard, draft, setDraft },
-  };
+  // La pestaña sale de la dirección: /users/roles y lo de adentro son de Roles (R7.13).
+  const path = useStore(route).path;
+  const tab: 'people' | 'roles' =
+    path === rolesPath || path.startsWith(`${rolesPath}/`) ? 'roles' : 'people';
+  const setTab = (to: 'people' | 'roles') => navigate(to === 'roles' ? rolesPath : '/users');
+  // Con un rol abierto, en el celular el rol ocupa la pantalla (maqueta users-roles/final).
+  const inRole = path.startsWith(`${rolesPath}/`);
+  return { filter, setFilter, search, setSearch, role, setRole, tab, setTab, inRole };
 }
 
 // Lo que puede hacer quien mira (R7.7, R7.11): lo demás no aparece; el servidor igual lo rechaza.
@@ -117,7 +118,7 @@ function useMay() {
   };
 }
 
-// Los roles con sus permisos y quiénes los tienen, para quien los administra (R7.3).
+// Los roles con sus permisos, para quien los administra (R7.3). Quiénes los tienen sale de la lista.
 function useRoleRows(may: boolean) {
   const [rows, setRows] = useState<RoleRow[]>();
   const loadRoles = async () => {
@@ -126,6 +127,23 @@ function useRoleRows(may: boolean) {
     if (result.ok) setRows(result.data.roles);
   };
   return { roleRows: rows, loadRoles };
+}
+
+// Lo que hay que repetir después de confirmar quién es (R3.8), y qué da, para decirlo.
+function useRetry() {
+  const [retry, setRetry] = useState<{ again: () => unknown; what: string[] }>();
+  return {
+    retry,
+    confirmFirst: (again: () => unknown, what: string[] = []) => setRetry({ again, what }),
+    confirmed: () => setRetry(undefined),
+  };
+}
+
+// Si le sacan «Administrar roles» con la pestaña abierta, se cierra (R7.8): a la lista de personas.
+function useRolesTabClosing(tab: 'people' | 'roles', may: boolean) {
+  useEffect(() => {
+    if (tab === 'roles' && !may) navigate('/users', { replace: true, force: true });
+  }, [tab, may]);
 }
 
 export function useUsers() {
@@ -138,9 +156,9 @@ export function useUsers() {
   // y un pedido la daría por cerrada (15 · R3). Se espera a que la confirme.
   const unconfirmed = useStore(pendingEntries) > 0;
   const [overlay, setOverlay] = useState<Overlay>();
-  // Lo que hay que repetir después de confirmar quién es (R3.8).
-  const [retry, setRetry] = useState<{ again: () => unknown }>();
+  const retrying = useRetry();
   const view = useView();
+  useRolesTabClosing(view.tab, may.roles);
   // Al abrir; sin conexión, cuando vuelve (con la lista que ya tenía no se pide de nuevo).
   useEffect(() => {
     if (online && !unconfirmed && !list.people) void list.load();
@@ -167,9 +185,7 @@ export function useUsers() {
     overlay,
     open: setOverlay,
     close: () => setOverlay(undefined),
-    retry,
-    confirmFirst: (again: () => unknown) => setRetry({ again }),
-    confirmed: () => setRetry(undefined),
+    ...retrying,
     ...view,
   };
 }
@@ -196,5 +212,9 @@ export function refused(users: Users, result: Failed, target?: string): void {
     users.select(undefined);
     users.drop(target);
   }
-  showToast(refusalTexts[result.error] ?? somethingFailed, 'triangle-alert');
+  showToast(refusalText(result.error), 'triangle-alert');
 }
+
+// El texto de un rechazo; uno que no tiene el suyo, el de siempre.
+export const refusalText = (error: string) =>
+  refusalTexts[error as keyof typeof refusalTexts] ?? somethingFailed;

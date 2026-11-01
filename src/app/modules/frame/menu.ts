@@ -127,7 +127,11 @@ export const unavailable = (option: Option, online: boolean) => !!option.needsIn
 export const openOption = (option: Option, from: string, replace = false) =>
   option.path && navigate(option.path, { state: { from }, replace });
 
-// La opción de una dirección: la que la tiene como suya.
-// El manual no cuenta: se abre encima de la pantalla, que sigue debajo (R1.4).
+// La opción de una dirección: la que la tiene como suya, también con algo más adentro (/users/roles
+// es de Usuarios, 02 · R7.13). El manual no cuenta: se abre encima de la pantalla, que sigue debajo
+// (R1.4).
+const under = (path: string, own: string) => path === own || path.startsWith(`${own}/`);
 export const optionAt = (path: string) =>
-  [...parts, ...moreOptions].find((option) => option.path === path && !option.over);
+  [...parts, ...moreOptions].find(
+    (option) => option.path !== undefined && under(path, option.path) && !option.over,
+  );

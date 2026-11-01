@@ -1,0 +1,123 @@
+/* «2 Asignar permisos»: los grupos que se pliegan y, adentro, sobre el gris suave, cada permiso con
+   su casilla y su ícono, que se pinta de pino suave al tildarlo (maqueta users-roles/final). */
+@layer screens {
+  .role-groups {
+    display: grid;
+    gap: var(--s2);
+  }
+  .role-group {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .role-group-head {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto 20px;
+    gap: var(--s3);
+    align-items: center;
+    width: 100%;
+    padding: 10px 14px 10px 10px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .role-group-name {
+    display: grid;
+  }
+  .role-group-name b {
+    font-size: 16px;
+  }
+  .role-group-name span {
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .role-group-count {
+    color: var(--text-3);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .role-group-count.some {
+    color: var(--pine-text);
+  }
+  .role-group-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px var(--s6);
+    margin: 0 var(--s2) var(--s2);
+    padding: var(--s3) var(--s4) var(--s4);
+    border-radius: 10px;
+    background: var(--soft);
+  }
+  .role-permission {
+    display: grid;
+    grid-template-columns: 22px 36px minmax(0, 1fr);
+    gap: var(--s3);
+    align-items: start;
+    padding: var(--s2) 4px;
+    cursor: pointer;
+  }
+  .role-permission.tied {
+    cursor: default;
+  }
+  .role-permission input {
+    width: 22px;
+    height: 22px;
+    margin: 7px 0 0;
+    accent-color: var(--pine);
+    cursor: inherit;
+  }
+  .role-permission-icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text-2);
+  }
+  .role-permission input:checked + .role-permission-icon {
+    border-color: transparent;
+    background: var(--pine-soft);
+    color: var(--pine);
+  }
+  .role-permission-text {
+    display: grid;
+    min-width: 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-2);
+  }
+  .role-permission-text b {
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 22px;
+  }
+  .role-tied {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    margin-top: 4px;
+    color: var(--pine-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+@layer widths {
+  @media (max-width: 899px) {
+    .role-group-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .role-permission {
+      align-items: center;
+    }
+    .role-permission input {
+      margin: 0;
+    }
+  }
+}

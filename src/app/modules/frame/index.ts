@@ -11,7 +11,7 @@ export {
   updateOnSignIn,
   watchBackground,
 } from './notices/update/update.ts';
-export { permissionIcons } from './permission-icons.ts';
+export { groupIcons, permissionIcons } from './permission-icons.ts';
 export { Frame, type FrameProps, TestEnvironment } from './screens/Frame/Frame.tsx';
 export { PhoneLight } from './screens/Phone/Phone.tsx';
 export { discardWork, halfDone, registerWork, type Work } from './work.ts';

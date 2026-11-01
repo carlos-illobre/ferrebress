@@ -119,4 +119,17 @@ describe('la guarda: preguntar antes de dejar algo sin guardar (02 · R7.13, E64
     backward.mockRestore();
     release();
   });
+
+  it('una guarda nueva reemplaza a la anterior; atrás vuelve a la dirección con lo de después del #', () => {
+    navigate('/users/roles/e#algo');
+    const first = vi.fn();
+    guardNavigation(first);
+    const asks: (() => void)[] = [];
+    const release = guardNavigation((go) => asks.push(go));
+    back('/users/roles');
+    expect(first).not.toHaveBeenCalled();
+    expect(asks).toHaveLength(1);
+    expect(`${location.pathname}${location.hash}`).toBe('/users/roles/e#algo');
+    release();
+  });
 });

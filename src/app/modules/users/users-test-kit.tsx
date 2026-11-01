@@ -23,7 +23,6 @@ export const roleRows = [
     system: true,
     version: 1,
     permissions: [...administrator.permissions],
-    holders: ['ruben', 'graciela'],
   },
 ];
 const hour = 3_600_000;

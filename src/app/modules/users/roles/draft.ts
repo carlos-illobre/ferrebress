@@ -180,7 +180,7 @@ export function reapply(draft: Draft, role: RoleRow, holders: string[]): Draft {
 export type DraftErrors = {
   name?: 'role-no-name' | 'role-name-taken';
   permissions?: true;
-  people?: Record<string, 'no-roles'>;
+  people?: Record<string, 'no-roles' | 'person-inactive' | 'person-missing'>;
   self?: 'roles.manage' | 'users.manage';
 };
 
@@ -197,7 +197,7 @@ const nameError = (draft: Draft, roles: RoleRow[]) => {
 const orphans = (draft: Draft, roleIdsOf: Record<string, string[]>) =>
   Object.fromEntries(
     draft.take
-      .filter((id) => (roleIdsOf[id] ?? []).every((roleId) => roleId === draft.id))
+      .filter((id) => (roleIdsOf[id] as string[]).every((roleId) => roleId === draft.id))
       .map((id) => [id, 'no-roles' as const]),
   );
 

@@ -8,7 +8,7 @@ import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { authorize } from '../../actions.ts';
 import { useUsersContext } from '../../state.ts';
 import { refusalTexts, dialogTexts as t } from '../../texts.ts';
-import { RolePicker } from '../Roles/RolePicker.tsx';
+import { RolePicker } from '../PersonRoles/RolePicker.tsx';
 import './Overlays.css';
 
 const looksLikeEmail = (text: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text.trim());
