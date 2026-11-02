@@ -2,7 +2,7 @@
 
 El registro de lo que hace cada persona y cómo se consulta. Reglas completas en [rules.md](rules.md).
 
-**Estado:** paso 1, para aprobar. La historia de un dato se muestra con el catálogo (roadmap,
+**Estado:** reglas aprobadas. La historia de un dato se muestra con el catálogo (roadmap,
 T115); cuánto se guarda se decide con el plan de copias (T116).
 
 ## Cada regla en una línea

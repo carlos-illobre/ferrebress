@@ -3,7 +3,7 @@
 El registro de lo que hace cada persona en el sistema, y cómo se consulta. Lo anotan todos los
 capítulos; este dice qué se guarda de cada acción, quién lo ve y cómo.
 
-**Estado:** paso 1, para aprobar.
+**Estado:** reglas aprobadas.
 
 **La idea:** la base guarda el presente y este registro, la historia (constitución, principio V).
 Solo recibe acciones nuevas: nada de lo anotado se cambia ni se borra desde la aplicación.
