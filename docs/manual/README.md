@@ -33,7 +33,8 @@ paso 9 de cada uno (constitución). La aplicación lo arma desde estos archivos;
 - purchases · Compras · truck
 - stock-counts · Contar · list-checks
 - business-overview · Números del negocio · chart-column
-- users · Personas · user-round · users.md
+- users · Usuarios · user-round · users.md
+- roles · Roles · users · roles.md
 - audit-log · Auditoría · history
 - processes · Procesos · workflow
 - tickets · Mejoras y errores · bug

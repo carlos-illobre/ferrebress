@@ -1,4 +1,4 @@
-// Los íconos que suma el capítulo «Personas» del manual (docs/manual/users.md). Lucide 0.460
+// Los íconos que suma el capítulo «Usuarios» del manual (docs/manual/users.md). Lucide 0.460
 // (licencia ISC), copiados de docs/design/common/icons/, como los de icons.ts.
 import type { Shape } from './shape.ts';
 

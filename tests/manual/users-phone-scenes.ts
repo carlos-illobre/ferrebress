@@ -1,4 +1,4 @@
-// Las escenas de Usuarios en el celular, para el capítulo «Personas» del manual: las mismas
+// Las escenas de Usuarios en el celular, para el capítulo «Usuarios» del manual: las mismas
 // personas inventadas que en la computadora (users-scenes.ts).
 
 import type { Scene } from './scenes.ts';

@@ -1,4 +1,4 @@
-// Las escenas de Usuarios para el capítulo «Personas» del manual: Ana, una persona con dos sesiones
+// Las escenas de Usuarios para el capítulo «Usuarios» del manual: Ana, una persona con dos sesiones
 // y un celular con huella, una que todavía no entró y una dada de baja, todas inventadas.
 
 import { type BrowserContext, expect, type Locator, type Page } from '@playwright/test';

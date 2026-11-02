@@ -1,4 +1,4 @@
-// Las escenas de la pestaña Roles para el capítulo «Personas» del manual (02 · R7.12, R7.13), en la
+// Las escenas de la pestaña Roles para el capítulo «Roles» del manual (02 · R7.12, R7.13), en la
 // computadora y en el celular: el Administrador y «Encargado de turno», que tiene Lucía, con las
 // mismas personas inventadas que el resto de Usuarios.
 
