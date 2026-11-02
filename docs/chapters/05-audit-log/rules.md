@@ -72,8 +72,8 @@ registro se decide con el plan de copias de la base.
 - **R4.3** **De a cuántas:** de a 20 en la computadora y de a 10 en el celular, siempre con el
   total que coincide con los filtros y la página en la que se está («página 3 de 8»), con
   anterior y siguiente.
-- **R4.4** **Cada acción, en la lista:** la hora (y la fecha, si no es de hoy), quién, el texto de
-  qué pasó, a quién o a qué y el tipo de dispositivo. Lleva un color según lo que es:
+- **R4.4** **Cada acción, en la lista:** a la izquierda, el ícono de su tipo (R4.10); la hora (y la
+  fecha, si no es de hoy), quién, el texto de qué pasó, a quién o a qué y el tipo de dispositivo. Lleva un color según lo que es:
   - **Rojo:** lo que borra o saca: dar de baja, borrar una persona o un rol, cortar un celular
     perdido, quitar un celular con huella, cerrar las sesiones de otro. Los capítulos que vienen
     suman los suyos (una venta anulada).
@@ -93,12 +93,25 @@ registro se decide con el plan de copias de la base.
 - **R4.6** **Las acciones nuevas no aparecen solas:** la aplicación no le pide nada al servidor sin
   que la toquen (constitución, principio III). La lista se pone al día al volver a la pestaña, al
   cambiar un filtro o de página, y con «Actualizar».
-- **R4.7** **El detalle:** al tocar una acción se ve todo lo que se guardó de ella (R2): qué pasó,
+- **R4.7** **El detalle:** en la computadora está siempre abierto al lado de la lista y muestra la
+  acción elegida, que cambia al recorrer la lista con el teclado; al abrir, la primera. En el celular
+  se abre al tocar una acción. Se ve todo lo que se guardó de ella (R2): qué pasó,
   cuándo, quién, a quién o a qué, lo que había antes y lo que quedó, el dispositivo, el navegador y
   la dirección de internet. Tocar una persona, en la lista o en el detalle, filtra por ella: como
   «Hecho por» si la hizo, como «Hecho a» si la recibió.
 - **R4.8** En la computadora todo se hace con el teclado: recorrer la lista, abrir el detalle,
   cambiar de página y llegar a los filtros (00 · capítulo 2).
+
+- **R4.9** **Arriba de la lista, un resumen** del período que muestran los filtros de fecha (al
+  abrir, de hoy):
+  - tres números: cuántas acciones hubo, cuántos intentos rechazados y cuántas acciones borraron o
+    sacaron algo (las rojas de R4.4). Tocar los rechazos o lo que borró o sacó filtra la lista por
+    eso, y tocarlo de nuevo saca ese filtro; tocar el total saca los dos;
+  - en la computadora, el día en una tira: una raya por acción, en su hora y con su color; tocar una
+    raya elige esa acción en la lista y la muestra en el detalle.
+- **R4.10** **Cada tipo de acción tiene su ícono,** que no se repite entre tipos y es el mismo en
+  todas partes. Lo elige el capítulo que anota la acción, junto con su texto (R2.1). Un intento
+  rechazado tiene su propio tipo y, por lo tanto, su propio ícono.
 
 ## 5. La conexión
 
@@ -205,6 +218,14 @@ registro se decide con el plan de copias de la base.
 - **E34** **Dado** Quién hizo qué abierto, **cuando** otra persona hace una acción, **entonces** la
   lista no cambia sola ni le pide nada al servidor; aparece con «Actualizar», al cambiar un filtro o
   de página, o al volver a la pestaña.
+- **E35b** **Dado** dos acciones de tipos distintos, **cuando** se miran en la lista, **entonces**
+  cada una tiene a la izquierda el ícono de su tipo, y los dos íconos son distintos; dos acciones del
+  mismo tipo tienen el mismo ícono.
+- **E35c** **Dado** el resumen con 4 rechazos, **cuando** se toca «Rechazos», **entonces** la lista
+  muestra solo los rechazos; al tocarlo de nuevo, vuelve a mostrar todo.
+- **E35d** **Dado** la computadora, **cuando** se abre Quién hizo qué y se baja por la lista con el
+  teclado, **entonces** el detalle muestra la primera acción y después cada acción a la que se llega,
+  sin tocar nada más.
 - **E35** **Dado** la computadora, **cuando** se usa solo el teclado, **entonces** se recorre la
   lista, se abre el detalle, se cambia de página y se llega a cada filtro.
 
