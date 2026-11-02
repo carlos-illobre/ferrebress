@@ -336,7 +336,7 @@ su detalle.». Al arrancar se le suma solo al Administrador (diseño de 02, § 1
 | `platform/device.ts` | El navegador y el sistema, en códigos, de la lista cerrada |
 | `src/shared/audit-log/` | El catálogo (§ 4) |
 | `src/shared/time/business.ts` | La zona horaria del negocio y los días en instantes |
-| `modules/audit-log/` (servidor) | `index.ts` (el registro: el permiso, las rutas, `provideTone`), `routes.ts` (las dos rutas y sus parámetros), `rules.ts` (grupo a tipos, atajos a días, qué campos salen) |
+| `modules/audit-log/` (servidor) | `index.ts` (el registro: el permiso, las rutas, `provideTone`), `routes.ts` (las tres rutas y sus parámetros), `rules.ts` (grupo a tipos, atajos a días, qué campos salen) |
 | `modules/audit-log/` (aplicación) | La pantalla (§ 8) |
 
 ## 7. Eventos, conexiones y sin conexión
