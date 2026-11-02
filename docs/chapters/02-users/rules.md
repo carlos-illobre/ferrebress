@@ -29,7 +29,7 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
 ## 2. Dónde está
 
 - **R2.1** En Más → Usuarios (00 · R1.2): administrar personas no es parte del negocio. Tiene tres
-  pestañas: Usuarios, Roles (R7) y Auditoría, que es del capítulo 05. Cada una aparece solo para
+  pestañas: Usuarios, Roles (R7) y Quién hizo qué, que es del capítulo 05. Cada una aparece solo para
   quien tiene su permiso (R7.7). En la computadora y en el celular, con las mismas reglas
   (00 · R1.5).
 - **R2.2** Todo lo de este capítulo necesita conexión: sin conexión, Usuarios se ve gris con «Sin

@@ -18,3 +18,4 @@ conexión, la pantalla se pone gris y solo deja salir.
 | 15 · Sin conexión | Entrar con la huella en el celular con «Trabajar sin conexión» prendido | Sí, hasta 24 horas desde el último contacto | El celular verifica la huella y el servidor lo confirma al volver la conexión |
 | 01 · Entrar | Seguir trabajando con la sesión abierta | Sí | La sesión no vence en el dispositivo mientras se lo use |
 | 01 · Entrar | Salir | Sí | El servidor cierra la sesión al volver la conexión |
+| 05 · Quién hizo qué | Consultar lo que hizo cada persona | No | El registro está en el servidor |

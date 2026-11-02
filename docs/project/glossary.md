@@ -160,7 +160,9 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 
 | Castellano | Qué es | En el código |
 |---|---|---|
-| Auditoría | El registro de cada acción, con quién la hizo | `auditLog` |
+| Auditoría | El registro de cada acción, con quién la hizo. La pestaña donde se consulta se llama «Quién hizo qué» | `auditLog` |
+| Hecho por / hecho a | Quién hizo una acción y a quién o a qué se la hizo | `actor` / `target` |
+| Intento rechazado | Una acción que el sistema no dejó hacer, y que igual se anota | `rejected` |
 | Evento | Una acción registrada | `event` |
 | Ticket | Un aviso de error o un pedido de mejora | `ticket` |
 | Error / mejora | Los dos tipos de ticket | `bug` / `improvement` |

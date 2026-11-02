@@ -10,7 +10,7 @@ Reglas completas en [rules.md](rules.md).
 - **Quién administra:** cada cosa la hace quien tiene su permiso; el primer Administrador se carga al
   instalar con un comando que se niega si ya hay personas; siempre queda alguien activo con
   «Administrar personas» y alguien con «Administrar roles», y nadie se los quita a sí mismo (R1).
-- **Dónde:** Más → Usuarios, con las pestañas Usuarios, Roles y Auditoría, cada una para quien tiene
+- **Dónde:** Más → Usuarios, con las pestañas Usuarios, Roles y Quién hizo qué, cada una para quien tiene
   su permiso; igual en el celular y en la computadora; sin conexión, gris (R2).
 - **Las personas:** activas y dadas de baja, con «Vos», una pastilla por rol (y filtro por rol) y
   cuándo entró por última vez; autorizar es nombre, correo de cualquier cuenta de Google y al menos
