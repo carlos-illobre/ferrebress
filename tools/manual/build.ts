@@ -23,7 +23,7 @@ import { type Problems, problemAt } from './text.ts';
 export type Built = { files: Map<string, Buffer>; problems: Problems };
 
 // Los topes de lo que arma (diseño del manual, § 2).
-export const maxBytes = { index: 4 * 1024, chapter: 16 * 1024, search: 40 * 1024 };
+export const maxBytes = { index: 8 * 1024, chapter: 24 * 1024, search: 40 * 1024 };
 
 function readPlain(dir: string, file: string, problems: Problems): string | undefined {
   try {

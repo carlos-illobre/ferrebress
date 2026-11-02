@@ -1,0 +1,21 @@
+{
+  "device": "computer",
+  "width": 1100,
+  "height": 618,
+  "points": {
+    "take": [
+      66.5,
+      81.5
+    ],
+    "undo": [
+      63.1,
+      91
+    ],
+    "save": [
+      88.9,
+      25.5
+    ]
+  },
+  "hash": "bdd1123d70b07a4df1ec8a192cc506365296aa5b426ea641d6500ac55c8fc8b8",
+  "file": "e63f546ad6a2ea647f82bd85af60fa98ff5b60e40160dfbd00601f423276c6d2"
+}

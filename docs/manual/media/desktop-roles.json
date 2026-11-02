@@ -1,0 +1,25 @@
+{
+  "device": "computer",
+  "width": 1100,
+  "height": 618,
+  "points": {
+    "tab": [
+      26.9,
+      11.3
+    ],
+    "search": [
+      19.7,
+      19.8
+    ],
+    "new": [
+      89.8,
+      19.8
+    ],
+    "role": [
+      21.2,
+      41
+    ]
+  },
+  "hash": "fd366814fd27173bbed39dfcee721375bedfd81646c76177b463b2e7fadcab48",
+  "file": "7424ac6d844dee4575437ebb1a3a0bc0836e4d4bda01a9ddd152fe8116558a96"
+}

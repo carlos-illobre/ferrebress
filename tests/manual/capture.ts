@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { type Scene as SceneFile, sha256 } from '../../tools/manual/media.ts';
 import { closedContext, devices, expectClean, mediaDir, phoneData, toWebp } from './media.ts';
+import { rolesScenes } from './roles-scenes.ts';
 import { now, type Scene, scenes } from './scenes.ts';
 import { signInScenes } from './sign-in-scenes.ts';
 import { phoneUserScenes } from './users-phone-scenes.ts';
@@ -64,7 +65,13 @@ test('el encierro corta lo de afuera', async ({ browser, baseURL }) => {
   await context.close();
 });
 
-for (const scene of [...scenes, ...signInScenes, ...userScenes, ...phoneUserScenes]) {
+for (const scene of [
+  ...scenes,
+  ...signInScenes,
+  ...userScenes,
+  ...phoneUserScenes,
+  ...rolesScenes,
+]) {
   test(scene.name, async ({ browser, baseURL }, testInfo) => {
     const device = devices[scene.device];
     const { context, escaped } = await closedContext(browser, baseURL as string, device.options);

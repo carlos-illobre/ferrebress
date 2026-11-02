@@ -110,8 +110,8 @@ armar la aplicación, y deja en `dist/manual/`:
 
 | Archivo | Qué tiene | Tope |
 |---|---|---|
-| `index.json` | La versión de la aplicación y la lista en orden: id, nombre, ícono, si está escrito o a qué lleva; y, de los escritos, por tarea: id, título, dispositivo, ícono, marca y cantidad de pasos | 4 KB |
-| `<capítulo>.json` | El capítulo entero, con cada captura con sus puntos ya ubicados | 16 KB |
+| `index.json` | La versión de la aplicación y la lista en orden: id, nombre, ícono, si está escrito o a qué lleva; y, de los escritos, por tarea: id, título, dispositivo, ícono, marca y cantidad de pasos | 8 KB |
+| `<capítulo>.json` | El capítulo entero, con cada captura con sus puntos ya ubicados | 24 KB |
 | `search-computer.json` y `search-phone.json` | Por tarea: capítulo, id, título, aclaración y cada paso y consejo, con el texto original | 40 KB |
 | `media/*` | Las capturas (WebP) y los clips (WebM, con su cuadro final en WebP) | 90 KB cada captura, 1,5 MB cada clip |
 | `app-<hash>.js` y `.css` | El código de la pantalla (§ 4) | 20 KB comprimido |

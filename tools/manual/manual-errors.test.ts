@@ -231,7 +231,7 @@ describe('buildManual, lo que frena', () => {
     const long = 'x'.repeat(maxBytes.chapter);
     expect(problemsOf({ 'sign-in.md': chapter.replace('Poné el dedo.', long) })).toEqual(
       expect.arrayContaining([
-        expect.stringMatching(/^\/manual\/sign-in\.json: pesa \d+ bytes \(tope 16384\)$/),
+        expect.stringMatching(/^\/manual\/sign-in\.json: pesa \d+ bytes \(tope 24576\)$/),
       ]),
     );
     rmSync(dir, { recursive: true });
