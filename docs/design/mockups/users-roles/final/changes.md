@@ -176,3 +176,9 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
 Todo lo que no figura acá sigue la imagen de Carlos.
 - **Sin «Cancelar»** en la pantalla del rol (pedido de Carlos): salir es descartar; con cambios,
   pregunta «¿Descartar los cambios del rol?» antes.
+- **En la aplicación, el rol en el celular toma la forma de la lista de Roles** (pedido de Carlos, por
+  consistencia): sin «‹ Roles», que se vuelve con el atrás del celular; el título del tamaño de
+  «Usuarios» con la luz «En línea» debajo y, una fila de 44 px
+  como la del buscador y «Nuevo rol», con borrar y duplicar a la izquierda y «Guardar rol» a la
+  derecha, fija al bajar. «¿Descartar los cambios del rol?» sube de borde a borde, con «Seguir
+  editando» y «Descartar» mitad y mitad.

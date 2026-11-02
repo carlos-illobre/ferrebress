@@ -10,7 +10,7 @@ import { isPhone } from '../../../../../platform/device/device.ts';
 import { guardNavigation, navigate } from '../../../../../platform/router.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../../ui/toast/Toast.tsx';
-import { registerWork } from '../../../../frame/index.ts';
+import { PhoneLight, registerWork } from '../../../../frame/index.ts';
 import { usersApi } from '../../../api.ts';
 import { refusalText, useUsersContext } from '../../../state.ts';
 import { somethingFailed } from '../../../texts.ts';
@@ -131,7 +131,6 @@ export function RoleScreen({ start }: { start: Draft }) {
   const title = draft.id ? start.name : t.newTitle;
   return (
     <section class="role-screen" aria-label={title}>
-      <PhoneBar draft={draft} dirty={dirty} save={saving.save} />
       <header class="role-head">
         <nav class="role-crumbs" aria-label={t.crumbs}>
           <button
@@ -148,10 +147,12 @@ export function RoleScreen({ start }: { start: Draft }) {
           <span>{draft.id ? start.name : t.newCrumb}</span>
         </nav>
         <h2 class="role-title">{title}</h2>
+        <PhoneLight />
         <p class="role-lead">{t.lead}</p>
         <RoleActions draft={draft} dirty={dirty} save={saving.save} />
-        <RoleSummary draft={draft} />
       </header>
+      <PhoneBar draft={draft} dirty={dirty} save={saving.save} />
+      <RoleSummary draft={draft} />
       <Problems
         errors={saving.errors}
         notice={saving.notice}

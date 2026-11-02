@@ -11,6 +11,9 @@ export function Discard({ go, stay, lead }: { go: () => void; stay: () => void; 
       <h2>{t.discardTitle}</h2>
       <p>{lead}</p>
       <div class="role-discard-foot">
+        <Button doing={t.keepEditing} onPress={stay} closes primary>
+          {t.keepEditing}
+        </Button>
         <Button
           look="red"
           icon="trash-2"
@@ -22,9 +25,6 @@ export function Discard({ go, stay, lead }: { go: () => void; stay: () => void; 
           }}
         >
           {t.discard}
-        </Button>
-        <Button look="dark" doing={t.keepEditing} onPress={stay} closes primary>
-          {t.keepEditing}
         </Button>
       </div>
     </Dialog>

@@ -1,7 +1,7 @@
-/* El celular (maqueta users-roles/final, pedido de Carlos): arriba, una barra fija y compacta con
-   «‹ Roles», borrar, duplicar y «Guardar» chico; debajo, el título y el resumen; los pasos, más
-   compactos. Separaciones medidas en la referencia: 16 px a los costados, botones de 40 px, 8 px
-   entre botones, 12 px entre bloques y 20 px antes del menú de abajo. */
+/* El celular (maqueta users-roles/final, pedido de Carlos), con la misma forma que la lista de Roles:
+   el título donde va «Usuarios» y del mismo tamaño, con la luz «En línea» debajo, y debajo una fila como la del
+   buscador y «Nuevo rol», del mismo alto (44 px): borrar y duplicar a la izquierda y «Guardar rol» a
+   la derecha. La fila queda fija al bajar. Después, el resumen y los pasos, más compactos. */
 @layer widths {
   @media (max-width: 899px) {
     .users[data-in-role] .users-head,
@@ -17,39 +17,25 @@
       top: 0;
       z-index: 4;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--s3);
-      height: 56px;
-      margin: 0 calc(-1 * var(--s4));
-      padding: 0 var(--s4) 0 var(--s2);
-      border-bottom: 1px solid var(--border);
-      background: var(--background);
-    }
-    .role-phone-bar .role-back {
-      gap: 2px;
-      min-height: 40px;
-      padding: 0 var(--s2);
-      color: var(--pine-text);
-      font-size: 16px;
-      font-weight: 650;
-    }
-    .role-back .icon {
-      display: block;
-    }
-    .role-phone-actions {
-      display: flex;
       gap: var(--s2);
       align-items: center;
+      margin: 0 calc(-1 * var(--s4));
+      padding: var(--s2) var(--s4);
+      background: var(--background);
+    }
+    .role-phone-bar .button {
+      margin-left: auto;
+      box-shadow: var(--shadow-action);
     }
     .role-icon-button {
       display: grid;
       place-items: center;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       border: 1px solid var(--border-strong);
-      border-radius: 10px;
+      border-radius: var(--radius);
       background: var(--surface);
+      box-shadow: var(--shadow-1);
       color: var(--ink);
       cursor: pointer;
     }
@@ -58,30 +44,31 @@
       background: var(--error-soft);
       color: var(--error-text);
     }
-    .role-phone-actions .button {
-      min-height: 40px;
-      padding: 0 var(--s4);
-      border-radius: 10px;
-    }
     .role-head {
       position: static;
       grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: "title" "summary";
-      gap: var(--s2);
-      padding: 0;
+      grid-template-areas: "title" "light";
+      gap: var(--s1);
+      padding: calc(var(--s6) + env(safe-area-inset-top)) 0 0;
     }
+    .role-head .phone-light {
+      grid-area: light;
+      justify-self: start;
+    }
+    /* Sin «‹ Roles» ni bajada: se vuelve con el atrás del celular, y en su lugar va la luz «En línea»,
+       como en la lista (pedido de Carlos). */
     .role-crumbs,
     .role-lead {
       display: none;
     }
     .role-title {
-      font-size: 26px;
-      line-height: 32px;
+      font-size: 28px;
+      line-height: 34px;
+      font-weight: 800;
       white-space: normal;
     }
     .role-summary {
       display: grid;
-      grid-area: summary;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: var(--s2);
     }
@@ -114,6 +101,17 @@
     }
     .role-steps {
       gap: var(--s3);
+    }
+    /* Los avisos suben desde abajo de borde a borde (maqueta): sin el ancho de la computadora, y
+       los dos botones mitad y mitad. */
+    .role-discard,
+    .role-pick {
+      width: auto;
+      padding: var(--s4) var(--s4) calc(var(--s5) + env(safe-area-inset-bottom));
+    }
+    .role-discard-foot {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
     }
   }
 }
