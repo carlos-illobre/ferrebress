@@ -66,19 +66,21 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
 - **Celular:** una columna, sin vista previa y cada permiso con su nombre solo. Para que sea fácil de
   usar y lo importante se vea al abrir (pedido de Carlos), se aparta de la imagen:
   - **Una barra de arriba fija y compacta,** que queda a la vista al bajar: «‹ Roles» a la izquierda
-    y, a la derecha, «Guardar» como botón chico (en un rol nuevo, «Crear»). No hay barra fija abajo
-    con un botón grande: abajo queda solo el menú de la aplicación.
-  - **«Duplicar» y «Borrar el rol» a la vista sin bajar:** debajo del título, una fila de dos botones
-    chicos con su ícono. Administrador no tiene «Borrar el rol»; en un rol nuevo no va la fila.
-  - **Un resumen debajo del título,** con dos pastillas que llevan a su paso al tocarlas:
+    y, a la derecha, «Duplicar», «Borrar el rol» y «Guardar» como botón chico (en un rol nuevo,
+    «Crear»). No hay barra fija abajo con un botón grande: abajo queda solo el menú de la aplicación.
+  - **«Duplicar» y «Borrar el rol» van a la izquierda de «Guardar», con el ícono solo** (copiar y
+    tacho, 40 × 40, el de borrar en rojo suave), con su nombre en `aria-label` y `title`: con el
+    texto, aunque fuera corto, no entran en 390 px junto a «‹ Roles» y «Guardar». Administrador no
+    tiene «Borrar el rol»; en un rol nuevo no va ninguno de los dos.
+  - **Un resumen debajo del título** (no hay otra fila de botones ahí), con dos pastillas que llevan a su paso al tocarlas:
     «🔑 N permisos» y «N personas» (con las iniciales, como en la lista; sin nadie, el ícono de
     personas). Se actualiza con cada cambio. Sin la bajada «Definí el nombre…».
   - **Los pasos, compactos:** menos aire en las tarjetas y en el encabezado de cada paso (número y
     título más chicos), la descripción en 2 renglones, los grupos y los permisos con íconos de 32 px.
   - **Las separaciones, medidas en la imagen** (su celular llevado a 390 de ancho): 16 px a los
     costados de la pantalla y de la barra de arriba (la imagen tiene 14); botones de 40 px de alto
-    («Guardar», «Duplicar», «Borrar el rol», las pastillas, «Darle este rol a…» y la cabecera de
-    cada grupo; la imagen tiene 40 y 39); 8 px entre botones y entre grupos (la imagen tiene 8),
+    («Guardar», los de Duplicar y Borrar de 40 × 40, las pastillas, «Darle este rol a…» y la cabecera de
+    cada grupo; la imagen tiene 40 y 39); 8 px entre botones (también entre los tres de arriba) y entre grupos (la imagen tiene 8),
     12 px entre los bloques y de relleno en cada tarjeta (la imagen tiene unos 10); los campos de
     44 px (la imagen tiene 33, chico para el dedo) y la descripción de dos renglones, como la de la
     imagen (66 px); 20 px entre lo último de la pantalla y el menú de abajo (la imagen tiene 19).
@@ -155,7 +157,7 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
 - **Lo de arriba del rol (el camino, el título y los botones) queda fijo al bajar,** y la vista
   previa también, con su propio desplazamiento: en 1366 × 768 la pantalla del rol no entra entera,
   y así «Guardar rol» y la vista previa no se pierden. En el celular, lo fijo es la barra de arriba
-  con «‹ Roles» y «Guardar».
+  con «‹ Roles», Duplicar, Borrar y «Guardar».
 - **El texto de la imagen se ajustó a lo que pidió Carlos y al lenguaje:** «Definí el nombre, la
   descripción y los permisos de este rol.» (solo en la computadora); «Así se verá este rol una vez
   creado.» en uno nuevo y «Así va a quedar cuando lo guardes.» en uno que existe.
