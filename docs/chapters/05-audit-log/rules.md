@@ -91,8 +91,8 @@ registro se decide con el plan de copias de la base.
   nombre que tenían. Cambiar un filtro vuelve a la página 1. Si nada coincide, lo dice y ofrece
   sacar los filtros.
 - **R4.6** **Las acciones nuevas no aparecen solas:** la aplicación no le pide nada al servidor sin
-  que la toquen (constitución, principio III). La lista se pone al día al volver a la pestaña, al
-  cambiar un filtro o de página, y con «Actualizar».
+  que la toquen (constitución, principio III). La lista se pone al día al tocar la pestaña, al
+  cambiar un filtro o de página, al tocar un número del resumen y con «Actualizar».
 - **R4.7** **El detalle:** en la computadora está siempre abierto al lado de la lista y muestra la
   acción elegida, que cambia al recorrer la lista con el teclado; al abrir, la primera. En el celular
   se abre al tocar una acción. Se ve todo lo que se guardó de ella (R2): qué pasó,
@@ -106,9 +106,11 @@ registro se decide con el plan de copias de la base.
   abrir, de hoy):
   - tres números: cuántas acciones hubo, cuántos intentos rechazados y cuántas acciones borraron o
     sacaron algo (las rojas de R4.4). Tocar los rechazos o lo que borró o sacó filtra la lista por
-    eso, y tocarlo de nuevo saca ese filtro; tocar el total saca los dos;
+    eso, en el período del resumen (pone ese período como fecha y saca el filtro por tipo); tocarlo
+    de nuevo saca ese filtro; tocar el total saca los dos;
   - en la computadora, el día en una tira: una raya por acción, en su hora y con su color; tocar una
-    raya elige esa acción en la lista y la muestra en el detalle.
+    raya elige esa acción en la lista y la muestra en el detalle; si esa acción no está en los
+    filtros, saca los filtros, menos la fecha.
 - **R4.10** **Cada tipo de acción tiene su ícono,** que no se repite entre tipos y es el mismo en
   todas partes. Lo elige el capítulo que anota la acción, junto con su texto (R2.1). Un intento
   rechazado tiene su propio tipo y, por lo tanto, su propio ícono.
@@ -116,7 +118,8 @@ registro se decide con el plan de copias de la base.
 ## 5. La conexión
 
 - **R5.1** Quién hizo qué necesita conexión: sin conexión, se ve gris con «Sin conexión», como el
-  resto de Usuarios (02 · R2.2), y vuelve sola al volver la conexión (00 · R4.4).
+  resto de Usuarios (02 · R2.2), y vuelve sola al volver la conexión (00 · R4.4): sale del gris sin pedir nada, y la lista queda como
+  estaba hasta que se toque algo.
 
 ## 6. Lo que no se hace, y por qué
 
@@ -217,12 +220,13 @@ registro se decide con el plan de copias de la base.
   a».
 - **E34** **Dado** Quién hizo qué abierto, **cuando** otra persona hace una acción, **entonces** la
   lista no cambia sola ni le pide nada al servidor; aparece con «Actualizar», al cambiar un filtro o
-  de página, o al volver a la pestaña.
+  de página, o al tocar la pestaña.
 - **E35b** **Dado** dos acciones de tipos distintos, **cuando** se miran en la lista, **entonces**
   cada una tiene a la izquierda el ícono de su tipo, y los dos íconos son distintos; dos acciones del
   mismo tipo tienen el mismo ícono.
 - **E35c** **Dado** el resumen con 4 rechazos, **cuando** se toca «Rechazos», **entonces** la lista
-  muestra solo los rechazos; al tocarlo de nuevo, vuelve a mostrar todo.
+  muestra solo los rechazos del período del resumen, sin filtro por tipo; al tocarlo de nuevo, saca
+  ese filtro.
 - **E35d** **Dado** la computadora, **cuando** se abre Quién hizo qué y se baja por la lista con el
   teclado, **entonces** el detalle muestra la primera acción y después cada acción a la que se llega,
   sin tocar nada más.
@@ -232,7 +236,7 @@ registro se decide con el plan de copias de la base.
 ### La conexión y la seguridad
 
 - **E36** **Dado** Quién hizo qué abierto, **cuando** se corta la conexión, **entonces** se ve gris
-  con «Sin conexión», y vuelve sola al volver la conexión.
+  con «Sin conexión», y al volver la conexión sale del gris sin pedirle nada al servidor.
 - **E37** **Dado** una persona con el permiso, **cuando** intenta cambiar o borrar una acción
   anotada, **entonces** no hay forma de hacerlo, ni en la aplicación ni en el servidor.
 - **E38** **Dado** un texto escrito por alguien (un nombre, un correo intentado) con algo que
