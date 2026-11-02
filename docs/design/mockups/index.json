@@ -480,6 +480,43 @@
      "path": "mockups/app-no-permission/phone/variant-3-keyring/index.html"
     }
    ]
+  },
+  {
+   "id": "users-who-did-what",
+   "title": "Usuarios · Quién hizo qué",
+   "module": "05 · Quién hizo qué",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "1 · El libro",
+     "path": "mockups/users-who-did-what/desktop/variant-1-ledger/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · Cara a cara",
+     "path": "mockups/users-who-did-what/desktop/variant-2-faces/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · La cinta",
+     "path": "mockups/users-who-did-what/desktop/variant-3-tape/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · El libro",
+     "path": "mockups/users-who-did-what/phone/variant-1-ledger/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · Cara a cara",
+     "path": "mockups/users-who-did-what/phone/variant-2-faces/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · La cinta",
+     "path": "mockups/users-who-did-what/phone/variant-3-tape/index.html"
+    }
+   ]
   }
  ]
 }

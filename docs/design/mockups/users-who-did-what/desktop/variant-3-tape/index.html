@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Usuarios · Quién hizo qué · 3 · La cinta · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/audit.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { height: 100vh; overflow: hidden; }
+  .cinta-app { height: 100vh; display: grid; grid-template-rows: 64px minmax(0, 1fr) auto; }
+  /* Arriba: sin lateral ni pestañas. La F, de dónde viene, los días y reproducir */
+  .top { display: flex; align-items: center; gap: 16px; padding: 0 24px; border-bottom: 1px solid var(--borde); background: var(--superficie); }
+  .top .iso { width: 32px; height: 32px; }
+  .top .volver { display: inline-flex; align-items: center; gap: 4px; color: var(--texto-2); font-weight: 650; font-size: 15px; text-decoration: none; cursor: pointer; background: none; border: 0; padding: 0; }
+  .top h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+  .dias { display: flex; gap: 4px; padding: 4px; background: var(--hundido); border-radius: var(--r); }
+  .dia-b { display: grid; justify-items: center; gap: 2px; min-width: 64px; padding: 4px 8px 6px; border: 0; border-radius: 9px; background: transparent; font: inherit; cursor: pointer; color: var(--texto-2); transition: background var(--t-micro); }
+  .dia-b .d { font-size: 14px; font-weight: 750; line-height: 16px; }
+  .dia-b .barras { display: flex; gap: 2px; height: 10px; align-items: flex-end; }
+  .dia-b .barras i { width: 3px; border-radius: 2px; background: var(--texto-3); opacity: .5; display: block; }
+  .dia-b .barras i.rojo { background: var(--error); opacity: 1; } .dia-b .barras i.ambar { background: var(--urgente); opacity: 1; }
+  .dia-b.elegido { background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra-1); }
+  .play { min-width: 168px; }
+
+  /* La cinta: una fila por persona, el tiempo de izquierda a derecha */
+  .escena { position: relative; padding: 16px 24px 0; min-height: 0; display: flex; flex-direction: column; }
+  .leyenda { display: flex; gap: 16px; align-items: center; font-size: 14px; color: var(--texto-2); font-weight: 600; margin-bottom: 8px; }
+  .leyenda span { display: inline-flex; gap: 6px; align-items: center; }
+  .leyenda i.p { width: 10px; height: 10px; border-radius: 99px; display: inline-block; background: var(--texto-3); }
+  .leyenda i.p.rojo { background: var(--error); } .leyenda i.p.ambar { background: var(--urgente); } .leyenda i.p.anillo { background: transparent; box-shadow: inset 0 0 0 2px var(--texto-3); }
+  .leyenda .seg { margin-left: auto; }
+  .tablero { position: relative; flex: 1; min-height: 0; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); overflow: hidden; }
+  .carriles { position: absolute; inset: 0 0 32px 0; display: grid; }
+  .carril { display: grid; grid-template-columns: 196px 1fr; align-items: center; border-bottom: 1px solid var(--borde); position: relative; transition: opacity var(--t) var(--curva); cursor: pointer; }
+  .carril:last-child { border-bottom: 0; }
+  .carril .quien { display: flex; align-items: center; gap: 10px; padding: 0 14px; height: 100%; border-right: 1px solid var(--borde); font-size: 15px; font-weight: 700; min-width: 0; }
+  .carril .quien span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .carril .quien small { display: block; font-size: 14px; font-weight: 500; color: var(--texto-2); }
+  .carril.afuera { background: linear-gradient(90deg, var(--urgente-suave), rgba(255,243,216,.35)); }
+  .carril.baja .quien { color: var(--texto-3); }
+  .carril:hover .quien { background: var(--hundido); }
+  .tablero.aislado .carril:not(.foco) { opacity: .35; }
+  .eje { position: absolute; left: 196px; right: 0; bottom: 0; height: 32px; border-top: 1px solid var(--borde); }
+  .eje span { position: absolute; top: 6px; transform: translateX(-50%); font-size: 14px; color: var(--texto-3); font-weight: 650; }
+  .rejilla { position: absolute; left: 196px; right: 0; top: 0; bottom: 32px; pointer-events: none; }
+  .rejilla i { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--borde); opacity: .7; }
+  svg.flechas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  svg.flechas path { fill: none; stroke: var(--texto-3); stroke-width: 1.5; opacity: .28; stroke-dasharray: 3 4; transition: opacity var(--t); }
+  svg.flechas path.rojo { stroke: var(--error); } svg.flechas path.ambar { stroke: var(--urgente); }
+  svg.flechas path.sel { opacity: 1; stroke-width: 2.5; stroke-dasharray: none; stroke: var(--pino); }
+  svg.flechas path.sel.rojo { stroke: var(--error); }
+  .punto { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 99px; border: 2px solid var(--superficie); background: var(--texto-3); box-shadow: 0 1px 3px rgba(26,29,27,.25); cursor: pointer; padding: 0; transition: transform var(--t) var(--rebote); z-index: 2; }
+  .punto.rojo { background: var(--error); } .punto.ambar { background: var(--urgente); }
+  .punto.anillo { background: var(--superficie); border: 2.5px solid var(--texto-3); width: 12px; height: 12px; margin: -6px 0 0 -6px; z-index: 1; cursor: default; pointer-events: none; }
+  .punto.anillo.rojo { border-color: var(--error); }
+  .punto:hover { transform: scale(1.3); }
+  .punto.sel { transform: scale(1.6); box-shadow: 0 0 0 4px rgba(18,56,47,.18), 0 2px 6px rgba(26,29,27,.3); }
+  .punto.anillo.sel { transform: scale(1.4); border-color: var(--pino); }
+  .punto.late { animation: late 600ms var(--rebote); }
+  @keyframes late { 0% { transform: scale(1); } 40% { transform: scale(2.1); } 100% { transform: scale(1.6); } }
+  .cabezal { position: absolute; top: 0; bottom: 32px; left: 0; width: 2px; background: var(--pino); z-index: 3; pointer-events: none; will-change: transform; }
+  .cabezal .hora { position: absolute; bottom: -30px; left: 1px; transform: translateX(-50%); height: 26px; padding: 0 8px; border-radius: 8px; background: var(--pino); color: #fff; font-size: 14px; font-weight: 800; display: grid; place-items: center; white-space: nowrap; }
+  .cabezal .asa { position: absolute; top: -2px; left: 1px; width: 14px; height: 14px; margin-left: -7px; border-radius: 4px; background: var(--pino); }
+  .zona-arrastre { position: absolute; left: 196px; right: 0; bottom: 0; height: 32px; cursor: ew-resize; z-index: 4; }
+
+  /* El subtítulo: lo que pasó en el momento del cabezal */
+  .subtitulo { margin: 12px 24px 16px; display: grid; grid-template-columns: 96px minmax(0, 1fr) 280px; gap: 20px; align-items: start; padding: 16px 20px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-2); min-height: 150px; position: relative; overflow: hidden; }
+  .subtitulo::before { content: ""; position: absolute; left: 0; top: 16px; bottom: 16px; width: 4px; border-radius: 0 4px 4px 0; background: var(--borde-fuerte); }
+  .subtitulo.rojo::before { background: var(--error); } .subtitulo.ambar::before { background: var(--urgente); }
+  .subtitulo .cuando b { display: block; font-size: 32px; line-height: 36px; font-weight: 800; letter-spacing: -.02em; }
+  .subtitulo .cuando span { font-size: 14px; color: var(--texto-2); font-weight: 650; }
+  .subtitulo .frase { font-size: 22px; line-height: 30px; font-weight: 700; letter-spacing: -.01em; margin: 0 0 10px; }
+  .subtitulo .frase .quien-a, .subtitulo .frase .quien-por { font-weight: 800; }
+  .subtitulo .cambios { display: flex; gap: 8px; flex-wrap: wrap; }
+  .subtitulo .cambio { padding: 8px 12px; }
+  .subtitulo .desde { grid-template-columns: 1fr; gap: 0; border: 1px solid var(--borde); border-radius: var(--r); }
+  .subtitulo .desde > div { border: 0; border-radius: 0; grid-template-columns: 116px 1fr; align-items: center; padding: 6px 12px; }
+  .subtitulo .desde > div + div { border-top: 1px solid var(--borde); }
+  .subtitulo .desde .va { white-space: normal; }
+  .sub-in.cambia { animation: fundido var(--t) var(--curva); }
+  .teclas { position: absolute; right: 24px; top: 12px; display: flex; gap: 12px; font-size: 14px; color: var(--texto-3); font-weight: 600; }
+  body.offline .top .pastilla { background: var(--urgente-suave); color: var(--urgente-texto); }
+  .vacio-dia { position: absolute; inset: 0 0 32px 196px; display: grid; place-items: center; color: var(--texto-3); font-weight: 650; }
+</style>
+</head>
+<body>
+<div class="cinta-app">
+  <header class="top">
+    <img class="iso" src="../../../../common/brand/isotype.svg" alt="Ferrebress">
+    <button class="volver" data-ir="users"><i class="i i-s" data-i="chevron-left"></i>Usuarios</button>
+    <h1>Quién hizo qué</h1>
+    <button class="pastilla logro" data-luz style="border:0;cursor:pointer;margin-left:auto" title="En la maqueta: tocala para simular que se corta la conexión"><span class="punto"></span><span data-luz-texto>En línea · todo enviado</span></button>
+    <div class="dias zona-red" id="dias" role="tablist"></div>
+    <button class="btn btn-oscuro play zona-red" id="play"><i class="i i-s" data-i="play"></i><span>Reproducir</span> <span class="kbd">Espacio</span></button>
+  </header>
+  <section class="escena zona-red">
+    <div class="leyenda">
+      <span><i class="p"></i>Hizo algo</span><span><i class="p anillo"></i>Se lo hicieron</span><span><i class="p rojo"></i>Borra o saca</span><span><i class="p ambar"></i>Rechazo o sin confirmar</span>
+      <span class="seg"><span class="kbd">←</span><span class="kbd">→</span> de a una · <span class="kbd">↑</span><span class="kbd">↓</span> persona · <span class="kbd">Esc</span> todos</span>
+    </div>
+    <div class="tablero" id="tablero">
+      <div class="rejilla" id="rejilla"></div>
+      <div class="carriles" id="carriles"></div>
+      <svg class="flechas" id="flechas"></svg>
+      <div id="puntos"></div>
+      <div class="eje" id="eje"></div>
+      <div class="cabezal" id="cabezal"><span class="asa"></span><span class="hora" id="cab-hora">10:26</span></div>
+      <div class="zona-arrastre" id="arrastre" title="Arrastrá para moverte en el día"></div>
+    </div>
+  </section>
+  <section class="subtitulo zona-red" id="sub" aria-live="polite"></section>
+  <div class="gris-cartel" style="position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:30"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· vuelve sola</small></div>
+</div>
+<script src="../../shared/audit.js"></script>
+<script>
+(function () {
+  var AU = window.AU, $ = function (s) { return document.querySelector(s); };
+  var DIAS = ["2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31", "2026-11-02", "2026-11-03", "2026-11-04"];
+  var CORTO = { "2026-10-28": "mié 28", "2026-10-29": "jue 29", "2026-10-30": "vie 30", "2026-10-31": "sáb 31", "2026-11-02": "lun 2", "2026-11-03": "ayer", "2026-11-04": "Hoy" };
+  var CARRILES = ["anon", "rp", "gb", "ms", "sl", "no", "pg", "lf", "cr", "sys"];
+  var dia = AU.HOY, acciones = [], sel = null, foco = null, t0 = 7, t1 = 11, carrilesVis = [];
+  function min(a) { var h = a.hora.split(":"); return +h[0] + h[1] / 60; }
+
+  function renderDias() {
+    $("#dias").innerHTML = DIAS.map(function (d) {
+      var l = AU.filtrar({ desde: d, hasta: d });
+      var b = l.slice(0, 18).reverse().map(function (a) { return '<i class="' + AU.color(a) + '" style="height:' + (4 + (AU.color(a) ? 6 : 2)) + 'px"></i>'; }).join("");
+      return '<button class="dia-b' + (d === dia ? " elegido" : "") + '" data-d="' + d + '" role="tab"><span class="d">' + CORTO[d] + ' · ' + l.length + '</span><span class="barras">' + b + '</span></button>';
+    }).join("");
+  }
+  function x(t) { var w = $("#tablero").clientWidth - 196 - 24; return 196 + 12 + (t - t0) / (t1 - t0) * w; }
+  function render() {
+    acciones = AU.filtrar({ desde: dia, hasta: dia }).slice().reverse();
+    var ts = acciones.map(min);
+    t0 = Math.floor(Math.min.apply(null, ts.concat([9])) * 2) / 2 - .25; t1 = Math.ceil(Math.max.apply(null, ts.concat([10])) * 2) / 2 + .25;
+    if (t1 - t0 < 3) t1 = t0 + 3;
+    // Carriles: los que aparecen ese día, Alguien sin entrar arriba
+    carrilesVis = CARRILES.filter(function (id) { return acciones.some(function (a) { return a.quien === id || AU.aQuien(a).some(function (q) { return q.id === id; }); }); });
+    if (!carrilesVis.length) carrilesVis = ["rp"];
+    var alto = ($("#tablero").clientHeight - 32) / carrilesVis.length;
+    $("#carriles").style.gridTemplateRows = "repeat(" + carrilesVis.length + ", 1fr)";
+    $("#carriles").innerHTML = carrilesVis.map(function (id) {
+      var p = AU.P[id], n = acciones.filter(function (a) { return a.quien === id; }).length, r = acciones.filter(function (a) { return AU.aQuien(a).some(function (q) { return q.id === id; }); }).length;
+      return '<div class="carril' + (id === "anon" ? " afuera" : "") + (p.estado ? " baja" : "") + (foco === id ? " foco" : "") + '" data-c="' + id + '"><div class="quien">' + AU.avatar(id, "chico") + '<span>' + AU.esc(p.nombre) + '<small>' + (id === "anon" ? n + (n === 1 ? " intento" : " intentos") : "hizo " + n + (r ? " · recibió " + r : "")) + '</small></span></div><div></div></div>';
+    }).join("");
+    $("#tablero").classList.toggle("aislado", !!foco);
+    // Rejilla y eje
+    var g = "", e = "";
+    for (var h = Math.ceil(t0); h <= Math.floor(t1); h++) { g += '<i style="left:' + (x(h) - 196) + 'px"></i>'; e += '<span style="left:' + (x(h) - 196) + 'px">' + h + ' h</span>'; }
+    $("#rejilla").innerHTML = g; $("#eje").innerHTML = e;
+    // Puntos y flechas de quién a quién
+    var ph = "", fl = "";
+    function y(id) { return (carrilesVis.indexOf(id) + .5) * alto; }
+    acciones.forEach(function (a) {
+      var c = AU.color(a), xx = x(min(a)), yy = y(a.quien);
+      AU.aQuien(a).forEach(function (q) {
+        if (carrilesVis.indexOf(q.id) < 0) return;
+        var y2 = y(q.id), bend = Math.max(24, Math.abs(y2 - yy) * .35);
+        fl += '<path data-id="' + a.id + '" class="' + c + '" d="M' + xx + ' ' + yy + ' C ' + (xx + bend) + ' ' + yy + ', ' + (xx + bend) + ' ' + y2 + ', ' + xx + ' ' + y2 + '"/>';
+        ph += '<span class="punto anillo ' + c + '" data-r="' + a.id + '" style="left:' + xx + 'px;top:' + y2 + 'px"></span>';
+      });
+      ph += '<button class="punto ' + c + '" data-id="' + a.id + '" style="left:' + xx + 'px;top:' + yy + 'px" title="' + a.hora + ' · ' + AU.esc(AU.textoPlano(a)) + '" aria-label="' + a.hora + '"></button>';
+    });
+    $("#puntos").innerHTML = ph; $("#flechas").innerHTML = fl;
+    if (!acciones.length) $("#puntos").innerHTML = '<div class="vacio-dia">Ese día no se anotó nada</div>';
+    if (!sel || !acciones.some(function (a) { return a.id === sel; })) sel = acciones.length ? acciones[acciones.length - 1].id : null;
+    elegir(sel, false);
+  }
+  function visibles() { return acciones.filter(function (a) { return !foco || a.quien === foco || AU.aQuien(a).some(function (q) { return q.id === foco; }); }); }
+
+  function cambioHTML(c) {
+    var antes = c[1] === "—" ? '<span class="antes vacio">nada</span>' : '<span class="antes">' + AU.esc(c[1]) + '</span>';
+    var despues = c[2] === "—" ? '<span class="despues" style="color:var(--error-texto)">ya no está</span>' : '<span class="despues">' + AU.esc(c[2]) + '</span>';
+    return '<div class="cambio"><span class="campo-n">' + AU.esc(c[0]) + '</span><span class="ad">' + antes + '<i class="i i-s flecha-ad" data-i="arrow-right"></i>' + despues + '</span></div>';
+  }
+  function elegir(id, latir) {
+    sel = id;
+    var a = acciones.filter(function (z) { return z.id === id; })[0];
+    document.querySelectorAll(".punto").forEach(function (p) { var on = p.dataset.id === id || p.dataset.r === id; p.classList.toggle("sel", on); if (on && latir && p.dataset.id) { p.classList.remove("late"); void p.offsetWidth; p.classList.add("late"); } });
+    document.querySelectorAll("#flechas path").forEach(function (p) { p.classList.toggle("sel", p.dataset.id === id); });
+    var sub = $("#sub");
+    if (!a) { sub.innerHTML = '<div></div><div class="t-cuerpo" style="color:var(--texto-3)">Elegí un día con acciones.</div><div></div>'; return; }
+    $("#cabezal").style.transform = "translateX(" + x(min(a)) + "px)";
+    $("#cab-hora").textContent = a.hora;
+    sub.className = "subtitulo zona-red " + AU.color(a);
+    var quien = a.quien === "anon" ? '<b style="color:var(--urgente-texto)">' + AU.esc(a.correo || "Alguien sin entrar") + '</b>' : a.quien === "sys" ? "<b>El sistema</b>" : '<button class="quien-por" data-foco="' + a.quien + '">' + AU.esc(AU.quienTexto(a)) + '</button>' + (AU.hoyDe(a) ? ' <span class="hoy">(hoy: ' + AU.esc(AU.hoyDe(a)) + ')</span>' : "");
+    var t = AU.textoHTML(a, { marcas: true }).replace(/data-a=/g, "data-foco=");
+    t = t.charAt(0).toLowerCase() + t.slice(1);
+    var g = AU.GRUPOS.filter(function (z) { return z.id === a.grupo; })[0];
+    sub.innerHTML = '<div class="cuando sub-in"><b>' + a.hora + '</b><span>' + (a.sinConfirmar ? "hora del celular, sin confirmar" : (a.dia === AU.HOY ? "hoy" : CORTO[a.dia]) + " · servidor") + '</span></div>' +
+      '<div class="sub-in"><p class="frase">' + quien + ' ' + t + '</p><div class="cambios">' + '<span class="pastilla chica"><i class="i i-s" data-i="' + g.icono + '"></i>' + g.nombre + '</span>' + (AU.color(a) === "rojo" ? '<span class="pastilla error chica">Borra o saca</span>' : AU.color(a) === "ambar" ? '<span class="pastilla urgente chica">' + (a.grupo === "offline" ? "Sin confirmar" : "Rechazado") + '</span>' : "") + '</div><div class="cambios" style="margin-top:8px">' + a.cambios.map(cambioHTML).join("") + (a.nota || []).map(function (z) { return '<div class="cambio"><span class="campo-n">' + AU.esc(z[0]) + '</span><span class="ad">' + AU.esc(z[1]) + '</span></div>'; }).join("") + '</div></div>' +
+      '<div class="desde sub-in"><div><span class="et"><i class="i i-s" data-i="' + AU.dispIcono(a) + '"></i>Dispositivo</span><span class="va">' + AU.dispTexto(a) + '</span></div><div><span class="et"><i class="i i-s" data-i="globe"></i>Navegador</span><span class="va">' + a.desde.nav + '</span></div><div><span class="et"><i class="i i-s" data-i="wifi"></i>Dirección</span><span class="va">' + a.desde.ip + '</span></div></div>';
+    window.pintarIconos(sub);
+  }
+  function paso(d) {
+    var v = visibles(), i = v.findIndex(function (a) { return a.id === sel; });
+    if (i < 0) i = d > 0 ? -1 : v.length;
+    var n = v[i + d]; if (n) { elegir(n.id, true); AU.vibrar(8); return true; } return false;
+  }
+  function aislar(id) { foco = foco === id ? null : id; render(); if (foco) { var v = visibles(); if (v.length && !v.some(function (a) { return a.id === sel; })) elegir(v[0].id, true); } }
+
+  // Reproducir: el cabezal recorre el día y cada acción se enciende a su hora
+  var jugando = false, raf = null;
+  function play() {
+    if (jugando) return parar();
+    jugando = true; $("#play span").textContent = "Pausa"; $("#play svg").outerHTML = '<i class="i i-s" data-i="pause"></i>'; window.pintarIconos($("#play"));
+    var v = visibles(); if (!v.length) return parar();
+    var i = v.findIndex(function (a) { return a.id === sel; }); if (i >= v.length - 1) i = -1;
+    var tt = i >= 0 ? min(v[i]) : t0, ultimo = null;
+    var reducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function cuadro(ts) {
+      if (!jugando) return;
+      if (ultimo != null) tt += (ts - ultimo) / 1000 * ((t1 - t0) / 14);
+      ultimo = ts;
+      var sig = v[i + 1];
+      if (sig && tt >= min(sig)) { i++; elegir(sig.id, true); AU.vibrar(8); }
+      else if (!reducido) { $("#cabezal").style.transform = "translateX(" + x(tt) + "px)"; $("#cab-hora").textContent = Math.floor(tt) + ":" + String(Math.floor((tt % 1) * 60)).padStart(2, "0"); }
+      if (!sig) return parar();
+      raf = requestAnimationFrame(cuadro);
+    }
+    raf = requestAnimationFrame(cuadro);
+  }
+  function parar() { jugando = false; cancelAnimationFrame(raf); $("#play span").textContent = "Reproducir"; $("#play svg").outerHTML = '<i class="i i-s" data-i="play"></i>'; window.pintarIconos($("#play")); var a = acciones.filter(function (z) { return z.id === sel; })[0]; if (a) elegir(a.id, false); }
+  $("#play").addEventListener("click", play);
+
+  // Arrastrar el cabezal por el eje: se pega a la acción más cercana
+  (function () {
+    var z = $("#arrastre"), on = false;
+    function mover(e) {
+      var r = $("#tablero").getBoundingClientRect(), px = e.clientX - r.left;
+      var v = visibles(), mejor = null, d = 1e9;
+      v.forEach(function (a) { var dd = Math.abs(x(min(a)) - px); if (dd < d) { d = dd; mejor = a; } });
+      if (mejor && mejor.id !== sel) { elegir(mejor.id, true); AU.vibrar(6); }
+    }
+    z.addEventListener("pointerdown", function (e) { on = true; z.setPointerCapture(e.pointerId); parar(); mover(e); });
+    z.addEventListener("pointermove", function (e) { if (on) mover(e); });
+    z.addEventListener("pointerup", function () { on = false; });
+  })();
+
+  document.addEventListener("click", function (e) {
+    var p = e.target.closest(".punto[data-id]"); if (p) { parar(); elegir(p.dataset.id, true); return; }
+    var f = e.target.closest("[data-foco]"); if (f) { e.stopPropagation(); aislar(f.dataset.foco); return; }
+    var c = e.target.closest(".carril"); if (c) { aislar(c.dataset.c); return; }
+    var d = e.target.closest(".dia-b"); if (d) { parar(); dia = d.dataset.d; sel = null; foco = null; renderDias(); render(); $("#tablero").animate([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }], { duration: 240, easing: "cubic-bezier(.2,.8,.2,1)" }); }
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === " ") { e.preventDefault(); play(); }
+    if (e.key === "ArrowRight") { e.preventDefault(); parar(); paso(1); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); parar(); paso(-1); }
+    if (e.key === "Escape") { foco = null; render(); }
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault(); var i = carrilesVis.indexOf(foco); i = e.key === "ArrowDown" ? i + 1 : (i < 0 ? carrilesVis.length - 1 : i - 1);
+      foco = carrilesVis[i] || null; render(); var v = visibles(); if (v.length && !v.some(function (a) { return a.id === sel; })) elegir(v[0].id, true);
+    }
+    if (e.key === "PageUp" || e.key === "PageDown") { var k = DIAS.indexOf(dia) + (e.key === "PageDown" ? 1 : -1); if (DIAS[k]) document.querySelector('.dia-b[data-d="' + DIAS[k] + '"]').click(); }
+  });
+  window.addEventListener("resize", render);
+  renderDias(); render();
+  sel = "a4"; elegir("a4", false);
+})();
+</script>
+</body>
+</html>

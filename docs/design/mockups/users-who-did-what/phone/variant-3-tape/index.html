@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Usuarios · Quién hizo qué · 3 · La cinta · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/audit.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; }
+  /* Un modo de una sola tarea: tapa el marco, con la × arriba a la izquierda */
+  .top { display: flex; align-items: center; gap: 8px; padding: 0 16px 0 8px; height: 52px; flex: none; }
+  .top h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.01em; flex: 1; }
+  .dias { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 8px; flex: none; scrollbar-width: none; scroll-snap-type: x mandatory; }
+  .dias::-webkit-scrollbar { display: none; }
+  .dia-b { flex: none; display: grid; justify-items: center; gap: 4px; min-width: 72px; padding: 8px 10px; border-radius: 14px; border: 1px solid var(--borde); background: var(--superficie); font: inherit; color: var(--texto-2); scroll-snap-align: center; }
+  .dia-b .d { font-size: 14px; font-weight: 750; line-height: 16px; white-space: nowrap; }
+  .dia-b .barras { display: flex; gap: 2px; height: 10px; align-items: flex-end; }
+  .dia-b .barras i { width: 3px; border-radius: 2px; background: var(--texto-3); opacity: .5; display: block; }
+  .dia-b .barras i.rojo { background: var(--error); opacity: 1; } .dia-b .barras i.ambar { background: var(--urgente); opacity: 1; }
+  .dia-b.elegido { background: var(--pino); border-color: var(--pino); color: #fff; }
+  .dia-b.elegido .barras i { background: #fff; opacity: .6; } .dia-b.elegido .barras i.rojo { background: #FF8A7E; opacity: 1; } .dia-b.elegido .barras i.ambar { background: var(--urgente); opacity: 1; }
+
+  /* La cinta: se pasa con el pulgar; lo que queda en la franja es «ahora» */
+  .cinta-wrap { position: relative; flex: 1; min-height: 0; }
+  .cinta { position: absolute; inset: 0; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; }
+  .cinta::-webkit-scrollbar { display: none; }
+  .franja { position: absolute; left: 8px; right: 8px; top: var(--banda); height: 56px; margin-top: -28px; border-radius: 16px; background: var(--superficie); box-shadow: var(--sombra-2); border: 1px solid var(--borde); pointer-events: none; }
+  .linea { position: absolute; left: 80px; top: 0; bottom: 0; width: 2px; background: var(--borde-fuerte); opacity: .6; pointer-events: none; }
+  .fade-t, .fade-b { position: absolute; left: 0; right: 0; height: 48px; pointer-events: none; z-index: 2; }
+  .fade-t { top: 0; background: linear-gradient(var(--fondo), rgba(244,242,236,0)); }
+  .fade-b { bottom: 0; background: linear-gradient(rgba(244,242,236,0), var(--fondo)); }
+  .pista { position: relative; z-index: 1; }
+  .hueco { position: relative; }
+  .hueco span { position: absolute; left: 60px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--texto-3); font-weight: 650; background: var(--fondo); padding: 2px 6px; border-radius: 6px; white-space: nowrap; }
+  .mom { height: 56px; display: grid; grid-template-columns: 56px 16px 32px minmax(0, 1fr); gap: 0 10px; align-items: center; padding: 0 20px 0 16px; scroll-snap-align: center; opacity: .5; transform: scale(.96); transform-origin: 80px 50%; transition: opacity var(--t) var(--curva), transform var(--t) var(--curva); cursor: pointer; }
+  .mom.ahora { opacity: 1; transform: none; }
+  .mom .h { font-size: 15px; font-weight: 800; text-align: right; }
+  .mom.rojo .h { color: var(--error-texto); } .mom.ambar .h { color: var(--urgente-texto); }
+  .mom .pto { width: 14px; height: 14px; border-radius: 99px; background: var(--texto-3); border: 2px solid var(--fondo); justify-self: center; }
+  .mom.rojo .pto { background: var(--error); } .mom.ambar .pto { background: var(--urgente); }
+  .mom .avatar { width: 32px; height: 32px; font-size: 14px; }
+  .mom .t { font-size: 15px; font-weight: 650; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mom.fuera { opacity: .15; }
+
+  /* El subtítulo: todo lo de la acción que está en la franja */
+  .sub { flex: none; margin: 0 12px; padding: 16px; background: var(--superficie); border: 1px solid var(--borde); border-radius: 24px 24px 0 0; box-shadow: var(--sombra-3); position: relative; min-height: 296px; }
+  .sub::before { content: ""; position: absolute; left: 0; top: 20px; height: 40px; width: 4px; border-radius: 0 4px 4px 0; background: var(--borde-fuerte); }
+  .sub.rojo::before { background: var(--error); } .sub.ambar::before { background: var(--urgente); }
+  .sub .l1 { display: flex; align-items: center; gap: 10px; }
+  .sub .l1 b.hora { font-size: 32px; line-height: 36px; font-weight: 800; letter-spacing: -.02em; }
+  .sub .l1 .cuando { font-size: 14px; color: var(--texto-2); font-weight: 650; line-height: 18px; }
+  .sub .l1 .pastilla { margin-left: auto; }
+  .sub .frase { margin: 10px 0 10px; font-size: 18px; line-height: 25px; font-weight: 700; }
+  .sub .cambio + .cambio { margin-top: 6px; }
+  .sub .cambio { padding: 8px 12px; }
+  .sub .desde-l { margin-top: 10px; display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--texto-2); font-weight: 600; flex-wrap: wrap; }
+  .sub .controles { display: grid; grid-template-columns: 52px 1fr 52px; gap: 8px; margin-top: 12px; }
+  .sub .controles .btn { min-height: 52px; }
+  .sub-in.cambia { animation: fundido var(--t) var(--curva); }
+  .foco-pill { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); z-index: 3; }
+  .foco-pill[hidden] { display: none; }
+  .sub .home-ind { bottom: 6px; }
+  body.offline .top .pastilla { background: var(--urgente-suave); color: var(--urgente-texto); }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="top"><button class="btn btn-fantasma btn-icono" data-ir="users" aria-label="Cerrar y volver a Usuarios"><i class="i i-l" data-i="x"></i></button><h1>Quién hizo qué</h1><span class="pastilla logro" data-luz style="cursor:pointer"><span class="punto"></span><span data-luz-texto>En línea</span></span></div>
+  <div class="dias" id="dias"></div>
+  <div class="gris-cartel" style="position:absolute;left:50%;top:150px;transform:translateX(-50%);z-index:30;white-space:nowrap"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· vuelve sola</small></div>
+  <div class="cinta-wrap zona-red" id="wrap" style="--banda: 50%">
+    <div class="linea"></div>
+    <div class="franja"></div>
+    <div class="cinta" id="cinta"><div class="pista" id="pista"></div></div>
+    <div class="fade-t"></div><div class="fade-b"></div>
+    <button class="pastilla pino foco-pill" id="foco" hidden></button>
+  </div>
+  <section class="sub zona-red" id="sub" aria-live="polite"><div id="sub-in"></div><div class="controles"><button class="btn btn-icono" id="ant" aria-label="La anterior"><i class="i i-l" data-i="skip-back"></i></button><button class="btn btn-oscuro" id="play"><i class="i" data-i="play"></i><span>Reproducir el día</span></button><button class="btn btn-icono" id="sig" aria-label="La siguiente"><i class="i i-l" data-i="skip-forward"></i></button></div><span class="home-ind"></span></section>
+</div>
+<script src="../../shared/audit.js"></script>
+<script>
+(function () {
+  var AU = window.AU, $ = function (s) { return document.querySelector(s); };
+  var DIAS = ["2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31", "2026-11-02", "2026-11-03", "2026-11-04"];
+  var CORTO = { "2026-10-28": "mié 28", "2026-10-29": "jue 29", "2026-10-30": "vie 30", "2026-10-31": "sáb 31", "2026-11-02": "lun 2", "2026-11-03": "Ayer", "2026-11-04": "Hoy" };
+  var dia = AU.HOY, acc = [], actual = null, foco = null;
+  function min(a) { var h = a.hora.split(":"); return +h[0] * 60 + +h[1]; }
+
+  function renderDias() {
+    $("#dias").innerHTML = DIAS.map(function (d) {
+      var l = AU.filtrar({ desde: d, hasta: d });
+      return '<button class="dia-b' + (d === dia ? " elegido" : "") + '" data-d="' + d + '"><span class="d">' + CORTO[d] + ' · ' + l.length + '</span><span class="barras">' + l.slice(0, 14).reverse().map(function (a) { return '<i class="' + AU.color(a) + '" style="height:' + (AU.color(a) ? 10 : 6) + 'px"></i>'; }).join("") + '</span></button>';
+    }).join("");
+    var e = document.querySelector(".dia-b.elegido"); if (e) e.scrollIntoView({ inline: "center", block: "nearest" });
+  }
+  function render() {
+    acc = AU.filtrar({ desde: dia, hasta: dia }).slice().reverse();
+    var alto = $("#wrap").clientHeight, banda = alto * .5;
+    var h = '<div style="height:' + (banda - 28) + 'px"></div>', prev = null;
+    acc.forEach(function (a) {
+      if (prev) { var g = min(a) - min(prev); if (g > 20) h += '<div class="hueco" style="height:' + Math.min(72, 12 + g / 6) + 'px"><span>' + (g >= 60 ? Math.round(g / 60) + " h" : g + " min") + ' sin nada</span></div>'; }
+      var who = a.quien === "anon" ? AU.esc(a.correo || "Alguien sin entrar") : AU.esc(AU.P[a.quien].corto);
+      h += '<div class="mom ' + AU.color(a) + (foco && !(a.quien === foco || AU.aQuien(a).some(function (q) { return q.id === foco; })) ? " fuera" : "") + '" data-id="' + a.id + '"><span class="h">' + a.hora + '</span><span class="pto"></span>' + AU.avatar(a.quien) + '<span class="t">' + who + ' · ' + AU.esc(AU.textoPlano(a).charAt(0).toLowerCase() + AU.textoPlano(a).slice(1)) + '</span></div>';
+      prev = a;
+    });
+    h += '<div style="height:' + (alto - banda - 28) + 'px"></div>';
+    $("#pista").innerHTML = h;
+    window.pintarIconos($("#pista"));
+    $("#foco").hidden = !foco;
+    if (foco) { $("#foco").innerHTML = 'Solo ' + AU.esc(AU.P[foco].corto) + ' <i class="i i-s" data-i="x"></i>'; window.pintarIconos($("#foco")); }
+  }
+  function irA(id, suave) {
+    var el = document.querySelector('.mom[data-id="' + id + '"]'); if (!el) return;
+    var c = $("#cinta"), banda = $("#wrap").clientHeight * .5;
+    c.scrollTo({ top: el.offsetTop - banda + 28, behavior: suave && !matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "auto" });
+    marcar(id);
+  }
+  function cambioHTML(c) {
+    var antes = c[1] === "—" ? '<span class="antes vacio">nada</span>' : '<span class="antes">' + AU.esc(c[1]) + '</span>';
+    var despues = c[2] === "—" ? '<span class="despues" style="color:var(--error-texto)">ya no está</span>' : '<span class="despues">' + AU.esc(c[2]) + '</span>';
+    return '<div class="cambio"><span class="campo-n">' + AU.esc(c[0]) + '</span><span class="ad">' + antes + '<i class="i i-s flecha-ad" data-i="arrow-right"></i>' + despues + '</span></div>';
+  }
+  function marcar(id) {
+    if (id === actual) return;
+    actual = id; AU.vibrar(8);
+    document.querySelectorAll(".mom").forEach(function (m) { m.classList.toggle("ahora", m.dataset.id === id); });
+    var a = acc.filter(function (z) { return z.id === id; })[0]; if (!a) return;
+    var c = AU.color(a), g = AU.GRUPOS.filter(function (z) { return z.id === a.grupo; })[0];
+    var quien = a.quien === "anon" ? '<b style="color:var(--urgente-texto)">' + AU.esc(a.correo || "Alguien sin entrar") + '</b>' : a.quien === "sys" ? "<b>El sistema</b>" : '<button class="quien-por" data-foco="' + a.quien + '">' + AU.esc(AU.quienTexto(a)) + '</button>' + (AU.hoyDe(a) ? ' <span class="hoy">(hoy: ' + AU.esc(AU.hoyDe(a)) + ')</span>' : "");
+    var t = AU.textoHTML(a, { marcas: true }).replace(/data-a=/g, "data-foco="); t = t.charAt(0).toLowerCase() + t.slice(1);
+    $("#sub").className = "sub zona-red " + c;
+    $("#sub-in").innerHTML = '<div class="sub-in"><div class="l1"><b class="hora">' + a.hora + '</b><span class="cuando">' + (a.sinConfirmar ? "hora del celular<br>sin confirmar" : CORTO[a.dia] + "<br>hora del servidor") + '</span>' + (c === "rojo" ? '<span class="pastilla error chica">Borra o saca</span>' : c === "ambar" ? '<span class="pastilla urgente chica">' + (a.grupo === "offline" ? "Sin confirmar" : "Rechazado") + '</span>' : '<span class="pastilla chica"><i class="i i-s" data-i="' + g.icono + '"></i>' + g.nombre + '</span>') + '</div>' +
+      '<p class="frase">' + quien + ' ' + t + '</p>' + a.cambios.slice(0, 2).map(cambioHTML).join("") + (a.nota || []).slice(0, 1).map(function (z) { return '<div class="cambio"><span class="campo-n">' + AU.esc(z[0]) + '</span><span class="ad">' + AU.esc(z[1]) + '</span></div>'; }).join("") +
+      '<div class="desde-l"><i class="i i-s" data-i="' + AU.dispIcono(a) + '"></i>' + AU.dispTexto(a) + ' · ' + a.desde.nav + ' · ' + a.desde.ip + '</div></div>';
+    window.pintarIconos($("#sub-in"));
+    var s = $("#sub-in .sub-in"); if (s) s.classList.add("cambia");
+  }
+  // Lo que queda en la franja es «ahora»
+  var pend = false;
+  $("#cinta").addEventListener("scroll", function () {
+    if (pend) return; pend = true;
+    requestAnimationFrame(function () {
+      pend = false;
+      var banda = $("#wrap").getBoundingClientRect().top + $("#wrap").clientHeight * .5, mejor = null, d = 1e9;
+      document.querySelectorAll(".mom").forEach(function (m) { var r = m.getBoundingClientRect(), dd = Math.abs(r.top + r.height / 2 - banda); if (dd < d) { d = dd; mejor = m; } });
+      if (mejor) marcar(mejor.dataset.id);
+    });
+  });
+  function paso(k) { var v = acc.filter(function (a) { return !foco || a.quien === foco || AU.aQuien(a).some(function (q) { return q.id === foco; }); }); var i = v.findIndex(function (a) { return a.id === actual; }); var n = v[i + k]; if (n) { irA(n.id, true); return true; } return false; }
+  $("#ant").addEventListener("click", function () { parar(); paso(-1); });
+  $("#sig").addEventListener("click", function () { parar(); paso(1); });
+
+  var jugando = null;
+  function parar() { if (!jugando) return; clearInterval(jugando); jugando = null; $("#play").innerHTML = '<i class="i" data-i="play"></i><span>Reproducir el día</span>'; window.pintarIconos($("#play")); }
+  $("#play").addEventListener("click", function () {
+    if (jugando) return parar();
+    $("#play").innerHTML = '<i class="i" data-i="pause"></i><span>Pausa</span>'; window.pintarIconos($("#play"));
+    var v = acc.filter(function (a) { return !foco || a.quien === foco || AU.aQuien(a).some(function (q) { return q.id === foco; }); });
+    if (v.length && v[v.length - 1].id === actual) irA(v[0].id, false);
+    jugando = setInterval(function () { if (!paso(1)) parar(); }, 1100);
+  });
+
+  document.addEventListener("click", function (e) {
+    var f = e.target.closest("[data-foco]"); if (f) { e.stopPropagation(); foco = f.dataset.foco; var keep = actual; actual = null; render(); irA(keep, false); AU.tostada("Solo lo de " + AU.P[foco].corto, "list-filter"); return; }
+    if (e.target.closest("#foco")) { var k2 = actual; foco = null; actual = null; render(); irA(k2, false); return; }
+    var m = e.target.closest(".mom"); if (m) { parar(); irA(m.dataset.id, true); return; }
+    var d = e.target.closest(".dia-b"); if (d) { parar(); dia = d.dataset.d; actual = null; renderDias(); render(); var l = acc[acc.length - 1]; if (l) irA(l.id, false); $("#pista").animate([{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }], { duration: 260, easing: "cubic-bezier(.2,.8,.2,1)" }); }
+  }, true);
+  // Deslizar a los costados en el subtítulo cambia de día
+  (function () {
+    var x0 = null, s = $("#sub");
+    s.addEventListener("pointerdown", function (e) { x0 = e.clientX; });
+    s.addEventListener("pointerup", function (e) { if (x0 == null) return; var d = e.clientX - x0; x0 = null; if (Math.abs(d) > 70) { var k = DIAS.indexOf(dia) + (d < 0 ? 1 : -1); if (DIAS[k]) document.querySelector('.dia-b[data-d="' + DIAS[k] + '"]').click(); } });
+  })();
+  document.addEventListener("keydown", function (e) { if (e.key === "ArrowDown") { e.preventDefault(); paso(1); } if (e.key === "ArrowUp") { e.preventDefault(); paso(-1); } if (e.key === " ") { e.preventDefault(); $("#play").click(); } });
+
+  renderDias(); render(); irA("a4", false);
+})();
+</script>
+</body>
+</html>

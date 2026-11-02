@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Usuarios · Quién hizo qué · 2 · Cara a cara · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/audit.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; }
+  .celu-estado { cursor: pointer; }
+  .celu-pestanas { display: grid; grid-template-columns: 1fr .8fr 1.35fr; }
+  .celu-pantalla { overflow: auto; padding-bottom: 16px; position: relative; }
+  .segmentos.ancho { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
+  .segmentos.ancho > * { justify-content: center; min-height: 40px; font-size: 15px; }
+  .resumen-linea { margin: 12px 4px 4px; font-size: 15px; line-height: 22px; color: var(--texto-2); }
+  .resumen-linea b { color: var(--tinta); }
+  .cara { width: 100%; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto 16px; gap: 12px; align-items: center; padding: 12px 12px 12px 14px; border-radius: var(--r-tarjeta); border: 1px solid var(--borde); background: var(--superficie); box-shadow: var(--sombra-1); text-align: left; font: inherit; transition: transform var(--t-micro) var(--curva); margin-top: 8px; }
+  .cara:active { transform: scale(.98); }
+  .cara .avatar { width: 48px; height: 48px; font-size: 16px; }
+  .cara b { display: block; font-size: 16px; line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cara small { display: block; font-size: 14px; color: var(--texto-2); line-height: 18px; }
+  .cara .puntos { display: flex; gap: 3px; margin-top: 6px; flex-wrap: wrap; }
+  .cara .puntos i { width: 8px; height: 8px; border-radius: 99px; background: var(--hundido-2); }
+  .cara .puntos i.rojo { background: var(--error); } .cara .puntos i.ambar { background: var(--urgente); } .cara .puntos i.recibe { background: transparent; box-shadow: inset 0 0 0 1.5px var(--texto-3); }
+  .cara .cnt { text-align: right; line-height: 1.1; }
+  .cara .cnt strong { display: block; font-size: 22px; font-weight: 800; }
+  .cara .cnt span { font-size: 14px; color: var(--texto-2); font-weight: 600; }
+  .cara .fl { color: var(--texto-3); }
+  .cara.afuera { background: var(--urgente-suave); border-color: transparent; }
+  .cara.afuera .avatar { background: var(--superficie); }
+  .cara.afuera .cnt strong { color: var(--urgente-texto); }
+  .cara.quieta { opacity: .6; }
+  .sep-g { font-size: 14px; font-weight: 700; color: var(--texto-2); margin: 16px 4px 0; }
+
+  /* La persona: entra desde la derecha, como iPhone */
+  .persona-p { position: absolute; left: 0; right: 0; top: 44px; bottom: 76px; z-index: 20; background: var(--fondo); display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--t-nav) var(--curva); }
+  .persona-p.ver { transform: none; box-shadow: -12px 0 32px -16px rgba(26,29,27,.25); }
+  .lista-zona { transition: transform var(--t-nav) var(--curva), opacity var(--t-nav); }
+  body.en-persona .lista-zona { transform: translateX(-30%); opacity: .5; }
+  .p-top { flex: none; display: flex; align-items: center; height: 52px; padding: 0 8px; }
+  .p-top .btn-fantasma { color: var(--pino-texto); font-size: 16px; gap: 2px; padding: 0 8px; }
+  .p-cuerpo { flex: 1; min-height: 0; overflow: auto; padding: 0 16px 16px; }
+  .p-hero { display: grid; justify-items: center; text-align: center; gap: 4px; padding: 4px 0 12px; }
+  .p-hero .avatar { width: 80px; height: 80px; font-size: 26px; margin-bottom: 6px; }
+  .p-hero .avatar .i { width: 32px; height: 32px; }
+  .p-hero h2 { margin: 0; font-size: 24px; line-height: 30px; font-weight: 800; }
+  .p-hero p { margin: 0; font-size: 15px; color: var(--texto-2); }
+  .p-hero .linea { font-size: 15px; color: var(--tinta); font-weight: 600; margin-top: 6px; }
+  .lado { display: grid; grid-template-columns: 1fr 1fr; width: 100%; margin-bottom: 12px; }
+  .lado > * { justify-content: center; min-height: 44px; font-size: 15px; }
+  .lado b { font-weight: 800; }
+  .ev { width: 100%; display: grid; grid-template-columns: 44px 14px minmax(0, 1fr); gap: 0 10px; padding: 10px 6px; text-align: left; font: inherit; background: none; border: 0; border-radius: 12px; }
+  .ev:active { background: var(--hundido); }
+  .ev .h { font-size: 14px; font-weight: 750; color: var(--texto-2); text-align: right; padding-top: 1px; }
+  .ev .h small { display: block; font-weight: 600; color: var(--texto-3); font-size: 14px; }
+  .ev .riel { position: relative; }
+  .ev .riel::before { content: ""; position: absolute; left: 6px; top: 0; bottom: -20px; width: 2px; background: var(--borde); }
+  .ev:last-child .riel::before { display: none; }
+  .ev .riel b { position: absolute; left: 1px; top: 5px; width: 12px; height: 12px; border-radius: 99px; background: var(--fondo); border: 2px solid var(--texto-3); }
+  .ev.rojo .riel b { border-color: var(--error); background: var(--error); }
+  .ev.ambar .riel b { border-color: var(--urgente); background: var(--urgente); }
+  .ev .t { font-size: 15px; line-height: 21px; color: var(--tinta); }
+  .lista-ev { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); padding: 6px; }
+  .lista-ev.cambia { animation: fundido var(--t) var(--curva); }
+  .vacio-col { padding: 32px 16px; text-align: center; color: var(--texto-3); font-weight: 600; display: grid; gap: 8px; justify-items: center; }
+
+  .hoja { max-height: 85%; overflow: auto; }
+  .hoja .cab-h { display: flex; gap: 8px; align-items: center; }
+  .hoja .det-frase { font-size: 20px; line-height: 27px; font-weight: 750; margin: 12px 0 4px; }
+  .hoja .det-cuando { font-size: 15px; color: var(--texto-2); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .hoja h3 { margin: 16px 0 8px; font-size: 14px; font-weight: 700; color: var(--texto-2); }
+  .hoja .cambio + .cambio { margin-top: 8px; }
+  .lista-desde { border: 1px solid var(--borde); border-radius: var(--r); }
+  .lista-desde div { display: grid; grid-template-columns: 24px 110px 1fr; gap: 8px; align-items: center; padding: 10px 12px; font-size: 15px; }
+  .lista-desde div + div { border-top: 1px solid var(--borde); }
+  .lista-desde span { color: var(--texto-2); font-weight: 600; }
+  .gris-cartel { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); z-index: 5; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="lista-zona" style="display:flex;flex-direction:column;flex:1;min-height:0">
+    <div class="celu-cabecera"><span class="t-titulo">Usuarios</span><button class="btn btn-icono zona-red" id="actualizar" aria-label="Actualizar"><i class="i" data-i="refresh-cw"></i></button></div>
+    <div class="celu-estado" data-luz><span class="punto"></span><span data-luz-texto>En línea · todo enviado</span></div>
+    <nav class="celu-pestanas"><a data-ir="users">Usuarios</a><a data-no-ir>Roles</a><a class="activa" data-no-ir aria-current="page">Quién hizo qué</a></nav>
+    <div class="celu-pantalla">
+      <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· vuelve sola</small></div>
+      <div class="zona-red">
+        <div class="segmentos ancho" id="periodo"><button data-p="hoy" class="elegido">Hoy</button><button data-p="ayer">Ayer</button><button data-p="semana">Semana</button><button data-p="mes">Mes</button></div>
+        <p class="resumen-linea" id="linea"></p>
+        <div id="gente"></div>
+      </div>
+    </div>
+  </div>
+  <nav class="nav-inferior">
+    <a data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a class="activo" data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+  <section class="persona-p" id="pp" aria-label="La persona"><div class="p-top"><button class="btn btn-fantasma" id="volver"><i class="i i-l" data-i="chevron-left"></i><span id="volver-t">Personas</span></button></div><div class="p-cuerpo" id="p-cuerpo"></div></section>
+  <div class="velo" id="velo"></div>
+  <div class="hoja" id="hoja" role="dialog" aria-modal="true"><div class="asa"></div><div id="hoja-in"></div></div>
+</div>
+<script src="../../shared/audit.js"></script>
+<script>
+(function () {
+  var AU = window.AU, $ = function (s) { return document.querySelector(s); };
+  var periodo = "hoy", pila = [], lado = "recibe";
+  var ORDEN = ["anon", "rp", "gb", "ms", "sl", "no", "pg", "sys", "lf", "cr"];
+  function rango() { var a = AU.ATAJOS[periodo]; return { desde: a.desde, hasta: a.hasta }; }
+  function hizo(id) { var r = rango(); r.por = id; return AU.filtrar(r); }
+  function recibio(id) { var r = rango(); r.a = id; return AU.filtrar(r); }
+
+  function renderGente() {
+    var act = [], qu = [];
+    ORDEN.forEach(function (id) { (hizo(id).length + recibio(id).length ? act : qu).push(id); });
+    function cara(id) {
+      var p = AU.P[id], hz = hizo(id), rc = recibio(id);
+      var sub = id === "anon" ? "Intentos de afuera" : id === "sys" ? "Lo que hace solo" : p.estado === "baja" ? "Dada de baja" : p.estado === "borrada" ? "Borrada" : p.rol;
+      var pts = hz.slice(0, 14).reverse().map(function (a) { return '<i class="' + AU.color(a) + '"></i>'; }).join("") + rc.slice(0, 6).map(function () { return '<i class="recibe"></i>'; }).join("");
+      return '<button class="cara' + (id === "anon" && hz.length ? " afuera" : "") + (!hz.length && !rc.length ? " quieta" : "") + '" data-p="' + id + '">' + AU.avatar(id) + '<span style="min-width:0"><b>' + AU.esc(p.nombre) + '</b><small>' + sub + '</small>' + (pts ? '<span class="puntos">' + pts + '</span>' : "") + '</span><span class="cnt"><strong>' + hz.length + '</strong><span>' + (id === "anon" ? (hz.length === 1 ? "intento" : "intentos") : "hizo") + '</span></span><i class="i i-s fl" data-i="chevron-right"></i></button>';
+    }
+    var tot = AU.filtrar(rango()), ro = tot.filter(function (a) { return AU.color(a) === "rojo"; }).length, am = tot.filter(function (a) { return AU.color(a) === "ambar"; }).length;
+    $("#linea").innerHTML = '<b>' + tot.length + ' acciones</b>' + (ro ? ' · <b style="color:var(--error-texto)">' + ro + ' borran o sacan</b>' : "") + (am ? ' · <b style="color:var(--urgente-texto)">' + am + ' rechazos</b>' : "");
+    $("#gente").innerHTML = act.map(cara).join("") + (qu.length ? '<div class="sep-g">Sin movimiento</div>' + qu.map(cara).join("") : "");
+    window.pintarIconos($("#gente"));
+  }
+
+  function ev(a, yoHice) {
+    var frase = AU.textoHTML(a).replace(/data-a=/g, "data-ir-p=");
+    if (!yoHice) {
+      var t = frase.charAt(0).toLowerCase() + frase.slice(1);
+      frase = (a.quien === "sys" || a.quien === "anon" ? "<b>" + AU.esc(a.quien === "anon" && a.correo ? a.correo : AU.P[a.quien].nombre) + "</b>" : '<button class="quien-a" data-ir-p="' + a.quien + '">' + AU.esc(AU.quienTexto(a)) + '</button>') + " " + t;
+    }
+    if (a.sinConfirmar) frase += ' <span class="sin-conf">· sin confirmar</span>';
+    return '<div class="ev ' + AU.color(a) + '" role="button" tabindex="0" data-ev="' + a.id + '"><span class="h">' + a.hora + (a.dia !== AU.HOY ? '<small>' + AU.DIAS[a.dia].toLowerCase() + '</small>' : "") + '</span><span class="riel"><b></b></span><span class="t">' + frase + '</span></div>';
+  }
+  function renderPersona() {
+    var id = pila[pila.length - 1], p = AU.P[id], hz = hizo(id), rc = recibio(id);
+    if (!hz.length && rc.length) lado = "recibe"; else if (hz.length && !rc.length) lado = "hizo";
+    var lista = lado === "hizo" ? hz : rc;
+    var sub = id === "anon" ? "Intentos de afuera" : id === "sys" ? "Lo que hace solo" : (p.estado === "baja" ? "Dada de baja · " : p.estado === "borrada" ? "Borrada · " : "") + p.rol;
+    $("#p-cuerpo").innerHTML = '<div class="p-hero">' + AU.avatar(id) + '<h2>' + AU.esc(p.nombre) + '</h2><p>' + sub + '</p></div>' +
+      '<div class="segmentos lado"><button data-lado="hizo" class="' + (lado === "hizo" ? "elegido" : "") + '"><i class="i i-s" data-i="arrow-up-right"></i>' + (id === "anon" ? "Intentó" : "Hizo") + ' <b>' + hz.length + '</b></button><button data-lado="recibe" class="' + (lado === "recibe" ? "elegido" : "") + '"><i class="i i-s" data-i="arrow-down-left"></i>Le hicieron <b>' + rc.length + '</b></button></div>' +
+      '<div class="lista-ev cambia">' + (lista.length ? lista.slice(0, 10).map(function (a) { return ev(a, lado === "hizo"); }).join("") : '<div class="vacio-col"><i class="i i-xl" data-i="inbox"></i>Nada en este período</div>') + '</div>' +
+      (lista.length > 10 ? '<button class="btn btn-suave" style="width:100%;margin-top:8px">Ver 10 más · quedan ' + (lista.length - 10) + '</button>' : "");
+    window.pintarIconos($("#p-cuerpo"));
+    $("#volver-t").textContent = pila.length > 1 ? AU.P[pila[pila.length - 2]].corto : "Personas";
+    $("#p-cuerpo").scrollTop = 0;
+  }
+  function abrirPersona(id) {
+    if (pila.length) { var pp = $("#pp"); pp.animate([{ transform: "translateX(24px)", opacity: .4 }, { transform: "none", opacity: 1 }], { duration: 320, easing: "cubic-bezier(.2,.8,.2,1)" }); }
+    pila.push(id); lado = hizo(id).length >= recibio(id).length ? "hizo" : "recibe";
+    renderPersona(); $("#pp").classList.add("ver"); document.body.classList.add("en-persona"); AU.vibrar(10);
+  }
+  function volver() {
+    pila.pop();
+    if (pila.length) { renderPersona(); return; }
+    $("#pp").classList.remove("ver"); document.body.classList.remove("en-persona");
+  }
+  $("#volver").addEventListener("click", volver);
+  // Deslizar desde el borde izquierdo vuelve (como iPhone)
+  (function () {
+    var x0 = null, pp = $("#pp");
+    pp.addEventListener("pointerdown", function (e) { var r = pp.getBoundingClientRect(); if (e.clientX - r.left < 28) x0 = e.clientX; });
+    pp.addEventListener("pointermove", function (e) { if (x0 == null) return; var d = Math.max(0, e.clientX - x0); pp.style.transition = "none"; pp.style.transform = "translateX(" + d + "px)"; });
+    function fin(e) { if (x0 == null) return; var d = e.clientX - x0; x0 = null; pp.style.transition = ""; pp.style.transform = ""; if (d > 100) volver(); }
+    pp.addEventListener("pointerup", fin); pp.addEventListener("pointercancel", fin);
+  })();
+
+  function abrirHoja(html) { $("#hoja-in").innerHTML = html; window.pintarIconos($("#hoja-in")); $("#hoja").classList.add("abierta"); $("#velo").classList.add("abierto"); AU.vibrar(10); }
+  function cerrarHoja() { $("#hoja").classList.remove("abierta"); $("#velo").classList.remove("abierto"); }
+  $("#velo").addEventListener("click", cerrarHoja);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if ($("#hoja").classList.contains("abierta")) cerrarHoja(); else if (pila.length) volver(); } });
+  function cambioHTML(c) {
+    var antes = c[1] === "—" ? '<span class="antes vacio">nada</span>' : '<span class="antes">' + AU.esc(c[1]) + '</span>';
+    var despues = c[2] === "—" ? '<span class="despues" style="color:var(--error-texto)">ya no está</span>' : '<span class="despues">' + AU.esc(c[2]) + '</span>';
+    return '<div class="cambio"><span class="campo-n">' + AU.esc(c[0]) + '</span><span class="ad">' + antes + '<i class="i i-s flecha-ad" data-i="arrow-right"></i>' + despues + '</span></div>';
+  }
+  function detalle(a) {
+    var g = AU.GRUPOS.filter(function (x) { return x.id === a.grupo; })[0], c = AU.color(a);
+    var quien = a.quien === "anon" ? AU.esc(a.correo || "Alguien sin entrar") : AU.esc(AU.quienTexto(a)) + (AU.hoyDe(a) ? ' <span class="hoy">(hoy: ' + AU.esc(AU.hoyDe(a)) + ')</span>' : "");
+    abrirHoja('<div class="cab-h"><span class="pastilla chica"><i class="i i-s" data-i="' + g.icono + '"></i>' + g.nombre + '</span>' + (c === "rojo" ? '<span class="pastilla error chica">Borra o saca</span>' : c === "ambar" ? '<span class="pastilla urgente chica">' + (a.grupo === "offline" ? "Sin confirmar" : "Rechazado") + '</span>' : "") + '<button class="btn btn-fantasma btn-icono" style="margin-left:auto" data-cerrar aria-label="Cerrar"><i class="i" data-i="x"></i></button></div>' +
+      '<p class="det-frase">' + AU.avatar(a.quien, "chico") + ' ' + quien + '</p><p class="det-frase" style="margin-top:0;font-weight:600">' + AU.textoHTML(a, { marcas: true }).replace(/data-a=/g, "data-ir-p=") + '</p>' +
+      '<div class="det-cuando"><i class="i i-s" data-i="clock"></i>' + (a.dia === AU.HOY ? "Hoy" : AU.DIAS_LARGO[a.dia]) + ', ' + a.hora + (a.sinConfirmar ? ' · <span class="sin-conf">hora del celular, sin confirmar</span>' : "") + '</div>' +
+      (a.cambios.length ? '<h3>Qué cambió</h3>' + a.cambios.map(cambioHTML).join("") : "") +
+      (a.nota ? '<h3>' + (a.grupo === "rechazos" ? "Por qué se rechazó" : "Más datos") + '</h3>' + a.nota.map(function (x) { return '<div class="cambio"><span class="campo-n">' + AU.esc(x[0]) + '</span><span class="ad">' + AU.esc(x[1]) + '</span></div>'; }).join("") : "") +
+      '<h3>Desde dónde</h3><div class="lista-desde"><div><i class="i i-s" data-i="' + AU.dispIcono(a) + '"></i><span>Dispositivo</span><b>' + AU.dispTexto(a) + '</b></div><div><i class="i i-s" data-i="globe"></i><span>Navegador</span><b>' + a.desde.nav + '</b></div><div><i class="i i-s" data-i="wifi"></i><span>Dirección</span><b>' + a.desde.ip + '</b></div></div>');
+  }
+
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("[data-cerrar]")) return cerrarHoja();
+    var irp = e.target.closest("[data-ir-p]");
+    if (irp) { e.stopPropagation(); cerrarHoja(); abrirPersona(irp.dataset.irP); return; }
+    var cara = e.target.closest(".cara"); if (cara) return abrirPersona(cara.dataset.p);
+    var per = e.target.closest("#periodo button");
+    if (per) { periodo = per.dataset.p; document.querySelectorAll("#periodo button").forEach(function (b) { b.classList.toggle("elegido", b === per); }); renderGente(); var g = $("#gente"); g.classList.remove("fundido"); void g.offsetWidth; g.classList.add("fundido"); return; }
+    var l = e.target.closest("[data-lado]"); if (l) { lado = l.dataset.lado; renderPersona(); return; }
+    var evn = e.target.closest(".ev"); if (evn) detalle(AU.ACCIONES.filter(function (x) { return x.id === evn.dataset.ev; })[0]);
+  }, true);
+
+  $("#actualizar").addEventListener("click", function () {
+    $("#actualizar svg").animate([{ transform: "rotate(0)" }, { transform: "rotate(360deg)" }], { duration: 500 });
+    var a = AU.traerNueva(); if (!a) { AU.tostada("Está al día"); return; }
+    renderGente(); var c = document.querySelector('.cara[data-p="' + a.quien + '"]'); if (c) c.classList.add("recien"); AU.vibrar(10);
+  });
+  renderGente();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Usuarios · Quién hizo qué · 1 · El libro · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/audit.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  .pantalla { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; padding-top: 16px; padding-bottom: 16px; overflow: hidden; position: relative; }
+  .izq { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+
+  /* Resumen: tres números que también filtran, y el día en una tira */
+  .arriba { display: grid; grid-template-columns: 1fr 1fr 1fr 1.7fr; gap: 8px; }
+  .resumen .et { white-space: nowrap; }
+  .resumen { padding: 10px 12px; gap: 10px; cursor: pointer; border: 1px solid var(--borde); text-align: left; font: inherit; transition: transform var(--t-micro) var(--curva), box-shadow var(--t); }
+  .resumen:active { transform: scale(.97); }
+  .resumen .ico { width: 36px; height: 36px; }
+  .resumen .va { font-size: 24px; line-height: 28px; }
+  .resumen.on { box-shadow: 0 0 0 2px var(--pino); }
+  .tira { padding: 10px 14px; display: grid; gap: 6px; }
+  .tira .et { font-size: 14px; font-weight: 650; color: var(--texto-2); display: flex; justify-content: space-between; }
+  .tira .riel { position: relative; height: 26px; border-radius: 8px; background: var(--hundido); }
+  .tira .tic { position: absolute; top: 4px; bottom: 4px; width: 4px; margin-left: -2px; border-radius: 2px; background: var(--texto-3); opacity: .55; transition: transform var(--t) var(--curva); cursor: pointer; border: 0; padding: 0; }
+  .tira .tic.rojo { background: var(--error); opacity: 1; }
+  .tira .tic.ambar { background: var(--urgente); opacity: 1; }
+  .tira .tic.sel { transform: scaleY(1.45); background: var(--pino); opacity: 1; }
+  .tira .horas { display: flex; justify-content: space-between; font-size: 14px; color: var(--texto-3); font-weight: 600; line-height: 16px; }
+
+  /* Filtros */
+  .filtros { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; position: relative; }
+  .filtro { height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 0 12px 0 14px; border-radius: 999px; border: 1px solid var(--borde-fuerte); background: var(--superficie); font-size: 15px; font-weight: 650; color: var(--texto-2); cursor: pointer; white-space: nowrap; transition: transform var(--t-micro) var(--curva); }
+  .filtro b { color: var(--tinta); font-weight: 750; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+  .filtro:active { transform: scale(.97); }
+  .filtro.puesto { background: var(--pino); border-color: var(--pino); color: rgba(255,255,255,.8); }
+  .filtro.puesto b { color: #fff; }
+  .filtro .kbd { height: 22px; min-width: 22px; font-size: 14px; }
+  .filtro.puesto .kbd { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.35); color: #fff; }
+  .sacar { margin-left: auto; }
+  .sacar[hidden] { display: none; }
+
+  /* La lista */
+  .lista-t { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); overflow: hidden; }
+  #lista { flex: 1; min-height: 0; overflow: auto; padding: 4px 8px 8px; }
+  .dia { position: sticky; top: -4px; z-index: 2; background: rgba(255,255,255,.96); backdrop-filter: blur(6px); padding: 10px 8px 6px; font-size: 14px; font-weight: 750; color: var(--texto-2); display: flex; justify-content: space-between; }
+  .fila { display: grid; grid-template-columns: 4px 56px 196px minmax(0, 1fr) 24px; gap: 12px; align-items: center; min-height: 48px; padding: 6px 10px 6px 6px; border-radius: 12px; cursor: pointer; position: relative; outline: none; transition: background var(--t-micro); }
+  .fila:hover { background: #FAF9F5; }
+  .fila.sel { background: var(--pino-suave); }
+  .fila.sel::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1.5px var(--pino); pointer-events: none; }
+  .fila .hora { font-size: 15px; font-weight: 750; color: var(--tinta); }
+  .fila .hora small { display: block; font-size: 14px; font-weight: 600; color: var(--texto-3); line-height: 16px; }
+  .fila .por { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 15px; }
+  .fila .por .nom { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fila .por .quien-por { font-weight: 700; text-decoration: none; }
+  .fila .por .quien-por:hover { text-decoration: underline; }
+  .fila .que { font-size: 15px; line-height: 21px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--tinta); }
+  .fila.rojo .hora { color: var(--error-texto); }
+  .fila.ambar .hora { color: var(--urgente-texto); }
+  .fila .disp { color: var(--texto-3); display: grid; place-items: center; }
+  .fila.entra { animation: entra var(--t-nav) var(--rebote) both; }
+  .fila .anon-mail { font-weight: 650; color: var(--urgente-texto); }
+
+  .paginador { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-top: 1px solid var(--borde); }
+  .paginador .tot { white-space: nowrap; font-size: 15px; font-weight: 650; color: var(--texto-2); }
+  .paginador .tot b { color: var(--tinta); font-weight: 800; }
+  .paginador .pg { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .paginador .pg span { font-size: 15px; font-weight: 700; min-width: 112px; text-align: center; }
+
+  /* El detalle */
+  #detalle { min-height: 0; overflow: auto; }
+  .det-in { padding: 20px; display: grid; gap: 16px; }
+  .det-cab { display: flex; gap: 8px; flex-wrap: wrap; }
+  .det-frase { font-size: 20px; line-height: 27px; font-weight: 750; letter-spacing: -.01em; margin: 0; }
+  .det-frase .quien-a { font-weight: 800; }
+  .det-cuando { font-size: 15px; color: var(--texto-2); display: flex; gap: 6px; align-items: center; margin-top: -8px; }
+  .bloque { display: grid; gap: 8px; }
+  .bloque h3 { margin: 0; font-size: 14px; font-weight: 700; color: var(--texto-2); }
+  .gente2 { display: grid; gap: 12px; }
+  .persona-btn { display: grid; grid-template-columns: 36px minmax(0,1fr); gap: 10px; align-items: center; padding: 10px; border-radius: var(--r); border: 1px solid var(--borde); background: var(--superficie); text-align: left; cursor: pointer; font: inherit; transition: border-color var(--t-micro), transform var(--t-micro) var(--curva); }
+  .persona-btn:hover { border-color: var(--pino); }
+  .persona-btn:active { transform: scale(.98); }
+  .persona-btn b { display: block; font-size: 15px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-btn small { display: block; font-size: 14px; color: var(--texto-2); line-height: 18px; }
+  .persona-btn.vacio { cursor: default; color: var(--texto-3); }
+  .nota-fija { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--texto-3); border-top: 1px solid var(--borde); padding-top: 12px; }
+  #detalle .desde { grid-template-columns: 1fr; gap: 0; border: 1px solid var(--borde); border-radius: var(--r); }
+  #detalle .desde > div { border: 0; border-radius: 0; grid-template-columns: 130px 1fr; align-items: center; padding: 8px 12px; }
+  #detalle .desde > div + div { border-top: 1px solid var(--borde); }
+  #detalle .desde .va { white-space: normal; }
+
+  .gris-cartel { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); z-index: 5; }
+  #det-cuerpo.cambia { animation: fundido var(--t) var(--curva); }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <div class="lado-marca"><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button class="btn btn-fantasma" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <a class="nav-item" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item activo" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <button class="luz" data-luz title="En la maqueta: tocala para simular que se corta la conexión"><span class="punto"></span><span data-luz-texto>En línea · todo enviado</span><i class="i i-s" data-i="chevron-right"></i></button>
+      <div class="persona"><div class="usuario"><span class="avatar av-vos">RP</span><div class="txt"><div style="font-weight:750;font-size:15px">Rubén Paredes</div><div class="t-detalle">Administrador</div></div></div><button class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <header class="cabecera">
+      <div class="t-titulo">Usuarios</div>
+      <div class="acciones zona-red"><button class="btn" id="actualizar"><i class="i i-s" data-i="refresh-cw"></i>Actualizar <span class="kbd">Alt R</span></button></div>
+    </header>
+    <nav class="pestanas"><a data-ir="users">Usuarios</a><a data-no-ir>Roles</a><a class="activa" data-no-ir aria-current="page">Quién hizo qué</a></nav>
+    <section class="pantalla">
+      <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· vuelve sola</small></div>
+      <div class="izq zona-red">
+        <div class="arriba">
+          <button class="resumen" data-res="hoy"><span class="ico"><i class="i" data-i="history"></i></span><div><div class="va" id="r-hoy">20</div><div class="et">Hoy</div></div></button>
+          <button class="resumen urgente" data-res="ambar"><span class="ico"><i class="i" data-i="ban"></i></span><div><div class="va">4</div><div class="et">Rechazos</div></div></button>
+          <button class="resumen error" data-res="rojo"><span class="ico"><i class="i" data-i="trash-2"></i></span><div><div class="va">4</div><div class="et">Sacó o borró</div></div></button>
+          <div class="tarjeta tira"><div class="et"><span>El día, de 7 a 11</span><span id="tira-sel"></span></div><div class="riel" id="riel"></div><div class="horas"><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span></div></div>
+        </div>
+        <div class="filtros" id="filtros">
+          <button class="filtro" data-f="por">Hecho por <b>Todos</b><span class="kbd">Alt P</span></button>
+          <button class="filtro" data-f="a">Hecho a <b>Todos</b><span class="kbd">Alt A</span></button>
+          <button class="filtro" data-f="fecha">Fecha <b>Todo</b><span class="kbd">Alt F</span></button>
+          <button class="filtro" data-f="tipo">Tipo <b>Todos</b><span class="kbd">Alt T</span></button>
+          <button class="btn btn-fantasma chico sacar" id="sacar" hidden><i class="i i-s" data-i="x"></i>Sacar filtros <span class="kbd">Alt X</span></button>
+          <div class="pop" id="pop" role="listbox"></div>
+        </div>
+        <div class="lista-t">
+          <div id="lista" role="listbox" aria-label="Acciones"></div>
+          <div class="paginador">
+            <span class="tot"><b id="total">45</b> acciones</span>
+            <span class="t-detalle" style="white-space:nowrap"><span class="kbd">↑</span> <span class="kbd">↓</span> recorrer · <span class="kbd">RePág</span> <span class="kbd">AvPág</span> página</span>
+            <div class="pg">
+              <button class="btn chico btn-icono" id="ant" aria-label="Página anterior"><i class="i i-s" data-i="chevron-left"></i></button>
+              <span id="pagina">página 1 de 3</span>
+              <button class="btn chico btn-icono" id="sig" aria-label="Página siguiente"><i class="i i-s" data-i="chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="tarjeta-2 zona-red" id="detalle" aria-live="polite"><div class="det-in" id="det-cuerpo"></div></aside>
+    </section>
+  </main>
+</div>
+<script src="../../shared/audit.js"></script>
+<script>
+(function () {
+  var AU = window.AU, POR_PAG = 20;
+  var f = { por: null, a: null, fecha: "todo", desde: null, hasta: null, grupo: null, tipo: null, color: null };
+  var pag = 1, sel = "a4", vista = [];
+  var $ = function (s) { return document.querySelector(s); };
+
+  function personaNombre(id) { return AU.P[id].nombre; }
+
+  function render(anim) {
+    vista = AU.filtrar(f);
+    var paginas = Math.max(1, Math.ceil(vista.length / POR_PAG));
+    if (pag > paginas) pag = paginas;
+    var desde = (pag - 1) * POR_PAG, trozo = vista.slice(desde, desde + POR_PAG);
+    var h = "", dia = null;
+    if (!vista.length) {
+      var hay = AU.ACCIONES.length;
+      h = '<div class="vacio-lista"><span class="ilus"><i class="i i-xl" data-i="inbox"></i></span>' +
+        (hay ? '<b>No hay acciones con esos filtros</b><span>Probá con otra fecha o sacá los filtros.</span><button class="btn" data-sacar><i class="i i-s" data-i="x"></i>Sacar filtros</button>' : '<b>Todavía no hay nada anotado</b>') + '</div>';
+    }
+    trozo.forEach(function (a, i) {
+      if (a.dia !== dia) {
+        dia = a.dia;
+        var cuantas = vista.filter(function (x) { return x.dia === dia; }).length;
+        h += '<div class="dia"><span>' + AU.DIAS_LARGO[dia] + '</span><span>' + cuantas + (cuantas === 1 ? " acción" : " acciones") + '</span></div>';
+      }
+      var c = AU.color(a);
+      var quien = a.quien === "anon" && a.correo ? '<span class="nom anon-mail">' + AU.esc(a.correo) + '</span>' :
+        '<span class="nom"><button class="quien-por" data-por="' + a.quien + '">' + AU.esc(AU.quienTexto(a)) + '</button>' + (AU.hoyDe(a) ? ' <span class="hoy">(hoy: ' + AU.esc(AU.hoyDe(a)) + ')</span>' : "") + '</span>';
+      h += '<div class="fila ' + c + (anim ? " fundido" : "") + (a.nueva ? " entra recien" : "") + '" role="option" tabindex="-1" data-id="' + a.id + '" style="' + (anim ? "animation-delay:" + Math.min(i, 12) * 16 + "ms" : "") + '">' +
+        '<span class="marca-color"></span>' +
+        '<span class="hora">' + a.hora + (a.dia !== AU.HOY ? '<small>' + (a.dia === "2026-11-03" ? "ayer" : AU.DIAS[a.dia].toLowerCase()) + '</small>' : "") + (a.sinConfirmar ? '<small style="color:var(--urgente-texto)">sin confirmar</small>' : "") + '</span>' +
+        '<span class="por">' + AU.avatar(a.quien, "chico") + quien + '</span>' +
+        '<span class="que">' + AU.textoHTML(a) + '</span>' +
+        '<span class="disp" title="' + AU.dispTexto(a) + '"><i class="i i-s" data-i="' + AU.dispIcono(a) + '"></i></span></div>';
+      a.nueva = false;
+    });
+    $("#lista").innerHTML = h;
+    window.pintarIconos($("#lista"));
+    var tot = $("#total");
+    if (tot.textContent !== String(vista.length)) { tot.textContent = vista.length; tot.classList.remove("rueda"); void tot.offsetWidth; tot.classList.add("rueda"); }
+    $("#pagina").textContent = "página " + pag + " de " + paginas;
+    $("#ant").disabled = pag <= 1; $("#sig").disabled = pag >= paginas;
+    if (!sel || !trozo.some(function (a) { return a.id === sel; })) sel = trozo.length ? trozo[0].id : null;
+    marcar(false);
+    pintarFiltros();
+    pintarTira();
+  }
+
+  function marcar(scroll) {
+    document.querySelectorAll(".fila").forEach(function (el) { el.classList.toggle("sel", el.dataset.id === sel); el.setAttribute("aria-selected", el.dataset.id === sel); });
+    var el = document.querySelector('.fila[data-id="' + sel + '"]');
+    if (el && scroll) el.scrollIntoView({ block: "nearest" });
+    detalle();
+    document.querySelectorAll(".tic").forEach(function (t) { t.classList.toggle("sel", t.dataset.id === sel); });
+  }
+
+  function cambioHTML(c) {
+    var antes = c[1] === "—" ? '<span class="antes vacio">nada</span>' : '<span class="antes">' + AU.esc(c[1]) + '</span>';
+    var despues = c[2] === "—" ? '<span class="despues" style="color:var(--error-texto)">ya no está</span>' : '<span class="despues">' + AU.esc(c[2]) + '</span>';
+    return '<div class="cambio"><span class="campo-n">' + AU.esc(c[0]) + '</span><span class="ad">' + antes + '<i class="i i-s flecha-ad" data-i="arrow-right"></i>' + despues + '</span></div>';
+  }
+
+  function detalle() {
+    var cuerpo = $("#det-cuerpo");
+    var a = AU.ACCIONES.filter(function (x) { return x.id === sel; })[0];
+    if (!a) { cuerpo.innerHTML = '<div class="vacio-lista"><span class="ilus"><i class="i i-xl" data-i="mouse-pointer-click"></i></span><b>Elegí una acción</b><span>Acá se ve todo lo que se guardó de ella.</span></div>'; window.pintarIconos(cuerpo); return; }
+    var g = AU.GRUPOS.filter(function (x) { return x.id === a.grupo; })[0], c = AU.color(a);
+    var pill = c === "rojo" ? '<span class="pastilla error chica"><i class="i i-s" data-i="trash-2"></i>Borra o saca</span>' : c === "ambar" ? '<span class="pastilla urgente chica"><i class="i i-s" data-i="' + (a.grupo === "offline" ? "wifi-off" : "ban") + '"></i>' + (a.grupo === "offline" ? "Sin confirmar" : "Rechazado") + '</span>' : "";
+    var quien = a.quien === "anon" ?
+      '<div class="persona-btn vacio">' + AU.avatar("anon") + '<div><b>' + AU.esc(a.correo || "Alguien sin entrar") + '</b><small>' + (a.correo ? "Alguien sin entrar, con ese correo" : "Alguien sin entrar") + '</small></div></div>' :
+      '<button class="persona-btn" data-por="' + a.quien + '">' + AU.avatar(a.quien) + '<div><b>' + AU.esc(AU.quienTexto(a)) + '</b><small>' + (AU.hoyDe(a) ? "hoy: " + AU.esc(AU.hoyDe(a)) : "Ver todo lo que hizo") + '</small></div></button>';
+    var aq = AU.aQuien(a), roles = AU.roles(a);
+    var aQuienH = aq.length ? aq.map(function (x) { var p = AU.P[x.id]; return '<button class="persona-btn" data-a="' + x.id + '">' + AU.avatar(x.id) + '<div><b>' + AU.esc(x.entonces || p.nombre) + '</b><small>' + (x.entonces ? "hoy: " + AU.esc(p.nombre) : p.estado === "baja" ? "Dada de baja" : p.estado === "borrada" ? "Borrada" : "Ver lo que le hicieron") + '</small></div></button>'; }).join("") :
+      roles.length ? '<div class="persona-btn vacio"><span class="avatar" style="background:var(--hundido);color:var(--texto-2)"><i class="i i-s" data-i="shield"></i></span><div><b style="color:var(--tinta)">' + AU.esc(roles[0]) + '</b><small>Rol</small></div></div>' :
+      '<div class="persona-btn vacio"><span class="avatar" style="background:var(--hundido);color:var(--texto-3)"><i class="i i-s" data-i="minus"></i></span><div><b>A nadie</b><small>Fue sobre sí mismo</small></div></div>';
+    var cambios = a.cambios.length ? '<div class="bloque"><h3>Qué cambió</h3>' + a.cambios.map(cambioHTML).join("") + '</div>' : "";
+    var nota = a.nota ? '<div class="bloque"><h3>' + (a.grupo === "rechazos" ? "Por qué se rechazó" : "Más datos") + '</h3>' + a.nota.map(function (x) { return '<div class="cambio"><span class="campo-n">' + AU.esc(x[0]) + '</span><span class="ad">' + AU.esc(x[1]) + '</span></div>'; }).join("") + '</div>' : "";
+    cuerpo.innerHTML =
+      '<div class="det-cab"><span class="pastilla chica"><i class="i i-s" data-i="' + g.icono + '"></i>' + g.nombre + ' · ' + AU.TIPO[a.tipo] + '</span>' + pill + '</div>' +
+      '<p class="det-frase">' + AU.textoHTML(a, { marcas: true }) + '</p>' +
+      '<div class="det-cuando"><i class="i i-s" data-i="clock"></i>' + (a.dia === AU.HOY ? "Hoy" : AU.DIAS_LARGO[a.dia]) + ', ' + a.hora + (a.sinConfirmar ? ' · <span class="sin-conf">hora del celular, sin confirmar</span>' : " · hora del servidor") + '</div>' +
+      '<div class="bloque"><div class="gente2"><div class="bloque"><h3>Quién</h3>' + quien + '</div><div class="bloque"><h3>A quién o a qué</h3>' + aQuienH + '</div></div></div>' +
+      cambios + nota +
+      '<div class="bloque"><h3>Desde dónde</h3><div class="desde"><div><span class="et"><i class="i i-s" data-i="' + AU.dispIcono(a) + '"></i>Dispositivo</span><span class="va">' + AU.dispTexto(a) + '</span></div><div><span class="et"><i class="i i-s" data-i="globe"></i>Navegador</span><span class="va" title="' + a.desde.nav + '">' + a.desde.nav + '</span></div><div><span class="et"><i class="i i-s" data-i="wifi"></i>Dirección</span><span class="va">' + a.desde.ip + '</span></div></div></div>' +
+      '<div class="nota-fija"><i class="i i-s" data-i="lock"></i>Lo anotado no se cambia ni se borra.</div>';
+    cuerpo.classList.remove("cambia"); void cuerpo.offsetWidth; cuerpo.classList.add("cambia");
+    window.pintarIconos(cuerpo);
+  }
+
+  function pintarTira() {
+    var riel = $("#riel"), hoy = AU.ACCIONES.filter(function (a) { return a.dia === AU.HOY; });
+    riel.innerHTML = hoy.map(function (a) {
+      var hm = a.hora.split(":"), x = ((+hm[0] + hm[1] / 60) - 7) / 4 * 100;
+      return '<button class="tic ' + AU.color(a) + '" data-id="' + a.id + '" style="left:' + Math.max(1, Math.min(99, x)) + '%" title="' + a.hora + ' · ' + AU.esc(AU.textoPlano(a)) + '" aria-label="' + a.hora + '"></button>';
+    }).join("");
+    document.querySelectorAll(".tic").forEach(function (t) { t.classList.toggle("sel", t.dataset.id === sel); });
+  }
+
+  // ---------- Filtros ----------
+  var abierto = null;
+  function pintarFiltros() {
+    var nombres = {
+      por: f.por ? AU.P[f.por].nombre : "Todos",
+      a: f.a ? AU.P[f.a].nombre : "Todos",
+      fecha: f.fecha === "rango" ? AU.DIAS[f.desde] + " a " + AU.DIAS[f.hasta] : AU.ATAJOS[f.fecha].nombre,
+      tipo: f.tipo ? AU.TIPO[f.tipo] : f.grupo ? AU.GRUPOS.filter(function (g) { return g.id === f.grupo; })[0].nombre : f.color === "ambar" ? "Rechazos y sin confirmar" : f.color === "rojo" ? "Lo que borra o saca" : "Todos"
+    };
+    document.querySelectorAll(".filtro").forEach(function (b) {
+      var k = b.dataset.f;
+      b.querySelector("b").textContent = nombres[k];
+      var puesto = k === "fecha" ? f.fecha !== "todo" : k === "tipo" ? !!(f.tipo || f.grupo || f.color) : !!f[k];
+      b.classList.toggle("puesto", puesto);
+    });
+    var alguno = f.por || f.a || f.fecha !== "todo" || f.tipo || f.grupo || f.color;
+    $("#sacar").hidden = !alguno;
+    document.querySelectorAll("[data-res]").forEach(function (r) {
+      var k = r.dataset.res;
+      r.classList.toggle("on", f.fecha === "hoy" && (k === "hoy" ? !f.color && !f.tipo && !f.grupo : f.color === k));
+    });
+  }
+  function opPersona(id, k) {
+    var p = AU.P[id], marca = p.estado === "baja" ? "Dada de baja" : p.estado === "borrada" ? "Borrada" : p.especial === "sys" ? "Lo que hace solo" : p.especial === "anon" ? "Intentos de afuera" : p.rol;
+    return '<button class="op' + (f[k] === id ? " elegida" : "") + '" data-v="' + id + '">' + AU.avatar(id) + '<span>' + AU.esc(p.nombre) + '<br><small>' + marca + '</small></span>' + (f[k] === id ? '<i class="i i-s" data-i="check"></i>' : "") + '</button>';
+  }
+  function abrir(k) {
+    var pop = $("#pop"), btn = document.querySelector('.filtro[data-f="' + k + '"]');
+    if (abierto === k) return cerrar();
+    abierto = k;
+    var h = "";
+    if (k === "por" || k === "a") {
+      h += '<button class="op' + (!f[k] ? " elegida" : "") + '" data-v=""><span class="ic"><i class="i i-s" data-i="users"></i></span><span>Todos</span></button>';
+      h += '<div class="sep">Personas</div>' + AU.PERSONAS.filter(function (p) { return !p.estado; }).map(function (p) { return opPersona(p.id, k); }).join("");
+      h += '<div class="sep">Dadas de baja y borradas</div>' + AU.PERSONAS.filter(function (p) { return p.estado; }).map(function (p) { return opPersona(p.id, k); }).join("");
+      if (k === "por") h += '<div class="sep">Otros</div>' + opPersona("sys", k) + opPersona("anon", k);
+    } else if (k === "fecha") {
+      h += Object.keys(AU.ATAJOS).map(function (id) { return '<button class="op' + (f.fecha === id ? " elegida" : "") + '" data-v="' + id + '"><span class="ic"><i class="i i-s" data-i="' + (id === "todo" ? "calendar-range" : "calendar-days") + '"></i></span><span>' + AU.ATAJOS[id].nombre + '</span>' + (f.fecha === id ? '<i class="i i-s" data-i="check"></i>' : "") + '</button>'; }).join("");
+      h += '<div class="sep">Desde y hasta, los dos incluidos</div><div style="display:flex;gap:8px;padding:4px 8px 8px"><button class="btn chico" data-v="rango" data-d="2026-10-29" data-h="2026-10-31">jue 29 a sáb 31</button><button class="btn chico" data-v="rango" data-d="2026-11-02" data-h="2026-11-03">lun 2 a mar 3</button></div>';
+    } else {
+      h += '<button class="op' + (!f.tipo && !f.grupo && !f.color ? " elegida" : "") + '" data-v=""><span class="ic"><i class="i i-s" data-i="layout-grid"></i></span><span>Todos</span></button>';
+      AU.GRUPOS.forEach(function (g) {
+        h += '<button class="op' + (f.grupo === g.id && !f.tipo ? " elegida" : "") + '" data-g="' + g.id + '"><span class="ic"><i class="i i-s" data-i="' + g.icono + '"></i></span><span>' + g.nombre + '</span><small>todo el grupo</small></button>';
+        Object.keys(g.tipos).forEach(function (t) { h += '<button class="op sub' + (f.tipo === t ? " elegida" : "") + '" data-g="' + g.id + '" data-t="' + t + '"><span></span><span style="font-weight:600">' + g.tipos[t] + '</span></button>'; });
+      });
+    }
+    pop.innerHTML = h;
+    window.pintarIconos(pop);
+    pop.style.left = btn.offsetLeft + "px"; pop.style.top = (btn.offsetTop + 48) + "px";
+    pop.classList.add("abierto");
+    var primero = pop.querySelector(".elegida") || pop.querySelector(".op"); if (primero) primero.focus();
+  }
+  function cerrar() { abierto = null; $("#pop").classList.remove("abierto"); }
+  function aplicar() { pag = 1; sel = null; render(true); }
+
+  $("#pop").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-v], [data-g]"); if (!b) return;
+    if (abierto === "por" || abierto === "a") f[abierto] = b.dataset.v || null;
+    else if (abierto === "fecha") {
+      f.fecha = b.dataset.v;
+      if (f.fecha === "rango") { f.desde = b.dataset.d; f.hasta = b.dataset.h; } else { f.desde = AU.ATAJOS[f.fecha].desde; f.hasta = AU.ATAJOS[f.fecha].hasta; }
+    } else { f.grupo = b.dataset.g || null; f.tipo = b.dataset.t || null; f.color = null; }
+    cerrar(); aplicar();
+  });
+  document.querySelectorAll(".filtro").forEach(function (b) { b.addEventListener("click", function (e) { e.stopPropagation(); abrir(b.dataset.f); }); });
+  document.addEventListener("click", function (e) { if (abierto && !e.target.closest("#pop")) cerrar(); });
+
+  function sacar() { f = { por: null, a: null, fecha: "todo", desde: null, hasta: null, grupo: null, tipo: null, color: null }; aplicar(); }
+  $("#sacar").addEventListener("click", sacar);
+
+  document.querySelectorAll("[data-res]").forEach(function (r) {
+    r.addEventListener("click", function () {
+      var k = r.dataset.res;
+      f.fecha = "hoy"; f.desde = AU.HOY; f.hasta = AU.HOY; f.tipo = null; f.grupo = null;
+      f.color = k === "hoy" ? null : (f.color === k ? null : k);
+      aplicar();
+    });
+  });
+
+  // Tocar una persona filtra por ella (E33)
+  document.addEventListener("click", function (e) {
+    var por = e.target.closest("[data-por]"), a = e.target.closest("[data-a]"), s = e.target.closest("[data-sacar]");
+    if (s) return sacar();
+    if (por) { e.stopPropagation(); f.por = por.dataset.por; f.a = null; aplicar(); AU.tostada("Todo lo que hizo " + AU.P[f.por].nombre, "list-filter"); return; }
+    if (a) { e.stopPropagation(); f.a = a.dataset.a; f.por = null; aplicar(); AU.tostada("Todo lo que le hicieron a " + AU.P[f.a].nombre, "list-filter"); return; }
+    var fila = e.target.closest(".fila"); if (fila) { sel = fila.dataset.id; marcar(false); }
+    var tic = e.target.closest(".tic");
+    if (tic) {
+      var a2 = AU.ACCIONES.filter(function (x) { return x.id === tic.dataset.id; })[0];
+      $("#tira-sel").textContent = a2.hora + " · " + AU.TIPO[a2.tipo];
+      if (!vista.some(function (x) { return x.id === a2.id; })) { sacar(); }
+      var i = vista.indexOf(a2); pag = Math.floor(i / POR_PAG) + 1; sel = a2.id; render(false); marcar(true);
+    }
+  }, true);
+
+  $("#ant").addEventListener("click", function () { if (pag > 1) { pag--; sel = null; render(true); } });
+  $("#sig").addEventListener("click", function () { pag++; sel = null; render(true); });
+
+  $("#actualizar").addEventListener("click", function () {
+    var b = $("#actualizar"); b.querySelector("svg").animate([{ transform: "rotate(0)" }, { transform: "rotate(360deg)" }], { duration: 500, easing: "cubic-bezier(.2,.8,.2,1)" });
+    var a = AU.traerNueva();
+    if (!a) { AU.tostada("Está al día: no hay nada nuevo", "circle-check"); return; }
+    a.nueva = true; pag = 1; sel = a.id;
+    $("#r-hoy").textContent = AU.filtrar({ desde: AU.HOY, hasta: AU.HOY }).length;
+    render(false);
+    AU.tostada("1 acción nueva", "refresh-cw");
+  });
+
+  // Teclado (R4.8)
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey) {
+      var k = { p: "por", a: "a", f: "fecha", t: "tipo" }[e.key.toLowerCase()];
+      if (k) { e.preventDefault(); abrir(k); return; }
+      if (e.key.toLowerCase() === "r") { e.preventDefault(); $("#actualizar").click(); return; }
+      if (e.key.toLowerCase() === "x") { e.preventDefault(); sacar(); return; }
+    }
+    if (e.key === "Escape") { cerrar(); return; }
+    if (abierto) {
+      var ops = Array.prototype.slice.call(document.querySelectorAll("#pop .op, #pop [data-v]")), i = ops.indexOf(document.activeElement);
+      if (e.key === "ArrowDown") { e.preventDefault(); (ops[i + 1] || ops[0]).focus(); }
+      if (e.key === "ArrowUp") { e.preventDefault(); (ops[i - 1] || ops[ops.length - 1]).focus(); }
+      return;
+    }
+    var filas = Array.prototype.map.call(document.querySelectorAll(".fila"), function (x) { return x.dataset.id; }), j = filas.indexOf(sel);
+    if (e.key === "ArrowDown" && j < filas.length - 1) { e.preventDefault(); sel = filas[j + 1]; marcar(true); }
+    if (e.key === "ArrowUp" && j > 0) { e.preventDefault(); sel = filas[j - 1]; marcar(true); }
+    if (e.key === "PageDown") { e.preventDefault(); $("#sig").click(); }
+    if (e.key === "PageUp") { e.preventDefault(); $("#ant").click(); }
+    if (e.key === "Enter" && sel) { var d = document.querySelector("#detalle .persona-btn[data-por], #detalle .persona-btn[data-a]"); if (d) d.focus(); }
+  });
+
+  render(false);
+})();
+</script>
+</body>
+</html>

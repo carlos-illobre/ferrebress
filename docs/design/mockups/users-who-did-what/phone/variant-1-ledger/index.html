@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Usuarios · Quién hizo qué · 1 · El libro · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/audit.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  body { width: 390px; }
+  .celu-estado { cursor: pointer; }
+  .celu-pestanas { display: grid; grid-template-columns: 1fr .8fr 1.35fr; }
+  .celu-pantalla { overflow: auto; padding-bottom: 16px; position: relative; }
+  .resumenes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .res { display: grid; gap: 0; padding: 10px 12px; border-radius: var(--r-tarjeta); border: 1px solid var(--borde); background: var(--superficie); box-shadow: var(--sombra-1); text-align: left; font: inherit; transition: transform var(--t-micro) var(--curva); }
+  .res:active { transform: scale(.96); }
+  .res b { font-size: 24px; line-height: 30px; font-weight: 800; }
+  .res span { font-size: 14px; font-weight: 650; color: var(--texto-2); white-space: nowrap; }
+  .res.urgente { background: var(--urgente-suave); border-color: transparent; } .res.urgente b { color: var(--urgente-texto); }
+  .res.error { background: var(--error-suave); border-color: transparent; } .res.error b { color: var(--error-texto); }
+  .res.on { box-shadow: 0 0 0 2px var(--pino); }
+  .chips-f { display: flex; gap: 8px; overflow-x: auto; margin: 12px -16px 0; padding: 0 16px 4px; scrollbar-width: none; }
+  .chips-f::-webkit-scrollbar { display: none; }
+  .chip { flex: none; height: 40px; font-size: 15px; gap: 6px; padding: 0 12px 0 14px; }
+  .chip b { font-weight: 750; }
+  .chip.elegido b { color: #fff; }
+  .chip .i { opacity: .7; }
+  .cuenta { display: flex; align-items: center; justify-content: space-between; margin: 12px 0 8px; font-size: 15px; font-weight: 650; color: var(--texto-2); }
+  .cuenta b { color: var(--tinta); font-weight: 800; }
+  .cuenta .btn { min-height: 40px; }
+  .dia { font-size: 14px; font-weight: 750; color: var(--texto-2); margin: 12px 4px 8px; }
+  .dia:first-child { margin-top: 0; }
+  .acc { display: grid; grid-template-columns: 4px 36px minmax(0, 1fr); gap: 0 12px; padding: 12px 14px 12px 8px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-1); position: relative; transition: transform var(--t-micro) var(--curva); }
+  .acc + .acc { margin-top: 8px; }
+  .acc:active { transform: scale(.98); }
+  .acc .avatar { align-self: start; }
+  .acc .l1 { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; font-weight: 750; line-height: 20px; }
+  .acc .l1 .n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .acc .l1 .h { flex: none; color: var(--texto-2); font-weight: 700; display: flex; gap: 4px; align-items: center; }
+  .acc.rojo .l1 .h { color: var(--error-texto); }
+  .acc.ambar .l1 .h { color: var(--urgente-texto); }
+  .acc .l2 { font-size: 15px; line-height: 21px; margin-top: 2px; }
+  .acc .anon-mail { color: var(--urgente-texto); }
+  .acc.entra { animation: entra var(--t-nav) var(--rebote) both; }
+  .pag { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; align-items: center; }
+  .pag .btn { min-height: 52px; }
+  .pag .c { text-align: center; font-weight: 750; font-size: 16px; line-height: 20px; }
+  .pag .c small { display: block; font-size: 14px; font-weight: 600; color: var(--texto-2); }
+
+  /* Hojas */
+  .hoja { max-height: 88%; overflow: auto; }
+  .hoja .cab-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .hoja .det-frase { font-size: 20px; line-height: 27px; font-weight: 750; margin: 8px 0 4px; }
+  .hoja .det-cuando { font-size: 15px; color: var(--texto-2); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .hoja h3 { margin: 16px 0 8px; font-size: 14px; font-weight: 700; color: var(--texto-2); }
+  .hoja .cambio + .cambio { margin-top: 8px; }
+  .persona-btn { width: 100%; display: grid; grid-template-columns: 40px 1fr 20px; gap: 12px; align-items: center; min-height: 56px; padding: 8px 12px; border-radius: var(--r); border: 1px solid var(--borde); background: var(--superficie); text-align: left; font: inherit; }
+  .persona-btn + .persona-btn { margin-top: 8px; }
+  .persona-btn b { display: block; font-size: 15px; }
+  .persona-btn small { display: block; font-size: 14px; color: var(--texto-2); }
+  .persona-btn .i { color: var(--texto-3); }
+  .persona-btn.vacio { color: var(--texto-3); }
+  .lista-desde { border: 1px solid var(--borde); border-radius: var(--r); }
+  .lista-desde div { display: grid; grid-template-columns: 24px 110px 1fr; gap: 8px; align-items: center; padding: 10px 12px; font-size: 15px; }
+  .lista-desde div + div { border-top: 1px solid var(--borde); }
+  .lista-desde span { color: var(--texto-2); font-weight: 600; }
+  .lista-desde b { font-weight: 750; }
+  .opciones-h { display: grid; gap: 4px; }
+  .opciones-h .op { display: grid; grid-template-columns: 40px 1fr 20px; gap: 12px; align-items: center; min-height: 56px; padding: 8px; border: 0; border-radius: 12px; background: none; text-align: left; font: inherit; font-weight: 650; }
+  .opciones-h .op.elegida { background: var(--pino-suave); color: var(--pino); }
+  .opciones-h .op small { display: block; font-size: 14px; font-weight: 500; color: var(--texto-2); }
+  .opciones-h .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--hundido); display: grid; place-items: center; color: var(--texto-2); }
+  .opciones-h .sep { font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 12px 8px 4px; }
+  .opciones-h .op.sub { min-height: 48px; padding-left: 60px; grid-template-columns: 1fr 20px; font-weight: 600; }
+  .gris-cartel { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); z-index: 5; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div class="celu-cabecera"><span class="t-titulo">Usuarios</span><button class="btn btn-icono zona-red" id="actualizar" aria-label="Actualizar"><i class="i" data-i="refresh-cw"></i></button></div>
+  <div class="celu-estado" data-luz title="En la maqueta: tocá para simular que se corta la conexión"><span class="punto"></span><span data-luz-texto>En línea · todo enviado</span></div>
+  <nav class="celu-pestanas"><a data-ir="users">Usuarios</a><a data-no-ir>Roles</a><a class="activa" data-no-ir aria-current="page">Quién hizo qué</a></nav>
+  <div class="celu-pantalla" id="pant">
+    <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· vuelve sola</small></div>
+    <div class="zona-red">
+      <div class="resumenes">
+        <button class="res" data-res="hoy"><b id="r-hoy">20</b><span>Hoy</span></button>
+        <button class="res urgente" data-res="ambar"><b>4</b><span>Rechazos</span></button>
+        <button class="res error" data-res="rojo"><b>4</b><span>Sacó o borró</span></button>
+      </div>
+      <div class="chips-f" id="chips">
+        <button class="chip" data-f="fecha"><i class="i i-s" data-i="calendar-days"></i><b>Todo</b></button>
+        <button class="chip" data-f="por">Por <b>todos</b></button>
+        <button class="chip" data-f="a">A <b>todos</b></button>
+        <button class="chip" data-f="tipo">Tipo <b>todos</b></button>
+      </div>
+      <div class="cuenta"><span><b id="total">45</b> acciones</span><button class="btn btn-fantasma chico" id="sacar" hidden><i class="i i-s" data-i="x"></i>Sacar filtros</button></div>
+      <div id="lista"></div>
+    </div>
+  </div>
+  <div class="barra-accion zona-red"><div class="pag"><button class="btn btn-icono" id="ant" aria-label="Anterior"><i class="i i-l" data-i="chevron-left"></i></button><div class="c"><span id="pagina">página 1 de 5</span><small>de a 10</small></div><button class="btn btn-icono" id="sig" aria-label="Siguiente"><i class="i i-l" data-i="chevron-right"></i></button></div></div>
+  <nav class="nav-inferior">
+    <a data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a class="activo" data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+  <div class="velo" id="velo"></div>
+  <div class="hoja" id="hoja" role="dialog" aria-modal="true"><div class="asa"></div><div id="hoja-in"></div></div>
+</div>
+<script src="../../shared/audit.js"></script>
+<script>
+(function () {
+  var AU = window.AU, POR_PAG = 10;
+  var f = { por: null, a: null, fecha: "todo", desde: null, hasta: null, grupo: null, tipo: null, color: null };
+  var pag = 1, vista = [];
+  var $ = function (s) { return document.querySelector(s); };
+
+  function render(anim) {
+    vista = AU.filtrar(f);
+    var paginas = Math.max(1, Math.ceil(vista.length / POR_PAG));
+    if (pag > paginas) pag = paginas;
+    var trozo = vista.slice((pag - 1) * POR_PAG, pag * POR_PAG), h = "", dia = null;
+    if (!vista.length) h = '<div class="vacio-lista"><span class="ilus"><i class="i i-xl" data-i="inbox"></i></span><b>No hay acciones con esos filtros</b><button class="btn" data-sacar><i class="i i-s" data-i="x"></i>Sacar filtros</button></div>';
+    trozo.forEach(function (a, i) {
+      if (a.dia !== dia) { dia = a.dia; h += '<div class="dia">' + AU.DIAS_LARGO[dia] + '</div>'; }
+      var nom = a.quien === "anon" && a.correo ? '<span class="anon-mail">' + AU.esc(a.correo) + '</span>' : AU.esc(AU.quienTexto(a)) + (AU.hoyDe(a) ? ' <span class="hoy">(hoy: ' + AU.esc(AU.hoyDe(a)) + ')</span>' : "");
+      h += '<div class="acc ' + AU.color(a) + (anim ? " fundido" : "") + (a.nueva ? " entra recien" : "") + '" data-id="' + a.id + '" style="' + (anim ? "animation-delay:" + i * 20 + "ms" : "") + '"><span class="marca-color"></span>' + AU.avatar(a.quien) +
+        '<div><div class="l1"><span class="n">' + nom + '</span><span class="h"><i class="i i-s" data-i="' + AU.dispIcono(a) + '"></i>' + (a.dia === AU.HOY ? a.hora : AU.cuando(a)) + '</span></div><div class="l2">' + AU.textoHTML(a) + (a.sinConfirmar ? ' <span class="sin-conf">· sin confirmar</span>' : "") + '</div></div></div>';
+      a.nueva = false;
+    });
+    $("#lista").innerHTML = h;
+    window.pintarIconos($("#lista"));
+    var tot = $("#total");
+    if (tot.textContent !== String(vista.length)) { tot.textContent = vista.length; tot.classList.remove("rueda"); void tot.offsetWidth; tot.classList.add("rueda"); }
+    $("#pagina").textContent = "página " + pag + " de " + paginas;
+    $("#ant").disabled = pag <= 1; $("#sig").disabled = pag >= paginas;
+    pintarChips();
+  }
+  function pintarChips() {
+    var n = {
+      fecha: f.fecha === "rango" ? AU.DIAS[f.desde] + " a " + AU.DIAS[f.hasta] : AU.ATAJOS[f.fecha].nombre,
+      por: f.por ? AU.P[f.por].corto : "todos", a: f.a ? AU.P[f.a].corto : "todos",
+      tipo: f.tipo ? AU.TIPO[f.tipo] : f.grupo ? AU.GRUPOS.filter(function (g) { return g.id === f.grupo; })[0].nombre : f.color === "ambar" ? "rechazos" : f.color === "rojo" ? "borra o saca" : "todos"
+    };
+    document.querySelectorAll("#chips .chip").forEach(function (c) {
+      var k = c.dataset.f; c.querySelector("b").textContent = n[k];
+      c.classList.toggle("elegido", k === "fecha" ? f.fecha !== "todo" : k === "tipo" ? !!(f.tipo || f.grupo || f.color) : !!f[k]);
+    });
+    $("#sacar").hidden = !(f.por || f.a || f.fecha !== "todo" || f.tipo || f.grupo || f.color);
+    document.querySelectorAll("[data-res]").forEach(function (r) { var k = r.dataset.res; r.classList.toggle("on", f.fecha === "hoy" && (k === "hoy" ? !f.color && !f.tipo && !f.grupo : f.color === k)); });
+  }
+  function aplicar() { pag = 1; render(true); $("#pant").scrollTo({ top: 0, behavior: "smooth" }); }
+  function sacar() { f = { por: null, a: null, fecha: "todo", desde: null, hasta: null, grupo: null, tipo: null, color: null }; aplicar(); }
+
+  // Hojas
+  var hojaTipo = null;
+  function abrirHoja(html, tipo) {
+    hojaTipo = tipo; $("#hoja-in").innerHTML = html; window.pintarIconos($("#hoja-in"));
+    $("#hoja").scrollTop = 0; $("#hoja").classList.add("abierta"); $("#velo").classList.add("abierto"); AU.vibrar(10);
+  }
+  function cerrarHoja() { $("#hoja").classList.remove("abierta"); $("#velo").classList.remove("abierto"); hojaTipo = null; }
+  $("#velo").addEventListener("click", cerrarHoja);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") cerrarHoja(); });
+  // Bajar la hoja con el dedo la cierra
+  (function () {
+    var y0 = null, hoja = $("#hoja");
+    hoja.addEventListener("pointerdown", function (e) { if (e.target.closest(".asa") || hoja.scrollTop === 0) y0 = e.clientY; });
+    hoja.addEventListener("pointermove", function (e) { if (y0 == null) return; var d = Math.max(0, e.clientY - y0); if (d > 4) { hoja.style.transition = "none"; hoja.style.transform = "translateY(" + d + "px)"; } });
+    function fin(e) { if (y0 == null) return; var d = e.clientY - y0; y0 = null; hoja.style.transition = ""; hoja.style.transform = ""; if (d > 90) cerrarHoja(); }
+    hoja.addEventListener("pointerup", fin); hoja.addEventListener("pointercancel", fin);
+  })();
+
+  function cambioHTML(c) {
+    var antes = c[1] === "—" ? '<span class="antes vacio">nada</span>' : '<span class="antes">' + AU.esc(c[1]) + '</span>';
+    var despues = c[2] === "—" ? '<span class="despues" style="color:var(--error-texto)">ya no está</span>' : '<span class="despues">' + AU.esc(c[2]) + '</span>';
+    return '<div class="cambio"><span class="campo-n">' + AU.esc(c[0]) + '</span><span class="ad">' + antes + '<i class="i i-s flecha-ad" data-i="arrow-right"></i>' + despues + '</span></div>';
+  }
+  function detalle(a) {
+    var g = AU.GRUPOS.filter(function (x) { return x.id === a.grupo; })[0], c = AU.color(a);
+    var pill = c === "rojo" ? '<span class="pastilla error chica">Borra o saca</span>' : c === "ambar" ? '<span class="pastilla urgente chica">' + (a.grupo === "offline" ? "Sin confirmar" : "Rechazado") + '</span>' : "";
+    var quien = a.quien === "anon" ? '<div class="persona-btn vacio">' + AU.avatar("anon") + '<div><b>' + AU.esc(a.correo || "Alguien sin entrar") + '</b><small>Alguien sin entrar</small></div></div>' :
+      '<button class="persona-btn" data-por="' + a.quien + '">' + AU.avatar(a.quien) + '<div><b>' + AU.esc(AU.quienTexto(a)) + '</b><small>' + (AU.hoyDe(a) ? "hoy: " + AU.esc(AU.hoyDe(a)) : "Ver todo lo que hizo") + '</small></div><i class="i i-s" data-i="chevron-right"></i></button>';
+    var aq = AU.aQuien(a).map(function (x) { var p = AU.P[x.id]; return '<button class="persona-btn" data-a="' + x.id + '">' + AU.avatar(x.id) + '<div><b>' + AU.esc(x.entonces || p.nombre) + '</b><small>' + (x.entonces ? "hoy: " + AU.esc(p.nombre) : p.estado === "baja" ? "Dada de baja" : p.estado === "borrada" ? "Borrada" : "Ver lo que le hicieron") + '</small></div><i class="i i-s" data-i="chevron-right"></i></button>'; }).join("");
+    var r = AU.roles(a);
+    if (!aq && r.length) aq = '<div class="persona-btn vacio"><span class="avatar" style="background:var(--hundido);color:var(--texto-2)"><i class="i i-s" data-i="shield"></i></span><div><b style="color:var(--tinta)">' + AU.esc(r[0]) + '</b><small>Rol</small></div></div>';
+    abrirHoja(
+      '<div class="cab-h"><span class="pastilla chica"><i class="i i-s" data-i="' + g.icono + '"></i>' + g.nombre + '</span>' + pill + '<button class="btn btn-fantasma btn-icono" style="margin-left:auto" data-cerrar aria-label="Cerrar"><i class="i" data-i="x"></i></button></div>' +
+      '<p class="det-frase">' + AU.textoHTML(a, { marcas: true }) + '</p>' +
+      '<div class="det-cuando"><i class="i i-s" data-i="clock"></i>' + (a.dia === AU.HOY ? "Hoy" : AU.DIAS_LARGO[a.dia]) + ', ' + a.hora + (a.sinConfirmar ? ' · <span class="sin-conf">hora del celular, sin confirmar</span>' : "") + '</div>' +
+      '<h3>Quién</h3>' + quien + (aq ? '<h3>A quién o a qué</h3>' + aq : "") +
+      (a.cambios.length ? '<h3>Qué cambió</h3>' + a.cambios.map(cambioHTML).join("") : "") +
+      (a.nota ? '<h3>' + (a.grupo === "rechazos" ? "Por qué se rechazó" : "Más datos") + '</h3>' + a.nota.map(function (x) { return '<div class="cambio"><span class="campo-n">' + AU.esc(x[0]) + '</span><span class="ad">' + AU.esc(x[1]) + '</span></div>'; }).join("") : "") +
+      '<h3>Desde dónde</h3><div class="lista-desde"><div><i class="i i-s" data-i="' + AU.dispIcono(a) + '"></i><span>Dispositivo</span><b>' + AU.dispTexto(a) + '</b></div><div><i class="i i-s" data-i="globe"></i><span>Navegador</span><b>' + a.desde.nav + '</b></div><div><i class="i i-s" data-i="wifi"></i><span>Dirección</span><b>' + a.desde.ip + '</b></div></div>', "detalle");
+  }
+  function filtroHoja(k) {
+    var h = '<div class="cab-h"><span class="t-seccion">' + { por: "Hecho por", a: "Hecho a", fecha: "Fecha", tipo: "Tipo" }[k] + '</span><button class="btn btn-fantasma btn-icono" data-cerrar aria-label="Cerrar"><i class="i" data-i="x"></i></button></div><div class="opciones-h">';
+    function op(v, ic, t, sub, on) { return '<button class="op' + (on ? " elegida" : "") + '" data-v="' + v + '">' + ic + '<span>' + t + (sub ? '<small>' + sub + '</small>' : "") + '</span>' + (on ? '<i class="i i-s" data-i="check"></i>' : "<span></span>") + '</button>'; }
+    if (k === "por" || k === "a") {
+      h += op("", '<span class="ic"><i class="i" data-i="users"></i></span>', "Todos", "", !f[k]);
+      h += '<div class="sep">Personas</div>';
+      AU.PERSONAS.forEach(function (p) { h += op(p.id, AU.avatar(p.id), AU.esc(p.nombre), p.estado === "baja" ? "Dada de baja" : p.estado === "borrada" ? "Borrada" : p.rol, f[k] === p.id); });
+      if (k === "por") { h += '<div class="sep">Otros</div>' + op("sys", AU.avatar("sys"), "El sistema", "Lo que hace solo", f.por === "sys") + op("anon", AU.avatar("anon"), "Alguien sin entrar", "Intentos de afuera", f.por === "anon"); }
+    } else if (k === "fecha") {
+      Object.keys(AU.ATAJOS).forEach(function (id) { h += op(id, '<span class="ic"><i class="i" data-i="calendar-days"></i></span>', AU.ATAJOS[id].nombre, id === "semana" ? "De lunes a hoy" : "", f.fecha === id); });
+      h += '<div class="sep">Desde y hasta</div>' + op("rango:2026-10-29:2026-10-31", '<span class="ic"><i class="i" data-i="calendar-range"></i></span>', "Jueves 29 a sábado 31", "Los dos días incluidos", f.fecha === "rango" && f.desde === "2026-10-29");
+    } else {
+      h += op("", '<span class="ic"><i class="i" data-i="layout-grid"></i></span>', "Todos", "", !f.tipo && !f.grupo && !f.color);
+      AU.GRUPOS.forEach(function (g) {
+        h += op("g:" + g.id, '<span class="ic"><i class="i" data-i="' + g.icono + '"></i></span>', g.nombre, "Todo el grupo", f.grupo === g.id && !f.tipo);
+        Object.keys(g.tipos).forEach(function (t) { h += '<button class="op sub' + (f.tipo === t ? " elegida" : "") + '" data-v="t:' + g.id + ':' + t + '"><span>' + g.tipos[t] + '</span>' + (f.tipo === t ? '<i class="i i-s" data-i="check"></i>' : "<span></span>") + '</button>'; });
+      });
+    }
+    abrirHoja(h + '</div>', k);
+  }
+
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("[data-cerrar]")) return cerrarHoja();
+    if (e.target.closest("[data-sacar]") || e.target.closest("#sacar")) return sacar();
+    var op = e.target.closest(".opciones-h .op");
+    if (op && hojaTipo) {
+      var v = op.dataset.v, k = hojaTipo;
+      if (k === "por" || k === "a") f[k] = v || null;
+      else if (k === "fecha") { if (v.indexOf("rango") === 0) { var p = v.split(":"); f.fecha = "rango"; f.desde = p[1]; f.hasta = p[2]; } else { f.fecha = v; f.desde = AU.ATAJOS[v].desde; f.hasta = AU.ATAJOS[v].hasta; } }
+      else { var q = v.split(":"); f.color = null; f.grupo = q[0] === "g" || q[0] === "t" ? q[1] : null; f.tipo = q[0] === "t" ? q[2] : null; }
+      cerrarHoja(); aplicar(); return;
+    }
+    var por = e.target.closest("[data-por]"), aa = e.target.closest("[data-a]");
+    if (por || aa) {
+      e.stopPropagation();
+      if (por) { f.por = por.dataset.por; f.a = null; } else { f.a = aa.dataset.a; f.por = null; }
+      cerrarHoja(); aplicar();
+      AU.tostada(por ? "Lo que hizo " + AU.P[f.por].corto : "Lo que le hicieron a " + AU.P[f.a].corto, "list-filter");
+      return;
+    }
+    var chip = e.target.closest("#chips .chip"); if (chip) return filtroHoja(chip.dataset.f);
+    var res = e.target.closest("[data-res]");
+    if (res) { var k2 = res.dataset.res; f.fecha = "hoy"; f.desde = f.hasta = AU.HOY; f.tipo = f.grupo = null; f.color = k2 === "hoy" ? null : (f.color === k2 ? null : k2); AU.vibrar(10); return aplicar(); }
+    var acc = e.target.closest(".acc");
+    if (acc) detalle(AU.ACCIONES.filter(function (x) { return x.id === acc.dataset.id; })[0]);
+  }, true);
+
+  $("#ant").addEventListener("click", function () { if (pag > 1) { pag--; render(true); $("#pant").scrollTo({ top: 0 }); } });
+  $("#sig").addEventListener("click", function () { pag++; render(true); $("#pant").scrollTo({ top: 0 }); });
+  $("#actualizar").addEventListener("click", function () {
+    $("#actualizar svg").animate([{ transform: "rotate(0)" }, { transform: "rotate(360deg)" }], { duration: 500, easing: "cubic-bezier(.2,.8,.2,1)" });
+    var a = AU.traerNueva();
+    if (!a) { AU.tostada("Está al día", "circle-check"); return; }
+    a.nueva = true; pag = 1; $("#r-hoy").textContent = AU.filtrar({ desde: AU.HOY, hasta: AU.HOY }).length; render(false); AU.vibrar(10);
+  });
+
+  render(false);
+})();
+</script>
+</body>
+</html>
