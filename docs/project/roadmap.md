@@ -26,7 +26,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | 02 | `users` | En dos etapas. **a. Personas y sesiones:** autorizar, cambiar y dar de baja personas, y cerrar a distancia sus sesiones y quitar sus celulares con huella, todavía con el único rol Administrador. **b. Roles y permisos:** permisos fijos que define cada módulo, roles armados por el negocio, la aplicación y el servidor que respetan los permisos, y las protecciones para no quedarse sin quien administre | La a, para que entre alguien más que el primer Administrador y para resolver un celular perdido; la b, justo después, porque la usan todos los módulos que siguen | a: 01; b: 02a | a: hecha, con su manual en el capítulo «Usuarios»; b: hecha, con su manual en el capítulo «Roles» |
 | 03 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para leer los códigos del catálogo | 01 | Libre |
 | 04 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo, formatos) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
-| 05 | `audit-log` | La auditoría (lo que hacen las personas): guardarla y consultarla, en Más → Usuarios → Auditoría | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba | 01 | En curso: alcance, antes del paso 1 |
+| 05 | `audit-log` | La auditoría (lo que hacen las personas): guardarla, con el dato afectado de cada acción, y consultarla en Más → Usuarios → Auditoría. La historia de un dato se muestra con el catálogo (T115) y cuánto se guarda se decide con las copias (T116) | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba | 01 | En curso: paso 1 |
 | 06 | `administration` | Los ajustes que fija un Administrador para todos (redondeo, márgenes rápidos, zona horaria, días del vínculo) y la pantalla de anomalías, a la que cada módulo le suma las suyas | El catálogo necesita el redondeo y los márgenes; mejor editarlos de entrada que dejar valores fijos | 02b, 05 | Libre |
 | 07 | `catalog` | Productos, proveedores, costo, margen, precio, búsqueda, código de barras, foto y duplicados | La base de vender | 06 | Libre |
 | 08 | `price-lists` | Subir la lista de un proveedor, ver qué cambia y aplicarla; un lector por proveedor | Todo producto sale de una lista | 07 | Libre |
@@ -122,6 +122,11 @@ No se construyen ahora; el diseño no les cierra la puerta.
   el llavero solo cambia cómo se ven y se tocan los roles. Antes de programarlo: paso 1 (preguntas
   del selector y del manual), paso 2 (la pestaña Roles en llavero) y el resto de los pasos.
 - [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales.
+- [ ] T115 [agente] La historia de un dato (05, con el módulo 07): todo lo que le pasó a una cosa,
+  como el precio o el stock de un producto, leído de la auditoría. La auditoría ya guarda el dato
+  afectado con su índice; falta la pantalla y su consulta, que se diseñan con un producto real.
+- [ ] T116 [carlos] Cuánto se guarda la auditoría (05, con T107): si los años viejos se archivan o
+  se borran, y cuándo.
 - [ ] T111 [carlos] Probar en el ambiente de pruebas que la sesión vence (01 · R3.1, R3.5): 60
   minutos sin usarla, o 8 horas desde que se entró, y que al volver a entrar se sigue donde se
   estaba.
