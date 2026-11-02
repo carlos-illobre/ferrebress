@@ -8,7 +8,8 @@ T115); cuánto se guarda se decide con el plan de copias (T116).
 ## Cada regla en una línea
 
 - **Qué se anota:** cada acción que cambia algo, de cualquier capítulo, y los intentos rechazados;
-  mirar no se anota, tampoco abrir Quién hizo qué; solo lo que quedó guardado (R1).
+  mirar no se anota, salvo abrir Quién hizo qué, una vez por sesión y por día; solo lo que quedó
+  guardado (R1).
 - **Qué se guarda:** qué pasó en palabras y su grupo; cuándo, con la hora del servidor (o la del
   celular, marcada como sin confirmar); quién y a quién, con el nombre de ese momento y «(hoy: …)»;
   solo lo que cambió, con el antes y el después; dispositivo, navegador y dirección de internet (R2).

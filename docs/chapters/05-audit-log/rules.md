@@ -21,8 +21,10 @@ registro se decide con el plan de copias de la base.
 - **R1.2** Se anotan también **los intentos rechazados**: un correo que no está autorizado, una
   huella que no se conoce, un código vencido, un pedido sin el permiso que hace falta, un límite de
   intentos alcanzado. Es lo que más interesa si alguien quiere entrar o hacer lo que no puede.
-- **R1.3** **Mirar no se anota:** abrir una pantalla, buscar o ver un dato no deja nada, tampoco
-  abrir Quién hizo qué. Anotarlo multiplicaría el registro y diría poco.
+- **R1.3** **Mirar no se anota:** abrir una pantalla, buscar o ver un dato no deja nada; anotarlo
+  multiplicaría el registro y diría poco. **La excepción es Quién hizo qué:** la primera vez que una
+  sesión lo abre en el día queda «Abrió Quién hizo qué», con quién y desde dónde. Así, si alguien
+  usa la sesión de otro para mirar el registro, queda el rastro. Las demás veces de ese día, no.
 - **R1.4** Las acciones se anotan **cuando el cambio quedó guardado**: una acción que no se guardó
   no figura como hecha (sí, si corresponde, como intento rechazado).
 
@@ -88,7 +90,8 @@ registro se decide con el plan de copias de la base.
   - **Tipo:** por grupo (R2.1) y, dentro de cada grupo, por tipo de acción.
 
   Las listas de personas de los filtros incluyen a las dadas de baja y a las borradas, con el
-  nombre que tenían. Cambiar un filtro vuelve a la página 1. Si nada coincide, lo dice y ofrece
+  nombre que tenían; las borradas, con «(borrada)» y sin su correo, que desaparece con ellas
+  (02 · R3.7). Cambiar un filtro vuelve a la página 1. Si nada coincide, lo dice y ofrece
   sacar los filtros.
 - **R4.6** **Las acciones nuevas no aparecen solas:** la aplicación no le pide nada al servidor sin
   que la toquen (constitución, principio III). La lista se pone al día al tocar la pestaña, al
@@ -108,7 +111,9 @@ registro se decide con el plan de copias de la base.
     sacaron algo (las rojas de R4.4). Tocar los rechazos o lo que borró o sacó filtra la lista por
     eso, en el período del resumen (pone ese período como fecha y saca el filtro por tipo); tocarlo
     de nuevo saca ese filtro; tocar el total saca los dos;
-  - en la computadora, el día en una tira: una raya por acción, en su hora y con su color; tocar una
+  - en la computadora, el día en una tira: una raya por acción, en su hora y con su color (con más de
+    2.000 acciones en el día, que no entran en ese ancho, una raya por minuto, que elige la más nueva
+    de ese minuto); tocar una
     raya elige esa acción en la lista y la muestra en el detalle; si esa acción no está en los
     filtros, saca los filtros, menos la fecha.
 - **R4.10** **Cada tipo de acción tiene su ícono,** que no se repite entre tipos y es el mismo en
@@ -141,8 +146,11 @@ registro se decide con el plan de copias de la base.
   **entonces** queda anotado en ámbar, con el correo que usó y «Alguien sin entrar» como quién.
 - **E04** **Dado** una persona sin un permiso, **cuando** su pedido se rechaza por eso, **entonces**
   queda anotado en ámbar, con quién fue y qué permiso le faltó.
-- **E05** **Dado** una persona que abre pantallas, busca y abre Quién hizo qué, **cuando** se mira
-  el registro, **entonces** nada de eso figura.
+- **E05** **Dado** una persona que abre pantallas y busca, **cuando** se mira el registro,
+  **entonces** nada de eso figura.
+- **E05b** **Dado** una sesión que abre Quién hizo qué tres veces en el día, **cuando** se mira el
+  registro, **entonces** figura una sola vez «Abrió Quién hizo qué», con quién y desde dónde; al día
+  siguiente, la primera vez que lo abre, figura de nuevo.
 - **E06** **Dado** un cambio de nombre de una persona, **cuando** se mira su detalle, **entonces**
   dice solo lo que cambió, con lo que había antes y lo que quedó.
 
@@ -207,7 +215,8 @@ registro se decide con el plan de copias de la base.
 - **E29** **Dado** filtros que no coinciden con nada, **cuando** se aplican, **entonces** dice que no
   hay acciones con esos filtros y ofrece sacarlos.
 - **E30** **Dado** una persona dada de baja o borrada, **cuando** se abre el filtro de personas,
-  **entonces** figura, con el nombre que tenía, y sus acciones se pueden filtrar.
+  **entonces** figura, con el nombre que tenía, y sus acciones se pueden filtrar; la borrada, con
+  «(borrada)» y sin su correo.
 - **E31** **Dado** la página 3, **cuando** se cambia un filtro, **entonces** vuelve a la página 1.
 
 ### El detalle y la actualización

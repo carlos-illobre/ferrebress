@@ -85,9 +85,10 @@ módulos pasan a un solo tipo de la plataforma, `request.throttled`, con el tema
 
 Todo en SQLite (ADR-004), en la carpeta de `AUDIT_PATH`. Ninguna tabla nueva en PostgreSQL.
 
-**Archivos nuevos con la forma nueva** (si Carlos lo aprueba, § 12): `<año>.v1.sqlite`. Los archivos
-de la forma vieja (`<año>.sqlite`, que solo existen en el ambiente de pruebas) quedan en el disco sin
-tocar y no se leen. Así no se modifica ninguna fila ni hay dos formas de lectura. El año es el UTC de
+**Archivos nuevos con la forma nueva** (§ 12): `<año>.v1.sqlite`. Los archivos de la forma vieja
+(`<año>.sqlite`, que solo existen en el ambiente de pruebas y nadie usa) se borran al arrancar la
+primera vez con esta versión: la plataforma borra los `<año>.sqlite` de la carpeta, solo esos, y lo
+anota. Así no hay dos formas de lectura. El año es el UTC de
 `at`, como hoy.
 
 ### Cada año: `<año>.v1.sqlite`
@@ -143,7 +144,9 @@ momento** va en cada acción (§ 2), no se busca acá.
   con su primera acción).
 - **Al arrancar**, `users` le da a la auditoría las personas que no tiene (`audit.knowPeople`), para
   las que ya existían antes de este módulo.
-- **Al borrar a alguien**, el correo se queda o se borra según lo que decida Carlos (§ 12).
+- **Al borrar a alguien** (02 · R3.7), su fila queda con el nombre y `state = deleted`, y se le borra
+  el correo: el filtro la muestra con «(borrada)» y sin correo. Las acciones de antes (autorizarla)
+  conservan lo que pasó.
 
 ## 4. El catálogo de los tipos
 
@@ -175,7 +178,7 @@ módulo que nombra** y lo cambia con su trabajo; solo `index.ts` y los tipos com
 - **Las pruebas del catálogo:** cada tipo que anota el servidor está; ningún ícono se repite entre
   tipos; cada ícono está dibujado en la aplicación (§ 7).
 
-Los tipos de hoy (los 33 íconos están en Lucide 0.460; Carlos los ve en `mockups/users-who-did-what/action-icons.png`):
+Los tipos de hoy (los 34 íconos están en Lucide 0.460; Carlos los ve en `mockups/users-who-did-what/action-icons.png`):
 
 | Grupo | Tipo | Texto (ejemplo) | Color | Ícono |
 |---|---|---|---|---|
@@ -211,6 +214,7 @@ Los tipos de hoy (los 33 íconos están en Lucide 0.460; Carlos los ve en `mocku
 | Rechazos | `permission.denied` | Quiso usar Roles sin permiso | ámbar | `lock` |
 | Rechazos | `users.rejected` | No se pudo dar de baja a Marcos: es el último que administra | ámbar | `ban` |
 | Rechazos | `request.throttled` | Llegó al límite de intentos para entrar | ámbar | `hourglass` |
+| Usuarios | `audit-log.opened` | Abrió Quién hizo qué | | `eye` |
 | Rechazos | `request.rejected` | Se rechazó un pedido que no venía de la aplicación | ámbar | `shield-x` |
 
 `sign-in.rejected` dice el motivo, que es lo que más interesa leer (R1.2): «Intentó entrar con un
@@ -223,7 +227,7 @@ al límite de intentos de su cuenta» (01 · R2.10).
 
 Las dos rutas piden sesión y `audit-log.view` (`permissions.require`), con el mismo `403` anotado
 como `permission.denied` (E14), y comparten un límite de 60 pedidos por minuto **por persona**
-(`guards.limit`); pasado, `429` y `request.throttled`. Leen; no anotan nada (R1.3, salvo § 12).
+(`guards.limit`); pasado, `429` y `request.throttled`. Leen; no anotan nada, salvo `audit-log.opened` (abajo).
 Cualquier parámetro que no conocen o no cumple da `400 bad-request` con cuál (E39), sin datos.
 
 ### `GET /api/audit-log`
@@ -379,8 +383,9 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
   abre archivos (prueba que mira que la carpeta no cambió).
 - **Secretos:** ninguno. `node:sqlite` sin `createTagStore` (CVE-2026-58041); el armado de la imagen
   dice la versión de Node.
-- **Lo que queda en la auditoría de este módulo:** el límite pasado y el permiso negado; mirar, según
-  lo que decida Carlos (§ 12).
+- **Lo que queda en la auditoría de este módulo:** el límite pasado, el permiso negado y, una vez por
+  sesión y por día, que se abrió Quién hizo qué (R1.3): si alguien usa una sesión robada para bajar el
+  registro, queda el rastro de quién y desde dónde.
 - **Cuánto se guardan los correos de afuera y las direcciones:** hasta que se decida T116, que lo
   suma como requisito.
 
@@ -402,7 +407,7 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 |---|---|
 | E01, E02, E06 | Del servidor: una acción de Usuarios deja su línea con la forma común después de confirmar; una que falla, no; un cambio de nombre lleva solo `changes.name` |
 | E03, E04 | Del servidor: un correo no autorizado anota `outsider` con el correo; un pedido sin permiso, `permission.denied`; una firma de huella que no verifica deja `outsider` y a la cuenta en `targets` |
-| E05 | Del servidor: abrir Usuarios, buscar y pedir las dos rutas no agregan líneas |
+| E05, E05b | Del servidor: abrir Usuarios y buscar no agregan líneas; pedir `/api/audit-log` agrega `audit-log.opened` una vez por sesión y por día |
 | E07, E08, E30 | De la consulta: «(hoy: …)» como quién y como a quién; «El sistema»; las personas dadas de baja y borradas en `/people` |
 | E09, E10 | De la consulta: `deviceTime` en la entrada sin conexión no confirmada; la hora es la del reloj del servidor de prueba |
 | E11 a E16 | De las dos rutas (con y sin permiso, `403` anotado) y de la pantalla (la pestaña, «No tenés permiso»); E15, del arranque |
@@ -418,20 +423,15 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 **De punta a punta:** ninguna nueva. Lo que cruza el navegador y el servidor (la pestaña con permiso)
 ya lo prueban las unitarias de las dos puntas.
 
-## 12. Lo que decide Carlos
+## 12. Lo que decidió Carlos
 
-1. **Los archivos de la forma vieja del ambiente de pruebas** (§ 3): se dejan en el disco y no se leen,
-   o se convierten a la forma nueva. Lo primero es más simple y no toca ninguna fila; Quién hizo qué
-   arranca vacío en pruebas.
-2. **El correo de una persona borrada** (02 · R3.7, «desaparece del todo»): en el filtro, el nombre
-   con «(borrada)» y sin correo, o con el correo. Las acciones de antes (autorizarla) conservan lo que
-   pasó en las dos opciones.
-3. **Mirar no se anota** (R1.3): con la sesión robada de un Administrador se puede bajar todo el
-   registro sin dejar rastro. Opciones: (a) como está; (b) una línea por sesión y por día al abrir
-   Quién hizo qué («Abrió Quién hizo qué»), unas pocas por día; (c) (b) más una línea cuando una
-   sesión pasa de 30 páginas en una hora.
-4. **La tira con muchas acciones** (§ 5): de a una raya por minuto pasadas las 2.000 acciones en el
-   día.
+1. **Las acciones de la forma vieja se borran** (§ 3): solo existen en el ambiente de pruebas y nadie
+   las usa.
+2. **Una persona borrada** figura en los filtros con «(borrada)» y sin correo (§ 3).
+3. **Abrir Quién hizo qué se anota una vez por sesión y por día** (R1.3): `GET /api/audit-log`
+   anota `audit-log.opened` la primera vez que esa sesión lo pide en el día del negocio. Lo recuerda
+   en memoria (sesión y día); si el servidor se reinicia, puede anotarse una vez más ese día.
+4. **La tira, con más de 2.000 acciones en el día,** va de a una raya por minuto (R4.9).
 
 ## 13. Tareas
 
