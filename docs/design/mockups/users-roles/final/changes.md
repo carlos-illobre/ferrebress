@@ -26,9 +26,10 @@ Capturas:
 - `screenshot-discard.png`: «¿Descartar los cambios del rol?».
 - `screenshot-identity.png`: la confirmación con Google antes de guardar algo que da acceso.
 - `screenshot-keyboard.png`: la marca del teclado en un permiso, con Alt apretado.
-- Celular: `phone/screenshot.png` (la lista), `screenshot-phone-role.png` (el rol, en los
-  permisos), `screenshot-phone-new.png`, `screenshot-phone-search-empty.png`,
-  `screenshot-phone-error.png` y `screenshot-phone-discard.png`.
+- Celular: `phone/screenshot.png` (la lista), `screenshot-phone-role.png` (un rol que existe, recién
+  abierto, sin cambios), `screenshot-phone-role-changed.png` (con un cambio: «Guardar» naranja),
+  `screenshot-phone-role-scrolled.png` (bajando: la barra de arriba sigue), `screenshot-phone-new.png`,
+  `screenshot-phone-search-empty.png`, `screenshot-phone-error.png` y `screenshot-phone-discard.png`.
 
 **Datos de ejemplo.** Los grupos **Vender, Catálogo y Depósito son de ejemplo**, para ver cómo crece
 la lista cuando otros capítulos sumen sus permisos: sus permisos y sus textos no son reglas
@@ -62,9 +63,26 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
 - **Vista previa a la derecha, solo en la computadora:** ícono, nombre, descripción y por grupo
   cuántos permisos da, con marca verde (da alguno) o gris (ninguno), y al pie «Podés cambiar este
   rol cuando quieras desde la lista de roles.». Se actualiza mientras se escribe y se tilda.
-- **Celular:** una columna, sin vista previa, «‹ Roles» para volver, cada permiso con su nombre
-  solo, y «Guardar rol» / «Crear el rol» fijo abajo, como en la imagen. «Duplicar» y
-  «Borrar el rol» van al final del rol, porque arriba no entran.
+- **Celular:** una columna, sin vista previa y cada permiso con su nombre solo. Para que sea fácil de
+  usar y lo importante se vea al abrir (pedido de Carlos), se aparta de la imagen:
+  - **Una barra de arriba fija y compacta,** que queda a la vista al bajar: «‹ Roles» a la izquierda
+    y, a la derecha, «Guardar» como botón chico (en un rol nuevo, «Crear»). No hay barra fija abajo
+    con un botón grande: abajo queda solo el menú de la aplicación.
+  - **«Duplicar» y «Borrar el rol» a la vista sin bajar:** debajo del título, una fila de dos botones
+    chicos con su ícono. Administrador no tiene «Borrar el rol»; en un rol nuevo no va la fila.
+  - **Un resumen debajo del título,** con dos pastillas que llevan a su paso al tocarlas:
+    «🔑 N permisos» y «N personas» (con las iniciales, como en la lista; sin nadie, el ícono de
+    personas). Se actualiza con cada cambio. Sin la bajada «Definí el nombre…».
+  - **Los pasos, compactos:** menos aire en las tarjetas y en el encabezado de cada paso (número y
+    título más chicos), la descripción en 2 renglones, los grupos y los permisos con íconos de 32 px.
+  - **Las separaciones, medidas en la imagen** (su celular llevado a 390 de ancho): 16 px a los
+    costados de la pantalla y de la barra de arriba (la imagen tiene 14); botones de 40 px de alto
+    («Guardar», «Duplicar», «Borrar el rol», las pastillas, «Darle este rol a…» y la cabecera de
+    cada grupo; la imagen tiene 40 y 39); 8 px entre botones y entre grupos (la imagen tiene 8),
+    12 px entre los bloques y de relleno en cada tarjeta (la imagen tiene unos 10); los campos de
+    44 px (la imagen tiene 33, chico para el dedo) y la descripción de dos renglones, como la de la
+    imagen (66 px); 20 px entre lo último de la pantalla y el menú de abajo (la imagen tiene 19).
+    Nada va de borde a borde ni pegado a otra cosa.
 
 ## Por las reglas aprobadas (`docs/chapters/02-users/rules.md` y `00-app/rules.md`)
 
@@ -131,14 +149,15 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
 - **Cada permiso lleva su ícono** al lado de la casilla, en la computadora y en el celular, que se
   pone pino suave al tildarlo (pedido de Carlos). Los íconos de los grupos de ejemplo también son de
   ejemplo.
-- **«Guardar rol» arranca apagado** (gris, sin sombra, sin tocarse) y se pone naranja fuerte
+- **«Guardar rol» («Guardar» en el celular) arranca apagado** (gris, sin sombra, sin tocarse) y se pone naranja fuerte
   con el primer cambio, para que llame la atención; si se deshace el cambio, vuelve a apagarse. En
   un duplicado arranca encendido, porque la copia todavía no se guardó (pedido de Carlos).
 - **Lo de arriba del rol (el camino, el título y los botones) queda fijo al bajar,** y la vista
   previa también, con su propio desplazamiento: en 1366 × 768 la pantalla del rol no entra entera,
-  y así «Guardar rol» y la vista previa no se pierden.
+  y así «Guardar rol» y la vista previa no se pierden. En el celular, lo fijo es la barra de arriba
+  con «‹ Roles» y «Guardar».
 - **El texto de la imagen se ajustó a lo que pidió Carlos y al lenguaje:** «Definí el nombre, la
-  descripción y los permisos de este rol.» (en el celular, resumido); «Así se verá este rol una vez
+  descripción y los permisos de este rol.» (solo en la computadora); «Así se verá este rol una vez
   creado.» en uno nuevo y «Así va a quedar cuando lo guardes.» en uno que existe.
 - **Las casillas** son las del navegador, sin su aspecto, con el tilde dibujado como fondo: Firefox no
   dibuja `::after` en las casillas.

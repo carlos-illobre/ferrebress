@@ -51,27 +51,45 @@
   body.in-role .role-editor { transform: none; box-shadow: -12px 0 32px -16px rgba(26,29,27,.25); }
   .lista-zona { transition: transform var(--t-nav) var(--curva), opacity var(--t-nav); }
   body.in-role .lista-zona { transform: translateX(-30%); opacity: .6; }
-  .role-topbar { display: flex; align-items: center; height: 48px; padding: 0 8px; flex: none; }
-  .role-topbar .btn { color: var(--pino-texto); font-size: 16px; padding: 0 8px; gap: 2px; }
-  .role-scroll { flex: 1; min-height: 0; overflow: auto; padding: 0 16px 24px; display: grid; gap: 12px; align-content: start; }
-  .role-heading .role-title { white-space: normal; }
-  .role-section { padding: 16px; gap: 14px; }
-  .role-section-lead { font-size: 14px; }
-  .perm-group-head { grid-template-columns: 36px minmax(0, 1fr) auto 20px; padding: 8px 12px 8px 8px; }
-  .perm-group-icon { width: 36px; height: 36px; }
-  .perm-group-body { grid-template-columns: 1fr; padding: 4px 12px 8px; }
-  .perm-item { padding: 10px 4px; }
-  .holder-row { grid-template-columns: 40px minmax(0, 1fr) auto; }
+  /* La pantalla del rol. Separaciones medidas en la referencia (copilot-role.webp, celular, llevada a
+     390 de ancho): 16 px a los costados, botones de 40 px, 8 a 12 px entre botones y bloques, 20 px
+     entre lo último y el menú de abajo. */
+  /* Arriba, fija y compacta: «‹ Roles» y «Guardar» / «Crear» chico (pedido de Carlos). */
+  .role-topbar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; padding: 0 16px 0 8px; background: var(--fondo); border-bottom: 1px solid var(--borde); }
+  .role-topbar .btn-fantasma { color: var(--pino-texto); font-size: 16px; min-height: 40px; padding: 0 8px; gap: 2px; }
+  .role-topbar .role-save { min-height: 40px; padding: 0 16px; font-size: 15px; border-radius: 10px; gap: 6px; }
+  .role-scroll { position: relative; flex: 1; min-height: 0; overflow: auto; padding: 12px 16px 20px; display: grid; gap: 12px; align-content: start; }
+  .role-heading { display: grid; gap: 8px; }
+  .role-heading .role-title { white-space: normal; font-size: 26px; line-height: 32px; }
+  /* «Duplicar» y «Borrar el rol», a la vista debajo del título */
+  .role-more { display: flex; gap: 8px; }
+  .role-more[hidden], .role-more .btn[hidden] { display: none; }
+  .role-more .btn { min-height: 40px; padding: 0 14px; font-size: 15px; border-radius: 10px; }
+  /* El resumen: dos pastillas que llevan a su paso */
+  .role-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .role-jump { min-height: 40px; padding: 6px 10px; border: 0; font: inherit; font-size: 14px; font-weight: 650; text-align: left; cursor: pointer; transition: transform var(--t-micro) var(--curva); }
+  .role-jump { background: var(--superficie); box-shadow: inset 0 0 0 1px var(--borde); }
+  .role-jump:active { transform: scale(.97); }
+  .role-jump b { font-size: 18px; line-height: 22px; }
+  /* Los pasos, compactos */
+  .role-section { padding: 12px; gap: 10px; }
+  .role-section-head { grid-template-columns: 24px 1fr; gap: 0 10px; }
+  .role-step { width: 24px; height: 24px; font-size: 13px; }
+  .role-section-title { font-size: 16px; line-height: 22px; }
+  .role-section-lead { font-size: 14px; line-height: 20px; }
+  .role-field { gap: 4px; }
+  .role-input { height: 44px; }
+  .role-textarea { min-height: 0; padding: 10px 14px; resize: none; }
+  .perm-groups { gap: 8px; }
+  .perm-group-head { grid-template-columns: 32px minmax(0, 1fr) auto 20px; gap: 10px; padding: 4px 12px 4px 4px; min-height: 40px; }
+  .perm-group-icon { width: 32px; height: 32px; }
+  .perm-group-body { grid-template-columns: 1fr; padding: 4px 8px; margin: 0 4px 4px; }
+  .perm-item { grid-template-columns: 22px 32px minmax(0, 1fr); gap: 10px; padding: 6px 4px; }
+  .perm-icon { width: 32px; height: 32px; }
+  .holder-row { grid-template-columns: 40px minmax(0, 1fr) auto; padding: 8px 10px; }
   .holder-row .btn.chico { padding: 0 12px; }
   .holder-row .btn .i, .holder-change .i { display: none; }
-  .holders-foot .btn { width: 100%; }
-  .role-more { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .role-more[hidden] { display: none; }
-  .role-more .btn:only-child { grid-column: 1 / -1; }
-  .role-bar { flex: none; display: grid; gap: 8px; }
-  .role-bar .btn { width: 100%; }
-  .role-bar .btn.grande { min-height: 52px; }
-  .role-bar .btn-fantasma { min-height: 44px; }
+  .holders-foot .btn { width: 100%; min-height: 40px; }
 
   /* Hojas */
   .hoja .lead { margin: 4px 0 0; font-size: 15px; line-height: 22px; color: var(--texto-2); }
@@ -104,11 +122,18 @@
 
   <!-- La pantalla del rol (R7.13) -->
   <section class="role-editor zona-red" id="role-editor" aria-label="El rol">
-    <div class="role-topbar"><button type="button" class="btn btn-fantasma" id="crumb-roles"><i class="i i-l" data-i="chevron-left"></i>Roles</button></div>
+    <div class="role-topbar">
+      <button type="button" class="btn btn-fantasma" id="crumb-roles"><i class="i i-l" data-i="chevron-left"></i>Roles</button>
+      <button type="button" class="btn btn-accion role-save" id="save"><i class="i i-s" data-i="save"></i><span id="save-label">Guardar</span></button>
+    </div>
     <div class="role-scroll" id="role-scroll">
       <div class="role-heading">
         <h2 class="t-titulo role-title" id="role-title">Crear nuevo rol</h2>
-        <p class="t-detalle role-subtitle">Definí el nombre, la descripción y los permisos.</p>
+        <div class="role-more" id="role-extra">
+          <button type="button" class="btn" id="duplicate"><i class="i i-s" data-i="copy"></i>Duplicar</button>
+          <button type="button" class="btn btn-peligro" id="delete"><i class="i i-s" data-i="trash-2"></i>Borrar el rol</button>
+        </div>
+        <div class="role-summary" id="role-summary" aria-label="Resumen del rol"></div>
       </div>
       <div class="aviso error role-save-error" id="save-error" role="alert" hidden><i class="i" data-i="circle-alert"></i><span id="save-error-text"></span></div>
 
@@ -121,7 +146,7 @@
         </div>
         <div class="role-field">
           <label class="role-label" for="role-description">Descripción</label>
-          <textarea class="role-textarea" id="role-description" maxlength="200" rows="3" placeholder="Para quién es; puede quedar vacía"></textarea>
+          <textarea class="role-textarea" id="role-description" maxlength="200" rows="2" placeholder="Para quién es; puede quedar vacía"></textarea>
           <span class="role-count" id="description-count">0/200</span>
         </div>
       </section>
@@ -139,13 +164,6 @@
         <p class="holders-note" id="holders-note" hidden></p>
       </section>
 
-      <div class="role-more" id="role-extra">
-        <button type="button" class="btn" id="duplicate"><i class="i i-s" data-i="copy"></i>Duplicar</button>
-        <button type="button" class="btn btn-peligro" id="delete"><i class="i i-s" data-i="trash-2"></i>Borrar el rol</button>
-      </div>
-    </div>
-    <div class="barra-accion role-bar">
-      <button type="button" class="btn btn-accion grande" id="save"><i class="i i-l" data-i="save"></i><span id="save-label">Guardar rol</span></button>
     </div>
   </section>
 

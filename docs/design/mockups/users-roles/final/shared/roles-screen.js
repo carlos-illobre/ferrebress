@@ -113,7 +113,8 @@
     var title = isNew ? "Crear nuevo rol" : draft.original.name;
     $("#role-title").textContent = title;
     if ($("#role-crumb-current")) $("#role-crumb-current").textContent = isNew ? "Crear rol" : draft.original.name;
-    $("#save-label").textContent = isNew ? "Crear el rol" : "Guardar rol";
+    // En el celular, «Guardar» / «Crear» chico en la barra de arriba; en la computadora, el texto entero.
+    $("#save-label").textContent = desktop ? (isNew ? "Crear el rol" : "Guardar rol") : (isNew ? "Crear" : "Guardar");
     $("#duplicate").hidden = isNew;
     $("#delete").hidden = isNew || draft.fixed; // Administrador no se borra (R7.4)
     if ($("#role-extra")) $("#role-extra").hidden = isNew;
@@ -125,8 +126,21 @@
     renderSave();
   }
 
+  /* El resumen del celular, debajo del título: «N permisos» y «N personas», que llevan a su paso. */
+  function renderSummary() {
+    var box = $("#role-summary");
+    if (!box) return;
+    var n = draft.perms.length;
+    var ids = draft.people.filter(function (id) { return M.person(id).active; });
+    box.innerHTML =
+      '<button type="button" class="role-stat role-jump" data-jump="sec-perms">' + ico("key-round") + "<b>" + n + "</b><span>" + (n === 1 ? "permiso" : "permisos") + "</span></button>" +
+      '<button type="button" class="role-stat role-jump' + (ids.length ? "" : " is-empty") + '" data-jump="sec-people">' +
+        (ids.length ? stack(ids) : ico("users")) + "<b>" + ids.length + "</b><span>" + (ids.length === 1 ? "persona" : "personas") + "</span></button>";
+    paint(box);
+  }
+
   /* «Guardar rol» arranca apagado y se enciende con el primer cambio, para llamar la atención. */
-  function renderSave() { $("#save").disabled = !M.isDirty(draft); }
+  function renderSave() { $("#save").disabled = !M.isDirty(draft); renderSummary(); }
 
   function renderCount() {
     var n = $("#role-description").value.length;
@@ -379,6 +393,13 @@
     if (undo) { draft.people.push(undo.getAttribute("data-undo")); changed("people"); }
   });
   $("#give-role").addEventListener("click", openGive);
+  /* Las pastillas del resumen (celular) llevan a su paso. */
+  if ($("#role-summary")) $("#role-summary").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-jump]"); if (!b) return;
+    var sec = document.getElementById(b.getAttribute("data-jump")).closest("section");
+    var scroller = $("#role-scroll");
+    scroller.scrollTo({ top: sec.offsetTop - 12, behavior: M.quiet() ? "auto" : "smooth" });
+  });
   $("#save").addEventListener("click", save);
   if ($("#cancel")) $("#cancel").addEventListener("click", function () { backToList(); }); // «Cancelar» deshace todo, sin preguntar (E64)
   $("#crumb-roles").addEventListener("click", function () { leave(backToList); });
