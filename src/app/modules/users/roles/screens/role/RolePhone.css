@@ -1,0 +1,119 @@
+/* El celular (maqueta users-roles/final, pedido de Carlos): arriba, una barra fija y compacta con
+   «‹ Roles», borrar, duplicar y «Guardar» chico; debajo, el título y el resumen; los pasos, más
+   compactos. Separaciones medidas en la referencia: 16 px a los costados, botones de 40 px, 8 px
+   entre botones, 12 px entre bloques y 20 px antes del menú de abajo. */
+@layer widths {
+  @media (max-width: 899px) {
+    .users[data-in-role] .users-head,
+    .users[data-in-role] .users-tabs {
+      display: none;
+    }
+    .role-screen {
+      gap: var(--s3);
+      padding-bottom: var(--s5);
+    }
+    .role-phone-bar {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s3);
+      height: 56px;
+      margin: 0 calc(-1 * var(--s4));
+      padding: 0 var(--s4) 0 var(--s2);
+      border-bottom: 1px solid var(--border);
+      background: var(--background);
+    }
+    .role-phone-bar .role-back {
+      gap: 2px;
+      min-height: 40px;
+      padding: 0 var(--s2);
+      color: var(--pine-text);
+      font-size: 16px;
+      font-weight: 650;
+    }
+    .role-back .icon {
+      display: block;
+    }
+    .role-phone-actions {
+      display: flex;
+      gap: var(--s2);
+      align-items: center;
+    }
+    .role-icon-button {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .role-icon-button.danger {
+      border-color: transparent;
+      background: var(--error-soft);
+      color: var(--error-text);
+    }
+    .role-phone-actions .button {
+      min-height: 40px;
+      padding: 0 var(--s4);
+      border-radius: 10px;
+    }
+    .role-head {
+      position: static;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "title" "summary";
+      gap: var(--s2);
+      padding: 0;
+    }
+    .role-crumbs,
+    .role-lead {
+      display: none;
+    }
+    .role-title {
+      font-size: 26px;
+      line-height: 32px;
+      white-space: normal;
+    }
+    .role-summary {
+      display: grid;
+      grid-area: summary;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--s2);
+    }
+    .role-summary .roles-stat {
+      min-height: 40px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .role-summary .roles-stat b {
+      color: var(--pine);
+      font-size: 18px;
+    }
+    .role-summary .roles-stat > .icon {
+      color: var(--pine);
+    }
+    .role-summary .roles-face {
+      width: 24px;
+      height: 24px;
+      font-size: 11px;
+    }
+    .role-columns {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s3);
+    }
+    .role-steps {
+      gap: var(--s3);
+    }
+  }
+}

@@ -579,8 +579,10 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
     `GivePicker.tsx`, que busca entre las personas activas) y, en la computadora, `RolePreview.tsx`.
     Los botones, en `RoleActions.tsx`; lo que no se pudo guardar, en `Problems.tsx`; «¿Descartar…?»,
     en `Discard.tsx`; y lo que da acceso, en palabras, en `gives.ts`. En el celular, una columna
-    con «Guardar rol» fijo abajo, y «Duplicar» y «Borrar el rol» al final. No hay «Cancelar»: salir
-    es descartar (pedido de Carlos).
+    sin la bajada ni el camino: arriba, una barra fija (`PhoneBar`) con «‹ Roles», borrar y duplicar
+    con el ícono solo (el Administrador sin borrar; uno nuevo sin los dos) y «Guardar» chico; debajo
+    del título, el resumen (`RoleSummary.tsx`), con cuántos permisos y cuántas personas, que lleva a
+    su paso; y los pasos más compactos. No hay «Cancelar»: salir es descartar (pedido de Carlos).
   - **Lo que se arma** vive en un borrador, `draft.ts` (reglas, sin Preact), en el estado de la
     pantalla del rol: se pierde al salir de ella o al «Salir», así en la computadora del mostrador
     nadie encuentra un rol a medio armar de otro. Sale de un rol (o vacío, o de duplicar uno: con el

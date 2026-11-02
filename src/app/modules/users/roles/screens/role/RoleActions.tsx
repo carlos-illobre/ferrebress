@@ -1,12 +1,11 @@
 // Los botones del rol (02 · R7.3, R7.13). En la computadora, arriba a la derecha: «Duplicar» y
 // «Borrar el rol» en uno que existe, y «Guardar rol», apagado en gris hasta el primer cambio. Sin
-// «Cancelar»: salir es descartar, y con cambios pregunta antes (pedido de Carlos). En el celular,
-// «Guardar rol» va fijo abajo y «Duplicar» y «Borrar el rol»
-// al final del rol, porque arriba no entran. El Administrador no muestra «Borrar el rol» (R7.4).
-
+// «Cancelar»: salir es descartar, y con cambios pregunta antes (pedido de Carlos). En el celular, la
+// barra de arriba de PhoneBar. El Administrador no muestra «Borrar el rol» (R7.4).
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { navigate } from '../../../../../platform/router.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
+import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../../ui/toast/Toast.tsx';
 import { refusalText, useUsersContext } from '../../../state.ts';
 import { removeRole } from '../../actions.ts';
@@ -35,7 +34,7 @@ function useRemove(draft: Draft) {
 // Duplicar con cambios pregunta antes, como cualquier salida: lo hace la guarda de la dirección.
 const duplicate = (draft: Draft) => () => navigate(newPath, { state: { duplicate: draft.id } });
 
-function Existing({ draft, keys }: { draft: Draft; keys: boolean }) {
+function Existing({ draft }: { draft: Draft }) {
   const users = useUsersContext();
   const remove = useRemove(draft);
   if (!draft.id) return null;
@@ -43,7 +42,7 @@ function Existing({ draft, keys }: { draft: Draft; keys: boolean }) {
     <>
       <Button
         icon="copy"
-        {...(keys && { shortcut: 'u' })}
+        shortcut="u"
         doing={t.duplicate}
         onPress={duplicate(draft)}
         disabled={!users.online}
@@ -54,7 +53,7 @@ function Existing({ draft, keys }: { draft: Draft; keys: boolean }) {
         <Button
           look="danger"
           icon="trash-2"
-          {...(keys && { shortcut: 'b' })}
+          shortcut="b"
           doing={t.remove}
           onPress={remove}
           disabled={!users.online}
@@ -73,7 +72,7 @@ export function RoleActions({ draft, dirty, save }: Props) {
   return (
     <div class="role-actions desktop-only">
       {!users.online && <small class="role-offline">{t.offlineSave}</small>}
-      <Existing draft={draft} keys />
+      <Existing draft={draft} />
       {draft.id && <span class="role-actions-gap" aria-hidden="true" />}
       <Button
         look="action"
@@ -89,11 +88,59 @@ export function RoleActions({ draft, dirty, save }: Props) {
   );
 }
 
-export function ExtraActions({ draft }: { draft: Draft }) {
-  if (!draft.id) return null;
+// En el celular, una barra de arriba fija y compacta (pedido de Carlos): «‹ Roles» y, a la derecha,
+// borrar y duplicar con el ícono solo (con el texto no entran) y «Guardar» chico. El Administrador no
+// muestra borrar (R7.4); un rol nuevo, ninguno de los dos.
+export function PhoneBar({ draft, dirty, save }: Props) {
+  const users = useUsersContext();
+  const remove = useRemove(draft);
   return (
-    <div class="role-extra phone-only">
-      <Existing draft={draft} keys={false} />
+    <div class="role-phone-bar phone-only">
+      <button
+        type="button"
+        class="role-back"
+        aria-label={t.backLabel}
+        onClick={() => navigate(listPath)}
+      >
+        <Icon name="chevron-left" size="small" />
+        {t.back}
+      </button>
+      <span class="role-phone-actions">
+        {draft.id && !draft.system && (
+          <button
+            type="button"
+            class="role-icon-button danger"
+            aria-label={t.remove}
+            title={t.remove}
+            onClick={remove}
+            disabled={!users.online}
+          >
+            <Icon name="trash-2" />
+          </button>
+        )}
+        {draft.id && (
+          <button
+            type="button"
+            class="role-icon-button"
+            aria-label={t.duplicate}
+            title={t.duplicate}
+            onClick={duplicate(draft)}
+            disabled={!users.online}
+          >
+            <Icon name="copy" />
+          </button>
+        )}
+        <Button
+          look="action"
+          size="small"
+          icon="save"
+          doing={t.save}
+          onPress={save}
+          disabled={!dirty || !users.online}
+        >
+          {draft.id ? t.saveShort : t.createShort}
+        </Button>
+      </span>
     </div>
   );
 }

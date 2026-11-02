@@ -87,7 +87,9 @@ describe('la pestaña Roles (02 · R7.12, R7.13)', () => {
   it('users-E64: no hay «Cancelar»; sin cambios, volver a la lista no pregunta ni pide nada', async () => {
     const server = await openRoles({}, '/users/roles/enc');
     expect(role().queryByRole('button', { name: /Cancelar/ })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Volver a los roles' }));
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Volver a los roles' })[0] as HTMLElement,
+    );
     await screen.findByRole('button', { name: 'Abrir «Encargado de turno»' });
     expect(screen.queryByRole('alertdialog')).toBeNull();
     expect(server.bodies('/api/roles/enc')).toEqual([]);
@@ -96,7 +98,9 @@ describe('la pestaña Roles (02 · R7.12, R7.13)', () => {
   it('users-E64: salir con cambios pregunta; «Seguir editando» no pierde nada; «Descartar» sale', async () => {
     await openRoles({}, '/users/roles/enc');
     typeIn('Nombre del rol', 'Otro nombre');
-    fireEvent.click(screen.getByRole('button', { name: 'Volver a los roles' }));
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Volver a los roles' })[0] as HTMLElement,
+    );
     const ask = await screen.findByRole('alertdialog', { name: '¿Descartar los cambios del rol?' });
     fireEvent.click(within(ask).getByRole('button', { name: 'Seguir editando' }));
     expect((role().getByLabelText(/Nombre del rol/) as HTMLInputElement).value).toBe('Otro nombre');

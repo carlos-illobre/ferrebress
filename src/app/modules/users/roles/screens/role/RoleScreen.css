@@ -1,8 +1,7 @@
 /* La pantalla de un rol (maqueta users-roles/final): arriba el camino, el título y los botones, que
    quedan fijos al bajar, y lo que no se pudo guardar; los pasos, en RoleSteps.css y
    RolePermissions.css, y la vista previa, en RolePreview.css. Sin cambios, «Guardar rol» va apagado
-   en gris (pedido de Carlos). En el celular, «‹ Roles» para volver y «Guardar rol» fijo
-   abajo, encima del menú. */
+   en gris (pedido de Carlos). El celular, en RolePhone.css. */
 @layer screens {
   /* Entre el encabezado, el aviso de lo que no se guardó y los pasos, el mismo aire. */
   .role-screen {
@@ -136,10 +135,6 @@
     gap: var(--s6);
     align-items: start;
   }
-  .role-extra {
-    display: flex;
-    gap: var(--s2);
-  }
   .role-discard p {
     margin: 0;
     color: var(--text-2);
@@ -148,53 +143,5 @@
     display: flex;
     gap: var(--s2);
     justify-content: flex-end;
-  }
-}
-
-@layer widths {
-  @media (max-width: 899px) {
-    .users[data-in-role] .users-head,
-    .users[data-in-role] .users-tabs {
-      display: none;
-    }
-    .role-screen {
-      padding-bottom: 150px;
-    }
-    .role-head {
-      position: static;
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: "crumbs" "title" "lead";
-      padding: var(--s2) 0 0;
-    }
-    .role-crumbs > .icon,
-    .role-crumbs > span {
-      display: none;
-    }
-    .role-back {
-      color: var(--pine-text);
-      font-size: 17px;
-    }
-    .role-back .icon {
-      display: block;
-    }
-    .role-title {
-      font-size: 26px;
-      white-space: normal;
-    }
-    .role-columns {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .role-foot {
-      position: fixed;
-      right: 0;
-      bottom: calc(76px + env(safe-area-inset-bottom));
-      left: 0;
-      z-index: 4;
-      display: grid;
-      gap: 4px;
-      padding: var(--s3) var(--s4);
-      border-top: 1px solid var(--border);
-      background: var(--surface);
-    }
   }
 }

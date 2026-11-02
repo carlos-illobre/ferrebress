@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
 import { online } from '../../platform/server/api.ts';
 import { all, openRoles, role, rolesRoute, typeIn } from './users-roles-kit.tsx';
-import { openUsers } from './users-test-kit.tsx';
+import { openUsers, roleRows } from './users-test-kit.tsx';
 
 const _rowOf = (name: string) => screen.getByRole('button', { name: `Abrir «${name}»` });
 const search = (text: string) =>
@@ -25,9 +25,8 @@ describe('la pestaña Roles con el teclado, sin conexión y al salir (02 · R7.1
     fireEvent.keyDown(box, { key: 'Enter' });
     await screen.findByText('Información del rol');
     expect(route.get().path).toBe('/users/roles/enc');
-    expect(
-      role().getByRole('button', { name: 'Volver a los roles' }).getAttribute('data-key'),
-    ).toBe('l');
+    const crumb = document.querySelector('.role-crumbs .role-back') as HTMLElement;
+    expect(crumb.getAttribute('data-key')).toBe('l');
   });
 
   it('si no se pudieron traer los roles, lo dice y deja reintentar', async () => {
@@ -55,5 +54,30 @@ describe('la pestaña Roles con el teclado, sin conexión y al salir (02 · R7.1
     expect(
       within(ask).getByText('El rol nuevo todavía no se creó. Si descartás, no queda nada.'),
     ).toBeTruthy();
+  });
+
+  it('en el celular: la barra de arriba con borrar, duplicar y «Guardar», y el resumen lleva a su paso', async () => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    await openRoles({}, '/users/roles/enc');
+    const bar = within(document.querySelector('.role-phone-bar') as HTMLElement);
+    expect(bar.getByRole('button', { name: 'Borrar el rol' })).toBeTruthy();
+    expect(bar.getByRole('button', { name: 'Duplicar' })).toBeTruthy();
+    expect((bar.getByRole('button', { name: /^Guardar/ }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    const summary = within(screen.getByRole('navigation', { name: 'Resumen del rol' }));
+    fireEvent.click(summary.getByRole('button', { name: /2 permisos/ }));
+    fireEvent.click(summary.getByRole('button', { name: /1 persona/ }));
+    expect(scroll).toHaveBeenCalledTimes(2);
+    fireEvent.click(document.querySelector('.role-crumbs .role-back') as HTMLElement);
+    await screen.findByRole('button', { name: 'Abrir «Encargado de turno»' });
+  });
+
+  it('en el celular, el Administrador no muestra borrar, pero sí duplicar', async () => {
+    await openRoles({}, `/users/roles/${roleRows[0]?.id}`);
+    const bar = () => within(document.querySelector('.role-phone-bar') as HTMLElement);
+    expect(bar().queryByRole('button', { name: 'Borrar el rol' })).toBeNull();
+    expect(bar().getByRole('button', { name: 'Duplicar' })).toBeTruthy();
   });
 });

@@ -8,7 +8,6 @@ import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { isPhone } from '../../../../../platform/device/device.ts';
 import { guardNavigation, navigate } from '../../../../../platform/router.ts';
-import { Button } from '../../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../../ui/toast/Toast.tsx';
 import { registerWork } from '../../../../frame/index.ts';
@@ -28,16 +27,18 @@ import { rolesTexts as t } from '../../texts.ts';
 import { Discard } from './Discard.tsx';
 import { whatItGives } from './gives.ts';
 import './RoleScreen.css';
+import './RolePhone.css';
 import './RoleSteps.css';
 import './RolePermissions.css';
 import './RolePreview.css';
 import { activeHolders, ids, listPath } from '../../paths.ts';
 import { Problems } from './Problems.tsx';
-import { ExtraActions, RoleActions } from './RoleActions.tsx';
+import { PhoneBar, RoleActions } from './RoleActions.tsx';
 import { RoleHolders } from './RoleHolders.tsx';
 import { RoleInfo } from './RoleInfo.tsx';
 import { RolePermissions } from './RolePermissions.tsx';
 import { RolePreview } from './RolePreview.tsx';
+import { RoleSummary } from './RoleSummary.tsx';
 
 // Mientras hay cambios, salir por otro lado pregunta (E64); se saca al desmontar o al descartar.
 function useLeaveGuard(dirty: boolean) {
@@ -130,6 +131,7 @@ export function RoleScreen({ start }: { start: Draft }) {
   const title = draft.id ? start.name : t.newTitle;
   return (
     <section class="role-screen" aria-label={title}>
+      <PhoneBar draft={draft} dirty={dirty} save={saving.save} />
       <header class="role-head">
         <nav class="role-crumbs" aria-label={t.crumbs}>
           <button
@@ -148,6 +150,7 @@ export function RoleScreen({ start }: { start: Draft }) {
         <h2 class="role-title">{title}</h2>
         <p class="role-lead">{t.lead}</p>
         <RoleActions draft={draft} dirty={dirty} save={saving.save} />
+        <RoleSummary draft={draft} />
       </header>
       <Problems
         errors={saving.errors}
@@ -159,21 +162,8 @@ export function RoleScreen({ start }: { start: Draft }) {
           <RoleInfo draft={draft} change={change} errors={saving.errors} focus={!isPhone()} />
           <RolePermissions draft={draft} change={change} errors={saving.errors} />
           <RoleHolders draft={draft} change={change} errors={saving.errors} />
-          <ExtraActions draft={draft} />
         </div>
         <RolePreview draft={draft} />
-      </div>
-      <div class="role-foot phone-only">
-        <Button
-          look="action"
-          size="large"
-          icon="save"
-          doing={t.save}
-          onPress={saving.save}
-          disabled={!dirty || !users.online}
-        >
-          {draft.id ? t.save : t.create}
-        </Button>
       </div>
       {asking && (
         <Discard

@@ -13,7 +13,7 @@ import './RoleRow.css';
 const tones = 5;
 
 // Las iniciales de quienes lo tienen: con más de las que entran, las primeras y «+N».
-function Faces({ people, max }: { people: PersonRow[]; max: number }) {
+export function Faces({ people, max }: { people: PersonRow[]; max: number }) {
   const room = people.length > max ? max - 1 : max;
   return (
     <span class="roles-faces" aria-hidden="true">
