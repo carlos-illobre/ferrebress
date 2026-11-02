@@ -4,6 +4,13 @@
    en gris (pedido de Carlos). En el celular, «‹ Roles» para volver y «Guardar rol» fijo
    abajo, encima del menú. */
 @layer screens {
+  /* Entre el encabezado, el aviso de lo que no se guardó y los pasos, el mismo aire. */
+  .role-screen {
+    display: grid;
+    gap: var(--s4);
+    max-width: 1180px;
+    padding-bottom: var(--s8);
+  }
   /* Las tarjetas blancas de los pasos y de la vista previa. */
   .role-step,
   .role-preview {
