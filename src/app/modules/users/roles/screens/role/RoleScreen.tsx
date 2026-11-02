@@ -38,7 +38,6 @@ import { RoleHolders } from './RoleHolders.tsx';
 import { RoleInfo } from './RoleInfo.tsx';
 import { RolePermissions } from './RolePermissions.tsx';
 import { RolePreview } from './RolePreview.tsx';
-import { RoleSummary } from './RoleSummary.tsx';
 
 // Mientras hay cambios, salir por otro lado pregunta (E64); se saca al desmontar o al descartar.
 function useLeaveGuard(dirty: boolean) {
@@ -152,7 +151,6 @@ export function RoleScreen({ start }: { start: Draft }) {
         <RoleActions draft={draft} dirty={dirty} save={saving.save} />
       </header>
       <PhoneBar draft={draft} dirty={dirty} save={saving.save} />
-      <RoleSummary draft={draft} />
       <Problems
         errors={saving.errors}
         notice={saving.notice}

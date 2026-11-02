@@ -1,10 +1,11 @@
-// «1 Información del rol» (02 · R7.3): el nombre y la descripción, que puede quedar vacía, con
-// cuánto queda de las 200 letras. En la computadora el cursor arranca en el nombre; Enter guarda.
+// «1 Información del rol» (02 · R7.3): en el celular, el resumen arriba (pedido de Carlos); el nombre
+// y la descripción, que puede quedar vacía, con cuánto queda de las 200 letras. En la computadora el cursor arranca en el nombre; Enter guarda.
 import { maxRoleDescription, maxRoleName } from '@ferrebress/shared/contracts/roles';
 import { useEffect, useRef } from 'preact/hooks';
 import type { Draft, DraftErrors } from '../../draft.ts';
 import { rolesTexts as t } from '../../texts.ts';
 import { nameProblem } from './Problems.tsx';
+import { RoleSummary } from './RoleSummary.tsx';
 
 type Props = {
   draft: Draft;
@@ -25,6 +26,7 @@ export function RoleInfo({ draft, change, errors, focus }: Props) {
         <span class="role-step-number">1</span>
         <h3 id="role-info">{t.info}</h3>
       </header>
+      <RoleSummary draft={draft} />
       <label class="role-field">
         <span>{t.name}</span>
         <input

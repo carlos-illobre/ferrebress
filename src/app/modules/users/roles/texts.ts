@@ -31,6 +31,7 @@ export const rolesTexts = {
   lead: 'Definí el nombre, la descripción y los permisos de este rol.',
   duplicate: 'Duplicar',
   remove: 'Borrar el rol',
+  removeShort: 'Borrar',
   save: 'Guardar rol',
   saveShort: 'Guardar',
   createShort: 'Crear',

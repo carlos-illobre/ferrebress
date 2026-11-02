@@ -581,9 +581,9 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
     en `Discard.tsx`; y lo que da acceso, en palabras, en `gives.ts`. En el celular, una columna
     con la forma de la lista de Roles: sin «‹ Roles» (se vuelve con el atrás del celular), el título del
     tamaño de «Usuarios» con la luz «En línea» debajo, y después
-    una fila como la del buscador y «Nuevo rol» (`PhoneBar`, 44 px, fija al bajar): borrar y duplicar
-    con el ícono solo a la izquierda (el Administrador sin borrar; uno nuevo sin los dos) y «Guardar
-    rol» a la derecha; después, el resumen (`RoleSummary.tsx`), con cuántos permisos y cuántas personas, que lleva a
+    una fila como la del buscador y «Nuevo rol» (`PhoneBar`, 44 px, fija al bajar): «Borrar» y
+    «Duplicar» con su texto a la izquierda (el Administrador sin borrar; uno nuevo sin los dos) y
+    «Guardar» («Crear») a la derecha, sin sombra mientras está apagado; adentro de «Información del rol», el resumen (`RoleSummary.tsx`), con cuántos permisos y cuántas personas, que lleva a
     su paso; y los pasos más compactos. No hay «Cancelar»: salir es descartar (pedido de Carlos).
   - **Lo que se arma** vive en un borrador, `draft.ts` (reglas, sin Preact), en el estado de la
     pantalla del rol: se pierde al salir de ella o al «Salir», así en la computadora del mostrador

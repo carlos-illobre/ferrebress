@@ -5,7 +5,6 @@
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { navigate } from '../../../../../platform/router.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../../ui/toast/Toast.tsx';
 import { refusalText, useUsersContext } from '../../../state.ts';
 import { removeRole } from '../../actions.ts';
@@ -68,7 +67,14 @@ function Existing({ draft }: { draft: Draft }) {
 type Props = { draft: Draft; dirty: boolean; save: () => unknown };
 
 // «Guardar rol» («Crear el rol» en uno nuevo): apagado sin cambios o sin conexión.
-function SaveButton({ draft, dirty, save, shortcut }: Props & { shortcut?: string }) {
+// `short`: en el celular, «Guardar» o «Crear», para que entre junto a «Borrar» y «Duplicar».
+function SaveButton({
+  draft,
+  dirty,
+  save,
+  shortcut,
+  short,
+}: Props & { shortcut?: string; short?: boolean }) {
   const users = useUsersContext();
   return (
     <Button
@@ -79,7 +85,7 @@ function SaveButton({ draft, dirty, save, shortcut }: Props & { shortcut?: strin
       onPress={save}
       disabled={!dirty || !users.online}
     >
-      {draft.id ? t.save : t.create}
+      {short ? (draft.id ? t.saveShort : t.createShort) : draft.id ? t.save : t.create}
     </Button>
   );
 }
@@ -97,7 +103,7 @@ export function RoleActions({ draft, dirty, save }: Props) {
 }
 
 // En el celular, debajo del título, una fila como la del buscador y «Nuevo rol» de la lista (pedido
-// de Carlos): borrar y duplicar con el ícono solo a la izquierda y «Guardar» a la derecha, donde va
+// de Carlos): «Borrar» y «Duplicar» a la izquierda y «Guardar» a la derecha, donde va
 // «Nuevo rol», del mismo alto. Queda fija al bajar. El Administrador no muestra borrar (R7.4); un rol
 // nuevo, ninguno de los dos. «‹ Roles» va arriba del título, como el camino de la computadora.
 export function PhoneBar({ draft, dirty, save }: Props) {
@@ -106,30 +112,22 @@ export function PhoneBar({ draft, dirty, save }: Props) {
   return (
     <div class="role-phone-bar phone-only">
       {draft.id && !draft.system && (
-        <button
-          type="button"
-          class="role-icon-button danger"
-          aria-label={t.remove}
-          title={t.remove}
-          onClick={remove}
+        <Button
+          look="danger"
+          icon="trash-2"
+          doing={t.remove}
+          onPress={remove}
           disabled={!users.online}
         >
-          <Icon name="trash-2" />
-        </button>
+          {t.removeShort}
+        </Button>
       )}
       {draft.id && (
-        <button
-          type="button"
-          class="role-icon-button"
-          aria-label={t.duplicate}
-          title={t.duplicate}
-          onClick={duplicate(draft)}
-          disabled={!users.online}
-        >
-          <Icon name="copy" />
-        </button>
+        <Button icon="copy" doing={t.duplicate} onPress={duplicate(draft)} disabled={!users.online}>
+          {t.duplicate}
+        </Button>
       )}
-      <SaveButton draft={draft} dirty={dirty} save={save} />
+      <SaveButton draft={draft} dirty={dirty} save={save} short />
     </div>
   );
 }

@@ -24,25 +24,14 @@
       background: var(--background);
     }
     .role-phone-bar .button {
+      padding: 0 var(--s3);
+    }
+    .role-phone-bar .button-action {
       margin-left: auto;
+    }
+    /* Solo encendido lleva la sombra naranja; apagado, gris y sin sombra (pedido de Carlos). */
+    .role-phone-bar .button-action:not(:disabled) {
       box-shadow: var(--shadow-action);
-    }
-    .role-icon-button {
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius);
-      background: var(--surface);
-      box-shadow: var(--shadow-1);
-      color: var(--ink);
-      cursor: pointer;
-    }
-    .role-icon-button.danger {
-      border-color: transparent;
-      background: var(--error-soft);
-      color: var(--error-text);
     }
     .role-head {
       position: static;

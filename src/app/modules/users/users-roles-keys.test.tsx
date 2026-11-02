@@ -61,7 +61,7 @@ describe('la pestaña Roles con el teclado, sin conexión y al salir (02 · R7.1
     Element.prototype.scrollIntoView = scroll;
     await openRoles({}, '/users/roles/enc');
     const bar = within(document.querySelector('.role-phone-bar') as HTMLElement);
-    expect(bar.getByRole('button', { name: 'Borrar el rol' })).toBeTruthy();
+    expect(bar.getByRole('button', { name: 'Borrar' })).toBeTruthy();
     expect(bar.getByRole('button', { name: 'Duplicar' })).toBeTruthy();
     expect((bar.getByRole('button', { name: /^Guardar/ }) as HTMLButtonElement).disabled).toBe(
       true,
@@ -77,7 +77,7 @@ describe('la pestaña Roles con el teclado, sin conexión y al salir (02 · R7.1
   it('en el celular, el Administrador no muestra borrar, pero sí duplicar', async () => {
     await openRoles({}, `/users/roles/${roleRows[0]?.id}`);
     const bar = () => within(document.querySelector('.role-phone-bar') as HTMLElement);
-    expect(bar().queryByRole('button', { name: 'Borrar el rol' })).toBeNull();
+    expect(bar().queryByRole('button', { name: 'Borrar' })).toBeNull();
     expect(bar().getByRole('button', { name: 'Duplicar' })).toBeTruthy();
   });
 });

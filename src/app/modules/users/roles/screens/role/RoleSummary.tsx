@@ -1,4 +1,4 @@
-// El resumen del rol en el celular, debajo del título (pedido de Carlos): cuántos permisos da y
+// El resumen del rol en el celular, adentro de «Información del rol» (pedido de Carlos): cuántos permisos da y
 // cuántas personas lo van a tener, con sus iniciales. Cada pastilla lleva a su paso.
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
