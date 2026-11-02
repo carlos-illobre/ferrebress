@@ -71,7 +71,8 @@ Las personas y los roles son inventados; quien mira es Rubén Paredes, con Admin
   - **«Duplicar» y «Borrar el rol» van a la izquierda de «Guardar», con el ícono solo** (copiar y
     tacho, 40 × 40, el de borrar en rojo suave), con su nombre en `aria-label` y `title`: con el
     texto, aunque fuera corto, no entran en 390 px junto a «‹ Roles» y «Guardar». Administrador no
-    tiene «Borrar el rol»; en un rol nuevo no va ninguno de los dos.
+    tiene «Borrar el rol»; en un rol nuevo no va ninguno de los dos. El orden, de izquierda a derecha:
+    borrar, duplicar y «Guardar» (pedido de Carlos).
   - **Un resumen debajo del título** (no hay otra fila de botones ahí), con dos pastillas que llevan a su paso al tocarlas:
     «🔑 N permisos» y «N personas» (con las iniciales, como en la lista; sin nadie, el ícono de
     personas). Se actualiza con cada cambio. Sin la bajada «Definí el nombre…».
