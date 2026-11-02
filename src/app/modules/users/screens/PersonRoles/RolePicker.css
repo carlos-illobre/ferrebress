@@ -1,7 +1,9 @@
 /* Elegir roles (maqueta users-person-roles): cada rol en su renglón; tildado, con el fondo pino suave
    y el borde pino. */
+/* Un fieldset no se angosta por debajo de su texto más largo si no se lo pide: así entra en la tarjeta. */
 .role-picker {
   display: grid;
+  min-width: 0;
   gap: var(--s2);
   margin: 0;
   padding: 0;
@@ -10,7 +12,7 @@
 
 .role-pick {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: var(--s3);
   align-items: center;
   padding: var(--s2) var(--s3);

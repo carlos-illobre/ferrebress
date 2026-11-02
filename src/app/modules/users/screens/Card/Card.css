@@ -6,9 +6,8 @@
     grid-template-columns: minmax(0, 1fr);
     align-content: start;
     gap: var(--s4);
-    min-height: 0;
+    min-width: 0;
     padding: var(--s5);
-    overflow: auto;
     border: 1px solid var(--border);
     border-radius: var(--radius-card);
     background: var(--surface);
@@ -159,11 +158,11 @@
     background: var(--pine-soft);
     color: var(--pine-text);
   }
-  /* En la computadora, el pie queda a la vista al pie de la tarjeta aunque lo de arriba no entre (con
-     los roles de la persona, R7.5). */
+  /* En la computadora, el pie queda a la vista al pie de la pantalla aunque la tarjeta siga más abajo
+     (con los roles de la persona, R7.5). */
   .users-card-foot {
     position: sticky;
-    bottom: calc(-1 * var(--s5));
+    bottom: 0;
     display: flex;
     align-items: center;
     gap: var(--s3);
@@ -181,10 +180,12 @@
     .users-card.empty {
       display: none;
     }
+    /* En el celular la tarjeta tapa la lista y se desplaza por dentro. */
     .users-card {
       position: absolute;
       inset: 0;
       z-index: 5;
+      overflow: auto;
       align-content: start;
       padding: var(--s2) var(--s4) var(--s8);
       border: 0;

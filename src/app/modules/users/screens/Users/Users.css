@@ -10,9 +10,12 @@
     min-height: 0;
     overflow: hidden;
   }
+  /* Lo de abajo de la cabecera se desplaza entero: la tarjeta crece con lo que tiene, sin barras
+     propias (pedido de Carlos). */
   .users-content {
     flex: 1;
     min-height: 0;
+    overflow: auto;
   }
   .users-head {
     display: flex;
@@ -86,7 +89,8 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) 392px;
     gap: var(--s6);
-    height: 100%;
+    align-items: start;
+    min-height: 100%;
     padding: var(--s5) var(--s8);
   }
   .users-left {
