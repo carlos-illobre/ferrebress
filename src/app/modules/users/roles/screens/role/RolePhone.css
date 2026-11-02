@@ -94,7 +94,7 @@
     /* Los avisos suben desde abajo de borde a borde (maqueta): sin el ancho de la computadora, y
        los dos botones mitad y mitad. */
     .role-discard,
-    .role-pick {
+    .role-give {
       width: auto;
       padding: var(--s4) var(--s4) calc(var(--s5) + env(safe-area-inset-bottom));
     }

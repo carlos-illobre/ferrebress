@@ -20,7 +20,7 @@ export function GivePicker({ candidates, pick, close }: Props) {
     plain(`${one.displayName} ${one.email}`).includes(wanted),
   );
   return (
-    <Dialog label={t.pick} className="role-pick">
+    <Dialog label={t.pick} className="role-give">
       <h2>{t.pick}</h2>
       <label class="roles-search" data-private="">
         <Icon name="search" size="small" />
@@ -34,12 +34,12 @@ export function GivePicker({ candidates, pick, close }: Props) {
         />
       </label>
       {shown.length === 0 && <p class="role-none">{t.pickNone}</p>}
-      <ul class="role-pick-list" data-private="">
+      <ul class="role-give-list" data-private="">
         {shown.map((one) => (
           <li key={one.id}>
             <button
               type="button"
-              class="role-pick-person"
+              class="role-give-person"
               onClick={() => pick(one.id)}
               data-mark=""
             >

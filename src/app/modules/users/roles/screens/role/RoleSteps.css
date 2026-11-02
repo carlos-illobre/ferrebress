@@ -87,7 +87,7 @@
     list-style: none;
   }
   .role-holder,
-  .role-pick-person {
+  .role-give-person {
     display: grid;
     grid-template-columns: 40px minmax(0, 1fr) auto;
     gap: 4px var(--s3);
@@ -152,19 +152,19 @@
     justify-self: start;
   }
   .role-discard,
-  .role-pick {
+  .role-give {
     display: grid;
     gap: var(--s3);
     width: min(440px, calc(100vw - 32px));
     padding: var(--s6);
   }
   .role-discard h2,
-  .role-pick h2 {
+  .role-give h2 {
     margin: 0;
     font-size: 20px;
     font-weight: 800;
   }
-  .role-pick-list {
+  .role-give-list {
     display: grid;
     gap: var(--s2);
     max-height: 50vh;
@@ -173,7 +173,7 @@
     overflow: auto;
     list-style: none;
   }
-  .role-pick-person {
+  .role-give-person {
     width: 100%;
     color: var(--ink);
     font: inherit;
