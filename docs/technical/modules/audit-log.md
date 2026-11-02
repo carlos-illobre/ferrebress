@@ -9,7 +9,7 @@ dicen el [ADR-004](../adr/ADR-004-audit-log-in-sqlite.md) y los diseños de [01]
 
 ## 1. Qué resuelve
 
-Las reglas R1 a R5 del capítulo 05 y sus escenarios E01 a E39 (con E35b a E35d).
+Las reglas R1 a R5 del capítulo 05 y sus escenarios E01 a E48 (con E05b y E35b a E35d).
 
 **Lo que ya existe** (01 y 02): la plataforma anota en SQLite, un archivo por año, por tandas, después
 de que PostgreSQL confirma (`platform/storage/audit.ts`, `guards.record`). Cada módulo anota con
@@ -225,7 +225,7 @@ al límite de intentos de su cuenta» (01 · R2.10).
 
 ## 5. API
 
-Las dos rutas piden sesión y `audit-log.view` (`permissions.require`), con el mismo `403` anotado
+Las tres rutas piden sesión y `audit-log.view` (`permissions.require`), con el mismo `403` anotado
 como `permission.denied` (E14), y comparten un límite de 60 pedidos por minuto **por persona**
 (`guards.limit`); pasado, `429` y `request.throttled`. Leen; no anotan nada, salvo `audit-log.opened` (abajo).
 Cualquier parámetro que no conocen o no cumple da `400 bad-request` con cuál (E39), sin datos.
@@ -282,6 +282,25 @@ Devuelve:
 
 Las personas de los filtros (E30), una vez al abrir la pestaña: id, nombre de hoy, correo y estado,
 de `people.v1.sqlite`. Unos 5 KB con 100 personas.
+
+### `GET /api/audit-log/day`
+
+La cinta (R4.11): un día entero, sin los filtros de la lista.
+
+| Parámetro | Qué | Validación |
+|---|---|---|
+| `date` | El día del negocio, `AAAA-MM-DD`; sin él, hoy | Como `from` |
+
+Devuelve `{ date, today, week, events }`: `week` son los siete días que terminan en `date`, cada uno
+con su cantidad y cuántas ámbar y rojas (los días de arriba); `events`, todas las acciones del día en
+orden, con la misma forma que la lista. Con más de 2.000 acciones en el día devuelve
+`{ date, today, week, tooMany: count }` y ninguna acción (E48).
+
+- Las personas de las filas salen de `actor` y de los `targets` de tipo persona de las acciones; sus
+  nombres de hoy, de `/people`, que la pantalla ya tiene.
+- Peso: con las 300 acciones de un día de hoy, unos 150 KB sin comprimir y unos 20 KB comprimida
+  (Caddy comprime las respuestas de `/api`). Se pide solo al abrir la cinta o al cambiar de día.
+- Consultas: 1 que cuenta el día, 1 de sus acciones y 1 de la semana (`group by` día).
 
 ### La consulta
 
@@ -346,17 +365,22 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 | `Detail` | En la computadora, fijo a la derecha, con la acción elegida (al abrir, la primera; ↑ ↓ la cambian, E35d). En el celular, una hoja que sube al tocar. Muestra todo, con las dos horas de una entrada no confirmada |
 | `Pager` | «página n de m», anterior y siguiente; RePág y AvPág |
 | `Empty` | Sin acciones (E20) o sin coincidencias, con «Sacar los filtros» (E29) |
+| `Tape` | La cinta a pantalla completa, sobre la maqueta `variant-3-tape/` (R4.11). En la computadora, horizontal; en el celular, vertical. Las filas, los puntos y las líneas de quién a quién en un SVG; los días de arriba; el subtítulo con los mismos trozos que `Detail`; la × |
+| `Playhead` | El cabezal: arrastrar (se pega a la acción más cercana), ← → y los botones; ↑ ↓ eligen la fila y Enter la aísla; Espacio reproduce. «Reproducir» es un paso por acción con un temporizador de la pantalla (14 s el día entero en la computadora, 1 s por acción en el celular), que se corta con cualquier toque, al ocultarse la aplicación o al llegar a la última. Se mueve con `transform` y `opacity`; con «reducir movimiento», salta |
 
 - **El texto** de cada acción lo arma el catálogo con trozos, no con HTML: `says(e)` devuelve
   `texto`, `persona` y `cosa`, y la pantalla los pinta como texto (E38). Tocar una persona filtra por
   ella (E33). El navegador y el sistema se dicen con la lista de la aplicación.
 - **El tamaño de página:** 20 con el ancho de computadora y 10 si no, con el mismo corte que usa el
   marco para el menú.
-- **«Algo salió mal»:** `Ledger`, `Detail`, `Filters` y los trozos `persona` llevan `data-private`, así
+- **La cinta** se abre encima de la lista sin desarmarla: al cerrarla se vuelve con los mismos
+  filtros, página y acción elegida (E42). Su estado (día, cabezal, persona aislada) no se guarda.
+- **«Algo salió mal»:** `Ledger`, `Detail`, `Filters`, `Tape` y los trozos `persona` llevan `data-private`, así
   la captura los tapa (00 · R9.4), y los últimos pasos guardan solo el nombre de la acción
   (`audit-log.filter`), sin el valor.
 - **Las acciones con nombre** (teclado y, con el 03, el espejo): `audit-log.refresh`,
-  `audit-log.page`, `audit-log.filter`, `audit-log.select`. En el espejo viajan solo el filtro o la
+  `audit-log.page`, `audit-log.filter`, `audit-log.select`, `audit-log.tape-open`, `audit-log.tape-day`,
+  `audit-log.tape-move`, `audit-log.tape-play`, `audit-log.tape-isolate`. En el espejo viajan solo el filtro o la
   página: el otro dispositivo pide con su sesión y su permiso, nunca recibe el contenido.
 - **Los íconos** del catálogo se copian de Lucide 0.460 a `audit-log-shapes.tsx`, que se baja con la
   pantalla (`addShapes`). La prueba del catálogo mira que cada ícono esté ahí.
@@ -369,7 +393,7 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
   para intentar entrar, direcciones de internet y lo que dice el navegador. Es lo más sensible que
   guarda el sistema sobre las personas: solo lo ve `audit-log.view` (R3.4), que al instalar tiene solo
   el Administrador.
-- **Quién puede:** leer, quien tiene el permiso, en las dos rutas; nadie puede cambiar ni borrar
+- **Quién puede:** leer, quien tiene el permiso, en las tres rutas; nadie puede cambiar ni borrar
   (E37): no hay ruta, la lectura abre los archivos de solo lectura y la escritura solo inserta. Quien
   tiene acceso al servidor sí puede tocar el archivo: firmar cada acción o encadenarlas para detectarlo
   queda para cuando haya producción (T116).
@@ -378,7 +402,7 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 - **Lo que entra de afuera:** los parámetros, con zod y topes (§ 5), pasados a SQLite siempre como
   parámetros; lo anotado que viene del pedido (el correo cortado, el navegador de una lista cerrada,
   la dirección de la plataforma); al mostrarlo, todo como texto (E38).
-- **Abuso:** 60 pedidos por minuto por persona en las dos rutas; tamaños de página fijos; páginas,
+- **Abuso:** 60 pedidos por minuto por persona en las tres rutas; tamaños de página fijos; páginas,
   fechas y `around` acotados; la consulta en su hilo, de a una. Un período de 9.000 años no crea ni
   abre archivos (prueba que mira que la carpeta no cambió).
 - **Secretos:** ninguno. `node:sqlite` sin `createTagStore` (CVE-2026-58041); el armado de la imagen
@@ -399,7 +423,11 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
   20 KB sin comprimir y 4 KB comprimida.
 - Escribir no se vuelve más lento: la tanda sigue siendo una transacción por segundo, con `targets` y
   `people` adentro.
-- El arranque de la aplicación no crece: la pantalla y sus íconos se bajan al abrir la pestaña.
+- La cinta: `GET /api/audit-log/day` en menos de 150 ms y unos 20 KB comprimida con un día de hoy; la
+  cinta se dibuja en menos de 100 ms y el cabezal se mueve sin cortes (sin recalcular la página en
+  cada paso).
+- El arranque de la aplicación no crece: la pantalla, la cinta y sus íconos se bajan al abrir la
+  pestaña.
 
 ## 11. Pruebas
 
@@ -410,10 +438,11 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 | E05, E05b | Del servidor: abrir Usuarios y buscar no agregan líneas; pedir `/api/audit-log` agrega `audit-log.opened` una vez por sesión y por día |
 | E07, E08, E30 | De la consulta: «(hoy: …)» como quién y como a quién; «El sistema»; las personas dadas de baja y borradas en `/people` |
 | E09, E10 | De la consulta: `deviceTime` en la entrada sin conexión no confirmada; la hora es la del reloj del servidor de prueba |
-| E11 a E16 | De las dos rutas (con y sin permiso, `403` anotado) y de la pantalla (la pestaña, «No tenés permiso»); E15, del arranque |
+| E11 a E16 | De las tres rutas (con y sin permiso, `403` anotado) y de la pantalla (la pestaña, «No tenés permiso»); E15, del arranque |
 | E17 a E22, E35b | De la pantalla, con el servidor de mentira: 20 y 10 por página, total y «página n de m», vacío, colores (sacar un rol en rojo, darlo sin color), fecha solo si no es de `today`, un ícono por tipo |
 | E23 a E31, E35c | De la consulta (cada filtro y sus combinaciones, los atajos con el reloj del servidor, contra archivos de dos años con una acción el 31 de diciembre a las 22) y de la pantalla (volver a la página 1, «Sacar los filtros», los números que filtran) |
 | E32 a E35, E35d | De la pantalla: el detalle, tocar una persona, «Actualizar» sin pedidos solos, el teclado |
+| E40 a E48 | De la pantalla, con el servidor de mentira y un reloj de prueba: abrir desde la raya y desde «Ver el día», cerrar y volver igual, la línea de quién a quién, ← →, reproducir y detenerse, aislar, cambiar de día, más de 2.000. De la ruta `/day`: el día entero sin filtros, la semana y `tooMany` |
 | E36 | De la pantalla: gris sin conexión; al volver sale del gris sin pedir nada |
 | E37, E38, E39 | De las rutas: no hay `POST`/`PUT`/`DELETE`; un parámetro mal, uno desconocido o una página de más dan `400`. De la pantalla: un nombre con HTML se ve como texto |
 | Seguridad | La respuesta no trae identificadores de dispositivo ni de huella; una acción de 20 KB se anota y dice a quién; un período enorme no crea archivos; la captura de «Algo salió mal» tapa la lista |
@@ -445,10 +474,12 @@ ya lo prueban las unitarias de las dos puntas.
 3. **La consulta** (`query.ts` y `worker.ts`): paginar sobre los años, filtros, resumen, tira, `days`,
    `around`, los totales de los años cerrados y los topes, con sus pruebas contra archivos de prueba y
    las que miran el plan. Depende de 1.
-4. **El módulo del servidor** `audit-log`: el permiso, las dos rutas, el límite, `provideTone` y su
+4. **El módulo del servidor** `audit-log`: el permiso, las rutas, el límite, `provideTone` y su
    archivo del catálogo. Depende de 2 y 3.
 5. **La aplicación:** la pestaña en Usuarios y sus piezas, los íconos, los textos y `data-private`.
    Depende de 4.
-6. **Las pruebas de § 11 y la documentación al día:** los diseños de 01 y 02 donde nombran la forma
+6. **La cinta:** `GET /api/audit-log/day` y las piezas `Tape` y `Playhead`, en la computadora y en el
+   celular. Depende de 5.
+7. **Las pruebas de § 11 y la documentación al día:** los diseños de 01 y 02 donde nombran la forma
    vieja, `architecture.md` (`platform/storage/audit/`, `platform/device.ts`) y la línea del ADR-004
    sobre tipo y persona como texto.

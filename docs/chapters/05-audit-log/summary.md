@@ -20,7 +20,9 @@ T115); cuánto se guarda se decide con el plan de copias (T116).
   los rechazos; filtros combinables por quién lo hizo, a quién, fecha (con atajos) y tipo; no se
   actualiza solo; el detalle muestra todo y tocar una persona filtra por ella; cada acción con el ícono de su tipo, uno distinto por tipo; arriba,
   un resumen con tres números que filtran y, en la computadora, el día en una tira y el detalle
-  siempre abierto (R4).
+  siempre abierto; la cinta, a pantalla completa, muestra el día como una grabación (una fila por
+  persona, líneas de quién a quién, el cabezal, «Reproducir el día» y aislar a alguien), desde la
+  tira en la computadora y desde «Ver el día» en el celular (R4).
 - **La conexión:** necesita conexión; sin ella, gris (R5).
 - **Lo que no se hace:** exportar, buscar por texto, la vista propia y esconder partes (sección 6).
 

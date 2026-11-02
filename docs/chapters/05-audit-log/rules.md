@@ -119,6 +119,28 @@ registro se decide con el plan de copias de la base.
 - **R4.10** **Cada tipo de acción tiene su ícono,** que no se repite entre tipos y es el mismo en
   todas partes. Lo elige el capítulo que anota la acción, junto con su texto (R2.1). Un intento
   rechazado tiene su propio tipo y, por lo tanto, su propio ícono.
+- **R4.11** **La cinta: el día como una grabación.** Se abre en la computadora tocando una raya de la
+  tira, posada en esa acción, y en el celular con «Ver el día», al lado del resumen. Ocupa toda la
+  pantalla, sin el menú; la × o Escape (en el celular, también atrás) vuelven a la lista como estaba.
+  - Muestra un día entero, sin los filtros de la lista: el de la raya tocada o, con «Ver el día», el
+    del resumen (si el período es de varios días, hoy). Arriba, los días de la semana, cada uno con
+    su cantidad y sus colores; tocar uno cambia de día.
+  - Una fila por persona que hizo o recibió algo ese día, más «Alguien sin entrar» y «El sistema»
+    si tuvieron acciones; un punto por acción, en su hora y con su color, y una línea que une a quien
+    la hizo con quien la recibió. En el celular, el tiempo va de arriba hacia abajo y la cinta se
+    pasa con el pulgar.
+  - **El cabezal** está siempre en una acción: se arrastra (y se pega a la más cercana) o se pasa de a
+    una con ← → (en el celular, con los botones o deslizando). La acción del cabezal se lee entera
+    abajo, como un subtítulo, con lo mismo que el detalle (R4.7).
+  - **«Reproducir el día»** pasa el cabezal solo por todas las acciones, en orden (en la computadora,
+    el día entero en unos 14 segundos; en el celular, una acción por segundo), y se detiene al tocar
+    cualquier cosa o al llegar a la última. Con «reducir movimiento» en el dispositivo, salta de una a
+    otra sin deslizarse.
+  - **Aislar a alguien:** tocar la fila de una persona deja en primer plano lo que hizo y lo que
+    recibió, y el resto se apaga; ← → y «Reproducir» recorren solo eso. Tocarla de nuevo, o Escape, la
+    suelta.
+  - Si el día tiene más de 2.000 acciones, la cinta no se abre y dice que hay demasiadas para verlas
+    así, y que conviene usar la lista con filtros.
 
 ## 5. La conexión
 
@@ -241,6 +263,29 @@ registro se decide con el plan de copias de la base.
   sin tocar nada más.
 - **E35** **Dado** la computadora, **cuando** se usa solo el teclado, **entonces** se recorre la
   lista, se abre el detalle, se cambia de página y se llega a cada filtro.
+
+### La cinta
+
+- **E40** **Dado** la tira de hoy en la computadora, **cuando** se toca la raya de las 10:26,
+  **entonces** se abre la cinta a pantalla completa, sin el menú, con el cabezal en esa acción y su
+  texto abajo.
+- **E41** **Dado** el celular, **cuando** se toca «Ver el día», **entonces** se abre la cinta vertical
+  del día del resumen; con un período de varios días, la de hoy.
+- **E42** **Dado** la cinta abierta, **cuando** se toca la ×, Escape o atrás, **entonces** se vuelve a
+  la lista con los mismos filtros, la misma página y la misma acción elegida.
+- **E43** **Dado** una acción de Graciela a Martín, **cuando** el cabezal está en ella, **entonces** una
+  línea une la fila de Graciela con la de Martín y el subtítulo dice la acción entera.
+- **E44** **Dado** la cinta en una acción, **cuando** se pulsa →, **entonces** el cabezal pasa a la
+  acción siguiente del día; en la última, no se mueve.
+- **E45** **Dado** «Reproducir el día», **cuando** se toca, **entonces** el cabezal recorre las
+  acciones en orden, cada una con su subtítulo, y se detiene en la última o al tocar cualquier cosa.
+- **E46** **Dado** la fila de Martín, **cuando** se toca, **entonces** quedan en primer plano lo que hizo
+  y lo que recibió, el resto se apaga, y ← → y «Reproducir» recorren solo eso; tocándola de nuevo se
+  suelta.
+- **E47** **Dado** los días de la semana arriba, **cuando** se toca «ayer», **entonces** la cinta muestra
+  el día de ayer, con el cabezal en su primera acción.
+- **E48** **Dado** un día con más de 2.000 acciones, **cuando** se quiere abrir la cinta, **entonces** no
+  se abre y dice que conviene usar la lista con filtros.
 
 ### La conexión y la seguridad
 
