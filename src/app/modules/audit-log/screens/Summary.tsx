@@ -22,7 +22,7 @@ export function Summary({ today }: { today: string }) {
   const number = (tone: 'amber' | 'red', count: number, label: string, icon: 'ban' | 'trash-2') => (
     <button
       type="button"
-      class={`audit-number audit-${tone}`}
+      class={`surface audit-number audit-${tone}`}
       aria-pressed={on(tone)}
       data-mark=""
       onClick={() => log.byTone(on(tone) ? undefined : tone)}
@@ -36,7 +36,12 @@ export function Summary({ today }: { today: string }) {
   );
   return (
     <div class="audit-summary">
-      <button type="button" class="audit-number" data-mark="" onClick={() => log.byTone(undefined)}>
+      <button
+        type="button"
+        class="surface audit-number"
+        data-mark=""
+        onClick={() => log.byTone(undefined)}
+      >
         <Icon name="history" />
         <span>
           <b>{summary.total}</b>

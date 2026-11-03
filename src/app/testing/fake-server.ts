@@ -29,11 +29,8 @@ function answer(reply: Reply): Promise<Response> | Response {
 // Cada ruta contesta con su lista de respuestas, en orden; la última se repite.
 // Una respuesta que llega recién con `release()`.
 export function held(reply: Reply) {
-  let release = () => {};
-  const promise = new Promise<Reply>((resolve) => {
-    release = () => resolve(reply);
-  });
-  return { reply: { held: promise }, release };
+  const { promise, resolve } = Promise.withResolvers<Reply>();
+  return { reply: { held: promise }, release: () => resolve(reply) };
 }
 
 export function fakeServer(routes: Record<string, Reply | Reply[]>) {

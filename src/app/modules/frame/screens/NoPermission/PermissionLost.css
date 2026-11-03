@@ -36,7 +36,7 @@
   .lost-permission .pill {
     padding: 2px var(--s3);
     border: 1px solid var(--border-strong);
-    border-radius: 999px;
+    border-radius: var(--radius-round);
   }
 
   .lost-permission .pill-gone {

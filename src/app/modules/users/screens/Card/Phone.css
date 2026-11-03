@@ -13,10 +13,6 @@
     justify-items: center;
     gap: 6px;
     padding: var(--s3) var(--s1);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    background: var(--surface);
-    box-shadow: var(--shadow-1);
     font: inherit;
     font-size: 14px;
     font-weight: 650;
@@ -37,7 +33,7 @@
   }
   .users-tile small {
     padding: 0 var(--s2);
-    border-radius: 999px;
+    border-radius: var(--radius-round);
     background: var(--sunken);
     font-size: 12px;
     color: var(--text-2);
@@ -60,10 +56,6 @@
   }
   .users-link-rows {
     display: grid;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    background: var(--surface);
-    box-shadow: var(--shadow-1);
   }
   .users-link-row {
     display: grid;

@@ -96,10 +96,14 @@ Si un archivo crece, se parte por responsabilidad con el mismo nombre en plural 
 **Los pasos comunes de una ruta** están en `platform/guards.ts`, iguales para cualquier módulo:
 leer y validar el cuerpo (`readBody`), frenar por límite de pedidos con las claves de la dirección
 y del dispositivo (`limit`, que anota en la auditoría una vez por ventana) y anotar en la
-auditoría con lo que trae el pedido (`record`). La ruta los declara antes de lo suyo
+auditoría con lo que trae el pedido (`record`), o una sola vez por ventana y por clave, para un
+rechazo que se repite (`recordOnce`). La ruta los declara antes de lo suyo
 (`http.post(ruta, cuerpo.step, limit(…), manejador)`), así queda solo con su regla. Lo que
 depende de la regla (un límite por cuenta después de verificar quién es, uno que vale solo en un
 caso) se llama desde adentro con `throttle`.
+
+**Una transacción que publica eventos** se abre con `events.transaction(db, …)`: lo que devuelven
+los módulos que reaccionan corre recién al confirmarla, y si se deshace, no corre.
 
 **El nombre del producto** está en un solo lugar, `src/shared/contracts/product.ts`: la cabecera de
 cada respuesta, lo que la aplicación guarda en el dispositivo y el nombre de la huella salen de
@@ -124,7 +128,10 @@ escribe solo sus tablas (ADR-001).
 | `screens/<Screen>/<Screen>.css` | Su estilo, para el celular y la computadora, con media queries |
 
 Las pantallas usan solo los tokens de `styles/` y las piezas de `ui/`: cambiar la estética es
-tocar CSS (ADR-002). Cada módulo se baja recién cuando se abre.
+tocar CSS (ADR-002). Cada módulo se baja recién cuando se abre (`platform/lazy.ts`). Lo que
+repiten varias pantallas está una sola vez en `platform/`: si la pantalla es angosta, al día con la
+ventana (`narrow.ts`), quedarse con la respuesta del último pedido (`latest.ts`) y llamar desde un
+efecto a la función de ahora (`current.ts`).
 
 **Las acciones con nombre son la columna de la aplicación.** Todo lo que hace la persona
 (agregar un renglón, cambiar de pantalla, cobrar) es una acción que pasa por un solo punto. Ese

@@ -41,7 +41,7 @@ export function RoleRow({
   return (
     <button
       type="button"
-      class={arriving ? 'roles-row arriving' : 'roles-row'}
+      class={arriving ? 'surface roles-row arriving' : 'surface roles-row'}
       aria-label={t.open(role.name)}
       data-mark=""
       onClick={() => navigate(rolePath(role.id))}

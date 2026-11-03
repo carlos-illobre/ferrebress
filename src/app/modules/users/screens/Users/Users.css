@@ -117,7 +117,7 @@
     .users-tab[aria-current] {
       background: var(--pine);
       box-shadow: var(--shadow-1);
-      color: #fff;
+      color: var(--on-dark);
     }
     .users-offline {
       margin: var(--s3) var(--s4) 0;

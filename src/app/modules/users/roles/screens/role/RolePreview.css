@@ -69,7 +69,7 @@
   }
   .role-mark.on {
     background: var(--success);
-    color: #fff;
+    color: var(--on-dark);
   }
   .role-preview-note {
     display: flex;

@@ -17,7 +17,7 @@
     height: 40px;
     padding: 0 12px 0 14px;
     border: 1px solid var(--border-strong);
-    border-radius: 999px;
+    border-radius: var(--radius-round);
     background: var(--surface);
     font: inherit;
     font-size: 15px;
@@ -39,7 +39,7 @@
     color: rgb(255 255 255 / 0.8);
   }
   .audit-chip.on b {
-    color: #fff;
+    color: var(--on-dark);
   }
   .audit-pop-scrim {
     position: fixed;

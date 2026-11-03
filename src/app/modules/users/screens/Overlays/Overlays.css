@@ -110,7 +110,7 @@
     width: 20px;
     height: 20px;
     border: 2px solid var(--border-strong);
-    border-radius: 999px;
+    border-radius: var(--radius-round);
   }
   .users-option[aria-pressed="true"] .users-radio {
     border: 6px solid var(--pine);

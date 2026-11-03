@@ -4,7 +4,8 @@
 import type { PersonRow, SessionRow } from '@ferrebress/shared/contracts/users';
 import { showToast } from '../../ui/toast/Toast.tsx';
 import { usersApi } from './api.ts';
-import { confirmOrRefuse, refused, type Users } from './state.ts';
+import { confirmOrRefuse, refused } from './refusals.ts';
+import type { Users } from './state.ts';
 import { doneTexts } from './texts.ts';
 
 // Los rechazos que se dicen junto al campo del correo, sin tostada.

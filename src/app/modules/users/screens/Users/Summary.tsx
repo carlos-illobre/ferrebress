@@ -21,7 +21,7 @@ function Stat({
   tone: string;
 }) {
   return (
-    <div class={`users-stat ${tone}`}>
+    <div class={`surface users-stat ${tone}`}>
       <span class="users-stat-icon">
         <Icon name={icon} />
       </span>

@@ -90,7 +90,7 @@
         color: #ffd27a;
       }
       .g-fail b {
-        color: #fff;
+        color: var(--on-dark);
       }
     }
   }

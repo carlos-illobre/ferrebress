@@ -30,7 +30,7 @@
     height: 28px;
     border-radius: 50%;
     background: var(--pine);
-    color: #fff;
+    color: var(--on-dark);
     font-size: 14px;
     font-weight: 800;
   }
@@ -136,7 +136,7 @@
   .role-you {
     margin-left: var(--s2);
     padding: 1px var(--s2);
-    border-radius: 999px;
+    border-radius: var(--radius-round);
     background: var(--action-soft);
     color: var(--action-text);
     font-size: 13px;

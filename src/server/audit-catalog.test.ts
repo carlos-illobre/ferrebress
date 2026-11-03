@@ -23,7 +23,7 @@ describe('el catálogo y lo que anota el servidor', () => {
       const code = readFileSync(file, 'utf8');
       // Un permiso que aparece en la misma línea no es una acción.
       for (const match of code.matchAll(
-        /(?:record\(c, |type: |const type = [^;]*?|answer\([^;]*?|\? )'([a-z-]+\.[a-z.-]+|sign-out)'/g,
+        /(?:record\(c, |recordOnce\(c, [^;]*?|done\(c, |type: |const type = [^;]*?|answer\([^;]*?|\? )'([a-z-]+\.[a-z.-]+|sign-out)'/g,
       ))
         if (!isPermission(match[1])) recorded.add(match[1] as string);
     }

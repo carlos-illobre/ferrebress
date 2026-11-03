@@ -10,14 +10,12 @@ import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { useLatest } from '../../platform/latest.ts';
 import { isWide } from '../../platform/narrow.ts';
 import { navigate, route } from '../../platform/router.ts';
-import { type ApiResult, online as onlineStore } from '../../platform/server/api.ts';
+import { online as onlineStore } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
-import { showToast } from '../../ui/toast/Toast.tsx';
 import { person as me, pendingEntries } from '../sign-in/index.ts';
 import { usersApi } from './api.ts';
 import { type Filter, visible } from './logic.ts';
 import { listPath } from './roles/paths.ts';
-import { refusalTexts, somethingFailed } from './texts.ts';
 
 // Lo que se abre encima: autorizar, «Se perdió un celular» y las dos confirmaciones. Volver a
 // confirmar quién es va aparte, encima de lo que haya, así autorizar sigue abierto debajo.
@@ -27,8 +25,6 @@ export type Overlay =
   | { kind: 'deactivate'; person: PersonRow }
   | { kind: 'close-all'; person: PersonRow }
   | { kind: 'search' };
-
-type Failed = Extract<ApiResult<unknown>, { ok: false }>;
 
 function useList() {
   const [people, setPeople] = useState<PersonRow[]>();
@@ -214,40 +210,3 @@ export type Users = ReturnType<typeof useUsers>;
 
 export const UsersContext = createContext<Users | undefined>(undefined);
 export const useUsersContext = () => useContext(UsersContext) as Users;
-
-// Autorizar y dar de alta pueden pedir confirmar quién es (R3.8): se abre la hoja, que al confirmar
-// repite lo que se estaba haciendo. Dice si era eso.
-export function confirmFirst(users: Users, result: Failed, retry: () => unknown): boolean {
-  if (result.error !== 'confirm-first') return false;
-  users.askToConfirm(retry);
-  return true;
-}
-
-// Cualquier otro rechazo: con una versión vieja, la persona como quedó; si ya no está (`target`: en
-// las rutas de una sesión o un celular, un 404 puede ser solo de ellos), se saca; y se dice.
-export function refused(users: Users, result: Failed, target?: string): void {
-  const person = (result as { person?: PersonRow }).person;
-  if (person) users.put(person);
-  if (result.error === 'not-found' && target) {
-    users.select(undefined);
-    users.drop(target);
-  }
-  showToast(refusalText(result.error), 'triangle-alert');
-}
-
-// Lo que pide confirmar quién es abre la hoja, que al confirmar repite `again`; cualquier otro
-// rechazo se atiende con `refused`. Dice si se abrió la hoja.
-export function confirmOrRefuse(
-  users: Users,
-  result: Failed,
-  again: () => unknown,
-  target?: string,
-): boolean {
-  if (confirmFirst(users, result, again)) return true;
-  refused(users, result, target);
-  return false;
-}
-
-// El texto de un rechazo; uno que no tiene el suyo, el de siempre.
-export const refusalText = (error: string) =>
-  refusalTexts[error as keyof typeof refusalTexts] ?? somethingFailed;

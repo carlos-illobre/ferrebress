@@ -123,3 +123,14 @@
     color: var(--text-2);
   }
 }
+
+/* La superficie de una tarjeta de «Mostrador»: blanca, con borde, esquinas de tarjeta y el relieve
+   más bajo. Cada pantalla le pone lo demás (y lo cambia si hace falta, porque gana su capa). */
+@layer pieces {
+  .surface {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+}

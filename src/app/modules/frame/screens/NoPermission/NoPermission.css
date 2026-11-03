@@ -8,10 +8,6 @@
     max-width: 840px;
     margin: var(--s12) auto;
     padding: var(--s8);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-1);
   }
 
   .no-permission-door {
@@ -128,7 +124,7 @@
   .no-permission-yours .pill {
     padding: 2px var(--s3);
     border: 1px solid var(--border-strong);
-    border-radius: 999px;
+    border-radius: var(--radius-round);
     color: var(--ink);
   }
 

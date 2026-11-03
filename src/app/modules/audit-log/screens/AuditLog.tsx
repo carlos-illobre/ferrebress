@@ -54,7 +54,7 @@ function Detail({ page }: { page: AuditPage }) {
       </Sheet>
     ) : null;
   return (
-    <aside class="audit-detail" aria-label={texts.title}>
+    <aside class="surface audit-detail" aria-label={texts.title}>
       {event ? (
         <DetailBody event={event} today={today} />
       ) : (
@@ -75,7 +75,7 @@ function Body() {
       <div class="audit-main">
         <Summary today={log.page.today} />
         <Filters />
-        <div class="audit-list">
+        <div class="surface audit-list">
           {log.page.total === 0 ? <Empty /> : <Ledger page={log.page} />}
           <Pager />
         </div>

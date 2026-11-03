@@ -83,7 +83,7 @@
   }
   .manual-task.active .manual-task-icon {
     background: var(--pine);
-    color: #fff;
+    color: var(--on-dark);
   }
   .manual-task.all-steps .manual-task-icon {
     background: var(--sunken);
@@ -111,7 +111,7 @@
     gap: 6px;
     height: 32px;
     padding: 0 var(--s1) 0 var(--s3);
-    border-radius: 99px;
+    border-radius: var(--radius-round);
     background: var(--sunken);
     color: var(--text-2);
     font-size: 14px;

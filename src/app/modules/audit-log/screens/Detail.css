@@ -4,10 +4,6 @@
   .audit-detail {
     min-height: 0;
     overflow: auto;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    background: var(--surface);
-    box-shadow: var(--shadow-1);
   }
   .audit-detail-body {
     display: grid;
@@ -19,7 +15,7 @@
   }
   .audit-pill {
     padding: 2px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-round);
     font-size: 14px;
     font-weight: 700;
   }

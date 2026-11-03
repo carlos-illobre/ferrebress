@@ -7,10 +7,6 @@
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    background: var(--surface);
-    box-shadow: var(--shadow-1);
   }
   .audit-ledger {
     flex: 1;

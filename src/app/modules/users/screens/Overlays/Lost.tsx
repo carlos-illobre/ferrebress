@@ -9,7 +9,8 @@ import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { usersApi } from '../../api.ts';
 import { nowMs, sinceOf } from '../../logic.ts';
-import { refused, type Users, useUsersContext } from '../../state.ts';
+import { refused } from '../../refusals.ts';
+import { type Users, useUsersContext } from '../../state.ts';
 import { doneTexts, somethingFailed, dialogTexts as t } from '../../texts.ts';
 import './Overlays.css';
 

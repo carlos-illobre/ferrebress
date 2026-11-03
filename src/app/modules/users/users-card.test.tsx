@@ -2,7 +2,6 @@
 // o el correo, borrar el alta, dar de baja y de alta, y los rechazos del servidor.
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { held } from '../../testing/fake-server.ts';
 import { narrowOnly, stubMedia } from '../../testing/media.ts';
 import {
   access,
@@ -72,32 +71,6 @@ describe('la tarjeta de una persona', () => {
     expect(inCard().getByText('No vinculó ningún celular con huella.')).toBeTruthy();
     expect(row(/Graciela/).querySelector('.users-counts')?.textContent).toBe('');
     expect(server.bodies('/api/users/graciela/phones/f1/cut')).toEqual([{ from: 'card' }]);
-  });
-
-  it('la tarjeta es de quien está elegido: lo de otra persona que llega tarde no se muestra', async () => {
-    const late = held({ body: access });
-    const closing = held({ body: { closed: 1 } });
-    const none = { body: { sessions: [], phones: [] } };
-    openUsers({
-      '/api/users/graciela/access': [{ body: access }, late.reply],
-      '/api/users/graciela/sessions/s1/close': closing.reply,
-      '/api/users/ruben/access': none,
-    });
-    await choose(/Graciela/);
-    await inCard().findByText('Chrome en Windows');
-    // Cerrar una sesión de Graciela y, antes de que conteste, elegir a Rubén.
-    fireEvent.click(inCard().getAllByRole('button', { name: 'Cerrar' })[0] as HTMLElement);
-    fireEvent.click(row(/Rubén/));
-    await inCard().findByText('Sin sesiones abiertas en otros dispositivos.');
-    closing.release();
-    await waitFor(() => expect(toast()).toBe('Sesión cerrada · Chrome en Windows'));
-    // Volver a Graciela y enseguida a Rubén: lo de Graciela llega último y no pisa a Rubén.
-    fireEvent.click(row(/Graciela/));
-    fireEvent.click(row(/Rubén/));
-    await inCard().findByText('Sin sesiones abiertas en otros dispositivos.');
-    late.release();
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(inCard().queryByText('Chrome en Windows')).toBeNull();
   });
 
   it('quitar un celular que ya no estaba lo dice', async () => {

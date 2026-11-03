@@ -28,6 +28,8 @@
   --border: #e6e2d8;
   --border-strong: #cec8ba;
   --ink: #1a1d1b;
+  /* El texto sobre un fondo oscuro o de color (pino, naranja, rojo). */
+  --on-dark: #ffffff;
   --text-2: #545955;
   --text-3: #6b706b;
 
@@ -75,6 +77,8 @@
   --radius: 12px;
   --radius-card: 16px;
   --radius-sheet: 24px;
+  /* Las pastillas y los círculos: tan redondo como dé. */
+  --radius-round: 999px;
 
   /* Relieve: tres niveles */
   --shadow-1: 0 1px 2px rgb(26 29 27 / 0.05), 0 1px 1px rgb(26 29 27 / 0.03);

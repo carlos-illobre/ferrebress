@@ -21,7 +21,7 @@
   padding: 4px 16px 5px;
   border-radius: 0 0 12px 12px;
   background: #d6007a;
-  color: #fff;
+  color: var(--on-dark);
   font-size: 14px;
   font-weight: 750;
   line-height: 1.2;

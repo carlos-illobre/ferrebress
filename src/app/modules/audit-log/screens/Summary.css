@@ -11,10 +11,6 @@
     align-items: center;
     gap: var(--s3);
     padding: 10px var(--s3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    background: var(--surface);
-    box-shadow: var(--shadow-1);
     font: inherit;
     text-align: left;
     color: var(--text-2);

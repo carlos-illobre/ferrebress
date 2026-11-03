@@ -26,7 +26,11 @@ export function PhoneMore() {
           <LightText />
         </button>
       </header>
-      <section class="phone-more-card phone-more-person" aria-label={texts.session} data-private="">
+      <section
+        class="surface phone-more-card phone-more-person"
+        aria-label={texts.session}
+        data-private=""
+      >
         <span class="avatar">{initials(person.name)}</span>
         <div>
           <b>{person.name}</b>
@@ -44,7 +48,7 @@ function MoreList() {
   const { person } = useFrame();
   return (
     <div>
-      <ul class="phone-more-card phone-more-group">
+      <ul class="surface phone-more-card phone-more-group">
         {moreFor(person).map((option) => (
           <Fragment key={option.id}>
             <li>
@@ -124,7 +128,7 @@ function SignOutRow() {
   return (
     <button
       type="button"
-      class="phone-more-card phone-more-option phone-more-sign-out"
+      class="surface phone-more-card phone-more-option phone-more-sign-out"
       aria-busy={busy}
       onClick={() => void run(texts.signingOut, async () => signOut())}
     >

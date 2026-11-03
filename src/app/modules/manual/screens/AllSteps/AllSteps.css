@@ -41,10 +41,6 @@
     max-width: 720px;
     margin-bottom: var(--s3);
     padding: var(--s5) var(--s6);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-1);
   }
   .manual-all-part::after {
     content: "";

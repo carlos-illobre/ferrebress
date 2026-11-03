@@ -12,7 +12,7 @@
     padding: 10px 16px 10px 12px;
     border-radius: 14px;
     background: var(--pine);
-    color: #fff;
+    color: var(--on-dark);
     font-weight: 650;
     font-size: 15px;
     line-height: 20px;

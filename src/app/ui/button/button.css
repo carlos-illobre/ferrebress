@@ -47,7 +47,7 @@
   .button-action {
     background: var(--action);
     border-color: var(--action);
-    color: #fff;
+    color: var(--on-dark);
     box-shadow: var(--shadow-action);
   }
   .button-action:active {
@@ -56,7 +56,7 @@
   .button-dark {
     background: var(--pine);
     border-color: var(--pine);
-    color: #fff;
+    color: var(--on-dark);
     box-shadow: var(--shadow-2);
   }
   .button-danger {
@@ -75,7 +75,7 @@
     background: var(--error);
     border-color: var(--error);
     box-shadow: none;
-    color: #fff;
+    color: var(--on-dark);
   }
   .button-plain {
     background: transparent;
@@ -107,6 +107,6 @@
   .button-dark kbd {
     background: rgb(255 255 255 / 0.16);
     border-color: rgb(255 255 255 / 0.35);
-    color: #fff;
+    color: var(--on-dark);
   }
 }

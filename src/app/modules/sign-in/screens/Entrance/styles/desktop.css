@@ -26,7 +26,7 @@
       left: calc(80 / 1536 * 100%);
       top: calc(64 * var(--u));
       width: max(330px, calc(480 * var(--u)));
-      color: #fff;
+      color: var(--on-dark);
     }
     .brand-logo img {
       height: calc(69 * var(--u));
@@ -114,7 +114,7 @@
       align-items: center;
       gap: 6px;
       padding: 5px 12px;
-      border-radius: 999px;
+      border-radius: var(--radius-round);
       background: #fff;
       border: 1px solid var(--border);
       color: var(--ink);
@@ -150,7 +150,7 @@
     .seals {
       display: flex;
       list-style: none;
-      color: #fff;
+      color: var(--on-dark);
       mix-blend-mode: difference;
       font-size: 14px;
       line-height: 1.2;
@@ -212,7 +212,7 @@
       align-items: center;
       gap: 6px;
       padding: 4px 12px;
-      border-radius: 999px;
+      border-radius: var(--radius-round);
       background: var(--pine-soft);
       color: var(--pine-text);
       font-size: 14px;

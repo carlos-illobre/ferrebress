@@ -12,7 +12,8 @@ import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../../ui/toast/Toast.tsx';
 import { PhoneLight, registerWork } from '../../../../frame/index.ts';
 import { usersApi } from '../../../api.ts';
-import { refusalText, useUsersContext } from '../../../state.ts';
+import { refusalText } from '../../../refusals.ts';
+import { useUsersContext } from '../../../state.ts';
 import { somethingFailed } from '../../../texts.ts';
 import { type SaveOutcome, saveDraft } from '../../actions.ts';
 import {

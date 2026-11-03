@@ -50,10 +50,6 @@
     align-items: center;
     width: 100%;
     padding: 14px var(--s4);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    background: var(--surface);
-    box-shadow: var(--shadow-1);
     color: var(--ink);
     font: inherit;
     text-align: left;

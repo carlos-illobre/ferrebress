@@ -39,7 +39,7 @@ export function NoPermission({
     showToast(words.copied, 'copy');
   };
   return (
-    <section class="no-permission" aria-label={words.title(option.name)}>
+    <section class="surface no-permission" aria-label={words.title(option.name)}>
       <div class="no-permission-door" aria-hidden="true">
         <Icon name="lock" size="huge" />
       </div>

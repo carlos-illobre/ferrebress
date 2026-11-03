@@ -37,8 +37,10 @@ los valores son los mismos: `--fondo` es `--background`, `--hundido` `--sunken`,
 `--surface`, `--borde` `--border` (`-fuerte` es `-strong`), `--tinta` `--ink`, `--texto-2` `--text-2`,
 `--pino` `--pine`, `--accion` `--action`, `--urgente` `--urgent`, `--logro` `--success` (`-suave` es
 `-soft` y `-texto` es `-text`), `--e1`… `--s1`…, `--r` `--radius`, `--sombra-1` `--shadow-1`, `--curva`
-`--ease` y `--t` `--time`. Las piezas: `.btn` es `.button` (`-accion` `-action`, `-oscuro` `-dark`,
-`-fantasma` `-plain`), `.i` es `.icon` y la hoja, `.sheet`.
+`--ease` y `--t` `--time`. La aplicación suma `--on-dark` (el texto sobre un fondo oscuro o de
+color), `--radius-round` (pastillas y círculos), `--ring` y `--ring-error` (el anillo de un campo
+en el que se escribe). Las piezas: `.btn` es `.button` (`-accion` `-action`, `-oscuro` `-dark`,
+`-fantasma` `-plain`), `.i` es `.icon`, la hoja es `.sheet` y la tarjeta blanca, `.surface`.
 
 ## Paleta (cada color tiene un trabajo)
 

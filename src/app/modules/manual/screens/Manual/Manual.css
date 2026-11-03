@@ -83,7 +83,7 @@
     align-items: center;
     height: 24px;
     padding: 0 var(--s2);
-    border-radius: 999px;
+    border-radius: var(--radius-round);
     background: var(--sunken-2);
     color: var(--text-2);
     font-size: 14px;

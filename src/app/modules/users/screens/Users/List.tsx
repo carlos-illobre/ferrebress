@@ -76,7 +76,12 @@ function Counts({ person }: { person: PersonRow }) {
 function Row({ person }: { person: PersonRow }) {
   const users = useUsersContext();
   const noName = person.displayName === person.email;
-  const classes = ['users-row', !person.active && 'off', users.selected === person.id && 'chosen'];
+  const classes = [
+    'surface',
+    'users-row',
+    !person.active && 'off',
+    users.selected === person.id && 'chosen',
+  ];
   return (
     <button
       type="button"

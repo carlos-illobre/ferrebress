@@ -10,9 +10,9 @@
       margin-top: calc(44 * var(--u));
       padding: calc(14 * var(--u)) calc(16 * var(--u)) calc(14 * var(--u)) calc(28 * var(--u));
       border: 1px solid var(--sign-in-orange-strong);
-      border-radius: 999px;
+      border-radius: var(--radius-round);
       background: var(--sign-in-orange);
-      color: #fff;
+      color: var(--on-dark);
       font: inherit;
       font-size: max(16px, calc(20 * var(--u)));
       font-weight: 800;
@@ -32,7 +32,7 @@
     }
     .manual-soon {
       padding: 3px 10px;
-      border-radius: 999px;
+      border-radius: var(--radius-round);
       background: rgb(255 255 255 / 0.2);
       font-size: 13px;
       font-weight: 700;
@@ -40,7 +40,7 @@
     .manual kbd {
       background: rgb(255 255 255 / 0.18);
       border-color: rgb(255 255 255 / 0.4);
-      color: #fff;
+      color: var(--on-dark);
     }
     /* Con Alt, la tecla ocupa el lugar de «Pronto». */
     .show-keys .manual-soon {

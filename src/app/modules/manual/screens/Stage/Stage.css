@@ -75,7 +75,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    border-radius: 99px;
+    border-radius: var(--radius-round);
     border: 3px solid var(--marker);
   }
   .manual-ring::before {
@@ -90,7 +90,7 @@
     padding: var(--s1) 10px;
     border-radius: var(--radius-small);
     background: var(--marker);
-    color: #fff;
+    color: var(--on-dark);
     font-size: 14px;
     font-weight: 750;
     white-space: nowrap;
@@ -127,7 +127,7 @@
     padding: 0 10px;
     display: inline-flex;
     align-items: center;
-    border-radius: 99px;
+    border-radius: var(--radius-round);
     background: var(--surface);
     color: var(--text-2);
     font-size: 14px;
@@ -147,7 +147,7 @@
   .manual-veil-icon {
     width: 112px;
     height: 112px;
-    border-radius: 99px;
+    border-radius: var(--radius-round);
     display: grid;
     place-items: center;
     background: var(--surface);

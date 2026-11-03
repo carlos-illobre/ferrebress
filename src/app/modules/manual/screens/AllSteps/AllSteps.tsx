@@ -20,7 +20,11 @@ function Parts({ chapter, view }: { chapter: Chapter; view: View }) {
         .map((task) => (
           <article
             key={task.id}
-            class={task.id === view.state.allFrom ? 'manual-all-part flash' : 'manual-all-part'}
+            class={
+              task.id === view.state.allFrom
+                ? 'surface manual-all-part flash'
+                : 'surface manual-all-part'
+            }
             data-task={task.id}
             aria-labelledby={`manual-all-${task.id}`}
           >

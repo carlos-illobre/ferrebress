@@ -5,7 +5,8 @@ import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { showToast } from '../../ui/toast/Toast.tsx';
 import { usersApi } from './api.ts';
 import { roleTexts } from './person-roles-texts.ts';
-import { confirmOrRefuse, type Users } from './state.ts';
+import { confirmOrRefuse } from './refusals.ts';
+import type { Users } from './state.ts';
 
 type Result = Awaited<ReturnType<typeof usersApi.setRoles>>;
 

@@ -26,7 +26,12 @@ type Tile = {
 
 function TileButton({ tile }: { tile: Tile }) {
   return (
-    <button type="button" class={`users-tile ${tile.tone}`} disabled={tile.off} onClick={tile.act}>
+    <button
+      type="button"
+      class={`surface users-tile ${tile.tone}`}
+      disabled={tile.off}
+      onClick={tile.act}
+    >
       <Icon name={tile.icon} />
       <span>{tile.name}</span>
     </button>
@@ -99,7 +104,7 @@ export function Rows() {
   const sessions = users.access?.sessions.length ?? 0;
   const phones = users.access?.phones.length ?? 0;
   return (
-    <div class="users-link-rows phone-only">
+    <div class="surface users-link-rows phone-only">
       <Row icon="fingerprint" name={t.passkeyRow} act={() => scrollTo('users-phones')}>
         {t.passkeys(phones)}
       </Row>

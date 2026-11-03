@@ -151,7 +151,7 @@
       height: calc(38 * var(--u));
       border-radius: 50%;
       background: #2d8a5c;
-      color: #fff;
+      color: var(--on-dark);
       font-weight: 600;
       font-size: max(14px, calc(19 * var(--u)));
     }

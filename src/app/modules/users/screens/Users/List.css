@@ -55,7 +55,7 @@
     place-items: center;
     width: 40px;
     height: 40px;
-    border-radius: 999px;
+    border-radius: var(--radius-round);
     background: var(--sunken);
     color: var(--text-2);
     font-size: 14px;
@@ -81,7 +81,7 @@
     gap: 6px;
     height: 28px;
     padding: 0 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-round);
     background: var(--sunken);
     font-size: 14px;
     font-weight: 650;
@@ -119,10 +119,6 @@
     row-gap: 2px;
     width: 100%;
     padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    background: var(--surface);
-    box-shadow: var(--shadow-1);
     font: inherit;
     text-align: left;
     color: var(--ink);

@@ -167,7 +167,7 @@
     width: 46px;
     height: 26px;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--radius-round);
     background: var(--border-strong);
     cursor: pointer;
     transition: background var(--time) var(--ease);
