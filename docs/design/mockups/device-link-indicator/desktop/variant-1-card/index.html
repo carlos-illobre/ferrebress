@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>El indicador del vínculo · 1 · La ficha · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/route.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* ---------- El indicador, en el pie del lateral ---------- */
+  .ind { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); align-items: center; gap: 10px; width: 100%; padding: 8px 10px 8px 8px; border-radius: var(--r); border: 1px solid var(--borde); background: var(--superficie); box-shadow: var(--sombra-1); text-align: left; transition: transform var(--t-micro) var(--curva); }
+  .ind:active { transform: scale(.97); }
+  .ind[aria-expanded="true"] { border-color: var(--pino); box-shadow: 0 0 0 3px rgba(18, 56, 47, .12); }
+  .ind-ico { position: relative; width: 36px; height: 36px; border-radius: 10px; background: var(--hundido); display: grid; place-items: center; color: var(--texto-2); }
+  .ind-ico .dot { position: absolute; right: -3px; bottom: -3px; border: 2px solid var(--superficie); width: 14px; height: 14px; }
+  .ind[data-tone="pino"] .ind-ico .dot { border-width: 3px; }
+  .ind-txt { min-width: 0; display: grid; }
+  .ind-txt b { font-size: 14px; line-height: 18px; font-weight: 800; }
+  .ind-txt small { font-size: 14px; line-height: 18px; color: var(--texto-2); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ind[data-tone="logro"] .ind-txt b { color: var(--logro-texto); }
+  .ind[data-tone="urgente"] .ind-txt b { color: var(--urgente-texto); }
+  .ind[data-tone="error"] .ind-txt b { color: var(--error-texto); }
+  .ind[data-tone="pino"] .ind-txt b { color: var(--pino-texto); }
+  .ind .kbd { position: absolute; right: -6px; top: -10px; height: 22px; font-size: 14px; box-shadow: 0 0 0 2px var(--superficie); }
+  .cambia { animation: cambia 260ms var(--curva) both; }
+  @keyframes cambia { from { opacity: 0; transform: translateY(4px); } }
+
+  /* ---------- La ficha: flota al lado del indicador ---------- */
+  .ficha { position: fixed; left: 224px; bottom: 12px; width: 432px; z-index: 30; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-hoja); box-shadow: var(--sombra-3); overflow: hidden; opacity: 0; transform: translateX(-12px) scale(.98); transform-origin: left bottom; pointer-events: none; transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--curva); }
+  .ficha.abierta { opacity: 1; transform: none; pointer-events: auto; }
+  .ficha::before { content: ""; position: absolute; left: -7px; bottom: 190px; width: 14px; height: 14px; background: var(--superficie); border-left: 1px solid var(--borde); border-bottom: 1px solid var(--borde); transform: rotate(45deg); }
+  .hojas { display: grid; grid-template-columns: 100% 100%; transition: transform var(--t-nav) var(--curva); }
+  .ficha.codigo .hojas { transform: translateX(-100%); }
+  .pag { padding: 20px 24px 20px; min-width: 0; }
+  .cab-f { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .cab-f h2 { margin: 0; flex: 1; font-size: 20px; line-height: 26px; font-weight: 750; letter-spacing: -.01em; }
+  .cab-f .btn { gap: 6px; }
+  .ruta-caja { padding: 28px 16px 12px; border-radius: var(--r-tarjeta); background: var(--fondo); }
+  .frase { margin: 16px 0 0; display: grid; gap: 8px; }
+  .frase p { margin: 0; font-size: 15px; line-height: 22px; color: var(--tinta); }
+  .datos { margin: 16px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--borde); }
+  .datos li { display: grid; grid-template-columns: 20px 112px minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--borde); font-size: 14px; line-height: 20px; }
+  .datos li .i { color: var(--texto-3); margin-top: 0; width: 18px; height: 18px; }
+  .datos .et { color: var(--texto-2); font-weight: 600; }
+  .datos .va { font-weight: 700; }
+  .dura-barra { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .dura-barra .barra { flex: 1; margin: 0; }
+  .dura-barra small { font-size: 14px; color: var(--texto-2); font-weight: 650; white-space: nowrap; }
+  .acciones-f { display: grid; gap: 8px; margin-top: 16px; }
+  .acciones-f .btn-accion { width: 100%; }
+  .acciones-f .btn-accion .kbd { margin-left: 4px; }
+  .filas-a { display: grid; border: 1px solid var(--borde); border-radius: var(--r); overflow: hidden; }
+  .fila-a { display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 12px; border: 0; background: var(--superficie); font-size: 15px; font-weight: 700; color: var(--tinta); text-align: left; transition: background var(--t-micro); }
+  .fila-a + .fila-a { border-top: 1px solid var(--borde); }
+  .fila-a:hover { background: var(--fondo); }
+  .fila-a .i { color: var(--texto-2); }
+  .fila-a .kbd { margin-left: auto; height: 22px; min-width: 22px; }
+  .fila-a.peligro { color: var(--error-texto); }
+  .fila-a.peligro .i { color: var(--error-texto); }
+  .aviso { margin-top: 12px; }
+  .aviso[hidden] { display: none; }
+  .como { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: paso; }
+  .como li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+  .como li::before { counter-increment: paso; content: counter(paso); width: 24px; height: 24px; border-radius: 99px; background: var(--pino-suave); color: var(--pino-texto); font-weight: 800; display: grid; place-items: center; font-size: 14px; }
+  .como b { color: var(--tinta); }
+
+  /* ---------- El código para vincular ---------- */
+  .qr-caja { position: relative; width: 236px; margin: 4px auto 0; padding: 14px; border-radius: 20px; background: #fff; border: 1px solid var(--borde); box-shadow: var(--sombra-2); }
+  .qr-caja svg { display: block; width: 100%; height: auto; transition: opacity var(--t) var(--curva), transform var(--t) var(--curva); }
+  .qr-caja.renueva svg { opacity: 0; transform: scale(.94); }
+  .qr-caja .iso { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 12px; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 4px #fff; }
+  .qr-caja .iso img { width: 34px; height: 34px; }
+  .qr-listo { position: absolute; inset: 0; border-radius: 20px; background: var(--logro-suave); display: grid; place-items: center; opacity: 0; transform: scale(.96); transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--rebote); }
+  .qr-listo svg { width: 96px; height: 96px; color: var(--logro); }
+  .qr-listo path { stroke-dasharray: 30; stroke-dashoffset: 30; }
+  .qr-caja.listo .qr-listo { opacity: 1; transform: none; }
+  .qr-caja.listo .qr-listo path { animation: tilde 300ms var(--curva) 120ms forwards; }
+  @keyframes tilde { to { stroke-dashoffset: 0; } }
+  .renueva-en { width: 236px; margin: 12px auto 0; display: grid; gap: 6px; }
+  .renueva-en .fila { display: flex; justify-content: space-between; white-space: nowrap; font-size: 14px; font-weight: 650; color: var(--texto-2); }
+  .renueva-en .riel { height: 6px; border-radius: 99px; background: var(--hundido-2); overflow: hidden; }
+  .renueva-en .riel b { display: block; height: 100%; width: 100%; background: var(--pino); border-radius: 99px; transform-origin: left; }
+  .espera { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; font-size: 14px; font-weight: 700; color: var(--pino-texto); }
+  .simular { display: block; margin: 8px auto 0; border: 0; background: none; color: var(--texto-3); font-size: 14px; font-weight: 600; text-decoration: underline dotted; }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <div class="lado-marca"><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button class="btn btn-fantasma" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <a class="nav-item activo" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <button class="ind" id="ind" aria-haspopup="dialog" aria-expanded="false" aria-controls="ficha">
+        <span class="ind-ico"><i class="i" data-i="smartphone"></i><span class="dot"></span></span>
+        <span class="ind-txt" id="ind-txt"><b></b><small></small></span>
+        <span class="kbd">Alt L</span>
+      </button>
+      <div class="luz"><span class="punto"></span>En línea · todo enviado</div>
+      <div class="persona"><div class="usuario"><span class="avatar">RP</span><div class="txt"><div style="font-weight:750;font-size:15px">Rubén Paredes</div><div class="t-detalle">Administrador</div></div></div><button class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <section class="pantalla"><div class="vacio" aria-hidden="true"></div></section>
+  </main>
+</div>
+
+<section class="ficha" id="ficha" role="dialog" aria-label="El vínculo con el celular">
+  <div class="hojas">
+    <div class="pag" id="pag-detalle"></div>
+    <div class="pag" id="pag-codigo">
+      <div class="cab-f">
+        <button class="btn btn-fantasma chico" id="volver"><i class="i i-s" data-i="arrow-left"></i>Volver <span class="kbd">Esc</span></button>
+        <h2 style="text-align:right">Vincular el celular</h2>
+      </div>
+      <div class="qr-caja" id="qr"><div id="qr-svg"></div><span class="iso"><img src="../../../../common/brand/isotype.svg" alt=""></span>
+        <div class="qr-listo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      </div>
+      <div class="renueva-en"><div class="fila"><span>Sirve una vez</span><span id="cuenta">Se renueva en 1:00</span></div><div class="riel"><b id="riel"></b></div></div>
+      <ol class="como">
+        <li><span>En el celular, abrí Ferrebress con <b>tu misma cuenta</b>.</span></li>
+        <li><span>Tocá el indicador de arriba y <b>«Leer el código»</b>, o apuntale con la cámara del teléfono.</span></li>
+        <li><span>Listo: el celular viene a esta pantalla.</span></li>
+      </ol>
+      <div class="aviso urgente" id="reemplaza" hidden><i class="i" data-i="triangle-alert"></i><span>Ya está vinculada con <b data-con></b>. Si lo lee otro celular, lo reemplaza: el celular pregunta antes.</span></div>
+      <div class="espera" data-tone="pino"><span class="dot"></span>Esperando que el celular lo lea…</div>
+      <button class="simular" id="simular">Maqueta: el celular leyó el código</button>
+    </div>
+  </div>
+</section>
+
+<div class="velo" id="velo"></div>
+<section class="dialogo" id="confirmar" role="alertdialog" aria-labelledby="conf-t">
+  <h2 id="conf-t">¿Desvincular el celular?</h2>
+  <p class="t-cuerpo" style="color:var(--texto-2)"><b style="color:var(--tinta)" data-con></b> deja de estar vinculado. Cada uno sigue en la pantalla en la que está; para volver a trabajar juntos hay que vincular de nuevo.</p>
+  <div class="pie-d"><button class="btn" id="conf-no">Cancelar <span class="kbd">Esc</span></button><button class="btn btn-rojo" id="conf-si"><i class="i i-s" data-i="unlink"></i>Desvincular <span class="kbd" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.35);color:#fff">Enter</span></button></div>
+</section>
+
+<script src="../../shared/link.js"></script>
+<script src="../../shared/route.js"></script>
+<script>
+(function () {
+  var ind = document.getElementById("ind"), ficha = document.getElementById("ficha"), det = document.getElementById("pag-detalle");
+  var velo = document.getElementById("velo"), conf = document.getElementById("confirmar");
+  var probando = false, fallo = false;
+
+  function paintInd(s) {
+    var st = V.STATES[s];
+    ind.setAttribute("data-tone", st.tone);
+    var t = document.getElementById("ind-txt");
+    t.querySelector("b").textContent = st.label;
+    t.querySelector("small").textContent = s === "sin" ? "Tocalo para vincular" : V.FACTS.con;
+    t.classList.remove("cambia"); void t.offsetWidth; t.classList.add("cambia");
+  }
+
+  function btn(a) {
+    var busy = a.id === "probar" && probando;
+    if (a.kind === "accion") return '<button class="btn btn-accion grande" data-a="' + a.id + '"' + (busy ? " disabled" : "") + '>' +
+      (busy ? '<span class="gira"><i class="i" data-i="refresh-cw"></i></span>Probando la conexión directa…' : '<i class="i" data-i="' + a.icon + '"></i>' + a.label) +
+      ' <span class="kbd">' + a.key + "</span></button>";
+    return '<button class="fila-a' + (a.kind === "peligro" ? " peligro" : "") + '" data-a="' + a.id + '"><i class="i" data-i="' + a.icon + '"></i>' + a.label + '<span class="kbd">' + a.key + "</span></button>";
+  }
+
+  function paintDetail(s) {
+    var st = V.STATES[s], html = "";
+    html += '<div class="cab-f"><h2>' + (s === "sin" ? "Trabajar con el celular" : "El vínculo con tu celular") + '</h2><button class="btn btn-fantasma chico" data-a="cerrar" aria-label="Cerrar"><i class="i i-s" data-i="x"></i><span class="kbd">Esc</span></button></div>';
+    html += '<div class="ruta-caja">' + V.route(s) + "</div>";
+    html += '<div class="frase"><span class="estado" data-tone="' + st.tone + '" style="justify-self:start"><span class="dot"></span>' + st.label + (s === "directo" ? " · por el Wi-Fi" : s === "servidor" ? " · por internet" : "") + "</span><p>" + st.long + "</p></div>";
+    html += '<div class="aviso urgente" id="fallo"' + (fallo && s === "servidor" ? "" : " hidden") + '><i class="i" data-i="triangle-alert"></i><span>No se pudo: la red sigue sin dejar la conexión directa. Siguen por el servidor; probá de nuevo si cambiaste de Wi-Fi.</span></div>';
+    if (s === "sin") {
+      html += '<ol class="como"><li><span>Tocá <b>«Vincular el celular»</b>: aparece un código.</span></li><li><span>Leelo con el celular, con tu misma cuenta adentro.</span></li><li><span>Desde ahí, lo que toques en uno se ve en el otro. No pide permisos.</span></li></ol>';
+    } else {
+      html += '<ul class="datos">' +
+        '<li><i class="i" data-i="smartphone"></i><span class="et">Vinculado con</span><span class="va">' + V.FACTS.con + "</span></li>" +
+        '<li><i class="i" data-i="calendar"></i><span class="et">Desde</span><span class="va">' + V.FACTS.desde.replace("Desde ayer", "Ayer") + "</span></li>" +
+        '<li><i class="i" data-i="timer"></i><span class="et">Cuánto dura</span><span><span class="va">Hasta el jueves 3 de diciembre, si no se usan juntos</span><span class="dura-barra"><span class="barra"><b style="width:100%"></b></span><small>30 de 30 días</small></span></span></li>' +
+        "</ul>";
+    }
+    var acts = V.actions(s), main = acts.filter(function (a) { return a.kind === "accion"; }), rest = acts.filter(function (a) { return a.kind !== "accion"; });
+    html += '<div class="acciones-f">' + main.map(btn).join("") + (rest.length ? '<div class="filas-a">' + rest.map(btn).join("") + "</div>" : "") + "</div>";
+    det.innerHTML = html;
+    pintarIconos(det);
+    V.fitRoute(det);
+  }
+
+  function paint(s) { paintInd(s); paintDetail(s); }
+  V.on(function (s) { paint(s); });
+
+  /* Abrir y cerrar la ficha */
+  function open() { ficha.classList.add("abierta"); ind.setAttribute("aria-expanded", "true"); requestAnimationFrame(function () { V.fitRoute(ficha); }); }
+  function close() { ficha.classList.remove("abierta", "codigo"); ind.setAttribute("aria-expanded", "false"); stopQR(); }
+  function isOpen() { return ficha.classList.contains("abierta"); }
+  ind.onclick = function () { isOpen() ? close() : open(); };
+  document.addEventListener("mousedown", function (e) { if (isOpen() && !ficha.contains(e.target) && !ind.contains(e.target) && !conf.contains(e.target) && !e.target.closest(".demo")) close(); });
+
+  /* El código: se renueva cada 60 segundos */
+  var seed = 3, left = 60, timer;
+  function drawQR() { document.getElementById("qr-svg").innerHTML = V.qr(seed); }
+  function tick() {
+    left--;
+    if (left <= 0) {
+      left = 60; seed++;
+      var q = document.getElementById("qr"); q.classList.add("renueva");
+      setTimeout(function () { drawQR(); q.classList.remove("renueva"); }, 200);
+    }
+    document.getElementById("cuenta").textContent = "Se renueva en 0:" + String(left).padStart(2, "0");
+    document.getElementById("riel").style.transform = "scaleX(" + (left / 60) + ")";
+  }
+  function startQR() {
+    left = 60; drawQR(); document.getElementById("qr").classList.remove("listo");
+    document.getElementById("cuenta").textContent = "Se renueva en 1:00";
+    document.getElementById("riel").style.transform = "none";
+    var r = document.getElementById("reemplaza"); r.hidden = !V.linked();
+    r.querySelector("[data-con]").textContent = V.FACTS.con;
+    clearInterval(timer); timer = setInterval(tick, 1000);
+  }
+  function stopQR() { clearInterval(timer); }
+  function showCode() { ficha.classList.add("codigo"); startQR(); }
+  document.getElementById("volver").onclick = function () { ficha.classList.remove("codigo"); stopQR(); };
+  function leido() {
+    stopQR();
+    document.getElementById("qr").classList.add("listo");
+    setTimeout(function () {
+      if (V.linked()) V.FACTS.con = "Chrome en Android";
+      V.set("directo", "vinculo");
+      ficha.classList.remove("codigo");
+      V.toast("Vinculados: el celular vino a esta pantalla");
+    }, 900);
+  }
+  document.getElementById("simular").onclick = leido;
+  document.getElementById("qr").onclick = leido;
+
+  /* Desvincular: pide confirmación */
+  function ask() { velo.classList.add("abierto"); conf.classList.add("abierto"); conf.querySelector("[data-con]").textContent = V.FACTS.con; setTimeout(function () { document.getElementById("conf-si").focus(); }, 50); }
+  function unask() { velo.classList.remove("abierto"); conf.classList.remove("abierto"); }
+  document.getElementById("conf-no").onclick = unask;
+  velo.onclick = unask;
+  document.getElementById("conf-si").onclick = function () { unask(); V.set("sin", "desvincular"); V.toast("Desvinculados: cada uno sigue en su pantalla", { icon: "unlink" }); };
+
+  function act(id) {
+    if (id === "cerrar") return close();
+    if (id === "vincular") return showCode();
+    if (id === "desconectar") { V.set("desconectado"); V.toast("Desconectados: cada uno sigue por su lado", { icon: "unplug" }); return; }
+    if (id === "reconectar") { V.set("directo"); V.toast("Reconectados: el celular vino a esta pantalla"); return; }
+    if (id === "desvincular") return ask();
+    if (id === "probar" && !probando) {
+      probando = true; fallo = false; paintDetail("servidor");
+      V.probar().then(function (ok) {
+        probando = false;
+        if (ok) { V.set("directo"); V.toast("Ahora van directo por el Wi-Fi del local", { icon: "zap" }); }
+        else { fallo = true; paintDetail(V.get()); var f = document.getElementById("fallo"); f.classList.add("sacude"); }
+      });
+    }
+  }
+  det.addEventListener("click", function (e) { var b = e.target.closest("[data-a]"); if (b) act(b.getAttribute("data-a")); });
+
+  /* Teclado: Alt L abre; adentro, cada botón con su letra; Esc vuelve o cierra */
+  V.keys(function (e) {
+    var k = e.key.toLowerCase();
+    if (conf.classList.contains("abierto")) {
+      if (k === "escape") unask();
+      if (k === "enter") { e.preventDefault(); document.getElementById("conf-si").click(); }
+      return;
+    }
+    if (e.altKey && k === "l") { e.preventDefault(); isOpen() ? close() : (open(), det.querySelector("button").focus()); return; }
+    if (!isOpen()) return;
+    if (k === "escape") { ficha.classList.contains("codigo") ? document.getElementById("volver").click() : close(); return; }
+    if (ficha.classList.contains("codigo")) return;
+    var a = V.actions(V.get()).filter(function (x) { return x.key.toLowerCase() === k; })[0];
+    if (a) { e.preventDefault(); act(a.id); }
+  });
+
+  if (new URLSearchParams(location.search).get("abierto") !== "no") setTimeout(open, 350);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+/* Variante 2 · La isla: el indicador flota arriba al centro, oscuro, y se abre en su lugar. */
+.isla { position: fixed; z-index: 30; left: calc(216px + (100vw - 216px) / 2); top: 12px; transform: translateX(-50%); display: grid; justify-items: center; color: #fff; }
+.celu .isla { position: absolute; left: 50%; top: 8px; }
+
+/* La píldora */
+.isla-pill { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 8px 0 14px; border: 0; border-radius: 999px; background: #121513; color: #fff; font-size: 15px; font-weight: 750; box-shadow: 0 10px 28px -10px rgba(18, 21, 19, .55); transition: transform var(--t-nav) var(--rebote), opacity var(--t) var(--curva); }
+.isla-pill:active { transform: scale(.96); }
+.isla-pill .sub { color: rgba(255,255,255,.6); font-weight: 600; font-size: 14px; }
+.isla-pill .dev { width: 28px; height: 28px; border-radius: 99px; background: rgba(255,255,255,.12); display: grid; place-items: center; }
+.isla-pill .kbd { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.25); color: #fff; height: 22px; margin-right: 2px; }
+.celu .isla-pill { height: 36px; padding: 0 6px 0 12px; gap: 8px; font-size: 14px; }
+.celu .isla-pill .dev { width: 24px; height: 24px; }
+.isla.abierta .isla-pill { opacity: 0; transform: scale(.8); pointer-events: none; }
+.isla .dot[data-tone="neutro"] { background: rgba(255,255,255,.5); color: rgba(255,255,255,.5); }
+.isla .dot[data-tone="pino"] { border-color: #8FD3B8; color: #8FD3B8; }
+.isla .dot[data-tone="logro"] { background: #3FD58C; color: #3FD58C; }
+
+/* El aviso vivo: cuando el estado cambia, la isla lo cuenta sola y se vuelve a achicar */
+.isla-aviso { position: absolute; top: 0; min-width: 360px; display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 14px; border-radius: 26px; background: #121513; box-shadow: 0 18px 40px -14px rgba(18, 21, 19, .6); opacity: 0; transform: scale(.6, .4); transform-origin: top center; pointer-events: none; transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--rebote); }
+.celu .isla-aviso { min-width: 0; width: 358px; }
+.isla-aviso.ver { opacity: 1; transform: none; pointer-events: auto; }
+.isla-aviso .ic { width: 36px; height: 36px; border-radius: 99px; display: grid; place-items: center; background: rgba(255,255,255,.12); flex: none; }
+.isla-aviso b { display: block; font-size: 15px; line-height: 20px; }
+.isla-aviso small { display: block; font-size: 14px; line-height: 18px; color: rgba(255,255,255,.65); font-weight: 600; }
+.isla-aviso .txt { flex: 1; min-width: 0; }
+.isla-aviso .btn { min-height: 36px; }
+
+/* La isla abierta */
+.isla-card { position: absolute; top: 0; width: 560px; padding: 20px 20px 18px; border-radius: 32px; background: #121513; color: #fff; box-shadow: 0 30px 70px -20px rgba(18, 21, 19, .65); opacity: 0; transform: scale(.4, .12); transform-origin: top center; pointer-events: none; transition: opacity 180ms var(--curva), transform var(--t-nav) var(--curva); }
+.celu .isla-card { width: 374px; padding: 16px 14px 16px; border-radius: 30px; }
+.isla.abierta .isla-card { opacity: 1; transform: none; pointer-events: auto; }
+.isla-card .fila1 { display: flex; align-items: center; gap: 10px; }
+.isla-card .fila1 .titulo { flex: 1; font-size: 22px; line-height: 28px; font-weight: 800; letter-spacing: -.02em; }
+.isla-card .fila1 .btn { background: rgba(255,255,255,.1); border: 0; color: #fff; box-shadow: none; }
+.isla-card .fila1 .kbd, .isla-card .ctl .kbd { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.25); color: #fff; }
+.isla-card .frase { margin: 6px 0 0; font-size: 15px; line-height: 22px; color: rgba(255,255,255,.75); font-weight: 500; }
+.celu .isla-card .frase { font-size: 15px; }
+
+/* La ruta, sobre oscuro */
+.isla-card .ruta-caja { margin-top: 14px; padding: 26px 8px 8px; border-radius: 20px; background: rgba(255,255,255,.06); }
+.isla-card .nodo-ico { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.12); box-shadow: none; color: #fff; }
+.isla-card .nodo small { color: rgba(255,255,255,.7); }
+.isla-card .ruta .lat { color: rgba(255,255,255,.7); }
+.isla-card .medio { border-color: #121513; }
+.isla-card .ruta[data-s="sin"] .otro .nodo-ico { border-color: rgba(255,255,255,.3); }
+.isla-card .ruta[data-s="desconectado"] .cable, .isla-card .ruta[data-s="sin"] .cable { border-top-color: rgba(255,255,255,.3); }
+
+/* Los controles, como en un centro de control */
+.ctls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+.ctl { position: relative; display: grid; justify-items: center; gap: 6px; padding: 12px 4px 10px; border: 0; border-radius: 20px; background: rgba(255,255,255,.07); color: #fff; text-align: center; overflow: hidden; transition: transform var(--t-micro) var(--curva), opacity var(--t); }
+.ctl:active { transform: scale(.96); }
+.ctl[disabled] { opacity: .35; }
+.ctl-c { position: relative; z-index: 1; width: 52px; height: 52px; border-radius: 99px; background: rgba(255,255,255,.14); display: grid; place-items: center; transition: background var(--t), color var(--t), transform var(--t-nav) var(--rebote); }
+.ctl b { position: relative; z-index: 1; font-size: 14px; line-height: 18px; font-weight: 750; }
+.ctl small { position: relative; z-index: 1; font-size: 14px; line-height: 18px; color: rgba(255,255,255,.6); font-weight: 600; }
+.ctl .kbd { position: absolute; right: 8px; top: 8px; height: 22px; min-width: 22px; z-index: 1; }
+.ctl.on .ctl-c { background: var(--logro); color: #fff; }
+.ctl.ambar .ctl-c { background: var(--urgente); color: #2a1d00; }
+.ctl.naranja .ctl-c { background: var(--accion); color: #fff; }
+.ctl.rojo .ctl-c { background: rgba(215, 55, 42, .3); color: #FF9C93; }
+.ctl .llena { position: absolute; inset: 0; background: rgba(215, 55, 42, .55); transform: scaleY(0); transform-origin: bottom; }
+.ctl.manteniendo .llena { transform: scaleY(1); transition: transform 1.2s linear; }
+.ctl.manteniendo .ctl-c { transform: scale(.9); }
+.celu .ctls { grid-template-columns: 1fr 1fr; gap: 8px; }
+.celu .ctl { grid-template-columns: 48px 1fr; grid-template-rows: auto auto; justify-items: start; align-items: center; column-gap: 10px; row-gap: 0; padding: 10px; border-radius: 20px; text-align: left; }
+.celu .ctl-c { width: 48px; height: 48px; grid-row: 1 / 3; }
+.celu .ctl b { align-self: end; }
+.celu .ctl small { align-self: start; }
+
+/* Hoy, en una tira: cuánto estuvieron juntos y por dónde */
+.hoy { margin-top: 16px; display: grid; gap: 8px; }
+.hoy .et { display: flex; justify-content: space-between; font-size: 14px; font-weight: 650; color: rgba(255,255,255,.65); }
+.hoy .et b { color: #fff; }
+.hoy .tira { position: relative; height: 12px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+.hoy .tira i { position: absolute; top: 0; bottom: 0; border-radius: 99px; }
+.hoy .tira .v { background: var(--logro); } .hoy .tira .a { background: var(--urgente); } .hoy .tira .g { background: rgba(255,255,255,.3); } .hoy .tira .r { background: var(--error); }
+.hoy .horas { display: flex; justify-content: space-between; font-size: 14px; color: rgba(255,255,255,.45); font-weight: 600; line-height: 16px; }
+.datos-l { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.1); display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; line-height: 20px; color: rgba(255,255,255,.65); font-weight: 600; }
+.datos-l span { display: inline-flex; align-items: center; gap: 6px; }
+.datos-l b { color: #fff; }
+.mantener { margin-top: 10px; text-align: center; font-size: 14px; color: rgba(255,255,255,.55); font-weight: 600; }
+.mantener:empty { display: none; }
+.aviso-isla { margin-top: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(240, 162, 15, .16); color: #FFD27A; font-size: 14px; line-height: 20px; font-weight: 650; display: flex; gap: 10px; }
+
+/* El código, adentro de la isla */
+.cod { display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-items: center; margin-top: 14px; }
+.cod .qr { position: relative; width: 200px; height: 200px; padding: 10px; border-radius: 18px; background: #fff; }
+.cod .qr svg { width: 100%; height: 100%; display: block; transition: opacity var(--t); }
+.cod .qr .iso { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 10px; background: #fff; display: grid; place-items: center; }
+.cod .qr .iso img { width: 28px; height: 28px; }
+.cod .qr .ok { position: absolute; inset: 0; border-radius: 18px; background: var(--logro); color: #fff; display: grid; place-items: center; opacity: 0; transform: scale(.9); transition: opacity var(--t), transform var(--t-nav) var(--rebote); }
+.cod .qr.listo .ok { opacity: 1; transform: none; }
+.cod ol { margin: 0; padding: 0 0 0 18px; display: grid; gap: 8px; font-size: 15px; line-height: 21px; color: rgba(255,255,255,.8); }
+.cod .anillo { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 14px; font-weight: 700; color: rgba(255,255,255,.7); }
+.cod .anillo .riel { flex: 1; height: 6px; border-radius: 99px; background: rgba(255,255,255,.12); overflow: hidden; }
+.cod .anillo .riel b { display: block; height: 100%; background: #3FD58C; transform-origin: left; transition: transform 1s linear; }
+.simular { border: 0; background: none; color: rgba(255,255,255,.5); font-size: 14px; font-weight: 600; text-decoration: underline dotted; padding: 0; margin-top: 10px; }
+
+/* El visor de la cámara, adentro de la isla (celular) */
+.visor-isla { position: relative; margin-top: 14px; height: 300px; border-radius: 22px; overflow: hidden; background: #000; }
+.visor-isla .fondo { position: absolute; inset: -20px; background: url(shop.webp) center/cover; filter: blur(5px) brightness(.6); }
+.visor-isla .mon { position: absolute; left: 50%; top: 50%; width: 220px; height: 150px; margin: -80px 0 0 -110px; background: #f6f5f1; border: 8px solid #222; border-radius: 10px; display: grid; place-items: center; transform: rotate(-3deg); }
+.visor-isla .mon div { width: 100px; height: 100px; background: #fff; padding: 4px; }
+.visor-isla .mon svg { width: 100%; height: 100%; display: block; }
+.visor-isla .esq { position: absolute; left: 50%; top: 50%; width: 180px; height: 180px; margin: -95px 0 0 -90px; }
+.visor-isla .esq i { position: absolute; width: 34px; height: 34px; border: 4px solid #fff; transition: transform var(--t) var(--rebote), border-color var(--t); }
+.visor-isla .esq i:nth-child(1) { left: 0; top: 0; border-right: 0; border-bottom: 0; border-radius: 12px 0 0 0; }
+.visor-isla .esq i:nth-child(2) { right: 0; top: 0; border-left: 0; border-bottom: 0; border-radius: 0 12px 0 0; }
+.visor-isla .esq i:nth-child(3) { left: 0; bottom: 0; border-right: 0; border-top: 0; border-radius: 0 0 0 12px; }
+.visor-isla .esq i:nth-child(4) { right: 0; bottom: 0; border-left: 0; border-top: 0; border-radius: 0 0 12px 0; }
+.visor-isla.leido .esq i { border-color: #3FD58C; }
+.visor-isla.leido .esq i:nth-child(1) { transform: translate(30px, 30px); } .visor-isla.leido .esq i:nth-child(2) { transform: translate(-30px, 30px); }
+.visor-isla.leido .esq i:nth-child(3) { transform: translate(30px, -30px); } .visor-isla.leido .esq i:nth-child(4) { transform: translate(-30px, -30px); }
+.visor-isla .leyenda { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font-size: 14px; font-weight: 700; color: rgba(255,255,255,.85); }
+.pie-isla { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.pie-isla .btn-fantasma { color: #fff; background: rgba(255,255,255,.1); }

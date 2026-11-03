@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>El indicador del vínculo · 3 · El cable · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* ---------- El cable cuelga de arriba con su etiqueta: es el indicador ---------- */
+  .cuelga { position: absolute; left: 50%; top: 0; z-index: 20; display: grid; justify-items: center; transform: translateX(-50%); touch-action: none; }
+  .cuelga .hilo { width: 3px; height: 50px; border-radius: 2px; background: var(--c, var(--logro)); }
+  .cuelga.punteado .hilo { background: repeating-linear-gradient(to bottom, var(--c) 0 6px, transparent 6px 11px); }
+  .etiqueta { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px 0 8px; border-radius: 12px; border: 0; background: var(--superficie); box-shadow: var(--sombra-2); font-size: 14px; font-weight: 750; color: var(--tinta); transform-origin: top center; }
+  .etiqueta .ench { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; background: var(--tinta); color: #fff; }
+  .etiqueta .ench .i { width: 14px; height: 14px; }
+  @media (prefers-reduced-motion: no-preference) { .etiqueta.balancea { animation: balancea 900ms var(--rebote); } }
+  @keyframes balancea { 20% { transform: rotate(9deg); } 45% { transform: rotate(-6deg); } 70% { transform: rotate(3deg); } }
+  .p-cab { padding-top: 4px; }
+  .tira-ayuda { position: absolute; left: 50%; top: 96px; transform: translateX(-50%); font-size: 14px; font-weight: 650; color: var(--texto-3); white-space: nowrap; }
+
+  /* ---------- La escena: baja desde arriba, como una cortina ---------- */
+  .escena { position: absolute; inset: 0; z-index: 45; background: #0F1311; color: #fff; transform: translateY(-101%); transition: transform var(--t-nav) var(--curva); overflow: hidden; }
+  .escena.abierta { transform: none; }
+  .esc-top { position: absolute; z-index: 2; left: 16px; right: 16px; top: 52px; }
+  .esc-top .fila { display: flex; align-items: center; gap: 10px; }
+  .esc-top .x { width: 44px; height: 44px; border-radius: 99px; border: 0; background: rgba(255,255,255,.12); color: #fff; display: grid; place-items: center; flex: none; }
+  .esc-top h1 { margin: 0; white-space: nowrap; font-size: 22px; line-height: 30px; font-weight: 800; letter-spacing: -.02em; flex: 1; }
+  .esc-top .estado { background: rgba(255,255,255,.1) !important; color: #fff !important; }
+  .esc-top .estado .dot[data-tone="logro"] { background: #3FD58C; color: #3FD58C; }
+  .esc-top p { margin: 12px 0 0; font-size: 15px; line-height: 22px; color: rgba(255,255,255,.72); }
+  .mon { position: absolute; left: 50%; top: 190px; width: 176px; height: 112px; margin-left: -88px; border-radius: 12px; border: 8px solid #2c312e; background: linear-gradient(160deg, #F4F2EC, #E3DFD5); box-shadow: 0 24px 48px -16px rgba(0,0,0,.6); transition: opacity var(--t); }
+  .mon::before { content: ""; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 26px; border-radius: 5px; background: #fff; }
+  .mon::after { content: ""; position: absolute; left: 50%; bottom: -30px; width: 50px; height: 22px; margin-left: -25px; background: #2c312e; border-radius: 0 0 8px 8px; }
+  .mon small { position: absolute; left: -60px; right: -60px; top: -30px; text-align: center; font-size: 14px; font-weight: 700; color: rgba(255,255,255,.7); }
+  body[data-link="esperando"] .mon, body[data-link="sininternet"] .mon { opacity: .35; }
+  body[data-link="sin"] .mon { background: transparent; border: 3px dashed rgba(255,255,255,.3); box-shadow: none; }
+  body[data-link="sin"] .mon::before, body[data-link="sin"] .mon::after { display: none; }
+  .dib { position: absolute; left: 0; right: 0; top: 0; height: 640px; }
+  .dib svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .nube { position: absolute; width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 99px; border: 3px solid #0F1311; display: grid; place-items: center; }
+  .enchufe { position: absolute; left: 50%; width: 44px; height: 60px; margin: -30px 0 0 -22px; border-radius: 12px; background: #fff; color: var(--tinta); border: 0; display: grid; place-items: center; touch-action: none; box-shadow: 0 10px 24px rgba(0,0,0,.4); transition: transform var(--t-nav) var(--rebote); }
+  .enchufe .i { width: 22px; height: 22px; }
+  .yo { position: absolute; left: 50%; top: 524px; width: 120px; margin-left: -60px; display: grid; justify-items: center; gap: 4px; font-size: 14px; font-weight: 700; color: rgba(255,255,255,.7); }
+  .yo .toma { width: 64px; height: 20px; border-radius: 6px 6px 12px 12px; background: #2c312e; }
+  .pulso { position: absolute; left: 0; top: 0; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 99px; opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .pulso.recto { animation: recto var(--dur) linear infinite; }
+    .pulso.rodea { animation: rodea var(--dur) linear infinite; }
+    .pulso.vuelve { animation-direction: reverse; }
+  }
+  @keyframes recto { 0% { transform: translate(var(--x), var(--y0)); opacity: 0; } 8%, 92% { opacity: 1; } 100% { transform: translate(var(--x), var(--y1)); opacity: 0; } }
+  @keyframes rodea { 0% { transform: translate(var(--x), var(--y0)); opacity: 0; } 6% { opacity: 1; } 32% { transform: translate(var(--x), var(--ya)); } 50% { transform: translate(var(--xh), var(--ym)); } 68% { transform: translate(var(--x), var(--yb)); } 94% { opacity: 1; } 100% { transform: translate(var(--x), var(--y1)); opacity: 0; } }
+  .nums { position: absolute; left: 16px; right: 16px; top: 626px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .nums div { padding: 10px; border-radius: 14px; background: rgba(255,255,255,.07); }
+  .nums b { display: block; font-size: 20px; line-height: 26px; font-weight: 800; }
+  .nums span { display: block; font-size: 14px; line-height: 18px; color: rgba(255,255,255,.6); font-weight: 600; }
+  .nums .verde b { color: #3FD58C; } .nums .ambar b { color: #FFC14D; }
+  .acc { position: absolute; left: 16px; right: 16px; bottom: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .acc .b { height: 52px; border-radius: 14px; border: 0; background: rgba(255,255,255,.1); color: #fff; font-size: 15px; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .acc .b.accion { background: var(--accion); grid-column: 1 / -1; }
+  .acc .b.rojo { color: #FF9C93; }
+  .acc .b[disabled] { opacity: .4; }
+  .pista { position: absolute; left: 24px; right: 24px; top: 574px; line-height: 20px; text-align: center; font-size: 14px; font-weight: 600; color: rgba(255,255,255,.5); }
+  .falla { position: absolute; left: 16px; right: 16px; top: 168px; padding: 8px 12px; border-radius: 12px; background: rgba(240,162,15,.18); color: #FFD27A; font-size: 14px; font-weight: 700; text-align: center; }
+  /* La cámara, en el lugar de la compu */
+  .visor { position: absolute; left: 24px; right: 24px; top: 172px; height: 330px; border-radius: 22px; overflow: hidden; opacity: 0; pointer-events: none; transition: opacity var(--t); background: #000; }
+  .escena.codigo .visor { opacity: 1; pointer-events: auto; }
+  .visor .fondo { position: absolute; inset: -20px; background: url(../../shared/shop.webp) center/cover; filter: blur(5px) brightness(.6); }
+  .visor .m { position: absolute; left: 50%; top: 50%; width: 220px; height: 150px; margin: -80px 0 0 -110px; background: #f6f5f1; border: 8px solid #222; border-radius: 10px; display: grid; place-items: center; transform: rotate(-3deg); }
+  .visor .m div { width: 100px; height: 100px; background: #fff; padding: 4px; }
+  .visor .m svg { width: 100%; height: 100%; display: block; }
+  .visor .esq { position: absolute; left: 50%; top: 50%; width: 180px; height: 180px; margin: -95px 0 0 -90px; }
+  .visor .esq i { position: absolute; width: 34px; height: 34px; border: 4px solid #fff; transition: transform var(--t) var(--rebote), border-color var(--t); }
+  .visor .esq i:nth-child(1) { left: 0; top: 0; border-right: 0; border-bottom: 0; border-radius: 12px 0 0 0; }
+  .visor .esq i:nth-child(2) { right: 0; top: 0; border-left: 0; border-bottom: 0; border-radius: 0 12px 0 0; }
+  .visor .esq i:nth-child(3) { left: 0; bottom: 0; border-right: 0; border-top: 0; border-radius: 0 0 0 12px; }
+  .visor .esq i:nth-child(4) { right: 0; bottom: 0; border-left: 0; border-top: 0; border-radius: 0 0 12px 0; }
+  .visor.leido .esq i { border-color: #3FD58C; }
+  .visor.leido .esq i:nth-child(1) { transform: translate(30px, 30px); } .visor.leido .esq i:nth-child(2) { transform: translate(-30px, 30px); }
+  .visor.leido .esq i:nth-child(3) { transform: translate(30px, -30px); } .visor.leido .esq i:nth-child(4) { transform: translate(-30px, -30px); }
+  .visor .ley { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font-size: 14px; font-weight: 700; }
+  .escena.codigo .dib, .escena.codigo .nums, .escena.codigo .pista, .escena.codigo > .acc { opacity: 0; pointer-events: none; }
+  .hoja-osc { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; padding: 20px 16px 28px; border-radius: 24px 24px 0 0; background: #1B201D; transform: translateY(105%); transition: transform var(--t-nav) var(--curva); }
+  .hoja-osc.abierta { transform: none; }
+  .hoja-osc h2 { margin: 0 0 6px; font-size: 20px; line-height: 26px; font-weight: 750; }
+  .hoja-osc p { margin: 0 0 16px; font-size: 15px; line-height: 22px; color: rgba(255,255,255,.7); }
+  .hoja-osc .acc { position: static; }
+</style>
+</head>
+<body class="celu-body">
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <header class="p-cab">
+    <img class="p-logo" src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="109" height="28">
+    <span class="avatar p-avatar">RP</span>
+  </header>
+  <div class="p-luz"><span class="punto"></span>En línea</div>
+  <main class="area"><div class="vacio" aria-hidden="true"></div></main>
+  <nav class="nav-inferior">
+    <a class="activo" data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+
+  <div class="cuelga" id="cuelga"><span class="hilo"></span><button class="etiqueta" id="etiqueta" aria-label="El vínculo con la computadora"></button></div>
+
+  <section class="escena" id="escena" role="dialog" aria-label="El vínculo con la computadora">
+    <div class="esc-top"><div class="fila"><button class="x" id="esc-x" aria-label="Cerrar"><i class="i" data-i="x"></i></button><h1 id="esc-h"></h1><span id="esc-e"></span></div><p id="esc-p"></p></div>
+    <div class="falla" id="falla" hidden>No se pudo: la red sigue sin dejar la directa</div>
+    <div class="dib" id="dib"><div class="mon" id="mon"><small id="mon-n"></small></div><div class="yo"><span class="toma"></span>Este celular</div></div>
+    <div class="visor" id="visor"><div class="fondo"></div><div class="m"><div id="cam-qr"></div></div><div class="esq"><i></i><i></i><i></i><i></i></div><div class="ley">Apuntá al código de la computadora</div></div>
+    <div class="pista" id="pista"></div>
+    <div class="nums" id="nums"></div>
+    <div class="acc" id="acc"></div>
+    <div class="hoja-osc" id="rem"><h2 id="rem-t"></h2><p>La otra computadora queda sin vincular.</p><div class="acc"><button class="b" id="rem-no">Cancelar</button><button class="b accion" style="grid-column:auto" id="rem-si">Reemplazar</button></div></div>
+  </section>
+</div>
+
+<script src="../../shared/link.js"></script>
+<script>
+(function () {
+  var esc = document.getElementById("escena"), dib = document.getElementById("dib"), cuelga = document.getElementById("cuelga"), et = document.getElementById("etiqueta");
+  var probando = false, prev = null, camT;
+  var COLOR = { directo: "#1E9E62", servidor: "#F0A20F", desconectado: "#9AA09B", esperando: "#17614E", sininternet: "#D7372A", sin: "#9AA09B" };
+  var DARK = { directo: "#3FD58C", servidor: "#FFC14D", desconectado: "rgba(255,255,255,.35)", esperando: "#8FD3B8", sininternet: "#FF8A7F", sin: "rgba(255,255,255,.35)" };
+  var DASH = { directo: "", servidor: "10 8", desconectado: "", esperando: "2 8", sininternet: "8 8", sin: "6 8" };
+  var MID = { directo: "wifi", servidor: "cloud", sininternet: "wifi-off", esperando: "clock" };
+  var MIDBG = { directo: ["#E2F4EA", "#11764A"], servidor: ["#FFF3D8", "#845400"], sininternet: ["#FCEAE7", "#AE281D"], esperando: ["#E3EEE8", "#17614E"] };
+  var CORTO = { esperando: "Esperando", sininternet: "Sin internet", servidor: "Por el servidor" };
+  var X = 195, Y0 = 334, Y1 = 486;
+
+  function paintTag(s) {
+    var st = V.STATES[s];
+    cuelga.style.setProperty("--c", COLOR[s]);
+    cuelga.classList.toggle("punteado", !!DASH[s]);
+    et.innerHTML = '<span class="ench"><i class="i" data-i="' + (s === "desconectado" || s === "sin" ? "plug" : "plug-zap") + '"></i></span><span class="dot" data-tone="' + st.tone + '"></span>' + (s === "sin" ? "Vincular" : (CORTO[s] || st.label));
+    pintarIconos(et);
+    et.classList.remove("balancea"); void et.offsetWidth; et.classList.add("balancea");
+  }
+
+  function paintEsc(s) {
+    var st = V.STATES[s];
+    document.getElementById("esc-h").textContent = s === "sin" ? "Sin compu" : "Con la compu";
+    document.getElementById("esc-e").innerHTML = '<span class="estado" data-tone="' + st.tone + '"><span class="dot" data-tone="' + st.tone + '"></span>' + (CORTO[s] || st.label) + "</span>";
+    document.getElementById("esc-p").textContent = st.short;
+    document.getElementById("mon-n").textContent = s === "sin" ? "Acá va tu compu" : V.FACTS.con;
+    dib.querySelectorAll("svg, .nube, .enchufe, .pulso").forEach(function (e) { e.remove(); });
+    var col = DARK[s], d, ym = (Y0 + Y1) / 2, plugY = s === "desconectado" ? Y1 + 10 : Y1 - 6;
+    if (s === "servidor") d = "M" + X + "," + Y0 + " V" + (ym - 60) + " C" + X + "," + (ym - 30) + " " + (X + 80) + "," + (ym - 30) + " " + (X + 80) + "," + ym + " C" + (X + 80) + "," + (ym + 30) + " " + X + "," + (ym + 30) + " " + X + "," + (ym + 60) + " V" + Y1;
+    else if (s === "desconectado") d = "M" + X + "," + Y0 + " V" + (Y1 - 40);
+    else if (s === "sin") d = "M" + X + "," + Y0 + " V" + (ym + 10) + " C" + X + "," + (ym + 50) + " " + (X - 30) + "," + (ym + 60) + " " + (X - 60) + "," + (ym + 70);
+    else d = "M" + X + "," + Y0 + " V" + Y1;
+    var h = '<svg viewBox="0 0 390 640"><path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="5" stroke-linecap="round" stroke-dasharray="' + DASH[s] + '"/></svg>';
+    if (s === "directo" || s === "servidor") {
+      var n = s === "directo" ? 4 : 2, dur = s === "directo" ? 1.1 : 3.4;
+      for (var k = 0; k < n; k++) h += '<i class="pulso ' + (s === "servidor" ? "rodea" : "recto") + (k % 2 ? " vuelve" : "") + '" style="--x:' + X + "px;--y0:" + Y0 + "px;--y1:" + (Y1 - 34) + "px;--ya:" + (ym - 60) + "px;--ym:" + ym + "px;--yb:" + (ym + 60) + "px;--xh:" + (X + 80) + "px;--dur:" + dur + "s;animation-delay:" + (k * dur / n) + "s;background:" + col + '"></i>';
+    }
+    if (MID[s]) h += '<button class="nube" data-a="' + (s === "servidor" ? "probar" : "") + '" style="left:' + (s === "servidor" ? X + 80 : X) + "px;top:" + ym + "px;background:" + MIDBG[s][0] + ";color:" + MIDBG[s][1] + '"><i class="i" data-i="' + (probando ? "refresh-cw" : MID[s]) + '"></i></button>';
+    if (s === "sin") h += '<button class="enchufe" data-a="vincular" style="left:' + (X - 60) + "px;top:" + (ym + 76) + 'px;transform:rotate(-35deg)"><i class="i" data-i="plug"></i></button>';
+    else h += '<button class="enchufe" id="ench" style="top:' + plugY + 'px"><i class="i" data-i="' + (s === "desconectado" ? "plug" : "plug-zap") + '"></i></button>';
+    dib.insertAdjacentHTML("beforeend", h);
+    pintarIconos(dib);
+    if (probando) { var nb = dib.querySelector(".nube svg"); if (nb) nb.classList.add("gira"); }
+    bindPlug(document.getElementById("ench"));
+
+    document.getElementById("pista").textContent = s === "sin" ? "Tocá el enchufe suelto y leé el código de la compu" : s === "desconectado" ? "Subí el enchufe para reconectar" : "Bajá el enchufe para desconectar. Cruzá el cable con el dedo para desvincular.";
+    var MS = V.ROUTE[s] ? [V.ROUTE[s].ms + " ms", s === "directo" ? "verde" : "ambar"] : ["—", ""];
+    document.getElementById("nums").innerHTML = s === "sin" ? "" : '<div class="' + MS[1] + '"><b>' + MS[0] + "</b><span>Cada toque</span></div>" +
+      '<div class="' + (s === "servidor" ? "ambar" : s === "directo" ? "verde" : "") + '"><b>' + (s === "servidor" ? "38 MB" : "0 MB") + "</b><span>Internet hoy</span></div>" +
+      "<div><b>30 días</b><span>Hasta el 3/12</span></div>";
+    var a = "";
+    if (s === "sin") a = '<button class="b accion" data-a="vincular"><i class="i" data-i="scan-qr-code"></i>Leer el código</button>';
+    else {
+      if (s === "servidor") a += '<button class="b accion" data-a="probar"' + (probando ? " disabled" : "") + '><i class="i" data-i="zap"></i>' + (probando ? "Probando…" : "Probar conexión directa") + "</button>";
+      if (s === "desconectado") a += '<button class="b accion" data-a="reconectar"><i class="i" data-i="plug-zap"></i>Reconectar</button>';
+      a += '<button class="b" data-a="vincular"><i class="i" data-i="scan-qr-code"></i>Leer código</button><button class="b rojo" data-a="desvincular"><i class="i" data-i="scissors"></i>Desvincular</button>';
+    }
+    document.getElementById("acc").innerHTML = a;
+    pintarIconos(document.getElementById("acc"));
+  }
+
+  V.on(function (s) { document.getElementById("falla").hidden = true; paintTag(s); paintEsc(s); });
+
+  function openEsc() { esc.classList.add("abierta"); }
+  function closeEsc() { esc.classList.remove("abierta", "codigo"); clearTimeout(camT); document.getElementById("rem").classList.remove("abierta"); }
+  document.getElementById("esc-x").onclick = closeEsc;
+
+  /* La etiqueta: tocarla o tirarla hacia abajo abre la escena */
+  var ty = null;
+  et.addEventListener("pointerdown", function (e) { ty = e.clientY; et.setPointerCapture(e.pointerId); });
+  et.addEventListener("pointermove", function (e) { if (ty === null) return; var dy = Math.max(0, Math.min(80, e.clientY - ty)); cuelga.style.transform = "translate(-50%, " + dy + "px)"; });
+  et.addEventListener("pointerup", function () { ty = null; cuelga.style.transform = ""; openEsc(); });
+
+  /* Subir y bajar el enchufe */
+  function bindPlug(el) {
+    if (!el) return;
+    var y0 = null, dy = 0;
+    el.addEventListener("pointerdown", function (e) { y0 = e.clientY; dy = 0; el.setPointerCapture(e.pointerId); el.style.transition = "none"; e.stopPropagation(); });
+    el.addEventListener("pointermove", function (e) { if (y0 === null) return; dy = e.clientY - y0; el.style.transform = "translateY(" + Math.max(-80, Math.min(80, dy)) + "px)"; });
+    el.addEventListener("pointerup", function () {
+      if (y0 === null) return; y0 = null; el.style.transition = ""; el.style.transform = "";
+      var s = V.get();
+      if (Math.abs(dy) < 6) return act(s === "desconectado" ? "reconectar" : "desconectar");
+      if (s !== "desconectado" && dy > 30) act("desconectar");
+      else if (s === "desconectado" && dy < -30) act("reconectar");
+    });
+  }
+
+  /* Cortar: un trazo de lado a lado que cruza el cable */
+  var cut = null;
+  dib.addEventListener("pointerdown", function (e) { if (e.target.closest("button") || !V.linked()) return; cut = { x: e.clientX, y: e.clientY }; });
+  window.addEventListener("pointerup", function (e) {
+    if (!cut) return;
+    var r = dib.getBoundingClientRect(), lx = r.left + X, y = e.clientY - r.top;
+    if (((cut.x < lx && e.clientX > lx) || (cut.x > lx && e.clientX < lx)) && Math.abs(e.clientX - cut.x) > 80 && y > Y0 && y < Y1) act("desvincular");
+    cut = null;
+  });
+
+  /* Leer el código: la cámara aparece en el lugar de la compu */
+  function readCode() {
+    esc.classList.add("codigo");
+    document.getElementById("cam-qr").innerHTML = V.qr(9);
+    var v = document.getElementById("visor"); v.classList.remove("leido");
+    clearTimeout(camT);
+    camT = setTimeout(function () {
+      v.classList.add("leido"); V.vibrate([10, 40, 10]);
+      camT = setTimeout(function () {
+        if (V.linked()) { document.getElementById("rem-t").textContent = "Este celular está vinculado a " + V.FACTS.con + ". ¿Reemplazar?"; document.getElementById("rem").classList.add("abierta"); }
+        else { esc.classList.remove("codigo"); V.set("directo"); V.toast("Enchufados: fuiste a la pantalla de la compu", { icon: "plug-zap" }); }
+      }, 700);
+    }, 1900);
+  }
+  document.getElementById("rem-no").onclick = function () { document.getElementById("rem").classList.remove("abierta"); esc.classList.remove("codigo"); };
+  document.getElementById("rem-si").onclick = function () { document.getElementById("rem").classList.remove("abierta"); esc.classList.remove("codigo"); V.FACTS.con = "Edge en Windows"; V.set("sin", "x"); V.set("directo"); V.toast("Ahora estás enchufado a Edge en Windows", { icon: "plug-zap" }); };
+
+  function act(id) {
+    var s = V.get();
+    if (!id) return;
+    if (id === "vincular") return readCode();
+    if (id === "desconectar" && V.linked() && s !== "desconectado") { V.set("desconectado"); V.vibrate(20); V.toast("Desenchufado: cada uno por su lado", { icon: "unplug" }); return; }
+    if (id === "reconectar" && s === "desconectado") { V.set("directo"); V.vibrate([10, 40, 10]); V.toast("Enchufado: fuiste a la pantalla de la compu", { icon: "plug-zap" }); return; }
+    if (id === "desvincular" && V.linked()) { prev = s; V.set("sin"); V.vibrate(40); V.toast("Cortaste el cable: desvinculados", { icon: "scissors", undo: function () { V.set(prev); }, ms: 5000 }); return; }
+    if (id === "probar" && s === "servidor" && !probando) {
+      probando = true; paintEsc(s);
+      V.probar().then(function (ok) {
+        probando = false;
+        if (ok) { V.set("directo"); V.toast("El cable se acortó: directo por el Wi-Fi", { icon: "zap" }); }
+        else { paintEsc(V.get()); var f = document.getElementById("falla"); f.hidden = false; f.classList.remove("sacude"); void f.offsetWidth; f.classList.add("sacude"); }
+      });
+    }
+  }
+  esc.addEventListener("click", function (e) { var b = e.target.closest("[data-a]"); if (b) act(b.getAttribute("data-a")); });
+  V.keys(function (e) { if (e.key === "Escape") closeEsc(); });
+
+  if (new URLSearchParams(location.search).get("abierto") === "si") setTimeout(openEsc, 300);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+/* La ruta: los dos dispositivos y cómo se hablan, dibujado (variantes 1 y 2). */
+.ruta { display: grid; grid-template-columns: 96px 1fr 96px; align-items: start; gap: 4px; }
+.nodo { display: grid; justify-items: center; gap: 6px; text-align: center; }
+.nodo-ico { width: 52px; height: 52px; border-radius: 16px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-1); display: grid; place-items: center; color: var(--tinta); transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--rebote); }
+.nodo small { font-size: 14px; line-height: 18px; font-weight: 650; color: var(--texto-2); }
+.tramo { position: relative; height: 52px; }
+.cable { position: absolute; left: 0; right: 0; top: 25px; height: 0; border-top: 3px solid var(--logro); transition: opacity var(--t) var(--curva); }
+.cable.b { display: none; }
+.medio { position: absolute; left: 50%; top: 26px; width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 99px; display: grid; place-items: center; background: var(--logro-suave); color: var(--logro-texto); border: 3px solid var(--superficie); transition: transform var(--t-nav) var(--rebote); }
+.medio .i { width: 18px; height: 18px; }
+.pulsos { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.pulsos i { position: absolute; left: 0; top: 23px; width: 7px; height: 7px; border-radius: 99px; background: var(--logro); opacity: 0; }
+.ruta .lat { position: absolute; left: 50%; top: -6px; transform: translate(-50%, -100%); font-size: 14px; font-weight: 750; color: var(--texto-2); white-space: nowrap; }
+
+/* Directo: cable verde lleno, el Wi-Fi en el medio, los toques van y vienen rápido */
+@media (prefers-reduced-motion: no-preference) {
+  .ruta[data-s="directo"] .pulsos i { animation: viaja 1.1s linear infinite; }
+  .ruta[data-s="directo"] .pulsos i:nth-child(2) { animation-delay: .37s; }
+  .ruta[data-s="directo"] .pulsos i:nth-child(3) { animation-delay: .74s; animation-direction: reverse; }
+  .ruta[data-s="servidor"] .pulsos i { animation: viaja 3.2s linear infinite; background: var(--urgente); }
+  .ruta[data-s="servidor"] .pulsos i:nth-child(2) { animation-delay: 1.6s; animation-direction: reverse; }
+  .ruta[data-s="servidor"] .pulsos i:nth-child(3) { display: none; }
+  .ruta[data-s="esperando"] .otro .nodo-ico { animation: duerme 2.4s ease-in-out infinite; }
+}
+@keyframes viaja { 0% { transform: translateX(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateX(var(--largo, 220px)); opacity: 0; } }
+@keyframes duerme { 50% { opacity: .35; } }
+
+/* Por el servidor: cable ámbar a rayas, la nube en el medio */
+.ruta[data-s="servidor"] .cable { border-top: 3px dashed var(--urgente); }
+.ruta[data-s="servidor"] .medio { background: var(--urgente-suave); color: var(--urgente-texto); }
+
+/* Desconectado: el cable cortado en el medio, cada punta con su enchufe */
+.ruta[data-s="desconectado"] .cable { right: 58%; border-top-color: var(--borde-fuerte); }
+.ruta[data-s="desconectado"] .cable.b { display: block; left: 58%; right: 0; }
+.ruta[data-s="desconectado"] .medio { background: var(--hundido); color: var(--texto-2); }
+
+/* Esperando: el otro dormido */
+.ruta[data-s="esperando"] .cable { border-top: 3px dotted var(--pino-texto); opacity: .6; }
+.ruta[data-s="esperando"] .medio { background: var(--pino-suave); color: var(--pino-texto); }
+.ruta[data-s="esperando"] .otro .nodo-ico { opacity: .55; }
+
+/* Sin internet: cable rojo a rayas */
+.ruta[data-s="sininternet"] .cable { border-top: 3px dashed var(--error); opacity: .7; }
+.ruta[data-s="sininternet"] .medio { background: var(--error-suave); color: var(--error-texto); }
+
+/* Sin vincular: el otro es un hueco a rayas */
+.ruta[data-s="sin"] .cable { border-top: 3px dashed var(--borde-fuerte); }
+.ruta[data-s="sin"] .medio { background: var(--hundido); color: var(--texto-2); }
+.ruta[data-s="sin"] .otro .nodo-ico { background: transparent; border: 2px dashed var(--borde-fuerte); box-shadow: none; color: var(--texto-3); }

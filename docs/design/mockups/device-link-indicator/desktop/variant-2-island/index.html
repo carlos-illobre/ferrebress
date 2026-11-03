@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>El indicador del vínculo · 2 · La isla · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/route.css">
+<link rel="stylesheet" href="../../shared/island.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <div class="lado-marca"><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button class="btn btn-fantasma" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <a class="nav-item activo" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <div class="luz"><span class="punto"></span>En línea · todo enviado</div>
+      <div class="persona"><div class="usuario"><span class="avatar">RP</span><div class="txt"><div style="font-weight:750;font-size:15px">Rubén Paredes</div><div class="t-detalle">Administrador</div></div></div><button class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <section class="pantalla" style="padding-top:64px"><div class="vacio" aria-hidden="true"></div></section>
+  </main>
+</div>
+
+<!-- La isla: el indicador del vínculo, arriba al centro del área de trabajo -->
+<div class="isla" id="isla">
+  <button class="isla-pill" id="pill" aria-label="El vínculo con el celular"></button>
+  <div class="isla-aviso" id="aviso" role="status"></div>
+  <section class="isla-card" id="card" role="dialog" aria-label="El vínculo con el celular"></section>
+</div>
+
+<script src="../../shared/link.js"></script>
+<script src="../../shared/route.js"></script>
+<script src="../../shared/island.js"></script>
+</body>
+</html>

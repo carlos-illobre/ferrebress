@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>El indicador del vínculo · 2 · La isla · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<link rel="stylesheet" href="../../shared/route.css">
+<link rel="stylesheet" href="../../shared/island.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* La isla vive en la barra de estado, entre la hora y la batería */
+  .barra-estado { position: relative; }
+  .ruta { grid-template-columns: 88px 1fr 88px; }
+</style>
+</head>
+<body class="celu-body">
+<div class="celu">
+  <div class="barra-estado"><span>10:42</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <header class="p-cab">
+    <img class="p-logo" src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="109" height="28">
+    <span class="avatar p-avatar">RP</span>
+  </header>
+  <div class="p-luz"><span class="punto"></span>En línea</div>
+  <main class="area"><div class="vacio" aria-hidden="true"></div></main>
+  <nav class="nav-inferior">
+    <a class="activo" data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+
+  <div class="isla" id="isla">
+    <button class="isla-pill" id="pill" aria-label="El vínculo con la computadora"></button>
+    <div class="isla-aviso" id="aviso" role="status"></div>
+    <section class="isla-card" id="card" role="dialog" aria-label="El vínculo con la computadora"></section>
+  </div>
+</div>
+
+<script src="../../shared/link.js"></script>
+<script src="../../shared/route.js"></script>
+<script src="../../shared/island.js"></script>
+</body>
+</html>

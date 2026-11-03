@@ -1,0 +1,105 @@
+/* El indicador del vínculo · el marco de hoy (lenguaje «Mostrador», como app-frame/final) y las
+   piezas que comparten las seis maquetas. Se enlaza después de common/common.css. */
+
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { overflow: hidden; }
+:focus-visible { outline: 3px solid var(--pino-2); outline-offset: 2px; }
+
+/* ---------- Computadora: lateral de 216 px ---------- */
+.app { grid-template-columns: 216px 1fr; }
+.lateral { padding: 20px 8px 8px; position: relative; z-index: 3; }
+.lado-marca { display: flex; align-items: center; justify-content: space-between; height: 36px; margin: 0 0 21px 8px; }
+.lado-marca img { height: 36px; width: auto; }
+.lado-marca .btn-fantasma { min-height: 36px; width: 36px; padding: 0; color: var(--texto-2); }
+.nav-item { text-decoration: none; cursor: pointer; }
+.nav-item .i { color: var(--texto-2); }
+.nav-item.activo::before { display: none; }
+.lateral .pie { gap: 8px; }
+.lateral .luz { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 12px; border-radius: var(--r); background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; border: 0; text-align: left; width: 100%; }
+.lateral .luz .punto { width: 8px; height: 8px; border-radius: 99px; background: currentColor; flex: none; }
+.lateral .persona { border: 1px solid var(--borde); border-radius: var(--r-tarjeta); padding: 12px; display: grid; gap: 12px; background: var(--superficie); }
+.lateral .persona .usuario { padding: 0; }
+.lateral .persona .btn { width: 100%; }
+.cabecera .t-titulo { white-space: nowrap; }
+
+/* El área de trabajo, neutra: esta maqueta es solo del indicador */
+.vacio { height: 100%; border-radius: var(--r-tarjeta); background:
+  repeating-linear-gradient(0deg, transparent 0 63px, rgba(26,29,27,.025) 63px 64px),
+  repeating-linear-gradient(90deg, transparent 0 63px, rgba(26,29,27,.025) 63px 64px); }
+
+/* ---------- Celular: el marco de hoy ---------- */
+body.celu-body { width: 390px; }
+.celu .p-cab { display: flex; align-items: center; gap: 8px; padding: 4px 16px 0; min-height: 48px; }
+.celu .p-logo { height: 28px; width: auto; margin-right: auto; }
+.celu .p-avatar { width: 40px; height: 40px; }
+.celu .p-luz { display: inline-flex; align-items: center; gap: 8px; margin: 8px 16px 0; height: 32px; padding: 0 12px; align-self: flex-start; border-radius: 999px; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; }
+.celu .p-luz .punto { width: 8px; height: 8px; border-radius: 99px; background: currentColor; }
+.celu .area { flex: 1; min-height: 0; margin: 12px 16px 12px; }
+.nav-inferior a { cursor: pointer; }
+.nav-inferior a.activo::before { display: none; }
+
+/* ---------- El punto del estado: el mismo en las seis ---------- */
+.dot { position: relative; width: 10px; height: 10px; border-radius: 99px; flex: none; background: var(--texto-3); color: var(--texto-3); }
+.dot::after { content: ""; position: absolute; inset: -4px; border-radius: 99px; background: currentColor; opacity: 0; }
+[data-tone="logro"] .dot, .dot[data-tone="logro"] { background: var(--logro); color: var(--logro); }
+[data-tone="urgente"] .dot, .dot[data-tone="urgente"] { background: var(--urgente); color: var(--urgente); }
+[data-tone="error"] .dot, .dot[data-tone="error"] { background: var(--error); color: var(--error); }
+[data-tone="pino"] .dot, .dot[data-tone="pino"] { background: transparent; border: 2px solid var(--pino-texto); color: var(--pino-texto); }
+[data-tone="neutro"] .dot, .dot[data-tone="neutro"] { background: var(--texto-3); color: var(--texto-3); }
+@media (prefers-reduced-motion: no-preference) {
+  [data-tone="logro"] .dot::after, .dot[data-tone="logro"]::after { animation: latido 2.4s var(--curva) infinite; }
+  [data-tone="pino"] .dot::after, .dot[data-tone="pino"]::after { animation: latido 1.6s var(--curva) infinite; }
+}
+@keyframes latido { 0% { opacity: .35; transform: scale(.4); } 100% { opacity: 0; transform: scale(1.5); } }
+
+/* Pastilla del estado, teñida por su tono */
+.estado { display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; border-radius: 999px; font-size: 14px; font-weight: 700; white-space: nowrap; background: var(--hundido); color: var(--texto-2); }
+.estado[data-tone="logro"] { background: var(--logro-suave); color: var(--logro-texto); }
+.estado[data-tone="urgente"] { background: var(--urgente-suave); color: var(--urgente-texto); }
+.estado[data-tone="error"] { background: var(--error-suave); color: var(--error-texto); }
+.estado[data-tone="pino"] { background: var(--pino-suave); color: var(--pino-texto); }
+
+/* ---------- Velo, diálogo y hoja ---------- */
+.velo { position: fixed; inset: 0; background: rgba(26, 29, 27, .3); opacity: 0; pointer-events: none; transition: opacity var(--t-nav) var(--curva); z-index: 40; }
+.velo.abierto { opacity: 1; pointer-events: auto; }
+.celu .velo { position: absolute; }
+.dialogo { position: fixed; left: 50%; top: 50%; width: 440px; background: var(--superficie); border-radius: var(--r-hoja); box-shadow: var(--sombra-3); padding: 24px; z-index: 41; opacity: 0; transform: translate(-50%, calc(-50% + 12px)) scale(.98); pointer-events: none; transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--curva); }
+.dialogo.abierto { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
+.dialogo h2, .hoja h2 { margin: 0 0 4px; font-size: 20px; line-height: 26px; font-weight: 750; letter-spacing: -.01em; }
+.dialogo p, .hoja p.t-detalle { margin: 4px 0 0; }
+.dialogo .pie-d { display: flex; gap: 8px; justify-content: flex-end; margin-top: 24px; }
+.celu .hoja { position: absolute; left: 0; right: 0; bottom: 0; background: var(--superficie); border-radius: var(--r-hoja) var(--r-hoja) 0 0; box-shadow: var(--sombra-3); padding: 8px 16px 28px; z-index: 41; transform: translateY(105%); transition: transform var(--t-nav) var(--curva); }
+.celu .hoja.abierta { transform: none; }
+.celu .hoja .asa { width: 40px; height: 5px; border-radius: 99px; background: var(--hundido-2); margin: 0 auto 16px; }
+.celu .hoja .pie-h { display: grid; gap: 8px; margin-top: 20px; }
+.celu .hoja .pie-h .btn { width: 100%; }
+.btn-rojo { background: var(--error); border-color: var(--error); color: #fff; box-shadow: none; }
+
+/* ---------- Tostada ---------- */
+.tostadas { position: fixed; left: calc(216px + (100vw - 216px) / 2); bottom: 96px; transform: translateX(-50%); z-index: 60; display: grid; gap: 8px; justify-items: center; pointer-events: none; }
+.celu .tostadas { position: absolute; left: 50%; bottom: 92px; width: 358px; }
+.tostada { opacity: 0; transform: translateY(12px); transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--rebote); pointer-events: none; max-width: 560px; line-height: 20px; }
+.tostada.ver { opacity: 1; transform: none; }
+.tostada .i { color: #8FE0B4; }
+.tostada .deshacer { pointer-events: auto; margin-left: 8px; height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: rgba(255,255,255,.16); color: #fff; font-weight: 750; font-size: 14px; }
+
+/* ---------- Selector de la maqueta (fuera del diseño) ---------- */
+.demo { position: fixed; right: 0; top: 50%; z-index: 950; display: flex; align-items: center; transform: translateY(-50%); font-family: var(--letra); }
+.celu-body .demo { position: absolute; left: 362px; right: auto; top: 200px; }
+.celu-body .demo.abierta { left: auto; right: 0; }
+.demo-asa { width: 28px; height: 64px; border: 0; border-radius: 10px 0 0 10px; background: rgb(26 29 27 / .72); color: #fff; display: grid; place-items: center; padding: 0; box-shadow: 0 4px 12px rgb(0 0 0 / .2); }
+.demo-panel { display: none; gap: 4px; padding: 8px; border-radius: 12px 0 0 12px; background: rgb(26 29 27 / .9); color: #fff; box-shadow: 0 8px 24px rgb(0 0 0 / .25); }
+.demo.abierta .demo-panel { display: grid; }
+.demo.abierta .demo-asa { border-radius: 0; }
+.demo-panel p { margin: 0 4px 4px; font-size: 14px; font-weight: 700; opacity: .75; white-space: nowrap; }
+.demo-panel button { height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #fff; font-size: 14px; font-weight: 650; text-align: left; white-space: nowrap; }
+.demo-panel button[aria-pressed="true"] { background: rgb(255 255 255 / .18); }
+
+/* ---------- Movimiento común ---------- */
+@keyframes entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes funde { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gira { to { transform: rotate(360deg); } }
+@keyframes sacude { 20% { transform: translateX(-5px); } 45% { transform: translateX(4px); } 70% { transform: translateX(-2px); } }
+.gira { display: inline-block; animation: gira .9s linear infinite; }
+.sacude { animation: sacude 360ms var(--curva); }

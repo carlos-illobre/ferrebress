@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>El indicador del vínculo · 3 · El cable · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/frame.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  .pantalla { padding-bottom: 88px; }
+  /* ---------- El cable: corre por el pie del área de trabajo, de la compu al celular ---------- */
+  .riel { position: fixed; left: 216px; right: 0; bottom: 0; height: 80px; z-index: 20; pointer-events: none; }
+  .riel > * { pointer-events: auto; }
+  .riel svg.cab { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .puerto { position: absolute; left: 20px; bottom: 22px; width: 40px; height: 28px; border-radius: 8px; background: var(--superficie); border: 1px solid var(--borde-fuerte); box-shadow: var(--sombra-1); display: grid; place-items: center; color: var(--texto-2); }
+  .tel { position: absolute; right: 28px; bottom: -40px; width: 64px; height: 112px; border-radius: 16px; background: #1b1f1d; border: 3px solid #2c312e; box-shadow: var(--sombra-2); transform: rotate(8deg); transform-origin: bottom center; cursor: pointer; transition: transform var(--t-nav) var(--rebote), opacity var(--t); }
+  .tel::before { content: ""; position: absolute; left: 6px; right: 6px; top: 8px; bottom: 8px; border-radius: 10px; background: linear-gradient(160deg, #F4F2EC, #E3DFD5); transition: opacity var(--t); }
+  .tel:hover { transform: rotate(4deg) translateY(-6px); }
+  body[data-link="esperando"] .tel::before, body[data-link="sininternet"] .tel::before { opacity: .15; }
+  body[data-link="sin"] .tel { opacity: 0; transform: rotate(8deg) translateY(60px); pointer-events: none; }
+  .enchufe { position: absolute; bottom: 30px; width: 40px; height: 24px; margin-left: -20px; border-radius: 7px; background: var(--tinta); color: #fff; display: grid; place-items: center; cursor: grab; touch-action: none; transition: transform var(--t-nav) var(--rebote); box-shadow: var(--sombra-2); }
+  .enchufe .i { width: 16px; height: 16px; }
+  .enchufe:active { cursor: grabbing; }
+  .nube { position: absolute; bottom: 44px; width: 40px; height: 40px; margin-left: -20px; border-radius: 99px; border: 3px solid var(--fondo); display: grid; place-items: center; cursor: default; transition: transform var(--t-nav) var(--rebote); }
+  .nube.toca { cursor: pointer; }
+  .nube.toca:hover { transform: scale(1.08); }
+  .rotulo { position: absolute; right: 112px; bottom: 50px; display: flex; align-items: center; gap: 8px; }
+  .rotulo .kbd { height: 22px; }
+  .pulso { position: absolute; left: 0; top: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 99px; pointer-events: none; opacity: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .pulso.recto { animation: recto var(--dur) linear infinite; }
+    .pulso.rodea { animation: rodea var(--dur) linear infinite; }
+    .pulso.vuelve { animation-direction: reverse; }
+    .tel.cuelga { animation: cuelga 700ms var(--rebote); }
+    .cable-cae { animation: cae 520ms var(--curva-salida) forwards; }
+  }
+  @keyframes recto { 0% { transform: translate(var(--x0), var(--y)); opacity: 0; } 8%, 92% { opacity: 1; } 100% { transform: translate(var(--x1), var(--y)); opacity: 0; } }
+  @keyframes rodea { 0% { transform: translate(var(--x0), var(--y)); opacity: 0; } 6% { opacity: 1; } 35% { transform: translate(var(--xa), var(--y)); } 50% { transform: translate(var(--xm), var(--yh)); } 65% { transform: translate(var(--xb), var(--y)); } 94% { opacity: 1; } 100% { transform: translate(var(--x1), var(--y)); opacity: 0; } }
+  @keyframes cuelga { 30% { transform: rotate(14deg) translateY(-4px); } 60% { transform: rotate(5deg); } }
+  @keyframes cae { to { opacity: 0; transform: translateY(14px); } }
+  .tijera-guia { position: absolute; pointer-events: none; border-left: 2px dashed var(--error); opacity: 0; }
+
+  /* ---------- La escena: el cable se levanta y ocupa el área de trabajo ---------- */
+  .escena { position: fixed; left: 216px; right: 0; top: 0; bottom: 0; z-index: 25; background: #0F1311; color: #fff; overflow: hidden; transform: translateY(100%); transition: transform var(--t-nav) var(--curva); }
+  .escena.abierta { transform: none; }
+  .escena .tope { position: absolute; left: 40px; right: 40px; top: 28px; display: flex; align-items: flex-start; gap: 16px; }
+  .escena .tope .txt { flex: 1; }
+  .escena h1 { margin: 0; font-size: 28px; line-height: 34px; font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 12px; }
+  .escena .frase { margin: 6px 0 0; max-width: 640px; font-size: 16px; line-height: 24px; color: rgba(255,255,255,.72); }
+  .escena .x { background: rgba(255,255,255,.1); border: 0; color: #fff; box-shadow: none; }
+  .escena .kbd { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.25); color: #fff; }
+  .escena .estado { background: rgba(255,255,255,.1) !important; color: #fff !important; }
+  .escena .estado .dot[data-tone="logro"] { background: #3FD58C; color: #3FD58C; }
+
+  .esc-dib { position: absolute; left: 40px; right: 40px; top: 170px; height: 300px; }
+  .esc-dib svg.cab { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .compu { position: absolute; left: 30px; top: 50px; width: 230px; height: 150px; border-radius: 14px; border: 10px solid #2c312e; background: linear-gradient(160deg, #F4F2EC, #E3DFD5); box-shadow: 0 30px 60px -20px rgba(0,0,0,.6); }
+  .compu::after { content: ""; position: absolute; left: 50%; bottom: -46px; width: 70px; height: 36px; margin-left: -35px; background: #2c312e; border-radius: 0 0 10px 10px; }
+  .compu .mini { position: absolute; left: 8px; top: 8px; bottom: 8px; width: 34px; border-radius: 6px; background: #fff; }
+  .compu .mini::before { content: ""; position: absolute; left: 8px; top: 10px; width: 18px; height: 6px; border-radius: 3px; background: var(--pino); }
+  .compu small { position: absolute; left: 0; right: 0; bottom: -84px; text-align: center; font-size: 15px; font-weight: 700; color: rgba(255,255,255,.75); }
+  .celu-d { position: absolute; right: 60px; top: 10px; width: 120px; height: 230px; border-radius: 26px; border: 8px solid #2c312e; background: linear-gradient(160deg, #F4F2EC, #E3DFD5); box-shadow: 0 30px 60px -20px rgba(0,0,0,.6); transition: opacity var(--t), transform var(--t-nav) var(--rebote); }
+  .celu-d small { position: absolute; left: -40px; right: -40px; bottom: -36px; text-align: center; font-size: 15px; font-weight: 700; color: rgba(255,255,255,.75); }
+  .celu-d .mini { position: absolute; left: 8px; right: 8px; top: 14px; height: 10px; border-radius: 5px; background: var(--pino); opacity: .8; }
+  body[data-link="esperando"] .celu-d, body[data-link="sininternet"] .celu-d { opacity: .35; }
+  body[data-link="sin"] .celu-d { background: transparent; border: 3px dashed rgba(255,255,255,.3); box-shadow: none; }
+  body[data-link="sin"] .celu-d .mini { display: none; }
+  .esc-dib .enchufe { width: 56px; height: 34px; margin-left: -28px; border-radius: 9px; background: #fff; color: var(--tinta); bottom: auto; }
+  .esc-dib .enchufe .i { width: 20px; height: 20px; }
+  .esc-dib .nube { width: 56px; height: 56px; margin-left: -28px; bottom: auto; border-color: #0F1311; }
+  .esc-dib .nube .i { width: 24px; height: 24px; }
+  .esc-dib .pulso { width: 10px; height: 10px; margin: -5px 0 0 -5px; top: 0; bottom: auto; }
+  .esc-dib .qr-sitio { position: absolute; right: 30px; top: 30px; width: 184px; padding: 10px; border-radius: 18px; background: #fff; opacity: 0; transform: scale(.9); transition: opacity var(--t), transform var(--t-nav) var(--rebote); pointer-events: none; }
+  .esc-dib .qr-sitio svg { width: 100%; display: block; }
+  .esc-dib .qr-sitio .iso { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; background: #fff; border-radius: 8px; display: grid; place-items: center; }
+  .esc-dib .qr-sitio .iso img { width: 26px; }
+  .escena.codigo .qr-sitio { opacity: 1; transform: none; pointer-events: auto; cursor: pointer; }
+  .escena.codigo .celu-d { opacity: 0; transform: scale(.9); }
+  .qr-cuenta { position: absolute; right: 30px; top: 240px; width: 184px; text-align: center; font-size: 14px; font-weight: 700; color: rgba(255,255,255,.7); opacity: 0; }
+  .escena.codigo .qr-cuenta { opacity: 1; }
+
+  .numeros { position: absolute; left: 40px; right: 40px; bottom: 112px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .num { padding: 14px 16px; border-radius: 18px; background: rgba(255,255,255,.06); }
+  .num b { display: block; font-size: 32px; line-height: 36px; font-weight: 800; letter-spacing: -.02em; }
+  .num span { display: block; margin-top: 2px; font-size: 14px; line-height: 20px; color: rgba(255,255,255,.65); font-weight: 600; }
+  .num .barra { background: rgba(255,255,255,.12); }
+  .num.ambar b { color: #FFC14D; } .num.verde b { color: #3FD58C; } .num.rojo b { color: #FF8A7F; }
+  .gestos { position: absolute; left: 40px; right: 40px; bottom: 28px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .gesto { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 14px; border-radius: 14px; background: rgba(255,255,255,.08); color: #fff; font-size: 14px; font-weight: 700; border: 0; transition: transform var(--t-micro) var(--curva), background var(--t-micro); }
+  .gesto:hover { background: rgba(255,255,255,.14); }
+  .gesto:active { transform: scale(.97); }
+  .gesto small { font-weight: 600; color: rgba(255,255,255,.6); font-size: 14px; }
+  .gesto.accion { background: var(--accion); }
+  .gesto.rojo { color: #FF9C93; }
+  .gesto[disabled] { opacity: .35; }
+  .falla { position: absolute; left: 50%; top: 128px; transform: translateX(-50%); padding: 8px 14px; border-radius: 12px; background: rgba(240,162,15,.18); color: #FFD27A; font-size: 14px; font-weight: 700; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <div class="lado-marca"><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button class="btn btn-fantasma" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <a class="nav-item activo" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <div class="luz"><span class="punto"></span>En línea · todo enviado</div>
+      <div class="persona"><div class="usuario"><span class="avatar">RP</span><div class="txt"><div style="font-weight:750;font-size:15px">Rubén Paredes</div><div class="t-detalle">Administrador</div></div></div><button class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+  <main class="contenido">
+    <section class="pantalla"><div class="vacio" aria-hidden="true"></div></section>
+  </main>
+</div>
+
+<!-- El cable, siempre a la vista -->
+<div class="riel" id="riel" aria-label="El vínculo con el celular"></div>
+
+<!-- La escena: el detalle -->
+<section class="escena" id="escena" role="dialog" aria-label="El vínculo con el celular">
+  <div class="tope">
+    <div class="txt"><h1 id="esc-h"></h1><p class="frase" id="esc-p"></p></div>
+    <button class="btn x" id="esc-x"><i class="i" data-i="x"></i>Cerrar <span class="kbd">Esc</span></button>
+  </div>
+  <div class="falla" id="falla" hidden>No se pudo: la red sigue sin dejar la conexión directa</div>
+  <div class="esc-dib" id="dib">
+    <div class="compu"><span class="mini"></span><small>Esta compu</small></div>
+    <div class="celu-d" id="celu-d"><span class="mini"></span><small id="celu-n"></small></div>
+    <div class="qr-sitio" id="qr" title="Maqueta: tocalo para simular que el celular lo leyó"><div id="qr-svg"></div><span class="iso"><img src="../../../../common/brand/isotype.svg" alt=""></span></div>
+    <div class="qr-cuenta" id="qr-c">Se renueva en 1:00 · tocalo para simular</div>
+  </div>
+  <div class="numeros" id="numeros"></div>
+  <div class="gestos" id="gestos"></div>
+</section>
+
+<script src="../../shared/link.js"></script>
+<script>
+(function () {
+  var riel = document.getElementById("riel"), esc = document.getElementById("escena"), dib = document.getElementById("dib");
+  var probando = false, prevAntesDeCortar = null, qrT, seed = 21, left = 60;
+  var COLOR = { directo: "#1E9E62", servidor: "#F0A20F", desconectado: "#CEC8BA", esperando: "#17614E", sininternet: "#D7372A", sin: "#CEC8BA" };
+  var DASH = { directo: "", servidor: "10 8", desconectado: "", esperando: "2 8", sininternet: "8 8", sin: "6 8" };
+  var MID = { directo: "wifi", servidor: "cloud", sininternet: "wifi-off", esperando: "clock" };
+  var MIDBG = { directo: ["#E2F4EA", "#11764A"], servidor: ["#FFF3D8", "#845400"], sininternet: ["#FCEAE7", "#AE281D"], esperando: ["#E3EEE8", "#17614E"] };
+
+  /* Dibuja el cable entre x0 y x1 a la altura y, con su desvío por la nube si va por el servidor */
+  function cable(s, x0, x1, y, h, dark) {
+    var W = x1 - x0, m = x0 + W / 2, col = COLOR[s], d, out = "";
+    if (dark && (s === "desconectado" || s === "sin")) col = "rgba(255,255,255,.35)";
+    var sw = dark ? 5 : 4;
+    if (s === "servidor") d = "M" + x0 + "," + y + " H" + (m - 90) + " C" + (m - 50) + "," + y + " " + (m - 50) + "," + (y - h) + " " + m + "," + (y - h) + " C" + (m + 50) + "," + (y - h) + " " + (m + 50) + "," + y + " " + (m + 90) + "," + y + " H" + x1;
+    else if (s === "desconectado") d = "M" + x0 + "," + y + " H" + (x1 - 110) + " M" + (x1 - 26) + "," + y + " H" + x1;
+    else if (s === "sin") d = "M" + x0 + "," + y + " H" + (m + 40) + " C" + (m + 90) + "," + y + " " + (m + 100) + "," + (y + 18) + " " + (m + 120) + "," + (y + 26);
+    else d = "M" + x0 + "," + y + " H" + x1;
+    out += '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-dasharray="' + DASH[s] + '"/>';
+    return { svg: out, m: m };
+  }
+
+  function pulses(s, x0, x1, y, h, cls) {
+    if (s !== "directo" && s !== "servidor") return "";
+    var m = x0 + (x1 - x0) / 2, html = "", n = s === "directo" ? 4 : 2, dur = s === "directo" ? 1.1 : 3.4;
+    for (var k = 0; k < n; k++) {
+      var st = "--x0:" + x0 + "px;--x1:" + x1 + "px;--y:" + y + "px;--xa:" + (m - 80) + "px;--xm:" + m + "px;--xb:" + (m + 80) + "px;--yh:" + (y - h) + "px;--dur:" + dur + "s;animation-delay:" + (k * dur / n) + "s;background:" + (s === "directo" ? "#3FD58C" : "#FFC14D");
+      html += '<i class="pulso ' + (s === "servidor" ? "rodea" : "recto") + (k % 2 ? " vuelve" : "") + " " + (cls || "") + '" style="' + st + '"></i>';
+    }
+    return html;
+  }
+
+  /* ---------- El riel ---------- */
+  function paintRiel(s) {
+    var W = innerWidth - 216, y = 44, x0 = 60, x1 = W - 76, c = cable(s, x0, x1, y, 34);
+    c.svg = c.svg.replace(/stroke-width="4"/, 'stroke-width="3"');
+    var st = V.STATES[s], h = "";
+    h += '<svg class="cab" viewBox="0 0 ' + W + ' 80">' + c.svg + "</svg>";
+    h += '<div class="puerto" aria-hidden="true"><i class="i i-s" data-i="monitor"></i></div>';
+    h += '<div class="pulsos" style="position:absolute;left:0;top:0">' + pulses(s, x0, x1 - 30, y, 34).replace(/bottom:0/g, "") + "</div>";
+    if (MID[s]) h += '<button class="nube' + (s === "servidor" ? " toca" : "") + '" data-a="' + (s === "servidor" ? "probar" : "") + '" style="left:' + c.m + "px;bottom:" + (s === "servidor" ? 80 - y + 34 - 20 : 80 - y - 20) + "px;background:" + MIDBG[s][0] + ";color:" + MIDBG[s][1] + '" ' + (s === "servidor" ? 'title="Tocá la nube para probar la conexión directa"' : "") + '><i class="i i-s" data-i="' + (probando ? "refresh-cw" : MID[s]) + '"></i></button>';
+    if (s !== "sin") h += '<button class="enchufe" id="enchufe" style="left:' + (s === "desconectado" ? x1 - 110 : x1 - 26) + "px;bottom:" + (80 - y - 12) + 'px" title="Arrastralo: afuera desconecta, adentro reconecta"><i class="i" data-i="' + (s === "desconectado" ? "plug" : "plug-zap") + '"></i></button>';
+    else h += '<button class="enchufe" data-a="vincular" style="left:' + (c.m + 120) + "px;bottom:" + (80 - y - 12 - 26) + 'px;transform:rotate(30deg)" title="Vincular el celular"><i class="i" data-i="plug"></i></button>';
+    h += '<button class="tel" id="tel" aria-label="Ver el vínculo con el celular"></button>';
+    h += '<div class="rotulo"><span class="estado" data-tone="' + st.tone + '"><span class="dot"></span>' + st.label + (V.ROUTE[s] ? " · " + V.ROUTE[s].ms + " ms" : "") + '</span><span class="kbd">Alt L</span></div>';
+    if (s === "sin") h = h.replace('<div class="rotulo">', '<div class="rotulo" style="right:40px">');
+    riel.innerHTML = h;
+    pintarIconos(riel);
+    if (probando) { var n = riel.querySelector(".nube svg"); if (n) n.classList.add("gira"); }
+    var tel = document.getElementById("tel"); tel.classList.remove("cuelga"); void tel.offsetWidth; tel.classList.add("cuelga");
+    tel.onclick = openEsc;
+    riel.querySelector(".rotulo").onclick = openEsc;
+    riel.querySelector(".rotulo").style.cursor = "pointer";
+    bindPlug(document.getElementById("enchufe"));
+  }
+
+  /* ---------- La escena ---------- */
+  function paintEsc(s) {
+    var st = V.STATES[s];
+    document.getElementById("esc-h").innerHTML = '<span class="estado" data-tone="' + st.tone + '" style="height:36px;font-size:16px"><span class="dot" data-tone="' + st.tone + '"></span>' + st.label + "</span>" + (s === "sin" ? "Sin celular" : "Con " + V.FACTS.con);
+    document.getElementById("esc-p").textContent = st.long;
+    document.getElementById("celu-n").textContent = s === "sin" ? "Acá va tu celular" : V.FACTS.con;
+    var W = innerWidth - 216 - 80, y = 150, x0 = 270, x1 = W - 190, c = cable(s, x0, x1, y, 90, true);
+    var old = dib.querySelectorAll("svg.cab, .pulso, .nube, .enchufe"); old.forEach(function (e) { e.remove(); });
+    dib.insertAdjacentHTML("afterbegin", '<svg class="cab" viewBox="0 0 ' + W + ' 300">' + c.svg + "</svg>");
+    dib.insertAdjacentHTML("beforeend", pulses(s, x0, x1 - 40, y, 90));
+    if (MID[s]) dib.insertAdjacentHTML("beforeend", '<button class="nube' + (s === "servidor" ? " toca" : "") + '" data-a="' + (s === "servidor" ? "probar" : "") + '" style="left:' + c.m + "px;top:" + ((s === "servidor" ? y - 90 : y) - 28) + "px;background:" + MIDBG[s][0] + ";color:" + MIDBG[s][1] + '"><i class="i" data-i="' + (probando ? "refresh-cw" : MID[s]) + '"></i></button>');
+    if (s !== "sin") dib.insertAdjacentHTML("beforeend", '<button class="enchufe" id="enchufe-g" style="left:' + (s === "desconectado" ? x1 - 110 : x1 - 26) + "px;top:" + (y - 17) + 'px" title="Arrastralo: afuera desconecta, adentro reconecta"><i class="i" data-i="' + (s === "desconectado" ? "plug" : "plug-zap") + '"></i></button>');
+    else dib.insertAdjacentHTML("beforeend", '<button class="enchufe" data-a="vincular" style="left:' + (c.m + 120) + "px;top:" + (y + 10) + 'px;transform:rotate(30deg)"><i class="i" data-i="plug"></i></button>');
+    pintarIconos(dib);
+    if (probando) { var n = dib.querySelector(".nube svg"); if (n) n.classList.add("gira"); }
+    bindPlug(document.getElementById("enchufe-g"));
+
+    var MB = { directo: ["0 MB", "verde"], servidor: ["38 MB", "ambar"], desconectado: ["0 MB", ""], esperando: ["0 MB", ""], sininternet: ["0 MB", ""], sin: ["—", ""] };
+    var MS = V.ROUTE[s] ? [V.ROUTE[s].ms + " ms", s === "directo" ? "verde" : "ambar"] : ["—", ""];
+    document.getElementById("numeros").innerHTML = s === "sin" ? "" :
+      '<div class="num ' + MS[1] + '"><b>' + MS[0] + "</b><span>Lo que tarda un toque en llegar al otro</span></div>" +
+      '<div class="num ' + MB[s][1] + '"><b>' + MB[s][0] + "</b><span>De internet usados hoy por el espejo</span></div>" +
+      '<div class="num"><b>2 h 17 min</b><span>Juntos hoy, desde ' + V.FACTS.desdeCorto.replace("Desde ", "").toLowerCase() + "</span></div>" +
+      '<div class="num"><b>30 días</b><span>Si no se usan juntos, termina el 3 de diciembre</span><div class="barra"><b style="width:100%"></b></div></div>';
+
+    var g = "";
+    if (s === "sin") g += '<button class="gesto accion" data-a="vincular"><i class="i" data-i="qr-code"></i>Vincular el celular <span class="kbd">V</span></button><span class="gesto" style="background:none;padding:0"><small>O tocá el enchufe suelto. Aparece un código: leelo con el celular, con tu misma cuenta.</small></span>';
+    else {
+      if (s === "servidor") g += '<button class="gesto accion" data-a="probar"' + (probando ? " disabled" : "") + '><i class="i" data-i="zap"></i>' + (probando ? "Probando…" : "Probar conexión directa") + ' <small style="color:#fff">o tocá la nube</small> <span class="kbd">P</span></button>';
+      if (s === "desconectado") g += '<button class="gesto accion" data-a="reconectar"><i class="i" data-i="plug-zap"></i>Reconectar <small style="color:#fff">o enchufá</small> <span class="kbd">R</span></button>';
+      else g += '<button class="gesto" data-a="desconectar"><i class="i" data-i="unplug"></i>Desconectar <small>o desenchufá</small> <span class="kbd">D</span></button>';
+      g += '<button class="gesto" data-a="vincular"><i class="i" data-i="qr-code"></i>Vincular otro celular <span class="kbd">V</span></button>';
+      g += '<button class="gesto rojo" data-a="desvincular"><i class="i" data-i="scissors"></i>Desvincular <small>o cortá el cable de arriba abajo</small> <span class="kbd">X</span></button>';
+    }
+    document.getElementById("gestos").innerHTML = g;
+    pintarIconos(document.getElementById("gestos"));
+  }
+
+  function paint(s) { paintRiel(s); paintEsc(s); }
+  V.on(function (s) { document.getElementById("falla").hidden = true; paint(s); });
+
+  function openEsc() { esc.classList.add("abierta"); }
+  function closeEsc() { esc.classList.remove("abierta", "codigo"); clearInterval(qrT); }
+  document.getElementById("esc-x").onclick = closeEsc;
+
+  /* ---------- Enchufar y desenchufar arrastrando ---------- */
+  function bindPlug(el) {
+    if (!el) return;
+    var x0 = null, moved = 0;
+    el.addEventListener("pointerdown", function (e) { x0 = e.clientX; moved = 0; el.setPointerCapture(e.pointerId); el.style.transition = "none"; });
+    el.addEventListener("pointermove", function (e) { if (x0 === null) return; moved = e.clientX - x0; el.style.transform = "translateX(" + Math.max(-120, Math.min(120, moved)) + "px)"; });
+    el.addEventListener("pointerup", function () {
+      if (x0 === null) return; x0 = null; el.style.transition = ""; el.style.transform = "";
+      var s = V.get();
+      if (Math.abs(moved) < 6) return act(s === "desconectado" ? "reconectar" : "desconectar");
+      if (s !== "desconectado" && moved < -40) act("desconectar");
+      else if (s === "desconectado" && moved > 40) act("reconectar");
+    });
+  }
+
+  /* ---------- Cortar el cable: un trazo de arriba abajo que lo cruza ---------- */
+  var cut = null;
+  dib.addEventListener("pointerdown", function (e) { if (e.target.closest("button, .qr-sitio") || !V.linked()) return; cut = { x: e.clientX, y: e.clientY }; });
+  window.addEventListener("pointerup", function (e) {
+    if (!cut) return;
+    var r = dib.getBoundingClientRect(), line = r.top + 150, dy = e.clientY - cut.y, dx = Math.abs(e.clientX - cut.x);
+    if (cut.y < line && e.clientY > line && dy > 40 && dx < 120) act("desvincular");
+    cut = null;
+  });
+
+  /* ---------- El código, en el lugar del celular ---------- */
+  function showCode() {
+    openEsc(); esc.classList.add("codigo");
+    document.getElementById("qr-svg").innerHTML = V.qr(seed, "#121513");
+    left = 60; clearInterval(qrT);
+    qrT = setInterval(function () { left--; if (left <= 0) { left = 60; seed++; document.getElementById("qr-svg").innerHTML = V.qr(seed, "#121513"); } document.getElementById("qr-c").textContent = "Se renueva en 0:" + String(left).padStart(2, "0") + " · sirve una vez"; }, 1000);
+  }
+  document.getElementById("qr").onclick = function () {
+    clearInterval(qrT); esc.classList.remove("codigo");
+    V.FACTS.con = "Chrome en Android";
+    if (V.get() === "directo") V.set("sin", "x");
+    V.set("directo"); V.toast("Enchufados: el celular vino a esta pantalla", { icon: "plug-zap" });
+  };
+
+  function act(id) {
+    var s = V.get();
+    if (!id) return;
+    if (id === "vincular") return showCode();
+    if (id === "desconectar" && V.linked() && s !== "desconectado") { V.set("desconectado"); V.toast("Desenchufado: cada uno por su lado", { icon: "unplug" }); return; }
+    if (id === "reconectar" && s === "desconectado") { V.set("directo"); V.toast("Enchufado: el celular vino a esta pantalla", { icon: "plug-zap" }); return; }
+    if (id === "desvincular" && V.linked()) {
+      prevAntesDeCortar = s;
+      V.set("sin");
+      V.toast("Cortaste el cable: quedaron desvinculados", { icon: "scissors", undo: function () { V.set(prevAntesDeCortar); }, ms: 5000 });
+      return;
+    }
+    if (id === "probar" && s === "servidor" && !probando) {
+      probando = true; paint(s);
+      V.probar().then(function (ok) {
+        probando = false;
+        if (ok) { V.set("directo"); V.toast("El cable se acortó: ahora van directo por el Wi-Fi", { icon: "zap" }); }
+        else { paint(V.get()); var f = document.getElementById("falla"); f.hidden = false; f.classList.remove("sacude"); void f.offsetWidth; f.classList.add("sacude"); }
+      });
+    }
+  }
+  document.addEventListener("click", function (e) { var b = e.target.closest("[data-a]"); if (b && (riel.contains(b) || esc.contains(b))) act(b.getAttribute("data-a")); });
+
+  V.keys(function (e) {
+    var k = e.key.toLowerCase();
+    if (e.altKey && k === "l") { e.preventDefault(); esc.classList.contains("abierta") ? closeEsc() : openEsc(); return; }
+    if (!esc.classList.contains("abierta")) return;
+    if (k === "escape") { esc.classList.contains("codigo") ? (esc.classList.remove("codigo"), clearInterval(qrT)) : closeEsc(); return; }
+    var m = { d: "desconectar", r: "reconectar", p: "probar", v: "vincular", x: "desvincular" }[k];
+    if (m) { e.preventDefault(); act(m); }
+  });
+  window.addEventListener("resize", function () { paint(V.get()); });
+
+  if (new URLSearchParams(location.search).get("abierto") === "si") setTimeout(openEsc, 300);
+})();
+</script>
+</body>
+</html>

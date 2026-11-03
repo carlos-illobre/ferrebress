@@ -517,6 +517,43 @@
      "path": "mockups/users-who-did-what/phone/variant-3-tape/index.html"
     }
    ]
+  },
+  {
+   "id": "device-link-indicator",
+   "title": "El indicador del vínculo",
+   "module": "03 · Celular y computadora",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "1 · La ficha",
+     "path": "mockups/device-link-indicator/desktop/variant-1-card/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · La isla",
+     "path": "mockups/device-link-indicator/desktop/variant-2-island/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · El cable",
+     "path": "mockups/device-link-indicator/desktop/variant-3-cable/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · La ficha",
+     "path": "mockups/device-link-indicator/phone/variant-1-card/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · La isla",
+     "path": "mockups/device-link-indicator/phone/variant-2-island/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · El cable",
+     "path": "mockups/device-link-indicator/phone/variant-3-cable/index.html"
+    }
+   ]
   }
  ]
 }
