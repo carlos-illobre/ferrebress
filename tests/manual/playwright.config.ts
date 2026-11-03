@@ -13,7 +13,12 @@ export default defineConfig({
   timeout: 60_000,
   reporter: 'list',
   outputDir: '../../test-results/manual',
-  use: { baseURL: `http://localhost:${port}` },
+  use: {
+    baseURL: `http://localhost:${port}`,
+    // Sin las optimizaciones de Skia que dependen del procesador: con ellas, el borde de un ícono
+    // salía distinto en GitHub y acá, y la captura no coincidía sin que la pantalla cambiara.
+    launchOptions: { args: ['--disable-skia-runtime-opts'] },
+  },
   webServer: {
     command: 'node ../screens/serve.ts',
     cwd: import.meta.dirname,

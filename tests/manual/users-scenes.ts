@@ -140,6 +140,8 @@ export async function lostChosen(page: Page): Promise<void> {
     .getByRole('alertdialog')
     .getByRole('button', { name: /Lucía Fernández/ })
     .click();
+  // Que ya esté el paso siguiente, con sus celulares, antes de la captura.
+  await expect(lostPoints.phone(page)).toBeVisible();
 }
 
 export const lostPoints = {
