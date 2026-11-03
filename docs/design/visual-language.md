@@ -77,8 +77,7 @@ tabulares (ya activados en `body`). El «$» va chico con `<span class="peso">$<
 | `.t-detalle` | 14 / 500, `--texto-2` | Marca, código, proveedor, explicaciones cortas |
 | `.t-etiqueta` | 14 / 650, `--texto-2` | Rótulo arriba de un número |
 
-**Nada de menos de 14 px.** Mayúsculas solo al principio. Celular: mismos tamaños; los textos se
-resumen, no se achican.
+Mayúsculas solo al principio. Celular: mismos tamaños; los textos se resumen, no se achican.
 
 ## Íconos
 

@@ -52,8 +52,8 @@ paralelo»).
 
 | Parte | Qué incluye | Estado |
 |---|---|---|
-| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
-| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
+| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | En curso: T117 |
+| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | En curso: T117 |
 
 ## Tareas pendientes de la base
 
@@ -77,6 +77,13 @@ paralelo»).
   que hace la aplicación.
 - [x] T005 [agente] El revisor de seguridad (`.claude/agents/security-reviewer.md`), en los pasos 4
   y 7 de cada módulo.
+- [ ] T117 [agente] Revisión del código entero (arreglo y ajuste, sin cambiar lo que se ve): las
+  respuestas viejas que pisan a las nuevas (la tarjeta de Usuarios, la auditoría), el service worker
+  (no guarda errores, no frena la página nueva), las funciones que se quedaban con datos viejos, las
+  hojas de estilo fuera de las capas; en el servidor, un solo paso para anotar un rechazo una vez por
+  ventana, una sola tabla de errores, la transacción con lo de después en un solo lugar y las
+  consultas de más; en la aplicación, las piezas repetidas (cargar bajo demanda, cargando y
+  reintentar, lo angosto, el buscador, la tarjeta, las pastillas) y los valores fuera de los tokens.
 
 ## Tareas futuras
 

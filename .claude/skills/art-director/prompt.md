@@ -70,7 +70,7 @@ le guste usarlo.
     o, como propuesta, una de Google Fonts metida en la maqueta.
   - Íconos de una sola familia (podés usar una librería de íconos libre, como Lucide o
     Phosphor, copiando los SVG que uses), escala tipográfica marcada, el número que importa
-    en grande, espaciado en múltiplos de 4 px, ningún texto de menos de 14 px.
+    en grande, espaciado en múltiplos de 4 px.
 - **Movimiento y sensación, programados.** Cada maqueta funciona: se toca, se navega y se
   mueve. Las animaciones van hechas en la maqueta (CSS o JavaScript simple, solo con
   `transform` y `opacity`, respetando `prefers-reduced-motion`), no descriptas: Carlos las
