@@ -14,7 +14,8 @@ con la hoja cerrada) y `screenshot-phone-camera.png` (la cámara que lee el cód
 leer el código, en el celular: `screenshot-phone-other-account.png` (otra cuenta),
 `screenshot-phone-expired.png` (código vencido), `screenshot-phone-system-camera.png` (la cámara
 del teléfono con «Abrir en Ferrebress»), `screenshot-phone-system-camera-linked.png` (ya
-vinculados al abrirla) y `screenshot-phone-no-session.png` (sin sesión: la entrada).
+vinculados al abrirla) `screenshot-phone-no-session.png` (sin sesión: la entrada) y `screenshot-phone-replaced.png`
+(el aviso después de entrar a otra computadora con el celular).
 
 El selector gris de la derecha («Maqueta · estado» y, en el celular, «Maqueta · al leer el código») y `?estado=` siguen como en las variantes, fuera
 del diseño. Con `?abierto=no` arranca con el detalle cerrado.
@@ -97,6 +98,12 @@ del diseño. Con `?abierto=no` arranca con el detalle cerrado.
   - **Sin sesión** (E40): la misma cámara del teléfono; «Abrir en Ferrebress» lleva a la entrada
     aprobada (`../../sign-in/adapted/`) y no vincula. No hay mensaje en el medio: la regla dice que
     lleva a la entrada.
+  - **Entrar a otra computadora con el celular** (R1.5): el vínculo anterior se reemplaza sin
+    preguntar. Lo avisa la tostada de la maqueta, con el ícono de enlace: «Ahora este celular está
+    vinculado a Chrome en Windows», y a la derecha el botón «Desvincular», blanco translúcido sobre
+    el pino. Dura 6 segundos (las otras, 3,2) para dar tiempo a tocarlo. Es el único lugar de la
+    tostada que recibe toques. «Desvincular» abre la confirmación de siempre (R5.3); al cancelarla,
+    se vuelve a la pantalla sin abrir el detalle. En la manija: «Entrar a otra computadora».
 
 ## Por las reglas aprobadas
 

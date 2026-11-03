@@ -261,6 +261,7 @@ body.alt .ficha-cerrar { width: auto; padding: 0 6px 0 8px; }
 .tostada { opacity: 0; transform: translateY(12px); transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--rebote); pointer-events: none; max-width: 560px; line-height: 20px; }
 .tostada.ver { opacity: 1; transform: none; }
 .tostada .i { color: #8FE0B4; }
+.tostada-accion { pointer-events: auto; flex: none; margin-left: 4px; height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: rgba(255,255,255,.16); color: #fff; font-weight: 750; font-size: 14px; }
 
 /* =================== Movimiento común =================== */
 @keyframes gira { to { transform: rotate(360deg); } }

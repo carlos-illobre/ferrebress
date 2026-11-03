@@ -315,6 +315,14 @@
   });
   function cerrarCamara() { clearTimeout(camT); cam.classList.remove("abierta", "sistema", "leida"); }
 
+  /* Al entrar a otra computadora con el celular, el vínculo se reemplaza sin preguntar (R1.5):
+     lo avisa una tostada con «Desvincular», que pide confirmación (R5.3) */
+  function entrarOtraCompu() {
+    cerrar(); cerrarCamara(); cerrarLectura();
+    con.celu = "Chrome en Windows"; estado = "sin"; poner("directo");
+    toast("Ahora este celular está vinculado a " + con.celu, { icon: "link", ms: 6000, accion: { label: "Desvincular", fn: confirmar } });
+  }
+
   /* El código no vincula: lo dice en una hoja, sin ofrecer cambiar de cuenta (R1.6) */
   var lec = $("lectura");
   var LECTURA = {
@@ -346,11 +354,13 @@
 
   /* ---------- Desvincular: pide confirmación (R5.3) ---------- */
   var capaConf = { el: function () { return conf; }, cerrar: function () { noConfirmar(); } };
+  var desdeFicha = false;
   function confirmar() {
     var c = celu();
     $("conf-t").textContent = c ? "¿Desvincular la computadora?" : "¿Desvincular el celular?";
     $("conf-d").innerHTML = "<b>" + otro() + "</b> " + (c ? "deja de estar vinculada. Cada uno sigue en su pantalla; para volver a trabajar juntos, vinculá de nuevo."
       : "deja de estar vinculado. Cada uno sigue en la pantalla en la que está; para volver a trabajar juntos hay que vincular de nuevo.");
+    desdeFicha = abierta();
     if (c) ficha.classList.remove("abierta");
     velo.classList.add("abierto"); conf.classList.add("abierto");
     abrirCapa(capaConf);
@@ -358,7 +368,7 @@
   }
   function noConfirmar() {
     conf.classList.remove("abierto"); cerrarCapa(capaConf);
-    if (celu()) { ficha.classList.add("abierta"); } else velo.classList.remove("abierto");
+    if (celu() && desdeFicha) { ficha.classList.add("abierta"); } else velo.classList.remove("abierto");
   }
   $("conf-no").addEventListener("click", noConfirmar);
   $("conf-si").addEventListener("click", function () {
@@ -425,12 +435,14 @@
     caja.innerHTML = "";
     var t = document.createElement("div");
     t.className = "tostada";
-    t.innerHTML = '<i class="i" data-i="' + (opts.icon || "circle-check") + '"></i><span>' + msg + "</span>";
+    t.innerHTML = '<i class="i" data-i="' + (opts.icon || "circle-check") + '"></i><span>' + msg + "</span>" +
+      (opts.accion ? '<button type="button" class="tostada-accion">' + opts.accion.label + "</button>" : "");
     caja.appendChild(t);
+    if (opts.accion) t.querySelector(".tostada-accion").addEventListener("click", function () { t.classList.remove("ver"); opts.accion.fn(); });
     window.pintarIconos(t);
     requestAnimationFrame(function () { requestAnimationFrame(function () { t.classList.add("ver"); }); });
     clearTimeout(toast.t);
-    toast.t = setTimeout(function () { t.classList.remove("ver"); }, 3200);
+    toast.t = setTimeout(function () { t.classList.remove("ver"); }, opts.ms || 3200);
   }
   function vibrar(p) { try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(p); } catch (e) { /* sin vibración */ } }
 
@@ -445,7 +457,8 @@
       '<button type="button" data-lee="otra">Otra cuenta</button>' +
       '<button type="button" data-lee="vencido">Código vencido</button>' +
       '<button type="button" data-lee="sinsesion">Sin sesión</button>' +
-      '<button type="button" data-lee="telefono">Cámara del teléfono</button></div>';
+      '<button type="button" data-lee="telefono">Cámara del teléfono</button>' +
+      '<button type="button" data-lee="otracompu">Entrar a otra computadora</button></div>';
     demo.innerHTML = h + "</div>";
     body.appendChild(demo);
     window.pintarIconos(demo);
@@ -455,6 +468,7 @@
       b.addEventListener("click", function () {
         var k = b.getAttribute("data-lee");
         demo.classList.remove("abierta");
+        if (k === "otracompu") return entrarOtraCompu();
         if (k === "telefono") { poner("sin"); return abrirCamara("telefono", true); }
         if (k === "sinsesion") return abrirCamara("sinsesion", true);
         abrirCamara(k);
