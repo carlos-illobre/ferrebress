@@ -4,7 +4,7 @@ import { permissionsHash } from '../../shared/contracts/can.ts';
 import { createRateLimiter } from './limits/rate-limit.ts';
 import { createPermissionGate, permissionsHashOf, permissionsOf } from './permissions.ts';
 import { createSessionGate } from './session.ts';
-import type { AuditEvent } from './storage/audit.ts';
+import type { AuditEvent } from './storage/audit/write.ts';
 
 function setUp(granted: Record<string, string[]>) {
   const clock = { now: () => new Date('2026-10-28T12:00:00Z') };
@@ -54,7 +54,10 @@ describe('el paso de permisos (02 · R7.6)', () => {
     expect(await response.json()).toEqual({ error: 'forbidden', permission: 'users.view' });
     await http.request('/ver', as('beto'));
     expect(recorded.map((event) => event.type)).toEqual(['permission.denied']);
-    expect(recorded[0]).toMatchObject({ userId: 'beto', data: { permission: 'users.view' } });
+    expect(recorded[0]).toMatchObject({
+      actor: { kind: 'person', userId: 'beto' },
+      data: { permission: 'users.view' },
+    });
   });
 
   it('una ruta que solo pide sesión también deja la huella; se pregunta una vez por pedido', async () => {

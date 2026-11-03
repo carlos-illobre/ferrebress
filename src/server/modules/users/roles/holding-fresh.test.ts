@@ -22,7 +22,7 @@ describe('guardar un rol con sus personas, en un servidor recién instalado', ()
     const target = await kit.role('Destino', ['offline.work']);
     expect((await save(target, { give: [pia.id, quino.id] })).status).toBe(200);
     const lines = kit.audited('user.roles-changed').slice(-2);
-    expect(lines.map((one) => one.data?.roleId)).toEqual([target, target]);
+    expect(lines.map((one) => one.targets?.[1]?.id)).toEqual([target, target]);
     expect(lines[0]?.data?.save).toBe(lines[1]?.data?.save);
     const { version } = await kit.row(quino.id);
     await kit.admin.request(`/api/users/${quino.id}/deactivate`, { version });

@@ -19,7 +19,7 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { Clock } from './clock.ts';
 import type { RateLimiter } from './limits/rate-limit.ts';
 import { platformSettings } from './settings.ts';
-import type { AuditLog } from './storage/audit.ts';
+import type { AuditLog } from './storage/audit/write.ts';
 
 export type HttpVariables = { ipAddress: string; deviceId: string | undefined };
 export type Http = Hono<{ Variables: HttpVariables }>;
@@ -158,7 +158,13 @@ function rejecter({ audit, limiter, clock }: HttpOptions) {
     if (hit.allowed) {
       const repeated = (hit.previousCount ?? 1) - 1;
       const data = { reason, path: c.req.path, ...(repeated > 0 && { repeatedBefore: repeated }) };
-      audit.record({ type: 'request.rejected', at: clock.now(), ipAddress, data });
+      audit.record({
+        type: 'request.rejected',
+        at: clock.now(),
+        actor: { kind: 'outsider' },
+        ipAddress,
+        data,
+      });
     }
     return reason === 'version' ? fail(c, 426, 'update-required') : fail(c, 400, 'bad-request');
   };

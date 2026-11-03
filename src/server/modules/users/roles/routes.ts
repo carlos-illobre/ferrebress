@@ -61,22 +61,20 @@ type Answer = <T>(
 function recordDone(
   guards: Guards,
   c: Context,
-  { type, target, asking }: { type: string; target: string; asking: string },
+  { type, target }: { type: string; target: string },
   outcome: { audit: Record<string, unknown>; people: PersonChange[] },
 ) {
-  const save = outcome.people.length > 0 ? { save: crypto.randomUUID() } : {};
+  const data = outcome.people.length > 0 ? { data: { save: crypto.randomUUID() } } : {};
   if (Object.keys(outcome.audit).length > 0)
-    guards.record(c, type, { userId: asking, data: { target, ...outcome.audit, ...save } });
+    guards.record(c, type, { ...changeRecord(type, target, outcome.audit), ...data });
   for (const one of outcome.people)
     guards.record(c, 'user.roles-changed', {
-      userId: asking,
-      data: {
-        target: one.userId,
-        roleId: one.roleId,
-        before: one.before,
-        after: one.after,
-        ...save,
-      },
+      targets: [
+        { kind: 'person', id: one.userId },
+        { kind: 'role', id: one.roleId },
+      ],
+      changes: { roles: { before: one.before, after: one.after } },
+      ...data,
     });
 }
 
@@ -88,12 +86,11 @@ function answering(platform: Platform, guards: Guards): Answer {
       const key = `audit:roles:${outcome.refused}:${asking}`;
       if (platform.limiter.hit(key, usersSettings.throttledAudit).allowed)
         guards.record(c, 'users.rejected', {
-          userId: asking,
           data: { target, reason: outcome.refused, ...outcome.detail },
         });
       return fail(c, statusOf[outcome.refused] ?? 409, outcome.refused, outcome.detail);
     }
-    recordDone(guards, c, { type, target, asking }, outcome);
+    recordDone(guards, c, { type, target }, outcome);
     return undefined;
   };
 }
@@ -109,7 +106,7 @@ type RoleRoute = {
 export function registerRoleRoutes(platform: Platform, changes: RoleChanges, access: Access) {
   const { http, sessions, permissions } = platform;
   const guards = createGuards(platform, {
-    event: 'users.throttled',
+    topic: 'users',
     window: usersSettings.throttledAudit,
   });
   const limited = guards.limit((c) => [`users:session:${sessionOf(c).id}`], usersSettings.changes);
@@ -192,4 +189,31 @@ function registerHolding({ platform, changes, answer, manage }: RoleRoute) {
       return answer(c, outcome, 'user.roles-changed', userId) ?? c.json({ roles });
     },
   );
+}
+
+type Shown = { name: string; description: string | null; permissions: string[] } | null;
+
+// La línea de un cambio de roles (05 · R2.4, R2.5): el rol o la persona, y solo lo que cambió.
+function changeRecord(type: string, target: string, audit: Record<string, unknown>) {
+  if (type === 'user.roles-changed')
+    return {
+      targets: [{ kind: 'person', id: target }],
+      changes: { roles: { before: audit.before, after: audit.after } },
+    };
+  const [before, after] = [audit.before as Shown, audit.after as Shown];
+  const fields = ['name', 'description', 'permissions'] as const;
+  const changed = fields.filter(
+    (field) => JSON.stringify(before?.[field] ?? null) !== JSON.stringify(after?.[field] ?? null),
+  );
+  return {
+    targets: [
+      { kind: 'role', id: audit.roleId as string, name: (after ?? before)?.name as string },
+    ],
+    changes: Object.fromEntries(
+      changed.map((field) => [
+        field,
+        { before: before?.[field] ?? null, after: after?.[field] ?? null },
+      ]),
+    ),
+  };
 }

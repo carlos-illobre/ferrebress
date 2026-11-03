@@ -1,30 +1,57 @@
 // Los pasos que una ruta declara antes de lo suyo, iguales para cualquier módulo: leer y validar
 // el cuerpo, frenar por límite de pedidos (anotándolo en la auditoría una vez por ventana) y anotar
-// en la auditoría con lo que trae cada pedido. Así la ruta queda solo con su regla:
+// en la auditoría con lo que trae cada pedido (diseño de 05, § 2): quién (la persona de la sesión o
+// la recién probada; si no, alguien sin entrar), el dispositivo y la dirección. Así la ruta queda
+// solo con su regla:
 //
 //   http.post('/api/x', body.step, guards.limit(keys, window), (c) => hacer(body.of(c)))
 import type { Context, MiddlewareHandler } from 'hono';
+import { deviceCodes } from './device.ts';
 import { fail } from './http.ts';
 import type { Window } from './limits/rate-limit.ts';
 import type { Platform } from './modules.ts';
-import type { AuditEvent } from './storage/audit.ts';
+import type { RequestSession } from './session.ts';
+import type { Actor, AuditEvent } from './storage/audit/event.ts';
 
-// Qué se anota cuando un pedido se frena, y cada cuánto como mucho por clave.
-export type ThrottledAudit = { event: string; window: Window };
+// El tema que se anota cuando un pedido se frena, y cada cuánto como mucho por clave.
+export type ThrottledAudit = { topic: string; window: Window };
+
+// Una persona que el pedido acaba de probar (un pase de Google, una firma de huella verificados),
+// todavía sin sesión. Solo la arman esas verificaciones: así un intento fallido nunca queda a nombre
+// de la persona que se intentó usar (revisión de seguridad de 05, punto 1).
+declare const provenBrand: unique symbol;
+export type Proven = { userId: string; name?: string; readonly [provenBrand]: true };
+export const provenPerson = (userId: string, name?: string): Proven =>
+  ({ userId, ...(name && { name }) }) as Proven;
+
+// Lo que pone el módulo; quién, cuándo, el dispositivo y la dirección los pone el paso.
+export type RecordFields = Pick<
+  AuditEvent,
+  'targets' | 'changes' | 'data' | 'people' | 'deviceTime'
+> & {
+  proven?: Proven;
+  // El correo que usó alguien sin entrar.
+  email?: string;
+};
+
+function actorOf(c: Context, { proven, email }: RecordFields): Actor {
+  const session = c.get('session') as RequestSession | undefined;
+  if (session) return { kind: 'person', userId: session.userId };
+  if (proven)
+    return { kind: 'person', userId: proven.userId, ...(proven.name && { name: proven.name }) };
+  return { kind: 'outsider', ...(email && { email }) };
+}
 
 export function createGuards({ audit, clock, limiter }: Platform, throttled: ThrottledAudit) {
-  const record = (
-    c: Context,
-    type: string,
-    fields: Pick<AuditEvent, 'userId' | 'email' | 'data'> = {},
-  ) => {
-    const deviceId = c.get('deviceId') as string | undefined;
+  const record = (c: Context, type: string, fields: RecordFields = {}) => {
+    const { proven: _proven, email: _email, ...rest } = fields;
     audit.record({
       type,
       at: clock.now(),
+      actor: actorOf(c, fields),
+      device: deviceCodes((name) => c.req.header(name)),
       ipAddress: c.get('ipAddress') as string,
-      ...(deviceId && { deviceId }),
-      ...fields,
+      ...rest,
     });
   };
   const tooMany = (c: Context, retryAfterMs: number) =>
@@ -37,8 +64,9 @@ export function createGuards({ audit, clock, limiter }: Platform, throttled: Thr
     for (const key of keys) {
       const hit = limiter.hit(key, window);
       if (hit.allowed) continue;
+      // Se anota el tema y por qué se frenó, nunca la clave: lleva correos y dispositivos (§ 2.2).
       if (limiter.hit(`audit:${key}`, throttled.window).allowed)
-        record(c, throttled.event, { data: { key } });
+        record(c, 'request.throttled', { data: { topic: throttled.topic, by: key.split(':')[1] } });
       return tooMany(c, hit.retryAfterMs);
     }
     return undefined;

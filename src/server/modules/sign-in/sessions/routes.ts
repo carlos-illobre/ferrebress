@@ -2,7 +2,7 @@
 // salida que quedó pendiente sin conexión, también esa, probada con su llave de prueba.
 import { signOutBody, signOutMessage } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
-import { byAddress, bySchema, readBody } from '../../../platform/guards.ts';
+import { byAddress, bySchema, provenPerson, readBody } from '../../../platform/guards.ts';
 import type { SignInContext } from '../context.ts';
 import { signInSettings } from '../settings.ts';
 import { clearSessionCookie, readSessionCookie } from './cookie.ts';
@@ -30,7 +30,7 @@ async function closeCookieSession(ctx: SignInContext, c: Context) {
   const resolved = token ? await ctx.store.resolve(token) : undefined;
   if (resolved?.kind !== 'open') return;
   await ctx.store.close(resolved.session.id, 'sign-out');
-  ctx.record(c, 'sign-out', { userId: resolved.session.userId });
+  ctx.record(c, 'sign-out', { proven: provenPerson(resolved.session.userId) });
 }
 
 // La salida que quedó pendiente sin conexión vale aunque la cookie ya sea de otra persona, si
@@ -48,7 +48,7 @@ async function closePendingSession(
   // La hora en que llegó es la del registro; la que trae es la del dispositivo cuando tocó «Salir».
   const { tappedAt } = pending;
   ctx.record(c, 'sign-out', {
-    userId: session.userId,
+    proven: provenPerson(session.userId),
     data: {
       pending: true,
       ...(tappedAt !== undefined && { tappedAt: new Date(tappedAt).toISOString() }),

@@ -6,7 +6,12 @@
 import { type ApproveCodeBody, approveCodeBody } from '@ferrebress/shared/contracts/sign-in';
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
-import { byAddressAndDevice, bySchema, readBody } from '../../../../platform/guards.ts';
+import {
+  byAddressAndDevice,
+  bySchema,
+  provenPerson,
+  readBody,
+} from '../../../../platform/guards.ts';
 import { fail } from '../../../../platform/http.ts';
 import type { SignInContext } from '../../context.ts';
 import {
@@ -85,7 +90,7 @@ function grant(
   const approval = { screenId: screen.id, userId, approvedBy: passkeyId };
   const permit = ctx.permits.issue(screen.id, approval) as string;
   screen.notify?.({ type: 'approved', permit });
-  ctx.record(c, 'code.approved', { userId });
+  ctx.record(c, 'code.approved', { proven: provenPerson(userId) });
   return c.json({ ok: true });
 }
 

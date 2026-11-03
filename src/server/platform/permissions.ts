@@ -10,7 +10,7 @@ import type { Clock } from './clock.ts';
 import { fail } from './http.ts';
 import type { RateLimiter } from './limits/rate-limit.ts';
 import { type SessionGate, sessionOf } from './session.ts';
-import type { AuditLog } from './storage/audit.ts';
+import type { AuditLog } from './storage/audit/write.ts';
 
 type Resolve = (userId: string) => Promise<readonly string[]>;
 
@@ -34,7 +34,7 @@ export function createPermissionGate(
       audit.record({
         type: 'permission.denied',
         at: clock.now(),
-        userId,
+        actor: { kind: 'person', userId },
         ipAddress: c.get('ipAddress') as string,
         data: { permission, path: c.req.path },
       });

@@ -13,7 +13,7 @@ import {
 import type { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
 import type { Kysely } from 'kysely';
-import { byAddressAndDevice, readBody } from '../../../platform/guards.ts';
+import { byAddressAndDevice, provenPerson, readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import type { User } from '../../users/index.ts';
 import type { SignInContext } from '../context.ts';
@@ -128,7 +128,12 @@ async function finish(
 ) {
   if (!(await data.insert(row))) return fail(c, 409, 'offline-already-confirmed');
   const type = row.result === 'rejected' ? 'sign-in.offline-rejected' : 'sign-in.offline-confirmed';
-  ctx.record(c, type, { userId: row.userId, data: audited(row) });
+  // La firma de la huella verificó: es esa persona, aunque la entrada no se confirme.
+  ctx.record(c, type, {
+    proven: provenPerson(row.userId),
+    data: audited(row),
+    ...(row.result === 'rejected' && { deviceTime: row.signedAt }),
+  });
   if (row.reason === 'deactivated') return fail(c, 401, 'not-authorized');
   if (row.result === 'rejected') return notConfirmed(c);
   if (row.result === 'ended') {
@@ -154,7 +159,9 @@ async function finish(
 function repeated(ctx: SignInContext, c: Context, previous: { result: string; userId: string }) {
   const key = `audit:offline-repeated:${c.get('ipAddress')}`;
   if (ctx.platform.limiter.hit(key, limits.throttledAudit).allowed) {
-    ctx.record(c, 'sign-in.offline-repeated', { userId: previous.userId });
+    ctx.record(c, 'sign-in.offline-repeated', {
+      targets: [{ kind: 'person', id: previous.userId }],
+    });
   }
   return previous.result === 'rejected'
     ? notConfirmed(c)
@@ -175,5 +182,9 @@ const audited = (row: OfflineSignIn) => ({
 function recordOnce(ctx: SignInContext, c: Context, fields: { userId: string; reason: string }) {
   const key = `audit:offline:${c.get('ipAddress')}`;
   if (!ctx.platform.limiter.hit(key, limits.throttledAudit).allowed) return;
-  ctx.record(c, 'sign-in.offline-rejected', { data: { ...fields } });
+  const { userId, reason } = fields;
+  ctx.record(c, 'sign-in.offline-rejected', {
+    targets: [{ kind: 'person', id: userId }],
+    data: { reason },
+  });
 }

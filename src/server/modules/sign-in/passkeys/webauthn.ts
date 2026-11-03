@@ -1,6 +1,7 @@
 // Lo de la huella que usan entrar, vincular y aprobar un código QR (diseño de 01, § 5): armar los
 // pedidos para el navegador, verificar sus respuestas y guardar una huella nueva. Siempre con
 // verificación de verdad (la huella, no solo tocar) y ES256, la que usan los celulares.
+
 import { product } from '@ferrebress/shared/contracts/product';
 import {
   type AuthenticationResponseJSON,
@@ -12,10 +13,11 @@ import {
 } from '@simplewebauthn/server';
 import { decodeClientDataJSON } from '@simplewebauthn/server/helpers';
 import type { Context } from 'hono';
+import { isPhone } from '../../../platform/device.ts';
+import { provenPerson } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import type { User } from '../../users/index.ts';
 import type { SignInContext } from '../context.ts';
-import { isPhone } from '../device.ts';
 import type { Session } from '../sessions/store.ts';
 import { linkPasskeyWithinMs, signInSettings } from '../settings.ts';
 import type { Passkey } from './data.ts';
@@ -132,12 +134,12 @@ export async function savePasskey(
   else ctx.phoneOwners.delete(session.deviceId);
   if (!saved) {
     ctx.record(c, 'passkey.rejected', {
-      userId: session.userId,
+      proven: provenPerson(session.userId),
       data: { reason: 'phone-has-other-account' },
     });
     return fail(c, 409, 'phone-has-other-account');
   }
-  ctx.record(c, 'passkey.linked', { userId: session.userId });
+  ctx.record(c, 'passkey.linked', { proven: provenPerson(session.userId) });
   return undefined;
 }
 
@@ -154,8 +156,10 @@ export async function checkAssertion(
   const { failedPerAccount } = signInSettings.limits;
   const accountKey = `failed:passkey:${passkey.userId}`;
   const reject = (reason: string) => {
+    // La firma no probó nada: quien la mandó es alguien sin entrar, y la cuenta va como a quién
+    // (revisión de seguridad de 05, punto 1).
     ctx.record(c, 'sign-in.rejected', {
-      userId: passkey.userId,
+      targets: [{ kind: 'person', id: passkey.userId }],
       data: { method: 'passkey', reason },
     });
     return fail(c, 401, 'not-authorized');

@@ -31,23 +31,25 @@ describe('los límites de los roles', () => {
 
   it('users-R6.1: crear, renombrar y borrar dejan el id y lo de antes y después', async () => {
     const id = await kit.role('Temporal', ['users.view']);
-    expect(kit.audited('role.created').at(-1)?.data).toEqual({
-      target: 'Temporal',
-      roleId: id,
-      before: null,
-      after: { name: 'Temporal', description: null, permissions: ['users.view'] },
+    expect(kit.audited('role.created').at(-1)).toMatchObject({
+      targets: [{ kind: 'role', id, name: 'Temporal' }],
+      changes: {
+        name: { before: null, after: 'Temporal' },
+        permissions: { before: null, after: ['users.view'] },
+      },
     });
     await kit.admin.request(`/api/roles/${id}`, { version: 1, description: 'Por un rato' });
-    expect(kit.audited('role.changed').at(-1)?.data).toMatchObject({
-      before: { description: null },
-      after: { description: 'Por un rato' },
+    expect(kit.audited('role.changed').at(-1)?.changes).toEqual({
+      description: { before: null, after: 'Por un rato' },
     });
     await kit.admin.request(`/api/roles/${id}/delete`, { version: 2 });
-    expect(kit.audited('role.deleted').at(-1)?.data).toEqual({
-      target: 'Temporal',
-      roleId: id,
-      before: { name: 'Temporal', description: 'Por un rato', permissions: ['users.view'] },
-      after: null,
+    expect(kit.audited('role.deleted').at(-1)).toMatchObject({
+      targets: [{ kind: 'role', id, name: 'Temporal' }],
+      changes: {
+        name: { before: 'Temporal', after: null },
+        description: { before: 'Por un rato', after: null },
+        permissions: { before: ['users.view'], after: null },
+      },
     });
   });
 
@@ -70,10 +72,8 @@ describe('los límites de los roles', () => {
       email: 'tarde@example.com',
       roles: [await kit.systemRole()],
     });
-    expect(kit.audited('users.rejected').at(-1)?.data).toEqual({
-      targetUserId: 'new',
-      reason: 'confirm-first',
-    });
+    expect(kit.audited('users.rejected').at(-1)).toMatchObject({ data: { reason: 'confirm-first' } });
+    expect(kit.audited('users.rejected').at(-1)?.targets).toBeUndefined();
     await kit.reconfirm();
     const staff = await kit.person([await kit.role('Personal', ['users.manage'])]);
     const target = await kit.person([await kit.systemRole()], { signIn: false });
@@ -85,8 +85,9 @@ describe('los límites de los roles', () => {
       error: 'outranked',
     });
     expect(kit.audited('users.rejected').at(-1)).toMatchObject({
-      userId: staff.id,
-      data: { targetUserId: target.id, reason: 'outranked' },
+      actor: { kind: 'person', userId: staff.id },
+      targets: [{ kind: 'person', id: target.id }],
+      data: { reason: 'outranked' },
     });
   });
 

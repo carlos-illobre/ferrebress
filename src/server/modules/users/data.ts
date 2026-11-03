@@ -161,18 +161,25 @@ function authorizing(db: Db) {
     insert: (user: NewUser, roleIds: readonly string[]) => insertWithRoles(db, user, roleIds),
 
     // Borrar, solo si nunca entró (R3.7).
-    remove: async (id: string, version: number): Promise<boolean> =>
-      (
-        await db
-          .deleteFrom('users.users')
-          .where('id', '=', id)
-          .where('version', '=', version)
-          .where('google_subject', 'is', null)
-          .where('last_sign_in_at', 'is', null)
-          .executeTakeFirst()
-      ).numDeletedRows === 1n,
+    // Devuelve a quien se borró, para la auditoría (05 · R2.4).
+    remove: (id: string, version: number) =>
+      db
+        .deleteFrom('users.users')
+        .where('id', '=', id)
+        .where('version', '=', version)
+        .where('google_subject', 'is', null)
+        .where('last_sign_in_at', 'is', null)
+        .returning(columns)
+        .executeTakeFirst(),
   };
 }
+
+// Cómo era antes del cambio, para la auditoría (05 · R2.5), en la misma sentencia: la subconsulta
+// del `returning` ve la fila como estaba antes de actualizarla.
+const previous = (id: string) =>
+  sql<{ name: string | null; googleName: string | null; email: string }>`(
+    select json_build_object('name', name, 'googleName', google_name, 'email', email)
+    from users.users where id = ${id})`.as('previous');
 
 // Lo que cambia Usuarios, siempre con la versión que vio quien cambia.
 function changing(db: Db) {
@@ -184,7 +191,7 @@ function changing(db: Db) {
         .set({ name, version: bump() })
         .where('id', '=', id)
         .where('version', '=', version)
-        .returning(columns)
+        .returning([...columns, previous(id)])
         .executeTakeFirst(),
 
     // El correo, solo si nunca entró (R3.6).
@@ -196,7 +203,7 @@ function changing(db: Db) {
         .where('version', '=', version)
         .where('google_subject', 'is', null)
         .where('last_sign_in_at', 'is', null)
-        .returning(columns)
+        .returning([...columns, previous(id)])
         .executeTakeFirst(),
   };
 }

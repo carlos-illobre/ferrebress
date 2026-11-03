@@ -83,7 +83,7 @@ describe('los roles, desde Usuarios', () => {
     expect((await remove(await kit.systemRole())).body).toEqual({ error: 'system-role' });
     const unused = await kit.role('Sin nadie', ['users.view']);
     expect((await remove(unused)).body).toEqual({ removed: true });
-    expect(kit.audited('role.deleted').at(-1)?.data).toMatchObject({ target: 'Sin nadie' });
+    expect(kit.audited('role.deleted').at(-1)?.targets?.[0]).toMatchObject({ name: 'Sin nadie' });
   });
 
   it('users-E40: al Administrador se lo puede renombrar', async () => {
@@ -134,7 +134,7 @@ describe('los roles, desde Usuarios', () => {
     });
     expect((await only.device.request('/api/start')).body.person.userId).toBe(only.id);
     expect(kit.audited('permission.denied').at(-1)).toMatchObject({
-      userId: only.id,
+      actor: { kind: 'person', userId: only.id },
       data: { permission: 'roles.manage' },
     });
   });

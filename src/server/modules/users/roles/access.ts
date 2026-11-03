@@ -63,7 +63,8 @@ async function addNewPermissions(platform: Platform, memory: { forget: (keys: 'a
   platform.audit.record({
     type: 'role.permissions-added',
     at: platform.clock.now(),
-    data: { role: 'system', permissions: added },
+    actor: { kind: 'system' },
+    data: { permissions: added },
   });
 }
 

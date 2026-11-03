@@ -6,9 +6,9 @@ import { claimCodeBody, openScreenBody } from '@ferrebress/shared/contracts/sign
 import type { Context } from 'hono';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
 import { streamSSE } from 'hono/streaming';
+import { deviceLabel } from '../../../../platform/device.ts';
 import { fail } from '../../../../platform/http.ts';
 import type { SignInContext } from '../../context.ts';
-import { deviceLabel } from '../../device.ts';
 import { openSession, proofKeyOf } from '../../sessions/open.ts';
 import { codeSettings } from '../../settings.ts';
 import type { Screen, ScreenEvent } from './screens.ts';

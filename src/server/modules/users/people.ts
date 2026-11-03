@@ -4,8 +4,10 @@
 // roles/lock.ts.
 import type { Kysely } from 'kysely';
 import type { AfterCommit } from '../../platform/events.ts';
+import type { RecordFields } from '../../platform/guards.ts';
 import { newId } from '../../platform/ids.ts';
 import type { Platform } from '../../platform/modules.ts';
+import { personChanges } from './audit.ts';
 import { type UsersTables, usersData } from './data.ts';
 import { refuse, underLock } from './roles/lock.ts';
 import { cleanName, normalizeEmail, type User } from './rules.ts';
@@ -25,7 +27,7 @@ export type Refusal =
 // `unchanged`: ya estaba así (dada de alta o de baja); se contesta cómo está, sin anotar nada.
 // `audit`: lo que se suma a su línea de la auditoría.
 export type Outcome =
-  | { user: User; unchanged?: true; audit?: Record<string, unknown> }
+  | { user: User; unchanged?: true; audit?: Pick<RecordFields, 'changes' | 'data'> }
   | { refused: Refusal; user?: User };
 
 // Lo que no se tocó: o no existe, o cambió (y se devuelve como está), o con la misma versión no
@@ -56,13 +58,18 @@ export function createPeople(platform: Platform) {
         change.email === undefined
           ? await rename(platform, id, version, name ?? null)
           : await data().changeEmail(id, version, normalizeEmail(change.email), name);
-      return changed ? { user: changed } : whyNot(data(), id, version, 'already-entered');
+      if (!changed) return whyNot(data(), id, version, 'already-entered');
+      const { previous, ...user } = changed;
+      return { user, audit: { changes: personChanges(previous, user) } };
     },
 
-    async remove(id: string, version: number): Promise<Outcome | { removed: true }> {
-      return (await data().remove(id, version))
-        ? { removed: true }
-        : whyNot(data(), id, version, 'already-entered');
+    // Devuelve a quien se borró, para anotarlo con su nombre (05 · R2.4).
+    async remove(
+      id: string,
+      version: number,
+    ): Promise<Outcome | { removed: Omit<User, 'roleIds'> }> {
+      const removed = await data().remove(id, version);
+      return removed ? { removed } : whyNot(data(), id, version, 'already-entered');
     },
 
     async activate(asking: string, id: string, version: number): Promise<Outcome> {
@@ -93,7 +100,7 @@ async function authorize(
     const inserted = await usersData(platform.db as Kysely<UsersTables>).insert(user, given.roles);
     if (!inserted) return { refused: 'email-taken' };
     const { roleNames, ...saved } = inserted;
-    return { user: { ...saved, roleIds: given.roles }, audit: { roles: roleNames } };
+    return { user: { ...saved, roleIds: given.roles }, audit: { data: { roles: roleNames } } };
   } catch (error) {
     if ((error as { code?: string }).code === '23503') return { refused: 'bad-request' };
     throw error;

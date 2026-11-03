@@ -33,10 +33,9 @@ describe('los cambios de roles', () => {
     const hash = (header: string | null) => parseServerHeader(header)?.permissions;
     expect(hash(lost.header)).toMatch(/^[0-9a-f]{8}$/);
     expect(hash(lost.header)).not.toBe(hash(first.header));
-    expect(kit.audited('user.roles-changed').at(-1)?.data).toEqual({
-      target: ana.id,
-      before: ['Mira'],
-      after: ['Otro'],
+    expect(kit.audited('user.roles-changed').at(-1)).toMatchObject({
+      targets: [{ kind: 'person', id: ana.id }],
+      changes: { roles: { before: ['Mira'], after: ['Otro'] } },
     });
     const { version } = await roleOf(other);
     const changed = await kit.admin.request(`/api/roles/${other}`, {
@@ -45,14 +44,14 @@ describe('los cambios de roles', () => {
     });
     expect(changed.body.role.permissions).toEqual(['offline.work', 'roles.manage', 'users.view']);
     expect((await ana.device.request('/api/users')).status).toBe(200);
-    expect(kit.audited('role.changed').at(-1)?.data).toEqual({
-      target: 'Otro',
-      roleId: other,
-      before: { name: 'Otro', description: null, permissions: ['offline.work'] },
-      after: {
-        name: 'Otro',
-        description: null,
-        permissions: ['offline.work', 'roles.manage', 'users.view'],
+    // Solo lo que cambió (05 · R2.5): los permisos, no el nombre ni la descripción.
+    expect(kit.audited('role.changed').at(-1)).toMatchObject({
+      targets: [{ kind: 'role', id: other, name: 'Otro' }],
+      changes: {
+        permissions: {
+          before: ['offline.work'],
+          after: ['offline.work', 'roles.manage', 'users.view'],
+        },
       },
     });
   });
@@ -140,8 +139,8 @@ describe('los cambios de roles', () => {
       kit
         .audited('role.permissions-added')
         .slice(before)
-        .map((one) => one.data),
-    ).toEqual([{ role: 'system', permissions: ['offline.work'] }]);
+        .map((one) => ({ actor: one.actor, data: one.data })),
+    ).toEqual([{ actor: { kind: 'system' }, data: { permissions: ['offline.work'] } }]);
     expect((await roleOf(await kit.systemRole())).permissions).toContain('offline.work');
     expect((await roleOf(other)).permissions).toEqual(['users.view']);
   });

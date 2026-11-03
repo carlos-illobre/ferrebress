@@ -108,8 +108,9 @@ describe('las sesiones y los celulares, desde Usuarios', () => {
     expect((await second.request('/api/start')).body.person).toBeDefined();
     expect(kit.server.platform.audit.read(2026).at(-1)).toMatchObject({
       type: 'phone.cut',
-      userId: adminId,
-      data: { targetUserId: linked.userId, sessions: 1, passkey: true },
+      actor: { kind: 'person', userId: adminId },
+      targets: [{ kind: 'person', id: linked.userId }],
+      data: { sessions: 1, passkey: true },
     });
     // El otro, sin huella, se corta por su sesión.
     const iphone = person.phones.find((p: { passkey: boolean }) => !p.passkey);
@@ -147,7 +148,8 @@ describe('las sesiones y los celulares, desde Usuarios', () => {
     ).toBe(404);
     expect(kit.server.platform.audit.read(2026).at(-1)).toMatchObject({
       type: 'users.rejected',
-      data: { targetUserId: adminId, reason: 'not-found' },
+      targets: [{ kind: 'person', id: adminId }],
+      data: { reason: 'not-found' },
     });
     expect((await admin.request('/api/users/x/access')).status).toBe(404);
     expect(
@@ -199,7 +201,7 @@ describe('las sesiones y los celulares, desde Usuarios', () => {
     expect(statuses.at(-1)).toBe(429);
     expect(kit.server.platform.audit.read(2026).at(-1)).toMatchObject({
       type: 'session.confirm-rejected',
-      userId: adminId,
+      actor: { kind: 'person', userId: adminId },
       data: { method: 'google' },
     });
   });

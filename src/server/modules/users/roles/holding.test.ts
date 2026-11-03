@@ -28,10 +28,11 @@ describe('guardar un rol con sus personas, todo junto (02 · R7.13)', () => {
     expect(created.status).toBe(200);
     const id = created.body.role.id;
     expect((await kit.row(ana.id)).roleIds.sort()).toEqual([view, id].sort());
-    expect(kit.audited('user.roles-changed').at(-1)?.data).toMatchObject({
-      target: ana.id,
-      before: ['Base'],
-      after: expect.arrayContaining(['Base', 'Encargado']),
+    expect(kit.audited('user.roles-changed').at(-1)).toMatchObject({
+      targets: [{ kind: 'person', id: ana.id }, { kind: 'role', id }],
+      changes: {
+        roles: { before: ['Base'], after: expect.arrayContaining(['Base', 'Encargado']) },
+      },
     });
   });
 
@@ -58,8 +59,10 @@ describe('guardar un rol con sus personas, todo junto (02 · R7.13)', () => {
     expect((await kit.row(caro.id)).roleIds.sort()).toEqual([view, extra].sort());
     expect((await kit.row(beto.id)).roleIds).toEqual([view]);
     const changes = kit.audited('user.roles-changed').slice(-2);
-    expect(changes.map((one) => one.data?.target).sort()).toEqual([beto.id, caro.id].sort());
-    expect(kit.audited('role.changed').at(-1)?.data).toMatchObject({ target: 'Extra plus' });
+    expect(changes.map((one) => one.targets?.[0]?.id).sort()).toEqual([beto.id, caro.id].sort());
+    expect(kit.audited('role.changed').at(-1)?.targets).toEqual([
+      { kind: 'role', id: extra, name: 'Extra plus' },
+    ]);
   });
 
   it('users-E62: cambiar solo las personas no sube la versión del rol ni deja su línea', async () => {

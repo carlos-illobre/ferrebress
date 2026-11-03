@@ -23,11 +23,12 @@ describe('la auditoría de entrar con el celular', () => {
   });
   afterAll(() => server.close());
 
-  const rejections = (deviceId: string) =>
+  // El dispositivo, como lo dice el navegador (05 · R2.6): su identificador no se anota (05, § 2.2).
+  const rejections = () =>
     server.platform.audit
       .read(2026)
-      .filter((event) => event.type === 'sign-in.rejected' && event.deviceId === deviceId)
-      .map((event) => event.data);
+      .filter((event) => event.type === 'sign-in.rejected' && event.device?.os === 'android')
+      .map((event) => ({ ...event.data, ip: event.ipAddress, phone: event.device?.phone }));
 
   it('sign-in-E44: un código vencido, una reserva vencida y la firma de otro desafío quedan anotados, con el dispositivo', async () => {
     const phone = createDevice(server, { userAgent: androidPhone, ip });
@@ -59,10 +60,10 @@ describe('la auditoría de entrar con el celular', () => {
     now += 61_000;
     expect((await phone.request('/api/sign-in/codes/read', { code })).status).toBe(410);
 
-    expect(rejections(phone.id)).toEqual([
-      { method: 'qr', reason: 'other-challenge' },
-      { method: 'qr', reason: 'code-expired' },
-      { method: 'qr', reason: 'code-expired' },
+    expect(rejections()).toEqual([
+      { method: 'qr', reason: 'other-challenge', ip, phone: true },
+      { method: 'qr', reason: 'code-expired', ip, phone: true },
+      { method: 'qr', reason: 'code-expired', ip, phone: true },
     ]);
     for (const screen of [first, second, third]) await screen.close();
   });

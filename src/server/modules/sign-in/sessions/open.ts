@@ -1,10 +1,12 @@
 // Abrir una sesión, igual por los cuatro caminos (Google, la huella, la huella del celular al
 // aprobar una computadora y el permiso de la computadora): la crea con la llave de prueba del
 // dispositivo, deja la cookie y lo anota en la auditoría.
+
 import type { Context } from 'hono';
+import { deviceLabel, isPhone } from '../../../platform/device.ts';
+import { provenPerson } from '../../../platform/guards.ts';
 import { Refused } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
-import { deviceLabel, isPhone } from '../device.ts';
 import { writeSessionCookie } from './cookie.ts';
 import type { Way } from './data.ts';
 import { isProofKey } from './proof.ts';
@@ -70,6 +72,6 @@ export async function openSession(ctx: SignInContext, c: Context, opening: Openi
   }
   ctx.store.remember(created);
   writeSessionCookie(c, created.token);
-  ctx.record(c, 'sign-in.succeeded', { userId: opening.userId, data: opening.data });
+  ctx.record(c, 'sign-in.succeeded', { proven: provenPerson(opening.userId), data: opening.data });
   return created.session;
 }

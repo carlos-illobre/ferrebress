@@ -30,7 +30,7 @@ async function confirmed(ctx: SignInContext, c: Context, field: 'googleAt' | 'pa
 }
 
 function refused(ctx: SignInContext, c: Context, method: string) {
-  ctx.record(c, 'session.confirm-rejected', { userId: sessionOf(c).userId, data: { method } });
+  ctx.record(c, 'session.confirm-rejected', { data: { method } });
   return fail(c, 403, 'not-authorized');
 }
 

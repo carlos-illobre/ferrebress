@@ -5,6 +5,7 @@
 import { isPermission, type PermissionId } from '@ferrebress/shared/contracts/permissions';
 import type { Kysely } from 'kysely';
 import type { Platform, ServerModule } from '../../platform/modules.ts';
+import { personNow } from './audit.ts';
 import { type UsersTables, usersData } from './data.ts';
 import { addFirstAdministrator } from './first.ts';
 import { createUsers } from './migrations/001-users.ts';
@@ -58,6 +59,8 @@ export function createUsersModule({ accessCounts }: { accessCounts: AccessCounts
       given.permissions.provide(access.permissionsOf);
       await access.addNewPermissions();
       registerPeopleRoutes(given, people, () => data().findAll(), accessCounts, access);
+      // Las personas que ya estaban, para «(hoy: …)» y los filtros de Quién hizo qué (05, § 3).
+      given.audit.knowPeople((await data().findAll()).map((user) => personNow(user)));
       registerRoleRoutes(given, createRoleChanges(given), access);
       const first = given.config.E2E_FIRST_ADMIN_EMAIL;
       if (first) await addFirstAdministrator(given.db, given.clock, first);

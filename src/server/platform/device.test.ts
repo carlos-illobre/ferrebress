@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deviceLabel, isPhone } from './device.ts';
+import { deviceCodes, deviceLabel, isPhone } from './device.ts';
 
 const chromeWindows =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36';
@@ -32,5 +32,24 @@ describe('si es un celular', () => {
     expect(isPhone(chromeWindows, '?1')).toBe(true);
     expect(isPhone(chromeAndroid, undefined)).toBe(true);
     expect(isPhone(chromeWindows, '?0')).toBe(false);
+  });
+});
+
+describe('el dispositivo que se anota', () => {
+  it('en códigos: si es celular, el navegador y el sistema; sin lo que no se reconoce', () => {
+    const headers = (agent?: string, mobile?: string) => (name: string) =>
+      ({ 'User-Agent': agent, 'Sec-CH-UA-Mobile': mobile })[name];
+    expect(deviceCodes(headers(chromeAndroid))).toEqual({
+      phone: true,
+      browser: 'chrome',
+      os: 'android',
+    });
+    expect(deviceCodes(headers(chromeWindows, '?0'))).toEqual({
+      phone: false,
+      browser: 'chrome',
+      os: 'windows',
+    });
+    expect(deviceCodes(headers('Notebook del mostrador'))).toEqual({ phone: false });
+    expect(deviceCodes(headers())).toEqual({ phone: false });
   });
 });

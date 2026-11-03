@@ -52,7 +52,7 @@ describe('entrar sin conexión: lo que intenta un atacante', () => {
     expect(await kit.rowOf(entry.id)).toEqual({ result: 'rejected', reason: 'too-late' });
   });
 
-  it('seguridad, 11: repetir una entrada se anota a nombre de quien la mandó primero, una vez por ventana', async () => {
+  it('seguridad, 11: repetir una entrada se anota como de alguien sin entrar, sobre quien la mandó primero, una vez por ventana', async () => {
     const linked = await kit.linkedPhone();
     const entry = await kit.offlineEntry(linked);
     await kit.send(linked, entry);
@@ -66,6 +66,9 @@ describe('entrar sin conexión: lo que intenta un atacante', () => {
       .slice(before)
       .filter((event) => event.type === 'sign-in.offline-repeated');
     expect(repeated).toHaveLength(1);
-    expect(repeated[0]?.userId).toBe(linked.userId);
+    expect(repeated[0]).toMatchObject({
+      actor: { kind: 'outsider' },
+      targets: [{ kind: 'person', id: linked.userId }],
+    });
   });
 });

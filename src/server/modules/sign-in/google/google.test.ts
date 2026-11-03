@@ -104,7 +104,10 @@ describe('entrar con Google', () => {
     });
     expect(response.cookie).toBeNull();
     const event = rejected().find(
-      (e) => e.type === 'sign-in.rejected' && e.email === 'nadie@example.com',
+      (e) =>
+        e.type === 'sign-in.rejected' &&
+        e.actor.kind === 'outsider' &&
+        e.actor.email === 'nadie@example.com',
     );
     expect(event).toMatchObject({
       ipAddress: '190.1.2.3',

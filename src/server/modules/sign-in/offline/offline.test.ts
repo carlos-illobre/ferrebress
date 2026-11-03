@@ -98,7 +98,9 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
     const lines = kit.server.platform.audit.read(new Date().getUTCFullYear());
     expect(lines.at(-1)).toMatchObject({
       type: 'sign-in.offline-rejected',
-      data: { userId: linked.userId, reason: 'deactivated' },
+      actor: { kind: 'outsider' },
+      targets: [{ kind: 'person', id: linked.userId }],
+      data: { reason: 'deactivated' },
     });
   });
 

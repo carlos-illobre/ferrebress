@@ -6,11 +6,11 @@ import {
   type StartResponse,
 } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
+import { isPhone } from '../../../platform/device.ts';
 import { byAddress, byAddressAndDevice, readBody } from '../../../platform/guards.ts';
 import { fail, Refused } from '../../../platform/http.ts';
 import type { GoogleMatch } from '../../users/index.ts';
 import type { SignInContext } from '../context.ts';
-import { isPhone } from '../device.ts';
 import { ownerOf, withOffline } from '../offline/phone-owner.ts';
 import { canWorkOffline } from '../offline/rules.ts';
 import { readSessionCookie } from '../sessions/cookie.ts';

@@ -5,8 +5,8 @@
 // memoria después de la primera consulta, con un tope.
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
+import { isPhone } from '../../../platform/device.ts';
 import type { SignInContext } from '../context.ts';
-import { isPhone } from '../device.ts';
 import { canWorkOffline } from './rules.ts';
 
 // Lo recuerda; si ya hay demasiados, empieza de cero (se vuelven a consultar).

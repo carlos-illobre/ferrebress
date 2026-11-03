@@ -9,7 +9,7 @@ import { createRateLimiter } from './platform/limits/rate-limit.ts';
 import type { Platform, ServerModule } from './platform/modules.ts';
 import { createPermissionGate } from './platform/permissions.ts';
 import { createSessionGate } from './platform/session.ts';
-import { openAuditLog } from './platform/storage/audit.ts';
+import { openAuditLog } from './platform/storage/audit/write.ts';
 import { migrate, openDatabase } from './platform/storage/db.ts';
 
 // Cómo se programa un trabajo periódico; las pruebas pasan uno que corre cuando ellas quieren.

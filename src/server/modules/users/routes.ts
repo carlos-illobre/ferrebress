@@ -16,6 +16,7 @@ import { bySchema, createGuards, readBody } from '../../platform/guards.ts';
 import { fail, uuidParams } from '../../platform/http.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { sessionOf } from '../../platform/session.ts';
+import { personRecord } from './audit.ts';
 import type { Outcome, People } from './people.ts';
 import type { Access } from './roles/access.ts';
 import { rowOf } from './row.ts';
@@ -62,10 +63,11 @@ function rejected(
 ) {
   const asking = sessionOf(c).userId;
   const key = `audit:users:${code}:${asking}`;
+  const target = c.req.param('id');
   if (platform.limiter.hit(key, usersSettings.throttledAudit).allowed)
     guards.record(c, 'users.rejected', {
-      userId: asking,
-      data: { targetUserId: c.req.param('id') ?? 'new', reason: code },
+      ...(target && { targets: [{ kind: 'person', id: target }] }),
+      data: { reason: code },
     });
   return fail(c, status, code, extra);
 }
@@ -86,7 +88,7 @@ export function registerPeopleRoutes(
   access: Access,
 ) {
   const guards = createGuards(platform, {
-    event: 'users.throttled',
+    topic: 'users',
     window: usersSettings.throttledAudit,
   });
   const limited = guards.limit((c) => [`users:session:${sessionOf(c).id}`], usersSettings.changes);
@@ -119,11 +121,7 @@ function answer(route: Route, c: Context, outcome: Outcome, type: string) {
   const { guards } = route;
   const asking = sessionOf(c).userId;
   if (!('refused' in outcome)) {
-    if (!outcome.unchanged)
-      guards.record(c, type, {
-        userId: asking,
-        data: { targetUserId: outcome.user.id, ...outcome.audit },
-      });
+    if (!outcome.unchanged) guards.record(c, type, personRecord(outcome.user, outcome.audit));
     return c.json<PersonResponse>({ person: rowOf(outcome.user, asking) });
   }
   const status =
@@ -195,10 +193,7 @@ function registerRemove(route: Route) {
       const target = c.req.param('id');
       const removed = await people.remove(target, versioned.of(c).version);
       if (!('removed' in removed)) return answer(route, c, removed, 'user.deleted');
-      guards.record(c, 'user.deleted', {
-        userId: sessionOf(c).userId,
-        data: { targetUserId: target },
-      });
+      guards.record(c, 'user.deleted', personRecord({ ...removed.removed, roleIds: [] }, {}, true));
       return c.json({ removed: true });
     },
   );

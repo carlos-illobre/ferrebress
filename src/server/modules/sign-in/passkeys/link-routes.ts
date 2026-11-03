@@ -45,7 +45,7 @@ export function registerLinkRoutes(ctx: SignInContext): void {
       body.data.response as unknown as RegistrationResponseJSON,
     );
     if (!credential) {
-      ctx.record(c, 'passkey.rejected', { userId: session.userId, data: { reason: 'invalid' } });
+      ctx.record(c, 'passkey.rejected', { data: { reason: 'invalid' } });
       return fail(c, 400, 'bad-request');
     }
     const refusedSave = await savePasskey(ctx, c, session, credential);

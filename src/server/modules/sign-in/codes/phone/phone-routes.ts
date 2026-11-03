@@ -9,7 +9,7 @@ import {
   readCodeBody,
 } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
-import { bySchema, readBody } from '../../../../platform/guards.ts';
+import { bySchema, provenPerson, readBody } from '../../../../platform/guards.ts';
 import { fail } from '../../../../platform/http.ts';
 import type { SignInContext } from '../../context.ts';
 import { authenticationOptions, cannotLink, registrationOptions } from '../../passkeys/webauthn.ts';
@@ -65,7 +65,7 @@ async function read(ctx: SignInContext, c: Context, screen: Screen): Promise<Rea
   const challenge = randomBytes(32).toString('base64url');
   const reservation = ctx.screens.reserve(screen, challenge, holdMs);
   screen.notify?.({ type: 'read' });
-  ctx.record(c, 'code.read', { ...(session && { userId: session.userId }) });
+  ctx.record(c, 'code.read', { ...(session && { proven: provenPerson(session.userId) }) });
   const canLink =
     session &&
     !cannotLink(ctx, c, session) &&

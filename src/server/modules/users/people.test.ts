@@ -218,14 +218,22 @@ describe('las personas, desde Usuarios', () => {
         'users.rejected',
       ]),
     );
-    // Autorizar anota también sus roles, con nombre (diseño de 02, § 21).
-    expect(lines.find((line) => line.type === 'user.authorized')?.data).toEqual({
-      targetUserId: expect.any(String),
-      roles: ['Administrador'],
+    // Autorizar anota también sus roles, con nombre (diseño de 02, § 21), y a quién (05 · R2.4).
+    expect(lines.find((line) => line.type === 'user.authorized')).toMatchObject({
+      actor: { kind: 'person', userId: adminId },
+      targets: [{ kind: 'person', id: expect.any(String), name: expect.any(String) }],
+      data: { roles: ['Administrador'] },
     });
     expect(lines.find((line) => line.type === 'user.deactivated')).toMatchObject({
-      userId: adminId,
-      data: { targetUserId: expect.any(String) },
+      actor: { kind: 'person', userId: adminId },
+      targets: [{ kind: 'person', id: expect.any(String) }],
     });
+    // Solo lo que cambió, con antes y después (05 · R2.5).
+    expect(lines.find((line) => line.type === 'user.renamed')?.changes).toEqual({
+      name: { before: expect.any(String), after: expect.any(String) },
+    });
+    expect(lines.find((line) => line.type === 'user.deleted')?.targets?.[0]?.name).toEqual(
+      expect.any(String),
+    );
   });
 });

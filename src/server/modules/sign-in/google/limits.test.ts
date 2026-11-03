@@ -28,15 +28,17 @@ describe('los límites de intentos con Google', () => {
     expect(response.body.retryAfterSeconds).toBeGreaterThan(0);
     const throttled = server.platform.audit
       .read(new Date().getUTCFullYear())
-      .filter((e) => e.type === 'sign-in.throttled');
+      .filter((e) => e.type === 'request.throttled' && e.data?.topic === 'sign-in');
     await device.request('/api/sign-in/google', {
       credential: 'x',
       proofPublicKey: device.proofPublicKey,
     });
     const again = server.platform.audit
       .read(new Date().getUTCFullYear())
-      .filter((e) => e.type === 'sign-in.throttled');
+      .filter((e) => e.type === 'request.throttled' && e.data?.topic === 'sign-in');
     expect(throttled).toHaveLength(1);
+    // El tema y por qué se frenó, nunca la clave: lleva la dirección o el dispositivo (05, § 2.2).
+    expect(throttled[0]?.data).toEqual({ topic: 'sign-in', by: 'ip' });
     expect(again).toHaveLength(1);
   });
 

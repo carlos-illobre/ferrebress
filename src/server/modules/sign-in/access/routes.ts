@@ -127,8 +127,8 @@ function refuse(ctx: SignInContext, c: Context, status: 403 | 404 | 409, code: E
   const key = `audit:access:${code}:${target}`;
   if (ctx.platform.limiter.hit(key, signInSettings.limits.throttledAudit).allowed)
     ctx.record(c, 'users.rejected', {
-      userId: sessionOf(c).userId,
-      data: { targetUserId: target, reason: code },
+      targets: [{ kind: 'person', id: target }],
+      data: { reason: code },
     });
   return fail(c, status, code);
 }
@@ -146,8 +146,8 @@ async function closeSessions(ctx: SignInContext, data: Data, c: Context, id: str
   const type = id ? 'session.closed' : 'sessions.closed-all';
   if (ids.length > 0)
     ctx.record(c, type, {
-      userId: asking.userId,
-      data: { targetUserId: userId, sessions: ids.length },
+      targets: [{ kind: 'person', id: userId }],
+      data: { sessions: ids.length },
     });
   return c.json<ClosedResponse>({ closed: ids.length });
 }
@@ -167,6 +167,6 @@ async function cut(ctx: SignInContext, data: Data, c: Context, from: 'card' | 'l
   ctx.people.forget([userId]);
   const response = { sessions: done.sessionIds.length, passkey: done.passkey };
   const type = from === 'card' ? 'passkey.removed' : 'phone.cut';
-  ctx.record(c, type, { userId: asking.userId, data: { targetUserId: userId, ...response } });
+  ctx.record(c, type, { targets: [{ kind: 'person', id: userId }], data: response });
   return c.json<CutResponse>(response);
 }

@@ -67,8 +67,9 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
       platform.audit.record({
         type: 'session.ended',
         at: platform.clock.now(),
-        userId: session.userId,
-        data: { sessionId: session.id, reason },
+        actor: { kind: 'system' },
+        targets: [{ kind: 'person', id: session.userId }],
+        data: { reason },
       }),
     ),
     nonces: createOneUse<true>(platform.clock, signInSettings.nonce),
@@ -82,7 +83,7 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
       origin: platform.config.PUBLIC_ORIGIN,
     },
     // Anotar en la auditoría y frenar por límite de intentos (platform/guards.ts).
-    ...createGuards(platform, { event: 'sign-in.throttled', window: throttledAudit }),
+    ...createGuards(platform, { topic: 'sign-in', window: throttledAudit }),
     people: createPeople(users),
     wait,
     screens: createScreens(platform.clock),

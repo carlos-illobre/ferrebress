@@ -8,7 +8,7 @@ import type { Http } from './http.ts';
 import type { RateLimiter } from './limits/rate-limit.ts';
 import type { PermissionGate } from './permissions.ts';
 import type { SessionGate } from './session.ts';
-import type { AuditLog } from './storage/audit.ts';
+import type { AuditLog } from './storage/audit/write.ts';
 import type { ModuleSchema } from './storage/db.ts';
 
 // Lo que la plataforma le da a cada módulo al registrarlo.
