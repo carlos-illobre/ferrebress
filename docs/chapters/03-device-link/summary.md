@@ -3,7 +3,7 @@
 El celular y la computadora de una misma persona trabajan juntos, en dos etapas. Reglas completas
 en [rules.md](rules.md).
 
-**Estado:** etapa a (vínculo y espejo), por aprobar. La etapa b (lector de códigos y fotos) se
+**Estado:** etapa a (vínculo y espejo), aprobada. La etapa b (lector de códigos y fotos) se
 escribe con el catálogo (capítulo 07).
 
 ## Cada regla en una línea

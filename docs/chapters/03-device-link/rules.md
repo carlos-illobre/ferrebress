@@ -5,7 +5,7 @@ El celular y la computadora de una misma persona trabajan juntos. Se construye e
 fotos** (la cámara del celular lee códigos y saca fotos para la computadora), que se escribe con el
 catálogo (capítulo 07).
 
-**Estado:** etapa a, por aprobar.
+**Estado:** etapa a, aprobada.
 
 **La idea:** vinculados, el celular y la computadora son una sola aplicación en dos pantallas, como
 un control remoto: lo que se toca en uno se ve en el otro. Se hablan directo por el Wi-Fi del local,
