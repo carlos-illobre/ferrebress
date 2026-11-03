@@ -72,7 +72,9 @@ describe('los límites de los roles', () => {
       email: 'tarde@example.com',
       roles: [await kit.systemRole()],
     });
-    expect(kit.audited('users.rejected').at(-1)).toMatchObject({ data: { reason: 'confirm-first' } });
+    expect(kit.audited('users.rejected').at(-1)).toMatchObject({
+      data: { reason: 'confirm-first' },
+    });
     expect(kit.audited('users.rejected').at(-1)?.targets).toBeUndefined();
     await kit.reconfirm();
     const staff = await kit.person([await kit.role('Personal', ['users.manage'])]);

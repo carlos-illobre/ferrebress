@@ -83,6 +83,28 @@ describe('quién hizo qué: escribir', () => {
     again.close();
   });
 
+  it('las personas de hoy quedan en el disco: al volver a abrir, se usan sus nombres', () => {
+    const dir = tempDir();
+    const first = openAuditLog(dir);
+    first.knowPeople([
+      { userId: 'u-marcos', name: 'Marcos', email: 'marcos@example.com', state: 'active' },
+      { userId: 'u-lucia', name: 'Lucía', state: 'deactivated' },
+    ]);
+    first.close();
+    const again = openAuditLog(dir);
+    again.record({
+      type: 'sign-out',
+      at,
+      actor: marcos,
+      targets: [{ kind: 'person', id: 'u-lucia' }],
+    });
+    expect(again.read(2026)[0]).toMatchObject({
+      actor: { name: 'Marcos' },
+      targets: [{ name: 'Lucía' }],
+    });
+    again.close();
+  });
+
   it('escribe por tandas: cada segundo, o al juntar 100 acciones', () => {
     vi.useFakeTimers();
     const dir = tempDir();

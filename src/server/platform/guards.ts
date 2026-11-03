@@ -20,9 +20,16 @@ export type ThrottledAudit = { topic: string; window: Window };
 // todavía sin sesión. Solo la arman esas verificaciones: así un intento fallido nunca queda a nombre
 // de la persona que se intentó usar (revisión de seguridad de 05, punto 1).
 declare const provenBrand: unique symbol;
-export type Proven = { userId: string; name?: string; readonly [provenBrand]: true };
-export const provenPerson = (userId: string, name?: string): Proven =>
-  ({ userId, ...(name && { name }) }) as Proven;
+export type Proven = {
+  userId: string;
+  name?: string;
+  email?: string;
+  readonly [provenBrand]: true;
+};
+export const provenPerson = (
+  userId: string,
+  person: { name: string; email: string } | undefined = undefined,
+): Proven => ({ userId, ...person }) as Proven;
 
 // Lo que pone el módulo; quién, cuándo, el dispositivo y la dirección los pone el paso.
 export type RecordFields = Pick<
@@ -44,7 +51,19 @@ function actorOf(c: Context, { proven, email }: RecordFields): Actor {
 
 export function createGuards({ audit, clock, limiter }: Platform, throttled: ThrottledAudit) {
   const record = (c: Context, type: string, fields: RecordFields = {}) => {
-    const { proven: _proven, email: _email, ...rest } = fields;
+    const { proven, email: _email, ...rest } = fields;
+    // Quien entra trae su nombre y su correo de hoy: así figura en los filtros desde su primera vez.
+    const people =
+      proven?.name && proven.email
+        ? [
+            {
+              userId: proven.userId,
+              name: proven.name,
+              email: proven.email,
+              state: 'active' as const,
+            },
+          ]
+        : [];
     audit.record({
       type,
       at: clock.now(),
@@ -52,6 +71,7 @@ export function createGuards({ audit, clock, limiter }: Platform, throttled: Thr
       device: deviceCodes((name) => c.req.header(name)),
       ipAddress: c.get('ipAddress') as string,
       ...rest,
+      ...(people.length > 0 && { people: [...people, ...(rest.people ?? [])] }),
     });
   };
   const tooMany = (c: Context, retryAfterMs: number) =>

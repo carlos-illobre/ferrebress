@@ -47,10 +47,10 @@ export function startOfBusinessDate(date: BusinessDate): Date {
 
 // Cuánto adelanta (o atrasa) la hora del negocio respecto de la de Greenwich en ese instante.
 function offsetAt(instant: number): number {
-  const part = Object.fromEntries(
-    partsFormat.formatToParts(new Date(instant)).map(({ type, value }) => [type, Number(value)]),
-  );
-  const wall = Date.UTC(part.year, part.month - 1, part.day, part.hour, part.minute, part.second);
+  const parts = partsFormat.formatToParts(new Date(instant));
+  const n = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((one) => one.type === type)?.value);
+  const wall = Date.UTC(n('year'), n('month') - 1, n('day'), n('hour'), n('minute'), n('second'));
   return wall - Math.floor(instant / 1000) * 1000;
 }
 

@@ -27,7 +27,9 @@ export default defineConfig({
       // src/app/main.tsx monta la aplicación en la página y src/app/google-button.ts, el marco del
       // botón de Google; src/app/sw.ts conecta los eventos del service worker con
       // platform/offline/worker.ts; src/server/testing/pglite-template.ts corre antes de las
-      // pruebas, fuera de ellas. Las configuraciones no son código.
+      // pruebas, fuera de ellas; src/server/platform/storage/audit/thread.ts conecta el hilo de
+      // lectura de la auditoría con query.ts, que se prueba en el mismo hilo (y el hilo, en
+      // query.test.ts, sin cobertura: la de otro hilo no se mide). Las configuraciones no son código.
       exclude: [
         'tools/cli.ts',
         'src/server/main.ts',
@@ -36,6 +38,7 @@ export default defineConfig({
         'src/app/sw.ts',
         'src/app/google-button.ts',
         'src/server/testing/pglite-template.ts',
+        'src/server/platform/storage/audit/thread.ts',
         '**/*.config.ts',
         '**/*.test.{ts,tsx}',
       ],

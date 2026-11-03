@@ -183,7 +183,7 @@ describe('la sesión', () => {
   it('users-R1 (02, § 5): si la dan de baja mientras entra, la sesión recién abierta se cierra y no entra', async () => {
     const { recordSignIn } = server.users;
     // La baja llega entre que se crea la sesión y se anota la entrada.
-    server.users.recordSignIn = async () => false;
+    server.users.recordSignIn = async () => undefined;
     const device = createDevice(server);
     const entered = await device.signInWithGoogle(admin);
     server.users.recordSignIn = recordSignIn;

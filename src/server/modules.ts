@@ -1,7 +1,9 @@
 // Arma los módulos del servidor y los conecta entre sí (diseño de 02, § 3): personas recibe de entrar
-// cuántas sesiones y celulares tiene cada una, y entrar recibe la fachada de personas. Lo usan
+// cuántas sesiones y celulares tiene cada una, y entrar recibe la fachada de personas. Quién hizo qué
+// no depende de nadie: lee la auditoría. Lo usan
 // main.ts y las pruebas, así lo que conecta se prueba.
 import type { JWTVerifyGetKey } from 'jose';
+import { createAuditLogModule } from './modules/audit-log/index.ts';
 import { createSignInModule } from './modules/sign-in/index.ts';
 import { createUsersModule } from './modules/users/index.ts';
 
@@ -16,5 +18,6 @@ export function createModules(options: ModulesOptions = {}) {
     accessCounts: (userIds, asking) => signIn.accessCounts(userIds, asking),
   });
   const signIn = createSignInModule({ users: users.users, ...options });
-  return { modules: [users.module, signIn], users: users.users, people: users.people };
+  const modules = [users.module, signIn, createAuditLogModule()];
+  return { modules, users: users.users, people: users.people };
 }

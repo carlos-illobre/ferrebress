@@ -83,15 +83,15 @@ function signingIn(db: Db) {
       ).numUpdatedRows === 1n,
 
     // Anota la entrada solo si sigue activa, y dice si lo estaba.
-    recordSignIn: async (id: string, at: Date): Promise<boolean> =>
-      (
-        await db
-          .updateTable('users.users')
-          .set({ last_sign_in_at: at })
-          .where('id', '=', id)
-          .where('active', '=', true)
-          .executeTakeFirst()
-      ).numUpdatedRows === 1n,
+    // Devuelve su nombre y su correo, para anotar la entrada (05 · R2.3); si no está activa, nada.
+    recordSignIn: (id: string, at: Date) =>
+      db
+        .updateTable('users.users')
+        .set({ last_sign_in_at: at })
+        .where('id', '=', id)
+        .where('active', '=', true)
+        .returning(['name', 'google_name as googleName', 'email'])
+        .executeTakeFirst(),
 
     // La primera persona de una instalación: con la tabla bloqueada, solo si no hay ninguna.
     addFirst: (id: string, email: string, name: string | null): Promise<boolean> =>

@@ -16,6 +16,8 @@ export function personNow(user: Pick<User, 'id' | 'active'> & Shown, deleted = f
   return { userId: user.id, name: displayName(user), email: user.email, state } as const;
 }
 
+export const peopleNow = (users: User[]) => users.map((user) => personNow(user));
+
 // Del nombre (el que se ve) y el correo, solo lo que cambió.
 export function personChanges(before: Shown, after: Shown): NonNullable<RecordFields['changes']> {
   const fields = [

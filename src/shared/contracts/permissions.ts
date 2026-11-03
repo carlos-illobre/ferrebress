@@ -43,6 +43,13 @@ export const permissions = [
     includes: ['users.view'],
   },
   {
+    id: 'audit-log.view',
+    group: 'users',
+    name: 'Ver quién hizo qué',
+    explanation: 'Abrir Quién hizo qué y ver todas las acciones de todos, con su detalle.',
+    includes: [],
+  },
+  {
     id: 'offline.work',
     group: 'offline',
     name: 'Trabajar sin conexión',

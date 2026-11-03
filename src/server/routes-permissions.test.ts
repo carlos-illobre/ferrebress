@@ -47,6 +47,9 @@ const routes: Record<string, Needs> = {
   'POST /api/roles/:id': 'roles.manage',
   'POST /api/roles/:id/delete': 'roles.manage',
   'POST /api/users/:id/roles': 'roles.manage',
+  'GET /api/audit-log': 'audit-log.view',
+  'GET /api/audit-log/people': 'audit-log.view',
+  'GET /api/audit-log/day': 'audit-log.view',
 };
 
 const anyId = '00000000-0000-7000-8000-000000000999';

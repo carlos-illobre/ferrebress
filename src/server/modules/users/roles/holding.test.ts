@@ -29,7 +29,10 @@ describe('guardar un rol con sus personas, todo junto (02 · R7.13)', () => {
     const id = created.body.role.id;
     expect((await kit.row(ana.id)).roleIds.sort()).toEqual([view, id].sort());
     expect(kit.audited('user.roles-changed').at(-1)).toMatchObject({
-      targets: [{ kind: 'person', id: ana.id }, { kind: 'role', id }],
+      targets: [
+        { kind: 'person', id: ana.id },
+        { kind: 'role', id },
+      ],
       changes: {
         roles: { before: ['Base'], after: expect.arrayContaining(['Base', 'Encargado']) },
       },

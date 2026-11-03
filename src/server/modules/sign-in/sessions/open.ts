@@ -66,12 +66,16 @@ export async function openSession(ctx: SignInContext, c: Context, opening: Openi
     approvedBy: opening.approvedBy ?? null,
   };
   const created = await ctx.store.create(fields);
-  if (!(await ctx.users.recordSignIn(opening.userId, now))) {
+  const person = await ctx.users.recordSignIn(opening.userId, now);
+  if (!person) {
     await ctx.store.close(created.session.id, 'deactivated');
     throw opening.refused ?? new Refused(401, 'not-authorized');
   }
   ctx.store.remember(created);
   writeSessionCookie(c, created.token);
-  ctx.record(c, 'sign-in.succeeded', { proven: provenPerson(opening.userId), data: opening.data });
+  ctx.record(c, 'sign-in.succeeded', {
+    proven: provenPerson(opening.userId, person),
+    data: opening.data,
+  });
   return created.session;
 }

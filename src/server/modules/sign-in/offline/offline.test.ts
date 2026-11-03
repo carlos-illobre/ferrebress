@@ -123,7 +123,7 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
     const entry = await kit.offlineEntry(linked);
     linked.phone.cookie = '';
     const { recordSignIn } = kit.server.users;
-    kit.server.users.recordSignIn = async () => false;
+    kit.server.users.recordSignIn = async () => undefined;
     const sent = await kit.send(linked, entry);
     kit.server.users.recordSignIn = recordSignIn;
     expect(sent).toMatchObject({ status: 401, body: { error: 'not-authorized' } });

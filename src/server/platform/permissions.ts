@@ -17,7 +17,11 @@ type Resolve = (userId: string) => Promise<readonly string[]>;
 const deniedAudit = { max: 1, windowMs: 60_000 };
 
 export function createPermissionGate(
-  { audit, clock, limiter }: { audit: AuditLog; clock: Clock; limiter: RateLimiter },
+  {
+    audit,
+    clock,
+    limiter,
+  }: { audit: Pick<AuditLog, 'record'>; clock: Clock; limiter: RateLimiter },
   sessions: SessionGate,
 ) {
   let resolve: Resolve = async () => {
