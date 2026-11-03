@@ -97,16 +97,7 @@
     white-space: nowrap;
   }
   .audit-person {
-    padding: 0;
-    border: 0;
-    background: none;
-    font: inherit;
     font-weight: 700;
-    color: inherit;
-    cursor: pointer;
-  }
-  .audit-person:hover {
-    text-decoration: underline;
   }
   .audit-person small {
     font-weight: 600;

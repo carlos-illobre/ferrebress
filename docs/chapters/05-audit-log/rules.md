@@ -103,8 +103,8 @@ registro se decide con el plan de copias de la base.
   acción elegida, que cambia al recorrer la lista con el teclado; al abrir, la primera. En el celular
   se abre al tocar una acción. Se ve todo lo que se guardó de ella (R2): qué pasó,
   cuándo, quién, a quién o a qué, lo que había antes y lo que quedó, el dispositivo, el navegador y
-  la dirección de internet. Tocar una persona, en la lista o en el detalle, filtra por ella: como
-  «Hecho por» si la hizo, como «Hecho a» si la recibió.
+  la dirección de internet. Los nombres de las personas son solo texto: tocarlos, una o dos veces,
+  es tocar la acción y no filtra. Para ver lo de una persona están «Hecho por» y «Hecho a».
 - **R4.8** En la computadora todo se hace con el teclado: recorrer la lista, abrir el detalle,
   cambiar de página y llegar a los filtros (00 · capítulo 2).
 
@@ -249,9 +249,8 @@ registro se decide con el plan de copias de la base.
 - **E32** **Dado** un cambio de los permisos de un rol, **cuando** se abre su detalle, **entonces**
   muestra qué pasó, cuándo, quién, el rol, los permisos que había y los que quedaron, el
   dispositivo, el navegador y la dirección de internet.
-- **E33** **Dado** una acción en la lista, **cuando** se toca la persona que la hizo, **entonces**
-  la lista se filtra con «Hecho por» esa persona; si se toca la persona que la recibió, con «Hecho
-  a».
+- **E33** **Dado** una acción en la lista, **cuando** se toca, una o dos veces, el nombre de la
+  persona que la hizo o la recibió, **entonces** se elige esa acción y la lista no se filtra.
 - **E34** **Dado** Quién hizo qué abierto, **cuando** otra persona hace una acción, **entonces** la
   lista no cambia sola ni le pide nada al servidor; aparece con «Actualizar», al cambiar un filtro o
   de página, o al tocar la pestaña.

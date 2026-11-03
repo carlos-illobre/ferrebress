@@ -373,8 +373,8 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 | `Playhead` | El cabezal: arrastrar sobre la pista (se pega a la más cercana de las que se ven), ← → y los botones; en el celular, también deslizar de lado (más largo que alto, 48 px o más); ↑ ↓ eligen la fila y Enter la aísla; con alguien aislado, Escape primero lo suelta (su fila es lo que cierra la capa) y después cierra; Alt+R reproduce (en su capa, con su tecla, como todo botón). «Reproducir» es un paso por acción con un temporizador de la pantalla (14 s el día entero en la computadora, 1 s por acción en el celular), que se corta con cualquier toque, al ocultarse la aplicación o al llegar a la última. Se mueve con `transform` y `opacity`; con «reducir movimiento», salta |
 
 - **El texto** de cada acción lo arma el catálogo con trozos, no con HTML: `says(e)` devuelve
-  `texto`, `persona` y `cosa`, y la pantalla los pinta como texto (E38). Tocar una persona filtra por
-  ella (E33). El navegador y el sistema se dicen con la lista de la aplicación.
+  `texto`, `persona` y `cosa`, y la pantalla los pinta como texto (E38). Los nombres son solo texto:
+  tocarlos es tocar la acción, no filtran (E33). El navegador y el sistema se dicen con la lista de la aplicación.
 - **El tamaño de página:** 20 con el ancho de computadora y 10 si no, con el mismo corte que usa el
   marco para el menú.
 - **La cinta** se abre encima de la lista sin desarmarla: al cerrarla se vuelve con los mismos

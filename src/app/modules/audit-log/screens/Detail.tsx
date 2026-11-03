@@ -59,7 +59,7 @@ export function DetailBody({ event, today }: { event: AuditView; today: string }
           <ul>
             {event.targets.map((target) => (
               <li key={`${target.kind}:${target.id}`}>
-                {target.kind === 'person' ? <PersonName person={target} as="to" /> : target.name}
+                {target.kind === 'person' ? <PersonName person={target} /> : target.name}
               </li>
             ))}
           </ul>

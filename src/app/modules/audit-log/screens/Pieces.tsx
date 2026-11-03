@@ -1,11 +1,10 @@
 // Lo que muestran la lista, el detalle y la cinta de cada acción: su ícono (R4.10), quién la hizo y
-// su texto en trozos, con las personas que se tocan para filtrar (R4.7). Todo como texto: un nombre
+// su texto en trozos, con los nombres de las personas (R4.7). Todo como texto: un nombre
 // con algo que parece código de página se ve tal cual (E38). Los datos de personas llevan
 // data-private: «Algo salió mal» no se los lleva.
 import { entryOf, type Piece } from '@ferrebress/shared/audit-log/index';
 import type { ActorView, AuditView, TargetView } from '@ferrebress/shared/contracts/audit-log';
 import { Icon, type IconName } from '../../../ui/icon/Icon.tsx';
-import { useAuditLogContext } from '../state.ts';
 import { texts } from '../texts.ts';
 
 export function ActionIcon({ event }: { event: AuditView }) {
@@ -16,30 +15,20 @@ export function ActionIcon({ event }: { event: AuditView }) {
   );
 }
 
-// El nombre de una persona, con el de hoy al lado si cambió; tocarlo filtra por ella.
-export function PersonName({ person, as }: { person: TargetView; as: 'by' | 'to' }) {
-  const log = useAuditLogContext();
-  const name = person.name ?? person.today ?? '';
+// El nombre de una persona, con el de hoy al lado si cambió. Es solo texto: tocarlo es tocar la
+// acción, no filtra (para eso están «Hecho por» y «Hecho a»).
+export function PersonName({ person }: { person: TargetView }) {
   return (
-    <button
-      type="button"
-      class="audit-person"
-      data-private=""
-      title={as === 'by' ? texts.filterBy(name) : texts.filterTo(name)}
-      onClick={(event) => {
-        event.stopPropagation();
-        void log.filter(as === 'by' ? { by: person.id } : { to: person.id });
-      }}
-    >
-      {name}
+    <span class="audit-person" data-private="">
+      {person.name ?? person.today ?? ''}
       {person.today && person.name && <small> {texts.today(person.today)}</small>}
-    </button>
+    </span>
   );
 }
 
 // Quién la hizo: una persona, el sistema o alguien sin entrar (con el correo que usó).
 export function Actor({ actor }: { actor: ActorView }) {
-  if (actor.kind === 'person') return <PersonName person={actor} as="by" />;
+  if (actor.kind === 'person') return <PersonName person={actor} />;
   if (actor.kind === 'system') return <span class="audit-actor">{texts.system}</span>;
   return (
     <span class="audit-actor audit-outsider" data-private="">
@@ -73,7 +62,7 @@ export function Said({
           ) : 'thing' in piece ? (
             <b key={index}>{piece.thing}</b>
           ) : (
-            <PersonName key={index} person={piece.person} as="to" />
+            <PersonName key={index} person={piece.person} />
           ),
         )}
       {note && <small class="audit-note">{note}</small>}

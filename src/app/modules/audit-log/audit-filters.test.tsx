@@ -2,23 +2,37 @@
 // los números del resumen que filtran.
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { openAuditLog, page } from './audit-test-kit.tsx';
+import { openAuditLog, page, rows } from './audit-test-kit.tsx';
 
 const chip = (name: RegExp) => screen.getByRole('button', { name }) as HTMLElement;
 
 describe('los filtros de Quién hizo qué', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it('audit-log-E33, E23, E31: tocar a quien la hizo o la recibió filtra, desde la página 1', async () => {
+  it('audit-log-E33: tocar un nombre, una o dos veces, elige la acción y no filtra', async () => {
+    const server = openAuditLog();
+    await screen.findByText('25 acciones');
+    const sent = server.sent.length;
+    const name = rows()[2]?.querySelector('.audit-person') as HTMLElement;
+    fireEvent.click(name);
+    fireEvent.dblClick(name);
+    expect(rows()[2]?.getAttribute('aria-selected')).toBe('true');
+    expect(screen.queryByRole('button', { name: 'Ana Gómez' })).toBeNull();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(server.sent).toHaveLength(sent);
+  });
+
+  it('audit-log-E23, E31: «Hecho por» y «Hecho a» filtran, combinados, desde la página 1', async () => {
     const server = openAuditLog({
       '/api/audit-log?page=1&size=20&by=ana': { body: page({ total: 3, pages: 1 }) },
       '/api/audit-log?page=1&size=20&by=ana&to=martin': { body: page({ total: 1, pages: 1 }) },
     });
-    const [actor] = await screen.findAllByRole('button', { name: 'Ana Gómez' });
-    fireEvent.click(actor as HTMLElement);
+    await screen.findByText('25 acciones');
+    fireEvent.click(chip(/Hecho por/));
+    fireEvent.click(screen.getByRole('option', { name: /^Ana Gómez/ }));
     await screen.findByText('3 acciones');
-    const [target] = screen.getAllByRole('button', { name: /^Martín/ });
-    fireEvent.click(target as HTMLElement);
+    fireEvent.click(chip(/Hecho a/));
+    fireEvent.click(screen.getByRole('option', { name: /^Martín Sosa/ }));
     await screen.findByText('1 acción');
     expect(server.sent.at(-1)?.path).toBe('/api/audit-log?page=1&size=20&by=ana&to=martin');
     expect(chip(/Hecho por/).textContent).toContain('Ana Gómez');

@@ -72,8 +72,6 @@ export const texts = {
   today: (name: string) => `(hoy: ${name})`,
   nothing: 'nada',
   pickOne: 'Elegí una acción de la lista para ver todo lo que se guardó de ella.',
-  filterBy: (name: string) => `Ver lo que hizo ${name}`,
-  filterTo: (name: string) => `Ver lo que le hicieron a ${name}`,
   close: 'Cerrar',
   // La cinta (R4.11).
   seeDay: 'Ver el día',
