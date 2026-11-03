@@ -180,7 +180,7 @@ Los tipos de hoy (los 34 íconos están en Lucide 0.460; Carlos los ve en `mocku
 |---|---|---|---|---|
 | Entrar | `sign-in.succeeded` | Entró con Google | | `log-in` |
 | Entrar | `sign-out` | Salió | | `log-out` |
-| Entrar | `session.ended` | Cerró la sesión vencida de Marcos (el sistema) | | `timer-off` |
+| Entrar | `session.ended` | Terminó la sesión de Marcos: venció por no usarla (el sistema; dice el motivo) | | `timer-off` |
 | Entrar | `passkey.linked` | Vinculó la huella de su celular | | `fingerprint` |
 | Entrar | `code.read` | Leyó el código de una computadora | | `qr-code` |
 | Entrar | `code.approved` | Dejó entrar a una computadora con su celular | | `monitor-check` |
@@ -294,8 +294,8 @@ orden, con la misma forma que la lista. Con más de 2.000 acciones en el día de
   nombres de hoy, de `/people`, que la pantalla ya tiene.
 - Peso: con las 300 acciones de un día de hoy, unos 150 KB sin comprimir y unos 20 KB comprimida
   (Caddy comprime las respuestas de `/api`). Se pide solo al abrir la cinta o al cambiar de día.
-- Consultas: 7 de la semana (`group by tone`, una por día, cada una por el índice de la fecha), 1
-  que cuenta el día y 1 de sus acciones.
+- Consultas: 1 de la semana (los siete días como tramos de la misma consulta, `group by tone`, por el
+  índice de la fecha), 1 que cuenta el día, 1 de sus acciones y 1 de las personas.
 
 ### La consulta
 
@@ -311,8 +311,10 @@ orden, con la misma forma que la lista. Con más de 2.000 acciones en el día de
 - **La página** sale de recorrer los años del más nuevo al más viejo, saltando las que quedan antes;
   la mayoría de las veces toca un solo archivo.
 - **Las consultas, con un pedido de una página:** `count(*)` del año en curso (los cerrados, de la
-  memoria) + 1 de la página + 1 de `days` por cada día de la página + 1 de las personas, y con
-  `summary` 1 (`group by tone`) y con `strip` 1. Ninguna a PostgreSQL. Pruebas que miran `explain query plan` de cada forma de consulta
+  memoria) + 1 de la página + 1 de `days` (todos los días de la página como tramos de una misma
+  consulta: `sum(at >= ? and at < ?)` por tramo, `group by tone`) + 1 de las personas, y con
+  `summary` 1 (`group by tone`) y con `strip` 1. Por archivo: un período que cruza de año toca dos.
+  Ninguna crece con los días que se muestran. Ninguna a PostgreSQL. Pruebas que miran `explain query plan` de cada forma de consulta
   controlan que usa el índice que corresponde.
 
 **Los días del negocio** se convierten a instantes con la zona horaria del negocio (00 · R8.4). Hasta
@@ -351,6 +353,12 @@ de la pestaña importando solo la fachada `audit-log/index.ts`, y la pestaña ap
 `audit-log.view` (02 · R7.7). Bajarla en una parte propia hacía que Vite separara del arranque las
 piezas que comparten (botones, íconos, la hoja) y el arranque pasaba su tope.
 
+**Sin el permiso, por la dirección** (E13): el menú del marco conoce `/users/audit-log` como algo de
+adentro de Usuarios con su propio permiso (`inside` de la opción). Abierta así sin
+«Ver quién hizo qué», el marco muestra su «Sin permiso» en lugar de Usuarios y no se pide nada al
+servidor. Si se lo sacan con la pestaña abierta, en cambio, no: Usuarios la cierra y vuelve a la
+lista de personas (02 · R7.8).
+
 Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant-1-ledger/`:
 
 | Pieza | Qué hace |
@@ -362,7 +370,7 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 | `Pager` | «página n de m», anterior y siguiente; RePág y AvPág, que el teclado de la plataforma (`data-page`) da a cualquier lista por páginas |
 | `Empty` | Sin acciones (E20) o sin coincidencias, con «Sacar los filtros» (E29) |
 | `Tape` | La cinta a pantalla completa, sobre la maqueta `variant-3-tape/` (R4.11). En la computadora, horizontal; en el celular, vertical. Las filas, los puntos y las líneas de quién a quién en un SVG; los días de arriba; el subtítulo con los mismos trozos que `Detail`; la × |
-| `Playhead` | El cabezal: arrastrar (se pega a la acción más cercana), ← → y los botones; ↑ ↓ eligen la fila y Enter la aísla; Alt+R reproduce (en su capa, con su tecla, como todo botón). «Reproducir» es un paso por acción con un temporizador de la pantalla (14 s el día entero en la computadora, 1 s por acción en el celular), que se corta con cualquier toque, al ocultarse la aplicación o al llegar a la última. Se mueve con `transform` y `opacity`; con «reducir movimiento», salta |
+| `Playhead` | El cabezal: arrastrar sobre la pista (se pega a la más cercana de las que se ven), ← → y los botones; en el celular, también deslizar de lado (más largo que alto, 48 px o más); ↑ ↓ eligen la fila y Enter la aísla; con alguien aislado, Escape primero lo suelta (su fila es lo que cierra la capa) y después cierra; Alt+R reproduce (en su capa, con su tecla, como todo botón). «Reproducir» es un paso por acción con un temporizador de la pantalla (14 s el día entero en la computadora, 1 s por acción en el celular), que se corta con cualquier toque, al ocultarse la aplicación o al llegar a la última. Se mueve con `transform` y `opacity`; con «reducir movimiento», salta |
 
 - **El texto** de cada acción lo arma el catálogo con trozos, no con HTML: `says(e)` devuelve
   `texto`, `persona` y `cosa`, y la pantalla los pinta como texto (E38). Tocar una persona filtra por
@@ -420,7 +428,10 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 - `GET /api/audit-log` con un año de acciones (730.000, a 2.000 por día): menos de 150 ms en la
   notebook del local, en el peor caso que se prueba (todos los filtros, el período más largo, la
   última página), sin frenar el hilo principal: mientras corre, una ruta cualquiera contesta igual.
-- Consultas por pedido: las de § 5, cada forma con su prueba que las cuenta.
+- Consultas por pedido: las de § 5, con la prueba que las cuenta (`recorded.test.ts`: una página de
+  un día y una de la semana hacen las mismas; la cinta, 4).
+- La de tiempo con 730.000 acciones (`query-perf.test.ts`) corre solo con `AUDIT_PERF=1`: arma dos
+  años en memoria (unos 20 s) y pide la primera página, sus días y el resumen en menos de 1 s.
 - La respuesta: menos de 8 KB sin comprimir con 20 acciones; con la tira de un día de hoy, menos de
   20 KB sin comprimir y 4 KB comprimida.
 - Escribir no se vuelve más lento: la tanda sigue siendo una transacción por segundo, con `targets` y

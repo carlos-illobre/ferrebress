@@ -3,7 +3,7 @@
 // celular el tiempo va hacia abajo: se dan vuelta los ejes.
 import type { AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { initials, timeOf } from '../logic.ts';
-import { type Lane, lanesFor, timeline, visibleOf } from '../tape.ts';
+import { type Lane, lanesFor, nearest, timeline, visibleOf } from '../tape.ts';
 import { texts } from '../texts.ts';
 
 type Props = {
@@ -27,6 +27,8 @@ function Lanes({ lanes, isolated, isolate }: Pick<Props, 'lanes' | 'isolated' | 
           data-mark=""
           data-private=""
           aria-pressed={isolated === lane.id}
+          // Con alguien aislado, Escape primero lo suelta (R4.11).
+          data-close={isolated === lane.id ? '' : undefined}
           aria-label={texts.isolate(lane.name)}
           onClick={() => isolate(lane.id)}
         >
@@ -55,6 +57,27 @@ function geometry({ events, lanes, vertical }: Props) {
 const classes = (base: string, on: boolean, shown: boolean) =>
   `${base}${on ? ' on' : ''}${shown ? '' : ' off'}`;
 
+// El cabezal se arrastra y se pega a la acción más cercana de las que se ven.
+function dragging(props: Props, where: (event: AuditView) => number) {
+  const visible = visibleOf(props.events, props.isolated);
+  const follow = (event: PointerEvent) => {
+    const box = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const at = props.vertical
+      ? (event.clientY - box.top) / box.height
+      : (event.clientX - box.left) / box.width;
+    props.move(nearest(visible, where, at).id);
+  };
+  return {
+    onPointerDown(event: PointerEvent) {
+      (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
+      follow(event);
+    },
+    onPointerMove(event: PointerEvent) {
+      if ((event.currentTarget as HTMLElement).hasPointerCapture?.(event.pointerId)) follow(event);
+    },
+  };
+}
+
 export function TapeBoard(props: Props) {
   const { events, lanes, current } = props;
   const { where, lane, curve } = geometry(props);
@@ -62,7 +85,7 @@ export function TapeBoard(props: Props) {
   return (
     <div class="tape-board" style={{ '--lanes': lanes.length }}>
       <Lanes lanes={lanes} isolated={props.isolated} isolate={props.isolate} />
-      <div class="tape-track">
+      <div class="tape-track" {...dragging(props, where)}>
         <svg
           class="tape-lines"
           viewBox="0 0 1000 1000"

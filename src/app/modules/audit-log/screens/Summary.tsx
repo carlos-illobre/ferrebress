@@ -3,7 +3,7 @@
 // la cinta en esa acción (R4.11).
 import type { StripMark } from '@ferrebress/shared/contracts/audit-log';
 import { Icon } from '../../../ui/icon/Icon.tsx';
-import { stripDay, stripScale } from '../logic.ts';
+import { stripScale, summaryDay } from '../logic.ts';
 import { useAuditLogContext } from '../state.ts';
 import { texts } from '../texts.ts';
 import './Summary.css';
@@ -52,7 +52,7 @@ export function Summary({ today }: { today: string }) {
 
 function Strip({ strip, today }: { strip: StripMark[]; today: string }) {
   const log = useAuditLogContext();
-  const day = stripDay(log.filters.dates, today);
+  const day = summaryDay(log.filters.dates, today);
   if (strip.length === 0) return null;
   const scale = stripScale(strip.map((mark) => mark.at));
   const clock = (seconds: number) =>

@@ -71,7 +71,8 @@ function recordDone(
     guards.record(c, 'user.roles-changed', {
       targets: [
         { kind: 'person', id: one.userId },
-        { kind: 'role', id: one.roleId },
+        // Las personas cambian al guardar un rol: `target` es su nombre (05 · R2.4).
+        { kind: 'role', id: one.roleId, name: target },
       ],
       changes: { roles: { before: one.before, after: one.after } },
       ...data,

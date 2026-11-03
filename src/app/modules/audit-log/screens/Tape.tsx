@@ -10,7 +10,7 @@ import { Icon } from '../../../ui/icon/Icon.tsx';
 import { auditApi } from '../api.ts';
 import { shortDateOf } from '../logic.ts';
 import { useAuditLogContext } from '../state.ts';
-import { lanesOf, stepMs, visibleOf } from '../tape.ts';
+import { lanesOf, stepMs, swipeOf, visibleOf } from '../tape.ts';
 import { texts } from '../texts.ts';
 import { DetailBody } from './Detail.tsx';
 import { TapeBoard } from './TapeBoard.tsx';
@@ -105,8 +105,11 @@ function useTape(wide: boolean, first: { date: string; at?: string }) {
     isolated,
     current: events.find((event) => event.id === at),
     move: setAt,
-    // Los botones se apagan en los extremos: siempre hay una acción a la que ir.
-    go: (step: 1 | -1) => setAt((steps[index + step] as AuditView).id),
+    // En los extremos no hace nada: los botones se apagan y deslizar no se pasa.
+    go(step: 1 | -1) {
+      const next = steps[index + step];
+      if (next) setAt(next.id);
+    },
     // Aislar a alguien que no está en el cabezal lleva el cabezal a su primera acción.
     isolate(id: string) {
       const next = isolated === id ? undefined : id;
@@ -183,9 +186,26 @@ function Recording({ tape, wide }: { tape: TapeState; wide: boolean }) {
   );
 }
 
+// Deslizar de lado en el celular pasa de a una (R4.11).
+function useSwipe(tape: TapeState) {
+  const start = useRef<{ x: number; y: number }>(undefined);
+  return {
+    onPointerDown: (event: PointerEvent) => {
+      start.current = { x: event.clientX, y: event.clientY };
+    },
+    onPointerUp: (event: PointerEvent) => {
+      if (!start.current) return;
+      const step = swipeOf(event.clientX - start.current.x, event.clientY - start.current.y);
+      start.current = undefined;
+      if (step) tape.go(step);
+    },
+  };
+}
+
 export function Tape() {
   const log = useAuditLogContext();
   const tape = useTape(log.wide, log.tape as { date: string; at?: string });
+  const swipe = useSwipe(tape);
   useBackStep(log.closeTape);
   return (
     <section
@@ -198,9 +218,16 @@ export function Tape() {
       onPointerDownCapture={(event) => {
         if (!(event.target as HTMLElement).closest('[data-play]')) tape.play.stop();
       }}
+      {...(!log.wide && swipe)}
     >
       <header class="tape-top">
-        <Button look="plain" icon="x" closes doing={texts.close} onPress={log.closeTape}>
+        <Button
+          look="plain"
+          icon="x"
+          closes={!tape.isolated}
+          doing={texts.close}
+          onPress={log.closeTape}
+        >
           {texts.close}
         </Button>
         <h1>{texts.title}</h1>

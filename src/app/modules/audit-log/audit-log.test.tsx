@@ -1,12 +1,12 @@
 // La pestaña Quién hizo qué (capítulo 05): la lista, el resumen, los filtros, el detalle y la
 // conexión, en la computadora y en el celular.
 import type { AuditView } from '@ferrebress/shared/contracts/audit-log';
-import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
+import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
 import { detail, events, first, firstPhone, openAuditLog, page, rows } from './audit-test-kit.tsx';
 
-const chip = (name: RegExp) => screen.getByRole('button', { name }) as HTMLElement;
+const _chip = (name: RegExp) => screen.getByRole('button', { name }) as HTMLElement;
 
 describe('Quién hizo qué', () => {
   afterEach(() => {
@@ -32,7 +32,7 @@ describe('Quién hizo qué', () => {
     expect(screen.getByText('página 1 de 2')).toBeTruthy();
   });
 
-  it('audit-log-E21: rojo lo que saca, ámbar los rechazos y lo no confirmado, con la hora del celular', async () => {
+  it('audit-log-E21, E09: rojo lo que saca, ámbar los rechazos y lo no confirmado, con la hora del celular', async () => {
     openAuditLog();
     await screen.findByText('25 acciones');
     expect(rows().map((row) => row.className.match(/audit-(plain|amber|red)/)?.[1])).toEqual([
@@ -43,6 +43,11 @@ describe('Quién hizo qué', () => {
       'plain',
     ]);
     expect(rows()[3]?.textContent).toContain('08:55');
+    // audit-log-E09: la marca de que es la hora del celular, sin confirmar.
+    expect(rows()[3]?.querySelector('.audit-note')?.textContent).toBe(
+      'hora del celular, sin confirmar',
+    );
+    expect(rows()[0]?.querySelector('.audit-note')).toBeNull();
   });
 
   it('audit-log-E38, E08: el texto de afuera se ve como texto; «El sistema» y «Alguien sin entrar»', async () => {
@@ -54,7 +59,9 @@ describe('Quién hizo qué', () => {
     openAuditLog({ [first]: { body: page({ events: [...events, nameless] }) } });
     await screen.findByText('<b>jefe</b>@example.com');
     expect(document.querySelector('.audit-row b b')).toBeNull();
-    expect(rows()[4]?.textContent).toContain('El sistemaCerró la sesión vencida de Pedro');
+    expect(rows()[4]?.textContent).toContain(
+      'El sistemaTerminó la sesión de Pedro: venció por no usarla',
+    );
     expect(rows()[5]?.textContent).toContain('Alguien sin entrar');
     fireEvent.click(rows()[4] as HTMLElement);
     expect(detail()).toContain('Pedro');

@@ -1,6 +1,6 @@
 // La lista (R4.2 a R4.4): de la más nueva a la más vieja, agrupada por día con su cantidad; cada
 // acción con el ícono de su tipo, la hora (y la fecha si no es de hoy), quién, qué pasó y el
-// dispositivo, con su color. En la computadora, recorrerla con el teclado cambia el detalle (E35d).
+// dispositivo, con su color; la hora del celular, con su marca (E09). En la computadora, recorrerla con el teclado cambia el detalle (E35d).
 import type { AuditPage, AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { useEffect } from 'preact/hooks';
 import { Icon } from '../../../ui/icon/Icon.tsx';
@@ -32,7 +32,7 @@ function Row({ event, today }: { event: AuditView; today: string }) {
       <span class="audit-by">
         <Actor actor={event.actor} />
       </span>
-      <Said event={event} />
+      <Said event={event} note={event.deviceTime && texts.deviceTime} />
       {event.device && (
         <span class="audit-device" title={event.device.phone ? texts.phone : texts.computer}>
           <Icon name={event.device.phone ? 'smartphone' : 'monitor'} size="small" />

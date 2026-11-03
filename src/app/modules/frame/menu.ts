@@ -22,6 +22,8 @@ export type Option = {
   over?: boolean;
   // El permiso que pide: sin él, no aparece (R1.8, 02 · R7.7).
   permission?: PermissionId;
+  // Lo de adentro que pide su propio permiso, con su dirección (Quién hizo qué, en Usuarios).
+  inside?: Option[];
 };
 
 export const parts: Option[] = [
@@ -66,6 +68,16 @@ const settings: Option[] = [
     path: '/users',
     needsInternet: true,
     permission: 'users.view',
+    inside: [
+      {
+        id: 'audit-log',
+        name: 'Quién hizo qué',
+        icon: 'file-text',
+        shortcut: '',
+        path: '/users/audit-log',
+        permission: 'audit-log.view',
+      },
+    ],
   },
   {
     id: 'deviceSettings',
@@ -135,3 +147,7 @@ export const optionAt = (path: string) =>
   [...parts, ...moreOptions].find(
     (option) => option.path !== undefined && under(path, option.path) && !option.over,
   );
+
+// Lo de adentro de una opción que tiene esa dirección (05 · E13).
+export const insideAt = (option: Option | undefined, path: string) =>
+  option?.inside?.find((inner) => inner.path !== undefined && under(path, inner.path));

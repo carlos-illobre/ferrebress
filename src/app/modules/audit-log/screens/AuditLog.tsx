@@ -7,7 +7,7 @@ import { Button } from '../../../ui/button/Button.tsx';
 import { auditLogShapes } from '../../../ui/icon/audit-log-shapes.tsx';
 import { addShapes, Icon } from '../../../ui/icon/Icon.tsx';
 import { Sheet } from '../../../ui/sheet/Sheet.tsx';
-import { hasFilters } from '../logic.ts';
+import { hasFilters, summaryDay } from '../logic.ts';
 import { AuditLogContext, useAuditLog, useAuditLogContext } from '../state.ts';
 import { texts } from '../texts.ts';
 import { DetailBody } from './Detail.tsx';
@@ -105,7 +105,7 @@ export function AuditLog() {
               size="small"
               icon="film"
               doing={texts.seeDay}
-              onPress={() => log.openTape(page.today)}
+              onPress={() => log.openTape(summaryDay(log.filters.dates, page.today))}
               disabled={!log.online}
             >
               {texts.seeDay}

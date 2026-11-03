@@ -41,6 +41,12 @@
     border-radius: var(--radius);
     cursor: pointer;
   }
+  .audit-note {
+    margin-left: var(--s2);
+    font-size: 12px;
+    font-weight: 650;
+    color: var(--urgent-text);
+  }
   .audit-row:hover {
     background: #faf9f5;
   }

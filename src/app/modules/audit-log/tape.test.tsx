@@ -1,10 +1,10 @@
 // La cinta (05 · R4.11): abrirla desde la tira o desde «Ver el día», el cabezal, «Reproducir el
-// día», aislar a alguien, cambiar de día y cerrarla.
-import type { AuditDay, AuditView } from '@ferrebress/shared/contracts/audit-log';
+// día», aislar a alguien, cambiar de día y cerrarla. Sus reglas sin dibujo, en tape-rules.test.ts.
+import type { AuditDay } from '@ferrebress/shared/contracts/audit-log';
 import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { events, openAuditLog } from './audit-test-kit.tsx';
-import { lanesOf, stepMs, timeline, visibleOf } from './tape.ts';
+import { detail, events, openAuditLog, rows } from './audit-test-kit.tsx';
+import { stepMs } from './tape.ts';
 
 const today = events.slice(0, 4).toReversed();
 const week = ['22', '23', '24', '25', '26', '27', '28'].map((day, index) => ({
@@ -44,7 +44,10 @@ describe('la cinta', () => {
 
   it('audit-log-E44, E42: ← → de a una, sin pasarse; cerrar vuelve a la lista como estaba', async () => {
     openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
-    fireEvent.click(await screen.findByRole('button', { name: '9:40' }));
+    const tick = await screen.findByRole('button', { name: '9:40' });
+    // La acción elegida antes de abrir la cinta sigue elegida al cerrarla.
+    fireEvent.click(rows()[2] as HTMLElement);
+    fireEvent.click(tick);
     await waitFor(() =>
       expect(subtitle()).toContain('no se pudo confirmar su entrada sin conexión'),
     );
@@ -63,6 +66,9 @@ describe('la cinta', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /Cerrar/ })[0] as HTMLElement);
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(screen.getByText('25 acciones')).toBeTruthy();
+    expect(screen.getByText('página 1 de 2')).toBeTruthy();
+    expect(rows()[2]?.getAttribute('aria-selected')).toBe('true');
+    expect(detail()).toContain('cambió los permisos del rol Encargado');
   });
 
   it('audit-log-E45: «Reproducir el día» recorre en orden y se detiene en la última o al tocar algo', async () => {
@@ -118,6 +124,65 @@ describe('la cinta', () => {
     expect(subtitle()).toContain('cambió los permisos');
   });
 
+  it('audit-log-E44: el cabezal se arrastra y se pega a la acción más cercana', async () => {
+    openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
+    fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
+    await waitFor(() => expect(subtitle()).toContain('le sacó el rol Cajero'));
+    const track = document.querySelector('.tape-track') as HTMLElement;
+    track.getBoundingClientRect = () => ({ left: 0, top: 0, width: 1000, height: 400 }) as DOMRect;
+    let captured = false;
+    track.setPointerCapture = () => {
+      captured = true;
+    };
+    track.hasPointerCapture = () => captured;
+    fireEvent.pointerMove(track, { clientX: 0 });
+    expect(subtitle()).toContain('le sacó el rol Cajero');
+    fireEvent.pointerDown(track, { clientX: 0, pointerId: 1 });
+    expect(subtitle()).toContain('no se pudo confirmar');
+    fireEvent.pointerMove(track, { clientX: 1000, pointerId: 1 });
+    expect(subtitle()).toContain('le sacó el rol Cajero');
+  });
+
+  it('audit-log-E46: con alguien aislado, Escape primero lo suelta y después cierra', async () => {
+    openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
+    fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
+    await waitFor(() => expect(subtitle()).toContain('le sacó'));
+    fireEvent.click(button(/Ver solo a Ana Gómez/));
+    const closing = () => document.querySelector<HTMLElement>('.tape [data-close]');
+    expect(closing()?.getAttribute('aria-label')).toMatch(/Ver solo a Ana Gómez/);
+    fireEvent.click(closing() as HTMLElement);
+    expect(document.querySelectorAll('.tape-dot.off')).toHaveLength(0);
+    fireEvent.click(closing() as HTMLElement);
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('audit-log-E44: en el celular, deslizar de lado pasa de a una, sin pasarse', async () => {
+    openAuditLog({ [dayPath('2026-10-28')]: { body: day() } }, true);
+    const see = await screen.findByRole('button', { name: /Ver el día/ });
+    await waitFor(() => expect((see as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(see);
+    await waitFor(() => expect(subtitle()).toContain('no se pudo confirmar'));
+    const tape = document.querySelector('.tape') as HTMLElement;
+    const swipe = (dx: number) => {
+      fireEvent.pointerDown(tape, { clientX: 200, clientY: 300 });
+      fireEvent.pointerUp(tape, { clientX: 200 + dx, clientY: 300 });
+    };
+    swipe(80);
+    expect(subtitle()).toContain('no se pudo confirmar');
+    swipe(-80);
+    expect(subtitle()).toContain('cambió los permisos');
+    swipe(20);
+    expect(subtitle()).toContain('cambió los permisos');
+    fireEvent.pointerUp(tape, { clientX: 0, clientY: 0 });
+    swipe(80);
+    expect(subtitle()).toContain('no se pudo confirmar');
+    // En el celular el tiempo va hacia abajo: el cabezal se arrastra de arriba abajo.
+    const track = document.querySelector('.tape-track') as HTMLElement;
+    track.getBoundingClientRect = () => ({ left: 0, top: 0, width: 300, height: 1000 }) as DOMRect;
+    fireEvent.pointerDown(track, { clientX: 0, clientY: 1000, pointerId: 1 });
+    expect(subtitle()).toContain('le sacó el rol Cajero');
+  });
+
   it('audit-log-E47, E48: cambiar de día; un día sin acciones, y uno con demasiadas', async () => {
     openAuditLog({
       [dayPath('2026-10-28')]: { body: day() },
@@ -133,7 +198,7 @@ describe('la cinta', () => {
     expect(days().at(-1)?.textContent).toContain('Hoy');
     fireEvent.click(days()[5] as HTMLElement);
     await waitFor(() =>
-      expect(subtitle()).toContain('El sistema cerró la sesión vencida de Pedro'),
+      expect(subtitle()).toContain('El sistema terminó la sesión de Pedro: venció por no usarla'),
     );
     fireEvent.click(days()[4] as HTMLElement);
     await screen.findByText('Ese día no hubo acciones.');
@@ -141,7 +206,7 @@ describe('la cinta', () => {
     await screen.findByText(/Ese día tiene 2.400 acciones/);
   });
 
-  it('en el celular, «Ver el día» abre la cinta vertical de hoy; atrás la cierra', async () => {
+  it('audit-log-E41, E42: en el celular, «Ver el día» abre la cinta vertical del día del resumen; atrás la cierra', async () => {
     openAuditLog({ [dayPath('2026-10-28')]: { body: day() } }, true);
     const see = await screen.findByRole('button', { name: /Ver el día/ });
     await waitFor(() => expect((see as HTMLButtonElement).disabled).toBe(false));
@@ -159,40 +224,5 @@ describe('la cinta', () => {
     fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
     await waitFor(() => expect(screen.getByRole('dialog')).toBeTruthy());
     expect(document.querySelector('.tape-board')).toBeNull();
-  });
-});
-
-describe('las reglas de la cinta', () => {
-  it('las filas: alguien sin entrar arriba, el sistema abajo; lo que hizo y lo que recibió', () => {
-    const lanes = lanesOf(events);
-    expect(lanes.map((lane) => lane.id)).toEqual([
-      'outsider',
-      'ana',
-      'martin',
-      'pedro',
-      'nadie',
-      'system',
-    ]);
-    expect(lanes.find((lane) => lane.id === 'martin')).toMatchObject({ made: 1, got: 1 });
-    expect(visibleOf(events, 'martin').map((event) => event.id)).toEqual(['2026:5', '2026:2']);
-    expect(visibleOf(events, undefined)).toHaveLength(5);
-    const nameless = lanesOf([
-      { ...(events[0] as AuditView), actor: { kind: 'person', id: 'x', today: 'Hoy' } },
-      {
-        ...(events[0] as AuditView),
-        actor: { kind: 'person', id: 'y' },
-        targets: [{ kind: 'person', id: 'z' }],
-      },
-    ]);
-    expect(nameless.map((lane) => lane.name)).toEqual(['Hoy', 'Martín', '', '']);
-  });
-
-  it('dónde cae cada acción y cuánto espera «Reproducir»', () => {
-    const where = timeline(today);
-    expect(where(today[0] as never)).toBeGreaterThan(0);
-    expect(where(today.at(-1) as never)).toBeLessThan(1);
-    expect(stepMs(1, true)).toBe(14_000);
-    expect(stepMs(10_000, true)).toBe(40);
-    expect(stepMs(5, false)).toBe(1_000);
   });
 });

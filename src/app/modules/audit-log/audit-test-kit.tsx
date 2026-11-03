@@ -67,6 +67,7 @@ export const events: AuditView[] = [
   {
     ...base('2026:1', '19:00', 'session.ended', {
       actor: { kind: 'system' },
+      data: { reason: 'idle' },
       targets: [
         { kind: 'person', id: 'pedro', today: 'Pedro' },
         { kind: 'person', id: 'nadie' },

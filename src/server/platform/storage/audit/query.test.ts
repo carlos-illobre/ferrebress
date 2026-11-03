@@ -97,6 +97,22 @@ describe('quién hizo qué: la consulta', () => {
     expect(query({ op: 'marks', filter: {}, limit: 2 })).toHaveLength(2);
   });
 
+  it('cuántas de cada color en cada tramo, en una sola consulta por archivo', () => {
+    const lastDay: [number, number] = [
+      Date.parse('2025-12-31T03:00:00Z'),
+      Date.parse('2026-01-01T03:00:00Z'),
+    ];
+    const today: [number, number] = [start, start + 4 * minute];
+    expect(query({ op: 'spans', filter: {}, spans: [lastDay, today] })).toEqual([
+      { plain: 2, amber: 0, red: 0 },
+      { plain: 2, amber: 0, red: 2 },
+    ]);
+    expect(query({ op: 'spans', filter: { actor: 'outsider' }, spans: [today] })).toEqual([
+      { plain: 0, amber: 0, red: 0 },
+    ]);
+    expect(query({ op: 'spans', filter: {}, spans: [] })).toEqual([]);
+  });
+
   it('audit-log-E30: las personas de hoy, por nombre', () => {
     expect(query({ op: 'people' })).toEqual([
       { userId: 'u-lucia', name: 'Lucía', state: 'active' },

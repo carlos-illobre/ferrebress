@@ -13,7 +13,7 @@ import { usePanels } from '../../behavior/usePanels.ts';
 import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
 import { useTip } from '../../behavior/useTip.ts';
 import { FrameContext, type FrameState, type SettingRow, shake } from '../../context.ts';
-import { allowed, firstOption, goToFirst, type Option, optionAt } from '../../menu.ts';
+import { allowed, firstOption, goToFirst, insideAt, type Option, optionAt } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
 import { Lost, type LostPermission } from '../NoPermission/Lost.tsx';
@@ -102,12 +102,13 @@ function Work({
   Screen: ComponentType | undefined;
   children?: ComponentChildren;
 }) {
-  const blocked = opened?.permission && !allowed(opened, person) ? opened.permission : undefined;
+  const guarded = useGuarded(person, opened);
+  const blocked = guarded?.permission && !allowed(guarded, person) ? guarded.permission : undefined;
   return (
     <main class="work-area" aria-label={texts.workArea}>
-      {opened && blocked ? (
+      {guarded && blocked ? (
         <NoPermission
-          option={{ ...opened, permission: blocked }}
+          option={{ ...guarded, permission: blocked }}
           first={firstOption(person)}
           go={() => goToFirst(person)}
         />
@@ -118,6 +119,18 @@ function Work({
       )}
     </main>
   );
+}
+
+// Lo que se mira: lo de adentro con su propio permiso, si la dirección es suya (05 · E13). Abierto por
+// la dirección sin el permiso, «Sin permiso»; si se lo sacan con eso abierto, no: lo cierra la
+// pantalla de la opción (02 · R7.8).
+function useGuarded(person: Person, opened: Option | undefined) {
+  const path = useStore(route).path;
+  const inner = insideAt(opened, path);
+  const had = useRef<string>(undefined);
+  if (!inner) had.current = undefined;
+  else if (allowed(inner, person)) had.current = path;
+  return inner && had.current !== path ? inner : opened;
 }
 
 // R7.8: si con los permisos nuevos ya no puede usar la pantalla abierta, lo dice y la deja.

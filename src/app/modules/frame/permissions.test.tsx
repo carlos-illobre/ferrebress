@@ -95,6 +95,40 @@ describe('el marco con permisos', () => {
     expect(route.get().path).toBe('/');
   });
 
+  it('audit-log-E13: Quién hizo qué por la dirección sin su permiso: «Sin permiso», sin pedirle nada', async () => {
+    media();
+    const viewer: Person = { ...seller, permissions: ['users.view'] };
+    const server = fakeServer({ '/api/permissions/audit-log.view/holders': { body: holders } });
+    navigate('/users/audit-log');
+    open({ who: viewer, screens: { users } });
+    const main = screen.getByRole('main');
+    expect((await within(main).findByRole('heading')).textContent).toBe(
+      'No tenés permiso para Quién hizo qué',
+    );
+    expect(main.textContent).toContain('«Ver quién hizo qué»');
+    expect(main.textContent).not.toContain('La pantalla de Usuarios');
+    expect(server.sent.map((sent) => sent.path)).toEqual([
+      '/api/permissions/audit-log.view/holders',
+    ]);
+    // Con el permiso, la pantalla de Usuarios, que abre la pestaña; en otra dirección, también.
+    act(() => navigate('/users'));
+    expect(main.textContent).toContain('La pantalla de Usuarios');
+  });
+
+  it('audit-log-E13: si se lo sacan con la pestaña abierta, no: la cierra Usuarios (02 · R7.8)', () => {
+    media();
+    const viewer: Person = { ...seller, permissions: ['users.view', 'audit-log.view'] };
+    fakeServer({});
+    navigate('/users/audit-log');
+    const frame = (who: Person) => (
+      <Frame person={who} testing={false} onSignOut={() => {}} screens={{ users }} />
+    );
+    const { rerender } = render(frame(viewer));
+    expect(screen.getByRole('main').textContent).toBe('La pantalla de Usuarios');
+    rerender(frame({ ...viewer, permissions: ['users.view'] }));
+    expect(screen.getByRole('main').textContent).toBe('La pantalla de Usuarios');
+  });
+
   it('R7.7: sin ningún rol que lo tenga lo dice; con tres que lo dan, los separa con comas', async () => {
     media();
     fakeServer({

@@ -48,6 +48,19 @@ export function timeline(events: AuditView[]) {
   return (event: AuditView) => (Date.parse(event.at) - start) / (end - start);
 }
 
+// Arrastrar el cabezal: de las que se ven (siempre hay alguna), la más cerca de donde está el dedo o
+// el puntero, de 0 a 1.
+export const nearest = (steps: AuditView[], where: (event: AuditView) => number, at: number) =>
+  steps.reduce((best, event) =>
+    Math.abs(where(event) - at) < Math.abs(where(best) - at) ? event : best,
+  );
+
+// Deslizar en el celular: un gesto de lado, más largo que alto, pasa a la siguiente o a la anterior.
+export function swipeOf(dx: number, dy: number): 1 | -1 | undefined {
+  if (Math.abs(dx) < 48 || Math.abs(dx) < 2 * Math.abs(dy)) return undefined;
+  return dx < 0 ? 1 : -1;
+}
+
 export const lanesFor = (event: AuditView) => ({ from: laneOf(event), to: received(event) });
 
 // «Reproducir»: el día entero en unos 14 segundos en la computadora; una acción por segundo en el

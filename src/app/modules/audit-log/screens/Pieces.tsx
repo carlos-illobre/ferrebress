@@ -49,7 +49,16 @@ export function Actor({ actor }: { actor: ActorView }) {
 }
 
 // `afterName`: va después de quién lo hizo, así que empieza en minúscula («Ana le sacó…»).
-export function Said({ event, afterName = false }: { event: AuditView; afterName?: boolean }) {
+// `note`: lo que se agrega al final, como la marca de la hora del celular en la lista (E09).
+export function Said({
+  event,
+  afterName = false,
+  note,
+}: {
+  event: AuditView;
+  afterName?: boolean;
+  note?: string | undefined;
+}) {
   return (
     <span class="audit-said">
       {entryOf(event.type)
@@ -67,6 +76,7 @@ export function Said({ event, afterName = false }: { event: AuditView; afterName
             <PersonName key={index} person={piece.person} as="to" />
           ),
         )}
+      {note && <small class="audit-note">{note}</small>}
     </span>
   );
 }

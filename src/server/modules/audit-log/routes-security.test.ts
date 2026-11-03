@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { createRolesKit, minutes, type RolesKit } from '../../testing/users/roles-kit.ts';
+import { createRolesKit, type RolesKit } from '../../testing/users/roles-kit.ts';
 
 describe('Quién hizo qué, desde el servidor: lo que intenta un atacante', () => {
   let kit: RolesKit;

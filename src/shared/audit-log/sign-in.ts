@@ -8,6 +8,15 @@ const ways: Record<string, string> = {
   offline: 'Entró sin conexión, con la huella',
 };
 
+// Por qué terminó una sesión (las sesiones de 01 · R3).
+const endings: Record<string, string> = {
+  idle: ': venció por no usarla',
+  'max-age': ': llegó a su tope de horas',
+  revoked: ': la cerraron desde Usuarios',
+  deactivated: ': la dieron de baja',
+  'sign-out': ': salió',
+};
+
 const refusals: Record<string, string> = {
   unknown: 'Intentó entrar con un correo no autorizado',
   inactive: 'Intentó entrar con una cuenta dada de baja',
@@ -42,9 +51,13 @@ export const signInTypes = {
     group: 'sign-in',
     tone: 'plain',
     icon: 'timer-off',
-    name: 'Cerró una sesión vencida',
+    name: 'Terminó una sesión',
     shows: ['reason'],
-    says: (e) => [text('Cerró la sesión vencida de '), whom(e)],
+    says: (e) => [
+      text('Terminó la sesión de '),
+      whom(e),
+      text(endings[String(e.data.reason)] ?? ''),
+    ],
   },
   'passkey.linked': {
     group: 'sign-in',

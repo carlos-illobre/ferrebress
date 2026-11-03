@@ -35,6 +35,28 @@ nombre** en `user.roles-changed`; **consultas dentro de un bucle** sin la prueba
 de tiempo con 730.000 acciones; y **una regla nueva escrita en `rules.md` sin rastro de que Carlos
 la aprobó** («Ver quién hizo qué» incluye «Ver las personas»).
 
+## Lo que ya se arregló
+
+Todo lo que frenaba, salvo la aprobación de Carlos de la regla de § 6:
+
+- **E09:** la fila lleva la marca «hora del celular, sin confirmar» al final del texto, en ámbar.
+- **E13:** el marco conoce Quién hizo qué como algo de adentro de Usuarios con su propio permiso:
+  abierta por la dirección sin él, muestra «No tenés permiso para Quién hizo qué» y no pide nada; si
+  se lo sacan con la pestaña abierta, Usuarios la cierra como antes (02 · R7.8).
+- **E41:** «Ver el día» abre el día del resumen; con un período de varios días, hoy.
+- **R4.11:** el cabezal se arrastra sobre la pista y se pega a la más cercana de las que se ven; en
+  el celular, deslizar de lado pasa de a una; con alguien aislado, Escape primero lo suelta.
+- **`session.ended`** dice por qué terminó la sesión (venció, llegó a su tope, la cerraron desde
+  Usuarios, la dieron de baja, salió).
+- **`user.roles-changed`** lleva el rol con su nombre en `targets`.
+- **Consultas en un bucle:** los días de la página y la semana de la cinta son tramos de una sola
+  consulta por archivo; una prueba cuenta las consultas de cada pedido y otra, con 730.000 acciones,
+  mide el tiempo (solo con `AUDIT_PERF=1`).
+- **Escenarios sin prueba:** E02, E03, E04, E10, E13, E16, E35 (los filtros), E41 y E42 (la misma
+  página y la misma acción elegida) tienen la suya.
+
+Lo marcado **Mejora** sigue como está y queda para después.
+
 ## 1. Escenarios sin cumplir
 
 - **E09, en la lista** (`app/modules/audit-log/screens/Ledger.tsx:28` a `:31`). La regla pide que la

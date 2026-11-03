@@ -27,11 +27,20 @@ export type Request =
   | { op: 'count'; filter: Filter }
   | { op: 'rows'; filter: Filter; offset: number; limit: number }
   | { op: 'tones'; filter: Filter }
+  | { op: 'spans'; filter: Filter; spans: Span[] }
   | { op: 'marks'; filter: Filter; limit: number }
   | { op: 'people' };
 
+// Un tramo [desde, hasta) en milisegundos: un día de una página o de la semana de la cinta.
+export type Span = [number, number];
 export type Mark = { id: string; at: number; tone: Tone };
-export type Answer = number | StoredEvent[] | Record<Tone, number> | Mark[] | PersonUpdate[];
+export type Answer =
+  | number
+  | StoredEvent[]
+  | Record<Tone, number>
+  | Record<Tone, number>[]
+  | Mark[]
+  | PersonUpdate[];
 
 const toneNames = Object.keys(toneCodes) as Tone[];
 export const maxClosedTotals = 1_000;
@@ -103,6 +112,28 @@ function tones(reading: Reading, filter: Filter): Record<Tone, number> {
   return totals;
 }
 
+// Cuántas de cada color hay en cada tramo, en una consulta por archivo y no una por tramo.
+function spans(reading: Reading, filter: Filter, wanted: Span[]): Record<Tone, number>[] {
+  const totals = wanted.map(() => ({ plain: 0, amber: 0, red: 0 }));
+  if (wanted.length === 0) return totals;
+  const covering = {
+    ...filter,
+    from: Math.min(...wanted.map(([from]) => from)),
+    until: Math.max(...wanted.map(([, until]) => until)),
+  };
+  const sums = wanted.map((_, i) => `sum(at >= ? and at < ?) as s${i}`).join(', ');
+  for (const year of yearsOf(reading, covering)) {
+    const { sql, params } = where(covering);
+    const found = fileOf(reading, year)
+      .prepare(`select tone, ${sums} from events where ${sql} group by tone`)
+      .all(...wanted.flat(), ...params) as Record<string, number>[];
+    for (const row of found)
+      for (const [i, total] of totals.entries())
+        total[toneNames[row.tone as number] as Tone] += row[`s${i}`] as number;
+  }
+  return totals;
+}
+
 // Lo de un período, de la más vieja a la más nueva: la tira y la cinta.
 function marks(reading: Reading, filter: Filter, limit: number): Mark[] {
   return yearsOf(reading, filter)
@@ -147,6 +178,8 @@ export function createQuery(source: Source, currentYear: () => number) {
         return rows(reading, request.filter, request.offset, request.limit);
       case 'tones':
         return tones(reading, request.filter);
+      case 'spans':
+        return spans(reading, request.filter, request.spans);
       case 'marks':
         return marks(reading, request.filter, request.limit);
       default:

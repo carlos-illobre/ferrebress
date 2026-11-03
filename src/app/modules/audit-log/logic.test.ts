@@ -8,7 +8,7 @@ import { peopleShapes } from '../../ui/icon/people-shapes.tsx';
 import { rolesShapes } from '../../ui/icon/roles-shapes.tsx';
 import { shapes } from '../../ui/icon/shapes.tsx';
 import { queryString } from './api.ts';
-import { browserOf, dayTitle, initials, stripDay, stripScale } from './logic.ts';
+import { browserOf, dayTitle, initials, stripScale, summaryDay } from './logic.ts';
 
 describe('la pantalla de Quién hizo qué, sin dibujo', () => {
   it('audit-log-E35b: cada ícono del catálogo está dibujado', () => {
@@ -31,10 +31,19 @@ describe('la pantalla de Quién hizo qué, sin dibujo', () => {
     expect(browserOf(undefined)).toBeUndefined();
   });
 
+  it('audit-log-E41: el día del resumen, que abre «Ver el día»; con varios días, hoy', () => {
+    expect(summaryDay({ from: '2026-10-20', until: '2026-10-22' }, '2026-10-28')).toBe(
+      '2026-10-28',
+    );
+    expect(summaryDay({ range: 'week' }, '2026-10-28')).toBe('2026-10-28');
+  });
+
   it('el día y el tramo de la tira', () => {
-    expect(stripDay(undefined, '2026-10-28')).toBe('2026-10-28');
-    expect(stripDay({ range: 'yesterday' }, '2026-10-28')).toBe('2026-10-27');
-    expect(stripDay({ from: '2026-10-20', until: '2026-10-20' }, '2026-10-28')).toBe('2026-10-20');
+    expect(summaryDay(undefined, '2026-10-28')).toBe('2026-10-28');
+    expect(summaryDay({ range: 'yesterday' }, '2026-10-28')).toBe('2026-10-27');
+    expect(summaryDay({ from: '2026-10-20', until: '2026-10-20' }, '2026-10-28')).toBe(
+      '2026-10-20',
+    );
     const short = stripScale([9 * 3600 + 40 * 60]);
     expect(short.hours).toEqual([9, 10, 11, 12]);
     expect(short.place(9 * 3600)).toBe(0);

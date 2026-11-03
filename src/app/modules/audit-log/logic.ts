@@ -122,9 +122,10 @@ export function browserOf(device: AuditView['device']): string | undefined {
   return browser && system ? `${browser} en ${system}` : (browser ?? system);
 }
 
-// El día de la tira, que el servidor manda solo con un período de un día: hoy, ayer o el elegido.
-export function stripDay(dates: Dates, today: string): string {
-  if (dates && 'from' in dates) return dates.from;
+// El día del resumen, el de la tira y el que abre «Ver el día» (E41): hoy, ayer o el elegido; con un
+// período de varios días, hoy.
+export function summaryDay(dates: Dates, today: string): string {
+  if (dates && 'from' in dates) return dates.from === dates.until ? dates.from : today;
   return dates?.range === 'yesterday' ? addDays(today, -1) : today;
 }
 

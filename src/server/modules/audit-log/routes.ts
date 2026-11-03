@@ -16,6 +16,7 @@ import { fail } from '../../platform/http.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { sessionOf } from '../../platform/session.ts';
 import type { PersonUpdate } from '../../platform/storage/audit/event.ts';
+import type { Span } from '../../platform/storage/audit/query.ts';
 import type { AuditReader } from '../../platform/storage/audit/reader.ts';
 import {
   dayCount,
@@ -45,6 +46,8 @@ function asking(reader: AuditReader) {
       (await reader.ask({ op: 'rows', filter, offset, limit })) as Stored[],
     tones: async (filter: Filter) =>
       (await reader.ask({ op: 'tones', filter })) as Record<string, number>,
+    spans: async (filter: Filter, spans: Span[]) =>
+      (await reader.ask({ op: 'spans', filter, spans })) as Record<string, number>[],
     marks: async (filter: Filter, limit: number) =>
       (await reader.ask({ op: 'marks', filter, limit })) as Mark[],
     people: async () => (await reader.ask({ op: 'people' })) as PersonUpdate[],
@@ -149,18 +152,19 @@ async function pageOf(ask: Ask, query: AuditQuery, today: string): Promise<Audit
   };
 }
 
-// Cuántas acciones con los filtros tiene cada día de la página, para su cabecera.
+// Cuántas acciones con los filtros tiene cada día de la página, para su cabecera: una sola pregunta.
 async function daysWith(ask: Ask, filter: Filter, days: string[]) {
-  const counts: Record<string, number> = {};
-  for (const day of days) {
+  const spans = days.map((day): Span => {
     const range = instantsOf({ from: day, until: day });
-    counts[day] = await ask.count({
-      ...filter,
-      from: Math.max(range.from, filter.from ?? range.from),
-      until: Math.min(range.until, filter.until ?? range.until),
-    });
-  }
-  return counts;
+    return [
+      Math.max(range.from, filter.from ?? range.from),
+      Math.min(range.until, filter.until ?? range.until),
+    ];
+  });
+  const found = await ask.spans(filter, spans);
+  return Object.fromEntries(
+    days.map((day, i) => [day, dayCount(day, found[i] as Record<string, number>).total]),
+  );
 }
 
 async function summaryOf(ask: Ask, period: Period) {
@@ -176,9 +180,13 @@ async function stripFor(ask: Ask, period: Period) {
 
 // El día de la cinta (R4.11): entero, sin filtros, con los siete días que terminan en él.
 async function dayOf(ask: Ask, date: string, today: string): Promise<AuditDay> {
-  const week = [];
-  for (const one of weekEndingOn(date))
-    week.push(dayCount(one, await ask.tones(instantsOf({ from: one, until: one }))));
+  const days = weekEndingOn(date);
+  const spans = days.map((one): Span => {
+    const { from, until } = instantsOf({ from: one, until: one });
+    return [from, until];
+  });
+  const found = await ask.spans({}, spans);
+  const week = days.map((one, i) => dayCount(one, found[i] as Record<string, number>));
   const range = instantsOf({ from: date, until: date });
   const total = await ask.count(range);
   if (total > dayLimit) return { date, today, week, tooMany: total };
