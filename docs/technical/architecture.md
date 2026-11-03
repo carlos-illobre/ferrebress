@@ -50,8 +50,8 @@ src/
 │   └── modules/<module>/
 └── app/
     ├── main.tsx     arma la aplicación: registra cada módulo
-    ├── platform/    tecnología sin negocio: api, realtime, storage, offline, camera,
-    │                keyboard, router, clock
+    ├── platform/    tecnología sin negocio: api, realtime, peer, mirror, storage, offline,
+    │                camera, keyboard, router, clock
     ├── ui/          las piezas del lenguaje visual (Button, Sheet, Table…), sin estilos
     │                de pantalla
     ├── styles/      los tokens del lenguaje visual (colores, letra, medidas) y el marco
@@ -133,23 +133,31 @@ repiten varias pantallas está una sola vez en `platform/`: si la pantalla es an
 ventana (`narrow.ts`), quedarse con la respuesta del último pedido (`latest.ts`) y llamar desde un
 efecto a la función de ahora (`current.ts`).
 
-**Las acciones con nombre son la columna de la aplicación.** Todo lo que hace la persona
-(agregar un renglón, cambiar de pantalla, cobrar) es una acción que pasa por un solo punto. Ese
-punto permite enchufar sin que los módulos lo sepan: el espejo del celular la manda al otro
-dispositivo (ADR-003), el teclado la dispara desde una tecla y la cola sin conexión la guarda
-(ADR-007).
+**Lo que se ve vive en valores con nombre.** La dirección, lo abierto encima (una hoja, un detalle,
+una confirmación), lo escrito en un buscador o en un campo, lo elegido y lo que trajo el servidor para
+mostrar no van en estado local de la pantalla: van en valores con nombre de `platform/mirror/`
+(`useMirrored`, y `useMirroredQuery` para lo que se pide al servidor). Sin vínculo se comportan como
+valores comunes; con el celular y la computadora vinculados, el espejo los copia al otro dispositivo sin
+que la pantalla lo sepa (ADR-003, ADR-017). Lo que es solo del dispositivo (el menú minimizado, dónde
+está el cursor, la cámara abierta) queda local, con un comentario que dice por qué. Las teclas se
+declaran en `platform/keyboard` y la cola sin conexión guarda comandos (ADR-007).
 
 ## Las conexiones
 
 Un solo módulo, `realtime`, con cuatro formas de conectarse. Cada funcionalidad declara qué
-necesita y el módulo elige cómo (ADR-003):
+necesita (un tema, o una señal si puede esperar) y el módulo elige cómo (ADR-003, ADR-017):
 
 | Forma | Para qué | Cómo | Prioriza |
 |---|---|---|---|
 | `request` | Todo lo normal | HTTP | — |
-| `piggyback` | Lo continuo: versión nueva, luz de conexión, sesión cerrada, avisos pendientes | En una cabecera de las respuestas que ya se hacen; sin conexión abierta | Bajo consumo |
-| `temporary` | Esperar algo puntual: el QR de entrada, la foto del celular, el avance de una lista | SSE abierto solo mientras se espera y la pantalla está a la vista | Tiempo real |
-| `peer` | Celular y computadora vinculados | Conexión directa por el Wi-Fi (WebRTC); el servidor solo los presenta y hace de respaldo | Tiempo real sin servidor |
+| `piggyback` | Lo continuo: versión nueva, luz de conexión, sesión cerrada, permisos y las señales de lo que puede esperar | En la cabecera `X-Ferrebress` de las respuestas que ya se hacen; las señales salen de un buzón por persona y dispositivo; sin conexión abierta | Bajo consumo |
+| `temporary` | Esperar algo: el QR de entrada, el código de vincular, presentar al celular y la computadora, la foto del celular, el avance de una lista | Un solo SSE por pestaña, abierto solo mientras una pantalla a la vista espera un tema; todos los temas lo comparten | Tiempo real |
+| `peer` | Celular y computadora vinculados | Un transporte: directo por el Wi-Fi (WebRTC, sin servidores externos), presentado por el canal; o por el servidor, de respaldo | Tiempo real sin servidor |
+
+En el servidor, `platform/realtime/` tiene el hub (los canales y quién escucha cada tema), el buzón de
+señales y los códigos de 60 segundos que comparten la entrada y el vínculo; en la aplicación,
+`platform/realtime/` (el canal de la pestaña), `platform/peer/` (los transportes) y
+`platform/mirror/` (los valores con nombre). Cada módulo declara sus temas al registrarse.
 
 ## Los datos
 
@@ -168,9 +176,9 @@ necesita y el módulo elige cómo (ADR-003):
 ## Escala
 
 Hoy un proceso alcanza de sobra. Si algún día hacen falta varias copias del servidor, cambian
-tres piezas de `platform/`, sin tocar el negocio: las sesiones (de la memoria a la base), la
-central de avisos (de la memoria a `LISTEN/NOTIFY` de PostgreSQL) y la auditoría (un solo
-escritor).
+tres piezas de `platform/`, sin tocar el negocio: las sesiones (de la memoria a la base), el hub
+de los canales y el buzón de señales (de la memoria a `LISTEN/NOTIFY` de PostgreSQL) y la
+auditoría (un solo escritor).
 
 ## Controles en `pnpm check`
 

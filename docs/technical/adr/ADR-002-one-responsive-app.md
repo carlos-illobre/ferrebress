@@ -25,8 +25,8 @@ de los renglones son las mismas.
   apariencia; usan los tokens del lenguaje visual (`styles/`) y las piezas de `ui/`. Cambiar el
   aspecto es tocar CSS.
 - **Organizada por módulo**, con Preact y Vite como PWA (ADR-013). Cada módulo se baja recién cuando se abre.
-- **Las acciones con nombre pasan por un solo punto** (ver [arquitectura](../architecture.md)), que
-  usan el espejo, el teclado y la cola sin conexión.
+- **Lo que se ve vive en valores con nombre** (ver [arquitectura](../architecture.md)), que el espejo
+  copia al otro dispositivo sin que la pantalla lo sepa (ADR-017).
 - **La entrada** es una sola pantalla con piezas; las opciones que muestra dependen de las
   capacidades del dispositivo y los adornos de cada ancho los elige el CSS. Se ve como su maqueta
   aprobada (`docs/design/mockups/sign-in/adapted/`).

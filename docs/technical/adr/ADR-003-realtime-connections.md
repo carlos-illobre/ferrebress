@@ -21,38 +21,46 @@ declara **qué necesita** (un tema, cuánto importa el tiempo real, cuánto dura
 | Forma | Para qué | Cómo |
 |---|---|---|
 | `request` | Todo lo normal | HTTP |
-| `piggyback` | Avisos continuos donde importa el consumo: versión nueva, luz de conexión, sesión cerrada, avisos pendientes | El servidor guarda el aviso en un buzón chico por sesión y lo manda en una cabecera de la próxima respuesta. Sin conexión abierta y sin temporizadores |
-| `temporary` | Esperar algo puntual donde importa el tiempo real: el QR de entrada, la foto del celular, el avance de una lista | Un canal SSE que se abre solo mientras se espera y la pantalla está a la vista, y se cierra solo |
-| `peer` | Celular y computadora vinculados | WebRTC por el Wi-Fi del local. El servidor solo los presenta, con un canal `temporary`; después no pasa nada por él |
+| `piggyback` | Avisos continuos donde importa el consumo: versión nueva, luz de conexión, sesión cerrada, permisos, y las señales de los temas que pueden esperar | En la cabecera `X-Ferrebress` de la próxima respuesta. Para lo de un módulo, el servidor guarda en un buzón chico por persona y dispositivo una **señal** (el tema y una versión, sin contenido) y la manda en la cabecera hasta que la aplicación la lee. Sin conexión abierta y sin temporizadores |
+| `temporary` | Esperar algo donde importa el tiempo real: el QR de entrada, el código de vincular, presentar al celular y la computadora, la auditoría que se actualiza sola | Un solo canal SSE por pestaña, abierto solo mientras alguna pantalla a la vista espera un **tema**, que comparten todos los temas de esa pestaña |
+| `peer` | Celular y computadora vinculados | Un transporte con dos variantes: directo (WebRTC por el Wi-Fi del local, sin servidores externos), presentado por el canal, que se cierra apenas se encuentran; y por el servidor, de respaldo |
 
-- **Del lado del servidor**, una central de avisos por tema, en memoria. Si el dispositivo tiene
-  un canal abierto, el aviso va por ahí; si no, queda en su buzón y viaja en la próxima respuesta.
-- **Sumar un caso** es declarar su tema y su forma. **Sumar una forma** es una pieza más que
-  cumple la misma interfaz (estrategia).
-- **El espejo replica acciones, no pantallas.** Mientras están vinculados, cada acción con nombre
-  se aplica en los dos dispositivos. Como la aplicación es una sola (ADR-002), los dos llegan a la
-  misma pantalla, cada uno con su disposición. Lo que viaja son unos pocos bytes. Las fotos suben
-  directo al servidor y viaja solo el aviso. Meta: menos de 50 ms entre tocar en uno y verlo en el
-  otro.
-- **Si la conexión directa no se logra** (un Wi-Fi que aísla los dispositivos), el mismo canal
-  pasa por el servidor con SSE y POST, solo mientras estén vinculados.
-- **`device-link` se enchufa en un solo lugar:** el punto por donde pasan las acciones. Ningún
-  otro módulo sabe que existe; quitarlo es quitar su registro.
+- **Del lado del servidor**, un hub en memoria con los canales abiertos y quién escucha cada tema.
+  Cada módulo declara sus temas: quién puede escucharlos y qué mandar al empezar a escuchar, así
+  reconectarse nunca pierde nada. Lo que puede esperar va como señal al buzón.
+- **Sumar un caso** es declarar su tema (o su señal) y pedirlo desde la pantalla. **Sumar una forma de
+  conectar los dos** es un transporte más que cumple la misma interfaz (estrategia). Cómo se construye
+  cada pieza está en el [ADR-017](ADR-017-realtime-channel-and-mirror.md).
+- **El espejo replica el estado a la vista, no acciones.** Lo que se ve (la pantalla, lo abierto encima,
+  lo escrito, lo elegido y lo que trajo el servidor) vive en valores con nombre; cada cambio viaja como
+  un parche de pocos bytes, y al conectarse la computadora manda una foto. Como la aplicación es una
+  sola (ADR-002), los dos muestran la misma pantalla, cada uno con su disposición. Lo que trae el
+  servidor lo pide uno solo por la conexión directa, y el otro recibe la respuesta. Las fotos del
+  celular suben directo al servidor y viaja solo el aviso. Meta: menos de 50 ms entre tocar en uno y
+  verlo en el otro.
+- **Si la conexión directa no se logra** (un Wi-Fi que aísla los dispositivos), los mismos mensajes van
+  por el servidor, con POST de ida y el canal de vuelta, solo mientras los dos tienen la aplicación a la
+  vista.
+- **`device-link` no se enchufa en ninguna pantalla:** las pantallas usan valores con nombre, que sin
+  vínculo son valores comunes. Ningún otro módulo sabe que existe; quitarlo es quitar su registro.
 
 ## Opciones descartadas
 
 - **WebSocket:** un canal que va y vuelve, pero que queda abierto contra el servidor. SSE es HTTP
-  común, pasa por Caddy sin configurar nada, se reconecta solo, y para mandar alcanza un POST.
+  común, pasa por Caddy sin configurar nada, se vuelve a abrir con un pedido común, y para mandar
+  alcanza un POST.
 - **Consultas periódicas al servidor:** gastan datos aunque no pase nada.
 - **Bluetooth entre los dispositivos:** un navegador no puede ofrecer un servicio Bluetooth a
   otro, así que no sirve para el espejo. Bluetooth se usa solo para entrar (ADR-006).
-- **Mandar la pantalla en vez de las acciones:** mucho más pesado, y no aprovecha que la
-  aplicación es una sola.
+- **Mandar la pantalla en vez del estado:** mucho más pesado, y no aprovecha que la aplicación es
+  una sola.
+- **Replicar acciones con nombre:** una acción que pide al servidor no da lo mismo en los dos, y lo
+  escrito letra por letra no es una acción (ADR-017).
 
 ## Consecuencias
 
 - Para vincularse hace falta el servidor una vez. Ya vinculados, si se corta internet, el espejo
   sigue por el Wi-Fi; si se corta la conexión directa sin internet, no se pueden volver a
   encontrar hasta que vuelva.
-- La central de avisos en memoria sirve para un proceso. Con varias copias del servidor se cambia
-  por `LISTEN/NOTIFY` de PostgreSQL, sin tocar a quien la usa.
+- El hub y el buzón en memoria sirven para un proceso. Con varias copias del servidor se cambian
+  por `LISTEN/NOTIFY` de PostgreSQL, sin tocar a quien los usa.
