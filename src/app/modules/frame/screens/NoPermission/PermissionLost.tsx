@@ -9,13 +9,13 @@ import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import type { Option } from '../../menu.ts';
 import { words } from './texts.ts';
-import './Lost.css';
+import './PermissionLost.css';
 
 export const lostSeconds = 5;
 
 export type LostPermission = { option: Option; before: Person; after: Person };
 
-export function Lost({
+export function PermissionLost({
   lost,
   first,
   onGo,

@@ -83,9 +83,11 @@ async function rolesForList(data: Data): Promise<RoleSummary[]> {
 
 // «Sin permiso» (R7.7): solo nombres de personas activas, nunca correos.
 async function holdersOf(data: Data, permission: string, names: Names): Promise<HoldersResponse> {
-  const roles = await data.roles();
-  const granting = await data.rolePermissions();
-  const holders = await data.userRoles(true);
+  const [roles, granting, holders] = await Promise.all([
+    data.roles(),
+    data.rolePermissions(),
+    data.userRoles(true),
+  ]);
   const nameOf = (userId: string) => {
     const user = names.get(userId);
     return user && (user.name ?? user.googleName) ? displayName(user) : 'Sin nombre';

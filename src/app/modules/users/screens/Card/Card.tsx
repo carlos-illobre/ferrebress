@@ -6,11 +6,11 @@ import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { activate, change, remove } from '../../actions.ts';
-import { dateOf, nowMs } from '../../logic.ts';
+import { dateOf, footOf, nowMs } from '../../logic.ts';
 import { useUsersContext } from '../../state.ts';
 import { cardTexts as t, texts } from '../../texts.ts';
 import { PersonRoles } from '../PersonRoles/PersonRoles.tsx';
-import { Avatar, LastSignIn, Roles } from '../Users/List.tsx';
+import { Avatar, LastSignIn, RolePills } from '../Users/List.tsx';
 import { Access, Note } from './Access.tsx';
 import { Editable } from './Edit.tsx';
 import { Rows, Tiles } from './Phone.tsx';
@@ -46,7 +46,7 @@ function Who({ person }: { person: PersonRow }) {
           value={person.email}
           shown={person.email}
           label={t.editEmail}
-          placeholder="correo@gmail.com"
+          placeholder={t.emailExample}
           save={(value) => change(users, person, 'email', value)}
         />
       ) : (
@@ -72,7 +72,7 @@ function Pills({ person }: { person: PersonRow }) {
   return (
     <div class="users-pills">
       {person.self && <span class="users-pill you">{texts.you}</span>}
-      <Roles person={person} />
+      <RolePills person={person} />
       {!person.active && <span class="users-pill off">{texts.deactivated}</span>}
       <span class="users-when">
         <LastSignIn person={person} /> · {when}
@@ -105,14 +105,12 @@ function Middle({ person }: { person: PersonRow }) {
   );
 }
 
-// Dar de alta y de baja: «Administrar personas» y no sobre quien tiene más (R7.11); borrar el alta,
-// «Administrar personas».
+// Dar de alta, borrar el alta o dar de baja (footOf).
 function Foot({ person }: { person: PersonRow }) {
   const users = useUsersContext();
-  if (person.self) return <Note>{t.selfNote}</Note>;
-  if (!users.may.manage) return null;
-  if (!person.active && !users.may.manageOver(person)) return null;
-  if (!person.active)
+  const foot = footOf(person, users.may);
+  if (foot === 'self') return <Note>{t.selfNote}</Note>;
+  if (foot === 'activate')
     return (
       <Button
         icon="user-check"
@@ -124,9 +122,7 @@ function Foot({ person }: { person: PersonRow }) {
         {t.activate}
       </Button>
     );
-  // Borrar el alta: tampoco sobre quien tiene más (R7.11).
-  if (person.neverSignedIn && !users.may.manageOver(person)) return null;
-  if (person.neverSignedIn)
+  if (foot === 'delete')
     return (
       <>
         <Button
@@ -141,7 +137,7 @@ function Foot({ person }: { person: PersonRow }) {
         <span class="users-foot-hint">{t.deleteHint}</span>
       </>
     );
-  if (!users.may.manageOver(person)) return null;
+  if (!foot) return null;
   return (
     <Button
       look="danger"

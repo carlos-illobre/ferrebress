@@ -10,7 +10,7 @@ import { moreOptions, parts } from '../../frame/index.ts';
 export type Back = { long: string; short: string; go: (open: number) => void };
 
 // Sus textos viven acá y no en texts.ts: este archivo va en el arranque y texts.ts no.
-export const backTexts = {
+const backTexts = {
   goToApp: 'Ir a Ferrebress',
   backTo: (place: string) => `Volver a ${place}`,
 };

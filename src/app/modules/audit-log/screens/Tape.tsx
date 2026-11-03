@@ -5,6 +5,7 @@
 import type { AuditDay, AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { useBackStep } from '../../../platform/back-step.ts';
+import { useLatest } from '../../../platform/latest.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import { auditApi } from '../api.ts';
@@ -19,9 +20,11 @@ import './Tape.css';
 function useDay(first: { date: string; at?: string }) {
   const [day, setDay] = useState<AuditDay>();
   const [at, setAt] = useState<string | undefined>(first.at);
+  const latest = useLatest();
+  // Si se cambia de día antes de que llegue el anterior, vale el último.
   const load = async (date: string, focus?: string) => {
-    const result = await auditApi.day(date);
-    if (!result.ok) return;
+    const result = await latest(auditApi.day(date));
+    if (!result?.ok) return;
     setDay(result.data);
     setAt(focus ?? result.data.events?.[0]?.id);
   };
@@ -42,7 +45,9 @@ function Week({ day, load }: { day: AuditDay; load: (date: string) => unknown })
           aria-pressed={one.date === day.date}
           onClick={() => load(one.date)}
         >
-          <span>{one.date === day.today ? 'Hoy' : shortDateOf(`${one.date}T15:00:00Z`)}</span>
+          <span>
+            {one.date === day.today ? texts.total.today : shortDateOf(`${one.date}T15:00:00Z`)}
+          </span>
           <b>{one.total}</b>
           {one.red + one.amber > 0 && (
             <small class="tape-day-marks">

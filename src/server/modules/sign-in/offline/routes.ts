@@ -18,7 +18,7 @@ import { fail } from '../../../platform/http.ts';
 import type { User } from '../../users/index.ts';
 import type { SignInContext } from '../context.ts';
 import type { Passkey } from '../passkeys/data.ts';
-import { verifyAssertion } from '../passkeys/webauthn.ts';
+import { verifyCounted } from '../passkeys/webauthn.ts';
 import { openSession, withProofKey } from '../sessions/open.ts';
 import { verifyProof } from '../sessions/proof.ts';
 import { signInSettings } from '../settings.ts';
@@ -71,18 +71,13 @@ async function confirm(ctx: SignInContext, c: Context, confirming: Confirming) {
     });
     return notConfirmed(c);
   }
-  const accountKey = `failed:passkey:${passkey.userId}`;
-  if (ctx.platform.limiter.exceeded(accountKey, limits.failedPerAccount)) {
-    return ctx.throttle(c, [accountKey], limits.failedPerAccount) as Response;
-  }
   const challenge = await offlineChallenge({ ...body, deviceId });
-  const counter = await verifyAssertion(ctx, response, passkey, challenge);
-  if (counter === undefined) {
-    ctx.platform.limiter.hit(accountKey, limits.failedPerAccount);
+  const verified = await verifyCounted(ctx, c, passkey, response, challenge);
+  if (verified instanceof Response) return verified;
+  if (!verified) {
     recordOnce(ctx, c, { userId: body.userId, reason: 'invalid-signature' });
     return notConfirmed(c);
   }
-  await ctx.passkeys.markUsed(passkey.id, counter, ctx.platform.clock.now());
   return judge(ctx, c, confirming, passkey);
 }
 
@@ -157,12 +152,9 @@ async function finish(
 // por ventana, así no se puede llenar la auditoría ni anotar a nombre de otro (revisión de
 // seguridad, 11).
 function repeated(ctx: SignInContext, c: Context, previous: { result: string; userId: string }) {
-  const key = `audit:offline-repeated:${c.get('ipAddress')}`;
-  if (ctx.platform.limiter.hit(key, limits.throttledAudit).allowed) {
-    ctx.record(c, 'sign-in.offline-repeated', {
-      targets: [{ kind: 'person', id: previous.userId }],
-    });
-  }
+  ctx.recordOnce(c, `offline-repeated:${c.get('ipAddress')}`, 'sign-in.offline-repeated', {
+    targets: [{ kind: 'person', id: previous.userId }],
+  });
   return previous.result === 'rejected'
     ? notConfirmed(c)
     : fail(c, 409, 'offline-already-confirmed');
@@ -180,11 +172,8 @@ const audited = (row: OfflineSignIn) => ({
 
 // Lo que no prueba nada se anota una vez por ventana y por dirección, como los rechazos por límite.
 function recordOnce(ctx: SignInContext, c: Context, fields: { userId: string; reason: string }) {
-  const key = `audit:offline:${c.get('ipAddress')}`;
-  if (!ctx.platform.limiter.hit(key, limits.throttledAudit).allowed) return;
-  const { userId, reason } = fields;
-  ctx.record(c, 'sign-in.offline-rejected', {
-    targets: [{ kind: 'person', id: userId }],
-    data: { reason },
+  ctx.recordOnce(c, `offline:${c.get('ipAddress')}`, 'sign-in.offline-rejected', {
+    targets: [{ kind: 'person', id: fields.userId }],
+    data: { reason: fields.reason },
   });
 }

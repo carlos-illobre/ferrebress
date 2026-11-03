@@ -3,6 +3,7 @@
 // van en el diálogo de «Buscar usuario» (pedido de Carlos).
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
+import { Search } from '../../../../ui/search/Search.tsx';
 import { counts, type Filter, holdersOf } from '../../logic.ts';
 import { useUsersContext } from '../../state.ts';
 import { texts } from '../../texts.ts';
@@ -46,28 +47,24 @@ export function Stats() {
 }
 
 const filters: Filter[] = ['all', 'active', 'never', 'off'];
-// El texto de adentro no se puede cambiar con el CSS: se elige al dibujarlo (00 · R3.2).
-const narrow = () => matchMedia('(max-width: 899px)').matches;
-
 // La caja para buscar, por nombre o correo, sin mayúsculas ni tildes.
 export function SearchBox({ slash }: { slash?: boolean }) {
   const users = useUsersContext();
   return (
-    <label class="users-search" data-private="">
-      <Icon name="search" />
-      <span class="visually-hidden">{texts.searchLabel}</span>
-      <input
-        type="search"
-        value={users.search}
-        placeholder={narrow() ? texts.search.short : texts.search.long}
-        data-slash={slash ? '' : undefined}
-        data-clear=""
-        data-autofocus={slash ? undefined : ''}
-        autocomplete="off"
-        onInput={(event) => users.setSearch(event.currentTarget.value)}
-      />
+    <Search
+      look="users-search"
+      masked
+      icon={<Icon name="search" />}
+      aria-label={texts.searchLabel}
+      placeholder={texts.search}
+      value={users.search}
+      onText={users.setSearch}
+      data-slash={slash ? '' : undefined}
+      data-clear=""
+      data-autofocus={slash ? undefined : ''}
+    >
       {slash && <kbd>/</kbd>}
-    </label>
+    </Search>
   );
 }
 

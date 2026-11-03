@@ -27,15 +27,23 @@ export function skeletonOf(page: string): string[] {
   return [...page.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)].map((found) => found[1] as string);
 }
 
-// Guarda la página y su esqueleto. Si la página es de otra versión, borra lo guardado de la anterior;
-// si es la misma, lo guardado al usarla (las imágenes, las letras, las pantallas) queda.
+// Guarda la página y su esqueleto, todo junto: si un archivo no llega (un error en medio de un
+// despliegue), sigue la versión guardada y se vuelve a probar la próxima vez, así nunca queda una
+// página sin sus archivos ni un error guardado. Los que faltan se piden a la vez. Si la página es de
+// otra versión, borra lo guardado de la anterior; si es la misma, lo guardado al usarla (las
+// imágenes, las letras, las pantallas) queda.
 async function keep(box: Box, fetcher: Fetch, page: Response): Promise<void> {
   const skeleton = skeletonOf(await page.clone().text());
+  const kept = await Promise.all(skeleton.map((path) => box.match(path)));
+  const missing = skeleton.filter((_, at) => !kept[at]);
+  const fetched = await Promise.all(missing.map((path) => fetcher(path)));
+  if (!fetched.every((response) => response.ok)) return;
   const before = await box.match(shell);
   const same = before !== undefined && skeletonOf(await before.text()).join() === skeleton.join();
-  await box.put(shell, page);
-  for (const path of skeleton)
-    if (!(await box.match(path))) await box.put(path, await fetcher(path));
+  await Promise.all([
+    box.put(shell, page),
+    ...missing.map((path, at) => box.put(path, fetched[at] as Response)),
+  ]);
   if (same) return;
   for (const request of await box.keys()) {
     const { pathname } = new URL(request.url);
@@ -53,14 +61,18 @@ export async function install(box: Box, fetcher: Fetch): Promise<void> {
   if (isPage(fresh)) await keep(box, fetcher, fresh);
 }
 
-export async function page(request: Request, box: Box, fetcher: Fetch): Promise<Response> {
-  try {
-    const fresh = await fetcher(request);
-    if (isPage(fresh)) await keep(box, fetcher, fresh.clone());
-    return fresh;
-  } catch {
-    return (await box.match(shell)) ?? Response.error();
-  }
+// La página nueva se muestra apenas llega; guardarla con su esqueleto sigue después (`later`), sin
+// demorarla. Sin conexión, la guardada.
+export async function page(
+  request: Request,
+  box: Box,
+  fetcher: Fetch,
+  later: (work: Promise<unknown>) => void,
+): Promise<Response> {
+  const fresh = await fetcher(request).catch(() => undefined);
+  if (!fresh) return (await box.match(shell)) ?? Response.error();
+  if (isPage(fresh)) later(keep(box, fetcher, fresh.clone()).catch(() => undefined));
+  return fresh;
 }
 
 export async function asset(request: Request, box: Box, fetcher: Fetch): Promise<Response> {

@@ -122,23 +122,28 @@ function onEscape(event: KeyboardEvent): void {
   else unmark();
 }
 
+const onArrow = (event: KeyboardEvent) => {
+  if (!layerArrow(event) && !caretKeepsArrow(event)) arrow(event);
+};
+
+const onPage = (event: KeyboardEvent) =>
+  topLayer().querySelector<HTMLElement>(`[data-page="${pages[event.key]}"]`)?.click();
+
+// Lo que hace cada tecla sin Alt; las demás no hacen nada.
+const actions: Record<string, (event: KeyboardEvent) => void> = {
+  ...Object.fromEntries(Object.keys(steps).map((key) => [key, onArrow])),
+  ...Object.fromEntries(Object.keys(pages).map((key) => [key, onPage])),
+  Enter: () => marked()?.click(),
+  Escape: onEscape,
+  '/': slash,
+};
+
 function onKeyDown(event: KeyboardEvent): void {
   if (event.key === 'Alt') {
     topLayer().classList.add(showKeysClass);
     event.preventDefault();
-  } else if (event.altKey) {
-    shortcut(event);
-  } else if (event.key in steps) {
-    if (!layerArrow(event) && !caretKeepsArrow(event)) arrow(event);
-  } else if (event.key === 'Enter') {
-    marked()?.click();
-  } else if (event.key === 'Escape') {
-    onEscape(event);
-  } else if (event.key === '/') {
-    slash(event);
-  } else if (event.key in pages) {
-    topLayer().querySelector<HTMLElement>(`[data-page="${pages[event.key]}"]`)?.click();
-  }
+  } else if (event.altKey) shortcut(event);
+  else actions[event.key]?.(event);
 }
 
 // Alt más la tecla del botón (R2.8): la letra o el número, sin importar la distribución del teclado.

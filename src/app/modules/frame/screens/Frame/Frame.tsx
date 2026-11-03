@@ -3,7 +3,8 @@
 // página para los dos anchos: desde 900 px es la computadora y debajo, el celular (ADR-002).
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { ComponentChildren, ComponentType } from 'preact';
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { isNarrow } from '../../../../platform/narrow.ts';
 import { route } from '../../../../platform/router.ts';
 import { online as onlineStore } from '../../../../platform/server/api.ts';
 import { useStore } from '../../../../platform/store.ts';
@@ -16,8 +17,8 @@ import { FrameContext, type FrameState, type SettingRow, shake } from '../../con
 import { allowed, firstOption, goToFirst, insideAt, type Option, optionAt } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
-import { Lost, type LostPermission } from '../NoPermission/Lost.tsx';
 import { NoPermission } from '../NoPermission/NoPermission.tsx';
+import { type LostPermission, PermissionLost } from '../NoPermission/PermissionLost.tsx';
 import { PhoneNav } from '../Phone/Phone.tsx';
 import { PhoneMore } from '../Phone/PhoneMore.tsx';
 import { PhoneSheets } from '../Phone/PhoneSheets.tsx';
@@ -48,6 +49,16 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
   const panels = usePanels();
   const phoneMore = usePhoneMore();
   const tip = useTip((element) => labelled(element, collapse.collapsed));
+  // La pantalla abierta no se vuelve a dibujar por lo que cambia solo en el marco: una etiqueta del
+  // menú, un panel, el menú angosto. Con listas largas, eso se notaría al pasar el mouse.
+  const work = useMemo(
+    () => (
+      <Work person={person} opened={opened} Screen={Screen}>
+        {children}
+      </Work>
+    ),
+    [person, opened, Screen, children],
+  );
   const state: FrameState = {
     person,
     testing,
@@ -59,7 +70,7 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
     tip,
     notYet(element, name) {
       shake(element);
-      if (matchMedia('(max-width: 899px)').matches) showToast(texts.notYetShort(name));
+      if (isNarrow()) showToast(texts.notYetShort(name));
       else tip.notYet(element, name);
     },
     signOut: onSignOut,
@@ -73,10 +84,8 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
         data-layer=""
       >
         <Side />
-        <Work person={person} opened={opened} Screen={Screen}>
-          {children}
-        </Work>
-        {lost.now && <Lost lost={lost.now} first={firstOption(person)} onGo={lost.go} />}
+        {work}
+        {lost.now && <PermissionLost lost={lost.now} first={firstOption(person)} onGo={lost.go} />}
         <PhoneMore />
         <PhoneNav />
         <WaitNotice />

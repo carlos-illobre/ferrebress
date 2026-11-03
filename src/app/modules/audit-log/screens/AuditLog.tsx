@@ -5,7 +5,9 @@
 import type { AuditPage } from '@ferrebress/shared/contracts/audit-log';
 import { Button } from '../../../ui/button/Button.tsx';
 import { auditLogShapes } from '../../../ui/icon/audit-log-shapes.tsx';
-import { addShapes, Icon } from '../../../ui/icon/Icon.tsx';
+import { addShapes } from '../../../ui/icon/Icon.tsx';
+import { LoadState } from '../../../ui/load-state/LoadState.tsx';
+import { Offline } from '../../../ui/offline/Offline.tsx';
 import { Sheet } from '../../../ui/sheet/Sheet.tsx';
 import { hasFilters, summaryDay } from '../logic.ts';
 import { AuditLogContext, useAuditLog, useAuditLogContext } from '../state.ts';
@@ -65,18 +67,8 @@ function Detail({ page }: { page: AuditPage }) {
 function Body() {
   const log = useAuditLogContext();
   if (!log.page)
-    return log.failed ? (
-      <div class="audit-empty">
-        <Icon name="triangle-alert" size="large" />
-        <b>{texts.loadFailed}</b>
-        <Button icon="refresh-cw" doing={texts.retry} onPress={log.retry}>
-          {texts.retry}
-        </Button>
-      </div>
-    ) : (
-      <p class="audit-empty" aria-busy="true">
-        {texts.loading}
-      </p>
+    return (
+      <LoadState look="audit-empty" failed={log.failed} texts={texts} retry={log.retry} icon />
     );
   return (
     <div class="audit-body">
@@ -122,12 +114,7 @@ export function AuditLog() {
             {texts.refresh}
           </Button>
         </div>
-        {!log.online && (
-          <p class="audit-offline" role="status">
-            <Icon name="wifi-off" size="small" />
-            {texts.offline}
-          </p>
-        )}
+        {!log.online && <Offline look="audit-offline" text={texts.offline} />}
         <div class="audit-content" inert={!log.online}>
           <Body />
         </div>

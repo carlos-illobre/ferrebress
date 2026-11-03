@@ -3,7 +3,7 @@
 // con la hora del servidor. Sin pantallas: lo prueban las pruebas de la lógica.
 import type { PersonRow, Way } from '@ferrebress/shared/contracts/users';
 import { serverNow } from '../../platform/server/clock.ts';
-import { plain } from '../../platform/text.ts';
+import { initials, plain } from '../../platform/text.ts';
 
 export type Filter = 'all' | 'active' | 'never' | 'off';
 
@@ -56,17 +56,24 @@ export function counts(people: PersonRow[]) {
   };
 }
 
+// Qué va al pie de la tarjeta (R4, R7.11): la nota de la propia; dar de alta a quien está de baja,
+// borrar el alta de quien nunca entró o dar de baja, con «Administrar personas» y no sobre quien
+// tiene más. Nada, si no puede.
+export type Foot = 'self' | 'activate' | 'delete' | 'deactivate' | undefined;
+
+export function footOf(
+  person: PersonRow,
+  may: { manageOver: (person: PersonRow) => boolean },
+): Foot {
+  if (person.self) return 'self';
+  if (!may.manageOver(person)) return undefined;
+  if (!person.active) return 'activate';
+  return person.neverSignedIn ? 'delete' : 'deactivate';
+}
+
 // Las dos letras del círculo: de su nombre o, sin nombre, de su correo.
 export const initialsOf = (person: PersonRow) =>
-  (person.displayName === person.email
-    ? person.email.slice(0, 2)
-    : person.displayName
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((word) => word[0])
-        .join('')
-  ).toUpperCase();
+  initials(person.displayName === person.email ? '' : person.displayName, person.email);
 
 // Ahora, con la hora del servidor (diseño de 02, § 8); antes de su primera respuesta, la del dispositivo.
 export const nowMs = () => (serverNow() ?? new Date()).getTime();

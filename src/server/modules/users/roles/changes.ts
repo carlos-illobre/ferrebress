@@ -9,7 +9,7 @@ import { newId } from '../../../platform/ids.ts';
 import type { Platform } from '../../../platform/modules.ts';
 import type { Role } from './data.ts';
 import { type By, type Holders, setHolders } from './holding.ts';
-import { type Data, type Done, refuse, underLock } from './lock.ts';
+import { type AuditFields, type Data, type Done, refuse, underLock } from './lock.ts';
 import { cleanRoleText, gives } from './rules.ts';
 
 const clean = (fields: Pick<RoleFields, 'name' | 'description'>) => ({
@@ -35,11 +35,30 @@ const shownAs = (role: Pick<Role, 'name' | 'description'>, permissions: readonly
   description: role.description,
   permissions: [...permissions].sort(),
 });
+type Shown = ReturnType<typeof shownAs>;
+
+// La línea de un rol creado, cambiado o borrado (05 · R2.4, R2.5): el rol con su nombre, y solo lo
+// que cambió, con lo de antes y lo de después.
+function roleRecord(roleId: string, before: Shown | null, after: Shown | null): AuditFields {
+  const fields = ['name', 'description', 'permissions'] as const;
+  const changed = fields.filter(
+    (field) => JSON.stringify(before?.[field] ?? null) !== JSON.stringify(after?.[field] ?? null),
+  );
+  return {
+    targets: [{ kind: 'role', id: roleId, name: (after ?? before)?.name as string }],
+    changes: Object.fromEntries(
+      changed.map((field) => [
+        field,
+        { before: before?.[field] ?? null, after: after?.[field] ?? null },
+      ]),
+    ),
+  };
+}
 
 // Crear (también duplicar): da permisos, pide confirmar (R3.8). Con un tope de roles (seguridad, 38).
 const createRole =
   (platform: Platform, confirmed: boolean, fields: NewRole, by: By) =>
-  async (data: Data): Promise<Done<Role>> => {
+  async (data: Data): Promise<Done<Role & { permissions: string[] }>> => {
     if (!confirmed) refuse('confirm-first');
     if ((await data.roles()).length >= maxRoles) refuse('too-many-roles');
     const permissions = withIncluded(fields.permissions as never);
@@ -54,7 +73,8 @@ const createRole =
     const after = shownAs(role, permissions);
     const people = await setHolders(data, role, { give: fields.give }, { confirmed, by });
     const affects = people.map((one) => one.userId);
-    return { result: role, audit: { roleId: role.id, before: null, after }, affects, people };
+    const audit = roleRecord(role.id, null, after);
+    return { result: { ...role, permissions: after.permissions }, audit, affects, people };
   };
 
 // Un nombre que ya tiene otro rol, sin importar mayúsculas: el índice único lo rechaza (`23505`).
@@ -96,9 +116,8 @@ const changeRole =
     if (gives(before, permissions) && !confirmed) refuse('confirm-first');
     if (changes) await data.setPermissions(id, permissions);
     const people = await setHolders(data, role, fields, { confirmed, by });
-    if (!changes)
-      return { result: role, audit: {}, affects: people.map((one) => one.userId), people };
-    const audit = { roleId: id, before: shownAs(old, before), after: shownAs(role, permissions) };
+    if (!changes) return { result: role, affects: people.map((one) => one.userId), people };
+    const audit = roleRecord(id, shownAs(old, before), shownAs(role, permissions));
     return { result: role, audit, affects: 'all', people };
   };
 
@@ -115,7 +134,7 @@ const removeRole =
     if (role.version !== version) refuse('changed');
     const before = shownAs(role, await permissionsOfRole(data, id));
     if (!(await data.deleteRole(id, version))) refuse('role-in-use');
-    return { result: { name: role.name }, audit: { roleId: id, before, after: null }, affects: [] };
+    return { result: { name: role.name }, audit: roleRecord(id, before, null), affects: [] };
   };
 
 type Setting = { asking: string; confirmed: boolean; userId: string; version: number };
@@ -136,7 +155,10 @@ const setRolesOf =
       refuse((await data.userExists(userId)) ? 'changed' : 'not-found');
     if (gives(permissionsBefore, await data.permissionsOf(userId, false)) && !confirmed)
       refuse('confirm-first');
-    const audit = { before: before.map(nameOf), after: roleIds.map(nameOf) };
+    const audit = {
+      targets: [{ kind: 'person' as const, id: userId }],
+      changes: { roles: { before: before.map(nameOf), after: roleIds.map(nameOf) } },
+    };
     return { result: roleIds, audit, affects: [userId] };
   };
 
@@ -161,10 +183,7 @@ export function createRoleChanges(platform: Platform) {
 }
 
 const permissionsOfRole = async (data: Data, roleId: string) =>
-  (await data.rolePermissions())
-    .filter((row) => row.roleId === roleId)
-    .map((row) => row.permission)
-    .sort();
+  (await data.rolePermissionsOf(roleId)).sort();
 
 export type RoleChanges = ReturnType<typeof createRoleChanges>;
 export type { LockOutcome as RoleOutcome, Refused as RoleRefusal } from './lock.ts';

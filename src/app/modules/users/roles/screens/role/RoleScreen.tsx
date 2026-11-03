@@ -77,9 +77,9 @@ function useSave(draft: Draft, setDraft: (draft: Draft) => void) {
     navigate(listPath, { force: true, state: { arriving: id } });
   };
   // Lo que el servidor no guardó: confirmar y repetir, poner el borrador encima o decir qué y dónde.
-  const refused = (outcome: Exclude<SaveOutcome, { ok: true }>, again: () => unknown) => {
+  const notSaved = (outcome: Exclude<SaveOutcome, { ok: true }>, again: () => unknown) => {
     if (outcome.kind === 'confirm-first')
-      return users.confirmFirst(again, whatItGives(draft, nameOf));
+      return users.askToConfirm(again, whatItGives(draft, nameOf));
     if (outcome.kind === 'changed') return changedOver();
     if (outcome.kind === 'other') return showToast(refusalText(outcome.error), 'triangle-alert');
     return setErrors(outcome.errors);
@@ -89,7 +89,7 @@ function useSave(draft: Draft, setDraft: (draft: Draft) => void) {
     setNotice(undefined);
     if (hasErrors(known)) return setErrors(known);
     const outcome = await saveDraft(draft);
-    return outcome.ok ? saved(outcome.id) : refused(outcome, save);
+    return outcome.ok ? saved(outcome.id) : notSaved(outcome, save);
   };
   // Al corregir, lo marcado se vuelve a mirar, así se apaga.
   const recheck = (next: Draft) => errors && setErrors(validate(next, context()));
@@ -108,7 +108,7 @@ function useHalfDone(dirty: boolean) {
       registerWork({
         pending: () => pending.current,
         discard: () => {
-          users.confirmed();
+          users.endConfirm();
           navigate(listPath, { replace: true, force: true });
         },
       }),

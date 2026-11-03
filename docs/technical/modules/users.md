@@ -565,7 +565,7 @@ Todo con sesión, `GET` o `POST`, con `version` en los cambios, como la etapa a.
   baja recién al abrirla, con `screens/` (lo de abajo), `draft.ts`, `search.ts`, `actions.ts`,
   `paths.ts` (las direcciones y quiénes tienen cada rol) y `texts.ts`. Los roles de una persona
   (`PersonRoles`, `RolePicker`, de la tarjeta y de autorizar) van a `screens/PersonRoles/`, con sus
-  textos en `role-texts.ts` y su guardado en `role-actions.ts`. Cada vista tiene su dirección: `/users/roles` la lista,
+  textos en `person-roles-texts.ts` y su guardado en `person-roles.ts`. Cada vista tiene su dirección: `/users/roles` la lista,
   `/users/roles/new` el rol nuevo y `/users/roles/<id>` uno que existe, así atrás vuelve a la lista y
   se puede recargar. Sin «Administrar roles» la pestaña no está, y si se pierde usándola se cierra
   como cualquier pantalla (R7.8). Dos vistas que ocupan la pestaña, nunca a la vez:

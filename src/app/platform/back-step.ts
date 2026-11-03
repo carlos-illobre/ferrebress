@@ -2,14 +2,16 @@
 // abierto: el botón atrás del celular lo cierra y vuelve a la pantalla de abajo, en lugar de
 // salir de la aplicación. Si se cierra de otra forma, se saca ese paso (si sigue siendo el de ahora).
 import { useEffect } from 'preact/hooks';
+import { useCurrent } from './current.ts';
 
 export function useBackStep(close: () => void): void {
+  const current = useCurrent(close);
   useEffect(() => {
     const step = crypto.randomUUID();
     history.pushState({ step }, '');
-    addEventListener('popstate', close);
+    addEventListener('popstate', current);
     return () => {
-      removeEventListener('popstate', close);
+      removeEventListener('popstate', current);
       if ((history.state as { step?: string } | null)?.step === step) history.back();
     };
   }, []);

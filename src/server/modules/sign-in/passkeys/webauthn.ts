@@ -143,6 +143,29 @@ export async function savePasskey(
   return undefined;
 }
 
+// La firma de la huella, contada para el límite de esa cuenta, que frena solo la huella (R2.10,
+// E20c): con la cuenta frenada, la respuesta del freno; si no cierra, cuenta un intento y da
+// `false`; si cierra, la deja como usada.
+export async function verifyCounted(
+  ctx: SignInContext,
+  c: Context,
+  passkey: Passkey,
+  response: AuthenticationResponseJSON,
+  challenge: string,
+): Promise<boolean | Response> {
+  const { failedPerAccount } = signInSettings.limits;
+  const accountKey = `failed:passkey:${passkey.userId}`;
+  if (ctx.platform.limiter.exceeded(accountKey, failedPerAccount))
+    return ctx.throttle(c, [accountKey], failedPerAccount) as Response;
+  const counter = await verifyAssertion(ctx, response, passkey, challenge);
+  if (counter === undefined) {
+    ctx.platform.limiter.hit(accountKey, failedPerAccount);
+    return false;
+  }
+  await ctx.passkeys.markUsed(passkey.id, counter, ctx.platform.clock.now());
+  return true;
+}
+
 // La huella firmó este desafío y la persona sigue activa: devuelve la persona, o la respuesta
 // que corresponde. Las firmas que no cierran cuentan para el límite de esa cuenta, que frena
 // solo la huella (R2.10, E20c).
@@ -153,8 +176,6 @@ export async function checkAssertion(
   response: AuthenticationResponseJSON,
   challenge: string,
 ): Promise<User | Response> {
-  const { failedPerAccount } = signInSettings.limits;
-  const accountKey = `failed:passkey:${passkey.userId}`;
   const reject = (reason: string) => {
     // La firma no probó nada: quien la mandó es alguien sin entrar, y la cuenta va como a quién
     // (revisión de seguridad de 05, punto 1).
@@ -164,15 +185,9 @@ export async function checkAssertion(
     });
     return fail(c, 401, 'not-authorized');
   };
-  if (ctx.platform.limiter.exceeded(accountKey, failedPerAccount)) {
-    return ctx.throttle(c, [accountKey], failedPerAccount) as Response;
-  }
-  const counter = await verifyAssertion(ctx, response, passkey, challenge);
-  if (counter === undefined) {
-    ctx.platform.limiter.hit(accountKey, failedPerAccount);
-    return reject('invalid-signature');
-  }
-  await ctx.passkeys.markUsed(passkey.id, counter, ctx.platform.clock.now());
+  const verified = await verifyCounted(ctx, c, passkey, response, challenge);
+  if (verified instanceof Response) return verified;
+  if (!verified) return reject('invalid-signature');
   const user = await ctx.users.findById(passkey.userId);
   return user?.active ? user : reject('inactive');
 }

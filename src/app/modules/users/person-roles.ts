@@ -4,8 +4,8 @@
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { showToast } from '../../ui/toast/Toast.tsx';
 import { usersApi } from './api.ts';
-import { roleTexts } from './role-texts.ts';
-import { confirmFirst, refused, type Users } from './state.ts';
+import { roleTexts } from './person-roles-texts.ts';
+import { confirmOrRefuse, type Users } from './state.ts';
 
 type Result = Awaited<ReturnType<typeof usersApi.setRoles>>;
 
@@ -13,10 +13,7 @@ type Result = Awaited<ReturnType<typeof usersApi.setRoles>>;
 // qué. Dice si salió.
 async function settle(users: Users, result: Result, done: string, again: () => unknown) {
   if (!result.ok) {
-    if (!confirmFirst(users, result, again)) {
-      refused(users, result);
-      await users.reload();
-    }
+    if (!confirmOrRefuse(users, result, again)) await users.reload();
     return false;
   }
   await users.reload();

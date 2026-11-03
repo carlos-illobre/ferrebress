@@ -81,6 +81,9 @@
   --shadow-2: 0 6px 20px -8px rgb(26 29 27 / 0.14), 0 1px 3px rgb(26 29 27 / 0.06);
   --shadow-3: 0 24px 48px -16px rgb(18 56 47 / 0.28), 0 4px 12px rgb(18 56 47 / 0.08);
   --shadow-action: 0 8px 20px -8px rgb(232 84 28 / 0.55);
+  /* El anillo de un campo en el que se escribe; en rojo, el que tiene un error. */
+  --ring: 0 0 0 4px rgb(18 56 47 / 0.12);
+  --ring-error: 0 0 0 4px rgb(215 55 42 / 0.12);
 
   /* Movimiento */
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);

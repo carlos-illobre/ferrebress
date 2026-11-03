@@ -4,7 +4,8 @@
 // cuando se lo sacaron no se guarda); se cuenta antes y después, y si queda alguien sin poder se
 // deshace. Al confirmar se avisa que cambiaron los permisos, así se olvida lo que estaba en memoria.
 import type { Kysely, Transaction } from 'kysely';
-import type { AfterCommit } from '../../../platform/events.ts';
+import type { Publish } from '../../../platform/events.ts';
+import type { RecordFields } from '../../../platform/guards.ts';
 import type { Platform } from '../../../platform/modules.ts';
 import { type RolesTables, rolesData } from './data.ts';
 import { type Administration, administrationProblem } from './rules.ts';
@@ -29,7 +30,7 @@ export type Refused =
 export type RefusalDetail = { userId?: string; permission?: string };
 
 // Deshace la transacción y dice por qué.
-export class Rollback extends Error {
+class Rollback extends Error {
   readonly refusal: Refused;
   readonly detail: RefusalDetail;
   constructor(refusal: Refused, detail: RefusalDetail = {}) {
@@ -50,22 +51,21 @@ export type Data = ReturnType<typeof rolesData>;
 
 // Lo que hizo un cambio: su resultado, lo que va a la auditoría (lo de antes y lo de después), a
 // quiénes les cambiaron los permisos y otros avisos que salen con la misma transacción.
+// Lo que va a la línea del cambio en la auditoría: a qué se le hizo y qué cambió; sin nada, no hay
+// línea (solo cambiaron quiénes lo tienen).
+export type AuditFields = Pick<RecordFields, 'targets' | 'changes'>;
+
 export type Done<T> = {
   result: T;
-  audit: Record<string, unknown>;
+  audit?: AuditFields;
   affects: string[] | 'all';
   people?: PersonChange[];
-  also?: (trx: Transaction<unknown>) => Promise<AfterCommit[]>;
+  also?: (publish: Publish) => Promise<void>;
 };
 
 export type LockOutcome<T> =
-  | { result: T; audit: Record<string, unknown>; people: PersonChange[] }
+  | { result: T; audit?: AuditFields; people: PersonChange[] }
   | { refused: Refused; detail: RefusalDetail };
-
-const notify = (platform: Platform, affects: string[] | 'all', trx: Transaction<unknown>) =>
-  affects.length === 0
-    ? Promise.resolve([])
-    : platform.events.publish('users.permissions-changed', { userIds: affects }, trx);
 
 // R1.3 después del cambio: si quien lo hace se sacó lo suyo, dice qué permiso (diseño de 02, § 18).
 async function checkAdministration(data: Data, before: Administration, asking: string) {
@@ -84,22 +84,24 @@ export async function underLock<T>(
   work: (data: Data, trx: Transaction<unknown>) => Promise<Done<T>>,
 ): Promise<LockOutcome<T>> {
   try {
-    const { done, after } = await platform.db.transaction().execute(async (trx) => {
+    const done = await platform.events.transaction(platform.db, async (trx, publish) => {
       const data = rolesData(trx as Kysely<RolesTables>);
       const before = await data.lockAndCount(asking);
       if (!(need === 'users.manage' ? before.askingManages : before.askingManagesRoles))
         refuse('forbidden');
-      const done = await work(data, trx as Transaction<unknown>);
+      const done = await work(data, trx);
       await checkAdministration(data, before, asking);
-      const sent = trx as Transaction<unknown>;
-      const then = [
-        ...(await notify(platform, done.affects, sent)),
-        ...((await done.also?.(sent)) ?? []),
-      ];
-      return { done, after: then };
+      // A quiénes les cambiaron los permisos, y otros avisos que salen con el mismo cambio.
+      if (done.affects.length > 0)
+        await publish('users.permissions-changed', { userIds: done.affects });
+      await done.also?.(publish);
+      return done;
     });
-    for (const then of after) then();
-    return { result: done.result, audit: done.audit, people: done.people ?? [] };
+    return {
+      result: done.result,
+      people: done.people ?? [],
+      ...(done.audit && { audit: done.audit }),
+    };
   } catch (error) {
     if (error instanceof Rollback) return { refused: error.refusal, detail: error.detail };
     throw error;

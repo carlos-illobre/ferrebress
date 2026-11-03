@@ -1,5 +1,5 @@
 /* Lo que vale para toda la aplicación: la letra, el fondo, el tamaño de los íconos y la escala de
-   textos de «Mostrador». Nada de menos de 14 px. El orden de las capas decide qué gana: lo de una
+   textos de «Mostrador». El orden de las capas decide qué gana: lo de una
    pantalla gana a una pieza, y lo que solo va en un ancho gana a todo. */
 @layer base, pieces, screens, widths;
 

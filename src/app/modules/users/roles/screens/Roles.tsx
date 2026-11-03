@@ -5,9 +5,9 @@ import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useEffect } from 'preact/hooks';
 import { navigate, route } from '../../../../platform/router.ts';
 import { useStore } from '../../../../platform/store.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
 import { addShapes } from '../../../../ui/icon/Icon.tsx';
 import { rolesShapes } from '../../../../ui/icon/roles-shapes.tsx';
+import { LoadState } from '../../../../ui/load-state/LoadState.tsx';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { useUsersContext } from '../../state.ts';
 import { duplicateOf, emptyDraft, fromRole } from '../draft.ts';
@@ -45,20 +45,14 @@ function OpenedRole({ id }: { id: string }) {
 export function Roles() {
   const users = useUsersContext();
   const { path, state } = useStore(route);
-  if (users.rolesFailed && !users.roleRows)
-    return (
-      <div class="roles-tab roles-empty">
-        <b>{t.loadFailed}</b>
-        <Button icon="refresh-cw" doing={t.retry} onPress={users.loadRoles}>
-          {t.retry}
-        </Button>
-      </div>
-    );
   if (!users.roleRows || !users.people)
     return (
-      <p class="roles-tab roles-empty" aria-busy="true">
-        {t.loading}
-      </p>
+      <LoadState
+        look="roles-tab roles-empty"
+        failed={users.rolesFailed && !users.roleRows}
+        texts={t}
+        retry={users.loadRoles}
+      />
     );
   const opened = path.startsWith(`${listPath}/`)
     ? decodeURIComponent(path.slice(listPath.length + 1))

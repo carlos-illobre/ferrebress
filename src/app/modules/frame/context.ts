@@ -35,13 +35,7 @@ export const useFrame = () => useContext(FrameContext) as FrameState;
 export const roleNames = (person: { roles: { name: string }[] }) =>
   person.roles.map((role) => role.name).join(', ');
 
-export const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase())
-    .join('');
+export { initials } from '../../platform/text.ts';
 
 // La sacudida de lo que no está: se saca la clase y se vuelve a poner para que arranque de nuevo.
 export function shake(element: Element): void {

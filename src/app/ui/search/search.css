@@ -1,0 +1,28 @@
+/* La caja para buscar: el borde, el anillo al escribir y el texto sin marco. El alto, el espacio y
+   el color de la lupa los pone cada pantalla. */
+@layer pieces {
+  .search {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .search:focus-within {
+    border-color: var(--pine);
+    box-shadow: var(--ring);
+  }
+  .search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+}

@@ -35,6 +35,14 @@ function readingRoles(db: Db) {
 
     rolePermissions: () =>
       db.selectFrom('users.role_permissions').select(['role_id as roleId', 'permission']).execute(),
+    rolePermissionsOf: async (roleId: string) =>
+      (
+        await db
+          .selectFrom('users.role_permissions')
+          .select('permission')
+          .where('role_id', '=', roleId)
+          .execute()
+      ).map((row) => row.permission),
   };
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { asset, type Box, install, kindOf, page, shell, skeletonOf } from './worker.ts';
+import { asset, type Box, type Fetch, install, kindOf, page, shell, skeletonOf } from './worker.ts';
 
 const origin = 'https://ferrebress.example';
 const html = (version: string) =>
@@ -42,6 +42,16 @@ const request = (
     destination: init.destination ?? (init.mode === 'navigate' ? 'document' : 'script'),
   }) as Request;
 
+// Pide la página como el navegador y espera lo que el service worker sigue haciendo después.
+async function open(box: Box, fetcher: Fetch) {
+  const pending: Promise<unknown>[] = [];
+  const response = await page(request('/', { mode: 'navigate' }), box, fetcher, (work) =>
+    pending.push(work),
+  );
+  await Promise.all(pending);
+  return response;
+}
+
 describe('el service worker', () => {
   it('nunca toca /api, otros sitios ni lo que no se lee; distingue la página de los archivos', () => {
     expect(kindOf(request('/api/start'), origin)).toBe('skip');
@@ -76,17 +86,13 @@ describe('el service worker', () => {
     const version = { current: 'v1' };
     const server = fakeServer(version);
     await install(box, server);
-    expect(await (await page(request('/', { mode: 'navigate' }), box, server)).text()).toBe(
-      html('v1'),
-    );
+    expect(await (await open(box, server)).text()).toBe(html('v1'));
     const offline = vi.fn(async () => {
       throw new TypeError('sin conexión');
     });
-    expect(await (await page(request('/', { mode: 'navigate' }), box, offline)).text()).toBe(
-      html('v1'),
-    );
+    expect(await (await open(box, offline)).text()).toBe(html('v1'));
     const empty = fakeBox().box;
-    expect((await page(request('/', { mode: 'navigate' }), empty, offline)).type).toBe('error');
+    expect((await open(empty, offline)).type).toBe('error');
   });
 
   it('una versión nueva reemplaza lo guardado; la misma conserva lo que se guardó al usarla', async () => {
@@ -95,25 +101,59 @@ describe('el service worker', () => {
     const server = fakeServer(version);
     await install(box, server);
     await asset(request('/assets/screen-v1.js'), box, server);
-    await page(request('/', { mode: 'navigate' }), box, server);
+    await open(box, server);
     expect(kept.has('/assets/screen-v1.js')).toBe(true);
     version.current = 'v2';
-    await page(request('/', { mode: 'navigate' }), box, server);
+    await open(box, server);
     expect([...kept.keys()].sort()).toEqual(['/', '/assets/main-v2.css', '/assets/main-v2.js']);
     const failing = vi.fn(async () => new Response('', { status: 500 }));
-    expect((await page(request('/', { mode: 'navigate' }), box, failing)).status).toBe(500);
+    expect((await open(box, failing)).status).toBe(500);
     expect(await (await box.match(shell))?.text()).toBe(html('v2'));
     // Una respuesta que no es HTML, aunque sea 200, tampoco reemplaza la página guardada.
     const portal = vi.fn(
       async () => new Response('{}', { headers: { 'content-type': 'text/plain' } }),
     );
-    await page(request('/', { mode: 'navigate' }), box, portal);
+    await open(box, portal);
     await install(box, portal);
     await install(
       box,
       vi.fn(async () => new Response(null)),
     );
     expect(await (await box.match(shell))?.text()).toBe(html('v2'));
+  });
+
+  it('la página nueva se muestra sin esperar a que se guarden sus archivos', async () => {
+    const { box, kept } = fakeBox();
+    const server = fakeServer({ current: 'v1' });
+    const later: Promise<unknown>[] = [];
+    const shown = await page(request('/', { mode: 'navigate' }), box, server, (work) =>
+      later.push(work),
+    );
+    expect(await shown.text()).toBe(html('v1'));
+    expect(kept.size).toBe(0);
+    await Promise.all(later);
+    expect([...kept.keys()].sort()).toEqual(['/', '/assets/main-v1.css', '/assets/main-v1.js']);
+  });
+
+  it('si un archivo de la versión nueva no llega, sigue la guardada entera y no guarda el error', async () => {
+    const { box, kept } = fakeBox();
+    const version = { current: 'v1' };
+    const server = fakeServer(version);
+    await install(box, server);
+    version.current = 'v2';
+    const broken = vi.fn(async (asked: Request | string) =>
+      String(asked).endsWith('.css') ? new Response('', { status: 502 }) : server(asked),
+    );
+    expect(await (await open(box, broken)).text()).toBe(html('v2'));
+    expect([...kept.keys()].sort()).toEqual(['/', '/assets/main-v1.css', '/assets/main-v1.js']);
+    expect(await (await box.match(shell))?.text()).toBe(html('v1'));
+    // Sin conexión a mitad de camino: la página nueva igual se muestra.
+    const cut = vi.fn(async (asked: Request | string) => {
+      if (typeof asked === 'string') throw new TypeError('sin conexión');
+      return server(asked);
+    });
+    expect(await (await open(box, cut)).text()).toBe(html('v2'));
+    expect(await (await box.match(shell))?.text()).toBe(html('v1'));
   });
 
   it('los archivos se guardan la primera vez que se usan y después salen de lo guardado', async () => {

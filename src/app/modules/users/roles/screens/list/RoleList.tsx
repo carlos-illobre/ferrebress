@@ -9,6 +9,7 @@ import { navigate, route } from '../../../../../platform/router.ts';
 import { useStore } from '../../../../../platform/store.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { Search } from '../../../../../ui/search/Search.tsx';
 import { useUsersContext } from '../../../state.ts';
 import { type NewState, newPath } from '../../paths.ts';
 import { filterRoles, searchIndex } from '../../search.ts';
@@ -30,21 +31,19 @@ const openFirst = () =>
 
 function SearchBox({ query, setQuery }: { query: string; setQuery: (query: string) => void }) {
   return (
-    <label class="roles-search" data-private="">
-      <Icon name="search" size="small" />
-      <input
-        type="search"
-        value={query}
-        placeholder={matchMedia('(max-width: 899px)').matches ? t.searchShort : t.search}
-        aria-label={t.search}
-        data-slash=""
-        data-clear=""
-        autocomplete="off"
-        ref={focusOnDesktop}
-        onInput={(event) => setQuery(event.currentTarget.value)}
-        onKeyDown={(event) => event.key === 'Enter' && openFirst()}
-      />
-    </label>
+    <Search
+      look="roles-search"
+      masked
+      icon={<Icon name="search" size="small" />}
+      aria-label={t.search}
+      placeholder={{ long: t.search, short: t.searchShort }}
+      value={query}
+      onText={setQuery}
+      data-slash=""
+      data-clear=""
+      ref={focusOnDesktop}
+      onKeyDown={(event) => event.key === 'Enter' && openFirst()}
+    />
   );
 }
 

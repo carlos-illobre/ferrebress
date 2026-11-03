@@ -4,7 +4,7 @@
 import type { PersonRow, SessionRow } from '@ferrebress/shared/contracts/users';
 import { showToast } from '../../ui/toast/Toast.tsx';
 import { usersApi } from './api.ts';
-import { confirmFirst, refused, type Users } from './state.ts';
+import { confirmOrRefuse, refused, type Users } from './state.ts';
 import { doneTexts } from './texts.ts';
 
 // Los rechazos que se dicen junto al campo del correo, sin tostada.
@@ -20,7 +20,7 @@ export async function authorize(
   const result = await usersApi.authorize(given.email.trim(), given.name.trim(), given.roles);
   if (!result.ok) {
     if (besideEmail.includes(result.error)) return result.error;
-    if (!confirmFirst(users, result, again)) refused(users, result);
+    confirmOrRefuse(users, result, again);
     return undefined;
   }
   users.put(result.data.person);
@@ -50,8 +50,7 @@ export async function change(
   );
   if (!result.ok) {
     if (field === 'email' && besideEmail.includes(result.error) && !again) return result.error;
-    if (!confirmFirst(users, result, () => change(users, person, field, value, true)))
-      refused(users, result, person.id);
+    confirmOrRefuse(users, result, () => change(users, person, field, value, true), person.id);
     return undefined;
   }
   users.put(result.data.person);
@@ -88,11 +87,8 @@ export async function deactivate(users: Users, person: PersonRow) {
 
 export async function activate(users: Users, person: PersonRow) {
   const result = await usersApi.activate(person.id, person.version);
-  if (!result.ok) {
-    if (!confirmFirst(users, result, () => activate(users, person)))
-      refused(users, result, person.id);
-    return;
-  }
+  if (!result.ok)
+    return void confirmOrRefuse(users, result, () => activate(users, person), person.id);
   users.put(result.data.person);
   showToast(doneTexts.activated(person.displayName), 'user-check');
 }

@@ -1,8 +1,6 @@
 // Las direcciones de la pestaña Roles (diseño de 02, § 20): la lista, el rol nuevo y cada rol, y
 // quiénes tienen cada rol, que sale de la lista de Usuarios (R4.3).
-import { rolesPath } from '../state.ts';
-
-export const listPath = rolesPath;
+export const listPath = '/users/roles';
 export const rolePath = (id: string) => `${listPath}/${encodeURIComponent(id)}`;
 export const newPath = `${listPath}/new`;
 

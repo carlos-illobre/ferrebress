@@ -54,18 +54,12 @@ export async function api<T>(
           body: JSON.stringify(body),
           headers: { ...headers, 'Content-Type': 'application/json' },
         };
-  let response: Response;
-  try {
-    response = await fetch(path, { ...init, ...(signal && { signal }) });
-  } catch {
-    online.set(false);
-    return { ok: false, error: 'offline' };
-  }
-  readServerHeader(response);
-  // Sin JSON (el 502 de Caddy mientras el servidor se reinicia, una página de error del proxy) no
-  // se llega al servidor: se sigue como sin conexión (R3.6).
-  const data = (await response.json().catch(() => undefined)) as (T & ErrorBody) | undefined;
-  if (data === undefined) {
+  const response = await fetch(path, { ...init, ...(signal && { signal }) }).catch(() => undefined);
+  if (response) readServerHeader(response);
+  // Sin respuesta, o sin JSON (el 502 de Caddy mientras el servidor se reinicia, una página de error
+  // del proxy), no se llega al servidor: se sigue como sin conexión (R3.6).
+  const data = (await response?.json().catch(() => undefined)) as (T & ErrorBody) | undefined;
+  if (!response || data === undefined) {
     online.set(false);
     return { ok: false, error: 'offline' };
   }

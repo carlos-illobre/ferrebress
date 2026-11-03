@@ -4,13 +4,14 @@
 // recorre pasos (data-arrows). No lee la sesión ni pide nada a /api (R6.2, E53). En el ambiente de
 // pruebas lleva el marco y el cartel, como toda pantalla (R10.1).
 import type { Device } from '@ferrebress/shared/contracts/manual';
+import { useNarrow } from '../../../../platform/narrow.ts';
 import logo from '../../../../styles/brand/logo-on-light.webp';
 import { TestEnvironment } from '../../../frame/index.ts';
 import type { Back } from '../../place/back.ts';
 import { NeedsInternet } from '../../place/NeedsInternet.tsx';
 import { texts } from '../../texts.ts';
 import { useManual } from '../../useManual.ts';
-import { useNarrow, type View } from '../../view.ts';
+import type { View } from '../../view.ts';
 import { AllSteps } from '../AllSteps/AllSteps.tsx';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import { Guide, GuideOffline } from '../Guide/Guide.tsx';

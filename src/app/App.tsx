@@ -38,6 +38,7 @@ import {
   watchPermissions,
 } from './modules/sign-in/index.ts';
 import { UsersSlot } from './modules/users/index.ts';
+import { useCurrent } from './platform/current.ts';
 import { readStored, store } from './platform/device/storage.ts';
 import { clearHash, navigate, route } from './platform/router.ts';
 import { sessionClosed } from './platform/server/api.ts';
@@ -105,7 +106,8 @@ const early = (): StartResponse | undefined =>
 
 // Al abrir: arranca, lee el código del QR si vino en la dirección, y escucha lo que pasa mientras
 // la aplicación está abierta (la red, los errores, el segundo plano).
-function useStart(scanned: (code: string) => void) {
+function useStart(scan: (code: string) => void) {
+  const scanned = useCurrent(scan);
   const [start, setStart] = useState<StartResponse | undefined>(early);
   const booted = useRef(false);
   const who = useStore(person);

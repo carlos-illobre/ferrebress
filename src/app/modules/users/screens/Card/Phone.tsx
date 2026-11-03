@@ -107,7 +107,7 @@ export function Rows() {
         {t.devices(sessions)}
       </Row>
       <Row icon="clock" name={t.historyRow} act={() => showToast(t.soon(t.historyRow))}>
-        Pronto
+        {t.soonShort}
       </Row>
     </div>
   );

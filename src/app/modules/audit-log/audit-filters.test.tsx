@@ -2,6 +2,7 @@
 // los números del resumen que filtran.
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { held } from '../../testing/fake-server.ts';
 import { openAuditLog, page, rows } from './audit-test-kit.tsx';
 
 const chip = (name: RegExp) => screen.getByRole('button', { name }) as HTMLElement;
@@ -37,6 +38,24 @@ describe('los filtros de Quién hizo qué', () => {
     expect(server.sent.at(-1)?.path).toBe('/api/audit-log?page=1&size=20&by=ana&to=martin');
     expect(chip(/Hecho por/).textContent).toContain('Ana Gómez');
     expect(chip(/Hecho a/).textContent).toContain('Martín Sosa');
+  });
+
+  it('si se cambia el filtro antes de que llegue la respuesta, vale la del último', async () => {
+    const late = held({ body: page({ total: 3, pages: 1 }) });
+    openAuditLog({
+      '/api/audit-log?page=1&size=20&by=ana': late.reply,
+      '/api/audit-log?page=1&size=20&by=martin': { body: page({ total: 1, pages: 1 }) },
+    });
+    await screen.findByText('25 acciones');
+    fireEvent.click(chip(/Hecho por/));
+    fireEvent.click(screen.getByRole('option', { name: /^Ana Gómez/ }));
+    fireEvent.click(chip(/Hecho por/));
+    fireEvent.click(screen.getByRole('option', { name: /^Martín Sosa/ }));
+    await screen.findByText('1 acción');
+    late.release();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(screen.getByText('1 acción')).toBeTruthy();
+    expect(chip(/Hecho por/).textContent).toContain('Martín Sosa');
   });
 
   it('audit-log-E35: con el teclado se llega a cada filtro, a las páginas y a cada fila', async () => {

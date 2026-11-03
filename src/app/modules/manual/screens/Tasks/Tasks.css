@@ -19,30 +19,9 @@
     letter-spacing: -0.02em;
   }
   .manual-search {
-    display: flex;
-    align-items: center;
     gap: var(--s3);
     height: 52px;
     padding: 0 var(--s4);
-    border-radius: var(--radius);
-    border: 1px solid var(--border-strong);
-    background: var(--surface);
-    box-shadow: var(--shadow-1);
-  }
-  .manual-search:focus-within {
-    border-color: var(--pine);
-    box-shadow: 0 0 0 4px rgb(18 56 47 / 0.12);
-  }
-  .manual-search input {
-    flex: 1;
-    min-width: 0;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    font: inherit;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ink);
   }
   .manual-list {
     flex: 1;

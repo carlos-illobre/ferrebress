@@ -2,8 +2,8 @@
 // las pruebas. Se arma aparte, como /sw.js, sin nombre con hash, para que su dirección no cambie.
 import { asset, boxName, install, kindOf, page } from './platform/offline/worker.ts';
 
-type FetchEvent = Event & { request: Request; respondWith(response: Promise<Response>): void };
 type LifeEvent = Event & { waitUntil(work: Promise<unknown>): void };
+type FetchEvent = LifeEvent & { request: Request; respondWith(response: Promise<Response>): void };
 type Worker = {
   location: Location;
   skipWaiting(): Promise<void>;
@@ -29,6 +29,12 @@ worker.addEventListener('activate', (event) => event.waitUntil(worker.clients.cl
 worker.addEventListener('fetch', (event) => {
   const kind = kindOf(event.request, worker.location.origin);
   if (kind === 'skip') return;
-  const handle = kind === 'page' ? page : asset;
-  event.respondWith(box().then((opened) => handle(event.request, opened, fetcher)));
+  const later = (work: Promise<unknown>) => event.waitUntil(work);
+  event.respondWith(
+    box().then((opened) =>
+      kind === 'page'
+        ? page(event.request, opened, fetcher, later)
+        : asset(event.request, opened, fetcher),
+    ),
+  );
 });

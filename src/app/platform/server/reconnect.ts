@@ -4,26 +4,27 @@
 // mientras `active` y con la pantalla a la vista: un pedido mínimo a los 2, 4, 8, 16 y 32 s, y
 // después uno por minuto, hasta que uno llegue (docs/technical/mobile-data.md).
 import { useEffect } from 'preact/hooks';
+import { useCurrent } from '../current.ts';
 import { useStore } from '../store.ts';
 import { online as onlineStore } from './api.ts';
+import { canReach, watchReach } from './reach.ts';
 
 export const reconnectDelaysMs = [2000, 4000, 8000, 16_000, 32_000];
 export const reconnectEveryMs = 60_000;
 
-const canProbe = () => document.visibilityState === 'visible' && navigator.onLine;
-
 export function useReconnect(active: boolean, probe: () => void) {
   const online = useStore(onlineStore);
+  const current = useCurrent(probe);
   useEffect(() => {
     if (!active || online) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let tries = 0;
     const next = () => {
       clearTimeout(timer);
-      if (!canProbe()) return;
+      if (!canReach()) return;
       timer = setTimeout(() => {
         tries += 1;
-        probe();
+        current();
         next();
       }, reconnectDelaysMs[tries] ?? reconnectEveryMs);
     };
@@ -33,14 +34,10 @@ export function useReconnect(active: boolean, probe: () => void) {
       next();
     };
     restart();
-    document.addEventListener('visibilitychange', restart);
-    addEventListener('online', restart);
-    addEventListener('offline', restart);
+    const stop = watchReach(restart);
     return () => {
       clearTimeout(timer);
-      document.removeEventListener('visibilitychange', restart);
-      removeEventListener('online', restart);
-      removeEventListener('offline', restart);
+      stop();
     };
   }, [active, online]);
 }

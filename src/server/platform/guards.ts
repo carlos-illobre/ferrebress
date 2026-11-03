@@ -77,6 +77,11 @@ export function createGuards(platform: Platform, throttled: ThrottledAudit) {
   const record = recorder(platform);
   const tooMany = (c: Context, retryAfterMs: number) =>
     fail(c, 429, 'too-many-attempts', { retryAfterSeconds: Math.ceil(retryAfterMs / 1000) });
+  // Lo que se anota una sola vez por ventana con esa clave (un rechazo repetido, un pedido frenado):
+  // quien insiste no llena la auditoría.
+  const recordOnce = (c: Context, key: string, type: string, fields: RecordFields = {}) => {
+    if (limiter.hit(`audit:${key}`, throttled.window).allowed) record(c, type, fields);
+  };
 
   // Cuenta el pedido contra `window` con cada clave, en orden; en la primera que se pasó, frena y
   // lo anota una vez por ventana. Las demás ya no se cuentan: con la dirección primero, una
@@ -86,8 +91,9 @@ export function createGuards(platform: Platform, throttled: ThrottledAudit) {
       const hit = limiter.hit(key, window);
       if (hit.allowed) continue;
       // Se anota el tema y por qué se frenó, nunca la clave: lleva correos y dispositivos (§ 2.2).
-      if (limiter.hit(`audit:${key}`, throttled.window).allowed)
-        record(c, 'request.throttled', { data: { topic: throttled.topic, by: key.split(':')[1] } });
+      recordOnce(c, key, 'request.throttled', {
+        data: { topic: throttled.topic, by: key.split(':')[1] },
+      });
       return tooMany(c, hit.retryAfterMs);
     }
     return undefined;
@@ -99,7 +105,7 @@ export function createGuards(platform: Platform, throttled: ThrottledAudit) {
     async (c, next) =>
       throttle(c, keysOf(c), window) ?? (await next());
 
-  return { record, throttle, tooMany, limit };
+  return { record, recordOnce, throttle, tooMany, limit };
 }
 
 export type Guards = ReturnType<typeof createGuards>;

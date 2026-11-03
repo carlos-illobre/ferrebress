@@ -2,9 +2,9 @@
 // pestaña montada con un servidor de mentira, en la computadora o en el celular.
 import type { AuditPage, AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { render } from '@testing-library/preact';
-import { vi } from 'vitest';
 import { syncServerTime } from '../../platform/server/clock.ts';
 import { fakeServer, type Reply } from '../../testing/fake-server.ts';
+import { narrowOnly, stubMedia } from '../../testing/media.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
 import { AuditLog } from './screens/AuditLog.tsx';
 
@@ -109,10 +109,7 @@ export const firstPhone = '/api/audit-log?page=1&size=10&summary=1';
 // `phone`: como en lo angosto, de a 10 y con el detalle en una hoja.
 export function openAuditLog(routes: Record<string, Reply | Reply[]> = {}, phone = false) {
   syncServerTime(now);
-  vi.stubGlobal('matchMedia', (query: string) => ({
-    matches: phone && query.includes('max-width'),
-    media: query,
-  }));
+  stubMedia((query) => phone && narrowOnly(query));
   const server = fakeServer({
     '/api/audit-log/people': { body: people },
     [first]: { body: page() },

@@ -4,13 +4,12 @@
 import type { AuditPage, AuditPerson, Summary } from '@ferrebress/shared/contracts/audit-log';
 import { createContext } from 'preact';
 import { useContext, useEffect, useState } from 'preact/hooks';
+import { useLatest } from '../../platform/latest.ts';
+import { isNarrow } from '../../platform/narrow.ts';
 import { online as onlineStore } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
 import { auditApi } from './api.ts';
 import { type Dates, type Filters, noFilters, paramsOf } from './logic.ts';
-
-// En la computadora, de a 20 y con la tira; en lo angosto, de a 10 (R4.3).
-export const isWide = () => !matchMedia('(max-width: 899px)').matches;
 
 // Lo que trajo el servidor y cómo se pide: una página con esos filtros y, con `dates`, también el
 // resumen y la tira de ese período.
@@ -24,10 +23,15 @@ function useLoading(wide: boolean) {
   }>({});
   const [failed, setFailed] = useState(false);
   const [selected, setSelected] = useState<string>();
+  const latest = useLatest();
+  // Si se filtra o se pasa de página antes de que llegue la respuesta, vale la del último pedido.
   async function load(next: Filters, number: number, dates: boolean) {
-    const result = await auditApi.page(
-      paramsOf(next, { page: number, size }, { summary: dates, strip: dates && wide }),
+    const result = await latest(
+      auditApi.page(
+        paramsOf(next, { page: number, size }, { summary: dates, strip: dates && wide }),
+      ),
     );
+    if (!result) return;
     setFailed(!result.ok);
     if (!result.ok) return;
     setFilters(next);
@@ -38,8 +42,10 @@ function useLoading(wide: boolean) {
   return { filters, page, summary, failed, selected, select: setSelected, load };
 }
 
+// En la computadora, de a 20 y con la tira; en lo angosto, de a 10 (R4.3). Se decide al abrir: girar
+// el celular no cambia el tamaño de la página a mitad de camino.
 export function useAuditLog() {
-  const wide = isWide();
+  const [wide] = useState(() => !isNarrow());
   const { load, ...loaded } = useLoading(wide);
   const { filters, page } = loaded;
   const [people, setPeople] = useState<AuditPerson[]>([]);

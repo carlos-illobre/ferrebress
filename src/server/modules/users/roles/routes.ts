@@ -3,7 +3,7 @@
 // el límite de cambios de Usuarios; lo que da algo pide Google o la huella reciente (R3.8). Cada
 // cambio queda en la auditoría con lo de antes y lo de después, con nombres (así se lee aunque el
 // rol se borre); cada rechazo, una vez por minuto por motivo y por quien lo pide.
-import { isPermission, type PermissionId } from '@ferrebress/shared/contracts/permissions';
+import { isPermission } from '@ferrebress/shared/contracts/permissions';
 import {
   changeRoleBody,
   createRoleBody,
@@ -14,31 +14,21 @@ import {
 } from '@ferrebress/shared/contracts/roles';
 import type { Context, MiddlewareHandler } from 'hono';
 import type { Kysely } from 'kysely';
-import { bySchema, createGuards, type Guards, readBody } from '../../../platform/guards.ts';
+import { bySchema, type Guards, readBody } from '../../../platform/guards.ts';
 import { fail, uuidParams } from '../../../platform/http.ts';
 import type { Platform } from '../../../platform/modules.ts';
 import { sessionOf } from '../../../platform/session.ts';
 import { type UsersTables, usersData } from '../data.ts';
-import { confirmed, usersSettings } from '../routes.ts';
+import { confirmed, statusOf, usersGuards } from '../guards.ts';
 import type { Access } from './access.ts';
 import type { RoleChanges, RoleOutcome } from './changes.ts';
 import { type RolesTables, rolesData } from './data.ts';
-import type { PersonChange } from './lock.ts';
-
-const statusOf: Record<string, 400 | 403 | 404> = {
-  'not-found': 404,
-  'bad-request': 400,
-  'no-roles': 400,
-  'confirm-first': 403,
-  forbidden: 403,
-};
 
 // Los roles como los ve la pestaña, con sus permisos. Quiénes los tienen lo dice la lista de
 // Usuarios, que ya trae los roles de cada persona (diseño de 02, § 18).
 export async function roleRows(platform: Platform): Promise<RoleRow[]> {
   const data = rolesData(platform.db as Kysely<RolesTables>);
-  const roles = await data.roles();
-  const granting = await data.rolePermissions();
+  const [roles, granting] = await Promise.all([data.roles(), data.rolePermissions()]);
   return roles.map((role) => ({
     ...role,
     permissions: granting
@@ -49,24 +39,14 @@ export async function roleRows(platform: Platform): Promise<RoleRow[]> {
   }));
 }
 
-type Answer = <T>(
-  c: Context,
-  outcome: RoleOutcome<T>,
-  type: string,
-  target: string,
-) => Response | undefined;
+type Refused = Extract<RoleOutcome<unknown>, { refused: unknown }>;
+type Saved = Exclude<RoleOutcome<unknown>, { refused: unknown }>;
 
 // Lo que salió, en la auditoría: la línea del rol si cambió y una por cada persona a la que se le dio
 // o se le sacó, todas con el mismo id del guardado (diseño de 02, § 21).
-function recordDone(
-  guards: Guards,
-  c: Context,
-  { type, target }: { type: string; target: string },
-  outcome: { audit: Record<string, unknown>; people: PersonChange[] },
-) {
+function recordDone(guards: Guards, c: Context, type: string, target: string, outcome: Saved) {
   const data = outcome.people.length > 0 ? { data: { save: crypto.randomUUID() } } : {};
-  if (Object.keys(outcome.audit).length > 0)
-    guards.record(c, type, { ...changeRecord(type, target, outcome.audit), ...data });
+  if (outcome.audit) guards.record(c, type, { ...outcome.audit, ...data });
   for (const one of outcome.people)
     guards.record(c, 'user.roles-changed', {
       targets: [
@@ -79,43 +59,36 @@ function recordDone(
     });
 }
 
-// La respuesta de un cambio: nada (sigue la ruta) si salió, o el rechazo, anotado.
-function answering(platform: Platform, guards: Guards): Answer {
-  return (c, outcome, type, target) => {
+// Un rechazo: anotado una vez por minuto por motivo y por quien lo pide, y contestado.
+function refusing(guards: Guards) {
+  return (c: Context, outcome: Refused, target: string) => {
     const asking = sessionOf(c).userId;
-    if ('refused' in outcome) {
-      const key = `audit:roles:${outcome.refused}:${asking}`;
-      if (platform.limiter.hit(key, usersSettings.throttledAudit).allowed)
-        guards.record(c, 'users.rejected', {
-          data: { target, reason: outcome.refused, ...outcome.detail },
-        });
-      return fail(c, statusOf[outcome.refused] ?? 409, outcome.refused, outcome.detail);
-    }
-    recordDone(guards, c, { type, target }, outcome);
-    return undefined;
+    guards.recordOnce(c, `roles:${outcome.refused}:${asking}`, 'users.rejected', {
+      data: { target, reason: outcome.refused, ...outcome.detail },
+    });
+    return fail(c, statusOf[outcome.refused], outcome.refused, outcome.detail);
   };
 }
 
 type RoleRoute = {
   platform: Platform;
   changes: RoleChanges;
-  answer: Answer;
+  refused: ReturnType<typeof refusing>;
+  done: (c: Context, type: string, target: string, outcome: Saved) => void;
   // Con sesión, «Administrar roles» y el límite de cambios.
   manage: MiddlewareHandler[];
 };
 
 export function registerRoleRoutes(platform: Platform, changes: RoleChanges, access: Access) {
   const { http, sessions, permissions } = platform;
-  const guards = createGuards(platform, {
-    topic: 'users',
-    window: usersSettings.throttledAudit,
-  });
-  const limited = guards.limit((c) => [`users:session:${sessionOf(c).id}`], usersSettings.changes);
+  const { guards, limited } = usersGuards(platform);
   const require = permissions.require('roles.manage');
   const route = {
     platform,
     changes,
-    answer: answering(platform, guards),
+    refused: refusing(guards),
+    done: (c: Context, type: string, target: string, outcome: Saved) =>
+      recordDone(guards, c, type, target, outcome),
     manage: [require, limited],
   };
   http.get('/api/roles', sessions.require, require, async (c) =>
@@ -132,21 +105,27 @@ export function registerRoleRoutes(platform: Platform, changes: RoleChanges, acc
   });
 }
 
-const rowOf = async (platform: Platform, roleId: string) =>
-  (await roleRows(platform)).find((row) => row.id === roleId);
+// Un rol como lo ve la pestaña, recién guardado: sin volver a leer todos.
+async function rowOf(platform: Platform, roleId: string): Promise<RoleRow | undefined> {
+  const data = rolesData(platform.db as Kysely<RolesTables>);
+  const [role, permissions] = await Promise.all([
+    data.roleById(roleId),
+    data.rolePermissionsOf(roleId),
+  ]);
+  return role && { ...role, permissions: permissions.filter(isPermission).sort() };
+}
 
 // Crear, cambiar y borrar roles.
-function registerRoleEdits({ platform, changes, answer, manage }: RoleRoute) {
+function registerRoleEdits({ platform, changes, refused, done, manage }: RoleRoute) {
   const { http, sessions } = platform;
   const id = uuidParams('id');
   const creating = readBody(bySchema(createRoleBody));
   http.post('/api/roles', sessions.require, ...manage, creating.step, async (c) => {
     const body = creating.of(c);
     const outcome = await changes.create(sessionOf(c).userId, confirmed(platform, c), body);
-    if ('refused' in outcome) return answer(c, outcome, 'role.created', body.name);
-    answer(c, outcome, 'role.created', outcome.result.name);
-    const { permissions } = outcome.audit.after as { permissions: PermissionId[] };
-    return c.json({ role: { ...outcome.result, permissions } });
+    if ('refused' in outcome) return refused(c, outcome, body.name);
+    done(c, 'role.created', outcome.result.name, outcome);
+    return c.json({ role: outcome.result });
   });
   const changing = readBody(bySchema(changeRoleBody));
   http.post('/api/roles/:id', sessions.require, ...manage, id, changing.step, async (c) => {
@@ -154,22 +133,23 @@ function registerRoleEdits({ platform, changes, answer, manage }: RoleRoute) {
     const roleId = c.req.param('id') as string;
     const asking = sessionOf(c).userId;
     const outcome = await changes.change(asking, confirmed(platform, c), roleId, version, fields);
-    const target = 'refused' in outcome ? roleId : outcome.result.name;
-    const row = () => rowOf(platform, roleId);
-    return answer(c, outcome, 'role.changed', target) ?? c.json({ role: await row() });
+    if ('refused' in outcome) return refused(c, outcome, roleId);
+    done(c, 'role.changed', outcome.result.name, outcome);
+    return c.json({ role: await rowOf(platform, roleId) });
   });
   const versioned = readBody(bySchema(versionOnly));
   http.post('/api/roles/:id/delete', sessions.require, ...manage, id, versioned.step, async (c) => {
     const roleId = c.req.param('id') as string;
     const outcome = await changes.remove(sessionOf(c).userId, roleId, versioned.of(c).version);
-    const target = 'refused' in outcome ? roleId : outcome.result.name;
-    return answer(c, outcome, 'role.deleted', target) ?? c.json({ removed: true });
+    if ('refused' in outcome) return refused(c, outcome, roleId);
+    done(c, 'role.deleted', outcome.result.name, outcome);
+    return c.json({ removed: true });
   });
 }
 
 // Los roles de una persona (R7.5): la tarjeta de la persona y el diálogo de autorizar, que mandan el
 // conjunto nuevo. La pestaña Roles da y saca con el rol, en give y take.
-function registerHolding({ platform, changes, answer, manage }: RoleRoute) {
+function registerHolding({ platform, changes, refused, done, manage }: RoleRoute) {
   const setting = readBody(bySchema(userRolesBody));
   const id = uuidParams('id');
   platform.http.post(
@@ -187,34 +167,9 @@ function registerHolding({ platform, changes, answer, manage }: RoleRoute) {
         { asking, confirmed: confirmed(platform, c), userId, version },
         roles,
       );
-      return answer(c, outcome, 'user.roles-changed', userId) ?? c.json({ roles });
+      if ('refused' in outcome) return refused(c, outcome, userId);
+      done(c, 'user.roles-changed', userId, outcome);
+      return c.json({ roles });
     },
   );
-}
-
-type Shown = { name: string; description: string | null; permissions: string[] } | null;
-
-// La línea de un cambio de roles (05 · R2.4, R2.5): el rol o la persona, y solo lo que cambió.
-function changeRecord(type: string, target: string, audit: Record<string, unknown>) {
-  if (type === 'user.roles-changed')
-    return {
-      targets: [{ kind: 'person', id: target }],
-      changes: { roles: { before: audit.before, after: audit.after } },
-    };
-  const [before, after] = [audit.before as Shown, audit.after as Shown];
-  const fields = ['name', 'description', 'permissions'] as const;
-  const changed = fields.filter(
-    (field) => JSON.stringify(before?.[field] ?? null) !== JSON.stringify(after?.[field] ?? null),
-  );
-  return {
-    targets: [
-      { kind: 'role', id: audit.roleId as string, name: (after ?? before)?.name as string },
-    ],
-    changes: Object.fromEntries(
-      changed.map((field) => [
-        field,
-        { before: before?.[field] ?? null, after: after?.[field] ?? null },
-      ]),
-    ),
-  };
 }

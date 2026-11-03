@@ -2,8 +2,13 @@
 // pida y anota lo que le mandaron. Reemplaza a fetch mientras dura la prueba.
 import { vi } from 'vitest';
 
-// 'offline': sin conexión; 'waiting': el servidor no contesta nunca.
-export type Reply = { status?: number; body?: unknown; stream?: string } | 'offline' | 'waiting';
+// 'offline': sin conexión; 'waiting': el servidor no contesta nunca; `held`: contesta cuando la prueba
+// lo suelta, para que una respuesta llegue después de otra.
+export type Reply =
+  | { status?: number; body?: unknown; stream?: string }
+  | { held: Promise<Reply> }
+  | 'offline'
+  | 'waiting';
 
 export type Sent = { path: string; body: unknown };
 
@@ -16,11 +21,21 @@ const json = (status: number, body: unknown) =>
 function answer(reply: Reply): Promise<Response> | Response {
   if (reply === 'offline') throw new TypeError('Failed to fetch');
   if (reply === 'waiting') return new Promise<Response>(() => {});
+  if ('held' in reply) return reply.held.then(answer);
   if (reply.stream !== undefined) return new Response(reply.stream);
   return json(reply.status ?? 200, reply.body);
 }
 
 // Cada ruta contesta con su lista de respuestas, en orden; la última se repite.
+// Una respuesta que llega recién con `release()`.
+export function held(reply: Reply) {
+  let release = () => {};
+  const promise = new Promise<Reply>((resolve) => {
+    release = () => resolve(reply);
+  });
+  return { reply: { held: promise }, release };
+}
+
 export function fakeServer(routes: Record<string, Reply | Reply[]>) {
   const sent: Sent[] = [];
   const left = new Map(Object.entries(routes).map(([path, reply]) => [path, [reply].flat()]));

@@ -1,204 +1,206 @@
 /* Los roles de una persona en su tarjeta (maqueta users-person-roles): la lista para tildar y, debajo,
    lo que va a poder con de qué rol le viene. */
-.person-roles {
-  display: grid;
-  gap: var(--s3);
-  margin-top: var(--s4);
-}
+@layer screens {
+  .person-roles {
+    display: grid;
+    gap: var(--s3);
+    margin-top: var(--s4);
+  }
 
-.person-roles h3 {
-  margin: 0;
-  font-size: 17px;
-}
+  .person-roles h3 {
+    margin: 0;
+    font-size: 17px;
+  }
 
-.person-roles h3 small {
-  color: var(--text-2);
-  font-weight: 500;
-}
+  .person-roles h3 small {
+    color: var(--text-2);
+    font-weight: 500;
+  }
 
-.person-roles h4 {
-  margin: var(--s2) 0 0;
-  font-size: 16px;
-}
+  .person-roles h4 {
+    margin: var(--s2) 0 0;
+    font-size: 16px;
+  }
 
-.person-roles-save {
-  display: flex;
-  gap: var(--s3);
-  justify-content: flex-end;
-}
+  .person-roles-save {
+    display: flex;
+    gap: var(--s3);
+    justify-content: flex-end;
+  }
 
-.person-abilities {
-  display: grid;
-  gap: var(--s2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+  .person-abilities {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 
-.person-abilities li {
-  display: grid;
-  grid-template-columns: auto auto 1fr;
-  gap: var(--s3);
-  align-items: center;
-  color: var(--text-3);
-}
+  .person-abilities li {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: var(--s3);
+    align-items: center;
+    color: var(--text-3);
+  }
 
-.person-from {
-  overflow: hidden;
-  color: var(--text-2);
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  .person-from {
+    overflow: hidden;
+    color: var(--text-2);
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-.person-abilities li.on {
-  color: var(--ink);
-}
+  .person-abilities li.on {
+    color: var(--ink);
+  }
 
-.person-abilities li.on .icon {
-  color: var(--success-text);
-}
+  .person-abilities li.on .icon {
+    color: var(--success-text);
+  }
 
-/* El celular (variante 2): interruptores de roles y el pie fijo con lo que cambia y «Guardar». */
-.person-like {
-  display: grid;
-  gap: var(--s1);
-  color: var(--text-2);
-  font-size: 14px;
-}
+  /* El celular (variante 2): interruptores de roles y el pie fijo con lo que cambia y «Guardar». */
+  .person-like {
+    display: grid;
+    gap: var(--s1);
+    color: var(--text-2);
+    font-size: 14px;
+  }
 
-.person-like select {
-  padding: var(--s3);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  font: inherit;
-}
+  .person-like select {
+    padding: var(--s3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font: inherit;
+  }
 
-.person-switches {
-  display: grid;
-  gap: var(--s2);
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
+  .person-switches {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
 
-.person-switch {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: var(--s3);
-  align-items: center;
-  padding: var(--s3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  background: var(--sunken);
-}
+  .person-switch {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--s3);
+    align-items: center;
+    padding: var(--s3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--sunken);
+  }
 
-.person-switch.on {
-  border: 2px solid var(--pine);
-  background: var(--surface);
-}
+  .person-switch.on {
+    border: 2px solid var(--pine);
+    background: var(--surface);
+  }
 
-.person-switch-name,
-.person-switch-detail {
-  display: block;
-}
+  .person-switch-name,
+  .person-switch-detail {
+    display: block;
+  }
 
-.person-switch-detail {
-  color: var(--text-2);
-}
+  .person-switch-detail {
+    color: var(--text-2);
+  }
 
-.person-switch-icon {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--pine);
-}
+  .person-switch-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--pine);
+  }
 
-.person-switch.on .person-switch-icon {
-  background: var(--pine);
-  color: var(--surface);
-}
+  .person-switch.on .person-switch-icon {
+    background: var(--pine);
+    color: var(--surface);
+  }
 
-.person-foot {
-  position: sticky;
-  bottom: 0;
-  display: grid;
-  gap: var(--s2);
-  margin: 0 calc(-1 * var(--s4));
-  padding: var(--s3) var(--s4) var(--s4);
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
+  .person-foot {
+    position: sticky;
+    bottom: 0;
+    display: grid;
+    gap: var(--s2);
+    margin: 0 calc(-1 * var(--s4));
+    padding: var(--s3) var(--s4) var(--s4);
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
 
-.person-diff {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s2);
-  align-items: center;
-  margin: 0;
-  color: var(--text-2);
-}
+  .person-diff {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    align-items: center;
+    margin: 0;
+    color: var(--text-2);
+  }
 
-.person-diff .gone {
-  background: var(--error-soft);
-  color: var(--error-text);
-  text-decoration: line-through;
-}
+  .person-diff .gone {
+    background: var(--error-soft);
+    color: var(--error-text);
+    text-decoration: line-through;
+  }
 
-.person-confirm {
-  display: flex;
-  gap: var(--s1);
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  color: var(--text-2);
-  font-size: 14px;
-}
+  .person-confirm {
+    display: flex;
+    gap: var(--s1);
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    color: var(--text-2);
+    font-size: 14px;
+  }
 
-/* El interruptor de cada rol de la persona. */
-.role-switch {
-  position: relative;
-  flex: none;
-  width: 46px;
-  height: 26px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--border-strong);
-  cursor: pointer;
-  transition: background var(--time) var(--ease);
-}
+  /* El interruptor de cada rol de la persona. */
+  .role-switch {
+    position: relative;
+    flex: none;
+    width: 46px;
+    height: 26px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--border-strong);
+    cursor: pointer;
+    transition: background var(--time) var(--ease);
+  }
 
-.role-switch::after {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--surface);
-  box-shadow: var(--shadow-1);
-  content: "";
-  transition: transform var(--time) var(--ease);
-}
+  .role-switch::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    content: "";
+    transition: transform var(--time) var(--ease);
+  }
 
-.role-switch[aria-checked="true"] {
-  background: var(--pine);
-}
+  .role-switch[aria-checked="true"] {
+    background: var(--pine);
+  }
 
-.role-switch[aria-checked="true"]::after {
-  transform: translateX(20px);
-}
+  .role-switch[aria-checked="true"]::after {
+    transform: translateX(20px);
+  }
 
-.role-switch:focus-visible {
-  outline: 2px solid var(--marker);
-  outline-offset: 2px;
-}
+  .role-switch:focus-visible {
+    outline: 2px solid var(--marker);
+    outline-offset: 2px;
+  }
 
-.role-switch:disabled {
-  opacity: 0.45;
-  cursor: default;
+  .role-switch:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
 }

@@ -7,6 +7,7 @@ import type { ChapterEntry } from '@ferrebress/shared/contracts/manual';
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { isPhone } from '../../../../platform/device/device.ts';
+import { Search } from '../../../../ui/search/Search.tsx';
 import { maxQuery, minQuery } from '../../search.ts';
 import { tasksOf } from '../../state.ts';
 import { texts } from '../../texts.ts';
@@ -147,21 +148,18 @@ export function Tasks({ view, top }: { view: View; top: ComponentChildren }) {
     <section class="manual-tasks" aria-labelledby="manual-question">
       <div class="manual-ask">
         {top}
-        <label class="manual-search">
-          <Glyph name="search" />
-          <input
-            type="search"
-            autocomplete="off"
-            aria-label={texts.searchLabel}
-            placeholder={view.narrow ? texts.searchShort : texts.searchLong}
-            maxLength={maxQuery}
-            value={view.query}
-            onInput={(event) => view.setQuery(event.currentTarget.value)}
-            data-slash=""
-            data-clear=""
-            ref={box}
-          />
-        </label>
+        <Search
+          look="manual-search"
+          icon={<Glyph name="search" />}
+          aria-label={texts.searchLabel}
+          placeholder={{ long: texts.searchLong, short: texts.searchShort }}
+          maxLength={maxQuery}
+          value={view.query}
+          onText={view.setQuery}
+          data-slash=""
+          data-clear=""
+          ref={box}
+        />
       </div>
       <div class="manual-list" aria-live="polite">
         {searching ? <Results view={view} /> : <Contents view={view} folds={folds} />}

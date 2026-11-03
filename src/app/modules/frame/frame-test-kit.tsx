@@ -2,6 +2,7 @@
 // contesta matchMedia, abrir el marco y las teclas.
 import { render, screen } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
+import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
 import { Frame, type FrameProps, type SettingRow } from './index.ts';
@@ -16,9 +17,7 @@ export const person = {
 
 // Lo que contesta matchMedia: el ancho (celular o computadora) y si se pidió reducir movimiento.
 export function media({ phone = false, reduced = false } = {}) {
-  vi.stubGlobal('matchMedia', (query: string) => ({
-    matches: query.includes('max-width') ? phone : reduced,
-  }));
+  stubMedia((query) => (query.includes('max-width') ? phone : reduced));
 }
 
 export function open({

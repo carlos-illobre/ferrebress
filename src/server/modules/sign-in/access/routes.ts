@@ -124,12 +124,10 @@ async function access(ctx: SignInContext, data: Data, c: Context) {
 // Un rechazo, anotado una vez por minuto por motivo y persona, como los de las personas (R6.1).
 function refuse(ctx: SignInContext, c: Context, status: 403 | 404 | 409, code: ErrorCode) {
   const target = c.req.param('id') as string;
-  const key = `audit:access:${code}:${target}`;
-  if (ctx.platform.limiter.hit(key, signInSettings.limits.throttledAudit).allowed)
-    ctx.record(c, 'users.rejected', {
-      targets: [{ kind: 'person', id: target }],
-      data: { reason: code },
-    });
+  ctx.recordOnce(c, `access:${code}:${sessionOf(c).userId}`, 'users.rejected', {
+    targets: [{ kind: 'person', id: target }],
+    data: { reason: code },
+  });
   return fail(c, status, code);
 }
 

@@ -39,6 +39,21 @@ describe('volver a probar la conexión', () => {
     expect(probe).toHaveBeenCalledTimes(reconnectDelaysMs.length + 1);
   });
 
+  it('prueba con lo que pide la pantalla ahora, aunque haya cambiado mientras esperaba', () => {
+    vi.useFakeTimers();
+    browserOnline(true);
+    act(() => online.set(false));
+    const before = vi.fn();
+    const now = vi.fn();
+    const { rerender } = renderHook(({ probe }) => useReconnect(true, probe), {
+      initialProps: { probe: before },
+    });
+    rerender({ probe: now });
+    vi.advanceTimersByTime(reconnectDelaysMs[0] as number);
+    expect(before).not.toHaveBeenCalled();
+    expect(now).toHaveBeenCalledOnce();
+  });
+
   it('oculta, sin red en el navegador o sin la entrada, no prueba; al volver empieza por la espera corta', () => {
     vi.useFakeTimers();
     const browser = browserOnline(false);

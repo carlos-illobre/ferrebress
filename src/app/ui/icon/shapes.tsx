@@ -105,15 +105,6 @@ export const shapes = {
       <path d="M8 16H3v5" />
     </>
   ),
-  'scan-qr': (
-    <>
-      <path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" />
-      <rect x="7" y="7" width="4" height="4" />
-      <rect x="13" y="7" width="4" height="4" />
-      <rect x="7" y="13" width="4" height="4" />
-      <path d="M13 13h4v4h-4z" />
-    </>
-  ),
   send: (
     <>
       <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" />

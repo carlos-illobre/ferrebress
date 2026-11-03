@@ -6,13 +6,14 @@ import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useState } from 'preact/hooks';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { saveRoles } from '../../role-actions.ts';
-import { personRoleTexts as t } from '../../role-texts.ts';
+import { saveRoles } from '../../person-roles.ts';
+import { personRoleTexts as t } from '../../person-roles-texts.ts';
 import { useUsersContext } from '../../state.ts';
 import { refusalTexts } from '../../texts.ts';
 import { Problem } from './Problem.tsx';
 import { RolePicker } from './RolePicker.tsx';
 import './PersonRoles.css';
+import { useNarrow } from '../../../../platform/narrow.ts';
 
 const firstName = (person: PersonRow) => person.displayName.split(/[\s@]/)[0] as string;
 const same = (a: string[], b: string[]) => a.length === b.length && a.every((id) => b.includes(id));
@@ -58,10 +59,8 @@ function useChosen(person: PersonRow) {
   };
 }
 
-const narrow = () => matchMedia('(max-width: 899px)').matches;
-
 export function PersonRoles({ person }: { person: PersonRow }) {
-  return narrow() ? <PhoneRoles person={person} /> : <DesktopRoles person={person} />;
+  return useNarrow() ? <PhoneRoles person={person} /> : <DesktopRoles person={person} />;
 }
 
 // La computadora (variante 1): la lista para tildar y, debajo, lo que va a poder.

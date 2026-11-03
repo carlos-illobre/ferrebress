@@ -95,13 +95,7 @@ export function byDay(events: AuditView[]): { date: string; events: AuditView[] 
 }
 
 // Las iniciales de un nombre, para su círculo.
-export const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word.charAt(0).toUpperCase())
-    .join('');
+export { initials } from '../../platform/text.ts';
 
 // Las personas del filtro, en orden, con su marca si ya no están activas.
 export const sortedPeople = (people: AuditPerson[]) =>

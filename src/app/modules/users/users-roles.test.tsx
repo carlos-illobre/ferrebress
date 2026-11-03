@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
+import { narrowOnly, stubMedia } from '../../testing/media.ts';
 import { person as me } from '../sign-in/index.ts';
 import {
   all,
@@ -206,10 +207,7 @@ describe('la pestaña Roles (02 · R7.12, R7.13)', () => {
       configurable: true,
       get: () => ({ mobile: true }),
     });
-    vi.stubGlobal('matchMedia', (query: string) => ({
-      matches: query.includes('max-width'),
-      media: query,
-    }));
+    stubMedia(narrowOnly);
     navigate('/users/roles', { replace: true, force: true });
     openUsers({ '/api/users': { body: all }, '/api/roles': rolesRoute }, true);
     expect((await screen.findByRole('searchbox')).getAttribute('placeholder')).toBe('Buscá un rol');

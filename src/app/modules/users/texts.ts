@@ -48,6 +48,8 @@ export const texts = {
 };
 
 export const cardTexts = {
+  emailExample: 'correo@gmail.com',
+  soonShort: 'Pronto',
   choose: 'Elegí a alguien',
   chooseHint: 'Su tarjeta aparece acá.',
   back: 'Usuarios',

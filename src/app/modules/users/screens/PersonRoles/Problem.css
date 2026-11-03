@@ -1,19 +1,21 @@
 /* Lo que no se puede guardar, en la tarjeta de un rol o de una persona: un aviso rojo suave. */
-.users-problem {
-  display: flex;
-  gap: var(--s2);
-  align-items: flex-start;
-  margin: 0;
-  padding: var(--s3) var(--s4);
-  border-radius: var(--radius);
-  background: var(--error-soft);
-  color: var(--error-text);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.4;
-}
+@layer screens {
+  .users-problem {
+    display: flex;
+    gap: var(--s2);
+    align-items: flex-start;
+    margin: 0;
+    padding: var(--s3) var(--s4);
+    border-radius: var(--radius);
+    background: var(--error-soft);
+    color: var(--error-text);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
 
-.users-problem .icon {
-  flex: none;
-  margin-top: 2px;
+  .users-problem .icon {
+    flex: none;
+    margin-top: 2px;
+  }
 }

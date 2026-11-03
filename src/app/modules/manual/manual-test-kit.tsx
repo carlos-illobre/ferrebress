@@ -10,6 +10,7 @@ import type {
 import { cleanup, render, screen } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
 import { navigate } from '../../platform/router.ts';
+import { narrowOnly, stubMedia } from '../../testing/media.ts';
 import { Manual } from './screens/Manual/Manual.tsx';
 
 const capture = (
@@ -176,19 +177,12 @@ export function serveManual(changes: Record<string, Answer> = {}) {
 
 // El ancho y «reducir movimiento»; `changeWidth` simula girar el celular o achicar la ventana.
 export function media({ narrow = false, still = false } = {}) {
-  const listeners: (() => void)[] = [];
   const query = { narrow };
-  vi.stubGlobal('matchMedia', (asked: string) => ({
-    get matches() {
-      return asked.includes('max-width') ? query.narrow : still;
-    },
-    addEventListener: (_: string, listener: () => void) => listeners.push(listener),
-    removeEventListener: vi.fn(),
-  }));
+  const media = stubMedia((asked) => (narrowOnly(asked) ? query.narrow : still));
   return {
     changeWidth(now: boolean) {
       query.narrow = now;
-      for (const listener of listeners) listener();
+      media.changed();
     },
   };
 }

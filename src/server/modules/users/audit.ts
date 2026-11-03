@@ -5,13 +5,13 @@ import { displayName, type User } from './rules.ts';
 
 type Shown = Pick<User, 'name' | 'googleName' | 'email'>;
 
-export const personTarget = (user: Pick<User, 'id'> & Shown) => ({
+const personTarget = (user: Pick<User, 'id'> & Shown) => ({
   kind: 'person',
   id: user.id,
   name: displayName(user),
 });
 
-export function personNow(user: Pick<User, 'id' | 'active'> & Shown, deleted = false) {
+function personNow(user: Pick<User, 'id' | 'active'> & Shown, deleted = false) {
   const state = deleted ? 'deleted' : user.active ? 'active' : 'deactivated';
   return { userId: user.id, name: displayName(user), email: user.email, state } as const;
 }

@@ -7,6 +7,7 @@ import { plain } from '../../../../../platform/text.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { Search } from '../../../../../ui/search/Search.tsx';
 import { initialsOf } from '../../../logic.ts';
 import { rolesTexts as t } from '../../texts.ts';
 
@@ -22,17 +23,16 @@ export function GivePicker({ candidates, pick, close }: Props) {
   return (
     <Dialog label={t.pick} className="role-give">
       <h2>{t.pick}</h2>
-      <label class="roles-search" data-private="">
-        <Icon name="search" size="small" />
-        <input
-          type="search"
-          value={query}
-          placeholder={t.pickSearch}
-          aria-label={t.pickSearch}
-          data-autofocus=""
-          onInput={(event) => setQuery(event.currentTarget.value)}
-        />
-      </label>
+      <Search
+        look="roles-search"
+        masked
+        icon={<Icon name="search" size="small" />}
+        aria-label={t.pickSearch}
+        placeholder={t.pickSearch}
+        value={query}
+        onText={setQuery}
+        data-autofocus=""
+      />
       {shown.length === 0 && <p class="role-none">{t.pickNone}</p>}
       <ul class="role-give-list" data-private="">
         {shown.map((one) => (

@@ -6,7 +6,9 @@ import { can } from '@ferrebress/shared/contracts/can';
 import type { RoleRow, RoleSummary } from '@ferrebress/shared/contracts/roles';
 import type { AccessResponse, PersonRow } from '@ferrebress/shared/contracts/users';
 import { createContext } from 'preact';
-import { useContext, useEffect, useState } from 'preact/hooks';
+import { useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { useLatest } from '../../platform/latest.ts';
+import { isWide } from '../../platform/narrow.ts';
 import { navigate, route } from '../../platform/router.ts';
 import { type ApiResult, online as onlineStore } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
@@ -14,6 +16,7 @@ import { showToast } from '../../ui/toast/Toast.tsx';
 import { person as me, pendingEntries } from '../sign-in/index.ts';
 import { usersApi } from './api.ts';
 import { type Filter, visible } from './logic.ts';
+import { listPath } from './roles/paths.ts';
 import { refusalTexts, somethingFailed } from './texts.ts';
 
 // Lo que se abre encima: autorizar, «Se perdió un celular» y las dos confirmaciones. Volver a
@@ -70,14 +73,20 @@ function useList() {
   return { people, roles, failed, load, put, drop, patch, recount };
 }
 
+// La tarjeta muestra solo lo de quien está elegido: si se elige a otra persona mientras se pedía lo de
+// la anterior, lo de la anterior no llega a la tarjeta.
 function useCard() {
   const [selected, setSelected] = useState<string>();
   const [access, setAccess] = useState<AccessResponse>();
+  const shown = useRef<string | undefined>(undefined);
+  const latest = useLatest();
   const loadAccess = async (id: string) => {
-    const result = await usersApi.access(id);
-    if (result.ok) setAccess(result.data);
+    if (id !== shown.current) return;
+    const result = await latest(usersApi.access(id));
+    if (result?.ok) setAccess(result.data);
   };
   const select = (id: string | undefined) => {
+    shown.current = id;
     setSelected(id);
     setAccess(undefined);
     if (id) void loadAccess(id);
@@ -85,8 +94,7 @@ function useCard() {
   return { selected, access, select, loadAccess };
 }
 
-export const rolesPath = '/users/roles';
-export const auditPath = '/users/audit-log';
+const auditPath = '/users/audit-log';
 export type Tab = 'people' | 'roles' | 'audit';
 
 // Qué se ve de la lista: el filtro y lo buscado.
@@ -97,15 +105,15 @@ function useView() {
   // La pestaña sale de la dirección: /users/roles y lo de adentro son de Roles (R7.13).
   const path = useStore(route).path;
   const tab: Tab =
-    path === rolesPath || path.startsWith(`${rolesPath}/`)
+    path === listPath || path.startsWith(`${listPath}/`)
       ? 'roles'
       : path === auditPath
         ? 'audit'
         : 'people';
-  const paths: Record<Tab, string> = { people: '/users', roles: rolesPath, audit: auditPath };
+  const paths: Record<Tab, string> = { people: '/users', roles: listPath, audit: auditPath };
   const setTab = (to: Tab) => navigate(paths[to]);
   // Con un rol abierto, en el celular el rol ocupa la pantalla (maqueta users-roles/final).
-  const inRole = path.startsWith(`${rolesPath}/`);
+  const inRole = path.startsWith(`${listPath}/`);
   return { filter, setFilter, search, setSearch, role, setRole, tab, setTab, inRole };
 }
 
@@ -144,8 +152,8 @@ function useRetry() {
   const [retry, setRetry] = useState<{ again: () => unknown; what: string[] }>();
   return {
     retry,
-    confirmFirst: (again: () => unknown, what: string[] = []) => setRetry({ again, what }),
-    confirmed: () => setRetry(undefined),
+    askToConfirm: (again: () => unknown, what: string[] = []) => setRetry({ again, what }),
+    endConfirm: () => setRetry(undefined),
   };
 }
 
@@ -181,7 +189,7 @@ export function useUsers() {
   // propia). En lo angosto la tarjeta tapa la lista, así que no se abre sola.
   const first = shown[0]?.id;
   useEffect(() => {
-    if (first && !card.selected && matchMedia('(min-width: 900px)').matches) card.select(first);
+    if (first && !card.selected && isWide()) card.select(first);
   }, [first, card.selected]);
   const person = list.people?.find((one) => one.id === card.selected);
   return {
@@ -211,7 +219,7 @@ export const useUsersContext = () => useContext(UsersContext) as Users;
 // repite lo que se estaba haciendo. Dice si era eso.
 export function confirmFirst(users: Users, result: Failed, retry: () => unknown): boolean {
   if (result.error !== 'confirm-first') return false;
-  users.confirmFirst(retry);
+  users.askToConfirm(retry);
   return true;
 }
 
@@ -225,6 +233,19 @@ export function refused(users: Users, result: Failed, target?: string): void {
     users.drop(target);
   }
   showToast(refusalText(result.error), 'triangle-alert');
+}
+
+// Lo que pide confirmar quién es abre la hoja, que al confirmar repite `again`; cualquier otro
+// rechazo se atiende con `refused`. Dice si se abrió la hoja.
+export function confirmOrRefuse(
+  users: Users,
+  result: Failed,
+  again: () => unknown,
+  target?: string,
+): boolean {
+  if (confirmFirst(users, result, again)) return true;
+  refused(users, result, target);
+  return false;
 }
 
 // El texto de un rechazo; uno que no tiene el suyo, el de siempre.

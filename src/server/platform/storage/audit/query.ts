@@ -79,15 +79,18 @@ function countIn(reading: Reading, year: number, filter: Filter): number {
 const count = (reading: Reading, filter: Filter) =>
   yearsOf(reading, filter).reduce((sum, year) => sum + countIn(reading, year, filter), 0);
 
-// De la más nueva a la más vieja, salteando `offset`, recorriendo los años en orden.
+// De la más nueva a la más vieja, salteando `offset`, recorriendo los años en orden. Se cuenta un año
+// solo si hay que saltearlo entero: la primera página no cuenta de nuevo lo que ya contó el total.
 function rows(reading: Reading, filter: Filter, offset: number, limit: number): StoredEvent[] {
   const found: StoredEvent[] = [];
   let skip = offset;
   for (const year of yearsOf(reading, filter)) {
-    const inYear = countIn(reading, year, filter);
-    if (skip >= inYear) {
-      skip -= inYear;
-      continue;
+    if (skip > 0) {
+      const inYear = countIn(reading, year, filter);
+      if (skip >= inYear) {
+        skip -= inYear;
+        continue;
+      }
     }
     const { sql, params } = where(filter);
     const page = fileOf(reading, year)

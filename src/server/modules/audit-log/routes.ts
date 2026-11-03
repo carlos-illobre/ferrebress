@@ -36,7 +36,7 @@ import {
 } from './rules.ts';
 
 const minute = 60_000;
-export const auditLogSettings = { reads: { max: 60, windowMs: minute } };
+const auditLogSettings = { reads: { max: 60, windowMs: minute } };
 
 // Las preguntas a la auditoría, con su tipo.
 function asking(reader: AuditReader) {

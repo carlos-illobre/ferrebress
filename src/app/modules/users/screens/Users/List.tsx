@@ -27,7 +27,7 @@ export function Avatar({ person, large }: { person: PersonRow; large?: boolean }
 }
 
 // Sus roles, una pastilla por cada uno (R3.1).
-export function Roles({ person }: { person: PersonRow }) {
+export function RolePills({ person }: { person: PersonRow }) {
   const { roles } = useUsersContext();
   return (
     <span class="users-roles">
@@ -95,7 +95,7 @@ function Row({ person }: { person: PersonRow }) {
         <span class="users-email">{noName ? <Say words={texts.noName} /> : person.email}</span>
       </span>
       <span class="users-row-meta">
-        <Roles person={person} />
+        <RolePills person={person} />
         <span class="users-dot phone-only">·</span>
         <LastSignIn person={person} />
       </span>

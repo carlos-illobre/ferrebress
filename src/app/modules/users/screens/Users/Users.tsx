@@ -2,11 +2,13 @@
 // cuentas, el buscador con los filtros y la lista, con la tarjeta de la persona elegida al costado
 // en la computadora y en su lugar en lo angosto. Sin conexión se ve gris, con lo último que trajo,
 // y vuelve sola (R2.2).
-import { useEffect, useState } from 'preact/hooks';
 import { useBackStep } from '../../../../platform/back-step.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { addShapes, Icon } from '../../../../ui/icon/Icon.tsx';
+import { useLoaded } from '../../../../platform/lazy.ts';
+import { useNarrow } from '../../../../platform/narrow.ts';
+import { addShapes } from '../../../../ui/icon/Icon.tsx';
 import { peopleShapes } from '../../../../ui/icon/people-shapes.tsx';
+import { LoadState } from '../../../../ui/load-state/LoadState.tsx';
+import { Offline } from '../../../../ui/offline/Offline.tsx';
 import { AuditLogTab } from '../../../audit-log/index.ts';
 import { loadConfirmSheet } from '../../../sign-in/index.ts';
 import { UsersContext, useUsers, useUsersContext } from '../../state.ts';
@@ -23,16 +25,12 @@ import './Users.css';
 
 addShapes(peopleShapes);
 
-type Sheet = Awaited<ReturnType<typeof loadConfirmSheet>>['ConfirmSheet'];
-
 // La hoja de volver a confirmar quién es, que se baja recién ahora.
 function Confirm(props: { retry: () => unknown; close: () => void; what: string[] }) {
-  const { retry, close } = props;
-  const [sheet, setSheet] = useState<{ Sheet: Sheet }>();
-  useEffect(() => {
-    void loadConfirmSheet().then((loaded) => setSheet({ Sheet: loaded.ConfirmSheet }));
-  }, []);
-  return sheet ? <sheet.Sheet onConfirmed={retry} onClose={close} what={props.what} /> : null;
+  const sheet = useLoaded(loadConfirmSheet);
+  return sheet ? (
+    <sheet.ConfirmSheet onConfirmed={props.retry} onClose={props.close} what={props.what} />
+  ) : null;
 }
 
 function Overlay() {
@@ -52,7 +50,7 @@ function Overlays() {
     <>
       <Overlay />
       {users.retry && (
-        <Confirm retry={users.retry.again} close={users.confirmed} what={users.retry.what} />
+        <Confirm retry={users.retry.again} close={users.endConfirm} what={users.retry.what} />
       )}
     </>
   );
@@ -65,15 +63,11 @@ function CardStep() {
   return null;
 }
 
-type RolesScreen = Awaited<ReturnType<typeof loadRoles>>['Roles'];
 const loadRoles = () => import('../../roles/screens/Roles.tsx');
 
 // La pestaña Roles, que se baja recién al abrirla (diseño de 02, § 20).
 function RolesTab() {
-  const [screen, setScreen] = useState<{ Roles: RolesScreen }>();
-  useEffect(() => {
-    void loadRoles().then((loaded) => setScreen({ Roles: loaded.Roles }));
-  }, []);
+  const screen = useLoaded(loadRoles);
   return screen ? <screen.Roles /> : null;
 }
 
@@ -82,18 +76,8 @@ function Body() {
   if (users.tab === 'roles' && users.people) return <RolesTab />;
   if (users.tab === 'audit') return <AuditLogTab />;
   if (!users.people)
-    return users.failed ? (
-      <div class="users-empty">
-        <Icon name="triangle-alert" size="large" />
-        <b>{texts.loadFailed}</b>
-        <Button icon="refresh-cw" doing={texts.retry} onPress={users.load}>
-          {texts.retry}
-        </Button>
-      </div>
-    ) : (
-      <p class="users-empty" aria-busy="true">
-        {texts.loading}
-      </p>
+    return (
+      <LoadState look="users-empty" failed={users.failed} texts={texts} retry={users.load} icon />
     );
   return (
     <div class="users-body">
@@ -109,7 +93,7 @@ function Body() {
 
 export function Users() {
   const users = useUsers();
-  const narrow = matchMedia('(max-width: 899px)').matches;
+  const narrow = useNarrow();
   return (
     <UsersContext.Provider value={users}>
       <section
@@ -119,12 +103,7 @@ export function Users() {
         data-in-role={users.inRole ? '' : undefined}
       >
         <Head />
-        {!users.online && (
-          <p class="users-offline" role="status">
-            <Icon name="wifi-off" size="small" />
-            {texts.offline}
-          </p>
-        )}
+        {!users.online && <Offline look="users-offline" text={texts.offline} />}
         <div class="users-content" inert={!users.online}>
           <Body />
         </div>

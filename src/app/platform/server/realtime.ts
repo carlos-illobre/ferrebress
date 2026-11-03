@@ -4,6 +4,8 @@
 // que vuelva la red o la pestaña (diseño de 01, § 5). Si el servidor dice que se abrió demasiadas
 // veces (las recargas seguidas), espera lo que el servidor dice y vuelve a probar una vez: si no, el
 // QR quedaba en blanco hasta salir de la pestaña.
+import { canReach, watchReach } from './reach.ts';
+
 export type ChannelEvent = { type: string; data: unknown };
 
 export type ChannelOptions = {
@@ -15,7 +17,6 @@ export type ChannelOptions = {
 
 const maxRetries = 3;
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
-const canReconnect = () => document.visibilityState === 'visible' && navigator.onLine;
 
 // Abre el canal; devuelve cómo cerrarlo.
 export function openChannel({ open, onEvent, wait = sleep }: ChannelOptions): () => void {
@@ -55,7 +56,7 @@ export function openChannel({ open, onEvent, wait = sleep }: ChannelOptions): ()
 
 // Cuánto esperar antes de volver a abrir; sin nada, se espera a que vuelva la red o la pestaña.
 const delay = (held: number | undefined, failures: number): number | undefined => {
-  if (!canReconnect()) return undefined;
+  if (!canReach()) return undefined;
   if (held !== undefined) return held;
   return failures <= maxRetries ? 1000 * 2 ** (failures - 1) : undefined;
 };
@@ -69,13 +70,12 @@ const retryAfterMs = async (response: Response) => {
 const nextChance = (signal: AbortSignal) =>
   new Promise<void>((resolve) => {
     const done = () => {
-      if (!canReconnect() && !signal.aborted) return;
-      removeEventListener('online', done);
-      document.removeEventListener('visibilitychange', done);
+      if (!canReach() && !signal.aborted) return;
+      stop();
+      signal.removeEventListener('abort', done);
       resolve();
     };
-    addEventListener('online', done);
-    document.addEventListener('visibilitychange', done);
+    const stop = watchReach(done);
     signal.addEventListener('abort', done);
   });
 

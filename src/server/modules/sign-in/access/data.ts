@@ -128,7 +128,7 @@ function cutting(db: Db) {
         .selectFrom('sign_in.passkeys')
         .select(['device_id as deviceId', 'id'])
         .where('user_id', '=', userId)
-        .where(sql<boolean>`public_id::text = ${phoneId}`)
+        .where('public_id', '=', phoneId)
         .executeTakeFirst();
       if (passkey) return passkey;
       return db

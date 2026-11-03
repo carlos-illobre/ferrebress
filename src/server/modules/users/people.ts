@@ -3,26 +3,18 @@
 // lleva la versión que vio quien cambia; las reglas están en rules.ts y el bloqueo de la baja, en
 // roles/lock.ts.
 import type { Kysely } from 'kysely';
-import type { AfterCommit } from '../../platform/events.ts';
+import type { Publish } from '../../platform/events.ts';
 import type { RecordFields } from '../../platform/guards.ts';
 import { newId } from '../../platform/ids.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { personChanges } from './audit.ts';
 import { type UsersTables, usersData } from './data.ts';
-import { refuse, underLock } from './roles/lock.ts';
+import { type Refused, refuse, underLock } from './roles/lock.ts';
 import { cleanName, normalizeEmail, type User } from './rules.ts';
 
 // Por qué un cambio no se guardó: otra persona lo cambió antes (`changed`), ya entró, es la propia, o
 // quedaría sin nadie activo que administre.
-export type Refusal =
-  | 'not-found'
-  | 'changed'
-  | 'already-entered'
-  | 'self'
-  | 'last-administrator'
-  | 'email-taken'
-  | 'bad-request'
-  | 'forbidden';
+export type Refusal = Refused | 'already-entered' | 'email-taken';
 
 // `unchanged`: ya estaba así (dada de alta o de baja); se contesta cómo está, sin anotar nada.
 // `audit`: lo que se suma a su línea de la auditoría.
@@ -125,40 +117,29 @@ async function deactivate(
         version,
         platform.clock.now(),
       )) ?? refuse('changed');
-    const also = (sent: typeof trx) =>
-      platform.events.publish('user.deactivated', { userId: id }, sent);
-    return { result: user, audit: {}, affects: [id], also };
+    const also = (publish: Publish) => publish('user.deactivated', { userId: id });
+    return { result: user, affects: [id], also };
   });
   if (!('refused' in outcome)) return { user: outcome.result };
-  if (outcome.refused !== 'changed') return { refused: outcome.refused as Refusal };
+  if (outcome.refused !== 'changed') return { refused: outcome.refused };
   return whyNot(usersData(platform.db as Kysely<UsersTables>), id, version, 'as-is');
 }
 
 // Dar de alta, y avisar que cambiaron sus permisos: vuelve con sus roles (R4.3, seguridad 36).
-async function activate(platform: Platform, id: string, version: number) {
-  const { user, after } = await platform.db.transaction().execute(async (trx) => {
+const activate = (platform: Platform, id: string, version: number) =>
+  platform.events.transaction(platform.db, async (trx, publish) => {
     const user = await usersData(trx as Kysely<UsersTables>).activate(id, version);
-    const after: AfterCommit[] = user
-      ? await platform.events.publish('users.permissions-changed', { userIds: [id] }, trx)
-      : [];
-    return { user, after };
+    if (user) await publish('users.permissions-changed', { userIds: [id] });
+    return user;
   });
-  for (const then of after) then();
-  return user;
-}
 
 // Cambiar el nombre y avisarlo en la misma transacción: quien lo recuerda en memoria se pone al día
 // después de confirmarla (ADR-004).
-async function rename(platform: Platform, id: string, version: number, name: string | null) {
-  const { user, after } = await platform.db.transaction().execute(async (trx) => {
+const rename = (platform: Platform, id: string, version: number, name: string | null) =>
+  platform.events.transaction(platform.db, async (trx, publish) => {
     const user = await usersData(trx as Kysely<UsersTables>).rename(id, version, name);
-    const after: AfterCommit[] = user
-      ? await platform.events.publish('user.renamed', { userId: id }, trx)
-      : [];
-    return { user, after };
+    if (user) await publish('user.renamed', { userId: id });
+    return user;
   });
-  for (const then of after) then();
-  return user;
-}
 
 export type People = ReturnType<typeof createPeople>;

@@ -4,6 +4,7 @@
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { narrowOnly, stubMedia } from '../../testing/media.ts';
 import { person as me } from '../sign-in/index.ts';
 import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
 import {
@@ -173,14 +174,13 @@ describe('Usuarios según los permisos', () => {
 
   it('users-E43, R7.5: en el celular, interruptores de roles, «Igual que alguien» y el pie con «Guardar»', async () => {
     // Angosto: lo de la computadora no, lo del celular sí.
-    const phone = (query: string) => ({ matches: query.includes('max-width'), media: query });
     const server = openUsers({
       '/api/users': all,
       '/api/roles': { body: { roles: [...roleRows, shiftRow] } },
       '/api/users/lucia/access': { body: access },
       '/api/users/lucia/roles': { body: { roles: [admin] } },
     });
-    vi.stubGlobal('matchMedia', phone);
+    stubMedia(narrowOnly);
     await choose(/Lucía/);
     const roles = await inCard().findByRole('group', { name: '¿Qué puede hacer Lucía?' });
     expect(inCard().queryByRole('button', { name: /^Guardar$/ })).toBeNull();

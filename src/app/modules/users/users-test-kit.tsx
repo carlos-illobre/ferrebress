@@ -2,9 +2,9 @@
 // sesiones y celulares, y la pantalla montada con un servidor de mentira.
 import type { AccessResponse, PersonRow } from '@ferrebress/shared/contracts/users';
 import { render, screen, within } from '@testing-library/preact';
-import { vi } from 'vitest';
 import { syncServerTime } from '../../platform/server/clock.ts';
 import { fakeServer, type Reply } from '../../testing/fake-server.ts';
+import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
 import { person as me } from '../sign-in/index.ts';
@@ -116,11 +116,8 @@ export const viewer = {
 export function openUsers(routes: Record<string, Reply | Reply[]> = {}, wide = false) {
   syncServerTime(now);
   if (!me.get()) me.set(viewer);
-  const media = window.matchMedia.bind(window);
-  if (!wide)
-    vi.stubGlobal('matchMedia', (query: string) =>
-      query.includes('min-width') ? { matches: false, media: query } : media(query),
-    );
+  const before = window.matchMedia.bind(window);
+  if (!wide) stubMedia((query) => !query.includes('min-width') && before(query).matches);
   const server = fakeServer({
     '/api/users': { body: { people, roles } },
     '/api/roles': { body: { roles: roleRows } },

@@ -14,16 +14,6 @@
     justify-content: flex-end;
     gap: var(--s2);
   }
-  .audit-offline {
-    display: flex;
-    align-items: center;
-    gap: var(--s2);
-    padding: var(--s2) var(--s4);
-    border-radius: var(--radius);
-    background: var(--urgent-soft);
-    color: var(--urgent-text);
-    font-weight: 650;
-  }
   .audit-content,
   .audit-body {
     flex: 1;

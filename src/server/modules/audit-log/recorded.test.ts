@@ -83,11 +83,11 @@ describe('Quién hizo qué: lo que se anota', () => {
     const day = await asked('/api/audit-log/day?date=2026-10-31');
     prepared.mockRestore();
     // Una por archivo y por pregunta: contar, la página, los días de la página y el resumen; en la
-    // cinta, la semana entera es una sola.
+    // cinta, la semana entera es una sola, y la página del día no vuelve a contar lo que ya contó.
     expect(
       Object.keys((await kit.admin.request('/api/audit-log?range=week')).body.days).length,
     ).toBeGreaterThan(1);
     expect(week).toBe(oneDay);
-    expect(day).toBe(4);
+    expect(day).toBe(3);
   });
 });

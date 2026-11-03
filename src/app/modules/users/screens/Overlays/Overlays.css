@@ -53,7 +53,7 @@
   }
   .users-field input:focus {
     border-color: var(--pine);
-    box-shadow: 0 0 0 4px rgb(18 56 47 / 0.12);
+    box-shadow: var(--ring);
   }
   .users-field small {
     font-size: 14px;
@@ -61,7 +61,7 @@
   }
   .users-field.wrong input {
     border-color: var(--error);
-    box-shadow: 0 0 0 4px rgb(215 55 42 / 0.12);
+    box-shadow: var(--ring-error);
   }
   .users-field .users-field-error {
     display: flex;

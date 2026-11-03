@@ -61,7 +61,7 @@
   .role-field textarea:focus {
     border-color: var(--pine);
     outline: 0;
-    box-shadow: 0 0 0 4px rgb(18 56 47 / 0.12);
+    box-shadow: var(--ring);
   }
   .role-field input[aria-invalid="true"] {
     border-color: var(--error);
