@@ -34,7 +34,8 @@ quita, el resto sigue andando igual.
   nada.
 - **R1.5** **Al entrar a la computadora con el celular** (01 · R2.5), quedan vinculados. Si alguno
   ya tenía otro vínculo, se reemplaza sin preguntar: leer el código de esa computadora ya dice que
-  se la quiere usar.
+  se la quiere usar. Si reemplazó uno, el celular avisa una vez «Ahora este celular está vinculado a
+  Chrome en Windows», con «Desvincular», para que se note si no era la computadora que se quería.
 - **R1.6** **Con otra persona en el celular**, el código no vincula: el celular dice «Este código es
   de otra cuenta. Entrá con la misma cuenta en los dos». No ofrece cambiar de cuenta.
 - **R1.7** Vincular necesita internet en los dos: el servidor los presenta. Un celular que entró
@@ -59,6 +60,14 @@ quita, el resto sigue andando igual.
   - la persona se da de baja (02 · R4.1).
 - **R2.4** Al terminar, cada uno sigue por su lado en la pantalla en la que estaba, y su indicador
   dice «Sin vincular». Para volver a trabajar juntos se vincula de nuevo.
+- **R2.5** **Usar el espejo cuenta como uso de las dos sesiones** (01 · R3.3): mientras se use uno de
+  los dos, ninguna sesión vence por falta de uso, aunque el otro solo muestre (el tope de 01 · R3.1
+  sigue). Sin que nadie toque ninguno, vencen como siempre. Por eso una computadora con la sesión
+  abierta y sin nadie adelante sigue viva mientras se use el celular en espejo, y al revés.
+- **R2.6** **Un vínculo terminado deja de espejar enseguida:** cada uno, mientras se usa, comprueba
+  con el servidor como mucho cada 4 minutos que el vínculo y la sesión del otro siguen; si no, deja de
+  mandarle y de recibirle. Así un celular cortado o una sesión cerrada desde Usuarios ven, como mucho,
+  lo que se mostró en esos minutos.
 
 ## 3. La conexión entre los dos
 
@@ -72,8 +81,10 @@ quita, el resto sigue andando igual.
   o el navegador, y reintentar gasta datos sin cambiar nada. Se vuelve a probar solo cuando alguien
   toca «Probar conexión directa» en el detalle del indicador, o al volver a encontrarse (R3.5).
 - **R3.4** **Sin internet:** si se corta internet y el Wi-Fi del local sigue, la conexión directa
-  sigue andando. Si la conexión directa también se corta mientras no hay internet, no se pueden
-  volver a encontrar hasta que vuelva.
+  sigue andando, con la última comprobación del servidor (R2.6) hasta que vuelva internet. Si la
+  conexión directa también se corta mientras no hay internet, no se pueden volver a encontrar hasta
+  que vuelva: con la pantalla a la vista, la aplicación vuelve a probar a los 2, 4, 8, 16 y 32 segundos
+  y después cada minuto, y apenas llega al servidor se encuentran solos.
 - **R3.5** **Cuando uno de los dos se cierra** (la pestaña, la pantalla del celular apagada, otra
   aplicación encima), el otro sigue solo y su indicador dice «Esperando al celular» o «Esperando a
   la computadora». Al volver, se encuentran solos:
@@ -136,6 +147,9 @@ quita, el resto sigue andando igual.
     que lo pidió, así espejar no gasta datos de internet.
   - **Por el servidor,** cada uno pide lo suyo y viaja solo lo que se ve (lo escrito, lo abierto, lo
     elegido): reenviar por internet una respuesta costaría más que pedirla de nuevo.
+  - **Se espeja lo que eligió la persona; lo que cada pantalla elige sola por su forma, no** (cuántos
+    renglones entran, la primera persona que la computadora abre sola en Usuarios), porque cada uno lo
+    muestra con su forma (R6.1).
 - **R6.3** **Al conectarse, manda la computadora:** el celular va a la pantalla de la computadora y
   toma lo que ella tiene abierto. Vale al vincular, al reconectar y cuando el celular vuelve después
   de cerrarse (R3.5).
@@ -195,8 +209,9 @@ quita, el resto sigue andando igual.
 - **E07** **Dado** una computadora en la entrada, **cuando** un celular la hace entrar leyendo su
   código (01 · R2.5), **entonces** entran y quedan vinculados, sin otra pregunta.
 - **E08** **Dado** un celular vinculado a otra computadora, **cuando** hace entrar a una computadora
-  nueva con el código de entrada, **entonces** queda vinculado a la nueva sin preguntar y la otra
-  pasa a «Sin vincular».
+  nueva con el código de entrada, **entonces** queda vinculado a la nueva sin preguntar, la otra
+  pasa a «Sin vincular» y el celular avisa una vez «Ahora este celular está vinculado a Chrome en
+  Windows», con «Desvincular».
 - **E09** **Dado** el celular en el Wi-Fi del local y la computadora en otra red, **cuando** se
   vinculan, **entonces** quedan vinculados y los indicadores dicen «Por el servidor».
 
@@ -221,6 +236,9 @@ quita, el resto sigue andando igual.
   el vínculo se termina.
 - **E17** **Dado** dos dispositivos vinculados, **cuando** la sesión de la computadora vence por no
   usarla, **entonces** el vínculo queda dormido, no terminado, y al volver a entrar se conectan.
+- **E17b** **Dado** dos dispositivos «Directo», **cuando** se usa la computadora una hora y media y el
+  celular solo la muestra, **entonces** ninguna de las dos sesiones vence; **y cuando** pasa una hora sin
+  que nadie toque ninguno, vencen las dos.
 
 ### La conexión
 
@@ -233,7 +251,8 @@ quita, el resto sigue andando igual.
 - **E20** **Dado** dos dispositivos «Directo», **cuando** se corta internet y el Wi-Fi sigue, **entonces**
   el espejo sigue andando y el indicador sigue diciendo «Directo».
 - **E21** **Dado** dos dispositivos vinculados sin internet, **cuando** se corta la conexión directa,
-  **entonces** los indicadores dicen «Sin internet»; **y cuando** vuelve internet, se encuentran solos.
+  **entonces** los indicadores dicen «Sin internet»; **y cuando** vuelve internet, se encuentran solos en
+  menos de un minuto, sin que nadie toque nada.
 - **E22** **Dado** dos dispositivos vinculados, **cuando** el celular apaga la pantalla, **entonces** la
   computadora dice «Esperando al celular»; **y cuando** el celular vuelve, va a la pantalla de la
   computadora y los dos dicen «Directo».
@@ -280,6 +299,9 @@ quita, el resto sigue andando igual.
   servidor por esa búsqueda.
 - **E33b** **Dado** dos dispositivos «Por el servidor», **cuando** se escribe en un buscador del celular,
   **entonces** el texto aparece en la computadora y cada uno muestra los resultados que pidió.
+- **E33c** **Dado** dos dispositivos en espejo, **cuando** en la computadora se abre Usuarios, **entonces**
+  el celular abre Usuarios con la lista, sin la tarjeta que la computadora abre sola; **y cuando** se
+  elige a una persona en la computadora, el celular abre su tarjeta.
 - **E34** **Dado** dos dispositivos «Directo», **cuando** se toca algo en uno, **entonces** se ve en el
   otro en menos de 50 ms.
 - **E35** **Dado** una computadora con Ferrebress en dos pestañas y el celular vinculado, **cuando** se
@@ -303,6 +325,9 @@ quita, el resto sigue andando igual.
   servidor o pedirle que lo presente, **entonces** el servidor lo rechaza.
 - **E39** **Dado** un vínculo que ya se terminó, **cuando** uno de los dos dispositivos intenta
   conectarse con el otro, **entonces** no se conectan y los dos dicen «Sin vincular».
+- **E39b** **Dado** dos dispositivos «Directo», **cuando** un Administrador corta el celular como perdido y
+  se sigue usando la computadora, **entonces** a los 4 minutos de uso, como mucho, el celular deja de
+  recibir lo que muestra la computadora y no puede manejarla.
 - **E40** **Dado** un celular sin sesión, **cuando** lee el código de vincular, **entonces** no se vincula
   y el celular lleva a la entrada.
 

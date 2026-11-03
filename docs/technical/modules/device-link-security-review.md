@@ -659,3 +659,6 @@ Punto por punto, en el [diseño](device-link.md) corregido (paso 5).
   `how:'sign-in'` lleva la dirección de las dos computadoras.
 - **14.** Escrito como riesgo aceptado y a Carlos (§ 16, § 22 punto 1).
 - **El STUN de Google:** Carlos eligió no usarlo.
+
+Carlos aceptó las seis decisiones de § 22 como estaban recomendadas y aprobó el diseño; quedaron en
+las reglas del capítulo 03 (y en 01 · R3.3) y en `mobile-data.md`.

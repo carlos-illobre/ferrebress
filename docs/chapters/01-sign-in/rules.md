@@ -108,7 +108,7 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
 - **R3.2** Los dos tiempos los fija un Administrador desde Administración (capítulo 06); hasta que
   exista, valen 60 minutos y 8 horas. Los cuenta el reloj del servidor.
 - **R3.3** Solo cuentan como uso los pedidos al servidor. Mirar una pantalla sin pedir nada no
-  cuenta.
+  cuenta. Usar el celular y la computadora en espejo cuenta como uso de las dos sesiones (03 · R2.5).
 - **R3.4** Cuando la sesión termina, la aplicación muestra la entrada encima de lo que había, sin
   borrarlo. Si vuelve a entrar la misma persona, sigue donde estaba. Si entra otra, lo que la
   anterior tenía a medio hacer y sin cobrar se descarta, y lo que tenía sin enviar se manda igual

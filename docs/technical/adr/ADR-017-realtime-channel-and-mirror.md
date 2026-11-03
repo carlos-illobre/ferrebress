@@ -1,6 +1,6 @@
 # ADR-017: Un canal con temas para lo que llega del servidor, y un espejo de valores con nombre
 
-**Estado:** propuesto; lo aprueba Carlos con el diseño de 03 (paso 5). Precisa cómo se construyen las
+**Estado:** aceptado. Precisa cómo se construyen las
 formas `piggyback`, `temporary` y `peer` del [ADR-003](ADR-003-realtime-connections.md). El diseño
 completo está en [device-link.md](../modules/device-link.md).
 
@@ -144,7 +144,7 @@ reproducir un error.
   local. Es un cambio en las pantallas que ya existen (frame, users, audit-log, manual), sin cambiar lo que
   hacen.
 - **El espejo cuenta como uso de las sesiones** de los dos mientras se usa, porque cada uno confirma con
-  su sesión (lo decide Carlos, diseño § 22).
+  su sesión (03 · R2.5).
 - **El directo depende del Wi-Fi del local:** si aísla los equipos o bloquea mDNS, van por el servidor,
   que gasta datos; la tira del día lo muestra (R4.4) y el registro del servidor dice por qué.
 - **Con varias copias del servidor,** el hub, los códigos, la memoria de los vínculos y sus sesiones pasan

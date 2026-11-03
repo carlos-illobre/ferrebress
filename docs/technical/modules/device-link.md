@@ -5,8 +5,9 @@ mecanismo único de lo que llega del servidor sin pedirlo** (R7), que después u
 de entrada (01 · R2.5), la auditoría que se actualiza sola (roadmap T118) y lo que venga. El porqué de
 las decisiones de fondo está en [ADR-017](../adr/ADR-017-realtime-channel-and-mirror.md); las cuatro
 formas de conectarse, en [ADR-003](../adr/ADR-003-realtime-connections.md). Corregido con sus dos
-revisiones ([diseño](device-link-design-review.md), [seguridad](device-link-security-review.md)). Lo
-que falta que decida Carlos está al final (§ 22).
+revisiones ([diseño](device-link-design-review.md), [seguridad](device-link-security-review.md)).
+
+**Estado:** aprobado por Carlos (paso 5).
 
 **Cómo leerlo.** § 2 es el mapa: qué piezas hay, de qué depende cada una y qué datos pasan. § 3 a § 6
 son las tres capas comunes, de abajo hacia arriba: el canal con el servidor, la conexión entre los dos
@@ -17,7 +18,7 @@ se diagnostica un error que no se puede reproducir.
 
 ## 1. Qué resuelve
 
-- Las reglas R1 a R8 del capítulo 03 y sus escenarios E01 a E44 (con E22b, E23b, E26b y E33b).
+- Las reglas R1 a R8 del capítulo 03 y sus escenarios E01 a E44 (con E17b, E22b, E23b, E26b, E33b, E33c y E39b).
 - De 01: que la espera del código QR de entrada pase al mecanismo común (R7.1), sin cambiar lo que ve
   la persona.
 - De 00 · R4.3 y de la constitución (III): nada corre de fondo, y cada pedido automático nuevo queda en
@@ -54,6 +55,14 @@ se comportan como valores comunes.
 - Los pedidos automáticos de § 18.2, para `mobile-data.md`.
 - **El vínculo es de cada persona** (R1.1).
 - E36 dice «Para vincular hace falta internet. Probá cuando vuelva la conexión».
+- **El espejo cuenta como uso de las dos sesiones** (03 · R2.5, 01 · R3.3), con la confirmación cada 4
+  minutos de uso (R2.6, § 7). Se acepta que una sesión desatendida siga viva mientras se use el otro.
+- **Sin internet, el directo sigue con la última confirmación** hasta que vuelva (R3.4).
+- **Para volver a encontrarse después de un corte de internet**, el reintento de `useReconnect` (R3.4,
+  E21, § 8.5).
+- **Lo que la pantalla elige sola por su forma no se espeja** (R6.2, E33c).
+- **Después de reemplazar el vínculo al entrar con el celular**, el celular lo avisa una vez (R1.5).
+- **La cuenta de datos por día** de § 18.1, en `mobile-data.md`.
 
 ## 2. El mapa de las piezas
 
@@ -700,7 +709,7 @@ por casualidad: cada uno **exige** una confirmación reciente antes de mandar o 
 - **La sesión del celular no vence en medio del espejo** (revisión de diseño 1.1, de seguridad 2): las
   confirmaciones son pedidos de su sesión, así que cuentan como uso (ADR-015) mientras se use; sin uso,
   vence a los 60 minutos como siempre. Traen además la huella de los permisos (`p=`, R6.6) y el campo
-  `l=`. Que el espejo cuente como uso de las dos sesiones está en § 22, punto 1.
+  `l=`. Así el espejo cuenta como uso de las dos sesiones (R2.5).
 - **Las escrituras dicen con qué vínculo se hicieron:** mientras espeja, `device-link` suma a cada `POST`
   la cabecera `X-Pairing: <id>` (con `api.decorate`), y un paso que registra en el servidor contesta
   `409 pairing-ended` si ese vínculo ya no existe o la sesión del otro lado se cerró: nada que haya
@@ -711,7 +720,7 @@ por casualidad: cada uno **exige** una confirmación reciente antes de mandar o 
 
 Un dispositivo cortado ve, como mucho, lo que ya estaba en pantalla y lo que el otro muestre durante los
 4 minutos de uso desde la última confirmación del otro; y, sin internet en el otro, hasta que vuelva.
-Está en § 16 y en § 22, punto 2.
+Lo aceptó Carlos (R2.6, R3.4) y está en § 16.
 
 ## 8. La máquina de estados del vínculo
 
@@ -859,7 +868,7 @@ cabecera de su próximo pedido (00 · R5.1) y se actualiza solo si no tiene nada
 - **Al perder el directo** se confirma (`check`): si falla sin conexión, `offline`; si contesta, `waiting`.
 - **Para volver a encontrarse**, con `offline` y la pantalla a la vista, se reusa `useReconnect` (2, 4, 8,
   16 y 32 s, y después cada minuto): cada intento es la confirmación, y el primero que llega da
-  `internetBack`. Es el mismo reintento de la entrada; está en § 22, punto 3.
+  `internetBack`. Es el mismo reintento de la entrada (R3.4, E21).
 
 ## 9. Entidades
 
@@ -1021,7 +1030,7 @@ sequenceDiagram
 - La respuesta de `approve` dice `pairs: true` y el celular escucha el tema del vínculo hasta que la
   computadora entra o pasan los 30 s del permiso. Si no llega, `l=` en su próximo pedido hace lo mismo.
 - Tras un reemplazo al entrar, el celular muestra una vez «Ahora este celular está vinculado a Chrome en
-  Windows», con «Desvincular» (§ 22, punto 5).
+  Windows», con «Desvincular» (R1.5).
 
 ## 11. Eventos y auditoría
 
@@ -1217,7 +1226,7 @@ useTopic('audit-log.new', page.latestId, ({ count }) => setNew(count));
   lento se cierra; el reenvío no guarda nada.
 - **Secretos:** ninguno nuevo. Ningún servicio externo: sin STUN ni TURN, ninguna dirección sale a nadie.
 - **Auditoría:** § 11.2.
-- **Lo que se acepta**, a decisión de Carlos (§ 22): un dispositivo cortado puede ver hasta 4 minutos de
+- **Lo que se acepta** (lo decidió Carlos): un dispositivo cortado puede ver hasta 4 minutos de
   uso, y sin internet en el otro, hasta que vuelva; el espejo mantiene viva la sesión de los dos mientras
   se use, así que una computadora desatendida no vence mientras se use el celular (y viceversa); el
   reemplazo al entrar con el celular (R1.5) agranda un engaño en la entrada, que el aviso de § 10.4 hace
@@ -1239,7 +1248,7 @@ useTopic('audit-log.new', page.latestId, ({ count }) => setNew(count));
 - **Un estado aparte «por confirmar»** (seguridad 1.1): la retención del espejo (`hold`) hace lo mismo sin
   sumar estados a la máquina.
 - **Que el espejo no cuente como uso de la computadora** (seguridad 14): «son una sola aplicación en dos
-  pantallas»; queda escrito como riesgo para que Carlos lo acepte (§ 22, punto 1).
+  pantallas»; Carlos aceptó el riesgo (R2.5).
 
 ## 18. Metas de performance
 
@@ -1278,12 +1287,12 @@ pantalla 40 veces, 30 por menos de 5 minutos):
 
 La computadora suma, en el caso común, unos 13 KB por hora mientras espera al celular, por el Wi-Fi.
 
-### 18.2. Para `mobile-data.md` (aprobado por Carlos)
+### 18.2. En `mobile-data.md` (aprobado por Carlos)
 
 Presentarse; el canal y su latido mientras «Por el servidor», con el código a la vista y en la
 computadora que espera; el reenvío; la confirmación con uso; el `check` después de un `l=` nuevo;
 `/api/start` con vínculo; el aviso de una falla del directo (unos 400 bytes, una vez por falla); y el
-reintento de § 8.5, si Carlos lo aprueba (§ 22, punto 3). Con los números de arriba.
+reintento de § 8.5. Con los números de arriba, ya en `mobile-data.md`.
 
 ### 18.3. Tiempos
 
@@ -1326,15 +1335,15 @@ Las pruebas cuentan las consultas de cada uno.
 | E01, E02, E09, E22, E34, E35 | De punta a punta (`tests/e2e/device-link.spec.ts`), con dos contextos de Playwright y Caddy. Antes de escribirlas se le justifica cada una a Carlos (CLAUDE.md). En Docker los nombres `.local` pueden no resolverse: Chromium arranca con `--disable-features=WebRtcHideLocalIpsWithMdns`; para «Por el servidor», con `--force-webrtc-ip-handling-policy=disable_non_proxied_udp`. E34 medido en la máquina de pruebas no dice nada de la notebook vieja: se mide además a mano en el local |
 | E03, E04, E37, E40 | Unitarias de la ruta y de `rotating-codes`, con el reloj falso |
 | E05 a E08, E44 | Unitarias del servidor (reemplazar, vincular al entrar, el vínculo de cada persona) y de la hoja de reemplazar |
-| E10, E11, E17, E28 | Unitarias de `/api/start` y de la máquina al salir y entrar, también otra persona en la misma pestaña |
+| E10, E11, E17, E17b, E28 | Unitarias de `/api/start` y de la máquina al salir y entrar, también otra persona en la misma pestaña |
 | E12, E13 | Unitarias de `rules/expire` y del trabajo diario, con fechas fijas |
 | E14 a E16 | Unitarias del servidor: cerrar desde Usuarios, quitar la huella, cortar y la baja terminan el vínculo; salir no |
 | E18 a E21, E22b, E23b, E27, E29, E43 | Unitarias de la máquina (tabla de transiciones) y de la simulación |
 | E23, E24 | Unitarias que cuentan pedidos y canales con el reloj falso durante una hora |
 | E25, E26, E26b, E30 | Unitarias de las pantallas y de `strip.ts`, y capturas del indicador y del detalle en cada estado |
-| E31 a E33b | Unitarias del espejo con dos aplicaciones en el mismo proceso y un transporte de mentira, en `forward` y en `refetch` |
+| E31 a E33c | Unitarias del espejo con dos aplicaciones en el mismo proceso y un transporte de mentira, en `forward` y en `refetch` |
 | E36 | Unitaria de leer el código con una entrada sin confirmar |
-| E38, E39 | Unitarias del servidor: cada ruta y el tema con quien no es del vínculo, con el id de otro vínculo y con un vínculo terminado |
+| E38, E39, E39b | Unitarias del servidor: cada ruta y el tema con quien no es del vínculo, con el id de otro vínculo y con un vínculo terminado |
 | E41, E42 | Unitarias de la auditoría |
 | Seguridad | Una por cada fila de «Una prueba por riesgo» de la revisión de seguridad |
 
@@ -1423,46 +1432,4 @@ Se pueden hacer a la vez, cada una con su dueño: 3, 6 y 9; después 7, 8 y 10.
 
 ## 22. Lo que tiene que decidir Carlos
 
-1. **Que el espejo cuente como uso de las dos sesiones.** Las confirmaciones de § 7 son pedidos de cada
-   sesión: mientras se use el espejo, ninguna vence por los 60 minutos sin uso (ADR-015; el tope de 8 horas
-   sigue). Consecuencia: una computadora desatendida con la sesión abierta no vence mientras alguien use
-   el celular en espejo, y viceversa.
-   - **Recomendado:** así. Cuesta unos 10 KB por hora de uso en cada uno (15 pedidos de unos 700 bytes,
-     más una conexión TLS nueva si estuvo 5 minutos quieta).
-   - **Alternativa A:** la confirmación cada 4 minutos se hace igual, pero el servidor no la cuenta como
-     uso (un `check` que no toca `last_used_at`). El celular que solo mira, sin escribir, vence a la hora:
-     aparece la entrada encima, en medio del espejo, y hay que volver a poner la huella.
-   - **Alternativa B:** confirmar cada 2 minutos (ventana de exposición menor, unos 20 KB por hora) o cada
-     10 (ventana de 10 minutos, unos 30 KB por hora, porque cada pedido abre TLS de nuevo).
-2. **Sin internet, el directo sigue con la última confirmación** (R3.4). Si un dispositivo pierde
-   internet, no puede confirmar: sigue espejando hasta que vuelva y lo primero que hace es confirmar.
-   Riesgo: un celular cortado desde Usuarios mientras la computadora del local no tiene internet sigue
-   espejando hasta que vuelva.
-   - **Recomendado:** así, que es lo que dice R3.4.
-   - **Alternativa:** sin confirmación, cortar a los 15 minutos aunque no haya internet (cambia R3.4 y E20:
-     un corte de internet largo corta el espejo).
-3. **El reintento para volver a encontrarse después de un corte de internet** (E21, «cuando vuelve
-   internet, se encuentran solos»). Con el Wi-Fi andando y sin internet, el navegador no avisa cuando
-   vuelve (`navigator.onLine` no cambia), así que hay que probar.
-   - **Recomendado:** reusar `useReconnect`, ya aprobado para la entrada: con `offline` y la pantalla a la
-     vista, `GET /api/device-link/check` a los 2, 4, 8, 16 y 32 s y después cada minuto. Mientras no hay
-     internet, cada intento sale al Wi-Fi y no gasta datos móviles; el que llega, unos 700 bytes.
-   - **Alternativa:** sin temporizador: se encuentran al tocar algo que pida al servidor o el indicador.
-     Cambia E21.
-4. **Lo que la pantalla elige sola según su forma no se espeja** (§ 5.1): la primera persona que Usuarios
-   abre sola en la computadora, el tamaño de página de Quién hizo qué. Se espeja lo que elige la persona.
-   - **Recomendado:** así; es «cada uno lo muestra con su forma» de R6.1. 0 bytes de más. Se escribe en
-     R6.2: «se espeja lo que la persona eligió; lo que cada pantalla elige sola por su forma, no».
-   - **Alternativa:** espejar todo: al abrir Usuarios en la computadora, el celular abre la tarjeta de la
-     primera persona tapando la lista, y Quién hizo qué muestra 20 renglones en el celular.
-5. **Un aviso después de reemplazar al entrar con el celular** (R1.5, revisión de seguridad 13). Quien
-   engañe a alguien para que haga entrar su computadora también se queda con el espejo de su celular.
-   - **Recomendado:** el celular muestra una vez «Ahora este celular está vinculado a Chrome en Windows»
-     con «Desvincular». No pregunta, así que R1.5 se cumple. 0 bytes; un aviso más de la maqueta (ajuste).
-   - **Alternativa:** nada; el engaño ya da la sesión, que es el daño mayor.
-6. **La cuenta de datos por día** (§ 18.1): unos 135 KB por día en el celular en «Directo» y unos
-   1,75 MB en «Por el servidor», con los supuestos de la tabla. Es lo que va a `mobile-data.md`.
-   - **Recomendado:** aprobarla así. La mayor parte en «Directo» son las presentaciones; el directo
-     dormido de 5 minutos ya ahorra unos 210 KB por día.
-   - **Alternativa:** dormir el directo 15 minutos en vez de 5 (menos presentaciones; Android puede
-     cortarlo antes igual y la batería del celular lo nota).
+Nada: lo decidido está en § 1 y en las reglas.

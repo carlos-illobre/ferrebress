@@ -42,7 +42,31 @@ KB cuando hay que abrirla de nuevo, que es lo normal después de unos minutos si
 | Al volver la conexión, con la entrada a la vista y el botón de Google sin dibujar | El botón de Google de nuevo, que lo baja Google | Hasta unos 170 KB (lo que el navegador no tenga guardado) | Celular y computadora | Que la entrada no quede sin Google después de un corte (01 · R2.1) |
 | Con la entrada de la computadora a la vista | Un canal abierto que recibe un código nuevo por minuto | Unos 60 bytes por código | Solo la computadora | Entrar con el celular leyendo el QR (01 · R2.5) |
 | Al volver la conexión, con el manual abierto, si un capítulo o una captura de la tarea abierta no llegó | Solo lo que no llegó: el capítulo (unos pocos KB) y las capturas de la tarea, hasta dos (de 6 a 75 KB cada una, medido) | Lo que pesaba lo que faltó; con todo bajado, nada | Celular y computadora | Que el manual no quede con «Sin conexión» después de un corte (00 · R4.6) |
+| Celular y computadora vinculados, al encontrarse (al vincular, cuando el otro vuelve a la vista, al volver internet) | La presentación: el canal del vínculo, la oferta y la respuesta de la conexión directa | Unos 4 KB entre los dos; en el celular que vuelve después de unos minutos, unos 7 KB con la conexión segura nueva. Si el celular vuelve antes de 5 minutos con la conexión directa viva, nada | Celular y computadora | Encontrarse solos (03 · R3.5). Lo aprobó Carlos |
+| Con la computadora a la vista esperando al celular, con «Por el servidor» o con el código de vincular a la vista | Un canal abierto, con un latido cada 40 s | Unos 8 KB por hora de bajada y 5 KB de subida; el código, 60 bytes por minuto más | La computadora; «Por el servidor», los dos | Enterarse en el momento de que el otro volvió o de lo que mandó (03 · R3.2, R3.5, R7.2). Lo aprobó Carlos |
+| «Por el servidor», cada cambio de lo que se ve | El cambio de ida y su llegada al otro | Unos 750 bytes entre los dos por cambio; lo escrito se junta cada 150 ms. Con un toque cada 5 s, unos 540 KB por hora entre los dos | Celular y computadora | El espejo cuando el Wi-Fi no deja la conexión directa (03 · R3.2, R6.2). Lo aprobó Carlos |
+| En espejo directo y en uso, si la última comprobación tiene más de 4 minutos | `GET /api/device-link/check` | Unos 700 bytes; 4 a 5 KB más si la conexión segura se había cerrado. Con uso continuo, unos 10 KB por hora en cada uno. Sin uso, nada | Celular y computadora | Que un vínculo terminado o una sesión cerrada dejen de espejar (03 · R2.6); cuenta como uso de la sesión (R2.5). Lo aprobó Carlos |
+| Cuando una respuesta trae una huella del vínculo distinta | `GET /api/device-link/check` | Unos 700 bytes, una vez por cambio | Celular y computadora | Enterarse sin canal de que el vínculo terminó, se pausó o el otro volvió (03 · R2.3, R3.5). La huella viaja en la cabecera: unos 12 bytes por respuesta, solo con vínculo |
+| Con «Sin internet» en el vínculo y la pantalla a la vista | `GET /api/device-link/check`, a los 2, 4, 8, 16 y 32 s y después cada minuto, hasta que uno llega | Mientras no hay internet sale al Wi-Fi y no gasta datos móviles; el que llega, unos 700 bytes | Celular y computadora | Volver a encontrarse solos cuando vuelve internet (03 · R3.4, E21). Lo aprobó Carlos |
+| Al abrir, con vínculo | Lo mismo de siempre: `/api/start` trae el vínculo | 180 bytes más | Celular y computadora | Que el indicador sepa su estado sin otro pedido (03 · R4.1) |
+| Cuando no se logra la conexión directa | `POST /api/device-link/report` | Unos 400 bytes, una vez por falla | La computadora | Saber por qué falla el directo en el local (diseño de 03, § 15) |
 | En segundo plano, con una versión nueva y nada a medio hacer | La página y los archivos de la versión nueva | Lo que pese la versión nueva | Celular y computadora | Actualizarse sola (00 · R5.6) |
+
+## Un día típico con el celular vinculado
+
+Supuestos: 8 horas abiertos, 6 de uso en espejo; el celular apaga la pantalla 40 veces, 30 de ellas por
+menos de 5 minutos (diseño de 03, § 18).
+
+| Qué | «Directo» | «Por el servidor» |
+|---|---|---|
+| Encontrarse: 10 veces × 7 KB (las 30 cortas no gastan) | 70 KB | 70 KB |
+| Comprobaciones: 6 horas × 10 KB | 60 KB | — |
+| Los cambios: 6 horas × 270 KB (la mitad del celular) | — | 1,6 MB |
+| El latido: 6 horas × 13 KB | — | 78 KB |
+| `/api/start`, la huella en la cabecera, avisos | menos de 5 KB | menos de 5 KB |
+| **Total en el celular** | **unos 135 KB** | **unos 1,75 MB** |
+
+La computadora suma unos 13 KB por hora mientras espera al celular, por el Wi-Fi.
 
 ## Lo que se mira antes de agregar uno
 

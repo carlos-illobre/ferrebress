@@ -531,3 +531,6 @@ Punto por punto, en el [diseño](device-link.md) corregido (paso 5).
   y la cámara; las de punta a punta se justifican antes y llevan las opciones de Chromium (§ 20).
 - **10.3.** § 22 trae los cuatro que faltaban y la cuenta por día. Las ocho anteriores las aceptó Carlos y
   están en las reglas.
+
+Carlos aceptó las seis decisiones de § 22 como estaban recomendadas y aprobó el diseño; quedaron en
+las reglas del capítulo 03 (y en 01 · R3.3) y en `mobile-data.md`.
