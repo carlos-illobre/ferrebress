@@ -104,7 +104,8 @@ quita, el resto sigue andando igual.
   servidor» y el resto (desconectado, esperando al otro, sin internet). Arriba dice cuánto
   estuvieron juntos hoy y qué parte fue directo: «Hoy juntos 2 h 17 min · 92 % directo». Sirve para
   ver si la red falla seguido. Se guarda solo en ese dispositivo, no viaja al servidor ni va a la
-  auditoría (R8.2), y al día siguiente empieza de cero.
+  auditoría (R8.2), y al día siguiente empieza de cero. Cada dispositivo anota lo que vio, así que
+  el celular y la computadora pueden mostrar números algo distintos.
 
 ## 5. Desconectar, reconectar y desvincular
 
