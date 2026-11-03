@@ -18,8 +18,8 @@ escribe con el catálogo (capítulo 07).
   dispositivo, quitar la huella o cortar el celular, y la baja de la persona (R2.3).
 - **La conexión:** directa por el Wi-Fi; si no se puede, por el servidor, sin reintentar sola; sin
   internet, la directa sigue (R3).
-- **El indicador:** siempre a la vista en los dos, un punto y un texto; al tocarlo, el detalle y los
-  botones (R4).
+- **El indicador:** siempre a la vista en los dos, un punto y un texto; al tocarlo, el detalle, los
+  botones y la tira del día, que queda solo en el dispositivo (R4).
 - **Desconectar y reconectar:** cada uno por su lado sin desvincular, hasta «Reconectar»;
   desvincular pide confirmación (R5).
 - **El espejo:** todo lo que se ve, también lo abierto encima y lo escrito; el otro no repite los

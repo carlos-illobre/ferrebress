@@ -99,6 +99,12 @@ quita, el resto sigue andando igual.
   - «Desvincular», con vínculo (R5.3).
 - **R4.3** Sin vínculo, el detalle del celular explica cómo vincularlo: «En la computadora, tocá el
   indicador y leé el código».
+- **R4.4** **La tira del día:** con vínculo, el detalle muestra una tira desde la primera conexión
+  del día hasta ahora, con un tramo por estado, cada uno del color de su punto: «Directo», «Por el
+  servidor» y el resto (desconectado, esperando al otro, sin internet). Arriba dice cuánto
+  estuvieron juntos hoy y qué parte fue directo: «Hoy juntos 2 h 17 min · 92 % directo». Sirve para
+  ver si la red falla seguido. Se guarda solo en ese dispositivo, no viaja al servidor ni va a la
+  auditoría (R8.2), y al día siguiente empieza de cero.
 
 ## 5. Desconectar, reconectar y desvincular
 
@@ -223,6 +229,9 @@ quita, el resto sigue andando igual.
   «En la computadora, tocá el indicador y leé el código» y «Leer el código».
 - **E26** **Dado** dos dispositivos vinculados, **cuando** se toca el indicador, **entonces** el detalle
   dice con qué dispositivo está vinculado, desde cuándo y hasta cuándo dura si no se usa.
+- **E26b** **Dado** dos dispositivos que hoy estuvieron 2 horas directo y 10 minutos por el servidor,
+  **cuando** se toca el indicador, **entonces** la tira muestra esos tramos con sus colores y dice «Hoy
+  juntos 2 h 10 min · 92 % directo»; **y** el servidor no recibió nada de eso.
 
 ### Desconectar, reconectar y desvincular
 
