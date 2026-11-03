@@ -24,7 +24,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | 00 | `app` | Las reglas generales de la aplicación: el marco, el menú, el teclado, la conexión, la versión nueva, el manual, las esperas, los formatos | No se construye solo: cada regla se construye con el primer módulo que la necesita | — | Reglas aprobadas |
 | 01 | `sign-in` | Entrar (Google en la computadora y en el celular, huella en el celular, entrar a la computadora con el celular) y salir. Con él nace la base: el servidor, la aplicación, el marco vacío al que se llega al entrar y el despliegue al ambiente de pruebas. El primer Administrador sale del `.env` | Sin entrar no hay nada que probar: es lo primero | 00 | Hecho: Carlos lo probó y lo aprobó, con su manual |
 | 02 | `users` | En dos etapas. **a. Personas y sesiones:** autorizar, cambiar y dar de baja personas, y cerrar a distancia sus sesiones y quitar sus celulares con huella, todavía con el único rol Administrador. **b. Roles y permisos:** permisos fijos que define cada módulo, roles armados por el negocio, la aplicación y el servidor que respetan los permisos, y las protecciones para no quedarse sin quien administre | La a, para que entre alguien más que el primer Administrador y para resolver un celular perdido; la b, justo después, porque la usan todos los módulos que siguen | a: 01; b: 02a | a: hecha, con su manual en el capítulo «Usuarios»; b: hecha, con su manual en el capítulo «Roles» |
-| 03 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para leer los códigos del catálogo | 01 | Libre |
+| 03 | `device-link` | Vincular el celular y la computadora, el espejo, el lector de códigos y las fotos | Hace falta para leer los códigos del catálogo | 01 | En curso: alcance |
 | 04 | `device-settings` | La configuración de cada dispositivo (animaciones, trabajar sin conexión, mis celulares con huella, mi vínculo, formatos) | Prioridad de Carlos; la usan los módulos siguientes | 01 | Libre |
 | 05 | `audit-log` | La auditoría (lo que hacen las personas): guardarla, con el dato afectado de cada acción, y consultarla en Más → Usuarios → Auditoría. La historia de un dato se muestra con el catálogo (T115) y cuánto se guarda se decide con las copias (T116) | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba | 01 | Hecho: Carlos lo probó y lo aprobó, con su manual |
 | 06 | `administration` | Los ajustes que fija un Administrador para todos (redondeo, márgenes rápidos, zona horaria, días del vínculo) y la pantalla de anomalías, a la que cada módulo le suma las suyas | El catálogo necesita el redondeo y los márgenes; mejor editarlos de entrada que dejar valores fijos | 02b, 05 | Libre |
@@ -134,6 +134,6 @@ No se construyen ahora; el diseño no les cierra la puerta.
   afectado con su índice; falta la pantalla y su consulta, que se diseñan con un producto real.
 - [ ] T116 [carlos] Cuánto se guarda la auditoría (05, con T107): si los años viejos se archivan o
   se borran, y cuándo.
-- [ ] T111 [carlos] Probar en el ambiente de pruebas que la sesión vence (01 · R3.1, R3.5): 60
-  minutos sin usarla, o 8 horas desde que se entró, y que al volver a entrar se sigue donde se
-  estaba.
+- [ ] T111 [carlos] Probar en el ambiente de pruebas que la sesión vence (01 · R3.1, R3.5). Ya
+  probado: vence a los 60 minutos sin usarla. Falta: que vence a las 8 horas desde que se entró, y
+  que al volver a entrar se sigue donde se estaba.
