@@ -105,6 +105,15 @@
   </div>
 </section>
 
+<!-- ======== Celular: el código no vincula (otra cuenta, R1.6 y E37; código vencido, E04) ======== -->
+<section class="confirmar lectura solo-celu" id="lectura" role="alertdialog" aria-labelledby="lec-t" aria-describedby="lec-d">
+  <div class="asa" aria-hidden="true"></div>
+  <span class="lectura-ico" id="lec-ico"></span>
+  <h2 id="lec-t"></h2>
+  <p class="t-detalle" id="lec-d"></p>
+  <div class="confirmar-pie" id="lec-pie"></div>
+</section>
+
 <!-- ======== Celular: la cámara lee el código de la computadora ======== -->
 <section class="camara" id="camara" aria-label="Leer el código">
   <div class="camara-foto"></div>
@@ -114,6 +123,8 @@
   <p class="camara-titulo">Apuntá al código de la computadora</p>
   <button type="button" class="camara-linterna" aria-label="Linterna"><i class="i i-l" data-i="flashlight"></i></button>
   <p class="camara-ayuda">En la computadora: tocá el indicador y «Vincular el celular».</p>
+  <!-- La cámara del teléfono (no la de Ferrebress) ofrece abrir el enlace del código (E02, E40) -->
+  <button type="button" class="camara-abrir" id="cam-abrir"><img src="../../../common/brand/isotype.svg" alt="" width="28" height="28"><span>Abrir en Ferrebress</span></button>
 </section>
 
 <script src="link.js"></script>

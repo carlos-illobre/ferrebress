@@ -10,9 +10,13 @@ Capturas: `screenshot.png` (computadora, «Directo», la ficha abierta), `screen
 («Por el servidor»), `screenshot-server-failed.png` (con «No se pudo» en lugar de la frase), `screenshot-alt.png` (con
 Alt apretado), `screenshot-code.png` (el código para vincular), `screenshot-notebook.png` (1366 ×
 657, una notebook de 768 px con la barra del navegador, con «No se pudo»), `screenshot-phone.png` (celular, la hoja abierta), `screenshot-phone-closed.png` (celular,
-con la hoja cerrada) y `screenshot-phone-camera.png` (la cámara que lee el código).
+con la hoja cerrada) y `screenshot-phone-camera.png` (la cámara que lee el código). Los mensajes al
+leer el código, en el celular: `screenshot-phone-other-account.png` (otra cuenta),
+`screenshot-phone-expired.png` (código vencido), `screenshot-phone-system-camera.png` (la cámara
+del teléfono con «Abrir en Ferrebress»), `screenshot-phone-system-camera-linked.png` (ya
+vinculados al abrirla) y `screenshot-phone-no-session.png` (sin sesión: la entrada).
 
-El selector gris de la derecha («Maqueta · estado») y `?estado=` siguen como en las variantes, fuera
+El selector gris de la derecha («Maqueta · estado» y, en el celular, «Maqueta · al leer el código») y `?estado=` siguen como en las variantes, fuera
 del diseño. Con `?abierto=no` arranca con el detalle cerrado.
 
 ## Por lo que pidió Carlos
@@ -74,6 +78,25 @@ del diseño. Con `?abierto=no` arranca con el detalle cerrado.
     | El código para vincular | 557 | 549 |
 
     En 1366 × 768 y en 1366 × 657 entran todos los estados sin desplazarse.
+
+- **Los mensajes al leer el código, solo en el celular** (Carlos pidió sumar los del capítulo que
+  faltaban, en el estilo de la ficha). Se ven desde la manija de la maqueta, en un segundo grupo:
+  «Maqueta · al leer el código».
+  - **Otra cuenta** (R1.6, E37): la cámara lee el código y sube una hoja como la de desvincular,
+    con un ícono de persona en rojo suave, «Este código es de otra cuenta», «Entrá con la misma
+    cuenta en los dos.» y un solo botón, «Entendido». No ofrece cambiar de cuenta.
+  - **Código vencido o ya usado** (E04): la misma hoja, con un reloj en ámbar suave, «Este código
+    venció», «Cada código sirve una vez y se renueva cada minuto. Leé el que muestra ahora la
+    computadora.», «Leer el nuevo» en naranja (vuelve a abrir la cámara) y «Cancelar».
+  - **La cámara del teléfono** (E02): una escena como la cámara de Ferrebress, pero sin su título,
+    su ayuda ni la linterna. Al leer, aparece abajo del código una pastilla blanca con el isotipo y
+    «Abrir en Ferrebress», que imita la del sistema. Al tocarla se abre Ferrebress y quedan
+    vinculados igual que con «Leer el código»: la tostada «Vinculados: fuiste a la pantalla de la
+    compu» o, si ya había vínculo, la pregunta de reemplazar (R1.4). La manija lo arranca desde
+    «Sin vincular».
+  - **Sin sesión** (E40): la misma cámara del teléfono; «Abrir en Ferrebress» lleva a la entrada
+    aprobada (`../../sign-in/adapted/`) y no vincula. No hay mensaje en el medio: la regla dice que
+    lleva a la entrada.
 
 ## Por las reglas aprobadas
 

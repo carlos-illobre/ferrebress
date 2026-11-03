@@ -215,6 +215,7 @@
   velo.addEventListener("click", function () {
     if (conf.classList.contains("abierto")) return noConfirmar();
     if (rem.classList.contains("abierto")) return cerrarReemplazo();
+    if (lec.classList.contains("abierto")) return cerrarLectura();
     cerrar();
   });
 
@@ -281,23 +282,63 @@
   $("qr").addEventListener("click", leido);
 
   /* ---------- La cámara (celular): lee el código; si ya hay vínculo, pregunta (R1.4) ---------- */
-  var camT;
-  function abrirCamara() {
-    cerrar();
+  /* modo (solo en la maqueta): qué pasa al leer. null vincula; "otra" es de otra cuenta (R1.6);
+     "vencido" ya se usó o venció (E04). Con sistema, es la cámara del teléfono: "telefono" abre
+     Ferrebress y vincula igual (E02); "sinsesion" lleva a la entrada (E40). */
+  var camT, modoCam = null;
+  function abrirCamara(modo, sistema) {
+    cerrar(); cerrarLectura();
+    modoCam = modo || null;
     $("cam-qr").innerHTML = qr(7);
     $("visor").classList.remove("leido");
+    cam.classList.toggle("sistema", !!sistema);
+    cam.classList.remove("leida");
     cam.classList.add("abierta");
     clearTimeout(camT);
     camT = setTimeout(function () {
       $("visor").classList.add("leido"); vibrar([10, 40, 10]);
-      setTimeout(function () {
-        cam.classList.remove("abierta");
-        if (vinculado()) { rem.querySelector("[data-con]").textContent = con.celu; rem.classList.add("abierto"); velo.classList.add("abierto"); }
-        else { poner("directo"); toast("Vinculados: fuiste a la pantalla de la compu"); }
-      }, 700);
+      if (sistema) { cam.classList.add("leida"); return; }
+      setTimeout(function () { cam.classList.remove("abierta"); resultado(); }, 700);
     }, 1900);
   }
-  function cerrarCamara() { clearTimeout(camT); cam.classList.remove("abierta"); }
+  function resultado() {
+    if (modoCam === "otra") return mostrarLectura("otra");
+    if (modoCam === "vencido") return mostrarLectura("vencido");
+    if (vinculado()) { rem.querySelector("[data-con]").textContent = con.celu; rem.classList.add("abierto"); velo.classList.add("abierto"); }
+    else { poner("directo"); toast("Vinculados: fuiste a la pantalla de la compu"); }
+  }
+  /* «Abrir en Ferrebress», en la cámara del teléfono */
+  $("cam-abrir").addEventListener("click", function () {
+    if (modoCam === "sinsesion") { location.href = "../../sign-in/adapted/index.html"; return; }
+    cam.classList.remove("abierta", "sistema", "leida");
+    modoCam = null; resultado();
+  });
+  function cerrarCamara() { clearTimeout(camT); cam.classList.remove("abierta", "sistema", "leida"); }
+
+  /* El código no vincula: lo dice en una hoja, sin ofrecer cambiar de cuenta (R1.6) */
+  var lec = $("lectura");
+  var LECTURA = {
+    otra: { tone: "error", icon: "user", titulo: "Este código es de otra cuenta", texto: "Entrá con la misma cuenta en los dos.",
+      botones: '<button type="button" class="btn" data-l="cerrar">Entendido</button>' },
+    vencido: { tone: "urgente", icon: "clock", titulo: "Este código venció", texto: "Cada código sirve una vez y se renueva cada minuto. Leé el que muestra ahora la computadora.",
+      botones: '<button type="button" class="btn btn-fantasma" data-l="cerrar">Cancelar</button><button type="button" class="btn btn-accion" data-l="leer"><i class="i" data-i="scan-qr-code"></i>Leer el nuevo</button>' }
+  };
+  function mostrarLectura(k) {
+    var m = LECTURA[k];
+    $("lec-ico").setAttribute("data-tone", m.tone);
+    $("lec-ico").innerHTML = '<i class="i i-l" data-i="' + m.icon + '"></i>';
+    $("lec-t").textContent = m.titulo;
+    $("lec-d").textContent = m.texto;
+    $("lec-pie").innerHTML = m.botones;
+    window.pintarIconos(lec);
+    lec.classList.add("abierto"); velo.classList.add("abierto");
+  }
+  function cerrarLectura() { if (lec.classList.contains("abierto")) { lec.classList.remove("abierto"); velo.classList.remove("abierto"); } }
+  lec.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-l]"); if (!b) return;
+    cerrarLectura();
+    if (b.getAttribute("data-l") === "leer") abrirCamara();
+  });
   $("cam-x").addEventListener("click", cerrarCamara);
   function cerrarReemplazo() { rem.classList.remove("abierto"); velo.classList.remove("abierto"); }
   $("rem-si").addEventListener("click", function () { con.celu = "Edge en Windows"; cerrarReemplazo(); estado = "sin"; poner("directo"); toast("Ahora estás vinculado a Edge en Windows"); });
@@ -400,11 +441,25 @@
     demo.className = "demo";
     var h = '<button type="button" class="demo-asa" aria-label="Elegir el estado (solo en la maqueta)"><i class="i" data-i="sliders-horizontal"></i></button><div class="demo-panel"><p>Maqueta · estado</p>';
     ORDEN.forEach(function (k) { h += '<button type="button" data-s="' + k + '"></button>'; });
+    h += '<div class="demo-grupo solo-celu"><p>Maqueta · al leer el código</p>' +
+      '<button type="button" data-lee="otra">Otra cuenta</button>' +
+      '<button type="button" data-lee="vencido">Código vencido</button>' +
+      '<button type="button" data-lee="sinsesion">Sin sesión</button>' +
+      '<button type="button" data-lee="telefono">Cámara del teléfono</button></div>';
     demo.innerHTML = h + "</div>";
     body.appendChild(demo);
     window.pintarIconos(demo);
     demo.querySelector(".demo-asa").addEventListener("click", function () { demo.classList.toggle("abierta"); });
     demo.querySelectorAll("[data-s]").forEach(function (b) { b.addEventListener("click", function () { fallo = false; poner(b.getAttribute("data-s")); }); });
+    demo.querySelectorAll("[data-lee]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var k = b.getAttribute("data-lee");
+        demo.classList.remove("abierta");
+        if (k === "telefono") { poner("sin"); return abrirCamara("telefono", true); }
+        if (k === "sinsesion") return abrirCamara("sinsesion", true);
+        abrirCamara(k);
+      });
+    });
   }
   function syncDemo() {
     if (!demo) return;

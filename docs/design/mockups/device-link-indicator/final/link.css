@@ -246,6 +246,16 @@ body.alt .ficha-cerrar { width: auto; padding: 0 6px 0 8px; }
 .camara-ayuda { position: absolute; left: 24px; right: 24px; bottom: 56px; margin: 0; text-align: center; font-size: 15px; line-height: 22px; color: rgba(255,255,255,.8); font-weight: 600; }
 .camara-linterna { position: absolute; left: 50%; bottom: 120px; margin-left: -28px; width: 56px; height: 56px; border-radius: 99px; border: 0; background: rgba(255,255,255,.16); color: #fff; display: grid; place-items: center; }
 
+/* La cámara del teléfono: sin lo de Ferrebress; al leer, ofrece abrir el enlace */
+.camara-abrir { position: absolute; left: 50%; top: 560px; display: inline-flex; width: max-content; white-space: nowrap; align-items: center; gap: 10px; height: 52px; padding: 0 20px 0 12px; border: 0; border-radius: 999px; background: rgba(255,255,255,.94); color: var(--tinta); font-size: 16px; font-weight: 750; box-shadow: 0 12px 32px rgba(0,0,0,.4); opacity: 0; transform: translate(-50%, 12px); pointer-events: none; transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--rebote); }
+.camara-abrir img { width: 28px; height: 28px; }
+.camara.sistema .camara-titulo, .camara.sistema .camara-ayuda, .camara.sistema .camara-linterna { display: none; }
+.camara.sistema.leida .camara-abrir { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+
+/* El código no vincula: la misma hoja que la confirmación, con un ícono teñido arriba */
+.lectura-ico { width: 48px; height: 48px; border-radius: 99px; display: grid; place-items: center; margin-bottom: 12px; background: var(--urgente-suave); color: var(--urgente-texto); }
+.lectura-ico[data-tone="error"] { background: var(--error-suave); color: var(--error-texto); }
+
 /* =================== Tostada =================== */
 .tostadas { position: fixed; left: calc(216px + (100vw - 216px) / 2); bottom: 96px; transform: translateX(-50%); z-index: 60; display: grid; gap: 8px; justify-items: center; pointer-events: none; }
 .tostada { opacity: 0; transform: translateY(12px); transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--rebote); pointer-events: none; max-width: 560px; line-height: 20px; }
@@ -267,6 +277,7 @@ body.alt .ficha-cerrar { width: auto; padding: 0 6px 0 8px; }
 .demo-panel p { margin: 0 4px 4px; font-size: 14px; font-weight: 700; opacity: .75; white-space: nowrap; }
 .demo-panel button { height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #fff; font-size: 14px; font-weight: 650; text-align: left; white-space: nowrap; }
 .demo-panel button[aria-pressed="true"] { background: rgb(255 255 255 / .18); }
+.demo-grupo { display: grid; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgb(255 255 255 / .2); }
 
 /* =========================================================================
    CELULAR (debajo de 900 px): título arriba con el indicador a la derecha, la luz debajo,
@@ -328,5 +339,7 @@ body.alt .ficha-cerrar { width: auto; padding: 0 6px 0 8px; }
   .confirmar-pie .btn:first-child { background: transparent; border-color: transparent; box-shadow: none; color: var(--texto-2); }
 
   .tostadas { left: 50%; bottom: 92px; width: calc(100% - 32px); }
-  .demo { top: 200px; transform: none; }
+  .demo { top: 120px; transform: none; }
+  .demo-grupo.solo-celu { display: grid !important; }
+  .confirmar-pie .btn:only-child { min-height: 52px; font-size: 16px; background: var(--superficie); border-color: var(--borde-fuerte); box-shadow: var(--sombra-1); color: var(--tinta); }
 }
