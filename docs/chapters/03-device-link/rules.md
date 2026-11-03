@@ -100,8 +100,9 @@ quita, el resto sigue andando igual.
 - **R4.3** Sin vínculo, el detalle del celular explica cómo vincularlo: «En la computadora, tocá el
   indicador y leé el código».
 - **R4.4** **La tira del día:** con vínculo, el detalle muestra una tira desde la primera conexión
-  del día hasta ahora, con un tramo por estado, cada uno del color de su punto: «Directo», «Por el
-  servidor» y el resto (desconectado, esperando al otro, sin internet). Arriba dice cuánto
+  del día hasta ahora, con un tramo por estado: «Directo» y «Por el servidor», del color de su
+  punto, y, en gris, el resto (desconectado, esperando al otro, sin internet). Debajo, cuánto
+  fue cada uno: «Directo 2 h 6 min · Por el servidor 11 min · Separados 25 min». Arriba dice cuánto
   estuvieron juntos hoy y qué parte fue directo: «Hoy juntos 2 h 17 min · 92 % directo». Sirve para
   ver si la red falla seguido. Se guarda solo en ese dispositivo, no viaja al servidor ni va a la
   auditoría (R8.2), y al día siguiente empieza de cero. Cada dispositivo anota lo que vio, así que

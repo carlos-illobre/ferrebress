@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>El indicador del vínculo · final</title>
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="link.css">
+<script src="../../../common/icons.js"></script>
+<script src="icons-extra.js"></script>
+</head>
+<body data-link="directo">
+<div class="prueba" aria-hidden="true">
+  <div class="prueba-borde"></div>
+  <div class="prueba-cartel">Ambiente de prueba<span> · nada de esto es real</span></div>
+</div>
+
+<div class="app">
+  <!-- ======== Computadora: el lateral, con el indicador al pie ======== -->
+  <nav class="lateral solo-compu" aria-label="Menú">
+    <div class="lado-marca"><img src="../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button type="button" class="btn btn-fantasma lado-plegar" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <button type="button" class="nav-item" aria-current="page"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="package"></i><span class="txt">Depósito</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></button>
+    <div class="pie">
+      <button type="button" class="indicador" id="ind-compu" data-indicador aria-haspopup="dialog" aria-expanded="false" aria-controls="ficha">
+        <span class="indicador-ico"><i class="i" data-i="smartphone"></i><span class="dot"></span></span>
+        <span class="indicador-txt"><b data-ind-estado></b><small data-ind-detalle></small></span>
+        <span class="kbd">L</span>
+      </button>
+      <div class="luz"><span class="punto"></span>En línea · todo enviado</div>
+      <div class="persona"><div class="usuario"><span class="avatar">RP</span><div><b class="persona-nombre">Rubén Paredes</b><div class="t-detalle">Administrador</div></div></div><button type="button" class="btn chico"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+
+  <!-- ======== Celular: el título de la pantalla, con el indicador a la derecha (00 · R4.1) ======== -->
+  <header class="p-cab solo-celu">
+    <h1 class="t-titulo">Vender</h1>
+    <button type="button" class="indicador-pastilla" id="ind-celu" data-indicador aria-haspopup="dialog" aria-expanded="false" aria-controls="ficha"><i class="i i-s" data-i="monitor"></i><span class="dot"></span><span class="indicador-pastilla-txt" data-ind-estado></span></button>
+  </header>
+  <div class="p-luz solo-celu"><span class="punto"></span>En línea</div>
+
+  <!-- ======== El área de trabajo: vacía a propósito, esta maqueta es solo del indicador ======== -->
+  <main class="contenido" aria-label="Área de trabajo"><div class="vacio" aria-hidden="true"></div></main>
+
+  <nav class="nav-inferior solo-celu" aria-label="Menú">
+    <button type="button" aria-current="page"><i class="i" data-i="shopping-cart"></i>Vender</button>
+    <button type="button"><i class="i" data-i="tags"></i>Catálogo</button>
+    <button type="button"><i class="i" data-i="package"></i>Depósito</button>
+    <button type="button"><i class="i" data-i="chart-column"></i>Negocio</button>
+    <button type="button"><i class="i" data-i="menu"></i>Más</button>
+  </nav>
+</div>
+
+<div class="velo" id="velo"></div>
+
+<!-- ======== El detalle del indicador: ficha al lado del lateral (computadora), hoja que sube (celular) ======== -->
+<section class="ficha" id="ficha" role="dialog" aria-labelledby="ficha-titulo">
+  <div class="asa solo-celu" aria-hidden="true"></div>
+  <div class="ficha-hojas">
+    <div class="ficha-pag" id="pag-detalle"></div>
+    <div class="ficha-pag solo-compu" id="pag-codigo">
+      <div class="ficha-cab">
+        <button type="button" class="btn btn-fantasma chico" id="volver" data-key="o"><i class="i i-s" data-i="arrow-left"></i>Volver <span class="kbd">O</span></button>
+        <h2 class="ficha-titulo-codigo">Vincular el celular</h2>
+      </div>
+      <div class="qr-caja" id="qr"><div id="qr-svg"></div><span class="qr-iso"><img src="../../../common/brand/isotype.svg" alt=""></span>
+        <div class="qr-listo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      </div>
+      <div class="renueva"><div class="renueva-fila"><span>Sirve una vez</span><span id="cuenta">Se renueva en 1:00</span></div><div class="renueva-riel"><b id="riel"></b></div></div>
+      <ol class="pasos">
+        <li><span>En el celular, abrí Ferrebress con <b>tu misma cuenta</b>.</span></li>
+        <li><span>Tocá el indicador de arriba y <b>«Leer el código»</b>, o apuntale con la cámara del teléfono.</span></li>
+        <li><span>Listo: el celular viene a esta pantalla.</span></li>
+      </ol>
+      <div class="aviso urgente" id="reemplaza" hidden><i class="i" data-i="triangle-alert"></i><span>Ya está vinculada con <b data-con></b>. Si lo lee otro celular, lo reemplaza: el celular pregunta antes.</span></div>
+      <p class="espera" data-tone="pino"><span class="dot"></span>Esperando que el celular lo lea…</p>
+      <button type="button" class="simular" id="simular">Maqueta: el celular leyó el código</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======== Desvincular: pide confirmación (R5.3) ======== -->
+<section class="confirmar" id="confirmar" role="alertdialog" aria-labelledby="conf-t" aria-describedby="conf-d">
+  <div class="asa solo-celu" aria-hidden="true"></div>
+  <h2 id="conf-t"></h2>
+  <p class="t-detalle" id="conf-d"></p>
+  <div class="confirmar-pie">
+    <button type="button" class="btn" id="conf-no" data-key="c">Cancelar <span class="kbd">C</span></button>
+    <button type="button" class="btn btn-rojo" id="conf-si" data-key="x"><i class="i i-s" data-i="unlink"></i>Desvincular <span class="kbd">X</span></button>
+  </div>
+</section>
+
+<!-- ======== Celular: reemplazar el vínculo anterior (R1.4) ======== -->
+<section class="confirmar solo-celu" id="reemplazar" role="alertdialog" aria-labelledby="rem-t">
+  <div class="asa" aria-hidden="true"></div>
+  <h2 id="rem-t">Este celular está vinculado a <span data-con></span>. ¿Reemplazar?</h2>
+  <p class="t-detalle">La otra computadora queda sin vincular. Esta pasa a ser la tuya.</p>
+  <div class="confirmar-pie">
+    <button type="button" class="btn btn-fantasma" id="rem-no">Cancelar</button>
+    <button type="button" class="btn btn-accion" id="rem-si">Reemplazar</button>
+  </div>
+</section>
+
+<!-- ======== Celular: la cámara lee el código de la computadora ======== -->
+<section class="camara" id="camara" aria-label="Leer el código">
+  <div class="camara-foto"></div>
+  <div class="camara-monitor"><div class="camara-qr" id="cam-qr"></div></div>
+  <div class="visor" id="visor"><i></i><i></i><i></i><i></i></div>
+  <button type="button" class="camara-cerrar" id="cam-x" aria-label="Cerrar la cámara"><i class="i i-l" data-i="x"></i></button>
+  <p class="camara-titulo">Apuntá al código de la computadora</p>
+  <button type="button" class="camara-linterna" aria-label="Linterna"><i class="i i-l" data-i="flashlight"></i></button>
+  <p class="camara-ayuda">En la computadora: tocá el indicador y «Vincular el celular».</p>
+</section>
+
+<script src="link.js"></script>
+</body>
+</html>
