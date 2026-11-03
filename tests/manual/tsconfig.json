@@ -14,6 +14,8 @@
     "../../src/shared/contracts/server-header.ts",
     "../../src/shared/contracts/product.ts",
     "../../src/shared/contracts/manual.ts",
+    "../../src/shared/contracts/audit-log.ts",
+    "../../src/shared/time/business.ts",
     "../../tools/manual/media.ts",
     "../../tools/manual/text.ts"
   ]

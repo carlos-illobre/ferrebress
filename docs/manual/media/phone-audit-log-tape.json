@@ -1,0 +1,17 @@
+{
+  "device": "phone",
+  "width": 585,
+  "height": 1266,
+  "points": {
+    "next": [
+      83.7,
+      79
+    ],
+    "play": [
+      32.4,
+      78.8
+    ]
+  },
+  "hash": "6756b142360f32f7f9e14d93225b4796ef70112c6e4cce13f2ea41f43018a469",
+  "file": "48b6d892cb0fb6250169683eb21643633cfc5ccd28a46a514c35e10e4d8cdbd3"
+}

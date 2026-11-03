@@ -35,7 +35,7 @@ paso 9 de cada uno (constitución). La aplicación lo arma desde estos archivos;
 - business-overview · Números del negocio · chart-column
 - users · Usuarios · user-round · users.md
 - roles · Roles · users · roles.md
-- audit-log · Quién hizo qué · history
+- audit-log · Quién hizo qué · history · audit-log.md
 - processes · Procesos · workflow
 - tickets · Mejoras y errores · bug
 - device-settings · Configuración · settings

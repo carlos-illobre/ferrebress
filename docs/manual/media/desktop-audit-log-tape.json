@@ -1,0 +1,25 @@
+{
+  "device": "computer",
+  "width": 1100,
+  "height": 618,
+  "points": {
+    "head": [
+      51.9,
+      28.4
+    ],
+    "play": [
+      45,
+      49.7
+    ],
+    "lane": [
+      9,
+      35.1
+    ],
+    "close": [
+      3.7,
+      6
+    ]
+  },
+  "hash": "8b8921b6aa630f9853d0efbf2160abd11b517cff7fb4485f1a55462e72332aea",
+  "file": "dfae6176d2dbfdbf6dcb853aadf2f09bdedc6f39ac918918ae0543284a4bc76b"
+}

@@ -1,0 +1,21 @@
+{
+  "device": "phone",
+  "width": 585,
+  "height": 1266,
+  "points": {
+    "tab": [
+      60.8,
+      14.9
+    ],
+    "row": [
+      50,
+      49.8
+    ],
+    "day": [
+      40.3,
+      19.9
+    ]
+  },
+  "hash": "c031ded2ca7141155ba665509c22d0b1a2ce3d1327e20e134ba3768e8af4e2cd",
+  "file": "bbbb309d480d58174dca274feb0f2d7f9c84cce7584e79823b26ba02cead0dd0"
+}
