@@ -70,6 +70,38 @@ export async function expectClean(page: Page | Frame): Promise<void> {
   await expect(page.locator('.test-frame')).toHaveCount(0);
 }
 
+// Cuántos píxeles cambian de verdad entre dos imágenes del mismo tamaño (más de 32 en algún
+// color: el WebP solo ya mueve unos pocos).
+export async function changedPixels(page: Page, before: Buffer, after: Buffer): Promise<number> {
+  return page.evaluate(
+    async ({ first, second }) => {
+      const pixels = async (data: string) => {
+        const image = new Image();
+        image.src = data;
+        await image.decode();
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const drawing = canvas.getContext('2d') as CanvasRenderingContext2D;
+        drawing.drawImage(image, 0, 0);
+        return drawing.getImageData(0, 0, image.width, image.height).data;
+      };
+      const [a, b] = [await pixels(first), await pixels(second)];
+      if (a.length !== b.length) return Number.POSITIVE_INFINITY;
+      let changed = 0;
+      for (let i = 0; i < a.length; i += 4) {
+        const far = [0, 1, 2].some((c) => Math.abs((a[i + c] ?? 0) - (b[i + c] ?? 0)) > 32);
+        if (far) changed++;
+      }
+      return changed;
+    },
+    {
+      first: `data:image/webp;base64,${before.toString('base64')}`,
+      second: `data:image/webp;base64,${after.toString('base64')}`,
+    },
+  );
+}
+
 // Pasa una imagen PNG a WebP del ancho pedido con el canvas de Chromium, bajando la calidad hasta que
 // entre en el tope.
 export async function toWebp(page: Page, png: Buffer, width: number): Promise<Buffer> {

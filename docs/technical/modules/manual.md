@@ -192,8 +192,10 @@ de imagen de espera y con «reducir movimiento».
 
 **`pnpm check` avisa si una captura quedó vieja:** `pnpm manual:check` (con Docker, en la imagen de
 Playwright) vuelve a sacar cada escena sin comprimir y compara su huella con la guardada; si una
-pantalla cambió, nombra la escena y pide correr `pnpm manual:media`. Las capturas se sacan siempre
-igual (las pruebas de captura ya lo dependen), así que la huella no cambia sola. **El clip no se
+pantalla cambió, nombra la escena y pide correr `pnpm manual:media`. Si la huella no coincide, antes
+de fallar compara la captura con la guardada píxel por píxel: según el procesador de la máquina,
+Chromium dibuja distinto el borde de algún ícono, y hasta 200 píxeles sueltos (un 0,03 % de la
+pantalla del celular) no cuentan; un cambio de la pantalla mueve miles. **El clip no se
 compara** (un video no sale igual dos veces): se vuelve a grabar con `pnpm manual:media` cuando
 cambia una de sus pantallas.
 

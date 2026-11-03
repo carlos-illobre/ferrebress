@@ -6,7 +6,15 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { type Scene as SceneFile, sha256 } from '../../tools/manual/media.ts';
-import { closedContext, devices, expectClean, mediaDir, phoneData, toWebp } from './media.ts';
+import {
+  changedPixels,
+  closedContext,
+  devices,
+  expectClean,
+  mediaDir,
+  phoneData,
+  toWebp,
+} from './media.ts';
 import { rolesScenes } from './roles-scenes.ts';
 import { now, type Scene, scenes } from './scenes.ts';
 import { signInScenes } from './sign-in-scenes.ts';
@@ -14,6 +22,7 @@ import { phoneUserScenes } from './users-phone-scenes.ts';
 import { userScenes } from './users-scenes.ts';
 
 const checking = process.env.MANUAL_CHECK === '1';
+const strayPixels = 200;
 
 // En los botones y las opciones de los menús con ícono, el aro va sobre el ícono y no en el medio
 // (pedido de Carlos); también en una caja de texto (el de su etiqueta, como la lupa del buscador) y
@@ -87,9 +96,20 @@ for (const scene of [
     const saved = join(mediaDir, `${scene.name}.json`);
     if (checking) {
       const stored = existsSync(saved) ? JSON.parse(readFileSync(saved, 'utf8')).hash : undefined;
-      // La de ahora queda en los resultados, para ver qué cambió.
-      if (stored !== hash) writeFileSync(testInfo.outputPath(`${scene.name}.png`), png);
-      expect(stored, `${scene.name} quedó vieja: corré pnpm manual:media`).toBe(hash);
+      if (stored !== hash) {
+        // La de ahora queda en los resultados, para ver qué cambió.
+        writeFileSync(testInfo.outputPath(`${scene.name}.png`), png);
+        expect(stored, `${scene.name} no tiene captura: corré pnpm manual:media`).toBeDefined();
+        // Según el procesador, Chromium dibuja distinto el borde de algún ícono: unos pocos
+        // píxeles sueltos no cuentan; un cambio de la pantalla mueve miles.
+        const tool = await context.newPage();
+        const current = await toWebp(tool, png, device.width);
+        const before = readFileSync(join(mediaDir, `${scene.name}.webp`));
+        const changed = await changedPixels(tool, before, current);
+        expect(changed, `${scene.name} quedó vieja: corré pnpm manual:media`).toBeLessThanOrEqual(
+          strayPixels,
+        );
+      }
     } else {
       const webp = await toWebp(await context.newPage(), png, device.width);
       const height = Math.round((png.readUInt32BE(20) * device.width) / png.readUInt32BE(16));
