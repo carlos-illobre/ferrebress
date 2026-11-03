@@ -22,8 +22,10 @@ unitarias y tarda en arrancar; levantar el sistema completo para cada prueba la 
 - **La auditoría en memoria** de la misma forma (ADR-004).
 - **Vitest**, con `happy-dom` y Testing Library para las pantallas.
 - **Cobertura del 100 % de líneas y ramas**, en `pnpm check`. La única excepción es una lista
-  corta de archivos de `platform/` que solo hablan con el hardware del navegador (cámara, huella,
-  WebRTC); se prueban de punta a punta.
+  corta de archivos de `platform/` que solo hablan con el hardware o las piezas del navegador (la
+  cámara, la huella, `peer/rtc.ts` con `RTCPeerConnection` y el candado de pestañas de Web Locks);
+  se prueban de punta a punta. La lógica que los usa (plazos, filtros, reintentos) va aparte, con
+  unitarias.
 - **Pruebas que cuentan las consultas:** cada pedido importante tiene una prueba que comprueba
   cuántas consultas hace, para que no aparezcan consultas dentro de un bucle.
 - **Meta:** todas las unitarias en menos de 30 segundos.

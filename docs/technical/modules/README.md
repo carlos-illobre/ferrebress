@@ -14,7 +14,8 @@ Si se borra `src/`, con este diseño y el capítulo se reconstruye el módulo ig
 4. **Eventos:** qué publica (y su texto para la auditoría) y qué escucha.
 5. **Conexiones:** qué usa de `realtime` y en qué forma.
 6. **Sin conexión:** qué baja y qué acciones puede encolar, si aplica.
-7. **Pantallas:** las piezas de cada pantalla y las acciones con nombre.
+7. **Pantallas:** las piezas de cada pantalla, lo que se espeja de cada una y cómo (valores con nombre;
+   lo que trae el servidor, en `forward` o `refetch`), y lo que queda local.
 8. **Seguridad:** qué datos toca, quién puede hacer cada cosa, qué entra de afuera y cómo se
    valida, qué secretos usa y qué queda en la auditoría.
 9. **Metas de performance:** consultas por pedido, milisegundos, bytes que baja.

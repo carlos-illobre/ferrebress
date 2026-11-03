@@ -464,3 +464,70 @@ Hace falta una tarea (o sumarlo a la 5, la 7 y la 2) que deje esos documentos al
 Faltan 1.1 (el celular que no pide nada: la sesión, los permisos y las señales), 1.2 (lo que cambia
 según el ancho), 1.4 (cómo se vuelven a encontrar después de un corte de internet) y la cuenta de datos
 por día (2.1). Las ocho que están, bien planteadas, con su recomendación y sus números.
+
+---
+
+## Cómo se resolvió
+
+Punto por punto, en el [diseño](device-link.md) corregido (paso 5).
+
+- **1.1 · frena.** Las confirmaciones del vínculo (§ 7) son pedidos de la sesión de cada uno, con uso:
+  el celular no vence en medio del espejo, recibe `p=` (R6.6) y `l=`. Que eso cuente como uso, a Carlos
+  (§ 22, punto 1). No se tomaron las opciones a y b (§ 17).
+- **1.2 · frena.** Cada valor declara su modo: `set(…, {auto: true})` para lo que la pantalla elige sola,
+  `refetch` para lo que depende del dispositivo o del permiso. Tabla pantalla por pantalla en § 5.1; la
+  regla de qué no se espeja, a Carlos (§ 22, punto 4).
+- **1.3 · frena.** `approve` devuelve `pairs: true` y el celular escucha el tema hasta 30 s; además `l=`
+  cambia cuando el otro escucha (§ 3.5, § 10.4).
+- **1.4 · frena.** «Hay internet» es el último intento de llegar al servidor; al perder el directo se
+  confirma, y para volver a encontrarse se reusa `useReconnect` (§ 8.5), a Carlos (§ 22, punto 3).
+- **1.5 · frena.** Máquina rehecha (§ 8): `serverSaid` en cualquier estado (también reemplazo, con
+  `bye replaced`), `sessionLost`, `away` para la pestaña oculta, `relayed` con `probe: 'trying'|'failed'`,
+  `peerGone('handover'|'replaced'|'unpair'|'signout'|'signed-out'|'version')`, `peerBack`, y la pausa
+  que venía del servidor con la computadora escuchando.
+- **1.6 · frena.** La foto es un parche más: el `hello` del celular lleva su reloj y la computadora marca
+  la foto por encima (§ 5.2).
+- **1.7.** La cámara de `sign-in` pasa a `platform/camera/` y la usan los dos; qué pasa al leer el código
+  del otro; `/pair` en `App.tsx`; las tostadas en § 13; `sessions.revoked` lleva los dispositivos.
+- **2.1 · frena.** Bytes rehechos en § 18.1: unos 750 bytes por cambio por el servidor (540 KB por hora),
+  lo escrito junto cada 150 ms, 7 KB por encuentro en el celular, el diario en 30 KB, el latido como costo
+  puro esperando, y la tabla de un día típico. A Carlos (§ 22, punto 6).
+- **2.2 · frena.** Un solo tope de 64 KB por mensaje en los dos transportes; la foto por el servidor sin
+  `q:` y partida en mensajes de hasta 64 KB (§ 4.1, § 5.2).
+- **2.3.** Consultas corregidas en § 18.4.
+- **2.4.** Sin índice sobre `mirrored_at`; `members.ts` guarda también «ninguno» (§ 9).
+- **2.5.** El diario se junta en memoria y se escribe al ocultarse y cada 10 s si cambió (§ 15.1).
+- **2.6.** Por el servidor, un `update` de menos de 4 KB viaja entero y uno mayor como `stale`; el ejemplo
+  de § 5.3 es ahora la tarjeta de una persona y Quién hizo qué; la latencia sale de `getStats()`, sin
+  `ping`.
+- **3.1.** Sacada la lista de transportes; la interfaz queda para probar (§ 4.1, § 14.1).
+- **3.2.** El buzón se cambió por la huella `l=` (§ 3.5).
+- **3.3.** El control es al revés: ningún `useState` de pantalla sin `// local:` (§ 5.1).
+- **3.4.** Los estados guardan solo datos y el diario guarda los eventos con sus datos (§ 8, § 15.1).
+- **3.5.** Un solo `rules/ends.ts`; sin `QueryRunner` (el modo es `QueryMode`); `screens/PairingIndicator`
+  y `PairingState`, como el glosario; claves `<módulo>.<pantalla>.<cosa>`; `tabs.ts` solo con el candado.
+- **4.** `rotating-codes` hace solo lo común, con `hold` y `release`; la reserva queda en `sign-in`
+  (§ 10.3). El QR y la cámara pasan a `platform/camera/`. El reintento reusa `useReconnect`.
+- **5.** Persona y dispositivo de la sesión (§ 10); `piggyback` antes de devolver la respuesta y `hold`
+  del espejo (§ 3.5); `recheckOn` y `drop` (§ 3.1, § 3.3); `report` con contrato cerrado y `ua` del
+  servidor (§ 10.2); filtro de candidatos en la aplicación y en el servidor (§ 4.2); el canal anónimo
+  se cierra al entrar y se abre otro con sesión (§ 3.2).
+- **6.1 · frena.** El transporte lleva `Json` opaco y `relayed` recibe `send` y `subscribe`; el protocolo
+  del vínculo está en `device-link/wire.ts`; quién manda se lo pasa `device-link` al espejo (`attach`).
+  `realtime`, `peer` y `mirror` no nombran a `device-link` ni tienen reglas (§ 2.2, § 4, § 5).
+- **6.2.** Un tema rechazado no impide los otros; `StartExtras` tipado; solo la pestaña con el candado se
+  suscribe; la computadora decide que el directo falló (`give-up`); los contratos compartidos son la
+  tarea 9 **[común]**.
+- **7.** Escala corregida en § 16 y en ADR-017 (el tope de 8.000 bytes de `NOTIFY`, `members.ts`, códigos,
+  boletos); los topes del canal con sesión van por sesión (§ 3.3).
+- **8.** La dirección espejada tiene su sección (§ 5.4). `direct.ts` separado de `rtc.ts` (§ 4.2).
+- **9.1 · frena.** Gráfico y tabla de la máquina rehechos juntos (§ 8.2, § 8.3).
+- **9.2.** Gráficos de § 2.1 y § 2.2 corregidos; `attempt` llega a los dos (§ 4.4); el de pestañas usa
+  `peerGone(handover)`; el de tareas tiene las dependencias del texto.
+- **10.1 · frena.** Corregidos `modules/README.md` (punto 7), `architecture.md` («Los datos», escala, la
+  cabecera) y ADR-005. `audit-log.md`, `sign-in.md` y el glosario son de otros módulos: tarea 2 del diseño.
+- **10.2.** La prueba de campo se pasa la oferta por QR, sin servidor; la tarea 5 dice que las pruebas de 01
+  cambian de ruta porque cambia el diseño; tareas para `replay.ts`, el diario en «Algo salió mal», `/pair`
+  y la cámara; las de punta a punta se justifican antes y llevan las opciones de Chromium (§ 20).
+- **10.3.** § 22 trae los cuatro que faltaban y la cuenta por día. Las ocho anteriores las aceptó Carlos y
+  están en las reglas.

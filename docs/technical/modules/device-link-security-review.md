@@ -617,3 +617,45 @@ Cada una intenta el ataque y tiene que fallar:
 | 9 | El diario no guarda nada después del primer `:` de una clave; otra persona en la misma computadora no ve la tira de la anterior |
 | 10 | `report` con un texto en `ice`, un salto de línea o un campo de más da 400 y no escribe en el registro |
 | 11 | `signal` con un candidato con dirección pública o `typ srflx` se rechaza o se limpia |
+
+---
+
+## Cómo se resolvió
+
+Punto por punto, en el [diseño](device-link.md) corregido (paso 5).
+
+- **1 · frena.** La confirmación del vínculo (§ 7): nada se manda ni se aplica por el directo sin una
+  confirmación del servidor de menos de 4 minutos, atada a la huella DTLS que registró la sesión del otro
+  al presentarse; antes de una foto (también después de `resume` o `hello` por un canal conservado), de
+  menos de 30 s. Cierra los ataques A y B. `l=` se lee antes de devolver la respuesta y el espejo se
+  retiene (`hold`). Los `q:` solo viajan de la computadora al celular, y lo que pidió el celular no viaja
+  (ataque C). Las escrituras llevan `X-Pairing` y el servidor contesta `409 pairing-ended`; un cambio
+  que llega del otro nunca dispara un POST. Lo que queda está escrito en § 7.3 y § 16, y a Carlos en § 22,
+  puntos 1 y 2. No se tomó el estado «por confirmar»: `hold` hace lo mismo (§ 17).
+- **2 · frena.** Las confirmaciones son pedidos de la sesión del celular, con uso: vence a los 60 minutos
+  solo si nadie usa el espejo, y entonces el otro recibe `peer: 'gone'` y no manda nada más.
+- **3 · frena.** `sessionLost` corre antes que todo desde cualquier estado: `bye`, cierra, deja el tema y
+  suelta el espejo; con otra persona, vuelve al valor inicial lo recibido (§ 8.3). `sessions.onEnded`
+  avisa todos los motivos, también salir, y el hub calcula `closedReasonOf` en cada latido (§ 3.3).
+- **4.** Persona, dispositivo y celular o computadora, siempre de la sesión, en rutas, temas, `members`,
+  límites y `recordOnce` (§ 10); `/api/start` solo con sesión.
+- **5.** `other-account` y `not-a-phone` no gastan el código, y la auditoría lleva a la dueña; el boleto
+  atado a las dos sesiones y a los vínculos a reemplazar (§ 10.3).
+- **6.** Topes por sesión para lo que tiene sesión, 200 anónimos dentro de los 2.000, IPv6 por `/64`
+  (§ 3.3).
+- **7.** Claves por lado; `drop` al terminar un vínculo; el dueño del canal se fija al abrirlo; oyente
+  lento cerrado a los 256 KB; nombres de evento del registro y `JSON.stringify` (§ 3.1, § 3.3).
+- **8.** Esquema por clave, la dirección contra la tabla del router, la bandeja con 64 claves y 1 MB, `q:`
+  solo de la computadora (§ 5.1, § 5.2, § 5.4).
+- **9.** El diario guarda la clave hasta el primer `:` y ningún identificador; la tira es de cada persona
+  (§ 13, § 15.1).
+- **10.** `report` con contrato cerrado, `ua` del servidor, solo desde un vínculo, nunca el SDP (§ 10.2,
+  § 15.2); un reenvío que falla no vuelca el cuerpo.
+- **11.** § 4.2 y § 16 dicen lo que pasa con permiso de cámara; candidatos filtrados en la aplicación y en
+  `signal` (solo `host` con `.local` o dirección privada). La prueba de campo lo mira.
+- **12.** `members.ts`, códigos y boletos están en la lista de lo que cambia con varias copias (§ 16,
+  arquitectura, ADR-017).
+- **13.** El aviso tras un reemplazo al entrar, a Carlos (§ 22, punto 5); `device-link.replaced` con
+  `how:'sign-in'` lleva la dirección de las dos computadoras.
+- **14.** Escrito como riesgo aceptado y a Carlos (§ 16, § 22 punto 1).
+- **El STUN de Google:** Carlos eligió no usarlo.

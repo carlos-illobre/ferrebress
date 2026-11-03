@@ -15,8 +15,9 @@ quita, el resto sigue andando igual.
 ## 1. Vincular
 
 - **R1.1** Se vinculan un celular y una computadora con **la misma persona adentro**. El vínculo es
-  uno con uno: un celular está vinculado a una sola computadora y una computadora a un solo
-  celular.
+  uno con uno **para cada persona**: el celular de una persona está vinculado a una sola computadora y
+  esa computadora, para ella, a un solo celular. Una computadora que usan dos personas puede estar
+  vinculada al celular de cada una; cada una ve solo el suyo, con su sesión.
 - **R1.2** **Vincular no pide ningún permiso** (02 · R7.2): solo junta dos dispositivos de la misma
   persona.
 - **R1.3** **Con el botón:** en la computadora, en el detalle del indicador (R4), «Vincular el
@@ -38,7 +39,7 @@ quita, el resto sigue andando igual.
   de otra cuenta. Entrá con la misma cuenta en los dos». No ofrece cambiar de cuenta.
 - **R1.7** Vincular necesita internet en los dos: el servidor los presenta. Un celular que entró
   sin conexión con la huella (capítulo 15) no puede vincularse hasta que el servidor confirme su
-  entrada.
+  entrada: dice «Para vincular hace falta internet. Probá cuando vuelva la conexión».
 
 ## 2. Cuánto dura y qué lo termina
 
@@ -75,9 +76,15 @@ quita, el resto sigue andando igual.
   volver a encontrar hasta que vuelva.
 - **R3.5** **Cuando uno de los dos se cierra** (la pestaña, la pantalla del celular apagada, otra
   aplicación encima), el otro sigue solo y su indicador dice «Esperando al celular» o «Esperando a
-  la computadora». Al volver, se encuentran solos.
-- **R3.6** **Nada corre de fondo:** sin vínculo, o con el otro cerrado, no hay ningún canal abierto
-  ni temporizador que consulte la red por el vínculo (00 · R4.3).
+  la computadora». Al volver, se encuentran solos:
+  - **la computadora a la vista escucha** mientras espera al celular, así se entera en el momento de
+    que el celular volvió;
+  - **el celular no escucha:** se entera de que la computadora volvió con su próximo pedido al servidor;
+  - **con la pantalla del celular apagada unos minutos,** la conexión directa se conserva sin espejar:
+    si vuelve antes, se encuentran al instante y sin pasar por internet.
+- **R3.6** **Nada corre de fondo:** sin vínculo no hay ningún canal abierto ni temporizador que
+  consulte la red por el vínculo (00 · R4.3). Con el otro cerrado, el único canal es el de la computadora
+  a la vista que espera (R3.5); oculta, nada.
 
 ## 4. El indicador del vínculo
 
@@ -124,8 +131,11 @@ quita, el resto sigue andando igual.
   y lo que se toca en uno pasa en el otro, en las dos direcciones. Cada uno lo muestra con su forma
   (celular o computadora).
 - **R6.2** **Se espeja todo lo que se ve:** la pantalla, lo abierto encima (una hoja, un detalle, una
-  confirmación) y lo escrito en un buscador o en un campo. El otro no repite lo que se pide al
-  servidor: recibe lo que trajo el que lo pidió, así espejar no gasta datos de internet.
+  confirmación) y lo escrito en un buscador o en un campo.
+  - **Por la conexión directa,** el otro no repite lo que se pide al servidor: recibe lo que trajo el
+    que lo pidió, así espejar no gasta datos de internet.
+  - **Por el servidor,** cada uno pide lo suyo y viaja solo lo que se ve (lo escrito, lo abierto, lo
+    elegido): reenviar por internet una respuesta costaría más que pedirla de nuevo.
 - **R6.3** **Al conectarse, manda la computadora:** el celular va a la pantalla de la computadora y
   toma lo que ella tiene abierto. Vale al vincular, al reconectar y cuando el celular vuelve después
   de cerrarse (R3.5).
@@ -134,6 +144,10 @@ quita, el resto sigue andando igual.
   de 50 ms. Por el servidor tarda lo que tarde internet.
 - **R6.6** **Los permisos son los mismos en los dos,** porque la persona es la misma (02 · R7). Si le
   cambian los permisos, los dos se actualizan con su próximo pedido (02 · R7.8).
+- **R6.7** **Con versiones distintas de la aplicación, no espejan:** el que tiene la vieja se actualiza
+  solo si no tiene nada a medio hacer, o muestra «Hay una versión nueva» (00 · R5.2, R5.3); mientras
+  tanto, los dos dicen «Esperando al celular» o «Esperando a la computadora». Con la misma versión, se
+  encuentran solos.
 
 ## 7. El mecanismo de conexión
 
@@ -142,8 +156,8 @@ quita, el resto sigue andando igual.
   vengan (como la auditoría que se actualiza sola, roadmap T118). Sumar una es decir qué espera y
   cuánto importa que llegue en el momento; no se arma otro mecanismo.
 - **R7.2** **Gasta lo menos posible:** un canal con el servidor está abierto solo mientras una
-  pantalla a la vista lo necesita, nunca de fondo; cada dispositivo tiene a lo sumo uno, que
-  comparten todas las esperas; y lo que no es urgente viaja en las respuestas que la aplicación ya
+  pantalla a la vista lo necesita, nunca de fondo; cada pestaña a la vista tiene a lo sumo uno, que
+  comparten todas sus esperas; y lo que no es urgente viaja en las respuestas que la aplicación ya
   recibe (00 · R4.3). Un corte del canal se nota en menos de un minuto.
 
 ## 8. Lo que queda anotado
@@ -175,6 +189,9 @@ quita, el resto sigue andando igual.
 - **E06** **Dado** una computadora vinculada a otro celular, **cuando** un celular de la misma persona
   lee su código, **entonces** pregunta «Esta computadora está vinculada a otro celular.
   ¿Reemplazar?», y al aceptar el otro celular pasa a «Sin vincular».
+- **E44** **Dado** una computadora vinculada al celular de Ana, **cuando** entra Beto en esa computadora y
+  la vincula con su celular, **entonces** queda vinculada a los dos: Ana ve su vínculo y Beto el suyo,
+  cada uno con su sesión.
 - **E07** **Dado** una computadora en la entrada, **cuando** un celular la hace entrar leyendo su
   código (01 · R2.5), **entonces** entran y quedan vinculados, sin otra pregunta.
 - **E08** **Dado** un celular vinculado a otra computadora, **cuando** hace entrar a una computadora
@@ -220,8 +237,13 @@ quita, el resto sigue andando igual.
 - **E22** **Dado** dos dispositivos vinculados, **cuando** el celular apaga la pantalla, **entonces** la
   computadora dice «Esperando al celular»; **y cuando** el celular vuelve, va a la pantalla de la
   computadora y los dos dicen «Directo».
-- **E23** **Dado** una computadora sin vínculo, o con el celular cerrado, **cuando** pasa una hora sin
-  que nadie toque nada, **entonces** la aplicación no hizo ningún pedido por el vínculo.
+- **E22b** **Dado** dos dispositivos «Directo», **cuando** el celular apaga la pantalla un minuto y vuelve,
+  **entonces** se encuentran sin pasar por internet.
+- **E23** **Dado** una computadora sin vínculo, o un celular con la computadora cerrada, **cuando** pasa
+  una hora sin que nadie toque nada, **entonces** la aplicación no hizo ningún pedido ni tuvo un canal
+  abierto por el vínculo.
+- **E23b** **Dado** un celular «Esperando a la computadora», **cuando** la computadora vuelve y el celular
+  hace su próximo pedido al servidor, **entonces** se encuentran solos.
 - **E24** **Dado** dos dispositivos «Directo», **cuando** pasa una hora sin tocar nada, **entonces**
   ninguno tiene un canal abierto con el servidor por el vínculo.
 
@@ -253,18 +275,24 @@ quita, el resto sigue andando igual.
   computadora abre Auditoría, con su forma de computadora.
 - **E32** **Dado** dos dispositivos en espejo, **cuando** en la computadora se abre el detalle de una
   persona en Usuarios, **entonces** el celular muestra el mismo detalle abierto.
-- **E33** **Dado** dos dispositivos en espejo, **cuando** se escribe en un buscador de la computadora,
+- **E33** **Dado** dos dispositivos «Directo», **cuando** se escribe en un buscador de la computadora,
   **entonces** el texto y los resultados aparecen en el celular, y el celular no le pide nada al
   servidor por esa búsqueda.
+- **E33b** **Dado** dos dispositivos «Por el servidor», **cuando** se escribe en un buscador del celular,
+  **entonces** el texto aparece en la computadora y cada uno muestra los resultados que pidió.
 - **E34** **Dado** dos dispositivos «Directo», **cuando** se toca algo en uno, **entonces** se ve en el
   otro en menos de 50 ms.
 - **E35** **Dado** una computadora con Ferrebress en dos pestañas y el celular vinculado, **cuando** se
   usa la segunda pestaña, **entonces** el celular espeja la segunda.
+- **E43** **Dado** dos dispositivos vinculados con versiones distintas de la aplicación, **cuando** se
+  encuentran, **entonces** no espejan, dicen «Esperando…» y el de la versión vieja se actualiza o
+  avisa que hay una versión nueva; **y cuando** los dos tienen la misma, se conectan solos.
 
 ### Sin conexión
 
 - **E36** **Dado** un celular que entró sin conexión con la huella (capítulo 15), **cuando** lee el
-  código de vincular, **entonces** no se vincula hasta que el servidor confirme su entrada.
+  código de vincular, **entonces** dice «Para vincular hace falta internet. Probá cuando vuelva la conexión» y no se vincula
+  hasta que el servidor confirme su entrada.
 
 ### Seguridad
 

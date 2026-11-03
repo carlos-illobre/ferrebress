@@ -21,14 +21,14 @@ declara **qué necesita** (un tema, cuánto importa el tiempo real, cuánto dura
 | Forma | Para qué | Cómo |
 |---|---|---|
 | `request` | Todo lo normal | HTTP |
-| `piggyback` | Avisos continuos donde importa el consumo: versión nueva, luz de conexión, sesión cerrada, permisos, y las señales de los temas que pueden esperar | En la cabecera `X-Ferrebress` de la próxima respuesta. Para lo de un módulo, el servidor guarda en un buzón chico por persona y dispositivo una **señal** (el tema y una versión, sin contenido) y la manda en la cabecera hasta que la aplicación la lee. Sin conexión abierta y sin temporizadores |
+| `piggyback` | Avisos continuos donde importa el consumo: versión nueva, luz de conexión, sesión cerrada, permisos, y lo de cada módulo que puede esperar | En la cabecera `X-Ferrebress` de la próxima respuesta. Cada módulo suma su **campo**, calculado de lo que el servidor ya tiene en memoria (el del vínculo, una huella de 8 caracteres que cambia cuando cambia el vínculo); la aplicación lo lee antes de devolver la respuesta. Sin conexión abierta y sin temporizadores |
 | `temporary` | Esperar algo donde importa el tiempo real: el QR de entrada, el código de vincular, presentar al celular y la computadora, la auditoría que se actualiza sola | Un solo canal SSE por pestaña, abierto solo mientras alguna pantalla a la vista espera un **tema**, que comparten todos los temas de esa pestaña |
 | `peer` | Celular y computadora vinculados | Un transporte con dos variantes: directo (WebRTC por el Wi-Fi del local, sin servidores externos), presentado por el canal, que se cierra apenas se encuentran; y por el servidor, de respaldo |
 
 - **Del lado del servidor**, un hub en memoria con los canales abiertos y quién escucha cada tema.
   Cada módulo declara sus temas: quién puede escucharlos y qué mandar al empezar a escuchar, así
-  reconectarse nunca pierde nada. Lo que puede esperar va como señal al buzón.
-- **Sumar un caso** es declarar su tema (o su señal) y pedirlo desde la pantalla. **Sumar una forma de
+  reconectarse nunca pierde nada. Lo que puede esperar va como un campo de la cabecera.
+- **Sumar un caso** es declarar su tema (o su campo) y pedirlo desde la pantalla. **Sumar una forma de
   conectar los dos** es un transporte más que cumple la misma interfaz (estrategia). Cómo se construye
   cada pieza está en el [ADR-017](ADR-017-realtime-channel-and-mirror.md).
 - **El espejo replica el estado a la vista, no acciones.** Lo que se ve (la pantalla, lo abierto encima,
@@ -62,5 +62,6 @@ declara **qué necesita** (un tema, cuánto importa el tiempo real, cuánto dura
 - Para vincularse hace falta el servidor una vez. Ya vinculados, si se corta internet, el espejo
   sigue por el Wi-Fi; si se corta la conexión directa sin internet, no se pueden volver a
   encontrar hasta que vuelva.
-- El hub y el buzón en memoria sirven para un proceso. Con varias copias del servidor se cambian
-  por `LISTEN/NOTIFY` de PostgreSQL, sin tocar a quien los usa.
+- El hub y la memoria de los vínculos sirven para un proceso. Con varias copias del servidor se
+  cambian por `LISTEN/NOTIFY` de PostgreSQL, sin tocar a quien los usa (ADR-017 dice el borde del
+  reenvío).

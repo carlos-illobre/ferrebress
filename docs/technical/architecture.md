@@ -145,17 +145,17 @@ declaran en `platform/keyboard` y la cola sin conexión guarda comandos (ADR-007
 ## Las conexiones
 
 Un solo módulo, `realtime`, con cuatro formas de conectarse. Cada funcionalidad declara qué
-necesita (un tema, o una señal si puede esperar) y el módulo elige cómo (ADR-003, ADR-017):
+necesita (un tema, o un campo de la cabecera si puede esperar) y el módulo elige cómo (ADR-003, ADR-017):
 
 | Forma | Para qué | Cómo | Prioriza |
 |---|---|---|---|
 | `request` | Todo lo normal | HTTP | — |
-| `piggyback` | Lo continuo: versión nueva, luz de conexión, sesión cerrada, permisos y las señales de lo que puede esperar | En la cabecera `X-Ferrebress` de las respuestas que ya se hacen; las señales salen de un buzón por persona y dispositivo; sin conexión abierta | Bajo consumo |
+| `piggyback` | Lo continuo: versión nueva, luz de conexión, sesión cerrada, permisos y lo de cada módulo que puede esperar | En la cabecera `X-Ferrebress` de las respuestas que ya se hacen, con un campo por módulo calculado de la memoria del servidor; sin conexión abierta | Bajo consumo |
 | `temporary` | Esperar algo: el QR de entrada, el código de vincular, presentar al celular y la computadora, la foto del celular, el avance de una lista | Un solo SSE por pestaña, abierto solo mientras una pantalla a la vista espera un tema; todos los temas lo comparten | Tiempo real |
 | `peer` | Celular y computadora vinculados | Un transporte: directo por el Wi-Fi (WebRTC, sin servidores externos), presentado por el canal; o por el servidor, de respaldo | Tiempo real sin servidor |
 
-En el servidor, `platform/realtime/` tiene el hub (los canales y quién escucha cada tema), el buzón de
-señales y los códigos de 60 segundos que comparten la entrada y el vínculo; en la aplicación,
+En el servidor, `platform/realtime/` tiene el hub (los canales y quién escucha cada tema), los campos
+que cada módulo suma a la cabecera y los códigos de 60 segundos que comparten la entrada y el vínculo; en la aplicación,
 `platform/realtime/` (el canal de la pestaña), `platform/peer/` (los transportes) y
 `platform/mirror/` (los valores con nombre). Cada módulo declara sus temas al registrarse.
 
@@ -167,7 +167,9 @@ señales y los códigos de 60 segundos que comparten la entrada y el vínculo; e
 - **En el dispositivo**, solo si habilitó trabajar sin conexión: lo justo para atender y la cola
   de lo pendiente, en IndexedDB (ADR-007). Si no lo habilitó, solo lo que no es del negocio ni
   secreto, en `localStorage`: el identificador del dispositivo, sus preferencias, el nombre y rol de
-  quien entró, una salida pendiente y el último aviso de «Algo salió mal»; y, en IndexedDB, la llave
+  quien entró, una salida pendiente, el último aviso de «Algo salió mal» y, con el vínculo del celular y la
+  computadora, la tira del día de cada persona y el diario de la conexión, sin datos personales
+  (diseño de 03); y, en IndexedDB, la llave
   de prueba de la sesión, que no se puede exportar (ADR-015).
 - **Los identificadores** los genera quien crea el dato (UUID v7, ordenables por tiempo), así lo
   que se repite no se duplica.
@@ -175,10 +177,11 @@ señales y los códigos de 60 segundos que comparten la entrada y el vínculo; e
 
 ## Escala
 
-Hoy un proceso alcanza de sobra. Si algún día hacen falta varias copias del servidor, cambian
-tres piezas de `platform/`, sin tocar el negocio: las sesiones (de la memoria a la base), el hub
-de los canales y el buzón de señales (de la memoria a `LISTEN/NOTIFY` de PostgreSQL) y la
-auditoría (un solo escritor).
+Hoy un proceso alcanza de sobra. Si algún día hacen falta varias copias del servidor, cambia lo que
+vive en memoria, sin tocar las reglas: las sesiones (de la memoria a la base), el hub de los canales y
+lo que los módulos guardan en memoria para él, como los vínculos y los códigos de 03 (a `LISTEN/NOTIFY`
+de PostgreSQL y una tabla chica), y la auditoría (un solo escritor). El reenvío entre el celular y la
+computadora necesita además que los dos caigan en la misma copia (ADR-017).
 
 ## Controles en `pnpm check`
 
