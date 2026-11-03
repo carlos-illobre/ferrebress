@@ -22,6 +22,13 @@ const day = (more: Partial<AuditDay> = {}): AuditDay => ({
 });
 const dayPath = (date: string) => `/api/audit-log/day?date=${date}`;
 const subtitle = () => document.querySelector('.tape-subtitle')?.textContent ?? '';
+// Toca la tira en ese punto, de 0 a 1 (con una tira de 1000 px de ancho).
+async function touchStrip(at: number) {
+  const strip = await screen.findByRole('button', { name: 'Ver el día como una grabación' });
+  const rail = strip.querySelector('.audit-rail') as HTMLElement;
+  rail.getBoundingClientRect = () => ({ left: 0, width: 1000 }) as DOMRect;
+  fireEvent.click(strip, { clientX: at * 1000, detail: 1 });
+}
 const button = (name: RegExp) => screen.getByRole('button', { name }) as HTMLButtonElement;
 
 describe('la cinta', () => {
@@ -30,10 +37,9 @@ describe('la cinta', () => {
     vi.unstubAllGlobals();
   });
 
-  it('audit-log-E40, E43: tocar una raya abre la cinta a pantalla completa, en esa acción, con la línea de quién a quién', async () => {
+  it('audit-log-E40, E43: tocar la tira abre la cinta a pantalla completa, en esa acción, con la línea de quién a quién', async () => {
     const server = openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
-    const tick = await screen.findByRole('button', { name: '11:52' });
-    fireEvent.click(tick);
+    await touchStrip(0.95);
     await waitFor(() => expect(subtitle()).toContain('Ana Gómez le sacó el rol Cajero a Martín'));
     expect(server.sent.at(-1)?.path).toBe(dayPath('2026-10-28'));
     expect(screen.getByRole('dialog', { name: 'El día, como una grabación' })).toBeTruthy();
@@ -44,10 +50,10 @@ describe('la cinta', () => {
 
   it('audit-log-E44, E42: ← → de a una, sin pasarse; cerrar vuelve a la lista como estaba', async () => {
     openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
-    const tick = await screen.findByRole('button', { name: '9:40' });
+    await screen.findByRole('button', { name: 'Ver el día como una grabación' });
     // La acción elegida antes de abrir la cinta sigue elegida al cerrarla.
     fireEvent.click(rows()[2] as HTMLElement);
-    fireEvent.click(tick);
+    await touchStrip(0.2);
     await waitFor(() =>
       expect(subtitle()).toContain('no se pudo confirmar su entrada sin conexión'),
     );
@@ -74,7 +80,7 @@ describe('la cinta', () => {
   it('audit-log-E45: «Reproducir el día» recorre en orden y se detiene en la última o al tocar algo', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
-    fireEvent.click(await screen.findByRole('button', { name: '9:40' }));
+    await touchStrip(0.2);
     await waitFor(() => expect(subtitle()).toContain('no se pudo confirmar'));
     fireEvent.click(button(/Reproducir el día/));
     act(() => {
@@ -109,7 +115,7 @@ describe('la cinta', () => {
 
   it('audit-log-E46: tocar una fila aísla a esa persona, y tocarla de nuevo la suelta', async () => {
     openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
-    fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
+    await touchStrip(0.95);
     await waitFor(() => expect(subtitle()).toContain('le sacó el rol Cajero'));
     const outsider = button(/Ver solo a Alguien sin entrar/);
     fireEvent.click(outsider);
@@ -126,7 +132,7 @@ describe('la cinta', () => {
 
   it('audit-log-E44: el cabezal se arrastra y se pega a la acción más cercana', async () => {
     openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
-    fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
+    await touchStrip(0.95);
     await waitFor(() => expect(subtitle()).toContain('le sacó el rol Cajero'));
     const track = document.querySelector('.tape-track') as HTMLElement;
     track.getBoundingClientRect = () => ({ left: 0, top: 0, width: 1000, height: 400 }) as DOMRect;
@@ -145,7 +151,7 @@ describe('la cinta', () => {
 
   it('audit-log-E46: con alguien aislado, Escape primero lo suelta y después cierra', async () => {
     openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
-    fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
+    await touchStrip(0.95);
     await waitFor(() => expect(subtitle()).toContain('le sacó'));
     fireEvent.click(button(/Ver solo a Ana Gómez/));
     const closing = () => document.querySelector<HTMLElement>('.tape [data-close]');
@@ -183,6 +189,14 @@ describe('la cinta', () => {
     expect(subtitle()).toContain('le sacó el rol Cajero');
   });
 
+  it('audit-log-E40: con el teclado, la tira abre la cinta en la acción más nueva', async () => {
+    openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
+    fireEvent.click(await screen.findByRole('button', { name: 'Ver el día como una grabación' }), {
+      detail: 0,
+    });
+    await waitFor(() => expect(subtitle()).toContain('le sacó el rol Cajero'));
+  });
+
   it('audit-log-E47, E48: cambiar de día; un día sin acciones, y uno con demasiadas', async () => {
     openAuditLog({
       [dayPath('2026-10-28')]: { body: day() },
@@ -192,7 +206,7 @@ describe('la cinta', () => {
         body: day({ date: '2026-10-25', tooMany: 2_400, events: undefined as never }),
       },
     });
-    fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
+    await touchStrip(0.95);
     await waitFor(() => expect(subtitle()).toContain('le sacó'));
     const days = () => [...document.querySelectorAll<HTMLElement>('.tape-day')];
     expect(days().at(-1)?.textContent).toContain('Hoy');
@@ -221,7 +235,7 @@ describe('la cinta', () => {
 
   it('si no se puede traer el día, la cinta queda sin acciones', async () => {
     openAuditLog({ [dayPath('2026-10-28')]: { status: 500, body: { error: 'unexpected' } } });
-    fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
+    await touchStrip(0.95);
     await waitFor(() => expect(screen.getByRole('dialog')).toBeTruthy());
     expect(document.querySelector('.tape-board')).toBeNull();
   });

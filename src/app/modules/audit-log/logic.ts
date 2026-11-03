@@ -1,7 +1,12 @@
 // Las reglas de la pantalla de Quién hizo qué (capítulo 05), sin dibujo: qué se le pide al servidor
 // según los filtros (R4.5, R4.9), cómo se dicen las horas en la zona del negocio (00 · R8.4) y cómo
 // se agrupan las acciones por día.
-import type { AuditPerson, AuditView, Range } from '@ferrebress/shared/contracts/audit-log';
+import type {
+  AuditPerson,
+  AuditView,
+  Range,
+  StripMark,
+} from '@ferrebress/shared/contracts/audit-log';
 import { addDays, businessTimeZone } from '@ferrebress/shared/time/business';
 
 export type Who = string | 'system' | 'outsider' | undefined;
@@ -128,6 +133,12 @@ export function summaryDay(dates: Dates, today: string): string {
   if (dates && 'from' in dates) return dates.from === dates.until ? dates.from : today;
   return dates?.range === 'yesterday' ? addDays(today, -1) : today;
 }
+
+// Tocar la tira: la raya más cercana a donde se tocó, de 0 a 1.
+export const nearestMark = (strip: StripMark[], place: (at: number) => number, at: number) =>
+  strip.reduce((best, mark) =>
+    Math.abs(place(mark.at) - at) < Math.abs(place(best.at) - at) ? mark : best,
+  );
 
 // El tramo de la tira: de la hora en punto antes de la primera acción a la de después de la última,
 // con al menos 3 horas; y las horas que se escriben debajo (de a una, o de a dos si es largo).

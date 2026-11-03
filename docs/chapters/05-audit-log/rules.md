@@ -116,15 +116,16 @@ registro se decide con el plan de copias de la base.
     de nuevo saca ese filtro; tocar el total saca los dos;
   - en la computadora, el día en una tira: una raya por acción, en su hora y con su color, en el
     tramo de horas que tiene acciones (con más de 2.000 acciones en el día, que no entran en ese
-    ancho, una raya por minuto, la más nueva de ese minuto); tocar una raya abre la cinta en esa
-    acción (R4.11).
+    ancho, una raya por minuto, la más nueva de ese minuto); tocar la tira en cualquier punto abre
+    la cinta en la acción más cercana a ese punto, sin tener que acertarle a una raya (R4.11). Con
+    el teclado, la abre en la más nueva.
 - **R4.10** **Cada tipo de acción tiene su ícono,** que no se repite entre tipos y es el mismo en
   todas partes. Lo elige el capítulo que anota la acción, junto con su texto (R2.1). Un intento
   rechazado tiene su propio tipo y, por lo tanto, su propio ícono.
-- **R4.11** **La cinta: el día como una grabación.** Se abre en la computadora tocando una raya de la
-  tira, posada en esa acción, y en el celular con «Ver el día», al lado del resumen. Ocupa toda la
+- **R4.11** **La cinta: el día como una grabación.** Se abre en la computadora tocando la tira,
+  posada en la acción más cercana a donde se tocó, y en el celular con «Ver el día», al lado del resumen. Ocupa toda la
   pantalla, sin el menú; la × o Escape (en el celular, también atrás) vuelven a la lista como estaba.
-  - Muestra un día entero, sin los filtros de la lista: el de la raya tocada o, con «Ver el día», el
+  - Muestra un día entero, sin los filtros de la lista: el de la tira tocada o, con «Ver el día», el
     del resumen (si el período es de varios días, hoy). Arriba, los días de la semana, cada uno con
     su cantidad y sus colores; tocar uno cambia de día.
   - Una fila por persona que hizo o recibió algo ese día, más «Alguien sin entrar» y «El sistema»
@@ -268,7 +269,7 @@ registro se decide con el plan de copias de la base.
 
 ### La cinta
 
-- **E40** **Dado** la tira de hoy en la computadora, **cuando** se toca la raya de las 10:26,
+- **E40** **Dado** la tira de hoy en la computadora, **cuando** se toca la tira a la altura de las 10:26,
   **entonces** se abre la cinta a pantalla completa, sin el menú, con el cabezal en esa acción y su
   texto abajo.
 - **E41** **Dado** el celular, **cuando** se toca «Ver el día», **entonces** se abre la cinta vertical

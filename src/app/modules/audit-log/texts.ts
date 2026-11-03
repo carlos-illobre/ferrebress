@@ -25,7 +25,8 @@ export const texts = {
   refused: 'Rechazos',
   removed: 'Sacó o borró',
   stripTitle: 'El día, acción por acción',
-  stripHint: 'Tocá una raya para verla',
+  stripHint: 'Tocala para ver el día como una grabación',
+  stripOpen: 'Ver el día como una grabación',
   // Los filtros (R4.5).
   by: 'Hecho por',
   to: 'Hecho a',

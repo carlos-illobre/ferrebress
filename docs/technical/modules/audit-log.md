@@ -363,7 +363,7 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 
 | Pieza | Qué hace |
 |---|---|
-| `Summary` | Los tres números (total, rechazos, lo que borró o sacó). Tocar rechazos o lo rojo pone la fecha en el período del resumen, saca el grupo y el tipo y pone `tone`; tocarlo de nuevo o tocar el total saca `tone` (R4.9, E35c). En la computadora, la tira, en el tramo de horas que tiene acciones: tocar una raya abre la cinta en esa acción (R4.11) |
+| `Summary` | Los tres números (total, rechazos, lo que borró o sacó). Tocar rechazos o lo rojo pone la fecha en el período del resumen, saca el grupo y el tipo y pone `tone`; tocarlo de nuevo o tocar el total saca `tone` (R4.9, E35c). En la computadora, la tira, en el tramo de horas que tiene acciones: toda la tira es un botón: tocarla abre la cinta en la acción más cercana a donde se tocó, y con el teclado en la más nueva (R4.11) |
 | `Filters` | Hecho por, hecho a (con las personas de `/people`, las dadas de baja y borradas marcadas), fecha (Hoy, Ayer, Esta semana, Este mes, y desde/hasta) y tipo; Alt + P, A, F y T en la computadora |
 | `Ledger` | La lista agrupada por día, con la cantidad del día en la cabecera (`days`); cada acción con el ícono del tipo a la izquierda (R4.10), la hora (y la fecha si no es de `today`), quién, el texto, a quién y el dispositivo, con su color (R4.4) |
 | `Detail` | En la computadora, fijo a la derecha, con la acción elegida (al abrir, la primera; ↑ ↓ la cambian, E35d). En el celular, una hoja que sube al tocar. Muestra todo, con las dos horas de una entrada no confirmada |
@@ -455,7 +455,7 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 | E17 a E22, E35b | De la pantalla, con el servidor de mentira: 20 y 10 por página, total y «página n de m», vacío, colores (sacar un rol en rojo, darlo sin color), fecha solo si no es de `today`, un ícono por tipo |
 | E23 a E31, E35c | De la consulta (cada filtro y sus combinaciones, los atajos con el reloj del servidor, contra archivos de dos años con una acción el 31 de diciembre a las 22) y de la pantalla (volver a la página 1, «Sacar los filtros», los números que filtran) |
 | E32 a E35, E35d | De la pantalla: el detalle, tocar una persona, «Actualizar» sin pedidos solos, el teclado |
-| E40 a E48 | De la pantalla, con el servidor de mentira y un reloj de prueba: abrir desde la raya y desde «Ver el día», cerrar y volver igual, la línea de quién a quién, ← →, reproducir y detenerse, aislar, cambiar de día, más de 2.000. De la ruta `/day`: el día entero sin filtros, la semana y `tooMany` |
+| E40 a E48 | De la pantalla, con el servidor de mentira y un reloj de prueba: abrir desde la tira y desde «Ver el día», cerrar y volver igual, la línea de quién a quién, ← →, reproducir y detenerse, aislar, cambiar de día, más de 2.000. De la ruta `/day`: el día entero sin filtros, la semana y `tooMany` |
 | E36 | De la pantalla: gris sin conexión; al volver sale del gris sin pedir nada |
 | E37, E38, E39 | De las rutas: no hay `POST`/`PUT`/`DELETE`; un parámetro mal, uno desconocido o una página de más dan `400`. De la pantalla: un nombre con HTML se ve como texto |
 | Seguridad | La respuesta no trae identificadores de dispositivo ni de huella; una acción de 20 KB se anota y dice a quién; un período enorme no crea archivos; la captura de «Algo salió mal» tapa la lista |

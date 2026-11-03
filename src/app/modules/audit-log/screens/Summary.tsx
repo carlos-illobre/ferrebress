@@ -3,7 +3,7 @@
 // la cinta en esa acción (R4.11).
 import type { StripMark } from '@ferrebress/shared/contracts/audit-log';
 import { Icon } from '../../../ui/icon/Icon.tsx';
-import { stripScale, summaryDay } from '../logic.ts';
+import { nearestMark, stripScale, summaryDay } from '../logic.ts';
 import { useAuditLogContext } from '../state.ts';
 import { texts } from '../texts.ts';
 import './Summary.css';
@@ -55,31 +55,36 @@ function Strip({ strip, today }: { strip: StripMark[]; today: string }) {
   const day = summaryDay(log.filters.dates, today);
   if (strip.length === 0) return null;
   const scale = stripScale(strip.map((mark) => mark.at));
-  const clock = (seconds: number) =>
-    `${Math.floor(seconds / 3600)}:${String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')}`;
+  // Toda la tira se toca: abre la cinta en la acción más cercana a donde se tocó; con el teclado,
+  // en la más nueva.
+  const open = (event: MouseEvent) => {
+    const rail = (event.currentTarget as HTMLElement).querySelector('.audit-rail') as HTMLElement;
+    const box = rail.getBoundingClientRect();
+    const mark = event.detail
+      ? nearestMark(strip, scale.place, (event.clientX - box.left) / box.width)
+      : (strip.at(-1) as StripMark);
+    log.openTape(day, mark.id);
+  };
   return (
-    <div class="audit-strip">
+    <button type="button" class="audit-strip" aria-label={texts.stripOpen} onClick={open}>
       <span class="audit-strip-title">
         {texts.stripTitle}
         <small>{texts.stripHint}</small>
       </span>
-      <div class="audit-rail">
+      <span class="audit-rail" aria-hidden="true">
         {strip.map((mark) => (
-          <button
+          <i
             key={mark.id}
-            type="button"
             class={`audit-tick audit-${mark.tone}`}
             style={{ left: `${scale.place(mark.at) * 100}%` }}
-            aria-label={clock(mark.at)}
-            onClick={() => log.openTape(day, mark.id)}
           />
         ))}
-      </div>
-      <div class="audit-hours" aria-hidden="true">
+      </span>
+      <span class="audit-hours" aria-hidden="true">
         {scale.hours.map((hour) => (
           <span key={hour}>{hour}</span>
         ))}
-      </div>
-    </div>
+      </span>
+    </button>
   );
 }

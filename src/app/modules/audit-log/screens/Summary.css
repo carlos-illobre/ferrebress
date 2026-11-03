@@ -44,10 +44,21 @@
   .audit-strip {
     display: grid;
     gap: 6px;
+    width: 100%;
     padding: 10px 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius-card);
     background: var(--surface);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color var(--time) var(--ease);
+  }
+  .audit-strip:hover {
+    border-color: var(--pine);
+  }
+  .audit-rail {
+    display: block;
   }
   .audit-strip-title {
     display: flex;
@@ -77,11 +88,6 @@
     border-radius: 2px;
     background: var(--text-3);
     opacity: 0.55;
-    cursor: pointer;
-    transition: transform var(--time) var(--ease);
-  }
-  .audit-tick:hover {
-    transform: scaleY(1.45);
   }
   .audit-tick.audit-red {
     background: var(--error);
