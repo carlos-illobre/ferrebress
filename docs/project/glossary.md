@@ -154,6 +154,11 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Espejo | Los dos vinculados en la misma parte y con el mismo trabajo en curso | `mirror` |
 | Canal | La conexión abierta por la que llegan los avisos a un dispositivo | `channel` |
 | Lector | El celular leyendo códigos de barras para la computadora | `scanner` |
+| Indicador del vínculo | El punto con un texto que dice el estado del vínculo, en los dos | `pairingIndicator` |
+| Directo | Vinculados y hablando por el Wi-Fi, sin pasar por el servidor | `direct` |
+| Por el servidor | Vinculados y hablando por el servidor, de respaldo | `relayed` |
+| Desconectar / reconectar | Seguir cada uno por su lado sin desvincular, y volver al espejo | `pause` / `resume` |
+| Reemplazar un vínculo | Vincular con otro dispositivo, que termina el vínculo anterior | `replace` |
 | Acción | Algo que hace la persona en la aplicación, con un nombre (agregar un renglón, cobrar) | `action` |
 
 ## Auditoría, mejoras y procesos

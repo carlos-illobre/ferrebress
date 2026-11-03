@@ -150,7 +150,8 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
 - **R7.2** **Lo que no pide ningún permiso:** entrar, salir y el manual; la configuración del propio
   dispositivo (salvo «Trabajar sin conexión», que pide su permiso, 15 · R1.2), y ver y cerrar las sesiones propias y cortar el propio celular perdido, en
   Configuración (capítulo 04; hasta que exista, solo lo hace quien tiene los permisos de R7.1);
-  avisar un error o pedir una mejora (capítulo 12).
+  avisar un error o pedir una mejora (capítulo 12); vincular y desvincular el propio celular y la
+  propia computadora (capítulo 03).
 - **R7.3** **Un rol** es un grupo de permisos con un nombre y, si se quiere, una descripción de
   hasta 200 letras que explica para quién es («Atiende el mostrador y cobra; no ve costos»). La
   descripción se ve en la lista de roles y al elegir los roles de una persona. Se crea con un nombre

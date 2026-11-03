@@ -64,7 +64,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
     abierto solo mientras el código está en pantalla (capítulo 00, R4.3).
 - **R2.6** La computadora entra con el celular solo leyendo el código QR de Ferrebress. No se usa la
   entrada entre dispositivos del navegador o del sistema (passkeys por Bluetooth): la computadora
-  no se vincula con el celular ni guarda nada de él, y el celular habla solo con Ferrebress.
+  no guarda nada de la huella del celular, y el celular habla solo con Ferrebress. Entrar así deja
+  vinculados al celular y la computadora (03 · R1.5).
 - **R2.7** Si el celular no tiene la sesión abierta y lee el código de la computadora, primero
   entra el celular y con eso entran los dos:
   - Con la huella vinculada, una sola huella hace entrar al celular y a la computadora.
