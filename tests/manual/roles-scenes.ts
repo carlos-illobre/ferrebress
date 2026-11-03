@@ -24,7 +24,6 @@ const shift = {
   name: 'Encargado de turno',
   description: 'Abre y cierra el local; corta el celular de quien lo pierde.',
 };
-const admin = sceneRoles[0] as { id: string };
 
 const people = [
   row(ana.userId, ana.name, at(2.5), true),
@@ -82,6 +81,8 @@ async function given(page: Page): Promise<void> {
   await giving(page);
   await page.getByRole('alertdialog').getByText('Pedro Giménez').click();
   await expect(page.getByText('Se lo das al guardar')).toBeVisible();
+  // Que la hoja termine de cerrarse: en una máquina lenta la captura la agarraba a medio camino.
+  await expect(page.getByRole('alertdialog')).toBeHidden();
 }
 
 const rolePoints = {

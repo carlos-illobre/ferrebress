@@ -37,7 +37,7 @@ la aprobó** («Ver quién hizo qué» incluye «Ver las personas»).
 
 ## Lo que ya se arregló
 
-Todo lo que frenaba, salvo la aprobación de Carlos de la regla de § 6:
+Todo lo que frenaba:
 
 - **E09:** la fila lleva la marca «hora del celular, sin confirmar» al final del texto, en ámbar.
 - **E13:** el marco conoce Quién hizo qué como algo de adentro de Usuarios con su propio permiso:
@@ -52,6 +52,7 @@ Todo lo que frenaba, salvo la aprobación de Carlos de la regla de § 6:
 - **Consultas en un bucle:** los días de la página y la semana de la cinta son tramos de una sola
   consulta por archivo; una prueba cuenta las consultas de cada pedido y otra, con 730.000 acciones,
   mide el tiempo (solo con `AUDIT_PERF=1`).
+- **«Ver quién hizo qué» incluye «Ver las personas»:** Carlos la aprobó (§ 6).
 - **Escenarios sin prueba:** E02, E03, E04, E10, E13, E16, E35 (los filtros), E41 y E42 (la misma
   página y la misma acción elegida) tienen la suya.
 
@@ -236,7 +237,7 @@ Lo marcado **Mejora** sigue como está y queda para después.
   y 02 · R7.1) en el commit de documentación (`aca87c7`), que no dice que Carlos lo haya decidido. El
   diseño aprobado lo tenía en `includes: []`. Puede ser lo correcto (la pestaña está dentro de
   Usuarios), pero es una regla de permisos nueva: se le pregunta a Carlos y se anota que la aprobó.
-  **Frena.**
+  **Frena.** Carlos la aprobó tal cual: quien ve Quién hizo qué ve también las personas.
 - **Los colores como opciones del filtro «Tipo»** (`filter-options.ts:454` a `:457`: «Rechazos y sin
   confirmar», «Lo que borra o saca»). R4.5 dice que «Tipo» filtra por grupo y por tipo; el filtro
   por color lo pone el resumen (R4.9). Sirve para que la pastilla diga qué filtro está puesto, pero
