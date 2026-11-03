@@ -1,0 +1,248 @@
+/* La cinta (maqueta users-who-did-what, variante 3): a pantalla completa, encima de todo. En la
+   computadora el tiempo corre de izquierda a derecha; en el celular, de arriba hacia abajo. Se mueve
+   solo con transform y opacity; con «reducir movimiento», salta. */
+@layer screens {
+  .tape {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+    padding: var(--s4) var(--s6);
+    overflow: auto;
+    background: var(--background);
+  }
+  .tape > * {
+    flex-shrink: 0;
+  }
+  .tape-top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+    align-items: center;
+  }
+  .tape-top h1 {
+    margin: 0;
+    font-size: 20px;
+  }
+  .tape-week {
+    display: flex;
+    gap: var(--s2);
+    margin-left: auto;
+    overflow-x: auto;
+  }
+  .tape-day {
+    display: grid;
+    min-width: 72px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .tape-day[aria-pressed="true"] {
+    border-color: var(--pine);
+    background: var(--pine);
+    color: #fff;
+  }
+  .tape-day-marks {
+    display: flex;
+    gap: 3px;
+  }
+  .tape-day-marks i {
+    width: 8px;
+    height: 4px;
+    border-radius: 2px;
+  }
+  .tape-day-marks .audit-red {
+    background: var(--error);
+  }
+  .tape-day-marks .audit-amber {
+    background: var(--urgent);
+  }
+  .tape-message {
+    margin: var(--s10) auto;
+    max-width: 480px;
+    text-align: center;
+    color: var(--text-2);
+  }
+  .tape-board {
+    display: grid;
+    grid-template-columns: 196px minmax(0, 1fr);
+    min-height: calc(var(--lanes) * 52px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .tape-lanes {
+    display: grid;
+    grid-template-rows: repeat(var(--lanes), 1fr);
+    border-right: 1px solid var(--border);
+  }
+  .tape-lane {
+    display: flex;
+    gap: var(--s2);
+    align-items: center;
+    padding: 0 var(--s3);
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+  }
+  .tape-lane small {
+    display: block;
+    color: var(--text-3);
+  }
+  .tape-lane[aria-pressed="true"],
+  .tape-lane.marked {
+    background: var(--pine-soft);
+  }
+  .tape-avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--sunken-2);
+    font-size: 12px;
+    font-weight: 750;
+  }
+  .tape-track {
+    position: relative;
+    min-height: 100%;
+  }
+  .tape-lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .tape-line {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+  .tape-line.on {
+    stroke: var(--pine);
+    stroke-width: 3;
+  }
+  .tape-line.off,
+  .tape-dot.off {
+    opacity: 0.2;
+  }
+  .tape-dot {
+    position: absolute;
+    top: calc(var(--lane) * 100%);
+    left: calc(var(--at) * 100%);
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    padding: 0;
+    border: 2px solid var(--surface);
+    border-radius: 999px;
+    background: var(--text-3);
+    cursor: pointer;
+    transition: transform var(--time) var(--ease);
+  }
+  .tape-dot.audit-red {
+    background: var(--error);
+  }
+  .tape-dot.audit-amber {
+    background: var(--urgent);
+  }
+  .tape-dot.on {
+    transform: scale(1.6);
+    background: var(--pine);
+  }
+  .tape-head {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background: var(--pine);
+    left: calc(var(--at) * 100%);
+    transition:
+      left var(--time) var(--ease),
+      top var(--time) var(--ease);
+  }
+  .tape-controls {
+    display: flex;
+    justify-content: center;
+    gap: var(--s3);
+  }
+  .tape-step {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    cursor: pointer;
+  }
+  .tape-step:disabled {
+    opacity: 0.4;
+  }
+  .tape-subtitle {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+
+  /* En el celular, el tiempo de arriba hacia abajo: las filas pasan a ser columnas. */
+  .tape.vertical {
+    padding: var(--s3) var(--s4);
+  }
+  .tape.vertical .tape-board {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    min-height: 0;
+  }
+  .tape.vertical .tape-track {
+    height: 420px;
+    margin: var(--s3) 0;
+  }
+  .tape.vertical .tape-lane small,
+  .tape.vertical .tape-lane-name {
+    display: none;
+  }
+  .tape.vertical .tape-lanes {
+    grid-template-columns: repeat(var(--lanes), 1fr);
+    grid-template-rows: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .tape.vertical .tape-lane {
+    flex-direction: column;
+    padding: var(--s2) 4px;
+    text-align: center;
+  }
+  .tape.vertical .tape-dot {
+    top: calc(var(--at) * 100%);
+    left: calc(var(--lane) * 100%);
+  }
+  .tape.vertical .tape-head {
+    top: calc(var(--at) * 100%);
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: auto;
+    height: 2px;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tape-dot,
+    .tape-head {
+      transition: none;
+    }
+  }
+}

@@ -1,9 +1,8 @@
 // La cabecera de Usuarios: el título, «Se perdió un celular» y «Autorizar a alguien», y las
-// pestañas Usuarios · Auditoría (Auditoría es del capítulo 05: con «Pronto», 00 · R1.3). En el celular
+// pestañas Usuarios · Roles · Quién hizo qué (del capítulo 05), cada una con su permiso. En el celular
 // «Se perdió un celular» va arriba de la lista y «Autorizar a alguien», abajo (maqueta).
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { PhoneLight } from '../../../frame/index.ts';
 import { useUsersContext } from '../../state.ts';
 import { texts } from '../../texts.ts';
@@ -96,15 +95,17 @@ export function Head() {
             {texts.rolesTab}
           </button>
         )}
-        <button
-          type="button"
-          class="users-tab soon"
-          onClick={() => showToast(`${texts.audit} · pronto. Todavía no está.`)}
-        >
-          <Icon name="file-text" size="small" />
-          {texts.audit}
-          <span class="users-soon">{texts.soon}</span>
-        </button>
+        {users.may.audit && (
+          <button
+            type="button"
+            class="users-tab"
+            aria-current={users.tab === 'audit' ? 'page' : undefined}
+            onClick={() => users.setTab('audit')}
+          >
+            <Icon name="file-text" size="small" />
+            {texts.audit}
+          </button>
+        )}
       </nav>
     </>
   );

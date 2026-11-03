@@ -7,6 +7,7 @@ import { useBackStep } from '../../../../platform/back-step.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { addShapes, Icon } from '../../../../ui/icon/Icon.tsx';
 import { peopleShapes } from '../../../../ui/icon/people-shapes.tsx';
+import { AuditLogTab } from '../../../audit-log/index.ts';
 import { loadConfirmSheet } from '../../../sign-in/index.ts';
 import { UsersContext, useUsers, useUsersContext } from '../../state.ts';
 import { texts } from '../../texts.ts';
@@ -79,6 +80,7 @@ function RolesTab() {
 function Body() {
   const users = useUsersContext();
   if (users.tab === 'roles' && users.people) return <RolesTab />;
+  if (users.tab === 'audit') return <AuditLogTab />;
   if (!users.people)
     return users.failed ? (
       <div class="users-empty">

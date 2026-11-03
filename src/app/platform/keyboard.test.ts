@@ -105,6 +105,14 @@ describe('el teclado de la computadora', () => {
     expect(markedId()).toBe('more');
   });
 
+  it('audit-log-E35: RePág y AvPág tocan los botones de página de la capa de arriba', () => {
+    const clicks = page(`<div data-layer><button id="antes" data-page="previous"></button>
+      <button id="despues" data-page="next"></button></div>`);
+    press('PageDown');
+    press('PageUp');
+    expect(clicks).toEqual(['despues', 'antes']);
+  });
+
   it('← cierra lo que se abrió encima; sin nada encima, mueve la marca', async () => {
     const clicks = page(`
       <main data-layer><button id="a" data-mark>A</button></main>

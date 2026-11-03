@@ -86,6 +86,8 @@ function useCard() {
 }
 
 export const rolesPath = '/users/roles';
+export const auditPath = '/users/audit-log';
+export type Tab = 'people' | 'roles' | 'audit';
 
 // Qué se ve de la lista: el filtro y lo buscado.
 function useView() {
@@ -94,9 +96,14 @@ function useView() {
   const [role, setRole] = useState<string>();
   // La pestaña sale de la dirección: /users/roles y lo de adentro son de Roles (R7.13).
   const path = useStore(route).path;
-  const tab: 'people' | 'roles' =
-    path === rolesPath || path.startsWith(`${rolesPath}/`) ? 'roles' : 'people';
-  const setTab = (to: 'people' | 'roles') => navigate(to === 'roles' ? rolesPath : '/users');
+  const tab: Tab =
+    path === rolesPath || path.startsWith(`${rolesPath}/`)
+      ? 'roles'
+      : path === auditPath
+        ? 'audit'
+        : 'people';
+  const paths: Record<Tab, string> = { people: '/users', roles: rolesPath, audit: auditPath };
+  const setTab = (to: Tab) => navigate(paths[to]);
   // Con un rol abierto, en el celular el rol ocupa la pantalla (maqueta users-roles/final).
   const inRole = path.startsWith(`${rolesPath}/`);
   return { filter, setFilter, search, setSearch, role, setRole, tab, setTab, inRole };
@@ -115,6 +122,7 @@ function useMay() {
     cutOver: (target: PersonRow) => has('users.cut') && over(target),
     cut: has('users.cut'),
     roles: has('roles.manage'),
+    audit: has('audit-log.view'),
   };
 }
 
@@ -141,11 +149,13 @@ function useRetry() {
   };
 }
 
-// Si le sacan «Administrar roles» con la pestaña abierta, se cierra (R7.8): a la lista de personas.
-function useRolesTabClosing(tab: 'people' | 'roles', may: boolean) {
+// Si le sacan «Administrar roles» o «Ver quién hizo qué» con su pestaña abierta, se cierra (R7.8): a la
+// lista de personas.
+function useTabClosing(tab: Tab, may: { roles: boolean; audit: boolean }) {
+  const lost = (tab === 'roles' && !may.roles) || (tab === 'audit' && !may.audit);
   useEffect(() => {
-    if (tab === 'roles' && !may) navigate('/users', { replace: true, force: true });
-  }, [tab, may]);
+    if (lost) navigate('/users', { replace: true, force: true });
+  }, [lost]);
 }
 
 export function useUsers() {
@@ -160,7 +170,7 @@ export function useUsers() {
   const [overlay, setOverlay] = useState<Overlay>();
   const retrying = useRetry();
   const view = useView();
-  useRolesTabClosing(view.tab, may.roles);
+  useTabClosing(view.tab, may);
   // Al abrir; sin conexión, cuando vuelve (con la lista que ya tenía no se pide de nuevo).
   useEffect(() => {
     if (online && !unconfirmed && !list.people) void list.load();

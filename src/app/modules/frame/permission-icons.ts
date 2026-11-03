@@ -8,6 +8,7 @@ export const permissionIcons: Record<PermissionId, IconName> = {
   'users.manage': 'user-cog',
   'users.cut': 'scissors',
   'roles.manage': 'shield',
+  'audit-log.view': 'file-text',
   'offline.work': 'wifi-off',
 };
 

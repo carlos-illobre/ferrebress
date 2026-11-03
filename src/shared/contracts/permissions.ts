@@ -47,7 +47,7 @@ export const permissions = [
     group: 'users',
     name: 'Ver quién hizo qué',
     explanation: 'Abrir Quién hizo qué y ver todas las acciones de todos, con su detalle.',
-    includes: [],
+    includes: ['users.view'],
   },
   {
     id: 'offline.work',

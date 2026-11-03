@@ -9,7 +9,7 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 export const texts = {
   title: 'Usuarios',
   tabs: 'Las pestañas de Usuarios',
-  audit: 'Auditoría',
+  audit: 'Quién hizo qué',
   soon: 'Pronto',
   authorize: 'Autorizar a alguien',
   lost: 'Se perdió un celular',

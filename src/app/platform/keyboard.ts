@@ -9,6 +9,7 @@
 //   data-arrows  una capa que recorre pasos: ← y → tocan sus botones data-arrow="previous" y
 //                "next", salvo con el cursor en una caja con texto (el manual)
 //   data-slash   la caja a la que lleva / ; data-clear, la que Esc vacía antes de cerrar nada
+//   data-page    los botones de una lista por páginas: RePág toca "previous" y AvPág, "next"
 // Cada vez que la marca cambia, avisa con el evento «mark» en document, para el rótulo del menú.
 // En el celular no hay atajos ni marca.
 import { isPhone } from './device/device.ts';
@@ -87,6 +88,7 @@ const isTextBox = (target: EventTarget | null): target is HTMLInputElement =>
   target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
 
 const sideways: Record<string, string> = { ArrowLeft: 'previous', ArrowRight: 'next' };
+const pages: Record<string, string> = { PageUp: 'previous', PageDown: 'next' };
 
 // ← y → en una capa que recorre pasos: con texto en la caja son del cursor; si no, pasan de paso.
 function layerArrow(event: KeyboardEvent): boolean {
@@ -134,6 +136,8 @@ function onKeyDown(event: KeyboardEvent): void {
     onEscape(event);
   } else if (event.key === '/') {
     slash(event);
+  } else if (event.key in pages) {
+    topLayer().querySelector<HTMLElement>(`[data-page="${pages[event.key]}"]`)?.click();
   }
 }
 
