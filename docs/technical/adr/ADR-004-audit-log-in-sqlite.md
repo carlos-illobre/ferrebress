@@ -29,10 +29,15 @@ SQLite, con el módulo `node:sqlite` que trae Node (sin dependencias), detrás d
 `platform/storage/audit`:
 
 - **Un archivo por año**, que se archiva o se borra entero.
-- **Columnas compactas:** la fecha como número, el tipo y la persona como enteros, el dato
-  afectado como columna con índice, y el contenido (antes y después) comprimido con la compresión
-  que trae Node.
-- **Índices** por fecha, por persona y fecha, por tipo y fecha, y por dato afectado y fecha.
+- **Columnas compactas:** la fecha y el color como números, el tipo y la persona como texto, el dato
+  afectado en su propia tabla con índice, y el contenido (antes y después) comprimido con la
+  compresión que trae Node. El tipo y la persona como enteros pedirían una tabla de equivalencias
+  por archivo; a 730.000 filas por año la diferencia es de unos MB. Si con 100 personas pesa, se
+  cambia detrás de la misma interfaz.
+- **Índices** por fecha, por persona y fecha, por tipo y fecha, por color y fecha, y por dato
+  afectado y fecha.
+- **Se lee en un hilo aparte,** de solo lectura, así una consulta larga no frena al servidor
+  (diseño de 05, § 5).
 - **Escrito por tandas:** los eventos se juntan en memoria y se escriben juntos una vez por
   segundo (o cada 100), en una sola transacción, con el modo WAL.
 - **Después de confirmar:** el evento se escribe cuando PostgreSQL confirmó el cambio. Si el

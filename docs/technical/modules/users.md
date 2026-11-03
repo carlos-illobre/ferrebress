@@ -269,13 +269,15 @@ una sola vez para el servidor y la aplicación.
 - **Secretos:** ninguno nuevo.
 - **El comando del primer Administrador** solo corre dentro del servidor: no hay ruta que cree a
   alguien sin sesión.
-- **La auditoría** (R6.1), escrita después de confirmar la transacción (ADR-004): `userId` es quien lo
-  hizo y la persona afectada va en `data.targetUserId` (el 05 la va a buscar ahí). Las líneas:
+- **La auditoría** (R6.1), escrita después de confirmar la transacción (ADR-004), con la forma común
+  del [diseño de 05](audit-log.md), § 2: quien lo hizo es la persona de la sesión, la persona afectada
+  va en `targets` con su nombre, solo lo que cambió en `changes`, y cómo queda la persona en `people`
+  (para «(hoy: …)» y los filtros de Quién hizo qué). Las líneas:
   `user.authorized`, `user.renamed`, `user.email-changed`, `user.deleted`, `user.deactivated`,
   `user.activated`, `session.closed`, `sessions.closed-all`, `passkey.removed` y `phone.cut`. Cerrar
   sesiones deja además una `session.ended` por sesión. Los rechazos (`self`, `last-administrator`,
   `changed`, `404`, también los de cerrar y cortar) se anotan como `users.rejected` una vez por minuto
-  por motivo y persona; pasado el límite de cambios, `users.throttled`; una confirmación de Google o la
+  por motivo y persona; pasado el límite de cambios, `request.throttled` con el tema `users`; una confirmación de Google o la
   huella que no es de esa persona, `session.confirm-rejected`. Dar de alta o de baja a quien ya estaba
   así contesta cómo está y no anota nada. `session.ended` se anota después de confirmar.
 

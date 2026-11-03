@@ -57,6 +57,9 @@ registro se decide con el plan de copias de la base.
   |---|---|
   | Ver quién hizo qué | Abrir Quién hizo qué y ver todas las acciones de todos, con su detalle |
 
+  Incluye «Ver las personas» (02 · R7.1): Quién hizo qué es una pestaña de Usuarios, y quien ve
+  todas las acciones ya ve a todas las personas.
+
   Al instalar lo tiene el rol Administrador, como todo permiso (02 · R7.4).
 - **R3.2** Quien tiene el permiso ve **todo**, también los datos de capítulos que no puede usar
   (un costo, cuando exista el catálogo). Por eso se da solo a quien puede verlo todo. No se esconde
@@ -111,11 +114,10 @@ registro se decide con el plan de copias de la base.
     sacaron algo (las rojas de R4.4). Tocar los rechazos o lo que borró o sacó filtra la lista por
     eso, en el período del resumen (pone ese período como fecha y saca el filtro por tipo); tocarlo
     de nuevo saca ese filtro; tocar el total saca los dos;
-  - en la computadora, el día en una tira: una raya por acción, en su hora y con su color (con más de
-    2.000 acciones en el día, que no entran en ese ancho, una raya por minuto, que elige la más nueva
-    de ese minuto); tocar una
-    raya elige esa acción en la lista y la muestra en el detalle; si esa acción no está en los
-    filtros, saca los filtros, menos la fecha.
+  - en la computadora, el día en una tira: una raya por acción, en su hora y con su color, en el
+    tramo de horas que tiene acciones (con más de 2.000 acciones en el día, que no entran en ese
+    ancho, una raya por minuto, la más nueva de ese minuto); tocar una raya abre la cinta en esa
+    acción (R4.11).
 - **R4.10** **Cada tipo de acción tiene su ícono,** que no se repite entre tipos y es el mismo en
   todas partes. Lo elige el capítulo que anota la acción, junto con su texto (R2.1). Un intento
   rechazado tiene su propio tipo y, por lo tanto, su propio ícono.

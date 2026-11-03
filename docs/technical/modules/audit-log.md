@@ -11,11 +11,6 @@ dicen el [ADR-004](../adr/ADR-004-audit-log-in-sqlite.md) y los diseños de [01]
 
 Las reglas R1 a R5 del capítulo 05 y sus escenarios E01 a E48 (con E05b y E35b a E35d).
 
-**Lo que ya existe** (01 y 02): la plataforma anota en SQLite, un archivo por año, por tandas, después
-de que PostgreSQL confirma (`platform/storage/audit.ts`, `guards.record`). Cada módulo anota con
-`type`, `userId` y un `data` libre, con la persona afectada en lugares distintos (`targetUserId`,
-`target`). No hay forma de leerlo salvo `read(year)`, que trae todo, ni índices más que por fecha.
-
 **La idea técnica:** una forma común de cada acción (quién, a quién, qué cambió, desde dónde, de qué
 color), un catálogo que dice de cada tipo su grupo, su ícono, su texto y qué datos se pueden mostrar,
 y una consulta con índices que corre en un hilo aparte y pagina sobre los archivos de cada año. El
@@ -44,11 +39,13 @@ catálogo.
 
 `guards.record(c, type, fields)` pone el autor así, y el módulo no lo puede poner libre:
 
-- **La persona de la sesión del pedido**, con su nombre de ese momento (la sesión ya trae a la
-  persona, que `sign-in` tiene en memoria).
+- **La persona de la sesión del pedido.** Su nombre de ese momento lo pone la auditoría al escribir:
+  el de hoy en el archivo de las personas (§ 3), que en ese punto de la tanda es el de ese momento,
+  porque cambiar un nombre se anota en la misma tanda, en orden.
 - **La persona que el pedido acaba de probar**, cuando todavía no hay sesión: un pase de Google
   verificado, una firma de huella verificada, la firma de una entrada sin conexión verificada. El
-  módulo la pasa como `proven` (`{ userId, name }`), un tipo que solo devuelven esas verificaciones.
+  módulo la pasa como `proven` (`{ userId, name?, email? }`, con el nombre y el correo que devuelve
+  anotar la entrada), un tipo que solo arman esas verificaciones.
   Así `sign-in.succeeded`, `code.approved` y `sign-in.offline-confirmed` quedan a nombre de quien
   entró.
 - **Si no, `outsider`**, con el correo que se usó si lo hay; la cuenta que se intentó usar va en
@@ -87,9 +84,8 @@ Todo en SQLite (ADR-004), en la carpeta de `AUDIT_PATH`. Ninguna tabla nueva en 
 
 **Archivos nuevos con la forma nueva** (§ 12): `<año>.v1.sqlite`. Los archivos de la forma vieja
 (`<año>.sqlite`, que solo existen en el ambiente de pruebas y nadie usa) se borran al arrancar la
-primera vez con esta versión: la plataforma borra los `<año>.sqlite` de la carpeta, solo esos, y lo
-anota. Así no hay dos formas de lectura. El año es el UTC de
-`at`, como hoy.
+primera vez con esta versión: la plataforma borra los `<año>.sqlite` de la carpeta, solo esos. Así
+no hay dos formas de lectura. El año es el UTC de `at`.
 
 ### Cada año: `<año>.v1.sqlite`
 
@@ -184,7 +180,7 @@ Los tipos de hoy (los 34 íconos están en Lucide 0.460; Carlos los ve en `mocku
 |---|---|---|---|---|
 | Entrar | `sign-in.succeeded` | Entró con Google | | `log-in` |
 | Entrar | `sign-out` | Salió | | `log-out` |
-| Entrar | `session.ended` | Se le venció la sesión (el sistema) | | `timer-off` |
+| Entrar | `session.ended` | Cerró la sesión vencida de Marcos (el sistema) | | `timer-off` |
 | Entrar | `passkey.linked` | Vinculó la huella de su celular | | `fingerprint` |
 | Entrar | `code.read` | Leyó el código de una computadora | | `qr-code` |
 | Entrar | `code.approved` | Dejó entrar a una computadora con su celular | | `monitor-check` |
@@ -242,7 +238,6 @@ Cualquier parámetro que no conocen o no cumple da `400 bad-request` con cuál (
 | `from`, `until` | Días del negocio, `AAAA-MM-DD`, los dos incluidos | Fecha real, `from ≤ until`, entre el 1 de enero del año del archivo más viejo y hoy; no va con `range` |
 | `group` o `type` | Un grupo o un tipo del catálogo | Que exista; `type` dentro de `group` si van los dos |
 | `tone` | `red` o `amber`: los números del resumen (R4.9) | No va con `group` ni `type` |
-| `around` | El id de una acción: la página que la contiene, con los filtros que vienen | Con la forma de un id (`2026:4410`) de un archivo que existe |
 | `summary` | `1`: sumar el resumen (al abrir, al cambiar la fecha y con «Actualizar») | `1` o nada |
 | `strip` | `1`: sumar la tira (solo la computadora, solo con un período de un día) | `1` o nada |
 
@@ -263,8 +258,7 @@ Devuelve:
     "data": {}, "device": { "phone": true, "browser": "chrome", "os": "android" }, "ipAddress": "…"
   }],
   "summary": { "total": 20, "amber": 4, "red": 4 },  // con `summary=1`
-  "strip": [{ "id": "2026:4410", "at": 48360, "tone": "red" }],  // con `strip=1`; `at` en segundos del día
-  "selected": "2026:4410"             // con `around`
+  "strip": [{ "id": "2026:4410", "at": 48360, "tone": "red" }]   // con `strip=1`; `at` en segundos del día
 }
 ```
 
@@ -300,7 +294,8 @@ orden, con la misma forma que la lista. Con más de 2.000 acciones en el día de
   nombres de hoy, de `/people`, que la pantalla ya tiene.
 - Peso: con las 300 acciones de un día de hoy, unos 150 KB sin comprimir y unos 20 KB comprimida
   (Caddy comprime las respuestas de `/api`). Se pide solo al abrir la cinta o al cambiar de día.
-- Consultas: 1 que cuenta el día, 1 de sus acciones y 1 de la semana (`group by` día).
+- Consultas: 7 de la semana (`group by tone`, una por día, cada una por el índice de la fecha), 1
+  que cuenta el día y 1 de sus acciones.
 
 ### La consulta
 
@@ -316,8 +311,8 @@ orden, con la misma forma que la lista. Con más de 2.000 acciones en el día de
 - **La página** sale de recorrer los años del más nuevo al más viejo, saltando las que quedan antes;
   la mayoría de las veces toca un solo archivo.
 - **Las consultas, con un pedido de una página:** `count(*)` del año en curso (los cerrados, de la
-  memoria) + 1 de la página + 1 de `days`, y con `summary` 1 (`group by tone`), con `strip` 1, con
-  `around` 1. Ninguna a PostgreSQL. Pruebas que miran `explain query plan` de cada forma de consulta
+  memoria) + 1 de la página + 1 de `days` por cada día de la página + 1 de las personas, y con
+  `summary` 1 (`group by tone`) y con `strip` 1. Ninguna a PostgreSQL. Pruebas que miran `explain query plan` de cada forma de consulta
   controlan que usa el índice que corresponde.
 
 **Los días del negocio** se convierten a instantes con la zona horaria del negocio (00 · R8.4). Hasta
@@ -332,7 +327,7 @@ su detalle.». Al arrancar se le suma solo al Administrador (diseño de 02, § 1
 
 | Lugar | Qué |
 |---|---|
-| `platform/storage/audit/` | `write.ts` (la tanda, `targets`, `people`), `schema.ts` (las tablas y los índices), `query.ts` (la consulta, que recibe tipos y colores), `worker.ts` (el hilo de lectura) |
+| `platform/storage/audit/` | `event.ts` (la forma común), `write.ts` (la tanda, `targets`, `people`), `codec.ts` (de la acción a su fila y de vuelta), `schema.ts` (las tablas, los índices y los archivos), `query.ts` (la consulta, que recibe tipos y colores), `source.ts` (de dónde lee: el disco de solo lectura o la memoria), `reader.ts` y `thread.ts` (el hilo de lectura) |
 | `platform/device.ts` | El navegador y el sistema, en códigos, de la lista cerrada |
 | `src/shared/audit-log/` | El catálogo (§ 4) |
 | `src/shared/time/business.ts` | La zona horaria del negocio y los días en instantes |
@@ -351,22 +346,23 @@ su detalle.». Al arrancar se le suma solo al Administrador (diseño de 02, § 1
 
 ## 8. La aplicación (`src/app/modules/audit-log/`)
 
-Se baja recién al abrir la pestaña (`import()`), como Usuarios. `users` la muestra en el lugar de la
-pestaña (hoy, «Auditoría · Pronto») importando solo la fachada `audit-log/index.ts`, y la pestaña
-aparece solo con `audit-log.view` (02 · R7.7).
+Viaja con la pantalla de Usuarios, que ya se baja aparte del arranque: `users` la muestra en el lugar
+de la pestaña importando solo la fachada `audit-log/index.ts`, y la pestaña aparece solo con
+`audit-log.view` (02 · R7.7). Bajarla en una parte propia hacía que Vite separara del arranque las
+piezas que comparten (botones, íconos, la hoja) y el arranque pasaba su tope.
 
 Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant-1-ledger/`:
 
 | Pieza | Qué hace |
 |---|---|
-| `Summary` | Los tres números (total, rechazos, lo que borró o sacó). Tocar rechazos o lo rojo pone la fecha en el período del resumen, saca el grupo y el tipo y pone `tone`; tocarlo de nuevo o tocar el total saca `tone` (R4.9, E35c). En la computadora, la tira: tocar una raya pide su página con `around`; si esa acción no está en los filtros, los saca (menos la fecha) |
+| `Summary` | Los tres números (total, rechazos, lo que borró o sacó). Tocar rechazos o lo rojo pone la fecha en el período del resumen, saca el grupo y el tipo y pone `tone`; tocarlo de nuevo o tocar el total saca `tone` (R4.9, E35c). En la computadora, la tira, en el tramo de horas que tiene acciones: tocar una raya abre la cinta en esa acción (R4.11) |
 | `Filters` | Hecho por, hecho a (con las personas de `/people`, las dadas de baja y borradas marcadas), fecha (Hoy, Ayer, Esta semana, Este mes, y desde/hasta) y tipo; Alt + P, A, F y T en la computadora |
 | `Ledger` | La lista agrupada por día, con la cantidad del día en la cabecera (`days`); cada acción con el ícono del tipo a la izquierda (R4.10), la hora (y la fecha si no es de `today`), quién, el texto, a quién y el dispositivo, con su color (R4.4) |
 | `Detail` | En la computadora, fijo a la derecha, con la acción elegida (al abrir, la primera; ↑ ↓ la cambian, E35d). En el celular, una hoja que sube al tocar. Muestra todo, con las dos horas de una entrada no confirmada |
-| `Pager` | «página n de m», anterior y siguiente; RePág y AvPág |
+| `Pager` | «página n de m», anterior y siguiente; RePág y AvPág, que el teclado de la plataforma (`data-page`) da a cualquier lista por páginas |
 | `Empty` | Sin acciones (E20) o sin coincidencias, con «Sacar los filtros» (E29) |
 | `Tape` | La cinta a pantalla completa, sobre la maqueta `variant-3-tape/` (R4.11). En la computadora, horizontal; en el celular, vertical. Las filas, los puntos y las líneas de quién a quién en un SVG; los días de arriba; el subtítulo con los mismos trozos que `Detail`; la × |
-| `Playhead` | El cabezal: arrastrar (se pega a la acción más cercana), ← → y los botones; ↑ ↓ eligen la fila y Enter la aísla; Espacio reproduce. «Reproducir» es un paso por acción con un temporizador de la pantalla (14 s el día entero en la computadora, 1 s por acción en el celular), que se corta con cualquier toque, al ocultarse la aplicación o al llegar a la última. Se mueve con `transform` y `opacity`; con «reducir movimiento», salta |
+| `Playhead` | El cabezal: arrastrar (se pega a la acción más cercana), ← → y los botones; ↑ ↓ eligen la fila y Enter la aísla; Alt+R reproduce (en su capa, con su tecla, como todo botón). «Reproducir» es un paso por acción con un temporizador de la pantalla (14 s el día entero en la computadora, 1 s por acción en el celular), que se corta con cualquier toque, al ocultarse la aplicación o al llegar a la última. Se mueve con `transform` y `opacity`; con «reducir movimiento», salta |
 
 - **El texto** de cada acción lo arma el catálogo con trozos, no con HTML: `says(e)` devuelve
   `texto`, `persona` y `cosa`, y la pantalla los pinta como texto (E38). Tocar una persona filtra por
@@ -403,7 +399,7 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
   parámetros; lo anotado que viene del pedido (el correo cortado, el navegador de una lista cerrada,
   la dirección de la plataforma); al mostrarlo, todo como texto (E38).
 - **Abuso:** 60 pedidos por minuto por persona en las tres rutas; tamaños de página fijos; páginas,
-  fechas y `around` acotados; la consulta en su hilo, de a una. Un período de 9.000 años no crea ni
+  fechas acotadas; la consulta en su hilo, de a una. Un período de 9.000 años no crea ni
   abre archivos (prueba que mira que la carpeta no cambió).
 - **Secretos:** ninguno. `node:sqlite` sin `createTagStore` (CVE-2026-58041); el armado de la imagen
   dice la versión de Node.
@@ -471,8 +467,8 @@ ya lo prueban las unitarias de las dos puntas.
 2. **Los módulos que ya anotan, a la forma común** (`sign-in`, `users`, `users/roles`,
    `sign-in/offline`, `http`, `permissions`), cada uno con su archivo del catálogo, `proven` en las
    entradas, `public_id` en `targets` y `audit.knowPeople` al arrancar. Depende de 1.
-3. **La consulta** (`query.ts` y `worker.ts`): paginar sobre los años, filtros, resumen, tira, `days`,
-   `around`, los totales de los años cerrados y los topes, con sus pruebas contra archivos de prueba y
+3. **La consulta** (`query.ts`, `source.ts`, `reader.ts` y `thread.ts`): paginar sobre los años,
+   filtros, resumen, tira, `days`, los totales de los años cerrados y los topes, con sus pruebas contra archivos de prueba y
    las que miran el plan. Depende de 1.
 4. **El módulo del servidor** `audit-log`: el permiso, las rutas, el límite, `provideTone` y su
    archivo del catálogo. Depende de 2 y 3.

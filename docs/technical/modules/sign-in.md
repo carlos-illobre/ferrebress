@@ -407,15 +407,17 @@ que nada en el medio la pierda (§ 14).
 
 ## 9. Eventos y auditoría
 
-La auditoría se construye en `platform/storage/audit` desde este módulo (SQLite, ADR-004); su pantalla
-llega con el módulo 05. Cada evento lleva quién (o el correo, si la cuenta no está autorizada),
-cuándo (hora del servidor), el dispositivo y la dirección de internet.
+La auditoría vive en `platform/storage/audit/` (SQLite, ADR-004), con la forma común y la pantalla
+del [módulo 05](audit-log.md). Cada evento lleva quién (la persona de la sesión o la que el pedido
+acaba de probar; si no, alguien sin entrar, con el correo que usó), cuándo (hora del servidor), el
+dispositivo en códigos y la dirección de internet. Un intento con la cuenta de otro deja esa cuenta
+como a quién, nunca como quien lo hizo (diseño de 05, § 2.1).
 
 | Evento | Cuándo |
 |---|---|
 | `sign-in.succeeded` | Entró, con cómo (Google, huella, QR) |
 | `sign-in.rejected` | Cuenta no autorizada o dada de baja, correo de otro identificador de Google, huella inválida, código vencido, usado o de otra pantalla, permiso vencido o de otra pantalla |
-| `sign-in.throttled` | Llegó a un límite de intentos: una fila por ventana y por clave (dispositivo, dirección o cuenta), con cuántos pedidos rechazó, para que insistir no llene la auditoría |
+| `request.throttled` | Llegó a un límite de intentos, con el tema `sign-in` y por qué (dispositivo, dirección o cuenta), nunca la clave: una fila por ventana y por clave, para que insistir no llene la auditoría |
 | `request.rejected` | Origen, forma, tamaño o versión rechazados, con la misma regla de una fila por ventana |
 | `sign-out` | Salió (si fue sin conexión, con la hora en que tocó y la hora en que llegó) |
 | `session.ended` | Venció o se cerró, con el motivo |

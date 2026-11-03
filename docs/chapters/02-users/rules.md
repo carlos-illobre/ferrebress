@@ -145,7 +145,8 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   «Administrar personas», «Cortar sesiones y huellas» y «Administrar roles» incluyen «Ver las
   personas»: al tildar cualquiera de los tres en un rol, se tilda solo y no se puede destildar
   mientras estén. Los demás
-  capítulos suman los suyos; hoy, «Trabajar sin conexión» (15 · R1.2), en su grupo «Sin conexión».
+  capítulos suman los suyos; hoy, «Ver quién hizo qué» (05 · R3.1), en el grupo «Usuarios», que incluye
+  «Ver las personas», y «Trabajar sin conexión» (15 · R1.2), en su grupo «Sin conexión».
 - **R7.2** **Lo que no pide ningún permiso:** entrar, salir y el manual; la configuración del propio
   dispositivo (salvo «Trabajar sin conexión», que pide su permiso, 15 · R1.2), y ver y cerrar las sesiones propias y cortar el propio celular perdido, en
   Configuración (capítulo 04; hasta que exista, solo lo hace quien tiene los permisos de R7.1);
