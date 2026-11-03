@@ -2,10 +2,11 @@ import { mkdtempSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
+import type { Worker } from 'node:worker_threads';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { AuditEvent } from './event.ts';
-import { createQuery, type Filter, type Query } from './query.ts';
-import { openAuditReader } from './reader.ts';
+import { createQuery, type Filter, maxClosedTotals, type Query } from './query.ts';
+import { openAuditReader, readerLimits } from './reader.ts';
 import { fileSource, memorySource } from './source.ts';
 import { type AuditLog, inMemoryAudit, openAuditLog } from './write.ts';
 
@@ -103,6 +104,17 @@ describe('quién hizo qué: la consulta', () => {
     ]);
   });
 
+  it('los totales guardados tienen un tope: pasado, se empieza de cero', () => {
+    const fresh = createQuery(memorySource(audit), () => 2026);
+    const closed = Date.parse('2025-01-01T00:00:00Z');
+    for (let i = 0; i <= maxClosedTotals; i++)
+      fresh({
+        op: 'count',
+        filter: { from: closed + i, until: Date.parse('2025-12-31T00:00:00Z') },
+      });
+    expect(fresh({ op: 'count', filter: {} })).toBe(10);
+  });
+
   it('los totales de los años cerrados se guardan: no cambian', () => {
     audit.record({ type: 'tardía', at: new Date('2025-06-01T12:00:00Z'), actor: marcos });
     audit.flush();
@@ -169,6 +181,28 @@ describe('quién hizo qué: leer del disco', () => {
       reader.ask({ op: 'count', filter: { from: (10n ** 30n) as unknown as number } }),
     ).rejects.toThrow();
     expect(await reader.ask({ op: 'count', filter: {} })).toBe(11);
+    await reader.close();
+    audit.close();
+  });
+
+  it('seguridad, 12: si el hilo se cae, lo que esperaba falla y se vuelve a crear; si tarda, falla', async () => {
+    const dir = join(mkdtempSync(join(tmpdir(), 'ferrebress-audit-')), 'audit');
+    const audit = filled(dir);
+    const reader = openAuditReader(dir, audit);
+    const thread = reader.thread?.() as Worker;
+    thread.emit('error', new Error('se rompió'));
+    // El aviso de que el hilo terminó llega antes que la respuesta, como si se hubiera caído.
+    const failed = expect(reader.ask({ op: 'count', filter: {} })).rejects.toThrow('se cerró');
+    thread.emit('exit', 1);
+    await failed;
+    await thread.terminate();
+    expect(await reader.ask({ op: 'count', filter: {} })).toBe(10);
+    const { answerMs } = readerLimits;
+    // Un hilo que no contesta: el pedido falla al pasar el tiempo máximo.
+    readerLimits.answerMs = 5;
+    reader.thread?.().removeAllListeners('message');
+    await expect(reader.ask({ op: 'count', filter: {} })).rejects.toThrow('tardó demasiado');
+    readerLimits.answerMs = answerMs;
     await reader.close();
     audit.close();
   });

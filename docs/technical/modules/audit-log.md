@@ -399,10 +399,16 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
   parámetros; lo anotado que viene del pedido (el correo cortado, el navegador de una lista cerrada,
   la dirección de la plataforma); al mostrarlo, todo como texto (E38).
 - **Abuso:** 60 pedidos por minuto por persona en las tres rutas; tamaños de página fijos; páginas,
-  fechas acotadas; la consulta en su hilo, de a una. Un período de 9.000 años no crea ni
+  fechas acotadas (desde 2020); la consulta en su hilo, de a una. Un período de 9.000 años no crea ni
   abre archivos (prueba que mira que la carpeta no cambió).
 - **Secretos:** ninguno. `node:sqlite` sin `createTagStore` (CVE-2026-58041); el armado de la imagen
   dice la versión de Node.
+- **El hilo de lectura** tiene un tope de memoria (256 MB) y cada respuesta, un tiempo máximo (10 s):
+  si se pasa, el pedido falla y el resto del servidor sigue. Si el hilo se cae, lo que esperaba falla
+  y se vuelve a crear. Los totales guardados de los años cerrados tienen un tope (1.000
+  combinaciones); pasado, se empieza de cero.
+- **Un tipo que no está en el catálogo** se busca con `Object.hasOwn`: `constructor` o `__proto__` no
+  son tipos.
 - **Lo que queda en la auditoría de este módulo:** el límite pasado, el permiso negado y, una vez por
   sesión y por día, que se abrió Quién hizo qué (R1.3): si alguien usa una sesión robada para bajar el
   registro, queda el rastro de quién y desde dónde.
@@ -454,7 +460,7 @@ ya lo prueban las unitarias de las dos puntas.
    las usa.
 2. **Una persona borrada** figura en los filtros con «(borrada)» y sin correo (§ 3).
 3. **Abrir Quién hizo qué se anota una vez por sesión y por día** (R1.3): `GET /api/audit-log`
-   anota `audit-log.opened` la primera vez que esa sesión lo pide en el día del negocio. Lo recuerda
+   anota `audit-log.opened` la primera vez que esa sesión pide cualquiera de las tres rutas en el día del negocio. Lo recuerda
    en memoria (sesión y día); si el servidor se reinicia, puede anotarse una vez más ese día.
 4. **La tira, con más de 2.000 acciones en el día,** va de a una raya por minuto (R4.9).
 

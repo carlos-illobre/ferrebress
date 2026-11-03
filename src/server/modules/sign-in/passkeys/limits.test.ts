@@ -50,6 +50,17 @@ describe('los límites de intentos con la huella', () => {
       });
     };
     for (let i = 0; i < 20; i++) expect((await forge()).status).toBe(401);
+    // audit-log-R2.3: una firma que no verifica no deja a la dueña de la huella como autora.
+    const forged = server.platform.audit
+      .read(2026)
+      .filter(
+        (event) => event.type === 'sign-in.rejected' && event.data?.reason === 'invalid-signature',
+      );
+    expect(forged.length).toBeGreaterThan(0);
+    for (const event of forged) {
+      expect(event.actor).toEqual({ kind: 'outsider' });
+      expect(event.targets?.[0]?.kind).toBe('person');
+    }
     expect(await forge()).toMatchObject({ status: 429, body: { error: 'too-many-attempts' } });
 
     owner.cookie = '';

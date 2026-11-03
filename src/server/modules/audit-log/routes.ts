@@ -23,6 +23,7 @@ import {
   daysOf,
   type Filter,
   filterOf,
+  firstDate,
   instantsOf,
   type Mark,
   type Period,
@@ -77,32 +78,39 @@ export function registerAuditLogRoutes(platform: Platform, reader: AuditReader) 
       : c.json<AuditPage>(answer);
   });
 
-  http.get('/api/audit-log/people', sessions.require, view, limited, async (c) =>
-    c.json<AuditPeople>({
+  http.get('/api/audit-log/people', sessions.require, view, limited, async (c) => {
+    opened(c, today());
+    return c.json<AuditPeople>({
       people: (await ask.people()).map(({ userId, name, email, state }) => ({
         id: userId,
         name,
         state,
         ...(email && { email }),
       })),
-    }),
-  );
+    });
+  });
 
   http.get('/api/audit-log/day', sessions.require, view, limited, async (c) => {
     const query = dayQuery.safeParse(c.req.query());
     const day = today();
     const date = query.success ? (query.data.date ?? day) : undefined;
-    if (!date || date > day) return fail(c, 400, 'bad-request', { field: 'date' });
+    if (!date || date > day || date < firstDate)
+      return fail(c, 400, 'bad-request', { field: 'date' });
+    opened(c, day);
     return c.json<AuditDay>(await dayOf(ask, date, day));
   });
 }
 
-// R1.3: abrir Quién hizo qué queda una vez por sesión y por día (en memoria: si el servidor se
-// reinicia, puede quedar una vez más ese día).
+// R1.3: abrir Quién hizo qué queda una vez por sesión y por día, con cualquiera de sus tres rutas
+// (en memoria: si el servidor se reinicia, puede quedar una vez más ese día).
 function openedOnce(guards: ReturnType<typeof createGuards>) {
   const opened = new Set<string>();
+  let current = '';
   return (c: Context, day: string) => {
-    const mark = `${sessionOf(c).id}|${day}`;
+    // Las marcas de otros días ya no sirven: se olvidan al cambiar el día.
+    if (day !== current) opened.clear();
+    current = day;
+    const mark = sessionOf(c).id;
     if (opened.has(mark)) return;
     opened.add(mark);
     guards.record(c, 'audit-log.opened');

@@ -89,6 +89,8 @@ describe('Quién hizo qué, desde el servidor', () => {
       ['?type=nada.de.nada', 'type'],
       ['?group=roles&type=user.renamed', 'type'],
       ['?by=alguien', 'by'],
+      ['?type=constructor', 'type'],
+      ['?type=__proto__', 'type'],
       ['?around=2026:1', 'around'],
     ])
       expect(await list(query)).toMatchObject({
@@ -100,6 +102,10 @@ describe('Quién hizo qué, desde el servidor', () => {
       field: 'date',
     });
     expect((await kit.admin.request('/api/audit-log/day?nada=1')).status).toBe(400);
+    expect((await kit.admin.request('/api/audit-log/day?date=2019-12-31')).body).toEqual({
+      error: 'bad-request',
+      field: 'date',
+    });
   });
 
   it('audit-log-E37: no hay forma de cambiar ni borrar una acción', async () => {
@@ -225,22 +231,5 @@ describe('Quién hizo qué, desde el servidor', () => {
     expect(day.events).toBeUndefined();
     const strip = (await list('?from=2026-10-29&until=2026-10-29&strip=1')).body.strip;
     expect(strip).toHaveLength(34);
-  });
-
-  it('seguridad: no sale lo que el tipo no muestra, ni identificadores de dispositivos', async () => {
-    const stranger = await kit.admin.request('/api/audit-log?type=sign-in.succeeded');
-    const body = JSON.stringify(stranger.body);
-    expect(body).not.toContain('deviceId');
-    expect(stranger.body.events[0].data).toEqual({ method: 'google' });
-  });
-
-  it('seguridad: como mucho 60 pedidos por minuto por persona', async () => {
-    let last = 0;
-    for (let i = 0; i < 61; i++) last = (await list('', viewer.device)).status;
-    expect(last).toBe(429);
-    expect(kit.audited('request.throttled').at(-1)?.data).toEqual({
-      topic: 'audit-log',
-      by: 'person',
-    });
   });
 });

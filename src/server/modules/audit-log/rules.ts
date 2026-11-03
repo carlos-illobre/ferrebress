@@ -57,7 +57,7 @@ export type Stored = {
 };
 
 // Nada anterior a esto: el sistema no existía.
-const firstDate = '2020-01-01';
+export const firstDate = '2020-01-01';
 // Con más que esto en un día, la tira va de a una raya por minuto y la cinta no se abre (R4.9, R4.11).
 export const dayLimit = 2_000;
 

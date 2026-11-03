@@ -34,6 +34,7 @@ export type Mark = { id: string; at: number; tone: Tone };
 export type Answer = number | StoredEvent[] | Record<Tone, number> | Mark[] | PersonUpdate[];
 
 const toneNames = Object.keys(toneCodes) as Tone[];
+export const maxClosedTotals = 1_000;
 
 // Lo que comparten las consultas: de dónde se lee y los totales de los años cerrados, que se
 // guardan porque no cambian.
@@ -59,7 +60,10 @@ function countIn(reading: Reading, year: number, filter: Filter): number {
     .prepare(`select count(*) as n from events where ${sql}`)
     .get(...params);
   const total = (row as { n: number }).n;
-  if (year < reading.currentYear()) reading.closedTotals.set(key, total);
+  if (year >= reading.currentYear()) return total;
+  // Con un tope: tantas combinaciones de filtros distintas no se guardan para siempre.
+  if (reading.closedTotals.size >= maxClosedTotals) reading.closedTotals.clear();
+  reading.closedTotals.set(key, total);
   return total;
 }
 

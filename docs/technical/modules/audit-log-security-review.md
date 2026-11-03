@@ -273,3 +273,217 @@ filtro nunca puede cambiar una fila. Cuesta: unas líneas; WAL deja leer mientra
    privilegios y Caddy solo escucha en `127.0.0.1`.
 10. **Dependencias:** ninguna nueva; los íconos se copian de Lucide como dibujos, sin código; la falla
     de `node:sqlite`, en el punto 10.
+
+## Paso 7: el código
+
+Revisión del código contra el [diseño](audit-log.md) corregido, desde el punto de vista de un
+atacante. Leí `src/server/modules/audit-log/` (rutas, reglas, registro), `platform/storage/audit/`
+(forma común, escritura, codificación, archivos, consulta, hilo de lectura), `platform/guards.ts`,
+`platform/device.ts`, `platform/http.ts` y `platform/permissions.ts`, el catálogo
+(`src/shared/audit-log/`), el contrato (`src/shared/contracts/audit-log.ts`), `src/shared/time/business.ts`,
+la pantalla (`src/app/modules/audit-log/`, con `frame/notices/crash/crash.ts`, que es quien usa
+`data-private`), cada lugar que anota en `sign-in` y `users` (commits desde `ba71e9d`), sus pruebas y
+`deploy/server.Dockerfile`. Corrí las pruebas del módulo (74, todas pasan), `pnpm audit --prod` («No
+known vulnerabilities found») y una prueba de ataque propia, temporal y ya borrada, contra las tres
+rutas con el kit de roles. No hay dependencias nuevas (`package.json` y el lockfile no cambiaron).
+
+### Resumen
+
+**No encontré nada que frene.** Las tres rutas piden sesión, `audit-log.view` y el límite por
+persona, en ese orden; ninguna cambia ni borra; los parámetros pasan por un `strictObject` de zod con
+topes y llegan a SQLite siempre como parámetros; la lectura abre los archivos de solo lectura y solo
+si existen; el autor sale de la sesión o de una verificación, y una firma que no verifica queda como
+«alguien sin entrar»; la hora la pone siempre la plataforma; `data` sale filtrado por el catálogo y
+las claves de los límites no se anotan; la pantalla pinta todo como texto, no guarda nada en el
+dispositivo y marca con `data-private` lo que muestra personas.
+
+Lo que más importa: el rastro de «Abrió Quién hizo qué», que el diseño puso como defensa contra una
+sesión robada, se saltea usando `/day` o `/people` (11), y el hilo de lectura, si se cae, tira el
+servidor entero (12).
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 11 | `/api/audit-log/day` y `/people` no anotan `audit-log.opened`: se baja el registro entero sin dejar rastro | Mejora importante |
+| 12 | El hilo de lectura no tiene quién atienda su caída: si se muere, se cae el servidor (comprobado) o los pedidos quedan colgados; la memoria de los totales no tiene tope | Mejora importante |
+| 13 | `provenPerson` lo puede llamar cualquier módulo, y no hay prueba de que una firma de huella que no verifica deje `outsider` | Mejora |
+| 14 | La prueba de «no salen identificadores» mira un solo tipo y la palabra `deviceId`; `targets` sale sin filtrar | Mejora |
+| 15 | `request.rejected` muestra `path` (lo elige alguien sin entrar, hasta 8 KB), y con IPv6 se escriben filas sin tope | Mejora |
+| 16 | Detalles: `type=constructor` da 200, `/day` acepta el año 0, la imagen no dice su versión de Node | Mejora |
+
+### 11 · Mirar por `/day` o `/people` no deja rastro (`modules/audit-log/routes.ts:94` a `:122`) — Mejora importante
+
+**Dónde:** `opened(c, day)` se llama solo en `GET /api/audit-log` (línea 98). `GET /api/audit-log/day`
+y `GET /api/audit-log/people` no lo llaman. El diseño (§ 9 y § 12.3) justifica el registro así: «si
+alguien usa una sesión robada para bajar el registro, queda el rastro de quién y desde dónde».
+
+**El ataque:** alguien queda frente a la computadora del mostrador con la sesión abierta de un
+Administrador (o se lleva esa sesión). Abre la consola del navegador y, sin tocar la pestaña Quién hizo
+qué, pide `fetch('/api/audit-log/day?date=2026-10-01', { headers })` con las mismas cabeceras que manda
+la aplicación, una vez por día, y una vez `/api/audit-log/people`. Cada pedido de `/day` devuelve
+**todas** las acciones del día (hasta 2.000), con correos de intentos, direcciones de internet y quién
+tiene qué celular; `/people`, el nombre y el correo de cada persona. Con el límite de 60 por minuto se
+lleva dos meses por minuto, y en la auditoría no queda nada: ni `audit-log.opened` ni, si no pasa de
+60 por minuto, `request.throttled`. Lo comprobé con el kit de roles: una persona con el permiso pide
+`/day` (5 acciones) y `/people` (2 personas, con sus correos) y `audit-log.opened` queda en 0.
+
+No frena porque quien pide tiene el permiso (o su sesión); pero la única defensa que el diseño puso
+para ese caso no la cubre, y es la ruta que más datos da por pedido.
+
+**Qué propongo:** llamar a `opened(c, today())` también en `/day` y en `/people` (es el mismo
+conjunto en memoria, así sigue siendo una vez por sesión y por día), y que la prueba de E05b pida solo
+`/day` con una sesión nueva y mire que quedó una línea. Cuesta: dos líneas y una prueba; hay que
+ajustar la prueba actual de E05b, que hoy espera que `/people` no sume (sigue siendo una sola en el día).
+
+### 12 · El hilo de lectura sin red (`platform/storage/audit/reader.ts:406` a `:433`, `query.ts:220` a `:231`) — Mejora importante
+
+**Dónde:** `threadReader` crea el `Worker` y escucha solo `message`. No escucha `error` ni `exit`, no le
+pone `resourceLimits` y los pedidos esperando no tienen tiempo máximo.
+
+**Qué pasa si el hilo se muere:**
+
+- Si muere por un error que no se atrapa adentro (se queda sin memoria, una falla de SQLite), Node
+  emite `error` en el `Worker` del hilo principal y, sin nadie que lo escuche, **termina el proceso
+  entero**: se cae el servidor, el mostrador y la entrada, no solo Quién hizo qué. Lo comprobé en Node
+  22.22 con un hilo que se queda sin memoria: `Error [ERR_WORKER_OUT_OF_MEMORY] … Unhandled 'error'
+  event` y el proceso sale con 1. `main.ts` no tiene `uncaughtException`.
+- Si muere de otra forma (`exit` sin `error`), cada `ask` posterior manda un mensaje que nadie lee y
+  su promesa no termina nunca: los pedidos quedan colgados con la conexión abierta.
+
+**Cómo se lo hace crecer:** `closedTotals` (`query.ts:221`) guarda un total por año cerrado y por
+`JSON.stringify(filter)`, sin tope. El filtro lleva las fechas en milisegundos y el `by`/`to`, que
+solo se validan por la forma (cualquier UUID sirve). Quien tiene el permiso varía `from`, `until`, `by`
+y `to` en cada pedido; desde que exista el archivo de un año cerrado (enero de 2027 en adelante), cada
+pedido suma al menos una clave por año cerrado, y `daysWith` una más por cada día de la página que caiga
+en un año cerrado. Con 60 por minuto el crecimiento es lento (no lo medí; del orden de cientos de
+claves por minuto por persona), así que **no pude armar una caída en un tiempo corto**; queda como
+camino, junto con cualquier otra causa de muerte del hilo.
+
+**Qué propongo:** (a) escuchar `error` y `exit` del `Worker`: rechazar los pedidos que esperan, anotar
+el error en el registro y volver a crear el hilo (con una espera, para no girar si falla al arrancar);
+(b) `resourceLimits: { maxOldGenerationSizeMb: … }` para que el hilo no se lleve la memoria del
+proceso; (c) un tiempo máximo por pedido (por ejemplo, 10 s) que contesta `503`; (d) tope a
+`closedTotals` (un `Map` que borra la clave más vieja al pasar de, por ejemplo, 1.000), o guardar solo
+los totales sin `by`/`to`/fechas a medida. Una prueba que mata el hilo (`worker.terminate()` desde
+afuera, o un pedido que lo hace salir) y mira que el siguiente pedido contesta y el proceso sigue.
+Cuesta: unas 30 líneas en `reader.ts`, una en `query.ts` y una prueba.
+
+### 13 · Quién arma un `Proven` (`platform/guards.ts:22` a `:32`) — Mejora
+
+**Dónde:** el tipo `Proven` tiene una marca, pero `provenPerson(userId)` es una función exportada que
+cualquiera puede llamar con cualquier `userId`: la marca la pone esa misma función con un `as`. El
+diseño (§ 2.1) dice «un tipo que solo arman esas verificaciones». Hoy la usan solo lugares donde la
+persona está probada (lo revisé uno por uno: `sessions/open.ts:77`, `sessions/routes.ts:33` y `:51`,
+`passkeys/webauthn.ts:137` y `:142`, `codes/phone/approve.ts:93`, `codes/phone/phone-routes.ts:68`,
+`offline/routes.ts:133`), y `checkAssertion` (`webauthn.ts:158` a `:166`) anota la firma que no verifica
+como `outsider` con la cuenta en `targets`. Está bien hoy.
+
+**El riesgo:** un módulo que venga (el 07, el 03) copia `provenPerson(body.userId)` en un rechazo y
+vuelve el error que cerró el punto 1 del paso 4: una acción a nombre de la víctima. Nada lo frena: ni
+el tipo ni `pnpm imports`. Además, **no hay prueba** de que una firma de huella que no verifica deja
+`outsider` y a la cuenta en `targets` (§ 11 del diseño, E03 y E04, lo promete): las pruebas de
+`sign-in` miran `outsider` solo con Google.
+
+**Qué propongo:** una regla de `dependency-cruiser` que deje importar `provenPerson` solo desde
+`modules/sign-in/` (o mover la función a `sign-in` y que la plataforma solo exporte el tipo), y una
+prueba en `passkeys` que manda una firma que no verifica con la credencial de otra persona y mira la
+línea: `actor.kind === 'outsider'`, `targets[0].id` la víctima, y que «Hecho por» la víctima no la
+muestra. Cuesta: una regla y una prueba.
+
+### 14 · Lo que no sale, probado a medias (`routes.test.ts:230` a `:235`, `rules.ts:332` a `:366`) — Mejora
+
+**Dónde:** la prueba «no sale lo que el tipo no muestra, ni identificadores de dispositivos» pide solo
+`type=sign-in.succeeded` y mira que el texto no tenga la palabra `deviceId`. El diseño (§ 2.2) pide que
+«una prueba anota cada tipo de hoy y mira que la respuesta no trae ningún identificador de dispositivo
+ni de huella». `viewOf` filtra `data` con `shownData`, pero `targets` y `changes` salen como se
+anotaron.
+
+**El riesgo:** hoy no sale nada de eso (revisé cada `record`: `targets` lleva solo personas y roles;
+`phone.cut` y `passkey.removed` llevan en `data` `{ sessions, passkey: boolean }`). Pero si un módulo
+anota un `target` `{ kind: 'phone', id: deviceId }`, el `X-Device-Id` de un celular sale por la API y
+vuelve el bloqueo del punto 2 del paso 4, y ninguna prueba lo ve: la palabra `deviceId` no aparece en
+el valor.
+
+**Qué propongo:** que la prueba haga, con un mismo dispositivo de prueba de `X-Device-Id` conocido,
+cada acción que anota algo (las de `audit-catalog.test.ts`), y busque **el valor** de ese UUID y el id
+de la credencial en todo el JSON de `/api/audit-log`, `/day` y `/people`. Si se quiere un cerrojo en el
+código, que `viewOf` deje salir solo los `kind` de `targets` que el catálogo conoce. Cuesta: una prueba
+algo más larga; el cerrojo, unas líneas.
+
+### 15 · `request.rejected` con `path` (`shared/audit-log/platform.ts:142` a `:149`, `platform/http.ts:307` a `:326`) — Mejora
+
+**Dónde:** el catálogo deja salir `path` de `request.rejected`, y ese camino lo elige cualquiera sin
+sesión. La pantalla no lo dibuja (el texto no lo usa), pero la API lo devuelve. El rechazo se anota
+una vez por ventana **por motivo y por dirección**.
+
+**El ataque (de 01, que este módulo hace visible):** alguien sin entrar, desde una conexión con un
+`/64` de IPv6, manda `GET /api/<8.000 caracteres al azar>` sin `X-Device-Id`, cada vez desde otra
+dirección del `/64`. Cada una deja una fila nueva de `request.rejected` de hasta 8 KB (el azar no se
+comprime), sin tope: llena el volumen de la auditoría, infla «Rechazos» en el resumen y entierra entre
+miles de líneas ámbar lo que sí importa. No pude comprobar si la máquina de producción recibe IPv6; la
+revisión de 01 ya propuso contar IPv6 por `/64`.
+
+**Qué propongo:** cortar `path` a unos 200 caracteres al anotarlo (en `http.ts` y en
+`permissions.ts`), y retomar lo de 01: la clave de `rejected:` por `/64` en IPv6 y un tope global de
+`request.rejected` por minuto (pasado, una sola línea «y N más»). Cuesta: una línea para el corte; el
+`/64` y el tope global, unas líneas en `http.ts` y una prueba.
+
+### 16 · Detalles — Mejora
+
+- **`type` con nombres de `Object.prototype`** (`shared/audit-log/index.ts:34`): `entryOf` hace
+  `catalog[type] ?? unknown`, así que `?type=constructor`, `toString` o `__proto__` no dan `400` (E39)
+  sino `200` y una lista vacía (comprobado). No lleva a nada; si un tipo así llegara a la base,
+  `shownData` fallaría con `shows` indefinido. Usar `Object.hasOwn(catalog, type)`. Una línea.
+- **`/day` sin fecha mínima** (`routes.ts:116` a `:122`): el diseño dice «Como `from`» (desde el
+  2020-01-01), pero solo se mira que no sea después de hoy. `?date=0000-01-01` contesta `200` con una
+  semana de días `"-000001-12"` (comprobado: `addDays` no sabe de años antes del 0). No abre ni crea
+  archivos; rechazar antes de `firstDate`. Una línea, y sumarla a la prueba de E39.
+- **`by` y `to`** se validan solo por la forma, no contra `people.v1.sqlite` como dice § 5. Está bien
+  así (no sirven para saber si alguien existe); que el diseño diga eso.
+- **La versión de Node de la imagen:** § 9 dice que el armado la dice, y `server.Dockerfile` no tiene
+  `node --version`. La comprobé a mano: la imagen fijada trae Node 24.22.1, posterior a 24.18.1, la
+  primera de la línea 24 sin [CVE-2026-58041](https://nvd.nist.gov/vuln/detail/cve-2026-58041) según
+  [BellSoft](https://docs.bell-sw.com/security/cves/CVE-2026-58041) (no encontré el aviso de Node con
+  la versión exacta). El código no usa `createTagStore`. Sumar `RUN node --version` al armado. Una
+  línea.
+- **El conjunto de `openedOnce`** (`routes.ts:127`): en memoria crece una clave por sesión y
+  día, sin borrar las viejas; son pocas, no hace falta más que limpiar las de días anteriores al
+  cambiar de día.
+
+### Lo del paso 4, en el código
+
+| # | Punto | En el código | Prueba que intenta el ataque |
+|---|---|---|---|
+| 1 | Autor de una acción sin sesión | Hecho: `actorOf` toma la sesión, si no `proven`, si no `outsider`; la huella que no verifica anota `outsider` con la cuenta en `targets` | Falta la de la huella (13); la de Google sí está |
+| 2 | Lo que sale por primera vez | Hecho: las claves de los límites no se anotan (`by: 'person'`, `'ip'`…); `data` sale por `shows`; ningún `target` lleva dispositivos | A medias (14) |
+| 3 | `/people` | Hecho: sesión, permiso y límite; la persona borrada queda sin correo | Sí: `routes.test.ts` (E12, E30) y `routes-permissions.test.ts` |
+| 4 | Fechas, `around` y `page` | Hecho: `from` desde 2020, `until` hasta hoy, `page` más que `pages` da `400`, nunca se crea un archivo al leer; `around` no existe | Sí: `query.test.ts` (período de miles de años, la carpeta no cambia) y E39; falta `/day` (16) |
+| 5 | `data-private` | Hecho: personas, correos de afuera, el detalle, las listas de los filtros y la cinta; los pasos no guardan lo que tiene algo marcado | Sí: `audit-log.test.tsx` |
+| 6 | Mirar no se anota | Carlos eligió (b): una vez por sesión y por día; solo en una de las tres rutas (11) | A medias (11) |
+| 7 | Las 8 KB | Hecho: nunca deja de anotar; corta `data`, después `changes`; conserva `targets` | Sí: `write.test.ts` |
+| 8 | Sincrónico | Hecho: la consulta en un `Worker`, de a una | Sí; falta la caída del hilo (12) |
+| 9 | Conexión de solo lectura | Hecho: `readOnly: true`, solo si el archivo existe | Sí: `query.test.ts` |
+| 10 | Detalles | `request.throttled` y `strip` están; las filas viejas se borran; el detalle dice «Es lo que dice el navegador»; el espejo todavía no existe; Node 24.22.1 (16) | El catálogo, sí (`audit-catalog.test.ts`) |
+
+### Por tema, en una línea
+
+1. **Entrar sin permiso:** el módulo no abre sesiones; el autor sale de la sesión o de una
+   verificación (13, para que siga así).
+2. **Permisos:** las tres rutas piden sesión, permiso y límite (probado ruta por ruta); no hay `POST`,
+   `PUT` ni `DELETE` (E37, probado); quitar el permiso vale desde el pedido siguiente, porque los
+   permisos se resuelven en cada pedido.
+3. **Lo que entra de afuera:** `strictObject` con topes, SQL con parámetros, nombres cortados en 80 y
+   correos en 254 al anotar; 16 para dos bordes sin consecuencia.
+4. **La aplicación en el navegador:** texto, nunca HTML (E38, probado); nada en el dispositivo; el
+   estado vive en el componente; `/api` sale con `no-store` y CSP `default-src 'none'`; un pedido de
+   otro sitio no puede poner `X-Device-Id` sin una consulta previa que no se contesta.
+5. **Datos personales y secretos:** sin secretos; no salen identificadores de dispositivos ni de
+   huellas (14, para que siga así); nada va a terceros.
+6. **Abuso y disponibilidad:** 60 por minuto por persona; el permiso negado, una línea por minuto; el
+   hilo, punto 12; las filas de afuera, punto 15.
+7. **Sin conexión:** `at` lo pone siempre la plataforma; la hora del celular va aparte, como
+   `deviceTime`, y el detalle la marca.
+8. **Auditoría:** se anotan el permiso negado, el límite y la apertura (11). Quien entra a la máquina
+   puede cambiar los archivos: sigue para T116.
+9. **El despliegue:** sin cambios; el servidor corre como `node` y escribe solo en `/data/audit`.
+10. **Dependencias:** ninguna nueva; `pnpm audit --prod` limpio; `node:sqlite` en Node 24.22.1, sin
+    `createTagStore`.

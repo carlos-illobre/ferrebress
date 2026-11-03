@@ -157,7 +157,12 @@ function rejecter({ audit, limiter, clock }: HttpOptions) {
     );
     if (hit.allowed) {
       const repeated = (hit.previousCount ?? 1) - 1;
-      const data = { reason, path: c.req.path, ...(repeated > 0 && { repeatedBefore: repeated }) };
+      // El camino lo elige quien manda el pedido: se corta, así no infla la auditoría (05, punto 15).
+      const data = {
+        reason,
+        path: c.req.path.slice(0, 200),
+        ...(repeated > 0 && { repeatedBefore: repeated }),
+      };
       audit.record({
         type: 'request.rejected',
         at: clock.now(),

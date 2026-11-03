@@ -31,7 +31,8 @@ const unknown: Entry = {
   says: () => [text('Hizo una acción que esta versión no conoce')],
 };
 
-export const entryOf = (type: string): Entry => catalog[type] ?? unknown;
+export const entryOf = (type: string): Entry =>
+  Object.hasOwn(catalog, type) ? (catalog[type] as Entry) : unknown;
 
 // El color de una acción, al anotarla.
 export function toneOf(type: string, event: ToneInput): ToneName {
