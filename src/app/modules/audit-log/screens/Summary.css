@@ -1,0 +1,103 @@
+/* El resumen de Quién hizo qué (R4.9): los tres números y la tira del día. */
+@layer screens {
+  /* El resumen: tres números que filtran y la tira del día. */
+  .audit-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1.7fr;
+    gap: var(--s2);
+  }
+  .audit-number {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    padding: 10px var(--s3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    font: inherit;
+    text-align: left;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: transform var(--time-micro) var(--ease);
+  }
+  .audit-number:active {
+    transform: scale(0.97);
+  }
+  .audit-number b {
+    display: block;
+    font-size: 24px;
+    line-height: 28px;
+    color: var(--ink);
+  }
+  .audit-number.audit-amber {
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+  }
+  .audit-number.audit-red {
+    background: var(--error-soft);
+    color: var(--error-text);
+  }
+  .audit-number[aria-pressed="true"] {
+    box-shadow: 0 0 0 2px var(--pine);
+  }
+  .audit-strip {
+    display: grid;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .audit-strip-title {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--text-2);
+  }
+  .audit-strip-title small {
+    font-weight: 600;
+    color: var(--text-3);
+  }
+  .audit-rail {
+    position: relative;
+    height: 26px;
+    border-radius: var(--radius-small);
+    background: var(--sunken);
+  }
+  .audit-tick {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    width: 4px;
+    margin-left: -2px;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    background: var(--text-3);
+    opacity: 0.55;
+    cursor: pointer;
+    transition: transform var(--time) var(--ease);
+  }
+  .audit-tick:hover {
+    transform: scaleY(1.45);
+  }
+  .audit-tick.audit-red {
+    background: var(--error);
+    opacity: 1;
+  }
+  .audit-tick.audit-amber {
+    background: var(--urgent);
+    opacity: 1;
+  }
+
+  .audit-hours {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16px;
+    color: var(--text-3);
+  }
+}

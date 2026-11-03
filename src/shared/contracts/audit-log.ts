@@ -45,7 +45,6 @@ export type AuditPage = {
   events: AuditView[];
   summary?: Summary;
   strip?: StripMark[];
-  selected?: string;
 };
 
 export type DayCount = Summary & { date: string };
@@ -83,7 +82,6 @@ export const auditQuery = z.strictObject({
   group: z.optional(z.string().check(z.maxLength(40))),
   type: z.optional(z.string().check(z.maxLength(60))),
   tone: z.optional(z.enum(['amber', 'red'])),
-  around: z.optional(z.string().check(z.regex(/^\d{4}:\d{1,12}$/))),
   summary: z.optional(z.literal('1')),
   strip: z.optional(z.literal('1')),
 });

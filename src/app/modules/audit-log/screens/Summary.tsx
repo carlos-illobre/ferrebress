@@ -1,17 +1,19 @@
 // Arriba de la lista (R4.9): cuántas acciones hubo en el período, cuántos rechazos y cuánto borró o
 // sacó, que también filtran; y en la computadora, el día en una tira, una raya por acción, que abre
 // la cinta en esa acción (R4.11).
+import type { StripMark } from '@ferrebress/shared/contracts/audit-log';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import { stripDay, stripScale } from '../logic.ts';
 import { useAuditLogContext } from '../state.ts';
 import { texts } from '../texts.ts';
+import './Summary.css';
 
 function totalLabel(dates: ReturnType<typeof useAuditLogContext>['filters']['dates']) {
   if (!dates) return texts.total.today;
   return 'range' in dates ? texts.total[dates.range] : texts.total.days;
 }
 
-export function Summary() {
+export function Summary({ today }: { today: string }) {
   const log = useAuditLogContext();
   const { summary, strip } = log.summary;
   if (!summary) return null;
@@ -43,15 +45,14 @@ export function Summary() {
       </button>
       {number('amber', summary.amber, texts.refused, 'ban')}
       {number('red', summary.red, texts.removed, 'trash-2')}
-      {log.wide && strip && <Strip />}
+      {log.wide && strip && <Strip strip={strip} today={today} />}
     </div>
   );
 }
 
-function Strip() {
+function Strip({ strip, today }: { strip: StripMark[]; today: string }) {
   const log = useAuditLogContext();
-  const { strip = [] } = log.summary;
-  const day = stripDay(log.filters.dates, log.page?.today ?? '');
+  const day = stripDay(log.filters.dates, today);
   if (strip.length === 0) return null;
   const scale = stripScale(strip.map((mark) => mark.at));
   const clock = (seconds: number) =>

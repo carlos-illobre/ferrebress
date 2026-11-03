@@ -89,6 +89,7 @@ describe('Quién hizo qué, desde el servidor', () => {
       ['?type=nada.de.nada', 'type'],
       ['?group=roles&type=user.renamed', 'type'],
       ['?by=alguien', 'by'],
+      ['?around=2026:1', 'around'],
     ])
       expect(await list(query)).toMatchObject({
         status: 400,
@@ -160,7 +161,7 @@ describe('Quién hizo qué, desde el servidor', () => {
     expect((await list('?until=2026-10-30')).body.total).toBe(0);
   });
 
-  it('audit-log-R4.9: el resumen del período, la tira de un día y la página de una raya', async () => {
+  it('audit-log-R4.9: el resumen del período y la tira de un día', async () => {
     const page = (await list('?range=yesterday&summary=1&strip=1')).body;
     expect(page.summary.total).toBe(page.total);
     expect(page.summary.amber + page.summary.red).toBeLessThanOrEqual(page.total);
@@ -171,12 +172,6 @@ describe('Quién hizo qué, desde el servidor', () => {
     const open = (await list('?summary=1&strip=1')).body;
     expect(open.summary.total).toBe((await list('?range=today')).body.total);
     expect((await list('?range=week&strip=1')).body.strip).toBeUndefined();
-    const oldest = page.strip[0].id;
-    const around = (await list(`?range=yesterday&size=10&around=${oldest}`)).body;
-    expect(around).toMatchObject({ selected: oldest, page: around.pages });
-    const missing = (await list('?size=10&around=2026:999999')).body;
-    expect(missing.selected).toBeUndefined();
-    expect(missing.page).toBe(1);
   });
 
   it('audit-log-E30: las personas, también las borradas, sin su correo', async () => {

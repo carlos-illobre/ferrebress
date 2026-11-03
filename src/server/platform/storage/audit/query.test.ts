@@ -1,6 +1,7 @@
 import { mkdtempSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import type { DatabaseSync } from 'node:sqlite';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { AuditEvent } from './event.ts';
 import { createQuery, type Filter, type Query } from './query.ts';
@@ -86,21 +87,6 @@ describe('quién hizo qué: la consulta', () => {
     expect(query({ op: 'count', filter: { from: start + 6 * minute } })).toBe(2);
   });
 
-  it('audit-log-E40: dónde está una acción con esos filtros; si no coincide, nada', () => {
-    const [newest, , third] = query({ op: 'rows', filter: {}, offset: 0, limit: 3 }) as {
-      id: string;
-    }[];
-    expect(query({ op: 'position', filter: {}, id: newest?.id as string })).toEqual({
-      position: 0,
-    });
-    expect(query({ op: 'position', filter: {}, id: third?.id as string })).toEqual({ position: 2 });
-    expect(query({ op: 'position', filter: {}, id: '2025:1' })).toEqual({ position: 9 });
-    expect(query({ op: 'position', filter: { actor: 'system' }, id: newest?.id as string })).toBe(
-      null,
-    );
-    expect(query({ op: 'position', filter: {}, id: '1999:1' })).toBe(null);
-  });
-
   it('audit-log-R4.9: cuántas de cada color y la tira de lo más viejo a lo más nuevo', () => {
     expect(query({ op: 'tones', filter: { from: start } })).toEqual({ plain: 4, amber: 1, red: 3 });
     const marks = query({ op: 'marks', filter: {}, limit: 20 }) as { at: number; tone: string }[];
@@ -125,9 +111,9 @@ describe('quién hizo qué: la consulta', () => {
   });
 
   it('metas: cada forma de consulta usa su índice', () => {
-    const file = audit.openFiles().years.get(2026);
+    const file = audit.openFiles().years.get(2026) as DatabaseSync;
     const plan = (sql: string, ...params: (string | number)[]) =>
-      (file?.prepare(`explain query plan ${sql}`).all(...params) as { detail: string }[])
+      (file.prepare(`explain query plan ${sql}`).all(...params) as { detail: string }[])
         .map((row) => row.detail)
         .join(' | ');
     expect(plan('select * from events where 1 = 1 order by at desc, id desc limit 20')).toMatch(
@@ -178,9 +164,6 @@ describe('quién hizo qué: leer del disco', () => {
     const reader = openAuditReader(dir, audit);
     audit.record({ type: 'recién', at: new Date(start + 9 * minute), actor: marcos });
     expect(await reader.ask({ op: 'count', filter: {} })).toBe(11);
-    await expect(reader.ask({ op: 'position', filter: {}, id: '2026:x' } as never)).resolves.toBe(
-      null,
-    );
     // Un error en el hilo vuelve como error del pedido, sin tirar el hilo.
     await expect(
       reader.ask({ op: 'count', filter: { from: (10n ** 30n) as unknown as number } }),

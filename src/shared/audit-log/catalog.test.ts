@@ -79,8 +79,8 @@ describe('el catálogo de Quién hizo qué', () => {
     expect(says('sign-in.succeeded')).toBe('Entró');
     expect(says('sign-out')).toBe('Salió');
     expect(says('sign-out', { data: { pending: true } })).toBe('Salió sin conexión');
-    expect(says('session.ended')).toBe('Se le venció la sesión a Lucía');
-    expect(says('session.ended', { targets: [] })).toBe('Se le venció la sesión a alguien');
+    expect(says('session.ended')).toBe('Cerró la sesión vencida de Lucía');
+    expect(says('session.ended', { targets: [] })).toBe('Cerró la sesión vencida de alguien');
     expect(says('passkey.linked')).toBe('Vinculó la huella de su celular');
     expect(says('code.read')).toBe('Leyó el código de una computadora');
     expect(says('code.approved')).toBe('Dejó entrar a una computadora con su celular');

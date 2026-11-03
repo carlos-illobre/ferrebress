@@ -62,17 +62,6 @@
     color: var(--pine);
     font-weight: 800;
   }
-  .users-soon {
-    display: inline-flex;
-    align-items: center;
-    height: 24px;
-    padding: 0 var(--s2);
-    border-radius: 999px;
-    background: var(--sunken);
-    color: var(--text-2);
-    font-size: 14px;
-    font-weight: 700;
-  }
   .users-offline {
     display: flex;
     align-items: center;
@@ -120,23 +109,23 @@
       border-radius: var(--radius);
       background: var(--sunken);
     }
+    /* Cada pestaña, del ancho de su nombre y en un renglón: «Quién hizo qué» es más largo. */
     .users-tab {
-      flex: 1;
+      flex: 1 1 auto;
       justify-content: center;
+      gap: 6px;
       height: 40px;
       margin: 0;
+      padding: 0 var(--s2);
       border: 0;
       border-radius: 10px;
+      white-space: nowrap;
     }
     /* Con su ícono y su color, se ve que se elige (pedido de Carlos): la abierta, en pino. */
     .users-tab[aria-current] {
       background: var(--pine);
       box-shadow: var(--shadow-1);
       color: #fff;
-    }
-    .users-tab.soon {
-      background: var(--surface);
-      color: var(--text-2);
     }
     .users-offline {
       margin: var(--s3) var(--s4) 0;

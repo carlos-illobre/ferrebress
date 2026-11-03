@@ -42,8 +42,6 @@ function asking(reader: AuditReader) {
     count: async (filter: Filter) => (await reader.ask({ op: 'count', filter })) as number,
     rows: async (filter: Filter, offset: number, limit: number) =>
       (await reader.ask({ op: 'rows', filter, offset, limit })) as Stored[],
-    position: async (filter: Filter, id: string) =>
-      (await reader.ask({ op: 'position', filter, id })) as { position: number } | null,
     tones: async (filter: Filter) =>
       (await reader.ask({ op: 'tones', filter })) as Record<string, number>,
     marks: async (filter: Filter, limit: number) =>
@@ -65,19 +63,14 @@ export function registerAuditLogRoutes(platform: Platform, reader: AuditReader) 
     (c) => [`audit-log:person:${sessionOf(c).userId}`],
     auditLogSettings.reads,
   );
-  const opened = new Set<string>();
   const today = () => businessDateOf(clock.now());
+  const opened = openedOnce(guards);
 
   http.get('/api/audit-log', sessions.require, view, limited, async (c) => {
     const query = auditQuery.safeParse(c.req.query());
     if (!query.success) return fail(c, 400, 'bad-request', { field: fieldOf(query.error) });
     const day = today();
-    // R1.3: abrir Quién hizo qué queda una vez por sesión y por día.
-    const mark = `${sessionOf(c).id}|${day}`;
-    if (!opened.has(mark)) {
-      opened.add(mark);
-      guards.record(c, 'audit-log.opened');
-    }
+    opened(c, day);
     const answer = await pageOf(ask, query.data, day);
     return typeof answer === 'string'
       ? fail(c, 400, 'bad-request', { field: answer })
@@ -104,6 +97,18 @@ export function registerAuditLogRoutes(platform: Platform, reader: AuditReader) 
   });
 }
 
+// R1.3: abrir Quién hizo qué queda una vez por sesión y por día (en memoria: si el servidor se
+// reinicia, puede quedar una vez más ese día).
+function openedOnce(guards: ReturnType<typeof createGuards>) {
+  const opened = new Set<string>();
+  return (c: Context, day: string) => {
+    const mark = `${sessionOf(c).id}|${day}`;
+    if (opened.has(mark)) return;
+    opened.add(mark);
+    guards.record(c, 'audit-log.opened');
+  };
+}
+
 const fieldOf = (error: { issues: { path: PropertyKey[]; keys?: string[] }[] }) => {
   const [issue] = error.issues as [{ path: PropertyKey[]; keys?: string[] }];
   return String(issue.keys?.[0] ?? issue.path[0]);
@@ -118,8 +123,7 @@ async function pageOf(ask: Ask, query: AuditQuery, today: string): Promise<Audit
   const size = Number(query.size ?? 20);
   const total = await ask.count(filter);
   const pages = Math.max(1, Math.ceil(total / size));
-  const found = query.around ? await ask.position(filter, query.around) : null;
-  const page = found ? Math.floor(found.position / size) + 1 : Number(query.page ?? 1);
+  const page = Number(query.page ?? 1);
   if (page > pages) return 'page';
   const events = await ask.rows(filter, (page - 1) * size, size);
   const names = new Map((await ask.people()).map((person) => [person.userId, person.name]));
@@ -134,7 +138,6 @@ async function pageOf(ask: Ask, query: AuditQuery, today: string): Promise<Audit
     ...(query.summary && { summary: await summaryOf(ask, summaryPeriod) }),
     ...(query.strip &&
       summaryPeriod.from === summaryPeriod.until && { strip: await stripFor(ask, summaryPeriod) }),
-    ...(found && query.around && { selected: query.around }),
   };
 }
 

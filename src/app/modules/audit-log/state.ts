@@ -12,8 +12,9 @@ import { type Dates, type Filters, noFilters, paramsOf } from './logic.ts';
 // En la computadora, de a 20 y con la tira; en lo angosto, de a 10 (R4.3).
 export const isWide = () => !matchMedia('(max-width: 899px)').matches;
 
-export function useAuditLog() {
-  const wide = isWide();
+// Lo que trajo el servidor y cómo se pide: una página con esos filtros y, con `dates`, también el
+// resumen y la tira de ese período.
+function useLoading(wide: boolean) {
   const size = wide ? 20 : 10;
   const [filters, setFilters] = useState<Filters>(noFilters);
   const [page, setPage] = useState<AuditPage>();
@@ -21,13 +22,8 @@ export function useAuditLog() {
     summary?: Summary | undefined;
     strip?: AuditPage['strip'] | undefined;
   }>({});
-  const [people, setPeople] = useState<AuditPerson[]>([]);
   const [failed, setFailed] = useState(false);
   const [selected, setSelected] = useState<string>();
-  const [tape, setTape] = useState<{ date: string; at?: string }>();
-  const online = useStore(onlineStore);
-
-  // Una página con esos filtros; con `dates`, también el resumen y la tira de ese período.
   async function load(next: Filters, number: number, dates: boolean) {
     const result = await auditApi.page(
       paramsOf(next, { page: number, size }, { summary: dates, strip: dates && wide }),
@@ -39,25 +35,28 @@ export function useAuditLog() {
     setSelected(wide ? result.data.events[0]?.id : undefined);
     if (dates) setSummary({ summary: result.data.summary, strip: result.data.strip });
   }
+  return { filters, page, summary, failed, selected, select: setSelected, load };
+}
 
+export function useAuditLog() {
+  const wide = isWide();
+  const { load, ...loaded } = useLoading(wide);
+  const { filters, page } = loaded;
+  const [people, setPeople] = useState<AuditPerson[]>([]);
+  const [tape, setTape] = useState<{ date: string; at?: string }>();
+  const online = useStore(onlineStore);
   useEffect(() => {
     void auditApi.people().then((result) => result.ok && setPeople(result.data.people));
     void load(noFilters, 1, true);
   }, []);
-
   const datesChanged = (next: Filters) =>
     JSON.stringify(next.dates) !== JSON.stringify(filters.dates);
   return {
+    ...loaded,
     wide,
-    filters,
-    page,
-    summary,
     people,
-    failed,
     online,
-    selected,
     tape,
-    select: setSelected,
     // Cambiar un filtro vuelve a la página 1 (E31).
     filter: (change: Partial<Filters>) => {
       const next = { ...filters, ...change };
@@ -70,11 +69,8 @@ export function useAuditLog() {
     // Un número del resumen: su período como fecha, y ese color como tipo (R4.9, E35c).
     byTone: (tone: 'amber' | 'red' | undefined) => {
       const dates: Dates = filters.dates ?? { range: 'today' };
-      return load(
-        { ...filters, dates, kind: tone && { tone } },
-        1,
-        datesChanged({ ...filters, dates }),
-      );
+      const next = { ...filters, dates, kind: tone && { tone } };
+      return load(next, 1, datesChanged(next));
     },
     openTape: (date: string, at?: string) => setTape({ date, ...(at && { at }) }),
     closeTape: () => setTape(undefined),

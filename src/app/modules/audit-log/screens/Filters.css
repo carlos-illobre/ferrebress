@@ -1,0 +1,123 @@
+/* Los filtros de Quién hizo qué (R4.5) y sus listas. */
+@layer screens {
+  /* Los filtros, como pastillas con su tecla. */
+  .audit-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    align-items: center;
+  }
+  .audit-chip-wrap {
+    position: relative;
+  }
+  .audit-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    height: 40px;
+    padding: 0 12px 0 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--text-2);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .audit-chip b {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 750;
+    color: var(--ink);
+  }
+  .audit-chip.on {
+    border-color: var(--pine);
+    background: var(--pine);
+    color: rgb(255 255 255 / 0.8);
+  }
+  .audit-chip.on b {
+    color: #fff;
+  }
+  .audit-pop-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+  }
+  .audit-pop {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 21;
+    display: grid;
+    gap: var(--s2);
+    width: 320px;
+    max-height: 420px;
+    padding: var(--s2);
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-3);
+  }
+  .audit-pop-close {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px var(--s2);
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .audit-pop-list {
+    display: grid;
+  }
+  .audit-option {
+    display: grid;
+    padding: var(--s2) var(--s3);
+    border: 0;
+    border-radius: var(--radius-small);
+    background: none;
+    font: inherit;
+    font-size: 15px;
+    text-align: left;
+    cursor: pointer;
+  }
+  .audit-option.inner {
+    padding-left: var(--s8);
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .audit-option small {
+    color: var(--text-3);
+  }
+  .audit-option[aria-selected="true"] {
+    background: var(--pine-soft);
+    font-weight: 750;
+  }
+  .audit-option:hover,
+  .audit-option.marked {
+    background: var(--sunken);
+  }
+  .audit-pick-dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s2);
+    padding: var(--s2);
+    border-top: 1px solid var(--border);
+  }
+  .audit-pick-dates label {
+    display: grid;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .audit-pick-dates button {
+    grid-column: 1 / -1;
+  }
+}

@@ -6,6 +6,7 @@ import { Icon } from '../../../ui/icon/Icon.tsx';
 import { browserOf, businessDay, dayTitle, timeOf } from '../logic.ts';
 import { texts } from '../texts.ts';
 import { Actor, PersonName, Said } from './Pieces.tsx';
+import './Detail.css';
 
 // Un valor de antes o de después, en palabras: los permisos, por su nombre.
 function shown(field: string, value: unknown): string {
@@ -25,7 +26,7 @@ function When({ event, today }: { event: AuditView; today: string }) {
     return (
       <p class="audit-when">
         <Icon name="clock" size="small" />
-        {`${dayTitle(businessDay(event.deviceTime), today)} · ${timeOf(event.deviceTime)} · ${texts.deviceTime} · ${texts.arrived(timeOf(event.arrivedAt ?? event.at))}`}
+        {`${dayTitle(businessDay(event.deviceTime), today)} · ${timeOf(event.deviceTime)} · ${texts.deviceTime} · ${texts.arrived(timeOf(event.at))}`}
       </p>
     );
   return (

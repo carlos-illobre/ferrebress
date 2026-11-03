@@ -2,12 +2,19 @@
 // (R4.5), los atajos de fecha con el día del servidor (R4.5, principio VI) y cómo se muestra cada
 // acción, solo con lo que puede salir (diseño de 05, § 2.2).
 
-import { entryOf, isGroup, shownData, typesOf } from '@ferrebress/shared/audit-log/index';
+import {
+  entryOf,
+  type Group,
+  isGroup,
+  shownData,
+  typesOf,
+} from '@ferrebress/shared/audit-log/index';
 import type {
   ActorView,
   AuditQuery,
   AuditView,
   DayCount,
+  Range,
   StripMark,
   TargetView,
 } from '@ferrebress/shared/contracts/audit-log';
@@ -54,18 +61,26 @@ const firstDate = '2020-01-01';
 // Con más que esto en un día, la tira va de a una raya por minuto y la cinta no se abre (R4.9, R4.11).
 export const dayLimit = 2_000;
 
+// Los atajos (R4.5), con el día del servidor (constitución, VI).
+const ranges: Record<Range, (today: BusinessDate) => Period> = {
+  today: (today) => ({ from: today, until: today }),
+  yesterday: (today) => ({ from: addDays(today, -1), until: addDays(today, -1) }),
+  week: (today) => ({ from: mondayOf(today), until: today }),
+  month: (today) => ({ from: firstOfMonth(today), until: today }),
+};
+
 // El período que piden las fechas: un atajo o desde y hasta. Un error dice qué campo está mal.
 export function periodOf(query: AuditQuery, today: BusinessDate): Period | undefined | string {
-  if (query.range && (query.from || query.until)) return 'range';
-  if (query.range === 'today') return { from: today, until: today };
-  if (query.range === 'yesterday') return { from: addDays(today, -1), until: addDays(today, -1) };
-  if (query.range === 'week') return { from: mondayOf(today), until: today };
-  if (query.range === 'month') return { from: firstOfMonth(today), until: today };
-  if (!query.from && !query.until) return undefined;
-  const period = { from: query.from ?? firstDate, until: query.until ?? today };
-  if (period.from < firstDate) return 'from';
-  if (period.until > today) return 'until';
-  return period.from > period.until ? 'from' : period;
+  const { range, from, until } = query;
+  if (range) return from || until ? 'range' : ranges[range](today);
+  if (!from && !until) return undefined;
+  const period = { from: from ?? firstDate, until: until ?? today };
+  return periodError(period, today) ?? period;
+}
+
+function periodError({ from, until }: Period, today: BusinessDate): string | undefined {
+  if (from < firstDate || from > until) return 'from';
+  return until > today ? 'until' : undefined;
 }
 
 export const instantsOf = ({ from, until }: Period) => ({
@@ -73,23 +88,33 @@ export const instantsOf = ({ from, until }: Period) => ({
   until: startOfBusinessDate(addDays(until, 1)).getTime(),
 });
 
+// Qué campo del tipo no sirve: el color no va con grupo ni tipo, el grupo y el tipo existen, y el
+// tipo es de ese grupo.
+function kindError({ tone, group, type }: AuditQuery): string | undefined {
+  if (tone && (group || type)) return 'tone';
+  if (group && !isGroup(group)) return 'group';
+  const ofType = type && entryOf(type).group;
+  if (ofType === 'other' || (ofType && group && ofType !== group)) return 'type';
+  return undefined;
+}
+
+const typesFor = ({ group, type }: AuditQuery) =>
+  type ? { types: [type] } : group ? { types: typesOf(group as Group) } : {};
+
+const actorFor = (by: AuditQuery['by']): Pick<Filter, 'actor'> =>
+  by === 'system' || by === 'outsider' ? { actor: by } : by ? { actor: { userId: by } } : {};
+
 // Los filtros de la lista, o el campo que no sirve.
 export function filterOf(query: AuditQuery, period: Period | undefined): Filter | string {
-  if (query.tone && (query.group || query.type)) return 'tone';
-  if (query.group && !isGroup(query.group)) return 'group';
-  if (query.type && entryOf(query.type).group === 'other') return 'type';
-  if (query.group && query.type && entryOf(query.type).group !== query.group) return 'type';
-  const actor =
-    query.by === 'system' || query.by === 'outsider' ? query.by : query.by && { userId: query.by };
-  return {
-    ...(period && instantsOf(period)),
-    ...(actor && { actor }),
-    ...(query.to && { target: query.to }),
-    ...(query.type
-      ? { types: [query.type] }
-      : query.group && isGroup(query.group) && { types: typesOf(query.group) }),
-    ...(query.tone && { tone: query.tone }),
-  };
+  return (
+    kindError(query) ?? {
+      ...(period && instantsOf(period)),
+      ...actorFor(query.by),
+      ...(query.to && { target: query.to }),
+      ...typesFor(query),
+      ...(query.tone && { tone: query.tone }),
+    }
+  );
 }
 
 // El día del negocio de cada acción de la página, con su período, para contar cuántas tiene.

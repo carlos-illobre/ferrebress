@@ -10,7 +10,6 @@ export const texts = {
   title: 'Usuarios',
   tabs: 'Las pestañas de Usuarios',
   audit: 'Quién hizo qué',
-  soon: 'Pronto',
   authorize: 'Autorizar a alguien',
   lost: 'Se perdió un celular',
   stats: {

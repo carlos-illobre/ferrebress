@@ -49,21 +49,18 @@ function actorOf(c: Context, { proven, email }: RecordFields): Actor {
   return { kind: 'outsider', ...(email && { email }) };
 }
 
-export function createGuards({ audit, clock, limiter }: Platform, throttled: ThrottledAudit) {
-  const record = (c: Context, type: string, fields: RecordFields = {}) => {
+// Quien entra trae su nombre y su correo de hoy: así figura en los filtros desde su primera vez.
+const provenNow = (proven: Proven | undefined) =>
+  proven?.name && proven.email
+    ? [{ userId: proven.userId, name: proven.name, email: proven.email, state: 'active' as const }]
+    : [];
+
+// Anotar con lo que trae el pedido: quién, el dispositivo y la dirección.
+const recorder =
+  ({ audit, clock }: Pick<Platform, 'audit' | 'clock'>) =>
+  (c: Context, type: string, fields: RecordFields = {}) => {
     const { proven, email: _email, ...rest } = fields;
-    // Quien entra trae su nombre y su correo de hoy: así figura en los filtros desde su primera vez.
-    const people =
-      proven?.name && proven.email
-        ? [
-            {
-              userId: proven.userId,
-              name: proven.name,
-              email: proven.email,
-              state: 'active' as const,
-            },
-          ]
-        : [];
+    const people = [...provenNow(proven), ...(rest.people ?? [])];
     audit.record({
       type,
       at: clock.now(),
@@ -71,9 +68,13 @@ export function createGuards({ audit, clock, limiter }: Platform, throttled: Thr
       device: deviceCodes((name) => c.req.header(name)),
       ipAddress: c.get('ipAddress') as string,
       ...rest,
-      ...(people.length > 0 && { people: [...people, ...(rest.people ?? [])] }),
+      ...(people.length > 0 && { people }),
     });
   };
+
+export function createGuards(platform: Platform, throttled: ThrottledAudit) {
+  const { limiter } = platform;
+  const record = recorder(platform);
   const tooMany = (c: Context, retryAfterMs: number) =>
     fail(c, 429, 'too-many-attempts', { retryAfterSeconds: Math.ceil(retryAfterMs / 1000) });
 

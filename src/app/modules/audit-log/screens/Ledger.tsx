@@ -1,13 +1,14 @@
 // La lista (R4.2 a R4.4): de la más nueva a la más vieja, agrupada por día con su cantidad; cada
 // acción con el ícono de su tipo, la hora (y la fecha si no es de hoy), quién, qué pasó y el
 // dispositivo, con su color. En la computadora, recorrerla con el teclado cambia el detalle (E35d).
-import type { AuditView } from '@ferrebress/shared/contracts/audit-log';
+import type { AuditPage, AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { useEffect } from 'preact/hooks';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import { businessDay, byDay, dayTitle, shortDateOf, timeOf } from '../logic.ts';
 import { useAuditLogContext } from '../state.ts';
 import { texts } from '../texts.ts';
 import { ActionIcon, Actor, Said } from './Pieces.tsx';
+import './Ledger.css';
 
 function Row({ event, today }: { event: AuditView; today: string }) {
   const log = useAuditLogContext();
@@ -21,6 +22,7 @@ function Row({ event, today }: { event: AuditView; today: string }) {
       data-mark=""
       data-id={event.id}
       onClick={() => log.select(event.id)}
+      onKeyDown={(key) => key.key === ' ' && log.select(event.id)}
     >
       <ActionIcon event={event} />
       <span class="audit-time">
@@ -53,18 +55,15 @@ function useMarkSelects() {
   }, [log.select]);
 }
 
-export function Ledger() {
-  const log = useAuditLogContext();
+export function Ledger({ page }: { page: AuditPage }) {
   useMarkSelects();
-  const page = log.page;
-  if (!page) return null;
   return (
     <div class="audit-ledger" role="listbox" aria-label={texts.title}>
       {byDay(page.events).map((day) => (
         <section key={day.date} class="audit-day">
           <h2>
             <span>{dayTitle(day.date, page.today)}</span>
-            <small>{texts.actions(page.days[day.date] ?? day.events.length)}</small>
+            <small>{texts.actions(page.days[day.date] as number)}</small>
           </h2>
           {day.events.map((event) => (
             <Row key={event.id} event={event} today={page.today} />

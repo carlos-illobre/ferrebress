@@ -28,56 +28,75 @@ export type AuditLog = {
 const batchSize = 100;
 const flushEveryMs = 1_000;
 
-export function openAuditLog(path: string): AuditLog {
+// Los archivos abiertos para escribir: el de las personas, ya leído, y los de cada año, a medida que
+// hacen falta.
+function writingFiles(path: string) {
   const years = new Map<number, DatabaseSync>();
   const people = openPeopleForWriting(path);
   const known = loadPeople(people);
-  const pending: AuditEvent[] = [];
   const upsertPerson = people.prepare(
     `insert into people (user_id, name, email, state) values (?, ?, ?, ?)
      on conflict (user_id) do update set name = excluded.name, email = excluded.email, state = excluded.state`,
   );
-  let toneOf: ToneOf = () => 'plain';
-
-  const fileOf = (year: number): DatabaseSync => {
+  const yearFile = (year: number): DatabaseSync => {
     const existing = years.get(year);
     if (existing) return existing;
     const file = openYearForWriting(path, year);
     years.set(year, file);
     return file;
   };
-  // Cada tanda, en una transacción por archivo: una sola escritura a disco, no una por línea.
+  return { years, people, known, upsertPerson, yearFile };
+}
+type Files = ReturnType<typeof writingFiles>;
+
+// Una tanda de un año, en una transacción por archivo: una sola escritura a disco, no una por línea.
+function writeAll(files: Files, year: number, events: AuditEvent[], toneOf: ToneOf) {
+  const file = files.yearFile(year);
+  const insert = file.prepare(
+    'insert into events (at, type, tone, actor_kind, user_id, payload) values (?, ?, ?, ?, ?, ?)',
+  );
+  const target = file.prepare('insert into targets (event_id, kind, target_id) values (?, ?, ?)');
+  file.exec('begin');
+  files.people.exec('begin');
+  for (const event of events) {
+    const named = withNames(event, files.known);
+    const row = encode(named, toneOf(named));
+    const { lastInsertRowid } = insert.run(
+      row.at,
+      row.type,
+      row.tone,
+      row.actorKind,
+      row.userId,
+      row.payload,
+    );
+    for (const one of named.targets ?? []) target.run(lastInsertRowid, one.kind, one.id);
+    rememberPeople(files.upsertPerson, files.known, named);
+  }
+  files.people.exec('commit');
+  file.exec('commit');
+}
+
+// Las que ya existían: se suman las que no tiene, sin pisar las que sí.
+function knowPeople({ people, known }: Files, list: PersonUpdate[]) {
+  const insert = people.prepare(
+    'insert or ignore into people (user_id, name, email, state) values (?, ?, ?, ?)',
+  );
+  for (const one of list.filter((person) => !known.has(person.userId))) {
+    insert.run(one.userId, shortName(one.name), one.email ?? null, one.state);
+    known.set(one.userId, one);
+  }
+}
+
+export function openAuditLog(path: string): AuditLog {
+  const files = writingFiles(path);
+  const pending: AuditEvent[] = [];
+  let toneOf: ToneOf = () => 'plain';
   const flush = (): void => {
     const byYear = Map.groupBy(pending.splice(0), (event) => event.at.getUTCFullYear());
-    for (const [year, events] of byYear) writeAll(fileOf(year), events);
-  };
-  const writeAll = (file: DatabaseSync, events: AuditEvent[]) => {
-    const insert = file.prepare(
-      'insert into events (at, type, tone, actor_kind, user_id, payload) values (?, ?, ?, ?, ?, ?)',
-    );
-    const target = file.prepare('insert into targets (event_id, kind, target_id) values (?, ?, ?)');
-    file.exec('begin');
-    people.exec('begin');
-    for (const event of events) {
-      const named = withNames(event, known);
-      const row = encode(named, toneOf(named));
-      const { lastInsertRowid } = insert.run(
-        row.at,
-        row.type,
-        row.tone,
-        row.actorKind,
-        row.userId,
-        row.payload,
-      );
-      for (const one of named.targets ?? []) target.run(lastInsertRowid, one.kind, one.id);
-      rememberPeople(upsertPerson, known, named);
-    }
-    people.exec('commit');
-    file.exec('commit');
+    for (const [year, events] of byYear) writeAll(files, year, events, toneOf);
   };
   const timer = setInterval(flush, flushEveryMs);
   timer.unref();
-
   return {
     record(event) {
       pending.push(event);
@@ -86,29 +105,21 @@ export function openAuditLog(path: string): AuditLog {
     provideTone(given) {
       toneOf = given;
     },
-    knowPeople(list) {
-      const insert = people.prepare(
-        'insert or ignore into people (user_id, name, email, state) values (?, ?, ?, ?)',
-      );
-      for (const one of list.filter((person) => !known.has(person.userId))) {
-        insert.run(one.userId, shortName(one.name), one.email ?? null, one.state);
-        known.set(one.userId, one);
-      }
-    },
+    knowPeople: (list) => knowPeople(files, list),
     flush,
     read(year) {
       flush();
-      const file = years.get(year);
+      const file = files.years.get(year);
       if (!file) return [];
       const rows = file.prepare('select * from events order by id').all() as EventRow[];
       return rows.map((row) => decode(row, year));
     },
-    openFiles: () => ({ years, people }),
+    openFiles: () => ({ years: files.years, people: files.people }),
     close() {
       clearInterval(timer);
       flush();
-      for (const file of years.values()) file.close();
-      people.close();
+      for (const file of files.years.values()) file.close();
+      files.people.close();
     },
   };
 }

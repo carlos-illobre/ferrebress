@@ -23,23 +23,24 @@ export const hasFilters = (filters: Filters) =>
 export function paramsOf(
   filters: Filters,
   page: { page: number; size: number },
-  extra: { summary?: boolean; strip?: boolean; around?: string } = {},
+  extra: { summary?: boolean; strip?: boolean } = {},
 ): Record<string, string | number | undefined> {
   const { dates, kind } = filters;
+  const pick = (from: object | undefined, key: string) =>
+    (from as Record<string, string> | undefined)?.[key];
   return {
     page: page.page,
     size: page.size,
     by: filters.by,
     to: filters.to,
-    range: dates && 'range' in dates ? dates.range : undefined,
-    from: dates && 'from' in dates ? dates.from : undefined,
-    until: dates && 'until' in dates ? dates.until : undefined,
-    group: kind && 'group' in kind ? kind.group : undefined,
-    type: kind && 'type' in kind ? kind.type : undefined,
-    tone: kind && 'tone' in kind ? kind.tone : undefined,
+    range: pick(dates, 'range'),
+    from: pick(dates, 'from'),
+    until: pick(dates, 'until'),
+    group: pick(kind, 'group'),
+    type: pick(kind, 'type'),
+    tone: pick(kind, 'tone'),
     summary: extra.summary ? '1' : undefined,
     strip: extra.strip ? '1' : undefined,
-    around: extra.around,
   };
 }
 

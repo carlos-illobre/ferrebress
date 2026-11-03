@@ -2,9 +2,10 @@
 // los filtros, y sin conexión.
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { route } from '../../platform/router.ts';
 import { online } from '../../platform/server/api.ts';
-import { pendingEntries } from '../sign-in/index.ts';
-import { openUsers, roles, row } from './users-test-kit.tsx';
+import { person as me, pendingEntries } from '../sign-in/index.ts';
+import { openUsers, roles, row, viewer } from './users-test-kit.tsx';
 
 const names = () =>
   [...document.querySelectorAll('.users-row .users-name em')].map((one) => one.textContent);
@@ -117,9 +118,24 @@ describe('la lista de Usuarios', () => {
     await screen.findByText('Rubén Paredes');
   });
 
-  it('Auditoría todavía no está: dice «Pronto»', async () => {
-    openUsers();
-    fireEvent.click(screen.getByRole('button', { name: /Auditoría/ }));
-    expect(document.querySelector('.toast')?.textContent).toContain('Auditoría · pronto');
+  it('audit-log-E11, E12: la pestaña Quién hizo qué, solo con su permiso; si lo pierde, vuelve a Usuarios', async () => {
+    openUsers({
+      '/api/audit-log/people': { body: { people: [] } },
+      '/api/audit-log?page=1&size=20&summary=1&strip=1': {
+        body: { today: '2026-10-28', total: 0, page: 1, pages: 1, days: {}, events: [] },
+      },
+    });
+    fireEvent.click(await screen.findByRole('button', { name: /Quién hizo qué/ }));
+    expect(route.get().path).toBe('/users/audit-log');
+    await screen.findByText('Todavía no hay nada anotado.');
+    act(() =>
+      me.set({
+        ...viewer,
+        permissions: viewer.permissions.filter((one) => one !== 'audit-log.view'),
+      }),
+    );
+    await waitFor(() => expect(route.get().path).toBe('/users'));
+    expect(screen.queryByRole('button', { name: /Quién hizo qué/ })).toBeNull();
+    act(() => me.set(viewer));
   });
 });

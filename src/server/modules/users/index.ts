@@ -85,6 +85,11 @@ export type Profile = {
   rolesChangedAt: number | null;
 };
 
+async function signedIn(data: ReturnType<typeof usersData>, id: string, at: Date) {
+  const user = await data.recordSignIn(id, at);
+  return user && { name: displayName(user), email: user.email };
+}
+
 // Lo que usan los otros módulos.
 function facade(
   platform: () => Platform,
@@ -110,13 +115,9 @@ function facade(
       return { ...match, user: { ...match.user, googleSubject: subject, googleName } };
     },
 
-    // R3.2: cuándo entró por última vez, con la hora del servidor. Solo si sigue activa: dice si lo
-    // estaba (02, § 5).
-    // Anota la entrada; devuelve el nombre que se ve y el correo, o nada si no está activa.
-    async recordSignIn(id: string, at: Date) {
-      const user = await data().recordSignIn(id, at);
-      return user && { name: displayName(user), email: user.email };
-    },
+    // R3.2: cuándo entró por última vez, con la hora del servidor. Solo si sigue activa (02, § 5):
+    // devuelve el nombre que se ve y el correo, para anotar la entrada (05 · R2.3), o nada.
+    recordSignIn: (id: string, at: Date) => signedIn(data(), id, at),
 
     // Los permisos de una persona activa (la unión de sus roles; R7.1), y si `target` tiene alguno
     // que `asking` no tiene (R7.11).

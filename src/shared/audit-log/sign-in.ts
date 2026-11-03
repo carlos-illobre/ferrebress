@@ -42,9 +42,9 @@ export const signInTypes = {
     group: 'sign-in',
     tone: 'plain',
     icon: 'timer-off',
-    name: 'Se le venció la sesión',
+    name: 'Cerró una sesión vencida',
     shows: ['reason'],
-    says: (e) => [text('Se le venció la sesión a '), whom(e)],
+    says: (e) => [text('Cerró la sesión vencida de '), whom(e)],
   },
   'passkey.linked': {
     group: 'sign-in',

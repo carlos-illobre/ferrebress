@@ -3,16 +3,17 @@
 // cabezal, que se arrastra, se pasa con ← → o los botones, o recorre solo con «Reproducir el día»;
 // tocar una fila aísla a esa persona. La acción del cabezal se lee abajo, como un subtítulo.
 import type { AuditDay, AuditView } from '@ferrebress/shared/contracts/audit-log';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { useBackStep } from '../../../platform/back-step.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import { auditApi } from '../api.ts';
-import { initials, shortDateOf, timeOf } from '../logic.ts';
+import { shortDateOf } from '../logic.ts';
 import { useAuditLogContext } from '../state.ts';
-import { type Lane, lanesFor, lanesOf, stepMs, timeline, visibleOf } from '../tape.ts';
+import { lanesOf, stepMs, visibleOf } from '../tape.ts';
 import { texts } from '../texts.ts';
 import { DetailBody } from './Detail.tsx';
+import { TapeBoard } from './TapeBoard.tsx';
 import './Tape.css';
 
 function useDay(first: { date: string; at?: string }) {
@@ -55,84 +56,6 @@ function Week({ day, load }: { day: AuditDay; load: (date: string) => unknown })
   );
 }
 
-function Board(props: {
-  events: AuditView[];
-  lanes: Lane[];
-  current: AuditView | undefined;
-  isolated: string | undefined;
-  move: (id: string) => void;
-  isolate: (id: string) => void;
-  vertical: boolean;
-}) {
-  const { events, lanes, current, isolated } = props;
-  const where = timeline(events);
-  const laneIndex = (id: string) => lanes.findIndex((lane) => lane.id === id);
-  const lane = (id: string) => (laneIndex(id) + 0.5) / lanes.length;
-  // En el celular el tiempo va hacia abajo: se dan vuelta los ejes.
-  const point = (at: number, across: number) =>
-    props.vertical ? `${across * 1000} ${at * 1000}` : `${at * 1000} ${across * 1000}`;
-  const bend = (at: number, across: number) => point(at + 0.04, across);
-  const shown = new Set(visibleOf(events, isolated).map((event) => event.id));
-  return (
-    <div class="tape-board" style={{ '--lanes': lanes.length }}>
-      <div class="tape-lanes">
-        {lanes.map((lane) => (
-          <button
-            key={lane.id}
-            type="button"
-            class="tape-lane"
-            data-mark=""
-            data-private=""
-            aria-pressed={isolated === lane.id}
-            aria-label={texts.isolate(lane.name)}
-            onClick={() => props.isolate(lane.id)}
-          >
-            <span class="tape-avatar">{initials(lane.name)}</span>
-            <span class="tape-lane-name">
-              {lane.name}
-              <small>{`${lane.made} · ${lane.got}`}</small>
-            </span>
-          </button>
-        ))}
-      </div>
-      <div class="tape-track">
-        <svg
-          class="tape-lines"
-          viewBox="0 0 1000 1000"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          {events.flatMap((event) => {
-            const { from, to } = lanesFor(event);
-            const at = where(event);
-            return to.map((target) => {
-              const on = current?.id === event.id;
-              return (
-                <path
-                  key={`${event.id}:${target}`}
-                  class={`tape-line audit-${event.tone}${on ? ' on' : ''}${shown.has(event.id) ? '' : ' off'}`}
-                  d={`M${point(at, lane(from))} C ${bend(at, lane(from))}, ${bend(at, lane(target))}, ${point(at, lane(target))}`}
-                />
-              );
-            });
-          })}
-        </svg>
-        {events.map((event) => (
-          <button
-            key={event.id}
-            type="button"
-            class={`tape-dot audit-${event.tone}${current?.id === event.id ? ' on' : ''}${shown.has(event.id) ? '' : ' off'}`}
-            style={{ '--at': where(event), '--lane': lane(lanesFor(event).from) }}
-            aria-label={timeOf(event.at)}
-            onClick={() => props.move(event.id)}
-          />
-        ))}
-        {current && <div class="tape-head" style={{ '--at': where(current) }} aria-hidden="true" />}
-      </div>
-    </div>
-  );
-}
-
 // «Reproducir»: un paso por acción, hasta la última o hasta que se toque algo.
 function usePlay(
   steps: AuditView[],
@@ -164,27 +87,106 @@ function usePlay(
   return { playing, toggle: () => setPlaying(!playing), stop: () => setPlaying(false) };
 }
 
+// Lo que pasa en la cinta: el día, el cabezal, la persona aislada y «Reproducir».
+function useTape(wide: boolean, first: { date: string; at?: string }) {
+  const { day, at, setAt, load } = useDay(first);
+  const [isolated, setIsolated] = useState<string>();
+  const events = useMemo(() => day?.events ?? [], [day]);
+  const steps = useMemo(() => visibleOf(events, isolated), [events, isolated]);
+  const play = usePlay(steps, at, setAt, wide);
+  const index = steps.findIndex((event) => event.id === at);
+  return {
+    day,
+    load,
+    events,
+    steps,
+    play,
+    index,
+    isolated,
+    current: events.find((event) => event.id === at),
+    move: setAt,
+    // Los botones se apagan en los extremos: siempre hay una acción a la que ir.
+    go: (step: 1 | -1) => setAt((steps[index + step] as AuditView).id),
+    // Aislar a alguien que no está en el cabezal lleva el cabezal a su primera acción.
+    isolate(id: string) {
+      const next = isolated === id ? undefined : id;
+      setIsolated(next);
+      const visible = visibleOf(events, next);
+      if (!visible.some((event) => event.id === at) && visible[0]) setAt(visible[0].id);
+    },
+  };
+}
+type TapeState = ReturnType<typeof useTape>;
+
+function Controls({ tape }: { tape: TapeState }) {
+  const { play, index, steps, go } = tape;
+  return (
+    <div class="tape-controls">
+      <button
+        type="button"
+        class="tape-step"
+        data-arrow="previous"
+        aria-label={texts.previousAction}
+        disabled={index <= 0}
+        onClick={() => go(-1)}
+      >
+        <Icon name="skip-back" />
+      </button>
+      <span data-play="">
+        <Button
+          look="action"
+          icon={play.playing ? 'pause' : 'play'}
+          shortcut="r"
+          doing={texts.play}
+          onPress={play.toggle}
+        >
+          {play.playing ? texts.pause : texts.play}
+        </Button>
+      </span>
+      <button
+        type="button"
+        class="tape-step"
+        data-arrow="next"
+        aria-label={texts.nextAction}
+        disabled={index >= steps.length - 1}
+        onClick={() => go(1)}
+      >
+        <Icon name="skip-forward" />
+      </button>
+    </div>
+  );
+}
+
+function Recording({ tape, wide }: { tape: TapeState; wide: boolean }) {
+  const { day, events, current } = tape;
+  if (day?.tooMany !== undefined) return <p class="tape-message">{texts.tooMany(day.tooMany)}</p>;
+  if (day?.events && events.length === 0) return <p class="tape-message">{texts.noActions}</p>;
+  if (!day || events.length === 0) return null;
+  return (
+    <>
+      <TapeBoard
+        events={events}
+        lanes={lanesOf(events)}
+        current={current}
+        isolated={tape.isolated}
+        move={tape.move}
+        isolate={tape.isolate}
+        vertical={!wide}
+      />
+      <Controls tape={tape} />
+      {current && (
+        <div class="tape-subtitle" aria-live="polite">
+          <DetailBody event={current} today={day.today} />
+        </div>
+      )}
+    </>
+  );
+}
+
 export function Tape() {
   const log = useAuditLogContext();
-  const tape = log.tape as { date: string; at?: string };
-  const { day, at, setAt, load } = useDay(tape);
-  const [isolated, setIsolated] = useState<string>();
-  const events = day?.events ?? [];
-  const steps = visibleOf(events, isolated);
-  const play = usePlay(steps, at, setAt, log.wide);
+  const tape = useTape(log.wide, log.tape as { date: string; at?: string });
   useBackStep(log.closeTape);
-  const current = events.find((event) => event.id === at);
-  const index = steps.findIndex((event) => event.id === at);
-  const go = (step: 1 | -1) => {
-    const next = steps[index + step] ?? (index < 0 ? steps[0] : undefined);
-    if (next) setAt(next.id);
-  };
-  const isolate = (id: string) => {
-    const next = isolated === id ? undefined : id;
-    setIsolated(next);
-    const visible = visibleOf(events, next);
-    if (!visible.some((event) => event.id === at) && visible[0]) setAt(visible[0].id);
-  };
   return (
     <section
       class={log.wide ? 'tape' : 'tape vertical'}
@@ -194,7 +196,7 @@ export function Tape() {
       data-layer=""
       data-arrows=""
       onPointerDownCapture={(event) => {
-        if (!(event.target as HTMLElement).closest('[data-play]')) play.stop();
+        if (!(event.target as HTMLElement).closest('[data-play]')) tape.play.stop();
       }}
     >
       <header class="tape-top">
@@ -202,61 +204,9 @@ export function Tape() {
           {texts.close}
         </Button>
         <h1>{texts.title}</h1>
-        {day && <Week day={day} load={(date) => load(date)} />}
+        {tape.day && <Week day={tape.day} load={(date) => tape.load(date)} />}
       </header>
-      {day?.tooMany !== undefined && <p class="tape-message">{texts.tooMany(day.tooMany)}</p>}
-      {day?.events && events.length === 0 && <p class="tape-message">{texts.noActions}</p>}
-      {events.length > 0 && (
-        <>
-          <Board
-            events={events}
-            lanes={lanesOf(events)}
-            current={current}
-            isolated={isolated}
-            move={setAt}
-            isolate={isolate}
-            vertical={!log.wide}
-          />
-          <div class="tape-controls">
-            <button
-              type="button"
-              class="tape-step"
-              data-arrow="previous"
-              aria-label={texts.previousAction}
-              disabled={index <= 0}
-              onClick={() => go(-1)}
-            >
-              <Icon name="skip-back" />
-            </button>
-            <span data-play="">
-              <Button
-                look="action"
-                icon={play.playing ? 'pause' : 'play'}
-                shortcut="r"
-                doing={texts.play}
-                onPress={play.toggle}
-              >
-                {play.playing ? texts.pause : texts.play}
-              </Button>
-            </span>
-            <button
-              type="button"
-              class="tape-step"
-              data-arrow="next"
-              aria-label={texts.nextAction}
-              disabled={index >= steps.length - 1}
-              onClick={() => go(1)}
-            >
-              <Icon name="skip-forward" />
-            </button>
-          </div>
-          {current && day && (
-            <div class="tape-subtitle" aria-live="polite">
-              <DetailBody event={current} today={day.today} />
-            </div>
-          )}
-        </>
-      )}
+      <Recording tape={tape} wide={log.wide} />
     </section>
   );
 }

@@ -2,6 +2,7 @@
 // resumen, los filtros, la lista por páginas y el detalle, al costado en la computadora y en una
 // hoja en el celular. Sin conexión se ve gris, con lo último que trajo, y sale del gris sin pedir
 // nada al volver (R5.1). La cinta se abre encima (R4.11).
+import type { AuditPage } from '@ferrebress/shared/contracts/audit-log';
 import { Button } from '../../../ui/button/Button.tsx';
 import { auditLogShapes } from '../../../ui/icon/audit-log-shapes.tsx';
 import { addShapes, Icon } from '../../../ui/icon/Icon.tsx';
@@ -37,10 +38,10 @@ function Empty() {
   );
 }
 
-function Detail() {
+function Detail({ page }: { page: AuditPage }) {
   const log = useAuditLogContext();
-  const event = log.page?.events.find((one) => one.id === log.selected);
-  const today = log.page?.today ?? '';
+  const event = page.events.find((one) => one.id === log.selected);
+  const today = page.today;
   if (!log.wide)
     return event ? (
       <Sheet title={texts.title} onClose={() => log.select(undefined)} className="audit-sheet">
@@ -80,31 +81,32 @@ function Body() {
   return (
     <div class="audit-body">
       <div class="audit-main">
-        <Summary />
+        <Summary today={log.page.today} />
         <Filters />
         <div class="audit-list">
-          {log.page.total === 0 ? <Empty /> : <Ledger />}
+          {log.page.total === 0 ? <Empty /> : <Ledger page={log.page} />}
           <Pager />
         </div>
       </div>
-      <Detail />
+      <Detail page={log.page} />
     </div>
   );
 }
 
 export function AuditLog() {
   const log = useAuditLog();
+  const page = log.page;
   return (
     <AuditLogContext.Provider value={log}>
       <section class="audit" aria-label={texts.title} data-off={log.online ? undefined : ''}>
         <div class="audit-tools">
-          {!log.wide && (
+          {!log.wide && page && (
             <Button
               size="small"
               icon="film"
               doing={texts.seeDay}
-              onPress={() => log.openTape(log.page?.today ?? '')}
-              disabled={!log.online || !log.page}
+              onPress={() => log.openTape(page.today)}
+              disabled={!log.online}
             >
               {texts.seeDay}
             </Button>

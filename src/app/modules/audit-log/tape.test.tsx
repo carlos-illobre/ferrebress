@@ -1,0 +1,198 @@
+// La cinta (05 · R4.11): abrirla desde la tira o desde «Ver el día», el cabezal, «Reproducir el
+// día», aislar a alguien, cambiar de día y cerrarla.
+import type { AuditDay, AuditView } from '@ferrebress/shared/contracts/audit-log';
+import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { events, openAuditLog } from './audit-test-kit.tsx';
+import { lanesOf, stepMs, timeline, visibleOf } from './tape.ts';
+
+const today = events.slice(0, 4).toReversed();
+const week = ['22', '23', '24', '25', '26', '27', '28'].map((day, index) => ({
+  date: `2026-10-${day}`,
+  total: index === 6 ? 4 : index,
+  amber: index === 6 ? 2 : 0,
+  red: index === 5 ? 1 : 0,
+}));
+const day = (more: Partial<AuditDay> = {}): AuditDay => ({
+  date: '2026-10-28',
+  today: '2026-10-28',
+  week,
+  events: today,
+  ...more,
+});
+const dayPath = (date: string) => `/api/audit-log/day?date=${date}`;
+const subtitle = () => document.querySelector('.tape-subtitle')?.textContent ?? '';
+const button = (name: RegExp) => screen.getByRole('button', { name }) as HTMLButtonElement;
+
+describe('la cinta', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it('audit-log-E40, E43: tocar una raya abre la cinta a pantalla completa, en esa acción, con la línea de quién a quién', async () => {
+    const server = openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
+    const tick = await screen.findByRole('button', { name: '11:52' });
+    fireEvent.click(tick);
+    await waitFor(() => expect(subtitle()).toContain('Ana Gómez le sacó el rol Cajero a Martín'));
+    expect(server.sent.at(-1)?.path).toBe(dayPath('2026-10-28'));
+    expect(screen.getByRole('dialog', { name: 'El día, como una grabación' })).toBeTruthy();
+    expect(document.querySelector('.tape-line.on')).toBeTruthy();
+    expect(document.querySelectorAll('.tape-lane')).toHaveLength(3);
+    expect(document.querySelector('.tape-lane')?.textContent).toContain('Alguien sin entrar');
+  });
+
+  it('audit-log-E44, E42: ← → de a una, sin pasarse; cerrar vuelve a la lista como estaba', async () => {
+    openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
+    fireEvent.click(await screen.findByRole('button', { name: '9:40' }));
+    await waitFor(() =>
+      expect(subtitle()).toContain('no se pudo confirmar su entrada sin conexión'),
+    );
+    expect(button(/Acción anterior/).disabled).toBe(true);
+    fireEvent.click(button(/Acción siguiente/));
+    expect(subtitle()).toContain('cambió los permisos del rol Encargado');
+    fireEvent.click(button(/Acción siguiente/));
+    fireEvent.click(button(/Acción siguiente/));
+    expect(subtitle()).toContain('le sacó el rol Cajero');
+    expect(button(/Acción siguiente/).disabled).toBe(true);
+    fireEvent.click(button(/Acción anterior/));
+    expect(subtitle()).toContain('intentó entrar con un correo no autorizado');
+    // Tocar un punto lleva el cabezal ahí.
+    fireEvent.click(document.querySelector('.tape-dot') as HTMLElement);
+    expect(subtitle()).toContain('no se pudo confirmar');
+    fireEvent.click(screen.getAllByRole('button', { name: /Cerrar/ })[0] as HTMLElement);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByText('25 acciones')).toBeTruthy();
+  });
+
+  it('audit-log-E45: «Reproducir el día» recorre en orden y se detiene en la última o al tocar algo', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
+    fireEvent.click(await screen.findByRole('button', { name: '9:40' }));
+    await waitFor(() => expect(subtitle()).toContain('no se pudo confirmar'));
+    fireEvent.click(button(/Reproducir el día/));
+    act(() => {
+      vi.advanceTimersByTime(stepMs(4, true));
+    });
+    expect(subtitle()).toContain('cambió los permisos');
+    expect(button(/Pausar/)).toBeTruthy();
+    // Tocar el botón no lo detiene (lo hace el botón); tocar cualquier otra cosa, sí.
+    fireEvent.pointerDown(button(/Pausar/));
+    expect(button(/Pausar/)).toBeTruthy();
+    fireEvent.pointerDown(document.querySelector('.tape-board') as HTMLElement);
+    expect(button(/Reproducir el día/)).toBeTruthy();
+    // El botón espera a que termine lo que hizo antes de aceptar otro toque.
+    await act(async () => undefined);
+    fireEvent.click(button(/Reproducir el día/));
+    for (let step = 0; step < 4; step++) {
+      act(() => {
+        vi.advanceTimersByTime(stepMs(4, true));
+      });
+    }
+    expect(subtitle()).toContain('le sacó el rol Cajero');
+    expect(button(/Reproducir el día/)).toBeTruthy();
+    // Ocultar la aplicación también lo detiene.
+    await act(async () => undefined);
+    fireEvent.click(button(/Reproducir el día/));
+    vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    expect(button(/Reproducir el día/)).toBeTruthy();
+  });
+
+  it('audit-log-E46: tocar una fila aísla a esa persona, y tocarla de nuevo la suelta', async () => {
+    openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
+    fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
+    await waitFor(() => expect(subtitle()).toContain('le sacó el rol Cajero'));
+    const outsider = button(/Ver solo a Alguien sin entrar/);
+    fireEvent.click(outsider);
+    expect(outsider.getAttribute('aria-pressed')).toBe('true');
+    expect(subtitle()).toContain('intentó entrar');
+    expect(button(/Acción siguiente/).disabled).toBe(true);
+    expect(document.querySelectorAll('.tape-dot.off')).toHaveLength(3);
+    fireEvent.click(outsider);
+    expect(document.querySelectorAll('.tape-dot.off')).toHaveLength(0);
+    // Al aislar a alguien que no está en el cabezal, el cabezal va a su primera acción.
+    fireEvent.click(button(/Ver solo a Ana Gómez/));
+    expect(subtitle()).toContain('cambió los permisos');
+  });
+
+  it('audit-log-E47, E48: cambiar de día; un día sin acciones, y uno con demasiadas', async () => {
+    openAuditLog({
+      [dayPath('2026-10-28')]: { body: day() },
+      [dayPath('2026-10-27')]: { body: day({ date: '2026-10-27', events: [events[4] as never] }) },
+      [dayPath('2026-10-26')]: { body: day({ date: '2026-10-26', events: [] }) },
+      [dayPath('2026-10-25')]: {
+        body: day({ date: '2026-10-25', tooMany: 2_400, events: undefined as never }),
+      },
+    });
+    fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
+    await waitFor(() => expect(subtitle()).toContain('le sacó'));
+    const days = () => [...document.querySelectorAll<HTMLElement>('.tape-day')];
+    expect(days().at(-1)?.textContent).toContain('Hoy');
+    fireEvent.click(days()[5] as HTMLElement);
+    await waitFor(() =>
+      expect(subtitle()).toContain('El sistema cerró la sesión vencida de Pedro'),
+    );
+    fireEvent.click(days()[4] as HTMLElement);
+    await screen.findByText('Ese día no hubo acciones.');
+    fireEvent.click(days()[3] as HTMLElement);
+    await screen.findByText(/Ese día tiene 2.400 acciones/);
+  });
+
+  it('en el celular, «Ver el día» abre la cinta vertical de hoy; atrás la cierra', async () => {
+    openAuditLog({ [dayPath('2026-10-28')]: { body: day() } }, true);
+    const see = await screen.findByRole('button', { name: /Ver el día/ });
+    await waitFor(() => expect((see as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(see);
+    await waitFor(() => expect(subtitle()).toContain('no se pudo confirmar'));
+    expect(document.querySelector('.tape.vertical')).toBeTruthy();
+    act(() => {
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('si no se puede traer el día, la cinta queda sin acciones', async () => {
+    openAuditLog({ [dayPath('2026-10-28')]: { status: 500, body: { error: 'unexpected' } } });
+    fireEvent.click(await screen.findByRole('button', { name: '11:52' }));
+    await waitFor(() => expect(screen.getByRole('dialog')).toBeTruthy());
+    expect(document.querySelector('.tape-board')).toBeNull();
+  });
+});
+
+describe('las reglas de la cinta', () => {
+  it('las filas: alguien sin entrar arriba, el sistema abajo; lo que hizo y lo que recibió', () => {
+    const lanes = lanesOf(events);
+    expect(lanes.map((lane) => lane.id)).toEqual([
+      'outsider',
+      'ana',
+      'martin',
+      'pedro',
+      'nadie',
+      'system',
+    ]);
+    expect(lanes.find((lane) => lane.id === 'martin')).toMatchObject({ made: 1, got: 1 });
+    expect(visibleOf(events, 'martin').map((event) => event.id)).toEqual(['2026:5', '2026:2']);
+    expect(visibleOf(events, undefined)).toHaveLength(5);
+    const nameless = lanesOf([
+      { ...(events[0] as AuditView), actor: { kind: 'person', id: 'x', today: 'Hoy' } },
+      {
+        ...(events[0] as AuditView),
+        actor: { kind: 'person', id: 'y' },
+        targets: [{ kind: 'person', id: 'z' }],
+      },
+    ]);
+    expect(nameless.map((lane) => lane.name)).toEqual(['Hoy', 'Martín', '', '']);
+  });
+
+  it('dónde cae cada acción y cuánto espera «Reproducir»', () => {
+    const where = timeline(today);
+    expect(where(today[0] as never)).toBeGreaterThan(0);
+    expect(where(today.at(-1) as never)).toBeLessThan(1);
+    expect(stepMs(1, true)).toBe(14_000);
+    expect(stepMs(10_000, true)).toBe(40);
+    expect(stepMs(5, false)).toBe(1_000);
+  });
+});

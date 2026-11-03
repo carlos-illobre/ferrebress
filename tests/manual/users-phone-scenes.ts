@@ -93,7 +93,13 @@ export const phoneUserScenes: Scene[] = [
   {
     name: 'phone-users-off',
     device: 'phone',
-    prepare: (page) => choose(page, 'Sofía Blanco'),
+    prepare: async (page) => {
+      await choose(page, 'Sofía Blanco');
+      // Al final de la tarjeta, de un salto: con todos los permisos, «Dar de alta» queda abajo.
+      await button('Dar de alta')(page).evaluate((foot) =>
+        foot.scrollIntoView({ block: 'center' }),
+      );
+    },
     points: { activate: button('Dar de alta') },
   },
 ];
