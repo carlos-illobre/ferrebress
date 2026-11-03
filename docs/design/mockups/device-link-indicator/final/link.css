@@ -90,36 +90,38 @@ body.alt.con-capa .capa-arriba .kbd { display: inline-flex; }
 @keyframes cambia { from { opacity: 0; transform: translateY(4px); } }
 
 /* =================== La ficha: flota al lado del indicador (computadora) =================== */
-.ficha { position: fixed; left: 224px; bottom: 12px; width: 432px; max-height: calc(100vh - 24px); z-index: 30; display: flex; flex-direction: column; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-hoja); box-shadow: var(--sombra-3); overflow: hidden; opacity: 0; transform: translateX(-12px) scale(.98); transform-origin: left bottom; pointer-events: none; transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--curva); }
+.ficha { position: fixed; left: 224px; bottom: 12px; width: 620px; max-height: calc(100vh - 24px); z-index: 30; display: flex; flex-direction: column; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-hoja); box-shadow: var(--sombra-3); overflow: hidden; opacity: 0; transform: translateX(-12px) scale(.98); transform-origin: left bottom; pointer-events: none; transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--curva); }
 .ficha.abierta { opacity: 1; transform: none; pointer-events: auto; }
 .ficha-hojas { display: grid; grid-template-columns: 100% 100%; min-height: 0; transition: transform var(--t-nav) var(--curva); }
 .ficha.codigo .ficha-hojas { transform: translateX(-100%); }
 /* Si no entra en la pantalla (una notebook con la barra del navegador), se desplaza adentro */
-.ficha-pag { padding: 20px 24px; min-width: 0; max-height: calc(100vh - 26px); overflow-y: auto; overscroll-behavior: contain; }
-.ficha-cab { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.ficha-pag { padding: 18px 24px; min-width: 0; max-height: calc(100vh - 26px); overflow-y: auto; overscroll-behavior: contain; }
+.ficha-cab { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 .ficha-cab h2 { margin: 0; flex: 1; font-size: 20px; line-height: 26px; font-weight: 750; letter-spacing: -.01em; }
 .ficha-cab .btn { gap: 6px; }
 .ficha-titulo-codigo { text-align: right; }
 body.alt .ficha-cerrar { width: auto; padding: 0 6px 0 8px; }
 
-.ruta-caja { padding: 28px 16px 12px; border-radius: var(--r-tarjeta); background: var(--fondo); }
+.ruta-caja { padding: 26px 16px 10px; border-radius: var(--r-tarjeta); background: var(--fondo); }
 .frase { margin: 16px 0 0; display: grid; gap: 8px; }
 .frase p { margin: 0; font-size: 15px; line-height: 22px; color: var(--tinta); }
 .ficha .aviso { margin-top: 12px; }
 
 /* Los datos del vínculo (R4.2): con qué, desde cuándo, hasta cuándo */
 .datos { margin: 16px 0 0; padding: 0; border-top: 1px solid var(--borde); }
-.datos-fila { display: grid; grid-template-columns: 20px 112px minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--borde); font-size: 14px; line-height: 20px; }
+.datos-fila { display: grid; grid-template-columns: 20px 128px minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--borde); font-size: 14px; line-height: 20px; }
 .datos-fila:last-child { border-bottom: 0; }
 .datos-fila .i { color: var(--texto-3); width: 18px; height: 18px; }
 .datos-fila dt { color: var(--texto-2); font-weight: 600; }
 .datos-fila dd { margin: 0; font-weight: 700; }
-.dura-barra { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.datos-desde { color: var(--texto-2); font-weight: 600; }
+.datos-dura { display: flex; align-items: center; gap: 12px; }
+.dura-barra { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
 .dura-barra .barra { flex: 1; margin: 0; }
 .dura-barra small { font-size: 14px; color: var(--texto-2); font-weight: 650; white-space: nowrap; }
 
 /* =================== La tira del día (R4.4), de la variante 2, en los colores de la ficha =================== */
-.hoy { margin-top: 16px; display: grid; gap: 8px; }
+.hoy { margin-top: 16px; display: grid; gap: 6px; }
 .hoy-cab { margin: 0; display: flex; justify-content: space-between; gap: 12px; font-size: 14px; line-height: 20px; font-weight: 650; color: var(--texto-2); }
 .hoy-cab b { color: var(--tinta); font-weight: 800; }
 .tira { position: relative; height: 12px; border-radius: 99px; background: var(--hundido); overflow: hidden; }
@@ -142,13 +144,13 @@ body.alt .ficha-cerrar { width: auto; padding: 0 6px 0 8px; }
 .acciones { display: grid; gap: 8px; margin-top: 16px; }
 .acciones .btn-accion { width: 100%; }
 /* Computadora: si la ficha no entra en la pantalla, lo de arriba se desplaza y los botones quedan a la vista */
-.ficha-pag > .acciones { position: sticky; bottom: -20px; z-index: 1; margin: 16px -24px -20px; padding: 12px 24px 20px; background: var(--superficie); border-top: 1px solid var(--borde); }
-.acciones-filas { display: grid; border: 1px solid var(--borde); border-radius: var(--r); overflow: hidden; }
-.accion-fila { display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 12px; border: 0; background: var(--superficie); font-size: 15px; font-weight: 700; color: var(--tinta); text-align: left; }
-.accion-fila + .accion-fila { border-top: 1px solid var(--borde); }
+.ficha-pag > .acciones { position: sticky; bottom: -18px; z-index: 1; margin: 12px -24px -18px; padding: 12px 24px 18px; background: var(--superficie); border-top: 1px solid var(--borde); }
+.acciones-filas { display: flex; border: 1px solid var(--borde); border-radius: var(--r); overflow: hidden; }
+.accion-fila { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 12px; white-space: nowrap; border: 0; background: var(--superficie); font-size: 15px; font-weight: 700; color: var(--tinta); text-align: left; }
+.accion-fila + .accion-fila { border-left: 1px solid var(--borde); }
 .accion-fila:hover { background: var(--fondo); }
 .accion-fila .i { color: var(--texto-2); }
-.accion-fila .kbd { margin-left: auto; height: 22px; min-width: 22px; }
+.accion-fila .kbd { margin-left: 4px; height: 22px; min-width: 22px; }
 .accion-fila.peligro, .accion-fila.peligro .i { color: var(--error-texto); }
 .pasos { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: paso; }
 .pasos li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; font-size: 14px; line-height: 20px; color: var(--texto-2); }
@@ -172,7 +174,7 @@ body.alt .ficha-cerrar { width: auto; padding: 0 6px 0 8px; }
 .simular { display: block; margin: 8px auto 0; border: 0; background: none; color: var(--texto-3); font-size: 14px; font-weight: 600; text-decoration: underline dotted; }
 
 /* =================== La ruta dibujada (R4.2): los dos dispositivos y cómo se hablan =================== */
-.ruta { display: grid; grid-template-columns: 96px 1fr 96px; align-items: start; gap: 4px; }
+.ruta { display: grid; grid-template-columns: 136px 1fr 136px; align-items: start; gap: 4px; }
 .ruta-nodo { display: grid; justify-items: center; gap: 6px; text-align: center; }
 .ruta-ico { width: 52px; height: 52px; border-radius: 16px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-1); display: grid; place-items: center; color: var(--tinta); transition: opacity var(--t) var(--curva), transform var(--t-nav) var(--rebote); }
 .ruta-nodo small { font-size: 14px; line-height: 18px; font-weight: 650; color: var(--texto-2); }
@@ -313,9 +315,11 @@ body.alt .ficha-cerrar { width: auto; padding: 0 6px 0 8px; }
   .datos-fila dd b { color: var(--tinta); font-weight: 700; }
   .ficha-pag > .acciones { position: static; margin: 18px 0 0; padding: 0; border: 0; }
   .acciones .btn-accion { justify-content: center; }
-  .acciones-filas { gap: 8px; border: 0; border-radius: 0; overflow: visible; }
+  .acciones-filas { display: grid; gap: 8px; border: 0; border-radius: 0; overflow: visible; }
   .accion-fila { height: 44px; padding: 0 16px; border: 1px solid var(--borde-fuerte); border-radius: var(--r); font-size: 16px; box-shadow: var(--sombra-1); }
-  .accion-fila + .accion-fila { border-top: 1px solid var(--borde-fuerte); }
+  .accion-fila { justify-content: flex-start; gap: 12px; }
+  .accion-fila + .accion-fila { border-top: 1px solid var(--borde-fuerte); border-left: 1px solid var(--borde-fuerte); }
+  .ruta-caja { padding: 28px 8px 10px; }
   .accion-fila.peligro { border-color: transparent; box-shadow: none; background: transparent; }
   .confirmar-pie { display: grid; justify-content: stretch; gap: 8px; margin-top: 20px; }
   .confirmar-pie .btn { width: 100%; }

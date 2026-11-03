@@ -7,8 +7,9 @@ depende de `../shared/`: tiene su copia de `icons-extra.js` (los íconos de Luci
 isotipo son los de `common/brand/`.
 
 Capturas: `screenshot.png` (computadora, «Directo», la ficha abierta), `screenshot-server.png`
-(«Por el servidor»), `screenshot-alt.png` (con Alt apretado), `screenshot-code.png` (el código para
-vincular), `screenshot-phone.png` (celular, la hoja abierta), `screenshot-phone-closed.png` (celular,
+(«Por el servidor»), `screenshot-server-failed.png` (con «No se pudo»), `screenshot-alt.png` (con
+Alt apretado), `screenshot-code.png` (el código para vincular), `screenshot-notebook.png` (1366 ×
+657, una notebook de 768 px con la barra del navegador), `screenshot-phone.png` (celular, la hoja abierta), `screenshot-phone-closed.png` (celular,
 con la hoja cerrada) y `screenshot-phone-camera.png` (la cámara que lee el código).
 
 El selector gris de la derecha («Maqueta · estado») y `?estado=` siguen como en las variantes, fuera
@@ -28,6 +29,48 @@ del diseño. Con `?abierto=no` arranca con el detalle cerrado.
   - El último tramo es el estado de ahora. Los totales salen de los tramos, así que cambian con el
     estado: «Directo» da 2 h 17 min y 92 %; «Por el servidor», 2 h 17 min y 83 %; los demás,
     2 h 5 min y 91 %.
+
+- **En la computadora, la ficha entra sin desplazarse** (Carlos: «que no haga falta escrolear,
+  tal vez haciéndolo un poco más ancho o simplificando los textos»). Solo cambia la computadora;
+  el celular sigue igual.
+  - **Más ancha:** 620 px; era de 432.
+  - **La ruta:** las columnas de los dos dispositivos pasan de 96 a 136 px, así «Chrome en
+    Android» entra en un renglón, y la caja tiene 4 px menos de aire (26 y 10 px; eran 28 y 12).
+  - **Los botones que no son la acción principal**, en una sola fila partida (Desconectar ·
+    Vincular el celular · Desvincular), con la misma raya entre uno y otro. Antes eran tres
+    renglones, uno debajo del otro. La acción principal sigue arriba, naranja y ancha.
+  - **«Vinculado con» y «Desde», en un solo renglón:** «**Chrome en Android** · desde ayer, lunes
+    2 de noviembre, 8:14». Antes eran dos renglones.
+  - **«Cuánto dura», en un renglón:** la etiqueta pasa a «Dura sin usarse» y el valor a «Hasta el
+    jueves 3 de diciembre», con la barra y «30 de 30 días» a la derecha. Antes decía «Hasta el
+    jueves 3 de diciembre, si no se usan juntos» en dos renglones, con la barra debajo.
+  - **La frase de «Por el servidor»:** «Muestran lo mismo por el servidor, porque la red no deja la
+    conexión directa. Gasta datos de internet, tarda un poco más y no se reintenta sola.» Antes:
+    «Muestran lo mismo, pero se hablan por el servidor porque la red no deja la conexión directa.
+    Gasta datos de internet y tarda un poco más. No se reintenta sola.»
+  - **La frase de «Esperando al celular»:** «El celular no tiene Ferrebress abierto (pantalla
+    apagada u otra aplicación encima). Cuando vuelva, se encuentran solos y va a esta pantalla.»
+    Antes: «El celular no tiene Ferrebress abierto: la pantalla está apagada u otra aplicación está
+    encima. Cuando vuelva, se encuentran solos y va a la pantalla de esta computadora.»
+  - **El aviso de «Probar conexión directa» que falla**, en un renglón: «No se pudo: la red sigue
+    sin dejar la conexión directa.» Antes seguía «Siguen por el servidor; probá de nuevo si
+    cambiaste de Wi-Fi.»; que siguen por el servidor ya lo dice la pastilla del estado.
+  - **La leyenda de la tira** entra en un renglón con el ancho nuevo.
+  - **Un poco menos de aire:** 18 px arriba y abajo de la ficha (eran 20), 12 px bajo el título
+    (eran 16) y 6 px entre las partes de la tira (eran 8).
+  - **Cuánto mide cada estado** (cabe 742 px en 1366 × 768 y 631 px en 1366 × 657):
+
+    | Estado | Antes | Ahora |
+    |---|---|---|
+    | Sin vincular | 529 | 475 |
+    | Directo, Esperando, Sin internet | 826 a 848 | 565 |
+    | Por el servidor, Desconectado | 846 a 890 | 629 |
+    | Por el servidor, con «No se pudo» | 986 | 685 |
+    | El código para vincular | 557 | 549 |
+
+    En 1366 × 768 entra todo. En 1366 × 657 entra todo salvo «Por el servidor» con «No se pudo»,
+    al que le sobran 54 px. Ahí la ruta, la tira y los datos se desplazan adentro de la ficha y los
+    botones quedan siempre a la vista al pie.
 
 ## Por las reglas aprobadas
 
@@ -71,13 +114,10 @@ del diseño. Con `?abierto=no` arranca con el detalle cerrado.
   - El código QR es solo de la computadora; la cámara y la pregunta de reemplazar, solo del celular.
   - Los textos largos o cortos (00 · R3.2) y la forma del detalle cambian al cruzar el corte.
   - Las piezas del celular ya no van adentro de un marco `.celu` dibujado: son las de la página.
-- **La ficha no entra en una notebook de 768 px con la tira.** «Por el servidor» ya medía 746 px
-  sin la tira; con ella llega a 880. Además, la barra del navegador deja menos lugar.
-  - Ahora la ficha mide como mucho el alto de la pantalla menos 24 px, y lo de arriba se desplaza
-    adentro.
-  - Los botones quedan siempre a la vista al pie de la ficha, sobre una raya fina. Lo que se
-    desplaza es la ruta, la tira y los datos.
-  - En el celular la hoja entra entera en 844 px; si no entrara, se desplaza adentro.
+- **Si una pantalla es más baja que la ficha:** la ficha mide como mucho el alto de la pantalla
+  menos 24 px; la ruta, la tira y los datos se desplazan adentro y los botones quedan siempre a la
+  vista al pie, sobre una raya fina. Hoy pasa solo en el caso de arriba. En el celular la hoja
+  entra entera en 844 px; si no entrara, se desplaza adentro.
 - **Solo `transform` y `opacity`:**
   - El tilde del código leído se dibujaba animando el trazo (`stroke-dashoffset`). Ahora aparece
     agrandándose con un fundido (300 ms, `--rebote`). Además, con «reducir movimiento» el trazo
@@ -90,8 +130,8 @@ del diseño. Con `?abierto=no` arranca con el detalle cerrado.
   ventana más baja se cortaban la luz y la persona del pie del lateral. Se sacó.
 - **El menú no lleva a otras maquetas:** las partes son botones sin destino. Antes llevaban a
   carpetas `v2/` que ya no existen.
-- **Se probó en Chromium** (computadora a 1366 × 768 y celular a 390 × 844) sin errores en la
-  consola. No hubo Firefox para probarla.
+- **Se probó en Chromium** (computadora a 1366 × 768 y 1366 × 657, celular a 390 × 844) sin
+  errores en la consola. No hubo Firefox para probarla.
 
 ## Para llevarla al código
 

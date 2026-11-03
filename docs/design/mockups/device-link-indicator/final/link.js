@@ -19,13 +19,13 @@
         largo: "Tu celular y esta computadora muestran lo mismo y se hablan directo por el Wi-Fi del local: no gastan internet y lo que tocás llega al instante.",
         corto: "Muestran lo mismo, directo por el Wi-Fi del local." },
       servidor: { label: "Por el servidor", tone: "urgente",
-        largo: "Muestran lo mismo, pero se hablan por el servidor porque la red no deja la conexión directa. Gasta datos de internet y tarda un poco más. No se reintenta sola.",
+        largo: "Muestran lo mismo por el servidor, porque la red no deja la conexión directa. Gasta datos de internet, tarda un poco más y no se reintenta sola.",
         corto: "Muestran lo mismo por internet: la red no deja la directa." },
       desconectado: { label: "Desconectado", tone: "neutro",
         largo: "Siguen vinculados, pero cada uno trabaja por su lado. Sigue así hasta que alguien toque «Reconectar», aunque salgan y vuelvan a entrar.",
         corto: "Vinculados, cada uno por su lado hasta «Reconectar»." },
       esperando: { label: c ? "Esperando a la computadora" : "Esperando al celular", tone: "pino",
-        largo: "El celular no tiene Ferrebress abierto: la pantalla está apagada u otra aplicación está encima. Cuando vuelva, se encuentran solos y va a la pantalla de esta computadora.",
+        largo: "El celular no tiene Ferrebress abierto (pantalla apagada u otra aplicación encima). Cuando vuelva, se encuentran solos y va a esta pantalla.",
         corto: "La computadora no tiene Ferrebress abierto. Cuando vuelva, se encuentran solos." },
       sininternet: { label: "Sin internet", tone: "error",
         largo: "Se cortó la conexión directa y no hay internet para volver a encontrarse. Cuando vuelva internet, se encuentran solos.",
@@ -146,7 +146,7 @@
     var extra = c ? "" : s === "directo" ? " · por el Wi-Fi" : s === "servidor" ? " · por internet" : "";
     h += '<div class="frase"><span class="estado" data-tone="' + st.tone + '"><span class="dot"></span>' + st.label + extra + "</span><p>" + (c ? st.corto : st.largo) + "</p></div>";
     if (fallo && s === "servidor") h += '<div class="aviso urgente" id="fallo" role="status"><i class="i" data-i="triangle-alert"></i><span>' +
-      (c ? "No se pudo: la red sigue sin dejar. Siguen por el servidor." : "No se pudo: la red sigue sin dejar la conexión directa. Siguen por el servidor; probá de nuevo si cambiaste de Wi-Fi.") + "</span></div>";
+      (c ? "No se pudo: la red sigue sin dejar. Siguen por el servidor." : "No se pudo: la red sigue sin dejar la conexión directa.") + "</span></div>";
     if (!vinculado(s)) {
       if (!c) h += '<ol class="pasos"><li><span>Tocá <b>«Vincular el celular»</b>: aparece un código.</span></li><li><span>Leelo con el celular, con tu misma cuenta adentro.</span></li><li><span>Desde ahí, lo que toques en uno se ve en el otro. No pide permisos.</span></li></ol>';
     } else {
@@ -158,9 +158,8 @@
           '<div class="datos-fila"><i class="i" data-i="timer"></i><dt class="solo-lector">Cuánto dura</dt><dd>Dura hasta el 3 de diciembre sin usarse</dd></div></dl>';
       } else {
         h += '<dl class="datos">' +
-          '<div class="datos-fila"><i class="i" data-i="smartphone"></i><dt>Vinculado con</dt><dd>' + otro() + "</dd></div>" +
-          '<div class="datos-fila"><i class="i" data-i="calendar"></i><dt>Desde</dt><dd>Ayer, lunes 2 de noviembre, 8:14</dd></div>' +
-          '<div class="datos-fila"><i class="i" data-i="timer"></i><dt>Cuánto dura</dt><dd>Hasta el jueves 3 de diciembre, si no se usan juntos<span class="dura-barra"><span class="barra"><b></b></span><small>30 de 30 días</small></span></dd></div></dl>';
+          '<div class="datos-fila"><i class="i" data-i="smartphone"></i><dt>Vinculado con</dt><dd>' + otro() + ' <span class="datos-desde">· desde ayer, lunes 2 de noviembre, 8:14</span></dd></div>' +
+          '<div class="datos-fila"><i class="i" data-i="timer"></i><dt>Dura sin usarse</dt><dd class="datos-dura">Hasta el jueves 3 de diciembre<span class="dura-barra"><span class="barra"><b></b></span><small>30 de 30 días</small></span></dd></div></dl>';
       }
     }
     var acc = acciones(s), principal = acc.filter(function (a) { return a.tipo === "principal"; }), resto = acc.filter(function (a) { return a.tipo !== "principal"; });
