@@ -7,9 +7,9 @@ depende de `../shared/`: tiene su copia de `icons-extra.js` (los íconos de Luci
 isotipo son los de `common/brand/`.
 
 Capturas: `screenshot.png` (computadora, «Directo», la ficha abierta), `screenshot-server.png`
-(«Por el servidor»), `screenshot-server-failed.png` (con «No se pudo»), `screenshot-alt.png` (con
+(«Por el servidor»), `screenshot-server-failed.png` (con «No se pudo» en lugar de la frase), `screenshot-alt.png` (con
 Alt apretado), `screenshot-code.png` (el código para vincular), `screenshot-notebook.png` (1366 ×
-657, una notebook de 768 px con la barra del navegador), `screenshot-phone.png` (celular, la hoja abierta), `screenshot-phone-closed.png` (celular,
+657, una notebook de 768 px con la barra del navegador, con «No se pudo»), `screenshot-phone.png` (celular, la hoja abierta), `screenshot-phone-closed.png` (celular,
 con la hoja cerrada) y `screenshot-phone-camera.png` (la cámara que lee el código).
 
 El selector gris de la derecha («Maqueta · estado») y `?estado=` siguen como en las variantes, fuera
@@ -55,6 +55,11 @@ del diseño. Con `?abierto=no` arranca con el detalle cerrado.
   - **El aviso de «Probar conexión directa» que falla**, en un renglón: «No se pudo: la red sigue
     sin dejar la conexión directa.» Antes seguía «Siguen por el servidor; probá de nuevo si
     cambiaste de Wi-Fi.»; que siguen por el servidor ya lo dice la pastilla del estado.
+- **El aviso de «No se pudo» reemplaza la frase del estado** (Carlos: «hacé que el aviso reemplace
+  la frase»), en la computadora y en el celular. Antes se sumaba debajo de la frase de «Por el
+  servidor». Ahora, debajo de la pastilla del estado va el aviso en lugar de la frase. La frase
+  vuelve al cambiar de estado. En el celular el aviso dice lo mismo, más corto: «No se pudo: la
+  red no deja la conexión directa.».
   - **La leyenda de la tira** entra en un renglón con el ancho nuevo.
   - **Un poco menos de aire:** 18 px arriba y abajo de la ficha (eran 20), 12 px bajo el título
     (eran 16) y 6 px entre las partes de la tira (eran 8).
@@ -65,12 +70,10 @@ del diseño. Con `?abierto=no` arranca con el detalle cerrado.
     | Sin vincular | 529 | 475 |
     | Directo, Esperando, Sin internet | 826 a 848 | 565 |
     | Por el servidor, Desconectado | 846 a 890 | 629 |
-    | Por el servidor, con «No se pudo» | 986 | 685 |
+    | Por el servidor, con «No se pudo» | 986 | 629 |
     | El código para vincular | 557 | 549 |
 
-    En 1366 × 768 entra todo. En 1366 × 657 entra todo salvo «Por el servidor» con «No se pudo»,
-    al que le sobran 54 px. Ahí la ruta, la tira y los datos se desplazan adentro de la ficha y los
-    botones quedan siempre a la vista al pie.
+    En 1366 × 768 y en 1366 × 657 entran todos los estados sin desplazarse.
 
 ## Por las reglas aprobadas
 
@@ -116,7 +119,7 @@ del diseño. Con `?abierto=no` arranca con el detalle cerrado.
   - Las piezas del celular ya no van adentro de un marco `.celu` dibujado: son las de la página.
 - **Si una pantalla es más baja que la ficha:** la ficha mide como mucho el alto de la pantalla
   menos 24 px; la ruta, la tira y los datos se desplazan adentro y los botones quedan siempre a la
-  vista al pie, sobre una raya fina. Hoy pasa solo en el caso de arriba. En el celular la hoja
+  vista al pie, sobre una raya fina. En 1366 × 657 no pasa en ningún estado. En el celular la hoja
   entra entera en 844 px; si no entrara, se desplaza adentro.
 - **Solo `transform` y `opacity`:**
   - El tilde del código leído se dibujaba animando el trazo (`stroke-dashoffset`). Ahora aparece

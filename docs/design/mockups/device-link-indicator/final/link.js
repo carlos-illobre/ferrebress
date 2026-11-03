@@ -144,9 +144,12 @@
     h += '<div class="ficha-cab"><h2 id="ficha-titulo">' + titulo + '</h2><button type="button" class="btn btn-fantasma chico btn-icono ficha-cerrar" data-a="cerrar" data-key="c" aria-label="Cerrar"><i class="i i-s" data-i="x"></i><span class="kbd">C</span></button></div>';
     h += '<div class="ruta-caja">' + ruta(s) + "</div>";
     var extra = c ? "" : s === "directo" ? " · por el Wi-Fi" : s === "servidor" ? " · por internet" : "";
-    h += '<div class="frase"><span class="estado" data-tone="' + st.tone + '"><span class="dot"></span>' + st.label + extra + "</span><p>" + (c ? st.corto : st.largo) + "</p></div>";
-    if (fallo && s === "servidor") h += '<div class="aviso urgente" id="fallo" role="status"><i class="i" data-i="triangle-alert"></i><span>' +
-      (c ? "No se pudo: la red sigue sin dejar. Siguen por el servidor." : "No se pudo: la red sigue sin dejar la conexión directa.") + "</span></div>";
+    /* Si «Probar conexión directa» no pudo, el aviso reemplaza la frase del estado */
+    var falla = fallo && s === "servidor";
+    var texto = falla ? '<div class="aviso urgente" id="fallo" role="status"><i class="i" data-i="triangle-alert"></i><span>' +
+      (c ? "No se pudo: la red no deja la conexión directa." : "No se pudo: la red sigue sin dejar la conexión directa.") + "</span></div>"
+      : "<p>" + (c ? st.corto : st.largo) + "</p>";
+    h += '<div class="frase"><span class="estado" data-tone="' + st.tone + '"><span class="dot"></span>' + st.label + extra + "</span>" + texto + "</div>";
     if (!vinculado(s)) {
       if (!c) h += '<ol class="pasos"><li><span>Tocá <b>«Vincular el celular»</b>: aparece un código.</span></li><li><span>Leelo con el celular, con tu misma cuenta adentro.</span></li><li><span>Desde ahí, lo que toques en uno se ve en el otro. No pide permisos.</span></li></ol>';
     } else {
