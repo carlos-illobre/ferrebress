@@ -1,19 +1,12 @@
 import 'fake-indexeddb/auto';
 import { act, renderHook, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { codesPath, codesStream } from '../../../testing/codes-stream.ts';
 import { fakeServer } from '../../../testing/fake-server.ts';
 import { hasPasskey, passkeyLinked, person } from '../session.ts';
 import { ana, fakePasskeys, signInReply, startReply } from '../sign-in-test-kit.ts';
 import { useComputerCode } from './useComputerCode.ts';
 import { usePhoneCode } from './usePhoneCode.ts';
-
-const sse = (...events: [string, unknown][]) =>
-  events
-    .map(
-      ([type, data]) =>
-        `event: ${type}\ndata: ${JSON.stringify({ type, ...(data as object) })}\n\n`,
-    )
-    .join('');
 
 const reading = {
   secret: 's',
@@ -32,8 +25,8 @@ describe('la computadora espera que el celular lea su código', () => {
   it('sign-in-E12, E13: recibe el código, «leído», y al aprobar cambia el permiso por su sesión', async () => {
     const server = fakeServer({
       '/api/sign-in/codes': {},
-      '/api/realtime/sign-in-codes': {
-        stream: sse(
+      [codesPath()]: {
+        stream: codesStream(
           ['code', { code: 'c1' }],
           ['read', {}],
           ['otro', {}],
@@ -49,11 +42,23 @@ describe('la computadora espera que el celular lea su código', () => {
     unmount();
   });
 
+  it('sign-in-E18: si la pantalla ya no está (la pestaña estuvo escondida), abre otra y la escucha', async () => {
+    const server = fakeServer({
+      '/api/sign-in/codes': {},
+      [codesPath(0)]: { status: 401, body: { error: 'not-found' } },
+      [codesPath(1)]: { stream: codesStream(['code', { code: 'c2' }]) },
+    });
+    const { result, unmount } = renderHook(() => useComputerCode(true));
+    await waitFor(() => expect(result.current).toMatchObject({ code: 'c2' }));
+    expect(server.bodies('/api/sign-in/codes')).toHaveLength(2);
+    unmount();
+  });
+
   it('si el celular dice «No soy yo», vuelve al código', async () => {
     fakeServer({
       '/api/sign-in/codes': {},
-      '/api/realtime/sign-in-codes': [
-        { stream: sse(['code', { code: 'c1' }], ['read', {}], ['cancelled', {}]) },
+      [codesPath()]: [
+        { stream: codesStream(['code', { code: 'c1' }], ['read', {}], ['cancelled', {}]) },
         'offline',
       ],
     });
@@ -69,7 +74,7 @@ describe('la computadora espera que el celular lea su código', () => {
     );
     const server = fakeServer({
       '/api/sign-in/codes': {},
-      '/api/realtime/sign-in-codes': { stream: '' },
+      [codesPath()]: { stream: '' },
     });
     const { unmount } = renderHook(() => useComputerCode(true));
     await waitFor(() => expect(server.bodies('/api/sign-in/codes').length).toBeGreaterThan(0));

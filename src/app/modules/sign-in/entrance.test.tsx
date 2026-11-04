@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { online, sessionClosed } from '../../platform/server/api.ts';
+import { codesPath, codesStream } from '../../testing/codes-stream.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { Entrance } from './index.ts';
 import { person } from './session.ts';
@@ -37,10 +38,7 @@ describe('la entrada en la computadora', () => {
     googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
-      '/api/realtime/sign-in-codes': [
-        { stream: 'event: code\ndata: {"code":"c1"}\n\nevent: read\ndata: {}\n\n' },
-        'offline',
-      ],
+      [codesPath()]: [{ stream: codesStream(['code', { code: 'c1' }], ['read', {}]) }, 'offline'],
     });
     const { card } = open();
     await waitFor(() => expect(card.querySelector('.qr svg path')).not.toBeNull());
@@ -59,7 +57,7 @@ describe('la entrada en la computadora', () => {
 
   it('app-E32: «Ver el manual» abre el manual sin haber entrado; sin conexión, gris', () => {
     googleFrame();
-    fakeServer({ '/api/sign-in/codes': {}, '/api/realtime/sign-in-codes': { stream: '' } });
+    fakeServer({ '/api/sign-in/codes': {}, [codesPath()]: { stream: '' } });
     open();
     const manual = screen.getByRole('button', { name: /Ver el manual/ });
     expect(manual.textContent).not.toContain('Pronto');
@@ -77,7 +75,7 @@ describe('la entrada en la computadora', () => {
     const credentials = fakePasskeys();
     fakeServer({
       '/api/sign-in/codes': {},
-      '/api/realtime/sign-in-codes': { stream: 'event: code\ndata: {"code":"c1"}\n\n' },
+      [codesPath()]: { stream: codesStream(['code', { code: 'c1' }]) },
     });
     const { card } = open();
     await waitFor(() => expect(card.querySelector('.qr svg path')).not.toBeNull());
@@ -92,7 +90,7 @@ describe('la entrada en la computadora', () => {
     const google = googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
-      '/api/realtime/sign-in-codes': { stream: '' },
+      [codesPath()]: { stream: '' },
       '/api/sign-in/google': signInReply(),
     });
     open();
@@ -115,7 +113,7 @@ describe('la entrada en la computadora', () => {
     const google = googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
-      '/api/realtime/sign-in-codes': { stream: '' },
+      [codesPath()]: { stream: '' },
       '/api/sign-in/google': { status: 401, body: { error: 'sign-in-expired' } },
     });
     const { onStale } = open();
@@ -130,7 +128,7 @@ describe('la entrada en la computadora', () => {
     const google = googleFrame();
     fakeServer({
       '/api/sign-in/codes': {},
-      '/api/realtime/sign-in-codes': { stream: '' },
+      [codesPath()]: { stream: '' },
       '/api/sign-in/google': { status: 403, body: { error: 'not-authorized', email: 'x@y.com' } },
     });
     open();
@@ -146,7 +144,7 @@ describe('la entrada en la computadora', () => {
 
   it('sign-in-E19: sin conexión los botones se apagan y dice que hace falta internet', () => {
     googleFrame();
-    fakeServer({ '/api/sign-in/codes': 'offline', '/api/realtime/sign-in-codes': 'offline' });
+    fakeServer({ '/api/sign-in/codes': 'offline', [codesPath()]: 'offline' });
     online.set(false);
     open();
     expect(screen.getByText('Para entrar hace falta internet')).toBeTruthy();

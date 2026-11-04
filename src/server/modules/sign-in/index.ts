@@ -6,6 +6,7 @@ import type { AccessCounts, Users } from '../users/index.ts';
 import { registerConfirmRoutes } from './access/confirm.ts';
 import { countsOf } from './access/counts.ts';
 import { registerAccessRoutes } from './access/routes.ts';
+import { defineCodesTopic } from './codes/computer/codes-topic.ts';
 import { registerComputerRoutes } from './codes/computer/computer-routes.ts';
 import { registerPhoneRoutes } from './codes/phone/phone-routes.ts';
 import { createContext, type SignInContext } from './context.ts';
@@ -70,6 +71,7 @@ function registerRoutes(ctx: SignInContext) {
   registerLinkRoutes(ctx);
   registerPasskeySignInRoutes(ctx);
   registerComputerRoutes(ctx);
+  defineCodesTopic(ctx);
   registerPhoneRoutes(ctx);
   registerAccessRoutes(ctx);
   registerConfirmRoutes(ctx);

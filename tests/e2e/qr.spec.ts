@@ -15,8 +15,7 @@ test('el celular lee el QR, pone la huella y la computadora entra', async ({ bro
     const original = window.fetch;
     window.fetch = async (...args) => {
       const response = await original(...args);
-      if (!String(args[0]).includes('/api/realtime/sign-in-codes') || !response.body)
-        return response;
+      if (!String(args[0]).includes('s=sign-in.codes') || !response.body) return response;
       const [mine, theirs] = response.body.tee();
       void (async () => {
         const reader = mine.pipeThrough(new TextDecoderStream()).getReader();

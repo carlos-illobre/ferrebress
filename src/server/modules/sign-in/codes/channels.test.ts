@@ -48,10 +48,10 @@ describe('las pantallas con QR y sus canales', () => {
     await reloaded.settle();
     expect(first.events.length).toBe(before);
     // La pantalla vieja ya no existe: su cookie no sirve para su canal.
-    const old = await server.http.request('/api/realtime/sign-in-codes', {
+    const old = await server.http.request('/api/realtime?s=sign-in.codes', {
       headers: { ...appHeaders(), Cookie: first.cookie },
     });
-    expect(old.status).toBe(404);
+    expect(old.status).toBe(401);
     expect((await pc.request('/api/sign-in/codes', { tab: 'x' })).status).toBe(400);
     await reloaded.close();
   });
@@ -83,7 +83,7 @@ describe('las pantallas con QR y sus canales', () => {
   it('un canal nuevo de la misma pantalla corta el anterior sin cerrarla', async () => {
     const screen = await openScreen(server, computer());
     const before = screen.events.length;
-    const again = await server.http.request('/api/realtime/sign-in-codes', {
+    const again = await server.http.request('/api/realtime?s=sign-in.codes', {
       headers: { ...appHeaders(), Cookie: screen.cookie },
     });
     expect(again.status).toBe(200);
@@ -93,7 +93,10 @@ describe('las pantallas con QR y sus canales', () => {
     // El canal viejo ya no recibe los códigos nuevos; el nuevo sí.
     expect(screen.events.length).toBe(before);
     const reader = (again.body as ReadableStream<Uint8Array>).getReader();
-    expect(new TextDecoder().decode((await reader.read()).value)).toContain('event: code');
+    let text = '';
+    while (!text.includes('"type":"code"'))
+      text += new TextDecoder().decode((await reader.read()).value);
+    expect(text).toContain('event: sign-in.codes');
     await reader.cancel();
   });
 });

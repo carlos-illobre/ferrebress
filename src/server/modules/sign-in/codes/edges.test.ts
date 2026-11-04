@@ -175,8 +175,9 @@ describe('entrar con el celular: lo que no tiene que pasar', () => {
     });
     for (const screen of screens) await screen.close();
     const headers = appHeaders();
-    expect((await server.http.request('/api/realtime/sign-in-codes', { headers })).status).toBe(
-      404,
+    // Sin la cookie de una pantalla no hay qué escuchar: el canal no se abre.
+    expect((await server.http.request('/api/realtime?s=sign-in.codes', { headers })).status).toBe(
+      401,
     );
     const device = phone();
     expect((await device.request('/api/sign-in/codes/read', { code: '' })).status).toBe(400);

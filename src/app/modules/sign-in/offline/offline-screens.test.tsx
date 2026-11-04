@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto';
 import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { online, sessionClosed } from '../../../platform/server/api.ts';
+import { codesPath } from '../../../testing/codes-stream.ts';
 import { fakeServer } from '../../../testing/fake-server.ts';
 import { Toasts } from '../../../ui/toast/Toast.tsx';
 import { Entrance } from '../index.ts';
@@ -14,7 +15,7 @@ import { useOfflineSetting } from './setting.ts';
 const start = startReply().body as Parameters<typeof Entrance>[0]['start'];
 
 function openOffline() {
-  fakeServer({ '/api/sign-in/codes': 'offline', '/api/realtime/sign-in-codes': 'offline' });
+  fakeServer({ '/api/sign-in/codes': 'offline', [codesPath()]: 'offline' });
   act(() => online.set(false));
   render(<Entrance start={start} onScan={vi.fn()} signInFirst={false} onStale={vi.fn()} />);
 }

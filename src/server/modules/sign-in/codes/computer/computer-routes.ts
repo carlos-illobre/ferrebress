@@ -1,24 +1,22 @@
 // Lo que hace la computadora para entrar con el celular (R2.5; diseño de 01, § 5): abre su
-// pantalla, escucha por un canal los códigos que le manda el servidor y, cuando el celular
-// aprueba, cambia el permiso por su sesión. El canal y el permiso están atados a la computadora
-// por una cookie que nunca va en el QR.
+// pantalla, escucha los códigos que le manda el servidor por el tema `sign-in.codes` del canal común
+// (diseño de 03, § 3) y, cuando el celular aprueba, cambia el permiso por su sesión. El tema y el
+// permiso están atados a la computadora por una cookie que nunca va en el QR.
 import { claimCodeBody, openScreenBody } from '@ferrebress/shared/contracts/sign-in';
 import type { Context } from 'hono';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
-import { streamSSE } from 'hono/streaming';
 import { deviceLabel } from '../../../../platform/device.ts';
 import { fail } from '../../../../platform/http.ts';
 import type { SignInContext } from '../../context.ts';
 import { openSession, proofKeyOf } from '../../sessions/open.ts';
 import { codeSettings } from '../../settings.ts';
-import type { Screen, ScreenEvent } from './screens.ts';
 
 const cookie = {
   name: 'sign-in-screen',
   options: { prefix: 'host', path: '/', secure: true },
 } as const;
 
-const screenOf = (ctx: SignInContext, c: Context) => {
+export const screenOf = (ctx: SignInContext, c: Context) => {
   const id = getCookie(c, cookie.name, 'host');
   return id ? ctx.screens.get(id) : undefined;
 };
@@ -29,13 +27,6 @@ export function registerComputerRoutes(ctx: SignInContext): void {
   http.post('/api/sign-in/codes', async (c) => {
     const body = openScreenBody.safeParse(await c.req.json());
     return body.success ? openScreen(ctx, c, body.data.tab) : fail(c, 400, 'bad-request');
-  });
-
-  http.get('/api/realtime/sign-in-codes', (c) => {
-    const screen = screenOf(ctx, c);
-    return screen
-      ? streamSSE(c, (stream) => serveScreen(ctx, screen, stream))
-      : fail(c, 404, 'not-found');
   });
 
   http.post('/api/sign-in/codes/claim', (c) => claim(ctx, c));
@@ -81,37 +72,4 @@ async function claim(ctx: SignInContext, c: Context) {
   });
   const person = await ctx.people.of(user.id, user);
   return c.json({ person, sessionId: session.id, offerPasskey: false });
-}
-
-type Stream = Parameters<Parameters<typeof streamSSE>[1]>[0];
-
-// El canal de una pantalla: le manda un código nuevo cada minuto mientras nadie lo leyó, y lo
-// que pasa con la reserva. Se cierra cuando la computadora lo cierra (entró, o la pestaña dejó de
-// estar a la vista); con él se cierra la pantalla. Hay uno solo por pantalla: uno nuevo (la
-// computadora que se reconecta) corta el anterior sin cerrarla.
-async function serveScreen(ctx: SignInContext, screen: Screen, stream: Stream) {
-  // Despierta la espera antes de tiempo: «No soy yo» o la computadora que cierra el canal.
-  let nudge = Promise.withResolvers<void>();
-  const send = (event: ScreenEvent) =>
-    stream.writeSSE({ event: event.type, data: JSON.stringify(event) });
-  screen.notify = (event) => {
-    void send(event);
-    if (event.type === 'cancelled') nudge.resolve();
-  };
-  const channel = { stop: () => stream.abort() };
-  const replaced = screen.channel;
-  screen.channel = channel;
-  replaced?.stop();
-  stream.onAbort(() => {
-    if (screen.channel === channel) ctx.screens.close(screen.id);
-    nudge.resolve();
-  });
-  while (!stream.aborted) {
-    if (ctx.screens.expireReservation(screen)) await send({ type: 'cancelled' });
-    if (!screen.reservation) await send({ type: 'code', code: ctx.screens.newCode(screen) });
-    const until =
-      screen.reservation?.until ?? ctx.platform.clock.now().getTime() + codeSettings.codeTtlMs;
-    await Promise.race([nudge.promise, ctx.wait(until - ctx.platform.clock.now().getTime())]);
-    nudge = Promise.withResolvers<void>();
-  }
 }

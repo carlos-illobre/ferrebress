@@ -111,7 +111,7 @@ function reconcile(state: State, opened: Open, wanted: string[]): void {
   if (add.length + remove.length > 0) void change(state, opened, add, remove);
 }
 
-export function createRealtimeChannel(fetcher: typeof fetch = globalThis.fetch.bind(globalThis)) {
+export function createRealtimeChannel(fetcher: typeof fetch = (...args) => fetch(...args)) {
   let scheduled = false;
   const schedule = () => {
     if (scheduled) return;

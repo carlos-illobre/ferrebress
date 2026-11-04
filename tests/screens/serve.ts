@@ -54,9 +54,13 @@ createServer((request, response) => {
   const path = new URL(String(request.url), 'http://screens').pathname;
   if (path === '/api/start') return json(response, start);
   if (path === '/api/sign-in/codes') return json(response, {});
-  if (path === '/api/realtime/sign-in-codes') {
+  // El canal común con el tema del código QR de la entrada (diseño de 03, § 3).
+  if (path === '/api/realtime') {
     response.writeHead(200, { 'content-type': 'text/event-stream' });
-    return response.write('event: code\ndata: {"code":"captura-fija"}\n\n');
+    return response.write(
+      `event: hello\ndata: {"channel":"${'c'.repeat(22)}"}\n\n` +
+        'event: sign-in.codes\ndata: {"type":"code","code":"captura-fija"}\n\n',
+    );
   }
   if (path.startsWith('/api/')) return json(response, { error: 'not-found' }, 404);
   file(response, path);

@@ -25,7 +25,8 @@ function collect(reader: ReadableStreamDefaultReader<Uint8Array>, events: Screen
     buffer += new TextDecoder().decode(value);
     const blocks = buffer.split('\n\n');
     buffer = blocks.pop() as string;
-    for (const block of blocks)
+    // Solo lo del tema de la entrada: el saludo del canal y el latido no son de la pantalla.
+    for (const block of blocks.filter((b) => b.startsWith('event: sign-in.codes\n')))
       events.push(JSON.parse(block.slice(block.indexOf('data: ') + 6).split('\n')[0] as string));
     return pump();
   };
@@ -43,7 +44,7 @@ export async function openScreen(
   const opened = await computer.request('/api/sign-in/codes', tab ? { tab } : {});
   const cookie = (opened.cookie as string).split(';')[0] as string;
   const controller = new AbortController();
-  const response = await server.http.request('/api/realtime/sign-in-codes', {
+  const response = await server.http.request('/api/realtime?s=sign-in.codes', {
     headers: { ...appHeaders(computer.id), Cookie: cookie, 'X-Real-IP': '190.1.2.3' },
     signal: controller.signal,
   });
