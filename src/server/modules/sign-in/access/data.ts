@@ -175,9 +175,9 @@ function closing(db: Db) {
           .where('closed_at', 'is', null)
           .where('id', '!=', except)
           .$if(sessionId !== null, (query) => query.where('id', '=', sessionId as string))
-          .returning('id')
+          .returning(['id', 'device_id'])
           .execute()
-      ).map((row) => row.id),
+      ).map((row) => ({ id: row.id, deviceId: row.device_id })),
 
     // Volver a confirmar con Google o la huella (02 · R3.8), sin abrir otra sesión.
     confirm: async (sessionId: string, field: 'google_at' | 'passkey_at', at: Date) => {

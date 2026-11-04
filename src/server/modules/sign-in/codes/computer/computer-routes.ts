@@ -63,12 +63,24 @@ async function claim(ctx: SignInContext, c: Context) {
   }
   ctx.screens.close(screen.id);
   deleteCookie(c, cookie.name, cookie.options);
+  const approved = permit as NonNullable<typeof permit>;
   const session = await openSession(ctx, c, {
     userId: user.id,
     proofPublicKey,
     label: screen.deviceLabel,
-    approvedBy: (permit as { approvedBy: string }).approvedBy,
+    approvedBy: approved.approvedBy,
     data: { method: 'qr' },
+  });
+  // Quien lo necesite (el vínculo, 03 · R1.5) se entera de qué celular hizo entrar a qué computadora.
+  const { events, db } = ctx.platform;
+  await events.transaction(db, async (_trx, publish) => {
+    await publish('sign-in.phone-approved', {
+      userId: user.id,
+      phoneDeviceId: approved.phone.deviceId,
+      phoneLabel: approved.phone.label,
+      computerDeviceId: session.deviceId,
+      computerLabel: session.deviceLabel,
+    });
   });
   const person = await ctx.people.of(user.id, user);
   return c.json({ person, sessionId: session.id, offerPasskey: false });

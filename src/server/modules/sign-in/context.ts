@@ -58,20 +58,38 @@ const { throttledAudit } = signInSettings.limits;
 // confirmar quién es (02 · R3.8).
 type Challenge = { purpose: 'sign-in' } | { purpose: 'link' | 'confirm'; sessionId: string };
 
+// El permiso de un uso que la computadora cambia por su sesión, con el celular que lo aprobó.
+const createPermits = (clock: Platform['clock']) =>
+  createOneUse<{
+    screenId: string;
+    userId: string;
+    approvedBy: string;
+    phone: { deviceId: string; label: string };
+  }>(clock, {
+    ttlMs: codeSettings.permitTtlMs,
+    maxTotal: Number.POSITIVE_INFINITY,
+    maxPerOwner: 1,
+    replaceOldest: true,
+  });
+
 export function createContext(platform: Platform, { users, google, wait }: SignInDependencies) {
   return {
     platform,
     users,
     google,
-    store: createSessionStore(platform.db, platform.clock, (session, reason) =>
-      platform.audit.record({
-        type: 'session.ended',
-        at: platform.clock.now(),
-        actor: { kind: 'system' },
-        targets: [{ kind: 'person', id: session.userId }],
-        data: { reason },
-      }),
-    ),
+    // Salir ya queda anotado como «Salió»; los demás fines, como «Terminó una sesión». La plataforma
+    // se entera de todos (el canal en tiempo real cierra lo de esa sesión).
+    store: createSessionStore(platform.db, platform.clock, (session, reason) => {
+      if (reason !== 'sign-out')
+        platform.audit.record({
+          type: 'session.ended',
+          at: platform.clock.now(),
+          actor: { kind: 'system' },
+          targets: [{ kind: 'person', id: session.userId }],
+          data: { reason },
+        });
+      platform.sessions.ended(session, reason);
+    }),
     nonces: createOneUse<true>(platform.clock, signInSettings.nonce),
     challenges: createOneUse<Challenge>(platform.clock, signInSettings.challenge),
     passkeys: passkeysData(platform.db as Kysely<PasskeysTables>),
@@ -90,15 +108,7 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
     // El permiso que la computadora cambia por su sesión, una vez y por 30 segundos. Uno por
     // pantalla: uno nuevo reemplaza al anterior sin usar, así siempre se puede dar. Sin tope total:
     // ya lo tienen las pantallas, y uno de una pantalla cerrada vence a los 30 segundos.
-    permits: createOneUse<{ screenId: string; userId: string; approvedBy: string }>(
-      platform.clock,
-      {
-        ttlMs: codeSettings.permitTtlMs,
-        maxTotal: Number.POSITIVE_INFINITY,
-        maxPerOwner: 1,
-        replaceOldest: true,
-      },
-    ),
+    permits: createPermits(platform.clock),
   };
 }
 

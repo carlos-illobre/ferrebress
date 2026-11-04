@@ -34,6 +34,23 @@ export type SignInOptions = {
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms).unref());
 
+// Lo que avisa Entrar, para quien lo necesite sin que Entrar lo conozca (el vínculo, diseño de 03,
+// § 11.1): sesiones cerradas desde Usuarios con sus dispositivos, una huella quitada o un celular
+// cortado, y un celular que hizo entrar a una computadora.
+declare module '../../platform/events.ts' {
+  interface ServerEvents {
+    'sessions.revoked': { userId: string; deviceIds: string[] };
+    'passkey.removed': { userId: string; deviceId: string; cause: 'removed' | 'cut' };
+    'sign-in.phone-approved': {
+      userId: string;
+      phoneDeviceId: string;
+      phoneLabel: string;
+      computerDeviceId: string;
+      computerLabel: string;
+    };
+  }
+}
+
 export function createSignInModule(options: SignInOptions) {
   const { users, googleKeys, wait = sleep } = options;
   let ctx: SignInContext;
@@ -54,7 +71,10 @@ export function createSignInModule(options: SignInOptions) {
       const keys = googleKeys ?? createRemoteJWKSet(new URL(config.GOOGLE_JWKS_URL));
       const google = { clientId: config.GOOGLE_CLIENT_ID, issuer: config.GOOGLE_ISSUER, keys };
       ctx = createContext(platform, { users, google, wait });
-      platform.sessions.provide((c) => requestSession(ctx, c));
+      platform.sessions.provide(
+        (c) => requestSession(ctx, c),
+        (id) => ctx.store.isOpen(id),
+      );
       registerRoutes(ctx);
       listenToUsers(ctx);
       scheduleJobs(ctx, registerOfflineRoutes(ctx));

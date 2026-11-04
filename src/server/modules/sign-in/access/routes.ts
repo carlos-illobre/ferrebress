@@ -72,7 +72,7 @@ function registerCutting(
     ids('sessionId'),
     notOutranked,
     limited,
-    (c) => closeSessions(ctx, data, c, c.req.param('sessionId')),
+    (c) => closeSessions(ctx, c, c.req.param('sessionId')),
   );
   http.post(
     '/api/users/:id/sessions/close',
@@ -81,7 +81,7 @@ function registerCutting(
     ids(),
     notOutranked,
     limited,
-    (c) => closeSessions(ctx, data, c, null),
+    (c) => closeSessions(ctx, c, null),
   );
   const cutting = readBody(bySchema(cutBody));
   const cutRoute = '/api/users/:id/phones/:phoneId/cut';
@@ -133,13 +133,21 @@ function refuse(ctx: SignInContext, c: Context, status: 403 | 404 | 409, code: E
 
 // «Cerrar» una (`id`) o «Cerrar todas» (nulo), nunca la del pedido (R5.3, R5.4). Una que ya estaba
 // cerrada no es un error; una que no es de esa persona, o que no existe, da 404 (02, § 4).
-async function closeSessions(ctx: SignInContext, data: Data, c: Context, id: string | null) {
+async function closeSessions(ctx: SignInContext, c: Context, id: string | null) {
   const asking = sessionOf(c);
   const userId = c.req.param('id') as string;
   if (id && (await ctx.store.findById(id))?.userId !== userId)
     return refuse(ctx, c, 404, 'not-found');
   ctx.store.beginClose();
-  const ids = await data.closeSessions(userId, id, asking.id, ctx.platform.clock.now());
+  const { events, db, clock } = ctx.platform;
+  // En una transacción con el aviso: quien escucha (el vínculo) termina lo suyo junto o nada.
+  const closed = await events.transaction(db, async (trx, publish) => {
+    const rows = await accessData(trx as never).closeSessions(userId, id, asking.id, clock.now());
+    if (rows.length > 0)
+      await publish('sessions.revoked', { userId, deviceIds: rows.map((row) => row.deviceId) });
+    return rows;
+  });
+  const ids = closed.map((row) => row.id);
   ctx.store.ended(ids, userId, 'revoked');
   const type = id ? 'session.closed' : 'sessions.closed-all';
   if (ids.length > 0)
@@ -159,7 +167,13 @@ async function cut(ctx: SignInContext, data: Data, c: Context, from: 'card' | 'l
   if (!phone) return refuse(ctx, c, 404, 'not-found');
   if (phone.deviceId === asking.deviceId) return refuse(ctx, c, 409, 'self');
   ctx.store.beginClose();
-  const done = await data.cutPhone(userId, phone.deviceId, ctx.platform.clock.now());
+  const { events, db, clock } = ctx.platform;
+  const cause = from === 'card' ? 'removed' : 'cut';
+  const done = await events.transaction(db, async (trx, publish) => {
+    const result = await accessData(trx as never).cutPhone(userId, phone.deviceId, clock.now());
+    await publish('passkey.removed', { userId, deviceId: phone.deviceId, cause });
+    return result;
+  });
   ctx.store.ended(done.sessionIds, userId, 'revoked');
   ctx.phoneOwners.delete(phone.deviceId);
   ctx.people.forget([userId]);

@@ -62,4 +62,22 @@ describe('la memoria de sesiones', () => {
     await store.resolve('otro');
     expect(findByTokenHash).toHaveBeenCalledTimes(1);
   });
+
+  it('salir avisa el fin de una sesión conocida; la que nunca valió no; si sigue abierta, en memoria', async () => {
+    const ended: string[] = [];
+    const data = {
+      findByTokenHash: async () => row,
+      close: async () => undefined,
+    } as unknown as ReturnType<typeof sessionsData>;
+    const store = sessionStoreOf(data, clock, (session, reason) =>
+      ended.push(`${session.id}:${reason}`),
+    );
+    expect(store.isOpen('s1')).toBe(false);
+    await store.resolve('pase');
+    expect(store.isOpen('s1')).toBe(true);
+    await store.close('s1', 'sign-out');
+    await store.close('nunca', 'deactivated');
+    expect(ended).toEqual(['s1:sign-out']);
+    expect(store.isOpen('s1')).toBe(false);
+  });
 });

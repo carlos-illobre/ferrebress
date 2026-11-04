@@ -104,10 +104,14 @@ async function resolveSession(
 // lo de después de confirmarla (sacarlas de la memoria y anotarlas) se devuelve (ADR-004).
 function closing({ data, memory, clock, onEnded }: Deps) {
   return {
+    // Avisa el fin si la sesión estaba en memoria: una que nunca valió (la de una baja mientras
+    // entraba) no tuvo canales ni vínculos que soltar.
     async close(id: string, reason: ClosedReason): Promise<void> {
       memory.closings++;
       await data.close(id, reason, clock.now());
+      const known = [...memory.byKey.values()].find((session) => session.id === id);
       memory.forget([id]);
+      if (known) onEnded({ id, userId: known.userId }, reason);
     },
 
     async closeForUser(trx: Kysely<unknown>, userId: string, reason: ClosedReason) {
@@ -144,7 +148,7 @@ function fromOutside(memory: Memory, onEnded: OnEnded) {
   };
 }
 
-// Avisa cuándo una sesión venció o la cerraron sin que la persona saliera, para la auditoría.
+// Avisa cada sesión que termina, por el motivo que sea: la auditoría y la plataforma.
 export type OnEnded = (session: { id: string; userId: string }, reason: ClosedReason) => void;
 type Deps = { data: Data; memory: Memory; clock: Clock; onEnded: OnEnded };
 
@@ -169,6 +173,11 @@ export function sessionStoreOf(data: Data, clock: Clock, onEnded: OnEnded) {
     // Si el pase es de una sesión que ya está en memoria (sin consultar la base).
     knows: (token: string) => memory.byKey.has(keyOf(token)),
     findById: (id: string) => data.findById(id),
+    // Si una sesión sigue abierta, mirando solo la memoria (el canal en tiempo real, en cada latido).
+    isOpen(id: string): boolean {
+      const session = [...memory.byKey.values()].find((known) => known.id === id);
+      return !!session && closedReasonOf(session, clock.now(), signInSettings.session) === null;
+    },
 
     ...closing(deps),
     ...fromOutside(memory, onEnded),

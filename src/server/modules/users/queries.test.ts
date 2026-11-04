@@ -65,8 +65,9 @@ describe('las consultas de cada ruta de Usuarios', () => {
     });
     counts.close = await count(`/api/users/${linked.userId}/sessions/${sessions[0].id}/close`, {});
     counts.closeAll = await count(`/api/users/${linked.userId}/sessions/close`, {});
-    // Cortar y «Se perdió un celular» suman la de R7.11: los permisos de esas personas.
-    expect(counts).toEqual({ access: 2, lost: 4, lostAgain: 3, cut: 4, close: 3, closeAll: 2 });
+    // Cortar y «Se perdió un celular» suman la de R7.11: los permisos de esas personas. Cerrar y
+    // cortar van en una transacción con su aviso (diseño de 03, § 11.1): suman su comienzo y su fin.
+    expect(counts).toEqual({ access: 2, lost: 4, lostAgain: 3, cut: 6, close: 5, closeAll: 4 });
   });
 
   it('las de los roles', async () => {

@@ -6,6 +6,7 @@
 import { type ApproveCodeBody, approveCodeBody } from '@ferrebress/shared/contracts/sign-in';
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
+import { deviceLabel } from '../../../../platform/device.ts';
 import {
   byAddressAndDevice,
   bySchema,
@@ -87,7 +88,11 @@ function grant(
 ) {
   ctx.screens.release(screen);
   // Sin tope total y reemplazando al anterior de la pantalla, siempre hay permiso (context.ts).
-  const approval = { screenId: screen.id, userId, approvedBy: passkeyId };
+  const phone = {
+    deviceId: c.get('deviceId') as string,
+    label: deviceLabel(c.req.header('User-Agent')),
+  };
+  const approval = { screenId: screen.id, userId, approvedBy: passkeyId, phone };
   const permit = ctx.permits.issue(screen.id, approval) as string;
   screen.notify?.({ type: 'approved', permit });
   ctx.record(c, 'code.approved', { proven: provenPerson(userId) });

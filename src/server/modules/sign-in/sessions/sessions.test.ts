@@ -35,6 +35,14 @@ describe('la sesión', () => {
     expect(await personOf(device)).toBeUndefined();
   });
 
+  it('la plataforma sabe, sin consultar la base, si una sesión sigue abierta (el canal, 03 · R7.2)', async () => {
+    const device = createDevice(server);
+    const { sessionId } = (await device.signInWithGoogle(admin)).body;
+    expect(server.platform.sessions.isOpen(sessionId)).toBe(true);
+    now += minutes(60);
+    expect(server.platform.sessions.isOpen(sessionId)).toBe(false);
+  });
+
   it('sign-in-E23 y E24: vence a las 8 horas aunque se use sin parar', async () => {
     const device = createDevice(server);
     await device.signInWithGoogle(admin);
