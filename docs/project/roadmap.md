@@ -93,7 +93,8 @@ paralelo»).
   en partes con `vitest --shard` y la cobertura juntada al final, y las capturas en el contenedor de
   Playwright; (3) Vitest más rápido en la aplicación (`pool: 'vmThreads'` o `isolate: false`, con el
   riesgo de pruebas que fallan a veces). Antes, `deploy.sh` reintenta al terminar el minuto en vez de
-  descartar el aviso. Cambia lo que dicen ADR-014 y ADR-016. Después del 03a, o en paralelo en otra
+  descartar el aviso. Cambia lo que dicen ADR-014 y ADR-016. Sin costo: el repositorio es público, y
+  las máquinas comunes de GitHub (x86 y ARM) no cobran minutos; las más grandes sí, y quedan afuera. Después del 03a, o en paralelo en otra
   sesión (toca la CI, no el vínculo).
 
 ## Tareas futuras
