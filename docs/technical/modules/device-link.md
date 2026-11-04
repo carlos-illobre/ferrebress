@@ -307,6 +307,9 @@ sequenceDiagram
 - **Un corte se nota en menos de un minuto (R7.2):** el servidor manda un comentario (`:\n\n`) cada 40 s,
   con **un solo temporizador** para todos los canales; la aplicación da el canal por cortado si no llegó
   nada en 55 s.
+- **Medido en el ambiente de pruebas** (con la entrada ya sobre el canal común): un canal quieto pasó
+  100 s por el proxy de la máquina y el Caddy de Ferrebress sin cortarse, con el latido a los 37 y a
+  los 77 s y el código nuevo a los 60 s, cada uno en el momento (sin juntarse).
 - **HTTP/2:** el canal va por la misma conexión que los pedidos. Con cuatro pestañas y HTTP/1.1 ocuparía
   cuatro de las seis conexiones del navegador: la tarea 1 comprueba que el proxy de la máquina hable
   HTTP/2 y no junte ni corte el SSE antes de los 40 s.
