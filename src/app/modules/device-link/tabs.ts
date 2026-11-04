@@ -35,7 +35,8 @@ export function createTabs({ locks = navigator.locks, onChange }: Options) {
     if (!mine && document.visibilityState === 'visible') void hold({ steal: true });
   };
 
-  if (!locks) set(true);
+  // Sin candados no hay a quién avisar todavía: quien la crea lo lee con `mine()`.
+  if (!locks) mine = true;
   else {
     void hold({ ifAvailable: true });
     addEventListener('pointerdown', take, true);

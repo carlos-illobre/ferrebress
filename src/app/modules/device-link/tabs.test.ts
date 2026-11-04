@@ -76,7 +76,7 @@ describe('la pestaña que espeja', () => {
     const onChange = vi.fn();
     const tab = createTabs({ locks: undefined, onChange });
     expect(tab.mine()).toBe(true);
-    expect(onChange).toHaveBeenCalledWith(true);
+    expect(onChange).not.toHaveBeenCalled();
     tab.stop();
   });
 });

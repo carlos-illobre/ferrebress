@@ -2,19 +2,37 @@
 // presentarse, el respaldo y los cambios del vínculo. La computadora lo escucha mientras espera; el
 // celular solo se fija una vez (`peek`): si el otro no está, lo deja, y se entera de que llegó por la
 // huella `l=` de su próximo pedido. Lo que llega se valida: viene del servidor, pero por la red.
-import type { PairingView } from '@ferrebress/shared/contracts/device-link';
+import { sides } from '@ferrebress/shared/contracts/pairing';
 import * as z from 'zod/mini';
+import { flag, oneOf } from '../../../platform/schema.ts';
 import { onRelay, onSignal } from './links.ts';
 import { type Live, pairingToken } from './live.ts';
 
-const event = z.union([
-  z.object({ present: z.boolean(), attempt: z.optional(z.string()) }),
-  z.object({
-    signal: z.object({ attempt: z.string(), kind: z.enum(['offer', 'answer']), sdp: z.string() }),
+// Lo que dice el tema, según qué trae.
+const shapes = {
+  present: z.object({ present: flag, attempt: z.optional(z.string()) }),
+  signal: z.object({
+    signal: z.object({ attempt: z.string(), kind: oneOf(['offer', 'answer']), sdp: z.string() }),
   }),
-  z.object({ relay: z.array(z.unknown()) }),
-  z.object({ pairing: z.custom<PairingView>((value) => typeof value === 'object') }),
-]);
+  relay: z.object({ relay: z.array(z.unknown()) }),
+  pairing: z.object({
+    pairing: z.object({
+      id: z.string(),
+      side: oneOf(sides),
+      other: z.object({ label: z.string() }),
+      since: z.number(),
+      lastMirrored: z.number(),
+      paused: flag,
+    }),
+  }),
+};
+const kinds = Object.keys(shapes) as (keyof typeof shapes)[];
+
+function parse(data: unknown) {
+  const kind = kinds.find((key) => data !== null && typeof data === 'object' && key in data);
+  const parsed = kind && shapes[kind].safeParse(data);
+  return parsed?.success ? parsed.data : undefined;
+}
 
 type Topic = NonNullable<Live['topic']>;
 
@@ -33,12 +51,11 @@ function onPresence(live: Live, topic: Topic, present: boolean, attempt?: string
 }
 
 function onEvent(live: Live, topic: Topic, data: unknown): void {
-  const parsed = event.safeParse(data);
-  if (!parsed.success) {
+  const message = parse(data);
+  if (!message) {
     live.deps.journal.note('invalid', { from: 'topic' });
     return;
   }
-  const message = parsed.data;
   if ('present' in message) onPresence(live, topic, message.present, message.attempt);
   else if ('signal' in message) onSignal(live, message.signal);
   else if ('relay' in message) onRelay(live, message.relay);

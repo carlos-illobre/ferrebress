@@ -3,6 +3,7 @@
 // lo terminaron, lo pausaron o el otro volvió; y el paso de las escrituras hechas mientras se espeja,
 // que llevan `X-Pairing`: con un vínculo que ya terminó, o con el otro lado sin sesión, no pasan.
 import { createHash } from 'node:crypto';
+import { pairingHeaderName } from '@ferrebress/shared/contracts/device-link';
 import type { Context } from 'hono';
 import { fail } from '../../platform/http.ts';
 import type { RequestSession } from '../../platform/session.ts';
@@ -10,7 +11,7 @@ import type { DeviceLinkContext } from './context.ts';
 import { keyOf, pairingTopic } from './lifecycle.ts';
 import { otherSide, type Pairing, sideOf } from './rules.ts';
 
-export const pairingHeader = 'X-Pairing';
+export const pairingHeader = pairingHeaderName;
 
 // La huella: cambia si cambia el vínculo, la pausa o si el otro lado escucha.
 function fingerprintOf(ctx: DeviceLinkContext, pairing: Pairing, session: RequestSession): string {

@@ -1,46 +1,55 @@
 // El protocolo del vínculo, versión 1 (diseño de 03, § 4.4): lo que se dicen la computadora y el
 // celular por el directo o por el servidor. El transporte no lo conoce: acá se valida cada mensaje que
 // llega, y lo que no tiene una forma conocida vuelve como `unknown` (para el diario), nunca tira.
-// Sumar un mensaje es sumar una variante al esquema: quien lo recibe no compila sin manejarlo.
+// Sumar un mensaje es sumar su esquema a la tabla: quien lo recibe no compila sin manejarlo.
 
 import * as z from 'zod/mini';
 import type { Json, Patch } from '../../platform/mirror/registry.ts';
+import { flag, oneOf, type TaggedOf, tagged } from '../../platform/schema.ts';
 
 export const protocolVersion = 1;
 
 // Por qué se va uno: lo que la máquina de estados recibe como `peerGone` en el otro.
 export const byeReasons = ['hidden', 'signout', 'lost', 'handover', 'replaced', 'unpair'] as const;
 
-const json: z.ZodMiniType<Json> = z.custom<Json>(() => true);
+// Un valor del espejo: lo valida el espejo con el esquema de su clave.
+const json = z.unknown() as unknown as z.ZodMiniType<Json>;
+const count = (min: number) => z.int().check(z.minimum(min));
 const patch = z.strictObject({
   k: z.string().check(z.minLength(1), z.maxLength(200)),
   v: json,
-  c: z.int().check(z.minimum(0)),
-  l: z.boolean(),
+  c: count(0),
+  l: flag,
 });
 const patches = z.array(patch).check(z.maxLength(500));
+const bare = <const T extends string>(t: T) => z.strictObject({ t: oneOf([t]) });
 
-const message = z.discriminatedUnion('t', [
+// Uno por tipo de mensaje, elegido por `t`.
+const messages = {
   // `app`: la versión del código; `clock`: el reloj más alto del que sigue (§ 5.2).
-  z.strictObject({
-    t: z.literal('hello'),
-    v: z.literal(protocolVersion),
+  hello: z.strictObject({
+    t: oneOf(['hello']),
+    v: oneOf([protocolVersion]),
     app: z.string().check(z.maxLength(64)),
-    clock: z.optional(z.int().check(z.minimum(0))),
+    clock: z.optional(count(0)),
   }),
-  z.strictObject({ t: z.literal('bye'), why: z.enum(byeReasons) }),
-  z.strictObject({ t: z.enum(['pause', 'resume', 'probe', 'give-up']) }),
+  bye: z.strictObject({ t: oneOf(['bye']), why: oneOf(byeReasons) }),
+  pause: bare('pause'),
+  resume: bare('resume'),
+  probe: bare('probe'),
+  'give-up': bare('give-up'),
   // Cambios del espejo, y la foto en partes de hasta 64 KB (`part` de `of`).
-  z.strictObject({ t: z.literal('patch'), p: patches }),
-  z.strictObject({
-    t: z.literal('snap'),
+  patch: z.strictObject({ t: oneOf(['patch']), p: patches }),
+  snap: z.strictObject({
+    t: oneOf(['snap']),
     p: patches,
-    part: z.int().check(z.minimum(0)),
-    of: z.int().check(z.minimum(1), z.maximum(64)),
+    part: count(0),
+    of: count(1).check(z.maximum(64)),
   }),
-]);
+};
+const message = tagged('t', messages);
 
-export type WireMessage = z.infer<typeof message>;
+export type WireMessage = TaggedOf<typeof messages>;
 export type ByeReason = (typeof byeReasons)[number];
 export type Snap = Extract<WireMessage, { t: 'snap' }>;
 
@@ -48,7 +57,7 @@ export type Snap = Extract<WireMessage, { t: 'snap' }>;
 export type Received = { ok: true; message: WireMessage } | { ok: false; kind: string };
 
 export function read(raw: Json): Received {
-  const parsed = message.safeParse(raw);
+  const parsed = message(raw);
   if (parsed.success) return { ok: true, message: parsed.data as WireMessage };
   const kind =
     raw !== null && typeof raw === 'object' && !Array.isArray(raw) && typeof raw.t === 'string'

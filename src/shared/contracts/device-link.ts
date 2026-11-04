@@ -3,22 +3,9 @@
 // los pedidos y leer las respuestas. El protocolo entre los dos dispositivos (lo que viaja por el
 // directo o por el servidor) no está acá: es del módulo, que lo valida en `wire.ts`.
 import * as z from 'zod/mini';
+import type { PairingView } from './pairing.ts';
 
-// Quién es cada uno en el vínculo: la computadora ofrece y manda al conectarse (R6.3).
-export const sides = ['phone', 'computer'] as const;
-export type Side = (typeof sides)[number];
-
-// El vínculo como lo ve un dispositivo: el suyo, del otro solo el nombre (lista cerrada del servidor).
-// Las horas, en milisegundos desde 1970, del reloj del servidor.
-export type PairingView = {
-  id: string;
-  side: Side;
-  other: { label: string };
-  since: number;
-  // La última vez que estuvieron conectados en espejo: vence a los 30 días sin uso (R2.2).
-  lastMirrored: number;
-  paused: boolean;
-};
+export { type PairingView, pairingHeaderName, type Side, sides } from './pairing.ts';
 
 // Un intento de presentarse: 8 hexadecimales que juntan lo del celular, la computadora y el servidor
 // en el diario y el registro (§ 15).

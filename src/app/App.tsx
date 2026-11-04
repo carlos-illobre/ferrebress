@@ -6,6 +6,7 @@
 import type { Environment } from '@ferrebress/shared/contracts/server-header';
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { watchDeviceLink } from './modules/device-link/index.ts';
 import {
   announceUpdate,
   Dialogs,
@@ -104,6 +105,16 @@ function takeCode(): string | undefined {
 const early = (): StartResponse | undefined =>
   person.get() || hasPendingSignOut() || pendingEntries.get() > 0 ? undefined : unknown();
 
+// Lo que se escucha mientras la aplicación está abierta: los errores, el segundo plano, la conexión,
+// los permisos y el vínculo con el otro dispositivo.
+const watchWhileOpen = () => [
+  watchCrashes(),
+  watchBackground(),
+  watchOffline(),
+  watchPermissions(),
+  watchDeviceLink(),
+];
+
 // Al abrir: arranca, lee el código del QR si vino en la dirección, y escucha lo que pasa mientras
 // la aplicación está abierta (la red, los errores, el segundo plano).
 function useStart(scan: (code: string) => void) {
@@ -124,7 +135,7 @@ function useStart(scan: (code: string) => void) {
     });
     const retry = () => void recheck();
     addEventListener('online', retry);
-    const stops = [watchCrashes(), watchBackground(), watchOffline(), watchPermissions()];
+    const stops = watchWhileOpen();
     return () => {
       removeEventListener('online', retry);
       for (const stop of stops) stop();
