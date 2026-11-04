@@ -16,6 +16,8 @@ export const pairingShape = z.object({
   other: z.object({ label: z.string() }),
   since: z.number(),
   lastMirrored: z.number(),
+  expiresAt: z.number(),
+  lastsDays: z.number(),
   paused: flag,
 });
 

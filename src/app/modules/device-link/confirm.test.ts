@@ -12,6 +12,8 @@ const pairing = {
   other: { label: 'x' },
   since: 0,
   lastMirrored: 0,
+  expiresAt: 30 * 86_400_000,
+  lastsDays: 30,
   paused: false,
 };
 const ok: ApiResult<CheckResponse> = { ok: true, data: { pairing, peer: 'ok' } };

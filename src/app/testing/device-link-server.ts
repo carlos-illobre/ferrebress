@@ -39,6 +39,8 @@ const viewOf = (world: World, side: Side): PairingView => ({
   other: { label: side === 'phone' ? 'Computadora' : 'Celular' },
   since: 0,
   lastMirrored: 0,
+  expiresAt: 30 * 86_400_000,
+  lastsDays: 30,
   paused: world.paused,
 });
 const publish = (world: World, side: Side, data: unknown) =>

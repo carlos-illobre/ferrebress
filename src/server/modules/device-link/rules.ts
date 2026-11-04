@@ -1,6 +1,8 @@
 // Las reglas del vínculo, sin tecnología (diseño de 03, § 9 a § 11; capítulo 03): de qué lado es cada
 // dispositivo, qué vínculos termina uno nuevo, cuándo vence y cómo lo ve cada lado.
+
 import type { PairingView, Side } from '@ferrebress/shared/contracts/device-link';
+import { deviceLinkSettings } from './settings.ts';
 
 export type Pairing = {
   id: string;
@@ -51,12 +53,16 @@ export function replacesOf(replaced: Pairing[], phone: Device, computer: Device)
   };
 }
 
+const day = 24 * 60 * 60_000;
+
 export const viewOf = (pairing: Pairing, side: Side): PairingView => ({
   id: pairing.id,
   side,
   other: { label: side === 'phone' ? pairing.computerLabel : pairing.phoneLabel },
   since: pairing.createdAt.getTime(),
   lastMirrored: pairing.mirroredAt.getTime(),
+  expiresAt: pairing.mirroredAt.getTime() + deviceLinkSettings.pairingDays * day,
+  lastsDays: deviceLinkSettings.pairingDays,
   paused: pairing.pausedAt !== null,
 });
 

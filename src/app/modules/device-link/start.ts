@@ -11,10 +11,11 @@ import { serverNow } from '../../platform/server/clock.ts';
 import { onField } from '../../platform/server/fields.ts';
 import { startParts } from '../../platform/server/start-parts.ts';
 import { person } from '../sign-in/index.ts';
-import { linkRuntime } from './current.ts';
+import { linkOver, linkRuntime, linkStrip } from './current.ts';
 import { createJournal } from './journal.ts';
 import { pairingShape } from './runtime/topic.ts';
 import { createRuntime } from './runtime.ts';
+import { Over } from './screens/Detail/Over.tsx';
 import { createStrip, type Strip } from './strip.ts';
 import { createTabs } from './tabs.ts';
 import type { Watched } from './watch.ts';
@@ -51,6 +52,9 @@ export function stripOfPerson(): () => Strip | undefined {
 
 export function startDeviceLink(): () => void {
   const journal = createJournal();
+  const strip = stripOfPerson();
+  linkStrip.set({ of: strip });
+  linkOver.set({ Over });
   const runtime = createRuntime({
     api,
     want: realtime.want,
@@ -60,7 +64,7 @@ export function startDeviceLink(): () => void {
     appVersion,
     outdated: newVersion.get,
     journal,
-    strip: stripOfPerson(),
+    strip,
   });
   linkRuntime.set(runtime);
   const stop = watchLink({
@@ -77,5 +81,6 @@ export function startDeviceLink(): () => void {
     runtime.stop();
     journal.stop();
     linkRuntime.set(undefined);
+    linkOver.set(undefined);
   };
 }

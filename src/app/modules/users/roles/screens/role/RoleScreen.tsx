@@ -10,7 +10,7 @@ import { isPhone } from '../../../../../platform/device/device.ts';
 import { guardNavigation, navigate } from '../../../../../platform/router.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../../ui/toast/Toast.tsx';
-import { PhoneLight, registerWork } from '../../../../frame/index.ts';
+import { PhoneLight, PhoneLink, registerWork } from '../../../../frame/index.ts';
 import { usersApi } from '../../../api.ts';
 import { refusalText } from '../../../refusals.ts';
 import { useUsersContext } from '../../../state.ts';
@@ -146,7 +146,10 @@ export function RoleScreen({ start }: { start: Draft }) {
           <Icon name="chevron-right" size="small" />
           <span>{draft.id ? start.name : t.newCrumb}</span>
         </nav>
-        <h2 class="role-title">{title}</h2>
+        <div class="title-row">
+          <h2 class="role-title">{title}</h2>
+          <PhoneLink />
+        </div>
         <PhoneLight />
         <p class="role-lead">{t.lead}</p>
         <RoleActions draft={draft} dirty={dirty} save={saving.save} />

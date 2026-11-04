@@ -13,7 +13,13 @@ import { useCollapse } from '../../behavior/useCollapse.ts';
 import { usePanels } from '../../behavior/usePanels.ts';
 import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
 import { useTip } from '../../behavior/useTip.ts';
-import { FrameContext, type FrameState, type SettingRow, shake } from '../../context.ts';
+import {
+  FrameContext,
+  type FrameLink,
+  type FrameState,
+  type SettingRow,
+  shake,
+} from '../../context.ts';
 import { allowed, firstOption, goToFirst, insideAt, type Option, optionAt } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
@@ -33,12 +39,21 @@ export type FrameProps = {
   testing: boolean;
   onSignOut: () => unknown;
   setting?: SettingRow | undefined;
+  link?: FrameLink | undefined;
   // La pantalla de cada opción que ya existe, por su id: las pone cada módulo, por App.
   screens?: Partial<Record<string, ComponentType>> | undefined;
   children?: ComponentChildren;
 };
 
-export function Frame({ person, testing, onSignOut, setting, screens, children }: FrameProps) {
+// Lo que todavía no está, al tocarlo: se sacude y lo dice, en un globo o, angosto, en una tostada.
+const notYetWith = (tip: FrameState['tip']) => (element: HTMLElement, name: string) => {
+  shake(element);
+  if (isNarrow()) showToast(texts.notYetShort(name));
+  else tip.notYet(element, name);
+};
+
+export function Frame(props: FrameProps) {
+  const { person, testing, onSignOut, setting, screens, children, link } = props;
   const online = useStore(onlineStore);
   // La opción abierta es la de la dirección; en cualquier otra, la primera que puede usar (R1.4).
   const opened = optionAt(useStore(route).path);
@@ -68,13 +83,10 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
     panels,
     phoneMore,
     tip,
-    notYet(element, name) {
-      shake(element);
-      if (isNarrow()) showToast(texts.notYetShort(name));
-      else tip.notYet(element, name);
-    },
+    notYet: notYetWith(tip),
     signOut: onSignOut,
     setting,
+    link,
   };
   return (
     <FrameContext.Provider value={state}>
@@ -93,6 +105,7 @@ export function Frame({ person, testing, onSignOut, setting, screens, children }
       </div>
       <PendingPanel />
       <PhoneSheets />
+      {link && <link.Over />}
       <Tips />
       {testing && <TestEnvironment />}
     </FrameContext.Provider>

@@ -5,7 +5,7 @@
   "points": {
     "search": [
       60.5,
-      6.8
+      10
     ],
     "authorize": [
       56.2,
@@ -17,9 +17,9 @@
     ],
     "person": [
       13.1,
-      55.7
+      57.3
     ]
   },
-  "hash": "84bd1236890cbbd0f6ecc9ba038f098cf2826b6940294f9471bf49079d3232dc",
-  "file": "95cadae9e0bd18d028c22910616d2cb27b0b6f0300380f73d08959da95c4a345"
+  "hash": "2ee6c7c86c1f7a31942219cebb5b69d71e1496d06635f1f5571463154458690f",
+  "file": "d4612e1636d66b1ea685d260d6f7973a9ac046101ce8101bf7268a00221925bf"
 }

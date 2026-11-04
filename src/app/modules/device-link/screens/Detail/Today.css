@@ -1,0 +1,195 @@
+/* La tira del día (R4.4) y los datos del vínculo, en los colores de la ficha. */
+@layer screens {
+  .today {
+    margin-top: 16px;
+    display: grid;
+    gap: 6px;
+  }
+  .today-head {
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 650;
+    color: var(--text-2);
+  }
+  .today-head b,
+  .today-legend b {
+    color: var(--ink);
+    font-weight: 800;
+  }
+  .today-strip {
+    position: relative;
+    height: 12px;
+    border-radius: 99px;
+    background: var(--sunken);
+    overflow: hidden;
+  }
+  .today-segment {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--from);
+    width: calc(var(--length) - 2px);
+    border-radius: 99px;
+    background: var(--lane);
+  }
+  .today-segment:last-child {
+    width: var(--length);
+  }
+  [data-lane="direct"] {
+    --lane: var(--success);
+  }
+  [data-lane="relayed"] {
+    --lane: var(--urgent);
+  }
+  [data-lane="apart"] {
+    --lane: var(--text-3);
+  }
+  .today-hours {
+    position: relative;
+    height: 18px;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 600;
+    color: var(--text-3);
+  }
+  .today-hours span {
+    position: absolute;
+    left: var(--at);
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  .today-hours span:last-child {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+  .today-legend {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    color: var(--text-2);
+  }
+  .today-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .today-legend li::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 99px;
+    background: var(--lane);
+  }
+
+  .facts {
+    margin: 16px 0 0;
+    padding: 0;
+    border-top: 1px solid var(--border);
+  }
+  .facts-row {
+    display: grid;
+    grid-template-columns: 20px 128px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .facts-row:last-child {
+    border-bottom: 0;
+  }
+  .facts-row .icon {
+    color: var(--text-3);
+  }
+  .facts-row dt {
+    color: var(--text-2);
+    font-weight: 600;
+  }
+  .facts-row dd {
+    margin: 0;
+    font-weight: 700;
+  }
+  .facts-since {
+    color: var(--text-2);
+    font-weight: 600;
+  }
+  .facts-lasts {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .facts-bar {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .facts-bar .bar {
+    flex: 1;
+    height: 6px;
+    border-radius: 99px;
+    background: var(--sunken-2);
+    overflow: hidden;
+  }
+  .facts-bar .bar b {
+    display: block;
+    height: 100%;
+    background: var(--pine);
+    border-radius: 99px;
+  }
+  .facts-bar small {
+    font-size: 14px;
+    color: var(--text-2);
+    font-weight: 650;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 899px) {
+    .route {
+      grid-template-columns: 88px 1fr 88px;
+    }
+    .route-box {
+      margin-top: 12px;
+      padding: 28px 8px 10px;
+    }
+    .link-phrase p {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .facts {
+      border-top: 0;
+      display: grid;
+      gap: 2px;
+    }
+    .facts-row {
+      display: flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0;
+      border: 0;
+      color: var(--text-2);
+      font-weight: 600;
+    }
+    .facts-row dt {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+  }
+}

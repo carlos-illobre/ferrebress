@@ -1,0 +1,186 @@
+/* El indicador del vínculo (maqueta aprobada de 03, device-link-indicator/final): el punto del estado,
+   el renglón del lateral y la pastilla del celular. */
+@layer screens {
+  .link-dot {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 99px;
+    flex: none;
+    background: var(--text-3);
+    color: var(--text-3);
+  }
+  .link-dot::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 99px;
+    background: currentColor;
+    opacity: 0;
+  }
+  [data-tone="success"] .link-dot {
+    background: var(--success);
+    color: var(--success);
+  }
+  [data-tone="urgent"] .link-dot {
+    background: var(--urgent);
+    color: var(--urgent);
+  }
+  [data-tone="error"] .link-dot {
+    background: var(--error);
+    color: var(--error);
+  }
+  [data-tone="waiting"] .link-dot {
+    background: transparent;
+    border: 2px solid var(--pine-text);
+    color: var(--pine-text);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-tone="success"] .link-dot::after {
+      animation: link-beat 2.4s var(--ease) infinite;
+    }
+    [data-tone="waiting"] .link-dot::after {
+      animation: link-beat 1.6s var(--ease) infinite;
+    }
+  }
+  @keyframes link-beat {
+    0% {
+      opacity: 0.35;
+      transform: scale(0.4);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.5);
+    }
+  }
+
+  /* El renglón al pie del lateral (computadora). */
+  .link-indicator {
+    position: relative;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px 8px 8px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    text-align: left;
+    color: var(--ink);
+    transition: transform var(--time-micro) var(--ease);
+  }
+  .link-indicator:active {
+    transform: scale(0.97);
+  }
+  .link-indicator[aria-expanded="true"] {
+    border-color: var(--pine);
+    box-shadow: 0 0 0 3px rgb(18 56 47 / 12%);
+  }
+  .link-indicator-icon {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--sunken);
+    display: grid;
+    place-items: center;
+    color: var(--text-2);
+  }
+  .link-indicator-icon .link-dot {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--surface);
+  }
+  .link-indicator[data-tone="waiting"] .link-indicator-icon .link-dot {
+    border-width: 3px;
+  }
+  .link-indicator-text {
+    min-width: 0;
+    display: grid;
+  }
+  .link-indicator-text b {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 800;
+  }
+  .link-indicator-text small {
+    font-size: 14px;
+    line-height: 18px;
+    color: var(--text-2);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .link-indicator[data-tone="success"] b {
+    color: var(--success-text);
+  }
+  .link-indicator[data-tone="urgent"] b {
+    color: var(--urgent-text);
+  }
+  .link-indicator[data-tone="error"] b {
+    color: var(--error-text);
+  }
+  .link-indicator[data-tone="waiting"] b {
+    color: var(--pine-text);
+  }
+  .link-indicator kbd {
+    position: absolute;
+    right: -6px;
+    top: -10px;
+  }
+
+  /* La pastilla a la derecha del título (celular). */
+  .link-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    max-width: 210px;
+    padding: 0 12px 0 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    font-size: 14px;
+    font-weight: 750;
+    color: var(--ink);
+    transition: transform var(--time-micro) var(--ease);
+  }
+  .link-pill:active {
+    transform: scale(0.96);
+  }
+  .link-pill-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .link-pill[data-tone="neutral"] .icon {
+    color: var(--text-2);
+  }
+  .link-pill[data-tone="success"] {
+    color: var(--success-text);
+    border-color: transparent;
+    background: var(--success-soft);
+  }
+  .link-pill[data-tone="urgent"] {
+    color: var(--urgent-text);
+    border-color: transparent;
+    background: var(--urgent-soft);
+  }
+  .link-pill[data-tone="error"] {
+    color: var(--error-text);
+    border-color: transparent;
+    background: var(--error-soft);
+  }
+  .link-pill[data-tone="waiting"] {
+    color: var(--pine-text);
+    border-color: transparent;
+    background: var(--pine-soft);
+  }
+}

@@ -29,6 +29,17 @@ export function PhoneLight() {
   );
 }
 
+// El indicador del vínculo en el celular (03 · R4.1), a la derecha del título: lo pone cada pantalla.
+export function PhoneLink() {
+  const frame = useContext(FrameContext);
+  if (!frame?.link) return null;
+  return (
+    <span class="phone-link phone-only">
+      <frame.link.Phone />
+    </span>
+  );
+}
+
 export function PhoneNav() {
   const { phoneMore, current, person } = useFrame();
   // Más queda elegida también con una de sus opciones abierta.

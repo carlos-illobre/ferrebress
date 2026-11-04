@@ -17,7 +17,18 @@
     font-size: 14px;
     white-space: nowrap;
   }
-  /* «Buscar usuario» en el celular: una pastilla al lado del título. */
+  /* En el celular, a la derecha del título va el indicador del vínculo (03): «Buscar usuario» pasa al
+     renglón de la luz, a la derecha. */
+  .users-heading {
+    flex: 1;
+    min-width: 0;
+  }
+  .users-subrow {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+  }
+  /* «Buscar usuario» en el celular: una pastilla. */
   .users-tool {
     display: inline-flex;
     align-items: center;

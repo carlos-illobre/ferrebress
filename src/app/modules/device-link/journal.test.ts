@@ -9,6 +9,8 @@ const pairing = {
   other: { label: 'Ana' },
   since: 0,
   lastMirrored: 0,
+  expiresAt: 30 * 86_400_000,
+  lastsDays: 30,
   paused: false,
 };
 

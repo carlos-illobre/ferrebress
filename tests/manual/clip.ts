@@ -68,7 +68,7 @@ async function play(page: Page, baseURL: string, scene: { entered: boolean }): P
   await page.waitForTimeout(2500);
   scene.entered = true;
   await computer.goto(`${baseURL}/`);
-  await expect(computer.getByText(ana.name)).toBeVisible();
+  await expect(computer.getByLabel('Tu sesión').getByText(ana.name)).toBeVisible();
   await page.waitForTimeout(2500);
 }
 

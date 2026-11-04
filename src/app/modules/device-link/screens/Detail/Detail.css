@@ -1,0 +1,237 @@
+/* El detalle del vínculo (maqueta aprobada de 03, device-link-indicator/final): la ficha que flota al
+   lado del lateral en la computadora (620 px, entra sin desplazarse en 1366 × 657) y la hoja del
+   celular. La ruta, la frase, la tira del día, los datos y los botones. */
+@layer screens {
+  .link-detail {
+    position: fixed;
+    left: 224px;
+    bottom: 12px;
+    z-index: 30;
+    width: 620px;
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 18px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sheet);
+    box-shadow: var(--shadow-3);
+    transform-origin: left bottom;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .link-detail {
+      animation: link-detail-in var(--time-nav) var(--ease);
+    }
+  }
+  @keyframes link-detail-in {
+    from {
+      opacity: 0;
+      transform: translateX(-12px) scale(0.98);
+    }
+  }
+  .link-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .link-title {
+    flex: 1;
+    margin: 0;
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+  }
+
+  /* La ruta dibujada */
+  .route-box {
+    padding: 26px 16px 10px;
+    border-radius: var(--radius-card);
+    background: var(--background);
+  }
+  .route {
+    display: grid;
+    grid-template-columns: 136px 1fr 136px;
+    align-items: start;
+    gap: 4px;
+  }
+  .route-node {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    text-align: center;
+  }
+  .route-node small {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 650;
+    color: var(--text-2);
+  }
+  .route-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-1);
+    display: grid;
+    place-items: center;
+    color: var(--ink);
+  }
+  .route-span {
+    position: relative;
+    height: 52px;
+  }
+  .route-cable {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 25px;
+    border-top: 3px solid var(--success);
+  }
+  .route-medium {
+    position: absolute;
+    left: 50%;
+    top: 26px;
+    width: 36px;
+    height: 36px;
+    margin: -18px 0 0 -18px;
+    border-radius: 99px;
+    display: grid;
+    place-items: center;
+    background: var(--success-soft);
+    color: var(--success-text);
+    border: 3px solid var(--surface);
+  }
+  .route-latency {
+    position: absolute;
+    left: 50%;
+    top: -6px;
+    transform: translate(-50%, -100%);
+    font-size: 14px;
+    font-weight: 750;
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+  .route[data-status="relayed"] .route-cable {
+    border-top-style: dashed;
+    border-top-color: var(--urgent);
+  }
+  .route[data-status="relayed"] .route-medium {
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+  }
+  .route[data-status="paused"] .route-cable,
+  .route[data-status="unpaired"] .route-cable {
+    border-top: 3px dashed var(--border-strong);
+  }
+  .route[data-status="paused"] .route-medium,
+  .route[data-status="unpaired"] .route-medium {
+    background: var(--sunken);
+    color: var(--text-2);
+  }
+  .route[data-status="waiting"] .route-cable {
+    border-top: 3px dotted var(--pine-text);
+    opacity: 0.6;
+  }
+  .route[data-status="waiting"] .route-medium {
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .route[data-status="waiting"] .route-node:last-child .route-icon {
+    opacity: 0.55;
+  }
+  .route[data-status="offline"] .route-cable {
+    border-top: 3px dashed var(--error);
+    opacity: 0.7;
+  }
+  .route[data-status="offline"] .route-medium {
+    background: var(--error-soft);
+    color: var(--error-text);
+  }
+  .route[data-status="unpaired"] .route-node:last-child .route-icon {
+    background: transparent;
+    border: 2px dashed var(--border-strong);
+    box-shadow: none;
+    color: var(--text-3);
+  }
+
+  /* La frase del estado, con su pastilla, o «No se pudo» en su lugar */
+  .link-phrase {
+    margin: 16px 0 0;
+    display: grid;
+    gap: 8px;
+  }
+  .link-phrase p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--ink);
+  }
+  .link-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 28px;
+    padding: 0 12px;
+    justify-self: start;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--sunken);
+    color: var(--text-2);
+  }
+  .link-state[data-tone="success"] {
+    background: var(--success-soft);
+    color: var(--success-text);
+  }
+  .link-state[data-tone="urgent"] {
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+  }
+  .link-state[data-tone="error"] {
+    background: var(--error-soft);
+    color: var(--error-text);
+  }
+  .link-state[data-tone="waiting"] {
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .link-phrase .link-failed {
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+    font-weight: 650;
+  }
+  .link-steps {
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    counter-reset: step;
+  }
+  .link-steps li {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-2);
+  }
+  .link-steps li::before {
+    counter-increment: step;
+    content: counter(step);
+    width: 24px;
+    height: 24px;
+    border-radius: 99px;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+  }
+}

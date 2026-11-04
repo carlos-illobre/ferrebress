@@ -18,5 +18,8 @@ export type PairingView = {
   since: number;
   // La última vez que estuvieron conectados en espejo: vence a los 30 días sin uso (R2.2).
   lastMirrored: number;
+  // Cuándo vence si no se espeja antes, y de cuántos días es el plazo (R2.2: hoy, 30).
+  expiresAt: number;
+  lastsDays: number;
   paused: boolean;
 };

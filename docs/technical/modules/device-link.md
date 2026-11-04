@@ -1116,7 +1116,14 @@ pieza). Las clases pasan al CSS con el nombre de la pieza; los tokens, de `style
 - **La tira** (R4.4): tramos `[desde, hasta, grupo]` en `localStorage`, con la clave
   `device-link.strip.<hash corto de la persona>`, así otra persona en la misma computadora no ve ni suma
   los tramos de la anterior. Menos de 1 KB, del día del negocio según la hora del servidor (00 · R8.4).
-- Lo que se baja aparte (WebRTC, espejo, detalle, unos 12 KB): con vínculo o al abrir el detalle.
+- Lo que se baja aparte (WebRTC, espejo y detalle): todo junto, enseguida después del arranque, en la
+  misma pieza que el vínculo (`start.ts`). Un detalle bajado aparte desde el marco partía el arranque
+  en tres archivos y costaba 2,6 KB más comprimido (gzip comprime peor cada pedazo).
+- **El marco no conoce el vínculo:** recibe `link` con sus tres piezas (el indicador del lateral, el del
+  título del celular y lo que abren) y las pone en su lugar. Cada pantalla pone `PhoneLink` a la
+  derecha de su título. En Usuarios, «Buscar usuario» pasó al renglón de la luz, a la derecha.
+- **Un componente o una función no va suelto en un store:** `useStore` lo pasa a `useState`, que lo toma
+  por el inicializador. `linkOver` y `linkStrip` lo llevan adentro de un objeto.
 
 ## 14. Cómo se suma algo nuevo sin tocar lo que existe, y qué lo hace robusto
 

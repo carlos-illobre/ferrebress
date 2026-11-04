@@ -1,0 +1,62 @@
+/* Los botones del detalle y la confirmación de desvincular. */
+@layer screens {
+  /* Los botones: la acción principal ancha y los demás en una fila partida */
+  .link-actions {
+    display: grid;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .link-actions > .button {
+    width: 100%;
+  }
+  .link-action-rows {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .link-action-rows .button {
+    flex: 1 1 auto;
+    justify-content: center;
+    height: 44px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--surface);
+  }
+  .link-action-rows .button + .button {
+    border-left: 1px solid var(--border);
+  }
+  .link-confirm-foot {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
+
+  @media (max-width: 899px) {
+    .link-action-rows {
+      display: grid;
+      gap: 8px;
+      border: 0;
+      border-radius: 0;
+      overflow: visible;
+    }
+    .link-action-rows .button {
+      justify-content: flex-start;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-1);
+    }
+    .link-action-rows .button + .button {
+      border-left: 1px solid var(--border-strong);
+    }
+    .link-confirm-foot {
+      display: grid;
+      justify-content: stretch;
+    }
+    .link-confirm-foot .button:last-child {
+      order: -1;
+    }
+  }
+}

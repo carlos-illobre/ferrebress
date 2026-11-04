@@ -10,9 +10,10 @@ import { LightText, Pending } from '../Pending/Pending.tsx';
 import { CloseForKeyboard } from './More.tsx';
 
 export function SideFooter() {
-  const { panels } = useFrame();
+  const { panels, link } = useFrame();
   return (
     <div class="side-footer">
+      {link && <link.Side />}
       <Light />
       <PersonMini />
       <PersonCard open={panels.open === 'person'} />

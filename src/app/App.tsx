@@ -6,7 +6,7 @@
 import type { Environment } from '@ferrebress/shared/contracts/server-header';
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { watchDeviceLink } from './modules/device-link/index.ts';
+import { frameLink, watchDeviceLink } from './modules/device-link/index.ts';
 import {
   announceUpdate,
   Dialogs,
@@ -166,6 +166,9 @@ function useStart(scan: (code: string) => void) {
   return { start, who, closed, refresh, renew };
 }
 
+// Lo que el marco recibe de los módulos: sus pantallas, el vínculo y cómo salir.
+const frameParts = { screens, link: frameLink, onSignOut: leave };
+
 export function App() {
   const [camera, setCamera] = useState(false);
   const code = usePhoneCode();
@@ -192,7 +195,7 @@ export function App() {
     <>
       {who && (
         <div class="behind-manual" hidden={manual} inert={manual}>
-          <Frame {...{ person: who, testing, setting, screens }} onSignOut={leave} />
+          <Frame {...{ person: who, testing, setting, ...frameParts }} />
         </div>
       )}
       {entrance && (

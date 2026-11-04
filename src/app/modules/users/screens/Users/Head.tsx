@@ -3,7 +3,7 @@
 // «Se perdió un celular» va arriba de la lista y «Autorizar a alguien», abajo (maqueta).
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { PhoneLight } from '../../../frame/index.ts';
+import { PhoneLight, PhoneLink } from '../../../frame/index.ts';
 import { useUsersContext } from '../../state.ts';
 import { texts } from '../../texts.ts';
 import './Head.css';
@@ -51,10 +51,15 @@ export function Head() {
     <>
       <header class="users-head">
         <div class="users-heading">
-          <h1 class="users-title">{texts.title}</h1>
-          <PhoneLight />
+          <div class="title-row">
+            <h1 class="users-title">{texts.title}</h1>
+            <PhoneLink />
+          </div>
+          <div class="users-subrow">
+            <PhoneLight />
+            <SearchButton />
+          </div>
         </div>
-        <SearchButton />
         <div class="users-actions desktop-only">
           {users.tab === 'people' && (
             <>

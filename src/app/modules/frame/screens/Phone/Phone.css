@@ -96,4 +96,13 @@
   .frame-sheet .sheet-grabber {
     margin: 4px auto 12px;
   }
+  /* El título de cada pantalla, con el indicador del vínculo a la derecha (03 · R4.1). */
+  .title-row {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+  }
+  .phone-link {
+    margin-left: auto;
+  }
 }
