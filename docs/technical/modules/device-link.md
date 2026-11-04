@@ -1304,6 +1304,20 @@ reintento de § 8.5. Con los números de arriba, ya en `mobile-data.md`.
 - Notar que el otro se fue: al instante si se ocultó (`bye`); en menos de 10 s si se apagó (ICE); un canal
   cortado, en menos de 55 s (R7.2).
 
+**Medido en el local** (la prueba de campo, `tests/field/peer/`, con la notebook en Chrome 156 sobre
+Windows y el celular Android, los dos en el Wi-Fi del local):
+
+- **El directo anda** en ese Wi-Fi: sin STUN ni TURN, con candidatos `host` mDNS (`.local`). La
+  computadora dio dos (dos interfaces). El par elegido fue `host`/`prflx` (el otro aprendido por sus
+  comprobaciones), como se espera con mDNS.
+- **Juntar los candidatos:** el navegador avisó que terminó a los 146 ms. En Chromium sin pantalla, en
+  cambio, no avisa nunca: `direct.ts` sigue también a los 300 ms sin candidatos nuevos, con un tope de 1 s.
+- **Abrir:** ICE pasó a `connected` 40 ms después de aplicar la respuesta, y el canal abrió 50 ms después.
+- **Ida y vuelta de un mensaje chico** (100 seguidos): p50 8,3 ms, p95 27,5 ms, máximo 101,8 ms. De ida
+  sola, la mitad: unos 4 ms de mediana y 14 ms en el p95, dentro de los 10 ms del presupuesto de Wi-Fi en
+  la mediana. El máximo (unos 50 ms de ida) es un salto del Wi-Fi: con dibujar, ese toque puede pasar los
+  50 ms de R6.5 de vez en cuando, no de forma sostenida.
+
 ### 18.4. Servidor
 
 | Pedido | Consultas | Tiempo |

@@ -153,8 +153,11 @@ async function measure(pc: RTCPeerConnection, channel: RTCDataChannel): Promise<
   finish(true);
 }
 
+// Si el canal abrió; el plazo se cuenta recién desde que la computadora leyó la respuesta, porque
+// antes depende de cuánto tarda la persona en mostrar los códigos.
+let opened = false;
+
 function watch(pc: RTCPeerConnection, channel: RTCDataChannel, answering: boolean): void {
-  let opened = false;
   pc.addEventListener('iceconnectionstatechange', () => log(`ICE: ${pc.iceConnectionState}`));
   channel.onopen = () => {
     opened = true;
@@ -163,11 +166,13 @@ function watch(pc: RTCPeerConnection, channel: RTCDataChannel, answering: boolea
     if (answering) channel.onmessage = (event) => channel.send(event.data);
     else void measure(pc, channel);
   };
+}
+
+function deadline(): void {
   setTimeout(() => {
-    if (!opened) {
-      log('el canal no abrió en 15 s: la red no deja la conexión directa');
-      finish(false);
-    }
+    if (opened) return;
+    log('el canal no abrió en 15 s desde la respuesta: la red no deja la conexión directa');
+    finish(false);
   }, 15_000);
 }
 
@@ -196,6 +201,7 @@ async function asComputer(): Promise<void> {
   const onAnswer = async (data: Brief) => {
     log('respuesta leída');
     await pc.setRemoteDescription(rebuild(data));
+    deadline();
   };
   $('read').hidden = false;
   $('read').onclick = () => void scan('answer', onAnswer);
