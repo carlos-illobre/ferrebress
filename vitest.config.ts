@@ -29,7 +29,9 @@ export default defineConfig({
       // platform/offline/worker.ts; src/server/testing/pglite-template.ts corre antes de las
       // pruebas, fuera de ellas; src/server/platform/storage/audit/thread.ts conecta el hilo de
       // lectura de la auditoría con query.ts, que se prueba en el mismo hilo (y el hilo, en
-      // query.test.ts, sin cobertura: la de otro hilo no se mide). Las configuraciones no son código.
+      // query.test.ts, sin cobertura: la de otro hilo no se mide); src/app/platform/peer/rtc.ts es el
+      // adaptador de WebRTC, que solo habla con el navegador: su lógica está en direct.ts, que se
+      // prueba con uno de mentira (diseño de 03, § 4.2). Las configuraciones no son código.
       exclude: [
         'tools/cli.ts',
         'src/server/main.ts',
@@ -39,6 +41,7 @@ export default defineConfig({
         'src/app/google-button.ts',
         'src/server/testing/pglite-template.ts',
         'src/server/platform/storage/audit/thread.ts',
+        'src/app/platform/peer/rtc.ts',
         '**/*.config.ts',
         '**/*.test.{ts,tsx}',
       ],
