@@ -52,7 +52,7 @@ paralelo»).
 
 | Parte | Qué incluye | Estado |
 |---|---|---|
-| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
+| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | En curso: 03a, paso 6 (el canal, el espejo, el transporte y los contratos) |
 | Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | En curso: 03a, paso 6 (los documentos que deja viejos el diseño del vínculo) |
 
 ## Tareas pendientes de la base
