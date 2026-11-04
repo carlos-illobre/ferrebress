@@ -4,6 +4,7 @@ import type { Kysely } from 'kysely';
 import type { Clock } from './clock.ts';
 import type { Config } from './config.ts';
 import type { Events } from './events.ts';
+import type { HeaderFields } from './header-fields.ts';
 import type { Http } from './http.ts';
 import type { RateLimiter } from './limits/rate-limit.ts';
 import type { PermissionGate } from './permissions.ts';
@@ -21,6 +22,8 @@ export type Platform = {
   limiter: RateLimiter;
   events: Events;
   http: Http;
+  // Los campos que un módulo suma a la cabecera de cada respuesta (diseño de 03, § 3.5).
+  header: HeaderFields;
   // La sesión del pedido: sign-in da cómo se resuelve; cualquier módulo la exige con `require`.
   sessions: SessionGate;
   // El permiso de cada ruta: users da cómo se saben; cualquier módulo lo pide con `require(id)`.

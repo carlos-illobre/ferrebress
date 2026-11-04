@@ -4,8 +4,8 @@
 // la entrada está a la vista: con la pestaña escondida se cierra, y se vuelve a abrir al volver.
 import { useEffect, useState } from 'preact/hooks';
 import { createProofKey } from '../../../platform/device/proof-key.ts';
+import { openStream, type StreamEvent } from '../../../platform/realtime/sse.ts';
 import { appHeaders } from '../../../platform/server/api.ts';
-import { type ChannelEvent, openChannel } from '../../../platform/server/realtime.ts';
 import { signInApi } from '../api.ts';
 import { enteringWith, finish } from '../useSignIn.ts';
 
@@ -23,7 +23,7 @@ export function useComputerCode(enabled: boolean): ComputerCode {
 
   useEffect(() => {
     if (!enabled) return;
-    const onEvent = ({ type, data }: ChannelEvent) => {
+    const onEvent = ({ type, data }: StreamEvent) => {
       const event = data as { code?: string; permit?: string };
       if (type === 'code') setState({ code: event.code as string, read: false, since: Date.now() });
       else if (type === 'read' || type === 'cancelled')
@@ -33,7 +33,7 @@ export function useComputerCode(enabled: boolean): ComputerCode {
     let close: (() => void) | undefined;
     const follow = () => {
       close?.();
-      close = document.visibilityState === 'visible' ? openChannel({ open, onEvent }) : undefined;
+      close = document.visibilityState === 'visible' ? openStream({ open, onEvent }) : undefined;
     };
     follow();
     document.addEventListener('visibilitychange', follow);

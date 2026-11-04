@@ -11,6 +11,7 @@ import { parseServerHeader, serverHeaderName } from '@ferrebress/shared/contract
 import { deviceId } from '../device/device.ts';
 import { createStore } from '../store.ts';
 import { syncServerTime } from './clock.ts';
+import { readFields } from './fields.ts';
 
 // La versión de esta aplicación: el commit con que se construyó (vite.config.ts); en desarrollo,
 // «dev», igual que el servidor local.
@@ -40,12 +41,23 @@ export const appHeaders = (): Record<string, string> => ({
   [deviceIdHeaderName]: deviceId(),
 });
 
+// Un módulo puede sumar cabeceras a los pedidos sin que api() lo conozca (diseño de 03, § 7: el
+// vínculo en las escrituras). Devuelve cómo dejar de sumarlas.
+type Decorator = (request: { path: string; write: boolean }) => Record<string, string>;
+const decorators = new Set<Decorator>();
+export function decorate(decorator: Decorator): () => void {
+  decorators.add(decorator);
+  return () => void decorators.delete(decorator);
+}
+const decorated = (path: string, write: boolean) =>
+  Object.assign({}, ...[...decorators].map((decorator) => decorator({ path, write })));
+
 export async function api<T>(
   path: string,
   body?: unknown,
   signal?: AbortSignal,
 ): Promise<ApiResult<T>> {
-  const headers = appHeaders();
+  const headers = { ...appHeaders(), ...decorated(path, body !== undefined) };
   const init: RequestInit =
     body === undefined
       ? { headers }
@@ -55,7 +67,7 @@ export async function api<T>(
           headers: { ...headers, 'Content-Type': 'application/json' },
         };
   const response = await fetch(path, { ...init, ...(signal && { signal }) }).catch(() => undefined);
-  if (response) readServerHeader(response);
+  if (response) await readServerHeader(response);
   // Sin respuesta, o sin JSON (el 502 de Caddy mientras el servidor se reinicia, una página de error
   // del proxy), no se llega al servidor: se sigue como sin conexión (R3.6).
   const data = (await response?.json().catch(() => undefined)) as (T & ErrorBody) | undefined;
@@ -73,10 +85,11 @@ export async function api<T>(
   return { ok: false, ...data };
 }
 
-function readServerHeader(response: Response): void {
+async function readServerHeader(response: Response): Promise<void> {
   const header = parseServerHeader(response.headers.get(serverHeaderName));
   if (!header) return;
   syncServerTime(header.serverTime);
   if (header.version !== appVersion) newVersion.set(true);
   if (header.permissions) permissionsHash.set(header.permissions);
+  await readFields(header.fields ?? {});
 }

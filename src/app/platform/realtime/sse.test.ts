@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { type ChannelEvent, openChannel } from './realtime.ts';
+import { openStream, type StreamEvent } from './sse.ts';
 
 const sse = (text: string, status = 200) =>
   new Response(
@@ -18,7 +18,7 @@ describe('el canal temporal', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('entrega los avisos que llegan, aunque vengan partidos', async () => {
-    const events: ChannelEvent[] = [];
+    const events: StreamEvent[] = [];
     const body = new ReadableStream({
       start(controller) {
         controller.enqueue(new TextEncoder().encode('event: code\ndata: {"code":"ab'));
@@ -27,7 +27,7 @@ describe('el canal temporal', () => {
         );
       },
     });
-    const close = openChannel({
+    const close = openStream({
       open: async () => new Response(body),
       onEvent: (event) => events.push(event),
     });
@@ -42,7 +42,7 @@ describe('el canal temporal', () => {
   it('si se corta, vuelve a abrir como mucho tres veces con espera creciente, y después espera la red', async () => {
     const waits: number[] = [];
     const open = vi.fn(async () => sse('', 500));
-    const close = openChannel({
+    const close = openStream({
       open,
       onEvent: () => {},
       wait: async (ms) => void waits.push(ms),
@@ -68,8 +68,8 @@ describe('el canal temporal', () => {
       .mockResolvedValueOnce(tooMany('{"error":"too-many-attempts","retryAfterSeconds":42}'))
       .mockResolvedValueOnce(tooMany('sin JSON'))
       .mockResolvedValue(sse('event: code\ndata: {}\n\n'));
-    const events: ChannelEvent[] = [];
-    const close = openChannel({
+    const events: StreamEvent[] = [];
+    const close = openStream({
       open,
       onEvent: (event) => events.push(event),
       wait: async (ms) => {
@@ -90,7 +90,7 @@ describe('el canal temporal', () => {
     const open = vi.fn(async () => {
       throw new TypeError('Failed to fetch');
     });
-    const close = openChannel({ open, onEvent: () => {} });
+    const close = openStream({ open, onEvent: () => {} });
     await flush();
     expect(open).toHaveBeenCalledTimes(1);
     document.dispatchEvent(new Event('visibilitychange'));
@@ -114,7 +114,7 @@ describe('el canal temporal', () => {
           signal.addEventListener('abort', () => release());
         }),
     );
-    const close = openChannel({ open, onEvent: () => {}, wait: async () => {} });
+    const close = openStream({ open, onEvent: () => {}, wait: async () => {} });
     close();
     await flush();
     expect(open).toHaveBeenCalledTimes(1);
@@ -123,7 +123,7 @@ describe('el canal temporal', () => {
   it('con la espera de verdad también vuelve a abrir', async () => {
     vi.useFakeTimers();
     const open = vi.fn(async () => sse('', 500));
-    const close = openChannel({ open, onEvent: () => {} });
+    const close = openStream({ open, onEvent: () => {} });
     await vi.advanceTimersByTimeAsync(1000);
     expect(open.mock.calls.length).toBeGreaterThanOrEqual(2);
     close();
@@ -131,13 +131,13 @@ describe('el canal temporal', () => {
   });
 
   it('si el servidor cierra el canal después de mandar algo, lo vuelve a abrir', async () => {
-    const events: ChannelEvent[] = [];
+    const events: StreamEvent[] = [];
     const open = vi
       .fn<() => Promise<Response>>()
       .mockResolvedValueOnce(sse('event: code\ndata: {"code":"x"}\n\n'))
       .mockReturnValue(new Promise(() => {}));
     const waits: number[] = [];
-    const close = openChannel({
+    const close = openStream({
       open,
       onEvent: (event) => events.push(event),
       wait: async (ms) => void waits.push(ms),
@@ -146,6 +146,47 @@ describe('el canal temporal', () => {
     expect(open).toHaveBeenCalledTimes(2);
     expect(waits).toEqual([1000]);
     expect(events[0]).toEqual({ type: 'code', data: { code: 'x' } });
+    close();
+  });
+
+  it('si el servidor lo rechaza no insiste: avisa con el código y no vuelve a abrir', async () => {
+    const open = vi.fn(async () => sse('{"error":"not-authorized"}', 403));
+    const refused: number[] = [];
+    const close = openStream({ open, onEvent: () => {}, onRefused: (s) => refused.push(s) });
+    await flush();
+    dispatchEvent(new Event('online'));
+    await flush();
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(refused).toEqual([403]);
+    close();
+    // Sin quien escuche el rechazo, igual termina.
+    const quiet = vi.fn(async () => sse('', 401));
+    openStream({ open: quiet, onEvent: () => {} });
+    await flush();
+    expect(quiet).toHaveBeenCalledTimes(1);
+  });
+
+  it('si calla más de lo que aguanta (sin latido), lo da por cortado y lo vuelve a abrir', async () => {
+    let opens = 0;
+    const silent = () =>
+      new Response(
+        new ReadableStream({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode(': latido\n\n'));
+          },
+        }),
+      );
+    const close = openStream({
+      open: async () => {
+        opens += 1;
+        return silent();
+      },
+      onEvent: () => {},
+      wait: async () => {},
+      silenceMs: 20,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 70));
+    expect(opens).toBeGreaterThan(1);
     close();
   });
 });

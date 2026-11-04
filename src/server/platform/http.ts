@@ -17,6 +17,7 @@ import { type Context, Hono, type MiddlewareHandler } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { Clock } from './clock.ts';
+import type { HeaderFields } from './header-fields.ts';
 import type { RateLimiter } from './limits/rate-limit.ts';
 import { platformSettings } from './settings.ts';
 import type { AuditLog } from './storage/audit/write.ts';
@@ -33,6 +34,8 @@ export type HttpOptions = {
   audit: AuditLog;
   limiter: RateLimiter;
   remoteAddress?: (c: Context) => string | undefined;
+  // Lo que suma cada módulo a la cabecera (diseño de 03, § 3.5).
+  fields?: HeaderFields;
 };
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -108,14 +111,16 @@ function identify({
   };
 }
 
-function stamp({ version, environment, clock }: HttpOptions): MiddlewareHandler {
+function stamp({ version, environment, clock, fields }: HttpOptions): MiddlewareHandler {
   return async (c, next) => {
     await next();
     const serverTime = clock.now().getTime();
     const permissions = c.get('permissionsHash') as string | undefined;
+    const extra = fields?.collect(c) ?? {};
+    const header = { version, serverTime, environment, ...(permissions && { permissions }) };
     c.header(
       serverHeaderName,
-      formatServerHeader({ version, serverTime, environment, ...(permissions && { permissions }) }),
+      formatServerHeader(Object.keys(extra).length > 0 ? { ...header, fields: extra } : header),
     );
     c.header('Cache-Control', 'no-store');
   };

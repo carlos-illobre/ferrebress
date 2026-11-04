@@ -4,6 +4,7 @@ import { sql } from 'kysely';
 import { type Clock, systemClock } from './platform/clock.ts';
 import type { Config } from './platform/config.ts';
 import { createEvents } from './platform/events.ts';
+import { createHeaderFields } from './platform/header-fields.ts';
 import { createHttp } from './platform/http.ts';
 import { createRateLimiter } from './platform/limits/rate-limit.ts';
 import type { Platform, ServerModule } from './platform/modules.ts';
@@ -36,14 +37,11 @@ export async function createServer(
   );
   const audit = openAuditLog(config.AUDIT_PATH);
   const limiter = createRateLimiter(clock);
+  const header = createHeaderFields();
   const http = createHttp({
-    environment: config.ENVIRONMENT,
-    version: config.VERSION,
-    publicOrigin: config.PUBLIC_ORIGIN,
-    trustedProxy: config.TRUSTED_PROXY,
-    clock,
-    audit,
-    limiter,
+    ...{ environment: config.ENVIRONMENT, version: config.VERSION },
+    ...{ publicOrigin: config.PUBLIC_ORIGIN, trustedProxy: config.TRUSTED_PROXY },
+    ...{ clock, audit, limiter, fields: header },
   });
   const stops: (() => void)[] = [];
   const closing: (() => Promise<void>)[] = [];
@@ -54,7 +52,7 @@ export async function createServer(
     stops.push(schedule(ms, run));
   };
   const platform: Platform = {
-    ...{ config, db, audit, clock, limiter, events, http, sessions, every },
+    ...{ config, db, audit, clock, limiter, events, http, header, sessions, every },
     permissions: createPermissionGate({ audit, clock, limiter }, sessions),
     realtime: createRealtime({ http, sessions, limiter, events, every }),
     onClose: (job) => void closing.push(job),
