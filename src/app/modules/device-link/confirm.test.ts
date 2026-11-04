@@ -1,0 +1,127 @@
+// La confirmación del vínculo (diseño de 03, § 7): retiene lo que sale y entra hasta tener una de
+// menos de 4 minutos, la pide una sola vez, tira lo retenido si el otro ya no está, sigue sin internet
+// con la última buena y no mezcla conexiones.
+import type { CheckResponse } from '@ferrebress/shared/contracts/device-link';
+import { describe, expect, it, vi } from 'vitest';
+import type { ApiResult } from '../../platform/server/api.ts';
+import { confirmSettings, createConfirm, verdictOf } from './confirm.ts';
+
+const pairing = {
+  id: 'v',
+  side: 'computer' as const,
+  other: { label: 'x' },
+  since: 0,
+  lastMirrored: 0,
+  paused: false,
+};
+const ok: ApiResult<CheckResponse> = { ok: true, data: { pairing, peer: 'ok' } };
+const gone: ApiResult<CheckResponse> = { ok: true, data: { pairing, peer: 'gone' } };
+const none: ApiResult<CheckResponse> = { ok: true, data: {} };
+const offline: ApiResult<CheckResponse> = { ok: false, error: 'offline' };
+
+function setup(answers: ApiResult<CheckResponse>[]) {
+  let now = 0;
+  const pending: ((value: ApiResult<CheckResponse>) => void)[] = [];
+  const check = vi.fn(() => new Promise<ApiResult<CheckResponse>>((r) => pending.push(r)));
+  const onVerdict = vi.fn();
+  const confirm = createConfirm({ check, now: () => now, onVerdict });
+  const answer = async () => {
+    pending.shift()?.(answers.shift() as ApiResult<CheckResponse>);
+    await new Promise((settled) => setTimeout(settled, 0));
+  };
+  return { confirm, check, onVerdict, answer, pass: (ms: number) => (now += ms) };
+}
+
+describe('la confirmación del vínculo', () => {
+  it('sin huella (por el servidor) no retiene nada', () => {
+    const { confirm, check } = setup([]);
+    const run = vi.fn();
+    confirm.gate(run);
+    expect(run).toHaveBeenCalled();
+    expect(check).not.toHaveBeenCalled();
+  });
+
+  it('retiene en orden hasta confirmar una sola vez, y después pasa directo hasta los 4 minutos', async () => {
+    const { confirm, check, answer, pass } = setup([ok, ok]);
+    confirm.begin('fp');
+    const order: number[] = [];
+    confirm.gate(() => order.push(1));
+    confirm.gate(() => order.push(2));
+    expect(order).toEqual([]);
+    await answer();
+    expect(order).toEqual([1, 2]);
+    expect(check).toHaveBeenCalledTimes(1);
+    expect(check).toHaveBeenCalledWith('fp');
+    confirm.gate(() => order.push(3));
+    expect(order).toEqual([1, 2, 3]);
+    pass(confirmSettings.maxAgeMs);
+    confirm.gate(() => order.push(4));
+    expect(order).toEqual([1, 2, 3]);
+    await answer();
+    expect(order).toEqual([1, 2, 3, 4]);
+  });
+
+  it('con el otro fuera de regla, o sin vínculo, tira lo retenido y avisa', async () => {
+    const { confirm, onVerdict, answer } = setup([gone, none]);
+    confirm.begin('fp');
+    const run = vi.fn();
+    confirm.gate(run);
+    await answer();
+    expect(onVerdict).toHaveBeenLastCalledWith('gone', pairing);
+    confirm.gate(run);
+    await answer();
+    expect(onVerdict).toHaveBeenLastCalledWith('none', undefined);
+    expect(run).not.toHaveBeenCalled();
+  });
+
+  it('sin internet sigue con la última buena de esta conexión, y sin ninguna no deja pasar', async () => {
+    const { confirm, answer, pass } = setup([offline, ok, offline]);
+    confirm.begin('fp');
+    const run = vi.fn();
+    confirm.gate(run);
+    await answer();
+    expect(run).not.toHaveBeenCalled();
+    expect(await Promise.all([confirm.ensure(1000), answer()]).then(([v]) => v)).toBe(true);
+    pass(confirmSettings.maxAgeMs);
+    confirm.gate(run);
+    await answer();
+    expect(run).toHaveBeenCalledTimes(1);
+  });
+
+  it('lo que contesta una confirmación de la conexión anterior no toca la nueva', async () => {
+    const { confirm, check, answer } = setup([ok, ok]);
+    confirm.begin('vieja');
+    const old = vi.fn();
+    confirm.gate(old);
+    confirm.begin('nueva');
+    const fresh = vi.fn();
+    confirm.gate(fresh);
+    await answer();
+    expect(old).not.toHaveBeenCalled();
+    expect(fresh).not.toHaveBeenCalled();
+    await answer();
+    expect(fresh).toHaveBeenCalled();
+    expect(check).toHaveBeenLastCalledWith('nueva');
+    confirm.end();
+    expect(await confirm.ensure(1)).toBe(false);
+  });
+
+  it('dos que piden a la vez esperan la misma; un error del servidor cuenta como fuera de regla', async () => {
+    const check = vi.fn(async () => ({ ok: false, error: 'not-paired' }) as never);
+    const onVerdict = vi.fn();
+    const confirm = createConfirm({ check, onVerdict });
+    confirm.begin('fp');
+    expect(await Promise.all([confirm.ensure(1), confirm.ensure(1)])).toEqual([false, false]);
+    expect(check).toHaveBeenCalledTimes(1);
+    expect(onVerdict).toHaveBeenCalledWith('gone', undefined);
+    check.mockResolvedValueOnce(ok as never);
+    expect(await confirm.ensure(1000)).toBe(true);
+    expect(await confirm.ensure(1000)).toBe(true);
+    expect(check).toHaveBeenCalledTimes(2);
+  });
+
+  it('cada respuesta tiene su veredicto', () => {
+    expect(verdictOf({ ok: false, error: 'not-paired' } as never)).toBe('gone');
+    expect(verdictOf(offline)).toBe('offline');
+  });
+});
