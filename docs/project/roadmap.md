@@ -85,6 +85,17 @@ paralelo»).
   consultas de más; en la aplicación, las piezas repetidas (cargar bajo demanda, cargando y
   reintentar, lo angosto, el buscador, la tarjeta, las pastillas) y los valores fuera de los tokens.
 
+- [ ] T121 [agente] Bajar el tiempo de despliegue de ~5 min a ~2 min (análisis del 2026-11-04, sobre 17
+  corridas), sin desplegar nada que no pasó el control: (1) construir las imágenes en paralelo con el
+  control, con una etiqueta provisoria que `deploy.sh` no busca, y publicarlas con la etiqueta del
+  commit recién cuando pasa, en un solo workflow (sale la espera de `workflow_run`); (2) partir
+  `pnpm check` en jobs paralelos que llamen a los mismos scripts: los controles rápidos, las unitarias
+  en partes con `vitest --shard` y la cobertura juntada al final, y las capturas en el contenedor de
+  Playwright; (3) Vitest más rápido en la aplicación (`pool: 'vmThreads'` o `isolate: false`, con el
+  riesgo de pruebas que fallan a veces). Antes, `deploy.sh` reintenta al terminar el minuto en vez de
+  descartar el aviso. Cambia lo que dicen ADR-014 y ADR-016. Después del 03a, o en paralelo en otra
+  sesión (toca la CI, no el vínculo).
+
 ## Tareas futuras
 
 No se construyen ahora; el diseño no les cierra la puerta.
