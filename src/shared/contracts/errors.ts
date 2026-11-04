@@ -46,6 +46,17 @@ export type UsersErrorCode =
   | 'person-inactive'
   | 'person-missing';
 
-export type ErrorCode = PlatformErrorCode | SignInErrorCode | UsersErrorCode;
+// Celular y computadora (capítulo 03): otra persona en el celular (E37), un código que se lee desde
+// una computadora, un pedido de quien no es del vínculo (E38), el otro lado que no está o se fue, y
+// una escritura con un vínculo que ya terminó.
+export type DeviceLinkErrorCode =
+  | 'other-account'
+  | 'not-a-phone'
+  | 'not-paired'
+  | 'peer-absent'
+  | 'peer-gone'
+  | 'pairing-ended';
+
+export type ErrorCode = PlatformErrorCode | SignInErrorCode | UsersErrorCode | DeviceLinkErrorCode;
 
 export type ErrorBody = { error: ErrorCode } & Record<string, unknown>;

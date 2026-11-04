@@ -8,6 +8,7 @@ export const groups = {
   users: 'Usuarios',
   roles: 'Roles',
   offline: 'Sin conexión',
+  'device-link': 'Celular y computadora',
   refused: 'Rechazos',
   other: 'Otros',
 } as const;
