@@ -79,7 +79,9 @@ describe('directo', () => {
     await direct.accept('respuesta');
     const reasons: string[] = [];
     direct.transport.onClose((why) => reasons.push(why));
+    expect(direct.ice()).toBe('new');
     pc.state('failed');
+    expect(direct.ice()).toBe('failed');
     expect(reasons).toEqual(['lost']);
     expect(pc.closed()).toBe(1);
   });
@@ -143,5 +145,16 @@ describe('por el servidor', () => {
     await vi.advanceTimersByTimeAsync(relayedSettings.batchMs);
     expect(reasons).toEqual(['lost']);
     expect(unsubscribed).toHaveBeenCalled();
+  });
+
+  it('al cerrarlo, lo que quedaba por mandar sale igual', () => {
+    const batches: unknown[][] = [];
+    const relayed = createRelayed({
+      send: async (batch) => Boolean(batches.push(batch)),
+      subscribe: () => () => undefined,
+    });
+    relayed.transport.send({ t: 'bye' });
+    relayed.transport.close('closed');
+    expect(batches).toEqual([[{ t: 'bye' }]]);
   });
 });

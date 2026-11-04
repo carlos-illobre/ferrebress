@@ -154,14 +154,14 @@ const cases: Case[] = [
     { kind: 'waiting', pairing: pc },
     { type: 'peerGone', why: 'version' },
     'waiting',
-    ['newVersion'],
+    ['closeTransport', 'unsubscribe', 'detachMirror', 'newVersion', 'strip'],
   ],
   [
     'otra versión estando conectados: espera y el viejo se entera (R6.7)',
     { kind: 'direct', pairing: pc, attempt: 'a' },
     { type: 'peerGone', why: 'version' },
     'waiting',
-    ['detachMirror', 'closeTransport', 'subscribe', 'strip', 'newVersion'],
+    ['closeTransport', 'unsubscribe', 'detachMirror', 'newVersion', 'strip'],
   ],
 ];
 

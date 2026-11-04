@@ -72,6 +72,11 @@ describe('la máquina de estados del vínculo', () => {
     ['oculta sin vínculo', { kind: 'unpaired' }, { type: 'tabAway', why: 'hidden' }],
     ['ya oculta', { kind: 'away', pairing: pc }, { type: 'tabAway', why: 'hidden' }],
     ['vuelve sin estar oculta', { kind: 'waiting', pairing: pc }, { type: 'tabBack' }],
+    [
+      'otra versión estando en pausa',
+      { kind: 'paused', pairing: pc },
+      { type: 'peerGone', why: 'version' },
+    ],
     ['sin directo dormido que perder', { kind: 'waiting', pairing: pc }, { type: 'dormantLost' }],
   ];
 

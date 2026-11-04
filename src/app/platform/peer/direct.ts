@@ -24,6 +24,7 @@ function watch(connection: RtcConnection) {
     () => connection.close(),
   );
   let lostTimer: ReturnType<typeof setTimeout> | undefined;
+  let ice: RTCIceConnectionState = 'new';
   connection.onChannel((created) => {
     channel = created;
     created.onMessage(base.deliver);
@@ -31,17 +32,18 @@ function watch(connection: RtcConnection) {
     created.onClose(() => base.transport.close('lost'));
   });
   connection.onState((state) => {
+    ice = state;
     clearTimeout(lostTimer);
     if (state === 'failed') base.transport.close('lost');
     if (state === 'disconnected')
       lostTimer = setTimeout(() => base.transport.close('lost'), directSettings.lostAfterMs);
   });
   base.transport.onClose(() => opened.resolve(false));
-  return { base, opened };
+  return { base, opened, ice: () => ice };
 }
 
 export function createDirect({ connection, signal }: Options) {
-  const { base, opened } = watch(connection);
+  const { base, opened, ice } = watch(connection);
 
   const described = async () => {
     await connection.gathered(directSettings.quietMs, directSettings.capMs);
@@ -69,6 +71,8 @@ export function createDirect({ connection, signal }: Options) {
     // La huella DTLS propia, la que la confirmación del otro compara (§ 7).
     fingerprint: () => fingerprintOf(connection.localDescription()),
     roundTripMs: () => connection.roundTripMs(),
+    // Para el aviso de por qué no se logró (§ 15.2): el estado de ICE y cuántas direcciones mandó.
+    ice,
   };
 }
 

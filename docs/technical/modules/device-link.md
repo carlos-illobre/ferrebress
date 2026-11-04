@@ -223,7 +223,7 @@ comandos. Las variantes del transporte dependen de la interfaz, no al revés.
 | `platform/mirror/query.ts` | Pedir al servidor con el modo que dice la clave y guardar la respuesta en un valor con nombre | `api.ts`, `mirrored-store` | `useMirroredQuery(clave, pedido, {mode})` | El pedido, o la espera del valor del que manda |
 | `platform/mirror/replica.ts` | Armar la foto, aplicar fotos y parches, retener lo que sale mientras alguien lo pida | `registry` | `attach({port, leader, over})`, `hold(promesa)` | Foto, parches, `stale` |
 | `modules/device-link/state.ts` | La máquina de estados del vínculo, pura | — | Estado y evento (§ 8) | Estado y comandos |
-| `modules/device-link/runtime.ts` | Ejecutar los comandos, guardar los transportes vivos y convertir lo que pasa en eventos | `peer`, `mirror`, `realtime`, `api`, `confirm`, `wire` | Comandos | Eventos |
+| `modules/device-link/runtime.ts` | Ejecutar los comandos, guardar los transportes vivos y convertir lo que pasa en eventos, en una sola fila: un evento se procesa entero, con sus comandos, antes del siguiente. Sus partes, en `runtime/`: `live` (lo vivo y las dependencias), `commands` (uno por comando), `links` (abrir, cerrar, dormir y promover conexiones), `messages` (uno por mensaje del protocolo), `mirror-port` (espejo, saludo y foto) y `topic` (el tema del vínculo) | `peer`, `mirror`, `realtime`, `api`, `confirm`, `wire` | Comandos | Eventos |
 | `modules/device-link/confirm.ts` | Que nada salga ni entre por el espejo sin una confirmación del servidor de hace menos de 4 minutos (§ 7) | `api.ts`, `mirror` | Pedidos de mandar o aplicar | Sí, no, o «esperá» |
 | `modules/device-link/wire.ts` | El protocolo del vínculo (`hello`, `bye`, `pause`, `resume`, `probe`, `give-up`) y el sobre que lleva los del espejo, validados | contrato | Texto | Mensaje tipado o «desconocido» |
 | `modules/device-link/journal.ts` | Anotar cada evento, sin datos personales (§ 15) | `device/storage` | Evento, estado | Las últimas 300 entradas |
@@ -434,6 +434,11 @@ export interface Transport {
 - **Juntar:** lo que sale en los mismos 50 ms va en un lote, y dos parches de la misma clave se quedan con
   el último. Lo escrito en un campo se junta durante 150 ms, la misma espera de la búsqueda (00 · R7.4):
   una persona escribe una letra cada 150 a 250 ms, así que «tornillo» sale en 2 o 3 pedidos, no en 8.
+- **Cerrar manda lo pendiente:** el adiós o la pausa que salen justo antes de cerrar el respaldo van en un
+  último lote, sin esperar respuesta.
+- **Lo que llega antes de abrirlo espera** (hasta 20 lotes) y se entrega en orden apenas hay quien lo
+  escuche. El `give-up` de la computadora llega así al celular, todavía presentándose: es lo que lo hace
+  pasar al respaldo, y el lote que lo trae (`give-up`, `hello`, `snap`) se entrega entero después.
 - El servidor reenvía al otro lado (clave `…:<lado del otro>`), sin guardar nada. Antes de cada lote
   mira en `members.ts` que el vínculo exista y que **la sesión del otro lado siga abierta**: por el
   servidor, la seguridad la pone el servidor en cada mensaje.
@@ -744,12 +749,11 @@ type PairingState =
   | { kind: 'relayed'; pairing: Pairing; attempt: AttemptId; probe?: 'trying' | 'failed' }
   | { kind: 'paused'; pairing: Pairing; kept?: AttemptId }
   | { kind: 'offline'; pairing: Pairing }
-  | { kind: 'away'; pairing?: Pairing };                       // esta pestaña oculta o sin el candado
+  | { kind: 'away'; pairing: Pairing; dormant?: AttemptId };   // esta pestaña oculta o sin el candado
 
 type PairingEvent =
   | { type: 'serverSaid'; pairing: Pairing | null }            // /api/start, check, l= cambiado, 403 not-paired, codes
-  | { type: 'sessionLost' }                                    // salir, sesión cerrada o vencida, otra persona
-  | { type: 'signedIn' }
+  | { type: 'sessionLost'; samePerson: boolean }              // salir, sesión cerrada o vencida, otra persona
   | { type: 'peerPresent'; attempt: AttemptId }
   | { type: 'peerBack'; attempt: AttemptId }                  // hello por el directo dormido o conservado
   | { type: 'peerGone'; why: 'hidden' | 'signout' | 'signed-out' | 'lost' | 'handover' | 'replaced' | 'unpair' | 'version' }
@@ -757,8 +761,11 @@ type PairingEvent =
   | { type: 'internetLost' } | { type: 'internetBack' }
   | { type: 'pause' | 'resume'; from: 'here' | 'peer' }
   | { type: 'probe' } | { type: 'probeResult'; attempt: AttemptId; ok: boolean }
-  | { type: 'tabAway' } | { type: 'tabBack' };
+  | { type: 'tabAway'; why: 'hidden' | 'handover' } | { type: 'tabBack' }
+  | { type: 'dormantLost' };                                   // el directo dormido se cerró o venció
 ```
+
+Entrar con sesión es el `serverSaid` del vínculo que contesta `check` al abrir: no hace falta otro evento.
 
 No se puede escribir «directo sin vínculo» ni «probando sin estar por el servidor». `step` es un `switch`
 sobre `estado.kind` y `evento.type` que termina en `assertNever`: sumar un estado o un evento sin decir qué
@@ -775,7 +782,7 @@ cambia nada y queda en el diario como `ignored`.
 | `relayed` | Por el servidor; con `probe:'trying'`, la espera en «Probar» a los 300 ms; con `'failed'`, «No se pudo» | el tema del vínculo | por el servidor (y un directo a prueba) |
 | `paused` | Desconectado | la computadora a la vista, el tema del vínculo, si no conservó el directo | el directo conservado sin espejar, si lo había |
 | `offline` | Sin internet | ninguno | ninguno |
-| `away` | (oculta) | ninguno | ninguno |
+| `away` | (oculta) | ninguno | el directo dormido, si estaba en directo al ocultarse |
 
 ### 8.2. El gráfico
 
@@ -854,8 +861,15 @@ que el gráfico se lea, esas flechas no se dibujan: están en la tabla.
 | `relayed` con `trying` | `probeResult(sí)` | `direct` | cierra el respaldo; `unsubscribe` |
 | `relayed` con `trying` | `probeResult(no)` | `relayed` con `probe:'failed'` | cierra el intento |
 | cualquiera | `tabAway` (oculta, o perdió el candado) | `away` | `send(bye hidden)` o `send(bye handover)`, `unsubscribe`; el celular conserva el directo dormido 5 minutos |
-| `away` | `tabBack` | según el último `serverSaid` | si el directo dormido sigue, `send(hello)`; si no, como `waiting` |
-| `waiting` | `peerGone('version')` (el `hello` del otro trae otra `app`) | `waiting` con `why:'version'` | el de versión vieja: `newVersion.set(true)` (R6.7) |
+| `away` | `tabBack` | `waiting` | con el directo dormido, `waiting` con `dormant` y `send(hello)` por él: el otro contesta por el mismo directo y los dos pasan a `direct` sin presentarse (E22); sin él, `check` y como `waiting` |
+| `waiting` o `away` con `dormant` | `dormantLost` (el otro lo cerró, o pasaron los 5 minutos) | `waiting` (o `away`) sin `dormant` | en `waiting`, `check` y como `waiting` |
+| `waiting`, `meeting`, `direct`, `relayed` | `peerGone('version')` (el `hello` del otro trae otra `app`) | `waiting` con `why:'version'` | suelta todo **sin volver a escuchar** y pregunta (`check`): la cabecera dice cuál es la vieja (R6.7). La que está al día vuelve a escuchar; la vieja no, hasta actualizarse. Si escucharan las dos, se presentarían una y otra vez |
+
+- **Lo que el servidor dice por la huella `l=`** (`pairingChanged`): esperando sin escuchar (el celular,
+  que solo se fijó una vez; los dos después de una pausa), el otro pudo haber llegado, y se mira el tema
+  (el celular con `peek`, la computadora escuchando); con otra versión, solo la que está al día. En
+  cualquier otro estado, se pregunta (`check`). Así, después de reconectar desde un lado, el otro se
+  entera en su próximo pedido.
 
 ### 8.4. Versiones distintas (R6.7)
 

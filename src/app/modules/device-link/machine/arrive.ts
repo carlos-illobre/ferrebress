@@ -84,8 +84,7 @@ export function onDirect(
 
 // El otro se fue. Oculto, el directo queda dormido unos minutos; cortado, se confirma si hay internet.
 export function onPeerGone(state: PairingState, why: GoneWhy): Step {
-  if (state.kind === 'waiting' && why === 'version')
-    return { state: { ...state, why: 'version' }, commands: [{ do: 'newVersion' }] };
+  if (why === 'version') return onOtherVersion(state);
   if (state.kind !== 'meeting' && state.kind !== 'direct' && state.kind !== 'relayed')
     return same(state);
   const detach: Command = { do: 'detachMirror', reset: false };
@@ -97,11 +96,18 @@ export function onPeerGone(state: PairingState, why: GoneWhy): Step {
     };
   }
   const check: Command[] = why === 'lost' ? [{ do: 'check' }] : [];
-  const waiting = toWaiting(state.pairing, [detach, { do: 'closeTransport' }, ...check]);
-  if (why !== 'version') return waiting;
-  // Otra versión (R6.7): no espejan, y el de la versión vieja se entera.
+  return toWaiting(state.pairing, [detach, { do: 'closeTransport' }, ...check]);
+}
+
+// Otra versión (R6.7, § 8.4): no espejan y el de la versión vieja se entera. Quedan esperando sin
+// escuchar, para no presentarse una y otra vez: cuando el otro cambie (se actualizó), la huella `l=`
+// lo dice y se vuelven a presentar.
+function onOtherVersion(state: PairingState): Step {
+  const live = ['waiting', 'meeting', 'direct', 'relayed'] as const;
+  if (!live.includes(state.kind as (typeof live)[number])) return same(state);
+  const pairing = pairingOf(state) as PairingView;
   return {
-    state: { kind: 'waiting', pairing: state.pairing, why: 'version' },
-    commands: [...waiting.commands, { do: 'newVersion' }],
+    state: { kind: 'waiting', pairing, why: 'version' },
+    commands: [...leaving(state), { do: 'newVersion' }, { do: 'strip', mark: 'waiting' }],
   };
 }
