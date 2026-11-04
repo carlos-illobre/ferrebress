@@ -1323,6 +1323,9 @@ Windows y el celular Android, los dos en el Wi-Fi del local):
   cuatro IPv6 globales, cada una en UDP y en TCP; el QR pasó de 440 a 2.245 caracteres. El directo abrió
   igual, por `host` UDP, con 8,1 ms de mediana. Confirma el filtro de este apartado, que además saca los
   candidatos TCP: en el Wi-Fi del local siempre gana UDP, y los TCP solo agrandan la oferta.
+- **El celular, igual:** con el permiso de cámara dio 6 candidatos (una IPv4 privada y dos IPv6 globales, en
+  UDP y TCP) en vez de mDNS. Después del filtro le queda la IPv4 privada en UDP, que es la que el Wi-Fi del
+  local necesita.
 
 ### 18.4. Servidor
 
