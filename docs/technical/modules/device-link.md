@@ -404,8 +404,8 @@ export interface Transport {
   (mDNS). **Con permiso de cámara** (el celular lo tiene, para leer códigos), Chrome pone las direcciones
   reales de cada interfaz, también la IPv6 global de los datos móviles. Por eso `direct.ts` filtra los
   candidatos antes de mandar la descripción, y el servidor los vuelve a filtrar en `signal`: solo
-  `typ host` con nombre `.local` o una dirección privada (10/8, 172.16/12, 192.168/16, fc00::/7,
-  fe80::/10); el resto se saca de la descripción. La descripción nunca se anota.
+  `typ host` en UDP con nombre `.local` o una dirección privada (10/8, 172.16/12, 192.168/16,
+  fc00::/7, fe80::/10); el resto (TCP, IPv4 de 100.64/10, IPv6 global) se saca de la descripción. La descripción nunca se anota.
 - **Roles fijos, sin choques:** la computadora siempre ofrece y el celular siempre responde.
 - **Sin goteo de candidatos:** con candidatos locales, juntarlos tarda menos de 100 ms; la oferta va con
   todos en **un** mensaje, y la respuesta igual.
@@ -1317,6 +1317,12 @@ Windows y el celular Android, los dos en el Wi-Fi del local):
   sola, la mitad: unos 4 ms de mediana y 14 ms en el p95, dentro de los 10 ms del presupuesto de Wi-Fi en
   la mediana. El máximo (unos 50 ms de ida) es un salto del Wi-Fi: con dibujar, ese toque puede pasar los
   50 ms de R6.5 de vez en cuando, no de forma sostenida.
+- **Con permiso de cámara, Chrome expone las direcciones reales** (comprobado en la segunda corrida, con
+  la notebook que ya tenía el permiso dado para la página): la oferta pasó de 2 candidatos mDNS a 18, con
+  IPv4 privadas, una IPv4 que no es privada (probablemente la de Tailscale, 100.64/10), una IPv6 privada y
+  cuatro IPv6 globales, cada una en UDP y en TCP; el QR pasó de 440 a 2.245 caracteres. El directo abrió
+  igual, por `host` UDP, con 8,1 ms de mediana. Confirma el filtro de este apartado, que además saca los
+  candidatos TCP: en el Wi-Fi del local siempre gana UDP, y los TCP solo agrandan la oferta.
 
 ### 18.4. Servidor
 
