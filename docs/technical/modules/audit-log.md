@@ -382,10 +382,13 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 - **«Algo salió mal»:** `Ledger`, `Detail`, `Filters`, `Tape` y los trozos `persona` llevan `data-private`, así
   la captura los tapa (00 · R9.4), y los últimos pasos guardan solo el nombre de la acción
   (`audit-log.filter`), sin el valor.
-- **Las acciones con nombre** (teclado y, con el 03, el espejo): `audit-log.refresh`,
-  `audit-log.page`, `audit-log.filter`, `audit-log.select`, `audit-log.tape-open`, `audit-log.tape-day`,
-  `audit-log.tape-move`, `audit-log.tape-play`, `audit-log.tape-isolate`. En el espejo viajan solo el filtro o la
-  página: el otro dispositivo pide con su sesión y su permiso, nunca recibe el contenido.
+- **Lo que se espeja** (03, diseño de `device-link`, § 5.1): lo que se ve vive en valores con nombre
+  (`useMirrored`): el filtro, la acción elegida y la cinta abierta con su día y su cabezal. La página
+  viaja en modo `refetch`: el otro dispositivo pide con su sesión y su permiso, nunca recibe el contenido.
+  El tamaño de página (20 en la computadora, 10 en el celular) lo elige cada pantalla por su forma y no
+  se espeja (03 · R6.2).
+- **Las teclas** son las del capítulo 00 (R2), declaradas por la pantalla: `refresh`, `page`, `filter`,
+  `select` y las de la cinta.
 - **Los íconos** del catálogo se copian de Lucide 0.460 a `audit-log-shapes.tsx`, que se baja con la
   pantalla (`addShapes`). La prueba del catálogo mira que cada ícono esté ahí.
 - **Los textos** de la pantalla, en `texts.ts`, largos en la computadora y cortos en el celular

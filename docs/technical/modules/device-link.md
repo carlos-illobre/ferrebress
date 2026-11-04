@@ -1377,7 +1377,7 @@ como su propia tarea del plan; **[otro módulo]** toca un módulo ya cerrado sin
    pasa la oferta y la respuesta **por un QR** entre los dos (sin servidor): muestra si el canal de datos
    abrió, con qué candidatos (también con el permiso de cámara dado) y en cuánto. Además, que el proxy de
    la máquina hable HTTP/2 y no corte el SSE antes de 40 s. Carlos la abre en el Wi-Fi del local.
-2. **Los documentos que este diseño deja viejos** (Documentos del proyecto y los de otros módulos):
+2. **Hecha.** **Los documentos que este diseño deja viejos** (Documentos del proyecto y los de otros módulos):
    - el glosario («Celular y computadora»): tema (`topic`), campo de la cabecera (`headerField`),
      presentarse (`meet`), transporte (`transport`), confirmación del vínculo (`pairingCheck`), valor con
      nombre (`mirroredStore`), foto (`snapshot`), parche (`patch`), diario de la conexión

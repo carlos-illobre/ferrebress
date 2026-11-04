@@ -176,7 +176,7 @@ Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`
 | `POST /api/passkeys/options` | Un desafío para vincular la huella de este celular | Sí, y haber pasado por Google hace menos de 5 minutos |
 | `POST /api/passkeys` | Guarda la llave pública | Igual |
 | `POST /api/sign-in/codes` | La computadora abre su canal de códigos; pone la cookie `__Host-sign-in-screen` | No |
-| `GET /api/realtime/sign-in-codes` | El canal SSE de la computadora: le llegan los códigos, «leído», «cancelado» y el permiso | La cookie de la pantalla |
+| `GET /api/realtime?s=sign-in.codes:<pestaña>` | El canal común (`platform/realtime`, diseño de 03, § 3) con el tema `sign-in.codes`: le llegan los códigos, «leído», «cancelado» y el permiso | La cookie de la pantalla |
 | `POST /api/sign-in/codes/read` | El celular manda el código leído (en el cuerpo); lo reserva | No |
 | `POST /api/sign-in/codes/approve` | El celular aprueba con la huella; si no tenía sesión, entra también | No (lleva la huella) |
 | `POST /api/sign-in/codes/cancel` | El celular toca «No soy yo» | No (lleva el código) |
@@ -427,9 +427,8 @@ como a quién, nunca como quien lo hizo (diseño de 05, § 2.1).
 ## 10. La aplicación
 
 - **Preact, Vite y CSS común** (ADR-013), una sola aplicación para los dos anchos (ADR-002).
-- **Las acciones con nombre llegan con el módulo 03:** recién ahí hay una segunda forma de
-  dispararlas (el espejo del celular y la cola sin conexión). Hasta entonces el teclado aprieta el
-  botón mismo, y la entrada no necesita más.
+- **El espejo no copia acciones sino valores con nombre** (03, ADR-017): el teclado aprieta el botón
+  mismo, y la entrada, que no se espeja, no necesita más.
 - **`platform/keyboard`:** las reglas del capítulo 00 (R2). Cada pantalla declara sus acciones con
   su tecla; el motor muestra las teclas con Alt, dentro del botón a la derecha, y las ejecuta. Las
   pantallas no escuchan teclas.
@@ -441,7 +440,8 @@ como a quién, nunca como quien lo hizo (diseño de 05, § 2.1).
   del navegador funcionan. Cada opción del menú tiene su dirección (`frame/menu.ts`); el marco
   muestra la pantalla de la opción de la dirección, o la primera que existe (00 · R1.4), y cada
   módulo le pasa su pantalla por `App.tsx`.
-- **`platform/server/realtime`:** el canal temporal (SSE con `fetch`, § 5) y la lectura de la cabecera.
+- **`platform/realtime`:** el canal común con temas (diseño de 03, § 3), que reemplaza al canal propio
+  de la entrada; la espera del código es el tema `sign-in.codes`. `platform/server/api` lee la cabecera.
   Cada tema declara qué permiso hace falta para escucharlo. La conexión directa entre dispositivos
   llega con el módulo 03; no se arma una interfaz de estrategias hasta que haya una segunda forma.
 - **`platform/server/clock`:** la hora del servidor más el cronómetro (ADR-007).

@@ -159,7 +159,17 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Por el servidor | Vinculados y hablando por el servidor, de respaldo | `relayed` |
 | Desconectar / reconectar | Seguir cada uno por su lado sin desvincular, y volver al espejo | `pause` / `resume` |
 | Reemplazar un vínculo | Vincular con otro dispositivo, que termina el vínculo anterior | `replace` |
-| Acción | Algo que hace la persona en la aplicación, con un nombre (agregar un renglón, cobrar) | `action` |
+| Acción | Algo que hace la persona en la aplicación, con un nombre y su tecla (agregar un renglón, cobrar). No es lo que se espeja | `action` |
+| Tema | Algo que una pantalla espera del servidor por el canal | `topic` |
+| Campo de la cabecera | Un dato que viaja en `X-Ferrebress`, en las respuestas que ya llegan | `headerField` |
+| Presentarse | Que los dos vinculados intercambien su oferta y su respuesta para abrir el directo | `meet` |
+| Transporte | Por dónde viajan los mensajes del vínculo: directo o por el servidor | `transport` |
+| Confirmación del vínculo | La respuesta del servidor de que el vínculo y la sesión del otro siguen | `pairingCheck` |
+| Valor con nombre | Algo que se ve en una pantalla y se espeja | `mirroredStore` |
+| Foto | Todos los valores con nombre de una vez, al conectarse | `snapshot` |
+| Parche | Un valor con nombre que cambió | `patch` |
+| Diario de la conexión | Las últimas entradas de lo que le pasó al vínculo en un dispositivo, sin datos personales | `linkJournal` |
+| Tira del día | Los tramos de hoy por estado del vínculo, en el detalle del indicador | `dayStrip` |
 
 ## Auditoría, mejoras y procesos
 
