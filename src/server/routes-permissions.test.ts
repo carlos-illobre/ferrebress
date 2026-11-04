@@ -19,6 +19,10 @@ const routes: Record<string, Needs> = {
   'POST /api/sign-in/offline': 'public',
   'POST /api/sign-in/codes': 'public',
   'GET /api/realtime/sign-in-codes': 'public',
+  // El canal común se abre con sesión o sin ella: lo que pide cada tema lo decide el tema (diseño de
+  // 03, § 3.3), y un tema con sesión, sin ella, se rechaza.
+  'GET /api/realtime': 'public',
+  'POST /api/realtime/subscriptions': 'public',
   'POST /api/sign-in/codes/claim': 'public',
   'POST /api/sign-in/codes/cancel': 'public',
   'POST /api/sign-out': 'public',

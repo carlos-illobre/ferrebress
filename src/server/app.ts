@@ -8,6 +8,7 @@ import { createHttp } from './platform/http.ts';
 import { createRateLimiter } from './platform/limits/rate-limit.ts';
 import type { Platform, ServerModule } from './platform/modules.ts';
 import { createPermissionGate } from './platform/permissions.ts';
+import { createRealtime } from './platform/realtime/realtime.ts';
 import { createSessionGate } from './platform/session.ts';
 import { openAuditLog } from './platform/storage/audit/write.ts';
 import { migrate, openDatabase } from './platform/storage/db.ts';
@@ -47,13 +48,15 @@ export async function createServer(
   const stops: (() => void)[] = [];
   const closing: (() => Promise<void>)[] = [];
   const sessions = createSessionGate();
+  const events = createEvents();
+  const every: Platform['every'] = (ms, job) => {
+    const run = () => job().catch((error: unknown) => console.error(error));
+    stops.push(schedule(ms, run));
+  };
   const platform: Platform = {
-    ...{ config, db, audit, clock, limiter, events: createEvents(), http, sessions },
+    ...{ config, db, audit, clock, limiter, events, http, sessions, every },
     permissions: createPermissionGate({ audit, clock, limiter }, sessions),
-    every(ms, job) {
-      const run = () => job().catch((error: unknown) => console.error(error));
-      stops.push(schedule(ms, run));
-    },
+    realtime: createRealtime({ http, sessions, limiter, events, every }),
     onClose: (job) => void closing.push(job),
   };
 

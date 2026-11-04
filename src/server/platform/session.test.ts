@@ -16,4 +16,28 @@ describe('la sesión del pedido', () => {
     const open = await http.request('/x', { headers: { Cookie: 'a' } });
     expect(await open.json()).toEqual(session);
   });
+
+  it('identifica sin contestar nada, avisa el fin de una sesión y dice si sigue abierta', async () => {
+    const gate = createSessionGate();
+    const session = { id: 's', userId: 'u', deviceId: 'd', confirmedAt: null };
+    gate.provide(async (c) =>
+      c.req.header('Cookie') ? session : c.json({ error: 'session-closed' }, 401),
+    );
+    expect(gate.isOpen('s')).toBe(true);
+    const http = new Hono();
+    http.get('/x', async (c) => c.json({ session: (await gate.identify(c)) ?? null }));
+    expect(await (await http.request('/x')).json()).toEqual({ session: null });
+    expect(await (await http.request('/x', { headers: { Cookie: 'a' } })).json()).toEqual({
+      session,
+    });
+    const ended: string[] = [];
+    gate.onEnded((s, reason) => ended.push(`${s.id}:${reason}`));
+    gate.ended({ id: 's', userId: 'u' }, 'revoked');
+    expect(ended).toEqual(['s:revoked']);
+    gate.provide(
+      async () => session,
+      (id) => id !== 's',
+    );
+    expect(gate.isOpen('s')).toBe(false);
+  });
 });

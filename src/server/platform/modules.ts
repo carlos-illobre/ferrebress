@@ -7,6 +7,7 @@ import type { Events } from './events.ts';
 import type { Http } from './http.ts';
 import type { RateLimiter } from './limits/rate-limit.ts';
 import type { PermissionGate } from './permissions.ts';
+import type { Realtime } from './realtime/realtime.ts';
 import type { SessionGate } from './session.ts';
 import type { AuditLog } from './storage/audit/write.ts';
 import type { ModuleSchema } from './storage/db.ts';
@@ -24,6 +25,8 @@ export type Platform = {
   sessions: SessionGate;
   // El permiso de cada ruta: users da cómo se saben; cualquier módulo lo pide con `require(id)`.
   permissions: PermissionGate;
+  // El canal en tiempo real: cada módulo declara sus temas y publica en sus claves (diseño de 03, § 3).
+  realtime: Realtime;
   // Un trabajo que corre cada tanto, sin frenar el cierre del proceso.
   every(ms: number, job: () => Promise<void>): void;
   // Lo que hay que hacer antes de cerrar (escribir lo que quedó en memoria).
