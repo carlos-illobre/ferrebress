@@ -12,6 +12,7 @@ import { createPermissionGate } from './platform/permissions.ts';
 import { createRealtime } from './platform/realtime/realtime.ts';
 import { createRequestChecks } from './platform/request-checks.ts';
 import { createSessionGate } from './platform/session.ts';
+import { createStartParts } from './platform/start-parts.ts';
 import { openAuditLog } from './platform/storage/audit/write.ts';
 import { migrate, openDatabase } from './platform/storage/db.ts';
 
@@ -55,6 +56,7 @@ export async function createServer(
   };
   const platform: Platform = {
     ...{ config, db, audit, clock, limiter, events, http, header, checks, sessions, every },
+    start: createStartParts(),
     permissions: createPermissionGate({ audit, clock, limiter }, sessions),
     realtime: createRealtime({ http, sessions, limiter, events, every }),
     onClose: (job) => void closing.push(job),

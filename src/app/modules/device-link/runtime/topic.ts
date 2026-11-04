@@ -9,22 +9,23 @@ import { onRelay, onSignal } from './links.ts';
 import { type Live, pairingToken } from './live.ts';
 
 // Lo que dice el tema, según qué trae.
+// El vínculo como lo ve este dispositivo: lo dice el tema y lo dice `/api/start`.
+export const pairingShape = z.object({
+  id: z.string(),
+  side: oneOf(sides),
+  other: z.object({ label: z.string() }),
+  since: z.number(),
+  lastMirrored: z.number(),
+  paused: flag,
+});
+
 const shapes = {
   present: z.object({ present: flag, attempt: z.optional(z.string()) }),
   signal: z.object({
     signal: z.object({ attempt: z.string(), kind: oneOf(['offer', 'answer']), sdp: z.string() }),
   }),
   relay: z.object({ relay: z.array(z.unknown()) }),
-  pairing: z.object({
-    pairing: z.object({
-      id: z.string(),
-      side: oneOf(sides),
-      other: z.object({ label: z.string() }),
-      since: z.number(),
-      lastMirrored: z.number(),
-      paused: flag,
-    }),
-  }),
+  pairing: z.object({ pairing: pairingShape }),
 };
 const kinds = Object.keys(shapes) as (keyof typeof shapes)[];
 

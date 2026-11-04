@@ -1,7 +1,8 @@
-// Lo que el vínculo suma a todos los pedidos (diseño de 03, § 3.5 y § 7.2): el campo `l=` de la
-// cabecera, la huella del vínculo de quien pregunta, para que la aplicación se entere sin canal de que
-// lo terminaron, lo pausaron o el otro volvió; y el paso de las escrituras hechas mientras se espeja,
-// que llevan `X-Pairing`: con un vínculo que ya terminó, o con el otro lado sin sesión, no pasan.
+// Lo que el vínculo suma a los pedidos (diseño de 03, § 3.5, § 7.2 y § 10.1): su parte de `/api/start`
+// (el vínculo, para no pedirlo al abrir); el campo `l=` de la cabecera, la huella del vínculo de quien
+// pregunta, para que la aplicación se entere sin canal de que lo terminaron, lo pausaron o el otro
+// volvió; y el paso de las escrituras hechas mientras se espeja, que llevan `X-Pairing`: con un vínculo
+// que ya terminó, o con el otro lado sin sesión, no pasan.
 import { createHash } from 'node:crypto';
 import { pairingHeaderName } from '@ferrebress/shared/contracts/device-link';
 import type { Context } from 'hono';
@@ -9,7 +10,7 @@ import { fail } from '../../platform/http.ts';
 import type { RequestSession } from '../../platform/session.ts';
 import type { DeviceLinkContext } from './context.ts';
 import { keyOf, pairingTopic } from './lifecycle.ts';
-import { otherSide, type Pairing, sideOf } from './rules.ts';
+import { otherSide, type Pairing, sideOf, viewOf } from './rules.ts';
 
 export const pairingHeader = pairingHeaderName;
 
@@ -31,7 +32,14 @@ async function stillPaired(ctx: DeviceLinkContext, session: RequestSession, pair
 }
 
 export function guardRequests(ctx: DeviceLinkContext): void {
-  const { checks, header, sessions } = ctx.platform;
+  const { checks, header, sessions, start } = ctx.platform;
+  // Al abrir, el vínculo de esta sesión, o `null` si no hay (§ 10.1): sin un pedido más.
+  start.contribute('pairing', async (c) => {
+    // `/api/start` pide las partes solo con sesión.
+    const session = (await sessions.identify(c)) as RequestSession;
+    const pairing = await ctx.members.pairingOf(session.userId, session.deviceId);
+    return pairing ? viewOf(pairing, sideOf(session)) : null;
+  });
   header.contribute('l', (c: Context) => {
     const session = c.get('session') as RequestSession | undefined;
     const pairing = session && ctx.members.knownPairingOf(session.userId, session.deviceId);

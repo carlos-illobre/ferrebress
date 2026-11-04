@@ -93,7 +93,7 @@ describe('findHeavyBoot', () => {
     // Bytes al azar: gzip casi no los achica.
     const noise = randomBytes(maxBootBytes * 2).toString('base64');
     const heavy = project({ 'index.html': page, 'assets/main.js': noise, 'assets/main.css': '' });
-    expect(findHeavyBoot(heavy)[0]).toMatch(/El arranque pesa .* KB con gzip \(máximo 60\.0 KB\)/);
+    expect(findHeavyBoot(heavy)[0]).toMatch(/El arranque pesa .* KB con gzip \(máximo 64\.0 KB\)/);
   });
 });
 

@@ -492,8 +492,11 @@ como a quién, nunca como quien lo hizo (diseño de 05, § 2.1).
   300 ms, y lo apaga su respuesta. Así no se ve mientras el lector del celular está abierto. En la
   computadora reemplaza el cuerpo de la tarjeta, que queda inerte; en el celular se dibuja aparte,
   encima de toda la entrada.
-- **Peso:** el arranque (esqueleto, marco y entrada, sin Google) por debajo de 60 KB comprimido; lo
-  controla `pnpm check`.
+- **Peso:** el arranque (lo que nombra la página principal: esqueleto, marco y entrada, sin Google)
+  por debajo de 64 KB comprimido; lo controla `pnpm check`. El tope no es una medida de velocidad:
+  frena lo que crece sin que nadie lo decida y obliga a elegir qué se baja al abrir y qué después.
+  Se descarga la primera vez y con cada versión nueva; las otras veces sale de lo guardado en el
+  dispositivo. Lo decidió Carlos: 64 KB, para que entren el vínculo y su indicador (03) con margen.
 
 ## 11. Configuración
 

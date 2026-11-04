@@ -44,10 +44,12 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     // vincularla y hacer entrar a una computadora (R2.7).
     const googleNonce = ctx.nonces.issue(c.get('ipAddress'), true);
     if (!googleNonce) return ctx.tooMany(c, signInSettings.nonce.ttlMs);
+    const parts = who ? await ctx.platform.start.collect(c) : {};
     return c.json<StartResponse>({
       ...base,
       googleNonce,
       ...(who && { person: who }),
+      ...(Object.keys(parts).length > 0 && { parts }),
     });
   });
 

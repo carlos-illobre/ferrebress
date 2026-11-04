@@ -87,7 +87,12 @@ describe('la aplicación al abrir', () => {
   it('R3.6, sign-in-E28b: al volver la conexión el servidor revisa la sesión; vencida, la entrada aparece encima', async () => {
     googleFrame();
     const server = fakeServer({
-      '/api/start': [startReply({ person: ana }), startReply({ person: ana }), startReply()],
+      '/api/start': [
+        startReply({ person: ana }),
+        'offline',
+        startReply({ person: ana }),
+        startReply(),
+      ],
     });
     render(<App />);
     await screen.findByRole('region', { name: 'Tu sesión' });
@@ -95,8 +100,11 @@ describe('la aplicación al abrir', () => {
       act(() => {
         dispatchEvent(new Event('online'));
       });
+    // Si al volver todavía no llega, no cambia nada.
     back();
     await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(2));
+    back();
+    await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(3));
     expect(screen.queryByText('Tu sesión venció')).toBeNull();
     back();
     expect(await screen.findByText('Tu sesión venció')).toBeTruthy();

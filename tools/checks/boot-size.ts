@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
-export const maxBootBytes = 60 * 1024;
+export const maxBootBytes = 64 * 1024;
 
 // Los archivos de /assets que nombra la página armada.
 export const bootFiles = (page: string): string[] => [

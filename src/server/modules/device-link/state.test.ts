@@ -97,6 +97,17 @@ describe('desconectar, reconectar, desvincular y confirmar', () => {
   });
 });
 
+describe('al abrir', () => {
+  it('/api/start trae el vínculo de cada lado, o null sin vínculo', async () => {
+    const pair = await linked();
+    const phone = (await pair.phone.request('/api/start')).body.parts;
+    expect(phone.pairing).toMatchObject({ side: 'phone', other: { label: expect.any(String) } });
+    expect((await pair.computer.request('/api/start')).body.parts.pairing.side).toBe('computer');
+    const alone = await signedIn(server, false);
+    expect((await alone.request('/api/start')).body.parts).toEqual({ pairing: null });
+  });
+});
+
 describe('lo que termina el vínculo', () => {
   it('E14, E15, E16: cerrar una sesión desde Usuarios, cortar el celular o la baja lo terminan', async () => {
     const reasons: string[] = [];

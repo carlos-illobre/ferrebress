@@ -1,30 +1,44 @@
 // Arrancar el vínculo de esta pestaña (diseño de 03, § 11.1): el diario, la tira de cada persona, el
 // vínculo vivo y lo que escucha de la aplicación. Se baja aparte del arranque: no hace falta para
 // dibujar la primera pantalla.
+
+import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { mirror } from '../../platform/mirror/registry.ts';
 import { createRtcConnection } from '../../platform/peer/rtc.ts';
 import { realtime } from '../../platform/realtime/channel.ts';
 import { api, appVersion, decorate, newVersion, online } from '../../platform/server/api.ts';
 import { serverNow } from '../../platform/server/clock.ts';
 import { onField } from '../../platform/server/fields.ts';
-import type { Store } from '../../platform/store.ts';
+import { startParts } from '../../platform/server/start-parts.ts';
 import { person } from '../sign-in/index.ts';
 import { linkRuntime } from './current.ts';
 import { createJournal } from './journal.ts';
+import { pairingShape } from './runtime/topic.ts';
 import { createRuntime } from './runtime.ts';
 import { createStrip, type Strip } from './strip.ts';
 import { createTabs } from './tabs.ts';
+import type { Watched } from './watch.ts';
 import { watchLink } from './watch.ts';
 
 // Quién tiene la sesión, solo su identificador.
-const who: Store<string | undefined> = {
+const who: Watched<string | undefined> = {
   get: () => person.get()?.userId,
-  set: () => undefined,
   subscribe: (listener) => person.subscribe((now) => listener(now?.userId)),
 };
 
+// El vínculo que dijo `/api/start`, validado: lo que no tiene su forma cuenta como «ninguno».
+const atStart: Watched<PairingView | null | undefined> = {
+  get: () => pairingAt(startParts.get()),
+  subscribe: (listener) => startParts.subscribe((parts) => listener(pairingAt(parts))),
+};
+export function pairingAt(parts: Record<string, unknown> | undefined) {
+  if (!parts) return undefined;
+  const parsed = pairingShape.safeParse(parts.pairing);
+  return parsed.success ? parsed.data : null;
+}
+
 // La tira es de cada persona (R4.4): una por quien tenga la sesión.
-function stripOfPerson(): () => Strip | undefined {
+export function stripOfPerson(): () => Strip | undefined {
   let current: { owner: string; strip: Strip } | undefined;
   const now = () => serverNow()?.getTime() ?? Date.now();
   return () => {
@@ -39,12 +53,12 @@ export function startDeviceLink(): () => void {
   const journal = createJournal();
   const runtime = createRuntime({
     api,
-    want: (token, handler) => realtime.want(token, handler),
+    want: realtime.want,
     mirror,
     rtc: createRtcConnection,
     online,
     appVersion,
-    outdated: () => newVersion.get(),
+    outdated: newVersion.get,
     journal,
     strip: stripOfPerson(),
   });
@@ -52,6 +66,7 @@ export function startDeviceLink(): () => void {
   const stop = watchLink({
     runtime,
     who,
+    atStart,
     onField,
     decorate,
     tabs: (onChange) => createTabs({ onChange }),

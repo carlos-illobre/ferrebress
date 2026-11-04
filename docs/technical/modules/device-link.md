@@ -944,7 +944,11 @@ las claves de los límites y `recordOnce` (revisión de seguridad, 4).
 ### 10.1. Lo que suma a `/api/start` y a la cabecera
 
 - `/api/start`, con sesión y vínculo: `pairing` (unos 180 bytes), `{ id, side, other: { label }, since,
-  lastMirrored, paused }`, por `start.contribute`. Sin sesión, nunca.
+  lastMirrored, paused }` en `parts.pairing`, por `start.contribute`; sin vínculo, `null`. Sin sesión,
+  nunca. `start` es código común (`platform/start-parts.ts`): cada módulo suma su parte con un nombre
+  y `/api/start` no conoce a ninguno. En la aplicación, `platform/server/start-parts.ts` guarda las
+  partes del último `/api/start`, y el vínculo toma de ahí su estado al abrir, sin un pedido más;
+  después de entrar, o al volver la pestaña, pregunta con `check`.
 - Cada respuesta con sesión y vínculo: `l=` en `X-Ferrebress` (§ 3.5).
 
 ### 10.2. Las rutas
@@ -1288,7 +1292,7 @@ Medidos en el cable: con TCP y TLS cada paquete suma unos 60 a 90 bytes, y una c
 | `l=` en la cabecera | Unos 12 bytes por respuesta, con vínculo | — | — |
 | `check` después de un `l=` nuevo | Unos 700 bytes | — | Cuando cambia el vínculo |
 | Código de vincular a la vista | 60 bytes por código, 1 por minuto | 3,6 KB más el latido | La computadora |
-| El arranque | El indicador y el estado: **unos 2 KB**, dentro del tope de 60 KB; el resto, unos 12 KB, con vínculo o al abrir el detalle | — | Una vez por versión |
+| El arranque | El indicador y el estado: **unos 2 KB**, dentro del tope de 64 KB; el resto, unos 12 KB, con vínculo o al abrir el detalle | — | Una vez por versión |
 
 **Un día típico en el celular** (supuestos: 8 horas abiertos, 6 de uso en espejo; el celular apaga la
 pantalla 40 veces, 30 por menos de 5 minutos):

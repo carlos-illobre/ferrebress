@@ -44,6 +44,7 @@ import { readStored, store } from './platform/device/storage.ts';
 import { clearHash, navigate, route } from './platform/router.ts';
 import { sessionClosed } from './platform/server/api.ts';
 import { useReconnect } from './platform/server/reconnect.ts';
+import { startParts } from './platform/server/start-parts.ts';
 import { useStore } from './platform/store.ts';
 import { Toasts } from './ui/toast/Toast.tsx';
 
@@ -64,6 +65,7 @@ async function boot(): Promise<StartResponse | undefined> {
   await sendPending();
   const start = await signInApi.start();
   if (!start.ok) return unknown();
+  startParts.set(start.data.parts ?? {});
   store(environmentKey, start.data.environment);
   // Recién abierta, con una versión nueva en el servidor, se actualiza antes de que se use (R5.2).
   if (updateOnOpen(start.data.version)) return undefined;
@@ -81,7 +83,9 @@ async function recheck(): Promise<void> {
   await sendPending();
   if (!person.get() || unknownToServer()) return;
   const start = await signInApi.start();
-  if (start.ok && !start.data.person) sessionClosed.set('unknown');
+  if (!start.ok) return;
+  startParts.set(start.data.parts ?? {});
+  if (!start.data.person) sessionClosed.set('unknown');
 }
 
 // Salir borra también el aviso de «Algo salió mal» guardado (diseño de 01, § 7).

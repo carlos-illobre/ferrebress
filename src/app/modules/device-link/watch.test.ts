@@ -1,14 +1,25 @@
 // Lo que el vínculo escucha de la aplicación (diseño de 03, § 6 y § 11.1): la sesión, la huella `l=`,
 // la pestaña a la vista y con el candado; y la cabecera de las escrituras mientras espeja.
+
+import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { startParts } from '../../platform/server/start-parts.ts';
 import { createStore } from '../../platform/store.ts';
 import { pc } from '../../testing/pairing.ts';
+import { person } from '../sign-in/index.ts';
+import { ana } from '../sign-in/sign-in-test-kit.ts';
 import { linkRuntime, watchDeviceLink } from './index.ts';
 import type { PairingState } from './machine/types.ts';
 import type { Runtime } from './runtime.ts';
+import { pairingAt, stripOfPerson } from './start.ts';
 import { watchLink } from './watch.ts';
 
-function setup(person: string | undefined, { visible = true, mine = true } = {}) {
+type Setup = { visible?: boolean; mine?: boolean; start?: PairingView | null | undefined };
+
+function setup(person: string | undefined, options: Setup = {}) {
+  const { visible = true, mine = true } = options;
+  // Sin decir nada, /api/start ya contestó sin vínculo; `start: undefined`, todavía no contestó.
+  const atStart = createStore('start' in options ? options.start : null);
   const runtime = {
     state: createStore<PairingState>({ kind: 'asleep' }),
     dispatch: vi.fn(),
@@ -23,6 +34,7 @@ function setup(person: string | undefined, { visible = true, mine = true } = {})
   const stop = watchLink({
     runtime: runtime as unknown as Runtime,
     who,
+    atStart,
     onField: (_letter, listener) => {
       field = listener;
       return () => undefined;
@@ -39,6 +51,7 @@ function setup(person: string | undefined, { visible = true, mine = true } = {})
   });
   return {
     runtime,
+    atStart,
     who,
     view,
     stop,
@@ -51,12 +64,22 @@ function setup(person: string | undefined, { visible = true, mine = true } = {})
 afterEach(() => vi.restoreAllMocks());
 
 describe('lo que el vínculo escucha', () => {
-  it('con sesión y a la vista pregunta al abrir; la huella `l=` hace mirar de nuevo', () => {
-    const { runtime, field, stop } = setup('ana');
-    expect(runtime.check).toHaveBeenCalledTimes(1);
+  it('al abrir toma el vínculo de /api/start sin preguntar; la huella `l=` hace mirar de nuevo', () => {
+    const { runtime, field, stop } = setup('ana', { start: pc });
+    expect(runtime.dispatch).toHaveBeenCalledWith({ type: 'serverSaid', pairing: pc });
+    expect(runtime.check).not.toHaveBeenCalled();
     field()('abc');
     expect(runtime.pairingChanged).toHaveBeenCalled();
     stop();
+  });
+
+  it('si /api/start no contestó todavía, espera su respuesta', () => {
+    const { runtime, atStart } = setup('ana', { start: undefined });
+    expect(runtime.dispatch).not.toHaveBeenCalled();
+    atStart.set(null);
+    expect(runtime.dispatch).toHaveBeenCalledWith({ type: 'serverSaid', pairing: null });
+    atStart.set(pc);
+    expect(runtime.dispatch).toHaveBeenCalledTimes(1);
   });
 
   it('salir avisa como la misma persona; entrar otra, como otra, y pregunta', () => {
@@ -64,11 +87,12 @@ describe('lo que el vínculo escucha', () => {
     who.set(undefined);
     expect(runtime.dispatch).toHaveBeenLastCalledWith({ type: 'sessionLost', samePerson: true });
     who.set('beto');
-    expect(runtime.check).toHaveBeenCalledTimes(2);
+    expect(runtime.check).toHaveBeenCalledTimes(1);
     who.set('carla');
     expect(runtime.dispatch).toHaveBeenLastCalledWith({ type: 'sessionLost', samePerson: false });
+    expect(runtime.check).toHaveBeenCalledTimes(2);
     who.set('carla');
-    expect(runtime.dispatch).toHaveBeenCalledTimes(2);
+    expect(runtime.dispatch).toHaveBeenCalledTimes(3);
   });
 
   it('otra pestaña toma el espejo, se oculta y vuelve', () => {
@@ -84,7 +108,12 @@ describe('lo que el vínculo escucha', () => {
     document.dispatchEvent(new Event('visibilitychange'));
     expect(runtime.dispatch).toHaveBeenLastCalledWith({ type: 'tabAway', why: 'hidden' });
     tab();
-    expect(runtime.dispatch).toHaveBeenCalledTimes(3);
+    expect(runtime.dispatch).toHaveBeenCalledTimes(4);
+    // Después del primero, volver a tomar la pestaña pregunta.
+    view.visible = true;
+    runtime.state.set({ kind: 'unpaired' });
+    tab();
+    expect(runtime.check).toHaveBeenCalledTimes(1);
   });
 
   it('sin sesión, la pestaña no hace nada; oculta al abrir, tampoco pregunta', () => {
@@ -92,8 +121,9 @@ describe('lo que el vínculo escucha', () => {
     empty.view.visible = true;
     empty.tab();
     expect(empty.runtime.dispatch).not.toHaveBeenCalled();
-    const hidden = setup('ana', { visible: false });
-    expect(hidden.runtime.check).not.toHaveBeenCalled();
+    const hidden = setup('ana', { visible: false, start: undefined });
+    hidden.atStart.set(pc);
+    expect(hidden.runtime.dispatch).not.toHaveBeenCalled();
     hidden.who.set('beto');
     expect(hidden.runtime.check).not.toHaveBeenCalled();
   });
@@ -120,5 +150,34 @@ describe('el vínculo de la aplicación', () => {
     await import('./start.ts');
     await Promise.resolve();
     expect(linkRuntime.get()).toBeUndefined();
+  });
+});
+
+describe('lo que lee el vínculo de la aplicación', () => {
+  it('el vínculo de /api/start, validado: sin respuesta, ninguno o el que dijo', () => {
+    expect(pairingAt(undefined)).toBeUndefined();
+    expect(pairingAt({})).toBeNull();
+    expect(pairingAt({ pairing: { id: 3 } })).toBeNull();
+    expect(pairingAt({ pairing: pc })).toEqual(pc);
+  });
+
+  it('la tira es de quien tiene la sesión, una por persona', () => {
+    const strip = stripOfPerson();
+    person.set(undefined);
+    expect(strip()).toBeUndefined();
+    person.set(ana);
+    const first = strip();
+    expect(strip()).toBe(first);
+    person.set({ ...ana, userId: 'otra' });
+    expect(strip()).not.toBe(first);
+    person.set(undefined);
+  });
+
+  it('se entera cuando cambia lo que dijo /api/start', async () => {
+    const stop = watchDeviceLink();
+    await vi.waitFor(() => expect(linkRuntime.get()).toBeDefined());
+    startParts.set({ pairing: pc });
+    startParts.set(undefined);
+    stop();
   });
 });

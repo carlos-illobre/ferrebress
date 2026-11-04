@@ -11,6 +11,7 @@ import type { PermissionGate } from './permissions.ts';
 import type { Realtime } from './realtime/realtime.ts';
 import type { RequestChecks } from './request-checks.ts';
 import type { SessionGate } from './session.ts';
+import type { StartParts } from './start-parts.ts';
 import type { AuditLog } from './storage/audit/write.ts';
 import type { ModuleSchema } from './storage/db.ts';
 
@@ -27,6 +28,8 @@ export type Platform = {
   header: HeaderFields;
   // Los pasos que un módulo suma a todos los pedidos, antes de cualquier ruta.
   checks: RequestChecks;
+  // Lo que un módulo suma a /api/start, con sesión (diseño de 03, § 10.1).
+  start: StartParts;
   // La sesión del pedido: sign-in da cómo se resuelve; cualquier módulo la exige con `require`.
   sessions: SessionGate;
   // El permiso de cada ruta: users da cómo se saben; cualquier módulo lo pide con `require(id)`.

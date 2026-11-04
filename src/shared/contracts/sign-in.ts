@@ -53,6 +53,8 @@ export type StartResponse = {
   googleScriptUrl: string;
   googleNonce?: string;
   person?: Person;
+  // Lo que suma cada módulo, con sesión, por su nombre (diseño de 03, § 10.1); cada uno lee lo suyo.
+  parts?: Record<string, unknown>;
 };
 
 export type SignInResponse = { person: Person; sessionId: string; offerPasskey: boolean };
