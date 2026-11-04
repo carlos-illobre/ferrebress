@@ -22,6 +22,16 @@ const routes: Record<string, Needs> = {
   // 03, § 3.3), y un tema con sesión, sin ella, se rechaza.
   'GET /api/realtime': 'public',
   'POST /api/realtime/subscriptions': 'public',
+  // El vínculo (capítulo 03): con sesión, sin permiso propio (R1.2).
+  'POST /api/device-link/codes/read': 'session',
+  'POST /api/device-link/codes/accept': 'session',
+  'POST /api/device-link/unpair': 'session',
+  'POST /api/device-link/pause': 'session',
+  'POST /api/device-link/resume': 'session',
+  'GET /api/device-link/check': 'session',
+  'POST /api/device-link/signal': 'session',
+  'POST /api/device-link/relay': 'session',
+  'POST /api/device-link/report': 'session',
   'POST /api/sign-in/codes/claim': 'public',
   'POST /api/sign-in/codes/cancel': 'public',
   'POST /api/sign-out': 'public',

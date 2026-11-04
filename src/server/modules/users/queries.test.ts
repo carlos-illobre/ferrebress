@@ -40,13 +40,14 @@ describe('las consultas de cada ruta de Usuarios', () => {
     counts.remove = await count(`/api/users/${person.id}/delete`, { version: 5 });
     // Las escrituras con aviso abren una transacción: el comienzo y la confirmación cuentan.
     // La lista, el correo, la baja, el alta y borrar suman la de R7.11: los permisos de las personas.
-    // El alta avisa que cambiaron sus permisos, en una transacción (comienzo y confirmación).
+    // El alta avisa que cambiaron sus permisos, en una transacción (comienzo y confirmación). La baja
+    // busca además los vínculos de la persona para terminarlos (03 · R2.3).
     expect(counts).toEqual({
       list: 5,
       authorize: 1,
       rename: 3,
       email: 2,
-      deactivate: 8,
+      deactivate: 9,
       activate: 4,
       remove: 2,
     });
@@ -66,8 +67,9 @@ describe('las consultas de cada ruta de Usuarios', () => {
     counts.close = await count(`/api/users/${linked.userId}/sessions/${sessions[0].id}/close`, {});
     counts.closeAll = await count(`/api/users/${linked.userId}/sessions/close`, {});
     // Cortar y «Se perdió un celular» suman la de R7.11: los permisos de esas personas. Cerrar y
-    // cortar van en una transacción con su aviso (diseño de 03, § 11.1): suman su comienzo y su fin.
-    expect(counts).toEqual({ access: 2, lost: 4, lostAgain: 3, cut: 6, close: 5, closeAll: 4 });
+    // cortar van en una transacción con su aviso (diseño de 03, § 11.1): suman su comienzo y su fin; y
+    // cortar, la búsqueda de los vínculos de ese celular (03 · R2.3).
+    expect(counts).toEqual({ access: 2, lost: 4, lostAgain: 3, cut: 7, close: 5, closeAll: 4 });
   });
 
   it('las de los roles', async () => {

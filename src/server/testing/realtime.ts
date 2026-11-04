@@ -27,7 +27,14 @@ export function createRealtimeServer() {
     async (c) => {
       const id = c.req.header('X-Test-Session');
       if (!id || !open.has(id)) return c.json({ error: 'session-closed' }, 401);
-      return { id, userId: `u-${id}`, deviceId: 'd', confirmedAt: null };
+      return {
+        id,
+        userId: `u-${id}`,
+        deviceId: 'd',
+        deviceLabel: 'Chrome en Windows',
+        isPhone: false,
+        confirmedAt: null,
+      };
     },
     (id) => open.has(id),
   );

@@ -7,7 +7,14 @@ import { createTopics } from './topics.ts';
 
 const session: Owner = {
   kind: 'session',
-  session: { id: 's', userId: 'u', deviceId: 'd', confirmedAt: null },
+  session: {
+    id: 's',
+    userId: 'u',
+    deviceId: 'd',
+    deviceLabel: 'Chrome en Windows',
+    isPhone: false,
+    confirmedAt: null,
+  },
 };
 
 function setup() {

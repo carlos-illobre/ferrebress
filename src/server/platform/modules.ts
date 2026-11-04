@@ -9,6 +9,7 @@ import type { Http } from './http.ts';
 import type { RateLimiter } from './limits/rate-limit.ts';
 import type { PermissionGate } from './permissions.ts';
 import type { Realtime } from './realtime/realtime.ts';
+import type { RequestChecks } from './request-checks.ts';
 import type { SessionGate } from './session.ts';
 import type { AuditLog } from './storage/audit/write.ts';
 import type { ModuleSchema } from './storage/db.ts';
@@ -24,6 +25,8 @@ export type Platform = {
   http: Http;
   // Los campos que un módulo suma a la cabecera de cada respuesta (diseño de 03, § 3.5).
   header: HeaderFields;
+  // Los pasos que un módulo suma a todos los pedidos, antes de cualquier ruta.
+  checks: RequestChecks;
   // La sesión del pedido: sign-in da cómo se resuelve; cualquier módulo la exige con `require`.
   sessions: SessionGate;
   // El permiso de cada ruta: users da cómo se saben; cualquier módulo lo pide con `require(id)`.

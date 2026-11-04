@@ -1,6 +1,7 @@
 // La fachada de entrar (diseño de 01): registra sus rutas, cierra las sesiones de quien se da de
 // baja, escribe por tandas los últimos usos y limpia una vez por día las sesiones viejas.
 import { createRemoteJWKSet, type JWTVerifyGetKey } from 'jose';
+import { sleep } from '../../platform/clock.ts';
 import type { ServerModule } from '../../platform/modules.ts';
 import type { AccessCounts, Users } from '../users/index.ts';
 import { registerConfirmRoutes } from './access/confirm.ts';
@@ -31,8 +32,6 @@ export type SignInOptions = {
   // Cómo esperar el próximo código; las pruebas lo manejan a mano.
   wait?: (ms: number) => Promise<void>;
 };
-
-const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms).unref());
 
 // Lo que avisa Entrar, para quien lo necesite sin que Entrar lo conozca (el vínculo, diseño de 03,
 // § 11.1): sesiones cerradas desde Usuarios con sus dispositivos, una huella quitada o un celular

@@ -50,5 +50,12 @@ export async function requestSession(
   }
   const { session } = resolved;
   const confirmedAt = confirmedAtOf(session);
-  return { id: session.id, userId: session.userId, deviceId: session.deviceId, confirmedAt };
+  return {
+    id: session.id,
+    userId: session.userId,
+    deviceId: session.deviceId,
+    deviceLabel: session.deviceLabel,
+    isPhone: session.isPhone,
+    confirmedAt,
+  };
 }

@@ -34,8 +34,9 @@ export type ReadCodeResponse =
   | { pairing: PairingView }
   | { ticket: string; replaces: { phone?: string; computer?: true } };
 
+// El boleto de reemplazar: 192 bits en base64url.
 export const acceptBody = z.strictObject({
-  ticket: z.string().check(z.regex(/^[A-Za-z0-9_-]{22}$/)),
+  ticket: z.string().check(z.regex(/^[A-Za-z0-9_-]{32}$/)),
 });
 
 // La oferta o la respuesta de WebRTC, ya filtrada por quien la manda (§ 4.2).

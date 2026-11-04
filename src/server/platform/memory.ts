@@ -15,6 +15,8 @@ export function createGuardedMemory<K, V>() {
       if (forgets === before) values.set(key, value);
       return value;
     },
+    // Lo que hay en memoria, sin leer la base: para lo que no puede esperar (la cabecera).
+    peek: (key: K): V | undefined => values.get(key),
     forget(keys: readonly K[] | 'all'): void {
       forgets++;
       if (keys === 'all') values.clear();

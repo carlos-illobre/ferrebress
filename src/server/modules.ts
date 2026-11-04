@@ -4,8 +4,10 @@
 // main.ts y las pruebas, así lo que conecta se prueba.
 import type { JWTVerifyGetKey } from 'jose';
 import { createAuditLogModule } from './modules/audit-log/index.ts';
+import { createDeviceLinkModule } from './modules/device-link/index.ts';
 import { createSignInModule } from './modules/sign-in/index.ts';
 import { createUsersModule } from './modules/users/index.ts';
+import { sleep } from './platform/clock.ts';
 
 export type ModulesOptions = {
   // Las llaves de Google y cómo esperar el próximo código: las pruebas pasan las suyas.
@@ -18,6 +20,8 @@ export function createModules(options: ModulesOptions = {}) {
     accessCounts: (userIds, asking) => signIn.accessCounts(userIds, asking),
   });
   const signIn = createSignInModule({ users: users.users, ...options });
-  const modules = [users.module, signIn, createAuditLogModule()];
+  // El vínculo espera con el mismo reloj que la entrada (sus códigos del QR se renuevan igual).
+  const deviceLink = createDeviceLinkModule({ wait: options.wait ?? sleep });
+  const modules = [users.module, signIn, createAuditLogModule(), deviceLink];
   return { modules, users: users.users, people: users.people };
 }

@@ -18,7 +18,14 @@ function setUp(granted: Record<string, string[]>) {
   sessions.provide(async (c) => {
     const userId = c.req.header('X-User');
     return userId
-      ? { id: 's', userId, deviceId: 'd', confirmedAt: null }
+      ? {
+          id: 's',
+          userId,
+          deviceId: 'd',
+          deviceLabel: 'Chrome en Windows',
+          isPhone: false,
+          confirmedAt: null,
+        }
       : c.json({ error: 'session-closed' }, 401);
   });
   const gate = createPermissionGate({ audit, clock, limiter: createRateLimiter(clock) }, sessions);
@@ -79,7 +86,14 @@ describe('el paso de permisos (02 · R7.6)', () => {
   it('sin quien dé los permisos, falla en vez de dejar pasar', async () => {
     const clock = { now: () => new Date() };
     const sessions = createSessionGate();
-    sessions.provide(async () => ({ id: 's', userId: 'u', deviceId: 'd', confirmedAt: null }));
+    sessions.provide(async () => ({
+      id: 's',
+      userId: 'u',
+      deviceId: 'd',
+      deviceLabel: 'Chrome en Windows',
+      isPhone: false,
+      confirmedAt: null,
+    }));
     const audit = { record() {}, read: () => [], close() {} };
     const gate = createPermissionGate(
       { audit, clock, limiter: createRateLimiter(clock) },

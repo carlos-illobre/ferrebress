@@ -8,7 +8,14 @@ describe('la sesión del pedido', () => {
     const http = new Hono();
     http.get('/x', gate.require, (c) => c.json(sessionOf(c)));
     await expect(http.request('/x')).resolves.toMatchObject({ status: 500 });
-    const session = { id: 's', userId: 'u', deviceId: 'd', confirmedAt: null };
+    const session = {
+      id: 's',
+      userId: 'u',
+      deviceId: 'd',
+      deviceLabel: 'Chrome en Windows',
+      isPhone: false,
+      confirmedAt: null,
+    };
     gate.provide(async (c) =>
       c.req.header('Cookie') ? session : c.json({ error: 'session-closed' }, 401),
     );
@@ -19,7 +26,14 @@ describe('la sesión del pedido', () => {
 
   it('identifica sin contestar nada, avisa el fin de una sesión y dice si sigue abierta', async () => {
     const gate = createSessionGate();
-    const session = { id: 's', userId: 'u', deviceId: 'd', confirmedAt: null };
+    const session = {
+      id: 's',
+      userId: 'u',
+      deviceId: 'd',
+      deviceLabel: 'Chrome en Windows',
+      isPhone: false,
+      confirmedAt: null,
+    };
     gate.provide(async (c) =>
       c.req.header('Cookie') ? session : c.json({ error: 'session-closed' }, 401),
     );

@@ -6,10 +6,14 @@
 import type { Context, MiddlewareHandler } from 'hono';
 
 // `confirmedAt`: la última vez que pasó por Google o por la huella en esta sesión (02 · R3.8).
+// `deviceLabel` y `isPhone`: el nombre y la clase del dispositivo de la sesión, de una lista cerrada
+// del servidor (el vínculo, diseño de 03, § 10).
 export type RequestSession = {
   id: string;
   userId: string;
   deviceId: string;
+  deviceLabel: string;
+  isPhone: boolean;
   confirmedAt: Date | null;
 };
 

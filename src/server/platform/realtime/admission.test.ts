@@ -6,7 +6,14 @@ import { createChannel, type Owner } from './channel.ts';
 
 const session = (id: string): Owner => ({
   kind: 'session',
-  session: { id, userId: 'u', deviceId: 'd', confirmedAt: null },
+  session: {
+    id,
+    userId: 'u',
+    deviceId: 'd',
+    deviceLabel: 'Chrome en Windows',
+    isPhone: false,
+    confirmedAt: null,
+  },
 });
 const anonymous = (network: string): Owner => ({ kind: 'anonymous', network });
 const sink = { write: async () => undefined, close: () => undefined };

@@ -19,6 +19,7 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { Clock } from './clock.ts';
 import type { HeaderFields } from './header-fields.ts';
 import type { RateLimiter } from './limits/rate-limit.ts';
+import type { RequestChecks } from './request-checks.ts';
 import { platformSettings } from './settings.ts';
 import type { AuditLog } from './storage/audit/write.ts';
 
@@ -36,6 +37,8 @@ export type HttpOptions = {
   remoteAddress?: (c: Context) => string | undefined;
   // Lo que suma cada módulo a la cabecera (diseño de 03, § 3.5).
   fields?: HeaderFields;
+  // Lo que suma cada módulo antes de cualquier ruta (diseño de 03, § 7.2).
+  checks?: RequestChecks;
 };
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -79,6 +82,7 @@ export function createHttp(options: HttpOptions): Http {
     bodyLimit({ maxSize: platformSettings.bodyLimitBytes, onError: (c) => reject(c, 'size') }),
   );
   http.use('/api/*', guard(options.publicOrigin, reject));
+  http.use('/api/*', async (c, next) => (await options.checks?.run(c)) ?? (await next()));
   http.notFound((c) => fail(c, 404, 'not-found'));
   http.onError((error, c) => {
     // Un cuerpo que no es JSON es un pedido mal hecho, no una falla: sin traza en el registro.

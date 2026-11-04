@@ -6,12 +6,13 @@ const ok = (schema: { safeParse(v: unknown): { success: boolean } }, value: unkn
   schema.safeParse(value).success;
 
 describe('los contratos del vínculo', () => {
-  it('el código y el boleto: 22 caracteres de base64url, nada más', () => {
+  it('el código (22 caracteres de base64url) y el boleto (32), nada más', () => {
     expect(ok(readCodeBody, { code: 'a'.repeat(22) })).toBe(true);
     expect(ok(readCodeBody, { code: 'a'.repeat(21) })).toBe(false);
     expect(ok(readCodeBody, { code: `${'a'.repeat(21)}/` })).toBe(false);
     expect(ok(readCodeBody, { code: 'a'.repeat(22), otro: 1 })).toBe(false);
-    expect(ok(acceptBody, { ticket: 'b'.repeat(22) })).toBe(true);
+    expect(ok(acceptBody, { ticket: 'b'.repeat(32) })).toBe(true);
+    expect(ok(acceptBody, { ticket: 'b'.repeat(22) })).toBe(false);
   });
 
   it('la oferta lleva su intento y como mucho 8 KB', () => {
