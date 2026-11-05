@@ -113,8 +113,8 @@ paralelo»).
 - [ ] T126 [agente] La simulación de los dos dispositivos (diseño de 03, § 20) suma cerrar sesiones y
   mira que nada salga sin una confirmación vigente; y el reemplazo al entrar con el celular anota las
   direcciones de las dos computadoras (§ 11.2), que el aviso de la entrada todavía no trae.
-- [ ] T127 [agente] Que las capturas del manual salgan siempre iguales: `pnpm manual:check` falla a
-  veces en `desktop-link-code` y `phone-link-confirm` sin que nada haya cambiado.
+- [x] T127 [agente] Que las capturas salgan siempre iguales: la del código del vínculo esperaba el ícono
+  de «Volver» en lugar del QR, y el botón de Google tardaba más de 5 s con todas en paralelo.
 
 ## Tareas futuras
 

@@ -114,11 +114,11 @@ export const deviceLinkScenes: Scene[] = [
     prepare: async (page) => {
       await computerDetail(page, { linked: null }, /Sin vincular/);
       await button(/Vincular el celular/)(page).click();
-      await expect(page.locator('.link-code svg path').first()).toBeVisible();
+      await expect(page.locator('.qr-box > svg > path')).toBeVisible();
       await quiet(page);
     },
     points: {
-      code: (page) => page.locator('.link-code svg').first(),
+      code: (page) => page.locator('.qr-box > svg'),
       renews: (page) => page.locator('.qr-renews'),
     },
   },

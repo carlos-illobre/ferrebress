@@ -15,7 +15,12 @@ export default defineConfig({
   reporter: 'list',
   outputDir: '../../test-results/screens',
   snapshotPathTemplate: '{testDir}/references/{arg}{ext}',
-  expect: { toHaveScreenshot: { maxDiffPixels: 0, animations: 'disabled', caret: 'hide' } },
+  // Con todas las capturas en paralelo, el botón de Google llegó a tardar más de los 5 s de siempre en
+  // dibujarse: la espera es más larga, la comparación sigue igual de estricta.
+  expect: {
+    timeout: 15_000,
+    toHaveScreenshot: { maxDiffPixels: 0, animations: 'disabled', caret: 'hide' },
+  },
   use: { baseURL: `http://localhost:${port}`, contextOptions: { reducedMotion: 'reduce' } },
   webServer: {
     command: 'node serve.ts',
