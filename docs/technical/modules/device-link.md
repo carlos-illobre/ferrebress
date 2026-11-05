@@ -842,6 +842,7 @@ stateDiagram-v2
   waiting --> away: tabAway
   paused --> away: tabAway
   away --> waiting: tabBack y serverSaid
+  away --> paused: tabBack en pausa
   unpaired --> asleep: sessionLost
   waiting --> asleep: sessionLost
   direct --> asleep: sessionLost
@@ -880,12 +881,12 @@ que el gráfico se lea, esas flechas no se dibujan: están en la tabla.
 | `relayed` con `trying` | `probeResult(sí)` | `direct` | cierra el respaldo; `unsubscribe` |
 | `relayed` con `trying` | `probeResult(no)` | `relayed` con `probe:'failed'` | cierra el intento |
 | cualquiera | `tabAway` (oculta, o perdió el candado) | `away` | `send(bye hidden)` o `send(bye handover)`, `unsubscribe`; el celular conserva el directo dormido 5 minutos |
-| `away` | `tabBack` | `waiting` | con el directo dormido, `waiting` con `dormant` y `send(hello)` por él: el otro contesta por el mismo directo y los dos pasan a `direct` sin presentarse (E22); sin él, `check` y como `waiting` |
+| `away` | `tabBack` | `waiting` | con el directo dormido, `waiting` con `dormant` y `send(hello)` por él: el otro contesta por el mismo directo y los dos pasan a `direct` sin presentarse (E22); con el vínculo en pausa, vuelve a `paused` (la computadora escucha el tema) y `check`: volver no reconecta (R5.1); si no, `check` y como `waiting` |
 | `waiting` o `away` con `dormant` | `dormantLost` (el otro lo cerró, o pasaron los 5 minutos) | `waiting` (o `away`) sin `dormant` | en `waiting`, `check` y como `waiting` |
 | `waiting`, `meeting`, `direct`, `relayed` | `peerGone('version')` (el `hello` del otro trae otra `app`) | `waiting` con `why:'version'` | suelta todo **sin volver a escuchar** y pregunta (`check`): la cabecera dice cuál es la vieja (R6.7). La que está al día vuelve a escuchar; la vieja no, hasta actualizarse. Si escucharan las dos, se presentarían una y otra vez |
 
 - **Lo que el servidor dice por la huella `l=`** (`pairingChanged`): esperando sin escuchar (el celular,
-  que solo se fijó una vez; los dos después de una pausa), el otro pudo haber llegado, y se mira el tema
+  que solo se fijó una vez; el celular después de una pausa), el otro pudo haber llegado, y se mira el tema
   (el celular con `peek`, la computadora escuchando); con otra versión, solo la que está al día. En
   cualquier otro estado, se pregunta (`check`). Así, después de reconectar desde un lado, el otro se
   entera en su próximo pedido.

@@ -62,13 +62,9 @@ describe('los bordes del vínculo', () => {
       await together(pc, phone, 'relayed');
       phone.runtime.dispatch({ type: 'pause', from: 'here' });
       await vi.waitFor(() => expect(pc.kind()).toBe('paused'));
+      expect(server.world.listening.has('computer')).toBe(true);
+      // E29: en pausa la computadora a la vista sigue escuchando, y se entera en el momento.
       phone.runtime.dispatch({ type: 'resume', from: 'here' });
-      // En pausa la computadora no escucha: se entera por la huella de su próximo pedido.
-      await vi.waitFor(() => expect(phone.kind()).toBe('waiting'));
-      pc.runtime.pairingChanged();
-      await vi.waitFor(() => expect(server.world.listening.has('computer')).toBe(true));
-      // Y el celular, que se fijó antes, por la suya.
-      phone.runtime.pairingChanged();
       await vi.waitFor(() => expect(pc.kind()).toBe('relayed'));
       await vi.waitFor(() => expect(phone.kind()).toBe('relayed'));
       phone.runtime.stop();

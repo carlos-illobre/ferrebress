@@ -6,6 +6,7 @@ import {
   connected,
   isComputer,
   leaving,
+  listenWhilePaused,
   type PairingState,
   pairingOf,
   type Step,
@@ -43,7 +44,7 @@ export function onPause(state: PairingState, from: 'here' | 'peer'): Step {
     { do: 'detachMirror', reset: false },
     { do: 'strip', mark: 'paused' },
   ];
-  if (!kept) commands.push({ do: 'closeTransport' }, { do: 'unsubscribe' });
+  if (!kept) commands.push({ do: 'closeTransport' }, ...listenWhilePaused(pairing));
   const paused = { ...pairing, paused: true };
   return {
     state: kept ? { kind: 'paused', pairing: paused, kept } : { kind: 'paused', pairing: paused },
@@ -103,11 +104,16 @@ export function onTabAway(state: PairingState, why: 'hidden' | 'handover'): Step
   return { state: away, commands };
 }
 
-// Al volver la pestaña: con el directo dormido, se saluda por él (E22); si no, se pregunta cómo está
-// el vínculo y se presenta de nuevo.
+// Al volver la pestaña: con el directo dormido, se saluda por él (E22); en pausa, sigue en pausa
+// (R5.1: volver no reconecta); si no, se pregunta cómo está el vínculo y se presenta de nuevo.
 export function onTabBack(state: PairingState): Step {
   if (state.kind !== 'away') return same(state);
   const { pairing, dormant } = state;
+  if (pairing.paused)
+    return {
+      state: { kind: 'paused', pairing },
+      commands: [...listenWhilePaused(pairing), { do: 'check' }, { do: 'strip', mark: 'paused' }],
+    };
   if (!dormant) return toWaiting(pairing, [{ do: 'check' }]);
   return {
     state: { kind: 'waiting', pairing, dormant },

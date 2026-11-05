@@ -25,11 +25,25 @@ const cases: Case[] = [
     ['post', 'send', 'detachMirror', 'strip'],
   ],
   [
-    'desconectar sin directo suelta todo',
+    'desconectar sin directo: la computadora sigue escuchando el tema (E29)',
     { kind: 'waiting', pairing: pc },
     { type: 'pause', from: 'peer' },
     'paused',
-    ['detachMirror', 'strip', 'closeTransport', 'unsubscribe'],
+    ['detachMirror', 'strip', 'closeTransport', 'subscribe'],
+  ],
+  [
+    'desconectar sin directo: el celular deja el tema',
+    { kind: 'relayed', pairing: phone, attempt: 'a' },
+    { type: 'pause', from: 'here' },
+    'paused',
+    ['post', 'send', 'detachMirror', 'strip', 'closeTransport', 'unsubscribe'],
+  ],
+  [
+    'vuelve la pestaña con el vínculo en pausa: sigue en pausa (R5.1)',
+    { kind: 'away', pairing: { ...pc, paused: true } },
+    { type: 'tabBack' },
+    'paused',
+    ['subscribe', 'check', 'strip'],
   ],
   [
     'reconectar con el directo conservado (E29)',

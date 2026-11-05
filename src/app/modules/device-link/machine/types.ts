@@ -74,6 +74,11 @@ export const toWaiting = (pairing: PairingView, extra: Command[] = []): Step => 
   ],
 });
 
+// En pausa sin el directo conservado, la computadora a la vista sigue escuchando el tema: así se
+// entera en el momento de que el celular tocó «Reconectar» (E29). El celular no escucha.
+export const listenWhilePaused = (pairing: PairingView): Command[] =>
+  isComputer(pairing) ? [{ do: 'subscribe' }] : [{ do: 'unsubscribe' }];
+
 // Dejar el vínculo de ahora: cerrar el transporte, dejar de escuchar y desconectar el espejo.
 export const leaving = (state: PairingState): Command[] =>
   pairingOf(state)

@@ -46,8 +46,8 @@ export function attachMirror(live: Live, over: 'direct' | 'relayed'): void {
 export function detachMirror(live: Live, reset: boolean): void {
   live.deps.mirror.detach();
   live.confirm.end();
-  // Otra persona: lo que vino del otro vuelve a su valor inicial (01 · R3.4).
-  if (reset) live.deps.mirror.adopt([]);
+  // Otra persona: todo vuelve a su valor inicial, también lo que trajo el servidor (01 · R3.4).
+  if (reset) live.deps.mirror.reset();
 }
 
 const waitHello = (live: Live) =>

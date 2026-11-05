@@ -9,6 +9,7 @@ import {
   type GoneWhy,
   isComputer,
   leaving,
+  listenWhilePaused,
   type PairingState,
   pairingOf,
   type Step,
@@ -28,7 +29,10 @@ function onNoPairing(state: PairingState): Step {
 function onNewPairing(state: PairingState, pairing: PairingView): Step {
   const bye: Command[] = pairingOf(state) ? [{ do: 'bye', why: 'replaced' }] : [];
   if (pairing.paused)
-    return { state: { kind: 'paused', pairing }, commands: [...bye, ...leaving(state)] };
+    return {
+      state: { kind: 'paused', pairing },
+      commands: [...bye, ...leaving(state), ...listenWhilePaused(pairing)],
+    };
   return toWaiting(pairing, [...bye, ...leaving(state)]);
 }
 

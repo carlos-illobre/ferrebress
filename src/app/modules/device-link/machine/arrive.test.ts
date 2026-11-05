@@ -28,14 +28,14 @@ const cases: Case[] = [
     { kind: 'asleep' },
     { type: 'serverSaid', pairing: view('computer', { paused: true }) },
     'paused',
-    [],
+    ['subscribe'],
   ],
   [
     'otro vínculo en pausa reemplaza al de ahora',
     { kind: 'direct', pairing: pc, attempt: 'a' },
     { type: 'serverSaid', pairing: view('computer', { id: 'v2', paused: true }) },
     'paused',
-    ['bye', 'closeTransport', 'unsubscribe', 'detachMirror'],
+    ['bye', 'closeTransport', 'unsubscribe', 'detachMirror', 'subscribe'],
   ],
   [
     'otro vínculo: deja el de ahora y espera con el nuevo (E05)',

@@ -14,13 +14,22 @@ export type Patch = { k: string; v: Json; c: number; l: boolean };
 export type Port = { send(patches: Patch[]): void; leader: boolean; over: 'direct' | 'relayed' };
 
 // Lo que el espejo descarta, para el diario de quien lo conecta (sin el valor).
-export type Discard = { key: string; why: 'schema' | 'too-large' | 'unknown' | 'from-follower' };
+export type Discard = {
+  key: string;
+  why: 'schema' | 'too-large' | 'unknown' | 'from-follower' | 'clock';
+};
 
 export const maxValueBytes = 64 * 1024;
 const inboxLimits = { keys: 64, bytes: 1024 * 1024, ms: 10_000 };
+// Cuánto puede adelantar el reloj un cambio del otro: más es un otro roto o malicioso, que dejaría el
+// reloj fuera de los enteros seguros y el espejo sin andar hasta recargar.
+export const maxClockJump = 10_000;
 
 type Entry = {
   value: Json;
+  // Lo que viaja en la foto: el último valor elegido por la persona o llegado del otro, no lo que la
+  // pantalla eligió sola por su forma (R6.2, E33c).
+  shared: Json;
   initial: Json;
   clock: number;
   leader: boolean;
@@ -78,8 +87,9 @@ type State = {
   onDiscard: (discard: Discard) => void;
 };
 
-function write(state: State, entry: Entry, patch: Patch): void {
+function write(state: State, entry: Entry, patch: Patch, auto = false): void {
   entry.value = patch.v;
+  if (!auto) entry.shared = patch.v;
   entry.clock = patch.c;
   entry.leader = patch.l;
   state.clock = Math.max(state.clock, patch.c);
@@ -87,11 +97,14 @@ function write(state: State, entry: Entry, patch: Patch): void {
 }
 
 // Un cambio que llegó del otro: si tiene su forma y gana, se aplica sin volver a mandarlo. Lo que trae
-// el servidor solo va del que manda al otro (§ 5.2).
-function receiveOne(state: State, patch: Patch): void {
+// el servidor solo va del que manda al otro (§ 5.2). Quién manda lo dice el puerto, no el cambio, y el
+// reloj no salta más que `maxClockJump`.
+function receiveOne(state: State, received: Patch): void {
+  const patch = { ...received, l: !(state.port?.leader ?? false) };
   const entry = state.entries.get(patch.k);
   if (patch.k.startsWith('q:') && state.port?.leader)
     state.onDiscard({ key: patch.k, why: 'from-follower' });
+  else if (patch.c > state.clock + maxClockJump) state.onDiscard({ key: patch.k, why: 'clock' });
   else if (!entry) {
     if (!state.inbox.keep(patch)) state.onDiscard({ key: patch.k, why: 'unknown' });
   } else if (!entry.schema.safeParse(patch.v).success)
@@ -118,6 +131,7 @@ function register<T extends Json>(
   if (state.entries.has(key)) throw new Error(`El valor «${key}» ya está registrado`);
   const entry: Entry = {
     value: initial,
+    shared: initial,
     initial,
     clock: 0,
     leader: false,
@@ -132,7 +146,7 @@ function register<T extends Json>(
     get: () => entry.value as T,
     set: (value, options) =>
       options?.auto
-        ? write(state, entry, { k: key, v: value, c: entry.clock, l: entry.leader })
+        ? write(state, entry, { k: key, v: value, c: entry.clock, l: entry.leader }, true)
         : local(state, key, entry, value),
     subscribe(listener) {
       listeners.add(listener);
@@ -142,12 +156,13 @@ function register<T extends Json>(
   };
 }
 
-// La foto (R6.3): todo lo vivo, marcado con un reloj más alto que el del otro: gana en los dos.
+// La foto (R6.3): todo lo vivo, marcado con un reloj más alto que el del otro: gana en los dos. Lo
+// que la pantalla eligió sola no va: el otro elige el suyo (E33c).
 function snapshot(state: State, above: number, withQueries: boolean): Patch[] {
-  state.clock = Math.max(state.clock, above) + 1;
+  state.clock = Math.max(state.clock, Math.min(above, state.clock + maxClockJump)) + 1;
   return [...state.entries]
     .filter(([key]) => withQueries || !key.startsWith('q:'))
-    .map(([key, entry]) => ({ k: key, v: entry.value, c: state.clock, l: true }));
+    .map(([key, entry]) => ({ k: key, v: entry.shared, c: state.clock, l: true }));
 }
 
 // Tomar la foto del que manda: lo que no trae vuelve a su valor inicial.
@@ -159,6 +174,16 @@ function adopt(state: State, photo: Patch[]): void {
       write(state, entry, { k: key, v: entry.initial, c: state.clock, l: false });
     }
   for (const patch of photo) receiveOne(state, patch);
+}
+
+// Otra persona en este dispositivo: todo vuelve a su valor inicial, también lo que trajo el
+// servidor por el otro (01 · R3.4).
+function reset(state: State): void {
+  state.inbox.clear();
+  for (const [key, entry] of state.entries) {
+    state.clock += 1;
+    write(state, entry, { k: key, v: entry.initial, c: state.clock, l: false });
+  }
 }
 
 export function createMirror({ now = Date.now, onDiscard = () => undefined }: Options = {}) {
@@ -188,6 +213,11 @@ export function createMirror({ now = Date.now, onDiscard = () => undefined }: Op
     highestClock: () => state.clock,
     snapshot: (above: number, withQueries: boolean) => snapshot(state, above, withQueries),
     adopt: (photo: Patch[]) => adopt(state, photo),
+    reset: () => reset(state),
+    // Quién se entera de lo descartado (el diario del vínculo, sin el valor).
+    onDiscard(listener: (discard: Discard) => void): void {
+      state.onDiscard = listener;
+    },
   };
 }
 

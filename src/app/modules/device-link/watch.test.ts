@@ -14,7 +14,7 @@ import { reading } from './detail.ts';
 import { linkRuntime, watchDeviceLink } from './index.ts';
 import type { PairingState } from './machine/types.ts';
 import type { Runtime } from './runtime.ts';
-import { pairingAt, stripOfPerson, who } from './start.ts';
+import { noteDiscard, pairingAt, stripOfPerson, who } from './start.ts';
 import { watchLink } from './watch.ts';
 
 type Setup = { visible?: boolean; mine?: boolean; start?: PairingView | null | undefined };
@@ -177,6 +177,15 @@ describe('lo que lee el vínculo de la aplicación', () => {
     expect(pairingAt({})).toBeNull();
     expect(pairingAt({ pairing: { id: 3 } })).toBeNull();
     expect(pairingAt({ pairing: pc })).toEqual(pc);
+  });
+
+  it('lo que el espejo descarta va al diario sin lo que identifica a alguien', () => {
+    const journal = { note: vi.fn() };
+    noteDiscard(journal)({ key: 'users.card.roles:1234', why: 'schema' });
+    expect(journal.note).toHaveBeenCalledWith('discard', {
+      key: 'users.card.roles',
+      why: 'schema',
+    });
   });
 
   it('la tira es de quien tiene la sesión, una por persona', () => {

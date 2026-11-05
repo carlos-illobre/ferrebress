@@ -5,6 +5,7 @@
 import type { PairingView, ReadCodeResponse } from '@ferrebress/shared/contracts/device-link';
 import { clearHash, navigate, route } from '../../platform/router.ts';
 import { api } from '../../platform/server/api.ts';
+import { pendingEntries } from '../sign-in/index.ts';
 
 export const pairPath = '/pair';
 
@@ -41,13 +42,18 @@ function readingOf(result: Awaited<ReturnType<typeof api<ReadCodeResponse>>>): R
   return { kind: 'replace', ticket: result.data.ticket, was: result.data.replaces.phone };
 }
 
+// Con una entrada sin conexión que el servidor todavía no confirmó, no se vincula: «Para vincular hace
+// falta internet» (E36). El pedido saldría con una sesión que el servidor no conoce.
+const send = async (path: string, body: Record<string, string>): Promise<Reading> =>
+  pendingEntries.get() > 0
+    ? { kind: 'offline' }
+    : readingOf(await api<ReadCodeResponse>(`/api/device-link/codes/${path}`, body));
+
 // Leer el código en el servidor.
-export const readCode = async (code: string): Promise<Reading> =>
-  readingOf(await api<ReadCodeResponse>('/api/device-link/codes/read', { code }));
+export const readCode = (code: string) => send('read', { code });
 
 // Aceptar el reemplazo (R1.4), con el boleto que dio la lectura.
-export const acceptTicket = async (ticket: string): Promise<Reading> =>
-  readingOf(await api<ReadCodeResponse>('/api/device-link/codes/accept', { ticket }));
+export const acceptTicket = (ticket: string) => send('accept', { ticket });
 
 // La dirección que abrió la cámara del teléfono (E02): se lee una vez y se borra, así no queda en el
 // historial. Con sesión, devuelve el código para vincular; sin sesión no vincula: queda la entrada

@@ -3,7 +3,7 @@
 // dibujar la primera pantalla.
 
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
-import { mirror } from '../../platform/mirror/registry.ts';
+import { type Discard, mirror } from '../../platform/mirror/registry.ts';
 import { bindRoute } from '../../platform/mirror/route.ts';
 import { createRtcConnection } from '../../platform/peer/rtc.ts';
 import { realtime } from '../../platform/realtime/channel.ts';
@@ -21,7 +21,7 @@ import { startParts } from '../../platform/server/start-parts.ts';
 import { person } from '../sign-in/index.ts';
 import { linkOver, linkRuntime, linkStrip } from './current.ts';
 import { reading } from './detail.ts';
-import { createJournal } from './journal.ts';
+import { createJournal, type Journal } from './journal.ts';
 import { takePairCode } from './pair.ts';
 import { watchReplaced } from './replaced.ts';
 import { pairingShape } from './runtime/topic.ts';
@@ -68,8 +68,16 @@ export function stripOfPerson(): () => Strip | undefined {
   };
 }
 
+// Lo que el espejo descarta queda en el diario: solo el nombre de la clave, sin lo que identifica a
+// alguien (lo de después de `:`) ni el valor (§ 15.1).
+export const noteDiscard =
+  (journal: Pick<Journal, 'note'>) =>
+  ({ key, why }: Discard) =>
+    journal.note('discard', { key: key.replace(/:.*/, ''), why });
+
 export function startDeviceLink(): () => void {
   const journal = createJournal();
+  mirror.onDiscard(noteDiscard(journal));
   const strip = stripOfPerson();
   linkStrip.set({ of: strip });
   linkOver.set({ Over: Layer });

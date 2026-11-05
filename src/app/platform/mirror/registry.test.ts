@@ -50,14 +50,33 @@ describe('el espejo', () => {
   });
 
   it('en el empate gana el que manda; repetir o desordenar no cambia el resultado', () => {
-    const lone = createMirror();
-    const value = lone.register('k', 'a', text);
-    const fromFollower: Patch = { k: 'k', v: 'celular', c: 5, l: false };
+    const phone = createMirror();
+    phone.attach({ leader: false, over: 'direct', send: () => undefined });
+    const value = phone.register('k', 'a', text);
     const fromLeader: Patch = { k: 'k', v: 'compu', c: 5, l: true };
-    lone.receive([fromFollower, fromLeader, fromFollower]);
+    for (let i = 0; i < 4; i++) value.set(`celular ${i}`);
+    phone.receive([fromLeader, fromLeader]);
     expect(value.get()).toBe('compu');
-    lone.receive([{ k: 'k', v: 'vieja', c: 3, l: true }]);
+    phone.receive([{ k: 'k', v: 'vieja', c: 3, l: true }]);
     expect(value.get()).toBe('compu');
+  });
+
+  it('quién manda lo dice el puerto, no el cambio; y el reloj no salta de más (seguridad 6)', () => {
+    const onDiscard = vi.fn();
+    const computer = createMirror({ onDiscard });
+    computer.attach({ leader: true, over: 'direct', send: () => undefined });
+    const value = computer.register('k', 'a', text);
+    value.set('compu');
+    // El celular dice que manda, con el mismo reloj: no gana.
+    computer.receive([{ k: 'k', v: 'celular', c: 1, l: true }]);
+    expect(value.get()).toBe('compu');
+    computer.receive([{ k: 'k', v: 'enorme', c: Number.MAX_SAFE_INTEGER, l: false }]);
+    expect(value.get()).toBe('compu');
+    expect(onDiscard).toHaveBeenCalledWith({ key: 'k', why: 'clock' });
+    expect(computer.highestClock()).toBe(1);
+    // El saludo de un otro roto tampoco lo hace saltar.
+    computer.snapshot(Number.MAX_SAFE_INTEGER, false);
+    expect(computer.highestClock()).toBeLessThan(20_000);
   });
 
   it('lo que no tiene su forma, lo de más de 64 KB y lo del servidor que trae el que sigue no entran', () => {
@@ -119,9 +138,23 @@ describe('el espejo', () => {
     const photo = computer.snapshot(phone.highestClock(), false);
     expect(photo.map((patch) => patch.k)).toEqual(['k']);
     phone.adopt(photo);
-    expect(onPhone.get()).toBe('de la compu');
+    // Lo que la computadora eligió sola no viaja en la foto (E33c): el celular vuelve a lo inicial.
+    expect(onComputer.get()).toBe('de la compu');
+    expect(onPhone.get()).toBe('a');
     expect(onlyPhone.get()).toBe('inicial');
     expect(computer.snapshot(0, true).map((patch) => patch.k)).toEqual(['k', 'q:x.y.z']);
     expect(computer.port()?.leader).toBe(true);
+  });
+
+  it('otra persona: todo vuelve a su valor inicial, también lo que trajo el servidor (seguridad 15)', () => {
+    const { computer, phone } = pair();
+    const card = phone.register('q:users.card', null as string | null, z.nullable(text));
+    const tab = phone.register('k', 'a', text);
+    computer.register('q:users.card', 'ana', z.nullable(text));
+    phone.adopt(computer.snapshot(phone.highestClock(), true));
+    tab.set('b');
+    expect(card.get()).toBe('ana');
+    phone.reset();
+    expect([card.get(), tab.get()]).toEqual([null, 'a']);
   });
 });

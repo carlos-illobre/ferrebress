@@ -3,6 +3,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
 import { pc } from '../../testing/pairing.ts';
+import { pendingEntries } from '../sign-in/index.ts';
 import { acceptTicket, pairCodeOf, pairUrl, readCode, takePairCode } from './pair.ts';
 
 const reply = (status: number, body: unknown) =>
@@ -40,6 +41,16 @@ describe('vincular con el botón', () => {
       vi.fn(async () => Promise.reject(new TypeError('sin red'))),
     );
     expect(await acceptTicket('t')).toEqual({ kind: 'offline' });
+  });
+
+  it('E36: con una entrada sin conexión sin confirmar, no vincula y no pide nada', async () => {
+    const fetch = vi.fn();
+    vi.stubGlobal('fetch', fetch);
+    pendingEntries.set(1);
+    expect(await readCode('c')).toEqual({ kind: 'offline' });
+    expect(await acceptTicket('t')).toEqual({ kind: 'offline' });
+    pendingEntries.set(0);
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it('la dirección de la cámara del teléfono se lee una vez y se borra; sin sesión no vincula', () => {
