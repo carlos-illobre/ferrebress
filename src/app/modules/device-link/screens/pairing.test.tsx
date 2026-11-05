@@ -84,7 +84,7 @@ describe('el código de la computadora', () => {
 });
 
 describe('vincular desde el detalle', () => {
-  it('en la computadora, el código; al leerse se vincula y vuelve al detalle', async () => {
+  it('en la computadora, el código; al leerse se vincula y, después del tilde, el detalle se cierra', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout'] });
     const runtime = fakeRuntime({ kind: 'unpaired' });
     detailOpen.set(true);
@@ -97,7 +97,7 @@ describe('vincular desde el detalle', () => {
       vi.advanceTimersByTime(deviceLinkSettings.doneMs);
     });
     expect(screen.queryByText('Sirve una vez')).toBeNull();
-    detailOpen.set(false);
+    expect(detailOpen.get()).toBe(false);
     linkRuntime.set(undefined);
   });
 

@@ -1123,9 +1123,9 @@ pieza). Las clases pasan al CSS con el nombre de la pieza; los tokens, de `style
 
 | Pieza | Dónde | Qué hace |
 |---|---|---|
-| `screens/Indicator/` | El lateral de la computadora; en el celular, debajo del título, en el lugar de la luz | El punto y el texto del estado (§ 8.1); Alt L abre el detalle. Viene en el arranque (unos 2 KB) |
+| `screens/Indicator/` | En el lugar de la luz de conexión: al pie del lateral de la computadora y, en el celular, debajo del título | El punto y el texto del estado (§ 8.1); Alt L abre el detalle. La luz aparece con él solo sin conexión: en la computadora, debajo, en la misma pieza (`link-box`); en el celular, al lado. Viene en el arranque (unos 2 KB) |
 | `screens/Detail/` | Flota al lado del lateral; en el celular, una hoja | La frase del estado (o «No se pudo»), la ruta con la latencia, la tira, los datos y los botones de R4.2 (Alt D, R, P, V, X, C) |
-| `screens/Code/` | Solo la computadora | El QR de `/pair#…`; Alt O vuelve. Dibuja con `platform/camera/qr-draw.ts` |
+| `screens/Code/` | Solo la computadora | El QR de `/pair#…`; Alt O vuelve. Dibuja con `platform/camera/qr-draw.ts`. Al leerse, el tilde y, después, el detalle se cierra (pedido de Carlos) |
 | `screens/Read/` | Solo el celular | La cámara para leer el código, «Este celular está vinculado a Chrome en Windows. ¿Reemplazar?» (R1.4) y los avisos: «Este código es de otra cuenta», «Este código venció», «Para vincular hace falta internet…» (E36), «No se pudo vincular. Probá de nuevo en un momento» (un error que no es ninguno de esos) |
 | `screens/Confirm/` | Diálogo en la computadora, hoja en el celular | Desvincular (Alt C, Alt X) |
 | Las tostadas | Los dos | Las de la maqueta («Vinculados: fuiste a la pantalla de la compu», «Desconectados…», «Ahora van directo por el Wi-Fi»), en `screens/Detail/Over.tsx`, y la de R1.5, en `replaced.ts` |

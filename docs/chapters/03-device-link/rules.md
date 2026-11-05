@@ -103,8 +103,9 @@ quita, el resto sigue andando igual.
 
 - **R4.1** Está **siempre a la vista**, en el celular y en la computadora: un punto de color con un
   texto corto. En la computadora, al pie del menú; en el celular, debajo del título de cada
-  pantalla, en el lugar de la luz de conexión, que aparece a su lado solo sin conexión o con algo por
-  enviar (00 · R4.1). Dice uno de estos estados:
+  pantalla. En los dos va en el lugar de la luz de conexión, que aparece con él solo sin conexión o
+  con algo por enviar: en la computadora, debajo y en la misma pieza; en el celular, a su lado
+  (00 · R4.1). Dice uno de estos estados:
   - «Sin vincular»;
   - «Directo»: vinculados y hablando por el Wi-Fi;
   - «Por el servidor»: vinculados y hablando por el respaldo (R3.2);

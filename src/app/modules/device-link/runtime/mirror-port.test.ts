@@ -91,4 +91,19 @@ describe('el espejo con el otro', () => {
     deliver(JSON.stringify({ t: 'snap', p: [], part: 0, of: 2 }));
     expect(adopt).not.toHaveBeenCalled();
   });
+
+  it('E19: si la computadora no logra el directo que se probaba, el celular deja de esperarlo', () => {
+    const probing: PairingState = { kind: 'relayed', pairing: pc, attempt: 'a', probe: 'trying' };
+    const { live, events } = fakeLive(probing);
+    const { link, deliver } = fakeLink(live, 'a', 'relayed');
+    live.current = link;
+    live.opening = fakeLink(live, 'a').link;
+    deliver(JSON.stringify({ t: 'give-up' }));
+    expect(live.opening).toBeUndefined();
+    expect(events).toEqual([{ type: 'probeResult', attempt: 'a', ok: false }]);
+    // Fuera de la prueba, no hace nada.
+    const quiet = fakeLive(direct());
+    fakeLink(quiet.live).deliver(JSON.stringify({ t: 'give-up' }));
+    expect(quiet.events).toEqual([]);
+  });
 });

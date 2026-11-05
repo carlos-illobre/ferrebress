@@ -28,10 +28,12 @@ export type FrameState = {
   link: FrameLink | undefined;
 };
 
-// El indicador del celular recibe la luz de conexión para ponerla al lado, o en su lugar (00 · R4.1).
+// Los indicadores reciben la luz de conexión para ponerla con ellos solo sin conexión, o en su lugar
+// sin nada del vínculo que mostrar (00 · R4.1): en el celular y en la computadora, igual.
+type WithLight = { light: ComponentChildren; offline: boolean };
 export type FrameLink = {
-  Side: ComponentType;
-  Phone: ComponentType<{ light: ComponentChildren; offline: boolean }>;
+  Side: ComponentType<WithLight>;
+  Phone: ComponentType<WithLight>;
   Over: ComponentType;
 };
 

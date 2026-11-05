@@ -54,6 +54,23 @@
     }
   }
 
+  /* La pieza del pie del lateral (computadora): el indicador y, sin conexión, la luz debajo. */
+  .link-box {
+    display: grid;
+    gap: 6px;
+  }
+  .link-box[data-offline] {
+    padding: 4px;
+    border-radius: calc(var(--radius) + 4px);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .link-box[data-offline] .link-indicator {
+    border-color: transparent;
+    box-shadow: none;
+  }
+
   /* El renglón al pie del lateral (computadora). */
   .link-indicator {
     position: relative;

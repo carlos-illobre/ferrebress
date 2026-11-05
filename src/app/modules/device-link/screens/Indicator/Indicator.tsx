@@ -20,11 +20,23 @@ export function labelOf(view: LinkView): Words {
   return texts.waitingFor[view.side as Side];
 }
 
-// En la computadora: al pie del lateral, encima de la luz.
-export function SideIndicator() {
+type WithLight = { light: ComponentChildren; offline: boolean };
+
+// En la computadora: al pie del lateral, en una sola pieza con la luz de conexión, que aparece debajo
+// solo sin conexión, como en el celular; sin nada que mostrar del vínculo, la luz en su lugar.
+export function SideIndicator({ light, offline }: WithLight) {
   const view = useLinkView();
+  if (view.hidden) return <>{light}</>;
+  return (
+    <div class="link-box" data-offline={offline || undefined}>
+      <SideButton view={view} />
+      {offline && light}
+    </div>
+  );
+}
+
+function SideButton({ view }: { view: LinkView }) {
   const open = useStore(detailOpen);
-  if (view.hidden) return null;
   const label = labelOf(view);
   const detail = view.status === 'unpaired' ? texts.tapToPair : view.other;
   return (
@@ -56,7 +68,7 @@ export function SideIndicator() {
 
 // En el celular: la pastilla debajo del título, con la luz de conexión al lado cuando no está todo en
 // línea; sin nada que mostrar del vínculo, la luz en su lugar (00 · R4.1). La luz la da el marco.
-export function PhoneIndicator({ light, offline }: { light: ComponentChildren; offline: boolean }) {
+export function PhoneIndicator({ light, offline }: WithLight) {
   const view = useLinkView();
   const open = useStore(detailOpen);
   if (view.hidden) return <>{light}</>;

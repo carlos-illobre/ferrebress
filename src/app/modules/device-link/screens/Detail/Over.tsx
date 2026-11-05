@@ -31,7 +31,11 @@ function useCode(runtime: Runtime) {
     onPaired: (pairing: PairingView) => {
       showToast(detailTexts.toast.pairedComputer, 'check');
       runtime.dispatch({ type: 'serverSaid', pairing });
-      setTimeout(() => setShown(false), deviceLinkSettings.doneMs);
+      // Vinculados: después del tilde, el detalle se cierra (pedido de Carlos): ya no hace falta.
+      setTimeout(() => {
+        setShown(false);
+        detailOpen.set(false);
+      }, deviceLinkSettings.doneMs);
     },
   };
   return {
