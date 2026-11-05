@@ -53,6 +53,14 @@
 		request_body {
 			max_size 64KB
 		}
+		# Las respuestas JSON viajan comprimidas: en el celular cada byte se paga con datos (diseño de
+		# 05, § 7.4). Solo JSON: el canal en tiempo real (text/event-stream) no, que retendría el latido.
+		encode zstd gzip {
+			minimum_length 256
+			match {
+				header Content-Type application/json*
+			}
+		}
 		# flush_interval -1: el canal en tiempo real no acumula respuestas (ADR-003).
 		reverse_proxy server:3000 {
 			flush_interval -1

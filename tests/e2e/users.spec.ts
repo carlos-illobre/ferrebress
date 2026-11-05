@@ -14,8 +14,12 @@ test('una sesión cerrada desde otra computadora vuelve a la entrada con su pró
     'Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0',
   );
   await counter.goto('/');
+  const users = counter.waitForResponse((response) => response.url().endsWith('/api/users'));
   await signInWithGoogle(counter);
   await expect(counter.getByRole('region', { name: 'Usuarios' })).toBeVisible();
+  // De paso: las respuestas JSON de /api llegan comprimidas (diseño de 05, § 7.4); en el celular
+  // cada byte se paga con datos.
+  expect(await (await users).headerValue('content-encoding')).toMatch(/^(zstd|gzip)$/);
 
   const office = await computer(browser);
   await office.goto('/');

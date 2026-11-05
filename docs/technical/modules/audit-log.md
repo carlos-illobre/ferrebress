@@ -475,8 +475,11 @@ En [mobile-data.md](../mobile-data.md), con estos números (revisión, T.6 y T.1
 Hoy Caddy comprime solo el manual y lo estático; las respuestas JSON de `/api` viajan enteras (revisión,
 T.6). `deploy/Caddyfile` suma `encode zstd gzip` para `/api` con `Content-Type: application/json`,
 **sin** `text/event-stream`: comprimir el canal retendría el latido. Lo usan todas las pantallas: una
-lista de 20 acciones pasa de unos 8 KB a 2 KB. `tests/itest.sh` (la prueba del despliegue) mira que una
-respuesta de `/api` llegue comprimida y el canal no.
+lista de 20 acciones pasa de unos 8 KB a 2 KB; lo de menos de 256 bytes va entero. Solo las pruebas
+de punta a punta corren el Caddy de verdad: la de Usuarios (`tests/e2e/users.spec.ts`), que ya entra,
+mira de paso que la lista llegue comprimida, sin sumar otra entrada (todas entran desde la misma
+dirección y comparten su límite). El canal no se comprime porque `encode` elige por tipo, y la prueba
+de punta a punta del vínculo lo usa por Caddy.
 
 ## 8. La aplicación (`src/app/modules/audit-log/`)
 
@@ -637,7 +640,7 @@ dispositivos, que va por el Wi-Fi. Es de la plataforma: no sabe de pantallas, so
 | E17 a E22, E35b | De la pantalla, con el servidor de mentira: 20 y 10 por página, total y «página n de m», vacío, colores (sacar un rol en rojo, darlo sin color), fecha solo si no es de `today`, un ícono por tipo |
 | E23 a E31, E35c | De la consulta (cada filtro y sus combinaciones, los atajos con el reloj del servidor, contra archivos de dos años con una acción el 31 de diciembre a las 22) y de la pantalla (volver a la página 1, «Sacar los filtros», los números que filtran) |
 | E32, E33, E35, E35d | De la pantalla: el detalle, tocar una persona, el teclado |
-| E34, E49 a E56 | De la pantalla, con el servidor de mentira y el canal de mentira de las pruebas del vínculo: apagado no pide nada solo; prendido en la computadora y apagado en el celular al abrir; arriba de todo entra marcado y se ponen al día el resumen y la tira; abajo o en la página 2, «3 nuevas» y tocarlo; diez avisos en 5 s, una puesta al día; otro día, sin selector ni tema; oculta, sin tema, y al volver, una puesta al día; prenderlo en el celular pide y muestra los KB; el selector no viaja por el espejo. Además, de la pantalla: un aviso con la cinta abierta se atiende al cerrarla; una respuesta vieja (otro filtro, la lista bajada) se tira; con la pestaña oculta o apagado no pide; prender y apagar seguido no rehace el canal; con `429` espera; Alt + N. Del servidor (`live.test.ts`): el tema pide el permiso, se anota sin él y lo suelta al sacarlo, aunque quien borra la memoria se registre después del tema; el alta manda `{}`; diez tandas en 5 s dan dos avisos; sin oyentes no hay temporizador; un error de un oyente de `onWritten` no corta la escritura ni el pedido que la hizo correr. De las rutas: `latest` y la página de la misma foto aunque una tanda caiga en el medio; `withToday` con cada atajo; `/new` con filtros, con una entrada sin conexión en el archivo del año anterior, el 1 de enero sin archivo nuevo, el tope de 100, su plan y un `since` mal (otro año, un número inseguro); `X-Auto` no anota «Abrió Quién hizo qué», no alarga la sesión y tiene su límite. De los temas: todo tema sin `anonymous` rechaza sin sesión, como la prueba de rutas cerradas por defecto. Del despliegue: `/api` comprimido y el canal no |
+| E34, E49 a E56 | De la pantalla, con el servidor de mentira y el canal de mentira de las pruebas del vínculo: apagado no pide nada solo; prendido en la computadora y apagado en el celular al abrir; arriba de todo entra marcado y se ponen al día el resumen y la tira; abajo o en la página 2, «3 nuevas» y tocarlo; diez avisos en 5 s, una puesta al día; otro día, sin selector ni tema; oculta, sin tema, y al volver, una puesta al día; prenderlo en el celular pide y muestra los KB; el selector no viaja por el espejo. Además, de la pantalla: un aviso con la cinta abierta se atiende al cerrarla; una respuesta vieja (otro filtro, la lista bajada) se tira; con la pestaña oculta o apagado no pide; prender y apagar seguido no rehace el canal; con `429` espera; Alt + N. Del servidor (`live.test.ts`): el tema pide el permiso, se anota sin él y lo suelta al sacarlo, aunque quien borra la memoria se registre después del tema; el alta manda `{}`; diez tandas en 5 s dan dos avisos; sin oyentes no hay temporizador; un error de un oyente de `onWritten` no corta la escritura ni el pedido que la hizo correr. De las rutas: `latest` y la página de la misma foto aunque una tanda caiga en el medio; `withToday` con cada atajo; `/new` con filtros, con una entrada sin conexión en el archivo del año anterior, el 1 de enero sin archivo nuevo, el tope de 100, su plan y un `since` mal (otro año, un número inseguro); `X-Auto` no anota «Abrió Quién hizo qué», no alarga la sesión y tiene su límite. De los temas: todo tema sin `anonymous` rechaza sin sesión, como la prueba de rutas cerradas por defecto. De punta a punta, la de Usuarios: `/api` comprimido |
 | 03 · E45, E46 | Del medidor (`meter.test.ts`, con reloj de prueba): cuenta bytes y no caracteres, por tema y el total una vez, el latido de un tema solo es suyo, a los 60 s sin nada dice 0. De `sse.ts`: cada trozo se cuenta. De la pantalla: apagado dice 0 en el momento. De las pantallas del vínculo: el total en la tarjeta y en la pastilla |
 | E40 a E48 | De la pantalla, con el servidor de mentira y un reloj de prueba: abrir desde la tira y desde «Ver el día», cerrar y volver igual, la línea de quién a quién, ← →, reproducir y detenerse, aislar, cambiar de día, más de 2.000. De la ruta `/day`: el día entero sin filtros, la semana y `tooMany` |
 | E36 | De la pantalla: gris sin conexión; al volver sale del gris sin pedir nada |
@@ -699,7 +702,8 @@ del vínculo.
     archivos vivos y `withToday` en la lista; `GET /api/audit-log/new`; `X-Auto` con su límite y sin
     anotar «Abrió» ni contar como uso de la sesión; los nombres en `settings.ts`; con sus pruebas y las que cuentan sus consultas.
     Depende de 9.
-11. **Comprimir `/api`** (T118): `encode` en `deploy/Caddyfile` sin el canal, con su prueba de despliegue.
+11. **Comprimir `/api`** (T118): `encode` en `deploy/Caddyfile` sin el canal, mirado en la prueba de
+    punta a punta de Usuarios.
     No depende de nada.
 12. **La pantalla** (T118): `live.ts`, `Live`, `NewOnes`, la marca, Alt + R y Alt + N, las respuestas
     viejas, los textos; ya no hay «Actualizar». Depende de 8 y 10.
