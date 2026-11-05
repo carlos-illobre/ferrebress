@@ -12,6 +12,8 @@ export const platformSettings = {
   },
   // Lo que tarda: la marca de espera a los 300 ms y la barra a los 2 s (00 · R7.2, R7.3).
   waiting: { markAfterMs: 300, barAfterMs: 2 * second },
+  // Con un 429 que no dice cuánto esperar, un minuto.
+  retryAfterMs: minute,
   // El canal en tiempo real: sin nada del servidor en 55 s (el latido es cada 40 s), está cortado.
   realtime: { silenceMs: 55 * second },
   // El medidor (diseño de 05, § 8.1): el último minuto en casillas de un segundo, cuánto suma la

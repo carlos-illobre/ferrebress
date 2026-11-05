@@ -3,7 +3,8 @@
 // hoja en el celular. Sin conexión se ve gris, con lo último que trajo, y sale del gris sin pedir
 // nada al volver (R5.1). La cinta se abre encima (R4.11). «Actualizar solo» va donde estaba
 // «Actualizar» (R4.6).
-import type { AuditPage } from '@ferrebress/shared/contracts/audit-log';
+import type { AuditPage, AuditView } from '@ferrebress/shared/contracts/audit-log';
+import { useRef } from 'preact/hooks';
 import { Button } from '../../../ui/button/Button.tsx';
 import { auditLogShapes } from '../../../ui/icon/audit-log-shapes.tsx';
 import { addShapes } from '../../../ui/icon/Icon.tsx';
@@ -42,9 +43,18 @@ function Empty() {
   );
 }
 
+// La acción elegida, aunque al ponerse al día sola haya pasado a la página 2 (R4.6, R4.7): se sigue
+// mostrando la que estaba hasta que se elija otra.
+function useChosen(page: AuditPage, selected: string | undefined): AuditView | undefined {
+  const kept = useRef<AuditView | undefined>(undefined);
+  const found = page.events.find((one) => one.id === selected);
+  if (found || kept.current?.id !== selected) kept.current = found;
+  return kept.current;
+}
+
 function Detail({ page }: { page: AuditPage }) {
   const log = useAuditLogContext();
-  const event = page.events.find((one) => one.id === log.selected);
+  const event = useChosen(page, log.selected);
   const today = page.today;
   if (!log.wide)
     return event ? (

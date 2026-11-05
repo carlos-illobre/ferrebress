@@ -1,9 +1,13 @@
 // La foto de un pedido y las nuevas (diseño de 05, § 5): la última fila de cada archivo vivo, lo que
 // se escribe después no entra en la foto, y cuántas llegaron desde ahí con los filtros.
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { mkdtempSync, readdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuditEvent } from './event.ts';
 import { createQuery, type Latest, type Query } from './query.ts';
-import { memorySource } from './source.ts';
+import { fileSource, memorySource } from './source.ts';
 import { where } from './where.ts';
 import { type AuditLog, inMemoryAudit, openAuditLog } from './write.ts';
 
@@ -84,5 +88,35 @@ describe('la foto del pedido y las nuevas', () => {
       ?.prepare(`explain query plan select 1 from events where ${sql} and id > ? limit ?`)
       .all(...params, 1, 100) as { detail: string }[];
     expect(plan.map((row) => row.detail).join(' ')).toMatch(/INTEGER PRIMARY KEY/);
+  });
+
+  it('los totales de un año cerrado se guardan aunque la foto cambie con cada escritura', () => {
+    const prepared = vi.spyOn(DatabaseSync.prototype, 'prepare');
+    const count = () => query({ op: 'count', filter: { upTo: query({ op: 'latest' }) as Latest } });
+    count();
+    write(at('2026-11-04T13:05:00Z'));
+    prepared.mockClear();
+    count();
+    const counted = prepared.mock.calls.filter(([sql]) => /count\(\*\)/.test(sql)).length;
+    prepared.mockRestore();
+    // Solo el año en curso: 2024 y 2025 (cuya última fila no cambió) salen de lo guardado.
+    expect(counted).toBe(1);
+  });
+
+  it('en el disco, contar las nuevas y la foto no crean archivos', () => {
+    const path = mkdtempSync(join(tmpdir(), 'audit-newer-'));
+    const disk = openAuditLog(path);
+    disk.record(at('2026-11-04T13:00:00Z'));
+    disk.flush();
+    const before = readdirSync(path).sort();
+    const reading = createQuery(fileSource(path), () => 2027);
+    const since = reading({ op: 'latest' }) as Latest;
+    expect(since).toEqual([
+      [2026, 1],
+      [2027, 0],
+    ]);
+    expect(reading({ op: 'newer', filter: {}, since, limit: 100 })).toBe(0);
+    expect(readdirSync(path).sort()).toEqual(before);
+    disk.close();
   });
 });

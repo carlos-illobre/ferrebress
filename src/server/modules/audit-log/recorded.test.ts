@@ -81,6 +81,8 @@ describe('Quién hizo qué: lo que se anota', () => {
     const oneDay = await asked('/api/audit-log?from=2026-10-31&until=2026-10-31&summary=1');
     const week = await asked('/api/audit-log?range=week&summary=1');
     const day = await asked('/api/audit-log/day?date=2026-10-31');
+    // «n nuevas»: una por archivo vivo que existe (acá, solo el de 2026).
+    const newOnes = await asked('/api/audit-log/new?since=2025:0.2026:1');
     prepared.mockRestore();
     // Una por archivo y por pregunta: contar, la página, los días de la página y el resumen; en la
     // cinta, la semana entera es una sola, y la página del día no vuelve a contar lo que ya contó.
@@ -89,5 +91,6 @@ describe('Quién hizo qué: lo que se anota', () => {
     ).toBeGreaterThan(1);
     expect(week).toBe(oneDay);
     expect(day).toBe(3);
+    expect(newOnes).toBe(1);
   });
 });

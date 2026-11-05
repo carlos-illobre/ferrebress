@@ -96,9 +96,12 @@ export const dayQuery = z.strictObject({ date: z.optional(date) });
 // «Actualizar solo» (R4.6; diseño de 05, § 7): el tema del canal, que avisa sin datos, y cuántas
 // llegaron desde `latest` con los filtros de la lista.
 export const auditLiveTopic = 'audit-log.new';
+// El aviso no dice qué ni cuántas: `subscribed` es el que manda al empezar a escuchar (para ponerse al
+// día al volver), sin él, que se anotó algo.
+export type AuditLiveEvent = { subscribed?: true };
 export const newOnesQuery = z.strictObject({
   ...z.omit(auditQuery, { page: true, size: true, summary: true, strip: true }).shape,
-  since: z.string().check(z.regex(/^\d{4}:\d{1,16}(\.\d{4}:\d{1,16})?$/)),
+  since: z.string().check(z.regex(/^\d{4}:\d{1,16}\.\d{4}:\d{1,16}$/)),
 });
 export type NewOnesQuery = z.infer<typeof newOnesQuery>;
 export type AuditNewOnes = { count: number };

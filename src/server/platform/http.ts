@@ -9,6 +9,7 @@ import {
 } from '@ferrebress/shared/contracts/contract-version';
 import type { ErrorCode } from '@ferrebress/shared/contracts/errors';
 import {
+  automaticHeaderName,
   type Environment,
   formatServerHeader,
   serverHeaderName,
@@ -48,6 +49,11 @@ const nodeRemoteAddress = (c: Context): string | undefined =>
 
 export const fail = (c: Context, status: ContentfulStatusCode, error: ErrorCode, extra = {}) =>
   c.json({ error, ...extra }, status);
+
+// Lo que una pantalla pide sola, sin que nadie la toque (05 · R4.6): solo una lectura (GET) lo puede
+// decir. No cuenta como uso de la sesión (01 · R3.3) y cada ruta que lo acepta decide qué más cambia.
+export const isAutomatic = (c: Context): boolean =>
+  c.req.method === 'GET' && c.req.header(automaticHeaderName) === '1';
 
 // Los identificadores de la dirección tienen forma de UUID: si no, no existe (404), sin llegar a la
 // base, que con otra forma daría un error (diseño de 02, § 9).

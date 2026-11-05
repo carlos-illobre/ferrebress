@@ -2,18 +2,19 @@
 // vive en la pantalla (no se guarda ni se espeja); el tema del canal mientras está prendido y las
 // fechas incluyen hoy; y qué hacer con cada aviso: arriba de todo, poner la lista al día; más abajo,
 // contar las nuevas; con la cinta abierta, esperar a que se cierre. Como mucho una vez cada 5 s.
-import { auditLiveTopic } from '@ferrebress/shared/contracts/audit-log';
+import { type AuditLiveEvent, auditLiveTopic } from '@ferrebress/shared/contracts/audit-log';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useLatest } from '../../platform/latest.ts';
 import { useRate } from '../../platform/meter.ts';
 import { useTopic } from '../../platform/realtime/use-topic.ts';
 import type { ApiResult } from '../../platform/server/api.ts';
 import { canReach, watchReach } from '../../platform/server/reach.ts';
+import { retryAfterMs } from '../../platform/server/retry.ts';
 import { auditLogSettings } from './settings.ts';
 
-// Lo que pasó al pedir: listo, se movió la persona mientras tanto (hay que contar en vez de mostrar),
-// o el servidor pidió esperar.
-export type Outcome = 'done' | 'moved' | { waitMs: number };
+// Lo que pasó al pedir: listo; se movió la persona mientras tanto (hay que contar en vez de mostrar);
+// se estaba trayendo lo que pidió la persona (se vuelve a probar después); o el servidor pidió esperar.
+export type Outcome = 'done' | 'moved' | 'busy' | { waitMs: number };
 
 export type LiveOptions = {
   wide: boolean;
@@ -21,9 +22,11 @@ export type LiveOptions = {
   tapeOpen: boolean;
   // Arriba de todo: la página 1, sin haber bajado.
   atTop: () => boolean;
-  // Poner la lista al día sola, o contar las nuevas.
-  refresh: () => Promise<Outcome>;
+  // Poner la lista al día (sola, o con un toque: `byHand`), o contar las nuevas.
+  refresh: (byHand?: boolean) => Promise<Outcome>;
   count: () => Promise<Outcome>;
+  // Cuándo llegó la última lista.
+  loadedAt: () => number;
   // Le sacaron el permiso: pedir algo para que la aplicación se entere (02 · R7.8).
   lost: () => void;
 };
@@ -31,7 +34,7 @@ export type LiveOptions = {
 // Lo que el servidor dijo de un pedido que salió solo.
 export function outcomeOf(result: ApiResult<unknown>): Outcome {
   if (!result.ok && result.error === 'too-many-attempts')
-    return { waitMs: Math.max(1, Number(result.retryAfterSeconds) || 60) * 1000 };
+    return { waitMs: retryAfterMs(result as { retryAfterSeconds?: unknown }) };
   return 'done';
 }
 
@@ -59,13 +62,25 @@ function createNotices(
     clearTimeout(timer);
     timer = undefined;
   };
+  // Arriba de todo, la lista; más abajo (o si bajó mientras tanto), cuántas nuevas.
+  const ask = async (): Promise<Outcome | undefined> => {
+    const asked = now.current;
+    const outcome = await latest(asked.atTop() ? asked.refresh() : asked.count());
+    return outcome === 'moved' ? latest(now.current.count()) : outcome;
+  };
   const run = async () => {
     if (Date.now() < live.pausedUntil) return;
     live.last = Date.now();
-    const asked = now.current;
-    let outcome = await latest(asked.atTop() ? asked.refresh() : asked.count());
-    if (outcome === 'moved') outcome = await latest(now.current.count());
-    if (outcome && typeof outcome === 'object') live.pausedUntil = Date.now() + outcome.waitMs;
+    const outcome = await ask();
+    if (outcome === 'busy') notice();
+    else if (typeof outcome === 'object') live.pausedUntil = Date.now() + outcome.waitMs;
+  };
+  // El aviso del alta (`subscribed`) pone al día solo si la lista no es reciente: al abrir la
+  // pantalla o al prender el selector, la lista ya llegó.
+  const onEvent = (data: unknown) => {
+    const recent = Date.now() - now.current.loadedAt() < auditLogSettings.live.everyMs;
+    if ((data as AuditLiveEvent).subscribed && recent) return;
+    notice();
   };
   const notice = () => {
     if (!wanted.current) return;
@@ -87,7 +102,7 @@ function createNotices(
     live.pending = false;
     notice();
   };
-  return { run, notice, stop, tapeClosed };
+  return { onEvent, stop, tapeClosed };
 }
 
 export function useLive(options: LiveOptions) {
@@ -102,7 +117,7 @@ export function useLive(options: LiveOptions) {
   const latest = useLatest();
   const [notices] = useState(() => createNotices(now, isWanted, latest)); // local: de la pantalla
   useTopic(held ? auditLiveTopic : undefined, {
-    onEvent: notices.notice,
+    onEvent: notices.onEvent,
     onRefused: (code) => code === 'forbidden' && now.current.lost(),
   });
   // Apagado, oculta o sin conexión, nada queda esperando para pedir.
@@ -124,8 +139,8 @@ export function useLive(options: LiveOptions) {
     toggle() {
       const next = !on;
       setOn(next);
-      // Prenderlo es un toque: con el tema todavía pedido no llega el aviso del alta, y se pide ya.
-      if (next && held) void notices.run();
+      // Prenderlo es un toque: la lista se pide ya, donde esté, sin esperar el aviso del alta.
+      if (next) void now.current.refresh(true);
     },
   };
 }

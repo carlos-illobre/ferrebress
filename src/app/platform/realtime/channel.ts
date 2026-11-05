@@ -2,7 +2,8 @@
 // mientras alguna pantalla pide un tema, la pestaña está a la vista y hay red (03 · R7.2). Sumar o
 // sacar temas no lo rehace: se lo dice al servidor por su identificador. Los cambios de un mismo
 // dibujo se juntan en una microtarea. Cada evento va a quienes pidieron su tema; el canal no sabe qué
-// significa ninguno. Un tema se escucha con un solo parámetro por pestaña.
+// significa ninguno. Un tema se escucha con un solo parámetro por pestaña. Lo que llega se cuenta en
+// el medidor, por tema (diseño de 05, § 8.1).
 import { meter as appMeter, type Meter } from '../meter.ts';
 import { api, appHeaders } from '../server/api.ts';
 import { canReach, watchReach } from '../server/reach.ts';

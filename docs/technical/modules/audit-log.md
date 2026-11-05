@@ -281,10 +281,11 @@ Devuelve:
 - **`latest`** es la última fila (`max(id)`, sin filtros) de cada uno de los dos archivos vivos: el
   del año UTC en curso y el del anterior, que todavía recibe entradas sin conexión con su hora vieja.
   Un archivo que no existe todavía va con 0. Es la última que llegó, no la de `at` más nuevo.
-- **Todo un pedido lee una misma foto:** la consulta abre una transacción de lectura por archivo
-  (`begin` … `commit` sobre la conexión de solo lectura; con WAL ve lo confirmado al empezar) y hace
-  ahí `latest`, la página, `days`, el resumen y la tira. Una tanda que se escribe en el medio no queda
-  ni en la página ni en `latest`: la cuenta el próximo «n nuevas» (revisión del diseño, T.1).
+- **Todo un pedido lee una misma foto:** primero se pide `latest` y todo lo demás del pedido (el total,
+  la página, `days`, el resumen y la tira) lleva `upTo`, la condición `id <= n` de cada archivo vivo
+  (`where.ts`); un archivo de un año posterior no entra. Una tanda que se escribe en el medio no queda
+  ni en la página ni en `latest`: la cuenta el próximo «n nuevas» (revisión del diseño, T.1). Los
+  totales guardados de un año cerrado no dependen de la foto, salvo en el archivo que ella nombra.
 - **`withToday`** lo calcula el servidor con su reloj y la regla de los atajos (`rules.ts`), así la
   aplicación no repite qué días cubre cada uno.
 - **No hay ruta que cambie o borre** (E37): ni `POST`, ni `PUT`, ni `DELETE` bajo `/api/audit-log`.
@@ -295,7 +296,7 @@ Cuántas llegaron desde `latest` con los filtros de la lista: el «3 nuevas» (R
 
 | Parámetro | Qué | Validación |
 |---|---|---|
-| `since` | El `latest` de la última lista | Dos `AAAA:n` separados por un punto: el año UTC en curso y el anterior (otro año da `400`), y `n` entero entre 0 y `Number.MAX_SAFE_INTEGER`. Un año sin archivo vale con 0 |
+| `since` | El `latest` de la última lista | Dos `AAAA:n` separados por un punto: el año UTC anterior y el en curso, en ese orden y una vez cada uno (si no, `400`), y `n` entero entre 0 y `Number.MAX_SAFE_INTEGER`. Un año sin archivo vale con 0 |
 | `by`, `to`, `range`, `from`, `until`, `group`, `type`, `tone` | Los filtros de la lista | Como en `GET /api/audit-log` |
 
 Devuelve `{ count }`, hasta 100 (`auditLogSettings.newOnesMax`; la pantalla dice «Más de 99 nuevas»).
@@ -378,10 +379,10 @@ su detalle.». Al arrancar se le suma solo al Administrador (diseño de 02, § 1
   | Qué | Cómo |
   |---|---|
   | Parámetro | Ninguno (texto vacío, como `device-link.code`) |
-  | Evento | `{}`: no dice qué ni cuántas (R4.6). Todo lo que se ve sale de la lista, con su permiso y sus filtros |
+  | Evento | `{}` o, al suscribirse, `{ subscribed: true }`: no dice qué ni cuántas (R4.6). Todo lo que se ve sale de la lista, con su permiso y sus filtros |
   | Quién | Con sesión y `audit-log.view`, que se pregunta con `permissions.of(userId)` (abajo); si no, `refused: 'forbidden'`, y al abrir o al sumar el tema se anota `permission.denied` con el tema, una vez por ventana como en las rutas (no al volver a mirarlo) |
   | Clave | `all`: los que miran reciben el mismo aviso |
-  | Al suscribirse | Manda `{}`: la pantalla se pone al día una vez (prenderlo, volver a la vista, volver la conexión: R4.6, E54) |
+  | Al suscribirse | Manda `{ subscribed: true }`: la pantalla se pone al día una vez si su lista no es reciente (volver a la vista, volver la conexión: R4.6, E54); al abrir, la lista recién llegó y no se vuelve a pedir |
   | Permisos | `recheckOn: ['users.permissions-changed']`: sin el permiso, recibe `refused` y el canal lo suelta |
 
 - **Los permisos fuera de un pedido** (revisiones, T.3 y 17): el canal identifica la sesión sin los
@@ -391,7 +392,7 @@ su detalle.». Al arrancar se le suma solo al Administrador (diseño de 02, § 1
   confirmar la transacción (`queueMicrotask`), así `users` ya borró su memoria de permisos, sea cual
   sea el orden de los módulos en `modules.ts`. Una prueba registra quien borra después del tema.
 - **El rechazo con su código:** si el canal se abre solo con este tema y lo rechazan, el hub contesta
-  `403` con `{ code: 'forbidden' }` y `realtime/channel.ts` le pasa ese código a los temas que esperaban,
+  `403` con `{ error: 'forbidden' }` y `realtime/channel.ts` le pasa ese código a los temas que esperaban,
   no `'403'`: la pantalla hace lo mismo que con un `refused` (§ 7.2).
 - **Cuándo avisa:** la auditoría suma `onWritten(listener)`. `flush` junta lo que escribió y, después
   de confirmar todas las tandas, llama a los oyentes una sola vez, fuera de la pila de quien la hizo
@@ -401,15 +402,21 @@ su detalle.». Al arrancar se le suma solo al Administrador (diseño de 02, § 1
   los 5 s se juntan en uno al final. Si nadie escucha (`realtime.listeners`), no hace nada ni guarda
   temporizador.
 - **Lo propio también:** lo que haga uno mismo entra en la tanda como cualquier otra acción.
-- **Los pedidos que la pantalla hace sola** llevan la cabecera `X-Auto: 1` (§ 7.2). Con ella:
-  - no anotan «Abrió Quién hizo qué» (R1.3): solo se anota lo que la persona abre (revisión, T.19), así
-    ponerse al día no se alimenta a sí mismo;
+- **Los pedidos que la pantalla hace sola** llevan la cabecera `X-Auto: 1` (§ 7.2). Solo vale en una
+  lectura (`GET`; `isAutomatic` en `platform/http.ts`) y, en este módulo, solo en la lista y en `/new`:
+  en `/people` y `/day` no cambia nada (revisión de seguridad del código, 25 y 26). Con ella:
+  - no anotan «Abrió Quién hizo qué» (R1.3) si esa sesión ya la abrió a mano alguna vez (revisión,
+    T.19): ponerse al día no se alimenta a sí mismo, y una sesión robada que pide solo con la cabecera
+    queda anotada igual (revisión de seguridad del código, 24). Las sesiones que la abrieron a mano se
+    recuerdan en memoria, hasta 10.000 (`auditLogSettings.openedMemory`);
   - tienen su propio límite, 30 por minuto por sesión (`auditLogSettings.autoReads`), aparte de los 60
     por persona de lo que se pide al tocar: varias pestañas prendidas no dejan sin respuesta a un toque
     (revisión de seguridad, 20);
   - no cuentan como uso de la sesión (01 · R3.3), como ya pasa con el canal: la sesión que toca
-    `lastUsed` lo saltea si el pedido trae `X-Auto`. Si nadie toca nada, vence a los 60 minutos como en
-    cualquier otra pantalla.
+    `lastUsed` lo saltea si el pedido es una lectura con `X-Auto`. Si nadie toca nada, vence a los 60
+    minutos como en cualquier otra pantalla.
+- **Pedir el tema sin permiso** se anota con `permissions.noteDenied`, el mismo de las rutas (una vez
+  por minuto, por persona y permiso, con la dirección): una sola forma de anotar un rechazo.
 - **Sin consultas:** avisar es un temporizador y una escritura por oyente. Lo que se consulta es la
   lista que pide cada pantalla.
 - **Una sesión vencida** puede recibir avisos hasta el próximo latido (como mucho 40 s), cuando el hub
@@ -426,31 +433,37 @@ su detalle.». Al arrancar se le suma solo al Administrador (diseño de 02, § 1
 
 **El aviso:**
 
-- **Lo que pone al día en el momento:** el primero después de suscribirse (prenderlo, volver a la vista,
-  volver la conexión). Prenderlo es un toque: la lista se pide ya, sin esperar (E55; revisión, T.14).
+- **Lo que pone al día en el momento:** el aviso del alta (`subscribed`, al volver a la vista o la
+  conexión), salvo que la lista haya llegado hace menos de 5 s (al abrir no se pide dos veces).
+  Prenderlo es un toque: la lista se pide ya, donde esté y sin `X-Auto`, sin esperar el aviso (E55;
+  revisión, T.14).
 - **Los que siguen:** como mucho uno cada 5 s (`auditLogSettings.live.everyMs`); si llega antes, espera
   al final de los 5 s. El temporizador vive con la suscripción: se suelta al apagar, al ocultarse, sin
   conexión o al cerrar la pantalla, así nunca pide fuera de tiempo (revisión, T.4).
 - **Qué hace,** según dónde está la persona al momento de pedir y de nuevo al llegar la respuesta:
-  1. **Arriba de todo** (página 1 y la lista a menos de 8 px del principio, `auditLogSettings.live.topPx`):
+  1. **Arriba de todo** (página 1 y, a menos de 8 px del principio, la lista y todo lo que la contiene:
+     en Usuarios se desplaza todo su contenido, no la lista sola; `auditLogSettings.live.topPx`):
      pide la lista con sus filtros, `summary=1` y, en la computadora con un día, `strip=1`. Las filas con
      `id` mayor al de `latest` de su archivo se marcan 1,5 s (`auditLogSettings.live.markMs`, como la
-     maqueta), con `transform` y `opacity` y sin movimiento con «reducir movimiento». Ponerse al día solo
-     no cambia la acción elegida ni manda nada por el espejo (`round` no cambia): no es un cambio de lo
-     que se ve.
+     maqueta), con `transform` y `opacity` y sin movimiento con «reducir movimiento»; la raya nueva de la
+     tira crece desde abajo. Ponerse al día solo no cambia la acción elegida ni manda nada por el espejo
+     (`round` no cambia): no es un cambio de lo que se ve. Si la elegida pasó a la página 2, el detalle
+     la sigue mostrando hasta que se elija otra (R4.7).
   2. **Más abajo o en otra página:** pide `GET /api/audit-log/new` con `since` y los filtros, y muestra
      «n nuevas» arriba de la lista si `n > 0`. Tocarlo, o Alt + N, va a la página 1, sube la lista y hace
      lo del paso 1. Cambiar un filtro o de página pide la lista como siempre y saca el aviso.
   3. **Con la cinta abierta,** no pide nada: la cinta muestra un día (R4.6). Recuerda que hubo aviso y,
      al cerrarla, la lista vuelve como estaba (E42) y hace lo del paso 1 o 2.
-- **Una respuesta vieja se tira:** cada pedido lleva el número de la vista (filtros y página); si
-  cambiaron mientras tanto, o si la persona bajó en la lista antes de que llegue la lista, no se usa. En
-  ese último caso pide el «n nuevas».
+- **Una respuesta vieja se tira:** cada pedido mira la vista (filtros y página) al salir y al volver; si
+  cambió, no se usa. Si la persona bajó en la lista antes de que llegue la lista, pide el «n nuevas».
+  Mientras se trae lo que pidió la persona, un aviso espera y vuelve a probar a los 5 s (`busy`).
 - **Si falla** (sin conexión, `5xx`), la lista queda como estaba y el próximo aviso vuelve a probar. Con
   `429`, no pide nada solo hasta que pase lo que dice el servidor. No muestra errores: lo que pidió la
   persona sí los muestra, como hoy (revisión, T.15).
-- **Si le sacan el permiso** (`onRefused` con `forbidden`), Usuarios cierra la pestaña con «Ya no tenés
-  permiso» (02 · R6.6, R7.8).
+- **Si le sacan el permiso** (`onRefused` con `forbidden`), pide algo que solo pide la sesión
+  (`/api/permissions/audit-log.view/holders`): la respuesta trae la huella de los permisos nuevos, la
+  aplicación se entera y Usuarios cierra la pestaña con «Ya no tenés permiso» (02 · R6.6, R7.8). No pide
+  la lista, que anotaría un rechazo que la persona no hizo (revisión de seguridad del código, 28).
 - **Sin conexión** (R5.1), la pestaña se pone gris como hoy. Al volver, si está prendido, el primer aviso
   la pone al día; si está apagado, solo sale del gris.
 - **Apagado** no pide nada solo (E34): la lista se pide al tocar la pestaña, un filtro, una página, un
@@ -502,7 +515,7 @@ Las piezas, sobre la maqueta final `mockups/users-who-did-what/final/`:
 | `Filters` | Hecho por, hecho a (con las personas de `/people`, las dadas de baja y borradas marcadas), fecha (Hoy, Ayer, Esta semana, Este mes, y desde/hasta) y tipo; Alt + P, A, F y T en la computadora |
 | `Ledger` | La lista agrupada por día, con la cantidad del día en la cabecera (`days`); cada acción con el ícono del tipo a la izquierda (R4.10), la hora (y la fecha si no es de `today`), quién, el texto, a quién y el dispositivo, con su color (R4.4) |
 | `Detail` | En la computadora, fijo a la derecha, con la acción elegida (al abrir, la primera; ↑ ↓ la cambian, E35d). En el celular, una hoja que sube al tocar. Muestra todo, con las dos horas de una entrada no confirmada |
-| `Live` | El selector, en el lugar que tenía «Actualizar»: el ícono de actualizar (dos flechas en círculo, `refresh-cw`) y la llave, `role="switch"` con `aria-label` y `title` «Actualizar solo» (R4.6); solo con `withToday`. Debajo, en letra chica, los KB por minuto de la etiqueta `audit-log` del medidor (R4.12) |
+| `Live` | El selector, en el lugar que tenía «Actualizar» (el renglón de arriba de la pestaña; la maqueta lo muestra al lado del título de Usuarios, que es de otro módulo): el ícono de actualizar (dos flechas en círculo, `refresh-cw`) y la llave, `role="switch"` con `aria-label` y `title` «Actualizar solo» (R4.6); solo con `withToday`. Debajo, en letra chica, los KB por minuto del tema `audit-log.new` en el medidor (R4.12) |
 | `NewOnes` | «3 nuevas» arriba de la lista, con la flecha hacia arriba (R4.6, E51) |
 | `Pager` | «página n de m», anterior y siguiente; RePág y AvPág, que el teclado de la plataforma (`data-page`) da a cualquier lista por páginas |
 | `Empty` | Sin acciones (E20) o sin coincidencias, con «Sacar los filtros» (E29) |
@@ -541,9 +554,10 @@ el canal común**, en KB por minuto sobre el último minuto. No cuenta ningún p
 al tocar ni la lista que se pide sola al llegar un aviso), ni lo que se manda, ni el directo entre los dos
 dispositivos, que va por el Wi-Fi. Es de la plataforma: no sabe de pantallas, solo de temas.
 
-- **Qué cuenta:** `realtime/sse.ts` llama a `meter.count(bytes, temas)` por cada trozo que lee, con su
-  largo **en bytes** antes de decodificarlo (`Uint8Array.byteLength`), más unos 80 bytes de TCP y TLS
-  por trozo (`platformSettings.meter.overheadBytes`).
+- **Qué cuenta:** `realtime/sse.ts` mide cada bloque del canal (un evento o un latido) **en bytes**, no
+  en caracteres, y `realtime/channel.ts` lo cuenta con `meter.count(bytes, temas)`, más unos 80 bytes de
+  TCP y TLS por bloque (`platformSettings.meter.overheadBytes`): con `flush_interval -1`, cada bloque
+  viaja solo.
 - **De qué tema es:** un evento es de su tema. El latido y `hello` son del canal: van al total y a cada
   tema solo cuando es el único que lo mantiene abierto (lo que se ahorraría apagándolo).
 - **Cómo mide:** 60 casillas de un segundo (`platformSettings.meter.windowSeconds`) para el total y para
@@ -556,7 +570,7 @@ dispositivos, que va por el Wi-Fi. Es de la plataforma: no sabe de pantallas, so
   - El total, en la tarjeta del vínculo de la computadora debajo de la luz y en un renglón de la pastilla
     del celular (03 · R4.5, E45, E46), con `useRate()` desde `device-link`. Sin canal, a lo sumo en un
     minuto dice 0.
-- **Cómo se escribe:** «0,2 KB/min», con una decimal y la coma del castellano.
+- **Cómo se escribe:** «0,2 KB/min», con una decimal y la coma del castellano; sin nada, «0 KB/min».
 
 ## 9. Seguridad
 

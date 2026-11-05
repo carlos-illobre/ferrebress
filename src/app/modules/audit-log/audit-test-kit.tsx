@@ -119,9 +119,9 @@ function fakeChannel() {
   });
   return {
     listening: () => [...listening.values()],
-    notice: () =>
+    notice: (data: object = {}) =>
       act(() => {
-        for (const handler of [...listening.keys()]) handler.onEvent({});
+        for (const handler of [...listening.keys()]) handler.onEvent(data);
       }),
     refuse: (code: string) =>
       act(() => {

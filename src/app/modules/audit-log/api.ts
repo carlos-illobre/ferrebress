@@ -29,6 +29,9 @@ export const auditApi = {
       undefined,
       auto ? automatic : {},
     ),
+  // Una ruta que pide solo la sesión: su respuesta trae la huella de los permisos (02 · R7.8).
+  permissionCheck: () =>
+    api('/api/permissions/audit-log.view/holders', undefined, undefined, automatic),
   // Siempre sola: cuántas llegaron desde `since` con los filtros (R4.6).
   newOnes: (params: Params) =>
     api<AuditNewOnes>(`/api/audit-log/new${queryString(params)}`, undefined, undefined, automatic),

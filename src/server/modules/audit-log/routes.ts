@@ -12,11 +12,10 @@ import {
   dayQuery,
   newOnesQuery,
 } from '@ferrebress/shared/contracts/audit-log';
-import { automaticHeaderName } from '@ferrebress/shared/contracts/server-header';
 import { businessDateOf } from '@ferrebress/shared/time/business';
 import type { Context, MiddlewareHandler } from 'hono';
 import { createGuards } from '../../platform/guards.ts';
-import { fail } from '../../platform/http.ts';
+import { fail, isAutomatic } from '../../platform/http.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { sessionOf } from '../../platform/session.ts';
 import type { AuditReader } from '../../platform/storage/audit/reader.ts';
@@ -115,20 +114,27 @@ function registerPeopleAndDay({ ask, path, today, opened }: Routes) {
   });
 }
 
-// Lo que la pantalla pide sola, sin que nadie la toque (diseño de 05, § 7.1).
-const isAuto = (c: Context) => c.req.header(automaticHeaderName) === '1';
+// Solo la lista y «n nuevas» se piden solas (diseño de 05, § 7.1): en las demás rutas la cabecera no
+// cambia nada.
+const automaticPaths = new Set(['/api/audit-log', '/api/audit-log/new']);
+const isAuto = (c: Context) => isAutomatic(c) && automaticPaths.has(c.req.path);
 
-// R1.3: abrir Quién hizo qué queda una vez por sesión y por día, con cualquiera de sus rutas y solo si
-// lo pidió la persona (en memoria: si el servidor se reinicia, puede quedar una vez más ese día).
+// R1.3: abrir Quién hizo qué queda una vez por sesión y por día, con cualquiera de sus rutas (en
+// memoria: si el servidor se reinicia, puede quedar una vez más ese día). Lo que la pantalla pide sola
+// no lo anota, pero solo si esa sesión ya la abrió a mano alguna vez: una sesión robada que pide con
+// la cabecera queda igual anotada (revisión de seguridad del código, 24).
 function openedOnce(guards: ReturnType<typeof createGuards>) {
   const opened = new Set<string>();
+  const byHand = new Set<string>();
   let current = '';
   return (c: Context, day: string) => {
     // Las marcas de otros días ya no sirven: se olvidan al cambiar el día.
     if (day !== current) opened.clear();
     current = day;
-    if (isAuto(c)) return;
     const mark = sessionOf(c).id;
+    if (isAuto(c) && byHand.has(mark)) return;
+    if (byHand.size >= auditLogSettings.openedMemory) byHand.clear();
+    byHand.add(mark);
     if (opened.has(mark)) return;
     opened.add(mark);
     guards.record(c, 'audit-log.opened');

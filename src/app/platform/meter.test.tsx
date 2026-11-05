@@ -39,7 +39,8 @@ describe('el medidor', () => {
   });
 
   it('dice los KB por minuto con una decimal y coma', () => {
-    expect(kbPerMinute(0)).toBe('0,0 KB/min');
+    expect(kbPerMinute(0)).toBe('0 KB/min');
+    expect(kbPerMinute(20)).toBe('0,0 KB/min');
     expect(kbPerMinute(2355)).toBe('2,3 KB/min');
   });
 

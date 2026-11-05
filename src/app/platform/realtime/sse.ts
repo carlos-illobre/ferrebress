@@ -4,8 +4,10 @@
 // espera a que vuelva la red o la pestaña. Si el servidor dice que se abrió demasiadas veces, espera
 // lo que dice. Si en 55 s no llegó nada (el latido es cada 40 s), lo da por cortado y lo vuelve a
 // abrir (03 · R7.2). Si el servidor lo rechaza (sin sesión, sin permiso, un pedido mal hecho), no
-// insiste: avisa y termina.
+// insiste: avisa y termina. Cada bloque que llega se mide en bytes para el medidor (diseño de 05,
+// § 8.1).
 import { canReach, watchReach } from '../server/reach.ts';
+import { retryAfterMs } from '../server/retry.ts';
 import { platformSettings } from '../settings.ts';
 
 export type StreamEvent = { type: string; data: unknown };
@@ -40,7 +42,8 @@ async function attempt(
   const silence = new AbortController();
   try {
     const response = await options.open(AbortSignal.any([signal, silence.signal]));
-    if (response.status === 429) return { waitMs: await retryAfterMs(response) };
+    if (response.status === 429)
+      return { waitMs: retryAfterMs(await response.json().catch(() => ({}))) };
     if (refusals.has(response.status))
       return { refused: response.status, ...(await refusalCode(response)) };
     if (!response.ok || !response.body) return {};
@@ -110,11 +113,6 @@ const delay = (held: number | undefined, failures: number): number | undefined =
 const refusalCode = async (response: Response): Promise<{ code?: string }> => {
   const body = (await response.json().catch(() => ({}))) as { error?: unknown };
   return typeof body.error === 'string' ? { code: body.error } : {};
-};
-
-const retryAfterMs = async (response: Response) => {
-  const body = (await response.json().catch(() => ({}))) as { retryAfterSeconds?: unknown };
-  return Math.max(1, Number(body.retryAfterSeconds) || 60) * 1000;
 };
 
 // Vuelve la red o la pestaña a la vista.

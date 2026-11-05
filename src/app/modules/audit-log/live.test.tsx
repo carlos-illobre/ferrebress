@@ -3,15 +3,26 @@
 // nuevas» más abajo, como mucho una vez cada 5 s, sin hoy no hay selector, y no viaja por el espejo.
 import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { startKeyboard } from '../../platform/keyboard.ts';
 import { meter } from '../../platform/meter.ts';
 import { mirror } from '../../platform/mirror/registry.ts';
-import { events, first, firstPhone, openAuditLog, page } from './audit-test-kit.tsx';
+import { detail, events, first, firstPhone, openAuditLog, page } from './audit-test-kit.tsx';
 import { auditLogSettings } from './settings.ts';
 
 const settle = (ms = 30) => act(() => new Promise((resolve) => setTimeout(resolve, ms)));
 const toggle = () => screen.getByRole('switch', { name: 'Actualizar solo' });
 const fresh = { ...(events[0] as (typeof events)[number]), id: '2026:6', type: 'sign-out' };
-const newer = page({ latest: '2025:0.2026:6', events: [fresh, ...events], total: 26 });
+const newer = page({
+  latest: '2025:0.2026:6',
+  events: [fresh, ...events],
+  total: 26,
+  summary: { total: 5, amber: 2, red: 1 },
+  strip: [
+    { id: '2026:2', at: 9 * 3600 + 40 * 60, tone: 'amber' },
+    { id: '2026:5', at: 11 * 3600 + 52 * 60, tone: 'red' },
+    { id: '2026:6', at: 12 * 3600, tone: 'plain' },
+  ],
+});
 const second = '/api/audit-log?page=2&size=20';
 const live = auditLogSettings.live;
 // La pantalla ya escucha el tema (se pide después de dibujar).
@@ -59,8 +70,26 @@ describe('Actualizar solo', () => {
     expect(
       document.querySelector('.audit-row[aria-selected="true"]')?.getAttribute('data-id'),
     ).toBe('2026:5');
+    // El resumen y la tira, también al día, con la raya nueva marcada.
+    expect(document.querySelector('.audit-number')?.textContent).toContain('5');
+    expect(document.querySelector('.audit-tick[data-new]')).toBeTruthy();
     await settle(80);
     expect(document.querySelector('.audit-row[data-new]')).toBeNull();
+  });
+
+  it('la acción elegida sigue en el detalle aunque al ponerse al día haya pasado a la página 2', async () => {
+    const last = events.at(-1) as (typeof events)[number];
+    const shifted = page({ latest: '2025:0.2026:6', events: [fresh, ...events.slice(0, -1)] });
+    const pc = openAuditLog({ [first]: [{ body: page() }, { body: shifted }] });
+    await screen.findByText('25 acciones');
+    await listening(pc);
+    fireEvent.click(document.querySelector(`.audit-row[data-id="${last.id}"]`) as HTMLElement);
+    const before = detail();
+    expect(before).not.toBe('');
+    pc.notice();
+    await waitFor(() => expect(document.querySelector('.audit-row[data-new]')).toBeTruthy());
+    expect(document.querySelector(`.audit-row[data-id="${last.id}"]`)).toBeNull();
+    expect(detail()).toBe(before);
   });
 
   it('E51: en la página 2 no se mueve nada y aparece «3 nuevas»; tocarlo va a la página 1', async () => {
@@ -124,7 +153,7 @@ describe('Actualizar solo', () => {
     const phone = openAuditLog({}, true);
     await screen.findByText('25 acciones');
     // Apagado dice 0, aunque el canal haya mandado algo en el último minuto.
-    expect(screen.getByText('0,0 KB/min')).toBeTruthy();
+    expect(screen.getByText('0 KB/min')).toBeTruthy();
     fireEvent.click(toggle());
     await listening(phone);
     const before = phone.sent.filter((one) => one.path === firstPhone).length;
@@ -135,7 +164,7 @@ describe('Actualizar solo', () => {
     expect(screen.getByText('2,3 KB/min')).toBeTruthy();
     // Apagado dice 0 en el momento (R4.12).
     fireEvent.click(toggle());
-    expect(screen.getByText('0,0 KB/min')).toBeTruthy();
+    expect(screen.getByText('0 KB/min')).toBeTruthy();
   });
 
   it('E56: el selector no viaja por el espejo', async () => {
@@ -149,5 +178,32 @@ describe('Actualizar solo', () => {
     await settle();
     expect(send).not.toHaveBeenCalled();
     mirror.detach();
+  });
+
+  it('Alt + R apaga y prende el selector, y Alt + N toca «1 nueva»', async () => {
+    const stop = startKeyboard();
+    const alt = (key: string) =>
+      act(() => {
+        dispatchEvent(
+          new KeyboardEvent('keydown', { key, code: `Key${key.toUpperCase()}`, altKey: true }),
+        );
+      });
+    const pc = openAuditLog({
+      ['/api/audit-log?page=2&size=20']: { body: page({ page: 2 }) },
+      ['/api/audit-log/new?since=2025%3A0.2026%3A5']: { body: { count: 1 } },
+    });
+    await screen.findByText('25 acciones');
+    alt('r');
+    expect(toggle().getAttribute('aria-checked')).toBe('false');
+    alt('r');
+    expect(toggle().getAttribute('aria-checked')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
+    await listening(pc);
+    await settle(70);
+    pc.notice();
+    await screen.findByRole('button', { name: /1 nueva/ });
+    alt('n');
+    await waitFor(() => expect(pc.sent.at(-1)?.path).toBe(first));
+    stop();
   });
 });

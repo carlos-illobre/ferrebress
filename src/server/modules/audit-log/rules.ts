@@ -191,13 +191,14 @@ export type Latest = [year: number, id: number][];
 export const latestText = (latest: Latest): string =>
   latest.map(([year, id]) => `${year}:${id}`).join('.');
 
-// El `since` de «n nuevas»: solo los dos años vivos (el UTC en curso y el anterior) y números enteros
-// seguros; si no, `undefined`.
+// El `since` de «n nuevas»: los dos años vivos (el UTC anterior y el en curso, en ese orden, cada uno
+// una vez) con números enteros seguros; si no, `undefined`.
 export function sinceOf(text: string, currentYear: number): Latest | undefined {
   const since = text.split('.').map((part) => part.split(':').map(Number) as [number, number]);
-  const valid = since.every(
-    ([year, id]) => (year === currentYear || year === currentYear - 1) && Number.isSafeInteger(id),
-  );
+  const years = since.map(([year]) => year).join();
+  const valid =
+    years === `${currentYear - 1},${currentYear}` &&
+    since.every(([, id]) => Number.isSafeInteger(id));
   return valid ? since : undefined;
 }
 

@@ -81,6 +81,7 @@ function Strip({ strip, today }: { strip: StripMark[]; today: string }) {
           <i
             key={mark.id}
             class={`audit-tick audit-${mark.tone}`}
+            data-new={log.fresh.has(mark.id) ? '' : undefined}
             style={{ left: `${scale.place(mark.at) * 100}%` }}
           />
         ))}

@@ -32,16 +32,19 @@ export function createPermissionGate(
     c.set('permissions', granted);
     c.set('permissionsHash', permissionsHash(granted));
   });
-  const denied = (c: Context, permission: PermissionId) => {
-    const { userId } = sessionOf(c);
+  // Lo anota una vez por ventana, por persona y por permiso: una ruta o un tema del canal.
+  const note = (c: Context, userId: string, permission: PermissionId, data: object) => {
     if (limiter.hit(`audit:permission.denied:${userId}:${permission}`, deniedAudit).allowed)
       audit.record({
         type: 'permission.denied',
         at: clock.now(),
         actor: { kind: 'person', userId },
         ipAddress: c.get('ipAddress') as string,
-        data: { permission, path: c.req.path },
+        data: { permission, ...data },
       });
+  };
+  const denied = (c: Context, permission: PermissionId) => {
+    note(c, sessionOf(c).userId, permission, { path: c.req.path });
     return fail(c, 403, 'forbidden', { permission });
   };
   return {
@@ -50,6 +53,8 @@ export function createPermissionGate(
     },
     // Los permisos de una persona fuera de un pedido (un tema del canal que vuelve a mirarlos).
     of: (userId: string): Promise<readonly string[]> => resolve(userId),
+    // Un tema del canal pedido sin el permiso: se anota como una ruta (`data` dice cuál).
+    noteDenied: note,
     require:
       (permission: PermissionId): MiddlewareHandler =>
       async (c, next) =>

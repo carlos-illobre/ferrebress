@@ -1,8 +1,7 @@
 // Lo que exige una sesión abierta: la cookie de un pase que sigue valiendo. Si no, dice por qué
 // está cerrada, así la aplicación muestra la entrada encima de lo que había (R3.4, R3.5).
-import { automaticHeaderName } from '@ferrebress/shared/contracts/server-header';
 import type { Context } from 'hono';
-import { fail } from '../../../platform/http.ts';
+import { fail, isAutomatic } from '../../../platform/http.ts';
 import type { RequestSession } from '../../../platform/session.ts';
 import type { SignInContext } from '../context.ts';
 import { signInSettings } from '../settings.ts';
@@ -43,8 +42,7 @@ export async function requestSession(
   const known = !!token && ctx.store.knows(token);
   if (!known && ctx.platform.limiter.exceeded(key, window))
     return ctx.throttle(c, [key], window) as Response;
-  const used = c.req.header(automaticHeaderName) !== '1';
-  const resolved = token ? await ctx.store.resolve(token, used) : undefined;
+  const resolved = token ? await ctx.store.resolve(token, !isAutomatic(c)) : undefined;
   if (resolved?.kind !== 'open') {
     const reason = resolved?.reason ?? 'unknown';
     if (token && reason === 'unknown') ctx.platform.limiter.hit(key, window);

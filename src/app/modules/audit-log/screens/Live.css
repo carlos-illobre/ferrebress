@@ -99,6 +99,17 @@
     .audit-row[data-new]::after {
       animation: audit-row-mark 1.2s var(--ease) 0.2s both;
     }
+    /* La raya nueva de la tira crece desde abajo. */
+    .audit-tick[data-new] {
+      transform-origin: bottom;
+      animation: audit-tick-in var(--time-nav) var(--bounce) both;
+    }
+  }
+  @keyframes audit-tick-in {
+    from {
+      opacity: 0;
+      transform: scaleY(0.2);
+    }
   }
   @keyframes audit-new-in {
     from {

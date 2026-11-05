@@ -59,8 +59,11 @@ export type Meter = ReturnType<typeof createMeter>;
 export const meter = createMeter();
 
 // «0,2 KB/min»: los bytes del último minuto, con una decimal y la coma del castellano.
+// Sin nada, «0 KB/min», como la maqueta.
 export const kbPerMinute = (bytes: number): string =>
-  `${(bytes / 1024).toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} KB/min`;
+  bytes === 0
+    ? '0 KB/min'
+    : `${(bytes / 1024).toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} KB/min`;
 
 // Los bytes del último minuto, leídos cada pocos segundos solo con la pestaña a la vista: el medidor
 // no tiene temporizador propio.

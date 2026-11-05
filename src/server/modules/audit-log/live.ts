@@ -39,17 +39,9 @@ export function createNotifier(
 // Quien pide el tema sin el permiso, al abrir o al sumarlo, queda anotado como en las rutas; al
 // volver a mirar los permisos (sin pedido) no.
 function refuse(platform: Platform, { session, request }: Listener) {
-  const { limiter, audit, clock } = platform;
   const { userId } = session as RequestSession;
-  const key = `audit:permission.denied:${userId}:${permission}`;
-  if (request && limiter.hit(key, auditLogSettings.deniedAudit).allowed)
-    audit.record({
-      type: 'permission.denied',
-      at: clock.now(),
-      actor: { kind: 'person', userId },
-      ipAddress: request.get('ipAddress') as string,
-      data: { permission, topic: auditLiveTopic },
-    });
+  if (request)
+    platform.permissions.noteDenied(request, userId, permission, { topic: auditLiveTopic });
   return { refused: 'forbidden' as const };
 }
 
@@ -58,15 +50,15 @@ export function registerLive(platform: Platform): void {
   realtime.topic({
     name: auditLiveTopic,
     param: z.string().check(z.maxLength(0)),
-    event: z.strictObject({}),
+    event: z.strictObject({ subscribed: z.optional(z.literal(true)) }),
     authorize: async (listener) => {
       // Un tema con sesión: el canal no lo deja escuchar sin ella.
       const { userId } = listener.session as RequestSession;
       const granted = await permissions.of(userId);
       return granted.includes(permission) ? { key: everyone } : refuse(platform, listener);
     },
-    // Al empezar a escuchar, la pantalla se pone al día una vez (prenderlo, volver a la vista).
-    onSubscribe: (_key, send) => send({}),
+    // Al empezar a escuchar, la pantalla se pone al día una vez si hace falta (volver a la vista).
+    onSubscribe: (_key, send) => send({ subscribed: true }),
     recheckOn: ['users.permissions-changed'],
   });
   const notify = createNotifier(

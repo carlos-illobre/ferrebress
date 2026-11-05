@@ -20,9 +20,9 @@ import {
   askedText,
   autoLoads,
   first,
-  ledger,
   type Now,
   readAsked,
+  toTop,
   useFresh,
 } from './loading.ts';
 import { type Dates, type Filters, noFilters, paramsOf } from './logic.ts';
@@ -80,11 +80,16 @@ function useLoading(wide: boolean) {
   const asked = readAsked(text);
   const [chosen, choose] = useMirrored('audit-log.list.selected', null, z.nullable(eventId));
   const { fresh, mark } = useFresh();
-  const { page, summary, newOnes, setNewOnes, show } = useShown();
+  const shown = useShown();
+  const { page, summary, newOnes, setNewOnes } = shown;
   // Lo de ahora, para lo que llega después: si cambió la vista mientras tanto, no se usa.
-  const now = useRef<Now>({ text, page, loading: false, markFrom: undefined });
+  const now = useRef<Now>({ text, page, loading: false, markFrom: undefined, loadedAt: 0 });
   now.current.text = text;
   now.current.page = page;
+  const show = (data: AuditPage, dates: boolean) => {
+    now.current.loadedAt = Date.now();
+    shown.show(data, dates);
+  };
   const params = (of: Asked, extra: { summary: boolean; strip: boolean }) =>
     paramsOf(of.filters, { page: of.page, size }, extra);
   const { load, failed } = useLoad({ now, wide, params, show, mark, choose });
@@ -102,10 +107,11 @@ function useLoading(wide: boolean) {
     select: (id: string | undefined) => choose(id ?? null),
     ask,
     ...autoLoads({ now, wide, params, show, mark, setNewOnes }),
+    loadedAt: () => now.current.loadedAt,
     // «3 nuevas»: a la página 1, arriba de todo, con lo nuevo marcado.
     showNew: () => {
       now.current.markFrom = page?.latest;
-      ledger()?.scrollTo({ top: 0 });
+      toTop();
       ask(asked.filters, 1, true);
     },
   };
@@ -120,17 +126,16 @@ export function useAuditLog() {
   useEffect(() => {
     void auditApi.people().then((result) => result.ok && setPeople(result.data.people));
   }, []);
-  const { ask, atTop, refresh, count, ...loaded } = useLoading(wide);
+  const { ask, atTop, refresh, count, loadedAt, ...loaded } = useLoading(wide);
   const { filters, page } = loaded;
   const [tape, setTape] = useMirrored('audit-log.tape', null, z.nullable(tapeAt));
   const live = useLive({
-    wide,
+    ...{ wide, atTop, refresh, count, loadedAt },
     withToday: page?.withToday ?? false,
     tapeOpen: tape !== null,
-    atTop,
-    refresh,
-    count,
-    lost: () => void refresh(),
+    // Sin el permiso: un pedido que pide solo la sesión trae la huella de los permisos nuevos y la
+    // aplicación se entera, sin anotar un rechazo que la persona no hizo (seguridad, 28).
+    lost: () => void auditApi.permissionCheck(),
   });
   const online = useStore(onlineStore);
   const datesChanged = (next: Filters) =>

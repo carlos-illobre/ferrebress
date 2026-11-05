@@ -57,7 +57,9 @@ const yearsOf = ({ source }: Reading, filter: Filter) =>
     );
 
 function countIn(reading: Reading, year: number, filter: Filter): number {
-  const key = `${year}|${JSON.stringify(filter)}`;
+  // La foto del pedido cuenta solo en los archivos que nombra: un año cerrado más viejo da lo mismo.
+  const { upTo, ...rest } = filter;
+  const key = `${year}|${JSON.stringify(rest)}|${upTo?.find(([one]) => one === year)?.[1] ?? ''}`;
   const saved = reading.closedTotals.get(key);
   if (saved !== undefined) return saved;
   const { sql, params } = where(filter, year);

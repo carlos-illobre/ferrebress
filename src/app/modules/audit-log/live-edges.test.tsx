@@ -94,10 +94,11 @@ describe('los bordes de Actualizar solo', () => {
     });
     await screen.findByText('25 acciones');
     fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
-    await waitFor(() => expect(lists(pc, second)).toBe(1));
+    await screen.findByText('página 2 de 2');
     await listening(pc);
+    await settle(70);
     pc.notice();
-    await settle(5);
+    await waitFor(() => expect(lists(pc, newOnes)).toBe(1));
     receive(
       'audit-log.list.asked',
       JSON.stringify({ filters: {}, page: 3, dates: false, round: 9 }),
@@ -140,15 +141,17 @@ describe('los bordes de Actualizar solo', () => {
     expect(lists(pc)).toBe(2);
   });
 
-  it('si le sacan el permiso, pide la lista para que la aplicación se entere; otro rechazo no', async () => {
-    const pc = openAuditLog();
+  it('si le sacan el permiso, pide algo que solo pide la sesión para enterarse; otro rechazo no', async () => {
+    const check = '/api/permissions/audit-log.view/holders';
+    const pc = openAuditLog({ [check]: { body: { roles: [], grantedBy: [] } } });
     await screen.findByText('25 acciones');
     await listening(pc);
     pc.refuse('not-found');
     await settle();
-    expect(lists(pc)).toBe(1);
+    expect(lists(pc, check)).toBe(0);
     pc.refuse('forbidden');
-    await waitFor(() => expect(lists(pc)).toBe(2));
+    await waitFor(() => expect(lists(pc, check)).toBe(1));
+    expect(lists(pc)).toBe(1);
   });
 
   it('apagado suelta el tema un rato después; prenderlo antes pide en el momento', async () => {
@@ -169,19 +172,36 @@ describe('los bordes de Actualizar solo', () => {
     await listening(pc);
   });
 
-  it('Alt + N y Alt + R son las teclas de «3 nuevas» y del selector', async () => {
-    const pc = openAuditLog({
-      ['/api/audit-log?page=2&size=20']: { body: page({ page: 2 }) },
-      [newOnes]: { body: { count: 1 } },
-    });
+  it('el aviso del alta no vuelve a pedir una lista recién traída; uno que llega mientras se trae, espera', async () => {
+    live.everyMs = 400;
+    const answer = held({ body: later });
+    const pc = openAuditLog({ [first]: [{ body: page() }, answer.reply, { body: later }] });
     await screen.findByText('25 acciones');
-    expect(toggle().dataset.key).toBe('r');
-    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
     await listening(pc);
+    pc.notice({ subscribed: true });
     await settle();
+    expect(lists(pc)).toBe(1);
+    // Lo pide la persona (desde el otro dispositivo) y tarda: el aviso espera y prueba después.
+    receive(
+      'audit-log.list.asked',
+      JSON.stringify({ filters: {}, page: 1, dates: true, round: 30 }),
+    );
+    await settle(420);
     pc.notice();
-    const button = await screen.findByRole('button', { name: /1 nueva/ });
-    expect(button.dataset.key).toBe('n');
+    await settle(10);
+    expect(lists(pc)).toBe(2);
+    answer.release();
+    await waitFor(() => expect(lists(pc)).toBe(3), { timeout: 2000 });
+  });
+
+  it('si lo que se desplaza es lo que contiene a la lista, más abajo también cuenta las nuevas', async () => {
+    const pc = openAuditLog({ [newOnes]: { body: { count: 2 } } });
+    await screen.findByText('25 acciones');
+    await listening(pc);
+    (document.getElementById('app') as HTMLElement).scrollTop = 300;
+    pc.notice();
+    await screen.findByRole('button', { name: /2 nuevas/ });
+    expect(lists(pc)).toBe(1);
   });
 
   it('sin acciones también se pone al día; mientras se trae lo que pidió la persona, no', async () => {

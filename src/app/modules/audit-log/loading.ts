@@ -24,9 +24,19 @@ export function readAsked(text: string): Asked {
   }
 }
 
-// La lista sube al principio, y si está arriba de todo (la página 1, sin haber bajado: R4.6).
-export const ledger = () => document.querySelector<HTMLElement>('.audit-ledger');
-const scrolledTop = () => (ledger()?.scrollTop ?? 0) < auditLogSettings.live.topPx;
+// Si está arriba de todo (la página 1, sin haber bajado: R4.6), y cómo volver. Lo que se desplaza no
+// es siempre la lista: en la pantalla de Usuarios se desplaza todo su contenido. Se miran la lista y
+// todo lo que la contiene.
+function scrollers(): HTMLElement[] {
+  const found: HTMLElement[] = [];
+  for (let el = document.querySelector<HTMLElement>('.audit-ledger'); el; el = el.parentElement)
+    found.push(el);
+  return found;
+}
+const scrolledTop = () => scrollers().every((el) => el.scrollTop < auditLogSettings.live.topPx);
+export function toTop(): void {
+  for (const el of scrollers()) el.scrollTop = 0;
+}
 
 // Lo que entra se marca un momento (R4.6, E50): las filas que llegaron después de la foto anterior.
 export function useFresh() {
@@ -50,6 +60,8 @@ export type Now = {
   page: AuditPage | undefined;
   loading: boolean;
   markFrom?: string | undefined;
+  // Cuándo llegó la última lista: el aviso del alta no la vuelve a pedir si es reciente.
+  loadedAt: number;
 };
 export type Auto = {
   now: { current: Now };
@@ -65,22 +77,24 @@ export type Auto = {
 
 // Lo que se pide solo, con un aviso (R4.6): arriba de todo, la lista con el resumen y la tira, sin
 // tocar la acción elegida; más abajo, cuántas nuevas con los filtros (E51). Una respuesta que llega
-// con otra vista, o con la persona ya más abajo, no se usa.
+// con otra vista, o con la persona ya más abajo, no se usa; mientras se trae lo que pidió la persona,
+// el aviso espera (`busy`). `byHand`: al prender el selector, que es un toque: la lista donde esté.
 export function autoLoads({ now, wide, params, show, mark, setNewOnes }: Auto) {
   const atTop = () => readAsked(now.current.text).page === 1 && scrolledTop();
-  async function refresh(): Promise<Outcome> {
-    if (now.current.loading) return 'done';
+  async function refresh(byHand = false): Promise<Outcome> {
+    if (now.current.loading) return 'busy';
     const { text: before, page: shown } = now.current;
     const of = readAsked(before);
-    const result = await auditApi.page(params(of, { summary: true, strip: wide }), true);
-    if (now.current.text !== before || now.current.loading) return 'done';
-    if (!atTop()) return 'moved';
+    const result = await auditApi.page(params(of, { summary: true, strip: wide }), !byHand);
+    if (now.current.text !== before || now.current.loading) return 'busy';
     if (!result.ok) return outcomeOf(result);
+    if (!byHand && !atTop()) return 'moved';
     show(result.data, true);
     mark(result.data, shown?.latest);
     return 'done';
   }
   async function count(): Promise<Outcome> {
+    if (now.current.loading) return 'busy';
     const { text: before } = now.current;
     // Hay aviso solo con la lista ya traída: dice si incluye hoy.
     const shown = now.current.page as AuditPage;
@@ -93,7 +107,7 @@ export function autoLoads({ now, wide, params, show, mark, setNewOnes }: Auto) {
       strip: false,
     });
     const result = await auditApi.newOnes({ ...filters, since: shown.latest });
-    if (now.current.text !== before) return 'done';
+    if (now.current.text !== before) return 'busy';
     if (!result.ok) return outcomeOf(result);
     setNewOnes(result.data.count);
     return 'done';
