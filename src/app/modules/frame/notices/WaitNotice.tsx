@@ -8,9 +8,8 @@ import { useStore } from '../../../platform/store.ts';
 import { waitBar } from '../../../platform/waiting.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import { Say } from '../../../ui/say/Say.tsx';
+import { frameSettings } from '../settings.ts';
 import { texts } from '../texts.ts';
-
-export const doneMs = 900;
 
 // Lo que dice la barra, sin la espera que ya corría cuando apareció el marco: ni mientras sigue ni
 // cuando termina.
@@ -30,7 +29,7 @@ export function WaitNotice() {
     if (doing) return setShown({ doing, done: false });
     if (!shown) return;
     setShown({ ...shown, done: true });
-    const timer = setTimeout(() => setShown(undefined), doneMs);
+    const timer = setTimeout(() => setShown(undefined), frameSettings.doneMs);
     return () => clearTimeout(timer);
   }, [doing]);
 

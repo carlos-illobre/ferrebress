@@ -16,12 +16,12 @@ import {
   sendPendingSignOut,
   signedIn,
 } from '../session.ts';
+import { signInSettings } from '../settings.ts';
 import { disableOffline } from './option.ts';
 import { dropEntry, type Entry, entries } from './pending.ts';
 
 // «Probá después»: la entrada sigue pendiente.
 const later = new Set(['offline', 'too-many-attempts', 'update-required', 'unexpected']);
-const retryEveryMs = 60_000;
 
 let sending: Promise<void> | undefined;
 let retry: ReturnType<typeof setTimeout> | undefined;
@@ -39,7 +39,10 @@ function retryLater(result: ApiResult<unknown>): void {
   if (result.ok || result.error === 'offline' || result.error === 'update-required') return;
   const seconds = Number(result.retryAfterSeconds);
   clearTimeout(retry);
-  retry = setTimeout(() => void sendPending(), seconds > 0 ? seconds * 1000 : retryEveryMs);
+  retry = setTimeout(
+    () => void sendPending(),
+    seconds > 0 ? seconds * 1000 : signInSettings.offline.retryEveryMs,
+  );
 }
 
 async function send(): Promise<void> {

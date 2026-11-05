@@ -2,6 +2,8 @@
 // dibuja Google, en el idioma del navegador, y devuelve el pase que verifica el servidor. El script
 // (su dirección la dice el servidor: en las pruebas de punta a punta es uno de prueba) se baja
 // recién cuando se muestra la entrada; si la aplicación abre con sesión, no se carga.
+
+import { signInSettings } from '../../settings.ts';
 import { takeForgetGoogle } from '../messages.ts';
 
 type GoogleId = {
@@ -39,8 +41,8 @@ function load(scriptUrl: string): Promise<void> {
 // Google dibuja su botón en dos tiempos: primero el común, con sus estilos, que pide aparte (sin
 // ellos se ve una G enorme); después, en un marco suyo, el personalizado («Continuar como…»), si el
 // navegador tiene una sesión de Google, con otra letra y otra altura. El botón se da por dibujado
-// cuando llegaron los estilos y cargó ese marco, o a los 3 s: así no se ve ningún salto.
-export const drawnWithinMs = 3000;
+// cuando llegaron los estilos y cargó ese marco, o al tiempo de `signInSettings`: así no se ve ningún
+// salto.
 
 function frameLoaded(element: HTMLElement): Promise<void> {
   return new Promise((resolve) => {
@@ -57,7 +59,7 @@ function frameLoaded(element: HTMLElement): Promise<void> {
     const watcher = new MutationObserver(watch);
     watcher.observe(element, { childList: true, subtree: true });
     watch();
-    setTimeout(done, drawnWithinMs);
+    setTimeout(done, signInSettings.google.drawnWithinMs);
   });
 }
 
@@ -67,7 +69,7 @@ function stylesLoaded(): Promise<void> {
   return new Promise((resolve) => {
     styles.addEventListener('load', () => resolve(), { once: true });
     styles.addEventListener('error', () => resolve(), { once: true });
-    setTimeout(resolve, drawnWithinMs);
+    setTimeout(resolve, signInSettings.google.drawnWithinMs);
   });
 }
 

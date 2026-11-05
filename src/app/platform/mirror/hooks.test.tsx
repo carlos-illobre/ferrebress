@@ -4,7 +4,8 @@ import { act, render, renderHook, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as z from 'zod/mini';
 import { navigate, route } from '../router.ts';
-import { followerWaitMs, useMirroredQuery } from './query.ts';
+import { platformSettings } from '../settings.ts';
+import { useMirroredQuery } from './query.ts';
 import { createMirror, mirror, type Patch } from './registry.ts';
 import { bindRoute } from './route.ts';
 import { useMirrored } from './use-mirrored.ts';
@@ -101,7 +102,7 @@ describe('lo que se trae del servidor', () => {
     );
     act(() => mirror.receive([{ k: 'q:test.card.person:4', v: { name: 'Ana' }, c: 50, l: true }]));
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(followerWaitMs);
+      await vi.advanceTimersByTimeAsync(platformSettings.mirror.followerWaitMs);
     });
     expect(request).not.toHaveBeenCalled();
     expect(first.result.current.data).toEqual({ name: 'Ana' });
@@ -110,7 +111,7 @@ describe('lo que se trae del servidor', () => {
       useMirroredQuery('test.card.person:5', request, [], { mode: 'forward', schema: person }),
     );
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(followerWaitMs);
+      await vi.advanceTimersByTimeAsync(platformSettings.mirror.followerWaitMs);
     });
     expect(request).toHaveBeenCalledTimes(1);
     expect(late.result.current.data).toEqual({ name: 'Ana' });

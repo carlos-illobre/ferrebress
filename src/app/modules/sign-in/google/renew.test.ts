@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { renewAfterMs, useNonceRenewal } from './renew.ts';
+import { signInSettings } from '../settings.ts';
+import { useNonceRenewal } from './renew.ts';
 
 describe('la renovación del pedido de Google', () => {
   const hidden = (value: boolean) => {
@@ -20,11 +21,11 @@ describe('la renovación del pedido de Google', () => {
     const renew = vi.fn();
     renderHook(() => useNonceRenewal('n1', true, renew));
     hidden(true);
-    vi.advanceTimersByTime(renewAfterMs * 20);
+    vi.advanceTimersByTime(signInSettings.google.renewAfterMs * 20);
     expect(renew).not.toHaveBeenCalled();
     hidden(false);
     expect(renew).toHaveBeenCalledOnce();
-    vi.advanceTimersByTime(renewAfterMs);
+    vi.advanceTimersByTime(signInSettings.google.renewAfterMs);
     expect(renew).toHaveBeenCalledTimes(2);
   });
 
@@ -32,7 +33,7 @@ describe('la renovación del pedido de Google', () => {
     vi.useFakeTimers();
     const renew = vi.fn();
     renderHook(() => useNonceRenewal('n1', true, renew));
-    vi.advanceTimersByTime(renewAfterMs - 1);
+    vi.advanceTimersByTime(signInSettings.google.renewAfterMs - 1);
     expect(renew).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1);
     expect(renew).toHaveBeenCalledOnce();
@@ -46,7 +47,7 @@ describe('la renovación del pedido de Google', () => {
     hidden(false);
     expect(renew).not.toHaveBeenCalled();
     // El reloj de la página siguió, pero el temporizador no llegó a correr (el dispositivo dormido).
-    vi.setSystemTime(Date.now() + renewAfterMs);
+    vi.setSystemTime(Date.now() + signInSettings.google.renewAfterMs);
     hidden(true);
     expect(renew).not.toHaveBeenCalled();
     hidden(false);
@@ -58,7 +59,7 @@ describe('la renovación del pedido de Google', () => {
     const renew = vi.fn();
     renderHook(() => useNonceRenewal('n1', true, renew));
     hidden(true);
-    vi.advanceTimersByTime(renewAfterMs - 60_000);
+    vi.advanceTimersByTime(signInSettings.google.renewAfterMs - 60_000);
     hidden(false);
     expect(renew).not.toHaveBeenCalled();
     vi.advanceTimersByTime(60_000);
@@ -75,7 +76,7 @@ describe('la renovación del pedido de Google', () => {
       },
     );
     rerender({ shown: true, nonce: undefined });
-    vi.advanceTimersByTime(renewAfterMs * 2);
+    vi.advanceTimersByTime(signInSettings.google.renewAfterMs * 2);
     unmount();
     expect(renew).not.toHaveBeenCalled();
   });

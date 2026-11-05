@@ -3,18 +3,17 @@
 // lo que llega roto, terminar el vínculo, el Wi-Fi que se corta, sin internet y el directo dormido
 // que vence.
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
-import { directSettings } from '../../platform/peer/direct.ts';
-import { reconnectDelaysMs } from '../../platform/server/reconnect.ts';
+import { platformSettings } from '../../platform/settings.ts';
 import { pause, setupDevices as setup, stopDevices, together } from '../../testing/two-devices.ts';
-import { runtimeSettings } from './runtime/live.ts';
+import { deviceLinkSettings } from './settings.ts';
 
 const isolated = async (run: () => Promise<void>) => {
-  const before = directSettings.openWithinMs;
-  directSettings.openWithinMs = 30;
+  const before = platformSettings.direct.openWithinMs;
+  platformSettings.direct.openWithinMs = 30;
   try {
     await run();
   } finally {
-    directSettings.openWithinMs = before;
+    platformSettings.direct.openWithinMs = before;
   }
 };
 
@@ -36,10 +35,10 @@ describe('los bordes del vínculo', () => {
   });
 
   it('el celular solo se fija: sin la computadora deja el tema, y con `l=` cambiado se vuelve a fijar', async () => {
-    const before = runtimeSettings.peekMs;
-    runtimeSettings.peekMs = 20;
+    const before = deviceLinkSettings.runtime.peekMs;
+    deviceLinkSettings.runtime.peekMs = 20;
     onTestFinished(() => {
-      runtimeSettings.peekMs = before;
+      deviceLinkSettings.runtime.peekMs = before;
     });
     const { pc, phone, server } = setup();
     phone.start();
@@ -132,7 +131,15 @@ describe('los bordes del vínculo', () => {
 
   it('sin internet por el servidor espera, reintenta y al volver se presentan de nuevo (E21)', () =>
     isolated(async () => {
-      const delays = reconnectDelaysMs.splice(0, reconnectDelaysMs.length, 10, 10, 10, 10, 10);
+      const delays = platformSettings.reconnect.delaysMs.splice(
+        0,
+        platformSettings.reconnect.delaysMs.length,
+        10,
+        10,
+        10,
+        10,
+        10,
+      );
       try {
         const { pc, phone, server, wifi } = setup();
         wifi.isolate(true);
@@ -145,7 +152,11 @@ describe('los bordes del vínculo', () => {
         server.world.online.set('computer', true);
         await vi.waitFor(() => expect(pc.kind()).toBe('relayed'));
       } finally {
-        reconnectDelaysMs.splice(0, reconnectDelaysMs.length, ...delays);
+        platformSettings.reconnect.delaysMs.splice(
+          0,
+          platformSettings.reconnect.delaysMs.length,
+          ...delays,
+        );
       }
     }));
 
@@ -159,8 +170,8 @@ describe('los bordes del vínculo', () => {
   });
 
   it('el directo dormido vence: cada uno sigue esperando y al volver se presentan de nuevo', async () => {
-    const before = runtimeSettings.dormantMs;
-    runtimeSettings.dormantMs = 20;
+    const before = deviceLinkSettings.runtime.dormantMs;
+    deviceLinkSettings.runtime.dormantMs = 20;
     try {
       const { pc, phone } = setup();
       await together(pc, phone);
@@ -171,7 +182,7 @@ describe('los bordes del vínculo', () => {
       phone.runtime.dispatch({ type: 'tabBack' });
       await vi.waitFor(() => expect(phone.kind()).toBe('direct'));
     } finally {
-      runtimeSettings.dormantMs = before;
+      deviceLinkSettings.runtime.dormantMs = before;
     }
   });
 });

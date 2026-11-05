@@ -4,8 +4,9 @@
 import { filterCandidates, fingerprintOf } from '@ferrebress/shared/peer/candidates';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fakeRtc } from '../../testing/fake-rtc.ts';
-import { createDirect, directSettings } from './direct.ts';
-import { createRelayed, relayedSettings } from './relayed.ts';
+import { platformSettings } from '../settings.ts';
+import { createDirect } from './direct.ts';
+import { createRelayed } from './relayed.ts';
 import { createTransport, maxMessageBytes } from './transport.ts';
 
 afterEach(() => vi.useRealTimers());
@@ -91,7 +92,7 @@ describe('directo', () => {
     const pc = fakeRtc(sdp);
     const direct = createDirect({ connection: pc.connection, signal: async () => undefined });
     const offered = direct.offer();
-    await vi.advanceTimersByTimeAsync(directSettings.openWithinMs);
+    await vi.advanceTimersByTimeAsync(platformSettings.direct.openWithinMs);
     expect(await offered).toBe(false);
     const phone = fakeRtc(sdp);
     const answering = createDirect({ connection: phone.connection, signal: async () => undefined });
@@ -103,10 +104,10 @@ describe('directo', () => {
     answering.transport.onClose((why) => reasons.push(why));
     phone.state('disconnected');
     phone.state('connected');
-    await vi.advanceTimersByTimeAsync(directSettings.lostAfterMs);
+    await vi.advanceTimersByTimeAsync(platformSettings.direct.lostAfterMs);
     expect(reasons).toEqual([]);
     phone.state('disconnected');
-    await vi.advanceTimersByTimeAsync(directSettings.lostAfterMs);
+    await vi.advanceTimersByTimeAsync(platformSettings.direct.lostAfterMs);
     expect(reasons).toEqual(['lost']);
     phone.channel.close();
   });
@@ -131,7 +132,7 @@ describe('por el servidor', () => {
     });
     relayed.transport.send({ a: 1 });
     relayed.transport.send({ a: 2 });
-    await vi.advanceTimersByTimeAsync(relayedSettings.batchMs);
+    await vi.advanceTimersByTimeAsync(platformSettings.relayed.batchMs);
     expect(batches).toEqual([[{ a: 1 }, { a: 2 }]]);
     expect(relayed.roundTripMs()).toBe(0);
     const got = vi.fn();
@@ -142,7 +143,7 @@ describe('por el servidor', () => {
     const reasons: string[] = [];
     relayed.transport.onClose((why) => reasons.push(why));
     relayed.transport.send({ a: 3 });
-    await vi.advanceTimersByTimeAsync(relayedSettings.batchMs);
+    await vi.advanceTimersByTimeAsync(platformSettings.relayed.batchMs);
     expect(reasons).toEqual(['lost']);
     expect(unsubscribed).toHaveBeenCalled();
   });

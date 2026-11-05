@@ -5,4 +5,6 @@ export const platformSettings = {
   minContractVersion: 1,
   // Los pedidos rechazados se anotan una vez por ventana y por clave (revisión de seguridad, 19).
   rejectedAuditWindow: { max: 1, windowMs: 60_000 },
+  // El limitador barre las claves vencidas con más de 10.000, como mucho una vez por minuto.
+  limiterSweep: { above: 10_000, everyMs: 60_000 },
 };

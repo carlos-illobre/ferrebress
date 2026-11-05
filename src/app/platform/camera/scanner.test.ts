@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { scan, scanEveryMs } from './scanner.ts';
+import { platformSettings } from '../settings.ts';
+import { scan } from './scanner.ts';
 
 describe('la cámara', () => {
   afterEach(() => {
@@ -35,7 +36,7 @@ describe('la cámara', () => {
     );
     const onText = vi.fn();
     const stop = await scan(video, onText, () => {});
-    await vi.advanceTimersByTimeAsync(scanEveryMs * 2);
+    await vi.advanceTimersByTimeAsync(platformSettings.camera.scanEveryMs * 2);
     expect(onText).toHaveBeenCalledWith('texto');
     stop();
     expect(track.stop).toHaveBeenCalled();
@@ -56,7 +57,7 @@ describe('la cámara', () => {
     );
     const onText = vi.fn();
     const stop = await scan(video, onText, () => {});
-    await vi.advanceTimersByTimeAsync(scanEveryMs);
+    await vi.advanceTimersByTimeAsync(platformSettings.camera.scanEveryMs);
     expect(onText.mock.calls.map(([text]) => text)).toEqual([
       'https://otro.example/producto',
       'el bueno',
@@ -81,7 +82,7 @@ describe('la cámara', () => {
     );
     await vi.advanceTimersByTimeAsync(0);
     stop();
-    await vi.advanceTimersByTimeAsync(scanEveryMs * 3);
+    await vi.advanceTimersByTimeAsync(platformSettings.camera.scanEveryMs * 3);
     expect(detect).toHaveBeenCalledTimes(1);
   });
 
@@ -100,10 +101,10 @@ describe('la cámara', () => {
     vi.useFakeTimers();
     const onText = vi.fn();
     const stop = await scan(video, onText, () => {});
-    await vi.advanceTimersByTimeAsync(scanEveryMs);
+    await vi.advanceTimersByTimeAsync(platformSettings.camera.scanEveryMs);
     expect(onText).toHaveBeenCalledWith('zxing');
     stop();
-    await vi.advanceTimersByTimeAsync(scanEveryMs);
+    await vi.advanceTimersByTimeAsync(platformSettings.camera.scanEveryMs);
     vi.doUnmock('@zxing/library');
   });
 

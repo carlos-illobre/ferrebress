@@ -3,10 +3,8 @@
 // un minuto antes de que venza, pero solo con la entrada a la vista: cada nonce nuevo hace que
 // Google vuelva a dibujar su botón, y eso baja unos 60 KB de Google (docs/technical/mobile-data.md).
 // Oculta (otra pestaña, el celular bloqueado) no pide nada; al volver, si ya venció, pide uno.
-import { googleNonceMinutes } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect } from 'preact/hooks';
-
-export const renewAfterMs = (googleNonceMinutes - 1) * 60_000;
+import { signInSettings } from '../settings.ts';
 
 const visible = () => document.visibilityState === 'visible';
 
@@ -22,7 +20,7 @@ export function useNonceRenewal(nonce: string | undefined, shown: boolean, renew
       clearTimeout(timer);
       timer = undefined;
       if (!visible()) return;
-      const left = renewAfterMs - (Date.now() - last);
+      const left = signInSettings.google.renewAfterMs - (Date.now() - last);
       if (left > 0) {
         timer = setTimeout(follow, left);
         return;

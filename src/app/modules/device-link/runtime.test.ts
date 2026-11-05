@@ -3,7 +3,7 @@
 // Wi-Fi aísla los equipos y probar el directo, el directo dormido al ocultarse, desconectar y
 // reconectar, versiones distintas, la confirmación que corta a un otro fuera de regla, y terminar.
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { directSettings } from '../../platform/peer/direct.ts';
+import { platformSettings } from '../../platform/settings.ts';
 import {
   device,
   pause,
@@ -39,8 +39,8 @@ describe('dos dispositivos vinculados', () => {
   });
 
   it('con el Wi-Fi que aísla, van por el servidor; probar el directo, con el Wi-Fi bien, cambia sin cortar', async () => {
-    const before = directSettings.openWithinMs;
-    directSettings.openWithinMs = 30;
+    const before = platformSettings.direct.openWithinMs;
+    platformSettings.direct.openWithinMs = 30;
     try {
       const { pc, phone, server, wifi } = setup();
       wifi.isolate(true);
@@ -59,7 +59,7 @@ describe('dos dispositivos vinculados', () => {
       phone.value.set('ya directo');
       await vi.waitFor(() => expect(pc.value.get()).toBe('ya directo'));
     } finally {
-      directSettings.openWithinMs = before;
+      platformSettings.direct.openWithinMs = before;
     }
   });
 

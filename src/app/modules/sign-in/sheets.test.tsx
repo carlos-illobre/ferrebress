@@ -8,7 +8,7 @@ import { Camera, CodeSheet, OfferSheet, usePhoneCode } from './index.ts';
 import { hasPasskey, offerPasskey, person, wasOffered } from './session.ts';
 import { ana, fakePasskeys } from './sign-in-test-kit.ts';
 
-vi.mock('../../platform/camera/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
+vi.mock('../../platform/camera/scanner.ts', () => ({ scan: vi.fn() }));
 
 const reading = {
   secret: 's',

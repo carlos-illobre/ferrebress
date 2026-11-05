@@ -2,8 +2,8 @@ import 'fake-indexeddb/auto';
 import { render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App.tsx';
-import { renewAfterMs } from './modules/sign-in/google/renew.ts';
 import { person } from './modules/sign-in/session.ts';
+import { signInSettings } from './modules/sign-in/settings.ts';
 import { googleFrame, startReply } from './modules/sign-in/sign-in-test-kit.ts';
 import { store } from './platform/device/storage.ts';
 import { navigate } from './platform/router.ts';
@@ -37,8 +37,8 @@ describe('la entrada abierta', () => {
     google.ready();
     await waitFor(() => expect(google.shown).toHaveBeenCalled());
     // La primera vez sin conexión: sigue con el que tenía y vuelve a probar en el mismo plazo.
-    await later(renewAfterMs);
-    await later(renewAfterMs);
+    await later(signInSettings.google.renewAfterMs);
+    await later(signInSettings.google.renewAfterMs);
     google.ready();
     vi.useRealTimers();
     await waitFor(() =>

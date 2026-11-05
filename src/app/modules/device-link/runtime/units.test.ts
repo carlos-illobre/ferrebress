@@ -4,8 +4,7 @@ import type { PairingView } from '@ferrebress/shared/contracts/device-link';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as z from 'zod/mini';
 import { createMirror } from '../../../platform/mirror/registry.ts';
-import { directSettings } from '../../../platform/peer/direct.ts';
-import { reconnectDelaysMs } from '../../../platform/server/reconnect.ts';
+import { platformSettings } from '../../../platform/settings.ts';
 import { createStore } from '../../../platform/store.ts';
 import { fakeLink, fakeLive } from '../../../testing/live.ts';
 import { pc } from '../../../testing/pairing.ts';
@@ -13,9 +12,9 @@ import { createWifi } from '../../../testing/wifi.ts';
 import { createConfirm } from '../confirm.ts';
 import type { PairingState } from '../machine/types.ts';
 import { createRuntime, type Deps } from '../runtime.ts';
+import { deviceLinkSettings } from '../settings.ts';
 import { runners } from './commands.ts';
 import { answerOffer, closeTransport, onRelay, onSignal, openDirect, promote } from './links.ts';
-import { runtimeSettings } from './live.ts';
 import { attachMirror, sendHello, sendSnapshot } from './mirror-port.ts';
 import { subscribe } from './topic.ts';
 
@@ -53,7 +52,7 @@ describe('abrir y cerrar conexiones', () => {
   });
 
   it('un directo reemplazado antes de abrir no avisa nada; si no se pudo mandar la señal, se anota', async () => {
-    directSettings.openWithinMs = 300;
+    platformSettings.direct.openWithinMs = 300;
     try {
       const { live, notes, events } = fakeLive(waiting, (async () => ({
         ok: false,
@@ -65,7 +64,7 @@ describe('abrir y cerrar conexiones', () => {
       await vi.waitFor(() => expect(events).toEqual([{ type: 'directFailed', attempt: 'b' }]));
       expect(notes).toContain('signal-failed');
     } finally {
-      directSettings.openWithinMs = 5000;
+      platformSettings.direct.openWithinMs = 5000;
     }
   });
 
@@ -127,7 +126,7 @@ describe('el espejo con el otro', () => {
     live.current = link;
     live.deps.mirror.register('grande', 'x'.repeat(70 * 1024), z.string());
     const photo = sendSnapshot(live, false);
-    await vi.advanceTimersByTimeAsync(runtimeSettings.helloWaitMs);
+    await vi.advanceTimersByTimeAsync(deviceLinkSettings.runtime.helloWaitMs);
     await photo;
     expect(notes).toEqual(['hello-timeout', 'too-large']);
     expect(sent).toEqual([]);
@@ -140,7 +139,7 @@ describe('el espejo con el otro', () => {
     live.current = first.link;
     const photo = sendSnapshot(live, false);
     live.current = fakeLink(live, 'b').link;
-    await vi.advanceTimersByTimeAsync(runtimeSettings.helloWaitMs);
+    await vi.advanceTimersByTimeAsync(deviceLinkSettings.runtime.helloWaitMs);
     await photo;
     expect(first.sent).toEqual([]);
   });
@@ -167,7 +166,7 @@ describe('el tema y los comandos', () => {
     subscribe(live, true);
     handler?.onEvent({ present: false });
     handler?.onEvent({ present: true, attempt: 'a' });
-    await vi.advanceTimersByTimeAsync(runtimeSettings.peekMs);
+    await vi.advanceTimersByTimeAsync(deviceLinkSettings.runtime.peekMs);
     expect(live.topic).toBeDefined();
     expect(events).toEqual([{ type: 'peerPresent', attempt: 'a' }]);
   });
@@ -184,10 +183,10 @@ describe('el tema y los comandos', () => {
     live.current = link;
     runners.bye(live, { do: 'bye', why: 'version' as never });
     expect(sent).toEqual([]);
-    const delays = reconnectDelaysMs.splice(0, 5, 1, 1, 1, 1, 1);
+    const delays = platformSettings.reconnect.delaysMs.splice(0, 5, 1, 1, 1, 1, 1);
     runners.retryInternet(live, { do: 'retryInternet' } as never);
     await new Promise((settled) => setTimeout(settled, 10));
-    reconnectDelaysMs.splice(0, 5, ...delays);
+    platformSettings.reconnect.delaysMs.splice(0, 5, ...delays);
     expect(live.check).not.toHaveBeenCalled();
   });
 });

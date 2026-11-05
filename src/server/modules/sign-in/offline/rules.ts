@@ -5,23 +5,8 @@
 // fila para impedir que se use dos veces.
 
 import { can } from '@ferrebress/shared/contracts/can';
-import { offlineWindowHours } from '@ferrebress/shared/contracts/offline-sign-in';
 import type { ClosedReason } from '../sessions/rules.ts';
-
-const minute = 60_000;
-const hour = 60 * minute;
-
-export const offlineSettings = {
-  // Cuánto se puede entrar sin conexión desde el último contacto con sesión (15 · R2.2).
-  windowMs: offlineWindowHours * hour,
-  // El último uso de las sesiones se escribe por tandas: un poco de margen.
-  marginMs: 5 * minute,
-  // Una entrada sin conexión se guarda 30 días; una firma de más de 29 días, o de más de un día en
-  // el futuro (un reloj mal puesto), no se acepta.
-  retentionMs: 30 * 24 * hour,
-  maxAgeMs: 29 * 24 * hour,
-  maxAheadMs: 24 * hour,
-};
+import { signInSettings } from '../settings.ts';
 
 export type OfflineReason =
   | 'deactivated'
@@ -54,9 +39,9 @@ export function rejectionOf(judged: Judged): OfflineReason | undefined {
   if (!lastSession) return 'too-late';
   if (lastSession.closedReason === 'revoked') return 'revoked-session';
   const since = now.getTime() - lastSession.lastUsedAt.getTime();
-  if (since > offlineSettings.windowMs + offlineSettings.marginMs) return 'too-late';
+  if (since > signInSettings.offline.windowMs + signInSettings.offline.marginMs) return 'too-late';
   const age = now.getTime() - signedAt.getTime();
-  return age > offlineSettings.maxAgeMs || -age > offlineSettings.maxAheadMs
+  return age > signInSettings.offline.maxAgeMs || -age > signInSettings.offline.maxAheadMs
     ? 'too-old'
     : undefined;
 }

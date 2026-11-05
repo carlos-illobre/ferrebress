@@ -5,12 +5,10 @@
 // después uno por minuto, hasta que uno llegue (docs/technical/mobile-data.md).
 import { useEffect } from 'preact/hooks';
 import { useCurrent } from '../current.ts';
+import { platformSettings } from '../settings.ts';
 import { useStore } from '../store.ts';
 import { online as onlineStore } from './api.ts';
 import { canReach, watchReach } from './reach.ts';
-
-export const reconnectDelaysMs = [2000, 4000, 8000, 16_000, 32_000];
-export const reconnectEveryMs = 60_000;
 
 export function useReconnect(active: boolean, probe: () => void) {
   const online = useStore(onlineStore);
@@ -26,7 +24,7 @@ export function useReconnect(active: boolean, probe: () => void) {
         tries += 1;
         current();
         next();
-      }, reconnectDelaysMs[tries] ?? reconnectEveryMs);
+      }, platformSettings.reconnect.delaysMs[tries] ?? platformSettings.reconnect.everyMs);
     };
     // Al volver a la vista o la red, se empieza de nuevo por la espera corta.
     const restart = () => {

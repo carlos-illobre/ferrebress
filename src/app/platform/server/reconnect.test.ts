@@ -1,7 +1,8 @@
 import { act, renderHook } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { platformSettings } from '../settings.ts';
 import { online } from './api.ts';
-import { reconnectDelaysMs, reconnectEveryMs, useReconnect } from './reconnect.ts';
+import { useReconnect } from './reconnect.ts';
 
 describe('volver a probar la conexión', () => {
   const hidden = (value: boolean) => {
@@ -27,16 +28,19 @@ describe('volver a probar la conexión', () => {
     const probe = vi.fn();
     renderHook(() => useReconnect(true, probe));
     let elapsed = 0;
-    for (const [index, ms] of [...reconnectDelaysMs, reconnectEveryMs].entries()) {
+    for (const [index, ms] of [
+      ...platformSettings.reconnect.delaysMs,
+      platformSettings.reconnect.everyMs,
+    ].entries()) {
       vi.advanceTimersByTime(ms - 1);
       expect(probe).toHaveBeenCalledTimes(index);
       vi.advanceTimersByTime(1);
       elapsed += ms;
     }
-    expect(probe).toHaveBeenCalledTimes(reconnectDelaysMs.length + 1);
+    expect(probe).toHaveBeenCalledTimes(platformSettings.reconnect.delaysMs.length + 1);
     act(() => online.set(true));
     vi.advanceTimersByTime(elapsed);
-    expect(probe).toHaveBeenCalledTimes(reconnectDelaysMs.length + 1);
+    expect(probe).toHaveBeenCalledTimes(platformSettings.reconnect.delaysMs.length + 1);
   });
 
   it('prueba con lo que pide la pantalla ahora, aunque haya cambiado mientras esperaba', () => {
@@ -49,7 +53,7 @@ describe('volver a probar la conexión', () => {
       initialProps: { probe: before },
     });
     rerender({ probe: now });
-    vi.advanceTimersByTime(reconnectDelaysMs[0] as number);
+    vi.advanceTimersByTime(platformSettings.reconnect.delaysMs[0] as number);
     expect(before).not.toHaveBeenCalled();
     expect(now).toHaveBeenCalledOnce();
   });
@@ -62,19 +66,19 @@ describe('volver a probar la conexión', () => {
     const { rerender } = renderHook(({ active }) => useReconnect(active, probe), {
       initialProps: { active: true },
     });
-    vi.advanceTimersByTime(reconnectEveryMs * 5);
+    vi.advanceTimersByTime(platformSettings.reconnect.everyMs * 5);
     browser.mockReturnValue(true);
     hidden(true);
-    vi.advanceTimersByTime(reconnectEveryMs * 5);
+    vi.advanceTimersByTime(platformSettings.reconnect.everyMs * 5);
     expect(probe).not.toHaveBeenCalled();
     hidden(false);
-    vi.advanceTimersByTime(reconnectDelaysMs[0] as number);
+    vi.advanceTimersByTime(platformSettings.reconnect.delaysMs[0] as number);
     expect(probe).toHaveBeenCalledOnce();
     dispatchEvent(new Event('online'));
-    vi.advanceTimersByTime(reconnectDelaysMs[0] as number);
+    vi.advanceTimersByTime(platformSettings.reconnect.delaysMs[0] as number);
     expect(probe).toHaveBeenCalledTimes(2);
     rerender({ active: false });
-    vi.advanceTimersByTime(reconnectEveryMs * 5);
+    vi.advanceTimersByTime(platformSettings.reconnect.everyMs * 5);
     expect(probe).toHaveBeenCalledTimes(2);
   });
 });

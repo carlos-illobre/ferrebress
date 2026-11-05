@@ -21,7 +21,7 @@ import { later } from './testing/later.ts';
 // vacío y no pide nada.
 vi.mock('./modules/users/index.ts', () => ({ UsersSlot: () => null }));
 
-vi.mock('./platform/camera/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
+vi.mock('./platform/camera/scanner.ts', () => ({ scan: vi.fn() }));
 
 const reading = {
   secret: 's',

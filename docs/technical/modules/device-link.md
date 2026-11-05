@@ -721,7 +721,7 @@ por casualidad: cada uno **exige** una confirmación reciente antes de mandar o 
 - **Por el servidor** no hace falta: el servidor mira el vínculo y la sesión del otro en cada `relay`.
 - **Sin internet** (R3.4): si confirmar falla porque no hay conexión, se sigue con la última
   confirmación buena mientras este dispositivo no llegue al servidor. Al volver internet, lo primero es
-  confirmar. Hasta 30 minutos (`confirmSettings.offlineMs`): después la máquina recibe `peerGone('lost')`,
+  confirmar. Hasta 30 minutos (`deviceLinkSettings.confirm.offlineMs`, en el `settings.ts` del módulo): después la máquina recibe `peerGone('lost')`,
   deja de espejar y queda «Sin internet» hasta llegar al servidor. El tope es porque el otro sí puede
   hacer que le falte internet: en el mismo Wi-Fi, cortándole el camino al servidor sin cortar el Wi-Fi
   (revisión de seguridad del código, 7).

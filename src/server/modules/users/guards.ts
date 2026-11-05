@@ -5,15 +5,7 @@ import type { Context } from 'hono';
 import { createGuards } from '../../platform/guards.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { sessionOf } from '../../platform/session.ts';
-
-const minute = 60_000;
-export const usersSettings = {
-  // Los cambios desde Usuarios, por sesión (02, § 9).
-  changes: { max: 60, windowMs: minute },
-  throttledAudit: { max: 1, windowMs: minute },
-  // Autorizar, cambiar el correo y dar de alta, con Google o la huella de hace menos de esto (R3.8).
-  confirmWithinMs: 5 * minute,
-};
+import { usersSettings } from './settings.ts';
 
 export type Rejection = UsersErrorCode | 'not-found' | 'bad-request' | 'forbidden';
 

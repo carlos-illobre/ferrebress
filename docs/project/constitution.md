@@ -173,6 +173,10 @@ Además:
 - **Cada archivo se explica solo.** Empieza con un comentario que dice de qué se encarga y por qué
   existe, sin repetir lo que ya dice su nombre. Quien cambia el código, cambia ese comentario si
   deja de ser cierto. Las pruebas no lo llevan: su primer `describe` dice qué prueban.
+- **Los tiempos y los topes, con nombre y en un solo lugar:** cada módulo tiene los suyos en su
+  `settings.ts`, en el servidor y en la aplicación, y la plataforma y las piezas de la interfaz, en
+  el suyo. Cada uno dice, en su comentario, de qué regla sale. Nadie escribe un número de
+  milisegundos, minutos o reintentos en otro archivo; las pruebas los cambian ahí.
 - **La regla de negocio nunca está en el mismo archivo que la tecnología.** El archivo de reglas
   no importa el framework web, la base ni el navegador.
 - **Patrones solo donde sacan acoplamiento real**, de esta lista: fachada por módulo, estrategia

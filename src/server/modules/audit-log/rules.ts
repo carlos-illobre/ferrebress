@@ -26,6 +26,7 @@ import {
   mondayOf,
   startOfBusinessDate,
 } from '@ferrebress/shared/time/business';
+import { auditLogSettings } from './settings.ts';
 
 // Lo que entiende la consulta (platform/storage/audit/query.ts), sin importarla: es tecnología.
 export type Filter = {
@@ -58,8 +59,6 @@ export type Stored = {
 
 // Nada anterior a esto: el sistema no existía.
 export const firstDate = '2020-01-01';
-// Con más que esto en un día, la tira va de a una raya por minuto y la cinta no se abre (R4.9, R4.11).
-export const dayLimit = 2_000;
 
 // Los atajos (R4.5), con el día del servidor (constitución, VI).
 const ranges: Record<Range, (today: BusinessDate) => Period> = {
@@ -165,7 +164,8 @@ export type Mark = { id: string; at: number; tone: AuditView['tone'] };
 // La tira de un día (R4.9): una raya por acción; con más de 2.000, la más nueva de cada minuto.
 export function stripOf(marks: Mark[], dayStart: number): StripMark[] {
   const seconds = (at: number) => Math.floor((at - dayStart) / 1000);
-  if (marks.length <= dayLimit) return marks.map((mark) => ({ ...mark, at: seconds(mark.at) }));
+  if (marks.length <= auditLogSettings.dayLimit)
+    return marks.map((mark) => ({ ...mark, at: seconds(mark.at) }));
   const byMinute = new Map<number, StripMark>();
   for (const mark of marks) {
     const at = seconds(mark.at);

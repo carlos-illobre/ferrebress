@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { signInSettings } from '../settings.ts';
 import { eva, resetOffline } from './offline-kit.ts';
 import {
   contacted,
@@ -8,7 +9,6 @@ import {
   offlineOption,
   offlineSessionOver,
   offlineUntil,
-  offlineWindowMs,
   revokeOffline,
   updateOffline,
 } from './option.ts';
@@ -26,8 +26,8 @@ describe('hasta cuándo se puede entrar sin conexión', () => {
     contacted(at);
     expect(offlineUntil(at)).toBeUndefined();
     enableOffline(eva);
-    expect(offlineUntil(at + minute)).toEqual(new Date(at + offlineWindowMs));
-    expect(offlineUntil(at + offlineWindowMs)).toBeUndefined();
+    expect(offlineUntil(at + minute)).toEqual(new Date(at + signInSettings.offline.windowMs));
+    expect(offlineUntil(at + signInSettings.offline.windowMs)).toBeUndefined();
     expect(lastContactAt()).toBe(at);
   });
 
@@ -47,7 +47,7 @@ describe('hasta cuándo se puede entrar sin conexión', () => {
     contacted(at);
     expect(offlineSessionOver(at + minute)).toBe(false);
     expect(offlineSessionOver(at - 6 * minute)).toBe(true);
-    expect(offlineSessionOver(at + offlineWindowMs)).toBe(true);
+    expect(offlineSessionOver(at + signInSettings.offline.windowMs)).toBe(true);
   });
 
   it('users-E52: la persona de la opción guarda su nombre, sus roles y permisos de ahora, y nunca el correo', () => {

@@ -2,10 +2,10 @@
 // tiene, y si no, con ZXing, que se baja recién al tocar «Escanear». Lee un cuadro cada 250 ms
 // hasta que se cierre la cámara, y avisa cada texto que lee: quien la usa decide si le sirve, así un
 // QR ajeno (el de un producto, uno de un pago) no la deja sin leer.
+import { platformSettings } from '../settings.ts';
+
 type Detector = { detect(source: HTMLVideoElement): Promise<{ rawValue: string }[]> };
 type WithDetector = { BarcodeDetector?: new (options: { formats: string[] }) => Detector };
-
-export const scanEveryMs = 250;
 
 async function detector(): Promise<(video: HTMLVideoElement) => Promise<string | undefined>> {
   const Native = (globalThis as WithDetector).BarcodeDetector;
@@ -46,7 +46,7 @@ export async function scan(
       if (stopped) return;
       const text = await read(video).catch(() => undefined);
       if (text) onText(text);
-      setTimeout(tick, scanEveryMs);
+      setTimeout(tick, platformSettings.camera.scanEveryMs);
     };
     void tick();
   } catch {

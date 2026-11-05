@@ -1,7 +1,8 @@
 // El diario de la conexión (diseño de 03, § 15.1): sin personas ni valores, las últimas 300, y se
 // guarda al ocultarse la pestaña y cada 10 s si cambió.
 import { afterEach, describe, expect, it } from 'vitest';
-import { createJournal, journalSettings, keyName } from './journal.ts';
+import { createJournal, keyName } from './journal.ts';
+import { deviceLinkSettings } from './settings.ts';
 
 const pairing = {
   id: 'secreto',
@@ -84,21 +85,21 @@ describe('el diario', () => {
         return () => undefined;
       },
     });
-    for (let i = 0; i < journalSettings.size + 5; i++) journal.note('n', { i });
-    expect(journal.entries()).toHaveLength(journalSettings.size);
+    for (let i = 0; i < deviceLinkSettings.journal.size + 5; i++) journal.note('n', { i });
+    expect(journal.entries()).toHaveLength(deviceLinkSettings.journal.size);
     expect(journal.entries()[0]?.i).toBe(5);
-    expect(localStorage.getItem(journalSettings.key)).toBeNull();
+    expect(localStorage.getItem(deviceLinkSettings.journal.key)).toBeNull();
     tick();
-    expect(JSON.parse(localStorage.getItem(journalSettings.key) as string)).toHaveLength(
-      journalSettings.size,
+    expect(JSON.parse(localStorage.getItem(deviceLinkSettings.journal.key) as string)).toHaveLength(
+      deviceLinkSettings.journal.size,
     );
     localStorage.clear();
     tick();
-    expect(localStorage.getItem(journalSettings.key)).toBeNull();
+    expect(localStorage.getItem(deviceLinkSettings.journal.key)).toBeNull();
     journal.note('otra');
     Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
     document.dispatchEvent(new Event('visibilitychange'));
-    expect(localStorage.getItem(journalSettings.key)).not.toBeNull();
+    expect(localStorage.getItem(deviceLinkSettings.journal.key)).not.toBeNull();
     Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
     document.dispatchEvent(new Event('visibilitychange'));
     journal.note('al parar');

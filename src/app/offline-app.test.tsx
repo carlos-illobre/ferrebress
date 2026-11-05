@@ -10,7 +10,7 @@ import { googleFrame, startReply } from './modules/sign-in/sign-in-test-kit.ts';
 import { store } from './platform/device/storage.ts';
 import { fakeServer } from './testing/fake-server.ts';
 
-vi.mock('./platform/camera/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
+vi.mock('./platform/camera/scanner.ts', () => ({ scan: vi.fn() }));
 
 // Una sesión abierta sin conexión, con su entrada por confirmar.
 function enteredOffline() {

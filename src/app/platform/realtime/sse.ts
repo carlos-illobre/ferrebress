@@ -6,6 +6,7 @@
 // abrir (03 · R7.2). Si el servidor lo rechaza (sin sesión, sin permiso, un pedido mal hecho), no
 // insiste: avisa y termina.
 import { canReach, watchReach } from '../server/reach.ts';
+import { platformSettings } from '../settings.ts';
 
 export type StreamEvent = { type: string; data: unknown };
 
@@ -21,7 +22,6 @@ export type StreamOptions = {
 };
 
 const maxRetries = 3;
-export const defaultSilenceMs = 55_000;
 const refusals = new Set([400, 401, 403, 404]);
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -41,7 +41,7 @@ async function attempt(
     if (refusals.has(response.status)) return { refused: response.status };
     if (!response.ok || !response.body) return {};
     opened();
-    const awake = watchdog(silence, options.silenceMs ?? defaultSilenceMs);
+    const awake = watchdog(silence, options.silenceMs ?? platformSettings.realtime.silenceMs);
     const stop = AbortSignal.any([signal, silence.signal]);
     await readEvents(response.body, options.onEvent, awake, stop);
   } catch {

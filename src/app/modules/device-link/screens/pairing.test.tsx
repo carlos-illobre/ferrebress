@@ -9,8 +9,9 @@ import { linkRuntime } from '../current.ts';
 import { detailOpen, reading } from '../detail.ts';
 import type { PairingState } from '../machine/types.ts';
 import type { Runtime } from '../runtime.ts';
+import { deviceLinkSettings } from '../settings.ts';
 import { Code } from './Code/Code.tsx';
-import { doneMs, Layer } from './Detail/Over.tsx';
+import { Layer } from './Detail/Over.tsx';
 import { Read } from './Read/Read.tsx';
 
 let topic: TopicHandler | undefined;
@@ -89,7 +90,7 @@ describe('vincular desde el detalle', () => {
     act(() => topic?.onEvent({ paired: pc }));
     expect(runtime.dispatch).toHaveBeenCalledWith({ type: 'serverSaid', pairing: pc });
     act(() => {
-      vi.advanceTimersByTime(doneMs);
+      vi.advanceTimersByTime(deviceLinkSettings.doneMs);
     });
     expect(screen.queryByText('Sirve una vez')).toBeNull();
     detailOpen.set(false);

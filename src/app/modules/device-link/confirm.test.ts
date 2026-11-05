@@ -4,7 +4,8 @@
 import type { CheckResponse } from '@ferrebress/shared/contracts/device-link';
 import { describe, expect, it, vi } from 'vitest';
 import type { ApiResult } from '../../platform/server/api.ts';
-import { confirmSettings, createConfirm, eventOfVerdict, verdictOf } from './confirm.ts';
+import { createConfirm, eventOfVerdict, verdictOf } from './confirm.ts';
+import { deviceLinkSettings } from './settings.ts';
 
 const pairing = {
   id: 'v',
@@ -56,7 +57,7 @@ describe('la confirmación del vínculo', () => {
     expect(check).toHaveBeenCalledWith('fp');
     confirm.gate(() => order.push(3));
     expect(order).toEqual([1, 2, 3]);
-    pass(confirmSettings.maxAgeMs);
+    pass(deviceLinkSettings.confirm.maxAgeMs);
     confirm.gate(() => order.push(4));
     expect(order).toEqual([1, 2, 3]);
     await answer();
@@ -99,7 +100,7 @@ describe('la confirmación del vínculo', () => {
     await answer();
     expect(run).not.toHaveBeenCalled();
     expect(await Promise.all([confirm.ensure(1000), answer()]).then(([v]) => v)).toBe(true);
-    pass(confirmSettings.maxAgeMs);
+    pass(deviceLinkSettings.confirm.maxAgeMs);
     confirm.gate(run);
     await answer();
     expect(run).toHaveBeenCalledTimes(1);
@@ -111,7 +112,7 @@ describe('la confirmación del vínculo', () => {
     const run = vi.fn();
     confirm.gate(run);
     await answer();
-    pass(confirmSettings.offlineMs - 1);
+    pass(deviceLinkSettings.confirm.offlineMs - 1);
     confirm.gate(run);
     await answer();
     expect(run).toHaveBeenCalledTimes(2);

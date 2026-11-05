@@ -4,7 +4,8 @@ import { act, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createStore } from '../../platform/store.ts';
 import { pairingView } from '../../testing/pairing.ts';
-import { Toasts, toastWithActionMs } from '../../ui/toast/Toast.tsx';
+import { uiSettings } from '../../ui/settings.ts';
+import { Toasts } from '../../ui/toast/Toast.tsx';
 import { reading, unpairAsked } from './detail.ts';
 import type { PairingState } from './machine/types.ts';
 import { watchReplaced } from './replaced.ts';
@@ -38,7 +39,7 @@ describe('el reemplazo al entrar a otra computadora', () => {
     expect(unpairAsked.get()).toBe(true);
     act(() => state.set(phoneWith('c', 'Otra')));
     act(() => {
-      vi.advanceTimersByTime(toastWithActionMs);
+      vi.advanceTimersByTime(uiSettings.toast.withActionMs);
     });
     expect(screen.queryByRole('status')).toBeNull();
     stop();

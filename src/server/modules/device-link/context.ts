@@ -36,7 +36,7 @@ export function createDeviceLinkContext(platform: Platform, { wait }: DeviceLink
     computers: new Map<string, Device>(),
     tickets: createOneUse<Ticket>(platform.clock, {
       ttlMs: deviceLinkSettings.ticketTtlMs,
-      maxTotal: 10_000,
+      maxTotal: deviceLinkSettings.ticketsMax,
       maxPerOwner: 1,
       replaceOldest: true,
     }),

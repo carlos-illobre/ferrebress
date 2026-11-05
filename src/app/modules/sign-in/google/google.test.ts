@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { signInSettings } from '../settings.ts';
 import { connectGoogleFrame } from './connect.ts';
 import { forgetGoogleChoice } from './messages.ts';
-import { drawnWithinMs, showGoogleButton } from './page/button.ts';
+import { showGoogleButton } from './page/button.ts';
 import { startGoogleFrame } from './page/frame.ts';
 
 const scriptUrl = 'https://accounts.google.com/gsi/client';
@@ -125,7 +126,7 @@ describe('el botón de Google', () => {
     await failing.drawing;
     expect(failing.done()).toBe(true);
     const slow = shown();
-    await vi.advanceTimersByTimeAsync(drawnWithinMs);
+    await vi.advanceTimersByTimeAsync(signInSettings.google.drawnWithinMs);
     await slow.drawing;
     expect(slow.done()).toBe(true);
     styles.remove();

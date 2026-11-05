@@ -2,9 +2,8 @@
 // tocó muestra su marca, y pasados 2 segundos una barra dice qué se está haciendo. Mientras tanto,
 // volver a tocarlo no hace nada, para que nada se mande dos veces.
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { platformSettings } from './settings.ts';
 import { createStore } from './store.ts';
-
-export const waitSettings = { markAfterMs: 300, barAfterMs: 2000 };
 
 export type WaitPhase = 'idle' | 'quiet' | 'mark' | 'bar';
 
@@ -28,11 +27,11 @@ export function useWaiting() {
     running.current = true;
     setPhase('quiet');
     timers.current = [
-      setTimeout(() => setPhase('mark'), waitSettings.markAfterMs),
+      setTimeout(() => setPhase('mark'), platformSettings.waiting.markAfterMs),
       setTimeout(() => {
         setPhase('bar');
         waitBar.set(doing);
-      }, waitSettings.barAfterMs),
+      }, platformSettings.waiting.barAfterMs),
     ];
     try {
       return await task();

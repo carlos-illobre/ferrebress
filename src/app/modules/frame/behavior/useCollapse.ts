@@ -2,8 +2,7 @@
 // con transform y opacity, y sin animar con «reducir movimiento». Siempre arranca agrandado: no se
 // guarda nada.
 import { useEffect, useRef, useState } from 'preact/hooks';
-
-export const collapseMs = 240;
+import { frameSettings } from '../settings.ts';
 
 export type CollapsePhase = 'closing' | 'opening' | undefined;
 
@@ -31,7 +30,7 @@ export function useCollapse() {
         setPhase(undefined);
         setCollapsed(collapse);
       },
-      collapse ? collapseMs : collapseMs + 100,
+      collapse ? frameSettings.collapseMs : frameSettings.collapseMs + 100,
     );
   }
 

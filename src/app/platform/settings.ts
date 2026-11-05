@@ -1,0 +1,26 @@
+// Los tiempos y topes de la plataforma de la aplicación: todos con nombre, en un lugar. Cada módulo
+// tiene los suyos en su `settings.ts`; las pruebas los cambian acá para no esperar de verdad.
+const second = 1000;
+const minute = 60 * second;
+
+export const platformSettings = {
+  // Sin conexión, cuándo vuelve a probar con la pantalla a la vista: a los 2, 4, 8, 16 y 32 s y
+  // después cada minuto (01 · R2.8, 03 · R3.4).
+  reconnect: {
+    delaysMs: [2 * second, 4 * second, 8 * second, 16 * second, 32 * second],
+    everyMs: minute,
+  },
+  // Lo que tarda: la marca de espera a los 300 ms y la barra a los 2 s (00 · R7.2, R7.3).
+  waiting: { markAfterMs: 300, barAfterMs: 2 * second },
+  // El canal en tiempo real: sin nada del servidor en 55 s (el latido es cada 40 s), está cortado.
+  realtime: { silenceMs: 55 * second },
+  // El respaldo por el servidor junta lo de 50 ms en un pedido (diseño de 03, § 4.3).
+  relayed: { batchMs: 50 },
+  // El directo: cuánto espera para abrir, cuánto sin respuesta lo da por perdido, cuánto espera
+  // candidatos de más y el tope para juntarlos (diseño de 03, § 4.2).
+  direct: { openWithinMs: 5 * second, lostAfterMs: 5 * second, quietMs: 300, capMs: second },
+  // El que sigue espera que el otro le mande lo que pidió antes de pedirlo él (diseño de 03, § 5.3).
+  mirror: { followerWaitMs: 3 * second },
+  // Cada cuánto mira la cámara si hay un código.
+  camera: { scanEveryMs: 250 },
+};

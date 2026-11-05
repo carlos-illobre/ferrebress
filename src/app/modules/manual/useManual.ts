@@ -17,6 +17,7 @@ import { type Loaded, manualApi } from './files/api.ts';
 import { useOnline } from './files/online.ts';
 import { readAddress, validAddress, writeAddress } from './place/address.ts';
 import { minQuery, searchManual } from './search.ts';
+import { manualSettings } from './settings.ts';
 import { type Action, type ManualState, reduce, startState } from './state.ts';
 
 export type Failure = 'offline' | 'missing';
@@ -98,7 +99,7 @@ function useSearch(index: ManualIndex | Failure | undefined, device: Device) {
   // local: lo que trae el servidor.
   const [tasks, setTasks] = useState<Partial<Record<Device, SearchTask[] | Failure>>>({});
   useEffect(() => {
-    const wait = setTimeout(() => setSearched(query), 150);
+    const wait = setTimeout(() => setSearched(query), manualSettings.searchAfterMs);
     return () => clearTimeout(wait);
   }, [query]);
   const ready = tasks[device];

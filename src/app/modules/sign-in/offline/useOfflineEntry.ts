@@ -3,9 +3,8 @@
 // así el aviso se apaga solo cuando se cumple el plazo (E08).
 import { useEffect, useState } from 'preact/hooks';
 import { useStore } from '../../../platform/store.ts';
+import { signInSettings } from '../settings.ts';
 import { offlineOption, offlineUntil } from './option.ts';
-
-const minute = 60_000;
 
 export function useOfflineEntry(online: boolean, phone: boolean): Date | undefined {
   const current = useStore(offlineOption);
@@ -14,7 +13,7 @@ export function useOfflineEntry(online: boolean, phone: boolean): Date | undefin
     if (online || !phone) return setUntil(undefined);
     const check = () => setUntil(offlineUntil());
     check();
-    const timer = setInterval(check, minute);
+    const timer = setInterval(check, signInSettings.offline.checkEveryMs);
     document.addEventListener('visibilitychange', check);
     return () => {
       clearInterval(timer);

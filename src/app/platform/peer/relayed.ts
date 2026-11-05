@@ -3,9 +3,8 @@
 // el transporte no nombra ninguna ruta ni tema. La latencia es lo que tarda el último envío, por dos.
 // Cerrarlo manda lo que quedaba pendiente.
 import type { Json } from '../mirror/registry.ts';
+import { platformSettings } from '../settings.ts';
 import { createTransport } from './transport.ts';
-
-export const relayedSettings = { batchMs: 50 };
 
 type Options = {
   send(batch: Json[]): Promise<boolean>;
@@ -31,7 +30,7 @@ export function createRelayed({ send, subscribe }: Options) {
     'relayed',
     (text) => {
       pending.push(JSON.parse(text) as Json);
-      timer ??= setTimeout(() => void flush(), relayedSettings.batchMs);
+      timer ??= setTimeout(() => void flush(), platformSettings.relayed.batchMs);
     },
     // Al cerrar, lo que quedaba por mandar sale igual (el adiós, la pausa), sin esperar respuesta.
     () => {

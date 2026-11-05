@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useStore } from '../../../../platform/store.ts';
 import { linkStrip } from '../../current.ts';
+import { deviceLinkSettings } from '../../settings.ts';
 import type { Lane, StripView } from '../../strip.ts';
 import { clock, detailTexts, duration } from './texts.ts';
 
@@ -18,7 +19,7 @@ function useStrip(): StripView | undefined {
     const update = () => setView(strip.view());
     update();
     // Ahora avanza: cada minuto se vuelve a medir.
-    const timer = setInterval(update, 60_000);
+    const timer = setInterval(update, deviceLinkSettings.todayEveryMs);
     const stop = strip.subscribe(update);
     return () => {
       clearInterval(timer);

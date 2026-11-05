@@ -1,6 +1,7 @@
 // Lo que hace cada comando de la máquina (diseño de 03, § 8.3), uno por nombre: sumar un comando sin
 // decir qué hace no compila. Ninguno tira: lo que falla se anota en el diario.
-import { reconnectDelaysMs, reconnectEveryMs } from '../../../platform/server/reconnect.ts';
+
+import { platformSettings } from '../../../platform/settings.ts';
 import type { Command } from '../machine/types.ts';
 import type { ByeReason } from '../wire.ts';
 import { answerOffer, closeTransport, openDirect, openRelayed } from './links.ts';
@@ -37,7 +38,7 @@ function retryInternet(live: Live, tries = 0): void {
     if (live.state().kind !== 'offline') return;
     await live.check();
     retryInternet(live, tries + 1);
-  }, reconnectDelaysMs[tries] ?? reconnectEveryMs);
+  }, platformSettings.reconnect.delaysMs[tries] ?? platformSettings.reconnect.everyMs);
 }
 
 export const runners: Runners = {

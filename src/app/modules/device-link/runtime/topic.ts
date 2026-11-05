@@ -5,8 +5,9 @@
 import { sides } from '@ferrebress/shared/contracts/pairing';
 import * as z from 'zod/mini';
 import { flag, oneOf } from '../../../platform/schema.ts';
+import { deviceLinkSettings } from '../settings.ts';
 import { onRelay, onSignal } from './links.ts';
-import { type Live, pairingToken, runtimeSettings } from './live.ts';
+import { type Live, pairingToken } from './live.ts';
 
 // Lo que dice el tema, según qué trae.
 // El vínculo como lo ve este dispositivo: lo dice el tema y lo dice `/api/start`.
@@ -48,7 +49,7 @@ function onPresence(live: Live, topic: Topic, present: boolean, attempt?: string
   // El celular se fijó y el otro no está: lo espera un rato y deja el tema. Por el respaldo, el otro
   // se fue.
   if (topic.peeking) {
-    setTimeout(() => leaveIfAlone(live, topic), runtimeSettings.peekMs);
+    setTimeout(() => leaveIfAlone(live, topic), deviceLinkSettings.runtime.peekMs);
     return;
   }
   live.enqueue(() => {

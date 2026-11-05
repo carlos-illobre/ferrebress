@@ -3,9 +3,8 @@
 // hilo; pasados 2 s, «Conectando con Google…»; a los 8 s sin el botón, «Google no responde ·
 // Reintentar». Sin conexión, lo dice. Al volver la conexión, o con «Reintentar», se pide de nuevo.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { waitSettings } from '../../../../../platform/waiting.ts';
-
-export const googleFailAfterMs = 8000;
+import { platformSettings } from '../../../../../platform/settings.ts';
+import { signInSettings } from '../../../settings.ts';
 
 export type GooglePhase = 'empty' | 'loading' | 'slow' | 'failed' | 'ready' | 'offline';
 
@@ -29,9 +28,9 @@ export function useGooglePhase(drawn: boolean, online: boolean, retry: () => voi
         setWaiting(phase);
       }, ms);
     const timers = [
-      at('loading', waitSettings.markAfterMs),
-      at('slow', waitSettings.barAfterMs),
-      at('failed', googleFailAfterMs),
+      at('loading', platformSettings.waiting.markAfterMs),
+      at('slow', platformSettings.waiting.barAfterMs),
+      at('failed', signInSettings.google.failAfterMs),
     ];
     return () => {
       for (const timer of timers) clearTimeout(timer);

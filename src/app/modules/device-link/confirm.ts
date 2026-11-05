@@ -8,8 +8,7 @@
 import type { CheckResponse, PairingView } from '@ferrebress/shared/contracts/device-link';
 import type { ApiResult } from '../../platform/server/api.ts';
 import type { PairingEvent } from './machine/types.ts';
-
-export const confirmSettings = { maxAgeMs: 4 * 60_000, offlineMs: 30 * 60_000 };
+import { deviceLinkSettings } from './settings.ts';
 
 export type Verdict = 'ok' | 'gone' | 'none' | 'offline';
 
@@ -57,7 +56,7 @@ async function ask(now: Connection, { check, onVerdict, now: clock }: Required<O
   const verdict = verdictOf(result);
   if (verdict === 'offline') {
     if (now.confirmedAt === undefined) return false;
-    if (clock() - now.confirmedAt < confirmSettings.offlineMs) return true;
+    if (clock() - now.confirmedAt < deviceLinkSettings.confirm.offlineMs) return true;
     now.confirmedAt = undefined;
     onVerdict('stale', undefined);
     return false;
@@ -119,11 +118,11 @@ export function createConfirm(options: Options) {
     ensure,
     // Lo que sale o entra por el espejo: ahora si la confirmación está fresca; si no, cuando llegue.
     gate(run: () => void) {
-      const open = now.held.length === 0 && fresh(confirmSettings.maxAgeMs);
+      const open = now.held.length === 0 && fresh(deviceLinkSettings.confirm.maxAgeMs);
       if (now.fingerprint === undefined || open) return run();
       now.held.push(run);
       if (now.held.length === 1)
-        void ensure(confirmSettings.maxAgeMs).then(release(now.generation));
+        void ensure(deviceLinkSettings.confirm.maxAgeMs).then(release(now.generation));
     },
   };
 }

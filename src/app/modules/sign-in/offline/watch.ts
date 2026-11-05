@@ -5,6 +5,7 @@
 // abierta sin conexión se corta a las 24 horas del último contacto (R2.7).
 import { lastReply, sessionClosed } from '../../../platform/server/api.ts';
 import { offlineSession, person } from '../session.ts';
+import { signInSettings } from '../settings.ts';
 import {
   contacted,
   disableOffline,
@@ -13,8 +14,6 @@ import {
   revokeOffline,
   updateOffline,
 } from './option.ts';
-
-const minute = 60_000;
 
 function checkPerson(): void {
   const who = person.get();
@@ -46,7 +45,7 @@ function replied(at: number | undefined): void {
 export function watchOffline(): () => void {
   checkPerson();
   checkDeadline();
-  const timer = setInterval(checkDeadline, minute);
+  const timer = setInterval(checkDeadline, signInSettings.offline.checkEveryMs);
   document.addEventListener('visibilitychange', checkDeadline);
   const stops = [
     lastReply.subscribe(replied),

@@ -81,12 +81,6 @@ export const isComputerHere = (live: Live) => {
   return 'pairing' in state && state.pairing.side === 'computer';
 };
 
-// Cuánto se conserva un directo dormido (E22) y cuánto espera la foto el saludo del otro.
-// `peekMs`: cuánto sigue escuchando el celular que se fijó y no encontró al otro. Al vincular o al
-// reconectar los dos se enteran casi a la vez: si el celular se fija un instante antes de que la
-// computadora escuche, sin esta espera no se encontrarían hasta el próximo pedido de alguno.
-export const runtimeSettings = { dormantMs: 5 * 60_000, helloWaitMs: 5000, peekMs: 30_000 };
-
 // Cierra una conexión: deja de escucharla y la cierra (sin avisar a la máquina: es de acá).
 export function shut(link: Link | undefined): void {
   if (!link) return;

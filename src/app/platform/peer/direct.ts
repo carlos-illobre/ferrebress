@@ -3,10 +3,9 @@
 // lado decide que falló: el que ofrece, si el canal no abre en 5 s. Abierto, ICE comprueba la
 // conexión solo; si queda cortada más de 5 s, o falla, el transporte se cierra con `lost`.
 import { filterCandidates, fingerprintOf } from '@ferrebress/shared/peer/candidates';
+import { platformSettings } from '../settings.ts';
 import type { RtcChannel, RtcConnection } from './rtc.ts';
 import { createTransport } from './transport.ts';
-
-export const directSettings = { openWithinMs: 5000, lostAfterMs: 5000, quietMs: 300, capMs: 1000 };
 
 type Options = {
   connection: RtcConnection;
@@ -36,7 +35,10 @@ function watch(connection: RtcConnection) {
     clearTimeout(lostTimer);
     if (state === 'failed') base.transport.close('lost');
     if (state === 'disconnected')
-      lostTimer = setTimeout(() => base.transport.close('lost'), directSettings.lostAfterMs);
+      lostTimer = setTimeout(
+        () => base.transport.close('lost'),
+        platformSettings.direct.lostAfterMs,
+      );
   });
   base.transport.onClose(() => opened.resolve(false));
   return { base, opened, ice: () => ice };
@@ -46,7 +48,7 @@ export function createDirect({ connection, signal }: Options) {
   const { base, opened, ice } = watch(connection);
 
   const described = async () => {
-    await connection.gathered(directSettings.quietMs, directSettings.capMs);
+    await connection.gathered(platformSettings.direct.quietMs, platformSettings.direct.capMs);
     return filterCandidates(connection.localDescription());
   };
 
@@ -56,7 +58,10 @@ export function createDirect({ connection, signal }: Options) {
     async offer(): Promise<boolean> {
       await connection.offer();
       await signal('offer', await described());
-      const timer = setTimeout(() => base.transport.close('failed'), directSettings.openWithinMs);
+      const timer = setTimeout(
+        () => base.transport.close('failed'),
+        platformSettings.direct.openWithinMs,
+      );
       const ok = await opened.promise;
       clearTimeout(timer);
       return ok;

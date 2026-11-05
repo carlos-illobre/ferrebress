@@ -2,9 +2,8 @@
 // pasar el mouse o al llegar con la marca, R1.6) y el que explica que algo todavía no está (R1.3),
 // que se va solo a los 2,6 segundos.
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { frameSettings } from '../settings.ts';
 import { beside, type Place } from './usePanels.ts';
-
-export const notYetMs = 2600;
 
 export type Tip = Place & { kind: 'label' | 'notYet'; name: string; detail?: string };
 
@@ -44,7 +43,7 @@ export function useTip(labelled: (element: HTMLElement) => boolean) {
     notYet(element: HTMLElement, name: string) {
       clearTimeout(timer.current);
       setTip({ kind: 'notYet', name, ...beside(element) });
-      timer.current = setTimeout(() => setTip(undefined), notYetMs);
+      timer.current = setTimeout(() => setTip(undefined), frameSettings.tipMs);
     },
   };
 }

@@ -20,7 +20,6 @@ import type { Span } from '../../platform/storage/audit/query.ts';
 import type { AuditReader } from '../../platform/storage/audit/reader.ts';
 import {
   dayCount,
-  dayLimit,
   daysOf,
   type Filter,
   filterOf,
@@ -34,9 +33,7 @@ import {
   viewOf,
   weekEndingOn,
 } from './rules.ts';
-
-const minute = 60_000;
-const auditLogSettings = { reads: { max: 60, windowMs: minute } };
+import { auditLogSettings } from './settings.ts';
 
 // Las preguntas a la auditoría, con su tipo.
 function asking(reader: AuditReader) {
@@ -60,7 +57,7 @@ export function registerAuditLogRoutes(platform: Platform, reader: AuditReader) 
   const ask = asking(reader);
   const guards = createGuards(platform, {
     topic: 'audit-log',
-    window: { max: 1, windowMs: minute },
+    window: auditLogSettings.throttledAudit,
   });
   const view = permissions.require('audit-log.view');
   const limited = guards.limit(
@@ -174,7 +171,7 @@ async function summaryOf(ask: Ask, period: Period) {
 
 async function stripFor(ask: Ask, period: Period) {
   const range = instantsOf(period);
-  const marks = await ask.marks(range, dayLimit * 50);
+  const marks = await ask.marks(range, auditLogSettings.dayLimit * 50);
   return stripOf(marks, range.from);
 }
 
@@ -189,8 +186,8 @@ async function dayOf(ask: Ask, date: string, today: string): Promise<AuditDay> {
   const week = days.map((one, i) => dayCount(one, found[i] as Record<string, number>));
   const range = instantsOf({ from: date, until: date });
   const total = await ask.count(range);
-  if (total > dayLimit) return { date, today, week, tooMany: total };
+  if (total > auditLogSettings.dayLimit) return { date, today, week, tooMany: total };
   const names = new Map((await ask.people()).map((person) => [person.userId, person.name]));
-  const events = (await ask.rows(range, 0, dayLimit)).toReversed();
+  const events = (await ask.rows(range, 0, auditLogSettings.dayLimit)).toReversed();
   return { date, today, week, events: events.map((event) => viewOf(event, names)) };
 }

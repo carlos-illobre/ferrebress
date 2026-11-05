@@ -20,8 +20,6 @@ import { signInSettings } from '../settings.ts';
 import { accessData } from './data.ts';
 import { lostPhones } from './lost.ts';
 
-// El mismo límite de cambios por sesión que las personas (02, § 9).
-const changes = { max: 60, windowMs: 60_000 };
 const time = (at: Date | null) => (at ? at.getTime() : null);
 
 type Data = ReturnType<typeof accessData>;
@@ -29,7 +27,10 @@ type Data = ReturnType<typeof accessData>;
 export function registerAccessRoutes(ctx: SignInContext) {
   const { http, sessions, permissions } = ctx.platform;
   const data = accessData(ctx.platform.db as never);
-  const limited = ctx.limit((c) => [`users:session:${sessionOf(c).id}`], changes);
+  const limited = ctx.limit(
+    (c) => [`users:session:${sessionOf(c).id}`],
+    signInSettings.limits.accessChanges,
+  );
   const cuts = permissions.require('users.cut');
   // Cortar: «Cortar sesiones y huellas», y no a quien tiene más (R7.11).
   const notOutranked: MiddlewareHandler = async (c, next) =>

@@ -2,12 +2,12 @@ import 'fake-indexeddb/auto';
 import { act, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
-import { waitSettings } from '../../platform/waiting.ts';
+import { platformSettings } from '../../platform/settings.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { later } from '../../testing/later.ts';
 import { Entrance } from './index.ts';
-import { googleFailAfterMs } from './screens/Entrance/google/useGooglePhase.ts';
 import { person } from './session.ts';
+import { signInSettings } from './settings.ts';
 import { googleFrame, startReply } from './sign-in-test-kit.ts';
 
 const start = startReply().body as Parameters<typeof Entrance>[0]['start'];
@@ -34,9 +34,9 @@ describe('el lugar del botón de Google mientras carga («El hilo»)', () => {
     const google = googleFrame();
     const place = open();
     expect(place.dataset.phase).toBe('empty');
-    await later(waitSettings.markAfterMs);
+    await later(platformSettings.waiting.markAfterMs);
     expect(place.dataset.phase).toBe('loading');
-    await later(waitSettings.barAfterMs - waitSettings.markAfterMs);
+    await later(platformSettings.waiting.barAfterMs - platformSettings.waiting.markAfterMs);
     expect(place.dataset.phase).toBe('slow');
     expect(screen.getByText('Conectando con Google…')).toBeTruthy();
     google.drawn();
@@ -51,7 +51,7 @@ describe('el lugar del botón de Google mientras carga («El hilo»)', () => {
     google.drawn();
     expect(place.dataset.phase).toBe('ready');
     expect(place.classList.contains('arrived')).toBe(false);
-    await later(googleFailAfterMs);
+    await later(signInSettings.google.failAfterMs);
     expect(place.dataset.phase).toBe('ready');
   });
 
@@ -59,13 +59,13 @@ describe('el lugar del botón de Google mientras carga («El hilo»)', () => {
     googleFrame();
     const place = open();
     const frame = place.querySelector('iframe');
-    await later(googleFailAfterMs);
+    await later(signInSettings.google.failAfterMs);
     expect(place.dataset.phase).toBe('failed');
     fireEvent.click(screen.getByRole('button', { name: /Reintentar/ }));
     // Un marco nuevo, y la espera empieza de cero.
     expect(place.querySelector('iframe')).not.toBe(frame);
     expect(place.dataset.phase).toBe('empty');
-    await later(waitSettings.markAfterMs);
+    await later(platformSettings.waiting.markAfterMs);
     expect(place.dataset.phase).toBe('loading');
   });
 
@@ -75,7 +75,7 @@ describe('el lugar del botón de Google mientras carga («El hilo»)', () => {
     const place = open();
     expect(place.dataset.phase).toBe('offline');
     expect(screen.getByText('Sin internet, Google no carga')).toBeTruthy();
-    await later(googleFailAfterMs);
+    await later(signInSettings.google.failAfterMs);
     expect(place.dataset.phase).toBe('offline');
     const frame = place.querySelector('iframe');
     act(() => online.set(true));

@@ -7,15 +7,9 @@ import { createDirect, type Direct } from '../../../platform/peer/direct.ts';
 import { createRelayed } from '../../../platform/peer/relayed.ts';
 import type { Transport } from '../../../platform/peer/transport.ts';
 import type { Attempt } from '../machine/types.ts';
+import { deviceLinkSettings } from '../settings.ts';
 import { createSnapAssembler } from '../wire.ts';
-import {
-  type IceReport,
-  isComputerHere,
-  type Link,
-  type Live,
-  runtimeSettings,
-  shut,
-} from './live.ts';
+import { type IceReport, isComputerHere, type Link, type Live, shut } from './live.ts';
 import { listen } from './messages.ts';
 
 const inboxBatches = 20;
@@ -162,7 +156,7 @@ function sleep(live: Live, link: Link): void {
     live.dormant = undefined;
     shut(link);
     live.dispatch({ type: 'dormantLost' });
-  }, runtimeSettings.dormantMs);
+  }, deviceLinkSettings.runtime.dormantMs);
   const dormant = Object.assign(link, { timer });
   live.dormant = dormant;
 }

@@ -1,6 +1,7 @@
 // Los estados, los eventos y los comandos del vínculo (diseño de 03, § 8.1), y lo que comparten las
 // transiciones: esperar al otro, conectarse y dejar el vínculo de ahora.
 import type { PairingView } from '@ferrebress/shared/contracts/device-link';
+import { deviceLinkSettings } from '../settings.ts';
 
 export type Attempt = string;
 export type GoneWhy =
@@ -59,7 +60,6 @@ export type Command =
 
 export type Step = { state: PairingState; commands: Command[]; ignored?: true };
 
-export const freshMs = 30_000;
 export const isComputer = (pairing: PairingView) => pairing.side === 'computer';
 export const pairingOf = (state: PairingState) => ('pairing' in state ? state.pairing : undefined);
 export const same = (state: PairingState): Step => ({ state, commands: [], ignored: true });
@@ -88,7 +88,7 @@ export function connected(
 ): Step {
   const leader: Command[] = isComputer(pairing)
     ? [
-        { do: 'confirm', maxAgeMs: freshMs },
+        { do: 'confirm', maxAgeMs: deviceLinkSettings.freshMs },
         { do: 'snapshot', withQueries: over === 'direct' },
       ]
     : [];

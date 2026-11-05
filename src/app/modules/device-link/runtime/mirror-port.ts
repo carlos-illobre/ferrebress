@@ -3,9 +3,10 @@
 // computadora va en partes y espera el saludo del otro para ganarle a lo que tenga.
 import type { Json } from '../../../platform/mirror/registry.ts';
 import { maxMessageBytes } from '../../../platform/peer/transport.ts';
+import { deviceLinkSettings } from '../settings.ts';
 import { protocolVersion, snapParts, type WireMessage } from '../wire.ts';
 import { promote } from './links.ts';
-import { isComputerHere, type Link, type Live, runtimeSettings } from './live.ts';
+import { isComputerHere, type Link, type Live } from './live.ts';
 
 // Lugar para el sobre de cada parte de la foto.
 const envelopeBytes = 512;
@@ -55,7 +56,7 @@ const waitHello = (live: Live) =>
     const timer = setTimeout(() => {
       live.deps.journal.note('hello-timeout');
       resolve(undefined);
-    }, runtimeSettings.helloWaitMs);
+    }, deviceLinkSettings.runtime.helloWaitMs);
     live.helloWaiters.push((hello) => {
       clearTimeout(timer);
       resolve(hello);

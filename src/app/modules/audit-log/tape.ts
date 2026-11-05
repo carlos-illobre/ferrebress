@@ -2,6 +2,7 @@
 // (más «Alguien sin entrar» arriba y «El sistema» abajo), dónde cae cada acción en el tiempo, lo que
 // se ve con alguien aislado y cuánto espera «Reproducir» entre una acción y la siguiente.
 import type { AuditView } from '@ferrebress/shared/contracts/audit-log';
+import { auditLogSettings } from './settings.ts';
 import { texts } from './texts.ts';
 
 export type Lane = { id: string; name: string; made: number; got: number };
@@ -42,9 +43,8 @@ export const visibleOf = (events: AuditView[], isolated: string | undefined) =>
 // Dónde cae cada acción, de 0 a 1, en el tramo del día que tiene acciones (con un margen).
 export function timeline(events: AuditView[]) {
   const times = events.map((event) => Date.parse(event.at));
-  const margin = 15 * 60_000;
-  const start = Math.min(...times) - margin;
-  const end = Math.max(...times) + margin;
+  const start = Math.min(...times) - auditLogSettings.tapeMarginMs;
+  const end = Math.max(...times) + auditLogSettings.tapeMarginMs;
   return (event: AuditView) => (Date.parse(event.at) - start) / (end - start);
 }
 

@@ -6,9 +6,7 @@ import { createStore, useStore } from '../../platform/store.ts';
 import { Icon, type IconName } from '../icon/Icon.tsx';
 import { Say, type Words } from '../say/Say.tsx';
 import './toast.css';
-
-export const toastMs = 2400;
-export const toastWithActionMs = 6000;
+import { uiSettings } from '../settings.ts';
 
 type Action = { label: string; run: () => void };
 type Shown = { words: Words; icon: IconName; action?: Action | undefined };
@@ -20,7 +18,10 @@ export function showToast(words: Words | string, icon: IconName = 'clock', actio
   clearTimeout(timer);
   const said = typeof words === 'string' ? { long: words, short: words } : words;
   current.set({ words: said, icon, action });
-  timer = setTimeout(() => current.set(undefined), action ? toastWithActionMs : toastMs);
+  timer = setTimeout(
+    () => current.set(undefined),
+    action ? uiSettings.toast.withActionMs : uiSettings.toast.ms,
+  );
 }
 
 export function Toasts() {

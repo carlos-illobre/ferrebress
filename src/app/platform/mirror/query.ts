@@ -6,11 +6,11 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import * as z from 'zod/mini';
 import type { ApiResult } from '../server/api.ts';
+import { platformSettings } from '../settings.ts';
 import { type Json, mirror } from './registry.ts';
 import { useMirrored } from './use-mirrored.ts';
 
 export type QueryMode = 'forward' | 'refetch';
-export const followerWaitMs = 3000;
 
 // Si este dispositivo pide él, y si lo que trae viaja al otro.
 function role(mode: QueryMode) {
@@ -51,7 +51,7 @@ export function useMirroredQuery<T extends Json>(
     const waited = latest.current;
     const timer = setTimeout(() => {
       if (latest.current === waited) void ask();
-    }, followerWaitMs);
+    }, platformSettings.mirror.followerWaitMs);
     return () => {
       current = false;
       clearTimeout(timer);

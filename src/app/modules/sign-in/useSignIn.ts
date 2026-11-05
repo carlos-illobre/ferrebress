@@ -5,8 +5,8 @@ import type { SignInResponse } from '@ferrebress/shared/contracts/sign-in';
 import { isPhone } from '../../platform/device/device.ts';
 import { createProofKey } from '../../platform/device/proof-key.ts';
 import type { ApiResult } from '../../platform/server/api.ts';
+import { platformSettings } from '../../platform/settings.ts';
 import { createStore } from '../../platform/store.ts';
-import { waitSettings } from '../../platform/waiting.ts';
 import { signInApi } from './api.ts';
 import { type Notice, noticeOf } from './notice.ts';
 import { signWithPasskey } from './passkeys/webauthn.ts';
@@ -22,7 +22,7 @@ export type Way = 'google' | 'passkey' | 'phone';
 export const entering = createStore<Way | undefined>(undefined);
 
 export async function enteringWith<T>(way: Way, task: () => Promise<T>): Promise<T> {
-  const shown = setTimeout(() => entering.set(way), waitSettings.markAfterMs);
+  const shown = setTimeout(() => entering.set(way), platformSettings.waiting.markAfterMs);
   try {
     return await task();
   } finally {

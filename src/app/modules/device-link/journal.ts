@@ -5,8 +5,7 @@
 // cada 10 s si cambió: escribir no compite con lo que se ve. Sobrevive a recargar.
 import { readStored, store } from '../../platform/device/storage.ts';
 import type { Command, PairingEvent, PairingState } from './machine/types.ts';
-
-export const journalSettings = { key: 'device-link.journal', size: 300, flushMs: 10_000 };
+import { deviceLinkSettings } from './settings.ts';
 
 // Una entrada: `t` en milisegundos del cronómetro, `e` qué pasó y lo demás, corto y sin personas.
 export type Entry = { t: number; e: string; [field: string]: string | number | boolean };
@@ -46,19 +45,20 @@ const interval = (run: () => void, ms: number) => {
 };
 
 export function createJournal({ now = () => performance.now(), every = interval }: Options = {}) {
-  let entries: Entry[] = readStored<Entry[]>(journalSettings.key) ?? [];
+  let entries: Entry[] = readStored<Entry[]>(deviceLinkSettings.journal.key) ?? [];
   let dirty = false;
   const flush = () => {
     if (!dirty) return;
     dirty = false;
-    store(journalSettings.key, entries);
+    store(deviceLinkSettings.journal.key, entries);
   };
   const add = (entry: Omit<Entry, 't'>) => {
     entries.push({ t: Math.round(now()), ...entry } as Entry);
-    if (entries.length > journalSettings.size) entries = entries.slice(-journalSettings.size);
+    if (entries.length > deviceLinkSettings.journal.size)
+      entries = entries.slice(-deviceLinkSettings.journal.size);
     dirty = true;
   };
-  const stop = every(flush, journalSettings.flushMs);
+  const stop = every(flush, deviceLinkSettings.journal.flushMs);
   const onHide = () => {
     if (document.visibilityState === 'hidden') flush();
   };

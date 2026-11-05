@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { signInSettings } from '../settings.ts';
 import { remember } from './phone-owner.ts';
-import { offlineSettings, rejectionOf } from './rules.ts';
+import { rejectionOf } from './rules.ts';
 
 const now = new Date('2026-10-29T08:00:00Z');
 const ago = (ms: number) => new Date(now.getTime() - ms);
@@ -16,7 +17,7 @@ const judged = {
 describe('las reglas de entrar sin conexión', () => {
   it('se confirma dentro del plazo, con margen por la escritura por tandas', () => {
     expect(rejectionOf(judged)).toBeUndefined();
-    const edge = offlineSettings.windowMs + offlineSettings.marginMs;
+    const edge = signInSettings.offline.windowMs + signInSettings.offline.marginMs;
     const lastSession = { lastUsedAt: ago(edge), closedReason: null };
     expect(rejectionOf({ ...judged, lastSession })).toBeUndefined();
     const late = { lastUsedAt: ago(edge + 1), closedReason: null };

@@ -7,6 +7,8 @@ export const deviceLinkSettings = {
   // El código del QR de vincular (R1.3) y el boleto de reemplazar (R1.4).
   codeTtlMs: minute,
   ticketTtlMs: 2 * minute,
+  // Los boletos guardados a la vez, de todos (uno por sesión).
+  ticketsMax: 10_000,
   // La última vez que espejaron se escribe por tandas.
   flushMirroredEveryMs: minute,
   sdpMaxBytes: 8 * 1024,

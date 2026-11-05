@@ -4,17 +4,13 @@
 // R7.9); el contacto, la hora del celular del último pedido con sesión
 // de esa persona que el servidor aceptó, y la hora más alta que vio, para que atrasar el reloj no
 // dé más tiempo (con 5 minutos de margen por los ajustes de hora del celular). Nada es secreto.
-import { offlineWindowHours } from '@ferrebress/shared/contracts/offline-sign-in';
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { forget, readStored, store } from '../../../platform/device/storage.ts';
 import { createStore } from '../../../platform/store.ts';
+import { signInSettings } from '../settings.ts';
 
 const optionKey = 'offline-option';
 const contactKey = 'offline-contact';
-
-const minute = 60_000;
-export const offlineWindowMs = offlineWindowHours * 60 * minute;
-const clockSlackMs = 5 * minute;
 
 type Who = Omit<Person, 'email' | 'offline'>;
 export type OfflineOption = { person: Who; revoked: boolean };
@@ -45,7 +41,8 @@ function saw(now: number): Contact | undefined {
 }
 
 // Si el reloj del celular se atrasó por debajo de la hora más alta que vio (R2.3).
-const wentBack = (known: Contact, now: number) => now < known.maxSeenAt - clockSlackMs;
+const wentBack = (known: Contact, now: number) =>
+  now < known.maxSeenAt - signInSettings.offline.clockSlackMs;
 
 // El servidor aceptó un pedido con sesión: el plazo vuelve a contar desde ahora.
 export function contacted(at: number): void {
@@ -78,7 +75,7 @@ export function offlineUntil(now = Date.now()): Date | undefined {
   const known = saw(now);
   const current = offlineOption.get();
   if (!current || current.revoked || !known || wentBack(known, now)) return undefined;
-  const until = known.at + offlineWindowMs;
+  const until = known.at + signInSettings.offline.windowMs;
   return now < until ? new Date(until) : undefined;
 }
 
@@ -86,7 +83,7 @@ export function offlineUntil(now = Date.now()): Date | undefined {
 // opción no la corta.
 export function offlineSessionOver(now = Date.now()): boolean {
   const known = saw(now);
-  return !known || wentBack(known, now) || now >= known.at + offlineWindowMs;
+  return !known || wentBack(known, now) || now >= known.at + signInSettings.offline.windowMs;
 }
 
 // La última hora de contacto, para la entrada que se firma.

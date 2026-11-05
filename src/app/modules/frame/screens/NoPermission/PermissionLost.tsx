@@ -10,8 +10,7 @@ import { Icon } from '../../../../ui/icon/Icon.tsx';
 import type { Option } from '../../menu.ts';
 import { words } from './texts.ts';
 import './PermissionLost.css';
-
-export const lostSeconds = 5;
+import { frameSettings } from '../../settings.ts';
 
 export type LostPermission = { option: Option; before: Person; after: Person };
 
@@ -25,7 +24,7 @@ export function PermissionLost({
   onGo: () => void;
 }) {
   // local: la cuenta regresiva de este aviso.
-  const [left, setLeft] = useState(lostSeconds);
+  const [left, setLeft] = useState(frameSettings.permissionLostSeconds);
   useEffect(() => {
     const timer = setInterval(() => setLeft((seconds) => seconds - 1), 1000);
     return () => clearInterval(timer);
@@ -76,7 +75,9 @@ export function PermissionLost({
       </p>
       <footer>
         <span class="lost-permission-count" aria-live="polite">
-          <b style={{ '--part': String(Math.max(left, 0) / lostSeconds) }}>{Math.max(left, 0)}</b>{' '}
+          <b style={{ '--part': String(Math.max(left, 0) / frameSettings.permissionLostSeconds) }}>
+            {Math.max(left, 0)}
+          </b>{' '}
           {words.leaving(first.name)}
         </span>
         <Button look="action" icon={first.icon} doing={words.going} onPress={onGo} primary>

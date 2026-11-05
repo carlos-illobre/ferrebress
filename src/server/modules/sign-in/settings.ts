@@ -1,6 +1,7 @@
 // Lo de entrar que es igual en todos los ambientes (diseño de 01, § 8 y § 11): los tiempos de la
 // sesión (hasta que existan en Administración), los plazos de lo que vive en memoria y los
 // límites de intentos.
+import { offlineWindowHours } from '@ferrebress/shared/contracts/offline-sign-in';
 import { codeSeconds, googleNonceMinutes } from '@ferrebress/shared/contracts/sign-in';
 
 const minute = 60_000;
@@ -22,6 +23,8 @@ export const signInSettings = {
   },
   challenge: { ttlMs: 5 * minute, maxTotal: 100_000, maxPerOwner: 10 },
   limits: {
+    // Los cambios de acceso desde Usuarios: el mismo límite por sesión que las personas (02, § 9).
+    accessChanges: { max: 60, windowMs: minute },
     // Por dispositivo y por dirección de internet (R2.9).
     google: { max: 10, windowMs: minute },
     passkey: { max: 20, windowMs: minute },
@@ -33,6 +36,18 @@ export const signInSettings = {
     unknownSession: { max: 30, windowMs: minute },
     // Un rechazo por límite se anota una vez por ventana (revisión de seguridad, punto 19).
     throttledAudit: { max: 1, windowMs: minute },
+  },
+  // Entrar sin conexión (15 · R2.2; diseño de 15, § 4).
+  offline: {
+    // Cuánto se puede entrar sin conexión desde el último contacto con sesión (15 · R2.2).
+    windowMs: offlineWindowHours * hour,
+    // El último uso de las sesiones se escribe por tandas: un poco de margen.
+    marginMs: 5 * minute,
+    // Una entrada sin conexión se guarda 30 días; una firma de más de 29 días, o de más de un día en
+    // el futuro (un reloj mal puesto), no se acepta.
+    retentionMs: 30 * 24 * hour,
+    maxAgeMs: 29 * 24 * hour,
+    maxAheadMs: 24 * hour,
   },
 };
 

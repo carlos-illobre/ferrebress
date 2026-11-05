@@ -11,6 +11,7 @@ import { linkActions } from '../../actions.ts';
 import { linkRuntime } from '../../current.ts';
 import { detailOpen, reading, unpairAsked } from '../../detail.ts';
 import type { Runtime } from '../../runtime.ts';
+import { deviceLinkSettings } from '../../settings.ts';
 import { useLinkView } from '../../use-link.ts';
 import { type LinkView, onPhone } from '../../view.ts';
 import { ConfirmUnpair } from '../Confirm/Confirm.tsx';
@@ -21,9 +22,6 @@ import { detailTexts } from './texts.ts';
 
 addShapes(linkShapes);
 
-// Cuánto se ve el tilde del código leído antes de volver al detalle.
-export const doneMs = 900;
-
 // El código para vincular de la computadora: abierto o no, y qué hacer cuando el celular lo lee.
 function useCode(runtime: Runtime) {
   // local: el código para vincular, solo en la computadora.
@@ -33,7 +31,7 @@ function useCode(runtime: Runtime) {
     onPaired: (pairing: PairingView) => {
       showToast(detailTexts.toast.pairedComputer, 'check');
       runtime.dispatch({ type: 'serverSaid', pairing });
-      setTimeout(() => setShown(false), doneMs);
+      setTimeout(() => setShown(false), deviceLinkSettings.doneMs);
     },
   };
   return {

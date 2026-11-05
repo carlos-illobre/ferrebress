@@ -18,7 +18,6 @@ import { addAccess } from './migrations/003-access.ts';
 import { addApproved } from './migrations/004-approved.ts';
 import { indexPasskeysByUser } from './migrations/005-passkeys-user.ts';
 import { registerOfflineRoutes } from './offline/routes.ts';
-import { offlineSettings } from './offline/rules.ts';
 import { registerLinkRoutes } from './passkeys/link-routes.ts';
 import { registerPasskeySignInRoutes } from './passkeys/sign-in-routes.ts';
 import { requestSession } from './sessions/require.ts';
@@ -130,7 +129,9 @@ function scheduleJobs(ctx: SignInContext, offline: ReturnType<typeof registerOff
   platform.every(signInSettings.lastUsedFlushMs, ctx.store.flush);
   platform.every(signInSettings.cleanupEveryMs, ctx.store.cleanUp);
   platform.every(signInSettings.cleanupEveryMs, () =>
-    offline.removeOlderThan(new Date(platform.clock.now().getTime() - offlineSettings.retentionMs)),
+    offline.removeOlderThan(
+      new Date(platform.clock.now().getTime() - signInSettings.offline.retentionMs),
+    ),
   );
   platform.onClose(ctx.store.flush);
 }

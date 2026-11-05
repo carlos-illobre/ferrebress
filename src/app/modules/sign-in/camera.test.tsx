@@ -3,7 +3,7 @@ import { expect, it, vi } from 'vitest';
 import { scan } from '../../platform/camera/scanner.ts';
 import { Camera } from './index.ts';
 
-vi.mock('../../platform/camera/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
+vi.mock('../../platform/camera/scanner.ts', () => ({ scan: vi.fn() }));
 
 it('el botón atrás del celular cierra la cámara y vuelve a la entrada; cerrada con la ×, saca su paso', async () => {
   vi.mocked(scan).mockResolvedValue(vi.fn());
