@@ -14,7 +14,7 @@ Lo que vale para toda la aplicación. Reglas completas en [rules.md](rules.md).
   apretado y válidos solo en la pantalla que se ve (R2).
 - **Celular:** el cursor nunca arranca en una caja de texto (R2.12).
 - **Textos:** largo en la computadora, corto en el celular y en pantallas angostas (R3).
-- **Conexión:** una luz con tres estados y el detalle de lo pendiente; sin conexión, lo que no
+- **Conexión:** una luz con tres estados y el detalle de lo pendiente (en el celular, solo cuando no está todo en línea); sin conexión, lo que no
   anda se pone gris (se lee, no se toca) y solo deja salir; sin consultas propias (R4).
 - **Versión nueva:** recién abierta se actualiza sola; en uso avisa y se puede cerrar; en segundo plano y
   sin nada a medio hacer, se actualiza sola; si el servidor ya no la entiende, se bloquea con

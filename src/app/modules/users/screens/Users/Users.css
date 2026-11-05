@@ -91,7 +91,12 @@
   @media (max-width: 899px) {
     /* Sin la cabecera del marco: el título arriba, con la luz debajo (pedido de Carlos). */
     .users-head {
+      align-items: flex-start;
       padding: calc(var(--s6) + env(safe-area-inset-top)) var(--s4) 0;
+    }
+    /* «Buscar usuario», a la altura del título (34 px de renglón, la pastilla mide 40). */
+    .users-head .users-tool {
+      margin-top: -3px;
     }
     .users-tabs {
       gap: var(--s1);

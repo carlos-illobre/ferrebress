@@ -1,7 +1,7 @@
 // Lo que comparten las piezas del marco: quién entró, si es el ambiente de pruebas, la conexión, lo
 // abierto, el menú minimizado y los globos. Lo arma Frame una vez; las piezas lo leen con useFrame.
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
-import { type ComponentType, createContext } from 'preact';
+import { type ComponentChildren, type ComponentType, createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import type { useCollapse } from './behavior/useCollapse.ts';
 import type { usePanels } from './behavior/usePanels.ts';
@@ -28,7 +28,12 @@ export type FrameState = {
   link: FrameLink | undefined;
 };
 
-export type FrameLink = { Side: ComponentType; Phone: ComponentType; Over: ComponentType };
+// El indicador del celular recibe la luz de conexión para ponerla al lado, o en su lugar (00 · R4.1).
+export type FrameLink = {
+  Side: ComponentType;
+  Phone: ComponentType<{ light: ComponentChildren; offline: boolean }>;
+  Over: ComponentType;
+};
 
 export type SettingRow = { name: string; detail: string; on: boolean; toggle: () => void };
 

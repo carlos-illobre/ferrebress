@@ -100,7 +100,9 @@ quita, el resto sigue andando igual.
 ## 4. El indicador del vínculo
 
 - **R4.1** Está **siempre a la vista**, en el celular y en la computadora: un punto de color con un
-  texto corto. Dice uno de estos estados:
+  texto corto. En la computadora, al pie del menú; en el celular, debajo del título de cada
+  pantalla, en el lugar de la luz de conexión, que aparece a su lado solo sin conexión o con algo por
+  enviar (00 · R4.1). Dice uno de estos estados:
   - «Sin vincular»;
   - «Directo»: vinculados y hablando por el Wi-Fi;
   - «Por el servidor»: vinculados y hablando por el respaldo (R3.2);

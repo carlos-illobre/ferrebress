@@ -1103,7 +1103,7 @@ pieza). Las clases pasan al CSS con el nombre de la pieza; los tokens, de `style
 
 | Pieza | Dónde | Qué hace |
 |---|---|---|
-| `screens/PairingIndicator/` | El lateral de la computadora; en el celular, a la derecha del título | El punto y el texto del estado (§ 8.1); Alt L abre el detalle. Viene en el arranque (unos 2 KB) |
+| `screens/PairingIndicator/` | El lateral de la computadora; en el celular, debajo del título, en el lugar de la luz | El punto y el texto del estado (§ 8.1); Alt L abre el detalle. Viene en el arranque (unos 2 KB) |
 | `screens/Detail/` | Flota al lado del lateral; en el celular, una hoja | La frase del estado (o «No se pudo»), la ruta con la latencia, la tira, los datos y los botones de R4.2 (Alt D, R, P, V, X, C) |
 | `screens/Code/` | Solo la computadora | El QR de `/pair#…`; Alt O vuelve. Dibuja con `platform/camera/qr-draw.ts` |
 | `screens/Replace/` | Solo el celular | «Este celular está vinculado a Chrome en Windows. ¿Reemplazar?» (R1.4) |
@@ -1120,8 +1120,10 @@ pieza). Las clases pasan al CSS con el nombre de la pieza; los tokens, de `style
   misma pieza que el vínculo (`start.ts`). Un detalle bajado aparte desde el marco partía el arranque
   en tres archivos y costaba 2,6 KB más comprimido (gzip comprime peor cada pedazo).
 - **El marco no conoce el vínculo:** recibe `link` con sus tres piezas (el indicador del lateral, el del
-  título del celular y lo que abren) y las pone en su lugar. Cada pantalla pone `PhoneLink` a la
-  derecha de su título. En Usuarios, «Buscar usuario» pasó al renglón de la luz, a la derecha.
+  título del celular y lo que abren) y las pone en su lugar. En el celular, `PhoneLight`, debajo del
+  título de cada pantalla, le pasa al indicador la luz de conexión: el indicador la pone a su lado sin
+  conexión, o en su lugar si no tiene nada que mostrar (00 · R4.1). Mientras el vínculo se baja, el
+  indicador muestra lo que dijo `/api/start`, así no aparece de golpe.
 - **Un componente o una función no va suelto en un store:** `useStore` lo pasa a `useState`, que lo toma
   por el inicializador. `linkOver` y `linkStrip` lo llevan adentro de un objeto.
 

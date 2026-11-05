@@ -33,7 +33,9 @@ test('app-E19: con la ventana angosta, la computadora usa los textos cortos', as
   await withSession(page);
   await page.setViewportSize({ width: 800, height: 800 });
   await page.goto('/');
-  const shown = (form: string) => page.locator(`.light-text .${form}`).filter({ visible: true });
+  // Debajo del título, en angosto: la pastilla del vínculo (y la luz, sin conexión); en ancho, la luz.
+  const shown = (form: string) =>
+    page.locator(`:is(.light-text, .link-pill-text) .${form}`).filter({ visible: true });
   await expect(shown('short')).not.toHaveCount(0);
   await expect(shown('long')).toHaveCount(0);
   await page.setViewportSize({ width: 1366, height: 800 });

@@ -2,6 +2,7 @@
 // ruta, frase, tira, datos y botones, y desvincular con su confirmación.
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { startParts } from '../../../platform/server/start-parts.ts';
 import { createStore } from '../../../platform/store.ts';
 import { pairingView, pc, phone } from '../../../testing/pairing.ts';
 import { linkOver, linkRuntime, linkStrip } from '../current.ts';
@@ -83,17 +84,26 @@ describe('el indicador', () => {
 
   it('en el celular, la pastilla dice el estado corto', () => {
     fakeRuntime({ kind: 'waiting', pairing: phone });
-    render(<PhoneIndicator />);
+    render(<PhoneIndicator light={<span>luz</span>} offline={true} />);
+    expect(screen.getByText('luz')).toBeTruthy();
     const pill = screen.getByRole('button', { name: /Esperando a la computadora/ });
-    expect(pill.textContent).toBe('Esperando');
+    expect(pill.querySelector('.short')?.textContent).toBe('Esperando');
     fireEvent.click(pill);
     expect(detailOpen.get()).toBe(true);
     linkRuntime.set(undefined);
   });
 
-  it('sin el vínculo bajado todavía, la pastilla tampoco se ve', () => {
-    const { container } = render(<PhoneIndicator />);
-    expect(container.innerHTML).toBe('');
+  it('sin nada que mostrar del vínculo, la luz en su lugar; mientras se baja, lo que dijo /api/start', () => {
+    render(<PhoneIndicator light={<span>luz</span>} offline={false} />);
+    expect(screen.getByText('luz')).toBeTruthy();
+    act(() => startParts.set({ pairing: null }));
+    expect(screen.getByRole('button', { name: /Sin vincular/ })).toBeTruthy();
+    act(() => startParts.set({ pairing: pc }));
+    expect(screen.getByRole('button', { name: /Esperando al celular/ })).toBeTruthy();
+    act(() => startParts.set({ pairing: { ...pc, paused: true } }));
+    expect(screen.getByRole('button', { name: /Desconectado/ })).toBeTruthy();
+    expect(screen.queryByText('luz')).toBeNull();
+    act(() => startParts.set(undefined));
   });
 });
 

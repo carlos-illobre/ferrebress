@@ -4,9 +4,10 @@
 // textos (decisión de 00: uno largo, otro corto).
 
 import type { Side } from '@ferrebress/shared/contracts/pairing';
+import type { ComponentChildren } from 'preact';
 import { useStore } from '../../../../platform/store.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import type { Words } from '../../../../ui/say/Say.tsx';
+import { Say, type Words } from '../../../../ui/say/Say.tsx';
 import { detailOpen } from '../../detail.ts';
 import { texts } from '../../texts.ts';
 import { useLinkView } from '../../use-link.ts';
@@ -53,26 +54,32 @@ export function SideIndicator() {
   );
 }
 
-// En el celular: la pastilla a la derecha del título.
-export function PhoneIndicator() {
+// En el celular: la pastilla debajo del título, con la luz de conexión al lado cuando no está todo en
+// línea; sin nada que mostrar del vínculo, la luz en su lugar (00 · R4.1). La luz la da el marco.
+export function PhoneIndicator({ light, offline }: { light: ComponentChildren; offline: boolean }) {
   const view = useLinkView();
   const open = useStore(detailOpen);
-  if (view.hidden) return null;
+  if (view.hidden) return <>{light}</>;
   const label = labelOf(view);
   return (
-    <button
-      type="button"
-      class="link-pill"
-      data-tone={view.tone}
-      aria-haspopup="dialog"
-      aria-expanded={open}
-      aria-controls="link-detail"
-      aria-label={texts.open(label.long, view.other)}
-      onClick={() => detailOpen.set(!open)}
-    >
-      <Icon name="monitor" size="small" />
-      <span class="link-dot" />
-      <span class="link-pill-text">{label.short}</span>
-    </button>
+    <>
+      <button
+        type="button"
+        class="link-pill"
+        data-tone={view.tone}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-controls="link-detail"
+        aria-label={texts.open(label.long, view.other)}
+        onClick={() => detailOpen.set(!open)}
+      >
+        <Icon name="monitor" size="small" />
+        <span class="link-dot" />
+        <span class="link-pill-text">
+          <Say words={label} />
+        </span>
+      </button>
+      {offline && light}
+    </>
   );
 }

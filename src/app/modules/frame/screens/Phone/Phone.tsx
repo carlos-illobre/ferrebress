@@ -10,33 +10,29 @@ import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './Phone.css';
 
-// La luz del celular (01 · R6): «● En línea · todo enviado», que abre lo pendiente. No hay cabecera
-// del marco (sin logotipo ni persona, pedido de Carlos): cada pantalla la pone debajo de su título,
-// como Más.
+// Debajo del título de cada pantalla del celular: el indicador del vínculo (03 · R4.1) y, solo sin
+// conexión, la luz (01 · R6), que abre lo pendiente: mientras todo anda, no ocupa lugar (pedido de
+// Carlos). Sin las piezas del vínculo (una pantalla sola, en sus pruebas), la luz siempre. No hay
+// cabecera del marco (sin logotipo ni persona): cada pantalla pone esto debajo de su título.
 export function PhoneLight() {
-  // Fuera del marco (una pantalla sola, en sus pruebas) no hay luz.
+  // Fuera del marco (una pantalla sola, en sus pruebas) no hay nada.
   const frame = useContext(FrameContext);
   if (!frame) return null;
-  return (
+  const { link, online, panels } = frame;
+  const light = (
     <button
       type="button"
-      class="phone-light phone-only"
+      class="phone-light"
       aria-haspopup="dialog"
-      onClick={() => frame.panels.toggle('phonePending')}
+      onClick={() => panels.toggle('phonePending')}
     >
       <LightText />
     </button>
   );
-}
-
-// El indicador del vínculo en el celular (03 · R4.1), a la derecha del título: lo pone cada pantalla.
-export function PhoneLink() {
-  const frame = useContext(FrameContext);
-  if (!frame?.link) return null;
   return (
-    <span class="phone-link phone-only">
-      <frame.link.Phone />
-    </span>
+    <div class="phone-status phone-only">
+      {link ? <link.Phone light={light} offline={!online} /> : light}
+    </div>
   );
 }
 
