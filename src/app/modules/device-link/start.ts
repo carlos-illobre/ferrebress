@@ -16,6 +16,7 @@ import { linkOver, linkRuntime, linkStrip } from './current.ts';
 import { reading } from './detail.ts';
 import { createJournal } from './journal.ts';
 import { takePairCode } from './pair.ts';
+import { watchReplaced } from './replaced.ts';
 import { pairingShape } from './runtime/topic.ts';
 import { createRuntime } from './runtime.ts';
 import { Layer } from './screens/Detail/Over.tsx';
@@ -74,6 +75,7 @@ export function startDeviceLink(): () => void {
   linkRuntime.set(runtime);
   // La dirección viaja al otro mientras espejan (diseño de 03, § 5.4).
   const unbindRoute = bindRoute(mirror);
+  const stopReplaced = watchReplaced(runtime);
   const stop = watchLink({
     runtime,
     who,
@@ -88,6 +90,7 @@ export function startDeviceLink(): () => void {
     runtime.stop();
     journal.stop();
     unbindRoute();
+    stopReplaced();
     linkRuntime.set(undefined);
     linkOver.set(undefined);
   };

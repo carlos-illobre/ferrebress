@@ -31,6 +31,8 @@ export const texts = {
     phone: words('Esperando a la computadora', 'Esperando'),
   },
   tapToPair: 'Tocalo para vincular',
+  replaced: (computer: string) => `Ahora este celular está vinculado a ${computer}`,
+  unpair: 'Desvincular',
   open: (label: string, other: string | undefined) =>
     `${label}${other ? `, con ${other}` : ''}. Ver el vínculo`,
 };

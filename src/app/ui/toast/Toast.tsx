@@ -1,21 +1,26 @@
 // La tostada de «Mostrador»: un aviso corto que se va solo a los 2,4 segundos (lo que todavía no
-// está, «Aviso guardado», la versión nueva). Una sola a la vez, para toda la aplicación.
+// está, «Aviso guardado», la versión nueva). Una sola a la vez, para toda la aplicación. Puede traer
+// un botón (el de «Desvincular» del vínculo, 03 · R1.5): entonces dura 6 segundos, para alcanzar a
+// tocarlo, y es lo único de la tostada que recibe toques.
 import { createStore, useStore } from '../../platform/store.ts';
 import { Icon, type IconName } from '../icon/Icon.tsx';
 import { Say, type Words } from '../say/Say.tsx';
 import './toast.css';
 
 export const toastMs = 2400;
+export const toastWithActionMs = 6000;
 
-type Shown = { words: Words; icon: IconName };
+type Action = { label: string; run: () => void };
+type Shown = { words: Words; icon: IconName; action?: Action | undefined };
 
 const current = createStore<Shown | undefined>(undefined);
 let timer: ReturnType<typeof setTimeout> | undefined;
 
-export function showToast(words: Words | string, icon: IconName = 'clock'): void {
+export function showToast(words: Words | string, icon: IconName = 'clock', action?: Action): void {
   clearTimeout(timer);
-  current.set({ words: typeof words === 'string' ? { long: words, short: words } : words, icon });
-  timer = setTimeout(() => current.set(undefined), toastMs);
+  const said = typeof words === 'string' ? { long: words, short: words } : words;
+  current.set({ words: said, icon, action });
+  timer = setTimeout(() => current.set(undefined), action ? toastWithActionMs : toastMs);
 }
 
 export function Toasts() {
@@ -28,6 +33,18 @@ export function Toasts() {
       <span>
         <Say words={shown.words} />
       </span>
+      {shown.action && (
+        <button
+          type="button"
+          class="toast-action"
+          onClick={() => {
+            current.set(undefined);
+            shown.action?.run();
+          }}
+        >
+          {shown.action.label}
+        </button>
+      )}
     </div>
   );
 }

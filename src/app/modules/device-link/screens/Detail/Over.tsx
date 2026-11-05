@@ -9,7 +9,7 @@ import { linkShapes } from '../../../../ui/icon/link-shapes.tsx';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { linkActions } from '../../actions.ts';
 import { linkRuntime } from '../../current.ts';
-import { detailOpen, reading } from '../../detail.ts';
+import { detailOpen, reading, unpairAsked } from '../../detail.ts';
 import type { Runtime } from '../../runtime.ts';
 import { useLinkView } from '../../use-link.ts';
 import { type LinkView, onPhone } from '../../view.ts';
@@ -61,8 +61,8 @@ function Reader({ runtime }: { runtime: Runtime }) {
 export function Over({ runtime }: { runtime: Runtime }) {
   const view = useLinkView();
   const open = useStore(detailOpen);
-  // local: la confirmación de desvincular, de quien la toca.
-  const [asking, setAsking] = useState(false);
+  const asking = useStore(unpairAsked);
+  const setAsking = (on: boolean) => unpairAsked.set(on);
   const code = useCode(runtime);
   const actions = linkActions(runtime);
   const onAct = (act: Act) => {

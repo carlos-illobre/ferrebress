@@ -20,6 +20,20 @@
     transform: translateX(-50%);
     pointer-events: none;
   }
+  .toast-action {
+    flex: none;
+    margin-left: 4px;
+    height: 36px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: rgb(255 255 255 / 16%);
+    color: var(--on-dark);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 750;
+    pointer-events: auto;
+  }
   @media (prefers-reduced-motion: no-preference) {
     .toast {
       animation: toast-in 280ms var(--bounce) both;
