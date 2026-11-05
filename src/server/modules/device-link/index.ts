@@ -38,7 +38,7 @@ export function createDeviceLinkModule(dependencies: DeviceLinkDependencies): Se
         const before = new Date(
           platform.clock.now().getTime() - deviceLinkSettings.pairingDays * day,
         );
-        const expired = await ctx.data.remove((await ctx.data.olderThan(before)).map((p) => p.id));
+        const expired = await ctx.data.removeOlderThan(before);
         afterEnding(ctx, expired);
         recordEnded(ctx, expired, 'expired');
       });

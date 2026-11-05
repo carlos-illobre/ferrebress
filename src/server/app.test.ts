@@ -1,7 +1,8 @@
 import type { Migration } from 'kysely/migration';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { createServer } from './app.ts';
+import { createServer, intervals } from './app.ts';
 import type { Platform } from './platform/modules.ts';
+import { platformSettings } from './platform/settings.ts';
 import { testConfig } from './testing/config.ts';
 
 describe('el servidor', () => {
@@ -59,5 +60,20 @@ describe('el servidor', () => {
     expect(runs).toEqual(['cada segundo', 'al cerrar']);
     expect(errors).toHaveBeenCalled();
     errors.mockRestore();
+  });
+
+  it('un trabajo corre también al poco de arrancar: uno diario no espera 24 horas (03 · R2.2)', () => {
+    vi.useFakeTimers();
+    const run = vi.fn();
+    const day = 24 * 60 * 60_000;
+    const stop = intervals(day, run);
+    vi.advanceTimersByTime(platformSettings.firstJobAfterMs);
+    expect(run).toHaveBeenCalledTimes(1);
+    vi.advanceTimersByTime(day);
+    expect(run).toHaveBeenCalledTimes(2);
+    stop();
+    vi.advanceTimersByTime(day);
+    expect(run).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
   });
 });

@@ -34,23 +34,30 @@ export function recordEnded(ctx: DeviceLinkContext, ended: Pairing[], reason: En
 }
 
 export type Paired = { pairing: Pairing; replaced: Pairing[]; renewed: boolean };
+// Lo que dice si se puede reemplazar lo que hay: con el botón, se pregunta antes (R1.4); al entrar a
+// la computadora con el celular, no (R1.5).
+export type MayReplace = (replaced: Pairing[]) => boolean;
 
-// Vincula esos dos dispositivos, terminando los vínculos que reemplaza (R1.1). Si ya eran ellos, lo
-// renueva (R2.2). Dentro de la transacción de quien llama.
+// Vincula esos dos dispositivos, terminando los vínculos que reemplaza (R1.1), si `mayReplace` lo
+// deja; si no, devuelve los que habría reemplazado. Si ya eran ellos, lo renueva (R2.2). Dentro de la
+// transacción de quien llama: leer y escribir no se separan.
 export async function pair(
   data: DeviceLinkData,
-  phone: Device,
-  computer: Device,
+  devices: { phone: Device; computer: Device },
   how: Pairing['pairedBy'],
   now: Date,
-): Promise<Paired> {
+  mayReplace: MayReplace = () => true,
+): Promise<Paired | { refused: Pairing[] }> {
+  const { phone, computer } = devices;
   const existing = await data.forDevices(phone.userId, [phone.deviceId, computer.deviceId]);
   const same = existing.find((pairing) => isSamePair(pairing, phone, computer));
   if (same) {
     await data.touch([[same.id, now]]);
     return { pairing: { ...same, mirroredAt: now }, replaced: [], renewed: true };
   }
-  const replaced = await data.remove(replacedBy(existing, phone, computer).map((p) => p.id));
+  const replacing = replacedBy(existing, phone, computer);
+  if (!mayReplace(replacing)) return { refused: replacing };
+  const replaced = await data.remove(replacing.map((p) => p.id));
   const pairing: Pairing = {
     id: newId({ now: () => now }),
     userId: phone.userId,

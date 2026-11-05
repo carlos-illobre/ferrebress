@@ -4,7 +4,7 @@
 import type { ServerEvents } from '../../platform/events.ts';
 import type { DeviceLinkContext } from './context.ts';
 import type { DeviceLinkData } from './data.ts';
-import { afterEnding, afterPairing, pair, recordEnded } from './lifecycle.ts';
+import { afterEnding, afterPairing, type Paired, pair, recordEnded } from './lifecycle.ts';
 import type { EndReason, Pairing } from './rules.ts';
 
 type Ending<K extends keyof ServerEvents> = {
@@ -62,13 +62,12 @@ export function listenToOthers(ctx: DeviceLinkContext): void {
       label: approved.computerLabel,
       isPhone: false,
     };
-    const paired = await pair(
+    const paired = (await pair(
       ctx.dataIn(trx),
-      phone,
-      computer,
+      { phone, computer },
       'sign-in',
       ctx.platform.clock.now(),
-    );
+    )) as Paired;
     return () => afterPairing(ctx, paired, { kind: 'person', userId });
   });
 }

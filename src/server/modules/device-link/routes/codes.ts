@@ -11,8 +11,8 @@ import { bySchema, readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import { type RequestSession, sessionOf } from '../../../platform/session.ts';
 import type { DeviceLinkContext, Ticket } from '../context.ts';
-import { afterPairing, pair } from '../lifecycle.ts';
-import { type Device, replacedBy, replacesOf, viewOf } from '../rules.ts';
+import { afterPairing, type MayReplace, pair } from '../lifecycle.ts';
+import { type Device, type Pairing, replacesOf, viewOf } from '../rules.ts';
 import { deviceLinkSettings } from '../settings.ts';
 import { codeTopic } from '../topics.ts';
 
@@ -23,16 +23,20 @@ const deviceOfSession = (session: RequestSession): Device => ({
   isPhone: session.isPhone,
 });
 
-// La computadora dueña del código: su sesión abierta, que tiene que ser de la misma persona.
-function computerOf(ctx: DeviceLinkContext, ownerSessionId: string) {
-  return ctx.platform.sessions.isOpen(ownerSessionId) ? ownerSessionId : undefined;
-}
+// Si la sesión de la computadora dueña del código sigue abierta.
+const isOpen = (ctx: DeviceLinkContext, ownerSessionId: string) =>
+  ctx.platform.sessions.isOpen(ownerSessionId);
 
-async function link(ctx: DeviceLinkContext, c: Context, ticket: Ticket) {
+const idsOf = (pairings: Pairing[]) => pairings.map((pairing) => pairing.id).sort();
+
+// Vincula, si lo que habría que reemplazar es lo que se acepta; si no, devuelve qué reemplazaría. Leer
+// y escribir van en la misma transacción: dos consultas sin nada que reemplazar (§ 18.4).
+async function link(ctx: DeviceLinkContext, c: Context, ticket: Ticket, mayReplace: MayReplace) {
   const { db, events, clock } = ctx.platform;
   const paired = await events.transaction(db, async (trx) =>
-    pair(ctx.dataIn(trx), ticket.phone, ticket.computer, 'button', clock.now()),
+    pair(ctx.dataIn(trx), ticket, 'button', clock.now(), mayReplace),
   );
+  if ('refused' in paired) return paired;
   afterPairing(ctx, paired, { kind: 'person', userId: ticket.phone.userId });
   ctx.platform.realtime.publish(codeTopic, ticket.computerSessionId, {
     paired: viewOf(paired.pairing, 'computer'),
@@ -48,7 +52,7 @@ async function read(ctx: DeviceLinkContext, c: Context, code: string) {
   if (typeof outcome === 'string') return fail(c, 410, outcome);
   // Un código vigente es de una computadora que lo escucha con su sesión abierta: vale 60 s y deja de
   // valer en cuanto esa sesión termina. Se mira acá: el canal recién se cierra en el próximo latido.
-  if (!computerOf(ctx, outcome.owner)) return fail(c, 410, 'code-expired');
+  if (!isOpen(ctx, outcome.owner)) return fail(c, 410, 'code-expired');
   const computer = ctx.computers.get(outcome.owner) as Device;
   if (computer.userId !== session.userId) {
     ctx.recordOnce(c, `other-account:${session.id}`, 'device-link.rejected', {
@@ -59,18 +63,21 @@ async function read(ctx: DeviceLinkContext, c: Context, code: string) {
   }
   ctx.codes.take(code);
   const phone = deviceOfSession(session);
-  const existing = await ctx.data.forDevices(session.userId, [phone.deviceId, computer.deviceId]);
-  const replaced = replacedBy(existing, phone, computer);
   const ticket: Ticket = {
     phoneSessionId: session.id,
     computerSessionId: outcome.owner,
     phone,
     computer,
-    replaces: replaced.map((pairing) => pairing.id).sort(),
+    replaces: [],
   };
-  if (replaced.length === 0) return link(ctx, c, ticket);
-  const key = ctx.tickets.issue(session.id, ticket) as string;
-  return c.json<ReadCodeResponse>({ ticket: key, replaces: replacesOf(replaced, phone, computer) });
+  // Sin nada que reemplazar, vincula; si no, pregunta antes (R1.4) con un boleto.
+  const linked = await link(ctx, c, ticket, (replaced) => replaced.length === 0);
+  if (!('refused' in linked)) return linked;
+  const key = ctx.tickets.issue(session.id, { ...ticket, replaces: idsOf(linked.refused) });
+  return c.json<ReadCodeResponse>({
+    ticket: key as string,
+    replaces: replacesOf(linked.refused, phone, computer),
+  });
 }
 
 // Aceptar reemplazar: con la misma sesión del celular, la computadora todavía abierta y los mismos
@@ -78,15 +85,11 @@ async function read(ctx: DeviceLinkContext, c: Context, code: string) {
 async function accept(ctx: DeviceLinkContext, c: Context, key: string) {
   const session = sessionOf(c);
   const ticket = ctx.tickets.take(key);
-  if (!ticket || ticket.phoneSessionId !== session.id || !computerOf(ctx, ticket.computerSessionId))
+  if (!ticket || ticket.phoneSessionId !== session.id || !isOpen(ctx, ticket.computerSessionId))
     return fail(c, 410, 'code-expired');
-  const { phone, computer } = ticket;
-  const existing = await ctx.data.forDevices(session.userId, [phone.deviceId, computer.deviceId]);
-  const now = replacedBy(existing, phone, computer)
-    .map((pairing) => pairing.id)
-    .sort();
-  if (now.join() !== ticket.replaces.join()) return fail(c, 410, 'code-expired');
-  return link(ctx, c, ticket);
+  const asked = ticket.replaces.join();
+  const linked = await link(ctx, c, ticket, (replaced) => idsOf(replaced).join() === asked);
+  return 'refused' in linked ? fail(c, 410, 'code-expired') : linked;
 }
 
 export function registerCodeRoutes(ctx: DeviceLinkContext): void {

@@ -1398,13 +1398,16 @@ Windows y el celular Android, los dos en el Wi-Fi del local):
 | `pause`, `resume` | 1 escritura por índice | menos de 10 ms |
 | `/api/start` con o sin vínculo | 1 por índice la primera vez por dispositivo; después 0 | — |
 | `codes/read` sin nada que reemplazar | 2 en una transacción: los vínculos de esa persona en los dos dispositivos (una consulta por los dos índices) y crear | menos de 15 ms |
-| `codes/read` con algo que reemplazar | 1 | menos de 10 ms |
-| `codes/accept`, vincular al entrar | 2 en una transacción: borrar los anteriores devolviendo cuáles, y crear | menos de 15 ms |
+| `codes/read` con algo que reemplazar | 1, en la misma transacción que no escribe | menos de 10 ms |
+| `codes/accept`, vincular al entrar | 3 en una transacción: los vínculos de los dos dispositivos, borrar los que reemplaza (si son los que se aceptaron) y crear | menos de 15 ms |
 | `unpair` | 1 | menos de 10 ms |
 | Un fin de vínculo por evento | 1 en la transacción de quien publica | — |
-| Vencidos, una vez por día; `mirrored_at`, una vez por minuto | 1 cada uno, en lote | — |
+| Vencidos, una vez por día y al arrancar; `mirrored_at`, una vez por minuto | 1 cada uno, en lote (`DELETE … RETURNING`; `UPDATE … FROM (VALUES …)`) | — |
 
-Las pruebas cuentan las consultas de cada uno.
+Leer y escribir van en la misma transacción (`pair` con `mayReplace`): lo que se preguntó al
+reemplazar es lo que se borra, sin leer dos veces. `queries.test.ts` cuenta las consultas de cada uno,
+con las de abrir y cerrar la transacción. Los trabajos periódicos corren también al poco de arrancar
+el servidor: se reinicia con cada subida, y un trabajo diario no correría nunca.
 
 ## 19. Sin conexión, hora y escala
 

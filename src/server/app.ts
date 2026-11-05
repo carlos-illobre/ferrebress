@@ -12,15 +12,22 @@ import { createPermissionGate } from './platform/permissions.ts';
 import { createRealtime } from './platform/realtime/realtime.ts';
 import { createRequestChecks } from './platform/request-checks.ts';
 import { createSessionGate } from './platform/session.ts';
+import { platformSettings } from './platform/settings.ts';
 import { createStartParts } from './platform/start-parts.ts';
 import { openAuditLog } from './platform/storage/audit/write.ts';
 import { migrate, openDatabase } from './platform/storage/db.ts';
 
 // Cómo se programa un trabajo periódico; las pruebas pasan uno que corre cuando ellas quieren.
 export type Schedule = (ms: number, run: () => void) => () => void;
-const intervals: Schedule = (ms, run) => {
+// Cada trabajo corre también una vez al poco de arrancar: el servidor se reinicia con cada subida, y
+// un trabajo de una vez por día no correría nunca si se reinicia más seguido (vencer vínculos, R2.2).
+export const intervals: Schedule = (ms, run) => {
+  const first = setTimeout(run, platformSettings.firstJobAfterMs).unref();
   const timer = setInterval(run, ms).unref();
-  return () => clearInterval(timer);
+  return () => {
+    clearTimeout(first);
+    clearInterval(timer);
+  };
 };
 
 export async function createServer(

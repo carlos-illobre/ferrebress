@@ -1,6 +1,6 @@
 // Las consultas del vínculo (diseño de 03, § 9). Solo el estado actual: un vínculo que termina se
 // borra, y lo que pasó queda en la auditoría.
-import type { Kysely } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 import type { Pairing } from './rules.ts';
 
 type PairingsTable = {
@@ -44,7 +44,7 @@ const rowOf = (pairing: Pairing): PairingsTable => ({
   paused_at: pairing.pausedAt,
 });
 
-// Leer: el vínculo de un dispositivo, los de varios y los vencidos.
+// Leer: el vínculo de un dispositivo, los de varios y los de una persona.
 function reading(db: Db) {
   const select = () => db.selectFrom('device_link.pairings').select(columns);
   const ofDevices = (userId: string, deviceIds: string[]) =>
@@ -62,13 +62,11 @@ function reading(db: Db) {
       deviceIds.length === 0 ? Promise.resolve([]) : ofDevices(userId, deviceIds).execute(),
     forUser: (userId: string): Promise<Pairing[]> =>
       select().where('user_id', '=', userId).execute(),
-    // Los que llevan los días sin espejar (R2.2), para terminarlos.
-    olderThan: (before: Date): Promise<Pairing[]> =>
-      select().where('mirrored_at', '<=', before).execute(),
   };
 }
 
-// Escribir: crear, borrar (devuelve lo que terminó), la pausa y la última vez que espejaron.
+// Escribir: crear, borrar (devuelve lo que terminó), los vencidos, la pausa y la última vez que
+// espejaron.
 function writing(db: Db) {
   return {
     insert: async (pairing: Pairing) => {
@@ -78,6 +76,13 @@ function writing(db: Db) {
       ids.length === 0
         ? Promise.resolve([])
         : db.deleteFrom('device_link.pairings').where('id', 'in', ids).returning(columns).execute(),
+    // Los que llevan los días sin espejar (R2.2): se borran y se devuelven, en una consulta.
+    removeOlderThan: (before: Date): Promise<Pairing[]> =>
+      db
+        .deleteFrom('device_link.pairings')
+        .where('mirrored_at', '<=', before)
+        .returning(columns)
+        .execute(),
     setPaused: (id: string, at: Date | null) =>
       db
         .updateTable('device_link.pairings')
@@ -85,15 +90,13 @@ function writing(db: Db) {
         .where('id', '=', id)
         .returning(columns)
         .executeTakeFirst(),
-    // Por tandas; una hora más vieja que la guardada no la pisa.
+    // Por tandas, en una consulta; una hora más vieja que la guardada no la pisa.
     touch: async (entries: [string, Date][]) => {
-      for (const [id, at] of entries)
-        await db
-          .updateTable('device_link.pairings')
-          .set({ mirrored_at: at })
-          .where('id', '=', id)
-          .where('mirrored_at', '<', at)
-          .execute();
+      const rows = entries.map(([id, at]) => sql`(${id}::uuid, ${at}::timestamptz)`);
+      await sql`
+        update device_link.pairings as p set mirrored_at = v.at
+        from (values ${sql.join(rows)}) as v (id, at)
+        where p.id = v.id and p.mirrored_at < v.at`.execute(db);
     },
   };
 }

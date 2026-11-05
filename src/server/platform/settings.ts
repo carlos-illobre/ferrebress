@@ -7,4 +7,6 @@ export const platformSettings = {
   rejectedAuditWindow: { max: 1, windowMs: 60_000 },
   // El limitador barre las claves vencidas con más de 10.000, como mucho una vez por minuto.
   limiterSweep: { above: 10_000, everyMs: 60_000 },
+  // Los trabajos periódicos corren una vez a este tiempo de arrancar, además de cada tanto.
+  firstJobAfterMs: 60_000,
 };
