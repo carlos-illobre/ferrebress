@@ -156,6 +156,22 @@ describe('el espejo con el otro', () => {
 });
 
 describe('el tema y los comandos', () => {
+  it('el celular que se fijó deja el tema al rato solo si sigue solo', async () => {
+    vi.useFakeTimers();
+    const { live, events } = fakeLive(waiting);
+    let handler: { onEvent(data: unknown): void } | undefined;
+    live.deps.want = vi.fn((_token, h) => {
+      handler = h;
+      return vi.fn();
+    });
+    subscribe(live, true);
+    handler?.onEvent({ present: false });
+    handler?.onEvent({ present: true, attempt: 'a' });
+    await vi.advanceTimersByTimeAsync(runtimeSettings.peekMs);
+    expect(live.topic).toBeDefined();
+    expect(events).toEqual([{ type: 'peerPresent', attempt: 'a' }]);
+  });
+
   it('sin vínculo no hay tema que pedir', () => {
     const { live } = fakeLive({ kind: 'unpaired' });
     subscribe(live, true);

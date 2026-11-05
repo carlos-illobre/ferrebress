@@ -84,7 +84,11 @@ function close(state: State): void {
 }
 
 // Le dice al servidor lo que cambió; si el canal ya no existe, lo vuelve a abrir.
+// Lo que se suma cuenta como escuchado desde ya: el servidor manda el primer evento de un tema (el
+// estado de ahora) por el canal, y puede llegar antes que la respuesta de este pedido. La respuesta
+// dice lo que de verdad escucha.
 async function change(state: State, opened: Open, add: string[], remove: string[]) {
+  for (const token of add) opened.listening.add(token);
   const body = { channel: opened.id, add, remove };
   const result = await api<{ listening: string[] }>('/api/realtime/subscriptions', body);
   if (state.current !== opened) return;

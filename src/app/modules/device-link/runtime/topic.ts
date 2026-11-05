@@ -6,7 +6,7 @@ import { sides } from '@ferrebress/shared/contracts/pairing';
 import * as z from 'zod/mini';
 import { flag, oneOf } from '../../../platform/schema.ts';
 import { onRelay, onSignal } from './links.ts';
-import { type Live, pairingToken } from './live.ts';
+import { type Live, pairingToken, runtimeSettings } from './live.ts';
 
 // Lo que dice el tema, según qué trae.
 // El vínculo como lo ve este dispositivo: lo dice el tema y lo dice `/api/start`.
@@ -45,11 +45,20 @@ function onPresence(live: Live, topic: Topic, present: boolean, attempt?: string
     live.dispatch({ type: 'peerPresent', attempt });
     return;
   }
-  // El celular se fijó y el otro no está: deja el tema. Por el respaldo, el otro se fue.
+  // El celular se fijó y el otro no está: lo espera un rato y deja el tema. Por el respaldo, el otro
+  // se fue.
+  if (topic.peeking) {
+    setTimeout(() => leaveIfAlone(live, topic), runtimeSettings.peekMs);
+    return;
+  }
   live.enqueue(() => {
-    const state = live.state();
-    if (topic.peeking && live.topic === topic && state.kind === 'waiting') unsubscribe(live);
-    else if (state.kind === 'relayed') live.dispatch({ type: 'peerGone', why: 'lost' });
+    if (live.state().kind === 'relayed') live.dispatch({ type: 'peerGone', why: 'lost' });
+  });
+}
+
+function leaveIfAlone(live: Live, topic: Topic): void {
+  live.enqueue(() => {
+    if (topic.peeking) unsubscribe(live);
   });
 }
 
@@ -84,6 +93,8 @@ export function subscribe(live: Live, peeking: boolean): void {
 }
 
 export function unsubscribe(live: Live): void {
+  // Ya no se fija: lo que esperaba a ver si llegaba el otro no toca un tema que no es este.
+  if (live.topic) live.topic.peeking = false;
   live.topic?.stop();
   live.topic = undefined;
 }

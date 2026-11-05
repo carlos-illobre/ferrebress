@@ -2,9 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "../../dist/types/e2e",
-    "rootDir": ".",
+    "rootDir": "../..",
     "lib": ["es2024", "dom", "dom.iterable"],
     "types": ["node"]
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "../../src/shared/peer/candidates.ts"]
 }

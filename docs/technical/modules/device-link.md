@@ -1116,6 +1116,16 @@ pieza). Las clases pasan al CSS con el nombre de la pieza; los tokens, de `style
 - **La tira** (R4.4): tramos `[desde, hasta, grupo]` en `localStorage`, con la clave
   `device-link.strip.<hash corto de la persona>`, así otra persona en la misma computadora no ve ni suma
   los tramos de la anterior. Menos de 1 KB, del día del negocio según la hora del servidor (00 · R8.4).
+- **El celular que se fija** y no encuentra al otro sigue escuchando 30 s antes de dejar el tema: al
+  vincular o reconectar los dos se enteran casi a la vez, y sin esa espera no se encontrarían hasta
+  el próximo pedido de alguno (lo encontró la prueba de punta a punta).
+- **El canal común** cuenta un tema sumado como escuchado desde que lo pide: el primer evento del tema
+  (el estado de ahora, por ejemplo «el otro está») llega por el canal y puede ganarle a la respuesta del
+  pedido que lo sumó.
+- **La prueba de punta a punta** (`tests/e2e/device-link.spec.ts`, aprobada por Carlos): vincular con
+  el código, conectarse, ver la pantalla de la computadora en el celular y desvincular, con dos
+  navegadores. Exige «Directo» si la máquina tiene una dirección privada; si no (un contenedor), el
+  filtro las saca todas y exige «Por el servidor».
 - **El QR de vincular** lleva `/pair#<código>`. La cámara del teléfono abre esa dirección: con sesión, el
   celular lee el código (E02); sin sesión, queda la entrada y no vincula (E40).
 - Lo que se baja aparte (WebRTC, espejo y detalle): todo junto, enseguida después del arranque, en la

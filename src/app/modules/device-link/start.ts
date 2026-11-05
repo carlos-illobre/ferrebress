@@ -4,6 +4,7 @@
 
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { mirror } from '../../platform/mirror/registry.ts';
+import { bindRoute } from '../../platform/mirror/route.ts';
 import { createRtcConnection } from '../../platform/peer/rtc.ts';
 import { realtime } from '../../platform/realtime/channel.ts';
 import { api, appVersion, decorate, newVersion, online } from '../../platform/server/api.ts';
@@ -71,6 +72,8 @@ export function startDeviceLink(): () => void {
     strip,
   });
   linkRuntime.set(runtime);
+  // La dirección viaja al otro mientras espejan (diseño de 03, § 5.4).
+  const unbindRoute = bindRoute(mirror);
   const stop = watchLink({
     runtime,
     who,
@@ -84,6 +87,7 @@ export function startDeviceLink(): () => void {
     stop();
     runtime.stop();
     journal.stop();
+    unbindRoute();
     linkRuntime.set(undefined);
     linkOver.set(undefined);
   };

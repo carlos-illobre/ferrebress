@@ -93,6 +93,23 @@ describe('el canal de la pestaña', () => {
     expect(server.opens).toHaveLength(1);
   });
 
+  it('el primer evento de un tema sumado llega aunque el servidor todavía no contestó el cambio', async () => {
+    const channel = createRealtimeChannel(server.fetcher);
+    channel.want('test.news:1', handler());
+    await settle();
+    server.opens[0]?.send('hello', { channel: 'c'.repeat(22) });
+    await settle();
+    const late = Promise.withResolvers<Response>();
+    server.reply(() => late.promise as unknown as Response);
+    const pairing = handler();
+    channel.want('test.pairing:2', pairing);
+    await settle();
+    server.opens[0]?.send('test.pairing', { present: true });
+    await settle();
+    expect(pairing.onEvent).toHaveBeenCalledWith({ present: true });
+    late.resolve(Response.json({ listening: ['test.news:1', 'test.pairing:2'] }));
+  });
+
   it('avisa los rechazos y las bajas de un tema, y espera el saludo después de un cierre', async () => {
     const channel = createRealtimeChannel(server.fetcher);
     const news = handler();

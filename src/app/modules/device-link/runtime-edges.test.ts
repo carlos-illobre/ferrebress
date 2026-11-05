@@ -2,7 +2,7 @@
 // fija solo, la huella `l=`, desconectar desde el otro por el servidor, el otro que se va sin avisar,
 // lo que llega roto, terminar el vínculo, el Wi-Fi que se corta, sin internet y el directo dormido
 // que vence.
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { directSettings } from '../../platform/peer/direct.ts';
 import { reconnectDelaysMs } from '../../platform/server/reconnect.ts';
 import { pause, setupDevices as setup, stopDevices, together } from '../../testing/two-devices.ts';
@@ -24,7 +24,23 @@ afterEach(() => {
 });
 
 describe('los bordes del vínculo', () => {
+  it('al vincular, si el celular se fija un instante antes, igual se encuentran', async () => {
+    const { pc, phone } = setup();
+    phone.start();
+    await vi.waitFor(() => expect(phone.kind()).toBe('waiting'));
+    pc.start();
+    await vi.waitFor(() => {
+      expect(pc.kind()).toBe('direct');
+      expect(phone.kind()).toBe('direct');
+    });
+  });
+
   it('el celular solo se fija: sin la computadora deja el tema, y con `l=` cambiado se vuelve a fijar', async () => {
+    const before = runtimeSettings.peekMs;
+    runtimeSettings.peekMs = 20;
+    onTestFinished(() => {
+      runtimeSettings.peekMs = before;
+    });
     const { pc, phone, server } = setup();
     phone.start();
     await vi.waitFor(() => expect(phone.kind()).toBe('waiting'));
