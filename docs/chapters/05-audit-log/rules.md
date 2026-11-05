@@ -165,9 +165,9 @@ registro se decide con el plan de copias de la base.
     así, y que conviene usar la lista con filtros.
 
 - **R4.12** **Lo que gasta esta pantalla**, debajo de «Actualizar solo», en letra chica: los KB por
-  minuto que gasta ahora la actualización automática de Quién hizo qué (el canal, sus avisos y los
-  pedidos de la lista que hace sola; lo que se pide al tocar algo no cuenta), medidos sobre el último
-  minuto, como el medidor de la aplicación (03 · R4.5). No es un acumulado. Apagado, dice 0. Lo que
+  minuto que manda ahora el servidor por su cuenta para Quién hizo qué: lo que llega por el canal (sus
+  avisos y el latido que lo mantiene abierto). No cuenta ningún pedido: ni lo que se pide al tocar algo
+  ni la lista que se pide sola al llegar un aviso. Medidos sobre el último minuto, como el medidor de la aplicación (03 · R4.5). No es un acumulado. Apagado, dice 0. Lo que
   gasta la aplicación entera no va acá: está en el vínculo (03 · R4.5).
 
 ## 5. La conexión

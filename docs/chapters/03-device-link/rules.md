@@ -132,12 +132,13 @@ quita, el resto sigue andando igual.
   el celular y la computadora pueden mostrar números algo distintos.
 - **R4.5** **Lo que gasta la aplicación ahora**, en la tarjeta del vínculo de la computadora, debajo
   de la luz de conexión (00 · R4.1), y en el celular en la pastilla del vínculo, en un renglón debajo
-  del estado: lo que pasa en este momento por todos los canales abiertos de
+  del estado: lo que el servidor manda por su cuenta, en este momento, por los canales abiertos de
   la aplicación (el de cualquier pantalla, como Quién hizo qué, y el del vínculo con el otro
-  dispositivo, R7), en KB por minuto, medido sobre el último minuto. No es un acumulado: es un
-  medidor. Sin ningún canal abierto, dice 0. No depende de ningún selector de una pantalla. Es
-  aproximado: la aplicación suma lo que recibe y manda más lo que agregan la conexión y el cifrado;
-  lo que diga la compañía de teléfono puede no coincidir exactamente.
+  dispositivo cuando va por el servidor, R7), en KB por minuto, medido sobre el último minuto. No
+  cuenta ningún pedido de la aplicación, ni lo que va directo entre los dos por el Wi-Fi. No es un
+  acumulado: es un medidor. Sin ningún canal abierto, dice 0. No depende de ningún selector de una
+  pantalla. Es aproximado: la aplicación suma lo que recibe más lo que agregan la conexión y el
+  cifrado; lo que diga la compañía de teléfono puede no coincidir exactamente.
 
 ## 5. Desconectar, reconectar y desvincular
 

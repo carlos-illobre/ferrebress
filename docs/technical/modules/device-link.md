@@ -1183,18 +1183,21 @@ pastilla del celular, en un renglón debajo del estado, muestran `useRate()` del
 Ejemplo, T118 entero del lado del canal:
 
 ```ts
-// server: modules/audit-log/realtime.ts
+// server: modules/audit-log/live.ts (diseño de 05, § 7.1)
 realtime.topic({
   name: 'audit-log.new',
-  param: z.string().check(z.maxLength(40)),
-  event: z.object({ count: z.number() }),
-  authorize: async (c) => (await can(c, 'audit.view')) ? { key: 'all' } : { refused: 'forbidden' },
-  onSubscribe: async (_key, send, lastId) => send({ count: await countSince(lastId) }),
+  param: z.string().check(z.maxLength(0)),
+  event: z.strictObject({}),
+  authorize: async ({ session }) =>
+    session && (await permissions.of(session.userId)).includes('audit-log.view')
+      ? { key: 'all' }
+      : { refused: 'forbidden' },
+  onSubscribe: (_key, send) => send({}),
   recheckOn: ['users.permissions-changed'],
 });
-// al escribir una tanda en la auditoría: realtime.publish('audit-log.new:all', { count: n })
-// app: modules/audit-log/state.ts
-useTopic('audit-log.new', page.latestId, ({ count }) => setNew(count));
+// después de cada tanda escrita, como mucho cada 5 s: realtime.publish('audit-log.new', 'all', {})
+// app: modules/audit-log/live.ts
+useTopic(live ? 'audit-log.new' : undefined, { onEvent: () => notice() });
 ```
 
 ### 14.2. Qué lo hace robusto

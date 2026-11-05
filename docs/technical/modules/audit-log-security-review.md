@@ -487,3 +487,225 @@ revisión de 01 ya propuso contar IPv6 por `/64`.
 9. **El despliegue:** sin cambios; el servidor corre como `node` y escribe solo en `/data/audit`.
 10. **Dependencias:** ninguna nueva; `pnpm audit --prod` limpio; `node:sqlite` en Node 24.22.1, sin
     `createTagStore`.
+
+## Actualizar solo (T118)
+
+Revisión del diseño de «Actualizar solo» antes de programarlo (paso 4): [audit-log.md](audit-log.md)
+§ 1, § 5 (`latest` y `GET /api/audit-log/new`), § 7, § 8.1, § 9, § 10 y § 11, y la fila del tema en
+[device-link.md](device-link.md) § 3.1. Fuentes: 05 · R4.6, R4.12, E34, E49 a E56; 03 · R4.5, E45 y
+E46; el canal tal como está programado (`src/server/platform/realtime/`, `src/app/platform/realtime/`),
+la escritura de la auditoría (`platform/storage/audit/write.ts`), los permisos
+(`platform/permissions.ts`, `modules/users/roles/access.ts`), las sesiones (`platform/session.ts`,
+`modules/sign-in/index.ts` y `context.ts`) y las rutas de 05 (`modules/audit-log/routes.ts`). Lo demás
+de 05 ya revisado no se repite.
+
+### Resumen
+
+El diseño parte bien: el aviso no lleva nada (`{}`), la clave es una sola (`all`) y el tema no es
+`anonymous`, así que el hub ya rechaza a quien no tiene sesión (`hub.ts:89`); lo que se ve sale de la
+lista, con su sesión, su permiso, su límite y su `audit-log.opened`; `/new` entra en la tabla de
+«cerrado por defecto» (`routes-permissions.test.ts`), que obliga a declarar su permiso; el fin de
+cualquier sesión cierra sus canales (`realtime.ts:319`); el medidor vive en memoria del dispositivo.
+**No encontré nada que frene.** Lo que importa es cómo sabe el tema los permisos, que el diseño no
+dice y el canal hoy no da (17), y un ejemplo en el diseño de 03 que, copiado, abre lo que este diseño
+cierra (18).
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 17 | El tema no tiene de dónde sacar los permisos: el canal no los resuelve, el recheck no tiene pedido, y la memoria de permisos se borra en el mismo evento que dispara el recheck | Mejora importante |
+| 18 | El ejemplo de T118 en device-link.md § 14.1 contradice al diseño: manda una cuenta, consulta en cada suscripción sin límite ni rastro, y nombra mal el permiso | Mejora importante |
+| 19 | `onWritten` dentro de `flush`: un error del aviso corta la escritura de la auditoría o tira el servidor | Mejora |
+| 20 | El límite de 60 por persona con varias pestañas prendidas: alguien de afuera que genera filas le hace llegar al `429` a quien mira | Mejora |
+| 21 | Pedir el tema sin permiso no se anota | Mejora |
+| 22 | `since`: años viejos, el borde de 2⁵³ y el año sin archivo | Mejora |
+| 23 | Detalles: la sesión vencida, el `403` al abrir, prender y apagar rápido, una prueba cerrada por defecto para los temas | Mejora |
+
+### 17 · De dónde saca el tema los permisos (§ 7.1, «Quién» y «Permisos»; device-link.md § 3.1) — Mejora importante
+
+**Dónde:** § 7.1 dice «Con sesión y `audit-log.view`; si no, `refused: 'forbidden'`» y
+`recheckOn: ['users.permissions-changed']`. No dice con qué se mira el permiso.
+
+**Lo que hay hoy en el código:**
+
+1. Los permisos de un pedido los deja el paso `sessions.require` con sus `onSession`
+   (`permissions.ts:30` a `:34`). El canal no pasa por ahí: `whoAsks` usa `sessions.identify`
+   (`realtime/routes.ts:212`), que resuelve la sesión **sin** correr esos pasos (`session.ts:55` a
+   `:58`). En `authorize`, `permissionsOf(listener.request)` da siempre `[]`.
+2. En el recheck no hay pedido: `recheckChannel` pasa solo `{ session }`, la que quedó guardada al
+   abrir el canal (`hub.ts:136`). `RequestSession` no lleva permisos (`session.ts:11` a `:18`).
+3. La puerta de permisos no le da a nadie cómo saber los de una persona fuera de un pedido: solo
+   tiene `provide` y `require` (`permissions.ts:47` a `:55`). Ningún tema de hoy mira permisos: este
+   es el primero.
+4. Los permisos están en una memoria (`users/roles/access.ts:20` a `:30`) que se borra con el mismo
+   `users.permissions-changed` que dispara el recheck. Los dos corren después de confirmar, en el
+   orden en que se registraron (`events.ts:58`); hoy `users` se registra antes que `audit-log`
+   (`modules.ts:25`), así que el borrado va primero. Si el orden cambia, el recheck lee lo viejo.
+
+**El ataque, si se programa de la forma más directa:** quien lo escribe ve que en `authorize` los
+permisos dan vacío al abrir y, para que el recheck «no rompa», hace que sin pedido deje pasar, o
+guarda los permisos que leyó al abrir en el parámetro o en la clave. Entonces: Graciela tiene
+«Ver quién hizo qué» y deja Quién hizo qué prendido en la computadora del mostrador; el Administrador
+le saca el rol; el recheck la deja pasar y esa pestaña sigue recibiendo los avisos hasta que se
+cierre el canal. El aviso no lleva datos y las rutas ya le dan `403`, así que lo que consigue es saber
+**cuándo** se anota algo (cuándo entra o sale gente, cuándo hay rechazos) sin permiso. Es poco, pero
+es justo lo que R4.6 y § 9 dicen que no pasa. Con el orden de los módulos cambiado pasa lo mismo sin
+que nadie programe mal.
+
+**Qué propongo:** que § 7.1 diga cómo: la puerta de permisos suma `permissions.of(userId)` (la misma
+`resolve` que ya usa `onSession`, con su memoria), y `authorize` la llama con
+`listener.session.userId`, igual al abrir que en el recheck, sin mirar `listener.request`. Que el
+recheck mire **después** de que la memoria se borró: o la memoria de permisos se borra antes que
+cualquier otro oyente (un `on` de la plataforma que corre primero), o el recheck espera una vuelta
+(`queueMicrotask`) y la memoria lo garantiza. Y una prueba de `live.test.ts` con el módulo `users` de
+verdad (no uno de mentira): con el canal abierto, sacarle el rol, y que llegue `refused` y ningún
+aviso más; otra con los módulos registrados en el otro orden. Cuesta: una función en la puerta, un
+párrafo y dos pruebas.
+
+### 18 · El ejemplo de device-link.md § 14.1 contradice al diseño — Mejora importante
+
+**Dónde:** device-link.md, § 14.1, «Ejemplo, T118 entero del lado del canal». La fila de § 3.1 está
+al día; el ejemplo no.
+
+**Qué dice el ejemplo:** el parámetro es el último id que vio la pantalla (`maxLength(40)`, sin forma);
+el evento es `{ count }`; `onSubscribe` corre `countSince(lastId)` en cada suscripción; publica
+`{ count: n }` a todos; y pide `'audit.view'`, un permiso que no existe.
+
+**El ataque, si se programa copiando el ejemplo:** Graciela, con el permiso, abre la consola y manda
+`POST /api/realtime/subscriptions` sacando y sumando `audit-log.new:<id>`: el canal deja 60 cambios
+por minuto por canal y 4 canales por sesión, y cada suma es una consulta de conteo en el hilo de la
+auditoría que **no pasa** por el límite de 60 por minuto de las rutas ni anota `audit-log.opened`.
+Con un `lastId` viejo (o inventado: solo se mide el largo) cada conteo recorre años. Unas 240
+consultas pesadas por minuto, de a una en el mismo hilo que usan todos, sin rastro. Además el `count`
+publicado es sin filtros, así que la pantalla muestra «n nuevas» que no cumplen el filtro, y el aviso
+deja de ser «sin datos» (R4.6). Con `'audit.view'` el tema rechaza a todos (eso no abre nada, pero
+empuja a «arreglarlo» a mano).
+
+**Qué propongo:** reemplazar el ejemplo por el de § 7.1 (parámetro vacío, evento `{}`, clave `all`,
+`onSubscribe` que solo manda `{}`, `audit-log.view`), y decir en § 14.1 que un `onSubscribe` no
+consulta la base, o si consulta, que pase por el mismo límite que la ruta. Cuesta: diez líneas de
+documentación.
+
+### 19 · `onWritten` dentro de `flush` (§ 7.1, «Cuándo avisa») — Mejora
+
+**Dónde:** § 7.1: «la auditoría suma `onWritten(listener)`, que se llama después de confirmar cada
+tanda (`write.ts`, una vez por segundo como mucho)».
+
+**Lo que pasa en el código:** `flush` no corre solo en el temporizador de cada segundo: también desde
+`record` cuando la tanda llega a su tamaño (`write.ts:103`, dentro del pedido de cualquier módulo que
+anota) y desde la lectura, que baja la tanda antes de cada consulta (§ 5, «La consulta»). Además
+`flush` saca todo lo pendiente antes de escribir (`pending.splice(0)`, `write.ts:95`) y escribe año por
+año. Si `onWritten` se llama ahí y algo de la cadena tira un error (por ejemplo `deliver` del hub, que
+tira si el evento no cumple su forma, `hub.ts:75`), según dónde: el pedido de otro módulo contesta
+`500` aunque su transacción ya se confirmó; las acciones del año siguiente de esa tanda, ya sacadas
+de `pending`, no se escriben (R1.1: «nunca se deja de anotar»); o, dentro del `setInterval`, un error
+sin atrapar tira el proceso. **No pude armar un ataque desde afuera:** el evento es un `{}` fijo y
+`channel.send` no tira. Es robustez, pero el costo de que falle es la auditoría.
+
+**Qué propongo:** que § 7.1 diga que `onWritten` se llama una sola vez por `flush`, después de escribir
+todos los años, fuera de la escritura (`queueMicrotask`) y con cada oyente en su `try/catch`; un error
+se registra en el registro del servidor y no toca la tanda. Y corregir «una vez por segundo como
+mucho»: el tope de los avisos lo da el de 5 s del módulo, no el de la tanda. Una prueba: un oyente que
+tira y la tanda igual queda escrita. Cuesta: unas líneas y una prueba.
+
+### 20 · El límite de 60 por persona con varias pestañas prendidas (§ 7.1, «Sin consultas»; § 5) — Mejora
+
+**Dónde:** § 7.1 dice que el límite de 60 por minuto por persona «alcanza: como mucho 12 puestas al
+día por minuto por pestaña». El límite es por persona (`routes.ts`, `audit-log:person:<id>`), la
+cuenta es por pestaña.
+
+**El ataque:** alguien de internet, sin cuenta, intenta entrar con correos inventados cada 4 s,
+cambiando de dirección para no llegar a los límites de entrar (o usando los límites mismos: cada
+`request.throttled` nuevo, por clave nueva, también es una fila). Cada fila es un aviso a los 5 s. El
+Administrador tiene Quién hizo qué abierto en tres pestañas de la computadora (las deja el canal: 4
+por sesión) y en la de otra computadora: cuatro pestañas arriba de todo hacen 48 pedidos por minuto
+solos, más los `/new` de las que están abajo, más lo que toca él. Llega a 60 y todo Quién hizo qué le
+contesta `429`, también lo que pide al tocar, justo mientras lo están atacando y quiere mirar. El
+`request.throttled` que eso anota es una vez por ventana (`guards.ts:82` a `:84`), así que no se
+realimenta, pero el atacante sostiene el efecto con poco. No lee ni cambia nada: es disponibilidad.
+
+**Qué propongo:** (a) que § 7.2 diga qué hace la pantalla prendida con un `429`: no reintenta antes de
+`retryAfterSeconds`, no muestra error por un pedido solo, y lo que pide la persona al tocar tiene
+prioridad; (b) que los pedidos solos (`meter: 'audit-log'`) cuenten contra un límite propio por
+**sesión** (por ejemplo 15 por minuto) y no contra el de 60 de lo que toca la persona; o (c) subir el
+de 60 sabiendo que el tope real lo pone el aviso de 5 s. Recomiendo (a) y (b). Y que § 7.1 corrija la
+cuenta: «por pestaña» no alcanza cuando el límite es por persona. Cuesta: un párrafo, una clave de
+límite y una prueba de pantalla con un `429`.
+
+### 21 · Pedir el tema sin permiso no se anota (§ 7.1, § 9 «Lo que queda en la auditoría») — Mejora
+
+**Dónde:** las rutas sin permiso anotan `permission.denied` (E14, `permissions.ts:35` a `:46`). El
+tema contesta `refused: 'forbidden'` y no anota nada (el hub no anota rechazos: `routes.ts:233`).
+
+**El ataque:** Marcos, Cajero, sin el permiso, prueba desde la consola `GET /api/realtime?s=audit-log.new`
+para ver si recibe algo. No recibe nada (bien), pero tampoco queda rastro, y la pantalla nunca pide el
+tema sin el permiso: un pedido así siempre es alguien probando a mano.
+
+**Qué propongo:** que `authorize`, cuando rechaza **al abrir o al sumar** (no en el recheck, que es
+el caso normal de perder el permiso), anote `permission.denied` con `data.topic` en lugar de
+`data.path`, una vez por minuto por persona y permiso, con el mismo límite que la puerta. Para eso el
+hub tiene que pasarle si es un recheck (hoy se nota porque no hay `listener.request`). Cuesta: unas
+líneas y una prueba.
+
+### 22 · `since` (§ 5, `GET /api/audit-log/new`) — Mejora
+
+- **Años viejos.** `since` vale con cualquier año que tenga archivo, y cuenta «todas las de los
+  archivos de años posteriores». La pantalla solo manda el `latest` que recibió, del año en curso (o
+  del anterior, cruzando el 1 de enero). Con `since=2020:0` y un filtro que casi no coincide (`by` de
+  alguien que hizo dos cosas), `limit 100` no corta y cada pedido recorre el índice de esa persona en
+  cada año. Con el límite de 60 y el hilo de a una no tira nada, pero la meta de 20 ms es para el caso
+  de la pantalla. Propongo aceptar solo el año en curso y el anterior (`400` con `since` si no); una
+  línea y un caso en la prueba de E39.
+- **2⁵³.** «`n` entero entre 0 y 2⁵³»: 2⁵³ ya no es un entero seguro en JavaScript (`2**53 + 1`
+  se lee igual). Que diga «hasta `Number.MAX_SAFE_INTEGER`», con una expresión regular de dígitos
+  antes de convertir (sin `1e3`, `0x10` ni espacios). Una línea.
+- **El año sin archivo.** `latest` es «`max(id)` del archivo del año en curso». El 1 de enero, antes de
+  la primera acción del año, ese archivo no existe; si `latest` dice `2027:0`, el `/new` siguiente da
+  `400` («un año con archivo») y la pantalla queda sin «n nuevas» hasta la primera fila. Que `latest`
+  salga del archivo más nuevo que existe, y que `/new` acepte el año en curso aunque no tenga archivo
+  (cuenta 0, sin crearlo). No es un ataque; lo dejo porque toca la validación.
+
+Lo demás de `/new` está bien: los filtros se validan como en la lista, la cuenta tope de 100 no deja
+contar más que la lista misma, y quien la pide ya puede ver todas las acciones, así que contar con
+filtros (`to=<persona>`) no le dice nada que no vea.
+
+### 23 · Detalles — Mejora
+
+- **La sesión que vence sin que nadie lo diga** (por no usarla, por edad) se descubre en el latido,
+  cada 40 s (`realtime.ts:323` a `:330`): hasta 40 s más de avisos `{}`. Sin datos y a quien tenía
+  el permiso: aceptable; que § 9 lo diga en lugar de «una sesión que termina cierra su canal».
+- **El `403` al abrir.** Si el canal se abre solo con `audit-log.new` y el tema lo rechaza, el
+  servidor contesta `403` y la aplicación llama a `onRefused('403')`, no `'forbidden'`
+  (`app/platform/realtime/channel.ts:71` a `:73`). § 7.2 dice que la pantalla cierra con
+  `forbidden`: que diga los dos, o el canal de la aplicación que traduzca. Sin esto, quien perdió el
+  permiso con la pestaña oculta vuelve y la pantalla no se cierra (el servidor igual le niega todo).
+- **Prender y apagar rápido.** Con el selector como único tema, cada vez se cierra y se abre el canal,
+  y las aperturas son 10 por minuto **por sesión** (`admission.ts:408`): quien prende y apaga diez
+  veces deja a sus otras pestañas de esa sesión (también la del vínculo) sin poder abrir canal hasta un
+  minuto. Es contra uno mismo; se evita con que el canal de la aplicación espere unos segundos antes de
+  cerrarse cuando queda sin temas. No se anota y está bien que no.
+- **Cerrado por defecto para los temas.** Las rutas tienen una prueba que obliga a declarar lo que
+  pide cada una; los temas no. Una tabla igual en `realtime.test.ts` («cada tema dice si es anónimo y
+  qué pide; sin sesión, sin permiso, `refused`») hace que el próximo tema no se olvide. Media hora.
+- **Fuera de seguridad:** una entrada sin conexión de diciembre que llega en enero se escribe en el
+  archivo del año anterior (el año es el de `at`, § 3); `/new` con `since` del año en curso no la
+  cuenta y la marca no la pinta. Lo dejo anotado para la revisión del diseño.
+
+### Por tema, en una línea
+
+1. **Entrar sin permiso:** nada nuevo; el canal se abre con la sesión de siempre y el tema no es
+   anónimo.
+2. **Permisos:** el tema pide `audit-log.view` y lo vuelve a mirar al cambiar; falta decir con qué (17);
+   `/new` va a la tabla de cerrado por defecto; la baja y cerrar sesiones cierran el canal.
+3. **Lo que entra de afuera:** el parámetro del tema es vacío; `since` con forma y topes (22); los
+   filtros de `/new`, como los de la lista.
+4. **La aplicación en el navegador:** el aviso no trae datos; lo que se muestra sale de la lista como
+   texto; el estado del selector no se guarda ni se espeja (E56).
+5. **Datos personales y secretos:** el aviso dice solo que hubo algo, y solo a quien ve todo; el
+   medidor no sale del dispositivo, no se guarda y muestra solo KB.
+6. **Abuso y disponibilidad:** el aviso cada 5 s para todos y sin consultas; el límite por persona
+   contra varias pestañas (20); el ejemplo de 03 que consultaría sin límite (18); `onWritten` (19).
+7. **Sin conexión:** no aplica: sin conexión no hay canal, y al volver se pide la lista con la sesión.
+8. **Auditoría:** ponerse al día no anota (salvo `audit-log.opened`, una vez por sesión y día), así no
+   se realimenta; el tema rechazado no se anota (21).
+9. **El despliegue:** sin cambios; el canal ya pasa por Caddy (diseño de 03).
+10. **Dependencias:** ninguna nueva; el medidor usa `PerformanceResourceTiming` del navegador.
