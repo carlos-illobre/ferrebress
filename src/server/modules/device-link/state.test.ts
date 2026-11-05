@@ -191,8 +191,9 @@ describe('lo que termina el vínculo', () => {
 
   it('E13: se usan juntos todos los días: a los 40 días siguen vinculados', async () => {
     const { computer, phone, id } = await linked();
-    for (let day = 0; day < 40; day++) {
-      now += 24 * 60 * 60 * 1000;
+    // Cada 10 días alcanza para probarlo (vence a los 30 sin espejar), y es más rápido que día por día.
+    for (let day = 0; day < 40; day += 10) {
+      now += 10 * 24 * 60 * 60 * 1000;
       for (const device of [computer, phone])
         await device.signInWithGoogle({ sub: 'sub-admin', email: 'admin@example.com' });
       const tabs = [
