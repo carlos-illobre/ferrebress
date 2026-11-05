@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startParts } from '../../../platform/server/start-parts.ts';
 import { createStore } from '../../../platform/store.ts';
 import { pairingView, pc, phone } from '../../../testing/pairing.ts';
+import { Toasts } from '../../../ui/toast/Toast.tsx';
 import { linkOver, linkRuntime, linkStrip } from '../current.ts';
 import { detailOpen } from '../detail.ts';
 import { frameLink } from '../frame-link.tsx';
@@ -15,7 +16,6 @@ import { Layer as Over } from './Detail/Over.tsx';
 import { PhoneIndicator, SideIndicator } from './Indicator/Indicator.tsx';
 
 const hour = 3_600_000;
-
 function fakeRuntime(state: PairingState) {
   const runtime = {
     state: createStore<PairingState>(state),
@@ -156,6 +156,10 @@ describe('el detalle', () => {
     );
     act(() => runtime.state.set({ kind: 'relayed', pairing: pc, attempt: 'a', probe: 'failed' }));
     expect(screen.getByRole('status').textContent).toMatch(/No se pudo/);
+    render(<Toasts />);
+    act(() => runtime.state.set({ kind: 'relayed', pairing: pc, attempt: 'a', probe: 'trying' }));
+    act(() => runtime.state.set({ kind: 'direct', pairing: pc, attempt: 'a' }));
+    expect(screen.getAllByText(/Ahora van directo por el Wi-Fi/).length).toBeGreaterThan(0);
   });
 
   it('desconectado ofrece reconectar; sin vincular, los pasos; esperando y sin internet, su frase', async () => {

@@ -137,6 +137,16 @@ export const detailTexts = {
   toast: {
     pairedPhone: 'Vinculados: fuiste a la pantalla de la compu',
     pairedComputer: 'Vinculados: el celular vino a esta pantalla',
+    paused: words(
+      'Desconectados: cada uno sigue por su lado',
+      'Desconectados: cada uno por su lado',
+    ),
+    resumed: words(
+      'Reconectados: el celular vino a esta pantalla',
+      'Reconectados: fuiste a la pantalla de la compu',
+    ),
+    unpaired: 'Desvinculados: cada uno sigue en su pantalla',
+    direct: words('Ahora van directo por el Wi-Fi del local', 'Ahora van directo por el Wi-Fi'),
   },
 };
 

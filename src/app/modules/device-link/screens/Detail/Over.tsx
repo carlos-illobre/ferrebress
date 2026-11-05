@@ -2,7 +2,7 @@
 // computadora), la lectura del código en el celular y la confirmación de desvincular. Llega con el
 // vínculo, con sus íconos.
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { useStore } from '../../../../platform/store.ts';
 import { addShapes } from '../../../../ui/icon/Icon.tsx';
 import { linkShapes } from '../../../../ui/icon/link-shapes.tsx';
@@ -12,7 +12,7 @@ import { linkRuntime } from '../../current.ts';
 import { detailOpen, reading } from '../../detail.ts';
 import type { Runtime } from '../../runtime.ts';
 import { useLinkView } from '../../use-link.ts';
-import { onPhone } from '../../view.ts';
+import { type LinkView, onPhone } from '../../view.ts';
 import { ConfirmUnpair } from '../Confirm/Confirm.tsx';
 import { Read } from '../Read/Read.tsx';
 import type { Act } from './Actions.tsx';
@@ -65,6 +65,8 @@ export function Over({ runtime }: { runtime: Runtime }) {
   const actions = linkActions(runtime);
   const onAct = (act: Act) => {
     if (act === 'unpair') return setAsking(true);
+    if (act === 'pause') showToast(detailTexts.toast.paused, 'unplug');
+    if (act === 'resume') showToast(detailTexts.toast.resumed, 'check');
     if (act !== 'pair') return actions[act]();
     // Vincular: la computadora muestra el código; el celular abre la cámara.
     if (!onPhone(view)) return code.show();
@@ -85,7 +87,9 @@ export function Over({ runtime }: { runtime: Runtime }) {
           other={view.pairing.other.label}
           onCancel={() => setAsking(false)}
           onUnpair={async () => {
-            if (await actions.unpair()) setAsking(false);
+            if (!(await actions.unpair())) return;
+            setAsking(false);
+            showToast(detailTexts.toast.unpaired, 'unlink');
           }}
         />
       )}
@@ -93,10 +97,20 @@ export function Over({ runtime }: { runtime: Runtime }) {
   );
 }
 
+// Cuando «Probar conexión directa» sale bien, lo dice (E19).
+function useDirectNotice(view: LinkView) {
+  const trying = useRef(false);
+  useEffect(() => {
+    if (trying.current && view.status === 'direct') showToast(detailTexts.toast.direct, 'zap');
+    trying.current = view.probe === 'trying';
+  }, [view.status, view.probe]);
+}
+
 // Lo que pone el marco: nada mientras no hay sesión o el vínculo no llegó.
 export function Layer() {
   const view = useLinkView();
   const runtime = useStore(linkRuntime);
+  useDirectNotice(view);
   if (!runtime || view.hidden) return null;
   return <Over runtime={runtime} />;
 }
