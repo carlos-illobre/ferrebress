@@ -109,6 +109,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   exista, valen 60 minutos y 8 horas. Los cuenta el reloj del servidor.
 - **R3.3** Solo cuentan como uso los pedidos al servidor. Mirar una pantalla sin pedir nada no
   cuenta. Usar el celular y la computadora en espejo cuenta como uso de las dos sesiones (03 · R2.5).
+  Lo que una pantalla pide sola, sin que nadie la toque, no cuenta: por ejemplo, Quién hizo qué
+  poniéndose al día con «Actualizar solo» (05 · R4.6).
 - **R3.4** Cuando la sesión termina, la aplicación muestra la entrada encima de lo que había, sin
   borrarlo. Si vuelve a entrar la misma persona, sigue donde estaba. Si entra otra, lo que la
   anterior tenía a medio hacer y sin cobrar se descarta, y lo que tenía sin enviar se manda igual

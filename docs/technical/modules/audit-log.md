@@ -407,7 +407,9 @@ su detalle.». Al arrancar se le suma solo al Administrador (diseño de 02, § 1
   - tienen su propio límite, 30 por minuto por sesión (`auditLogSettings.autoReads`), aparte de los 60
     por persona de lo que se pide al tocar: varias pestañas prendidas no dejan sin respuesta a un toque
     (revisión de seguridad, 20);
-  - no alargan la sesión, como ya pasa con el canal (lo que propone el diseño; lo decide Carlos, § 14).
+  - no cuentan como uso de la sesión (01 · R3.3), como ya pasa con el canal: la sesión que toca
+    `lastUsed` lo saltea si el pedido trae `X-Auto`. Si nadie toca nada, vence a los 60 minutos como en
+    cualquier otra pantalla.
 - **Sin consultas:** avisar es un temporizador y una escritura por oyente. Lo que se consulta es la
   lista que pide cada pantalla.
 - **Una sesión vencida** puede recibir avisos hasta el próximo latido (como mucho 40 s), cuando el hub
@@ -586,7 +588,7 @@ dispositivos, que va por el Wi-Fi. Es de la plataforma: no sabe de pantallas, so
   dos años vivos y enteros seguros, y nunca crea archivos. El canal tiene sus topes (4 canales por
   sesión, 10 aperturas y 60 cambios de temas por minuto) y el aviso sale como mucho cada 5 s para todos;
   lo que se pide solo tiene su propio límite por sesión (`X-Auto`), aparte del de los toques. Una
-  cabecera `X-Auto` falsa solo puede hacer que un pedido no anote «Abrió Quién hizo qué»: quien tiene el
+  cabecera `X-Auto` falsa solo puede hacer que un pedido no alargue la propia sesión o no anote «Abrió Quién hizo qué»: quien tiene el
   permiso ya quedó anotado la primera vez del día que la abrió a mano, y si nunca lo hizo, ese pedido
   igual pasa por el permiso y el límite. Prender y apagar el selector no se anota.
 - **El medidor** queda en el dispositivo: no sale nada de él, no se guarda y solo dice KB.
@@ -635,7 +637,7 @@ dispositivos, que va por el Wi-Fi. Es de la plataforma: no sabe de pantallas, so
 | E17 a E22, E35b | De la pantalla, con el servidor de mentira: 20 y 10 por página, total y «página n de m», vacío, colores (sacar un rol en rojo, darlo sin color), fecha solo si no es de `today`, un ícono por tipo |
 | E23 a E31, E35c | De la consulta (cada filtro y sus combinaciones, los atajos con el reloj del servidor, contra archivos de dos años con una acción el 31 de diciembre a las 22) y de la pantalla (volver a la página 1, «Sacar los filtros», los números que filtran) |
 | E32, E33, E35, E35d | De la pantalla: el detalle, tocar una persona, el teclado |
-| E34, E49 a E56 | De la pantalla, con el servidor de mentira y el canal de mentira de las pruebas del vínculo: apagado no pide nada solo; prendido en la computadora y apagado en el celular al abrir; arriba de todo entra marcado y se ponen al día el resumen y la tira; abajo o en la página 2, «3 nuevas» y tocarlo; diez avisos en 5 s, una puesta al día; otro día, sin selector ni tema; oculta, sin tema, y al volver, una puesta al día; prenderlo en el celular pide y muestra los KB; el selector no viaja por el espejo. Además, de la pantalla: un aviso con la cinta abierta se atiende al cerrarla; una respuesta vieja (otro filtro, la lista bajada) se tira; con la pestaña oculta o apagado no pide; prender y apagar seguido no rehace el canal; con `429` espera; Alt + N. Del servidor (`live.test.ts`): el tema pide el permiso, se anota sin él y lo suelta al sacarlo, con el módulo `users` de verdad y los módulos en los dos órdenes; el alta manda `{}`; diez tandas en 5 s dan dos avisos; sin oyentes no hay temporizador; un error de un oyente de `onWritten` no corta la escritura ni el pedido que la hizo correr. De las rutas: `latest` y la página de la misma foto aunque una tanda caiga en el medio; `withToday` con cada atajo; `/new` con filtros, con una entrada sin conexión en el archivo del año anterior, el 1 de enero sin archivo nuevo, el tope de 100, su plan y un `since` mal (otro año, un número inseguro); `X-Auto` no anota «Abrió Quién hizo qué» y tiene su límite. De los temas: todo tema sin `anonymous` rechaza sin sesión, como la prueba de rutas cerradas por defecto. Del despliegue: `/api` comprimido y el canal no |
+| E34, E49 a E56 | De la pantalla, con el servidor de mentira y el canal de mentira de las pruebas del vínculo: apagado no pide nada solo; prendido en la computadora y apagado en el celular al abrir; arriba de todo entra marcado y se ponen al día el resumen y la tira; abajo o en la página 2, «3 nuevas» y tocarlo; diez avisos en 5 s, una puesta al día; otro día, sin selector ni tema; oculta, sin tema, y al volver, una puesta al día; prenderlo en el celular pide y muestra los KB; el selector no viaja por el espejo. Además, de la pantalla: un aviso con la cinta abierta se atiende al cerrarla; una respuesta vieja (otro filtro, la lista bajada) se tira; con la pestaña oculta o apagado no pide; prender y apagar seguido no rehace el canal; con `429` espera; Alt + N. Del servidor (`live.test.ts`): el tema pide el permiso, se anota sin él y lo suelta al sacarlo, con el módulo `users` de verdad y los módulos en los dos órdenes; el alta manda `{}`; diez tandas en 5 s dan dos avisos; sin oyentes no hay temporizador; un error de un oyente de `onWritten` no corta la escritura ni el pedido que la hizo correr. De las rutas: `latest` y la página de la misma foto aunque una tanda caiga en el medio; `withToday` con cada atajo; `/new` con filtros, con una entrada sin conexión en el archivo del año anterior, el 1 de enero sin archivo nuevo, el tope de 100, su plan y un `since` mal (otro año, un número inseguro); `X-Auto` no anota «Abrió Quién hizo qué», no alarga la sesión y tiene su límite. De los temas: todo tema sin `anonymous` rechaza sin sesión, como la prueba de rutas cerradas por defecto. Del despliegue: `/api` comprimido y el canal no |
 | 03 · E45, E46 | Del medidor (`meter.test.ts`, con reloj de prueba): cuenta bytes y no caracteres, por tema y el total una vez, el latido de un tema solo es suyo, a los 60 s sin nada dice 0. De `sse.ts`: cada trozo se cuenta. De la pantalla: apagado dice 0 en el momento. De las pantallas del vínculo: el total en la tarjeta y en la pastilla |
 | E40 a E48 | De la pantalla, con el servidor de mentira y un reloj de prueba: abrir desde la tira y desde «Ver el día», cerrar y volver igual, la línea de quién a quién, ← →, reproducir y detenerse, aislar, cambiar de día, más de 2.000. De la ruta `/day`: el día entero sin filtros, la semana y `tooMany` |
 | E36 | De la pantalla: gris sin conexión; al volver sale del gris sin pedir nada |
@@ -663,6 +665,8 @@ del vínculo.
 6. **Los dos medidores** (R4.12; 03 · R4.5): KB por minuto sobre el último minuto, sin acumulado; el de
    la pantalla debajo del selector y el de la aplicación en la tarjeta del vínculo y en la pastilla.
    **Cuentan solo lo que el servidor manda por su cuenta por los canales**, ningún pedido.
+7. **Lo que la pantalla pide sola no cuenta como uso de la sesión** (01 · R3.3): con «Actualizar solo»
+   prendido y nadie tocando, la sesión vence a los 60 minutos igual.
 
 ## 13. Tareas
 
@@ -693,7 +697,7 @@ del vínculo.
 10. **El aviso y las rutas** (T118): `onWritten` fuera de la pila y aislado, `live.ts` con el tema, el
     aviso cada 5 s y `permission.denied`; la transacción de lectura por pedido, `latest` de los dos
     archivos vivos y `withToday` en la lista; `GET /api/audit-log/new`; `X-Auto` con su límite y sin
-    anotar «Abrió»; los nombres en `settings.ts`; con sus pruebas y las que cuentan sus consultas.
+    anotar «Abrió» ni contar como uso de la sesión; los nombres en `settings.ts`; con sus pruebas y las que cuentan sus consultas.
     Depende de 9.
 11. **Comprimir `/api`** (T118): `encode` en `deploy/Caddyfile` sin el canal, con su prueba de despliegue.
     No depende de nada.
@@ -702,15 +706,3 @@ del vínculo.
 13. **La documentación** (T118): el manual (`docs/manual/audit-log.md`) deja de decir «tocá
     «Actualizar»» y explica el selector y el medidor, con sus capturas; el de `device-link`, el medidor;
     `architecture.md` suma `platform/meter.ts`; `mobile-data.md`, con los números de § 7.3. Depende de 12.
-
-## 14. Lo que tiene que decidir Carlos
-
-1. **Si la lista que se pide sola cuenta como uso de la sesión** (01 · R3.1; revisión, T.8). Hoy todo
-   pedido cuenta, así que una computadora con Quién hizo qué abierto y prendido no vence por los 60
-   minutos sin uso mientras haya movimiento en el negocio: la pantalla más sensible queda abierta sola.
-   - **Que no cuente** (lo que propone el diseño): los pedidos con `X-Auto` no alargan la sesión, como ya
-     pasa con el canal. Si nadie toca nada, vence a los 60 minutos igual que cualquier otra pantalla.
-   - **Que cuente:** la pantalla queda siempre al día y abierta mientras haya acciones; contra, si
-     alguien se va y deja la computadora, la auditoría queda a la vista sin vencer.
-   - **Que cuente, pero se apague solo** a los 60 minutos sin tocar nada: sigue la sesión, pero deja de
-     ponerse al día hasta que alguien toque.
