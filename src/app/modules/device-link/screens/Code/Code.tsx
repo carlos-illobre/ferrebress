@@ -8,6 +8,7 @@ import isotype from '../../../../styles/brand/isotype.svg';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { pairUrl } from '../../pair.ts';
+import { pairingShape } from '../../runtime/topic.ts';
 import { detailTexts } from '../Detail/texts.ts';
 import './Code.css';
 
@@ -49,12 +50,15 @@ export function Code({ other, onPaired, onBack }: Props) {
   // local: el tilde de leído, de esta computadora.
   const [read, setRead] = useState(false);
   useTopic('device-link.code', {
+    // Lo que llega se valida: viene del servidor, pero por la red, y el vínculo entra a la máquina.
     onEvent: (data) => {
-      const event = data as { code?: string; paired?: PairingView };
-      if (event.code) setCode({ value: event.code, since: Date.now() });
-      if (event.paired) {
+      const event = (data ?? {}) as { code?: unknown; paired?: unknown };
+      if (typeof event.code === 'string' && event.code.length <= 64)
+        setCode({ value: event.code, since: Date.now() });
+      const paired = pairingShape.safeParse(event.paired);
+      if (paired.success) {
         setRead(true);
-        onPaired(event.paired);
+        onPaired(paired.data);
       }
     },
   });

@@ -71,6 +71,10 @@ describe('el código de la computadora', () => {
       vi.advanceTimersByTime(5000);
     });
     expect(screen.getByText('Se renueva en 0:55')).toBeTruthy();
+    // Lo que no tiene su forma no hace nada.
+    act(() => topic?.onEvent({ code: 7, paired: { id: 'roto' } }));
+    act(() => topic?.onEvent(null));
+    expect(onPaired).not.toHaveBeenCalled();
     act(() => topic?.onEvent({ paired: pc }));
     expect(onPaired).toHaveBeenCalledWith(pc);
     expect(document.querySelector('.qr-box.read')).toBeTruthy();

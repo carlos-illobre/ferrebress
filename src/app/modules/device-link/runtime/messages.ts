@@ -55,8 +55,10 @@ function receive(live: Live, link: Link, raw: Json): void {
     live.deps.journal.note('unknown-message', { kind: received.kind });
     return;
   }
-  if (link === live.dormant) live.dispatch({ type: 'peerBack', attempt: link.attempt });
   const { message } = received;
+  // Lo que llega por el directo dormido es que el otro volvió; un adiós no (4.16).
+  if (link === live.dormant && message.t !== 'bye')
+    live.dispatch({ type: 'peerBack', attempt: link.attempt });
   (handlers[message.t] as (live: Live, link: Link, message: WireMessage) => void)(
     live,
     link,
