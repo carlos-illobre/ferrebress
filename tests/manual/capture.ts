@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { type Scene as SceneFile, sha256 } from '../../tools/manual/media.ts';
 import { auditLogScenes } from './audit-log-scenes.ts';
+import { deviceLinkScenes } from './device-link-scenes.ts';
 import {
   changedPixels,
   closedContext,
@@ -82,6 +83,7 @@ for (const scene of [
   ...phoneUserScenes,
   ...rolesScenes,
   ...auditLogScenes,
+  ...deviceLinkScenes,
 ]) {
   test(scene.name, async ({ browser, baseURL }, testInfo) => {
     const device = devices[scene.device];

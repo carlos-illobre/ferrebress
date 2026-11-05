@@ -1,0 +1,25 @@
+{
+  "device": "phone",
+  "width": 585,
+  "height": 1266,
+  "points": {
+    "route": [
+      50,
+      26.5
+    ],
+    "today": [
+      50,
+      54.7
+    ],
+    "pause": [
+      12.6,
+      82.2
+    ],
+    "unpair": [
+      12.6,
+      94.5
+    ]
+  },
+  "hash": "b415528367ce50d3bf42901655e28f3258116cdd597c114901cd53b967dc7275",
+  "file": "ae6f0e60af26d7542f5a2d4484d8d6eb2a7ec5b23133f7629173ebb07e29f4c6"
+}

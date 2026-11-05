@@ -39,7 +39,7 @@ paso 9 de cada uno (constitución). La aplicación lo arma desde estos archivos;
 - processes · Procesos · workflow
 - tickets · Mejoras y errores · bug
 - device-settings · Configuración · settings
-- device-link · Celular y computadora · smartphone
+- device-link · Celular y computadora · smartphone · device-link.md
 - administration · Administración · sliders-horizontal
 - customers · Clientes · users
 - offline · Trabajar sin conexión · wifi-off · → sign-in: no-internet (computadora), offline (celular)

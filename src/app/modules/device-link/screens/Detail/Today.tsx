@@ -29,10 +29,14 @@ function useStrip(): StripView | undefined {
   return view;
 }
 
-// Las horas en punto entre el principio y ahora, donde caen.
-function hours(from: number, to: number): number[] {
+// Las horas en punto entre el principio y ahora: como mucho cuatro (en un día largo, cada dos o más
+// horas), y ninguna en el último sexto, donde va «Ahora»: así no se pisan.
+const maxMarks = 4;
+export function hours(from: number, to: number): number[] {
+  const step = Math.max(1, Math.ceil((to - from) / hour / maxMarks)) * hour;
   const marks: number[] = [];
-  for (let at = Math.ceil(from / hour) * hour; at < to; at += hour) marks.push(at);
+  for (let at = Math.ceil(from / hour) * hour; at < to - (to - from) / 6; at += step)
+    marks.push(at);
   return marks;
 }
 

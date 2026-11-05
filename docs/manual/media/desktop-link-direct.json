@@ -1,0 +1,33 @@
+{
+  "device": "computer",
+  "width": 1100,
+  "height": 618,
+  "points": {
+    "indicator": [
+      2.9,
+      71.6
+    ],
+    "route": [
+      39.1,
+      41.8
+    ],
+    "today": [
+      39.1,
+      67.8
+    ],
+    "facts": [
+      39.1,
+      82.6
+    ],
+    "pause": [
+      20.9,
+      93
+    ],
+    "unpair": [
+      50,
+      93
+    ]
+  },
+  "hash": "9c17b473d451579b8ea3006416fc5423250576c43a38912872acdf85ebf09b73",
+  "file": "c99de3533f67d36ee41ee0504cbd1b90bdbb0a41e4a83e91a12462fd2b60469b"
+}
