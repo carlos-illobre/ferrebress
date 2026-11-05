@@ -41,7 +41,8 @@ type Entry = {
 const wins = (b: { c: number; l: boolean }, a: { clock: number; leader: boolean }) =>
   b.c > a.clock || (b.c === a.clock && b.l && !a.leader);
 
-export const sizeOf = (value: Json) => JSON.stringify(value).length;
+// En bytes, como viaja.
+export const sizeOf = (value: Json) => new TextEncoder().encode(JSON.stringify(value)).length;
 
 // Lo que llega antes que su pantalla espera un rato, con topes de claves y de tamaño.
 function createInbox(now: () => number) {

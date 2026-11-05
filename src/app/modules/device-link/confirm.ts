@@ -31,8 +31,10 @@ type Connection = {
   held: (() => void)[];
 };
 
+// `gone` solo cuando el servidor dijo que el otro no está en regla; si el pedido falló (sin internet,
+// un 429 o un 500 pasajeros), no se pudo confirmar y vale la última buena, con su tope (4.3).
 export const verdictOf = (result: ApiResult<CheckResponse>): Verdict => {
-  if (!result.ok) return result.error === 'offline' ? 'offline' : 'gone';
+  if (!result.ok) return 'offline';
   if (!result.data.pairing) return 'none';
   return result.data.peer === 'ok' ? 'ok' : 'gone';
 };
@@ -54,7 +56,7 @@ async function ask(now: Connection, { check, onVerdict, now: clock }: Required<O
   const result = await check(fingerprint);
   if (generation !== now.generation) return false;
   const verdict = verdictOf(result);
-  if (verdict === 'offline') {
+  if (verdict === 'offline' || !result.ok) {
     if (now.confirmedAt === undefined) return false;
     if (clock() - now.confirmedAt < deviceLinkSettings.confirm.offlineMs) return true;
     now.confirmedAt = undefined;
@@ -66,7 +68,7 @@ async function ask(now: Connection, { check, onVerdict, now: clock }: Required<O
     return true;
   }
   now.confirmedAt = undefined;
-  onVerdict(verdict, result.ok ? result.data.pairing : undefined);
+  onVerdict(verdict, result.data.pairing);
   return false;
 }
 

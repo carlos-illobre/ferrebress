@@ -1447,6 +1447,14 @@ el servidor: se reinicia con cada subida, y un trabajo diario no correría nunca
 - **Los avisos de una conexión llevan su intento:** `peerGone` de un transporte que se cerró, o de un
   `bye` o un `hello` que llegaron por él, dice de qué intento es; uno de una conexión anterior no cambia
   nada (lo encontró la simulación: un aviso viejo en la fila cortaba la presentación nueva).
+- **El respaldo por el servidor** manda un lote por vez (el siguiente, cuando contestó el anterior: así
+  el servidor no los entrega en otro orden), cada uno con hasta 100 mensajes y 60 KB; y el espejo junta
+  lo que cambia durante 150 ms, de cada clave el último (`platform/mirror/coalesce.ts`). Lo que llega por
+  el respaldo antes de abrir el propio se guarda solo mientras se presentan, y se vacía al cerrar
+  (revisión del código, 4.4 y 4.5). Los tamaños se miden en bytes, no en caracteres.
+- **Un error pasajero del servidor no corta el directo:** `gone` es solo lo que dice el servidor del
+  otro; si el pedido falla (un 429, un 500), no se pudo confirmar y vale la última buena, con el tope
+  de 30 minutos (revisión del código, 4.3).
 - **La foto no frena la fila:** espera el saludo del otro y la confirmación de menos de 30 s por su lado y
   sale solo si sigue la misma conexión con el espejo conectado (revisión del código, 4.1 y 4.2).
 - **Fuera de la cobertura** (ADR-005): `peer/rtc.ts` y el candado de `tabs.ts`.

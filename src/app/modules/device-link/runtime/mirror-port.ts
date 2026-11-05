@@ -1,8 +1,10 @@
 // Conectar el espejo con el otro (diseño de 03, § 5): lo que sale va por la conexión que espeja y,
 // por el directo, pasa por la confirmación; el saludo dice la versión y el reloj; la foto de la
 // computadora va en partes y espera el saludo del otro para ganarle a lo que tenga.
-import type { Json } from '../../../platform/mirror/registry.ts';
+import { coalesce } from '../../../platform/mirror/coalesce.ts';
+import type { Json, Patch } from '../../../platform/mirror/registry.ts';
 import { maxMessageBytes } from '../../../platform/peer/transport.ts';
+import { platformSettings } from '../../../platform/settings.ts';
 import { deviceLinkSettings } from '../settings.ts';
 import { protocolVersion, snapParts, type WireMessage } from '../wire.ts';
 import { promote } from './links.ts';
@@ -36,16 +38,23 @@ export function attachMirror(live: Live, over: 'direct' | 'relayed'): void {
   }
   // Por el directo, la huella del otro; sin ella, la confirmación dice que no (nada sale).
   live.confirm.begin(over === 'direct' ? (link.peerFingerprint ?? '') : undefined);
+  const out = (patches: Patch[]) =>
+    live.confirm.gate(() => sendOn(live, link, { t: 'patch', p: patches }));
+  // Por el servidor se paga: se junta 150 ms, de cada clave el último.
+  const relayed = over === 'relayed' && coalesce(out, platformSettings.mirror.coalesceMs);
+  live.stopCoalescing = relayed ? relayed.stop : undefined;
   live.deps.mirror.attach({
     leader: isComputerHere(live),
     over,
-    send: (patches) => live.confirm.gate(() => sendOn(live, link, { t: 'patch', p: patches })),
+    send: relayed ? relayed.send : out,
   });
   sendHello(live, link);
 }
 
 export function detachMirror(live: Live, reset: boolean): void {
   live.deps.mirror.detach();
+  live.stopCoalescing?.();
+  live.stopCoalescing = undefined;
   live.confirm.end();
   // Otra persona: todo vuelve a su valor inicial, también lo que trajo el servidor (01 · R3.4).
   if (reset) live.deps.mirror.reset();

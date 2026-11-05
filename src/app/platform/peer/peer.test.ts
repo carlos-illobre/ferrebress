@@ -158,4 +158,35 @@ describe('por el servidor', () => {
     relayed.transport.close('closed');
     expect(batches).toEqual([[{ t: 'bye' }]]);
   });
+
+  it('un lote por vez, y cada uno con hasta 100 mensajes y 60 KB (4.4)', async () => {
+    vi.useFakeTimers();
+    const batches: unknown[][] = [];
+    const answers: (() => void)[] = [];
+    const relayed = createRelayed({
+      send: (batch) =>
+        new Promise((done) => {
+          batches.push(batch);
+          answers.push(() => done(true));
+        }),
+      subscribe: () => () => undefined,
+    });
+    for (let i = 0; i < 150; i++) relayed.transport.send({ i });
+    await vi.advanceTimersByTimeAsync(platformSettings.relayed.batchMs);
+    // El segundo lote espera a que conteste el primero.
+    expect(batches.map((batch) => batch.length)).toEqual([100]);
+    relayed.transport.send({ i: 150 });
+    answers.shift()?.();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(batches.map((batch) => batch.length)).toEqual([100, 51]);
+    answers.shift()?.();
+    await vi.advanceTimersByTimeAsync(0);
+    const big = 'á'.repeat(20 * 1024);
+    for (let i = 0; i < 3; i++) relayed.transport.send({ big });
+    await vi.advanceTimersByTimeAsync(platformSettings.relayed.batchMs);
+    answers.shift()?.();
+    await vi.advanceTimersByTimeAsync(0);
+    // Cada uno pesa 40 KB en bytes (la tilde son dos): uno por lote.
+    expect(batches.slice(2).map((batch) => batch.length)).toEqual([1, 1]);
+  });
 });

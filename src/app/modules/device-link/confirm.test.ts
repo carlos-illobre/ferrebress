@@ -142,14 +142,14 @@ describe('la confirmación del vínculo', () => {
     expect(await confirm.ensure(1)).toBe(false);
   });
 
-  it('dos que piden a la vez esperan la misma; un error del servidor cuenta como fuera de regla', async () => {
-    const check = vi.fn(async () => ({ ok: false, error: 'not-paired' }) as never);
+  it('dos que piden a la vez esperan la misma; un error del servidor no corta: no se pudo confirmar', async () => {
+    const check = vi.fn(async () => ({ ok: false, error: 'too-many-attempts' }) as never);
     const onVerdict = vi.fn();
     const confirm = createConfirm({ check, onVerdict });
     confirm.begin('fp');
     expect(await Promise.all([confirm.ensure(1), confirm.ensure(1)])).toEqual([false, false]);
     expect(check).toHaveBeenCalledTimes(1);
-    expect(onVerdict).toHaveBeenCalledWith('gone', undefined);
+    expect(onVerdict).not.toHaveBeenCalled();
     check.mockResolvedValueOnce(ok as never);
     expect(await confirm.ensure(1000)).toBe(true);
     expect(await confirm.ensure(1000)).toBe(true);
@@ -164,7 +164,8 @@ describe('la confirmación del vínculo', () => {
   });
 
   it('cada respuesta tiene su veredicto', () => {
-    expect(verdictOf({ ok: false, error: 'not-paired' } as never)).toBe('gone');
+    expect(verdictOf({ ok: false, error: 'too-many-attempts' } as never)).toBe('offline');
+    expect(verdictOf({ ok: true, data: { pairing, peer: 'gone' } })).toBe('gone');
     expect(verdictOf(offline)).toBe('offline');
   });
 });

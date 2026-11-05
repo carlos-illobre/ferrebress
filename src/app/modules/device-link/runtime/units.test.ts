@@ -40,11 +40,18 @@ describe('abrir y cerrar conexiones', () => {
     expect(conectado.live.offer).toBeDefined();
   });
 
-  it('lo que llega por el servidor sin respaldo abierto espera, con tope; un give-up fuera de tiempo no hace nada', () => {
-    const { live, events } = fakeLive(waiting);
+  it('lo que llega por el servidor presentándose espera, con tope; fuera de eso no se guarda (4.5)', () => {
+    const { live, events } = fakeLive({ kind: 'meeting', pairing: pc, attempt: 'a' });
     for (let i = 0; i < 25; i++) onRelay(live, [{ t: 'patch', p: [] }]);
     expect(live.relayInbox).toHaveLength(20);
-    onRelay(live, [{ t: 'give-up' }]);
+    closeTransport(live, true);
+    expect(live.relayInbox).toEqual([]);
+    const late = fakeLive(waiting);
+    onRelay(late.live, [{ t: 'patch', p: [] }]);
+    expect(late.live.relayInbox).toEqual([]);
+    // Un give-up fuera de la presentación no hace nada.
+    onRelay(late.live, [{ t: 'give-up' }]);
+    expect(late.events).toEqual([]);
     expect(events).toEqual([]);
   });
 

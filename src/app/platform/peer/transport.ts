@@ -18,6 +18,10 @@ export interface Transport {
 
 export const maxMessageBytes = 64 * 1024;
 
+// Lo que pesa un texto en la red: en bytes, no en caracteres (una letra con tilde son dos).
+const encoder = new TextEncoder();
+export const bytesOf = (text: string) => encoder.encode(text).length;
+
 // Lo de todo transporte: los que escuchan, el tope y cerrar una vez. Cada uno da cómo escribir y qué
 // hacer al cerrar; el que lo usa le pasa lo que llega con `deliver`.
 export function createTransport(
@@ -32,7 +36,7 @@ export function createTransport(
     kind,
     send(message) {
       const text = JSON.stringify(message);
-      if (closed || text.length > maxMessageBytes) return false;
+      if (closed || bytesOf(text) > maxMessageBytes) return false;
       write(text);
       return true;
     },

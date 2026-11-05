@@ -96,7 +96,10 @@ export function onRelay(live: Live, batch: unknown[]): void {
     live.relayReceiver(batch);
     return;
   }
-  if (live.relayInbox.length < inboxBatches) live.relayInbox.push(batch);
+  // Solo se guarda mientras se presentan: es lo que el otro mandó por el respaldo antes que este
+  // abriera el suyo. Fuera de eso, es de una conexión que ya no está (4.5).
+  if (live.state().kind === 'meeting' && live.relayInbox.length < inboxBatches)
+    live.relayInbox.push(batch);
   const givesUp = batch.some((m) => (m as { t?: unknown } | null)?.t === 'give-up');
   if (givesUp)
     live.enqueue(() => {
@@ -130,6 +133,7 @@ export function openRelayed(live: Live, attempt: Attempt): void {
 export function closeTransport(live: Live, keep: boolean): void {
   const current = live.current;
   live.current = undefined;
+  live.relayInbox = [];
   if (keep && current?.transport.kind === 'direct') {
     sleep(live, current);
     return;
@@ -145,7 +149,6 @@ export function closeTransport(live: Live, keep: boolean): void {
     offer: undefined,
     hello: undefined,
   });
-  live.relayInbox = [];
 }
 
 function sleep(live: Live, link: Link): void {

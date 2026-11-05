@@ -4,7 +4,7 @@
 // Sumar un mensaje es sumar su esquema a la tabla: quien lo recibe no compila sin manejarlo.
 
 import * as z from 'zod/mini';
-import type { Json, Patch } from '../../platform/mirror/registry.ts';
+import { type Json, type Patch, sizeOf } from '../../platform/mirror/registry.ts';
 import { flag, oneOf, type TaggedOf, tagged } from '../../platform/schema.ts';
 
 export const protocolVersion = 1;
@@ -71,7 +71,7 @@ export function snapParts(photo: Patch[], maxBytes: number): Snap[] {
   const groups: Patch[][] = [[]];
   let size = 0;
   for (const item of photo) {
-    const bytes = JSON.stringify(item).length + 1;
+    const bytes = sizeOf(item) + 1;
     const current = groups.at(-1) as Patch[];
     if (current.length > 0 && size + bytes > maxBytes) {
       groups.push([item]);
