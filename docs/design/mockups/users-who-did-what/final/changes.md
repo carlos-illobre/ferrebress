@@ -25,9 +25,11 @@ coma, deja la maqueta en un estado (por ejemplo `?demo=pagina2,tres`).
 ## Por lo que pidió Carlos
 
 - **«Actualizar solo» en lugar de «Actualizar»** (R4.6, E49). Es una llave, la de Más del celular
-  de la final del marco (`../../app-frame/final/`), dentro de una caja del tamaño del botón que
-  había, en el mismo lugar: arriba a la derecha, al lado del título. «Actualizar» ya no está en
-  ninguna parte, ni su ícono que giraba.
+  de la final del marco (`../../app-frame/final/`), en el mismo lugar que el botón que había: arriba
+  a la derecha, al lado del título. Para que sea más compacta, no lleva texto a la vista: solo el
+  ícono de actualizar (las dos flechas en círculo, `refresh-cw`, quieto) y la llave, dentro de una
+  caja de 44 px de alto. Su nombre, «Actualizar solo», va en `aria-label` y en la ayuda al pasar el
+  mouse (`title`). El botón «Actualizar» ya no está en ninguna parte.
   - Al abrir está prendida en la computadora y apagada en el celular.
   - Solo se ve si las fechas incluyen hoy: con «Ayer» o un rango de días pasados desaparece y el
     canal se cierra (E53). Al volver a una fecha con hoy, vuelve como estaba.
@@ -44,8 +46,9 @@ coma, deja la maqueta en un estado (por ejemplo `?demo=pagina2,tres`).
   página, al tocar un número del resumen o al prender la llave, que pone la lista al día en el
   momento.
 - **Oculta o sin conexión, sin canal:** al volver, si está prendido, se pone al día una vez (E54).
-- **Lo que gasta esta pantalla, debajo de la llave** (R4.12, E55), en letra chica: «Esta pantalla:
-  0,2 KB/min» en la computadora y «0,2 KB/min» en el celular. Es lo del último minuto, no un
+- **Lo que gasta esta pantalla, debajo de la llave** (R4.12, E55), en letra chica y centrado bajo
+  la caja: «0,2 KB/min», igual en la computadora y en el celular. Su ayuda al pasar el mouse dice
+  qué mide. Es lo del último minuto, no un
   acumulado. Apagado dice 0 enseguida.
 - **Lo que gasta la aplicación entera, en el vínculo** (03 · R4.5, E45, E46). No depende de la
   llave: al apagarla baja sola a 0 a medida que pasa el minuto.
@@ -122,7 +125,7 @@ coma, deja la maqueta en un estado (por ejemplo `?demo=pagina2,tres`).
   - Los filtros son el mismo menú: se despliega en la computadora; es una hoja en el celular.
   - Las páginas, abajo de la lista en la computadora; fijas sobre el menú en el celular
     (`position: sticky`).
-  - Los textos largos o cortos («Hecho por» / «Por», «Esta pantalla:») cambian al cruzar el corte.
+  - Los textos largos o cortos («Hecho por» / «Por») cambian al cruzar el corte.
 - **«3 nuevas» queda arriba** con `position: sticky` y alto 0: no empuja la lista.
 - **Solo `transform` y `opacity`:**
   - la llave corre la perilla y funde su color;

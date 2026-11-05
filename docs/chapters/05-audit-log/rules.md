@@ -97,6 +97,8 @@ registro se decide con el plan de copias de la base.
   (02 · R3.7). Cambiar un filtro vuelve a la página 1. Si nada coincide, lo dice y ofrece
   sacar los filtros.
 - **R4.6** **«Actualizar solo»:** un selector, prendido o apagado, en el lugar donde iba «Actualizar».
+  Para que ocupe poco, muestra solo el ícono de actualizar (dos flechas en círculo) y la llave; el
+  nombre «Actualizar solo» aparece al pasar el mouse y es el que leen los lectores de pantalla.
   Se ve solo cuando lo que muestran las fechas incluye hoy (con otro día, lo nuevo no entraría).
   Al abrir la pestaña está prendido en la computadora y apagado en el celular, por los datos; no se
   recuerda de una vez a la otra y no viaja por el espejo (03 · R6): cada dispositivo paga sus datos.
