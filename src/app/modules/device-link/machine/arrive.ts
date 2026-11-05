@@ -52,7 +52,11 @@ export function onSessionLost(state: PairingState, samePerson: boolean): Step {
   const commands: Command[] = [...bye, { do: 'closeTransport' }, { do: 'unsubscribe' }];
   return {
     state: { kind: 'asleep' },
-    commands: [...commands, { do: 'detachMirror', reset: !samePerson }],
+    commands: [
+      ...commands,
+      { do: 'detachMirror', reset: !samePerson },
+      { do: 'strip', mark: 'asleep' },
+    ],
   };
 }
 

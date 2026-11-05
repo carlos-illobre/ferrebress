@@ -107,6 +107,8 @@ export function onTabAway(state: PairingState, why: 'hidden' | 'handover'): Step
     { do: 'unsubscribe' },
     { do: 'detachMirror', reset: false },
     keep ? { do: 'closeTransport', keep: true } : { do: 'closeTransport' },
+    // Oculta, ya no están juntos: la tira deja de contar «Directo» (4.9).
+    { do: 'strip', mark: 'away' },
   ];
   const away: PairingState = keep
     ? { kind: 'away', pairing, dormant: state.attempt }

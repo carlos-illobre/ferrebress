@@ -113,14 +113,14 @@ const cases: Case[] = [
     { kind: 'direct', pairing: phone, attempt: 'a' },
     { type: 'tabAway', why: 'hidden' },
     'away',
-    ['bye', 'unsubscribe', 'detachMirror', 'closeTransport'],
+    ['bye', 'unsubscribe', 'detachMirror', 'closeTransport', 'strip'],
   ],
   [
     'otra pestaña tomó el espejo',
     { kind: 'relayed', pairing: pc, attempt: 'a' },
     { type: 'tabAway', why: 'handover' },
     'away',
-    ['bye', 'unsubscribe', 'detachMirror', 'closeTransport'],
+    ['bye', 'unsubscribe', 'detachMirror', 'closeTransport', 'strip'],
   ],
   [
     'volvió la pestaña',

@@ -195,9 +195,13 @@ describe('lo que lee el vínculo de la aplicación', () => {
     person.set(ana);
     const first = strip();
     expect(strip()).toBe(first);
+    first?.mark('direct');
     person.set({ ...ana, userId: 'otra' });
     expect(strip()).not.toBe(first);
+    // La tira de la anterior termina cuando entra otra persona (o sale).
+    expect(first?.view().segments.map((s) => s.lane)).toEqual(['direct', 'apart']);
     person.set(undefined);
+    expect(strip()).toBeUndefined();
   });
 
   it('una sesión cerrada o vencida ya no es de nadie, aunque la persona siga a la vista', () => {

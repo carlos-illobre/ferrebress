@@ -62,6 +62,8 @@ export function stripOfPerson(): () => Strip | undefined {
   const now = () => serverNow()?.getTime() ?? Date.now();
   return () => {
     const owner = who.get();
+    // Salió, o entró otra persona: el último tramo de la anterior termina ahora.
+    if (current && current.owner !== owner) current.strip.mark('asleep');
     if (!owner) return undefined;
     if (current?.owner !== owner) current = { owner, strip: createStrip({ owner, now }) };
     return current.strip;

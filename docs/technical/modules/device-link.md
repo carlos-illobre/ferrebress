@@ -1138,6 +1138,9 @@ pieza). Las clases pasan al CSS con el nombre de la pieza; los tokens, de `style
 - **La tira** (R4.4): tramos `[desde, hasta, grupo]` en `localStorage`, con la clave
   `device-link.strip.<hash corto de la persona>`, así otra persona en la misma computadora no ve ni suma
   los tramos de la anterior. Menos de 1 KB, del día del negocio según la hora del servidor (00 · R8.4).
+  Al ocultarse la pestaña, al salir o al entrar otra persona, el último tramo termina («Separados»):
+  con la pantalla apagada no sigue contando «Directo». El resumen es un FNV-1a de 32 bits del
+  identificador: separa a las personas sin nombrarlas, no es secreto.
 - **El celular que se fija** y no encuentra al otro sigue escuchando 30 s antes de dejar el tema: al
   vincular o reconectar los dos se enteran casi a la vez, y sin esa espera no se encontrarían hasta
   el próximo pedido de alguno (lo encontró la prueba de punta a punta).

@@ -84,14 +84,14 @@ const cases: Case[] = [
     { kind: 'direct', pairing: pc, attempt: 'a' },
     { type: 'sessionLost', samePerson: true },
     'asleep',
-    ['bye', 'closeTransport', 'unsubscribe', 'detachMirror'],
+    ['bye', 'closeTransport', 'unsubscribe', 'detachMirror', 'strip'],
   ],
   [
     'salir sin vínculo',
     { kind: 'unpaired' },
     { type: 'sessionLost', samePerson: false },
     'asleep',
-    ['closeTransport', 'unsubscribe', 'detachMirror'],
+    ['closeTransport', 'unsubscribe', 'detachMirror', 'strip'],
   ],
   [
     'llegó el otro: la computadora ofrece',
