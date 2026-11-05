@@ -39,8 +39,7 @@ test('app-E19: con la ventana angosta, la computadora usa los textos cortos', as
   // Debajo del título se ve la pastilla del vínculo o, mientras no llega, la luz: ningún texto largo.
   await expect(page.locator('.phone-status > *').first()).toBeVisible();
   await expect(shown('long')).toHaveCount(0);
-  // En ancho, al pie del menú: el indicador del vínculo, con la luz solo sin conexión (00 · R4.1).
   await page.setViewportSize({ width: 1366, height: 800 });
-  await expect(page.locator('.side-footer :is(.link-indicator, .light)').first()).toBeVisible();
+  await expect(shown('long')).not.toHaveCount(0);
   await expect(shown('short')).toHaveCount(0);
 });

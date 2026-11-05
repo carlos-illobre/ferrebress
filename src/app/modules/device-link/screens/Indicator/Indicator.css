@@ -57,18 +57,19 @@
   /* La pieza del pie del lateral (computadora): el indicador y, sin conexión, la luz debajo. */
   .link-box {
     display: grid;
-    gap: 6px;
-  }
-  .link-box[data-offline] {
+    gap: 4px;
     padding: 4px;
     border-radius: calc(var(--radius) + 4px);
     border: 1px solid var(--border);
     background: var(--surface);
     box-shadow: var(--shadow-1);
   }
-  .link-box[data-offline] .link-indicator {
+  .link-box .link-indicator {
     border-color: transparent;
     box-shadow: none;
+  }
+  .link-box .light {
+    min-height: 36px;
   }
 
   /* El renglón al pie del lateral (computadora). */

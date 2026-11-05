@@ -1,7 +1,6 @@
-// El pie del menú de la computadora: el indicador del vínculo con la luz, que abre lo pendiente, y la
-// tarjeta de la persona con «Salir» (01 · R5.1). Como en el celular, la luz va con el indicador solo
-// sin conexión: mientras todo anda, no ocupa lugar (pedido de Carlos). Minimizado, la luz es un punto
-// y la persona, sus iniciales, que abren la misma tarjeta al costado.
+// El pie del menú de la computadora: el indicador del vínculo y la luz, que abre lo pendiente, en una
+// sola tarjeta (pedido de Carlos), y la tarjeta de la persona con «Salir» (01 · R5.1). Minimizado, la
+// luz es un punto y la persona, sus iniciales, que abren la misma tarjeta al costado.
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { type Place, px } from '../../behavior/usePanels.ts';

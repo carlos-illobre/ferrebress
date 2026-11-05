@@ -22,15 +22,16 @@ export function labelOf(view: LinkView): Words {
 
 type WithLight = { light: ComponentChildren; offline: boolean };
 
-// En la computadora: al pie del lateral, en una sola pieza con la luz de conexión, que aparece debajo
-// solo sin conexión, como en el celular; sin nada que mostrar del vínculo, la luz en su lugar.
+// En la computadora: al pie del lateral, una sola tarjeta con el vínculo y, debajo, la luz de
+// conexión, que dice siempre si ya se envió todo (pedido de Carlos); sin nada que mostrar del
+// vínculo, la luz sola.
 export function SideIndicator({ light, offline }: WithLight) {
   const view = useLinkView();
   if (view.hidden) return <>{light}</>;
   return (
     <div class="link-box" data-offline={offline || undefined}>
       <SideButton view={view} />
-      {offline && light}
+      {light}
     </div>
   );
 }

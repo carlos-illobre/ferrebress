@@ -3,7 +3,7 @@
 // salga idéntica. No hace falta el servidor de verdad ni Docker.
 import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdtempSync, readFileSync, statSync } from 'node:fs';
-import { createServer, type ServerResponse } from 'node:http';
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { tmpdir } from 'node:os';
 import { extname, join } from 'node:path';
 
@@ -50,18 +50,68 @@ function file(response: ServerResponse, path: string): void {
   response.end(readFileSync(served));
 }
 
+// Lo que dice cada tema del canal común (diseño de 03, § 3): el código QR de la entrada, el de
+// vincular y el vínculo. Qué dice el vínculo lo elige la escena con la cookie `link-scene`: solo
+// (nadie del otro lado), presentados, o presentados con la oferta de la computadora (el celular la
+// responde). Las escenas que no la ponen ven el vínculo solo.
+const attempt = '0a1b2c3d';
+const offer = [
+  'v=0',
+  'm=application 9 UDP/DTLS/SCTP webrtc-datachannel',
+  'c=IN IP4 0.0.0.0',
+  'a=fingerprint:sha-256 AA:BB:CC',
+  'a=candidate:1 1 udp 2122260223 captura.local 5000 typ host',
+].join('\r\n');
+function eventsOf(token: string, scene: string): string[] {
+  const topic = token.split(':')[0];
+  if (topic === 'sign-in.codes') return ['{"type":"code","code":"captura-fija"}'];
+  if (topic === 'device-link.code') return ['{"code":"captura-vincular"}'];
+  if (topic !== 'device-link.pairing') return [];
+  if (scene === 'alone') return ['{"present":false}'];
+  const present = `{"present":true,"attempt":"${attempt}"}`;
+  if (scene !== 'offer') return [present];
+  return [present, JSON.stringify({ signal: { attempt, kind: 'offer', sdp: offer } })];
+}
+const sceneOf = (cookie: string | undefined) =>
+  /link-scene=(\w+)/.exec(cookie ?? '')?.[1] ?? 'alone';
+const write = (stream: ServerResponse, tokens: string[], scene: string) => {
+  for (const token of tokens)
+    for (const data of eventsOf(token, scene))
+      stream.write(`event: ${token.split(':')[0]}\ndata: ${data}\n\n`);
+};
+// Los canales abiertos, para mandarles lo de un tema que se suma después.
+const channels = new Map<string, { stream: ServerResponse; scene: string }>();
+
+function realtime(request: IncomingMessage, response: ServerResponse, url: URL): void {
+  const id = `c${channels.size}`.padEnd(22, 'c');
+  const scene = sceneOf(request.headers.cookie);
+  channels.set(id, { stream: response, scene });
+  response.writeHead(200, { 'content-type': 'text/event-stream' });
+  response.write(`event: hello\ndata: {"channel":"${id}"}\n\n`);
+  write(response, url.searchParams.getAll('s'), scene);
+}
+
+function subscriptions(request: IncomingMessage, response: ServerResponse): void {
+  let body = '';
+  request.on('data', (chunk) => {
+    body += chunk;
+  });
+  request.on('end', () => {
+    const asked = JSON.parse(body || '{}') as { channel?: string; add?: string[] };
+    const open = channels.get(String(asked.channel));
+    if (!open) return json(response, { error: 'not-found' }, 404);
+    json(response, { listening: asked.add ?? [] });
+    write(open.stream, asked.add ?? [], open.scene);
+  });
+}
+
 createServer((request, response) => {
-  const path = new URL(String(request.url), 'http://screens').pathname;
+  const url = new URL(String(request.url), 'http://screens');
+  const path = url.pathname;
   if (path === '/api/start') return json(response, start);
   if (path === '/api/sign-in/codes') return json(response, {});
-  // El canal común con el tema del código QR de la entrada (diseño de 03, § 3).
-  if (path === '/api/realtime') {
-    response.writeHead(200, { 'content-type': 'text/event-stream' });
-    return response.write(
-      `event: hello\ndata: {"channel":"${'c'.repeat(22)}"}\n\n` +
-        'event: sign-in.codes\ndata: {"type":"code","code":"captura-fija"}\n\n',
-    );
-  }
+  if (path === '/api/realtime') return realtime(request, response, url);
+  if (path === '/api/realtime/subscriptions') return subscriptions(request, response);
   if (path.startsWith('/api/')) return json(response, { error: 'not-found' }, 404);
   file(response, path);
   // Solo para esta máquina: ni la red local ni Tailscale lo ven mientras corre.

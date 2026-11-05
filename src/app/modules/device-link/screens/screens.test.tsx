@@ -39,15 +39,15 @@ describe('lo que abre el indicador', () => {
 });
 
 describe('el indicador', () => {
-  it('sin nada del vínculo, la luz en su lugar; con el vínculo, el estado y con qué, y abre el detalle', () => {
+  it('sin nada del vínculo, la luz sola; con el vínculo, en la misma tarjeta, el estado y con qué', () => {
     const light = <span>luz</span>;
     const empty = render(<SideIndicator light={light} offline={false} />);
     expect(empty.container.innerHTML).toBe('<span>luz</span>');
     empty.unmount();
     const runtime = fakeRuntime({ kind: 'direct', pairing: pc, attempt: 'a' });
     const { rerender } = render(<SideIndicator light={light} offline={false} />);
-    // En línea, la luz no ocupa lugar; sin conexión, va debajo, en la misma pieza.
-    expect(screen.queryByText('luz')).toBeNull();
+    // La luz va siempre debajo del vínculo, en la misma tarjeta: dice si ya se envió todo.
+    expect(document.querySelector('.link-box > span')?.textContent).toBe('luz');
     rerender(<SideIndicator light={light} offline={true} />);
     expect(document.querySelector('.link-box[data-offline] > span')?.textContent).toBe('luz');
     rerender(<SideIndicator light={light} offline={false} />);

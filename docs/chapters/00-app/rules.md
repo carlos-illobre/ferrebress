@@ -78,12 +78,12 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 ## 4. La conexión
 
 - **R4.1** Una luz de conexión dice uno de tres estados: «En línea · todo enviado», «Sin conexión · N
-  por enviar» o «Enviando…». En la computadora va al pie del menú, en la misma pieza que el indicador
-  del vínculo con el celular (03 · R4.1), debajo de él. En el celular va debajo del título de cada
-  pantalla, que empieza arriba de todo (el celular no tiene cabecera con el logotipo ni la persona: la
-  persona y «Salir» están en Más), al lado del indicador del vínculo. En los dos, **solo cuando no está
-  todo en línea**: con todo enviado, se ve solo el indicador del vínculo; sin nada del vínculo que
-  mostrar, la luz está en su lugar.
+  por enviar» o «Enviando…». En la computadora está siempre a la vista, al pie del menú, en la misma
+  tarjeta que el indicador del vínculo con el celular (03 · R4.1), debajo de él. En el celular va
+  debajo del título de cada pantalla, que empieza arriba de todo (el celular no tiene cabecera con el
+  logotipo ni la persona: la persona y «Salir» están en Más), al lado del indicador del vínculo, y
+  **solo cuando no está todo en línea**: con todo enviado, ahí se ve solo el indicador del vínculo. Sin
+  nada del vínculo que mostrar, la luz está sola, en su lugar.
 - **R4.2** Al tocarla, muestra el detalle de lo que está por enviar: qué es, de cuándo y quién lo
   hizo.
 - **R4.3** La luz no consulta nada por su cuenta: dice lo que muestran las respuestas del servidor y
@@ -256,8 +256,9 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 
 ### La conexión
 
-- **E20** **Dado** que el servidor contesta, **cuando** no hay nada por enviar, **entonces** la luz no se
-  ve, ni en la computadora ni en el celular: en su lugar está el indicador del vínculo.
+- **E20** **Dado** que el servidor contesta, **cuando** no hay nada por enviar, **entonces** la luz
+  dice «En línea · todo enviado» en la computadora, debajo del indicador del vínculo y en la misma
+  tarjeta; en el celular no se ve, y en su lugar está el indicador del vínculo.
 - **E21** **Dado** que el navegador avisa que se cortó la red, **cuando** se mira la luz, **entonces**
   dice «Sin conexión» y cuántas cosas hay por enviar.
 - **E22** **Dado** cosas por enviar, **cuando** se toca la luz, **entonces** muestra cada una: qué es,
