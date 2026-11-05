@@ -1,21 +1,27 @@
 # Diseño técnico · 05 · Quién hizo qué (`audit-log`)
 
 Implementa el [capítulo 05](../../chapters/05-audit-log/rules.md): lo que se guarda de cada acción y
-la pestaña Quién hizo qué, con la maqueta aprobada (variante 1, «El libro», con un ícono por tipo de
-acción: [screens.md](../../chapters/05-audit-log/screens.md)). Lo que no se cambia acá sigue como
+la pestaña Quién hizo qué, con su maqueta final aprobada (`mockups/users-who-did-what/final/`, que parte de
+la variante 1, «El libro»: [screens.md](../../chapters/05-audit-log/screens.md)). Lo que no se cambia acá sigue como
 dicen el [ADR-004](../adr/ADR-004-audit-log-in-sqlite.md) y los diseños de [01](sign-in.md),
 [02](users.md) y [15](offline.md). Corregido con sus dos revisiones
 ([diseño](audit-log-design-review.md), [seguridad](audit-log-security-review.md)).
 
 ## 1. Qué resuelve
 
-Las reglas R1 a R5 del capítulo 05 y sus escenarios E01 a E48 (con E05b y E35b a E35d).
+Las reglas R1 a R5 del capítulo 05 y sus escenarios E01 a E56 (con E05b y E35b a E35d), y el medidor de
+lo que gasta la aplicación del capítulo 03 (R4.5, E45 y E46).
 
 **La idea técnica:** una forma común de cada acción (quién, a quién, qué cambió, desde dónde, de qué
 color), un catálogo que dice de cada tipo su grupo, su ícono, su texto y qué datos se pueden mostrar,
 y una consulta con índices que corre en un hilo aparte y pagina sobre los archivos de cada año. El
 servidor no arma textos: devuelve la acción en su forma común y la aplicación la dice con el
 catálogo.
+
+**«Actualizar solo»** (§ 7) usa el canal común del vínculo (diseño de 03, § 3) con un tema sin datos:
+el servidor avisa que se escribió algo, como mucho una vez cada 5 s, y la pantalla pide lo de siempre
+con sus filtros. Un **medidor** de la plataforma de la aplicación (§ 8.1) cuenta lo que pasa por los
+canales y lo que piden solos, por etiqueta: la de la pantalla y el total de la aplicación.
 
 ## 2. La forma común de una acción
 
@@ -221,7 +227,7 @@ al límite de intentos de su cuenta» (01 · R2.10).
 
 ## 5. API
 
-Las tres rutas piden sesión y `audit-log.view` (`permissions.require`), con el mismo `403` anotado
+Las cuatro rutas piden sesión y `audit-log.view` (`permissions.require`), con el mismo `403` anotado
 como `permission.denied` (E14), y comparten un límite de 60 pedidos por minuto **por persona**
 (`guards.limit`); pasado, `429` y `request.throttled`. Leen; no anotan nada, salvo `audit-log.opened` (abajo).
 Cualquier parámetro que no conocen o no cumple da `400 bad-request` con cuál (E39), sin datos.
@@ -238,7 +244,7 @@ Cualquier parámetro que no conocen o no cumple da `400 bad-request` con cuál (
 | `from`, `until` | Días del negocio, `AAAA-MM-DD`, los dos incluidos | Fecha real, `from ≤ until`, entre el 1 de enero del año del archivo más viejo y hoy; no va con `range` |
 | `group` o `type` | Un grupo o un tipo del catálogo | Que exista; `type` dentro de `group` si van los dos |
 | `tone` | `red` o `amber`: los números del resumen (R4.9) | No va con `group` ni `type` |
-| `summary` | `1`: sumar el resumen (al abrir, al cambiar la fecha y con «Actualizar») | `1` o nada |
+| `summary` | `1`: sumar el resumen (al abrir, al cambiar la fecha y al ponerse al día) | `1` o nada |
 | `strip` | `1`: sumar la tira (solo la computadora, solo con un período de un día) | `1` o nada |
 
 Devuelve:
@@ -246,6 +252,7 @@ Devuelve:
 ```jsonc
 {
   "today": "2026-11-04",              // el día del negocio, para «de hoy» y la cabecera (E22)
+  "latest": "2026:4412",              // la última anotada, sin filtros: desde dónde contar las nuevas (§ 7)
   "total": 45, "page": 1, "pages": 3,
   "days": { "2026-11-04": 20, "2026-11-03": 25 },   // cuántas de cada día de la página, con los filtros
   "events": [{
@@ -270,7 +277,23 @@ Devuelve:
 - **`today`** de una persona es su nombre de hoy, solo si es distinto del de ese momento (E07).
 - **`deviceTime`** (E09): la lista muestra esa hora con la marca; ordena, filtra por fecha y pinta la
   tira por `at`, que en una entrada no confirmada es la de llegada. El detalle muestra las dos.
+- **`latest`** es la última fila del archivo del año en curso, sin filtros (`select max(id)`): la
+  última que llegó, no la de `at` más nuevo (una entrada sin conexión llega con su hora vieja).
 - **No hay ruta que cambie o borre** (E37): ni `POST`, ni `PUT`, ni `DELETE` bajo `/api/audit-log`.
+
+### `GET /api/audit-log/new`
+
+Cuántas llegaron desde `latest` con los filtros de la lista: el «3 nuevas» (R4.6, E51), sin traer ninguna.
+
+| Parámetro | Qué | Validación |
+|---|---|---|
+| `since` | El `latest` de la última lista | `AAAA:n`: un año con archivo, no posterior al de hoy, y `n` entero entre 0 y 2⁵³ |
+| `by`, `to`, `range`, `from`, `until`, `group`, `type`, `tone` | Los filtros de la lista | Como en `GET /api/audit-log` |
+
+Devuelve `{ count, latest }`: `count` hasta 100 (la pantalla dice «Más de 99 nuevas»); `latest`, el de
+ahora. Cuenta las filas con `id > n` en el archivo de `since` y todas las de los archivos de años
+posteriores, con los filtros y dentro del período: una consulta por archivo (casi siempre uno), con
+`limit 100` antes de contar. Unos 300 bytes con cabeceras.
 
 ### `GET /api/audit-log/people`
 
@@ -333,18 +356,77 @@ su detalle.». Al arrancar se le suma solo al Administrador (diseño de 02, § 1
 | `platform/device.ts` | El navegador y el sistema, en códigos, de la lista cerrada |
 | `src/shared/audit-log/` | El catálogo (§ 4) |
 | `src/shared/time/business.ts` | La zona horaria del negocio y los días en instantes |
-| `modules/audit-log/` (servidor) | `index.ts` (el registro: el permiso, las rutas, `provideTone`), `routes.ts` (las tres rutas y sus parámetros), `rules.ts` (grupo a tipos, atajos a días, qué campos salen) |
-| `modules/audit-log/` (aplicación) | La pantalla (§ 8) |
+| `modules/audit-log/` (servidor) | `index.ts` (el registro: el permiso, las rutas, `provideTone`), `routes.ts` (las cuatro rutas y sus parámetros), `rules.ts` (grupo a tipos, atajos a días, qué campos salen), `live.ts` (el tema `audit-log.new` y el aviso cada 5 s) |
+| `modules/audit-log/` (aplicación) | La pantalla (§ 8) y `live.ts` (§ 7.2) |
+| `src/app/platform/meter.ts` | El medidor (§ 8.1): lo que pasa por los canales y lo que se pide solo, por etiqueta |
 
-## 7. Eventos, conexiones y sin conexión
+## 7. «Actualizar solo»: el aviso, el canal y sin conexión
 
-- **No publica ni escucha eventos.** Las personas le llegan con las acciones y al arrancar.
-- **No usa el canal en vivo.** La lista no se pone al día sola (R4.6).
-- **Sin conexión:** nada baja ni se encola. La pestaña se pone gris (R5.1); al volver la conexión
-  solo sale del gris, sin pedir nada: la lista queda como estaba hasta que alguien toque algo.
-- **Los datos del celular:** ningún pedido automático. `GET /api/audit-log` sale solo al tocar: abrir
-  la pestaña (tocarla, R4.6), un filtro, una página, un número del resumen o «Actualizar». No se suma
-  nada a [mobile-data.md](../mobile-data.md).
+### 7.1. El servidor
+
+- **El tema `audit-log.new`** (diseño de 03, § 3.1), declarado en `modules/audit-log/live.ts`:
+
+  | Qué | Cómo |
+  |---|---|
+  | Parámetro | Ninguno (texto vacío, como `device-link.code`) |
+  | Evento | `{}`: no dice qué ni cuántas (R4.6). Todo lo que se ve sale de la lista, con su permiso y sus filtros |
+  | Quién | Con sesión y `audit-log.view`; si no, `refused: 'forbidden'` |
+  | Clave | `all`: los que miran reciben el mismo aviso |
+  | Al suscribirse | Manda `{}`: la pantalla se pone al día una vez (prenderlo, volver a la vista, volver la conexión, cerrar la cinta: R4.6, E54) |
+  | Permisos | `recheckOn: ['users.permissions-changed']`: sin el permiso, recibe `refused` y el canal lo suelta |
+
+- **Cuándo avisa:** la auditoría suma `onWritten(listener)`, que se llama después de confirmar cada
+  tanda con al menos una fila (`write.ts`, una vez por segundo como mucho). El módulo publica `{}` en
+  `all` **como mucho una vez cada 5 s** (`auditLogSettings.live.everyMs`): el primero sale en el
+  momento y los que llegan dentro de los 5 s se juntan en uno al final. Si nadie escucha
+  (`realtime.listeners`), no hace nada ni guarda temporizador.
+- **Lo propio también:** «Abrió Quién hizo qué» (R1.3) o lo que haga uno mismo entra en la tanda como
+  cualquier otra. Pedir la lista no anota nada más (solo la primera vez del día), así ponerse al día
+  no se alimenta a sí mismo.
+- **Sin consultas:** avisar es un temporizador y una escritura por oyente. Lo que se consulta es la
+  lista que pide cada pantalla, con el límite de 60 por minuto por persona (§ 5), que alcanza: como
+  mucho 12 puestas al día por minuto por pestaña.
+
+### 7.2. La aplicación (`live.ts`)
+
+| Estado | Qué |
+|---|---|
+| `live` | Prendido o apagado. Al abrir la pestaña, prendido con el ancho de computadora y apagado si no (el mismo corte que el tamaño de página). No se guarda ni se espeja (E56): vive en la pantalla |
+| `withToday` | Si el período de las fechas incluye hoy (`today` de la última respuesta): sin fecha, `today`, `week` y `month` sí; `yesterday` no; `from`/`until` si `until` es hoy o no está. Sin hoy, el selector no se dibuja y no se pide el tema (E53) |
+| El tema | `useTopic('audit-log.new')` mientras `live`, `withToday`, la cinta cerrada y la pestaña montada. El canal ya se abre solo a la vista y con red (diseño de 03, § 3.2): oculta o sin conexión, no hay canal (E54) |
+
+**Al llegar el aviso** (como mucho una vez cada 5 s también en la aplicación: si llega antes, espera al
+final de los 5 s; el temporizador es de la pantalla y se suelta al desmontarla):
+
+1. **Arriba de todo** (página 1 y la lista sin bajar, menos de 8 px): pide la lista con sus filtros,
+   `summary=1` y, en la computadora con un día, `strip=1`. Las filas con `id` mayor al `latest` anterior
+   (del mismo año, o de un año posterior) se marcan 2 s (`auditLogSettings.live.markMs`) con la marca
+   de la maqueta, que entra con `transform` y `opacity` y sin movimiento con «reducir movimiento». La
+   acción elegida en el detalle no cambia (maqueta final).
+2. **Más abajo o en otra página:** pide `GET /api/audit-log/new` con `since` y los filtros, y muestra
+   «n nuevas» arriba de la lista si `n > 0`. Tocarlo va a la página 1, sube la lista y hace lo del paso 1.
+   Cambiar un filtro o de página pide la lista como siempre y saca el aviso.
+3. **Con la cinta abierta,** no se pide el tema: la cinta muestra un día (R4.6). Al cerrarla se vuelve a
+   pedir y el aviso del alta pone la lista al día una vez.
+
+- **Prenderlo** pide el tema, y el aviso del alta la pone al día en el momento (E55). Apagarlo lo suelta;
+  si no queda otro tema, el canal se cierra y el medidor baja a 0 en un minuto (E45).
+- **Ponerse al día no es un cambio del espejo:** el filtro y la página no cambian, así que el otro
+  dispositivo no recibe nada (03 · R6). Cada uno decide con su selector.
+- **Si le sacan el permiso** (`onRefused` con `forbidden`), la pantalla hace lo de hoy al perder el
+  permiso: Usuarios la cierra con «Ya no tenés permiso» (02 · R6.6, R7.8).
+- **Sin conexión** (R5.1), la pestaña se pone gris como hoy. Al volver, si está prendido, el alta del
+  tema la pone al día una vez; si está apagado, solo sale del gris.
+- **Apagado** no pide nada solo (E34): la lista se pide al tocar la pestaña, un filtro, una página, un
+  número del resumen o al prender el selector. Ya no hay «Actualizar» ni su tecla: Alt + R pasa a
+  prender y apagar el selector, con el mismo nombre en la ayuda del teclado.
+
+### 7.3. Los datos del celular
+
+Ya en [mobile-data.md](../mobile-data.md) (aprobado con las reglas): el canal abierto, unos 8 KB por hora
+de bajada y 5 KB de subida cuando no hay otro tema que lo tenga abierto (con el vínculo por el servidor
+ya está abierto y no suma); cada aviso, unos 100 bytes; cada puesta al día, unos 2 KB comprimida; cada
+«n nuevas», unos 300 bytes. En el celular está apagado al abrir.
 
 ## 8. La aplicación (`src/app/modules/audit-log/`)
 
@@ -359,7 +441,7 @@ adentro de Usuarios con su propio permiso (`inside` de la opción). Abierta así
 servidor. Si se lo sacan con la pestaña abierta, en cambio, no: Usuarios la cierra y vuelve a la
 lista de personas (02 · R7.8).
 
-Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant-1-ledger/`:
+Las piezas, sobre la maqueta final `mockups/users-who-did-what/final/`:
 
 | Pieza | Qué hace |
 |---|---|
@@ -367,6 +449,8 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 | `Filters` | Hecho por, hecho a (con las personas de `/people`, las dadas de baja y borradas marcadas), fecha (Hoy, Ayer, Esta semana, Este mes, y desde/hasta) y tipo; Alt + P, A, F y T en la computadora |
 | `Ledger` | La lista agrupada por día, con la cantidad del día en la cabecera (`days`); cada acción con el ícono del tipo a la izquierda (R4.10), la hora (y la fecha si no es de `today`), quién, el texto, a quién y el dispositivo, con su color (R4.4) |
 | `Detail` | En la computadora, fijo a la derecha, con la acción elegida (al abrir, la primera; ↑ ↓ la cambian, E35d). En el celular, una hoja que sube al tocar. Muestra todo, con las dos horas de una entrada no confirmada |
+| `Live` | El selector, en el lugar que tenía «Actualizar»: el ícono de actualizar (dos flechas en círculo, `refresh-cw`) y la llave, `role="switch"` con `aria-label` y `title` «Actualizar solo» (R4.6); solo con `withToday`. Debajo, en letra chica, los KB por minuto de la etiqueta `audit-log` del medidor (R4.12) |
+| `NewOnes` | «3 nuevas» arriba de la lista, con la flecha hacia arriba (R4.6, E51) |
 | `Pager` | «página n de m», anterior y siguiente; RePág y AvPág, que el teclado de la plataforma (`data-page`) da a cualquier lista por páginas |
 | `Empty` | Sin acciones (E20) o sin coincidencias, con «Sacar los filtros» (E29) |
 | `Tape` | La cinta a pantalla completa, sobre la maqueta `variant-3-tape/` (R4.11). En la computadora, horizontal; en el celular, vertical. Las filas, los puntos y las líneas de quién a quién en un SVG; los días de arriba; el subtítulo con los mismos trozos que `Detail`; la × |
@@ -375,6 +459,8 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 - **El texto** de cada acción lo arma el catálogo con trozos, no con HTML: `says(e)` devuelve
   `texto`, `persona` y `cosa`, y la pantalla los pinta como texto (E38). Los nombres son solo texto:
   tocarlos es tocar la acción, no filtran (E33). El navegador y el sistema se dicen con la lista de la aplicación.
+- **La marca de lo que entra** es una clase en la fila (`data-new`) que se saca a los 2 s; la lista no se
+  vuelve a dibujar entera: las filas tienen la clave de su `id`.
 - **El tamaño de página:** 20 con el ancho de computadora y 10 si no, con el mismo corte que usa el
   marco para el menú.
 - **La cinta** se abre encima de la lista sin desarmarla: al cerrarla se vuelve con los mismos
@@ -383,16 +469,48 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
   la captura los tapa (00 · R9.4), y los últimos pasos guardan solo el nombre de la acción
   (`audit-log.filter`), sin el valor.
 - **Lo que se espeja** (03, diseño de `device-link`, § 5.1): lo que se ve vive en valores con nombre
-  (`useMirrored`): el filtro, la acción elegida y la cinta abierta con su día y su cabezal. La página
+  (`useMirrored`): el filtro, la acción elegida y la cinta abierta con su día y su cabezal. «Actualizar
+  solo» no (E56). La página
   viaja en modo `refetch`: el otro dispositivo pide con su sesión y su permiso, nunca recibe el contenido.
   El tamaño de página (20 en la computadora, 10 en el celular) lo elige cada pantalla por su forma y no
   se espeja (03 · R6.2).
-- **Las teclas** son las del capítulo 00 (R2), declaradas por la pantalla: `refresh`, `page`, `filter`,
-  `select` y las de la cinta.
+- **Las teclas** son las del capítulo 00 (R2), declaradas por la pantalla: `refresh` (que prende y apaga
+  el selector), `page`, `filter`, `select` y las de la cinta.
 - **Los íconos** del catálogo se copian de Lucide 0.460 a `audit-log-shapes.tsx`, que se baja con la
   pantalla (`addShapes`). La prueba del catálogo mira que cada ícono esté ahí.
 - **Los textos** de la pantalla, en `texts.ts`, largos en la computadora y cortos en el celular
   (00 · R1.5).
+
+### 8.1. El medidor (`platform/meter.ts`)
+
+Lo que gasta la aplicación ahora (03 · R4.5) y lo que gasta esta pantalla (R4.12), en KB por minuto
+sobre el último minuto. Es de la plataforma: no sabe de pantallas ni de vínculos, solo de etiquetas.
+
+- **Qué cuenta:** lo que pasa por los canales y lo que se pide solo, nunca lo que pide la persona al
+  tocar algo:
+  - El canal común: cada trozo que llega (eventos y latidos) y cada `POST /api/realtime/subscriptions`.
+    `realtime/sse.ts` y `channel.ts` llaman a `meter.count`.
+  - Los pedidos que hace la aplicación sola: `api()` suma la opción `meter: '<etiqueta>'`. La llevan la
+    lista y el «n nuevas» que pide `live.ts` (`audit-log`) y los del vínculo que salen sin que nadie
+    toque (`signal`, `relay`, `report`, `check` y la confirmación: `device-link`).
+  - El directo entre los dos (WebRTC) no: va por el Wi-Fi del local y no gasta internet (diseño de 03,
+    § 18.1).
+- **Cuántos bytes:** de bajada, lo que dice el navegador (`PerformanceResourceTiming.transferSize`: lo
+  comprimido, con cabeceras) para un pedido, y el largo de cada trozo para el canal, que todavía está
+  abierto; de subida, el cuerpo más unos 150 bytes de cabeceras (HTTP/2 las comprime). A cada mensaje,
+  en cada sentido, le suma unos 80 bytes de TCP y TLS, y al recibir, los 60 del aviso de subida. Es
+  aproximado, como dice la regla; los números, con nombre en `platformSettings.meter`.
+- **Las etiquetas:** cada cuenta lleva las suyas; el canal le pone el nombre de cada tema que tiene
+  pedido en ese momento (el latido es de todos los que lo mantienen abierto) y el de evento, el de su
+  tema. El total de la aplicación suma cada byte una vez; la etiqueta `audit-log`, lo que se pagaría
+  menos con el selector apagado.
+- **Cómo mide:** 60 casillas de un segundo por etiqueta, en memoria; `rate(etiqueta?)` suma las 60. No
+  hay temporizador propio: `useRate` lo lee cada 5 s (`platformSettings.meter.redrawMs`) solo con la
+  pantalla a la vista y el medidor dibujado. Dice «0,0 KB/min» sin nada en el último minuto. No se guarda
+  ni se manda a ningún lado.
+- **Dónde se ve:** debajo del selector (`audit-log`) y, el total, en la tarjeta del vínculo de la
+  computadora debajo de la luz y en un renglón de la pastilla del celular (03 · R4.5, E45, E46), con
+  `useRate()` desde `device-link`.
 
 ## 9. Seguridad
 
@@ -400,7 +518,7 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
   para intentar entrar, direcciones de internet y lo que dice el navegador. Es lo más sensible que
   guarda el sistema sobre las personas: solo lo ve `audit-log.view` (R3.4), que al instalar tiene solo
   el Administrador.
-- **Quién puede:** leer, quien tiene el permiso, en las tres rutas; nadie puede cambiar ni borrar
+- **Quién puede:** leer, quien tiene el permiso, en las cuatro rutas; nadie puede cambiar ni borrar
   (E37): no hay ruta, la lectura abre los archivos de solo lectura y la escritura solo inserta. Quien
   tiene acceso al servidor sí puede tocar el archivo: firmar cada acción o encadenarlas para detectarlo
   queda para cuando haya producción (T116).
@@ -409,7 +527,7 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 - **Lo que entra de afuera:** los parámetros, con zod y topes (§ 5), pasados a SQLite siempre como
   parámetros; lo anotado que viene del pedido (el correo cortado, el navegador de una lista cerrada,
   la dirección de la plataforma); al mostrarlo, todo como texto (E38).
-- **Abuso:** 60 pedidos por minuto por persona en las tres rutas; tamaños de página fijos; páginas,
+- **Abuso:** 60 pedidos por minuto por persona en las cuatro rutas; tamaños de página fijos; páginas,
   fechas acotadas (desde 2020); la consulta en su hilo, de a una. Un período de 9.000 años no crea ni
   abre archivos (prueba que mira que la carpeta no cambió).
 - **Secretos:** ninguno. `node:sqlite` sin `createTagStore` (CVE-2026-58041); el armado de la imagen
@@ -420,6 +538,14 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
   combinaciones); pasado, se empieza de cero.
 - **Un tipo que no está en el catálogo** se busca con `Object.hasOwn`: `constructor` o `__proto__` no
   son tipos.
+- **«Actualizar solo»:** el aviso no lleva nada de las acciones, solo que hubo alguna, y llega solo a
+  quien tiene el permiso, que las puede ver igual; al sacárselo, el tema lo suelta (`recheckOn`) y una
+  sesión que termina cierra su canal (diseño de 03, § 3.3). `since` se valida como los filtros y nunca
+  crea archivos. Abusar del canal choca con sus topes (4 canales por sesión, 10 aperturas y 60 cambios
+  de temas por minuto) y el aviso sale como mucho cada 5 s para todos: muchos oyentes no hacen más
+  consultas, cada uno pide su lista con el límite de 60 por minuto. Prender y apagar el selector no se
+  anota.
+- **El medidor** queda en el dispositivo: no sale nada de él y no se guarda.
 - **Lo que queda en la auditoría de este módulo:** el límite pasado, el permiso negado y, una vez por
   sesión y por día, que se abrió Quién hizo qué (R1.3): si alguien usa una sesión robada para bajar el
   registro, queda el rastro de quién y desde dónde.
@@ -442,6 +568,12 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 - La cinta: `GET /api/audit-log/day` en menos de 150 ms y unos 20 KB comprimida con un día de hoy; la
   cinta se dibuja en menos de 100 ms y el cabezal se mueve sin cortes (sin recalcular la página en
   cada paso).
+- **«Actualizar solo»:** avisar no hace consultas y cuesta una escritura por oyente; `GET /api/audit-log/new`
+  hace 1 consulta por archivo (casi siempre 1) y contesta en menos de 20 ms con un año de acciones;
+  `latest` suma 1 consulta a la lista. Lo que se ve se pone al día en menos de 6 s después de la acción
+  (1 s de la tanda, hasta 5 del aviso, y la lista). Prendido, una hora sin acciones nuevas gasta lo del
+  canal (unos 13 KB entre bajada y subida, § 7.3).
+- **El medidor:** contar es sumar en una casilla; dibujarlo, una vez cada 5 s.
 - El arranque de la aplicación no crece: la pantalla, la cinta y sus íconos se bajan al abrir la
   pestaña.
 
@@ -454,10 +586,12 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 | E05, E05b | Del servidor: abrir Usuarios y buscar no agregan líneas; pedir `/api/audit-log` agrega `audit-log.opened` una vez por sesión y por día |
 | E07, E08, E30 | De la consulta: «(hoy: …)» como quién y como a quién; «El sistema»; las personas dadas de baja y borradas en `/people` |
 | E09, E10 | De la consulta: `deviceTime` en la entrada sin conexión no confirmada; la hora es la del reloj del servidor de prueba |
-| E11 a E16 | De las tres rutas (con y sin permiso, `403` anotado) y de la pantalla (la pestaña, «No tenés permiso»); E15, del arranque |
+| E11 a E16 | De las cuatro rutas (con y sin permiso, `403` anotado) y de la pantalla (la pestaña, «No tenés permiso»); E15, del arranque |
 | E17 a E22, E35b | De la pantalla, con el servidor de mentira: 20 y 10 por página, total y «página n de m», vacío, colores (sacar un rol en rojo, darlo sin color), fecha solo si no es de `today`, un ícono por tipo |
 | E23 a E31, E35c | De la consulta (cada filtro y sus combinaciones, los atajos con el reloj del servidor, contra archivos de dos años con una acción el 31 de diciembre a las 22) y de la pantalla (volver a la página 1, «Sacar los filtros», los números que filtran) |
-| E32 a E35, E35d | De la pantalla: el detalle, tocar una persona, «Actualizar» sin pedidos solos, el teclado |
+| E32, E33, E35, E35d | De la pantalla: el detalle, tocar una persona, el teclado |
+| E34, E49 a E56 | De la pantalla, con el servidor de mentira y el canal de mentira de las pruebas del vínculo: apagado no pide nada solo; prendido en la computadora y apagado en el celular al abrir; arriba de todo entra marcado y se ponen al día el resumen y la tira; abajo o en la página 2, «3 nuevas» y tocarlo; diez avisos en 5 s, una puesta al día; otro día, sin selector ni tema; oculta, sin tema, y al volver, una puesta al día; prenderlo en el celular pide y muestra los KB; el selector no viaja por el espejo. Del servidor (`live.test.ts`): el tema pide el permiso y lo suelta al sacarlo, el alta manda `{}`, diez tandas en 5 s dan dos avisos, sin oyentes no hay temporizador. De la ruta `/new`: el conteo con filtros, desde un año anterior, el tope de 100 y un `since` mal |
+| 03 · E45, E46 | Del medidor (`meter.test.ts`, con reloj de prueba): cuenta por etiqueta y el total una vez, a los 60 s sin nada dice 0. De las pantallas del vínculo: el total en la tarjeta y en la pastilla |
 | E40 a E48 | De la pantalla, con el servidor de mentira y un reloj de prueba: abrir desde la tira y desde «Ver el día», cerrar y volver igual, la línea de quién a quién, ← →, reproducir y detenerse, aislar, cambiar de día, más de 2.000. De la ruta `/day`: el día entero sin filtros, la semana y `tooMany` |
 | E36 | De la pantalla: gris sin conexión; al volver sale del gris sin pedir nada |
 | E37, E38, E39 | De las rutas: no hay `POST`/`PUT`/`DELETE`; un parámetro mal, uno desconocido o una página de más dan `400`. De la pantalla: un nombre con HTML se ve como texto |
@@ -465,8 +599,9 @@ Las piezas, sobre la maqueta `mockups/users-who-did-what/{desktop,phone}/variant
 | El catálogo | Cada tipo que anota el servidor está; los íconos no se repiten y están dibujados |
 | Metas | Las que cuentan las consultas y miran el plan; una de tiempo con 730.000 acciones, fuera de `pnpm check` (tarda), que se corre antes de cerrar el módulo |
 
-**De punta a punta:** ninguna nueva. Lo que cruza el navegador y el servidor (la pestaña con permiso)
-ya lo prueban las unitarias de las dos puntas.
+**De punta a punta:** ninguna nueva. Lo que cruza el navegador y el servidor (la pestaña con permiso, el
+tema del canal) ya lo prueban las unitarias de las dos puntas, y el canal mismo, las de punta a punta
+del vínculo.
 
 ## 12. Lo que decidió Carlos
 
@@ -474,9 +609,14 @@ ya lo prueban las unitarias de las dos puntas.
    las usa.
 2. **Una persona borrada** figura en los filtros con «(borrada)» y sin correo (§ 3).
 3. **Abrir Quién hizo qué se anota una vez por sesión y por día** (R1.3): `GET /api/audit-log`
-   anota `audit-log.opened` la primera vez que esa sesión pide cualquiera de las tres rutas en el día del negocio. Lo recuerda
+   anota `audit-log.opened` la primera vez que esa sesión pide cualquiera de las cuatro rutas en el día del negocio. Lo recuerda
    en memoria (sesión y día); si el servidor se reinicia, puede anotarse una vez más ese día.
 4. **La tira, con más de 2.000 acciones en el día,** va de a una raya por minuto (R4.9).
+5. **«Actualizar solo» reemplaza a «Actualizar»** (R4.6): prendido al abrir en la computadora y apagado en
+   el celular, sin recordarse ni espejarse; solo con hoy en las fechas; «3 nuevas» lejos de arriba; solo
+   el ícono y la llave.
+6. **Los dos medidores** (R4.12; 03 · R4.5): KB por minuto sobre el último minuto, sin acumulado; el de
+   la pantalla debajo del selector y el de la aplicación en la tarjeta del vínculo y en la pastilla.
 
 ## 13. Tareas
 
@@ -499,3 +639,24 @@ ya lo prueban las unitarias de las dos puntas.
 7. **Las pruebas de § 11 y la documentación al día:** los diseños de 01 y 02 donde nombran la forma
    vieja, `architecture.md` (`platform/storage/audit/`, `platform/device.ts`) y la línea del ADR-004
    sobre tipo y persona como texto.
+8. **El medidor** (T118): `platform/meter.ts`, `useRate`, la cuenta en `sse.ts`, `channel.ts` y la opción
+   `meter` de `api()`, la etiqueta `device-link` en sus pedidos solos y el total en la tarjeta y la
+   pastilla del vínculo, con sus pruebas. No depende de nada.
+9. **El aviso en el servidor** (T118): `onWritten` en la auditoría, `live.ts` con el tema y el aviso cada
+   5 s, `latest` en la lista y `GET /api/audit-log/new`, con sus pruebas y las que cuentan sus consultas.
+   No depende de nada.
+10. **La pantalla** (T118): `live.ts`, `Live`, `NewOnes`, la marca, Alt + R y los textos; ya no hay
+    «Actualizar». Depende de 8 y 9.
+11. **La documentación** (T118): el manual (`docs/manual/audit-log.md`) deja de decir «tocá
+    «Actualizar»» y explica el selector y el medidor, con sus capturas; el de `device-link`, el medidor;
+    `architecture.md` suma `platform/meter.ts`. Depende de 10.
+
+## 14. Lo que tiene que decidir Carlos
+
+1. **Qué cuenta el medidor de la aplicación.** El diseño cuenta lo que pasa por internet de forma
+   automática: el canal común y lo que la aplicación pide sola (la lista que se pone al día, lo del
+   vínculo por el servidor). No cuenta lo que la persona pide al tocar algo, ni lo del directo, que va
+   por el Wi-Fi del local. Así, con el selector apagado y sin canal, da 0 aunque se use la aplicación.
+   La alternativa es contar todo lo que pasa por internet, también lo que se pide al tocar: más fiel al
+   gasto real, pero el número salta con cada toque y deja de decir cuánto cuesta tener las cosas
+   prendidas.

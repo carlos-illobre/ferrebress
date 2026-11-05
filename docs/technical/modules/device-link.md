@@ -23,7 +23,7 @@ se diagnostica un error que no se puede reproducir.
   la persona.
 - De 00 · R4.3 y de la constitución (III): nada corre de fondo, y cada pedido automático nuevo queda en
   [mobile-data.md](../mobile-data.md) (§ 18.2).
-- Deja preparado, sin programarlo, el tema de la auditoría que se actualiza sola (T118, § 14.1).
+- El tema de la auditoría que se actualiza sola lo suma el diseño de 05 (§ 7), con el punto de extensión de § 14.1.
 
 **La idea técnica en tres capas comunes, que no conocen a `device-link`:**
 
@@ -258,7 +258,7 @@ export type TopicDefinition<P, E> = {
 | `sign-in.codes` | sign-in | la pestaña | la pantalla (cookie `__Host-sign-in-screen`) | sin sesión | el código vigente o la reserva |
 | `device-link.code` | device-link | — | la sesión | con sesión, desde una computadora | el código vigente |
 | `device-link.pairing` | device-link | el vínculo | el vínculo **y el lado**: `<id>:phone` o `<id>:computer` | con sesión, de **ese** vínculo (el `<id>` se compara con `members.ts`, E38) | si el otro lado escucha |
-| `audit-log.new` (T118, no se programa) | audit-log | el último id visto | `all` | con `audit.view`; `recheckOn: ['users.permissions-changed']` | cuántas hay nuevas |
+| `audit-log.new` | audit-log | — | `all` | con `audit-log.view`; `recheckOn: ['users.permissions-changed']` | `{}`: que se ponga al día (diseño de 05, § 7) |
 
 Con la clave por lado, `publish` de lo que manda la computadora va a `…:phone` y nunca vuelve a quien lo
 mandó ni a una pestaña reemplazada.
@@ -278,10 +278,10 @@ sequenceDiagram
   C->>S: GET /api/realtime?s=device-link.pairing:id
   S-->>C: event hello {channel}
   S-->>C: event device-link.pairing {present:false}
-  P->>D: useTopic('audit-log.new', 812)
-  D->>C: temas += audit-log.new:812
+  P->>D: useTopic('audit-log.new')
+  D->>C: temas += audit-log.new
   C->>S: POST /api/realtime/subscriptions {channel, add}
-  S-->>C: event audit-log.new {count:0}
+  S-->>C: event audit-log.new {}
   loop cada 40 s
     S-->>C: comentario de latido
   end
@@ -1120,6 +1120,10 @@ sigue sin internet (R3.4, E20) con la última confirmación (§ 7.1).
 
 Desde la maqueta aprobada, `docs/design/mockups/device-link-indicator/final/` (`changes.md` dice cada
 pieza). Las clases pasan al CSS con el nombre de la pieza; los tokens, de `styles/`.
+
+**Lo que gasta la aplicación** (R4.5, E45, E46): la tarjeta de la computadora, debajo de la luz, y la
+pastilla del celular, en un renglón debajo del estado, muestran `useRate()` del medidor de la plataforma
+(diseño de 05, § 8.1), con la maqueta final de Quién hizo qué (`mockups/users-who-did-what/final/`).
 
 | Pieza | Dónde | Qué hace |
 |---|---|---|
