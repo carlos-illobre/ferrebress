@@ -59,9 +59,12 @@ function createLive(deps: Deps, state: Store<PairingState>): Live {
   return live;
 }
 
-// Cambió la huella `l=` del vínculo (§ 3.5): esperando sin escuchar, el otro pudo haber llegado y se
+// Cambió la huella `l=` del vínculo (§ 3.5): lo que sale por el directo espera una confirmación nueva;
+// esperando sin escuchar, el otro pudo haber llegado y se
 // mira (la versión vieja no: se presentaría una y otra vez); si no, se pregunta cómo está.
 function pairingChanged(live: Live): void {
+  // En el momento, antes de que la respuesta que lo trajo llegue a quien la pidió.
+  live.confirm.stale();
   live.enqueue(() => {
     const now = live.state();
     if (now.kind !== 'waiting' || live.topic) return live.check();

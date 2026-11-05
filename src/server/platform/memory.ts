@@ -17,6 +17,12 @@ export function createGuardedMemory<K, V>() {
     },
     // Lo que hay en memoria, sin leer la base: para lo que no puede esperar (la cabecera).
     peek: (key: K): V | undefined => values.get(key),
+    // Lo que quedó en la base después de confirmar un cambio, sin volver a leerlo. Cuenta como un
+    // olvido: una lectura que empezó antes no lo pisa.
+    settle(entries: readonly (readonly [K, V])[]): void {
+      forgets++;
+      for (const [key, value] of entries) values.set(key, value);
+    },
     forget(keys: readonly K[] | 'all'): void {
       forgets++;
       if (keys === 'all') values.clear();

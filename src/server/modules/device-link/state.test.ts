@@ -153,6 +153,28 @@ describe('lo que termina el vínculo', () => {
     expect(audit('device-link.paired').at(-1)?.data).toEqual({ how: 'sign-in' });
   });
 
+  it('E07: el celular sin vínculo que entra a una computadora se entera con su próximo pedido (l=)', async () => {
+    const [computer, phone] = [await signedIn(server, false), await signedIn(server, true)];
+    const start = await phone.request('/api/start');
+    expect(start.header).not.toMatch(/(^|; )l=/);
+    await publish(
+      'sign-in.phone-approved' as never,
+      {
+        userId: start.body.person.userId,
+        phoneDeviceId: phone.id,
+        phoneLabel: 'Chrome en Android',
+        computerDeviceId: computer.id,
+        computerLabel: 'Chrome en Windows',
+      } as never,
+    );
+    const next = await phone.request('/api/device-link/check');
+    expect(next.body.pairing.side).toBe('phone');
+    expect(next.header).toMatch(/(^|; )l=[0-9a-f]{8}/);
+    // Y la pausa no lo hace desaparecer: cambia de valor (sin pedidos de más, § 3.5).
+    await phone.request('/api/device-link/pause', {});
+    expect((await phone.request('/api/device-link/check')).header).toMatch(/(^|; )l=[0-9a-f]{8}/);
+  });
+
   it('E12: vence a los 30 días sin espejar; salir no lo termina (E10, E17)', async () => {
     const { computer, phone } = await linked();
     await computer.request('/api/sign-out', {});

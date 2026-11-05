@@ -14,6 +14,8 @@ export const deviceLinkSettings = {
     read: { max: 10, windowMs: minute },
     signal: { max: 30, windowMs: minute },
     relay: { max: 600, windowMs: minute },
+    // Lo que pasa por el respaldo, en KB: 1 MB por minuto (§ 10.2).
+    relayKb: { max: 1024, windowMs: minute },
     check: { max: 60, windowMs: minute },
     report: { max: 10, windowMs: 60 * minute },
   },

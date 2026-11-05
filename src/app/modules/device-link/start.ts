@@ -7,7 +7,14 @@ import { mirror } from '../../platform/mirror/registry.ts';
 import { bindRoute } from '../../platform/mirror/route.ts';
 import { createRtcConnection } from '../../platform/peer/rtc.ts';
 import { realtime } from '../../platform/realtime/channel.ts';
-import { api, appVersion, decorate, newVersion, online } from '../../platform/server/api.ts';
+import {
+  api,
+  appVersion,
+  decorate,
+  newVersion,
+  online,
+  sessionClosed,
+} from '../../platform/server/api.ts';
 import { serverNow } from '../../platform/server/clock.ts';
 import { onField } from '../../platform/server/fields.ts';
 import { startParts } from '../../platform/server/start-parts.ts';
@@ -25,10 +32,17 @@ import { createTabs } from './tabs.ts';
 import type { Watched } from './watch.ts';
 import { watchLink } from './watch.ts';
 
-// Quién tiene la sesión, solo su identificador.
-const who: Watched<string | undefined> = {
-  get: () => person.get()?.userId,
-  subscribe: (listener) => person.subscribe((now) => listener(now?.userId)),
+// Quién tiene la sesión, solo su identificador. Una sesión cerrada o vencida (la entrada encima de lo
+// que había) ya no es de nadie: el vínculo la suelta en el momento, sin esperar la confirmación (R2.6).
+export const who: Watched<string | undefined> = {
+  get: () => (sessionClosed.get() ? undefined : person.get()?.userId),
+  subscribe(listener) {
+    const tell = () => listener(who.get());
+    const stops = [person.subscribe(tell), sessionClosed.subscribe(tell)];
+    return () => {
+      for (const stop of stops) stop();
+    };
+  },
 };
 
 // El vínculo que dijo `/api/start`, validado: lo que no tiene su forma cuenta como «ninguno».

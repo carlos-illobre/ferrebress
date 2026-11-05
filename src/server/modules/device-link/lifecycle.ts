@@ -67,10 +67,12 @@ export async function pair(
   return { pairing, replaced, renewed: false };
 }
 
-// Lo de después de vincular: la memoria, las claves de los que terminaron y la auditoría.
+// Lo de después de vincular: la memoria, las claves de los que terminaron y la auditoría. Renovar el
+// mismo vínculo no corta nada: el espejo que andaba sigue.
 export function afterPairing(ctx: DeviceLinkContext, paired: Paired, actor: Actor): void {
   const { pairing, replaced, renewed } = paired;
-  afterEnding(ctx, [pairing, ...replaced]);
+  afterEnding(ctx, replaced);
+  ctx.members.known(pairing);
   if (renewed) return;
   const at = ctx.platform.clock.now();
   const person = { kind: 'person', id: pairing.userId };

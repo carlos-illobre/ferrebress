@@ -364,9 +364,11 @@ Solo con sesión y con vínculo; si no, no va.
 
 - Cuesta unos 12 bytes en cada respuesta de un dispositivo vinculado y no guarda nada: sobrevive a un
   reinicio del servidor y no hay que borrarla.
-- La aplicación (`piggyback.ts`) la lee **antes** de devolver la respuesta a quien pidió. Si cambió,
-  `device-link` retiene el espejo (`mirror.hold`) y pide `GET /api/device-link/check`: la respuesta que
-  trajo el cambio no se reenvía hasta saber cómo está el vínculo (revisión de seguridad, 1).
+- La aplicación (`platform/server/fields.ts`) la lee **antes** de devolver la respuesta a quien pidió. Si
+  cambió, `device-link` da por vencida la última confirmación del directo (`confirm.stale()`, § 7) y pide
+  `GET /api/device-link/check`: lo que la respuesta que trajo el cambio mueva en el espejo queda retenido
+  hasta una confirmación nueva, y con el vínculo terminado se tira (revisión de seguridad, 1). No se frena
+  la respuesta misma: si la trajo un pedido del propio vínculo, esperarla trabaría su fila.
 - Así se entera sin canal de que lo terminaron desde Usuarios, de que lo reemplazaron, de que el otro
   tocó «Reconectar» y, con la decisión de R3.5, el celular de que la computadora volvió y escucha.
 - Sumar otro campo es otra llamada a `contribute` en su módulo y otro `onField` en la aplicación; si un
@@ -709,8 +711,8 @@ por casualidad: cada uno **exige** una confirmación reciente antes de mandar o 
   **en la presentación de esta conexión** la sesión del otro lado (§ 4.4); y esa sesión sigue abierta
   (`closedReasonOf` con la hora de ahora, ADR-015). Responde `{ pairing, peer: 'ok' | 'gone' }`.
 - **Antes de mandar** un parche, una foto o un `q:`, y **antes de aplicar** uno que llegó, `confirm.ts`
-  mira que la última confirmación con `peer: 'ok'` tenga menos de 4 minutos. Si es más vieja, retiene lo
-  que sale y lo que entra (`mirror.hold`) y confirma. Con `gone` o sin vínculo, la máquina recibe
+  mira que la última confirmación con `peer: 'ok'` tenga menos de 4 minutos y que no haya cambiado `l=`
+  después. Si no, retiene lo que sale y lo que entra, en orden, y confirma. Con `gone` o sin vínculo, la máquina recibe
   `peerGone('signed-out')` o `serverSaid(none)` y no sale ni entra nada más.
 - **Un `hello` o un `resume` del otro** exige una confirmación de menos de 30 s antes de mandar la foto:
   reconectar por un canal de datos conservado ya no manda nada sin preguntarle al servidor.
@@ -731,6 +733,11 @@ por casualidad: cada uno **exige** una confirmación reciente antes de mandar o 
   la cabecera `X-Pairing: <id>` (con `api.decorate`), y un paso que registra en el servidor contesta
   `409 pairing-ended` si ese vínculo ya no existe o la sesión del otro lado se cerró: nada que haya
   escrito un par cortado sale con la sesión del otro. Anota `device-link.rejected` una vez por ventana.
+  No son escrituras del espejo, y no llevan la cabecera ni pasan por el paso, entrar y salir, el canal
+  y las rutas del vínculo (`isMirroredWrite`, en `shared/contracts/pairing.ts`): salir, desvincular y
+  desconectar andan aunque el vínculo ya haya terminado (revisión de seguridad del código, 1).
+- **La sesión propia cerrada o vencida suelta el vínculo en el momento:** con la entrada encima de lo
+  que había, para el vínculo ya no hay nadie (`sessionLost`), sin esperar a la próxima confirmación.
 - **La respuesta que trae el aviso no viaja** (§ 3.5).
 
 ### 7.3. Lo que queda

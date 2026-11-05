@@ -36,7 +36,7 @@ async function setPaused(ctx: DeviceLinkContext, c: Context, paused: boolean) {
   if (!found) return fail(c, 409, 'not-paired');
   const at = paused ? ctx.platform.clock.now() : null;
   const updated = (await ctx.data.setPaused(found.pairing.id, at)) as Pairing;
-  ctx.members.forget([updated]);
+  ctx.members.known(updated);
   const other: Side = otherSide(found.side);
   ctx.platform.realtime.publish(pairingTopic, keyOf(updated.id, other), {
     pairing: viewOf(updated, other),

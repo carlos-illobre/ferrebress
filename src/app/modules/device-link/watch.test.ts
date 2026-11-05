@@ -4,6 +4,7 @@
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate } from '../../platform/router.ts';
+import { sessionClosed } from '../../platform/server/api.ts';
 import { startParts } from '../../platform/server/start-parts.ts';
 import { createStore } from '../../platform/store.ts';
 import { pc } from '../../testing/pairing.ts';
@@ -13,7 +14,7 @@ import { reading } from './detail.ts';
 import { linkRuntime, watchDeviceLink } from './index.ts';
 import type { PairingState } from './machine/types.ts';
 import type { Runtime } from './runtime.ts';
-import { pairingAt, stripOfPerson } from './start.ts';
+import { pairingAt, stripOfPerson, who } from './start.ts';
 import { watchLink } from './watch.ts';
 
 type Setup = { visible?: boolean; mine?: boolean; start?: PairingView | null | undefined };
@@ -30,7 +31,7 @@ function setup(person: string | undefined, options: Setup = {}) {
   };
   const who = createStore(person);
   let field: (value: string | undefined) => void = () => undefined;
-  let decorator: (request: { write: boolean }) => Record<string, string> = () => ({});
+  let decorator: (request: { path: string; write: boolean }) => Record<string, string> = () => ({});
   let tabChanged: () => void = () => undefined;
   const view = { visible, mine };
   const stop = watchLink({
@@ -70,8 +71,19 @@ describe('lo que el vínculo escucha', () => {
     const { runtime, field, stop } = setup('ana', { start: pc });
     expect(runtime.dispatch).toHaveBeenCalledWith({ type: 'serverSaid', pairing: pc });
     expect(runtime.check).not.toHaveBeenCalled();
+    // La primera vez no es un cambio (E23: abrir no suma un pedido).
     field()('abc');
-    expect(runtime.pairingChanged).toHaveBeenCalled();
+    expect(runtime.pairingChanged).not.toHaveBeenCalled();
+    field()('def');
+    expect(runtime.pairingChanged).toHaveBeenCalledTimes(1);
+    stop();
+  });
+
+  it('R6.4: la pestaña que no espeja no se entera de la huella', () => {
+    const { runtime, field, stop } = setup('ana', { start: pc, visible: false });
+    field()('abc');
+    field()('def');
+    expect(runtime.pairingChanged).not.toHaveBeenCalled();
     stop();
   });
 
@@ -132,12 +144,16 @@ describe('lo que el vínculo escucha', () => {
 
   it('las escrituras mientras espeja dicen con qué vínculo', () => {
     const { runtime, decorator } = setup('ana');
-    expect(decorator()({ write: true })).toEqual({});
+    const write = { path: '/api/users', write: true };
+    expect(decorator()(write)).toEqual({});
     runtime.state.set({ kind: 'direct', pairing: pc, attempt: 'a' });
-    expect(decorator()({ write: false })).toEqual({});
-    expect(decorator()({ write: true })).toEqual({ 'X-Pairing': pc.id });
+    expect(decorator()({ ...write, write: false })).toEqual({});
+    expect(decorator()(write)).toEqual({ 'X-Pairing': pc.id });
     runtime.state.set({ kind: 'relayed', pairing: pc, attempt: 'a' });
-    expect(decorator()({ write: true })).toEqual({ 'X-Pairing': pc.id });
+    expect(decorator()(write)).toEqual({ 'X-Pairing': pc.id });
+    // Salir, desvincular y el canal no son escrituras del espejo.
+    for (const path of ['/api/sign-out', '/api/device-link/unpair', '/api/realtime/subscriptions'])
+      expect(decorator()({ path, write: true })).toEqual({});
   });
 });
 
@@ -172,6 +188,21 @@ describe('lo que lee el vínculo de la aplicación', () => {
     expect(strip()).toBe(first);
     person.set({ ...ana, userId: 'otra' });
     expect(strip()).not.toBe(first);
+    person.set(undefined);
+  });
+
+  it('una sesión cerrada o vencida ya no es de nadie, aunque la persona siga a la vista', () => {
+    const heard: (string | undefined)[] = [];
+    person.set(ana);
+    const stop = who.subscribe((now) => heard.push(now));
+    expect(who.get()).toBe(ana.userId);
+    sessionClosed.set('expired');
+    expect(who.get()).toBeUndefined();
+    sessionClosed.set(undefined);
+    stop();
+    sessionClosed.set('expired');
+    expect(heard).toEqual([undefined, ana.userId]);
+    sessionClosed.set(undefined);
     person.set(undefined);
   });
 

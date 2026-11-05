@@ -8,6 +8,10 @@ import type { DeviceLinkData } from './data.ts';
 import { deviceOf, type Pairing } from './rules.ts';
 
 const slot = (pairingId: string, side: Side) => `${pairingId}:${side}`;
+const sides = ['phone', 'computer'] as const;
+// La clave de cada dispositivo del vínculo, con lo que queda en memoria para él.
+const devicesOf = <V>(pairing: Pairing, value: V) =>
+  sides.map((side) => [`${pairing.userId}:${deviceOf(pairing, side)}`, value] as const);
 
 // Espejaron ahora: se escribe por tandas (R2.2).
 function mirroredLog() {
@@ -34,21 +38,17 @@ export function createMembers(data: DeviceLinkData) {
         `${userId}:${deviceId}`,
         async () => (await data.forDevice(userId, deviceId)) ?? null,
       ),
-    // Después de confirmar un cambio (la pausa): lo que se sabía de esos vínculos se vuelve a leer.
-    forget(pairings: Pairing[]): void {
-      byDevice.forget(
-        pairings.flatMap((pairing) =>
-          (['phone', 'computer'] as const).map(
-            (side) => `${pairing.userId}:${deviceOf(pairing, side)}`,
-          ),
-        ),
-      );
+    // Después de confirmar un vínculo nuevo, renovado o pausado: sus dos dispositivos lo tienen, sin
+    // volver a la base. Así `l=` cambia en la próxima respuesta de cada uno (§ 3.5).
+    known(pairing: Pairing): void {
+      byDevice.settle(devicesOf(pairing, pairing));
     },
-    // Vínculos que terminaron: además, sus sesiones y sus huellas DTLS.
+    // Vínculos que terminaron: sus dispositivos quedan sin vínculo, y se sueltan sus sesiones y sus
+    // huellas DTLS.
     ended(pairings: Pairing[]): void {
-      this.forget(pairings);
+      byDevice.settle(pairings.flatMap((pairing) => devicesOf(pairing, null)));
       for (const pairing of pairings)
-        for (const side of ['phone', 'computer'] as const) {
+        for (const side of sides) {
           sessions.delete(slot(pairing.id, side));
           fingerprints.delete(slot(pairing.id, side));
         }

@@ -46,8 +46,9 @@ async function read(ctx: DeviceLinkContext, c: Context, code: string) {
   if (!session.isPhone) return fail(c, 400, 'not-a-phone');
   const outcome = ctx.codes.peek(code);
   if (typeof outcome === 'string') return fail(c, 410, outcome);
-  // Un código vigente es de una computadora que lo escucha con su sesión abierta: vale 60 s y deja
-  // de valer en cuanto esa sesión termina (el canal se cierra y deja de mostrarlo).
+  // Un código vigente es de una computadora que lo escucha con su sesión abierta: vale 60 s y deja de
+  // valer en cuanto esa sesión termina. Se mira acá: el canal recién se cierra en el próximo latido.
+  if (!computerOf(ctx, outcome.owner)) return fail(c, 410, 'code-expired');
   const computer = ctx.computers.get(outcome.owner) as Device;
   if (computer.userId !== session.userId) {
     ctx.recordOnce(c, `other-account:${session.id}`, 'device-link.rejected', {

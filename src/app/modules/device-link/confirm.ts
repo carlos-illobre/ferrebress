@@ -92,6 +92,11 @@ export function createConfirm(options: Options) {
     // lote). La confirmación de antes no vale para esta.
     begin: reset,
     end: () => reset(undefined),
+    // Algo del vínculo cambió (la huella `l=`, § 3.5): la última ya no vale, y lo próximo que salga o
+    // entre espera una nueva. Lo que trajo el aviso no viaja sin confirmar.
+    stale() {
+      now.confirmedAt = undefined;
+    },
     ensure,
     // Lo que sale o entra por el espejo: ahora si la confirmación está fresca; si no, cuando llegue.
     gate(run: () => void) {

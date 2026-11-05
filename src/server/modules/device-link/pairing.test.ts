@@ -1,6 +1,6 @@
 // Vincular con el botón, en el servidor (capítulo 03, R1; E01, E03 a E06, E37): el código del QR de
 // la computadora, leerlo con el celular, otra cuenta, reemplazar con boleto y volver a vincular.
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { listen, otherPersonPhone, settle, signedIn, time } from '../../testing/device-link.ts';
 import { createSignInServer, type SignInServer } from '../../testing/sign-in/sign-in-server.ts';
 
@@ -182,5 +182,16 @@ describe('vincular con el botón', () => {
     expect((await phone.request('/api/device-link/codes/read', { code })).body.error).toBe(
       'code-expired',
     );
+  });
+
+  it('un código vence en cuanto vence la sesión de la computadora, antes del próximo latido', async () => {
+    const [computer, phone] = [await signedIn(server, false), await signedIn(server, true)];
+    const shown = await showCode(computer);
+    // La sesión de la computadora venció por falta de uso; su canal se cierra recién en el latido.
+    const closed = vi.spyOn(server.platform.sessions, 'isOpen').mockReturnValue(false);
+    const read = await phone.request('/api/device-link/codes/read', { code: shown.code() });
+    closed.mockRestore();
+    expect(read.body.error).toBe('code-expired');
+    await shown.tab.close();
   });
 });

@@ -1,5 +1,5 @@
 // La confirmación del vínculo (diseño de 03, § 7): retiene lo que sale y entra hasta tener una de
-// menos de 4 minutos, la pide una sola vez, tira lo retenido si el otro ya no está, sigue sin internet
+// menos de 4 minutos (o hasta que cambie algo del vínculo), la pide una sola vez, tira lo retenido si el otro ya no está, sigue sin internet
 // con la última buena y no mezcla conexiones.
 import type { CheckResponse } from '@ferrebress/shared/contracts/device-link';
 import { describe, expect, it, vi } from 'vitest';
@@ -61,6 +61,21 @@ describe('la confirmación del vínculo', () => {
     expect(order).toEqual([1, 2, 3]);
     await answer();
     expect(order).toEqual([1, 2, 3, 4]);
+  });
+
+  it('cuando cambia algo del vínculo, la última no vale: lo próximo espera una nueva', async () => {
+    const { confirm, check, answer } = setup([ok, none]);
+    confirm.begin('fp');
+    const sent = vi.fn();
+    confirm.gate(sent);
+    await answer();
+    expect(sent).toHaveBeenCalledTimes(1);
+    confirm.stale();
+    confirm.gate(sent);
+    expect(sent).toHaveBeenCalledTimes(1);
+    await answer();
+    expect(check).toHaveBeenCalledTimes(2);
+    expect(sent).toHaveBeenCalledTimes(1);
   });
 
   it('con el otro fuera de regla, o sin vínculo, tira lo retenido y avisa', async () => {

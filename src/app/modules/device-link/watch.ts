@@ -2,7 +2,11 @@
 // conozcan: quién tiene la sesión, la huella `l=` de cada respuesta, si la pestaña está a la vista y si
 // es la que espeja (R6.4). Y lo que suma a los pedidos: `X-Pairing` en las escrituras mientras espeja
 // (§ 7.2). Todo llega de afuera, para probarlo sin la aplicación entera.
-import { type PairingView, pairingHeaderName } from '@ferrebress/shared/contracts/pairing';
+import {
+  isMirroredWrite,
+  type PairingView,
+  pairingHeaderName,
+} from '@ferrebress/shared/contracts/pairing';
 import type { Store } from '../../platform/store.ts';
 import type { Runtime } from './runtime.ts';
 
@@ -14,7 +18,9 @@ type Options = {
   // El `userId` de quien tiene la sesión, o nadie.
   who: Watched<string | undefined>;
   onField(letter: string, listener: (value: string | undefined) => void): () => void;
-  decorate(decorator: (request: { write: boolean }) => Record<string, string>): () => void;
+  decorate(
+    decorator: (request: { path: string; write: boolean }) => Record<string, string>,
+  ): () => void;
   // El vínculo que dijo `/api/start` al abrir: `undefined` mientras no contestó; `null`, ninguno.
   atStart: Watched<PairingView | null | undefined>;
   // Si esta pestaña es la que espeja; avisa cuando cambia.
@@ -43,8 +49,29 @@ function learner(runtime: Runtime, atStart: Options['atStart']) {
   };
 }
 
+// Lo que el vínculo lee y suma en cada pedido: la huella `l=` y `X-Pairing` en las escrituras.
+function onRequests(options: Options, isActive: () => boolean) {
+  const { runtime, onField, decorate } = options;
+  let seen = false;
+  return [
+    // La primera vez que se ve el campo no es un cambio: el vínculo de ahora lo dijo `/api/start` o lo
+    // pregunta quien se presenta. Y solo la pestaña que espeja se entera: las otras, al tomar el candado.
+    onField('l', () => {
+      if (seen && isActive()) runtime.pairingChanged();
+      seen = true;
+    }),
+    decorate(({ path, write }) => {
+      const state = runtime.state.get();
+      const mirroring = state.kind === 'direct' || state.kind === 'relayed';
+      return write && mirroring && isMirroredWrite(path)
+        ? { [pairingHeaderName]: state.pairing.id }
+        : {};
+    }),
+  ];
+}
+
 export function watchLink(options: Options) {
-  const { runtime, who, onField, decorate, tabs, visible, atStart } = options;
+  const { runtime, who, tabs, visible, atStart } = options;
   const known = learner(runtime, atStart);
   let active = false;
   const tab = tabs(() => sync());
@@ -73,12 +100,7 @@ export function watchLink(options: Options) {
     atStart.subscribe(() => {
       if (known.pending() && who.get() && active) known.learn();
     }),
-    onField('l', () => runtime.pairingChanged()),
-    decorate(({ write }) => {
-      const state = runtime.state.get();
-      const mirroring = state.kind === 'direct' || state.kind === 'relayed';
-      return write && mirroring ? { [pairingHeaderName]: state.pairing.id } : {};
-    }),
+    ...onRequests(options, () => active),
   ];
   document.addEventListener('visibilitychange', sync);
   sync();

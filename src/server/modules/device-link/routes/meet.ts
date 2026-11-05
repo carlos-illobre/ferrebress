@@ -51,10 +51,16 @@ async function relay(ctx: DeviceLinkContext, c: Context, messages: unknown[]) {
   const otherSession = ctx.members.sessionOf(pairing.id, other);
   if (!otherSession || !ctx.platform.sessions.isOpen(otherSession))
     return fail(c, 409, 'peer-gone');
-  const window = deviceLinkSettings.limits.relay;
-  for (const _ of messages)
-    if (!ctx.platform.limiter.hit(`device-link:relay:${sessionOf(c).id}`, window).allowed)
-      return ctx.tooMany(c, window.windowMs);
+  // Se cuentan los mensajes y los KB: muchos chicos o pocos grandes cuestan lo mismo de datos.
+  const { relay: window, relayKb } = deviceLinkSettings.limits;
+  const id = sessionOf(c).id;
+  const kb = Math.ceil(JSON.stringify(messages).length / 1024);
+  const counts = [
+    ...messages.map(() => [`device-link:relay:${id}`, window] as const),
+    ...Array.from({ length: kb }, () => [`device-link:relay-kb:${id}`, relayKb] as const),
+  ];
+  for (const [key, limit] of counts)
+    if (!ctx.platform.limiter.hit(key, limit).allowed) return ctx.tooMany(c, limit.windowMs);
   ctx.platform.realtime.publish(pairingTopic, keyOf(pairing.id, other), { relay: messages });
   return c.json({ ok: true });
 }

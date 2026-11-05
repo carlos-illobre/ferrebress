@@ -98,6 +98,14 @@ describe('el respaldo por el servidor', () => {
     for (let i = 0; i < 6; i++) await computer.request('/api/device-link/relay', many);
     const capped = await computer.request('/api/device-link/relay', many);
     expect(capped.status).toBe(429);
+    // Y en bytes: pocos mensajes grandes también topan (1 MB por minuto).
+    now += 2 * 60_000;
+    const big = { messages: [{ v: 'x'.repeat(60 * 1024) }] };
+    const sent = [];
+    for (let i = 0; i < 18; i++)
+      sent.push((await computer.request('/api/device-link/relay', big)).status);
+    expect(sent.slice(0, 16)).toEqual(Array(16).fill(200));
+    expect(sent.at(-1)).toBe(429);
     await phone.request('/api/sign-out', {});
     const gone = await computer.request('/api/device-link/relay', { messages: [1] });
     expect(gone.body.error).toMatch(/peer-(gone|absent)/);
@@ -142,8 +150,8 @@ describe('lo que el vínculo suma a cada pedido', () => {
 
   it('una escritura con el vínculo pasa mientras sigue; terminado, o con el otro sin sesión, 409', async () => {
     const { computer, phone, phoneTab, computerTab } = await together();
-    const write = (pairing: string) =>
-      server.http.request('/api/device-link/pause', {
+    const write = (pairing: string, path = '/api/users') =>
+      server.http.request(path, {
         method: 'POST',
         body: '{}',
         headers: {
@@ -157,10 +165,14 @@ describe('lo que el vínculo suma a cada pedido', () => {
         },
       });
     const id = (await phone.request('/api/device-link/check')).body.pairing.id;
-    expect((await write(id)).status).toBe(200);
+    expect((await write(id)).status).not.toBe(409);
     expect((await write('otro')).status).toBe(409);
     await computer.request('/api/sign-out', {});
     expect(await (await write(id)).json()).toEqual({ error: 'pairing-ended' });
+    // Lo que no es del espejo pasa igual: desconectar y salir andan con el vínculo terminado.
+    expect((await write(id, '/api/device-link/pause')).status).toBe(200);
+    expect((await write(id, '/api/sign-out')).status).toBe(200);
+    expect((await phone.request('/api/device-link/check')).status).toBe(401);
     await phoneTab.close();
     await computerTab.close();
   });
@@ -178,7 +190,7 @@ describe('lo que el vínculo suma a cada pedido', () => {
 
   it('una escritura con un vínculo y sin sesión no pasa; dos pestañas del mismo lado cuentan como una', async () => {
     const { computer, id, phoneTab, computerTab } = await together();
-    const anonymous = await server.http.request('/api/device-link/pause', {
+    const anonymous = await server.http.request('/api/users', {
       method: 'POST',
       body: '{}',
       headers: {

@@ -5,6 +5,7 @@
 // que ya terminó, o con el otro lado sin sesión, no pasan.
 import { createHash } from 'node:crypto';
 import { pairingHeaderName } from '@ferrebress/shared/contracts/device-link';
+import { isMirroredWrite } from '@ferrebress/shared/contracts/pairing';
 import type { Context } from 'hono';
 import { fail } from '../../platform/http.ts';
 import type { RequestSession } from '../../platform/session.ts';
@@ -47,7 +48,7 @@ export function guardRequests(ctx: DeviceLinkContext): void {
   });
   checks.add(async (c) => {
     const pairingId = c.req.header(pairingHeader);
-    if (!pairingId || c.req.method === 'GET') return undefined;
+    if (!pairingId || c.req.method === 'GET' || !isMirroredWrite(c.req.path)) return undefined;
     const session = await sessions.identify(c);
     if (session && (await stillPaired(ctx, session, pairingId))) return undefined;
     ctx.recordOnce(c, `pairing-ended:${session?.id ?? 'none'}`, 'device-link.rejected', {
