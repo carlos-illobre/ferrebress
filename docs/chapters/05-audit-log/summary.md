@@ -2,7 +2,7 @@
 
 El registro de lo que hace cada persona y cómo se consulta. Reglas completas en [rules.md](rules.md).
 
-**Estado:** reglas aprobadas, salvo «Actualizar solo» y los medidores (R4.6, R4.12, E34, E49 a E56;
+**Estado:** reglas aprobadas, salvo «Actualizar solo» y los medidores (R4.6, R4.12, E34, E49 a E56, y 03 · R4.5;
 roadmap T118), que esperan la aprobación de Carlos: hasta entonces la aplicación sigue con
 «Actualizar». La historia de un dato se muestra con el catálogo (roadmap,
 T115); cuánto se guarda se decide con el plan de copias (T116).
@@ -21,7 +21,7 @@ T115); cuánto se guarda se decide con el plan de copias (T116).
   computadora y de a 10 en el celular, con el total y la página; rojo lo que borra o saca, ámbar
   los rechazos; filtros combinables por quién lo hizo, a quién, fecha (con atajos) y tipo; con hoy a la vista, el
   selector «Actualizar solo» (prendido en la computadora, apagado en el celular) trae lo nuevo por el
-  canal común, arriba o con «3 nuevas», y debajo, lo que gastó y lo que gasta la aplicación ahora; el detalle muestra todo; los nombres no filtran (para eso están «Hecho por» y «Hecho a»); cada acción con el ícono de su tipo, uno distinto por tipo; arriba,
+  canal común, arriba o con «3 nuevas», y debajo, lo que gastó; el detalle muestra todo; los nombres no filtran (para eso están «Hecho por» y «Hecho a»); cada acción con el ícono de su tipo, uno distinto por tipo; arriba,
   un resumen con tres números que filtran y, en la computadora, el día en una tira y el detalle
   siempre abierto; la cinta, a pantalla completa, muestra el día como una grabación (una fila por
   persona, líneas de quién a quién, el cabezal, «Reproducir el día» y aislar a alguien), desde la

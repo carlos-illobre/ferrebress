@@ -130,6 +130,13 @@ quita, el resto sigue andando igual.
   ver si la red falla seguido. Se guarda solo en ese dispositivo, no viaja al servidor ni va a la
   auditoría (R8.2), y al día siguiente empieza de cero. Cada dispositivo anota lo que vio, así que
   el celular y la computadora pueden mostrar números algo distintos.
+- **R4.5** **Lo que gasta la aplicación ahora**, en la tarjeta del vínculo de la computadora, debajo
+  de la luz de conexión (00 · R4.1): lo que pasa en este momento por todos los canales abiertos de
+  la aplicación (el de cualquier pantalla, como Quién hizo qué, y el del vínculo con el otro
+  dispositivo, R7), en KB por minuto, medido sobre el último minuto. No es un acumulado: es un
+  medidor. Sin ningún canal abierto, dice 0. No depende de ningún selector de una pantalla. Es
+  aproximado: la aplicación suma lo que recibe y manda más lo que agregan la conexión y el cifrado;
+  lo que diga la compañía de teléfono puede no coincidir exactamente.
 
 ## 5. Desconectar, reconectar y desvincular
 
@@ -274,6 +281,9 @@ quita, el resto sigue andando igual.
 
 ### El indicador
 
+- **E45** **Dado** la computadora con Quién hizo qué abierto y «Actualizar solo» prendido, **cuando** se
+  mira la tarjeta del vínculo, **entonces** dice cuántos KB por minuto gasta la aplicación ahora; **y
+  cuando** se apaga el selector y no queda ningún canal abierto, al minuto dice 0.
 - **E25** **Dado** una persona sin vínculo, **cuando** toca el indicador en el celular, **entonces** ve
   «En la computadora, tocá el indicador y leé el código» y «Leer el código».
 - **E26** **Dado** dos dispositivos vinculados, **cuando** se toca el indicador, **entonces** el detalle

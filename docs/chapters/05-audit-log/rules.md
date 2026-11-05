@@ -162,15 +162,11 @@ registro se decide con el plan de copias de la base.
   - Si el día tiene más de 2.000 acciones, la cinta no se abre y dice que hay demasiadas para verlas
     así, y que conviene usar la lista con filtros.
 
-- **R4.12** **Los medidores de datos**, debajo de «Actualizar solo», en letra chica, mientras se ve:
-  - **Lo que gastó la actualización automática** de Quién hizo qué desde que se prendió: el canal,
-    sus avisos y los pedidos de la lista que hizo sola. Lo que se pide al tocar algo no cuenta.
-    Vuelve a cero cada vez que se prende.
-  - **Lo que gasta la aplicación ahora** por todos sus canales abiertos (el de cualquier pantalla y
-    el del vínculo con el otro dispositivo, 03 · R7): no un acumulado, sino lo del momento, como un
-    medidor, en KB por minuto, medido sobre el último minuto. Sin ningún canal abierto, dice 0.
-  - Los dos son aproximados: la aplicación suma lo que recibe y manda más lo que agregan la conexión
-    y el cifrado. Lo que diga la compañía de teléfono puede no coincidir exactamente.
+- **R4.12** **Lo que gastó**, debajo de «Actualizar solo», en letra chica: lo que gastó la
+  actualización automática de Quién hizo qué desde que se prendió (el canal, sus avisos y los pedidos
+  de la lista que hizo sola; lo que se pide al tocar algo no cuenta). Vuelve a cero cada vez que se
+  prende; apagado, dice 0 KB. Es aproximado, como el medidor de la aplicación (03 · R4.5). Lo que
+  gasta la aplicación entera no va acá: está en la tarjeta del vínculo (03 · R4.5).
 
 ## 5. La conexión
 
@@ -308,8 +304,7 @@ registro se decide con el plan de copias de la base.
 - **E54** **Dado** «Actualizar solo» prendido, **cuando** se oculta la pestaña, **entonces** se cierra
   el canal; **y cuando** vuelve a la vista, la lista se pone al día una vez.
 - **E55** **Dado** el celular en Quién hizo qué, **cuando** se prende «Actualizar solo», **entonces** la
-  lista se pone al día en el momento y el medidor de la pantalla empieza en 0 KB y sube con lo que
-  gasta; el de la aplicación muestra los KB por minuto de ahora.
+  lista se pone al día en el momento y lo que gastó empieza en 0 KB y sube con lo que gasta.
 - **E56** **Dado** «Actualizar solo» prendido en la computadora y el celular vinculados, **cuando** se
   apaga en uno, **entonces** en el otro sigue como estaba.
 
