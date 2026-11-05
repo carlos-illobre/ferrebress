@@ -162,11 +162,11 @@ registro se decide con el plan de copias de la base.
   - Si el día tiene más de 2.000 acciones, la cinta no se abre y dice que hay demasiadas para verlas
     así, y que conviene usar la lista con filtros.
 
-- **R4.12** **Lo que gastó**, debajo de «Actualizar solo», en letra chica: lo que gastó la
-  actualización automática de Quién hizo qué desde que se prendió (el canal, sus avisos y los pedidos
-  de la lista que hizo sola; lo que se pide al tocar algo no cuenta). Vuelve a cero cada vez que se
-  prende; apagado, dice 0 KB. Es aproximado, como el medidor de la aplicación (03 · R4.5). Lo que
-  gasta la aplicación entera no va acá: está en la tarjeta del vínculo (03 · R4.5).
+- **R4.12** **Lo que gasta esta pantalla**, debajo de «Actualizar solo», en letra chica: los KB por
+  minuto que gasta ahora la actualización automática de Quién hizo qué (el canal, sus avisos y los
+  pedidos de la lista que hace sola; lo que se pide al tocar algo no cuenta), medidos sobre el último
+  minuto, como el medidor de la aplicación (03 · R4.5). No es un acumulado. Apagado, dice 0. Lo que
+  gasta la aplicación entera no va acá: está en el vínculo (03 · R4.5).
 
 ## 5. La conexión
 
@@ -304,7 +304,7 @@ registro se decide con el plan de copias de la base.
 - **E54** **Dado** «Actualizar solo» prendido, **cuando** se oculta la pestaña, **entonces** se cierra
   el canal; **y cuando** vuelve a la vista, la lista se pone al día una vez.
 - **E55** **Dado** el celular en Quién hizo qué, **cuando** se prende «Actualizar solo», **entonces** la
-  lista se pone al día en el momento y lo que gastó empieza en 0 KB y sube con lo que gasta.
+  lista se pone al día en el momento y, debajo, se ven los KB por minuto que gasta esa pantalla.
 - **E56** **Dado** «Actualizar solo» prendido en la computadora y el celular vinculados, **cuando** se
   apaga en uno, **entonces** en el otro sigue como estaba.
 

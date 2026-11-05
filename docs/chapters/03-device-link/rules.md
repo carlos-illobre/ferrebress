@@ -131,8 +131,8 @@ quita, el resto sigue andando igual.
   auditoría (R8.2), y al día siguiente empieza de cero. Cada dispositivo anota lo que vio, así que
   el celular y la computadora pueden mostrar números algo distintos.
 - **R4.5** **Lo que gasta la aplicación ahora**, en la tarjeta del vínculo de la computadora, debajo
-  de la luz de conexión (00 · R4.1), y en el celular en la pastilla del vínculo, al lado del estado
-  («Directo · 0,2 KB/min»): lo que pasa en este momento por todos los canales abiertos de
+  de la luz de conexión (00 · R4.1), y en el celular en la pastilla del vínculo, en un renglón debajo
+  del estado: lo que pasa en este momento por todos los canales abiertos de
   la aplicación (el de cualquier pantalla, como Quién hizo qué, y el del vínculo con el otro
   dispositivo, R7), en KB por minuto, medido sobre el último minuto. No es un acumulado: es un
   medidor. Sin ningún canal abierto, dice 0. No depende de ningún selector de una pantalla. Es
@@ -286,7 +286,7 @@ quita, el resto sigue andando igual.
   mira la tarjeta del vínculo, **entonces** dice cuántos KB por minuto gasta la aplicación ahora; **y
   cuando** se apaga el selector y no queda ningún canal abierto, al minuto dice 0.
 - **E46** **Dado** el celular vinculado, **cuando** se mira la pastilla debajo del título, **entonces**
-  dice el estado y, al lado, los KB por minuto que gasta la aplicación ahora.
+  dice el estado y, en un renglón debajo, los KB por minuto que gasta la aplicación ahora.
 - **E25** **Dado** una persona sin vínculo, **cuando** toca el indicador en el celular, **entonces** ve
   «En la computadora, tocá el indicador y leé el código» y «Leer el código».
 - **E26** **Dado** dos dispositivos vinculados, **cuando** se toca el indicador, **entonces** el detalle
