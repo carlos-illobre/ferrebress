@@ -10,6 +10,14 @@ import { attachMirror, detachMirror, sendHello, sendSnapshot } from './mirror-po
 import { subscribe, unsubscribe } from './topic.ts';
 
 type Of<K extends Command['do']> = Extract<Command, { do: K }>;
+
+// Lo que pide a la red corre aparte: no frena la fila de la máquina (§ 2.2; revisión del código, 4.1).
+// Lo que diga el servidor entra como otro evento; un error queda en el diario.
+function aside(live: Live, job: Promise<unknown>): void {
+  job.catch((error: unknown) =>
+    live.deps.journal.note('error', { what: String(error).slice(0, 80) }),
+  );
+}
 type Runners = { [K in Command['do']]: (live: Live, command: Of<K>) => void | Promise<void> };
 
 const byes = new Set<string>(['hidden', 'signout', 'lost', 'handover', 'replaced', 'unpair']);
@@ -57,25 +65,26 @@ export const runners: Runners = {
     if (byes.has(why)) live.current?.transport.send({ t: 'bye', why: why as ByeReason });
   },
   send: (live, { message }) => send(live, message),
-  // La foto espera al otro y a la confirmación sin frenar la fila (§ 2.2).
-  snapshot: (live, { withQueries }) => {
-    sendSnapshot(live, withQueries).catch((error: unknown) =>
-      live.deps.journal.note('error', { what: String(error).slice(0, 80) }),
-    );
-  },
-  report,
-  post: (live, { path }) => post(live, path),
+  // La foto espera al otro y a la confirmación por su lado.
+  snapshot: (live, { withQueries }) => aside(live, sendSnapshot(live, withQueries)),
+  report: (live, command) => aside(live, report(live, command)),
+  post: (live, { path }) => aside(live, post(live, path)),
   attachMirror: (live, { over }) => attachMirror(live, over),
   detachMirror: (live, { reset }) => detachMirror(live, reset),
   strip: (live, { mark }) => live.deps.strip()?.mark(mark),
-  check: (live) => live.check(),
+  check: (live) => aside(live, live.check()),
   retryInternet: (live) => retryInternet(live),
   // Otra versión (R6.7): la cabecera de la respuesta dice cuál es la vieja (00 · R5.1). La de la
   // versión al día vuelve a esperar al otro; la vieja no, hasta actualizarse.
-  newVersion: async (live) => {
-    await live.check();
-    if (!live.deps.outdated()) subscribe(live, !isComputerHere(live));
-  },
+  newVersion: (live) =>
+    aside(
+      live,
+      live.check().then(() =>
+        live.enqueue(() => {
+          if (!live.deps.outdated()) subscribe(live, !isComputerHere(live));
+        }),
+      ),
+    ),
 };
 
 export const run = (live: Live, command: Command) =>

@@ -92,7 +92,7 @@ export function watchLink(options: Options) {
   const stops = [
     who.subscribe((next) => {
       if (next === person) return;
-      if (person) runtime.dispatch({ type: 'sessionLost', samePerson: next === undefined });
+      if (person) runtime.sessionLost(next === undefined);
       person = next;
       known.forget();
       if (next && active) known.learn();

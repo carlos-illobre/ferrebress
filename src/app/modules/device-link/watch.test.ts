@@ -28,6 +28,7 @@ function setup(person: string | undefined, options: Setup = {}) {
     dispatch: vi.fn(),
     check: vi.fn(async () => undefined),
     pairingChanged: vi.fn(),
+    sessionLost: vi.fn(),
   };
   const who = createStore(person);
   let field: (value: string | undefined) => void = () => undefined;
@@ -99,14 +100,14 @@ describe('lo que el vínculo escucha', () => {
   it('salir avisa como la misma persona; entrar otra, como otra, y pregunta', () => {
     const { runtime, who } = setup('ana');
     who.set(undefined);
-    expect(runtime.dispatch).toHaveBeenLastCalledWith({ type: 'sessionLost', samePerson: true });
+    expect(runtime.sessionLost).toHaveBeenLastCalledWith(true);
     who.set('beto');
     expect(runtime.check).toHaveBeenCalledTimes(1);
     who.set('carla');
-    expect(runtime.dispatch).toHaveBeenLastCalledWith({ type: 'sessionLost', samePerson: false });
+    expect(runtime.sessionLost).toHaveBeenLastCalledWith(false);
     expect(runtime.check).toHaveBeenCalledTimes(2);
     who.set('carla');
-    expect(runtime.dispatch).toHaveBeenCalledTimes(3);
+    expect(runtime.sessionLost).toHaveBeenCalledTimes(2);
   });
 
   it('otra pestaña toma el espejo, se oculta y vuelve', () => {

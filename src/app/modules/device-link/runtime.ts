@@ -1,8 +1,8 @@
 // El vínculo vivo en esta pestaña (diseño de 03, § 2.2): convierte lo que pasa en eventos, los pasa
 // por la máquina de estados, anota cada paso en el diario y corre sus comandos. Todo en una sola fila:
 // un evento se procesa entero, con sus comandos, antes del siguiente, así el orden no depende de qué
-// respuesta llegó primero. Lo que tarda (abrir el directo, esperar la foto) no frena la fila: avisa
-// con otro evento cuando termina. Las dependencias llegan de afuera, para probarlo con dos de estos.
+// respuesta llegó primero. Lo que pide a la red (abrir el directo, la foto, la pausa, preguntar) no
+// frena la fila: corre aparte y avisa con otro evento cuando termina. Salir no espera a la fila. Las dependencias llegan de afuera, para probarlo con dos de estos.
 import type { CheckResponse } from '@ferrebress/shared/contracts/device-link';
 import { createStore, type Store } from '../../platform/store.ts';
 import { createConfirm, eventOfVerdict } from './confirm.ts';
@@ -80,6 +80,13 @@ export function createRuntime(deps: Deps) {
     dispatch: live.dispatch,
     check: live.check,
     pairingChanged: () => pairingChanged(live),
+    // Salió, venció la sesión o entró otra persona: el espejo se desconecta en el acto, fuera de la
+    // fila (lo que toque la persona nueva no sale por el puerto de la anterior, § 16), y después la
+    // máquina suelta lo demás (R2.1).
+    sessionLost(samePerson: boolean) {
+      detachMirror(live, !samePerson);
+      live.dispatch({ type: 'sessionLost', samePerson });
+    },
     // Para mostrar cuánto tarda la ruta por el directo (solo con el detalle abierto).
     roundTripMs: () => live.current?.direct?.roundTripMs() ?? Promise.resolve(undefined),
     // Esperar a que termine lo que está en la fila (para las pruebas).

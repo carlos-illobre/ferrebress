@@ -138,7 +138,9 @@ describe('dos dispositivos vinculados', () => {
   it('salir avisa al otro antes que nada; desvincular deja a los dos sin vincular', async () => {
     const { pc, phone, server } = setup();
     await together(pc, phone);
-    phone.runtime.dispatch({ type: 'sessionLost', samePerson: false });
+    phone.runtime.sessionLost(false);
+    // El espejo se desconecta en el acto, antes que la fila (§ 16).
+    expect(phone.mirror.port()).toBeUndefined();
     await vi.waitFor(() => expect(pc.kind()).toBe('waiting'));
     expect(phone.kind()).toBe('asleep');
     expect(phone.value.get()).toBe('inicial');

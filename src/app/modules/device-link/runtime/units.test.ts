@@ -210,6 +210,25 @@ describe('el vínculo vivo', () => {
     runtime.dispatch({ type: 'tabBack' });
     await runtime.settled();
     expect(notes[0]).toBe('error');
+    // Un paso que tira (acá, la tira del día) también se anota, y lo que sigue en la fila corre.
+    const broken = createRuntime({
+      ...({} as Deps),
+      api: throwing,
+      want: () => () => undefined,
+      mirror: createMirror(),
+      online: createStore(true),
+      journal: { note: notes.push.bind(notes), step: vi.fn() } as never,
+      strip: () => {
+        throw new Error('roto');
+      },
+    });
+    notes.length = 0;
+    broken.dispatch({ type: 'serverSaid', pairing: null });
+    broken.dispatch({ type: 'serverSaid', pairing });
+    await broken.settled();
+    expect(notes).toContain('error');
+    expect(broken.state.get().kind).toBe('waiting');
+    broken.stop();
     expect(await runtime.roundTripMs()).toBeUndefined();
     const refused = base((async () => ({ ok: false, error: 'not-paired' })) as never);
     await refused.check();
