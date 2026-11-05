@@ -1,7 +1,9 @@
 // Los campos de la cabecera que suman los módulos, y las cabeceras que suma un módulo a los pedidos
 // (diseño de 03, § 3.5 y § 7).
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { api, decorate } from './api.ts';
+import * as z from 'zod/mini';
+import { createMirror } from '../mirror/registry.ts';
+import { api, decorate, guardWrites } from './api.ts';
 import { forgetFields, onField } from './fields.ts';
 
 const header = (extra = '') => ({ 'X-Ferrebress': `v=app-test; t=1; e=testing${extra}` });
@@ -57,5 +59,26 @@ describe('los campos de la cabecera', () => {
         ((call as unknown[])[1] as { headers: Record<string, string> }).headers['X-Pairing'],
     );
     expect(sent).toEqual(['p1', undefined, undefined]);
+  });
+
+  it('lo que llega del otro por el espejo nunca dispara una escritura (03, § 5.3)', async () => {
+    const fetch = answerWith('');
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const mirror = createMirror();
+    const stop = guardWrites(mirror.applying);
+    const value = mirror.register('k', 'a', z.string());
+    const results: Promise<unknown>[] = [];
+    // Una pantalla que escribe cada vez que cambia el valor.
+    value.subscribe(() => results.push(api('/api/x', {})));
+    mirror.receive([{ k: 'k', v: 'del otro', c: 5, l: true }]);
+    value.set('de acá');
+    expect(await Promise.all(results)).toEqual([
+      { ok: false, error: 'unexpected' },
+      { ok: true, data: {} },
+    ]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(errors).toHaveBeenCalled();
+    stop();
+    errors.mockRestore();
   });
 });

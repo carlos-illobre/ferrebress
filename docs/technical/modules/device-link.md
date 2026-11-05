@@ -29,7 +29,7 @@ se diagnostica un error que no se puede reproducir.
 
 1. **El canal** (`realtime`): por cada pestaña a la vista que lo necesita, **un solo** canal SSE con el
    servidor, que comparten todos los **temas** que esa pestaña escucha. Lo que no es urgente no abre
-   nada: viaja como un **campo** en la cabecera de respuestas que ya existen (`piggyback`).
+   nada: viaja como un **campo** en la cabecera de respuestas que ya existen (`platform/server/fields.ts`).
 2. **La conexión entre los dos** (`peer`): un **transporte** que lleva mensajes que no conoce, con dos
    variantes que cumplen la misma interfaz: **directo** (WebRTC, un canal de datos por el Wi-Fi, sin
    servicios externos) y **por el servidor** (quien lo crea le da cómo mandar y cómo recibir).
@@ -86,7 +86,7 @@ flowchart LR
     end
     subgraph dl["modules/device-link/"]
       DLR["routes/<br/>codes, check, signal, relay, pairing"]
-      DLRU["rules/<br/>pair, replace, ends, expire, confirm"]
+      DLRU["rules.ts · lifecycle.ts · listeners.ts<br/>qué se puede, nacer y terminar, los fines"]
       DLD["data.ts<br/>device_link.pairings"]
       DLM["members.ts<br/>vínculos, sesiones y huellas DTLS, en memoria"]
     end
@@ -132,12 +132,12 @@ flowchart LR
 |---|---|---|---|---|
 | `platform/realtime/hub.ts` | Tener abiertos los canales SSE, uno por pestaña, y entregarle a cada uno lo publicado en las claves que escucha | `topics`, `session`, `clock` | Abrir el canal, cambiar suscripciones, `publish(clave, datos)`, `drop(clave)` | `hello {channel}`, `{topic, data}` por tema, `refused {topic, code}`, latido cada 40 s, `closed {reason}` |
 | `platform/realtime/topics.ts` | Saber qué temas existen, quién puede escuchar cada uno y qué hacer al empezar y al dejar de escuchar | — | `topic(definición)` de cada módulo | Para el hub: la clave o el rechazo |
-| `platform/realtime/rotating-codes.ts` | Dar a quien escucha un código de 128 bits que se renueva cada 60 s, del que vale solo el último y que sirve una vez | `clock` | `start(dueño, enviar)`, `hold(dueño)`, `release(dueño)`, `take(código)`, `stop(dueño)` | El código nuevo, por el tema de quien lo pidió |
+| `platform/realtime/rotating-codes.ts` | Dar a quien escucha un código de 128 bits que se renueva cada 60 s, del que vale solo el último y que sirve una vez | `clock` | `start(dueño, enviar)`, `peek(código)`, `take(código)`, `stop(dueño)` | El código nuevo, por el tema de quien lo pidió. Sin `hold` ni `release`: leer el código lo gasta (`take`) y, si hay que preguntar antes de reemplazar, sigue el boleto |
 | `platform/http.ts` (cambia) | Además de la cabecera de hoy, sumar los campos que dan los módulos, sin conocerlos | — | `header.contribute(letra, (sesión) => texto)` | `X-Ferrebress: …; l=…` |
 | `platform/start.ts` | Juntar lo que cada módulo suma a `/api/start`, con tipo | — | `contribute(nombre, (sesión) => datos)` y la interfaz `StartExtras`, que cada módulo amplía como `ServerEvents` | El objeto que `sign-in` agrega a su respuesta |
 | `platform/session.ts` (cambia) | Además de resolver la sesión, avisar cuándo termina una, por cualquier motivo (también salir) | `sign-in` le da cómo | `onEnded(escucha)`, `isOpen(id, ahora)` | `(sesión, motivo)` |
 | `modules/device-link/routes/` | La entrada HTTP del vínculo: valida, toma persona y dispositivo **de la sesión**, mira que sea del vínculo, llama a la regla y responde | `rules`, `members`, `hub` | § 10 | § 10 |
-| `modules/device-link/rules/` | Qué se puede: vincular, reemplazar, terminar, vencer, confirmar; sin tecnología | — | Filas, sesiones y la hora | Decisiones |
+| `modules/device-link/rules.ts`, `lifecycle.ts`, `listeners.ts` | Qué se puede (vincular, reemplazar, vencer), cómo nace y termina un vínculo (`pair` con `mayReplace`, `afterPairing`, `afterEnding`) y la tabla de los fines (`endings`, una fila por evento de otro módulo) | — | Filas, sesiones y la hora | Decisiones |
 | `modules/device-link/data.ts` | Leer y escribir `device_link.pairings`, en lote | Kysely | | |
 | `modules/device-link/members.ts` | Contestar sin consultar la base: el vínculo de cada (persona, dispositivo), también «ninguno»; la sesión de cada lado; la huella DTLS que registró cada lado al presentarse | `data`, `session` | Altas, bajas, presentaciones, fines de sesión | Sí o no, y el vínculo |
 
@@ -153,14 +153,13 @@ flowchart TB
     RUN["runtime.ts<br/>ejecuta los comandos, guarda los transportes"]
     CONF["confirm.ts<br/>la confirmación del vínculo"]
     WIRE["wire.ts<br/>mensajes del vínculo v1"]
-    IND["screens/PairingIndicator, Detail,<br/>Code, Confirm, Replace, Notices"]
+    IND["screens/Indicator, Detail,<br/>Code, Read, Confirm"]
     STRIP["strip.ts · journal.ts · tabs.ts"]
   end
   subgraph mirror["platform/mirror/"]
-    MS["mirrored-store.ts<br/>valor con nombre (LWW)"]
-    REG["registry.ts<br/>claves vivas, esquemas y bandeja"]
+    REG["registry.ts<br/>valores con nombre (LWW), foto y bandeja"]
+    MS["use-mirrored.ts · route.ts · coalesce.ts<br/>el valor en una pantalla, la dirección, juntar"]
     Q["query.ts<br/>forward o refetch"]
-    REP["replica.ts<br/>foto, parches, retención"]
   end
   subgraph peer["platform/peer/"]
     TR["transport.ts<br/>interfaz Transport"]
@@ -171,7 +170,7 @@ flowchart TB
   subgraph rt["platform/realtime/"]
     CH["channel.ts<br/>el canal de la pestaña"]
     DEM["demand.ts<br/>qué temas pide la pestaña"]
-    PB["piggyback.ts<br/>campos de la cabecera"]
+    PB["server/fields.ts<br/>campos de la cabecera"]
     SSE["sse.ts<br/>lector de SSE"]
   end
   API["platform/server/api.ts<br/>decoradores de pedido"]
@@ -213,15 +212,15 @@ comandos. Las variantes del transporte dependen de la interfaz, no al revés.
 |---|---|---|---|---|
 | `platform/realtime/channel.ts` | Tener abierto a lo sumo un canal por pestaña, solo con temas pedidos, la pestaña a la vista y red | `sse`, `reach` | Los temas pedidos | `GET /api/realtime`, `POST /api/realtime/subscriptions`; reparte cada evento a su tema |
 | `platform/realtime/demand.ts` | Contar quién pide cada tema (`useTopic`, o `want` desde código) y juntar los cambios de un mismo dibujo | — | Altas y bajas | Los temas al canal |
-| `platform/realtime/piggyback.ts` | Leer los campos de la cabecera **antes** de que `api()` devuelva la respuesta, y avisar a quien los pidió | `api.ts` | `onField(letra, alCambiar)` | El valor nuevo |
+| `platform/server/fields.ts` | Leer los campos de la cabecera **antes** de que `api()` devuelva la respuesta, y avisar a quien los pidió | `api.ts` | `onField(letra, alCambiar)` | El valor nuevo |
 | `platform/server/api.ts` (cambia) | Además de lo de hoy, dejar que alguien sume cabeceras a los pedidos | — | `decorate((pedido) => cabeceras)` | |
 | `platform/peer/transport.ts` | La interfaz común de los transportes, con mensajes `Json` que no conoce | — | | `send`, `onMessage`, `onClose`, `kind`, `close` |
 | `platform/peer/direct.ts` | La lógica del directo: oferta, respuesta, filtro de candidatos, plazos, cuándo se da por perdido, la latencia de `getStats()` | `rtc.ts` | La descripción del otro | La propia; mensajes |
 | `platform/peer/rtc.ts` | Lo mínimo que habla con `RTCPeerConnection`; fuera de la cobertura (ADR-005) | El navegador | | |
 | `platform/peer/relayed.ts` | Mandar y recibir por lo que le den (`send(lote)`, `subscribe(alRecibir)`), juntando los mensajes | — | Mensajes | Lotes |
-| `platform/mirror/mirrored-store.ts` | Un valor con nombre y esquema que se comporta como `createStore` y avisa cada cambio hecho por la persona | `registry` | `set(valor)`, `set(valor, {auto: true})` | Parche |
-| `platform/mirror/query.ts` | Pedir al servidor con el modo que dice la clave y guardar la respuesta en un valor con nombre | `api.ts`, `mirrored-store` | `useMirroredQuery(clave, pedido, {mode})` | El pedido, o la espera del valor del que manda |
-| `platform/mirror/replica.ts` | Armar la foto, aplicar fotos y parches, retener lo que sale mientras alguien lo pida | `registry` | `attach({port, leader, over})`, `hold(promesa)` | Foto, parches, `stale` |
+| `platform/mirror/use-mirrored.ts` | Un valor con nombre y esquema en una pantalla, como `useState`, que avisa cada cambio hecho por la persona | `registry` | `set(valor)`, `set(valor, {auto: true})` | Parche |
+| `platform/mirror/query.ts` | Pedir al servidor con el modo que dice la clave y guardar la respuesta en un valor con nombre | `api.ts`, `use-mirrored` | `useMirroredQuery(clave, pedido, {mode})` | El pedido, o la espera del valor del que manda |
+| `platform/mirror/registry.ts` | Los valores con nombre, la foto (`snapshot`, `adopt`), los parches, la bandeja de lo que llega antes que su pantalla y `applying` (lo que mira `guardWrites`); `coalesce.ts` junta lo que sale por el servidor | — | `register`, `attach({port, leader, over})`, `receive`, `reset` | Foto, parches |
 | `modules/device-link/state.ts` | La máquina de estados del vínculo, pura | — | Estado y evento (§ 8) | Estado y comandos |
 | `modules/device-link/runtime.ts` | Ejecutar los comandos, guardar los transportes vivos y convertir lo que pasa en eventos, en una sola fila: un evento se procesa entero, con sus comandos, antes del siguiente. Sus partes, en `runtime/`: `live` (lo vivo y las dependencias), `commands` (uno por comando), `links` (abrir, cerrar, dormir y promover conexiones), `messages` (uno por mensaje del protocolo), `mirror-port` (espejo, saludo y foto) y `topic` (el tema del vínculo) | `peer`, `mirror`, `realtime`, `api`, `confirm`, `wire` | Comandos | Eventos |
 | `modules/device-link/confirm.ts` | Que nada salga ni entre por el espejo sin una confirmación del servidor de hace menos de 4 minutos (§ 7) | `api.ts`, `mirror` | Pedidos de mandar o aplicar | Sí, no, o «esperá» |
@@ -519,8 +518,7 @@ dos obligaría a que cada una diera lo mismo en los dos (no lo da si pide al ser
 lo escrito letra por letra. El espejo replica **el estado a la vista** (R6.2):
 
 ```ts
-// src/app/platform/mirror/mirrored-store.ts
-export function mirroredStore<T extends Json>(key: MirrorKey, initial: T, schema: Schema<T>): Store<T>;
+// src/app/platform/mirror/use-mirrored.ts
 // Como useState, para el estado de una pantalla.
 export function useMirrored<T extends Json>(key: MirrorKey, initial: T, schema: Schema<T>):
   [T, (next: T, options?: { auto?: true }) => void];
@@ -1088,7 +1086,7 @@ sequenceDiagram
 | `sessions.onEnded` (plataforma) | sign-in | sesión, motivo | Pone al día `members.ts` (qué sesión tiene cada lado); no termina el vínculo | — |
 
 Salir o que la sesión venza no terminan el vínculo: queda dormido (R2.1, E17). Los fines están en una
-tabla, `rules/ends.ts`, con una fila por evento: qué vínculos toca y con qué motivo. Después de
+tabla, `endings` en `listeners.ts`, con una fila por evento: qué vínculos toca y con qué motivo. Después de
 confirmar, `device-link` llama a `hub.drop` de las claves de esos vínculos y pone al día `members.ts`;
 la huella `l=` cambia en la próxima respuesta de cada dispositivo.
 
@@ -1111,7 +1109,7 @@ No se anotan el espejo, la pausa, reconectar ni los cambios entre directo y por 
 | Forma | Qué usa device-link | Cuándo |
 |---|---|---|
 | `request` | Las rutas de § 10, y `check` | Al tocar algo; `check`, con uso y la confirmación vencida |
-| `piggyback` | `l=` en `X-Ferrebress` y `pairing` en `/api/start` | Al abrir y en cada respuesta |
+| `fields` | `l=` en `X-Ferrebress` y `pairing` en `/api/start` | Al abrir y en cada respuesta |
 | `temporary` | `device-link.code` y `device-link.pairing` | Con el código a la vista, al presentarse, por el servidor, y en la computadora a la vista mientras espera |
 | `peer` | `platform/peer`, directo y por el servidor | Vinculados, conectados y los dos a la vista |
 
@@ -1125,12 +1123,12 @@ pieza). Las clases pasan al CSS con el nombre de la pieza; los tokens, de `style
 
 | Pieza | Dónde | Qué hace |
 |---|---|---|
-| `screens/PairingIndicator/` | El lateral de la computadora; en el celular, debajo del título, en el lugar de la luz | El punto y el texto del estado (§ 8.1); Alt L abre el detalle. Viene en el arranque (unos 2 KB) |
+| `screens/Indicator/` | El lateral de la computadora; en el celular, debajo del título, en el lugar de la luz | El punto y el texto del estado (§ 8.1); Alt L abre el detalle. Viene en el arranque (unos 2 KB) |
 | `screens/Detail/` | Flota al lado del lateral; en el celular, una hoja | La frase del estado (o «No se pudo»), la ruta con la latencia, la tira, los datos y los botones de R4.2 (Alt D, R, P, V, X, C) |
 | `screens/Code/` | Solo la computadora | El QR de `/pair#…`; Alt O vuelve. Dibuja con `platform/camera/qr-draw.ts` |
-| `screens/Replace/` | Solo el celular | «Este celular está vinculado a Chrome en Windows. ¿Reemplazar?» (R1.4) |
+| `screens/Read/` | Solo el celular | La cámara para leer el código, «Este celular está vinculado a Chrome en Windows. ¿Reemplazar?» (R1.4) y los avisos: «Este código es de otra cuenta», «Este código venció», «Para vincular hace falta internet…» (E36), «No se pudo vincular. Probá de nuevo en un momento» (un error que no es ninguno de esos) |
 | `screens/Confirm/` | Diálogo en la computadora, hoja en el celular | Desvincular (Alt C, Alt X) |
-| `screens/Notices/` | Solo el celular | «Este código es de otra cuenta», «Este código venció», «Para vincular hace falta internet…» (E36) y las tostadas de la maqueta («Vinculados: fuiste a la pantalla de la compu», «Desconectados…», «Ahora van directo por el Wi-Fi») |
+| Las tostadas | Los dos | Las de la maqueta («Vinculados: fuiste a la pantalla de la compu», «Desconectados…», «Ahora van directo por el Wi-Fi»), en `screens/Detail/Over.tsx`, y la de R1.5, en `replaced.ts` |
 | La cámara | Solo el celular | Común: el lector y el dibujo del QR en `platform/camera/` y la pantalla en `ui/camera/Camera.tsx`; la entrada y el vínculo le pasan sus textos y qué código les sirve |
 
 - El indicador se enchufa en el marco por `App.tsx`; quitarlo es quitar esa línea. Los textos, largos y
@@ -1173,7 +1171,7 @@ pieza). Las clases pasan al CSS con el nombre de la pieza; los tokens, de `style
 | **Un tema del canal** (T118, la foto del celular de la etapa b) | `realtime.topic({ name, param, event, authorize, onSubscribe })`, `publish(clave, datos)` y `useTopic` en la pantalla; el contrato, en `src/shared/contracts/<módulo>.ts` | El hub, el canal, los otros temas |
 | **Un campo en la cabecera** | `header.contribute(letra, …)` en el servidor y `onField(letra, …)` en la aplicación | `http.ts`, `api.ts` |
 | **Lo que se espeja de una pantalla nueva** | `useMirrored(clave, inicial, esquema)` y `useMirroredQuery(…, { mode })` | El espejo y `device-link` |
-| **Un motivo de fin del vínculo** | El módulo que lo causa publica su evento; `device-link` suma una fila en `rules/ends.ts` y el texto en el catálogo | Los otros fines, el módulo que publica |
+| **Un motivo de fin del vínculo** | El módulo que lo causa publica su evento; `device-link` suma una fila en `endings` en `listeners.ts` y el texto en el catálogo | Los otros fines, el módulo que publica |
 | **Un mensaje del protocolo del vínculo** | Su forma en la unión del contrato y su manejador en el mapa `handlers` de `runtime.ts` | El despachador; un dispositivo con la versión anterior lo ignora |
 | **Lo que va en `/api/start`** | `start.contribute(nombre, …)` y la interfaz `StartExtras` | `sign-in` |
 | **Una forma de transporte** | No es un punto de extensión: sería una regla nueva (R4.1 nombra cada uno). La interfaz `Transport` sirve para probar con uno de mentira | — |
@@ -1312,10 +1310,44 @@ useTopic('audit-log.new', page.latestId, ({ count }) => setNew(count));
   la confirmación ya es un pedido del celular y no cambia ADR-015.
 - **Un pedido mínimo del celular cada tanto** (diseño 1.1, opción b): la confirmación sale solo con uso;
   sin uso, que venza es lo correcto.
-- **Un estado aparte «por confirmar»** (seguridad 1.1): la retención del espejo (`hold`) hace lo mismo sin
-  sumar estados a la máquina.
+- **Un estado aparte «por confirmar»** (seguridad 1.1): la confirmación vencida (`confirm.stale()` al
+  cambiar `l=`, y la de 4 minutos) retiene lo que sale y entra sin sumar estados a la máquina.
 - **Que el espejo no cuente como uso de la computadora** (seguridad 14): «son una sola aplicación en dos
   pantallas»; Carlos aceptó el riesgo (R2.5).
+
+### 17.1. Lo que quedó así al programar (revisiones del código)
+
+- **Volver a leer el código de la misma computadora renueva el vínculo** (cuenta como uso, R2.2) y no
+  corta el espejo que andaba (revisión del código, 4.11 y 6.2).
+- **La computadora también conserva el directo dormido** 5 minutos al ocultarse, no solo el celular: al
+  volver a la vista, se saluda por él sin presentarse (6.4).
+- **La computadora contesta un `probe` del celular con otro `probe`**, que el celular ignora: así los dos
+  pasan a «Probando» con un solo toque. Si la prueba no sale, la computadora manda `give-up`.
+- **El celular que no tiene `l=` pregunta** (`check`) y, si espera, se fija en el tema 30 s.
+- **`report` anota** el lado y el tipo de dispositivo de quien avisa, no el del otro.
+- **El vínculo que nace al entrar a la computadora con el celular** (§ 10.4) no lleva `pairs: true` ni el
+  celular escucha 30 s: el servidor deja en su memoria el vínculo nuevo de los dos dispositivos y `l=`
+  cambia en la próxima respuesta del celular (1.1).
+- **Un pedido sin vínculo (`not-paired`) no se anota en la auditoría:** después de desvincular es lo
+  normal (el otro todavía manda una pausa o un lote antes de enterarse) y la auditoría diría «Intentó
+  usar un vínculo que no es suyo» sin que nadie lo haya intentado. Pedir el tema de un vínculo ajeno se
+  rechaza al autorizar (seguridad del código, 9).
+- **«Celular» sale del `User-Agent`,** que elige el navegador: `not-a-phone` es una ayuda para no leer el
+  código con otra computadora, no un control. Solo vincula dispositivos de la misma persona (seguridad
+  del código, 12).
+- **Después de un reinicio del servidor** (cada subida a `main`) la memoria no sabe qué sesión y qué huella
+  DTLS tiene cada lado: la primera confirmación de un directo da `gone` y los dos se vuelven a presentar
+  solos (unos 7 KB en el celular por despliegue), y una escritura con `X-Pairing` pasa sin saber la sesión
+  del otro hasta que escuchen el tema o confirmen. Es lo seguro: sin la huella no se puede saber con quién
+  es la conexión (seguridad del código, 13).
+
+### 17.2. Lo que falta (tareas del plan)
+
+- **El diario en «Algo salió mal» y `tools/device-link/replay.ts`** (§ 15; revisión del código, 4.13).
+- **`{t:'stale'}` y el reenvío de respuestas por el espejo** (§ 5.3): con T123.
+- **El reemplazo al entrar con el celular lleva las direcciones de las dos computadoras** (§ 11.2): el
+  aviso de la entrada no las trae todavía (seguridad del código, 9).
+- **La simulación** (§ 20) no cierra sesiones ni mira que nada salga sin confirmación.
 
 ## 18. Metas de performance
 
@@ -1429,7 +1461,7 @@ el servidor: se reinicia con cada subida, y un trabajo diario no correría nunca
 | E03, E04, E37, E40 | Unitarias de la ruta y de `rotating-codes`, con el reloj falso |
 | E05 a E08, E44 | Unitarias del servidor (reemplazar, vincular al entrar, el vínculo de cada persona) y de la hoja de reemplazar |
 | E10, E11, E17, E17b, E28 | Unitarias de `/api/start` y de la máquina al salir y entrar, también otra persona en la misma pestaña |
-| E12, E13 | Unitarias de `rules/expire` y del trabajo diario, con fechas fijas |
+| E12, E13 | Unitarias del trabajo diario y de usarse todos los días (`state.test.ts` del servidor), con fechas fijas |
 | E14 a E16 | Unitarias del servidor: cerrar desde Usuarios, quitar la huella, cortar y la baja terminan el vínculo; salir no |
 | E18 a E21, E22b, E23b, E27, E29, E43 | Unitarias de la máquina (tabla de transiciones) y de la simulación |
 | E23, E24 | Unitarias que cuentan pedidos y canales con el reloj falso durante una hora |
@@ -1490,7 +1522,7 @@ como su propia tarea del plan; **[otro módulo]** toca un módulo ya cerrado sin
    `rotating-codes`), los campos de la cabecera, `platform/start.ts` y `sessions.onEnded` con todos los
    motivos. Depende de 2.
 4. **[común]** El canal en la aplicación: `platform/realtime/` (`channel`, `demand`, `useTopic`,
-   `piggyback` antes de devolver, el lector de SSE que valida) y `api.decorate`. Depende de 3.
+   `fields` antes de devolver, el lector de SSE que valida) y `api.decorate`. Depende de 3.
 5. **[otro módulo] `sign-in`:** el código de entrada como tema `sign-in.codes` sobre 3 y 4 (sale el canal
    propio), `/api/start` con `platform/start.ts`, `onEnded` también al salir, `approve` con `pairs`, y los
    eventos `sign-in.phone-approved`, `sessions.revoked` (con los dispositivos, en una transacción) y

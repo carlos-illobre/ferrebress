@@ -69,18 +69,20 @@ async function serve(deps: Deps, stream: SSEStreamingApi, owner: Owner, granted:
 
 type Granted = { asked: string[]; results: Authorized[] };
 
-// Abrir: un tema rechazado no impide los otros; si no pasa ninguno, no se abre nada.
+// Abrir: un tema rechazado no impide los otros; si no pasa ninguno, no se abre nada. Primero se admite
+// el canal y después se autorizan los temas: autorizar puede guardar algo (la computadora del código),
+// y un canal que no se abre no tiene que dejarlo (seguridad del código de 03, 16).
 async function openChannel(deps: Deps, c: Context) {
   const asked = [...new Set(c.req.queries('s') ?? [])];
   if (!tokens.safeParse(asked).success || asked.length === 0) return fail(c, 400, 'bad-request');
   const [owner, listener] = await whoAsks(deps.sessions, c);
+  const admitted = deps.admission.admit(owner);
+  if (!admitted.allowed) return tooMany(c, admitted.retryAfterMs);
   const results = await Promise.all(asked.map((t) => deps.hub.authorize(owner, listener, t)));
   const accepted = results.filter((result) => !('refused' in result));
   const [first] = results;
   if (accepted.length === 0 && first && 'refused' in first)
     return fail(c, owner.kind === 'session' ? 403 : 401, first.refused);
-  const admitted = deps.admission.admit(owner);
-  if (!admitted.allowed) return tooMany(c, admitted.retryAfterMs);
   return streamSSE(c, (stream) => serve(deps, stream, owner, { asked, results }));
 }
 

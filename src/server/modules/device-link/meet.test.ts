@@ -19,7 +19,8 @@ beforeEach(() => {
 const offer = (fingerprint: string) =>
   [
     'v=0',
-    'm=application 9 UDP/DTLS/SCTP webrtc-datachannel',
+    'm=application 54324 UDP/DTLS/SCTP webrtc-datachannel',
+    'c=IN IP6 2800:810:4ab::1',
     `a=fingerprint:sha-256 ${fingerprint}`,
     'a=candidate:1 1 udp 2122260223 4c1f0b2e-1111-2222-3333-444455556666.local 54321 typ host',
     'a=candidate:2 1 udp 2122260223 192.168.0.10 54322 typ host',
@@ -56,6 +57,9 @@ describe('presentarse', () => {
     expect(signal.sdp).not.toContain('2800:810');
     expect(signal.sdp).not.toContain('tcp');
     expect(signal.sdp).not.toContain('srflx');
+    // La dirección por omisión tampoco (seguridad del código, 11).
+    expect(signal.sdp).toContain('m=application 9 UDP/DTLS/SCTP');
+    expect(signal.sdp).toContain('c=IN IP4 0.0.0.0');
     // El celular confirma al otro con la huella que el servidor registró de la computadora.
     expect((await phone.request('/api/device-link/check?fp=sha-256%20AA:BB')).body.peer).toBe('ok');
     expect((await phone.request('/api/device-link/check?fp=sha-256%20CC')).body.peer).toBe('gone');

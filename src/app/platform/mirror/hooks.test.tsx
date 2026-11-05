@@ -135,7 +135,7 @@ describe('la dirección espejada', () => {
     const remote = createMirror();
     const out: Patch[][] = [];
     remote.attach({ leader: true, over: 'direct', send: (patches) => out.push(patches) });
-    const unbind = bindRoute(remote);
+    const unbind = bindRoute(remote, (path) => path !== '/fuera');
     navigate('/usuarios?x=1#codigo');
     expect(out.at(-1)?.[0]?.v).toEqual({ path: '/usuarios', search: '?x=1' });
     const before = out.length;
@@ -143,6 +143,9 @@ describe('la dirección espejada', () => {
     expect(route.get().path).toBe('/mas');
     expect(out).toHaveLength(before);
     remote.receive([{ k: 'frame.route', v: { path: '/mas', search: '' }, c: 1000, l: false }]);
+    // Una dirección que no acepta (fuera del menú) no navega.
+    remote.receive([{ k: 'frame.route', v: { path: '/fuera', search: '' }, c: 1001, l: false }]);
+    expect(route.get().path).toBe('/mas');
     unbind();
   });
 });

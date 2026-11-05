@@ -81,6 +81,8 @@ export type MirroredValue<T extends Json> = {
 };
 
 type State = {
+  // Mientras se aplica algo que llegó del otro: ninguna escritura sale (§ 5.3).
+  applying: boolean;
   entries: Map<string, Entry>;
   inbox: ReturnType<typeof createInbox>;
   clock: number;
@@ -110,7 +112,14 @@ function receiveOne(state: State, received: Patch): void {
     if (!state.inbox.keep(patch)) state.onDiscard({ key: patch.k, why: 'unknown' });
   } else if (!entry.schema.safeParse(patch.v).success)
     state.onDiscard({ key: patch.k, why: 'schema' });
-  else if (wins(patch, entry)) write(state, entry, patch);
+  else if (wins(patch, entry)) {
+    state.applying = true;
+    try {
+      write(state, entry, patch);
+    } finally {
+      state.applying = false;
+    }
+  }
 }
 
 // Un cambio de acá: sube el reloj y sale por el puerto, si hay y si no pesa de más.
@@ -189,6 +198,7 @@ function reset(state: State): void {
 
 export function createMirror({ now = Date.now, onDiscard = () => undefined }: Options = {}) {
   const state: State = {
+    applying: false,
     entries: new Map(),
     inbox: createInbox(now),
     clock: 0,
@@ -215,6 +225,8 @@ export function createMirror({ now = Date.now, onDiscard = () => undefined }: Op
     snapshot: (above: number, withQueries: boolean) => snapshot(state, above, withQueries),
     adopt: (photo: Patch[]) => adopt(state, photo),
     reset: () => reset(state),
+    // Si se está aplicando un cambio del otro: lo mira `api()` antes de una escritura (§ 5.3).
+    applying: () => state.applying,
     // Quién se entera de lo descartado (el diario del vínculo, sin el valor).
     onDiscard(listener: (discard: Discard) => void): void {
       state.onDiscard = listener;

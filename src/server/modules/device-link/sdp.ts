@@ -2,7 +2,7 @@
 // y § 16): un solo canal de datos y, de las direcciones, solo las del Wi-Fi del local en UDP
 // (`keepsCandidate`, la misma regla que usa la aplicación). Así ni las direcciones reales que Chrome
 // pone con el permiso de la cámara ni las de otras redes llegan al otro. La descripción no se anota.
-import { keepsCandidate } from '@ferrebress/shared/peer/candidates';
+import { keptLines } from '@ferrebress/shared/peer/candidates';
 
 export type Checked = { sdp: string; fingerprint: string };
 
@@ -16,6 +16,5 @@ export function checkSdp(sdp: string): Checked | undefined {
     ?.slice(14)
     .trim();
   if (!fingerprint) return undefined;
-  const kept = lines.filter((line) => !line.startsWith('a=candidate:') || keepsCandidate(line));
-  return { sdp: `${kept.join('\r\n')}\r\n`, fingerprint };
+  return { sdp: `${keptLines(sdp).join('\r\n')}\r\n`, fingerprint };
 }

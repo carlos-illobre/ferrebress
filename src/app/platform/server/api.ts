@@ -52,11 +52,26 @@ export function decorate(decorator: Decorator): () => void {
 const decorated = (path: string, write: boolean) =>
   Object.assign({}, ...[...decorators].map((decorator) => decorator({ path, write })));
 
+// Un módulo puede frenar las escrituras mientras pasa algo (el espejo aplicando un cambio del otro:
+// lo que llegó del otro dispositivo nunca escribe con la sesión de este, diseño de 03, § 5.3). Una
+// escritura frenada es un error de programación: se anota en la consola y no sale.
+const writeGuards = new Set<() => boolean>();
+export function guardWrites(blocked: () => boolean): () => void {
+  writeGuards.add(blocked);
+  return () => void writeGuards.delete(blocked);
+}
+
 export async function api<T>(
   path: string,
   body?: unknown,
   signal?: AbortSignal,
 ): Promise<ApiResult<T>> {
+  if (body !== undefined && [...writeGuards].some((blocked) => blocked())) {
+    console.error(
+      `Escritura frenada: ${path} salió mientras el espejo aplicaba un cambio del otro`,
+    );
+    return { ok: false, error: 'unexpected' };
+  }
   const headers = { ...appHeaders(), ...decorated(path, body !== undefined) };
   const init: RequestInit =
     body === undefined

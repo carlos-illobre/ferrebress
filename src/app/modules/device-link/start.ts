@@ -11,6 +11,7 @@ import {
   api,
   appVersion,
   decorate,
+  guardWrites,
   newVersion,
   online,
   sessionClosed,
@@ -18,6 +19,7 @@ import {
 import { serverNow } from '../../platform/server/clock.ts';
 import { onField } from '../../platform/server/fields.ts';
 import { startParts } from '../../platform/server/start-parts.ts';
+import { isMenuPath } from '../frame/index.ts';
 import { person } from '../sign-in/index.ts';
 import { linkOver, linkRuntime, linkStrip } from './current.ts';
 import { reading } from './detail.ts';
@@ -98,7 +100,9 @@ export function startDeviceLink(): () => void {
   });
   linkRuntime.set(runtime);
   // La dirección viaja al otro mientras espejan (diseño de 03, § 5.4).
-  const unbindRoute = bindRoute(mirror);
+  const unbindRoute = bindRoute(mirror, isMenuPath);
+  // Lo que llega del otro nunca dispara una escritura con la sesión de este (§ 5.3).
+  const unguard = guardWrites(mirror.applying);
   const stopReplaced = watchReplaced(runtime);
   const stop = watchLink({
     runtime,
@@ -114,6 +118,7 @@ export function startDeviceLink(): () => void {
     runtime.stop();
     journal.stop();
     unbindRoute();
+    unguard();
     stopReplaced();
     linkRuntime.set(undefined);
     linkOver.set(undefined);

@@ -2,7 +2,7 @@
 // ambiente de pruebas y los avisos (la versión nueva, «Algo salió mal»), que también usa la entrada.
 
 export type { FrameLink, SettingRow } from './context.ts';
-export { moreOptions, parts } from './menu.ts';
+export { isMenuPath, moreOptions, parts } from './menu.ts';
 export { forgetReport, watchCrashes } from './notices/crash/crash.ts';
 export { Dialogs, VersionNotice } from './notices/Notices.tsx';
 export {

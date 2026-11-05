@@ -148,6 +148,16 @@ export const optionAt = (path: string) =>
     (option) => option.path !== undefined && under(path, option.path) && !option.over,
   );
 
+// Si es una dirección del menú (o de algo adentro de una opción, o el inicio): lo que puede llegar del
+// otro dispositivo por el espejo (diseño de 03, § 5.4).
+export const isMenuPath = (path: string) =>
+  path === '/' ||
+  [...parts, ...moreOptions].some(
+    (option) =>
+      (option.path !== undefined && under(path, option.path)) ||
+      option.inside?.some((inner) => inner.path !== undefined && under(path, inner.path)),
+  );
+
 // Lo de adentro de una opción que tiene esa dirección (05 · E13).
 export const insideAt = (option: Option | undefined, path: string) =>
   option?.inside?.find((inner) => inner.path !== undefined && under(path, inner.path));

@@ -105,6 +105,14 @@ paralelo»).
   § 5.3, `forward`): las listas de Usuarios y de Roles y la tarjeta de la persona pasan a
   `useMirroredQuery`. Hoy cada dispositivo pide lo suyo: anda igual, pero el celular gasta datos que
   por el directo se ahorraría. Después del 03a.
+- [ ] T124 [agente] El diario del vínculo en «Algo salió mal» y `tools/device-link/replay.ts`, que pasa
+  un diario por la máquina de estados (diseño de 03, § 15; revisión del código, 4.13): hoy el diario
+  queda en el dispositivo, y para un error que no se puede reproducir es la única pista.
+- [ ] T125 [agente] Que `pnpm check` controle que ningún tiempo ni tope se escriba fuera del
+  `settings.ts` de su módulo (constitución, XII): hoy es una regla sin herramienta.
+- [ ] T126 [agente] La simulación de los dos dispositivos (diseño de 03, § 20) suma cerrar sesiones y
+  mira que nada salga sin una confirmación vigente; y el reemplazo al entrar con el celular anota las
+  direcciones de las dos computadoras (§ 11.2), que el aviso de la entrada todavía no trae.
 
 ## Tareas futuras
 

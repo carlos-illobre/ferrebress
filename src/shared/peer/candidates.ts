@@ -16,11 +16,24 @@ export function keepsCandidate(line: string): boolean {
   return protocol.toLowerCase() === 'udp' && type === 'host' && local.some((p) => p.test(address));
 }
 
-// La descripción sin las direcciones que no van.
-export const filterCandidates = (sdp: string): string =>
+// La dirección y el puerto por omisión de la descripción (`c=` y el puerto de `m=`) pueden ser los del
+// candidato real: van vacíos, como en una descripción sin candidatos (seguridad del código, 11).
+export function scrubLine(line: string): string {
+  if (line.startsWith('c=IN IP')) return 'c=IN IP4 0.0.0.0';
+  if (line.startsWith('m=')) return line.replace(/^(m=\S+) \d+ /, '$1 9 ');
+  return line;
+}
+
+// Las líneas que quedan: sin las direcciones que no van, y sin la dirección por omisión.
+export const keptLines = (sdp: string): string[] =>
   sdp
     .split(/\r?\n/)
     .filter((line) => line.length > 0 && (!line.startsWith('a=candidate:') || keepsCandidate(line)))
+    .map(scrubLine);
+
+// La descripción sin las direcciones que no van.
+export const filterCandidates = (sdp: string): string =>
+  keptLines(sdp)
     .map((line) => `${line}\r\n`)
     .join('');
 

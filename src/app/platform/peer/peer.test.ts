@@ -49,6 +49,10 @@ describe('lo común de un transporte', () => {
     expect(kept).toContain('abc.local');
     expect(kept).not.toContain('2800:810');
     expect(kept).not.toContain('tcp');
+    const withDefault = filterCandidates(
+      'm=application 50000 UDP/DTLS/SCTP x\r\nc=IN IP4 181.1.2.3',
+    );
+    expect(withDefault).toBe('m=application 9 UDP/DTLS/SCTP x\r\nc=IN IP4 0.0.0.0\r\n');
     expect(fingerprintOf(sdp)).toBe('sha-256 AA:BB');
     expect(fingerprintOf('v=0')).toBeUndefined();
   });
