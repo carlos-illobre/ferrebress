@@ -18,6 +18,8 @@ export type AuditLog = {
   knowPeople(people: PersonUpdate[]): void;
   // Escribe lo que está esperando: antes de leer, para que se vea lo recién hecho.
   flush(): void;
+  // Avisa después de escribir una tanda con algo (diseño de 05, § 7.1); devuelve cómo dejar de avisar.
+  onWritten(listener: () => void): () => void;
   // Todo lo de un año, en orden; solo lo usan las pruebas.
   read(year: number): StoredEvent[];
   // Los archivos abiertos, para leerlos en el mismo hilo cuando están en memoria.
@@ -91,9 +93,21 @@ export function openAuditLog(path: string): AuditLog {
   const files = writingFiles(path);
   const pending: AuditEvent[] = [];
   let toneOf: ToneOf = () => 'plain';
+  const listeners = new Set<() => void>();
   const flush = (): void => {
+    if (pending.length === 0) return;
     const byYear = Map.groupBy(pending.splice(0), (event) => event.at.getUTCFullYear());
     for (const [year, events] of byYear) writeAll(files, year, events, toneOf);
+    // Fuera de la pila de quien hizo escribir (un pedido de otro módulo), y cada uno aislado: un
+    // error del aviso no corta la escritura ni el pedido.
+    queueMicrotask(() => {
+      for (const listener of listeners)
+        try {
+          listener();
+        } catch {
+          // El aviso es de más: si falla, lo escrito igual quedó.
+        }
+    });
   };
   const timer = setInterval(flush, flushEveryMs);
   timer.unref();
@@ -107,6 +121,10 @@ export function openAuditLog(path: string): AuditLog {
     },
     knowPeople: (list) => knowPeople(files, list),
     flush,
+    onWritten(listener) {
+      listeners.add(listener);
+      return () => void listeners.delete(listener);
+    },
     read(year) {
       flush();
       const file = files.years.get(year);

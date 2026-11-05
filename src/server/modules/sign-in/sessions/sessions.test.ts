@@ -35,6 +35,21 @@ describe('la sesión', () => {
     expect(await personOf(device)).toBeUndefined();
   });
 
+  it('lo que una pantalla pide sola (X-Auto) no cuenta como uso (01 · R3.3)', async () => {
+    const device = createDevice(server);
+    const { sessionId } = (await device.signInWithGoogle(admin)).body;
+    now += minutes(59);
+    // Una ruta que pide sesión: la encuentra abierta, pero no la alarga.
+    const auto = await device.request(
+      '/api/session/confirm/passkey/options',
+      {},
+      { 'X-Auto': '1' },
+    );
+    expect(auto.status).not.toBe(401);
+    now += minutes(1);
+    expect(server.platform.sessions.isOpen(sessionId)).toBe(false);
+  });
+
   it('la plataforma sabe, sin consultar la base, si una sesión sigue abierta (el canal, 03 · R7.2)', async () => {
     const device = createDevice(server);
     const { sessionId } = (await device.signInWithGoogle(admin)).body;

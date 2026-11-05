@@ -40,10 +40,16 @@ export function createRealtime({ http, sessions, limiter, events, every }: Deps)
     // Declarar un tema: sumar uno no toca el canal.
     topic<P, E>(definition: TopicDefinition<P, E>): void {
       topics.define(definition);
+      // Después de todo lo que corre al confirmar (una memoria de permisos que se borra), sea cual
+      // sea el orden en que se registraron los módulos.
       for (const name of definition.recheckOn ?? [])
-        events.on(name as keyof ServerEvents, async () => () => void hub.recheck(definition.name));
+        events.on(
+          name as keyof ServerEvents,
+          async () => () => queueMicrotask(() => void hub.recheck(definition.name)),
+        );
     },
     publish: hub.publish,
+    topics: () => topics.list().map(({ name, anonymous }) => ({ name, anonymous: !!anonymous })),
     drop: hub.drop,
     listeners: hub.listeners,
   };

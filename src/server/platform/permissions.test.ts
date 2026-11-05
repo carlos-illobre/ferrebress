@@ -39,7 +39,7 @@ function setUp(granted: Record<string, string[]>) {
     c.json({ ok: true, hash: permissionsHashOf(c) }),
   );
   http.get('/solo-sesion', sessions.require, (c) => c.json({ hash: permissionsHashOf(c) }));
-  return { http, recorded, asked: () => asked };
+  return { http, gate, recorded, asked: () => asked };
 }
 
 const as = (userId: string) => ({ headers: { 'X-User': userId } });
@@ -73,6 +73,12 @@ describe('el paso de permisos (02 · R7.6)', () => {
     expect(await response.json()).toEqual({ hash: permissionsHash(['users.view']) });
     await http.request('/ver', as('ana'));
     expect(asked()).toBe(2);
+  });
+
+  it('dice los permisos de una persona fuera de un pedido (un tema del canal)', async () => {
+    const { gate } = setUp({ ana: ['audit-log.view'] });
+    expect(await gate.of('ana')).toEqual(['audit-log.view']);
+    expect(await gate.of('beto')).toEqual([]);
   });
 
   it('sin sesión no hay permisos ni huella', async () => {

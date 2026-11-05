@@ -81,6 +81,8 @@ delete (events[4] as Partial<AuditView>).ipAddress;
 
 export const page = (more: Partial<AuditPage> = {}): AuditPage => ({
   today: '2026-10-28',
+  latest: '2025:0.2026:5',
+  withToday: true,
   total: 25,
   page: 1,
   pages: 2,

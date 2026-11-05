@@ -45,6 +45,8 @@ export function createTopics() {
       topics.set(definition.name, definition as unknown as AnyTopic);
     },
     get: (name: string): AnyTopic | undefined => topics.get(name),
+    // Los temas declarados: la prueba de cerrado por defecto los recorre.
+    list: (): AnyTopic[] => [...topics.values()],
   };
 }
 

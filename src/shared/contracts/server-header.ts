@@ -3,6 +3,10 @@ import { product } from './product.ts';
 
 export const serverHeaderName = `X-${product.name}`;
 
+// Lo que una pantalla pide sola, sin que nadie la toque (05 · R4.6): no cuenta como uso de la sesión
+// (01 · R3.3) y cada módulo puede tratarlo aparte (su propio límite, no anotar que se abrió algo).
+export const automaticHeaderName = 'X-Auto';
+
 export const environments = ['testing', 'production', 'e2e'] as const;
 export type Environment = (typeof environments)[number];
 

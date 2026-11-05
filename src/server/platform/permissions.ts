@@ -48,6 +48,8 @@ export function createPermissionGate(
     provide: (given: Resolve) => {
       resolve = given;
     },
+    // Los permisos de una persona fuera de un pedido (un tema del canal que vuelve a mirarlos).
+    of: (userId: string): Promise<readonly string[]> => resolve(userId),
     require:
       (permission: PermissionId): MiddlewareHandler =>
       async (c, next) =>

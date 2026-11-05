@@ -69,9 +69,11 @@ async function request(
   agent: { userAgent: string; ip: string },
   path: string,
   body?: unknown,
+  extra: Record<string, string> = {},
 ) {
   const headers: Record<string, string> = {
     ...appHeaders(device.id),
+    ...extra,
     ...(agent.userAgent && { 'User-Agent': agent.userAgent }),
     'X-Real-IP': agent.ip,
     ...(device.cookie && { Cookie: device.cookie }),
@@ -108,8 +110,8 @@ export function createDevice(
       sign('sha256', Buffer.from(message), { key: privateKey, dsaEncoding: 'ieee-p1363' }).toString(
         'base64url',
       ),
-    request: (path: string, body?: unknown) =>
-      request(server, device, { userAgent, ip }, path, body),
+    request: (path: string, body?: unknown, extra?: Record<string, string>) =>
+      request(server, device, { userAgent, ip }, path, body, extra),
     // Abre la aplicación y entra con Google con estos datos del pase.
     async signInWithGoogle(claims: Record<string, unknown>) {
       const start = await device.request('/api/start');

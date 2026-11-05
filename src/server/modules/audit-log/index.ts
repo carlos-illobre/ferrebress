@@ -1,8 +1,9 @@
 // Quién hizo qué (capítulo 05, diseño de 05): le da a la auditoría el color de cada acción, que
-// sabe el catálogo, y registra sus rutas, que leen en un hilo aparte.
+// sabe el catálogo, registra sus rutas, que leen en un hilo aparte, y el aviso de «Actualizar solo».
 import { toneOf } from '@ferrebress/shared/audit-log/index';
 import type { ServerModule } from '../../platform/modules.ts';
 import { openAuditReader } from '../../platform/storage/audit/reader.ts';
+import { registerLive } from './live.ts';
 import { registerAuditLogRoutes } from './routes.ts';
 
 export function createAuditLogModule(): ServerModule {
@@ -20,6 +21,7 @@ export function createAuditLogModule(): ServerModule {
       const reader = openAuditReader(platform.config.AUDIT_PATH, platform.audit);
       platform.onClose(() => reader.close());
       registerAuditLogRoutes(platform, reader);
+      registerLive(platform);
     },
   };
 }

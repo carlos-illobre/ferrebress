@@ -76,9 +76,11 @@ async function createSession(data: Data, clock: Clock, fields: NewSession) {
 }
 
 // Quién es el dueño del pase, y anota el uso. Una cookie inventada no queda en memoria.
+// `used`: si el pedido cuenta como uso; lo que una pantalla pide sola no (01 · R3.3).
 async function resolveSession(
   { data, memory, clock, onEnded }: Deps,
   token: string,
+  used: boolean,
 ): Promise<Resolved> {
   const key = keyOf(token);
   const remembered = memory.byKey.get(key);
@@ -89,7 +91,7 @@ async function resolveSession(
   const reason = closedReasonOf(session, now, signInSettings.session);
   if (!reason) {
     if (!remembered && memory.closings === closings) memory.byKey.set(key, session);
-    memory.touch(session, now);
+    if (used) memory.touch(session, now);
     return { kind: 'open', session };
   }
   memory.forget([session.id]);
@@ -169,7 +171,7 @@ export function sessionStoreOf(data: Data, clock: Clock, onEnded: OnEnded) {
     create: (fields: NewSession) => createSession(data, clock, fields),
     remember: ({ token, session }: { token: string; session: Session }) =>
       void memory.byKey.set(keyOf(token), session),
-    resolve: (token: string) => resolveSession(deps, token),
+    resolve: (token: string, used = true) => resolveSession(deps, token, used),
     // Si el pase es de una sesión que ya está en memoria (sin consultar la base).
     knows: (token: string) => memory.byKey.has(keyOf(token)),
     findById: (id: string) => data.findById(id),

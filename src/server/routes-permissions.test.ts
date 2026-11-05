@@ -61,6 +61,7 @@ const routes: Record<string, Needs> = {
   'POST /api/roles/:id/delete': 'roles.manage',
   'POST /api/users/:id/roles': 'roles.manage',
   'GET /api/audit-log': 'audit-log.view',
+  'GET /api/audit-log/new': 'audit-log.view',
   'GET /api/audit-log/people': 'audit-log.view',
   'GET /api/audit-log/day': 'audit-log.view',
 };
@@ -84,6 +85,28 @@ describe('lo que pide cada ruta de /api', () => {
         .map((route) => `${route.method} ${route.path}`),
     );
     expect([...registered].sort()).toEqual(Object.keys(routes).sort());
+  });
+
+  // Lo mismo con los temas del canal: cada uno dice si se escucha sin sesión, y uno nuevo que no está
+  // en la tabla no pasa. Sin sesión, uno con sesión no se abre.
+  const topics: Record<string, 'public' | 'session'> = {
+    'sign-in.codes': 'public',
+    'device-link.code': 'session',
+    'device-link.pairing': 'session',
+    'audit-log.new': 'session',
+  };
+
+  it('cada tema del canal dice si se escucha sin sesión; sin ella, uno con sesión no se abre', async () => {
+    const declared = kit.server.platform.realtime.topics();
+    expect(
+      Object.fromEntries(declared.map((t) => [t.name, t.anonymous ? 'public' : 'session'])),
+    ).toEqual(topics);
+    const stranger = createDevice(kit.server);
+    for (const [name, needs] of Object.entries(topics)) {
+      if (needs === 'public') continue;
+      const reply = await stranger.request(`/api/realtime?s=${name}`);
+      expect([name, reply.status]).toEqual([name, 401]);
+    }
   });
 
   it('sin la sesión, 401', async () => {

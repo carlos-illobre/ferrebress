@@ -98,6 +98,8 @@ const count = (list: AuditView[], tone: string) =>
 
 const pageOf = (shown: AuditView[]): AuditPage => ({
   today,
+  latest: '2025:0.2026:40',
+  withToday: true,
   total: shown.length,
   page: 1,
   pages: 1,

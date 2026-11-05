@@ -36,6 +36,7 @@ export type Filter = {
   target?: string;
   types?: string[];
   tone?: 'amber' | 'red';
+  upTo?: Latest;
 };
 export type Period = { from: BusinessDate; until: BusinessDate };
 export type Stored = {
@@ -184,3 +185,22 @@ export const dayCount = (date: BusinessDate, tones: Record<string, number>): Day
   amber: tones.amber ?? 0,
   red: tones.red ?? 0,
 });
+
+// La foto de un pedido (diseño de 05, § 5): de cada archivo vivo, su última fila, como texto opaco.
+export type Latest = [year: number, id: number][];
+export const latestText = (latest: Latest): string =>
+  latest.map(([year, id]) => `${year}:${id}`).join('.');
+
+// El `since` de «n nuevas»: solo los dos años vivos (el UTC en curso y el anterior) y números enteros
+// seguros; si no, `undefined`.
+export function sinceOf(text: string, currentYear: number): Latest | undefined {
+  const since = text.split('.').map((part) => part.split(':').map(Number) as [number, number]);
+  const valid = since.every(
+    ([year, id]) => (year === currentYear || year === currentYear - 1) && Number.isSafeInteger(id),
+  );
+  return valid ? since : undefined;
+}
+
+// Si el período de las fechas incluye hoy (sin fechas, sí): el selector «Actualizar solo» (R4.6).
+export const withToday = (period: Period | undefined, today: BusinessDate): boolean =>
+  !period || (period.from <= today && period.until >= today);

@@ -38,6 +38,10 @@ export type StripMark = { id: string; at: number; tone: ToneName };
 
 export type AuditPage = {
   today: string;
+  // La última fila de cada archivo vivo, sin filtros: desde dónde contar las nuevas (diseño de 05, § 5).
+  latest: string;
+  // Si el período de las fechas incluye hoy: el selector «Actualizar solo» (R4.6).
+  withToday: boolean;
   total: number;
   page: number;
   pages: number;
@@ -88,3 +92,13 @@ export const auditQuery = z.strictObject({
 export type AuditQuery = z.infer<typeof auditQuery>;
 
 export const dayQuery = z.strictObject({ date: z.optional(date) });
+
+// «Actualizar solo» (R4.6; diseño de 05, § 7): el tema del canal, que avisa sin datos, y cuántas
+// llegaron desde `latest` con los filtros de la lista.
+export const auditLiveTopic = 'audit-log.new';
+export const newOnesQuery = z.strictObject({
+  ...z.omit(auditQuery, { page: true, size: true, summary: true, strip: true }).shape,
+  since: z.string().check(z.regex(/^\d{4}:\d{1,16}(\.\d{4}:\d{1,16})?$/)),
+});
+export type NewOnesQuery = z.infer<typeof newOnesQuery>;
+export type AuditNewOnes = { count: number };

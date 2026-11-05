@@ -209,6 +209,19 @@ describe('lo que hace el servidor con los canales abiertos', () => {
     await anonymous.close();
   });
 
+  it('vuelve a preguntar después de todo lo que corre al confirmar, aunque se haya registrado antes', async () => {
+    const ana = signedIn('ana');
+    await ana.open('s=test.news');
+    // Una memoria de permisos que se borra al confirmar, registrada después del tema.
+    server.events.on('test.permissions-changed', async () => () => {
+      allowed = false;
+    });
+    await permissionsChanged();
+    await ana.settle();
+    expect(ana.received.at(-1)?.event).toBe('refused');
+    await ana.close();
+  });
+
   it('el latido llega a cada canal, y cierra los de una sesión que venció sin aviso', async () => {
     const [ana, beto] = [signedIn('ana'), signedIn('beto')];
     await ana.open('s=test.news');
