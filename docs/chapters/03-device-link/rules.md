@@ -81,7 +81,9 @@ quita, el resto sigue andando igual.
   o el navegador, y reintentar gasta datos sin cambiar nada. Se vuelve a probar solo cuando alguien
   toca «Probar conexión directa» en el detalle del indicador, o al volver a encontrarse (R3.5).
 - **R3.4** **Sin internet:** si se corta internet y el Wi-Fi del local sigue, la conexión directa
-  sigue andando, con la última comprobación del servidor (R2.6) hasta que vuelva internet. Si la
+  sigue andando, con la última comprobación del servidor (R2.6) hasta que vuelva internet o hasta 30
+  minutos sin poder comprobar: después deja de espejar y el indicador dice «Sin internet». Así nadie
+  estira el espejo cortándole internet a propósito a uno de los dos. Si la
   conexión directa también se corta mientras no hay internet, no se pueden volver a encontrar hasta
   que vuelva: con la pantalla a la vista, la aplicación vuelve a probar a los 2, 4, 8, 16 y 32 segundos
   y después cada minuto, y apenas llega al servidor se encuentran solos.
@@ -251,7 +253,8 @@ quita, el resto sigue andando igual.
   la red ya lo permite, **entonces** pasan a «Directo»; si no lo permite, siguen «Por el servidor» y el
   detalle dice que no se pudo.
 - **E20** **Dado** dos dispositivos «Directo», **cuando** se corta internet y el Wi-Fi sigue, **entonces**
-  el espejo sigue andando y el indicador sigue diciendo «Directo».
+  el espejo sigue andando y el indicador sigue diciendo «Directo»; **y si** pasan 30 minutos sin
+  poder comprobar con el servidor, deja de espejar y el indicador dice «Sin internet».
 - **E21** **Dado** dos dispositivos vinculados sin internet, **cuando** se corta la conexión directa,
   **entonces** los indicadores dicen «Sin internet»; **y cuando** vuelve internet, se encuentran solos en
   menos de un minuto, sin que nadie toque nada.

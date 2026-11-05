@@ -5,7 +5,7 @@
 // con otro evento cuando termina. Las dependencias llegan de afuera, para probarlo con dos de estos.
 import type { CheckResponse } from '@ferrebress/shared/contracts/device-link';
 import { createStore, type Store } from '../../platform/store.ts';
-import { createConfirm } from './confirm.ts';
+import { createConfirm, eventOfVerdict } from './confirm.ts';
 import type { PairingEvent, PairingState } from './machine/types.ts';
 import { run } from './runtime/commands.ts';
 import { answerOffer, closeTransport } from './runtime/links.ts';
@@ -49,12 +49,7 @@ function createLive(deps: Deps, state: Store<PairingState>): Live {
   live.confirm = createConfirm({
     check: (fingerprint) =>
       deps.api<CheckResponse>(`/api/device-link/check?fp=${encodeURIComponent(fingerprint)}`),
-    onVerdict: (verdict, pairing) =>
-      live.dispatch(
-        verdict === 'none'
-          ? { type: 'serverSaid', pairing: pairing ?? null }
-          : { type: 'peerGone', why: 'signed-out' },
-      ),
+    onVerdict: (verdict, pairing) => live.dispatch(eventOfVerdict(verdict, pairing)),
   });
   return live;
 }

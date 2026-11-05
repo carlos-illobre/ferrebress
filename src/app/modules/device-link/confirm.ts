@@ -3,11 +3,13 @@
 // conexión (su huella DTLS) sigue con la sesión abierta. Si la última es más vieja, lo que sale y lo que
 // entra espera en orden y se confirma; con `gone` o sin vínculo, se tira y avisa. Solo confirma quien
 // está en uso: sin nada que mandar ni aplicar no sale ningún pedido (no hay temporizador). Sin internet
-// se sigue con la última buena de esta conexión mientras este dispositivo no llegue al servidor (R3.4).
+// se sigue con la última buena de esta conexión mientras este dispositivo no llegue al servidor, hasta
+// 30 minutos (R3.4): después deja de espejar, así cortarle internet a propósito no lo estira sin fin.
 import type { CheckResponse, PairingView } from '@ferrebress/shared/contracts/device-link';
 import type { ApiResult } from '../../platform/server/api.ts';
+import type { PairingEvent } from './machine/types.ts';
 
-export const confirmSettings = { maxAgeMs: 4 * 60_000 };
+export const confirmSettings = { maxAgeMs: 4 * 60_000, offlineMs: 30 * 60_000 };
 
 export type Verdict = 'ok' | 'gone' | 'none' | 'offline';
 
@@ -15,8 +17,9 @@ type Options = {
   // `GET /api/device-link/check?fp=…`
   check(fingerprint: string): Promise<ApiResult<CheckResponse>>;
   now?: () => number;
-  // El otro ya no está en regla, o ya no hay vínculo: lo recibe la máquina.
-  onVerdict(verdict: 'gone' | 'none', pairing: PairingView | undefined): void;
+  // El otro ya no está en regla, ya no hay vínculo, o pasaron 30 minutos sin poder confirmar: lo
+  // recibe la máquina.
+  onVerdict(verdict: 'gone' | 'none' | 'stale', pairing: PairingView | undefined): void;
 };
 
 // Lo de la conexión de ahora. `generation` cambia con cada una: lo que contesta una confirmación de la
@@ -35,6 +38,16 @@ export const verdictOf = (result: ApiResult<CheckResponse>): Verdict => {
   return result.data.peer === 'ok' ? 'ok' : 'gone';
 };
 
+// Lo que recibe la máquina de cada veredicto malo. Sin poder confirmar hace 30 minutos (R3.4), deja de
+// espejar como si se hubiera perdido la conexión: sin internet, queda «Sin internet».
+export const eventOfVerdict = (
+  verdict: 'gone' | 'none' | 'stale',
+  pairing: PairingView | undefined,
+): PairingEvent =>
+  verdict === 'none'
+    ? { type: 'serverSaid', pairing: pairing ?? null }
+    : { type: 'peerGone', why: verdict === 'stale' ? 'lost' : 'signed-out' };
+
 // Preguntarle al servidor por la conexión de ahora, y qué hacer con lo que diga.
 async function ask(now: Connection, { check, onVerdict, now: clock }: Required<Options>) {
   const { fingerprint, generation } = now;
@@ -42,7 +55,13 @@ async function ask(now: Connection, { check, onVerdict, now: clock }: Required<O
   const result = await check(fingerprint);
   if (generation !== now.generation) return false;
   const verdict = verdictOf(result);
-  if (verdict === 'offline') return now.confirmedAt !== undefined;
+  if (verdict === 'offline') {
+    if (now.confirmedAt === undefined) return false;
+    if (clock() - now.confirmedAt < confirmSettings.offlineMs) return true;
+    now.confirmedAt = undefined;
+    onVerdict('stale', undefined);
+    return false;
+  }
   if (verdict === 'ok') {
     now.confirmedAt = clock();
     return true;

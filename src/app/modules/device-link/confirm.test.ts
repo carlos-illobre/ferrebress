@@ -4,7 +4,7 @@
 import type { CheckResponse } from '@ferrebress/shared/contracts/device-link';
 import { describe, expect, it, vi } from 'vitest';
 import type { ApiResult } from '../../platform/server/api.ts';
-import { confirmSettings, createConfirm, verdictOf } from './confirm.ts';
+import { confirmSettings, createConfirm, eventOfVerdict, verdictOf } from './confirm.ts';
 
 const pairing = {
   id: 'v',
@@ -105,6 +105,24 @@ describe('la confirmación del vínculo', () => {
     expect(run).toHaveBeenCalledTimes(1);
   });
 
+  it('R3.4: sin internet, la última buena vale hasta 30 minutos; después deja de espejar', async () => {
+    const { confirm, onVerdict, answer, pass } = setup([ok, offline, offline]);
+    confirm.begin('fp');
+    const run = vi.fn();
+    confirm.gate(run);
+    await answer();
+    pass(confirmSettings.offlineMs - 1);
+    confirm.gate(run);
+    await answer();
+    expect(run).toHaveBeenCalledTimes(2);
+    expect(onVerdict).not.toHaveBeenCalled();
+    pass(1);
+    confirm.gate(run);
+    await answer();
+    expect(run).toHaveBeenCalledTimes(2);
+    expect(onVerdict).toHaveBeenCalledWith('stale', undefined);
+  });
+
   it('lo que contesta una confirmación de la conexión anterior no toca la nueva', async () => {
     const { confirm, check, answer } = setup([ok, ok]);
     confirm.begin('vieja');
@@ -135,6 +153,13 @@ describe('la confirmación del vínculo', () => {
     expect(await confirm.ensure(1000)).toBe(true);
     expect(await confirm.ensure(1000)).toBe(true);
     expect(check).toHaveBeenCalledTimes(2);
+  });
+
+  it('cada veredicto malo es un evento de la máquina', () => {
+    expect(eventOfVerdict('none', undefined)).toEqual({ type: 'serverSaid', pairing: null });
+    expect(eventOfVerdict('none', pairing)).toEqual({ type: 'serverSaid', pairing });
+    expect(eventOfVerdict('gone', pairing)).toEqual({ type: 'peerGone', why: 'signed-out' });
+    expect(eventOfVerdict('stale', undefined)).toEqual({ type: 'peerGone', why: 'lost' });
   });
 
   it('cada respuesta tiene su veredicto', () => {
