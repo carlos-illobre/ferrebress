@@ -7,6 +7,13 @@ export const auditLogShapes = {
       <path d="m12 5 7 7-7 7" />
     </>
   ),
+  // «3 nuevas» (R4.6).
+  'arrow-up': (
+    <>
+      <path d="m5 12 7-7 7 7" />
+      <path d="M12 19V5" />
+    </>
+  ),
   'at-sign': (
     <>
       <circle cx="12" cy="12" r="4" />

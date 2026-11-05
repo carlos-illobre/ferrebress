@@ -11,7 +11,7 @@ import { exists, moreFor, type Option, openOption, unavailable } from '../../men
 import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './PhoneMore.css';
-import './switch.css';
+import '../../../../ui/switch/switch.css';
 
 export function PhoneMore() {
   const { person, panels, phoneMore } = useFrame();

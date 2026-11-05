@@ -61,10 +61,12 @@ export function guardWrites(blocked: () => boolean): () => void {
   return () => void writeGuards.delete(blocked);
 }
 
+// `extra`: cabeceras de ese pedido (lo que una pantalla pide sola, X-Auto).
 export async function api<T>(
   path: string,
   body?: unknown,
   signal?: AbortSignal,
+  extra: Record<string, string> = {},
 ): Promise<ApiResult<T>> {
   if (body !== undefined && [...writeGuards].some((blocked) => blocked())) {
     console.error(
@@ -72,7 +74,7 @@ export async function api<T>(
     );
     return { ok: false, error: 'unexpected' };
   }
-  const headers = { ...appHeaders(), ...decorated(path, body !== undefined) };
+  const headers = { ...appHeaders(), ...decorated(path, body !== undefined), ...extra };
   const init: RequestInit =
     body === undefined
       ? { headers }

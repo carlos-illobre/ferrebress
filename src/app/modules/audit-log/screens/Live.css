@@ -1,0 +1,123 @@
+/* «Actualizar solo» (R4.6, R4.12; maqueta final de users-who-did-what): el selector con el ícono y la
+   llave, lo que gasta esta pantalla debajo, «3 nuevas» arriba de la lista sin moverla y la marca de
+   lo que entra. Solo se anima transform y opacity, y nada con «reducir movimiento». */
+@layer screens {
+  .audit-live {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+  }
+  .audit-live-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 6px 0 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    color: var(--text-2);
+    transition: transform var(--time-micro) var(--ease);
+  }
+  .audit-live-switch:active {
+    transform: scale(0.97);
+  }
+  .audit-live-switch[aria-checked="true"] {
+    color: var(--pine-text);
+  }
+  .audit-live-switch kbd {
+    position: absolute;
+    left: -10px;
+    top: -10px;
+  }
+  .audit-live-rate {
+    margin: 0;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 750;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  /* «3 nuevas» (E51): arriba de la lista, sin moverla. */
+  .audit-list {
+    position: relative;
+  }
+  .audit-new {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    z-index: 6;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .audit-new-button {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px 0 12px;
+    border-radius: var(--radius-round);
+    background: var(--pine);
+    color: var(--surface);
+    font-size: 15px;
+    font-weight: 750;
+    box-shadow: var(--shadow-3);
+    white-space: nowrap;
+    transition: transform var(--time-micro) var(--ease);
+  }
+  .audit-new-button:active {
+    transform: scale(0.96);
+  }
+
+  /* Lo que entra solo (E50): sube con un fundido y su borde se pinta de verde un momento; con «reducir
+     movimiento», el borde verde quieto mientras dura la marca. */
+  .audit-row[data-new] {
+    position: relative;
+  }
+  .audit-row[data-new]::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    border: 2px solid var(--success);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .audit-new-button {
+      animation: audit-new-in var(--time-nav) var(--bounce) both;
+    }
+    .audit-row[data-new] {
+      animation: audit-row-in var(--time-nav) var(--bounce) both;
+    }
+    .audit-row[data-new]::after {
+      animation: audit-row-mark 1.2s var(--ease) 0.2s both;
+    }
+  }
+  @keyframes audit-new-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.96);
+    }
+  }
+  @keyframes audit-row-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes audit-row-mark {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}

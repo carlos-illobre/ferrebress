@@ -2,7 +2,11 @@
 // difieren, el de la computadora explica más (00 · R1.5).
 export const texts = {
   title: 'Quién hizo qué',
-  refresh: 'Actualizar',
+  // «Actualizar solo» (R4.6): solo el ícono y la llave; el nombre, al pasar el mouse y para quien no ve.
+  live: 'Actualizar solo',
+  liveRate: 'Lo que manda ahora el servidor solo para esta pantalla, en el último minuto',
+  newOnes: (n: number) => (n > 99 ? 'Más de 99 nuevas' : n === 1 ? '1 nueva' : `${n} nuevas`),
+  newOnesHint: 'Ir arriba y verlas',
   loading: 'Buscando las acciones…',
   loadFailed: 'No se pudieron traer las acciones.',
   retry: 'Reintentar',

@@ -1,7 +1,9 @@
 // Lo que comparten las pruebas de Quién hizo qué: acciones inventadas (correos @example.com) y la
 // pestaña montada con un servidor de mentira, en la computadora o en el celular.
 import type { AuditPage, AuditView } from '@ferrebress/shared/contracts/audit-log';
-import { render } from '@testing-library/preact';
+import { act, render } from '@testing-library/preact';
+import { vi } from 'vitest';
+import { realtime, type TopicHandler } from '../../platform/realtime/channel.ts';
 import { syncServerTime } from '../../platform/server/clock.ts';
 import { fakeServer, type Reply } from '../../testing/fake-server.ts';
 import { narrowOnly, stubMedia } from '../../testing/media.ts';
@@ -108,8 +110,29 @@ export const people = {
 export const first = '/api/audit-log?page=1&size=20&summary=1&strip=1';
 export const firstPhone = '/api/audit-log?page=1&size=10&summary=1';
 
+// El canal de mentira: quién escucha el tema de «Actualizar solo» y cómo mandarle un aviso.
+function fakeChannel() {
+  const listening = new Map<TopicHandler, string>();
+  vi.spyOn(realtime, 'want').mockImplementation((token, handler) => {
+    listening.set(handler, token);
+    return () => void listening.delete(handler);
+  });
+  return {
+    listening: () => [...listening.values()],
+    notice: () =>
+      act(() => {
+        for (const handler of [...listening.keys()]) handler.onEvent({});
+      }),
+    refuse: (code: string) =>
+      act(() => {
+        for (const handler of [...listening.keys()]) handler.onRefused?.(code);
+      }),
+  };
+}
+
 // `phone`: como en lo angosto, de a 10 y con el detalle en una hoja.
 export function openAuditLog(routes: Record<string, Reply | Reply[]> = {}, phone = false) {
+  const channel = fakeChannel();
   syncServerTime(now);
   stubMedia((query) => phone && narrowOnly(query));
   const server = fakeServer({
@@ -126,7 +149,7 @@ export function openAuditLog(routes: Record<string, Reply | Reply[]> = {}, phone
       <Toasts />
     </>,
   );
-  return server;
+  return { ...server, ...channel };
 }
 
 export const rows = () => [...document.querySelectorAll<HTMLElement>('.audit-row')];

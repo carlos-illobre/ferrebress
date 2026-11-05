@@ -145,3 +145,15 @@ export function stripScale(seconds: number[]) {
   for (let at = start; at <= end; at += every * hour) hours.push(at / hour);
   return { place: (at: number) => (at - start) / (end - start), hours };
 }
+
+// Si una acción llegó después de la foto `latest` de una lista anterior (diseño de 05, § 5): su fila
+// es mayor que la última de su archivo, o es de un año posterior a todos (R4.6, la marca de lo que
+// entra).
+export function isNewer(id: string, latest: string): boolean {
+  const [year, row] = id.split(':').map(Number) as [number, number];
+  const last = new Map(
+    latest.split('.').map((part) => part.split(':').map(Number) as [number, number]),
+  );
+  const known = last.get(year);
+  return known === undefined ? year > Math.max(...last.keys()) : row > known;
+}

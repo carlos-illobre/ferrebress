@@ -8,7 +8,7 @@ import { peopleShapes } from '../../ui/icon/people-shapes.tsx';
 import { rolesShapes } from '../../ui/icon/roles-shapes.tsx';
 import { shapes } from '../../ui/icon/shapes.tsx';
 import { queryString } from './api.ts';
-import { browserOf, dayTitle, initials, stripScale, summaryDay } from './logic.ts';
+import { browserOf, dayTitle, initials, isNewer, stripScale, summaryDay } from './logic.ts';
 
 describe('la pantalla de Quién hizo qué, sin dibujo', () => {
   it('audit-log-E35b: cada ícono del catálogo está dibujado', () => {
@@ -48,5 +48,13 @@ describe('la pantalla de Quién hizo qué, sin dibujo', () => {
     expect(short.hours).toEqual([9, 10, 11, 12]);
     expect(short.place(9 * 3600)).toBe(0);
     expect(stripScale([3600, 20 * 3600]).hours).toEqual([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]);
+  });
+
+  it('lo que llegó después de la foto de la lista anterior', () => {
+    expect(isNewer('2026:13', '2025:98.2026:12')).toBe(true);
+    expect(isNewer('2026:12', '2025:98.2026:12')).toBe(false);
+    expect(isNewer('2025:99', '2025:98.2026:12')).toBe(true);
+    expect(isNewer('2027:1', '2025:98.2026:12')).toBe(true);
+    expect(isNewer('2024:500', '2025:98.2026:12')).toBe(false);
   });
 });

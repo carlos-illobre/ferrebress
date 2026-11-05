@@ -106,24 +106,12 @@ describe('Quién hizo qué', () => {
     expect(document.querySelector('.audit-pager')).toBeNull();
   });
 
-  it('si no se pudieron traer, lo dice y deja reintentar o actualizar', async () => {
+  it('si no se pudieron traer, lo dice y deja reintentar', async () => {
     const failed = { status: 500, body: { error: 'unexpected' } };
-    openAuditLog({ [first]: [failed, failed, { body: page() }] });
+    openAuditLog({ [first]: [failed, { body: page() }] });
     await screen.findByRole('button', { name: /Reintentar/ });
-    fireEvent.click(screen.getByRole('button', { name: /Actualizar/ }));
-    await act(() => new Promise((resolve) => setTimeout(resolve, 20)));
     fireEvent.click(screen.getByRole('button', { name: /Reintentar/ }));
     await screen.findByText('25 acciones');
-  });
-
-  it('audit-log-E34: no se pone al día sola; «Actualizar» la trae', async () => {
-    const server = openAuditLog();
-    await screen.findByText('25 acciones');
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    expect(server.sent).toHaveLength(2);
-    fireEvent.click(screen.getByRole('button', { name: /Actualizar/ }));
-    await waitFor(() => expect(server.sent).toHaveLength(3));
-    expect(server.sent.at(-1)?.path).toBe(first);
   });
 
   it('audit-log-E36: sin conexión, gris; al volver, sale del gris sin pedir nada', async () => {

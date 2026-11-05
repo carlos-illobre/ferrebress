@@ -1,7 +1,8 @@
-/* El interruptor de Más del celular (docs/design/mockups/app-frame/final/, «Trabajar sin
-   conexión»): prendido, en pino, como todo lo elegido. Solo se anima transform y opacity. */
+/* La llave de «Mostrador» (maqueta app-frame/final, «Trabajar sin conexión»; y «Actualizar solo» de
+   Quién hizo qué): un `<span class="switch">` adentro de un botón con `role="switch"`. Prendida, en
+   pino, como todo lo elegido. Solo se anima transform y opacity. */
 @layer screens {
-  .phone-more-switch .switch {
+  .switch {
     position: relative;
     flex: none;
     width: 52px;
@@ -10,7 +11,7 @@
     background: var(--sunken-2);
     overflow: hidden;
   }
-  .phone-more-switch .switch::before {
+  .switch::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -18,7 +19,7 @@
     background: var(--pine);
     opacity: 0;
   }
-  .phone-more-switch .switch::after {
+  .switch::after {
     content: "";
     position: absolute;
     top: 3px;
@@ -29,17 +30,17 @@
     background: var(--surface);
     box-shadow: 0 2px 4px rgb(26 29 27 / 0.2);
   }
-  .phone-more-switch[aria-checked="true"] .switch::before {
+  [aria-checked="true"] > .switch::before {
     opacity: 1;
   }
-  .phone-more-switch[aria-checked="true"] .switch::after {
+  [aria-checked="true"] > .switch::after {
     transform: translateX(20px);
   }
   @media (prefers-reduced-motion: no-preference) {
-    .phone-more-switch .switch::before {
+    .switch::before {
       transition: opacity var(--time-micro);
     }
-    .phone-more-switch .switch::after {
+    .switch::after {
       transition: transform var(--time-micro);
     }
   }

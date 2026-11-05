@@ -21,6 +21,7 @@ function Row({ event, today }: { event: AuditView; today: string }) {
       class={`audit-row audit-${event.tone}`}
       data-mark=""
       data-id={event.id}
+      data-new={log.fresh.has(event.id) ? '' : undefined}
       onClick={() => log.select(event.id)}
       onKeyDown={(key) => key.key === ' ' && log.select(event.id)}
     >

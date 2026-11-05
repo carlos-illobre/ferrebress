@@ -1,7 +1,8 @@
 // La pestaña Quién hizo qué (capítulo 05; maqueta users-who-did-what, variante 1, «El libro»): el
 // resumen, los filtros, la lista por páginas y el detalle, al costado en la computadora y en una
 // hoja en el celular. Sin conexión se ve gris, con lo último que trajo, y sale del gris sin pedir
-// nada al volver (R5.1). La cinta se abre encima (R4.11).
+// nada al volver (R5.1). La cinta se abre encima (R4.11). «Actualizar solo» va donde estaba
+// «Actualizar» (R4.6).
 import type { AuditPage } from '@ferrebress/shared/contracts/audit-log';
 import { Button } from '../../../ui/button/Button.tsx';
 import { auditLogShapes } from '../../../ui/icon/audit-log-shapes.tsx';
@@ -15,6 +16,7 @@ import { texts } from '../texts.ts';
 import { DetailBody } from './Detail.tsx';
 import { Filters } from './Filters.tsx';
 import { Ledger, Pager } from './Ledger.tsx';
+import { LiveSwitch, NewOnes } from './Live.tsx';
 import { Summary } from './Summary.tsx';
 import { Tape } from './Tape.tsx';
 import './AuditLog.css';
@@ -76,6 +78,7 @@ function Body() {
         <Summary today={log.page.today} />
         <Filters />
         <div class="surface audit-list">
+          <NewOnes />
           {log.page.total === 0 ? <Empty /> : <Ledger page={log.page} />}
           <Pager />
         </div>
@@ -103,16 +106,7 @@ export function AuditLog() {
               {texts.seeDay}
             </Button>
           )}
-          <Button
-            size="small"
-            icon="refresh-cw"
-            shortcut="r"
-            doing={texts.refresh}
-            onPress={log.refresh}
-            disabled={!log.online}
-          >
-            {texts.refresh}
-          </Button>
+          <LiveSwitch />
         </div>
         {!log.online && <Offline look="audit-offline" text={texts.offline} />}
         <div class="audit-content" inert={!log.online}>
