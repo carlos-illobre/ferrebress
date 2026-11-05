@@ -96,9 +96,26 @@ registro se decide con el plan de copias de la base.
   nombre que tenían; las borradas, con «(borrada)» y sin su correo, que desaparece con ellas
   (02 · R3.7). Cambiar un filtro vuelve a la página 1. Si nada coincide, lo dice y ofrece
   sacar los filtros.
-- **R4.6** **Las acciones nuevas no aparecen solas:** la aplicación no le pide nada al servidor sin
-  que la toquen (constitución, principio III). La lista se pone al día al tocar la pestaña, al
-  cambiar un filtro o de página, al tocar un número del resumen y con «Actualizar».
+- **R4.6** **«Actualizar solo»:** un selector, prendido o apagado, en el lugar donde iba «Actualizar».
+  Se ve solo cuando lo que muestran las fechas incluye hoy (con otro día, lo nuevo no entraría).
+  Al abrir la pestaña está prendido en la computadora y apagado en el celular, por los datos; no se
+  recuerda de una vez a la otra y no viaja por el espejo (03 · R6): cada dispositivo paga sus datos.
+  - **Prendido**, mientras la pestaña está a la vista, el servidor avisa que hay acciones nuevas, por
+    el mecanismo común (03 · R7). El aviso no lleva ningún dato de las acciones: la lista se pide
+    con sus filtros, como siempre. Como mucho una vez cada 5 segundos, aunque lleguen muchas juntas.
+    - **Arriba de todo**, en la página 1 y sin haber bajado: la lista, el resumen (R4.9) y la tira
+      del día se ponen al día; lo que entra se marca un momento, para que se note.
+    - **Más abajo, o en otra página:** no se mueve nada. Arriba aparece «3 nuevas» (las que cumplen
+      los filtros); al tocarlo, sube a la página 1 y las muestra.
+    - **Con la cinta abierta** (R4.11), no cambia: está mostrando el día.
+    - Lo que hace uno mismo también aparece (por ejemplo, «Abrió Quién hizo qué», R1).
+    - Prenderlo pone la lista al día en el momento.
+  - **Apagado**, la aplicación no le pide nada al servidor sin que la toquen (constitución,
+    principio III): la lista se pone al día al tocar la pestaña, al cambiar un filtro o de página,
+    al tocar un número del resumen o al prender el selector.
+  - **Oculta o sin conexión**, no hay canal abierto. Al volver a la vista, o al volver la conexión,
+    si está prendido se pone al día una vez sola.
+  - Si mientras mira le sacan el permiso, el canal se corta y ve «Ya no tenés permiso» (02 · R6.6).
 - **R4.7** **El detalle:** en la computadora está siempre abierto al lado de la lista y muestra la
   acción elegida, que cambia al recorrer la lista con el teclado; al abrir, la primera. En el celular
   se abre al tocar una acción. Se ve todo lo que se guardó de ella (R2): qué pasó,
@@ -144,6 +161,16 @@ registro se decide con el plan de copias de la base.
     suelta.
   - Si el día tiene más de 2.000 acciones, la cinta no se abre y dice que hay demasiadas para verlas
     así, y que conviene usar la lista con filtros.
+
+- **R4.12** **Los medidores de datos**, debajo de «Actualizar solo», en letra chica, mientras se ve:
+  - **Lo que gastó la actualización automática** de Quién hizo qué desde que se prendió: el canal,
+    sus avisos y los pedidos de la lista que hizo sola. Lo que se pide al tocar algo no cuenta.
+    Vuelve a cero cada vez que se prende.
+  - **Lo que gasta la aplicación ahora** por todos sus canales abiertos (el de cualquier pantalla y
+    el del vínculo con el otro dispositivo, 03 · R7): no un acumulado, sino lo del momento, como un
+    medidor, en KB por minuto, medido sobre el último minuto. Sin ningún canal abierto, dice 0.
+  - Los dos son aproximados: la aplicación suma lo que recibe y manda más lo que agregan la conexión
+    y el cifrado. Lo que diga la compañía de teléfono puede no coincidir exactamente.
 
 ## 5. La conexión
 
@@ -251,9 +278,9 @@ registro se decide con el plan de copias de la base.
   dispositivo, el navegador y la dirección de internet.
 - **E33** **Dado** una acción en la lista, **cuando** se toca, una o dos veces, el nombre de la
   persona que la hizo o la recibió, **entonces** se elige esa acción y la lista no se filtra.
-- **E34** **Dado** Quién hizo qué abierto, **cuando** otra persona hace una acción, **entonces** la
-  lista no cambia sola ni le pide nada al servidor; aparece con «Actualizar», al cambiar un filtro o
-  de página, o al tocar la pestaña.
+- **E34** **Dado** Quién hizo qué abierto con «Actualizar solo» apagado, **cuando** otra persona hace
+  una acción, **entonces** la lista no cambia sola ni le pide nada al servidor; aparece al cambiar un
+  filtro o de página, al tocar la pestaña o al prender el selector.
 - **E35b** **Dado** dos acciones de tipos distintos, **cuando** se miran en la lista, **entonces**
   cada una tiene a la izquierda el ícono de su tipo, y los dos íconos son distintos; dos acciones del
   mismo tipo tienen el mismo ícono.
@@ -265,6 +292,26 @@ registro se decide con el plan de copias de la base.
   sin tocar nada más.
 - **E35** **Dado** la computadora, **cuando** se usa solo el teclado, **entonces** se recorre la
   lista, se abre el detalle, se cambia de página y se llega a cada filtro.
+
+- **E49** **Dado** Quién hizo qué recién abierto, **cuando** se mira el selector, **entonces** en la
+  computadora «Actualizar solo» está prendido y en el celular, apagado; y no está «Actualizar».
+- **E50** **Dado** la computadora arriba de todo, con «Actualizar solo» prendido, **cuando** otra
+  persona hace una acción que cumple los filtros, **entonces** aparece arriba sola, marcada un
+  momento, y el resumen y la tira se ponen al día.
+- **E51** **Dado** la computadora con la lista bajada, o en la página 2, **cuando** llegan tres
+  acciones nuevas, **entonces** no se mueve nada y arriba aparece «3 nuevas»; **y cuando** se toca,
+  va a la página 1 con las tres arriba.
+- **E52** **Dado** «Actualizar solo» prendido, **cuando** alguien autoriza a diez personas seguidas,
+  **entonces** la lista se pone al día como mucho una vez cada 5 segundos.
+- **E53** **Dado** la fecha en otro día que no es hoy, **cuando** se mira, **entonces** no se ve el
+  selector y no hay ningún canal abierto.
+- **E54** **Dado** «Actualizar solo» prendido, **cuando** se oculta la pestaña, **entonces** se cierra
+  el canal; **y cuando** vuelve a la vista, la lista se pone al día una vez.
+- **E55** **Dado** el celular en Quién hizo qué, **cuando** se prende «Actualizar solo», **entonces** la
+  lista se pone al día en el momento y el medidor de la pantalla empieza en 0 KB y sube con lo que
+  gasta; el de la aplicación muestra los KB por minuto de ahora.
+- **E56** **Dado** «Actualizar solo» prendido en la computadora y el celular vinculados, **cuando** se
+  apaga en uno, **entonces** en el otro sigue como estaba.
 
 ### La cinta
 
