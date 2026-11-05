@@ -32,9 +32,12 @@ async function report(live: Live, { attempt, outcome }: Of<'report'>): Promise<v
   await live.deps.api('/api/device-link/report', { attempt, outcome, ice: live.failedIce });
 }
 
-// Sin internet (§ 8.5): cada intento es la confirmación; el primero que llega da `internetBack`.
+// Sin internet (§ 8.5): cada intento es la confirmación; el primero que llega da `internetBack`. Uno
+// solo a la vez; para al salir de «Sin internet» o al cerrar la pestaña (4.7).
 function retryInternet(live: Live, tries = 0): void {
-  setTimeout(async () => {
+  clearTimeout(live.retry);
+  live.retry = setTimeout(async () => {
+    live.retry = undefined;
     if (live.state().kind !== 'offline') return;
     await live.check();
     retryInternet(live, tries + 1);

@@ -95,11 +95,18 @@ const cases: Case[] = [
     ['closeTransport', 'unsubscribe', 'attachMirror', 'snapshot', 'strip'],
   ],
   [
-    'la prueba no salió',
+    'la prueba no salió: la computadora lo anota y se lo dice al celular (E19)',
     { kind: 'relayed', pairing: pc, attempt: 'a', probe: 'trying' },
     { type: 'probeResult', attempt: 'a', ok: false },
     'relayed',
-    ['report'],
+    ['report', 'send'],
+  ],
+  [
+    'la prueba no salió, en el celular: deja de esperarla',
+    { kind: 'relayed', pairing: phone, attempt: 'a', probe: 'trying' },
+    { type: 'probeResult', attempt: 'a', ok: false },
+    'relayed',
+    [],
   ],
   [
     'esta pestaña se ocultó con el directo: lo deja dormido',

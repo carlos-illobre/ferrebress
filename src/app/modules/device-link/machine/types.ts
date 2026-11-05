@@ -48,7 +48,7 @@ export type Command =
   | { do: 'openDirect' | 'awaitOffer' | 'openRelayed' | 'probeDirect'; attempt: Attempt }
   | { do: 'closeTransport'; keep?: true }
   | { do: 'bye'; why: GoneWhy }
-  | { do: 'send'; message: 'pause' | 'resume' | 'probe' | 'hello' }
+  | { do: 'send'; message: 'pause' | 'resume' | 'probe' | 'hello' | 'give-up' }
   | { do: 'snapshot'; withQueries: boolean }
   | { do: 'report'; attempt: Attempt; outcome: 'direct-failed' | 'probe-failed' }
   | { do: 'post'; path: 'pause' | 'resume' }

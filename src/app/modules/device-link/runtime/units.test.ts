@@ -62,11 +62,41 @@ describe('abrir y cerrar conexiones', () => {
         ok: false,
         error: 'peer-absent',
       })) as never);
+      let state: PairingState = { kind: 'meeting', pairing: pc, attempt: 'a' };
+      live.state = () => state;
       openDirect(live, 'a', false);
       await vi.waitFor(() => expect(live.opening?.attempt).toBe('a'));
+      state = { kind: 'meeting', pairing: pc, attempt: 'b' };
       openDirect(live, 'b', false);
       await vi.waitFor(() => expect(events).toEqual([{ type: 'directFailed', attempt: 'b' }]));
       expect(notes).toContain('signal-failed');
+    } finally {
+      platformSettings.direct.openWithinMs = 5000;
+    }
+  });
+
+  it('lo que se abre para un intento que ya no está se cierra, y no avisa nada (4.6)', async () => {
+    platformSettings.direct.openWithinMs = 300;
+    try {
+      const { live, events } = fakeLive(waiting);
+      openDirect(live, 'a', false);
+      await new Promise((settled) => setTimeout(settled, 10));
+      expect(live.opening).toBeUndefined();
+      let state: PairingState = { kind: 'meeting', pairing: pc, attempt: 'b' };
+      live.state = () => state;
+      openDirect(live, 'b', false);
+      await vi.waitFor(() => expect(live.opening?.attempt).toBe('b'));
+      state = waiting;
+      await vi.waitFor(() => expect(live.opening).toBeUndefined(), { timeout: 1000 });
+      expect(events).toEqual([]);
+      // El celular: el estado cambió mientras abría la conexión para responder.
+      state = { kind: 'meeting', pairing: pc, attempt: 'c' };
+      live.offer = { attempt: 'c', sdp: 'v=0' };
+      answerOffer(live);
+      state = waiting;
+      await new Promise((settled) => setTimeout(settled, 10));
+      expect(live.opening).toBeUndefined();
+      expect(events).toEqual([]);
     } finally {
       platformSettings.direct.openWithinMs = 5000;
     }

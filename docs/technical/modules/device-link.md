@@ -1455,6 +1455,12 @@ el servidor: se reinicia con cada subida, y un trabajo diario no correría nunca
 - **Un error pasajero del servidor no corta el directo:** `gone` es solo lo que dice el servidor del
   otro; si el pedido falla (un 429, un 500), no se pudo confirmar y vale la última buena, con el tope
   de 30 minutos (revisión del código, 4.3).
+- **Nada queda vivo de un intento que ya no está:** después de cada espera (crear la conexión, la
+  oferta, la respuesta) se mira que el estado siga esperando ese directo; si no, se cierra lo que se
+  abrió sin avisar a la máquina (revisión del código, 4.6). El reintento sin internet es uno solo,
+  para al salir de «Sin internet» o al cerrar la pestaña, y oculta (`away`) no reintenta (4.7).
+- **Probar el directo que no sale:** la computadora lo anota y le manda `give-up` al celular, que deja
+  de esperarlo y dice «No se pudo» (E19; revisión del código, 1.7).
 - **La foto no frena la fila:** espera el saludo del otro y la confirmación de menos de 30 s por su lado y
   sale solo si sigue la misma conexión con el espejo conectado (revisión del código, 4.1 y 4.2).
 - **Fuera de la cobertura** (ADR-005): `peer/rtc.ts` y el candado de `tabs.ts`.

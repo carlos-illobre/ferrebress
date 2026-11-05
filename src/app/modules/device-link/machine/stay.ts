@@ -19,8 +19,9 @@ export function onInternet(state: PairingState, back: boolean): Step {
   const pairing = pairingOf(state);
   if (!pairing) return same(state);
   if (back) return state.kind === 'offline' ? toWaiting(pairing) : same(state);
-  if (state.kind === 'direct' || state.kind === 'paused' || state.kind === 'offline')
-    return same(state);
+  // Oculta (o sin el candado) no se reintenta nada: al volver se pregunta (R3.6).
+  const stays = ['direct', 'paused', 'offline', 'away'] as const;
+  if (stays.includes(state.kind as (typeof stays)[number])) return same(state);
   return {
     state: { kind: 'offline', pairing },
     commands: [...leaving(state), { do: 'retryInternet' }, { do: 'strip', mark: 'offline' }],
@@ -81,10 +82,16 @@ export function onProbe(state: PairingState): Step {
 export function onProbeResult(state: PairingState, attempt: Attempt, ok: boolean): Step {
   if (state.kind !== 'relayed' || state.probe !== 'trying' || state.attempt !== attempt)
     return same(state);
+  // No salió: la computadora lo anota y se lo dice al celular, que si no quedaría «Probando» (1.7).
   if (!ok)
     return {
       state: { ...state, probe: 'failed' },
-      commands: [{ do: 'report', attempt, outcome: 'probe-failed' }],
+      commands: isComputer(state.pairing)
+        ? [
+            { do: 'report', attempt, outcome: 'probe-failed' },
+            { do: 'send', message: 'give-up' },
+          ]
+        : [],
     };
   const direct = connected(state.pairing, attempt, 'direct');
   return { ...direct, commands: [{ do: 'closeTransport', keep: true }, ...direct.commands] };

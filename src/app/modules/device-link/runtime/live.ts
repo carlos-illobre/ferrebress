@@ -66,6 +66,8 @@ export type Live = {
   // El saludo del otro en esta conexión, y quienes lo esperan (la foto necesita su reloj).
   hello?: Extract<WireMessage, { t: 'hello' }> | undefined;
   helloWaiters: ((hello: Extract<WireMessage, { t: 'hello' }> | undefined) => void)[];
+  // El próximo intento de llegar al servidor, sin internet.
+  retry?: ReturnType<typeof setTimeout> | undefined;
   // Lo que junta los cambios por el servidor mientras espeja por ahí; al desconectar, se para.
   stopCoalescing?: (() => void) | undefined;
 };

@@ -87,6 +87,7 @@ export function createRuntime(deps: Deps) {
     // Soltar todo sin avisar a la máquina: la pestaña se cierra.
     stop() {
       stopOnline();
+      clearTimeout(live.retry);
       unsubscribe(live);
       closeTransport(live, false);
       detachMirror(live, false);

@@ -4,7 +4,7 @@
 // porque la foto lo espera. Lo que llega por un directo dormido lo despierta.
 import type { Json } from '../../../platform/mirror/registry.ts';
 import { read, type WireMessage } from '../wire.ts';
-import type { Link, Live } from './live.ts';
+import { type Link, type Live, shut } from './live.ts';
 
 type Of<T extends WireMessage['t']> = Extract<WireMessage, { t: T }>;
 type Handlers = { [T in WireMessage['t']]: (live: Live, link: Link, message: Of<T>) => void };
@@ -33,7 +33,15 @@ const handlers: Handlers = {
   probe: (live) => live.dispatch({ type: 'probe' }),
   // La computadora no logró el directo (§ 4.4): el celular ya pasó al respaldo al verlo llegar por el
   // servidor (`onRelay`), antes de abrir el transporte que lo entrega acá.
-  'give-up': () => undefined,
+  // La computadora no logró el directo que se probaba: el celular deja de esperarlo (E19).
+  'give-up': (live, link) => {
+    const state = live.state();
+    if (state.kind !== 'relayed' || state.probe !== 'trying' || state.attempt !== link.attempt)
+      return;
+    shut(live.opening);
+    live.opening = undefined;
+    live.dispatch({ type: 'probeResult', attempt: state.attempt, ok: false });
+  },
   patch: (live, link, message) => intoMirror(live, link, () => live.deps.mirror.receive(message.p)),
   snap(live, link, message) {
     const photo = link.assemble(message);

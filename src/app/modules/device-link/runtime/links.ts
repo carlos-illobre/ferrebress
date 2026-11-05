@@ -26,9 +26,32 @@ function iceOf(direct: Direct, sdp: string): IceReport {
   return { host: candidates.length - mdns, mdns, pairs: 0, state: direct.ice() };
 }
 
-async function startDirect(live: Live, attempt: Attempt, peerFingerprint?: string) {
+// Si el estado todavía espera ese directo: presentándose, o probando desde el respaldo.
+function stillWanted(live: Live, attempt: Attempt, probing: boolean): boolean {
+  const state = live.state();
+  if (!('attempt' in state) || state.attempt !== attempt) return false;
+  return probing ? state.kind === 'relayed' && state.probe === 'trying' : state.kind === 'meeting';
+}
+
+// Lo que se abrió para un intento que ya no está: se cierra, así no queda un directo vivo sin usar.
+function drop(live: Live, link: Link): void {
+  shut(link);
+  if (live.opening === link) live.opening = undefined;
+}
+
+async function startDirect(
+  live: Live,
+  attempt: Attempt,
+  probing: boolean,
+  peerFingerprint?: string,
+) {
   shut(live.opening);
+  live.opening = undefined;
   const connection = await live.deps.rtc();
+  if (!stillWanted(live, attempt, probing)) {
+    connection.close();
+    return undefined;
+  }
   const direct = createDirect({
     connection,
     signal: async (kind, sdp) => {
@@ -42,20 +65,42 @@ async function startDirect(live: Live, attempt: Attempt, peerFingerprint?: strin
   return { link, direct, connection };
 }
 
+// No abrió: se guarda por qué, para el aviso al servidor (§ 15.2), y se suelta.
+function failed(live: Live, attempt: Attempt, direct: Direct, sdp: string): void {
+  live.failedIce = iceOf(direct, sdp);
+  live.opening = undefined;
+  live.deps.journal.note('ice-timeout', { a: attempt, ice: direct.ice() });
+}
+
 // La computadora ofrece. Al presentarse, si no abre, se pasa al respaldo; al probar, se dice si salió.
 export function openDirect(live: Live, attempt: Attempt, probing: boolean): void {
   void (async () => {
-    const { link, direct, connection } = await startDirect(live, attempt);
+    const started = await startDirect(live, attempt, probing);
+    if (!started) return;
+    const { link, direct, connection } = started;
     const ok = await direct.offer();
-    if (live.opening !== link) return;
-    if (!ok) {
-      live.failedIce = iceOf(direct, connection.localDescription());
-      live.opening = undefined;
-      live.deps.journal.note('ice-timeout', { a: attempt, ice: direct.ice() });
-    }
-    if (probing) live.dispatch({ type: 'probeResult', attempt, ok });
-    else live.dispatch({ type: ok ? 'directUp' : 'directFailed', attempt });
+    if (live.opening !== link || !stillWanted(live, attempt, probing)) return drop(live, link);
+    if (!ok) failed(live, attempt, direct, connection.localDescription());
+    opened(live, attempt, probing, ok);
   })();
+}
+
+// Lo que pasó con el directo, a la máquina: al probar, el resultado; al presentarse, si abrió.
+const opened = (live: Live, attempt: Attempt, probing: boolean, ok: boolean) =>
+  live.dispatch(
+    probing
+      ? { type: 'probeResult', attempt, ok }
+      : { type: ok ? 'directUp' : 'directFailed', attempt },
+  );
+
+async function respond(live: Live, offer: { attempt: Attempt; sdp: string }, probing: boolean) {
+  const started = await startDirect(live, offer.attempt, probing, fingerprintOf(offer.sdp));
+  if (!started) return;
+  const { link, direct } = started;
+  const ok = await direct.answer(offer.sdp);
+  if (!ok || live.opening !== link || !stillWanted(live, offer.attempt, probing))
+    return drop(live, link);
+  opened(live, offer.attempt, probing, true);
 }
 
 // El celular responde la oferta que espera: al presentarse, o al probar desde el respaldo.
@@ -66,13 +111,7 @@ export function answerOffer(live: Live): void {
   const probing = state.kind === 'relayed' && state.probe === 'trying';
   if (state.kind !== 'meeting' && !probing) return;
   live.offer = undefined;
-  void (async () => {
-    const { link, direct } = await startDirect(live, offer.attempt, fingerprintOf(offer.sdp));
-    const ok = await direct.answer(offer.sdp);
-    if (!ok || live.opening !== link) return;
-    if (probing) live.dispatch({ type: 'probeResult', attempt: offer.attempt, ok });
-    else live.dispatch({ type: 'directUp', attempt: offer.attempt });
-  })();
+  void respond(live, offer, probing);
 }
 
 // Lo que llega por el tema: la oferta se guarda hasta que el celular la espere; la respuesta, al
