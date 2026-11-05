@@ -5,7 +5,7 @@
   "points": {
     "indicator": [
       2.9,
-      71.6
+      68
     ],
     "route": [
       39.1,
@@ -28,6 +28,6 @@
       93
     ]
   },
-  "hash": "9c17b473d451579b8ea3006416fc5423250576c43a38912872acdf85ebf09b73",
-  "file": "c99de3533f67d36ee41ee0504cbd1b90bdbb0a41e4a83e91a12462fd2b60469b"
+  "hash": "3dab98dd2be7e7c4c438d8597b9862f60d7cd751ade030be174bf304ebd5552c",
+  "file": "7a871ecb785dfaf5ac7ad1e10863297a6663df940239642b46a4163a2ab0d9f3"
 }

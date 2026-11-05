@@ -5,6 +5,7 @@
 
 import type { Side } from '@ferrebress/shared/contracts/pairing';
 import type { ComponentChildren } from 'preact';
+import { kbPerMinute, useRate } from '../../../../platform/meter.ts';
 import { useStore } from '../../../../platform/store.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say, type Words } from '../../../../ui/say/Say.tsx';
@@ -22,9 +23,20 @@ export function labelOf(view: LinkView): Words {
 
 type WithLight = { light: ComponentChildren; offline: boolean };
 
+// Lo que manda ahora el servidor por los canales de la aplicación (R4.5, E45, E46).
+function AppRate({ named }: { named?: boolean }) {
+  const rate = kbPerMinute(useRate());
+  if (!named) return <span class="link-pill-rate">{rate}</span>;
+  return (
+    <p class="link-rate" title={texts.rate.title}>
+      {texts.rate.label} <b>{rate}</b>
+    </p>
+  );
+}
+
 // En la computadora: al pie del lateral, una sola tarjeta con el vínculo y, debajo, la luz de
-// conexión, que dice siempre si ya se envió todo (pedido de Carlos); sin nada que mostrar del
-// vínculo, la luz sola.
+// conexión, que dice siempre si ya se envió todo (pedido de Carlos), y lo que manda el servidor por
+// los canales (R4.5); sin nada que mostrar del vínculo, la luz sola.
 export function SideIndicator({ light, offline }: WithLight) {
   const view = useLinkView();
   if (view.hidden) return <>{light}</>;
@@ -32,6 +44,7 @@ export function SideIndicator({ light, offline }: WithLight) {
     <div class="link-box" data-offline={offline || undefined}>
       <SideButton view={view} />
       {light}
+      <AppRate named />
     </div>
   );
 }
@@ -67,8 +80,9 @@ function SideButton({ view }: { view: LinkView }) {
   );
 }
 
-// En el celular: la pastilla debajo del título, con la luz de conexión al lado cuando no está todo en
-// línea; sin nada que mostrar del vínculo, la luz en su lugar (00 · R4.1). La luz la da el marco.
+// En el celular: la pastilla debajo del título, con un renglón de lo que manda el servidor por los
+// canales (R4.5) y la luz de conexión al lado cuando no está todo en línea; sin nada que mostrar del
+// vínculo, la luz en su lugar (00 · R4.1). La luz la da el marco.
 export function PhoneIndicator({ light, offline }: WithLight) {
   const view = useLinkView();
   const open = useStore(detailOpen);
@@ -90,6 +104,7 @@ export function PhoneIndicator({ light, offline }: WithLight) {
         <span class="link-dot" />
         <span class="link-pill-text">
           <Say words={label} />
+          <AppRate />
         </span>
       </button>
       {offline && light}

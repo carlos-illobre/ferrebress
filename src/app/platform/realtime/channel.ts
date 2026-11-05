@@ -3,8 +3,10 @@
 // sacar temas no lo rehace: se lo dice al servidor por su identificador. Los cambios de un mismo
 // dibujo se juntan en una microtarea. Cada evento va a quienes pidieron su tema; el canal no sabe qué
 // significa ninguno. Un tema se escucha con un solo parámetro por pestaña.
+import { meter as appMeter, type Meter } from '../meter.ts';
 import { api, appHeaders } from '../server/api.ts';
 import { canReach, watchReach } from '../server/reach.ts';
+import { platformSettings } from '../settings.ts';
 import { createDemand, type Demand, type TopicHandler } from './demand.ts';
 import { openStream, type StreamEvent } from './sse.ts';
 
@@ -18,6 +20,7 @@ type State = {
   current: Open | undefined;
   fetch: typeof fetch;
   schedule: () => void;
+  meter: Meter;
 };
 
 const topicOf = (token: string) => token.split(':')[0] as string;
@@ -57,6 +60,15 @@ function route(state: State, opened: Open, event: StreamEvent): void {
       for (const handler of state.demand.handlersOf(token)) handler.onEvent(event.data);
 }
 
+// Lo que llegó, al medidor (diseño de 05, § 8.1): un evento es de su tema; el latido y lo del canal
+// mismo, de un tema solo cuando es el único que lo tiene abierto (lo que se ahorraría sin él).
+function measure(state: State, bytes: number, type: string | undefined): void {
+  const topics = new Set(state.demand.tokens().map(topicOf));
+  const own = type !== undefined && !Object.hasOwn(controls, type);
+  const tags = own ? [type] : topics.size === 1 ? [...topics] : [];
+  state.meter.count(bytes + platformSettings.meter.overheadBytes, tags);
+}
+
 function open(state: State): void {
   // `close` llega enseguida, con el SSE que abre.
   const opened = { id: undefined, asked: [], listening: new Set() } as unknown as Open;
@@ -68,9 +80,12 @@ function open(state: State): void {
       return state.fetch(`/api/realtime?${query(opened.asked)}`, { headers: appHeaders(), signal });
     },
     onEvent: (event) => route(state, opened, event),
-    onRefused: (status) => {
+    onBytes: (bytes, type) => measure(state, bytes, type),
+    // Con el código que dijo el servidor (`forbidden`), como un rechazo de un tema por el canal.
+    onRefused: (status, code) => {
       for (const token of opened.asked)
-        for (const handler of state.demand.handlersOf(token)) handler.onRefused?.(String(status));
+        for (const handler of state.demand.handlersOf(token))
+          handler.onRefused?.(code ?? String(status));
       // Un SSE cerrado no avisa nada: el que avisa es el de ahora.
       state.current = undefined;
     },
@@ -115,7 +130,10 @@ function reconcile(state: State, opened: Open, wanted: string[]): void {
   if (add.length + remove.length > 0) void change(state, opened, add, remove);
 }
 
-export function createRealtimeChannel(fetcher: typeof fetch = (...args) => fetch(...args)) {
+export function createRealtimeChannel(
+  fetcher: typeof fetch = (...args) => fetch(...args),
+  meter: Meter = appMeter,
+) {
   let scheduled = false;
   const schedule = () => {
     if (scheduled) return;
@@ -130,6 +148,7 @@ export function createRealtimeChannel(fetcher: typeof fetch = (...args) => fetch
     current: undefined,
     fetch: fetcher,
     schedule,
+    meter,
   };
   watchReach(schedule);
   return {

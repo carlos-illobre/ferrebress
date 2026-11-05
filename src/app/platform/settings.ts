@@ -14,6 +14,9 @@ export const platformSettings = {
   waiting: { markAfterMs: 300, barAfterMs: 2 * second },
   // El canal en tiempo real: sin nada del servidor en 55 s (el latido es cada 40 s), está cortado.
   realtime: { silenceMs: 55 * second },
+  // El medidor (diseño de 05, § 8.1): el último minuto en casillas de un segundo, cuánto suma la
+  // conexión (TCP y TLS) a cada trozo que llega y cada cuánto se vuelve a dibujar.
+  meter: { windowSeconds: 60, overheadBytes: 80, redrawMs: 5 * second },
   // El respaldo por el servidor junta lo de 50 ms en un pedido, de a uno por vez, y cada pedido lleva
   // como mucho 100 mensajes y 60 KB: el servidor no acepta más (diseño de 03, § 4.3 y § 10.2).
   relayed: { batchMs: 50, maxMessages: 100, maxBytes: 60 * 1024 },

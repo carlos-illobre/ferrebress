@@ -2,6 +2,7 @@
 // ruta, frase, tira, datos y botones, y desvincular con su confirmación.
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { meter } from '../../../platform/meter.ts';
 import { startParts } from '../../../platform/server/start-parts.ts';
 import { fakeRuntime, inApp, narrow } from '../../../testing/link-screens.ts';
 import { pc, phone } from '../../../testing/pairing.ts';
@@ -71,6 +72,19 @@ describe('el indicador', () => {
     fireEvent.click(pill);
     expect(detailOpen.get()).toBe(true);
     linkRuntime.set(undefined);
+  });
+
+  it('E45, E46: la tarjeta y la pastilla dicen lo que manda el servidor por los canales', () => {
+    meter.count(2355, ['audit-log.new']);
+    fakeRuntime({ kind: 'direct', pairing: pc, attempt: 'a' });
+    const side = render(<SideIndicator light={<span>luz</span>} offline={false} />);
+    expect(document.querySelector('.link-box .link-rate')?.textContent).toBe(
+      'Aplicación: 2,3 KB/min',
+    );
+    side.unmount();
+    fakeRuntime({ kind: 'direct', pairing: phone, attempt: 'a' });
+    render(<PhoneIndicator light={<span>luz</span>} offline={false} />);
+    expect(document.querySelector('.link-pill .link-pill-rate')?.textContent).toBe('2,3 KB/min');
   });
 
   it('sin nada que mostrar del vínculo, la luz en su lugar; mientras se baja, lo que dijo /api/start', () => {

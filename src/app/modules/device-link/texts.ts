@@ -31,6 +31,13 @@ export const texts = {
     phone: words('Esperando a la computadora', 'Esperando'),
   },
   tapToPair: 'Tocalo para vincular',
+  // Lo que manda el servidor por los canales de la aplicación (R4.5): en la computadora con su nombre;
+  // en el celular, el número solo.
+  rate: {
+    label: 'Aplicación:',
+    title:
+      'Lo que el servidor manda solo, por los canales abiertos de la aplicación, en el último minuto',
+  },
   replaced: (computer: string) => `Ahora este celular está vinculado a ${computer}`,
   unpair: 'Desvincular',
   open: (label: string, other: string | undefined) =>

@@ -71,6 +71,20 @@
   .link-box .light {
     min-height: 36px;
   }
+  /* Lo que manda el servidor por los canales (R4.5), debajo de la luz. */
+  .link-rate {
+    margin: 0;
+    padding: 2px 12px 4px;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 600;
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+  .link-rate b {
+    color: var(--ink);
+    font-weight: 750;
+  }
 
   /* El renglón al pie del lateral (computadora). */
   .link-indicator {
@@ -158,9 +172,9 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    height: 40px;
+    min-height: 40px;
     max-width: 210px;
-    padding: 0 12px 0 10px;
+    padding: 4px 12px 4px 10px;
     border-radius: 999px;
     border: 1px solid var(--border);
     background: var(--surface);
@@ -174,9 +188,17 @@
     transform: scale(0.96);
   }
   .link-pill-text {
+    display: grid;
+    text-align: left;
+    line-height: 18px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .link-pill-rate {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-2);
   }
   .link-pill[data-tone="neutral"] .icon {
     color: var(--text-2);

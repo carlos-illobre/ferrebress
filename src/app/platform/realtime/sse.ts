@@ -14,8 +14,11 @@ export type StreamOptions = {
   // Abre el SSE: un pedido que lo devuelve. Se vuelve a llamar en cada reconexión.
   open: (signal: AbortSignal) => Promise<Response>;
   onEvent: (event: StreamEvent) => void;
-  // El servidor no lo aceptó (400, 401, 403, 404), con su código: no se vuelve a abrir.
-  onRefused?: (status: number) => void;
+  // El servidor no lo aceptó (400, 401, 403, 404), con su estado y el código que dijo: no se vuelve
+  // a abrir.
+  onRefused?: (status: number, code?: string) => void;
+  // Cada bloque que llega, con su largo en bytes y su evento (sin evento, un latido): el medidor.
+  onBytes?: (bytes: number, type: string | undefined) => void;
   wait?: (ms: number) => Promise<void>;
   // Cuánto silencio se aguanta antes de darlo por cortado.
   silenceMs?: number;
@@ -25,7 +28,7 @@ const maxRetries = 3;
 const refusals = new Set([400, 401, 403, 404]);
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-type Outcome = { waitMs?: number; refused?: number };
+type Outcome = { waitMs?: number; refused?: number; code?: string };
 
 // Una vez: abre y lee hasta que se corte o calle demasiado. Devuelve si el servidor pidió esperar o
 // lo rechazó; `opened` dice si llegó a abrir, así los cortes se empiezan a contar de nuevo.
@@ -38,12 +41,13 @@ async function attempt(
   try {
     const response = await options.open(AbortSignal.any([signal, silence.signal]));
     if (response.status === 429) return { waitMs: await retryAfterMs(response) };
-    if (refusals.has(response.status)) return { refused: response.status };
+    if (refusals.has(response.status))
+      return { refused: response.status, ...(await refusalCode(response)) };
     if (!response.ok || !response.body) return {};
     opened();
     const awake = watchdog(silence, options.silenceMs ?? platformSettings.realtime.silenceMs);
     const stop = AbortSignal.any([signal, silence.signal]);
-    await readEvents(response.body, options.onEvent, awake, stop);
+    await readEvents(response.body, options, awake, stop);
   } catch {
     // Cortado, o callado: se decide afuera si se vuelve a abrir.
   }
@@ -77,7 +81,7 @@ export function openStream(options: StreamOptions): () => void {
     while (!signal.aborted) {
       const outcome = await attempt(options, signal, () => (failures = 0));
       if (signal.aborted) return;
-      if (outcome.refused !== undefined) return options.onRefused?.(outcome.refused);
+      if (outcome.refused !== undefined) return options.onRefused?.(outcome.refused, outcome.code);
       failures = await pause(outcome, failures + 1, signal, wait);
     }
   })();
@@ -100,6 +104,12 @@ const delay = (held: number | undefined, failures: number): number | undefined =
   if (!canReach()) return undefined;
   if (held !== undefined) return held;
   return failures <= maxRetries ? 1000 * 2 ** (failures - 1) : undefined;
+};
+
+// El código del rechazo (`forbidden`), si el servidor lo dijo.
+const refusalCode = async (response: Response): Promise<{ code?: string }> => {
+  const body = (await response.json().catch(() => ({}))) as { error?: unknown };
+  return typeof body.error === 'string' ? { code: body.error } : {};
 };
 
 const retryAfterMs = async (response: Response) => {
@@ -129,9 +139,12 @@ function fieldsOf(block: string): Record<string, string> {
   );
 }
 
+const encoder = new TextEncoder();
+
+// Lee los bloques a medida que llegan. Cada bloque se mide en bytes (lo que viajó, no los caracteres).
 async function readEvents(
   body: ReadableStream<Uint8Array>,
-  onEvent: (event: StreamEvent) => void,
+  { onEvent, onBytes }: StreamOptions,
   awake: () => void,
   stop: AbortSignal,
 ) {
@@ -150,6 +163,7 @@ async function readEvents(
     buffer = blocks.pop() as string;
     for (const block of blocks) {
       const fields = fieldsOf(block);
+      onBytes?.(encoder.encode(block).byteLength + 2, fields.event || undefined);
       if (fields.event && fields.data)
         onEvent({ type: fields.event, data: JSON.parse(fields.data) });
     }

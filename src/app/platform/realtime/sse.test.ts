@@ -189,4 +189,32 @@ describe('el canal temporal', () => {
     expect(opens).toBeGreaterThan(1);
     close();
   });
+
+  it('mide cada bloque en bytes, no en caracteres, y dice de qué evento es', async () => {
+    const sizes: [number, string | undefined][] = [];
+    const close = openStream({
+      open: async () => sse('event: añadió\ndata: {"n":"ñ"}\n\n:\n\n'),
+      onEvent: () => {},
+      onBytes: (bytes, type) => sizes.push([bytes, type]),
+    });
+    await flush();
+    // «ñ» y «ó» ocupan dos bytes: el bloque del evento tiene 29 caracteres y 32 bytes, más los dos saltos.
+    expect(sizes).toEqual([
+      [34, 'añadió'],
+      [3, undefined],
+    ]);
+    close();
+  });
+
+  it('un rechazo trae el código que dijo el servidor', async () => {
+    const refused: [number, string | undefined][] = [];
+    const close = openStream({
+      open: async () => Response.json({ error: 'forbidden' }, { status: 403 }),
+      onEvent: () => {},
+      onRefused: (status, code) => refused.push([status, code]),
+    });
+    await flush();
+    expect(refused).toEqual([[403, 'forbidden']]);
+    close();
+  });
 });
