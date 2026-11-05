@@ -38,7 +38,7 @@ afterEach(() => {
 });
 
 describe('la pestaña que espeja', () => {
-  it('al abrir lo toma si nadie lo tiene; la otra lo roba al usarla y la primera se entera', async () => {
+  it('E35: al abrir lo toma si nadie lo tiene; la otra lo roba al usarla y la primera se entera', async () => {
     const locks = fakeLocks();
     const first = vi.fn();
     const one = createTabs({ locks: locks as never, onChange: first });

@@ -131,7 +131,7 @@ describe('lo que se trae del servidor', () => {
 });
 
 describe('la dirección espejada', () => {
-  it('lo que se navega acá viaja sin el #; lo que llega del otro navega y no vuelve a viajar', () => {
+  it('E31: lo que se navega acá viaja sin el #; lo que llega del otro navega y no vuelve a viajar', () => {
     const remote = createMirror();
     const out: Patch[][] = [];
     remote.attach({ leader: true, over: 'direct', send: (patches) => out.push(patches) });

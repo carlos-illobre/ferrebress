@@ -53,7 +53,7 @@ describe('vincular con el botón', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('la dirección de la cámara del teléfono se lee una vez y se borra; sin sesión no vincula', () => {
+  it('E02, E40: la dirección de la cámara del teléfono se lee una vez y se borra; sin sesión no vincula', () => {
     navigate('/pair#codigo', { replace: true });
     expect(takePairCode(true)).toBe('codigo');
     expect(route.get().path).toBe('/');

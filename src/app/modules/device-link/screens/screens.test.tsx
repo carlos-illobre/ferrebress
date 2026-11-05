@@ -83,7 +83,7 @@ describe('el indicador', () => {
 describe('el detalle', () => {
   beforeEach(() => detailOpen.set(true));
 
-  it('directo: la ruta con la latencia, la tira del día, los datos y los botones', async () => {
+  it('E26, E26b: directo: la ruta con la latencia, la tira del día, los datos y los botones', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
     const start = new Date(2026, 10, 4, 8).getTime();
     vi.setSystemTime(start);

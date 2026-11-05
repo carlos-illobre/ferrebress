@@ -55,7 +55,7 @@ describe('el detalle en cada lado', () => {
     expect(screen.getByText(/El celular no tiene Ferrebress abierto/)).toBeTruthy();
   });
 
-  it('en el celular sin vincular, el título es el de trabajar con la compu', () => {
+  it('E25: en el celular sin vincular, el título es el de trabajar con la compu, con sus pasos', () => {
     narrow(true);
     vi.stubGlobal('navigator', {
       ...navigator,
@@ -65,6 +65,8 @@ describe('el detalle en cada lado', () => {
     fakeRuntime({ kind: 'unpaired' });
     render(<Over />);
     expect(screen.getByRole('dialog', { name: 'Trabajar con la compu' })).toBeTruthy();
+    expect(screen.getByText('En la computadora, tocá el indicador y leé el código.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Leer el código/ })).toBeTruthy();
   });
 
   it('«Reconectados» dice lo de su lado', () => {

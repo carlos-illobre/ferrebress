@@ -24,7 +24,7 @@ const cases: Case[] = [
     ['peek', 'strip'],
   ],
   [
-    'en pausa desde el principio',
+    'E28: en pausa desde el principio (salir y volver a entrar sigue desconectado)',
     { kind: 'asleep' },
     { type: 'serverSaid', pairing: view('computer', { paused: true }) },
     'paused',

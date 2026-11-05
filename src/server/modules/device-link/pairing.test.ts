@@ -105,6 +105,27 @@ describe('vincular con el botón', () => {
     await two.tab.close();
   });
 
+  it('E44: una computadora queda vinculada a los celulares de dos personas, cada una con lo suyo', async () => {
+    const [computer, anaPhone] = [await signedIn(server, false), await signedIn(server, true)];
+    const first = await showCode(computer);
+    await anaPhone.request('/api/device-link/codes/read', { code: first.code() });
+    await first.tab.close();
+    // Beto entra en la misma computadora y la vincula con su celular.
+    const betoPhone = await otherPersonPhone(server, computer);
+    const { email } = (await betoPhone.request('/api/start')).body.person;
+    await computer.signInWithGoogle({ sub: email.split('@')[0], email });
+    const second = await showCode(computer);
+    const read = await betoPhone.request('/api/device-link/codes/read', { code: second.code() });
+    expect(read.body.pairing.side).toBe('phone');
+    await second.tab.close();
+    // Cada persona ve el suyo: Beto, el de su celular; el celular de Ana sigue con el de ella.
+    const betoSees = (await computer.request('/api/device-link/check')).body.pairing;
+    const anaSees = (await anaPhone.request('/api/device-link/check')).body.pairing;
+    expect(betoSees.side).toBe('computer');
+    expect(anaSees.side).toBe('phone');
+    expect(betoSees.id).not.toBe(anaSees.id);
+  });
+
   it('el boleto no sirve desde otra sesión ni si cambió lo que reemplazaba', async () => {
     const [first, second, phone] = [
       await signedIn(server, false),

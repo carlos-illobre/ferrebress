@@ -175,6 +175,20 @@ describe('lo que termina el vínculo', () => {
     expect((await phone.request('/api/device-link/check')).header).toMatch(/(^|; )l=[0-9a-f]{8}/);
   });
 
+  it('E17b: espejando, ninguna sesión vence mientras se use una; sin uso, vencen las dos', async () => {
+    const { computer, phone } = await linked();
+    // Hora y media: se usa la computadora y el celular solo la muestra (confirma cada 4 minutos).
+    for (let minutes = 0; minutes < 90; minutes += 4) {
+      now += 4 * 60_000;
+      expect((await computer.request('/api/device-link/check')).status).toBe(200);
+      expect((await phone.request('/api/device-link/check?fp=x')).status).toBe(200);
+    }
+    // Una hora sin que nadie toque ninguno.
+    now += 61 * 60_000;
+    expect((await computer.request('/api/device-link/check')).status).toBe(401);
+    expect((await phone.request('/api/device-link/check')).status).toBe(401);
+  });
+
   it('E13: se usan juntos todos los días: a los 40 días siguen vinculados', async () => {
     const { computer, phone, id } = await linked();
     for (let day = 0; day < 40; day++) {

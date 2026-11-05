@@ -38,7 +38,7 @@ describe('dos dispositivos vinculados', () => {
     expect(diary).not.toContain('Celular');
   });
 
-  it('con el Wi-Fi que aísla, van por el servidor; probar el directo, con el Wi-Fi bien, cambia sin cortar', async () => {
+  it('E09: con el Wi-Fi que aísla, van por el servidor; probar el directo, con el Wi-Fi bien, cambia sin cortar', async () => {
     const before = platformSettings.direct.openWithinMs;
     platformSettings.direct.openWithinMs = 30;
     try {
@@ -63,7 +63,7 @@ describe('dos dispositivos vinculados', () => {
     }
   });
 
-  it('el celular se oculta: el directo queda dormido y al volver saluda por él, sin presentarse de nuevo', async () => {
+  it('E22, E22b: el celular se oculta: el directo queda dormido y al volver saluda por él, sin presentarse de nuevo', async () => {
     const { pc, phone, server } = setup();
     await together(pc, phone);
     const attempts = server.world.attempts;
@@ -100,7 +100,7 @@ describe('dos dispositivos vinculados', () => {
     await vi.waitFor(() => expect(phone.value.get()).toBe('solo en la compu'));
   });
 
-  it('con versiones distintas no espejan, y quedan esperando (R6.7)', async () => {
+  it('E43: con versiones distintas no espejan, y quedan esperando (R6.7)', async () => {
     const { pc, phone, server, wifi, add } = setup(['v2', 'v1']);
     pc.start();
     await vi.waitFor(() => expect(pc.kind()).toBe('waiting'));
@@ -123,7 +123,7 @@ describe('dos dispositivos vinculados', () => {
     await vi.waitFor(() => expect(updated.kind()).toBe('direct'));
   });
 
-  it('si la sesión del otro se cerró, lo que manda no entra pasados los 4 minutos (§ 7)', async () => {
+  it('E39b: si la sesión del otro se cerró, lo que manda no entra pasados los 4 minutos (§ 7)', async () => {
     const { pc, phone, server } = setup();
     await together(pc, phone);
     server.world.open.set('phone', false);
@@ -135,7 +135,7 @@ describe('dos dispositivos vinculados', () => {
     expect(pc.value.get()).not.toBe('de un celular cortado');
   });
 
-  it('salir avisa al otro antes que nada; desvincular deja a los dos sin vincular', async () => {
+  it('E11: salir avisa al otro antes que nada; desvincular deja a los dos sin vincular', async () => {
     const { pc, phone, server } = setup();
     await together(pc, phone);
     phone.runtime.sessionLost(false);
