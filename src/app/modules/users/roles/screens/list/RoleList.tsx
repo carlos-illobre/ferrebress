@@ -1,10 +1,13 @@
 // La lista de roles (02 · R7.12; maqueta users-roles/final): el buscador, «Nuevo rol» y una tarjeta
 // por rol. Se filtra mientras se escribe, con lo que ya está cargado; sin coincidencias, lo dice y
 // ofrece crear un rol con lo escrito como nombre.
+
 import type { RoleRow as Row } from '@ferrebress/shared/contracts/roles';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import { useMemo, useState } from 'preact/hooks';
+import { useMemo } from 'preact/hooks';
+import * as z from 'zod/mini';
 import { isPhone } from '../../../../../platform/device/device.ts';
+import { useMirrored } from '../../../../../platform/mirror/use-mirrored.ts';
 import { navigate, route } from '../../../../../platform/router.ts';
 import { useStore } from '../../../../../platform/store.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
@@ -49,7 +52,11 @@ function SearchBox({ query, setQuery }: { query: string; setQuery: (query: strin
 
 export function RoleList() {
   const users = useUsersContext();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useMirrored(
+    'users.roles.search',
+    '',
+    z.string().check(z.maxLength(200)),
+  );
   // La lista se muestra con las personas y los roles ya traídos (Roles.tsx).
   const people = users.people as PersonRow[];
   const roles = users.roleRows as Row[];

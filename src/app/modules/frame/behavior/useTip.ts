@@ -9,6 +9,7 @@ export const notYetMs = 2600;
 export type Tip = Place & { kind: 'label' | 'notYet'; name: string; detail?: string };
 
 export function useTip(labelled: (element: HTMLElement) => boolean) {
+  // local: el globo al pasar el mouse.
   const [tip, setTip] = useState<Tip>();
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 

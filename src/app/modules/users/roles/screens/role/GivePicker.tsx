@@ -14,6 +14,7 @@ import { rolesTexts as t } from '../../texts.ts';
 type Props = { candidates: PersonRow[]; pick: (id: string) => void; close: () => void };
 
 export function GivePicker({ candidates, pick, close }: Props) {
+  // local: la búsqueda de la hoja de elegir.
   const [query, setQuery] = useState('');
   useBackStep(close);
   const wanted = plain(query.trim());

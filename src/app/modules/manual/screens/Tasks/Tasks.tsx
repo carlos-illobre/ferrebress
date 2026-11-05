@@ -89,6 +89,7 @@ const soonId = 'soon';
 
 function useFolds(view: View): Folds {
   const first = view.index.chapters.find((entry) => entry.tasks)?.id;
+  // local: lo desplegado del índice.
   const [open, setOpen] = useState(() => new Set([view.state.chapter ?? first]));
   // Solo cuando cambia la tarea que se lee: si no, volvería a abrir el que se acaba de plegar.
   const { chapter, task } = view.state;

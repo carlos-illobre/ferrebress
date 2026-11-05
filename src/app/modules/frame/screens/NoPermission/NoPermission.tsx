@@ -28,6 +28,7 @@ export function NoPermission({
 }) {
   const { person } = useFrame();
   const permission = permissionOf(option.permission);
+  // local: lo que trae el servidor para este dispositivo.
   const [holders, setHolders] = useState<HoldersResponse>();
   useEffect(() => {
     void api<HoldersResponse>(`/api/permissions/${option.permission}/holders`).then(

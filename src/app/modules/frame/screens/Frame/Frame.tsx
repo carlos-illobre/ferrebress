@@ -158,6 +158,7 @@ function useGuarded(person: Person, opened: Option | undefined) {
 // R7.8: si con los permisos nuevos ya no puede usar la pantalla abierta, lo dice y la deja.
 function useLostPermission(person: Person, opened: Option | undefined) {
   const before = useRef(person);
+  // local: el permiso perdido de la sesión de este dispositivo.
   const [now, setNow] = useState<LostPermission>();
   useEffect(() => {
     const was = before.current;

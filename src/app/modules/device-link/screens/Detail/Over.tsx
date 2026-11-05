@@ -26,6 +26,7 @@ export const doneMs = 900;
 
 // El código para vincular de la computadora: abierto o no, y qué hacer cuando el celular lo lee.
 function useCode(runtime: Runtime) {
+  // local: el código para vincular, solo en la computadora.
   const [shown, setShown] = useState(false);
   const page = {
     onBack: () => setShown(false),
@@ -60,6 +61,7 @@ function Reader({ runtime }: { runtime: Runtime }) {
 export function Over({ runtime }: { runtime: Runtime }) {
   const view = useLinkView();
   const open = useStore(detailOpen);
+  // local: la confirmación de desvincular, de quien la toca.
   const [asking, setAsking] = useState(false);
   const code = useCode(runtime);
   const actions = linkActions(runtime);

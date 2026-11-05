@@ -101,8 +101,11 @@ const leadOf = (people: Owner[] | 'failed' | undefined) =>
 export function Lost() {
   const users = useUsersContext();
   // `failed`: no se pudo preguntar; vacío: nadie tiene celulares para cortar.
+  // local: lo que trae el servidor.
   const [people, setPeople] = useState<Owner[] | 'failed'>();
+  // local: cortar un celular se elige y se confirma en el dispositivo que lo hace.
   const [owner, setOwner] = useState<Owner>();
+  // local: cortar un celular se elige y se confirma en el dispositivo que lo hace.
   const [chosen, setChosen] = useState<string>();
   useEffect(() => {
     void usersApi

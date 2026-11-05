@@ -23,6 +23,7 @@ function useFrameWait(): string | undefined {
 
 export function WaitNotice() {
   const doing = useFrameWait();
+  // local: la espera de lo que hace este dispositivo.
   const [shown, setShown] = useState<{ doing: string; done: boolean }>();
 
   useEffect(() => {

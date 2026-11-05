@@ -112,6 +112,7 @@ const selfGroup = (errors: DraftErrors | undefined) =>
 type Props = { draft: Draft; change: (draft: Draft) => void; errors: DraftErrors | undefined };
 
 export function RolePermissions({ draft, change, errors }: Props) {
+  // local: los grupos desplegados.
   const [open, setOpen] = useState<PermissionGroup[]>(groups.slice(0, 1));
   const flip = (group: PermissionGroup) => () =>
     setOpen((now) => (now.includes(group) ? now.filter((one) => one !== group) : [...now, group]));

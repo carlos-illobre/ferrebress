@@ -5,6 +5,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { type Option, openOption } from '../menu.ts';
 
 export function usePhoneMore() {
+  // local: Más es una pantalla solo del celular, con su paso en el historial de este dispositivo.
   const [open, setOpen] = useState(false);
 
   useEffect(() => {

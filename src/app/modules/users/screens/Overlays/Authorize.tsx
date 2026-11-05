@@ -1,7 +1,10 @@
 // Autorizar a alguien (R3.3): su correo de Google, su nombre, que puede quedar vacío, y sus roles,
 // ninguno tildado de antemano (E42). Un correo sin forma de correo o ya cargado se dice junto al
 // campo, sin perder lo escrito; sin ningún rol, junto a los roles.
+
 import { useState } from 'preact/hooks';
+import * as z from 'zod/mini';
+import { useMirrored } from '../../../../platform/mirror/use-mirrored.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
@@ -71,13 +74,17 @@ function EmailField(props: {
   );
 }
 
+const text = z.string().check(z.maxLength(320));
+const ids = z.array(z.string().check(z.maxLength(64))).check(z.maxLength(60));
+
 export function Authorize() {
   const users = useUsersContext();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState<string>();
-  const [roles, setRoles] = useState<string[]>([]);
-  const [noRoles, setNoRoles] = useState(false);
+  // Lo escrito y lo tildado viaja al otro dispositivo; los avisos, no.
+  const [name, setName] = useMirrored('users.authorize.name', '', text);
+  const [email, setEmail] = useMirrored('users.authorize.email', '', text);
+  const [error, setError] = useState<string>(); // local: lo que contestó a este dispositivo
+  const [roles, setRoles] = useMirrored<string[]>('users.authorize.roles', [], ids);
+  const [noRoles, setNoRoles] = useState(false); // local: el aviso de este dispositivo
   const send = async () => {
     if (!looksLikeEmail(email)) return setError(refusalTexts['bad-request']);
     if (roles.length === 0) return setNoRoles(true);

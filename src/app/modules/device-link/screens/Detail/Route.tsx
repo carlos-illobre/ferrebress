@@ -19,6 +19,7 @@ const medium: Record<Status, IconName> = {
 
 function useRoundTrip(on: boolean): number | undefined {
   const runtime = useStore(linkRuntime);
+  // local: la latencia que mide este dispositivo.
   const [ms, setMs] = useState<number>();
   useEffect(() => {
     if (!on || !runtime) return setMs(undefined);

@@ -11,6 +11,7 @@ const hour = 3_600_000;
 
 function useStrip(): StripView | undefined {
   const strip = useStore(linkStrip).of?.();
+  // local: la tira es de cada dispositivo (R4.4).
   const [view, setView] = useState(strip?.view());
   useEffect(() => {
     if (!strip) return;

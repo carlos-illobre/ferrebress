@@ -23,6 +23,7 @@ function fromStart(parts: Record<string, unknown> | undefined): PairingState {
 export function useLinkView(): LinkView {
   const runtime = useStore(linkRuntime);
   const parts = useStore(startParts);
+  // local: el estado del vínculo de este dispositivo.
   const [state, setState] = useState<PairingState>(runtime?.state.get() ?? asleep);
   useEffect(() => {
     if (!runtime) return setState(fromStart(parts));

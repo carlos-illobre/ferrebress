@@ -15,6 +15,7 @@ type Props = {
 };
 
 function Box({ props, done }: { props: Props; done: () => void }) {
+  // local: lo que contestó el servidor a este dispositivo.
   const [error, setError] = useState<string>();
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => input.current?.select(), []);
@@ -51,6 +52,7 @@ function Box({ props, done }: { props: Props; done: () => void }) {
 }
 
 export function Editable(props: Props) {
+  // local: editar es de quien toca el lápiz.
   const [editing, setEditing] = useState(false);
   if (editing) return <Box props={props} done={() => setEditing(false)} />;
   return (

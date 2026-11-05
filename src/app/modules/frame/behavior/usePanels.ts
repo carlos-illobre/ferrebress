@@ -18,6 +18,7 @@ export function beside(anchor: Element): Place {
 }
 
 export function usePanels() {
+  // local: lo que se abre del marco cambia de forma entre la computadora y el celular (un panel al costado, una hoja); viaja la dirección.
   const [open, setOpen] = useState<{ panel: Panel; place?: Place }>();
 
   useEffect(() => {

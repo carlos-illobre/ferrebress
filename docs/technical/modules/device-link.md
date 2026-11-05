@@ -561,6 +561,15 @@ export function useMirroredQuery<T extends Json>(
 | Quién hizo qué | Los filtros, la página, la acción elegida, la cinta abierta | valores; la página en `refetch` | El tamaño de la página, el cabezal de la cinta |
 | Manual | La tarea y el paso | valores | El contenido por dispositivo (el manual es distinto en cada forma) |
 
+Cómo quedó: Usuarios espeja la búsqueda, los filtros, la persona elegida (la que la computadora abre
+sola no viaja), lo abierto encima, lo escrito al autorizar, los roles tildados de una persona, la
+búsqueda de roles, el rol a medio armar y elegir a quién darle un rol. Quién hizo qué espeja lo pedido
+(filtros, página y «Actualizar»), la acción elegida y la cinta abierta; cada uno pide con su tamaño.
+Lo que trae el servidor lo sigue pidiendo cada dispositivo (T123). Lo que se abre del marco queda en
+cada uno: cambia de forma entre la computadora y el celular, y lo que cambia la pantalla es la
+dirección, que viaja. El manual, en T122. `pnpm check` (`tools/checks/local-state.ts`) exige que cada
+`useState` de los módulos diga `// local:` y por qué; la entrada no se mira.
+
 ### 5.2. Cómo viaja un cambio
 
 - **Parche:** `{t:'set', k:'users.list.search', v:'torn', c:42}`. `c` es un reloj de Lamport por

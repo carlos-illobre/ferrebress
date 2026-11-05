@@ -15,6 +15,7 @@ const scenesOf = (task: Task, from: number) => [
 ];
 
 export function useCaptures(task: Task, step: number): Captures {
+  // local: las capturas son de la forma de este dispositivo.
   const [captures, setCaptures] = useState<Captures>({});
   const kept = useRef<Captures>({});
   const online = useOnline();

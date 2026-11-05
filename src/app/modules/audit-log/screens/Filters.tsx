@@ -16,7 +16,9 @@ function PickDates({ close }: { close: () => void }) {
   const log = useAuditLogContext();
   // Los filtros se ven con la lista ya traída.
   const today = (log.page as AuditPage).today;
+  // local: el período a medio elegir; viaja al aplicarlo.
   const [from, setFrom] = useState(today);
+  // local: el período a medio elegir; viaja al aplicarlo.
   const [until, setUntil] = useState(today);
   return (
     <form
@@ -98,6 +100,7 @@ function Chip({
   children: ComponentChildren;
 }) {
   const log = useAuditLogContext();
+  // local: el desplegable de este dispositivo.
   const [open, setOpen] = useState(false);
   const value = shownValue(which, log.filters, log.people);
   return (

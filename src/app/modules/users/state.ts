@@ -7,9 +7,12 @@ import type { RoleRow, RoleSummary } from '@ferrebress/shared/contracts/roles';
 import type { AccessResponse, PersonRow } from '@ferrebress/shared/contracts/users';
 import { createContext } from 'preact';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
+import * as z from 'zod/mini';
 import { useLatest } from '../../platform/latest.ts';
+import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
 import { isWide } from '../../platform/narrow.ts';
 import { navigate, route } from '../../platform/router.ts';
+import { oneOf } from '../../platform/schema.ts';
 import { online as onlineStore } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
 import { person as me, pendingEntries } from '../sign-in/index.ts';
@@ -26,11 +29,32 @@ export type Overlay =
   | { kind: 'close-all'; person: PersonRow }
   | { kind: 'search' };
 
+// Lo abierto encima, como viaja: qué es y, si es de una persona, cuál (la persona sale de la lista).
+const kinds = ['authorize', 'lost', 'deactivate', 'close-all', 'search'] as const;
+const personId = z.string().check(z.maxLength(64));
+const opened = z.object({ kind: oneOf(kinds), id: z.nullable(personId) });
+type Opened = z.infer<typeof opened>;
+const filters = ['all', 'active', 'never', 'off'] as const;
+const searchText = z.string().check(z.maxLength(200));
+
+const openedOf = (overlay: Overlay): Opened =>
+  'person' in overlay
+    ? { kind: overlay.kind, id: overlay.person.id }
+    : { kind: overlay.kind, id: null };
+
+function overlayOf(open: Opened | null, people: PersonRow[] | undefined): Overlay | undefined {
+  if (!open) return undefined;
+  if (open.kind !== 'deactivate' && open.kind !== 'close-all') return { kind: open.kind };
+  const person = people?.find((one) => one.id === open.id);
+  return person && { kind: open.kind, person };
+}
+
+// Lo que trae el servidor lo pide cada dispositivo, con su sesión y su permiso; los roles, para las
+// pastillas y el filtro por rol (R3.1).
 function useList() {
-  const [people, setPeople] = useState<PersonRow[]>();
-  // Los roles, para las pastillas y el filtro por rol (R3.1).
-  const [roles, setRoles] = useState<RoleSummary[]>([]);
-  const [failed, setFailed] = useState(false);
+  const [people, setPeople] = useState<PersonRow[]>(); // local: del servidor
+  const [roles, setRoles] = useState<RoleSummary[]>([]); // local: del servidor
+  const [failed, setFailed] = useState(false); // local: el pedido de este dispositivo
   const load = async () => {
     const result = await usersApi.people();
     setFailed(!result.ok);
@@ -71,8 +95,12 @@ function useList() {
 
 // La tarjeta muestra solo lo de quien está elegido: si se elige a otra persona mientras se pedía lo de
 // la anterior, lo de la anterior no llega a la tarjeta.
+// La persona elegida viaja al otro dispositivo (diseño de 03, § 5.1); la que la computadora abre
+// sola, por su ancho, no (`auto`). Cada uno pide su tarjeta.
 function useCard() {
-  const [selected, setSelected] = useState<string>();
+  const [chosen, choose] = useMirrored('users.list.selected', null, z.nullable(personId));
+  const selected = chosen ?? undefined;
+  // local: lo que trae el servidor de la persona elegida lo pide cada dispositivo.
   const [access, setAccess] = useState<AccessResponse>();
   const shown = useRef<string | undefined>(undefined);
   const latest = useLatest();
@@ -81,12 +109,14 @@ function useCard() {
     const result = await latest(usersApi.access(id));
     if (result?.ok) setAccess(result.data);
   };
-  const select = (id: string | undefined) => {
-    shown.current = id;
-    setSelected(id);
+  // La elegida cambió, acá o en el otro: se pide su tarjeta.
+  useEffect(() => {
+    shown.current = selected;
     setAccess(undefined);
-    if (id) void loadAccess(id);
-  };
+    if (selected) void loadAccess(selected);
+  }, [selected]);
+  const select = (id: string | undefined, auto?: true) =>
+    choose(id ?? null, auto ? { auto } : undefined);
   return { selected, access, select, loadAccess };
 }
 
@@ -95,9 +125,11 @@ export type Tab = 'people' | 'roles' | 'audit';
 
 // Qué se ve de la lista: el filtro y lo buscado.
 function useView() {
-  const [filter, setFilter] = useState<Filter>('all');
-  const [search, setSearch] = useState('');
-  const [role, setRole] = useState<string>();
+  const [filter, setFilter] = useMirrored<Filter>('users.list.filter', 'all', oneOf(filters));
+  const [search, setSearch] = useMirrored('users.list.search', '', searchText);
+  const [chosenRole, chooseRole] = useMirrored('users.list.role', null, z.nullable(personId));
+  const role = chosenRole ?? undefined;
+  const setRole = (id: string | undefined) => chooseRole(id ?? null);
   // La pestaña sale de la dirección: /users/roles y lo de adentro son de Roles (R7.13).
   const path = useStore(route).path;
   const tab: Tab =
@@ -132,7 +164,9 @@ function useMay() {
 
 // Los roles con sus permisos, para quien los administra (R7.3). Quiénes los tienen sale de la lista.
 function useRoleRows(may: boolean) {
+  // local: del servidor, con el permiso de quien mira en este dispositivo.
   const [rows, setRows] = useState<RoleRow[]>();
+  // local: si el pedido de este dispositivo falló.
   const [failed, setFailed] = useState(false);
   const loadRoles = async () => {
     if (!may) return;
@@ -145,6 +179,7 @@ function useRoleRows(may: boolean) {
 
 // Lo que hay que repetir después de confirmar quién es (R3.8), y qué da, para decirlo.
 function useRetry() {
+  // local: volver a confirmar quién es se hace con la huella de cada dispositivo (R3.8).
   const [retry, setRetry] = useState<{ again: () => unknown; what: string[] }>();
   return {
     retry,
@@ -171,7 +206,9 @@ export function useUsers() {
   // Una entrada sin conexión que el servidor todavía no confirmó: su sesión todavía no existe allá
   // y un pedido la daría por cerrada (15 · R3). Se espera a que la confirme.
   const unconfirmed = useStore(pendingEntries) > 0;
-  const [overlay, setOverlay] = useState<Overlay>();
+  const [open, setOpen] = useMirrored('users.screen.overlay', null, z.nullable(opened));
+  const overlay = overlayOf(open, list.people);
+  const setOverlay = (next: Overlay | undefined) => setOpen(next ? openedOf(next) : null);
   const retrying = useRetry();
   const view = useView();
   useTabClosing(view.tab, may);
@@ -185,7 +222,7 @@ export function useUsers() {
   // propia). En lo angosto la tarjeta tapa la lista, así que no se abre sola.
   const first = shown[0]?.id;
   useEffect(() => {
-    if (first && !card.selected && isWide()) card.select(first);
+    if (first && !card.selected && isWide()) card.select(first, true);
   }, [first, card.selected]);
   const person = list.people?.find((one) => one.id === card.selected);
   return {

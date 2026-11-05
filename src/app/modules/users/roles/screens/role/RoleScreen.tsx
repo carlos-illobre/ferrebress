@@ -6,7 +6,9 @@
 import type { RoleRow } from '@ferrebress/shared/contracts/roles';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import * as z from 'zod/mini';
 import { isPhone } from '../../../../../platform/device/device.ts';
+import { useMirrored } from '../../../../../platform/mirror/use-mirrored.ts';
 import { guardNavigation, navigate } from '../../../../../platform/router.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../../ui/toast/Toast.tsx';
@@ -42,6 +44,7 @@ import { RolePreview } from './RolePreview.tsx';
 
 // Mientras hay cambios, salir por otro lado pregunta (E64); se saca al desmontar o al descartar.
 function useLeaveGuard(dirty: boolean) {
+  // local: la pregunta de salir sin guardar, de quien sale.
   const [asking, setAsking] = useState<() => void>();
   useEffect(() => {
     if (!dirty) return undefined;
@@ -54,7 +57,9 @@ function useLeaveGuard(dirty: boolean) {
 // confirmar quién es, lo repite; si otro cambió el rol, vuelve a poner el borrador encima.
 function useSave(draft: Draft, setDraft: (draft: Draft) => void) {
   const users = useUsersContext();
+  // local: lo que contestó el servidor a este dispositivo.
   const [errors, setErrors] = useState<DraftErrors>();
+  // local: el aviso de este dispositivo.
   const [notice, setNotice] = useState<string>();
   // La pantalla del rol se abre con las personas y los roles ya traídos (Roles.tsx).
   const people = users.people as PersonRow[];
@@ -117,9 +122,25 @@ function useHalfDone(dirty: boolean) {
   );
 }
 
+// El rol que se está armando viaja al otro dispositivo, con lo tildado sin guardar (diseño de 03,
+// § 5.1). Va como texto: el servidor valida lo que se guarda, y uno que no es de este rol no entra.
+const draftText = z.string().check(z.maxLength(64 * 1024));
+
+function useDraft(start: Draft): [Draft, (next: Draft) => void] {
+  const [text, setText] = useMirrored(`users.role.draft:${start.id ?? 'new'}`, '', draftText);
+  let draft = start;
+  try {
+    const read = JSON.parse(text) as Draft;
+    if (read.id === start.id) draft = read;
+  } catch {
+    // Sin nada escrito todavía (o algo que no se entiende): el rol como llegó.
+  }
+  return [draft, (next) => setText(JSON.stringify(next))];
+}
+
 export function RoleScreen({ start }: { start: Draft }) {
   const users = useUsersContext();
-  const [draft, setDraftState] = useState(start);
+  const [draft, setDraftState] = useDraft(start);
   const dirty = isDirty(draft);
   const { asking, stopAsking } = useLeaveGuard(dirty);
   useHalfDone(dirty);

@@ -34,7 +34,9 @@ type Early = { id: string; loading: Promise<Loaded<Chapter>> } | undefined;
 // El capítulo que nombra la dirección se pide junto con el índice; su nombre solo se acepta con la
 // forma de un nombre, así no puede armar otra dirección (revisión de seguridad, 2).
 function useIndex(device: Device, first: boolean) {
+  // local: el índice que trae el servidor.
   const [index, setIndex] = useState<ManualIndex | Failure>();
+  // local: la tarea y el paso van en la dirección; espejarlos es una tarea aparte (T122).
   const [state, setState] = useState<ManualState>();
   const early = useRef<Early>(undefined);
   useEffect(() => {
@@ -68,6 +70,7 @@ function useChapter(
   early: { current: Early },
   retry: string | undefined,
 ) {
+  // local: los capítulos que trae el servidor.
   const [chapters, setChapters] = useState<Record<string, Chapter | Failure>>({});
   const online = useOnline();
   const entry =
@@ -88,8 +91,11 @@ function useChapter(
 
 // Lo escrito en el buscador, lo buscado (150 ms después de dejar de escribir, R7.4) y lo encontrado.
 function useSearch(index: ManualIndex | Failure | undefined, device: Device) {
+  // local: la búsqueda del manual, por ahora de cada dispositivo (T122).
   const [query, setQuery] = useState('');
+  // local: lo buscado, 150 ms después.
   const [searched, setSearched] = useState('');
+  // local: lo que trae el servidor.
   const [tasks, setTasks] = useState<Partial<Record<Device, SearchTask[] | Failure>>>({});
   useEffect(() => {
     const wait = setTimeout(() => setSearched(query), 150);

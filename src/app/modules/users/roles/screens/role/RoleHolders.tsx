@@ -1,8 +1,10 @@
 // «3 Quiénes lo tienen» (02 · R7.5, R7.13, E60): las personas activas que lo tienen, con
 // «Sacárselo»; a quienes se les da o se les saca, marcadas hasta guardar, con «Deshacer»; las dadas
 // de baja, en una línea aparte, que no se tocan; y «Darle este rol a…», que busca entre las activas.
+
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import { useState } from 'preact/hooks';
+import { useMirrored } from '../../../../../platform/mirror/use-mirrored.ts';
+import { flag } from '../../../../../platform/schema.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { initialsOf } from '../../../logic.ts';
 import { useUsersContext } from '../../../state.ts';
@@ -89,7 +91,7 @@ type Props = { draft: Draft; change: Change; errors: DraftErrors | undefined };
 
 export function RoleHolders({ draft, change, errors }: Props) {
   const users = useUsersContext();
-  const [picking, setPicking] = useState(false);
+  const [picking, setPicking] = useMirrored('users.role.picking', false, flag);
   const people = users.people as PersonRow[];
   const shown = [...draft.original.holders, ...draft.give]
     .map((id) => people.find((one) => one.id === id))

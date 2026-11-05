@@ -1,9 +1,12 @@
 // Los roles de una persona en su tarjeta (R7.5; maqueta users-person-roles, variante 1 en la
 // computadora y la 2 en el celular): tildar los que tiene y, debajo, lo que va a poder, de qué rol le
 // viene cada cosa. Se guarda con «Guardar», al menos uno. Solo con «Administrar roles».
+
 import { permissions } from '@ferrebress/shared/contracts/permissions';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useState } from 'preact/hooks';
+import * as z from 'zod/mini';
+import { useMirrored } from '../../../../platform/mirror/use-mirrored.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { saveRoles } from '../../person-roles.ts';
@@ -41,8 +44,12 @@ function Abilities({ chosen }: { chosen: string[] }) {
 // Lo elegido, el aviso sin roles y guardar: lo comparten la computadora y el celular.
 function useChosen(person: PersonRow) {
   const users = useUsersContext();
-  const [chosen, setChosen] = useState(person.roleIds);
-  const [error, setError] = useState<string>();
+  const [chosen, setChosen] = useMirrored<string[]>(
+    `users.card.roles:${person.id}`,
+    person.roleIds,
+    z.array(z.string().check(z.maxLength(64))).check(z.maxLength(60)),
+  );
+  const [error, setError] = useState<string>(); // local: lo que contestó a este dispositivo
   return {
     chosen,
     error,

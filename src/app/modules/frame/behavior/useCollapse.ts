@@ -10,7 +10,9 @@ export type CollapsePhase = 'closing' | 'opening' | undefined;
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function useCollapse() {
+  // local: el menú minimizado es del dispositivo (00 · R1.6).
   const [collapsed, setCollapsed] = useState(false);
+  // local: la animación de minimizar.
   const [phase, setPhase] = useState<CollapsePhase>(undefined);
   const done = useRef<() => void>(undefined);
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'preact/hooks';
 
 export function useOnline(): number {
+  // local: la conexión de este dispositivo.
   const [times, setTimes] = useState(0);
   useEffect(() => {
     const again = () => setTimes((count) => count + 1);

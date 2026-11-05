@@ -16,6 +16,7 @@ let drawing: Promise<Draw> | undefined;
 
 // El dibujo del código de ahora; el dibujante se baja una sola vez, con el primer código.
 function useQr(code: string | undefined) {
+  // local: el dibujo del código.
   const [qr, setQr] = useState<{ size: number; d: string }>();
   useEffect(() => {
     if (!code) return;
@@ -27,6 +28,7 @@ function useQr(code: string | undefined) {
 
 // Los segundos que le quedan al código de ahora.
 function useLeft(since: number): number {
+  // local: el reloj de la cuenta regresiva.
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
@@ -42,7 +44,9 @@ type Props = {
 };
 
 export function Code({ other, onPaired, onBack }: Props) {
+  // local: el código es de esta computadora.
   const [code, setCode] = useState<{ value: string; since: number }>();
+  // local: el tilde de leído, de esta computadora.
   const [read, setRead] = useState(false);
   useTopic('device-link.code', {
     onEvent: (data) => {

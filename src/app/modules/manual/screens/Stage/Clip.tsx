@@ -11,6 +11,7 @@ const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function Clip({ name }: { name: string }) {
   const video = useRef<HTMLVideoElement>(null);
+  // local: el video corre en cada dispositivo.
   const [ended, setEnded] = useState(false);
   const poster = mediaUrl(`${name}.end.webp`);
   const play = () => {

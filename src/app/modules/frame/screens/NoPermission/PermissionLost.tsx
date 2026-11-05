@@ -24,6 +24,7 @@ export function PermissionLost({
   first: Option;
   onGo: () => void;
 }) {
+  // local: la cuenta regresiva de este aviso.
   const [left, setLeft] = useState(lostSeconds);
   useEffect(() => {
     const timer = setInterval(() => setLeft((seconds) => seconds - 1), 1000);

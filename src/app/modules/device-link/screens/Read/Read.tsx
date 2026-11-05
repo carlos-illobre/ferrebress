@@ -87,6 +87,7 @@ function Notice({
 }
 
 export function Read({ code, onPaired, onClose }: Props) {
+  // local: la cámara y lo que leyó son del celular.
   const [step, setStep] = useState<Step>(code ? { kind: 'asking' } : { kind: 'camera' });
   const settle = (reading: Reading) => {
     if (reading.kind !== 'paired') return setStep(reading);

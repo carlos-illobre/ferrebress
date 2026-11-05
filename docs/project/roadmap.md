@@ -97,6 +97,15 @@ paralelo»).
   las máquinas comunes de GitHub (x86 y ARM) no cobran minutos; las más grandes sí, y quedan afuera. Después del 03a, o en paralelo en otra
   sesión (toca la CI, no el vínculo).
 
+- [ ] T122 [agente] El manual en los dos dispositivos (03 · R6.2): que la tarea y el paso viajen al
+  otro, cada uno con el contenido de su forma. Hoy el manual escribe en la dirección también qué forma
+  muestra, y solo lee la dirección al abrirse: hay que sacar la forma de lo que viaja y que el manual
+  siga los cambios de la dirección. Después del 03a.
+- [ ] T123 [agente] Que el celular no pida por internet lo que ya trajo la computadora (diseño de 03,
+  § 5.3, `forward`): las listas de Usuarios y de Roles y la tarjeta de la persona pasan a
+  `useMirroredQuery`. Hoy cada dispositivo pide lo suyo: anda igual, pero el celular gasta datos que
+  por el directo se ahorraría. Después del 03a.
+
 ## Tareas futuras
 
 No se construyen ahora; el diseño no les cierra la puerta.

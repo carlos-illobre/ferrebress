@@ -18,7 +18,9 @@ import { TapeBoard } from './TapeBoard.tsx';
 import './Tape.css';
 
 function useDay(first: { date: string; at?: string }) {
+  // local: el día que trae el servidor lo pide cada dispositivo.
   const [day, setDay] = useState<AuditDay>();
+  // local: el cabezal de la cinta es de cada dispositivo (diseño de 03, § 5.1).
   const [at, setAt] = useState<string | undefined>(first.at);
   const latest = useLatest();
   // Si se cambia de día antes de que llegue el anterior, vale el último.
@@ -68,6 +70,7 @@ function usePlay(
   setAt: (id: string) => void,
   wide: boolean,
 ) {
+  // local: reproducir corre en cada dispositivo.
   const [playing, setPlaying] = useState(false);
   const position = useRef(at);
   position.current = at;
@@ -95,6 +98,7 @@ function usePlay(
 // Lo que pasa en la cinta: el día, el cabezal, la persona aislada y «Reproducir».
 function useTape(wide: boolean, first: { date: string; at?: string }) {
   const { day, at, setAt, load } = useDay(first);
+  // local: lo resaltado al pasar el dedo o el mouse.
   const [isolated, setIsolated] = useState<string>();
   const events = useMemo(() => day?.events ?? [], [day]);
   const steps = useMemo(() => visibleOf(events, isolated), [events, isolated]);

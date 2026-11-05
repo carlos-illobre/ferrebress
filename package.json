@@ -9,7 +9,7 @@
   "scripts": {
     "check": "pnpm types && pnpm lint && pnpm imports && pnpm repeated && pnpm secrets && pnpm vulnerable && pnpm sizes && pnpm boot && pnpm headers && pnpm links && pnpm manual && pnpm test && pnpm screens && pnpm manual:check",
     "types": "tsc --build",
-    "lint": "biome check . && node tools/cli.ts html",
+    "lint": "biome check . && node tools/cli.ts html && node tools/cli.ts local",
     "format": "biome check --write .",
     "imports": "depcruise src --config .dependency-cruiser.cjs",
     "repeated": "jscpd src",
