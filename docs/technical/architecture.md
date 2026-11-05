@@ -51,7 +51,7 @@ src/
 └── app/
     ├── main.tsx     arma la aplicación: registra cada módulo
     ├── platform/    tecnología sin negocio: api, realtime, peer, mirror, storage, offline,
-    │                camera, keyboard, router, clock
+    │                camera, keyboard, router, clock, meter (lo que manda el servidor por los canales)
     ├── ui/          las piezas del lenguaje visual (Button, Sheet, Table…), sin estilos
     │                de pantalla
     ├── styles/      los tokens del lenguaje visual (colores, letra, medidas) y el marco

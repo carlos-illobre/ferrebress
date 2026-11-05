@@ -25,7 +25,7 @@
 - Dispositivo: computadora
 - Ícono: circle-check
 
-1. La tarjeta del vínculo dice cómo están: «Directo» (por el Wi-Fi, sin gastar internet), «Por el servidor» (por internet), «Esperando al celular», «Desconectado» o «Sin internet». Debajo, si ya se envió todo.
+1. La tarjeta del vínculo dice cómo están: «Directo» (por el Wi-Fi, sin gastar internet), «Por el servidor» (por internet), «Esperando al celular», «Desconectado» o «Sin internet». Debajo, si ya se envió todo y, en «Aplicación», cuánto manda el servidor por su cuenta por minuto.
    Captura: desktop-link-direct · indicator · Cómo están
 2. Tocala para ver el detalle. Arriba, por dónde van y cuánto tarda lo que tocás en llegar al otro.
    Captura: desktop-link-direct · route · Por dónde van
@@ -82,7 +82,7 @@
 - Dispositivo: celular
 - Ícono: circle-check
 
-1. Debajo del título, tocá el vínculo: dice cómo están. Arriba, por dónde van y cuánto tarda lo que tocás en llegar a la computadora.
+1. Debajo del título está el vínculo: dice cómo están y, en un renglón, cuánto manda el servidor por su cuenta por minuto. Tocalo. Arriba, por dónde van y cuánto tarda lo que tocás en llegar a la computadora.
    Captura: phone-link-direct · route · Por dónde van
 2. La tira dice cuánto estuvieron juntos hoy: en verde, directo por el Wi-Fi, sin gastar datos; en amarillo, por internet.
    Captura: phone-link-direct · today · Hoy juntos

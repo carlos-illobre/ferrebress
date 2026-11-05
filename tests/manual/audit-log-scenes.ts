@@ -58,6 +58,8 @@ async function phoneDetail(page: Page): Promise<void> {
 }
 
 const row = (page: Page) => shown(page.locator('.audit-row'));
+// «Actualizar solo» y, debajo, lo que manda el servidor para esa pantalla (R4.6, R4.12).
+const live = (page: Page) => shown(page.locator('.audit-live'));
 
 export const auditLogScenes: Scene[] = [
   {
@@ -69,6 +71,7 @@ export const auditLogScenes: Scene[] = [
       numbers: (page) => shown(page.locator('.audit-number.audit-red')),
       row,
       detail: (page) => shown(page.locator('.audit-detail h2, .audit-detail-body')),
+      live,
     },
   },
   {
@@ -95,7 +98,7 @@ export const auditLogScenes: Scene[] = [
     name: 'phone-audit-log',
     device: 'phone',
     prepare: auditLog,
-    points: { tab: button(/^Quién hizo qué/), row, day: button(/Ver el día/) },
+    points: { tab: button(/^Quién hizo qué/), row, day: button(/Ver el día/), live },
   },
   {
     name: 'phone-audit-log-detail',

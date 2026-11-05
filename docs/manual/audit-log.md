@@ -17,8 +17,10 @@
    Captura: desktop-audit-log · row · Una acción
 4. A la derecha, todo de la acción elegida: qué cambió, a quién y desde qué dispositivo.
    Captura: desktop-audit-log · detail · El detalle
+5. Arriba a la derecha, la llave con las dos flechas es «Actualizar solo». Prendida, lo nuevo aparece arriba solo y se marca un momento; si bajaste en la lista, aparece «3 nuevas» y al tocarlo (o Alt N) volvés arriba. Debajo, cuánto manda el servidor por minuto para esta pantalla. Se apaga y se prende con Alt R.
+   Captura: desktop-audit-log · live · Actualizar solo
 
-> La lista no se pone al día sola: tocá «Actualizar» para ver lo último.
+> «Actualizar solo» se ve con hoy en la fecha: un día que ya pasó no cambia. En la computadora está prendido al abrir.
 
 ## ¿Cómo se ven las acciones de alguien?
 
@@ -60,6 +62,8 @@
    Captura: phone-audit-log · row · Una acción
 3. Se abre su detalle: qué cambió, a quién y desde qué dispositivo.
    Captura: phone-audit-log-detail · detail · El detalle
+4. La llave con las dos flechas es «Actualizar solo»: en el celular arranca apagada, para no gastar datos. Prendela y lo nuevo aparece solo; debajo, cuánto manda el servidor por minuto.
+   Captura: phone-audit-log · live · Actualizar solo
 
 > Para ver lo de una persona, usá «Hecho por» o «Hecho a», debajo de los números.
 
