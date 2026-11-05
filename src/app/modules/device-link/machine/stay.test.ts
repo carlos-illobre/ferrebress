@@ -50,7 +50,7 @@ const cases: Case[] = [
     { kind: 'paused', pairing: pc, kept: 'a' },
     { type: 'resume', from: 'here' },
     'direct',
-    ['post', 'send', 'unsubscribe', 'attachMirror', 'confirm', 'snapshot', 'strip'],
+    ['post', 'send', 'unsubscribe', 'attachMirror', 'snapshot', 'strip'],
   ],
   [
     'reconectar del otro con el directo conservado',
@@ -60,11 +60,18 @@ const cases: Case[] = [
     ['unsubscribe', 'attachMirror', 'strip'],
   ],
   [
-    'reconectar sin directo',
+    'reconectar sin directo: la computadora vuelve a escuchar, para que la presenten de nuevo',
     { kind: 'paused', pairing: pc },
     { type: 'resume', from: 'peer' },
     'waiting',
-    ['subscribe', 'strip'],
+    ['unsubscribe', 'subscribe', 'strip'],
+  ],
+  [
+    'reconectar sin directo, en el celular',
+    { kind: 'paused', pairing: phone },
+    { type: 'resume', from: 'peer' },
+    'waiting',
+    ['peek', 'strip'],
   ],
   [
     'probar el directo (E19)',
@@ -85,7 +92,7 @@ const cases: Case[] = [
     { kind: 'relayed', pairing: pc, attempt: 'a', probe: 'trying' },
     { type: 'probeResult', attempt: 'a', ok: true },
     'direct',
-    ['closeTransport', 'unsubscribe', 'attachMirror', 'confirm', 'snapshot', 'strip'],
+    ['closeTransport', 'unsubscribe', 'attachMirror', 'snapshot', 'strip'],
   ],
   [
     'la prueba no salió',

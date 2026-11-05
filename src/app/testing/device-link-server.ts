@@ -6,9 +6,9 @@ import type { PairingView, Side } from '@ferrebress/shared/contracts/device-link
 import { fingerprintOf } from '@ferrebress/shared/peer/candidates';
 import type { TopicHandler } from '../platform/realtime/demand.ts';
 import type { ApiResult } from '../platform/server/api.ts';
+import { chaos, inOrder } from './chaos.ts';
 
 const other = (side: Side): Side => (side === 'phone' ? 'computer' : 'phone');
-const later = (run: () => void) => setTimeout(run, 0);
 type Body = Record<string, unknown> | undefined;
 
 type World = ReturnType<typeof createWorld>;
@@ -43,8 +43,15 @@ const viewOf = (world: World, side: Side): PairingView => ({
   lastsDays: 30,
   paused: world.paused,
 });
-const publish = (world: World, side: Side, data: unknown) =>
-  later(() => world.listening.get(side)?.onEvent(data));
+// Lo del tema de cada lado llega en orden, como por su canal.
+const streams = new WeakMap<World, Map<Side, ReturnType<typeof inOrder>>>();
+function publish(world: World, side: Side, data: unknown) {
+  const ofWorld = streams.get(world) ?? new Map<Side, ReturnType<typeof inOrder>>();
+  streams.set(world, ofWorld);
+  const stream = ofWorld.get(side) ?? inOrder();
+  ofWorld.set(side, stream);
+  stream(() => world.listening.get(side)?.onEvent(data));
+}
 
 // Escuchar el tema de un lado: si el otro ya escucha, los presenta con un intento nuevo.
 function want(world: World, side: Side, handler: TopicHandler) {
@@ -98,7 +105,9 @@ export function createLinkServer() {
   const api =
     (side: Side) =>
     async <T>(path: string, body?: unknown): Promise<ApiResult<T>> => {
-      await Promise.resolve();
+      // Cada pedido tarda lo que diga la red de mentira: dos pueden llegar en otro orden.
+      const ms = chaos.delay();
+      await (ms > 0 ? new Promise((done) => setTimeout(done, ms)) : Promise.resolve());
       const url = new URL(path, 'http://x');
       const name = url.pathname.replace('/api/device-link/', '');
       world.calls.push(`${side}:${name}`);

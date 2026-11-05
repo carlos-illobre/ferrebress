@@ -70,7 +70,7 @@ const cases: Case[] = [
     { kind: 'paused', pairing: view('computer', { paused: true }) },
     { type: 'serverSaid', pairing: pc },
     'waiting',
-    ['subscribe', 'strip'],
+    ['unsubscribe', 'subscribe', 'strip'],
   ],
   [
     'el mismo, igual: solo lo pone al día',
@@ -112,7 +112,7 @@ const cases: Case[] = [
     { kind: 'waiting', pairing: pc, dormant: 'a' },
     { type: 'peerBack', attempt: 'a' },
     'direct',
-    ['unsubscribe', 'attachMirror', 'confirm', 'snapshot', 'strip'],
+    ['unsubscribe', 'attachMirror', 'snapshot', 'strip'],
   ],
   [
     'abrió el directo: el celular no manda la foto',
@@ -126,7 +126,7 @@ const cases: Case[] = [
     { kind: 'meeting', pairing: pc, attempt: 'a' },
     { type: 'directFailed', attempt: 'a' },
     'relayed',
-    ['report', 'openRelayed', 'attachMirror', 'confirm', 'snapshot', 'strip'],
+    ['report', 'openRelayed', 'attachMirror', 'snapshot', 'strip'],
   ],
   [
     'el celular no avisa la falla',
@@ -162,6 +162,20 @@ const cases: Case[] = [
     { type: 'peerGone', why: 'version' },
     'waiting',
     ['closeTransport', 'unsubscribe', 'detachMirror', 'newVersion', 'strip'],
+  ],
+  [
+    'en pausa se cortó el directo conservado: la pausa sigue sin él y la computadora escucha',
+    { kind: 'paused', pairing: { ...pc, paused: true }, kept: 'a' },
+    { type: 'peerGone', why: 'lost', attempt: 'a' },
+    'paused',
+    ['closeTransport', 'subscribe'],
+  ],
+  [
+    'una presentación nueva en medio de otra la reemplaza',
+    { kind: 'meeting', pairing: pc, attempt: 'a' },
+    { type: 'peerPresent', attempt: 'b' },
+    'meeting',
+    ['closeTransport', 'openDirect'],
   ],
 ];
 

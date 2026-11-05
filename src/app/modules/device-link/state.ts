@@ -40,7 +40,7 @@ export function step(state: PairingState, event: PairingEvent): Step {
     case 'peerBack':
       return onPeerBack(state, event.attempt);
     case 'peerGone':
-      return onPeerGone(state, event.why);
+      return onPeerGone(state, event.why, event.attempt);
     case 'directUp':
     case 'directFailed':
       return onDirect(state, event.type, event.attempt);

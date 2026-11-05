@@ -57,7 +57,10 @@ export function onResume(state: PairingState, from: 'here' | 'peer'): Step {
   if (state.kind !== 'paused') return same(state);
   const pairing = { ...state.pairing, paused: false };
   const here: Command[] = from === 'here' ? [{ do: 'post', path: 'resume' }] : [];
-  if (!state.kept) return toWaiting(pairing, here);
+  // La computadora ya escuchaba en pausa: vuelve a escuchar, así el servidor los presenta de nuevo
+  // aunque el otro haya llegado mientras tanto.
+  const relisten: Command[] = isComputer(pairing) ? [{ do: 'unsubscribe' }] : [];
+  if (!state.kept) return toWaiting(pairing, [...here, ...relisten]);
   const resumed = connected(pairing, state.kept, 'direct');
   const tell: Command[] = from === 'here' ? [{ do: 'send', message: 'resume' }] : [];
   return { ...resumed, commands: [...here, ...tell, ...resumed.commands] };

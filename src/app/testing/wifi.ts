@@ -3,6 +3,7 @@
 // equipos, E18). Lo que se manda llega al otro en orden y después, como por la red; cerrar una punta
 // cierra el canal de la otra.
 import type { RtcChannel, RtcConnection } from '../platform/peer/rtc.ts';
+import { inOrder } from './chaos.ts';
 
 const later = (run: () => void) => setTimeout(run, 0);
 
@@ -17,6 +18,8 @@ class End {
   readonly states = new Set<(state: RTCIceConnectionState) => void>();
   closed = false;
   readonly channel: RtcChannel;
+  // Lo que manda esta punta llega en orden, con la demora de la red de mentira.
+  private readonly ordered = inOrder();
 
   private readonly net: Net;
 
@@ -24,7 +27,7 @@ class End {
     this.net = net;
     this.channel = {
       // Solo se manda con el canal abierto: el otro ya está.
-      send: (text) => later(() => this.net.others.get(this)?.receive(text)),
+      send: (text) => this.ordered(() => this.net.others.get(this)?.receive(text)),
       onMessage: (l) => void this.messages.add(l),
       onOpen: (l) => void this.opens.add(l),
       onClose: (l) => void this.closes.add(l),

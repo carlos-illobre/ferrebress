@@ -866,8 +866,9 @@ que el gráfico se lea, esas flechas no se dibujan: están en la tabla.
 | cualquiera | `sessionLost` | `asleep` | **antes que todo:** `send(bye signout)`, `closeTransport`, `unsubscribe`, `mirror.detach`; si entra **otra** persona, el espejo vuelve al valor inicial lo recibido del otro (con el descarte de lo que había a medio hacer); la misma persona lo conserva (01 · R3.4) |
 | entrar a `waiting` | — | — | computadora: `subscribe`; celular: `subscribe` una vez para ver si está el otro y, si no, `unsubscribe` |
 | `waiting` | `peerPresent(a)` | `meeting` | computadora: `openDirect(a)`; celular: espera la oferta |
-| `waiting` con `dormant` | `peerBack` (llegó `hello` por el directo dormido) | `direct` | `confirm(30 s)`; computadora: `sendSnapshot` |
-| `meeting` | `directUp(a)` | `direct` | `unsubscribe`; computadora: `confirm(30 s)` y `sendSnapshot`; `strip.mark` |
+| `meeting` con otro intento | `peerPresent(b)` | `meeting` con `b` | cierra lo que abría y empieza de nuevo: el servidor los presentó otra vez (el otro volvió a escuchar) |
+| `waiting` con `dormant` | `peerBack` (llegó `hello` por el directo dormido) | `direct` | computadora: `sendSnapshot`, que confirma (30 s) antes |
+| `meeting` | `directUp(a)` | `direct` | `unsubscribe`; computadora: `sendSnapshot`, que confirma (30 s) antes; `strip.mark` |
 | `meeting` | `directFailed(a)` (de la computadora, o `give-up`) | `relayed` | `report`; `openRelayed(a)`; computadora: `sendSnapshot` sin `q:` |
 | `direct` | `peerGone('hidden')` | `waiting` con `dormant` | conserva el directo sin espejar hasta 5 minutos; computadora: `subscribe` |
 | `direct`, `relayed` | `peerGone(otro motivo)` con internet | `waiting` | `closeTransport`; como `waiting` |
@@ -875,8 +876,9 @@ que el gráfico se lea, esas flechas no se dibujan: están en la tabla.
 | `offline` | `internetBack` (del reintento, § 8.5) | `waiting` | como `waiting` |
 | con vínculo | `pause('here')` | `paused` | `POST /pause`, `send(pause)`, `mirror.detach`; conserva el directo si lo había |
 | con vínculo | `pause('peer')` (por el transporte o por `l=`) | `paused` | `mirror.detach` |
-| `paused` con `kept` | `resume` | `direct` | `POST /resume` si es de acá, `send(resume)`; computadora: `confirm(30 s)` y `sendSnapshot` (E29) |
-| `paused` sin `kept` | `resume` | `waiting` | `POST /resume` si es de acá; la computadora escucha y el otro se entera por el tema o por `l=` |
+| `paused` con `kept` | `resume` | `direct` | `POST /resume` si es de acá, `send(resume)`; computadora: `sendSnapshot`, que confirma (30 s) antes (E29) |
+| `paused` sin `kept` | `resume` | `waiting` | `POST /resume` si es de acá; la computadora deja el tema y lo vuelve a escuchar, así el servidor los presenta de nuevo aunque el otro haya llegado mientras tanto; el otro se entera por el tema o por `l=` |
+| `paused` con `kept` | `peerGone` del directo conservado | `paused` sin `kept` | `closeTransport`; la computadora escucha el tema (lo encontró la simulación: reconectar iba a un directo muerto) |
 | `relayed` | `probe` | `relayed` con `probe:'trying'` | `send(probe)`; computadora: `openDirect` con un `attempt` nuevo |
 | `relayed` con `trying` | `probeResult(sí)` | `direct` | cierra el respaldo; `unsubscribe` |
 | `relayed` con `trying` | `probeResult(no)` | `relayed` con `probe:'failed'` | cierra el intento |
@@ -1435,11 +1437,18 @@ el servidor: se reinicia con cada subida, y un trabajo diario no correría nunca
 | E41, E42 | Unitarias de la auditoría |
 | Seguridad | Una por cada fila de «Una prueba por riesgo» de la revisión de seguridad |
 
-- **La simulación de los dos dispositivos:** dos máquinas, dos espejos y dos `confirm.ts` unidos por una
-  red de mentira que, según una semilla, demora, repite, desordena, corta, pierde internet y cierra
-  sesiones; 500 semillas en menos de 2 s. Al final de cada corrida, los dos están en el mismo estado y, si
-  están conectados, con los mismos valores; y ningún valor salió hacia un lado sin confirmación vigente.
-  Una semilla que falla se guarda como prueba fija.
+- **La simulación de los dos dispositivos** (`simulation.test.ts`, con `testing/chaos.ts`): dos vínculos
+  enteros (máquina, espejo y `confirm.ts` cada uno) sobre el Wi-Fi y el servidor de mentira, que según una
+  semilla demoran y desordenan los pedidos (el canal de datos y el tema mantienen su orden), y 20 cosas al
+  azar: cambiar valores, desconectar y reconectar, ocultar y volver, cortar el Wi-Fi, aislar los equipos y
+  perder internet. Después todo se arregla y los dos tienen que quedar conectados de la misma forma, con
+  los mismos valores en los dos sentidos. 500 semillas en menos de 2 s, con el reloj falso; una semilla
+  que falla se guarda en `fixed`. Falta que cierre sesiones y que mire que nada salió sin confirmación.
+- **Los avisos de una conexión llevan su intento:** `peerGone` de un transporte que se cerró, o de un
+  `bye` o un `hello` que llegaron por él, dice de qué intento es; uno de una conexión anterior no cambia
+  nada (lo encontró la simulación: un aviso viejo en la fila cortaba la presentación nueva).
+- **La foto no frena la fila:** espera el saludo del otro y la confirmación de menos de 30 s por su lado y
+  sale solo si sigue la misma conexión con el espejo conectado (revisión del código, 4.1 y 4.2).
 - **Fuera de la cobertura** (ADR-005): `peer/rtc.ts` y el candado de `tabs.ts`.
 
 ## 21. Tareas

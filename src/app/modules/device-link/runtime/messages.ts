@@ -17,13 +17,14 @@ const intoMirror = (live: Live, link: Link, apply: () => void) =>
   });
 
 const handlers: Handlers = {
-  hello(live, _link, message) {
+  hello(live, link, message) {
     live.hello = message;
     for (const waiter of live.helloWaiters.splice(0)) waiter(message);
-    if (message.app !== live.deps.appVersion) live.dispatch({ type: 'peerGone', why: 'version' });
+    if (message.app !== live.deps.appVersion)
+      live.dispatch({ type: 'peerGone', why: 'version', attempt: link.attempt });
   },
-  bye(live, _link, message) {
-    live.dispatch({ type: 'peerGone', why: message.why });
+  bye(live, link, message) {
+    live.dispatch({ type: 'peerGone', why: message.why, attempt: link.attempt });
     // El otro terminó o reemplazó el vínculo: el servidor dice cuál hay ahora.
     if (message.why === 'unpair' || message.why === 'replaced') void live.check();
   },
@@ -63,7 +64,8 @@ export function listen(live: Live, link: Omit<Link, 'stop'>): Link {
     link.transport.onMessage((raw) => receive(live, full, raw)),
     link.transport.onClose((why) => {
       live.deps.journal.note('transport-closed', { why, kind: link.transport.kind });
-      if (full === live.current) live.dispatch({ type: 'peerGone', why: 'lost' });
+      if (full === live.current)
+        live.dispatch({ type: 'peerGone', why: 'lost', attempt: link.attempt });
       if (full === live.dormant) {
         clearTimeout(live.dormant.timer);
         live.dormant = undefined;

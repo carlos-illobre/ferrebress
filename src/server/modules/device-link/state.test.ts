@@ -175,6 +175,23 @@ describe('lo que termina el vínculo', () => {
     expect((await phone.request('/api/device-link/check')).header).toMatch(/(^|; )l=[0-9a-f]{8}/);
   });
 
+  it('E13: se usan juntos todos los días: a los 40 días siguen vinculados', async () => {
+    const { computer, phone, id } = await linked();
+    for (let day = 0; day < 40; day++) {
+      now += 24 * 60 * 60 * 1000;
+      for (const device of [computer, phone])
+        await device.signInWithGoogle({ sub: 'sub-admin', email: 'admin@example.com' });
+      const tabs = [
+        await listen(server, phone, `device-link.pairing:${id}`),
+        await listen(server, computer, `device-link.pairing:${id}`),
+      ];
+      expect((await phone.request('/api/device-link/relay', { messages: [1] })).status).toBe(200);
+      for (const tab of tabs) await tab.close();
+      await server.runJobs();
+    }
+    expect((await phone.request('/api/device-link/check')).body.pairing.id).toBe(id);
+  });
+
   it('E12: vence a los 30 días sin espejar; salir no lo termina (E10, E17)', async () => {
     const { computer, phone } = await linked();
     await computer.request('/api/sign-out', {});

@@ -78,6 +78,16 @@ describe('la máquina de estados del vínculo', () => {
       { type: 'peerGone', why: 'version' },
     ],
     ['sin directo dormido que perder', { kind: 'waiting', pairing: pc }, { type: 'dormantLost' }],
+    [
+      'un aviso de una conexión anterior',
+      { kind: 'meeting', pairing: pc, attempt: 'b' },
+      { type: 'peerGone', why: 'lost', attempt: 'a' },
+    ],
+    [
+      'un aviso de una conexión sin conexión de ahora',
+      { kind: 'waiting', pairing: pc },
+      { type: 'peerGone', why: 'lost', attempt: 'a' },
+    ],
   ];
 
   it.each(ignored)('no cambia nada: %s', (_name, from, event) => {

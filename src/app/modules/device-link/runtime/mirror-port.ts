@@ -11,8 +11,9 @@ import { isComputerHere, type Link, type Live } from './live.ts';
 // Lugar para el sobre de cada parte de la foto.
 const envelopeBytes = 512;
 
+// Mandar por esa conexión; lo que no sale (cerrada, o de más de 64 KB) queda en el diario.
 function sendOn(live: Live, link: Link, message: WireMessage): void {
-  if (!link.transport.send(message as Json)) live.deps.journal.note('too-large', { t: message.t });
+  if (!link.transport.send(message as Json)) live.deps.journal.note('not-sent', { t: message.t });
 }
 
 export function sendHello(live: Live, link: Link | undefined): void {
@@ -63,20 +64,21 @@ const waitHello = (live: Live) =>
     });
   });
 
+// Por el directo, una confirmación de menos de 30 s antes de la foto (§ 7.1): reconectar por un canal
+// conservado no manda nada sin preguntarle al servidor. Por el servidor, la pone el servidor.
+const confirmed = (live: Live, link: Link) =>
+  link.transport.kind !== 'direct' || live.confirm.ensure(deviceLinkSettings.freshMs);
+
 // La foto de la computadora (R6.3): marcada con un reloj más alto que el del otro, gana en los dos.
+// Espera el saludo del otro y la confirmación sin frenar la fila de la máquina, y sale solo si sigue
+// la misma conexión con el espejo conectado.
 export async function sendSnapshot(live: Live, withQueries: boolean): Promise<void> {
   const link = live.current;
   if (!link) return;
-  const hello = await waitHello(live);
-  if (live.current !== link) return;
+  const [hello, ok] = await Promise.all([waitHello(live), confirmed(live, link)]);
+  if (!ok) live.deps.journal.note('confirm-failed');
+  if (!ok || live.current !== link || !live.deps.mirror.port()) return;
   const photo = live.deps.mirror.snapshot(hello?.clock ?? 0, withQueries);
   for (const part of snapParts(photo, maxMessageBytes - envelopeBytes))
     live.confirm.gate(() => sendOn(live, link, part));
-}
-
-// La confirmación antes de la foto: solo por el directo (por el servidor la pone el servidor).
-export async function confirmNow(live: Live, maxAgeMs: number): Promise<void> {
-  if (live.current?.transport.kind !== 'direct') return;
-  const ok = await live.confirm.ensure(maxAgeMs);
-  if (!ok) live.deps.journal.note('confirm-failed');
 }

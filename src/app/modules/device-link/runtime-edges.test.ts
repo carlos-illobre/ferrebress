@@ -136,6 +136,8 @@ describe('los bordes del vínculo', () => {
         10,
         10,
       );
+      const everyMs = platformSettings.reconnect.everyMs;
+      platformSettings.reconnect.everyMs = 20;
       try {
         const { pc, phone, server, wifi } = setup();
         wifi.isolate(true);
@@ -148,6 +150,7 @@ describe('los bordes del vínculo', () => {
         server.world.online.set('computer', true);
         await vi.waitFor(() => expect(pc.kind()).toBe('relayed'));
       } finally {
+        platformSettings.reconnect.everyMs = everyMs;
         platformSettings.reconnect.delaysMs.splice(
           0,
           platformSettings.reconnect.delaysMs.length,

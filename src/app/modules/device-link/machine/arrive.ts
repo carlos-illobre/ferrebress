@@ -56,13 +56,16 @@ export function onSessionLost(state: PairingState, samePerson: boolean): Step {
   };
 }
 
-// El otro llegó: la computadora ofrece el directo; el celular espera la oferta.
+// El otro llegó: la computadora ofrece el directo; el celular espera la oferta. Una presentación
+// nueva en medio de otra la reemplaza: el servidor los presentó de nuevo (el otro volvió a escuchar).
 export function onPeerPresent(state: PairingState, attempt: Attempt): Step {
-  if (state.kind !== 'waiting') return same(state);
+  const again = state.kind === 'meeting' && state.attempt !== attempt;
+  if (state.kind !== 'waiting' && !again) return same(state);
   const open: Command = isComputer(state.pairing)
     ? { do: 'openDirect', attempt }
     : { do: 'awaitOffer', attempt };
-  return { state: { kind: 'meeting', pairing: state.pairing, attempt }, commands: [open] };
+  const drop: Command[] = again ? [{ do: 'closeTransport' }] : [];
+  return { state: { kind: 'meeting', pairing: state.pairing, attempt }, commands: [...drop, open] };
 }
 
 // El otro volvió por el directo que se conservó dormido.
@@ -86,9 +89,22 @@ export function onDirect(
   return { ...relayed, commands: [...report, { do: 'openRelayed', attempt }, ...relayed.commands] };
 }
 
+// La conexión de ahora: la que espeja o se abre, o el directo que la pausa conservó.
+const attemptNow = (state: PairingState) =>
+  'attempt' in state ? state.attempt : state.kind === 'paused' ? state.kept : undefined;
+
+// En pausa, se cortó el directo conservado: la pausa sigue sin él (reconectar ya no puede usarlo).
+const keptLost = (pairing: PairingView): Step => ({
+  state: { kind: 'paused', pairing },
+  commands: [{ do: 'closeTransport' }, ...listenWhilePaused(pairing)],
+});
+
 // El otro se fue. Oculto, el directo queda dormido unos minutos; cortado, se confirma si hay internet.
-export function onPeerGone(state: PairingState, why: GoneWhy): Step {
+// Un aviso de una conexión anterior no cambia nada.
+export function onPeerGone(state: PairingState, why: GoneWhy, attempt?: Attempt): Step {
+  if (attempt !== undefined && attempt !== attemptNow(state)) return same(state);
   if (why === 'version') return onOtherVersion(state);
+  if (state.kind === 'paused' && state.kept) return keptLost(state.pairing);
   if (state.kind !== 'meeting' && state.kind !== 'direct' && state.kind !== 'relayed')
     return same(state);
   const detach: Command = { do: 'detachMirror', reset: false };

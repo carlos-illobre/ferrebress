@@ -1,7 +1,6 @@
 // Los estados, los eventos y los comandos del vínculo (diseño de 03, § 8.1), y lo que comparten las
 // transiciones: esperar al otro, conectarse y dejar el vínculo de ahora.
 import type { PairingView } from '@ferrebress/shared/contracts/device-link';
-import { deviceLinkSettings } from '../settings.ts';
 
 export type Attempt = string;
 export type GoneWhy =
@@ -30,7 +29,8 @@ export type PairingEvent =
   | { type: 'sessionLost'; samePerson: boolean }
   | { type: 'peerPresent'; attempt: Attempt }
   | { type: 'peerBack'; attempt: Attempt }
-  | { type: 'peerGone'; why: GoneWhy }
+  // `attempt`: de qué conexión es el aviso; uno de una conexión anterior no cambia nada.
+  | { type: 'peerGone'; why: GoneWhy; attempt?: Attempt }
   | { type: 'directUp' | 'directFailed' | 'relayUp'; attempt: Attempt }
   | { type: 'internetLost' }
   | { type: 'internetBack' }
@@ -49,7 +49,6 @@ export type Command =
   | { do: 'closeTransport'; keep?: true }
   | { do: 'bye'; why: GoneWhy }
   | { do: 'send'; message: 'pause' | 'resume' | 'probe' | 'hello' }
-  | { do: 'confirm'; maxAgeMs: number }
   | { do: 'snapshot'; withQueries: boolean }
   | { do: 'report'; attempt: Attempt; outcome: 'direct-failed' | 'probe-failed' }
   | { do: 'post'; path: 'pause' | 'resume' }
@@ -85,17 +84,15 @@ export const leaving = (state: PairingState): Command[] =>
     ? [{ do: 'closeTransport' }, { do: 'unsubscribe' }, { do: 'detachMirror', reset: false }]
     : [];
 
-// Conectados: la computadora confirma y manda la foto; el espejo se conecta.
+// Conectados: el espejo se conecta y la computadora manda la foto (que pide antes una confirmación
+// de menos de 30 s, § 7.1).
 export function connected(
   pairing: PairingView,
   attempt: Attempt,
   over: 'direct' | 'relayed',
 ): Step {
   const leader: Command[] = isComputer(pairing)
-    ? [
-        { do: 'confirm', maxAgeMs: deviceLinkSettings.freshMs },
-        { do: 'snapshot', withQueries: over === 'direct' },
-      ]
+    ? [{ do: 'snapshot', withQueries: over === 'direct' }]
     : [];
   const commands: Command[] = [
     { do: 'attachMirror', over },

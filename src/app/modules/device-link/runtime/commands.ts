@@ -6,7 +6,7 @@ import type { Command } from '../machine/types.ts';
 import type { ByeReason } from '../wire.ts';
 import { answerOffer, closeTransport, openDirect, openRelayed } from './links.ts';
 import { isComputerHere, type Live } from './live.ts';
-import { attachMirror, confirmNow, detachMirror, sendHello, sendSnapshot } from './mirror-port.ts';
+import { attachMirror, detachMirror, sendHello, sendSnapshot } from './mirror-port.ts';
 import { subscribe, unsubscribe } from './topic.ts';
 
 type Of<K extends Command['do']> = Extract<Command, { do: K }>;
@@ -54,8 +54,12 @@ export const runners: Runners = {
     if (byes.has(why)) live.current?.transport.send({ t: 'bye', why: why as ByeReason });
   },
   send: (live, { message }) => send(live, message),
-  confirm: (live, { maxAgeMs }) => confirmNow(live, maxAgeMs),
-  snapshot: (live, { withQueries }) => sendSnapshot(live, withQueries),
+  // La foto espera al otro y a la confirmación sin frenar la fila (§ 2.2).
+  snapshot: (live, { withQueries }) => {
+    sendSnapshot(live, withQueries).catch((error: unknown) =>
+      live.deps.journal.note('error', { what: String(error).slice(0, 80) }),
+    );
+  },
   report,
   post: (live, { path }) => post(live, path),
   attachMirror: (live, { over }) => attachMirror(live, over),
