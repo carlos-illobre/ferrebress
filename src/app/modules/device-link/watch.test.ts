@@ -3,11 +3,13 @@
 
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { navigate } from '../../platform/router.ts';
 import { startParts } from '../../platform/server/start-parts.ts';
 import { createStore } from '../../platform/store.ts';
 import { pc } from '../../testing/pairing.ts';
 import { person } from '../sign-in/index.ts';
 import { ana } from '../sign-in/sign-in-test-kit.ts';
+import { reading } from './detail.ts';
 import { linkRuntime, watchDeviceLink } from './index.ts';
 import type { PairingState } from './machine/types.ts';
 import type { Runtime } from './runtime.ts';
@@ -170,6 +172,16 @@ describe('lo que lee el vínculo de la aplicación', () => {
     expect(strip()).toBe(first);
     person.set({ ...ana, userId: 'otra' });
     expect(strip()).not.toBe(first);
+    person.set(undefined);
+  });
+
+  it('con sesión, la dirección de la cámara del teléfono abre la lectura del código', async () => {
+    person.set(ana);
+    navigate('/pair#codigo', { replace: true });
+    const stop = watchDeviceLink();
+    await vi.waitFor(() => expect(reading.get()).toEqual({ code: 'codigo' }));
+    reading.set(undefined);
+    stop();
     person.set(undefined);
   });
 

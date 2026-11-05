@@ -1109,13 +1109,15 @@ pieza). Las clases pasan al CSS con el nombre de la pieza; los tokens, de `style
 | `screens/Replace/` | Solo el celular | «Este celular está vinculado a Chrome en Windows. ¿Reemplazar?» (R1.4) |
 | `screens/Confirm/` | Diálogo en la computadora, hoja en el celular | Desvincular (Alt C, Alt X) |
 | `screens/Notices/` | Solo el celular | «Este código es de otra cuenta», «Este código venció», «Para vincular hace falta internet…» (E36) y las tostadas de la maqueta («Vinculados: fuiste a la pantalla de la compu», «Desconectados…», «Ahora van directo por el Wi-Fi») |
-| La cámara | Solo el celular | La de `sign-in` (`scanner.ts`, `Camera`), que pasa a `platform/camera/` y usan los dos |
+| La cámara | Solo el celular | Común: el lector y el dibujo del QR en `platform/camera/` y la pantalla en `ui/camera/Camera.tsx`; la entrada y el vínculo le pasan sus textos y qué código les sirve |
 
 - El indicador se enchufa en el marco por `App.tsx`; quitarlo es quitar esa línea. Los textos, largos y
   cortos, en `device-link/texts.ts`.
 - **La tira** (R4.4): tramos `[desde, hasta, grupo]` en `localStorage`, con la clave
   `device-link.strip.<hash corto de la persona>`, así otra persona en la misma computadora no ve ni suma
   los tramos de la anterior. Menos de 1 KB, del día del negocio según la hora del servidor (00 · R8.4).
+- **El QR de vincular** lleva `/pair#<código>`. La cámara del teléfono abre esa dirección: con sesión, el
+  celular lee el código (E02); sin sesión, queda la entrada y no vincula (E40).
 - Lo que se baja aparte (WebRTC, espejo y detalle): todo junto, enseguida después del arranque, en la
   misma pieza que el vínculo (`start.ts`). Un detalle bajado aparte desde el marco partía el arranque
   en tres archivos y costaba 2,6 KB más comprimido (gzip comprime peor cada pedazo).

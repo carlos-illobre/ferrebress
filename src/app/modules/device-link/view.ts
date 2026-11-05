@@ -1,6 +1,7 @@
 // Lo que el indicador y el detalle muestran de un estado del vínculo (diseño de 03, § 8.1): el estado
 // para la persona, su tono, con qué está vinculado y quién es este lado. Puro, sin pantallas.
 import type { PairingView, Side } from '@ferrebress/shared/contracts/pairing';
+import { isPhone } from '../../platform/device/device.ts';
 import type { PairingState } from './machine/types.ts';
 import { type Status, type Tone, tones } from './texts.ts';
 
@@ -28,6 +29,9 @@ const statusOf: Record<PairingState['kind'], Status> = {
   paused: 'paused',
   offline: 'offline',
 };
+
+// De qué lado es este dispositivo: el del vínculo, o el del navegador si no hay.
+export const onPhone = (view: LinkView) => (view.side ? view.side === 'phone' : isPhone());
 
 export function viewOf(state: PairingState): LinkView {
   const status = statusOf[state.kind];

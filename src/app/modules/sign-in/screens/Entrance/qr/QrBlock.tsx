@@ -24,14 +24,14 @@ function useCountdown(since: number): number {
   return secondsLeft(now, since);
 }
 
-type Draw = typeof import('../../../codes/qr-draw.ts')['qrPath'];
+type Draw = typeof import('../../../../../platform/camera/qr-draw.ts')['qrPath'];
 let drawing: Promise<Draw> | undefined;
 
 // El dibujo del QR, que se baja una sola vez y recién cuando hace falta.
 function useQrPath(code: string | undefined) {
   const [draw, setDraw] = useState<{ qrPath: Draw }>();
   useEffect(() => {
-    drawing ??= import('../../../codes/qr-draw.ts').then((loaded) => loaded.qrPath);
+    drawing ??= import('../../../../../platform/camera/qr-draw.ts').then((loaded) => loaded.qrPath);
     void drawing.then((qrPath) => setDraw({ qrPath }));
   }, []);
   return code && draw ? draw.qrPath(linkUrl(code)) : undefined;

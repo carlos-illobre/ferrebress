@@ -12,10 +12,12 @@ import { onField } from '../../platform/server/fields.ts';
 import { startParts } from '../../platform/server/start-parts.ts';
 import { person } from '../sign-in/index.ts';
 import { linkOver, linkRuntime, linkStrip } from './current.ts';
+import { reading } from './detail.ts';
 import { createJournal } from './journal.ts';
+import { takePairCode } from './pair.ts';
 import { pairingShape } from './runtime/topic.ts';
 import { createRuntime } from './runtime.ts';
-import { Over } from './screens/Detail/Over.tsx';
+import { Layer } from './screens/Detail/Over.tsx';
 import { createStrip, type Strip } from './strip.ts';
 import { createTabs } from './tabs.ts';
 import type { Watched } from './watch.ts';
@@ -54,7 +56,9 @@ export function startDeviceLink(): () => void {
   const journal = createJournal();
   const strip = stripOfPerson();
   linkStrip.set({ of: strip });
-  linkOver.set({ Over });
+  linkOver.set({ Over: Layer });
+  const code = takePairCode(who.get() !== undefined);
+  if (code) reading.set({ code });
   const runtime = createRuntime({
     api,
     want: realtime.want,

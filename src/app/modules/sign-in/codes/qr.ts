@@ -1,6 +1,6 @@
 // El código QR de la computadora lleva la dirección /link#<código>: lo que va después del # no llega
 // al servidor ni a sus registros, y la cámara del celular abre la aplicación directo ahí (diseño de
-// 01, § 5). Se dibuja con qr-draw.ts, que se baja recién cuando la entrada lo muestra.
+// 01, § 5). Se dibuja con platform/camera/qr-draw.ts, que se baja recién cuando se muestra.
 
 export const linkPath = '/link';
 

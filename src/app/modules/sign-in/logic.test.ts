@@ -1,10 +1,10 @@
 import 'fake-indexeddb/auto';
 import { act, renderHook } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { qrPath } from '../../platform/camera/qr-draw.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { later } from '../../testing/later.ts';
 import { codeOf, linkUrl } from './codes/qr.ts';
-import { qrPath } from './codes/qr-draw.ts';
 import { minutes, noticeOf, useNotice } from './notice.ts';
 import { createPasskey, signWithPasskey } from './passkeys/webauthn.ts';
 import { secondsLeft } from './screens/Entrance/qr/QrBlock.tsx';

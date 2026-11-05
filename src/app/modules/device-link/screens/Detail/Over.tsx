@@ -1,34 +1,84 @@
-// Lo que abre el indicador, encima de la pantalla: el detalle y la confirmación de desvincular. Se
-// baja aparte del arranque, con sus íconos, la primera vez que se abre.
+// Lo que abre el indicador, encima de la pantalla: el detalle (con el código para vincular, en la
+// computadora), la lectura del código en el celular y la confirmación de desvincular. Llega con el
+// vínculo, con sus íconos.
+import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { useState } from 'preact/hooks';
 import { useStore } from '../../../../platform/store.ts';
 import { addShapes } from '../../../../ui/icon/Icon.tsx';
 import { linkShapes } from '../../../../ui/icon/link-shapes.tsx';
+import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { linkActions } from '../../actions.ts';
 import { linkRuntime } from '../../current.ts';
-import { detailOpen } from '../../detail.ts';
+import { detailOpen, reading } from '../../detail.ts';
+import type { Runtime } from '../../runtime.ts';
 import { useLinkView } from '../../use-link.ts';
+import { onPhone } from '../../view.ts';
 import { ConfirmUnpair } from '../Confirm/Confirm.tsx';
+import { Read } from '../Read/Read.tsx';
 import type { Act } from './Actions.tsx';
 import { Detail } from './Detail.tsx';
+import { detailTexts } from './texts.ts';
 
 addShapes(linkShapes);
 
-export function Over() {
+// Cuánto se ve el tilde del código leído antes de volver al detalle.
+export const doneMs = 900;
+
+// El código para vincular de la computadora: abierto o no, y qué hacer cuando el celular lo lee.
+function useCode(runtime: Runtime) {
+  const [shown, setShown] = useState(false);
+  const page = {
+    onBack: () => setShown(false),
+    onPaired: (pairing: PairingView) => {
+      showToast(detailTexts.toast.pairedComputer, 'check');
+      runtime.dispatch({ type: 'serverSaid', pairing });
+      setTimeout(() => setShown(false), doneMs);
+    },
+  };
+  return {
+    page: shown ? page : undefined,
+    show: () => setShown(true),
+    hide: () => setShown(false),
+  };
+}
+
+function Reader({ runtime }: { runtime: Runtime }) {
+  const read = useStore(reading);
+  if (!read) return null;
+  return (
+    <Read
+      code={read.code}
+      onPaired={(pairing) => {
+        runtime.dispatch({ type: 'serverSaid', pairing });
+        reading.set(undefined);
+      }}
+      onClose={() => reading.set(undefined)}
+    />
+  );
+}
+
+export function Over({ runtime }: { runtime: Runtime }) {
   const view = useLinkView();
-  const runtime = useStore(linkRuntime);
+  const open = useStore(detailOpen);
   const [asking, setAsking] = useState(false);
-  if (!runtime || view.hidden) return null;
+  const code = useCode(runtime);
   const actions = linkActions(runtime);
   const onAct = (act: Act) => {
     if (act === 'unpair') return setAsking(true);
-    // Vincular abre el código (computadora) o la cámara (celular): sus pantallas, aparte.
-    if (act === 'pair') return undefined;
-    return actions[act]();
+    if (act !== 'pair') return actions[act]();
+    // Vincular: la computadora muestra el código; el celular abre la cámara.
+    if (!onPhone(view)) return code.show();
+    detailOpen.set(false);
+    return reading.set({});
+  };
+  const close = () => {
+    code.hide();
+    detailOpen.set(false);
   };
   return (
     <>
-      <Detail view={view} onAct={onAct} onClose={() => detailOpen.set(false)} />
+      {open && <Detail view={view} onAct={onAct} onClose={close} code={code.page} />}
+      <Reader runtime={runtime} />
       {asking && view.pairing && (
         <ConfirmUnpair
           side={view.pairing.side}
@@ -41,4 +91,12 @@ export function Over() {
       )}
     </>
   );
+}
+
+// Lo que pone el marco: nada mientras no hay sesión o el vínculo no llegó.
+export function Layer() {
+  const view = useLinkView();
+  const runtime = useStore(linkRuntime);
+  if (!runtime || view.hidden) return null;
+  return <Over runtime={runtime} />;
 }

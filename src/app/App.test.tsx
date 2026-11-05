@@ -2,7 +2,6 @@ import 'fake-indexeddb/auto';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App.tsx';
-import { scan } from './modules/sign-in/codes/scanner.ts';
 import { person } from './modules/sign-in/session.ts';
 import {
   ana,
@@ -11,6 +10,7 @@ import {
   signInReply,
   startReply,
 } from './modules/sign-in/sign-in-test-kit.ts';
+import { scan } from './platform/camera/scanner.ts';
 import { store } from './platform/device/storage.ts';
 import { navigate } from './platform/router.ts';
 import { newVersion, sessionClosed } from './platform/server/api.ts';
@@ -21,7 +21,7 @@ import { later } from './testing/later.ts';
 // vacío y no pide nada.
 vi.mock('./modules/users/index.ts', () => ({ UsersSlot: () => null }));
 
-vi.mock('./modules/sign-in/codes/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
+vi.mock('./platform/camera/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
 
 const reading = {
   secret: 's',

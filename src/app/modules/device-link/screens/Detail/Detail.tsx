@@ -1,13 +1,15 @@
 // El detalle del vínculo (R4.2): flota al lado del lateral en la computadora y es una hoja en el
 // celular. La ruta, la frase del estado (o «No se pudo», que la reemplaza), la tira del día, los
 // datos y los botones. Es una capa del teclado: Alt C o Esc lo cierran (00 · R2.7, R2.10).
-import { isPhone } from '../../../../platform/device/device.ts';
+
+import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { useNarrow } from '../../../../platform/narrow.ts';
 import { serverNow } from '../../../../platform/server/clock.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
-import type { LinkView } from '../../view.ts';
+import { type LinkView, onPhone } from '../../view.ts';
+import { Code } from '../Code/Code.tsx';
 import { labelOf } from '../Indicator/Indicator.tsx';
 import { type Act, Actions } from './Actions.tsx';
 import { Facts } from './Facts.tsx';
@@ -18,7 +20,14 @@ import './Detail.css';
 import './Today.css';
 import './Actions.css';
 
-type Props = { view: LinkView; onAct: (act: Act) => unknown; onClose: () => void };
+// El código para vincular, si está a la vista (solo en la computadora).
+type CodePage = { onBack: () => void; onPaired: (pairing: PairingView) => void };
+type Props = {
+  view: LinkView;
+  onAct: (act: Act) => unknown;
+  onClose: () => void;
+  code?: CodePage | undefined;
+};
 
 const titleOf = (view: LinkView, phone: boolean) => {
   const t = detailTexts.detail.title;
@@ -70,9 +79,9 @@ function Body({ view, onAct, phone }: Omit<Props, 'onClose'> & { phone: boolean 
   );
 }
 
-export function Detail({ view, onAct, onClose }: Props) {
+export function Detail({ view, onAct, onClose, code }: Props) {
   const narrow = useNarrow();
-  const phone = view.side ? view.side === 'phone' : isPhone();
+  const phone = onPhone(view);
   const title = titleOf(view, phone);
   if (narrow)
     return (
@@ -83,6 +92,18 @@ export function Detail({ view, onAct, onClose }: Props) {
     );
   return (
     <section class="link-detail" id="link-detail" role="dialog" aria-label={title} data-layer="">
+      {code ? (
+        <Code other={view.other} onBack={code.onBack} onPaired={code.onPaired} />
+      ) : (
+        <Page view={view} onAct={onAct} onClose={onClose} title={title} />
+      )}
+    </section>
+  );
+}
+
+function Page({ view, onAct, onClose, title }: Omit<Props, 'code'> & { title: string }) {
+  return (
+    <>
       <div class="link-head">
         <h2 class="link-title">{title}</h2>
         <Button
@@ -97,7 +118,7 @@ export function Detail({ view, onAct, onClose }: Props) {
           <span class="visually-hidden">{detailTexts.detail.close}</span>
         </Button>
       </div>
-      <Body view={view} onAct={onAct} phone={phone} />
-    </section>
+      <Body view={view} onAct={onAct} phone={onPhone(view)} />
+    </>
   );
 }

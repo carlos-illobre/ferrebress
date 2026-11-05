@@ -3,13 +3,14 @@
 import { useStore } from '../../platform/store.ts';
 import type { FrameLink } from '../frame/index.ts';
 import { linkOver } from './current.ts';
-import { detailOpen } from './detail.ts';
+import { detailOpen, reading } from './detail.ts';
 import { PhoneIndicator, SideIndicator } from './screens/Indicator/Indicator.tsx';
 
 function LinkOver() {
   const loaded = useStore(linkOver);
   const open = useStore(detailOpen);
-  return open && loaded ? <loaded.Over /> : null;
+  const read = useStore(reading);
+  return (open || read) && loaded ? <loaded.Over /> : null;
 }
 
 export const frameLink: FrameLink = { Side: SideIndicator, Phone: PhoneIndicator, Over: LinkOver };

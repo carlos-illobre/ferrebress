@@ -83,6 +83,61 @@ export const detailTexts = {
     pairPhone: 'Leer el código',
     unpair: 'Desvincular',
   },
+  code: {
+    title: 'Vincular el celular',
+    back: 'Volver',
+    once: 'Sirve una vez',
+    renews: (seconds: number) => `Se renueva en 0:${String(seconds).padStart(2, '0')}`,
+    renewsFull: 'Se renueva en 1:00',
+    steps: [
+      'En el celular, abrí Ferrebress con tu misma cuenta.',
+      'Tocá el indicador de arriba y «Leer el código», o apuntale con la cámara del teléfono.',
+      'Listo: el celular viene a esta pantalla.',
+    ],
+    replaces: (other: string) =>
+      `Ya está vinculada con ${other}. Si lo lee otro celular, lo reemplaza: el celular pregunta antes.`,
+    waiting: 'Esperando que el celular lo lea…',
+    qr: 'Código para vincular',
+  },
+  camera: {
+    title: 'Leer el código',
+    tip: 'Apuntá al código de la computadora',
+    unavailable: 'No se pudo abrir la cámara. Podés leer el código con la cámara del teléfono.',
+    close: 'Cerrar',
+  },
+  reading: {
+    otherAccount: {
+      title: 'Este código es de otra cuenta',
+      detail: 'Entrá con la misma cuenta en los dos.',
+    },
+    expired: {
+      title: 'Este código venció',
+      detail:
+        'Cada código sirve una vez y se renueva cada minuto. Leé el que muestra ahora la computadora.',
+    },
+    offline: {
+      title: 'Para vincular hace falta internet',
+      detail: 'Probá cuando vuelva la conexión.',
+    },
+    failed: {
+      title: 'No se pudo vincular',
+      detail: 'Probá de nuevo en un momento.',
+    },
+    ok: 'Entendido',
+    cancel: 'Cancelar',
+    again: 'Leer el nuevo',
+  },
+  replace: {
+    phone: (was: string) => `Este celular está vinculado a ${was}. ¿Reemplazar?`,
+    computer: 'Esta computadora está vinculada a otro celular. ¿Reemplazar?',
+    detail: 'El vínculo anterior se termina. Esta pasa a ser la tuya.',
+    cancel: 'Cancelar',
+    yes: 'Reemplazar',
+  },
+  toast: {
+    pairedPhone: 'Vinculados: fuiste a la pantalla de la compu',
+    pairedComputer: 'Vinculados: el celular vino a esta pantalla',
+  },
 };
 
 // Cuánto: «2 h 17 min», «11 min».

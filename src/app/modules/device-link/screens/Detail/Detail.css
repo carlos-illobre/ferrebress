@@ -199,7 +199,7 @@
     background: var(--pine-soft);
     color: var(--pine-text);
   }
-  .link-phrase .link-failed {
+  .link-failed {
     padding: 10px 12px;
     border-radius: var(--radius);
     background: var(--urgent-soft);

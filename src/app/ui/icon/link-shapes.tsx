@@ -1,6 +1,12 @@
 // Los íconos del vínculo con el otro dispositivo (03) que la aplicación no tenía: la ruta, los
 // botones del detalle y el código. Lucide 0.460 (licencia ISC); se bajan con el detalle (addShapes).
 export const linkShapes = {
+  'arrow-left': (
+    <>
+      <path d="m12 19-7-7 7-7" />
+      <path d="M19 12H5" />
+    </>
+  ),
   cloud: (
     <>
       <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />

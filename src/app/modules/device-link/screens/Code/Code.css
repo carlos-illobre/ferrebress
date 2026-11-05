@@ -1,0 +1,102 @@
+/* El código para vincular (computadora): el QR con el isotipo al centro, el tilde cuando se lee y
+   cuánto le queda. */
+@layer screens {
+  .link-code-title {
+    text-align: right;
+  }
+  .qr-box {
+    position: relative;
+    width: 236px;
+    margin: 4px auto 0;
+    padding: 14px;
+    border-radius: 20px;
+    background: #fff;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-2);
+  }
+  .qr-box svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .qr-mark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 52px;
+    height: 52px;
+    margin: -26px 0 0 -26px;
+    border-radius: 12px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 0 4px #fff;
+  }
+  .qr-mark img {
+    width: 34px;
+    height: 34px;
+  }
+  .qr-done {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: var(--success-soft);
+    color: var(--success);
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+      opacity var(--time) var(--ease),
+      transform var(--time-nav) var(--bounce);
+  }
+  .qr-box.read .qr-done {
+    opacity: 1;
+    transform: none;
+  }
+  .qr-renews {
+    width: 236px;
+    margin: 12px auto 0;
+    display: grid;
+    gap: 6px;
+  }
+  .qr-renews-row {
+    display: flex;
+    justify-content: space-between;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--text-2);
+  }
+  .qr-rail {
+    height: 6px;
+    border-radius: 99px;
+    background: var(--sunken-2);
+    overflow: hidden;
+  }
+  .qr-rail b {
+    display: block;
+    height: 100%;
+    background: var(--pine);
+    border-radius: 99px;
+    transform-origin: left;
+    transition: transform 1s linear;
+  }
+  .link-code .link-failed {
+    margin: 14px 0 0;
+  }
+  .link-waiting {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 14px 0 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pine-text);
+  }
+  .link-waiting .link-dot {
+    background: transparent;
+    border: 2px solid var(--pine-text);
+  }
+}

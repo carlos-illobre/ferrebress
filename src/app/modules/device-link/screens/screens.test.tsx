@@ -11,7 +11,7 @@ import { frameLink } from '../frame-link.tsx';
 import type { PairingState } from '../machine/types.ts';
 import type { Runtime } from '../runtime.ts';
 import { createStrip } from '../strip.ts';
-import { Over } from './Detail/Over.tsx';
+import { Layer as Over } from './Detail/Over.tsx';
 import { PhoneIndicator, SideIndicator } from './Indicator/Indicator.tsx';
 
 const hour = 3_600_000;
@@ -108,6 +108,8 @@ describe('el indicador', () => {
 });
 
 describe('el detalle', () => {
+  beforeEach(() => detailOpen.set(true));
+
   it('directo: la ruta con la latencia, la tira del día, los datos y los botones', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
     const start = new Date(2026, 10, 4, 8).getTime();
@@ -166,7 +168,13 @@ describe('el detalle', () => {
     act(() => runtime.state.set({ kind: 'unpaired' }));
     expect(screen.getByRole('dialog', { name: 'Trabajar con el celular' })).toBeTruthy();
     expect(screen.getAllByRole('listitem')).toHaveLength(3);
+    // Vincular muestra el código (el canal no contesta en la prueba) y Volver, el detalle.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => new Promise(() => undefined)),
+    );
     fireEvent.click(screen.getByRole('button', { name: /Vincular el celular/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /Volver/ }));
     act(() => runtime.state.set({ kind: 'waiting', pairing: pc }));
     expect(screen.getAllByText('Esperando al celular').length).toBeGreaterThan(0);
     act(() => runtime.state.set({ kind: 'offline', pairing: pc }));

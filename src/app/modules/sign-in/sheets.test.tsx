@@ -1,14 +1,14 @@
 import 'fake-indexeddb/auto';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { scan } from '../../platform/camera/scanner.ts';
 import { store } from '../../platform/device/storage.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
-import { scan } from './codes/scanner.ts';
 import { Camera, CodeSheet, OfferSheet, usePhoneCode } from './index.ts';
 import { hasPasskey, offerPasskey, person, wasOffered } from './session.ts';
 import { ana, fakePasskeys } from './sign-in-test-kit.ts';
 
-vi.mock('./codes/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
+vi.mock('../../platform/camera/scanner.ts', () => ({ scan: vi.fn(), scanEveryMs: 250 }));
 
 const reading = {
   secret: 's',
