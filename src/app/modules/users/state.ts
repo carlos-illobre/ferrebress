@@ -13,41 +13,24 @@ import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
 import { isWide } from '../../platform/narrow.ts';
 import { navigate, route } from '../../platform/router.ts';
 import { oneOf } from '../../platform/schema.ts';
+import {
+  filters,
+  type Overlay,
+  opened,
+  openedOf,
+  overlayOf,
+  personId,
+  searchText,
+} from './overlay.ts';
+
+export type { Overlay } from './overlay.ts';
+
 import { online as onlineStore } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
 import { person as me, pendingEntries } from '../sign-in/index.ts';
 import { usersApi } from './api.ts';
 import { type Filter, visible } from './logic.ts';
 import { listPath } from './roles/paths.ts';
-
-// Lo que se abre encima: autorizar, «Se perdió un celular» y las dos confirmaciones. Volver a
-// confirmar quién es va aparte, encima de lo que haya, así autorizar sigue abierto debajo.
-export type Overlay =
-  | { kind: 'authorize' }
-  | { kind: 'lost' }
-  | { kind: 'deactivate'; person: PersonRow }
-  | { kind: 'close-all'; person: PersonRow }
-  | { kind: 'search' };
-
-// Lo abierto encima, como viaja: qué es y, si es de una persona, cuál (la persona sale de la lista).
-const kinds = ['authorize', 'lost', 'deactivate', 'close-all', 'search'] as const;
-const personId = z.string().check(z.maxLength(64));
-const opened = z.object({ kind: oneOf(kinds), id: z.nullable(personId) });
-type Opened = z.infer<typeof opened>;
-const filters = ['all', 'active', 'never', 'off'] as const;
-const searchText = z.string().check(z.maxLength(200));
-
-const openedOf = (overlay: Overlay): Opened =>
-  'person' in overlay
-    ? { kind: overlay.kind, id: overlay.person.id }
-    : { kind: overlay.kind, id: null };
-
-function overlayOf(open: Opened | null, people: PersonRow[] | undefined): Overlay | undefined {
-  if (!open) return undefined;
-  if (open.kind !== 'deactivate' && open.kind !== 'close-all') return { kind: open.kind };
-  const person = people?.find((one) => one.id === open.id);
-  return person && { kind: open.kind, person };
-}
 
 // Lo que trae el servidor lo pide cada dispositivo, con su sesión y su permiso; los roles, para las
 // pastillas y el filtro por rol (R3.1).
@@ -115,8 +98,15 @@ function useCard() {
     setAccess(undefined);
     if (selected) void loadAccess(selected);
   }, [selected]);
-  const select = (id: string | undefined, auto?: true) =>
+  const select = (id: string | undefined, auto?: true) => {
+    // Tocar a la que ya está elegida la vuelve a pedir, como siempre: no cambia lo que viaja.
+    if (id && id === selected) {
+      setAccess(undefined);
+      void loadAccess(id);
+      return;
+    }
     choose(id ?? null, auto ? { auto } : undefined);
+  };
   return { selected, access, select, loadAccess };
 }
 
