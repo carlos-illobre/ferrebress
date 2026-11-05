@@ -488,6 +488,16 @@
    "variants": [
     {
      "device": "desktop",
+     "name": "Final",
+     "path": "mockups/users-who-did-what/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/users-who-did-what/final/index.html"
+    },
+    {
+     "device": "desktop",
      "name": "1 · El libro",
      "path": "mockups/users-who-did-what/desktop/variant-1-ledger/index.html"
     },

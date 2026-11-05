@@ -1,0 +1,74 @@
+/* Quién hizo qué · maqueta final: las piezas de la lista y el detalle (sobre common.css).
+   Copia de ../shared/audit.css, con el ícono de cada tipo (R4.10) y los nombres como texto (E33). */
+
+/* ---------- Avatares: cada persona con su tono, siempre el mismo ---------- */
+.avatar { width: 36px; height: 36px; font-size: 14px; background: var(--pino-suave); color: var(--pino-texto); }
+.avatar.chico { width: 28px; height: 28px; font-size: 14px; }
+.avatar.grande { width: 56px; height: 56px; font-size: 18px; }
+.av-vos { background: var(--accion-suave); color: var(--accion-texto); }
+.av-gb { background: #E6EEF7; color: #24527F; }
+.av-ms { background: #EFE8F6; color: #5A3F86; }
+.av-sl { background: #E3F2EA; color: #1F6B47; }
+.av-no { background: #F6ECE3; color: #81492A; }
+.av-pg { background: #E9ECE4; color: #4B5A3A; }
+.av-baja { background: var(--hundido) !important; color: var(--texto-3) !important; border: 1px dashed var(--borde-fuerte); }
+.av-sys { background: var(--hundido); color: var(--texto-2); }
+.av-anon { background: var(--urgente-suave); color: var(--urgente-texto); }
+
+/* ---------- El ícono del tipo de cada acción (R4.10), teñido con su color (R4.4) ---------- */
+.tipo-ico { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; flex: none; background: var(--hundido); color: var(--texto-2); }
+.tipo-ico.rojo { background: var(--error-suave); color: var(--error-texto); }
+.tipo-ico.ambar { background: var(--urgente-suave); color: var(--urgente-texto); }
+.tipo-ico.grande { width: 36px; height: 36px; border-radius: 12px; }
+.pastilla.chica { height: 24px; padding: 0 8px; font-size: 14px; }
+
+/* ---------- Las personas dentro del texto: solo texto, en negrita (E33) ---------- */
+.quien-a { font-weight: 750; }
+.hoy { font-weight: 500; color: var(--texto-2); }
+.rol { font-weight: 750; }
+.sin-conf { display: inline-flex; align-items: center; gap: 4px; color: var(--urgente-texto); font-weight: 650; font-size: 14px; }
+
+/* ---------- Antes → después (R2.5) ---------- */
+.cambio { display: grid; gap: 4px; padding: 10px 12px; border-radius: var(--r); background: var(--hundido); }
+.cambio .campo-n { font-size: 14px; font-weight: 650; color: var(--texto-2); }
+.cambio .ad { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 15px; font-weight: 650; }
+.cambio .antes { color: var(--texto-2); text-decoration: line-through; text-decoration-color: rgba(84, 89, 85, .5); }
+.cambio .despues { color: var(--tinta); font-weight: 800; }
+.cambio .flecha-ad { color: var(--texto-3); }
+.cambio .vacio { color: var(--texto-3); text-decoration: none; font-weight: 500; }
+
+/* ---------- Desde dónde (R2.6) ---------- */
+.desde { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.desde > div { padding: 10px 12px; border-radius: var(--r); border: 1px solid var(--borde); display: grid; gap: 2px; min-width: 0; }
+.desde .et { font-size: 14px; font-weight: 650; color: var(--texto-2); display: flex; gap: 6px; align-items: center; }
+.desde .va { font-size: 15px; font-weight: 750; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- Menú que se despliega (filtros) ---------- */
+.pop { position: absolute; z-index: 30; min-width: 280px; max-height: 420px; overflow: auto; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-3); padding: 8px; opacity: 0; transform: translateY(-6px) scale(.98); transform-origin: top left; pointer-events: none; transition: opacity var(--t) var(--curva), transform var(--t) var(--curva); }
+.pop.abierto { opacity: 1; transform: none; pointer-events: auto; }
+.pop .op { width: 100%; display: grid; grid-template-columns: 32px 1fr auto; gap: 10px; align-items: center; min-height: 44px; padding: 6px 8px; border: 0; background: none; border-radius: 10px; text-align: left; font-size: 15px; font-weight: 650; cursor: pointer; }
+.pop .op:hover, .pop .op.foco { background: var(--hundido); }
+.pop .op.elegida { background: var(--pino-suave); color: var(--pino); }
+.pop .op small { font-size: 14px; color: var(--texto-2); font-weight: 500; }
+.pop .op .avatar { width: 32px; height: 32px; font-size: 14px; }
+.pop .op .ic { width: 32px; height: 32px; border-radius: 9px; background: var(--hundido); display: grid; place-items: center; color: var(--texto-2); }
+.pop .sep { font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 10px 8px 4px; }
+.pop .op.sub { grid-template-columns: 32px 1fr auto; padding-left: 8px; font-weight: 600; }
+
+/* ---------- Lo nuevo entra (lenguaje común) ---------- */
+@keyframes entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fundido { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.fundido { animation: fundido var(--t) var(--curva) both; }
+.recien { position: relative; }
+.recien::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; border: 2px solid var(--logro); pointer-events: none; animation: apaga 1.2s var(--curva) .2s both; }
+@keyframes apaga { from { opacity: 1; } to { opacity: 0; } }
+/* Números que ruedan: sube = desde abajo */
+.rueda { display: inline-block; animation: rueda var(--t) var(--curva); }
+@keyframes rueda { from { opacity: 0; transform: translateY(60%); } to { opacity: 1; transform: none; } }
+
+/* ---------- Vacío (E20, E29) ---------- */
+.vacio-lista { display: grid; justify-items: center; gap: 8px; padding: 48px 16px; text-align: center; color: var(--texto-2); }
+.vacio-lista .ilus { width: 72px; height: 72px; border-radius: 24px; background: var(--hundido); display: grid; place-items: center; color: var(--texto-3); margin-bottom: 4px; }
+.vacio-lista b { color: var(--tinta); font-size: 17px; }
+
+@media (prefers-reduced-motion: reduce) { .rueda, .fundido, .recien::after { animation: none !important; } }

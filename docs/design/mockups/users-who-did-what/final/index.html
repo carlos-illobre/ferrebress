@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Usuarios · Quién hizo qué · final</title>
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="audit.css">
+<link rel="stylesheet" href="screen.css">
+<script src="../../../common/icons.js"></script>
+<script src="icons-extra.js"></script>
+</head>
+<body>
+<div class="prueba" aria-hidden="true">
+  <div class="prueba-borde"></div>
+  <div class="prueba-cartel">Ambiente de prueba<span> · nada de esto es real</span></div>
+</div>
+
+<div class="app">
+  <!-- ======== Computadora: el lateral, con la tarjeta del vínculo al pie ======== -->
+  <nav class="lateral solo-compu" aria-label="Menú">
+    <div class="lado-marca"><img src="../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button type="button" class="btn btn-fantasma lado-plegar" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <button type="button" class="nav-item"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="package"></i><span class="txt">Depósito</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></button>
+    <button type="button" class="nav-item" aria-current="page"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></button>
+    <div class="pie">
+      <!-- El indicador del vínculo, la luz debajo y, debajo de la luz, lo que gasta la aplicación (03 · R4.5) -->
+      <div class="vinculo-tarjeta">
+        <button type="button" class="indicador" data-tone="logro" data-indicador aria-haspopup="dialog" aria-label="Vínculo: Directo, con Chrome en Android">
+          <span class="indicador-ico"><i class="i" data-i="smartphone"></i><span class="dot"></span></span>
+          <span class="indicador-txt"><b>Directo</b><small>Chrome en Android</small></span>
+          <span class="kbd">L</span>
+        </button>
+        <div class="luz"><span class="punto"></span><span data-luz-texto>En línea · todo enviado</span></div>
+        <p class="gasto-app" title="Lo que gasta ahora toda la aplicación, por todos sus canales, medido sobre el último minuto">Aplicación: <b data-gasto-app>0 KB/min</b></p>
+      </div>
+      <div class="persona"><div class="usuario"><span class="avatar av-vos">RP</span><div><b class="persona-nombre">Rubén Paredes</b><div class="t-detalle">Administrador</div></div></div><button type="button" class="btn chico"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+
+  <main class="contenido">
+    <header class="cabecera">
+      <h1 class="t-titulo">Usuarios</h1>
+      <!-- «Actualizar solo» (R4.6), donde iba «Actualizar»; debajo, lo que gasta esta pantalla (R4.12) -->
+      <div class="vivo zona-red" id="vivo">
+        <button type="button" class="vivo-llave" id="vivo-llave" role="switch" aria-checked="false" aria-describedby="vivo-gasto"><span>Actualizar solo</span><span class="llave" aria-hidden="true"></span><span class="kbd">R</span></button>
+        <p class="vivo-gasto" id="vivo-gasto" title="Lo que gasta la actualización automática de esta pantalla, medido sobre el último minuto"><span class="largo">Esta pantalla: </span><b data-gasto-pantalla>0 KB/min</b></p>
+      </div>
+    </header>
+
+    <!-- Celular: la pastilla del vínculo debajo del título, con lo que gasta la aplicación en un renglón abajo (03 · R4.1, R4.5); la luz, a su lado, solo sin conexión (00 · R4.1) -->
+    <div class="p-estado solo-celu">
+      <button type="button" class="indicador-pastilla" data-tone="logro" data-indicador aria-haspopup="dialog" aria-label="Vínculo: Directo, con Chrome en Windows"><i class="i i-s" data-i="monitor"></i><span class="dot"></span><span class="pastilla-txt"><b>Directo</b><span class="pastilla-gasto"><b data-gasto-app>0 KB/min</b></span></span></button>
+      <button type="button" class="p-luz"><span class="punto"></span><span>Sin conexión</span></button>
+    </div>
+
+    <nav class="pestanas" aria-label="Usuarios"><button type="button">Usuarios</button><button type="button">Roles</button><button type="button" aria-current="page">Quién hizo qué</button></nav>
+
+    <section class="pantalla" id="pant" aria-label="Quién hizo qué">
+      <div class="gris-cartel"><i class="i i-s" data-i="wifi-off"></i>Sin conexión <small>· vuelve sola</small></div>
+      <div class="izq zona-red">
+        <!-- El resumen del período (R4.9) y, en la computadora, el día en una tira que abre la cinta (R4.11) -->
+        <div class="arriba">
+          <button type="button" class="resumen" data-res="todo"><span class="ico"><i class="i" data-i="history"></i></span><div><div class="va" data-res-n="todo">0</div><div class="et" id="res-periodo">Hoy</div></div><span class="kbd">H</span></button>
+          <button type="button" class="resumen urgente" data-res="ambar"><span class="ico"><i class="i" data-i="ban"></i></span><div><div class="va" data-res-n="ambar">0</div><div class="et">Rechazos</div></div><span class="kbd">C</span></button>
+          <button type="button" class="resumen error" data-res="rojo"><span class="ico"><i class="i" data-i="trash-2"></i></span><div><div class="va" data-res-n="rojo">0</div><div class="et">Sacó o borró</div></div><span class="kbd">B</span></button>
+          <button type="button" class="tarjeta tira solo-compu" id="tira" aria-label="Ver el día en la cinta"><span class="et"><span id="tira-titulo">El día, de 7 a 11</span><i class="i i-s" data-i="film"></i></span><span class="riel" id="riel"></span><span class="horas" id="tira-horas"></span><span class="kbd">D</span></button>
+        </div>
+        <div class="filtros" id="filtros">
+          <button type="button" class="filtro" data-f="por"><span class="largo">Hecho por</span><span class="corto">Por</span> <b>Todos</b><span class="kbd">P</span></button>
+          <button type="button" class="filtro" data-f="a"><span class="largo">Hecho a</span><span class="corto">A</span> <b>Todos</b><span class="kbd">A</span></button>
+          <button type="button" class="filtro" data-f="fecha"><span class="largo">Fecha</span><i class="i i-s corto" data-i="calendar-days"></i> <b>Todo</b><span class="kbd">F</span></button>
+          <button type="button" class="filtro" data-f="tipo">Tipo <b>Todos</b><span class="kbd">T</span></button>
+          <button type="button" class="btn btn-fantasma chico sacar" data-sacar hidden><i class="i i-s" data-i="x"></i>Sacar filtros <span class="kbd">X</span></button>
+          <div class="pop" id="pop" role="dialog" aria-label="Filtro"></div>
+        </div>
+        <div class="cuenta solo-celu"><span><b data-total>45</b> acciones</span><span class="cuenta-btns"><button type="button" class="btn btn-fantasma chico" data-sacar hidden><i class="i i-s" data-i="x"></i>Sacar filtros</button><button type="button" class="btn chico" id="ver-dia"><i class="i i-s" data-i="film"></i>Ver el día</button></span></div>
+        <div class="lista-t">
+          <div class="nuevas-cont"><button type="button" class="nuevas" id="nuevas" hidden><i class="i i-s" data-i="arrow-up"></i><span id="nuevas-txt">3 nuevas</span><span class="kbd">N</span></button></div>
+          <div id="lista" role="listbox" aria-label="Acciones"></div>
+          <div class="paginador">
+            <span class="tot solo-compu"><b data-total>45</b> acciones</span>
+            <span class="t-detalle teclas solo-compu"><span class="kbd">↑</span> <span class="kbd">↓</span> recorrer · <span class="kbd">RePág</span> <span class="kbd">AvPág</span> página</span>
+            <div class="pg">
+              <button type="button" class="btn chico btn-icono" id="ant" aria-label="Página anterior"><i class="i i-s" data-i="chevron-left"></i></button>
+              <span class="pg-c"><span id="pagina">página 1 de 3</span><small>de a 10</small></span>
+              <button type="button" class="btn chico btn-icono" id="sig" aria-label="Página siguiente"><i class="i i-s" data-i="chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- El detalle (R4.7): fijo a la derecha en la computadora; una hoja en el celular -->
+      <aside class="tarjeta-2 zona-red" id="detalle" aria-live="polite" aria-label="El detalle de la acción"><div class="asa solo-celu" aria-hidden="true"></div><div class="det-in" id="det-cuerpo"></div></aside>
+    </section>
+
+    <nav class="nav-inferior solo-celu" aria-label="Menú">
+      <button type="button"><i class="i" data-i="shopping-cart"></i>Vender</button>
+      <button type="button"><i class="i" data-i="tags"></i>Catálogo</button>
+      <button type="button"><i class="i" data-i="package"></i>Depósito</button>
+      <button type="button"><i class="i" data-i="chart-column"></i>Negocio</button>
+      <button type="button" aria-current="page"><i class="i" data-i="menu"></i>Más</button>
+    </nav>
+  </main>
+</div>
+
+<div class="velo" id="velo"></div>
+<!-- La cinta (R4.11): la maqueta aprobada de la variante 3, encima de la lista -->
+<div class="cinta" id="cinta" hidden><iframe id="cinta-marco" title="La cinta del día"></iframe></div>
+
+<script src="data.js"></script>
+<script src="screen.js"></script>
+</body>
+</html>
