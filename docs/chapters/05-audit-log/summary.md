@@ -3,8 +3,7 @@
 El registro de lo que hace cada persona y cómo se consulta. Reglas completas en [rules.md](rules.md).
 
 **Estado:** reglas aprobadas; «Actualizar solo» y los medidores (R4.6, R4.12, E34, E49 a E56, y
-03 · R4.5; roadmap T118) están programados y les faltan las revisiones del código y que Carlos los
-pruebe. La historia de un dato se muestra con el catálogo (roadmap,
+03 · R4.5; roadmap T118) están programados y revisados; falta que Carlos los pruebe. La historia de un dato se muestra con el catálogo (roadmap,
 T115); cuánto se guarda se decide con el plan de copias (T116).
 
 ## Cada regla en una línea
