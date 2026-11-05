@@ -6,7 +6,7 @@ import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { useNarrow } from '../../../../platform/narrow.ts';
 import { serverNow } from '../../../../platform/server/clock.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
-import { Say } from '../../../../ui/say/Say.tsx';
+import { Say, type Words } from '../../../../ui/say/Say.tsx';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
 import { type LinkView, onPhone } from '../../view.ts';
 import { Code } from '../Code/Code.tsx';
@@ -35,7 +35,15 @@ const titleOf = (view: LinkView, phone: boolean) => {
   return phone ? t.computer.short : t.computer.long;
 };
 
-function Phrase({ view }: { view: LinkView }) {
+// La frase del estado: la de su lado, si habla desde un lado; si no, larga o corta según el ancho.
+function stateWords(view: LinkView, phone: boolean): Words {
+  const { sided, phrase } = detailTexts.detail;
+  if (view.status !== 'unpaired' && view.status !== 'waiting') return phrase[view.status];
+  const text = sided[view.status][phone ? 'phone' : 'computer'];
+  return { long: text, short: text };
+}
+
+function Phrase({ view, phone }: { view: LinkView; phone: boolean }) {
   const over = view.status === 'direct' || view.status === 'relayed';
   return (
     <div class="link-phrase">
@@ -52,7 +60,7 @@ function Phrase({ view }: { view: LinkView }) {
         </p>
       ) : (
         <p>
-          <Say words={detailTexts.detail.phrase[view.status]} />
+          <Say words={stateWords(view, phone)} />
         </p>
       )}
     </div>
@@ -64,7 +72,7 @@ function Body({ view, onAct, phone }: Omit<Props, 'onClose'> & { phone: boolean 
   return (
     <>
       <Route view={view} phone={phone} />
-      <Phrase view={view} />
+      <Phrase view={view} phone={phone} />
       {view.status === 'unpaired' && !phone && (
         <ol class="link-steps">
           {detailTexts.detail.steps.map((step) => (
@@ -83,11 +91,18 @@ export function Detail({ view, onAct, onClose, code }: Props) {
   const narrow = useNarrow();
   const phone = onPhone(view);
   const title = titleOf(view, phone);
+  // Angosta, una hoja; en una computadora angosta, el código también va en ella (R1.3).
   if (narrow)
     return (
       <Sheet title={title} onClose={onClose} className="link-sheet">
-        <h2 class="link-title">{title}</h2>
-        <Body view={view} onAct={onAct} phone={phone} />
+        {code ? (
+          <Code other={view.other} onBack={code.onBack} onPaired={code.onPaired} />
+        ) : (
+          <>
+            <h2 class="link-title">{title}</h2>
+            <Body view={view} onAct={onAct} phone={phone} />
+          </>
+        )}
       </Sheet>
     );
   return (

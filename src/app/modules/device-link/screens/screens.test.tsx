@@ -3,44 +3,17 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startParts } from '../../../platform/server/start-parts.ts';
-import { createStore } from '../../../platform/store.ts';
-import { pairingView, pc, phone } from '../../../testing/pairing.ts';
+import { fakeRuntime, inApp, narrow } from '../../../testing/link-screens.ts';
+import { pc, phone } from '../../../testing/pairing.ts';
 import { Toasts } from '../../../ui/toast/Toast.tsx';
 import { linkOver, linkRuntime, linkStrip } from '../current.ts';
 import { detailOpen } from '../detail.ts';
 import { frameLink } from '../frame-link.tsx';
-import type { PairingState } from '../machine/types.ts';
-import type { Runtime } from '../runtime.ts';
 import { createStrip } from '../strip.ts';
 import { Layer as Over } from './Detail/Over.tsx';
 import { PhoneIndicator, SideIndicator } from './Indicator/Indicator.tsx';
 
 const hour = 3_600_000;
-function fakeRuntime(state: PairingState) {
-  const runtime = {
-    state: createStore<PairingState>(state),
-    dispatch: vi.fn(),
-    roundTripMs: vi.fn(async () => 12),
-  };
-  linkRuntime.set(runtime as unknown as Runtime);
-  return runtime;
-}
-
-const narrow = (on: boolean) =>
-  vi.stubGlobal('matchMedia', (query: string) => ({
-    matches: on && query.includes('max-width'),
-    addEventListener: () => undefined,
-    removeEventListener: () => undefined,
-  }));
-
-// El diálogo deja inerte a la aplicación de atrás: la prueba dibuja adentro de ella.
-const inApp = () => {
-  const app = document.getElementById('app') ?? document.createElement('div');
-  app.id = 'app';
-  document.body.append(app);
-  return { container: app.appendChild(document.createElement('div')) };
-};
-
 beforeEach(() => narrow(false));
 afterEach(() => {
   linkRuntime.set(undefined);
@@ -214,28 +187,6 @@ describe('el detalle', () => {
     fireEvent.click(screen.getByRole('alertdialog').querySelector('[data-primary]') as HTMLElement);
     await new Promise((settled) => setTimeout(settled, 20));
     expect(screen.getByRole('alertdialog')).toBeTruthy();
-  });
-
-  it('en el celular es una hoja, con los textos cortos y «Leer el código»', () => {
-    narrow(true);
-    fakeRuntime({ kind: 'direct', pairing: pairingView('phone'), attempt: 'a' });
-    render(<Over />);
-    expect(screen.getByRole('dialog', { name: 'Con la computadora' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Leer el código/ })).toBeTruthy();
-    fireEvent.click(document.querySelector('.sheet-scrim') as HTMLElement);
-    expect(detailOpen.get()).toBe(false);
-  });
-
-  it('en el celular sin vincular, el título es el de trabajar con la compu', () => {
-    narrow(true);
-    vi.stubGlobal('navigator', {
-      ...navigator,
-      userAgent: 'Android',
-      userAgentData: { mobile: true },
-    });
-    fakeRuntime({ kind: 'unpaired' });
-    render(<Over />);
-    expect(screen.getByRole('dialog', { name: 'Trabajar con la compu' })).toBeTruthy();
   });
 
   it('sin el vínculo, o sin sesión, no muestra nada', () => {

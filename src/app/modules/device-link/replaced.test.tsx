@@ -56,4 +56,14 @@ describe('el reemplazo al entrar a otra computadora', () => {
     expect(screen.queryByRole('status')).toBeNull();
     stop();
   });
+
+  it('desvincular y después entrar a una computadora es un vínculo nuevo, no un reemplazo', () => {
+    const { state, stop } = setup(phoneWith('a', 'Chrome en Windows'));
+    act(() => state.set({ kind: 'unpaired' }));
+    act(() => state.set(phoneWith('b', 'Edge en Windows')));
+    act(() => state.set({ kind: 'asleep' }));
+    act(() => state.set(phoneWith('c', 'Otra')));
+    expect(screen.queryByRole('status')).toBeNull();
+    stop();
+  });
 });

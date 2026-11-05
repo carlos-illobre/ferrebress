@@ -11,8 +11,10 @@ import { type LinkView, viewOf } from './view.ts';
 
 const asleep: PairingState = { kind: 'asleep' };
 
-// Mientras el vínculo se baja, lo que dijo `/api/start` (sin validar: solo se muestra; el vínculo
-// valida al llegar): así el indicador no aparece de golpe un momento después.
+// Mientras el vínculo se baja, o mientras duerme (una pestaña que abrió sin el candado, R6.4), lo que
+// dijo `/api/start` (sin validar: solo se muestra; el vínculo valida al llegar): así el indicador no
+// aparece de golpe un momento después, y una segunda pestaña dice lo mismo que la que soltó el
+// candado (9.3).
 function fromStart(parts: Record<string, unknown> | undefined): PairingState {
   if (!parts) return asleep;
   const pairing = parts.pairing as PairingView | null | undefined;
@@ -26,9 +28,9 @@ export function useLinkView(): LinkView {
   // local: el estado del vínculo de este dispositivo.
   const [state, setState] = useState<PairingState>(runtime?.state.get() ?? asleep);
   useEffect(() => {
-    if (!runtime) return setState(fromStart(parts));
+    if (!runtime) return setState(asleep);
     setState(runtime.state.get());
     return runtime.state.subscribe(setState);
-  }, [runtime, parts]);
-  return viewOf(state);
+  }, [runtime]);
+  return viewOf(state.kind === 'asleep' ? fromStart(parts) : state);
 }

@@ -1,6 +1,7 @@
 // Entrar a otra computadora con el celular reemplaza el vínculo sin preguntar (R1.5): el celular lo
 // avisa una vez, «Ahora este celular está vinculado a Chrome en Windows», con «Desvincular» por si no
-// era lo que quería. Lo ve en su estado: el vínculo cambió por otro sin que lo leyera él.
+// era lo que quería. Lo ve en su estado: el vínculo cambió por otro sin que lo leyera él, sin pasar por
+// «Sin vincular» ni por otra persona (eso es un vínculo nuevo, no un reemplazo).
 import { showToast } from '../../ui/toast/Toast.tsx';
 import { reading, unpairAsked } from './detail.ts';
 import type { PairingState } from './machine/types.ts';
@@ -14,7 +15,7 @@ export function watchReplaced(runtime: Runtime): () => void {
   return runtime.state.subscribe((state) => {
     const now = idOf(state);
     const replaced = before !== undefined && now !== undefined && now !== before;
-    before = now ?? before;
+    before = now;
     if (!replaced || !('pairing' in state) || state.pairing.side !== 'phone' || reading.get())
       return;
     showToast(texts.replaced(state.pairing.other.label), 'check', {

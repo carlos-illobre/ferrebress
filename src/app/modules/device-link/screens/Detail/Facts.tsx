@@ -2,7 +2,7 @@
 // con la barra de los días que quedan.
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { day, detailTexts } from './texts.ts';
+import { day, detailTexts, since } from './texts.ts';
 
 const dayMs = 86_400_000;
 
@@ -16,7 +16,8 @@ export function Facts({ pairing, now }: { pairing: PairingView; now: number }) {
         <Icon name={pairing.side === 'phone' ? 'monitor' : 'smartphone'} />
         <dt>{t.pairedWith}</dt>
         <dd>
-          {pairing.other.label} <span class="facts-since">· {t.since(day(pairing.since))}</span>
+          {pairing.other.label}{' '}
+          <span class="facts-since">· {t.since(since(pairing.since, now))}</span>
         </dd>
       </div>
       <div class="facts-row">

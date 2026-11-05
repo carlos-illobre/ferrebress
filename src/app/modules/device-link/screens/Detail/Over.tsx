@@ -56,6 +56,12 @@ function Reader({ runtime }: { runtime: Runtime }) {
   );
 }
 
+// Desconectar y reconectar se avisan al pie, con el texto de su lado.
+function tellAct(act: Act, phone: boolean): void {
+  if (act === 'pause') showToast(detailTexts.toast.paused, 'unplug');
+  if (act === 'resume') showToast(detailTexts.toast.resumed[phone ? 'phone' : 'computer'], 'check');
+}
+
 export function Over({ runtime }: { runtime: Runtime }) {
   const view = useLinkView();
   const open = useStore(detailOpen);
@@ -65,8 +71,7 @@ export function Over({ runtime }: { runtime: Runtime }) {
   const actions = linkActions(runtime);
   const onAct = (act: Act) => {
     if (act === 'unpair') return setAsking(true);
-    if (act === 'pause') showToast(detailTexts.toast.paused, 'unplug');
-    if (act === 'resume') showToast(detailTexts.toast.resumed, 'check');
+    tellAct(act, onPhone(view));
     if (act !== 'pair') return actions[act]();
     // Vincular: la computadora muestra el código; el celular abre la cámara.
     if (!onPhone(view)) return code.show();

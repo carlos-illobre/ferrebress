@@ -1,5 +1,8 @@
 // Los textos del detalle del vínculo (maqueta aprobada de 03): largos en la computadora, cortos en el
-// celular. Se bajan con el detalle, no en el arranque.
+// celular. Los que hablan desde un lado («el celular no tiene Ferrebress abierto») se eligen por el
+// lado, no por el ancho: un celular acostado o una computadora angosta dicen lo de su lado. Se bajan
+// con el detalle, no en el arranque.
+import { addDays, businessDateOf, businessTimeZone } from '@ferrebress/shared/time/business';
 import type { Words } from '../../../../ui/say/Say.tsx';
 
 const words = (long: string, short: string): Words => ({ long, short });
@@ -14,11 +17,20 @@ export const detailTexts = {
     here: { computer: 'Esta compu', phone: 'Este celular' },
     noOther: { computer: 'Sin celular', phone: 'Sin compu' },
     over: { direct: ' · por el Wi-Fi', relayed: ' · por internet' },
+    // Desde cada lado.
+    sided: {
+      unpaired: {
+        computer:
+          'Esta computadora no está vinculada a ningún celular. Vinculalo para usarlo como control remoto: lo que toques en uno se ve en el otro.',
+        phone: 'En la computadora, tocá el indicador y leé el código.',
+      },
+      waiting: {
+        computer:
+          'El celular no tiene Ferrebress abierto (pantalla apagada u otra aplicación encima). Cuando vuelva, se encuentran solos y va a esta pantalla.',
+        phone: 'La computadora no tiene Ferrebress abierto. Cuando vuelva, se encuentran solos.',
+      },
+    },
     phrase: {
-      unpaired: words(
-        'Esta computadora no está vinculada a ningún celular. Vinculalo para usarlo como control remoto: lo que toques en uno se ve en el otro.',
-        'En la computadora, tocá el indicador y leé el código.',
-      ),
       direct: words(
         'Tu celular y esta computadora muestran lo mismo y se hablan directo por el Wi-Fi del local: no gastan internet y lo que tocás llega al instante.',
         'Muestran lo mismo, directo por el Wi-Fi del local.',
@@ -30,10 +42,6 @@ export const detailTexts = {
       paused: words(
         'Siguen vinculados, pero cada uno trabaja por su lado. Sigue así hasta que alguien toque «Reconectar», aunque salgan y vuelvan a entrar.',
         'Vinculados, cada uno por su lado hasta «Reconectar».',
-      ),
-      waiting: words(
-        'El celular no tiene Ferrebress abierto (pantalla apagada u otra aplicación encima). Cuando vuelva, se encuentran solos y va a esta pantalla.',
-        'La computadora no tiene Ferrebress abierto. Cuando vuelva, se encuentran solos.',
       ),
       offline: words(
         'Se cortó la conexión directa y no hay internet para volver a encontrarse. Cuando vuelva internet, se encuentran solos.',
@@ -141,10 +149,10 @@ export const detailTexts = {
       'Desconectados: cada uno sigue por su lado',
       'Desconectados: cada uno por su lado',
     ),
-    resumed: words(
-      'Reconectados: el celular vino a esta pantalla',
-      'Reconectados: fuiste a la pantalla de la compu',
-    ),
+    resumed: {
+      computer: 'Reconectados: el celular vino a esta pantalla',
+      phone: 'Reconectados: fuiste a la pantalla de la compu',
+    },
     unpaired: 'Desvinculados: cada uno sigue en su pantalla',
     direct: words('Ahora van directo por el Wi-Fi del local', 'Ahora van directo por el Wi-Fi'),
   },
@@ -166,5 +174,28 @@ export const clock = (at: number) => {
 };
 
 // El día: «jueves 3 de diciembre».
-export const day = (at: number) =>
-  new Date(at).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+// Las fechas, en la zona del negocio y como en la maqueta: «jueves 3 de diciembre».
+const parts = new Intl.DateTimeFormat('es-AR', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  hour: 'numeric',
+  minute: '2-digit',
+  hourCycle: 'h23',
+  timeZone: businessTimeZone,
+});
+const partsOf = (at: number) =>
+  Object.fromEntries(parts.formatToParts(new Date(at)).map((part) => [part.type, part.value]));
+
+export const day = (at: number) => {
+  const { weekday, day: date, month } = partsOf(at);
+  return `${weekday} ${date} de ${month}`;
+};
+
+// Desde cuándo, como en la maqueta: «ayer, lunes 2 de noviembre, 8:14» («hoy» o «ayer» si lo es).
+export function since(at: number, now: number): string {
+  const [then, today] = [businessDateOf(new Date(at)), businessDateOf(new Date(now))];
+  const near = then === today ? 'hoy, ' : then === addDays(today, -1) ? 'ayer, ' : '';
+  const { hour, minute } = partsOf(at);
+  return `${near}${day(at)}, ${Number(hour)}:${minute}`;
+}
