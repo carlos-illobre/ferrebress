@@ -21,6 +21,9 @@ test.describe('en la computadora', () => {
   test('lo encontrado al buscar, con lo buscado marcado', async ({ page }) => {
     await ready(page, '/manual');
     await page.keyboard.type('huella');
+    // Lo escrito y lo marcado, enteros: con la máquina cargada, la foto salía a mitad de la palabra.
+    await expect(page.getByRole('searchbox')).toHaveValue('huella');
+    await expect(page.locator('mark').first()).toHaveText(/^huella$/i);
     await expect(page.getByText('Entrar · 1 encontrada')).toBeVisible();
     await expect(page).toHaveScreenshot('manual-desktop-search.png');
   });

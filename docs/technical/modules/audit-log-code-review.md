@@ -339,3 +339,240 @@ El módulo agregó y cambió bastante de lo no funcional:
 **Hoy no conviene extraer nada:** la auditoría es lo más valioso, pero se acaba de rehacer, todavía
 tiene a `people` y los colores del negocio adentro, y no hay un segundo proyecto que la use; conviene
 primero el cambio chico de separar `people` y esperar a un segundo consumidor.
+
+## Actualizar solo (T118)
+
+Revisión del código de T118, commits `fbf8b11` a `65e37f3` (`git diff 4dc85b0~1..HEAD -- src tests
+deploy`), contra 05 · R4.6, R4.12, E34, E49 a E56; 03 · R4.5, E45, E46; 01 · R3.3; la maqueta
+`mockups/users-who-did-what/final/` con su `changes.md`; y [audit-log.md](audit-log.md) §§ 5, 7, 8,
+8.1 y 9 a 13 con las secciones «Actualizar solo (T118)» de sus dos revisiones. Lo demás del módulo,
+ya revisado arriba, no se repite.
+
+Corrí las pruebas que tocan T118 (`vitest run` sobre `app/modules/audit-log`, `app/platform/meter`,
+`app/platform/realtime`, `server/modules/audit-log`, `server/platform/storage/audit`,
+`server/platform/realtime`, `permissions`, `sign-in/sessions`, `routes-permissions` y las pantallas
+del vínculo): 236 pasan, 1 saltada (la de tiempo, `AUDIT_PERF`). No corrí `pnpm check`, ni las
+capturas, ni la de punta a punta de Usuarios (necesitan Docker), y no vi las pantallas funcionando:
+lo visual sale de comparar las capturas del manual con las de la maqueta.
+
+### Resumen
+
+La forma es la del diseño y está bien armada: el aviso `{}` con clave `all` y como mucho cada 5 s,
+`onWritten` fuera de la pila y aislado, `permissions.of` con la nueva mirada después de la microtarea,
+`permission.denied` al abrir o sumar el tema, `since` acotado a los dos años vivos, `X-Auto` con su
+límite por sesión y sin tocar `lastUsed`, el medidor en bytes por tema, el código del rechazo en el
+canal y `/api` comprimido sin el SSE. En lugar de una transacción de lectura, la foto del pedido es
+`latest` leído primero y un `id <= n` por archivo (`where.ts`), que da lo mismo.
+
+Lo que frena: **una puesta al día sola puede sacar de la página la acción elegida**, y el detalle de
+la computadora queda vacío o la hoja del celular se cierra sola. Y queda **sin comprobar en un
+navegador** que «arriba de todo» mire el contenedor que de verdad se desplaza.
+
+### 1. Escenarios sin cumplir
+
+- **La acción elegida se pierde con una puesta al día — Frena.** `state.ts` y `loading.ts:75-80`:
+  `refresh` reemplaza la página y no toca `selected`; el detalle busca la elegida en la página nueva
+  (`screens/AuditLog.tsx:47`). Si entran acciones nuevas y la elegida pasa a la página 2 (en la
+  computadora, una de las últimas de 20 con 3 nuevas; en el celular, con 10 por página), la
+  computadora muestra «Elegí una acción de la lista…» y en el celular la hoja abierta desaparece sola, con el
+  foco en una fila que ya no está. R4.7 («muestra la acción elegida») y la maqueta («la acción
+  elegida en el detalle no cambia», E50) dicen lo contrario. La prueba de E50 elige la primera fila,
+  que nunca sale. Alcanza con guardar la acción elegida que mostraba la página anterior mientras siga
+  elegida.
+- **«Arriba de todo» en el navegador de verdad — no pude comprobarlo; frena si falla.**
+  `loading.ts:28-29` mide `scrollTop` de `.audit-ledger`. Las pruebas ponen `ledger.scrollTop = 200` a
+  mano en happy-dom (`live-edges.test.tsx:56-57`), que no dibuja: pasan sea cual sea el contenedor
+  que se desplaza. En las capturas del manual (`desktop-audit-log.webp`, `phone-audit-log.webp`) la
+  lista sigue por debajo del borde y no se ve el paginador, a diferencia de la maqueta, donde la
+  lista se desplaza adentro. Si quien se desplaza es la página o el marco, `scrollTop` de la lista
+  vale siempre 0: en la página 1 la lista se mueve aunque la persona haya bajado (R4.6, E51), y
+  «3 nuevas» no la sube (`ledger()?.scrollTo`). La constitución (VII) pide probarlo en el navegador
+  de verdad: una captura que baje la lista, mande un aviso y mire que no se mueva.
+- **E50, el resumen y la tira — Mejora.** `live.test.tsx:50-64` mira el total y la marca, no que el
+  resumen y la tira se pongan al día (lo que E50 nombra).
+- **E54, «al volver a la vista, una puesta al día» — Mejora.** Del lado de la pantalla solo se
+  prueba que oculta no pide (`live.test.tsx:106-120`). El canal de mentira (`audit-test-kit.tsx`,
+  `fakeChannel`) no manda el `{}` del alta, así que nada prueba la vuelta ni lo del punto 4 de abajo
+  (la carga de más al abrir). El servidor sí prueba que el alta manda `{}` (`live.test.ts:93`).
+- **E34** está cubierto en parte: la prueba de E34 (`live.test.tsx:39-48`) manda el aviso cuando no
+  hay nadie escuchando, así que comprueba que apagado no se suscribe, no que se ignore un aviso. Lo
+  segundo sí lo prueba `live-edges.test.tsx:154-170` (apagado con el tema todavía pedido). Está bien
+  así; conviene nombrar E34 en esa prueba.
+- E49, E51, E52, E53, E55, E56 y 03 · E45, E46 tienen su prueba y comprueban lo que dicen.
+
+### 2. Comentarios de cabecera y carpetas
+
+- `app/platform/realtime/sse.ts:1-7`: la cabecera no dice que cada bloque se mide para el medidor
+  ni que el rechazo trae el código del servidor. `channel.ts:1-5` tampoco nombra el medidor. **Mejora.**
+- `server/modules/audit-log/settings.ts:6`: «Las consultas por sesión», pero `reads` es por persona
+  (`routes.ts:42-45`, y la cabecera de `routes.ts` lo dice bien). Venía de antes; T118 tocó el
+  archivo y sumó `autoReads`, que sí es por sesión: hoy los dos comentarios se contradicen. **Mejora.**
+- `app/ui/switch/` tiene solo `switch.css`: la «pieza» es una clase, y el marcado
+  (`<span class="switch" aria-hidden>` dentro de un botón con `role="switch"`) se repite en
+  `PhoneMore.tsx:103-120` y `Live.tsx:16-32`. Un `Switch.tsx` haría de la carpeta una pieza. **Mejora.**
+- Las demás cabeceras nuevas (`live.ts` de los dos lados, `loading.ts`, `answers.ts`, `where.ts`,
+  `meter.ts`, `Live.tsx`, `Live.css`) dicen lo que hace el archivo hoy.
+
+### 3. Pruebas que miran por dentro
+
+- `live-edges.test.tsx:172-185` («Alt + N y Alt + R»): mira `dataset.key`, no aprieta las teclas.
+  Un cambio en cómo el teclado de la plataforma lee las teclas no la rompe. **Mejora.**
+- `server/modules/audit-log/live.test.ts:131-165`: E52 del servidor prueba `createNotifier`, que se
+  exporta solo para eso, no la fachada (escribir diez tandas y contar avisos en el canal). **Mejora.**
+- `newer.test.ts:80-87` arma la consulta con `where` en lugar de pedir `newer`; es la forma de mirar
+  el plan y se acepta, como las de arriba.
+
+### 4. El código contra el diseño
+
+- **Los totales de los años cerrados ya no se guardan — Mejora importante.** `query.ts:60`: la clave
+  es `JSON.stringify(filter)`, y el filtro ahora lleva `upTo`, que cambia con cada tanda escrita. Para
+  los años anteriores a los dos vivos `upTo` no agrega condición, pero la clave cambia igual: cada
+  pedido con un período de varios años vuelve a contar todos los años viejos, y cada puesta al día sola
+  suma entradas nuevas a la memoria hasta el tope de 1.000, que la vacía. Contradice § 5 («los totales
+  de los años cerrados se guardan en memoria») y la meta de tiempo con el período más largo. La prueba
+  «los totales de los años cerrados se guardan» (`query.test.ts:134`) usa un filtro sin `upTo`, por
+  eso pasa. Sacar `upTo` de la clave cuando el año no está en él.
+- **Una carga de más al abrir — Mejora.** El tema se pide recién con la primera lista (`withToday`),
+  el alta manda `{}` y `notice` pide la lista entera otra vez, con el resumen y la tira (unos 4 KB en
+  la computadora). Lo mismo cada vez que una fecha vuelve a incluir hoy. § 7.2 pone al día con el
+  primer aviso «al prenderlo, volver a la vista o volver la conexión», no al abrir. Ignorar el
+  primer `{}` si la lista llegó hace menos de `everyMs`, o no pedir si la última lista es posterior al
+  alta.
+- **«n nuevas» viejo después de un pedido de la persona — Mejora.** `loading.ts:83-98`: `count` no
+  mira `loading`. Si la persona pasó de página (cambia `text`) y llega un aviso antes de la respuesta,
+  `count` usa el `latest` de la página anterior; la página nueva llega y borra el aviso
+  (`setNewOnes(0)`), y después llega la cuenta y lo vuelve a poner con acciones que ya estaban antes
+  de esa página. Al tocarlo no se marca nada. Es el caso T.4.2 de la revisión de diseño con la misma
+  vista.
+- **Con `429` y la persona ya más abajo, pide igual — Mejora.** `loading.ts:76-77`: `moved` se mira
+  antes de `result.ok`; un `429` de la lista con la persona más abajo devuelve `moved` y `run` pide
+  `/new` en el momento, sin esperar lo que dijo el servidor.
+- **Un aviso con un pedido de la persona en vuelo se descarta — Mejora menor.** `loading.ts:72`: el
+  diseño lo acepta («trae lo nuevo igual»), pero si el pedido leyó antes de que se escribiera la tanda,
+  lo nuevo espera al próximo aviso. La prueba `live-edges.test.tsx:187` fija ese comportamiento.
+- **Prenderlo sale como pedido solo — Mejora.** `live.ts:128` → `refresh` → `auditApi.page(…, true)`:
+  prender el selector va con `X-Auto`, aunque § 7.2 dice que «prenderlo es un toque». Así no cuenta
+  como uso de la sesión (01 · R3.3 solo excluye lo que se pide «sin que nadie la toque») y queda frenado
+  por la pausa de un `429` anterior. Además, si la persona está en la página 2, prender pide «n
+  nuevas» y no la lista; R4.6 dice «prenderlo pone la lista al día en el momento». Hay que decidir cuál
+  vale y escribirlo.
+- **`since` repetido — Mejora menor.** `rules.ts:196-202` acepta `2026:5.2026:5` y `newer` cuenta ese
+  archivo dos veces; y acepta un solo par, cuando § 5 dice «dos `AAAA:n`». Solo afecta a quien lo
+  arma a mano.
+- **El medidor suma la conexión por bloque, no por trozo** (`sse.ts:166`, `channel.ts` `measure`):
+  § 8.1 dice «por cada trozo que lee, con su largo antes de decodificarlo, más unos 80 bytes por
+  trozo». El código vuelve a codificar cada bloque SSE (da los mismos bytes) y suma los 80 a cada
+  bloque. Varios eventos en un trozo cuentan la conexión de más. Es un número aproximado (03 · R4.5);
+  alcanza con que el diseño diga lo que se hace. **Mejora.**
+- **Metas sin su prueba — Mejora.** § 10: `/new` en «como mucho 2 consultas» y «menos de 20 ms con
+  un año», y `latest` «suma 2 consultas a la lista». `recorded.test.ts` no cambió: no cuenta las de
+  `/new` y su comparación entre día y semana no ve las 2 de `latest` (suman igual en las dos). La de
+  tiempo (`query-perf.test.ts`) tampoco pide `/new`.
+- Lo demás coincide: rutas, tema, clave, `recheckOn`, `permissions.of`, la microtarea del recheck,
+  `onWritten`, `X-Auto` (límite de 30 por sesión, sin «Abrió», sin `lastUsed`), `withToday`,
+  `latest` de los dos archivos vivos, el tope de 100, `releaseMs`, `markMs`, `topPx`, el `0` al
+  apagar y el `encode` del Caddyfile.
+
+### 5. Seguridad (§ 9, «Actualizar solo» y «El medidor»)
+
+- **Hecho como dice:** el aviso es `{}` (`event: z.strictObject({})`); el tema pide `audit-log.view`
+  con `permissions.of(userId)` al abrir y al volver a mirar; sin él se anota `permission.denied` con
+  el tema, una vez por minuto, solo cuando hay pedido (abrir o sumar); el recheck corre después de lo
+  que borra la memoria, con su prueba registrada después del tema (`realtime.test.ts:212`); `since`
+  solo con los dos años vivos y enteros seguros, sin crear archivos; `X-Auto` con su límite por
+  sesión; el medidor no sale del dispositivo; temas cerrados por defecto con su tabla
+  (`routes-permissions.test.ts`).
+- **Sin prueba:** que el recheck sin permiso **no** anote `permission.denied` (`live.ts:45`, la rama
+  `request` vacía). La de «si le sacan el permiso» no lo mira. **Mejora.**
+- **La compresión de `/api` y BREACH — Mejora, no comprobado.** `deploy/Caddyfile:56-63` comprime toda
+  respuesta JSON de `/api`. Una respuesta que mezcla un secreto con texto que elige otro, comprimida,
+  puede filtrar el secreto por el tamaño. La revisión de seguridad no lo trató y no revisé qué
+  respuestas JSON llevan un secreto (códigos de un solo uso, retos de la huella). Que § 9 diga cuáles
+  no se comprimen o por qué no hace falta.
+
+### 6. Reglas inventadas
+
+- Ninguna nueva. El selector deshabilitado sin conexión (`Live.tsx:26`) sigue lo que hacía
+  «Actualizar» y R5.1 (gris), y «Más de 99 nuevas» está en § 5.
+
+### 7. Simpleza y repetición
+
+- `server/modules/audit-log/live.ts:41-54` (`refuse`) repite `denied` de `platform/permissions.ts:35-46`:
+  la misma clave de límite, la misma forma de la acción; cambia `path` por `topic`. Y
+  `deniedAudit` está dos veces (`platform` y `audit-log/settings.ts:95`). La puerta podría dar
+  `denied(request, permiso, datos)`. **Mejora.**
+- La cabecera `X-Auto` se interpreta en dos lugares (`routes.ts:119` `isAuto` y
+  `sign-in/sessions/require.ts:46`). Un `isAutomatic(c)` en la plataforma. **Mejora.**
+- `app/modules/audit-log/live.ts:32-35` (`outcomeOf`) repite `retryAfterMs` de
+  `platform/realtime/sse.ts:115-118`, con el `60` segundos escrito fuera de un `settings.ts`
+  (constitución XII, «los tiempos y los topes, con nombre»). **Mejora.**
+- `isNewer` (`logic.ts`) vuelve a leer el texto de `latest`, que el servidor ya sabe leer
+  (`sinceOf`); está bien que no se comparta (uno valida, el otro compara), lo dejo anotado.
+
+### 8. Documentación que quedó atrás
+
+- § 5 «Todo un pedido lee una misma foto» describe `begin … commit` por archivo; el código lee
+  `latest` primero y filtra `id <= n` (`answers.ts:203-204`, `where.ts:24-29`), con un año posterior a
+  la foto excluido. Otro agente programaría la transacción. **Mejora.**
+- § 7.2 «Si le sacan el permiso, Usuarios cierra la pestaña»: el código pide la lista
+  (`state.ts:133`, `lost: () => void refresh()`) para que el `403` llegue a la aplicación y Usuarios
+  la cierre. El diseño no lo dice. **Mejora.**
+- § 7.1 «el hub contesta `403` con `{ code: 'forbidden' }`»: contesta `{ error: 'forbidden' }` (lo
+  que da `fail`), y `sse.ts` lee `error`. **Mejora.**
+- § 8 (`Live`) dice «la etiqueta `audit-log` del medidor»; § 8.1 y el código usan `audit-log.new`.
+  **Mejora.**
+- § 8.1, la suma de la conexión por trozo (punto 4).
+
+### 9. Pantallas
+
+No las vi funcionando; comparo `docs/manual/media/desktop-audit-log.webp` y `phone-audit-log.webp`
+con `screenshot.png` y `screenshot-phone.png` de la maqueta final.
+
+- **El lugar del selector — Mejora.** La maqueta lo pone arriba a la derecha, en el renglón del
+  título «Usuarios»; el código, en `audit-tools` debajo de las pestañas (`AuditLog.tsx:97`), en un
+  renglón propio que en la computadora no tiene nada más y empuja todo hacia abajo. En el celular
+  queda al lado de «Ver el día», que en la maqueta va junto a «46 acciones».
+- **La raya nueva de la tira «crece desde abajo»** (maqueta, E50): no está; `Summary` no cambió.
+  **Mejora.**
+- **«0,0 KB/min»** donde la maqueta dice «0 KB/min»: el código sigue a § 8.1 («una decimal»); la
+  maqueta y el diseño no coinciden. **Mejora** (decidir uno).
+- «3 nuevas» va con `position: absolute` sobre la lista y la maqueta con `sticky` de alto 0: se ven
+  igual mientras la lista se desplace adentro (ver el punto 1, sin comprobar).
+- La marca (borde verde 1,2 s después de 0,2 s, entrada desde 8 px, nada con «reducir movimiento»),
+  la tarjeta «Aplicación: … KB/min» y el renglón de la pastilla coinciden con la maqueta.
+
+### 10. Lo que se podría extraer a una librería
+
+T118 sumó o cambió varias piezas no funcionales:
+
+- **El medidor** (`app/platform/meter.ts`): 60 casillas de un segundo por etiqueta, sin temporizador
+  propio, leído cada 5 s solo a la vista. Serviría a cualquier aplicación que quiera mostrar lo que
+  gasta en datos. Lo ata: `kbPerMinute` con `es-AR` y el texto «KB/min» en la plataforma. Grupo: base
+  de la aplicación (tiempo real). Cambio chico: el formato a `ui/` o a los textos, y el medidor junto
+  al canal en `platform/realtime/`.
+- **La cuenta en el canal** (`realtime/sse.ts` `onBytes` y el código del rechazo; `channel.ts`
+  `measure`, con el latido para el único tema). Genérico, nada del negocio. Grupo: base de la
+  aplicación (tiempo real).
+- **`X-Auto`** (`shared/contracts/server-header.ts`, `sign-in/sessions/store.ts` y `require.ts`, el
+  límite aparte en `routes.ts`): «lo que una pantalla pide sola no alarga la sesión ni cuenta como
+  toque». Sirve a cualquier proyecto con sesiones por inactividad. Lo ata que la lectura de la cabecera
+  esté repartida entre `sign-in` y un módulo de negocio. Grupo: identidad (sesión) y base del
+  servidor. Cambio chico: `isAutomatic(c)` en la plataforma y un `guards.limit` que elija la clave por
+  esa marca.
+- **El aviso por el canal** (`server/modules/audit-log/live.ts` `createNotifier`; `onWritten` en
+  `storage/audit/write.ts`; `permissions.of`; la nueva mirada después de la microtarea en
+  `realtime.ts`; `realtime.topics()` y la tabla de temas cerrados por defecto). `createNotifier` es
+  un «publicar como mucho cada n ms, juntando» que no sabe de auditoría; el resto ya está en la
+  plataforma. Lo ata: `createNotifier` vive en el archivo del tema de negocio. Grupo: base del
+  servidor (tiempo real); la tabla de temas, calidad. Cambio chico: llevar `createNotifier` a
+  `platform/realtime/` como opción del tema (`throttleMs`).
+- **La llave** (`app/ui/switch/switch.css`). Pieza visual de «Mostrador», atada a sus colores
+  (`--pine`) y solo CSS. Grupo: piezas visuales. Cambio chico: un `Switch.tsx` con `role="switch"`,
+  `aria-checked` y la llave, que usen Más y «Actualizar solo».
+- **Comprimir `/api`** (`deploy/Caddyfile`, `encode` solo JSON). Genérico. Grupo: despliegue.
+- **La foto del pedido** (`storage/audit/where.ts`, `upTo`). Es parte de la auditoría en SQLite que
+  ya se analizó arriba; no cambia la conclusión.
+
+**Hoy no conviene extraer nada:** son piezas chicas, recién hechas y con un solo consumidor cada una;
+lo que más rinde es el cambio chico de `X-Auto` y de `createNotifier`, que las deja en la plataforma
+sin nombres del negocio, para cuando aparezca un segundo uso.

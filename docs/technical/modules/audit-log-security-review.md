@@ -709,3 +709,202 @@ filtros (`to=<persona>`) no le dice nada que no vea.
    se realimenta; el tema rechazado no se anota (21).
 9. **El despliegue:** sin cambios; el canal ya pasa por Caddy (diseño de 03).
 10. **Dependencias:** ninguna nueva; el medidor usa `PerformanceResourceTiming` del navegador.
+
+## Actualizar solo (T118): el código
+
+Revisión del código de «Actualizar solo» y los medidores (paso 7), contra [audit-log.md](audit-log.md)
+§§ 5, 7, 8.1 y 9 y contra los puntos 17 a 23 de arriba. Lo leído: los commits de T118 desde «El medidor
+de lo que manda el servidor por los canales» hasta «El manual y la documentación de «Actualizar solo»»
+en `src/`, `tests/` y `deploy/`. Corrí las pruebas del servidor y de la aplicación que tocan esto
+(`audit-log/live.test.ts`, `new-ones.test.ts`, `storage/audit/newer.test.ts`, `written.test.ts`,
+`routes-permissions.test.ts`, `sessions.test.ts`, `realtime.test.ts`, `meter.test.tsx` y
+`app/platform/realtime/`): 77 pasan. `pnpm audit --prod`: «No known vulnerabilities found»; T118 no
+suma dependencias.
+
+### Resumen
+
+Lo que el diseño prometió está: el tema pregunta con `permissions.of(userId)` al abrir y al volver a
+mirar, el recheck corre después de la memoria de permisos (`queueMicrotask`, con prueba en el otro
+orden), pedir el tema sin permiso se anota, `since` acepta solo los dos años vivos y enteros seguros,
+`onWritten` corre fuera de la escritura y aislado, los temas tienen su tabla de cerrado por defecto, el
+`403` llega con `forbidden`, y la compresión no toca el canal. **No encontré nada que frene.** Lo que
+importa es que `X-Auto` hace más de lo que § 9 dice: con una sesión robada, borra el rastro que R1.3
+quería dejar (24) y el «usada hace» de la sesión (25), y vale en rutas que la pantalla nunca pide solas
+(26). Además, la foto `upTo` anula la memoria de los totales de los años cerrados (27), y perder el
+permiso con la pantalla prendida anota un rechazo que la persona no hizo (28).
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 24 | `X-Auto` evita «Abrió Quién hizo qué» también a quien usa una sesión robada que no abrió la pantalla ese día | Mejora importante |
+| 25 | `X-Auto` vale en cualquier ruta y método: el uso de una sesión robada no aparece en «usada hace» | Mejora |
+| 26 | `X-Auto` también en `/people` y `/day`: 30 pedidos más por minuto de lo más pesado, sin rastro | Mejora |
+| 27 | La foto `upTo` entra en la clave de los totales guardados: cada puesta al día vuelve a contar los años cerrados | Mejora |
+| 28 | Al perder el permiso con la pantalla prendida, la auditoría anota un `permission.denied` que la persona no pidió | Mejora |
+| 29 | Pruebas que faltan para riesgos que el diseño dice cubrir | Mejora |
+
+### Lo de arriba (17 a 23), en el código
+
+- **17:** cubierto. `permissions.ts:52` (`of`), `audit-log/live.ts:62` a `:66`; `realtime.ts:43` a
+  `:49` (`queueMicrotask` después del ciclo síncrono de `events.ts:58`). Pruebas: `live.test.ts`
+  («si le sacan el permiso…», con `users` de verdad) y `realtime.test.ts` («vuelve a preguntar
+  después…», con quien borra registrado después).
+- **18:** cubierto en la documentación: device-link.md § 3.1 y su diagrama ya dicen `{}`, `all` y
+  `audit-log.view`; no quedó `countSince`.
+- **19:** cubierto. `write.ts:97` a `:111`: una vez por `flush` con algo, en `queueMicrotask`, cada oyente
+  con `try/catch`. Prueba: `written.test.ts` («un error de quien escucha no corta…»).
+- **20:** cubierto con un límite propio de 30 por minuto por sesión (`routes.ts:46` a `:51`) y la pausa con
+  `429` en la aplicación (`live.ts`, `outcomeOf`). Pruebas: `new-ones.test.ts` (el toque sigue con el
+  límite automático pasado) y `live-edges.test.tsx` (con `429` no pide). Ver 24 a 26.
+- **21:** cubierto. `audit-log/live.ts:41` a `:54`: anota con `data.topic` solo si hay pedido (abrir o
+  sumar), con la misma clave de límite que la puerta (`audit:permission.denied:<persona>:<permiso>`),
+  así rutas y tema juntos dejan uno por minuto. Prueba: al abrir. Ver 29 y 28.
+- **22:** cubierto. Regex de 16 dígitos más `Number.isSafeInteger` y solo el año en curso y el anterior
+  (`rules.ts`, `sinceOf`); un año sin archivo se saltea sin crearlo (`query.ts`, `newer`). Pruebas:
+  `new-ones.test.ts` (`2024`, `2027`, `2⁵³`, basura) y `newer.test.ts` (1 de enero sin archivo). Un
+  `since` con el mismo año dos veces (`2026:1.2026:5`) pasa y cuenta dos veces ese archivo; el tope de
+  100 lo acota, así que no lo cuento como punto.
+- **23:** cubierto: el `403` con `forbidden` (`sse.ts`, `refusalCode`; `channel.ts`), el tema que se
+  suelta a los 10 s (`live.ts`, `useHeld`), la tabla de temas (`routes-permissions.test.ts`) y la
+  sesión vencida que recibe avisos hasta el latido (§ 7.1 lo dice).
+
+### 24 · `X-Auto` borra el rastro de «Abrió» con una sesión robada (`routes.ts:130`, `openedOnce`) — Mejora importante
+
+**Dónde:** `openedOnce` sale antes de anotar si el pedido trae `X-Auto: 1`, en las cuatro rutas. § 9
+lo justifica así: «quien tiene el permiso ya quedó anotado la primera vez del día que la abrió a mano,
+y si nunca lo hizo, ese pedido igual pasa por el permiso y el límite». Pasar el permiso no deja rastro,
+y el rastro es justo lo que § 9 promete: «si alguien usa una sesión robada para bajar el registro, queda
+el rastro de quién y desde dónde».
+
+**El ataque:** alguien se lleva la cookie de una sesión del Administrador que hoy no abrió Quién hizo qué
+(la de su celular, o la de la computadora del mostrador que quedó abierta de noche y en la que copia la
+cookie, el `X-Device` y la versión del contrato desde las herramientas del navegador). Desde su casa
+pide `GET /api/audit-log/day?date=…` con `X-Auto: 1`, día por día, y `/people`: hasta 30 pedidos por
+minuto de la cinta (2.000 acciones cada uno), con correos, direcciones y navegadores de todos. No queda
+`audit-log.opened` desde su dirección; si lo pasa, solo un `request.throttled`. El Administrador que
+mira Quién hizo qué al otro día no ve nada. Sin `X-Auto` habría quedado «Abrió Quién hizo qué» con la
+dirección de afuera. (Si la sesión ya había abierto la pantalla ese día, el rastro tampoco aparece, con
+o sin `X-Auto`: así está diseñado R1.3, una vez por sesión y día; lo que suma `X-Auto` es el caso de la
+sesión que no la abrió.)
+
+**Qué propongo:** que `X-Auto` evite anotar solo si **esa sesión** ya abrió Quién hizo qué a mano alguna
+vez (un `Set` de ids de sesión en memoria, aparte del del día; se olvida al cerrarse la sesión). Así la
+pantalla que queda prendida de un día para el otro no anota, y una sesión que nunca la abrió anota la
+primera vez aunque mande la cabecera (con `data.auto: true` si sirve para leerlo). Que § 9 corrija la
+frase. Cuesta: unas cinco líneas y una prueba en `new-ones.test.ts` («una sesión que nunca abrió la
+pantalla, con `X-Auto`, igual queda anotada»). Con 26, se achica más.
+
+### 25 · `X-Auto` en cualquier ruta y método (`sign-in/sessions/require.ts:46`) — Mejora
+
+**Dónde:** `requestSession` deja de tocar `lastUsed` con `X-Auto: 1` en **todas** las rutas con sesión,
+también las que escriben. § 7.1 lo pensó para lo que la pantalla pide sola.
+
+**El ataque:** con la misma cookie robada de 24, mientras la persona no usa su sesión, quien la robó usa
+cualquier ruta con `X-Auto: 1`. La sesión no se alarga (vence a los 60 minutos del último uso de la
+dueña), pero en la tarjeta de Acceso de Usuarios esa sesión sigue diciendo «usada hace 40 minutos»
+(`access/routes.ts:109`, `Access.tsx:26`): el Administrador que revisa las sesiones abiertas buscando
+algo raro no ve que se está usando, ni desde dónde. No le da más tiempo ni más permisos; le da no verse.
+
+**Qué propongo:** que `X-Auto` cuente solo en `GET` (una escritura siempre es uso), y mejor todavía que
+lo declare cada ruta que lo acepta (un paso `automatic` que ponen la lista y `/new`, y que el paso de
+sesión lee), así una ruta nueva no lo hereda. Cuesta: una condición o un paso, y una prueba con un
+`POST` con `X-Auto` que sí alarga.
+
+### 26 · `X-Auto` también en `/people` y `/day` (`routes.ts:36` a `:51`) — Mejora
+
+**Dónde:** el límite propio y el «no anota» se aplican por cabecera en las cuatro rutas (`path` les pone
+`limited` a todas). La aplicación manda `X-Auto` solo en la lista y en `/new` (`app/.../api.ts`).
+
+**El ataque:** quien tiene el permiso (o una sesión robada) suma a sus 60 pedidos por minuto otros 30
+por sesión de `/day`, la consulta más pesada (la semana, el conteo y hasta 2.000 acciones, unos 150 KB),
+en el hilo de lectura que es de a una para todos; y, con 24, sin «Abrió». Con dos sesiones de la misma
+persona, 60 más. No tira nada (el hilo tiene tope de tiempo y memoria), pero es el doble del presupuesto
+pensado para lo que no hace falta.
+
+**Qué propongo:** que `isAuto` valga solo en `/api/audit-log` y `/api/audit-log/new`; en `/people` y
+`/day` la cabecera se ignora (cuenta contra el límite de la persona y anota). Cuesta: un parámetro en
+`path` y una prueba.
+
+### 27 · La foto `upTo` en la clave de los totales guardados (`query.ts:60`, `countIn`) — Mejora
+
+**Dónde:** `pageOf` cuenta con `{ ...filtros, upTo: latest }` (`answers.ts:63`) y `countIn` guarda los
+totales de los años cerrados con la clave `año|JSON.stringify(filtro)`, que ahora incluye `upTo`. Para
+un año anterior a los dos vivos, `upTo` no cambia nada de la consulta (`where.ts`, `upToOf`), pero sí la
+clave, y `latest` cambia con cada fila nueva.
+
+**El ataque (disponibilidad):** con «Actualizar solo» prendido y sin fechas (lo que abre la pantalla),
+cada puesta al día, cada 5 s por pestaña, vuelve a contar entero cada año cerrado con los filtros (con
+«hecho a», la subconsulta de `targets`), y suma una entrada nueva a la memoria hasta las 1.000, que se
+vacía y se pierde también lo útil. Alguien de afuera que genera filas (como en 20) hace que eso pase
+cada 5 s. Hoy hay un solo año y no se nota; con varios años, cada pedido recorre todos en el hilo de a
+una, y la meta de § 10 deja de cumplirse para todos. No es entrar ni ver: es lo que § 5 dice que no pasa
+(«Los totales de los años cerrados se guardan en memoria»).
+
+**Qué propongo:** armar la clave con lo que de verdad consulta ese año (el `sql` y los `params` de
+`where(filter, year)`), o sacar `upTo` del filtro para los años que no están en él. Y una prueba: dos
+cuentas con `upTo` distintos sobre un año cerrado preguntan a ese archivo una vez. Cuesta: una línea y
+una prueba.
+
+### 28 · Perder el permiso anota un rechazo que la persona no pidió (`app/modules/audit-log/state.ts`, `lost`; `audit-log/live.ts:45`) — Mejora
+
+**Dónde:** al llegar `refused: forbidden`, la pantalla llama a `lost`, que es `refresh()`: pide
+`GET /api/audit-log` para que la aplicación se entere por la huella de permisos. Esa ruta ya no la deja
+y la puerta anota `permission.denied` con `path: '/api/audit-log'` (`permissions.ts:35` a `:46`). Lo
+mismo pasa si a la persona le sacan el permiso con la pestaña oculta: al volver, el canal se abre de
+nuevo con el tema, el hub contesta `403` con pedido y `refuse` lo anota con `topic`.
+
+**Qué pasa (no es un ataque, es la veracidad del rastro):** el Administrador le saca «Ver quién hizo qué»
+a Graciela mientras ella tiene la pantalla prendida. En Quién hizo qué aparece, en rojo, «Graciela
+intentó ver Quién hizo qué sin permiso», que es lo que § 7.1 y el punto 21 querían reservar para quien
+prueba a mano. Quien lea la auditoría puede tomarlo por un intento.
+
+**Qué propongo:** que `lost` pida una ruta que solo pide sesión y trae la huella (la que ya use la
+aplicación para enterarse de los permisos; no la busqué), no una de Quién hizo qué; y que la pantalla
+no pida el tema cuando la huella que tiene ya no incluye `audit-log.view`. No pude comprobar si al volver
+a la vista la aplicación pide algo que actualice la huella antes de reabrir el canal: si lo hace, el
+segundo caso no pasa. Cuesta: unas líneas y ajustar la prueba «si le sacan el permiso, pide la lista…»
+de `live-edges.test.tsx`.
+
+### 29 · Pruebas que faltan (paso 7: cada riesgo con una prueba que lo intenta) — Mejora
+
+- **El tema sin permiso al sumarlo** (`POST /api/realtime/subscriptions`), no solo al abrir: que se
+  anota y que uno por minuto (la segunda vez no). Y que el registro lleve la dirección (`ipAddress`), que
+  hoy ninguna prueba mira.
+- **`X-Auto` no salta el permiso:** una persona sin `audit-log.view` con `X-Auto: 1` recibe `403`. Hoy
+  pasa porque el permiso va antes del límite, pero nada lo fija.
+- **Lo que vuelve a mirar no anota:** al sacarle el permiso con el canal abierto, `refused` llega y **no**
+  queda `permission.denied` con `topic` (§ 7.1, «no al volver a mirarlo»).
+- **`/new` nunca crea archivos:** con el reloj en un año sin archivo y `since` de ese año, la carpeta no
+  cambia (la prueba de `newer.test.ts` usa la memoria, no la carpeta).
+
+Cuesta: media hora.
+
+### La compresión de `/api` (§ 7.4) y BREACH
+
+Sin hallazgos. `deploy/Caddyfile` comprime solo lo que el servidor manda como `application/json*`,
+desde 256 bytes; el canal (`text/event-stream`) queda afuera, y la prueba de Usuarios mira que la lista
+llegue con `zstd` o `gzip`. BREACH necesita que el atacante haga que el navegador de la víctima mande
+muchos pedidos con algo que él elige y que vuelve en una respuesta que también trae un secreto. Acá no
+puede: todo `/api`, también `GET`, exige el dispositivo y la versión del contrato en cabeceras propias
+(`http.ts`, `rejectionReason`), que otro sitio no puede poner sin una consulta previa de CORS que el
+servidor no contesta; y la cookie de sesión es `SameSite=Strict` (`sessions/cookie.ts:16`). Lo que queda
+es el largo de las respuestas para quien mira la red, que ya variaba sin comprimir. No recorrí todas las
+respuestas buscando secretos reflejados: no hizo falta, porque falta la otra mitad del ataque.
+
+### Por tema, en una línea
+
+1. **Entrar sin permiso:** nada nuevo; el tema exige sesión y el hub rechaza sin ella (con prueba).
+2. **Permisos:** el tema pide `audit-log.view` con `permissions.of` al abrir, al sumar y al volver a
+   mirar, sin depender del orden de los módulos; `/new` en la tabla de cerrado por defecto.
+3. **Lo que entra de afuera:** el parámetro del tema es vacío; `since` con forma, años y enteros seguros;
+   los filtros de `/new`, los de la lista; todo a SQLite como parámetro (`where.ts`).
+4. **La aplicación en el navegador:** el aviso no trae datos; el selector y el medidor no se guardan ni
+   se espejan; las cabeceras extra de `api()` las pone solo el código de la aplicación.
+5. **Datos personales y secretos:** el aviso y `latest` solo dicen cuántas y cuándo, a quien ve todo; el
+   medidor no sale del dispositivo.
+6. **Abuso y disponibilidad:** el aviso cada 5 s y sin consultas; el límite propio de lo automático;
+   `X-Auto` en rutas que no lo necesitan (26) y la memoria de totales que se pierde (27).
+7. **Sin conexión:** no aplica; sin conexión no hay canal.
+8. **Auditoría:** `X-Auto` borra el rastro de una sesión robada (24) y el «usada hace» (25); un rechazo
+   anotado que nadie hizo (28); pedir el tema sin permiso se anota.
+9. **El despliegue:** la compresión, bien acotada; sin BREACH posible por las cabeceras y la cookie.
+10. **Dependencias:** ninguna nueva; `pnpm audit --prod` sin fallas conocidas.
