@@ -11,7 +11,7 @@ import { ana, answerUsers, header, hour, now, type Scene, start } from './scenes
 import { button, shown } from './users-scenes.ts';
 
 const day = 24 * hour;
-const pairing = (side: PairingView['side'], paused = false): PairingView => ({
+export const pairing = (side: PairingView['side'], paused = false): PairingView => ({
   id: '0190a000-0000-7000-8000-0000000d1e01',
   side,
   other: { label: side === 'computer' ? 'Chrome en Android' : 'Chrome en Windows' },

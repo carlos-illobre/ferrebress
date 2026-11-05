@@ -79,16 +79,26 @@ const write = (stream: ServerResponse, tokens: string[], scene: string) => {
     for (const data of eventsOf(token, scene))
       stream.write(`event: ${token.split(':')[0]}\ndata: ${data}\n\n`);
 };
-// Los canales abiertos, para mandarles lo de un tema que se suma después.
-const channels = new Map<string, { stream: ServerResponse; scene: string }>();
+// Los canales abiertos y sus temas, para mandarles lo de un tema que se suma después.
+const channels = new Map<string, { stream: ServerResponse; scene: string; tokens: Set<string> }>();
 
 function realtime(request: IncomingMessage, response: ServerResponse, url: URL): void {
   const id = `c${channels.size}`.padEnd(22, 'c');
   const scene = sceneOf(request.headers.cookie);
-  channels.set(id, { stream: response, scene });
+  const tokens = url.searchParams.getAll('s');
+  channels.set(id, { stream: response, scene, tokens: new Set(tokens) });
   response.writeHead(200, { 'content-type': 'text/event-stream' });
   response.write(`event: hello\ndata: {"channel":"${id}"}\n\n`);
-  write(response, url.searchParams.getAll('s'), scene);
+  write(response, tokens, scene);
+}
+
+// Para el guion de un clip: un evento a todos los canales que escuchan ese tema.
+function push(response: ServerResponse, url: URL): void {
+  const topic = String(url.searchParams.get('topic'));
+  for (const { stream, tokens } of channels.values())
+    if ([...tokens].some((token) => token.split(':')[0] === topic))
+      stream.write(`event: ${topic}\ndata: ${url.searchParams.get('data')}\n\n`);
+  json(response, { ok: true });
 }
 
 function subscriptions(request: IncomingMessage, response: ServerResponse): void {
@@ -100,6 +110,7 @@ function subscriptions(request: IncomingMessage, response: ServerResponse): void
     const asked = JSON.parse(body || '{}') as { channel?: string; add?: string[] };
     const open = channels.get(String(asked.channel));
     if (!open) return json(response, { error: 'not-found' }, 404);
+    for (const token of asked.add ?? []) open.tokens.add(token);
     json(response, { listening: asked.add ?? [] });
     write(open.stream, asked.add ?? [], open.scene);
   });
@@ -112,6 +123,7 @@ createServer((request, response) => {
   if (path === '/api/sign-in/codes') return json(response, {});
   if (path === '/api/realtime') return realtime(request, response, url);
   if (path === '/api/realtime/subscriptions') return subscriptions(request, response);
+  if (path === '/__push') return push(response, url);
   if (path.startsWith('/api/')) return json(response, { error: 'not-found' }, 404);
   file(response, path);
   // Solo para esta máquina: ni la red local ni Tailscale lo ven mientras corre.

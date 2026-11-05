@@ -7,7 +7,7 @@ const port = 4189;
 
 export default defineConfig({
   testDir: '.',
-  testMatch: ['capture.ts', 'clip.ts'],
+  testMatch: ['capture.ts', 'clip.ts', 'link-clip.ts'],
   fullyParallel: true,
   retries: 0,
   timeout: 60_000,

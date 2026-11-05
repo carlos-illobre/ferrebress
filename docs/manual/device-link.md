@@ -8,6 +8,7 @@
 - Id: pair
 - Dispositivo: computadora
 - Ícono: qr-code
+- Clip: device-link-pair
 
 1. Abajo, a la izquierda, tocá la tarjeta del vínculo: dice «Sin vincular». También con Alt L.
    Captura: desktop-link-unpaired · indicator · El vínculo
@@ -64,6 +65,7 @@
 - Id: pair
 - Dispositivo: celular
 - Ícono: qr-code
+- Clip: device-link-pair
 
 1. En la computadora, tocá la tarjeta del vínculo y «Vincular el celular»: aparece un código. En el celular, debajo del título, tocá «Sin vincular».
    Captura: phone-link-unpaired · pill · El vínculo

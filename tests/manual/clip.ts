@@ -1,25 +1,13 @@
-// Graba el clip «Entrar con el celular» (diseño del manual, § 3): una sola página con la computadora y
-// el celular uno al lado del otro, cada uno con la aplicación en su marco, así sale un solo video sin
-// dos que se desfasen. El guion recorre pantallas de verdad: la entrada de la computadora con su
-// código, el celular que lo lee y pregunta «¿Entrar en Chrome en Windows?», y la computadora que
-// entra. Guarda el video mudo y su último cuadro. Con MANUAL_CHECK=1 no corre: un video no sale igual
-// dos veces.
-import { copyFileSync, mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { type Browser, expect, type Frame, type Page, test } from '@playwright/test';
+// Graba el clip «Entrar con el celular» (diseño del manual, § 3), con la computadora y el celular uno
+// al lado del otro (stage.ts). El guion recorre pantallas de verdad: la entrada de la computadora con
+// su código, el celular que lo lee y pregunta «¿Entrar en Chrome en Windows?», y la computadora que
+// entra.
+import { type Browser, expect, type Page } from '@playwright/test';
 import type { ReadCodeResponse } from '../../src/shared/contracts/sign-in.ts';
-import { closedContext, expectClean, mediaDir, toWebp } from './media.ts';
-import { ana, answerUsers, header, now, start } from './scenes.ts';
+import { ana, answerUsers, header, start } from './scenes.ts';
+import { clip, frameOf, recording as stageRecording } from './stage.ts';
 
 const name = 'phone-to-computer';
-const size = { width: 1280, height: 720 };
-
-const stage = (base: string) => `<!doctype html>
-<html><body style="margin:0;width:1280px;height:720px;background:#12382f;overflow:hidden">
-<iframe name="computer" src="${base}/" style="position:absolute;left:48px;top:140px;width:1366px;height:768px;border:0;border-radius:10px;transform:scale(.62);transform-origin:0 0"></iframe>
-<iframe name="phone" src="${base}/" style="position:absolute;left:960px;top:80px;width:390px;height:844px;border:0;border-radius:28px;outline:6px solid #0b0d0c;transform:scale(.66);transform-origin:0 0"></iframe>
-</body></html>`;
 
 const read: ReadCodeResponse = {
   secret: 'captura',
@@ -28,17 +16,10 @@ const read: ReadCodeResponse = {
   authentication: {},
 };
 
-const frameOf = (page: Page, wanted: string) =>
-  page.frames().find((frame) => frame.name() === wanted) as Frame;
-
 // Un contexto que graba, con el celular que ya entra con la huella (01 · R2.4) y las respuestas del
 // guion: la computadora entra recién cuando `scene.entered`.
 async function recording(browser: Browser, baseURL: string, scene: { entered: boolean }) {
-  const videos = mkdtempSync(join(tmpdir(), 'ferrebress-clip-'));
-  const closed = await closedContext(browser, baseURL, {
-    viewport: size,
-    recordVideo: { dir: videos, size },
-  });
+  const closed = await stageRecording(browser, baseURL);
   await closed.context.addInitScript(() => {
     if (window.name !== 'phone') return;
     Object.defineProperty(navigator, 'userAgentData', { get: () => ({ mobile: true }) });
@@ -72,31 +53,10 @@ async function play(page: Page, baseURL: string, scene: { entered: boolean }): P
   await page.waitForTimeout(2500);
 }
 
-test(name, async ({ browser, baseURL }) => {
-  test.skip(process.env.MANUAL_CHECK === '1', 'un video no sale igual dos veces');
-  const base = baseURL as string;
-  const scene = { entered: false };
-  const { context, escaped } = await recording(browser, base, scene);
-  const page = await context.newPage();
-  await page.clock.setFixedTime(now);
-  // La escena se sirve desde el mismo servidor: los marcos con la aplicación necesitan una página
-  // segura alrededor (crypto.randomUUID, la huella).
-  await page.route('**/clip-stage', (route) =>
-    route.fulfill({ contentType: 'text/html', body: stage(base) }),
-  );
-  await page.goto('/clip-stage');
-  await play(page, base, scene);
-  for (const frame of page.frames()) await expectClean(frame);
-  const last = await page.screenshot();
-  expect(escaped, 'pedidos fuera del servidor de mentira').toEqual([]);
-  const video = page.video();
-  await context.close();
-  copyFileSync((await video?.path()) as string, join(mediaDir, `${name}.webm`));
-  // El último cuadro se pasa a WebP también en un contexto encerrado.
-  const quiet = await closedContext(browser, base, {});
-  writeFileSync(
-    join(mediaDir, `${name}.end.webp`),
-    await toWebp(await quiet.context.newPage(), last, 960),
-  );
-  await quiet.context.close();
+const scene = { entered: false };
+
+clip({
+  name,
+  prepare: (browser, baseURL) => recording(browser, baseURL, scene),
+  play: (page, baseURL) => play(page, baseURL, scene),
 });
