@@ -44,7 +44,9 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
 - **R1.9** **En la computadora, cada preferencia tiene su atajo** con Alt + letra y se cambia con
   Espacio, como el resto de la aplicación (00 · R2).
 - **R1.10** **«Así la tenés»:** arriba, un resumen de una línea con lo elegido en cada preferencia de
-  este dispositivo («Con movimiento · 14:30 · En el navegador»), para verlo todo de un vistazo.
+  este dispositivo («Con movimiento · 14:30 · En el navegador»), para verlo todo de un vistazo. Dice
+  lo que pasa de verdad: si el sistema pide no animar, dice «En el acto», elija lo que elija la
+  persona (R2.3).
 - **R1.11** **«Volver a como viene»** deja las animaciones prendidas y el formato de la hora en «Como el
   sistema», sin confirmación (se recupera eligiendo de nuevo). No toca «Trabajar sin conexión», que
   tiene sus propias reglas (R5), ni instalar. Ya como viene, no aparece.
@@ -59,7 +61,8 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   pasando.
 - **R2.3** **Si el sistema del dispositivo pide no animar** («reducir movimiento»), manda el sistema:
   no hay animaciones aunque la opción esté prendida, y la opción lo dice («Este dispositivo ya pide
-  no animar»). La aplicación no le pasa por encima.
+  no animar»). La aplicación no le pasa por encima. La llave se puede tocar igual: guarda lo
+  elegido, que vale el día que el sistema deje de pedirlo.
 
 ## 3. El formato de la hora
 
@@ -146,8 +149,10 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
 - **E14** **Dado** las animaciones apagadas, **cuando** algo tarda más de 300 ms, **entonces** la marca de
   espera se mueve igual, y pasados 2 segundos la barra de avance avanza.
 - **E15** **Dado** un dispositivo con «reducir movimiento» pedido en el sistema, **cuando** se abre
-  Configuración, **entonces** la opción dice que el dispositivo ya pide no animar, y no hay
-  animaciones aunque esté prendida.
+  Configuración, **entonces** la opción dice que el dispositivo ya pide no animar, no hay
+  animaciones aunque esté prendida y «Así la tenés» dice «En el acto».
+- **E35** **Dado** E15, **cuando** se apaga la llave y después el sistema deja de pedir no animar,
+  **entonces** sigue sin animaciones, porque la persona las apagó.
 
 ### El formato de la hora
 
