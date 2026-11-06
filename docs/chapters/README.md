@@ -54,8 +54,8 @@ Carlos ya las confirmó. El analista de negocio de cada capítulo parte de acá 
   menos de 50 ms. Es un módulo enchufable: ningún otro depende de él (ADR-003).
 - **04 · Configuración del dispositivo:** «Instalar en este dispositivo», solo donde el navegador lo
   permite; se desinstala desde el sistema. Cada persona elige el formato de la hora y de la fecha
-  (por omisión, los del sistema) y si ve los importes con decimales (por omisión, no). Trabajar sin
-  conexión se habilita acá.
+  (por omisión, los del sistema). Trabajar sin conexión se habilita acá. El vínculo entre celular y
+  computadora no está acá: va solo en su indicador (03).
 - **06 · Administración:** la decide un Administrador y la cumplen todos los dispositivos (la
   configuración, en cambio, la decide cada persona para su dispositivo). Ajustes: el redondeo del
   precio (hoy $1.000), los márgenes rápidos (hoy 300, 200, 100, 50 y 25 %), la zona horaria del
@@ -64,7 +64,8 @@ Carlos ya las confirmó. El analista de negocio de cada capítulo parte de acá 
 - **07 · Catálogo:** todo producto viene de la lista de precios de un proveedor; no se dan de alta
   productos a mano. El proveedor en uso es el más barato según la última lista de cada proveedor,
   sin límite de días, y se puede cambiar a mano. El precio de venta se guarda junto al producto y
-  se recalcula cuando cambia su costo o su margen. Unir duplicados es experimental y chico: una
+  se recalcula cuando cambia su costo o su margen. Con el catálogo se suma a Configuración (04) si cada persona ve los
+  importes con decimales (por omisión, no). Unir duplicados es experimental y chico: una
   sola tabla de equivalencias, que no toca otras tablas.
 - **09 · Stock:** la venta nunca se bloquea. Si se vende más de lo que hay, el stock queda en cero y
   la anomalía dice que se vendió algo no inventariado.
