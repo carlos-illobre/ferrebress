@@ -115,6 +115,8 @@ paralelo»).
   direcciones de las dos computadoras (§ 11.2), que el aviso de la entrada todavía no trae.
 - [x] T127 [agente] Que las capturas salgan siempre iguales: la del código del vínculo esperaba el ícono
   de «Volver» en lugar del QR, y el botón de Google tardaba más de 5 s con todas en paralelo.
+- [ ] T128 [carlos] Los detalles gráficos de Quién hizo qué con «Actualizar solo» que quedaron
+  desprolijos: Carlos los marca cuando quiera verlos.
 
 ## Tareas futuras
 
@@ -159,11 +161,9 @@ No se construyen ahora; el diseño no les cierra la puerta.
   `art-director-notes.md` de cada carpeta; las reglas del modo clásico (02 · R7) valen igual, y
   el llavero solo cambia cómo se ven y se tocan los roles. Antes de programarlo: paso 1 (preguntas
   del selector y del manual), paso 2 (la pestaña Roles en llavero) y el resto de los pasos.
-- [ ] T118 [agente] La auditoría que se actualiza sola (05, justo después de 03a, con el mecanismo
-  de 03 · R7): mientras la pantalla de Auditoría está a la vista, lo nuevo aparece arriba solo, si
-  cumple el filtro elegido; si la persona bajó en la lista no se le mueve nada, y arriba aparece
-  «3 nuevas», que al tocarlo sube. Con la pantalla cerrada o la pestaña oculta, no se abre ningún
-  canal. Es un cambio de regla de 05 (pasos 1 y 3 a 5) y su paso 2.
+- [x] T118 [agente] La auditoría que se actualiza sola (05 · R4.6, R4.12; 03 · R4.5): «Actualizar
+  solo», «3 nuevas», la marca de lo que entra y los medidores de lo que manda el servidor por los
+  canales. Carlos la probó y anda; los detalles gráficos de la pantalla quedan para T128.
 - [ ] T119 [carlos] Avisarle al celular vinculado con la aplicación cerrada (03).
 - [ ] T120 [carlos] Usar la huella del celular vinculado para confirmar algo en la computadora (03).
 - [ ] T107 [carlos] Plan de copias de la base, en la etapa de pruebas reales.

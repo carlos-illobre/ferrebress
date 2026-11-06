@@ -13,6 +13,9 @@ export default defineConfig({
   timeout: 60_000,
   reporter: 'list',
   outputDir: '../../test-results/manual',
+  // Con todas las capturas en paralelo, el botón de Google llegó a tardar más de los 5 s de siempre en
+  // dibujarse: la espera es más larga; la comparación de las capturas no cambia.
+  expect: { timeout: 15_000 },
   use: {
     baseURL: `http://localhost:${port}`,
     // Sin las optimizaciones de Skia que dependen del procesador: con ellas, el borde de un ícono
