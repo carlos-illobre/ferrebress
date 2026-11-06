@@ -3,7 +3,7 @@
 Lo que cada persona elige para sí misma, en Más → Configuración, en dos etapas. Reglas completas
 en [rules.md](rules.md).
 
-**Estado:** etapa a (preferencias del dispositivo), en el paso 1: por aprobar. La etapa b (lo mío:
+**Estado:** etapa a (preferencias del dispositivo), aprobada; sus pantallas, en el paso 2. La etapa b (lo mío:
 mis celulares con huella, mis sesiones, cortar mi celular perdido y el nombre del dispositivo) se
 escribe después.
 
@@ -25,4 +25,4 @@ escribe después.
 
 ## Lo que falta decidir
 
-Nada, salvo la aprobación de Carlos.
+Nada.

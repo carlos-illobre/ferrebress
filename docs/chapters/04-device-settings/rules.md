@@ -5,7 +5,7 @@ del dispositivo**, que es lo que está escrito acá, y **b. Lo mío** (mis celul
 sesiones en otros dispositivos, cortar mi propio celular perdido y el nombre del dispositivo), que
 se escribe después. Lo que un Administrador fija para todos está en Administración (capítulo 06).
 
-**Estado:** etapa a, en el paso 1: por aprobar.
+**Estado:** etapa a, aprobada.
 
 **Lo que no está acá, y por qué:**
 
