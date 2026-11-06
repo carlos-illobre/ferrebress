@@ -582,6 +582,16 @@
    "variants": [
     {
      "device": "desktop",
+     "name": "Final",
+     "path": "mockups/device-settings-a/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/device-settings-a/final/index.html"
+    },
+    {
+     "device": "desktop",
      "name": "1 · La lista que se prueba",
      "path": "mockups/device-settings-a/desktop/variant-1-list/index.html"
     },

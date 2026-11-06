@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Más · Configuración · final</title>
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="settings.css">
+<script src="../../../common/icons.js"></script>
+<script src="icons-extra.js"></script>
+</head>
+<body>
+<div class="prueba" aria-hidden="true">
+  <div class="prueba-borde"></div>
+  <div class="prueba-cartel">Ambiente de prueba<span> · nada de esto es real</span></div>
+</div>
+
+<div class="app">
+  <!-- ======== Computadora: el lateral, con la tarjeta del vínculo al pie ======== -->
+  <nav class="lateral solo-compu" aria-label="Menú">
+    <div class="lado-marca"><img src="../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button type="button" class="btn btn-fantasma lado-plegar" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <button type="button" class="nav-item"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="package"></i><span class="txt">Depósito</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></button>
+    <button type="button" class="nav-item" aria-current="page"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></button>
+    <div class="pie">
+      <div class="vinculo-tarjeta">
+        <button type="button" class="indicador" data-indicador aria-haspopup="dialog" aria-label="Vínculo: Directo, con Chrome en Android">
+          <span class="indicador-ico"><i class="i" data-i="smartphone"></i><span class="dot"></span></span>
+          <span class="indicador-txt"><b>Directo</b><small>Chrome en Android</small></span>
+          <span class="kbd">L</span>
+        </button>
+        <div class="luz"><span class="punto"></span><span>En línea · todo enviado</span></div>
+        <p class="gasto-app">Aplicación: <b>0 KB/min</b></p>
+      </div>
+      <div class="persona"><div class="usuario"><span class="avatar">RP</span><div><b class="persona-nombre">Rubén Paredes</b><div class="t-detalle">Administrador</div></div></div><button type="button" class="btn chico"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+
+  <main class="contenido">
+    <header class="cabecera">
+      <nav class="migas t-detalle solo-compu" aria-label="Dónde estoy"><button type="button">Más</button><i class="i i-s" data-i="chevron-right"></i><span>Configuración</span></nav>
+      <button type="button" class="volver solo-celu"><i class="i" data-i="chevron-left"></i>Más</button>
+      <h1 class="t-titulo">Configuración</h1>
+      <!-- «Volver a como viene» (R1.11): solo si algo cambió -->
+      <button type="button" class="btn btn-fantasma chico como-viene" data-reset hidden><i class="i i-s" data-i="rotate-ccw"></i><span class="largo">Volver a como viene</span><span class="corto">Como viene</span><span class="kbd">O</span></button>
+
+      <!-- Celular: la pastilla del vínculo debajo del título (03 · R4.1, R4.5); la luz, a su lado, solo sin conexión (00 · R4.1) -->
+      <div class="p-estado solo-celu">
+        <button type="button" class="indicador-pastilla" data-indicador aria-haspopup="dialog" aria-label="Vínculo: Directo, con Chrome en Windows"><i class="i i-s" data-i="monitor"></i><span class="dot"></span><span class="pastilla-txt"><b>Directo</b><span class="pastilla-gasto"><b>0 KB/min</b></span></span></button>
+      </div>
+
+      <div class="sub-pantalla">
+        <span class="para-vos"><span class="cara" aria-hidden="true">RP</span><span>Solo para vos, en <span class="largo">esta computadora</span><span class="corto">este celular</span></span></span>
+        <!-- «Así la tenés» (R1.10) -->
+        <div class="asi" role="group" aria-labelledby="asi-titulo"><span class="t-etiqueta" id="asi-titulo">Así la tenés:</span><div class="asi-pastillas" data-asi></div></div>
+      </div>
+    </header>
+
+    <section class="pantalla" aria-label="Configuración">
+      <div>
+        <h2 class="grupo-titulo solo-compu">En esta computadora</h2>
+        <div class="tarjeta ajustes">
+          <!-- Animaciones (R2) -->
+          <div class="grupo-ajustes">
+            <div class="ajuste" id="ajuste-anim">
+              <div class="ajuste-cab">
+                <span class="ajuste-ico"><i class="i" data-i="sparkles"></i></span>
+                <div><div class="ajuste-nombre" id="n-anim">Animaciones</div><div class="ajuste-que"><span class="largo">Las ventanas, las hojas y los avisos aparecen con un movimiento corto. Apagadas, todo aparece en el acto.</span><span class="corto">Pantallas y avisos con un movimiento corto</span></div></div>
+                <span class="kbd">A</span>
+                <button type="button" class="llave" role="switch" aria-checked="true" aria-labelledby="n-anim" data-pref="anim"></button>
+              </div>
+              <div class="ajuste-cuerpo">
+                <div class="muestra" data-muestra>
+                  <div class="escena" aria-hidden="true"><span class="ventana"></span><span class="aviso-mini"></span></div>
+                  <div class="muestra-leyenda" data-leyenda></div>
+                  <span class="espera-ej solo-compu"><span class="espera"></span>La espera gira siempre</span>
+                </div>
+                <div class="aviso pino aviso-sistema" data-aviso-sistema hidden><i class="i" data-i="accessibility"></i><span><span class="largo">Este dispositivo ya pide no animar. Manda el sistema: para cambiarlo, andá a sus ajustes de accesibilidad.</span><span class="corto">Este dispositivo ya pide no animar</span></span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- El formato de la hora (R3) -->
+          <div class="grupo-ajustes">
+            <div class="ajuste" id="ajuste-hora">
+              <div class="ajuste-cab">
+                <span class="ajuste-ico"><i class="i" data-i="clock"></i></span>
+                <div><div class="ajuste-nombre" id="n-hora">Formato de la hora</div><div class="ajuste-que"><span class="largo">Cambia solo cómo se escribe la hora en toda la aplicación. La hora es la del negocio, la misma para todos.</span><span class="corto">Solo cómo se escribe; la hora es la del negocio</span></div></div>
+                <span class="kbd">H</span>
+              </div>
+              <div class="ajuste-cuerpo">
+                <div class="formatos" role="radiogroup" aria-labelledby="n-hora">
+                  <button type="button" class="formato" role="radio" data-formato="sistema"><span class="formato-hora" data-hora="sistema"></span><span class="formato-nombre">Como el sistema</span><span class="formato-det solo-compu">Acá se ve en 24 h</span><span class="formato-ok"><i class="i i-s" data-i="check"></i></span></button>
+                  <button type="button" class="formato" role="radio" data-formato="24"><span class="formato-hora" data-hora="24"></span><span class="formato-nombre">24 horas</span><span class="formato-det solo-compu">Siempre así</span><span class="formato-ok"><i class="i i-s" data-i="check"></i></span></button>
+                  <button type="button" class="formato" role="radio" data-formato="12"><span class="formato-hora" data-hora="12"></span><span class="formato-nombre">a. m./p. m.</span><span class="formato-det solo-compu">De 1 a 12</span><span class="formato-ok"><i class="i i-s" data-i="check"></i></span></button>
+                </div>
+                <div class="donde-se-ve solo-compu">Se ve así en
+                  <span class="pastilla contorno"><i class="i i-s" data-i="history"></i>Quién hizo qué · <span data-hora="app" data-a="9:05"></span></span>
+                  <span class="pastilla contorno"><i class="i i-s" data-i="monitor-smartphone"></i>Mis sesiones · <span data-hora="app" data-a="18:20"></span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instalar (R4) y, solo en el celular, trabajar sin conexión (R5) -->
+          <div class="grupo-ajustes" data-grupo-final>
+            <div class="ajuste" id="ajuste-instalar" data-fila-instalar>
+              <div class="ajuste-cab">
+                <span class="ajuste-ico"><i class="i" data-i="app-window"></i></span>
+                <div><div class="ajuste-nombre" data-instalar-nombre></div><div class="ajuste-que" data-instalar-que></div></div>
+                <span data-instalar-accion></span>
+              </div>
+            </div>
+            <div class="ajuste solo-celu" id="ajuste-offline" data-fila-offline>
+              <div class="ajuste-cab">
+                <span class="ajuste-ico"><i class="i" data-i="wifi-off"></i></span>
+                <div><div class="ajuste-nombre" id="n-off">Trabajar sin conexión</div><div class="ajuste-que" data-offline-que></div></div>
+                <button type="button" class="llave" role="switch" aria-checked="false" aria-labelledby="n-off" data-pref="offline"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lo de la etapa b, con «Pronto» (R1.8) -->
+      <aside class="lo-tuyo" aria-labelledby="lo-tuyo-titulo">
+        <h2 class="grupo-titulo" id="lo-tuyo-titulo">Lo tuyo</h2>
+        <div class="tarjeta ajustes pronto-lista" aria-disabled="true">
+          <div class="ajuste"><div class="ajuste-cab"><span class="ajuste-ico neutro"><i class="i" data-i="fingerprint"></i></span><div><div class="ajuste-nombre">Mis celulares con huella</div><div class="ajuste-que solo-compu">Dónde entrás con huella</div></div><span class="pronto">Pronto</span></div></div>
+          <div class="ajuste"><div class="ajuste-cab"><span class="ajuste-ico neutro"><i class="i" data-i="monitor-smartphone"></i></span><div><div class="ajuste-nombre">Mis sesiones</div><div class="ajuste-que solo-compu">Dónde tenés sesión</div></div><span class="pronto">Pronto</span></div></div>
+          <div class="ajuste"><div class="ajuste-cab"><span class="ajuste-ico neutro"><i class="i" data-i="unplug"></i></span><div><div class="ajuste-nombre">Cortar mi celular perdido</div><div class="ajuste-que solo-compu">Que nadie entre con él</div></div><span class="pronto">Pronto</span></div></div>
+          <div class="ajuste"><div class="ajuste-cab"><span class="ajuste-ico neutro"><i class="i" data-i="pencil"></i></span><div><div class="ajuste-nombre">Nombre del dispositivo</div><div class="ajuste-que solo-compu">Cómo la ves en la lista</div></div><span class="pronto">Pronto</span></div></div>
+        </div>
+        <div class="guardado solo-compu"><i class="i" data-i="info"></i><span>Queda guardado en esta computadora, para vos: no cambia nada de otras personas ni de otros dispositivos, y vuelve cuando entres de nuevo. Con el celular en espejo, cada uno tiene lo suyo.</span></div>
+      </aside>
+    </section>
+  </main>
+
+  <nav class="nav-inferior solo-celu" aria-label="Menú">
+    <button type="button"><i class="i" data-i="shopping-cart"></i>Vender</button>
+    <button type="button"><i class="i" data-i="tags"></i>Catálogo</button>
+    <button type="button"><i class="i" data-i="package"></i>Depósito</button>
+    <button type="button"><i class="i" data-i="chart-column"></i>Negocio</button>
+    <button type="button" aria-current="page"><i class="i" data-i="menu"></i>Más</button>
+  </nav>
+</div>
+<script src="settings.js"></script>
+</body>
+</html>
