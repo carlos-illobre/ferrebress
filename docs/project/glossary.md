@@ -108,7 +108,7 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Algo salió mal | El aviso de un error inesperado, con la captura y los últimos pasos | `crashReport` |
 | Preferencia | Un valor de Configuración que se guarda en el dispositivo, para esa persona | `preference` |
 | Animaciones | El movimiento por adorno de la aplicación, que se puede apagar | `animations` |
-| Formato de la hora | Cómo se escribe la hora: como el sistema, 24 horas o a. m./p. m. | `timeFormat` (`system`, `h24`, `h12`) |
+| Formato de la hora | Cómo se escribe la hora: 24 horas o a. m./p. m. | `timeFormat` (`h24`, `h12`) |
 | Instalar | Dejar la aplicación con su ícono en el dispositivo | `install` |
 
 ## Usuarios y acceso

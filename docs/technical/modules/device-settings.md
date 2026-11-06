@@ -25,7 +25,7 @@ ya sigue sin guardar si el navegador no deja, R1.5):
 
 | Clave | Qué guarda | De quién |
 |---|---|---|
-| `preferences` | `{ order: userId[], of: { [userId]: { animations: boolean, timeFormat: 'h24' \| 'h12' \| 'system' } } }`: lo que eligió cada persona en este dispositivo. `order` va de la última que cambió algo a la más vieja; no se guarda ninguna hora. Una persona sin fila tiene lo de arranque | De cada persona (R1.3) |
+| `preferences` | `{ order: userId[], of: { [userId]: { animations: boolean, timeFormat: 'h24' \| 'h12' } } }`: lo que eligió cada persona en este dispositivo. `order` va de la última que cambió algo a la más vieja; no se guarda ninguna hora. Una persona sin fila tiene lo de arranque | De cada persona (R1.3) |
 | `install` | `{ offered: boolean, installed: boolean }`: si ya se ofreció el aviso para instalar y si el navegador avisó que se instaló | Del dispositivo (R4.5) |
 
 - **Tope:** como mucho `maxPeople` (20) personas; al pasarse, sale la última de `order`. El tope se
@@ -110,12 +110,10 @@ negocio. Es código común: una tarea propia que se toma antes (constitución, �
   que lo muestra en el momento; las demás lo toman al abrirse (E18). Ninguna guarda horas ya escritas:
   guardan instantes.
 
-**«Como el sistema» no se puede hacer como dice la regla (decide Carlos, § 9).** Los navegadores no
-dejan leer la llave de 24 horas del celular ni de Windows: dan el formato del idioma configurado, con
-los datos de Unicode (CLDR). Comprobado en Chromium: con el idioma en castellano de Argentina, el
-formato del idioma es «2:30 p. m.»; en castellano de España, «14:30». O sea que «Como el sistema», en
-los equipos del local, daría a. m./p. m. aunque el celular esté en 24 horas, y cambiaría todas las horas
-que hoy se ven como «14:30». Hasta que Carlos decida, el diseño queda con lo que se propone en § 9.
+**No hay «Como el sistema» (04 · R3.4).** Los navegadores no dejan leer la llave de 24 horas del
+celular ni de Windows: dan el formato del idioma, con los datos de Unicode (CLDR). Comprobado en
+Chromium: en castellano de Argentina, el del idioma es «2:30 p. m.». Por eso hay dos opciones y arranca
+en 24 horas.
 
 ### `platform/install.ts`: instalar (R4)
 
@@ -199,7 +197,7 @@ Desde la final aprobada, una sola pantalla para los dos anchos (ADR-002):
   de lo que falta.
 - **Teclado (R1.9):** Alt M para «Animaciones», Alt H para el formato (pasa al siguiente), Alt I para
   instalar y Alt O para «Volver a como viene». **La maqueta usa Alt A, que ya es una opción de Más:**
-  se propone M (de «movimiento») y lo decide Carlos (§ 9). Las pastillas de «Así la tenés» y los
+  se propone M (de «movimiento») y Carlos lo aprobó (§ 9). Las pastillas de «Así la tenés» y los
   renglones de «Pronto» se alcanzan con Tab y las flechas, sin tecla propia. En las fichas, las
   flechas; Espacio cambia la llave.
 
@@ -240,8 +238,8 @@ pantalla dice por qué (architecture.md, «Lo que se ve vive en valores con nomb
 - **Instalar:** la aplicación instalada es la misma, con el mismo dominio, las mismas cabeceras y el
   mismo service worker. `related_applications` nombra solo su propio manifiesto.
 - **El ambiente de pruebas:** el manifiesto es el mismo en los dos ambientes, con el mismo nombre e
-  ícono. Un vendedor podría tener dos íconos iguales y cargar ventas en el de pruebas. Se propone (§ 9)
-  que en pruebas el aviso no aparezca y que el manifiesto diga otro nombre.
+  ícono. Un vendedor podría tener dos íconos iguales y cargar ventas en el de pruebas: en pruebas el
+  aviso no aparece y la instalada se llama «Ferrebress pruebas» (§ 9).
 - **Secretos:** ninguno.
 - **Auditoría:** nada (R1.7). «Trabajar sin conexión» anota lo que ya anotaba.
 
@@ -255,19 +253,19 @@ pantalla dice por qué (architecture.md, «Lo que se ve vive en valores con nomb
   Configuración: unos 8 KB, sobre los 44 de hoy, dentro del tope de 64 KB que controla `pnpm boot`. El
   aviso para instalar se baja aparte.
 
-## 9. Lo que decide Carlos
+## 9. Lo que decidió Carlos
 
-1. **«Como el sistema» (§ 4).** Se propone **sacar «Como el sistema»**: dos opciones, «24 horas» (de
-   arranque, como se ve hoy) y «a. m./p. m.». La alternativa es dejarla, sabiendo que en los equipos
-   del local daría a. m./p. m. Cambia 04 · R3.1, 00 · R8.5 y los escenarios E16 a E17.
-2. **El texto del celular con la huella de otra persona** (§ 5). Se propone: «Este celular tiene la
-   huella de otra persona: solo ella puede trabajar sin conexión acá.», y el de R5.3 para el celular sin
-   ninguna huella. Se sabe cuál es cuál por la marca de huella del celular, que solo elige el texto.
-3. **Dos hojas a la vez** (§ 6). Se propone: primero el ofrecimiento de la huella, que es para entrar;
-   el aviso para instalar, al cerrarse esa.
-4. **El ambiente de pruebas** (§ 7). Se propone: en pruebas el aviso no aparece, y el manifiesto se
-   llama «Ferrebress pruebas», para que un ícono instalado a mano no se confunda.
-5. **Alt M en lugar de Alt A** para «Animaciones» (§ 6).
+1. **Sin «Como el sistema»:** dos opciones y arranca en 24 horas (04 · R3.1, R3.4).
+2. **El celular con la huella de otra persona** dice «Este celular tiene la huella de otra persona:
+   solo ella puede trabajar sin conexión acá.» (R5.3); el texto lo elige la marca de huella del
+   celular, que no decide nada más.
+3. **Dos hojas a la vez:** primero la huella, después el aviso para instalar (R4.6).
+4. **El ambiente de pruebas:** sin el aviso, y la instalada se llama «Ferrebress pruebas» (R4.7). El
+   armado lleva dos manifiestos, `manifest-production.webmanifest` y `manifest-testing.webmanifest`
+   (que dice «Ferrebress pruebas»), y Caddy sirve `/manifest.webmanifest` desde el del ambiente
+   (`rewrite` con `{$ENVIRONMENT}`, que el compose le pasa al contenedor web desde el mismo `.env`).
+   La aplicación ya sabe su ambiente por `/api/start` para no mostrar el aviso.
+5. **Alt M** para «Animaciones».
 
 ## 10. Pruebas
 

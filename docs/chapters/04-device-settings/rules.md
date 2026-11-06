@@ -29,7 +29,7 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   servidor. Queda al salir y al cerrar la aplicación, y vuelve cuando la misma persona entra de
   nuevo en ese dispositivo. Otra persona en el mismo dispositivo tiene las suyas, y lo que elige una
   no cambia nada de la otra ni de otro dispositivo. En la entrada, antes de saber quién es, vale lo
-  del sistema y las animaciones prendidas (salvo que el sistema pida no animar, R2.3).
+  de arranque: las animaciones prendidas (salvo que el sistema pida no animar, R2.3) y 24 horas.
 - **R1.4** **Vale en el momento,** sin recargar ni volver a entrar.
 - **R1.5** **Si el dispositivo no puede guardarla** (una ventana privada, los datos bloqueados), vale
   mientras la aplicación esté abierta, sin error.
@@ -66,9 +66,11 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
 
 ## 3. El formato de la hora
 
-- **R3.1** **«Formato de la hora»**, con tres opciones: «Como el sistema», «24 horas» y «a. m./p. m.».
-  Cada una muestra cómo se ve la hora de ahora con ella («14:30», «2:30 p. m.»). Arranca en «Como
-  el sistema».
+- **R3.1** **«Formato de la hora»**, con dos opciones: «24 horas» y «a. m./p. m.». Cada una muestra
+  cómo se ve la hora de ahora con ella («14:30», «2:30 p. m.»). Arranca en «24 horas».
+- **R3.4** **No hay «Como el sistema»:** el navegador no deja saber si el celular o la computadora
+  están en 24 horas; solo da el formato del idioma, que en castellano de Argentina es a. m./p. m. Una
+  opción que dijera «como el sistema» mostraría otra cosa.
 - **R3.2** **Cambia solo cómo se escribe la hora,** en toda la aplicación. La hora sigue siendo la del
   servidor en la zona del negocio, la misma para todos (00 · R8.4).
 - **R3.3** **Lo que se imprime o se manda afuera** (facturas, listas) no sigue esta preferencia: lo
@@ -91,6 +93,11 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   el botón «atrás» del celular, y
   también si se toca «Instalar» y después se cancela en el navegador. Al cerrarlo sin instalar, un
   aviso corto dice que instalar sigue en Más → Configuración. En la computadora no aparece.
+- **R4.6** **Si al llegar hay otra hoja abierta** (el ofrecimiento de vincular la huella, 01 · R2.2),
+  el aviso espera a que se cierre: primero la huella, que es para entrar.
+- **R4.7** **En el ambiente de pruebas el aviso no aparece,** y la aplicación instalada desde ahí se
+  llama «Ferrebress pruebas», para que su ícono no se confunda con el de producción y nadie cargue
+  ventas de verdad en pruebas.
 
 ## 5. Trabajar sin conexión
 
@@ -99,7 +106,11 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   esa persona vinculada en ese celular.
 - **R5.2** **Sin el permiso, no aparece** (00 · R1.8).
 - **R5.3** **Con el permiso y sin la huella vinculada en ese celular,** aparece apagada, sin poder
-  prenderla, con «Para usarla, primero vinculá tu huella en este celular».
+  prenderla, con «Para usarla, primero vinculá tu huella en este celular». Si el celular tiene la
+  huella de otra persona (01 · R2.3), dice «Este celular tiene la huella de otra persona: solo ella
+  puede trabajar sin conexión acá.».
+- **R5.5** **Solo se prende si el servidor confirma** que la huella de ese celular es de esa persona:
+  nadie puede reemplazar la opción de la dueña de la huella.
 - **R5.4** **En la computadora no aparece** (15 · R1.1).
 
 ## Escenarios
@@ -111,10 +122,10 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
 - **E02** **Dado** una persona que apagó las animaciones, **cuando** sale y vuelve a entrar en ese
   dispositivo, o cierra la aplicación y la vuelve a abrir, **entonces** siguen apagadas.
 - **E03** **Dado** Juan apagó las animaciones y eligió «a. m./p. m.» en la computadora del local,
-  **cuando** María entra en esa computadora, **entonces** ve las animaciones prendidas y la hora como
-  el sistema; **cuando** Juan vuelve a entrar, ve lo suyo.
+  **cuando** María entra en esa computadora, **entonces** ve las animaciones prendidas y la hora en
+  24 horas; **cuando** Juan vuelve a entrar, ve lo suyo.
 - **E04** **Dado** una persona que eligió «a. m./p. m.» en su celular, **cuando** entra en la
-  computadora, **entonces** la computadora muestra la hora como el sistema: cada dispositivo tiene lo
+  computadora, **entonces** la computadora muestra la hora en 24 horas: cada dispositivo tiene lo
   suyo.
 - **E05** **Dado** la entrada, sin nadie adentro, **cuando** se la abre en un dispositivo donde alguien
   apagó las animaciones, **entonces** se anima igual, salvo que el sistema pida no animar.
@@ -160,8 +171,8 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
 ### El formato de la hora
 
 - **E16** **Dado** una persona que nunca eligió el formato, **cuando** abre Configuración, **entonces** el
-  formato está en «Como el sistema», y la hora se ve como la muestra el sistema del dispositivo.
-- **E17** **Dado** las tres opciones, **cuando** se las mira, **entonces** cada una muestra la hora de
+  formato está en «24 horas», aunque el idioma del navegador use a. m./p. m.
+- **E17** **Dado** las dos opciones, **cuando** se las mira, **entonces** cada una muestra la hora de
   ahora escrita con ella.
 - **E18** **Dado** una persona que elige «a. m./p. m.», **cuando** mira cualquier hora de la aplicación
   (Quién hizo qué, sus sesiones, hasta cuándo puede entrar sin conexión), **entonces** la ve en ese
@@ -189,6 +200,12 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   cierra y la aplicación queda instalada.
 - **E36** **Dado** E25, **cuando** toca «Instalar» y cancela en la ventana del navegador, **entonces** el
   aviso se cierra y no vuelve a aparecer en ese celular; instalar sigue en Configuración.
+- **E38** **Dado** un celular que entra por primera vez, sin huella vinculada y que puede instalar,
+  **cuando** llega al marco, **entonces** primero aparece el ofrecimiento de vincular la huella y, al
+  cerrarlo, el aviso para instalar.
+- **E39** **Dado** el ambiente de pruebas, **cuando** se entra desde un celular que puede instalar,
+  **entonces** no aparece el aviso; si se instala desde Configuración, el ícono dice «Ferrebress
+  pruebas».
 - **E27** **Dado** la computadora, **cuando** se entra por primera vez, **entonces** no aparece el aviso
   para instalar.
 
@@ -202,5 +219,8 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
 - **E30** **Dado** una persona con el permiso y sin su huella vinculada en ese celular, **cuando** abre
   Configuración, **entonces** la opción está apagada, no se puede prender y dice «Para usarla,
   primero vinculá tu huella en este celular».
+- **E37** **Dado** un celular con la huella de Ana y la opción prendida por ella, **cuando** entra Beto,
+  que tiene el permiso, y abre Configuración, **entonces** la opción está apagada, no se puede prender
+  y dice que el celular tiene la huella de otra persona; la opción de Ana sigue igual.
 - **E31** **Dado** la computadora, **cuando** se abre Configuración, **entonces** no está «Trabajar sin
   conexión».
