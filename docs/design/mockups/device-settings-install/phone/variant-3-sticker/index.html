@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El aviso para instalar · 3 · La calcomanía</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* La calcomanía: el ícono cae arriba, como un objeto; se arrastra al inicio o se tira */
+  .calco { position: absolute; top: 50px; left: 50%; z-index: 40; width: 264px; margin-left: -132px; touch-action: none; user-select: none; cursor: grab;
+    transform: translateY(-140px); opacity: 0; transition: transform var(--t-nav) var(--rebote), opacity var(--t) var(--curva); }
+  .calco.ver { transform: none; opacity: 1; }
+  .calco.arrastrando { transition: none; cursor: grabbing; }
+  .calco .pieza { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e3); padding: 10px 14px 10px 10px; border-radius: 22px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-3); }
+  .calco .app-icono { width: 56px; height: 56px; border-radius: 16px; }
+  .calco .txt b { display: block; font-size: 16px; line-height: 22px; }
+  .calco .txt span { font-size: 14px; color: var(--texto-2); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+  .calco .txt span svg { animation: bajar 1.6s var(--curva) infinite; }
+  @keyframes bajar { 0%, 100% { transform: translateY(-2px); opacity: .6; } 50% { transform: translateY(3px); opacity: 1; } }
+  .calco .mas { flex-basis: 100%; display: none; gap: var(--e2); margin-top: var(--e3); padding-top: var(--e3); border-top: 1px solid var(--borde); }
+  .calco.abierta .mas { display: grid; grid-template-columns: 1fr 1fr; }
+  .calco.abierta .txt span { display: none; }
+  .calco.adentro .pieza { box-shadow: var(--sombra-2); }
+  .calco.adentro .txt { opacity: 0; }
+  .calco.adentro .mas { display: none !important; }
+  .calco.adentro .pieza { background: transparent; border-color: transparent; box-shadow: none; }
+
+  /* El lugar del inicio: aparece abajo, bajo el pulgar */
+  .muelle { position: absolute; left: var(--e4); right: var(--e4); bottom: 92px; height: 96px; z-index: 35; border-radius: 24px; border: 2px dashed var(--borde-fuerte); background: rgba(255, 255, 255, .86); backdrop-filter: blur(8px);
+    display: flex; align-items: center; gap: var(--e3); padding: 0 var(--e5); color: var(--texto-2); font-weight: 700;
+    opacity: 0; transform: translateY(16px); transition: opacity var(--t) var(--curva), transform var(--t) var(--curva), border-color var(--t-micro), background var(--t-micro); }
+  .muelle.ver { opacity: 1; transform: none; }
+  .muelle.cerca { border-color: var(--pino); background: var(--pino-suave); color: var(--pino-texto); transform: scale(1.03); }
+  .muelle .hueco { width: 60px; height: 60px; border-radius: 17px; background: var(--hundido); display: grid; place-items: center; color: var(--texto-3); flex: none; }
+  .muelle small { display: block; font-size: 14px; font-weight: 500; color: var(--texto-2); }
+  .muelle.cerca small { color: var(--pino-texto); }
+
+  /* Ignorada: se guarda contra el borde y espera */
+  .calco.guardada { transform: translateX(196px) !important; }
+  .calco.guardada .txt { opacity: 0; }
+
+  .calco.vuela { transition: transform var(--t-nav) var(--curva-salida), opacity var(--t-nav) var(--curva-salida); opacity: 0; }
+
+  @media (prefers-reduced-motion: reduce) { .calco, .muelle { transition: none; } .calco .txt span svg { animation: none; } }
+</style>
+</head>
+<body>
+<script src="../../shared.js"></script>
+<script>
+(function () {
+  var A = window.Aviso, celu = A.marco();
+  var calco = document.createElement("div");
+  calco.className = "calco"; calco.setAttribute("role", "dialog"); calco.setAttribute("aria-label", "Instalá Ferrebress para abrirla desde un ícono");
+  calco.innerHTML =
+    '<div class="pieza"><span class="app-icono"><img src="' + A.ISO + '" alt=""><span class="tilde"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>' +
+    '<div class="txt"><b>Llevame a tu inicio</b><span><i class="i i-s" data-i="move-down"></i>Bajala para instalar</span></div>' +
+    '<div class="mas"><button type="button" class="btn btn-accion" data-instalar><i class="i i-s" data-i="download"></i>Instalar</button><button type="button" class="btn btn-fantasma" data-ahora-no>Ahora no</button></div></div>';
+  var muelle = document.createElement("div");
+  muelle.className = "muelle"; muelle.setAttribute("aria-hidden", "true");
+  muelle.innerHTML = '<span class="hueco"><i class="i i-l" data-i="house"></i></span><div>Soltala acá<small>Queda con su ícono, en tu inicio</small></div>';
+  celu.appendChild(muelle); celu.appendChild(calco);
+  A.pintar(calco); A.pintar(muelle);
+
+  var viva = false, idle;
+  function aparecer() {
+    viva = true;
+    calco.className = "calco"; calco.style.transform = ""; calco.style.opacity = "";
+    calco.querySelector(".app-icono").classList.remove("listo");
+    requestAnimationFrame(function () { requestAnimationFrame(function () { calco.classList.add("ver"); A.vibrar(10); }); });
+    esperar();
+  }
+  function esperar() {
+    clearTimeout(idle);
+    idle = setTimeout(function () { if (viva && !calco.classList.contains("abierta")) calco.classList.add("guardada"); }, 10000);
+  }
+  function tirar(dx, dy) {
+    viva = false; clearTimeout(idle);
+    var n = Math.hypot(dx, dy) || 1;
+    calco.classList.remove("arrastrando");
+    calco.classList.add("vuela");
+    calco.style.transform = "translate(" + (dx / n * 520) + "px," + (dy / n * 520) + "px) rotate(" + (dx > 0 ? 18 : -18) + "deg)";
+    muelle.classList.remove("ver", "cerca");
+    setTimeout(function () { A.tostada("Si cambiás de idea, está en Más → Configuración", "info"); }, A.espera(260));
+  }
+  function instalarDesde(meterEnMuelle) {
+    clearTimeout(idle);
+    A.pedirAlNavegador(function () {
+      viva = false;
+      if (meterEnMuelle) meterEnMuelle();
+      calco.classList.add("adentro");
+      calco.querySelector(".app-icono").classList.add("listo");
+      A.vibrar([10, 40, 10]);
+      setTimeout(function () {
+        calco.classList.add("vuela"); calco.style.opacity = "0";
+        muelle.classList.remove("ver", "cerca");
+        A.tostada("Ferrebress quedó con su ícono", "circle-check");
+      }, A.espera(1100));
+    }, function () {
+      // El navegador canceló: vuelve a su lugar y sigue ofreciendo
+      calco.classList.remove("arrastrando", "adentro"); calco.style.transform = ""; muelle.classList.remove("ver", "cerca"); esperar();
+    });
+  }
+  function haciaElMuelle() {
+    var c = calco.querySelector(".app-icono").getBoundingClientRect(), h = muelle.querySelector(".hueco").getBoundingClientRect();
+    var base = calco.getBoundingClientRect();
+    var actual = new DOMMatrix(getComputedStyle(calco).transform);
+    var dx = actual.m41 + (h.left + h.width / 2) - (c.left + c.width / 2);
+    var dy = actual.m42 + (h.top + h.height / 2) - (c.top + c.height / 2);
+    calco.classList.remove("arrastrando");
+    calco.style.transform = "translate(" + dx + "px," + dy + "px)";
+  }
+
+  // Arrastrar
+  var x0, y0, dx = 0, dy = 0, t0, apretado = false;
+  calco.addEventListener("pointerdown", function (e) {
+    if (!viva || e.target.closest("button")) return;
+    if (calco.classList.contains("guardada")) { calco.classList.remove("guardada"); esperar(); return; }
+    apretado = true; x0 = e.clientX; y0 = e.clientY; dx = dy = 0; t0 = Date.now();
+    calco.setPointerCapture(e.pointerId);
+  });
+  calco.addEventListener("pointermove", function (e) {
+    if (!apretado) return;
+    dx = e.clientX - x0; dy = e.clientY - y0;
+    if (Math.hypot(dx, dy) < 6) return;
+    calco.classList.add("arrastrando"); calco.classList.remove("abierta");
+    calco.style.transform = "translate(" + dx + "px," + dy + "px) rotate(" + (dx / 40) + "deg)";
+    muelle.classList.add("ver");
+    var r = muelle.getBoundingClientRect();
+    muelle.classList.toggle("cerca", e.clientY > r.top - 40);
+  });
+  calco.addEventListener("pointerup", function () {
+    if (!apretado) return;
+    apretado = false;
+    var dist = Math.hypot(dx, dy), v = dist / Math.max(1, Date.now() - t0);
+    if (dist < 6) { calco.classList.toggle("abierta"); esperar(); return; } // tocar: se abre con los botones
+    if (muelle.classList.contains("cerca")) { haciaElMuelle(); instalarDesde(); return; }
+    if (dy < -50 || Math.abs(dx) > 120 || (v > .8 && dy < 0)) { tirar(dx, dy); return; }
+    calco.classList.remove("arrastrando"); calco.style.transform = ""; muelle.classList.remove("ver", "cerca"); esperar();
+  });
+  calco.querySelector("[data-instalar]").addEventListener("click", function () {
+    muelle.classList.add("ver");
+    instalarDesde(function () { haciaElMuelle(); muelle.classList.add("cerca"); });
+  });
+  calco.querySelector("[data-ahora-no]").addEventListener("click", function () { tirar(0, -1); });
+
+  // Para la captura: abre el muelle con la pieza a mitad de camino
+  window.mostrarArrastre = function () {
+    muelle.classList.add("ver", "cerca"); calco.classList.add("arrastrando");
+    calco.style.transform = "translate(-20px, 520px) rotate(-3deg)";
+  };
+
+  A.alReiniciar(function () { if (!viva) aparecer(); });
+  setTimeout(aparecer, A.espera(700));
+})();
+</script>
+</body>
+</html>

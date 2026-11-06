@@ -1,0 +1,72 @@
+/* El aviso para instalar · lo común a las tres variantes del celular.
+   El marco de fondo (Vender, neutro), el pedido del navegador simulado, la tostada y la lengüeta
+   de la maqueta (fuera del diseño). Todo con las variables de common.css. */
+
+body { width: 390px; margin: 0 auto; overflow: hidden; }
+.celu { isolation: isolate; }
+.marco-app { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+/* Marco de fondo: Vender recién entrado, neutro (no se diseña acá) */
+.btn-vinculo.gris { border-color: var(--borde-fuerte); background: var(--superficie); color: var(--texto-2); }
+.nav-inferior a.activo::before { display: none; } /* el lenguaje: la elegida sin raya */
+.nav-inferior a { cursor: pointer; }
+.esqueleto { display: grid; gap: var(--e2); }
+.esq-campo { height: 52px; border-radius: var(--r); background: var(--superficie); border: 1px solid var(--borde); display: flex; align-items: center; gap: var(--e3); padding: 0 var(--e4); color: var(--texto-3); font-weight: 600; }
+.esq-renglon { height: 80px; border-radius: var(--r-tarjeta); background: var(--superficie); border: 1px solid var(--borde); display: grid; grid-template-columns: 56px 1fr; gap: var(--e4); align-items: center; padding: 0 var(--e4); }
+.esq-renglon .f { width: 56px; height: 56px; border-radius: var(--r); background: var(--hundido); }
+.esq-renglon .l { display: grid; gap: 8px; }
+.esq-renglon .l b { display: block; height: 12px; border-radius: 6px; background: var(--hundido); }
+.esq-renglon .l b + b { width: 60%; background: var(--hundido-2); opacity: .6; }
+.esq-vacio { margin-top: var(--e6); text-align: center; color: var(--texto-3); font-weight: 600; font-size: 14px; }
+.esq-boton { height: 56px; border-radius: 14px; background: var(--hundido); }
+
+/* El ícono de la aplicación: la F sobre blanco, como queda en el inicio del celular */
+.app-icono { width: 64px; height: 64px; border-radius: 18px; background: #fff; display: grid; place-items: center; box-shadow: 0 6px 16px -6px rgba(18, 56, 47, .35), 0 0 0 1px rgba(18, 56, 47, .06); flex: none; }
+.app-icono img { width: 70%; height: 70%; }
+.app-icono.chico { width: 44px; height: 44px; border-radius: 12px; }
+.app-icono.grande { width: 88px; height: 88px; border-radius: 24px; }
+.app-icono .tilde { position: absolute; right: -6px; bottom: -6px; width: 26px; height: 26px; border-radius: 99px; background: var(--logro); color: #fff; display: grid; place-items: center; border: 2px solid #fff; transform: scale(0); transition: transform var(--t) var(--rebote); }
+.app-icono.listo .tilde { transform: scale(1); }
+.app-icono { position: relative; }
+.tilde svg path { stroke-dasharray: 24; stroke-dashoffset: 24; }
+.app-icono.listo .tilde svg path { animation: dibujar 300ms var(--curva) 120ms forwards; }
+@keyframes dibujar { to { stroke-dashoffset: 0; } }
+
+/* Fondo que se oscurece (30 %) */
+.velo { position: absolute; inset: 0; background: rgba(26, 29, 27, .30); opacity: 0; transition: opacity var(--t-nav) var(--curva); z-index: 20; }
+.velo.ver { opacity: 1; }
+
+/* El pedido del navegador (no es de Ferrebress: lo dibuja Chrome, por eso otra letra y otro azul) */
+.nav-pedido { position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; background: rgba(0, 0, 0, .32); opacity: 0; transition: opacity var(--t) var(--curva); }
+.nav-pedido.ver { opacity: 1; }
+.nav-pedido .dlg { width: 312px; background: #f3f5f8; border-radius: 28px; padding: 24px; font-family: Roboto, "Segoe UI", system-ui, sans-serif; color: #1f1f1f; transform: scale(.94); transition: transform var(--t) var(--curva); box-shadow: 0 12px 40px rgba(0, 0, 0, .25); }
+.nav-pedido.ver .dlg { transform: none; }
+.nav-pedido h3 { margin: 0 0 16px; font-weight: 400; font-size: 24px; line-height: 32px; }
+.nav-pedido .app { display: flex; gap: 16px; align-items: center; }
+.nav-pedido .app .app-icono { width: 48px; height: 48px; border-radius: 12px; }
+.nav-pedido .app b { display: block; font-weight: 500; font-size: 16px; }
+.nav-pedido .app span { font-size: 14px; color: #444746; }
+.nav-pedido .bot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+.nav-pedido .bot button { border: 0; background: transparent; color: #0b57d0; font-weight: 500; font-size: 14px; height: 40px; padding: 0 12px; border-radius: 20px; font-family: inherit; }
+.nav-pedido .bot button.lleno { background: #0b57d0; color: #fff; padding: 0 24px; }
+.nav-pedido .quien { margin-top: 12px; font-size: 12px; color: #5f6368; text-align: center; font-family: var(--letra); }
+
+/* Tostada, arriba del menú de abajo */
+.tostada-lugar { position: absolute; left: 0; right: 0; bottom: 92px; padding: 0 var(--e4); display: grid; justify-items: center; z-index: 70; pointer-events: none; }
+.tostada { opacity: 0; transform: translateY(12px); transition: opacity var(--t) var(--curva), transform var(--t) var(--curva); }
+.tostada.ver { opacity: 1; transform: none; }
+
+/* Lengüeta de la maqueta: fuera del diseño, para volver a ver el aviso */
+.lengueta { position: fixed; right: 0; top: 168px; z-index: 100; display: grid; justify-items: end; gap: 6px; font: 600 13px/1.3 var(--letra); }
+.lengueta > button { width: 36px; height: 44px; border: 0; border-radius: 12px 0 0 12px; background: #2b2b2b; color: #fff; display: grid; place-items: center; box-shadow: var(--sombra-3); }
+.lengueta .menu-maqueta { display: none; width: 236px; background: #2b2b2b; color: #fff; border-radius: 12px 0 0 12px; padding: 10px; gap: 4px; }
+.lengueta.abierta .menu-maqueta { display: grid; }
+.lengueta .menu-maqueta p { margin: 2px 4px 6px; color: #bbb; font-weight: 500; }
+.lengueta .menu-maqueta button { text-align: left; border: 0; border-radius: 8px; background: #3a3a3a; color: #fff; padding: 8px 10px; font: inherit; }
+.lengueta .menu-maqueta button.si { background: #5a5a5a; }
+.captura .lengueta { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .velo, .nav-pedido, .nav-pedido .dlg, .tostada, .app-icono .tilde { transition: none !important; }
+  .app-icono.listo .tilde svg path { animation: none; stroke-dashoffset: 0; }
+}

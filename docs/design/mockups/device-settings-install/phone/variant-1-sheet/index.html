@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El aviso para instalar · 1 · La hoja</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* La hoja: sube desde abajo sobre Vender, bajo el pulgar */
+  .hoja { position: absolute; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--superficie); border-radius: var(--r-hoja) var(--r-hoja) 0 0; box-shadow: var(--sombra-3); padding: 8px var(--e4) 34px; transform: translateY(105%); transition: transform var(--t-nav) var(--curva); touch-action: none; }
+  .hoja.ver { transform: translateY(0); }
+  .hoja.arrastrando { transition: none; }
+  .agarre { width: 40px; height: 5px; border-radius: 99px; background: var(--hundido-2); margin: 0 auto 16px; }
+
+  /* El inicio del celular, en chico: así va a quedar */
+  .inicio { position: relative; height: 148px; border-radius: 20px; background: var(--hundido); overflow: hidden; display: grid; place-items: center; }
+  .inicio .fila { display: grid; grid-template-columns: repeat(4, 56px); gap: 20px; align-items: center; justify-items: center; }
+  .inicio .otra { width: 52px; height: 52px; border-radius: 15px; background: var(--hundido-2); }
+  .inicio .lugar { width: 56px; height: 56px; position: relative; display: grid; place-items: center; }
+  .inicio .lugar .app-icono { width: 56px; height: 56px; border-radius: 16px; animation: asomar 2.4s var(--curva) 600ms infinite; }
+  .inicio .nombres { display: grid; grid-template-columns: repeat(4, 56px); gap: 20px; margin-top: 8px; justify-items: center; }
+  .inicio .nombres span { height: 8px; width: 36px; border-radius: 4px; background: var(--hundido-2); }
+  .inicio .nombres b { font-size: 14px; line-height: 8px; font-weight: 700; color: var(--tinta); white-space: nowrap; }
+  @keyframes asomar { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+  .listo .inicio .lugar .app-icono { animation: none; }
+
+  .que { margin: var(--e5) 0 var(--e1); }
+  .que h2 { margin: 0; font-size: 22px; line-height: 28px; font-weight: 800; letter-spacing: -.01em; }
+  .ventajas { display: flex; gap: var(--e2); flex-wrap: wrap; margin: var(--e3) 0 var(--e5); }
+  .botones { display: grid; gap: var(--e2); }
+  .botones .btn { width: 100%; }
+  .hecho { display: none; align-items: center; gap: var(--e3); padding: var(--e4); border-radius: var(--r-tarjeta); background: var(--logro-suave); color: var(--logro-texto); font-weight: 700; }
+  .hoja.listo .botones { display: none; }
+  .hoja.listo .hecho { display: flex; }
+
+  @media (prefers-reduced-motion: reduce) { .hoja { transition: none; } .inicio .lugar .app-icono { animation: none; } }
+</style>
+</head>
+<body>
+<script src="../../shared.js"></script>
+<script>
+(function () {
+  var A = window.Aviso, celu = A.marco();
+  var velo = document.createElement("div"); velo.className = "velo";
+  var hoja = document.createElement("section");
+  hoja.className = "hoja"; hoja.setAttribute("role", "dialog"); hoja.setAttribute("aria-labelledby", "titulo");
+  hoja.innerHTML =
+    '<div class="agarre" aria-hidden="true"></div>' +
+    '<div class="inicio" aria-hidden="true"><div><div class="fila"><span class="otra"></span><span class="otra"></span><span class="lugar"><span class="app-icono"><img src="' + A.ISO + '" alt=""><span class="tilde"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span></span><span class="otra"></span></div>' +
+    '<div class="nombres"><span></span><span></span><b>Ferrebress</b><span></span></div></div></div>' +
+    '<div class="que"><h2 id="titulo">Instalá Ferrebress para abrirla desde un ícono</h2></div>' +
+    '<div class="ventajas"><span class="pastilla contorno"><i class="i i-s" data-i="zap"></i>Abre al toque</span><span class="pastilla contorno"><i class="i i-s" data-i="maximize-2"></i>Pantalla completa</span></div>' +
+    '<div class="botones"><button type="button" class="btn btn-accion grande" data-instalar><i class="i" data-i="download"></i>Instalar</button>' +
+    '<button type="button" class="btn btn-fantasma" data-ahora-no>Ahora no</button></div>' +
+    '<div class="hecho"><i class="i i-l" data-i="circle-check"></i>Listo: ya está en tu pantalla de inicio</div>';
+  celu.appendChild(velo); celu.appendChild(hoja);
+  A.pintar(hoja);
+
+  var abierta = false;
+  function abrir() {
+    hoja.classList.remove("listo"); hoja.style.transform = "";
+    velo.style.display = ""; hoja.style.display = "";
+    abierta = true;
+    requestAnimationFrame(function () { requestAnimationFrame(function () { velo.classList.add("ver"); hoja.classList.add("ver"); }); });
+  }
+  function cerrar(despues) {
+    abierta = false;
+    hoja.style.transform = "";
+    velo.classList.remove("ver"); hoja.classList.remove("ver");
+    setTimeout(function () { despues && despues(); }, A.espera(320));
+  }
+  function ahoraNo() {
+    if (!abierta) return;
+    cerrar(function () { A.tostada("Si cambiás de idea, está en Más → Configuración", "info"); });
+  }
+
+  hoja.querySelector("[data-ahora-no]").addEventListener("click", ahoraNo);
+  velo.addEventListener("click", ahoraNo); // cerrado de cualquier forma, no vuelve (R4.5)
+  hoja.querySelector("[data-instalar]").addEventListener("click", function () {
+    A.pedirAlNavegador(function () {
+      hoja.classList.add("listo");
+      hoja.querySelector(".app-icono").classList.add("listo");
+      A.vibrar([10, 40, 10]);
+      setTimeout(function () { cerrar(function () { A.tostada("Ferrebress quedó con su ícono", "circle-check"); }); }, A.espera(1400));
+    });
+  });
+
+  // Arrastrar la hoja hacia abajo la cierra (es «Ahora no»)
+  var y0 = null, dy = 0;
+  hoja.addEventListener("pointerdown", function (e) {
+    if (e.target.closest("button")) return;
+    y0 = e.clientY; dy = 0; hoja.classList.add("arrastrando"); hoja.setPointerCapture(e.pointerId);
+  });
+  hoja.addEventListener("pointermove", function (e) {
+    if (y0 === null) return;
+    dy = Math.max(0, e.clientY - y0);
+    hoja.style.transform = "translateY(" + dy + "px)";
+    velo.style.opacity = String(Math.max(0, 1 - dy / 300));
+  });
+  hoja.addEventListener("pointerup", function () {
+    if (y0 === null) return;
+    y0 = null; hoja.classList.remove("arrastrando"); velo.style.opacity = "";
+    if (dy > 90) ahoraNo(); else hoja.style.transform = "";
+  });
+
+  A.alReiniciar(function () { if (!abierta) abrir(); });
+  setTimeout(abrir, A.espera(700)); // un instante después de entrar
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El aviso para instalar · 2 · La puerta</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>
+  /* La puerta: el último paso de entrar, a pantalla completa, antes de Vender */
+  .marco-app, .celu > .nav-inferior { transition: transform var(--t-nav) var(--curva), opacity var(--t-nav) var(--curva); }
+  .celu.en-puerta .marco-app, .celu.en-puerta > .nav-inferior { transform: translateX(40%); opacity: 0; }
+  .puerta { position: absolute; top: 44px; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--fondo); display: flex; flex-direction: column; padding: 4px var(--e4) 34px; transition: transform var(--t-nav) var(--curva), opacity var(--t-nav) var(--curva); }
+  .puerta.fuera { transform: translateX(-30%); opacity: 0; pointer-events: none; }
+
+  .pasos { display: flex; align-items: center; gap: var(--e2); margin-top: var(--e3); }
+  .pasos .p { width: 24px; height: 4px; border-radius: 99px; background: var(--hundido-2); }
+  .pasos .p.hecho { background: var(--pino); }
+  .pasos span { margin-left: var(--e1); }
+
+  .encabezado { display: grid; gap: var(--e3); justify-items: start; margin-top: var(--e5); }
+  .encabezado h1 { margin: 0; }
+  .encabezado p { margin: 2px 0 0; }
+
+  /* El celular en chico: así cambia al instalarla */
+  .escena { flex: 1; display: grid; place-items: center; min-height: 0; }
+  .mini { position: relative; width: 212px; height: 372px; border-radius: 34px; background: var(--tinta); padding: 8px; box-shadow: var(--sombra-3); }
+  .mini .vidrio { position: relative; height: 100%; border-radius: 27px; background: var(--fondo); overflow: hidden; }
+  .mini .isla { position: absolute; top: 8px; left: 50%; width: 56px; height: 16px; margin-left: -28px; border-radius: 99px; background: var(--tinta); z-index: 3; }
+  .mini .barra-nav { position: absolute; top: 0; left: 0; right: 0; height: 66px; padding: 32px 10px 0; background: #fff; border-bottom: 1px solid var(--borde); z-index: 2; transition: transform var(--t-nav) var(--curva), opacity var(--t-nav) var(--curva); }
+  .mini .url { height: 26px; border-radius: 99px; background: var(--hundido); display: flex; align-items: center; gap: 4px; padding: 0 8px; font-size: 11px; font-weight: 600; color: var(--texto-2); }
+  .mini .url svg { width: 12px; height: 12px; }
+  .mini .dentro { position: absolute; left: 0; right: 0; top: 66px; bottom: 0; padding: 10px 10px 0; transition: transform var(--t-nav) var(--curva); }
+  .mini .tit { height: 14px; width: 60%; border-radius: 7px; background: var(--tinta); opacity: .85; margin: 4px 0 10px; }
+  .mini .ren { height: 40px; border-radius: 10px; background: #fff; border: 1px solid var(--borde); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; padding: 0 6px; }
+  .mini .ren::before { content: ""; width: 28px; height: 28px; border-radius: 7px; background: var(--hundido); }
+  .mini .ren::after { content: ""; height: 8px; width: 50%; border-radius: 4px; background: var(--hundido-2); }
+  .mini .menu { position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: #fff; border-top: 1px solid var(--borde); display: grid; grid-template-columns: repeat(5, 1fr); place-items: center; }
+  .mini .menu i, .mini .menu svg { width: 14px; height: 14px; color: var(--texto-3); }
+  .mini .menu svg:first-child { color: var(--accion); }
+  .escena.instalada .barra-nav { transform: translateY(-100%); opacity: 0; }
+  .escena.instalada .dentro { transform: translateY(-36px); }
+  .escena .rotulo { margin-top: var(--e3); text-align: center; }
+  .rotulo .pastilla { transition: opacity var(--t) var(--curva); }
+
+  .comparar { display: flex; justify-content: center; margin: var(--e3) 0 var(--e4); }
+  .comparar .segmentos > * { min-width: 136px; justify-content: center; }
+
+  .botones { display: grid; gap: var(--e2); }
+  .botones .btn { width: 100%; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marco-app, .celu > .nav-inferior, .puerta, .mini .barra-nav, .mini .dentro { transition: none; }
+  }
+</style>
+</head>
+<body>
+<script src="../../shared.js"></script>
+<script>
+(function () {
+  var A = window.Aviso, celu = A.marco();
+  celu.classList.add("en-puerta");
+  var puerta = document.createElement("section");
+  puerta.className = "puerta"; puerta.setAttribute("aria-labelledby", "titulo");
+  puerta.innerHTML =
+    '<div class="pasos" aria-label="Entrando: último paso"><span class="p hecho"></span><span class="p hecho"></span><span class="t-detalle">Último paso para entrar</span></div>' +
+    '<div class="encabezado"><span class="app-icono" data-icono><img src="' + A.ISO + '" alt=""><span class="tilde"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>' +
+    '<div><h1 class="t-titulo" id="titulo">Ferrebress, a un toque</h1><p class="t-detalle">Instalala para abrirla desde un ícono, sin el navegador.</p></div></div>' +
+    '<div class="escena" data-escena><div><div class="mini" aria-hidden="true"><div class="vidrio"><span class="isla"></span>' +
+    '<div class="barra-nav"><div class="url"><i data-i="lock-keyhole"></i>ferrebress.com.ar</div></div>' +
+    '<div class="dentro"><div class="tit"></div><div class="ren"></div><div class="ren"></div><div class="ren"></div><div class="ren"></div></div>' +
+    '<div class="menu"><i data-i="shopping-cart"></i><i data-i="tags"></i><i data-i="package"></i><i data-i="chart-column"></i><i data-i="menu"></i></div>' +
+    '</div></div></div></div>' +
+    '<div class="comparar"><div class="segmentos" role="tablist"><button type="button" role="tab" data-modo="navegador" class="elegido"><i class="i i-s" data-i="globe"></i>En el navegador</button><button type="button" role="tab" data-modo="instalada"><i class="i i-s" data-i="house"></i>Con su ícono</button></div></div>' +
+    '<div class="botones"><button type="button" class="btn btn-accion grande" data-instalar><i class="i" data-i="download"></i>Instalar y entrar</button>' +
+    '<button type="button" class="btn btn-fantasma" data-ahora-no>Ahora no, entrar a vender</button></div>';
+  celu.appendChild(puerta);
+  A.pintar(puerta);
+
+  var escena = puerta.querySelector("[data-escena]");
+  var botonesModo = puerta.querySelectorAll("[data-modo]");
+  var auto = null, tocado = false;
+  function modo(m) {
+    escena.classList.toggle("instalada", m === "instalada");
+    botonesModo.forEach(function (b) { b.classList.toggle("elegido", b.getAttribute("data-modo") === m); });
+  }
+  function demo() {
+    if (A.quieto) return;
+    var m = "navegador";
+    auto = setInterval(function () { if (tocado) return; m = m === "navegador" ? "instalada" : "navegador"; modo(m); }, 2200);
+  }
+  botonesModo.forEach(function (b) { b.addEventListener("click", function () { tocado = true; modo(b.getAttribute("data-modo")); }); });
+
+  var abierta = true;
+  function entrar(texto, icono) {
+    abierta = false; clearInterval(auto);
+    puerta.classList.add("fuera");
+    celu.classList.remove("en-puerta");
+    setTimeout(function () { puerta.style.display = "none"; A.tostada(texto, icono); }, A.espera(320));
+  }
+  puerta.querySelector("[data-ahora-no]").addEventListener("click", function () {
+    entrar("Si cambiás de idea, está en Más → Configuración", "info");
+  });
+  puerta.querySelector("[data-instalar]").addEventListener("click", function () {
+    tocado = true; clearInterval(auto);
+    A.pedirAlNavegador(function () {
+      modo("instalada");
+      puerta.querySelector("[data-icono]").classList.add("listo");
+      A.vibrar([10, 40, 10]);
+      setTimeout(function () { entrar("Ferrebress quedó con su ícono", "circle-check"); }, A.espera(1200));
+    });
+  });
+
+  A.alReiniciar(function () {
+    if (abierta) return;
+    abierta = true; tocado = false;
+    puerta.style.display = ""; modo("navegador");
+    puerta.querySelector("[data-icono]").classList.remove("listo");
+    celu.classList.add("en-puerta");
+    requestAnimationFrame(function () { requestAnimationFrame(function () { puerta.classList.remove("fuera"); }); });
+    demo();
+  });
+  setTimeout(demo, 900);
+})();
+</script>
+</body>
+</html>

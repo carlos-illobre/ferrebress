@@ -621,6 +621,28 @@
      "path": "mockups/device-settings-a/phone/variant-3-objects/index.html"
     }
    ]
+  },
+  {
+   "id": "device-settings-install",
+   "title": "El aviso para instalar",
+   "module": "04 · Configuración del dispositivo",
+   "variants": [
+    {
+     "device": "phone",
+     "name": "1 · La hoja",
+     "path": "mockups/device-settings-install/phone/variant-1-sheet/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · La puerta",
+     "path": "mockups/device-settings-install/phone/variant-2-door/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · La calcomanía",
+     "path": "mockups/device-settings-install/phone/variant-3-sticker/index.html"
+    }
+   ]
   }
  ]
 }
