@@ -87,8 +87,10 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   botón para eso.
 - **R4.5** **En el celular, una sola vez después de entrar,** si se puede instalar y no está instalada,
   un aviso lo ofrece: «Instalá Ferrebress para abrirla desde un ícono», con «Instalar» y «Ahora no».
-  Cerrado de cualquier forma, no vuelve en ese celular: con «Ahora no», bajándolo o tocando afuera, y
-  también si se toca «Instalar» y después se cancela en el navegador. En la computadora no aparece.
+  Cerrado de cualquier forma, no vuelve en ese celular: con «Ahora no», bajándolo, tocando afuera o con
+  el botón «atrás» del celular, y
+  también si se toca «Instalar» y después se cancela en el navegador. Al cerrarlo sin instalar, un
+  aviso corto dice que instalar sigue en Más → Configuración. En la computadora no aparece.
 
 ## 5. Trabajar sin conexión
 

@@ -3,4 +3,4 @@
 | # | Pantalla | Qué se tiene que poder hacer | Maqueta |
 |---|---|---|---|
 | 1 | Más → Configuración (celular y computadora) | Ver y cambiar las animaciones, el formato de la hora, instalar y trabajar sin conexión (solo el celular); ver lo de la etapa b con «Pronto» | Elegida: la variante 1 · La lista que se prueba de [`mockups/device-settings-a/`](../../design/mockups/device-settings-a/), con «Así la tenés» y «Volver a como viene» de la variante 2. **Aprobada**: [`mockups/device-settings-a/final/`](../../design/mockups/device-settings-a/final/) |
-| 2 | El aviso para instalar (celular) | Instalar o cerrarlo con «Ahora no» | Elegida: la variante 1 · La hoja de [`mockups/device-settings-install/`](../../design/mockups/device-settings-install/). La final, en `mockups/device-settings-install/final/` |
+| 2 | El aviso para instalar (celular) | Instalar o cerrarlo con «Ahora no» | **Aprobada**: [`mockups/device-settings-install/final/`](../../design/mockups/device-settings-install/final/), sobre la variante 1 · La hoja. La ventana del navegador que se ve ahí es una imitación: en la aplicación la muestra el navegador |
