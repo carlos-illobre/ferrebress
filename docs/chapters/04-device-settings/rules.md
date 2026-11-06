@@ -43,6 +43,11 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   nombre del dispositivo) aparece con la marca «Pronto» hasta que exista (00 · R1.3).
 - **R1.9** **En la computadora, cada preferencia tiene su atajo** con Alt + letra y se cambia con
   Espacio, como el resto de la aplicación (00 · R2).
+- **R1.10** **«Así la tenés»:** arriba, un resumen de una línea con lo elegido en cada preferencia de
+  este dispositivo («Con movimiento · 14:30 · En el navegador»), para verlo todo de un vistazo.
+- **R1.11** **«Volver a como viene»** deja las animaciones prendidas y el formato de la hora en «Como el
+  sistema», sin confirmación (se recupera eligiendo de nuevo). No toca «Trabajar sin conexión», que
+  tiene sus propias reglas (R5), ni instalar. Ya como viene, no aparece.
 
 ## 2. Animaciones
 
@@ -121,6 +126,15 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
 - **E11** **Dado** la computadora en Configuración, **cuando** se aprieta Alt, **entonces** se ve la tecla
   de cada preferencia; con Alt + esa letra, o llegando con Tab y apretando Espacio, la preferencia
   cambia.
+
+- **E32** **Dado** las animaciones apagadas y «a. m./p. m.», **cuando** se abre Configuración,
+  **entonces** «Así la tenés» lo dice; **cuando** se cambia una preferencia, el resumen cambia en el
+  acto.
+- **E33** **Dado** las animaciones apagadas, «24 horas» y «Trabajar sin conexión» prendida, **cuando** se
+  toca «Volver a como viene», **entonces** las animaciones quedan prendidas, el formato en «Como el
+  sistema», «Trabajar sin conexión» sigue prendida y el botón desaparece.
+- **E34** **Dado** todo como viene, **cuando** se abre Configuración, **entonces** no está «Volver a como
+  viene».
 
 ### Animaciones
 

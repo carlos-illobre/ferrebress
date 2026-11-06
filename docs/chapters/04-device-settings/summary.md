@@ -11,7 +11,8 @@ escribe después.
 
 - **La pantalla:** en el celular y en la computadora, sin permiso; cada preferencia es de esa persona
   en ese dispositivo, se guarda en el dispositivo y vale en el momento; con el espejo, cada uno
-  muestra y cambia lo suyo; no va a Quién hizo qué; lo de la etapa b, con «Pronto» (R1).
+  muestra y cambia lo suyo; no va a Quién hizo qué; lo de la etapa b, con «Pronto»; arriba «Así la
+  tenés» y «Volver a como viene» (R1).
 - **Animaciones:** prendidas de arranque; apagadas, nada se mueve por adorno, salvo la marca de
   espera y la barra de avance; si el sistema pide no animar, manda el sistema (R2).
 - **El formato de la hora:** «Como el sistema», «24 horas» o «a. m./p. m.», con un ejemplo cada una;
