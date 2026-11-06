@@ -121,10 +121,10 @@
     var p = DS.prefs, c = DS.casos, quiet = c.sistemaQuieto, chico = celu();
     document.body.classList.toggle("quieto", !animando());
 
-    // Animaciones: la llave dice lo elegido; si el sistema pide no animar, no se toca y lo dice (R2.3)
+    // Animaciones: la llave dice lo elegido y se puede tocar siempre; si el sistema pide no animar,
+    // lo elegido queda guardado para cuando lo saque, y el aviso dice que manda el sistema (R2.3)
     var ll = $("[data-pref=anim]");
     ll.setAttribute("aria-checked", p.anim ? "true" : "false");
-    ll.disabled = quiet;
     var mu = $("[data-muestra]");
     mu.classList.toggle("en-el-acto", !p.anim && !quiet);
     mu.classList.toggle("quieta", quiet);
@@ -164,13 +164,14 @@
     var conOff = chico && !filaOff.hidden;
     $("[data-grupo-final]").hidden = filaInst.hidden && !conOff;
 
-    // «Así la tenés» (R1.10): lo elegido en cada preferencia de este dispositivo
+    // «Así la tenés» (R1.10): cómo está cada preferencia de este dispositivo. Las animaciones dicen
+    // lo que pasa de verdad: con el sistema pidiendo no animar, «En el acto» aunque estén prendidas
     var tag = chico ? "button" : "span";
     function pastilla(va, icono, html) {
       return "<" + tag + (chico ? ' type="button" data-va="' + va + '"' : "") + ' class="pastilla asi-pastilla"><i class="i i-s" data-i="' + icono + '"></i>' + html + "</" + tag + ">";
     }
     $("[data-asi]").innerHTML =
-      pastilla("anim", "sparkles", p.anim ? "Con movimiento" : "En el acto") +
+      pastilla("anim", "sparkles", animando() ? "Con movimiento" : "En el acto") +
       pastilla("hora", "clock", '<span data-hora="app"></span>' + (chico ? "" : '<span class="tipo">· ' + NOMBRE_HORA[p.hora] + "</span>")) +
       (filaInst.hidden ? "" : pastilla("instalar", "app-window", ci === "navegador" ? "Instalada" : chico ? "Navegador" : "En el navegador")) +
       (conOff ? pastilla("offline", "wifi-off", p.offline ? "También sin conexión" : "Solo con internet") : "");

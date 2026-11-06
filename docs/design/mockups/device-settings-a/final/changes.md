@@ -7,7 +7,7 @@ depende de las variantes: `settings.css`, `settings.js` e `icons-extra.js` son c
 cambios de abajo. El marco es el de las otras finales (`../../users-who-did-what/final/`).
 
 Todo lo que no figura acá es igual a lo del director: la lista con un renglón por preferencia, la
-muestra viva de las animaciones, las tres horas escritas con la hora de ahora, «Se ve así en», el
+muestra viva de las animaciones, las tres horas escritas con la hora de ahora, el
 renglón de instalar que cambia según el navegador, «Lo tuyo» con «Pronto», la nota de lo guardado y
 el botón «Casos» (no es parte del diseño).
 
@@ -16,7 +16,8 @@ Capturas:
 - `screenshot-changed.png` y `screenshot-phone-changed.png`: animaciones apagadas y «a. m./p. m.»
   (en el celular, también «Trabajar sin conexión» prendida), con «Volver a como viene».
 - `screenshot-alt.png`: con Alt apretado.
-- `screenshot-system-quiet.png`: el sistema pide no animar.
+- `screenshot-system-quiet.png`: el sistema pide no animar, con las animaciones prendidas: la llave
+  dice lo elegido y el resumen, «En el acto».
 - `screenshot-installed.png`: ya instalada, abierta en el navegador.
 - `screenshot-install-ask.png` y `screenshot-phone-install-ask.png`: el pedido del navegador.
 - `screenshot-phone-no-fingerprint.png`: iPhone y «Trabajar sin conexión» sin la huella.
@@ -36,6 +37,14 @@ Capturas:
   - En el celular, a la derecha del título, con el texto corto «Como viene» (00 · R3.2). En la 2 iba
     al final de las pastillas, en una línea que no se desplaza: con tres pastillas no entraba.
   - Su tecla es Alt O, no Alt V como en la 2: V es Vender en el menú (00 · R2.10).
+- **Con «reducir movimiento» del sistema, «Así la tenés» dice lo que pasa de verdad:** «En el acto»,
+  aunque las animaciones estén prendidas. Lo elegido lo dice la llave.
+- **Con «reducir movimiento» del sistema, la llave de Animaciones se puede tocar** (también con
+  Alt A): guarda lo elegido, que vale el día que se saque el «reducir movimiento». El aviso «Este
+  dispositivo ya pide no animar. Manda el sistema…» sigue debajo, y la muestra sigue quieta. En la
+  variante la llave quedaba apagada (R2.3: la opción lo dice y la aplicación no le pasa por encima).
+- **«Se ve así en» muestra solo Quién hizo qué:** la variante sumaba Mis sesiones, que es de la
+  etapa b y en la pantalla está con «Pronto» (R1.8).
 - **La frase de la cabecera pasó a la nota de lo guardado:** «Lo que elijas acá no cambia nada de
   otras personas ni de otros dispositivos» estaba al lado de «Solo para vos», donde ahora va el
   resumen. La nota del costado dice ahora «Queda guardado en esta computadora, para vos: no cambia
@@ -49,8 +58,8 @@ Capturas:
   lo tenía.
 - **Con «reducir movimiento» del sistema, la llave dice lo elegido** (R2.3: «no hay animaciones
   aunque la opción esté prendida»). En la variante quedaba apagada; ahora queda como la dejó la
-  persona, sin poder tocarla, con el aviso debajo. La muestra se queda quieta, con todo a la vista
-  (en la variante parpadeaba por pasos). El resumen dice lo elegido.
+  persona, con el aviso debajo. La muestra se queda quieta, con todo a la vista (en la variante
+  parpadeaba por pasos).
 - **Las teclas se ven solo mientras Alt está apretado** (00 · R2.9): la variante las mostraba
   siempre. Son las de la variante (Alt A, Alt H, Alt I), más Alt O («Volver a como viene») y Alt L
   (el indicador del vínculo, como en las otras finales).
@@ -107,4 +116,5 @@ Capturas:
 - La regla está en `settings.js`:
   - `comoViene()`: «Volver a como viene» aparece si las animaciones están apagadas o la hora no está
     en «Como el sistema».
-  - `animando()`: hay animaciones si están prendidas y el sistema no pide no animar.
+  - `animando()`: hay animaciones si están prendidas y el sistema no pide no animar. Es lo que dice
+    «Así la tenés»; la llave dice `prefs.anim`, lo elegido.
