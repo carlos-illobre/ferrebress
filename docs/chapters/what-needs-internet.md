@@ -20,4 +20,5 @@ conexión, la pantalla se pone gris y solo deja salir.
 | 01 · Entrar | Salir | Sí | El servidor cierra la sesión al volver la conexión |
 | 03 · Celular y computadora | Vincular y desvincular | No | El servidor presenta a los dos y guarda el vínculo |
 | 03 · Celular y computadora | El espejo, ya conectados | Sí, mientras siga la conexión directa por el Wi-Fi, también si el celular apagó la pantalla unos minutos | Los dos se hablan sin pasar por internet; si la directa se corta, no se vuelven a encontrar hasta que vuelva |
+| 04 · Configuración | Ver y cambiar las preferencias del dispositivo | Sí | Se guardan en el dispositivo |
 | 05 · Quién hizo qué | Consultar lo que hizo cada persona | No | El registro está en el servidor |

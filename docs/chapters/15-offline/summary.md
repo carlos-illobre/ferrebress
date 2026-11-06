@@ -9,8 +9,8 @@ escribe después de Vender y Compras; lo que ya decidió Carlos está en el road
 
 - **La idea:** el sistema no frena, revisa: sin conexión deja entrar a quien conoce y, al volver la
   conexión, el servidor lo confirma.
-- **La opción:** «Trabajar sin conexión», en Más del celular; solo con el permiso (hoy, los
-  Administradores) y solo si la huella está vinculada; se apaga sola si la cuenta se da de baja o pierde el
+- **La opción:** «Trabajar sin conexión», en Configuración del celular (04 · R5); solo con el permiso
+  (hoy, los Administradores) y solo si la huella está vinculada (sin ella, apagada y dice por qué); se apaga sola si la cuenta se da de baja o pierde el
   permiso (R1).
 - **Entrar sin conexión:** con la huella, solo la cuenta vinculada a ese celular, si estaba activa
   en el último contacto, hasta 24 horas después de ese contacto y no si la sesión se cerró desde

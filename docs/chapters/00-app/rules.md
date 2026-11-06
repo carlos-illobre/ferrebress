@@ -174,8 +174,9 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 - **R8.4** Las fechas y horas las pone el servidor y se muestran en la zona horaria
   del negocio, que fija un Administrador y es la misma para todos. El día del negocio («hoy» para
   las ventas, el cierre de caja) sale de esa zona.
-- **R8.5** Cada persona elige en Configuración solo el formato de la hora (24 horas o a. m./p. m.)
-  y de la fecha; por omisión, los del sistema del dispositivo.
+- **R8.5** Cada persona elige en Configuración solo el formato de la hora (24 horas o a. m./p. m.);
+  por omisión, el del sistema del dispositivo (04 · R3). La fecha no se elige: va en el orden día,
+  mes y año.
 
 ## 9. Si algo falla
 

@@ -13,14 +13,14 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
 
 ## 1. La opción «Trabajar sin conexión»
 
-- **R1.1** Cada persona la prende o la apaga en su celular, en Más. Cuando exista Configuración
-  (capítulo 04), va ahí. Solo está en el celular: la computadora no tiene huella propia (01 · R2.4)
+- **R1.1** Cada persona la prende o la apaga en su celular, en Más → Configuración (04 · R5). Solo
+  está en el celular: la computadora no tiene huella propia (01 · R2.4)
   y sin conexión no se entra.
 - **R1.2** Solo la ve quien tiene el permiso «Trabajar sin conexión», que se da con un rol
   (02 · R7). Al instalar lo tiene el rol Administrador, como todo permiso (02 · R7.4).
 - **R1.3** Para prenderla hace falta conexión y la huella de esa persona vinculada en ese celular
-  (01 · R2.2). Sin la huella vinculada, la opción no aparece, y sin conexión la huella de la entrada
-  sigue apagada.
+  (01 · R2.2). Sin la huella vinculada, la opción aparece apagada y dice por qué (04 · R5.3), y sin
+  conexión la huella de la entrada sigue apagada.
 - **R1.4** Por ahora, prenderla solo deja entrar con la huella sin conexión (R2). Guardar lo que se
   hace sin conexión llega con la etapa b.
 - **R1.5** El celular deja de poder entrar sin conexión cuando:
@@ -75,12 +75,13 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
 ### La opción
 
 - **E01** **Dado** un Administrador con la huella vinculada en su celular y con conexión, **cuando**
-  prende «Trabajar sin conexión» en Más, **entonces** queda prendida.
-- **E02** **Dado** una persona sin el permiso, **cuando** abre Más en el celular, **entonces** no ve la
+  prende «Trabajar sin conexión» en Configuración, **entonces** queda prendida.
+- **E02** **Dado** una persona sin el permiso, **cuando** abre Configuración en el celular, **entonces** no ve la
   opción.
-- **E03** **Dado** un celular sin la huella de la persona vinculada, **cuando** abre Más, **entonces**
-  no ve la opción; sin conexión, la huella de la entrada está apagada.
-- **E04** **Dado** la computadora, **cuando** se abre Más, **entonces** no está la opción.
+- **E03** **Dado** un celular sin la huella de la persona vinculada, **cuando** abre Configuración,
+  **entonces** la opción está apagada y no se puede prender (04 · E30); sin conexión, la huella de la
+  entrada está apagada.
+- **E04** **Dado** la computadora, **cuando** se abre Configuración, **entonces** no está la opción.
 - **E05** **Dado** la opción prendida, **cuando** el servidor dice que la persona ya no tiene el
   permiso, **entonces** la opción se apaga y el celular ya no entra sin conexión.
 

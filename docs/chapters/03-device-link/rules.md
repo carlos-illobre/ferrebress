@@ -164,6 +164,8 @@ quita, el resto sigue andando igual.
   - **Se espeja lo que eligió la persona; lo que cada pantalla elige sola por su forma, no** (cuántos
     renglones entran, la primera persona que la computadora abre sola en Usuarios), porque cada uno lo
     muestra con su forma (R6.1).
+  - **Los valores de Configuración no se espejan:** se espeja ir a la pantalla, pero cada uno muestra
+    y cambia lo suyo (04 · R1.6).
 - **R6.3** **Al conectarse, manda la computadora:** el celular va a la pantalla de la computadora y
   toma lo que ella tiene abierto. Vale al vincular, al reconectar y cuando el celular vuelve después
   de cerrarse (R3.5).

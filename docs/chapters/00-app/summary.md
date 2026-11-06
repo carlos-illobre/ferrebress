@@ -25,7 +25,7 @@ Lo que vale para toda la aplicación. Reglas completas en [rules.md](rules.md).
 - **Esperas:** nada antes de 300 ms, marca de espera después, barra pasados 2 s; búsquedas con 150
   ms de espera y cancelando la anterior (R7).
 - **Formatos:** «$ 45.500» sin decimales por omisión; cantidades con su unidad; la hora del
-  servidor en la zona del negocio, igual para todos; cada persona elige solo el formato (R8).
+  servidor en la zona del negocio, igual para todos; cada persona elige solo el formato de la hora (R8).
 - **Si algo falla:** «Algo salió mal» con un botón para avisarlo, con captura y últimos pasos (R9).
 - **Ambiente de pruebas:** marco magenta fijo y cartel (R10).
 

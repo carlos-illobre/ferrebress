@@ -19,7 +19,7 @@ se dejó y qué propone mejorar (constitución, paso 1).
 | 01 · Entrar ([`01-sign-in`](01-sign-in/summary.md)) | Entrar y salir, y el marco vacío al que se llega | Programado; Carlos lo probó y lo aprobó; paso 9: el manual |
 | 02 · Personas ([`02-users`](02-users/summary.md)) | Personas, roles, permisos y sesiones, en dos etapas: a. personas y sesiones; b. roles y permisos | Etapa a: reglas, pantallas y diseño aprobados; se programa |
 | 03 · Celular y computadora ([`03-device-link`](03-device-link/summary.md)) | Vincular, espejo, lector de códigos, fotos, en dos etapas: a. vínculo y espejo; b. lector de códigos y fotos | Etapa a: reglas y pantallas aprobadas; diseño técnico; etapa b: por escribir |
-| 04 · Configuración del dispositivo (`04-device-settings`) | Lo que cada persona elige para su dispositivo | Por escribir |
+| 04 · Configuración del dispositivo ([`04-device-settings`](04-device-settings/summary.md)) | Lo que cada persona elige para sí misma, en dos etapas: a. preferencias del dispositivo; b. lo mío | Etapa a: reglas por aprobar; etapa b: por escribir |
 | 05 · Quién hizo qué ([`05-audit-log`](05-audit-log/summary.md)) | El registro de cada acción y cómo se consulta, en Más → Usuarios | Programado; paso 7: las revisiones del código |
 | 06 · Administración (`06-administration`) | Los ajustes para todos y las anomalías | Por escribir |
 | 07 · Catálogo (`07-catalog`) | Productos, proveedores, costo, margen, precio, búsqueda, duplicados | Por escribir |
@@ -53,8 +53,8 @@ Carlos ya las confirmó. El analista de negocio de cada capítulo parte de acá 
   códigos de barras para la computadora y saca fotos. Lo que se toca en uno se ve en el otro en
   menos de 50 ms. Es un módulo enchufable: ningún otro depende de él (ADR-003).
 - **04 · Configuración del dispositivo:** «Instalar en este dispositivo», solo donde el navegador lo
-  permite; se desinstala desde el sistema. Cada persona elige el formato de la hora y de la fecha
-  (por omisión, los del sistema). Trabajar sin conexión se habilita acá. El vínculo entre celular y
+  permite; se desinstala desde el sistema. Cada persona elige el formato de la hora (por omisión,
+  el del sistema). Trabajar sin conexión se habilita acá. El vínculo entre celular y
   computadora no está acá: va solo en su indicador (03).
 - **06 · Administración:** la decide un Administrador y la cumplen todos los dispositivos (la
   configuración, en cambio, la decide cada persona para su dispositivo). Ajustes: el redondeo del
