@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>El aviso para instalar · final</title>
+<!-- El aviso para instalar (04 · R4.5), solo celular · maqueta final.
+     Base: la variante 1 «La hoja» del director (../phone/variant-1-sheet/ y lo compartido de la
+     carpeta). Esta carpeta no depende de las variantes. Lo que cambia, en changes.md. -->
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="install.css">
+<script src="../../../common/icons.js"></script>
+<script src="icons-extra.js"></script>
+</head>
+<body>
+<div class="celu" id="celu">
+  <!-- Ambiente de pruebas (00 · R10): magenta, fijo, igual en todas las pantallas -->
+  <div class="prueba" aria-hidden="true">
+    <div class="prueba-borde"></div>
+    <div class="prueba-cartel">Ambiente de prueba</div>
+  </div>
+
+  <!-- Lo de atrás: Vender recién entrado, con el marco de las otras finales (no se diseña acá) -->
+  <main class="contenido" data-fondo>
+    <header class="cabecera">
+      <h1 class="t-titulo">Vender</h1>
+      <!-- La pastilla del vínculo, debajo del título (03 · R4.1, R4.5); la luz, a su lado, solo sin conexión (00 · R4.1) -->
+      <div class="p-estado">
+        <button type="button" class="indicador-pastilla" aria-label="Vínculo: Directo, con Chrome en Windows"><i class="i i-s" data-i="monitor"></i><span class="dot"></span><span class="pastilla-txt"><b>Directo</b><span class="pastilla-gasto"><b>0 KB/min</b></span></span></button>
+      </div>
+    </header>
+    <div class="area"></div>
+  </main>
+
+  <nav class="nav-inferior" aria-label="Menú" data-fondo>
+    <button type="button" class="nav-parte" aria-current="page"><i class="i" data-i="shopping-cart"></i><span class="lbl">Vender</span><span class="pronto">Pronto</span></button>
+    <button type="button" class="nav-parte"><i class="i" data-i="tags"></i><span class="lbl">Catálogo</span><span class="pronto">Pronto</span></button>
+    <button type="button" class="nav-parte"><i class="i" data-i="package"></i><span class="lbl">Depósito</span><span class="pronto">Pronto</span></button>
+    <button type="button" class="nav-parte"><i class="i" data-i="chart-column"></i><span class="lbl">Negocio</span><span class="pronto">Pronto</span></button>
+    <button type="button" class="nav-parte"><i class="i" data-i="menu"></i><span class="lbl">Más</span><span class="pronto vacio" aria-hidden="true">·</span></button>
+  </nav>
+
+  <!-- El aviso: una hoja que sube sobre Vender, bajo el pulgar -->
+  <div class="velo" data-velo hidden></div>
+  <section class="aviso-hoja" role="dialog" aria-modal="true" aria-labelledby="aviso-titulo" tabindex="-1" data-aviso hidden>
+    <div class="aviso-agarre" aria-hidden="true"></div>
+
+    <!-- El inicio del celular, en chico: así va a quedar -->
+    <div class="aviso-inicio" aria-hidden="true">
+      <div class="aviso-inicio-iconos">
+        <span class="aviso-otra"></span>
+        <span class="aviso-otra"></span>
+        <span class="app-icono" data-icono><img src="../../../common/brand/isotype.svg" alt=""><span class="app-tilde"><i class="i i-s" data-i="check" data-trazo="3"></i></span></span>
+        <span class="aviso-otra"></span>
+      </div>
+      <div class="aviso-inicio-nombres">
+        <span class="aviso-otra-nombre"></span>
+        <span class="aviso-otra-nombre"></span>
+        <b class="aviso-nombre">Ferrebress</b>
+        <span class="aviso-otra-nombre"></span>
+      </div>
+    </div>
+
+    <h2 class="aviso-titulo" id="aviso-titulo">Instalá Ferrebress para abrirla desde un ícono</h2>
+    <ul class="aviso-ventajas">
+      <li class="pastilla contorno"><i class="i i-s" data-i="zap"></i>Abre al toque</li>
+      <li class="pastilla contorno"><i class="i i-s" data-i="maximize-2"></i>Pantalla completa</li>
+    </ul>
+
+    <div class="aviso-botones">
+      <button type="button" class="btn btn-accion grande" data-instalar><i class="i" data-i="download"></i>Instalar</button>
+      <button type="button" class="btn btn-fantasma" data-ahora-no>Ahora no</button>
+    </div>
+    <p class="aviso-hecho" role="status"><i class="i i-l" data-i="circle-check"></i>Listo: ya está en tu pantalla de inicio</p>
+  </section>
+
+  <div class="tostada-lugar" aria-live="polite"><div class="tostada" data-tostada></div></div>
+</div>
+
+<script src="install.js"></script>
+</body>
+</html>

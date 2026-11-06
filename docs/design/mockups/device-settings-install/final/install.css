@@ -1,0 +1,119 @@
+/* El aviso para instalar (04 · R4.5), solo celular · maqueta final. Se enlaza después de
+   common/common.css. Base: la variante 1 «La hoja» del director (../phone/variant-1-sheet/ y
+   ../shared.css). El marco de atrás es el de las otras finales (../../device-settings-a/final/).
+   Animaciones solo con transform y opacity; con «reducir movimiento», todo en el acto. */
+
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { overflow: hidden; }
+:focus-visible { outline: 3px solid var(--pino-2); outline-offset: 2px; }
+
+/* ---------- Ambiente de pruebas (00 · R10): magenta, fijo, igual en todas las pantallas ---------- */
+.prueba { position: absolute; inset: 0; z-index: 900; pointer-events: none; }
+.prueba-borde { position: absolute; inset: 0; border: 7px solid #d6007a; box-shadow: inset 0 0 22px rgb(214 0 122 / .45); opacity: .85; }
+.prueba-cartel { position: absolute; top: 0; left: 50%; transform: translateX(-50%); padding: 4px 16px 5px; border-radius: 0 0 12px 12px; background: #d6007a; color: #fff; font-size: 14px; font-weight: 750; line-height: 1.2; white-space: nowrap; box-shadow: 0 2px 8px rgb(0 0 0 / .25); }
+
+/* ---------- El celular: ocupa toda la pantalla ---------- */
+.celu { width: 100%; height: 100vh; height: 100dvh; isolation: isolate; }
+/* Abierta en una pantalla ancha (fuera del visor), la maqueta se ve con el tamaño de un celular.
+   En el código el aviso no existe en la computadora (E27): lo decide el tipo de dispositivo. */
+@media (min-width: 900px) {
+  body { display: grid; place-items: center; background: var(--hundido); }
+  .celu { width: 390px; height: 844px; border-radius: 24px; box-shadow: var(--sombra-3); }
+}
+
+/* ---------- Lo de atrás: Vender recién entrado (no se diseña acá) ---------- */
+.contenido { flex: 1; height: auto; min-height: 0; display: flex; flex-direction: column; }
+.cabecera { display: block; padding: 32px 16px 0; }
+.cabecera h1 { margin: 0; }
+/* La pastilla del vínculo, debajo del título (03 · R4.1, R4.5) */
+.p-estado { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.indicador-pastilla { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 3px 14px 3px 10px; border-radius: 999px; border: 0; background: var(--logro-suave); color: var(--logro-texto); box-shadow: var(--sombra-1); text-align: left; transition: transform var(--t-micro) var(--curva); }
+.indicador-pastilla:active { transform: scale(.96); }
+.dot { position: relative; width: 10px; height: 10px; border-radius: 99px; flex: none; background: var(--logro); color: var(--logro); }
+.dot::after { content: ""; position: absolute; inset: -4px; border-radius: 99px; background: currentColor; opacity: 0; animation: latido 2.4s var(--curva) infinite; }
+@keyframes latido { 0% { opacity: .35; transform: scale(.4); } 100% { opacity: 0; transform: scale(1.5); } }
+.pastilla-txt { display: grid; }
+.pastilla-txt > b { font-size: 14px; line-height: 18px; font-weight: 750; }
+.pastilla-gasto { font-size: 14px; line-height: 18px; font-weight: 600; color: var(--texto-2); white-space: nowrap; }
+.pastilla-gasto b { color: var(--tinta); font-weight: 750; }
+/* El área de trabajo, vacía: Vender todavía no existe (como en el marco final) */
+.area { flex: 1; }
+
+/* El menú de abajo, como en el marco final: la parte abierta en naranja, «Pronto» debajo (00 · R1.3) */
+.nav-inferior { flex: none; display: grid; grid-template-columns: repeat(5, 1fr); height: auto; min-height: 92px; padding: 4px 4px calc(14px + env(safe-area-inset-bottom)); background: var(--superficie); border-top: 1px solid var(--borde); }
+.nav-parte { display: grid; justify-items: center; align-content: center; gap: 2px; border: 0; background: none; color: var(--texto-2); font-size: 14px; font-weight: 650; padding: 0; cursor: default; }
+.nav-parte .i { width: 26px; height: 26px; }
+.nav-parte .lbl { line-height: 18px; }
+.nav-parte .pronto { color: var(--texto-3); font-size: 14px; line-height: 16px; font-weight: 700; }
+.nav-parte .pronto.vacio { visibility: hidden; }
+.nav-parte[aria-current="page"] { color: var(--accion); font-weight: 800; }
+
+/* ---------- El fondo que se oscurece (30 %) ---------- */
+.velo { position: absolute; inset: 0; z-index: 20; background: rgb(26 29 27 / .30); opacity: 0; transition: opacity var(--t-nav) var(--curva); }
+.velo.ver { opacity: 1; }
+
+/* ---------- La hoja ---------- */
+.aviso-hoja { position: absolute; left: 0; right: 0; bottom: 0; z-index: 30; padding: 8px 16px calc(24px + env(safe-area-inset-bottom)); background: var(--superficie); border-radius: var(--r-hoja) var(--r-hoja) 0 0; box-shadow: var(--sombra-3); transform: translateY(105%); transition: transform var(--t-nav) var(--curva); touch-action: none; outline: none; }
+.aviso-hoja.ver { transform: translateY(0); }
+.aviso-hoja.arrastrando { transition: none; }
+.aviso-agarre { width: 40px; height: 5px; margin: 0 auto 16px; border-radius: 99px; background: var(--hundido-2); }
+
+/* El inicio del celular, en chico, con el ícono de Ferrebress ya puesto */
+.aviso-inicio { height: 148px; display: grid; place-content: center; border-radius: 20px; background: var(--hundido); overflow: hidden; }
+.aviso-inicio-iconos, .aviso-inicio-nombres { display: grid; grid-template-columns: repeat(4, 56px); gap: 20px; align-items: center; justify-items: center; }
+.aviso-inicio-nombres { margin-top: 8px; }
+.aviso-otra { width: 52px; height: 52px; border-radius: 15px; background: var(--hundido-2); }
+.aviso-otra-nombre { width: 36px; height: 8px; border-radius: 4px; background: var(--hundido-2); }
+.aviso-nombre { font-size: 14px; line-height: 8px; font-weight: 700; color: var(--tinta); white-space: nowrap; }
+
+/* El ícono de la aplicación: la F sobre blanco, como queda en el inicio; se asoma cada tanto */
+.app-icono { position: relative; width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; flex: none; background: #fff; box-shadow: 0 6px 16px -6px rgb(18 56 47 / .35), 0 0 0 1px rgb(18 56 47 / .06); animation: asomar 2.4s var(--curva) 600ms infinite; }
+.app-icono img { width: 70%; height: 70%; }
+@keyframes asomar { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+.app-icono.listo { animation: none; }
+/* El tilde verde entra con rebote (solo transform y opacity) */
+.app-tilde { position: absolute; right: -6px; bottom: -6px; width: 26px; height: 26px; border-radius: 99px; display: grid; place-items: center; background: var(--logro); color: #fff; border: 2px solid #fff; opacity: 0; transform: scale(0); transition: transform var(--t) var(--rebote), opacity var(--t-micro) var(--curva); }
+.app-icono.listo .app-tilde { opacity: 1; transform: scale(1); }
+
+.aviso-titulo { margin: 20px 0 0; font-size: 22px; line-height: 28px; font-weight: 800; letter-spacing: -.01em; }
+.aviso-ventajas { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 20px; padding: 0; list-style: none; }
+.aviso-botones { display: grid; gap: 8px; }
+.aviso-botones .btn { width: 100%; }
+.aviso-hecho { display: none; align-items: center; gap: 12px; margin: 0; padding: 16px; border-radius: var(--r-tarjeta); background: var(--logro-suave); color: var(--logro-texto); font-weight: 700; }
+.aviso-hoja.listo .aviso-botones { display: none; }
+.aviso-hoja.listo .aviso-hecho { display: flex; }
+
+/* ---------- El pedido del navegador, simulado (lo dibuja Chrome: otra letra, otro azul) ---------- */
+.nav-pedido { position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; background: rgb(0 0 0 / .32); opacity: 0; transition: opacity var(--t) var(--curva); }
+.nav-pedido.ver { opacity: 1; }
+.nav-pedido-dlg { width: min(312px, calc(100% - 32px)); padding: 24px; border-radius: 28px; background: #f3f5f8; color: #1f1f1f; font-family: Roboto, "Segoe UI", system-ui, sans-serif; box-shadow: 0 12px 40px rgb(0 0 0 / .25); transform: scale(.94); transition: transform var(--t) var(--curva); }
+.nav-pedido.ver .nav-pedido-dlg { transform: none; }
+.nav-pedido-titulo { margin: 0 0 16px; font-weight: 400; font-size: 24px; line-height: 32px; }
+.nav-pedido-app { display: flex; gap: 16px; align-items: center; }
+.nav-pedido-app .app-icono { width: 48px; height: 48px; border-radius: 12px; animation: none; }
+.nav-pedido-app b { display: block; font-weight: 500; font-size: 16px; }
+.nav-pedido-app span { font-size: 14px; color: #444746; }
+.nav-pedido-botones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+.nav-pedido-botones button { height: 40px; padding: 0 12px; border: 0; border-radius: 20px; background: transparent; color: #0b57d0; font-family: inherit; font-weight: 500; font-size: 14px; }
+.nav-pedido-botones .lleno { padding: 0 24px; background: #0b57d0; color: #fff; }
+
+/* ---------- La tostada, arriba del menú de abajo ---------- */
+.tostada-lugar { position: absolute; left: 0; right: 0; bottom: calc(104px + env(safe-area-inset-bottom)); z-index: 70; display: grid; justify-items: center; padding: 0 16px; pointer-events: none; }
+.tostada { opacity: 0; transform: translateY(12px); transition: opacity var(--t) var(--curva), transform var(--t) var(--curva); }
+.tostada.ver { opacity: 1; transform: none; }
+
+/* ---------- Lengüeta de la maqueta: fuera del diseño ---------- */
+.lengueta { position: absolute; right: 0; top: 168px; z-index: 100; display: grid; justify-items: end; gap: 6px; font: 600 13px/1.3 var(--letra); }
+.lengueta-boton { width: 36px; height: 44px; border: 0; border-radius: 12px 0 0 12px; display: grid; place-items: center; background: #2b2b2b; color: #fff; box-shadow: var(--sombra-3); }
+.lengueta-menu { display: none; width: 236px; gap: 4px; padding: 10px; border-radius: 12px 0 0 12px; background: #2b2b2b; color: #fff; }
+.lengueta.abierta .lengueta-menu { display: grid; }
+.lengueta-menu p { margin: 2px 4px 6px; color: #bbb; font-weight: 500; }
+.lengueta-menu button { padding: 8px 10px; border: 0; border-radius: 8px; background: #3a3a3a; color: #fff; text-align: left; font: inherit; }
+.lengueta-menu button.si { background: #5a5a5a; }
+.captura .lengueta { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .velo, .aviso-hoja, .app-tilde, .nav-pedido, .nav-pedido-dlg, .tostada, .indicador-pastilla { transition: none; }
+  .app-icono, .dot::after { animation: none; }
+}

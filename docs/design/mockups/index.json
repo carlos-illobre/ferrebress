@@ -629,6 +629,11 @@
    "variants": [
     {
      "device": "phone",
+     "name": "Final",
+     "path": "mockups/device-settings-install/final/index.html"
+    },
+    {
+     "device": "phone",
      "name": "1 · La hoja",
      "path": "mockups/device-settings-install/phone/variant-1-sheet/index.html"
     },
