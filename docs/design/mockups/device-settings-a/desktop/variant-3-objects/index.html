@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuración · 3 · Los objetos · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../extra/shared.css">
+<link rel="stylesheet" href="../../extra/v3.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../extra/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+</head>
+<body>
+<div class="escenario">
+  <div class="arriba">
+    <button class="cerrar" data-ir="more" aria-label="Volver a Más"><i class="i" data-i="x"></i></button>
+    <span class="titulo">Configuración</span>
+    <span class="kbd">Esc</span>
+    <span class="para-vos"><span class="cara">RP</span>Solo para vos, en esta computadora</span>
+  </div>
+
+  <div class="mesa">
+    <!-- El reloj: cómo se escribe la hora -->
+    <div class="objeto">
+      <span class="nombre-obj">LA HORA</span>
+      <div class="reloj" tabindex="0" role="button" aria-label="Formato de la hora: tocá o deslizá para cambiar"></div>
+      <div class="formatos-reloj" role="radiogroup" aria-label="Formato de la hora">
+        <button role="radio" data-fmt="sistema">Como el sistema</button><button role="radio" data-fmt="24">24 horas</button><button role="radio" data-fmt="12">a. m./p. m.</button>
+      </div>
+      <div class="que">Tocalo o deslizalo. Cambia cómo se escribe la hora en toda la aplicación; la hora es la del negocio.</div>
+      <div class="teclas"><span class="kbd" data-tecla>Alt H</span><button hidden data-alt="h" aria-label="Cambiar el formato de la hora"></button></div>
+    </div>
+
+    <!-- La llave de luz: animaciones -->
+    <div class="objeto">
+      <span class="nombre-obj">ANIMACIONES</span>
+      <div class="placa">
+        <span class="tornillo t1"></span><span class="tornillo t2"></span>
+        <button class="tecla" role="switch" aria-checked="true" aria-label="Animaciones" data-alt="a"><span class="luz"></span><span class="marca-i">I</span><span class="marca-o">O</span></button>
+        <span class="cartelito" hidden><i class="i i-s" data-i="accessibility"></i> Este dispositivo ya pide no animar</span>
+      </div>
+      <div class="estado-llave" data-estado-llave></div>
+      <div class="que">Prendida, las ventanas y los avisos entran con un movimiento corto. Apagada, todo aparece en el acto. <span style="white-space:nowrap"><span class="espera" style="width:12px;height:12px;border-width:2px;color:var(--pino);vertical-align:-1px"></span> La espera gira siempre.</span></div>
+      <div class="teclas"><span class="kbd" data-tecla>Alt A</span></div>
+    </div>
+
+    <!-- El ícono: instalar -->
+    <div class="objeto" data-objeto="instalar">
+      <span class="nombre-obj">INSTALAR</span>
+      <div class="instalar-zona">
+        <button class="icono-app" data-alt="i"><img src="../../../../common/brand/isotype.svg" alt=""></button>
+        <span class="flecha-baja"><i class="i i-l" data-i="move-down"></i></span>
+        <div class="dock-grande"><i></i><i></i><span class="hueco"></span><i></i><i></i></div>
+        <div class="pasos-iphone" hidden><i class="i i-s" data-i="share"></i>Compartir → Agregar a inicio</div>
+      </div>
+      <div class="que" data-instalar-que></div>
+      <div class="teclas"><span class="kbd" data-tecla>Alt I</span></div>
+    </div>
+  </div>
+
+  <div class="cajonera-zona">
+    <div class="cajonera" aria-label="Lo tuyo, llega pronto">
+      <button class="cajon"><i class="i" data-i="fingerprint"></i><span class="etiqueta">Mis celulares con huella</span><span class="pronto">Pronto</span><span class="tirador"></span></button>
+      <button class="cajon"><i class="i" data-i="monitor-smartphone"></i><span class="etiqueta">Mis sesiones</span><span class="pronto">Pronto</span><span class="tirador"></span></button>
+      <button class="cajon"><i class="i" data-i="unplug"></i><span class="etiqueta">Cortar mi celular perdido</span><span class="pronto">Pronto</span><span class="tirador"></span></button>
+      <button class="cajon"><i class="i" data-i="pencil"></i><span class="etiqueta">Nombre del dispositivo</span><span class="pronto">Pronto</span><span class="tirador"></span></button>
+    </div>
+    <div class="t-detalle">Lo tuyo · queda en esta computadora y vuelve cuando entres; otra persona acá ve lo suyo.</div>
+  </div>
+</div>
+<script src="../../extra/shared.js"></script>
+<script src="../../extra/v3.js"></script>
+<script>
+  // Esc vuelve a Más, salvo que haya algo abierto
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !document.querySelector(".capa.abierta") && window.irAMaqueta) window.irAMaqueta("more"); }, true);
+</script>
+</body>
+</html>

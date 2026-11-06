@@ -574,6 +574,43 @@
      "path": "mockups/device-link-indicator/phone/variant-3-cable/index.html"
     }
    ]
+  },
+  {
+   "id": "device-settings-a",
+   "title": "Configuración",
+   "module": "04 · Configuración del dispositivo",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "1 · La lista que se prueba",
+     "path": "mockups/device-settings-a/desktop/variant-1-list/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · Elegí lo que ves",
+     "path": "mockups/device-settings-a/desktop/variant-2-choose/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · Los objetos",
+     "path": "mockups/device-settings-a/desktop/variant-3-objects/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · La lista que se prueba",
+     "path": "mockups/device-settings-a/phone/variant-1-list/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · Elegí lo que ves",
+     "path": "mockups/device-settings-a/phone/variant-2-choose/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · Los objetos",
+     "path": "mockups/device-settings-a/phone/variant-3-objects/index.html"
+    }
+   ]
   }
  ]
 }

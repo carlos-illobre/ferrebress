@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuración · 3 · Los objetos · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../extra/shared.css">
+<link rel="stylesheet" href="../../extra/v3.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../extra/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>body { width: 390px; }</style>
+</head>
+<body>
+<div class="celu">
+  <div class="escenario">
+    <div class="barra-estado" style="position:absolute;top:0;left:0;right:0"><span>14:30</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+    <div class="arriba">
+      <button class="cerrar" data-ir="more" aria-label="Volver a Más"><i class="i" data-i="x"></i></button>
+      <span class="titulo">Configuración</span>
+      <span class="para-vos" style="width:100%;justify-content:flex-start;max-width:max-content"><span class="cara">RP</span>Solo para vos, en este celular</span>
+    </div>
+
+    <div class="mesa-celu">
+      <div class="objeto">
+        <span class="nombre-obj">LA HORA</span>
+        <div class="reloj" tabindex="0" role="button" aria-label="Formato de la hora: tocá o deslizá para cambiar"></div>
+        <div class="formatos-reloj" role="radiogroup" aria-label="Formato de la hora">
+          <button role="radio" data-fmt="sistema">Como el sistema</button><button role="radio" data-fmt="24">24 h</button><button role="radio" data-fmt="12">a. m./p. m.</button>
+        </div>
+        <div class="que">Deslizalo para cambiar cómo se escribe la hora</div>
+      </div>
+
+      <div class="fila-objetos">
+        <div class="objeto">
+          <span class="nombre-obj">ANIMACIONES</span>
+          <div class="placa">
+            <span class="tornillo t1"></span><span class="tornillo t2"></span>
+            <button class="tecla" role="switch" aria-checked="true" aria-label="Animaciones"><span class="luz"></span><span class="marca-i">I</span><span class="marca-o">O</span></button>
+          </div>
+          <div class="estado-llave" data-estado-llave></div>
+          <div class="que">Ventanas y avisos con un movimiento corto</div>
+          <span class="cartelito" hidden><i class="i i-s" data-i="accessibility"></i> Este dispositivo ya pide no animar</span>
+        </div>
+        <div class="objeto" data-objeto="instalar">
+          <span class="nombre-obj">INSTALAR</span>
+          <div class="instalar-zona">
+            <button class="icono-app"><img src="../../../../common/brand/isotype.svg" alt=""></button>
+            <span class="flecha-baja"><i class="i" data-i="move-down"></i></span>
+            <div class="dock-grande"><i></i><span class="hueco"></span><i></i></div>
+            <div class="pasos-iphone" hidden><i class="i i-s" data-i="share"></i>Compartir → Agregar a inicio</div>
+          </div>
+          <div class="que" data-instalar-que></div>
+        </div>
+      </div>
+
+      <div class="objeto" data-objeto="offline">
+        <span class="nombre-obj" data-offline-estado>SIN CONEXIÓN</span>
+        <button class="huella" role="switch" aria-checked="false" aria-label="Trabajar sin conexión"><span class="anillo"></span><i class="i i-xl" data-i="fingerprint"></i></button>
+        <div class="que" data-offline-que></div>
+      </div>
+
+      <div class="cajonera-zona">
+        <span class="nombre-obj" style="font-size:14px;font-weight:750;color:var(--texto-3);letter-spacing:.04em">LO TUYO</span>
+        <div class="cajonera" aria-label="Lo tuyo, llega pronto">
+          <button class="cajon"><i class="i" data-i="fingerprint"></i><span class="etiqueta">Mis celulares con huella</span><span class="pronto">Pronto</span><span class="tirador"></span></button>
+          <button class="cajon"><i class="i" data-i="monitor-smartphone"></i><span class="etiqueta">Mis sesiones</span><span class="pronto">Pronto</span><span class="tirador"></span></button>
+          <button class="cajon"><i class="i" data-i="unplug"></i><span class="etiqueta">Cortar mi celular perdido</span><span class="pronto">Pronto</span><span class="tirador"></span></button>
+          <button class="cajon"><i class="i" data-i="pencil"></i><span class="etiqueta">Nombre del dispositivo</span><span class="pronto">Pronto</span><span class="tirador"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <span class="home-ind"></span>
+</div>
+<script src="../../extra/shared.js"></script>
+<script src="../../extra/v3.js"></script>
+</body>
+</html>

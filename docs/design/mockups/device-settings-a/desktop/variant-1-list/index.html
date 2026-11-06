@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuración · 1 · La lista que se prueba · computadora</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../extra/shared.css">
+<link rel="stylesheet" href="../../extra/v1.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../extra/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <nav class="lateral">
+    <img class="logo-img" src="../../../../common/brand/logo-on-light.png" alt="Ferrebress">
+    <a class="nav-item" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></a>
+    <a class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></a>
+    <a class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></a>
+    <a class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></a>
+    <a class="nav-item activo" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></a>
+    <div class="pie">
+      <span class="pastilla logro conexion"><span class="punto"></span>En línea · todo enviado</span>
+      <div class="usuario"><span class="cara">RP</span><div class="txt"><div style="font-weight:750;font-size:15px">Rubén Paredes</div><div class="t-detalle">Administrador</div></div></div>
+    </div>
+  </nav>
+
+  <main class="contenido">
+    <header class="cabecera" style="padding-bottom:16px">
+      <div>
+        <div class="t-detalle" style="display:flex;align-items:center;gap:4px"><a data-ir="more" style="color:var(--pino-texto);font-weight:700;cursor:pointer">Más</a><i class="i i-s" data-i="chevron-right"></i>Configuración</div>
+        <div class="t-titulo">Configuración</div>
+        <div class="sub-pantalla"><span class="para-vos"><span class="cara">RP</span>Solo para vos, en esta computadora</span><span class="t-detalle">Lo que elijas acá no cambia nada de otras personas ni de otros dispositivos.</span></div>
+      </div>
+    </header>
+
+    <section class="pantalla" style="padding-top:8px">
+      <div class="v1">
+        <div>
+          <div class="grupo-titulo">En esta computadora</div>
+          <div class="tarjeta ajustes">
+            <!-- Animaciones -->
+            <div class="ajuste">
+              <div class="ajuste-cab">
+                <span class="ico"><i class="i" data-i="sparkles"></i></span>
+                <div><div class="nombre" id="n-anim">Animaciones</div><div class="que">Las ventanas, las hojas y los avisos aparecen con un movimiento corto. Apagadas, todo aparece en el acto.</div></div>
+                <span class="kbd" data-tecla>Alt A</span>
+                <button class="llave" role="switch" aria-checked="true" aria-labelledby="n-anim" data-pref="anim" data-alt="a"></button>
+              </div>
+              <div class="cuerpo">
+                <div class="muestra">
+                  <div class="escena"><span class="ventana"></span><span class="aviso-mini"></span></div>
+                  <div class="leyenda" data-leyenda></div>
+                  <span class="espera-ej"><span class="espera" style="color:var(--pino)"></span>La espera gira siempre</span>
+                </div>
+                <div class="aviso pino aviso-sistema" data-aviso-sistema hidden><i class="i" data-i="accessibility"></i><span>Este dispositivo ya pide no animar. Manda el sistema: para cambiarlo, andá a sus ajustes de accesibilidad.</span></div>
+              </div>
+            </div>
+            <!-- Formato de la hora -->
+            <div class="ajuste">
+              <div class="ajuste-cab">
+                <span class="ico"><i class="i" data-i="clock"></i></span>
+                <div><div class="nombre">Formato de la hora</div><div class="que">Cambia solo cómo se escribe la hora en toda la aplicación. La hora es la del negocio, la misma para todos.</div></div>
+                <span class="kbd" data-tecla>Alt H</span>
+                <button hidden data-alt="h" aria-label="Cambiar el formato de la hora"></button>
+              </div>
+              <div class="cuerpo">
+                <div class="formatos" role="radiogroup" aria-label="Formato de la hora">
+                  <button class="formato" role="radio" data-formato="sistema"><span class="h" data-hora="sistema"></span><span class="n">Como el sistema</span><span class="d">Acá se ve en 24 h</span><span class="marca-ok"><i class="i i-s" data-i="check"></i></span></button>
+                  <button class="formato" role="radio" data-formato="24"><span class="h" data-hora="24"></span><span class="n">24 horas</span><span class="d">Siempre así</span><span class="marca-ok"><i class="i i-s" data-i="check"></i></span></button>
+                  <button class="formato" role="radio" data-formato="12"><span class="h" data-hora="12"></span><span class="n">a. m./p. m.</span><span class="d">De 1 a 12</span><span class="marca-ok"><i class="i i-s" data-i="check"></i></span></button>
+                </div>
+                <div class="donde-se-ve">Se ve así en
+                  <span class="pastilla contorno"><i class="i i-s" data-i="history"></i>Quién hizo qué · <span data-hora="app" data-a="9:05"></span></span>
+                  <span class="pastilla contorno"><i class="i i-s" data-i="monitor-smartphone"></i>Mis sesiones · <span data-hora="app" data-a="18:20"></span></span>
+                </div>
+              </div>
+            </div>
+            <!-- Instalar -->
+            <div class="ajuste" data-fila-instalar>
+              <div class="ajuste-cab">
+                <span class="ico"><i class="i" data-i="app-window"></i></span>
+                <div><div class="nombre" data-instalar-nombre></div><div class="que" data-instalar-que></div></div>
+                <span></span>
+                <span data-instalar-accion></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside>
+          <div class="grupo-titulo">Lo tuyo</div>
+          <div class="tarjeta ajustes pronto-lista" aria-disabled="true">
+            <div class="ajuste"><div class="ajuste-cab"><span class="ico neutro"><i class="i" data-i="fingerprint"></i></span><div><div class="nombre">Mis celulares con huella</div><div class="que">Dónde entrás con huella</div></div><span class="pronto">Pronto</span></div></div>
+            <div class="ajuste"><div class="ajuste-cab"><span class="ico neutro"><i class="i" data-i="monitor-smartphone"></i></span><div><div class="nombre">Mis sesiones</div><div class="que">Dónde tenés sesión</div></div><span class="pronto">Pronto</span></div></div>
+            <div class="ajuste"><div class="ajuste-cab"><span class="ico neutro"><i class="i" data-i="unplug"></i></span><div><div class="nombre">Cortar mi celular perdido</div><div class="que">Que nadie entre con él</div></div><span class="pronto">Pronto</span></div></div>
+            <div class="ajuste"><div class="ajuste-cab"><span class="ico neutro"><i class="i" data-i="pencil"></i></span><div><div class="nombre">Nombre del dispositivo</div><div class="que">Cómo la ves en la lista</div></div><span class="pronto">Pronto</span></div></div>
+          </div>
+          <div class="guardado"><i class="i" data-i="info"></i><span>Queda guardado en esta computadora, para vos: vuelve cuando entres de nuevo. Con el celular en espejo, cada uno tiene lo suyo.</span></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="../../extra/shared.js"></script>
+<script src="../../extra/v1.js"></script>
+</body>
+</html>

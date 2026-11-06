@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuración · 1 · La lista que se prueba · celular</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../extra/shared.css">
+<link rel="stylesheet" href="../../extra/v1.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../extra/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+<style>body { width: 390px; }</style>
+</head>
+<body>
+<div class="celu">
+  <div class="barra-estado"><span>14:30</span><span class="se"><i class="i i-s" data-i="wifi"></i><svg width="26" height="13" viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#1A1D1B" opacity=".4"/><rect x="2" y="2" width="16" height="9" rx="2" fill="#1A1D1B"/></svg></span></div>
+  <div style="padding:0 16px"><button class="volver" data-ir="more"><i class="i" data-i="chevron-left"></i>Más</button></div>
+  <div class="celu-cabecera"><span class="t-titulo">Configuración</span></div>
+  <div class="celu-sub"><span class="para-vos"><span class="cara">RP</span>Solo para vos, en este celular</span></div>
+
+  <div class="celu-pantalla">
+    <div class="tarjeta ajustes bloque">
+      <div class="ajuste">
+        <div class="ajuste-cab">
+          <span class="ico"><i class="i" data-i="sparkles"></i></span>
+          <div><div class="nombre" id="n-anim">Animaciones</div><div class="que">Pantallas y avisos con un movimiento corto</div></div>
+          <button class="llave" role="switch" aria-checked="true" aria-labelledby="n-anim" data-pref="anim"></button>
+        </div>
+        <div class="cuerpo">
+          <div class="muestra">
+            <div class="escena" style="width:96px"><span class="ventana"></span><span class="aviso-mini"></span></div>
+            <div class="leyenda" data-leyenda></div>
+          </div>
+          <div class="aviso pino aviso-sistema" data-aviso-sistema hidden><i class="i" data-i="accessibility"></i><span>Este dispositivo ya pide no animar</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tarjeta ajustes bloque">
+      <div class="ajuste">
+        <div class="ajuste-cab">
+          <span class="ico"><i class="i" data-i="clock"></i></span>
+          <div><div class="nombre">Formato de la hora</div><div class="que">Solo cómo se escribe; la hora es la del negocio</div></div>
+          <span></span>
+        </div>
+        <div class="cuerpo">
+          <div class="formatos" role="radiogroup" aria-label="Formato de la hora">
+            <button class="formato" role="radio" data-formato="sistema"><span class="h" data-hora="sistema"></span><span class="n">Como el sistema</span><span class="marca-ok"><i class="i i-s" data-i="check"></i></span></button>
+            <button class="formato" role="radio" data-formato="24"><span class="h" data-hora="24"></span><span class="n">24 horas</span><span class="marca-ok"><i class="i i-s" data-i="check"></i></span></button>
+            <button class="formato" role="radio" data-formato="12"><span class="h" data-hora="12"></span><span class="n">a. m./p. m.</span><span class="marca-ok"><i class="i i-s" data-i="check"></i></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tarjeta ajustes bloque">
+      <div class="ajuste" data-fila-instalar>
+        <div class="ajuste-cab">
+          <span class="ico"><i class="i" data-i="app-window"></i></span>
+          <div><div class="nombre" data-instalar-nombre></div><div class="que" data-instalar-que></div></div>
+          <span data-instalar-accion></span>
+        </div>
+      </div>
+      <div class="ajuste" data-fila-offline>
+        <div class="ajuste-cab">
+          <span class="ico"><i class="i" data-i="wifi-off"></i></span>
+          <div><div class="nombre" id="n-off">Trabajar sin conexión</div><div class="que" data-offline-que></div></div>
+          <button class="llave" role="switch" aria-checked="false" aria-labelledby="n-off" data-pref="offline"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grupo-titulo">Lo tuyo</div>
+    <div class="tarjeta ajustes pronto-lista" aria-disabled="true">
+      <div class="ajuste"><div class="ajuste-cab"><span class="ico neutro"><i class="i" data-i="fingerprint"></i></span><div><div class="nombre">Mis celulares con huella</div></div><span class="pronto">Pronto</span></div></div>
+      <div class="ajuste"><div class="ajuste-cab"><span class="ico neutro"><i class="i" data-i="monitor-smartphone"></i></span><div><div class="nombre">Mis sesiones</div></div><span class="pronto">Pronto</span></div></div>
+      <div class="ajuste"><div class="ajuste-cab"><span class="ico neutro"><i class="i" data-i="unplug"></i></span><div><div class="nombre">Cortar mi celular perdido</div></div><span class="pronto">Pronto</span></div></div>
+      <div class="ajuste"><div class="ajuste-cab"><span class="ico neutro"><i class="i" data-i="pencil"></i></span><div><div class="nombre">Nombre del dispositivo</div></div><span class="pronto">Pronto</span></div></div>
+    </div>
+  </div>
+
+  <nav class="nav-inferior">
+    <a data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</a>
+    <a data-ir="products"><i class="i" data-i="tags"></i>Catálogo</a>
+    <a data-ir="stock"><i class="i" data-i="package"></i>Depósito</a>
+    <a data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</a>
+    <a class="activo" data-ir="more"><i class="i" data-i="menu"></i>Más</a>
+  </nav>
+  <span class="home-ind"></span>
+</div>
+<script src="../../extra/shared.js"></script>
+<script src="../../extra/v1.js"></script>
+</body>
+</html>
