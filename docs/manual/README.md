@@ -38,7 +38,7 @@ paso 9 de cada uno (constitución). La aplicación lo arma desde estos archivos;
 - audit-log · Quién hizo qué · history · audit-log.md
 - processes · Procesos · workflow
 - tickets · Mejoras y errores · bug
-- device-settings · Configuración · settings
+- device-settings · Configuración · settings · device-settings.md
 - device-link · Celular y computadora · smartphone · device-link.md
 - administration · Administración · sliders-horizontal
 - customers · Clientes · users

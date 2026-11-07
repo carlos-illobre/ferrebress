@@ -1,0 +1,21 @@
+{
+  "device": "computer",
+  "width": 1100,
+  "height": 618,
+  "points": {
+    "animations": [
+      21.2,
+      25
+    ],
+    "formats": [
+      45.9,
+      60.5
+    ],
+    "install": [
+      43.9,
+      79.8
+    ]
+  },
+  "hash": "0187d0a5b931a27ac642b685df771b1dbdbe7bc652a98c029ead4428ad4d1c83",
+  "file": "b2da0f98e3e33dfee35f2c143a95ee579fe2f66434e40962f5011ce2e8ad5a45"
+}

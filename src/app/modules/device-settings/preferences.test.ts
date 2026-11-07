@@ -77,9 +77,13 @@ describe('lo que eligió cada persona en este dispositivo', () => {
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('lleno');
     });
+    act(() => person.set(juan));
     choose(juan.userId, { animations: false });
     expect(preferences.get().animations).toBe(false);
     expect(motionOff.get()).toBe(true);
+    // Cambiar otra cosa no vuelve la primera a lo de arranque.
+    choose(juan.userId, { timeFormat: 'h12' });
+    expect(preferences.get()).toEqual({ animations: false, timeFormat: 'h12' });
   });
 
   it('el tope: con más de 20 personas sale la que cambió algo hace más tiempo', () => {

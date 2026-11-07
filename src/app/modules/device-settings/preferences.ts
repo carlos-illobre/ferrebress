@@ -56,8 +56,11 @@ function apply(next: Preferences): void {
 const of = (userId: string | undefined) => (userId !== undefined && read().of[userId]) || defaults;
 
 // Cambia lo de esta persona. Volver a lo de arranque borra su fila (R1.11).
+// Parte de lo que tiene ahora quien está adentro, no de lo guardado: si el dispositivo no deja
+// guardar, cambiar una cosa no vuelve las otras a lo de arranque (R1.5).
 export function choose(userId: string, change: Partial<Preferences>): void {
-  const next = { ...of(userId), ...change };
+  const now = person.get()?.userId === userId ? preferences.get() : of(userId);
+  const next = { ...now, ...change };
   const saved = read();
   const others = saved.order.filter((id) => id !== userId);
   const order = isDefault(next) ? others : [userId, ...others];

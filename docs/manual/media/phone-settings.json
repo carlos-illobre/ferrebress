@@ -1,0 +1,21 @@
+{
+  "device": "phone",
+  "width": 585,
+  "height": 1266,
+  "points": {
+    "animations": [
+      13.6,
+      30.6
+    ],
+    "formats": [
+      50,
+      61.6
+    ],
+    "install": [
+      50,
+      75.1
+    ]
+  },
+  "hash": "d862de0b8dadef3af52edd3eb7518e0f37fd42f07b252a8356e9c1f5e94376bd",
+  "file": "2ea2f6d0a2f4416fd0c3b8089715e85ded860de144a7d69342dd963c5efd0f0e"
+}
