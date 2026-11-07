@@ -4,6 +4,7 @@
 // de la computadora: no hay ninguna acción nueva.
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import type { ComponentChildren } from 'preact';
+import { still } from '../../../../platform/motion.ts';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { removePhone } from '../../actions.ts';
@@ -12,7 +13,7 @@ import { cardTexts as t } from '../../texts.ts';
 import './Phone.css';
 
 const scrollTo = (id: string) =>
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById(id)?.scrollIntoView({ behavior: still() ? 'auto' : 'smooth' });
 
 type Tile = {
   icon: IconName;

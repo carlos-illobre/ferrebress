@@ -135,4 +135,25 @@ describe('las piezas', () => {
     expect(onClose).toHaveBeenCalledOnce();
     expect(sheet.className).toBe('sheet');
   });
+
+  it('device-settings-E26: la hoja trabada no se cierra ni con un toque afuera ni deslizándola', () => {
+    const onClose = vi.fn();
+    const { rerender } = render(
+      <Sheet title="Instalar" onClose={onClose} locked>
+        <p>adentro</p>
+      </Sheet>,
+    );
+    const sheet = screen.getByRole('dialog');
+    fireEvent.click(document.querySelector('.sheet-scrim') as Element);
+    fireEvent.pointerDown(sheet, { clientY: 100 });
+    fireEvent.pointerUp(sheet, { clientY: 300 });
+    expect(onClose).not.toHaveBeenCalled();
+    rerender(
+      <Sheet title="Instalar" onClose={onClose}>
+        <p>adentro</p>
+      </Sheet>,
+    );
+    fireEvent.click(document.querySelector('.sheet-scrim') as Element);
+    expect(onClose).toHaveBeenCalledOnce();
+  });
 });

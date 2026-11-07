@@ -3,6 +3,7 @@
 // lado, no por el ancho: un celular acostado o una computadora angosta dicen lo de su lado. Se bajan
 // con el detalle, no en el arranque.
 import { addDays, businessDateOf, businessTimeZone } from '@ferrebress/shared/time/business';
+import { formatTime } from '../../../../platform/time.ts';
 import type { Words } from '../../../../ui/say/Say.tsx';
 
 const words = (long: string, short: string): Words => ({ long, short });
@@ -167,11 +168,8 @@ export function duration(ms: number): string {
   return rest ? `${hours} h ${rest} min` : `${hours} h`;
 }
 
-// La hora del día: «8:00».
-export const clock = (at: number) => {
-  const when = new Date(at);
-  return `${when.getHours()}:${String(when.getMinutes()).padStart(2, '0')}`;
-};
+// La hora del día: «08:00» o «8:00 a. m.», como eligió la persona (04 · R3).
+export const clock = (at: number) => formatTime(at);
 
 // El día: «jueves 3 de diciembre».
 // Las fechas, en la zona del negocio y como en la maqueta: «jueves 3 de diciembre».
@@ -179,9 +177,6 @@ const parts = new Intl.DateTimeFormat('es-AR', {
   weekday: 'long',
   day: 'numeric',
   month: 'long',
-  hour: 'numeric',
-  minute: '2-digit',
-  hourCycle: 'h23',
   timeZone: businessTimeZone,
 });
 const partsOf = (at: number) =>
@@ -196,6 +191,5 @@ export const day = (at: number) => {
 export function since(at: number, now: number): string {
   const [then, today] = [businessDateOf(new Date(at)), businessDateOf(new Date(now))];
   const near = then === today ? 'hoy, ' : then === addDays(today, -1) ? 'ayer, ' : '';
-  const { hour, minute } = partsOf(at);
-  return `${near}${day(at)}, ${Number(hour)}:${minute}`;
+  return `${near}${day(at)}, ${formatTime(at)}`;
 }

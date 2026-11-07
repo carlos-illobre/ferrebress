@@ -38,7 +38,7 @@ export function WaitNotice() {
   return (
     <>
       <div class={done ? 'wait-line done' : 'wait-line'} aria-hidden="true">
-        <span class="wait-line-progress" />
+        <span class="wait-line-progress keeps-moving" />
       </div>
       <div class={done ? 'wait-notice done' : 'wait-notice'} role="status">
         <span class="wait-icon">
@@ -53,7 +53,7 @@ export function WaitNotice() {
           )}
         </span>
         <span class="wait-bar">
-          <b class="wait-bar-progress" />
+          <b class="wait-bar-progress keeps-moving" />
         </span>
       </div>
     </>

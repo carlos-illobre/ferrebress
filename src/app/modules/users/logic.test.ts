@@ -69,16 +69,17 @@ describe('la lista de Usuarios', () => {
 });
 
 describe('cuándo pasó (users-R3.2)', () => {
-  const now = new Date(2026, 9, 31, 10, 30).getTime();
-  const at = (y: number, m: number, d: number, h = 0, min = 0) =>
-    new Date(y, m, d, h, min).getTime();
+  // En la hora del negocio (Buenos Aires, tres horas antes que Greenwich), aunque el dispositivo esté
+  // en otra zona.
+  const at = (y: number, m: number, d: number, h = 0, min = 0) => Date.UTC(y, m, d, h + 3, min);
+  const now = at(2026, 9, 31, 10, 30);
   it('users-E07: de recién a una fecha', () => {
     expect(sinceOf(now - 20_000, now)).toBe('recién');
     expect(sinceOf(now - 5 * 60_000, now)).toBe('hace 5 min');
     expect(sinceOf(now - 60 * 60_000, now)).toBe('hace 1 hora');
     expect(sinceOf(now - 2 * 60 * 60_000, now)).toBe('hace 2 horas');
-    expect(sinceOf(at(2026, 9, 31, 1, 5), now)).toBe('hoy 1:05');
-    expect(sinceOf(at(2026, 9, 30, 8, 2), now)).toBe('ayer 8:02');
+    expect(sinceOf(at(2026, 9, 31, 1, 5), now)).toBe('hoy 01:05');
+    expect(sinceOf(at(2026, 9, 30, 8, 2), now)).toBe('ayer 08:02');
     expect(sinceOf(at(2026, 9, 28, 9), now)).toBe('hace 3 días');
     expect(sinceOf(at(2026, 9, 12, 9), now)).toBe('el 12/10');
     expect(dateOf(at(2025, 7, 3), now)).toBe('03/08/2025');

@@ -13,6 +13,7 @@ import { findLongFiles } from './checks/file-sizes.ts';
 import { findCrowdedFolders } from './checks/folder-sizes.ts';
 import { findFilesWithoutHeader } from './checks/header-comments.ts';
 import { findUnmarkedState } from './checks/local-state.ts';
+import { findLooseTimes } from './checks/loose-times.ts';
 import { findLooseManual } from './checks/manual-code.ts';
 import { findRawHtml } from './checks/raw-html.ts';
 import { buildManual } from './manual/build.ts';
@@ -22,7 +23,7 @@ const checks: Record<string, () => string[]> = {
   links: () => findBrokenLinks(root, ['.']),
   sizes: () => [...findLongFiles(root), ...findCrowdedFolders(root)],
   headers: () => findFilesWithoutHeader(root),
-  html: () => findRawHtml(root),
+  html: () => [...findRawHtml(root), ...findLooseTimes(root)],
   local: () => findUnmarkedState(root),
   manual: () =>
     buildManual(join(root, 'docs/manual'), 'check', new Set(Object.keys(manualIcons))).problems,

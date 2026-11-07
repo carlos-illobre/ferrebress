@@ -49,13 +49,15 @@
     display: block;
     max-width: 100%;
   }
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation: none;
-      transition: none;
-    }
+  /* Sin movimiento (platform/motion.ts, 04 · R2): lo pidió la persona o el sistema. Con !important,
+     desde esta primera capa le gana a la de cada pantalla. Lo que dice que algo está pasando lleva
+     .keeps-moving y sigue (04 · R2.2). */
+  :root[data-motion="off"] *:not(.keeps-moving),
+  :root[data-motion="off"] *:not(.keeps-moving)::before,
+  :root[data-motion="off"] *:not(.keeps-moving)::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 
   /* La marca de las flechas (00 · R2.5): naranja, distinta del cursor, igual en todas partes. */

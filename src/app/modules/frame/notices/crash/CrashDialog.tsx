@@ -2,6 +2,7 @@
 // y los últimos pasos), el código y la hora, y dos botones: «Seguir sin avisar» y «Avisar y seguir»
 // (R9.5). Lo que se estaba haciendo sigue ahí (R9.3).
 import { useStore } from '../../../../platform/store.ts';
+import { formatTime } from '../../../../platform/time.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
@@ -10,8 +11,7 @@ import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { texts } from '../../texts.ts';
 import { type Crash, crash, saveReport } from './crash.ts';
 
-const time = (at: number) =>
-  new Date(at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const time = (at: number) => formatTime(at);
 
 export function CrashDialog() {
   const shown = useStore(crash);

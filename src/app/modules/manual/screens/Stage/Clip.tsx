@@ -2,12 +2,11 @@
 // cuando se toca «Ver el clip», con su último cuadro de imagen de espera. Al terminar se puede ver
 // otra vez (también con Alt V, como «Ver el clip»). Con «reducir movimiento», solo el último cuadro.
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { systemStill } from '../../../../platform/motion.ts';
 import { mediaUrl } from '../../files/api.ts';
 import { texts } from '../../texts.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import './Clip.css';
-
-const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function Clip({ name }: { name: string }) {
   const video = useRef<HTMLVideoElement>(null);
@@ -19,7 +18,8 @@ export function Clip({ name }: { name: string }) {
     void video.current?.play().catch(() => setEnded(true));
   };
   useEffect(play, []);
-  if (still())
+  // El clip es contenido, no adorno: lo frena solo el sistema, no la opción de la persona (diseño de 04, § 4).
+  if (systemStill())
     return (
       <div class="manual-clip">
         <img src={poster} alt={texts.clipTitle} />

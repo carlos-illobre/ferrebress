@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Ferrebress",
   "short_name": "Ferrebress",
   "description": "La gestión de la ferretería: vender, contar y cobrar desde el mostrador o el depósito.",
@@ -6,6 +7,7 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "related_applications": [{ "platform": "webapp", "url": "/manifest.webmanifest" }],
   "background_color": "#f4f2ec",
   "theme_color": "#f4f2ec",
   "icons": [

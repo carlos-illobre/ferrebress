@@ -26,7 +26,8 @@ ya sigue sin guardar si el navegador no deja, R1.5):
 | Clave | Qué guarda | De quién |
 |---|---|---|
 | `preferences` | `{ order: userId[], of: { [userId]: { animations: boolean, timeFormat: 'h24' \| 'h12' } } }`: lo que eligió cada persona en este dispositivo. `order` va de la última que cambió algo a la más vieja; no se guarda ninguna hora. Una persona sin fila tiene lo de arranque | De cada persona (R1.3) |
-| `install` | `{ offered: boolean, installed: boolean }`: si ya se ofreció el aviso para instalar y si el navegador avisó que se instaló | Del dispositivo (R4.5) |
+| `installed` | Si el navegador avisó que se instaló (`platform/install.ts`) | Del dispositivo (R4.2) |
+| `install-offered` | Si ya se ofreció el aviso para instalar | Del dispositivo (R4.5) |
 
 - **Tope:** como mucho `maxPeople` (20) personas; al pasarse, sale la última de `order`. El tope se
   aplica también al leer.
@@ -127,11 +128,13 @@ en 24 horas.
   - `navigator.getInstalledRelatedApps()`, con el manifiesto que se nombra a sí mismo en
     `related_applications` (`platform: "webapp"`, su dirección completa y su `id`). El manifiesto
     suma `"id": "/"`. En Chrome en Android anda; en la computadora, desde Chrome y Edge 140.
-  - el evento `appinstalled`, que deja `installed: true` en lo guardado. Si después vuelve a llegar
+  - el evento `appinstalled`, que deja `installed` en lo guardado. Si después vuelve a llegar
     `beforeinstallprompt`, es que la desinstalaron desde el sistema: vuelve a `false`.
 
   Si ninguna de las dos lo sabe, el renglón no aparece (como E24): nunca dice «Instalar» si no se
   puede.
+- **`getInstalledRelatedApps()` se pregunta recién al abrir Configuración** (`askInstalled()`), que es
+  donde importa: no suma trabajo al arranque.
 - `install()`: llama a `prompt()` del evento guardado y devuelve `'accepted'` o `'dismissed'`. El
   evento sirve una sola vez.
 - Nada pide a la red.
@@ -148,7 +151,7 @@ La hoja suma la propiedad `locked`: mientras está, no se cierra al bajarla, al 
 | `index.ts` | La fachada: la pantalla, `applyPreferences(person)` para `App.tsx` y el aviso para instalar (lazy) |
 | `preferences.ts` | Lo guardado por persona (§ 2): leer y validar, cambiar, volver a como viene, el tope. Al cambiar la persona de la sesión (o no haber nadie, en la entrada) pone `motionOff` y `timeFormat` con lo suyo o lo de arranque (R1.3, E05) |
 | `rules.ts` | La regla pura: lo de arranque, si algo cambió de lo de arranque (R1.11), el resumen de «Así la tenés» (R1.10, que con el sistema pidiendo no animar dice «En el acto»), qué renglón de instalar toca (R4) y qué estado tiene «Trabajar sin conexión» (R5) |
-| `install-offer.ts` | Si toca mostrar el aviso: celular, con sesión, en producción, `installState` en `'can'`, nunca ofrecido y sin otra hoja abierta. Cerrado de cualquier forma, `offered: true` (R4.5, E36) |
+| `install-offer.ts` | Si toca mostrar el aviso: celular, con sesión, en producción, `installState` en `'can'`, nunca ofrecido y sin otra hoja abierta. Cerrado de cualquier forma, queda `install-offered` (R4.5, E36) |
 | `texts.ts` | Los textos, largos en la computadora y cortos en el celular |
 | `settings.ts` | `maxPeople`, lo que tarda el aviso en aparecer después de llegar al marco y lo que dura «Listo» |
 | `screens/Settings/` | La pantalla de Configuración |
@@ -213,7 +216,7 @@ pantalla dice por qué (architecture.md, «Lo que se ve vive en valores con nomb
 - **Es del dispositivo, no se espeja:** su estado es local, como la cámara. Si los dos están
   vinculados, solo la ve el celular.
 - Aparece una vez llegado al marco, si `install-offer.ts` dice que toca (E25). **Al abrirse ya queda
-  `offered: true`:** si la persona cierra la aplicación con la hoja abierta, tampoco vuelve.
+  `install-offered`:** si la persona cierra la aplicación con la hoja abierta, tampoco vuelve.
 - **Con otra hoja abierta, espera.** En la primera entrada del celular, el ofrecimiento de la huella
   va primero (§ 9); el aviso aparece al cerrarse esa hoja, o en la próxima llegada al marco.
 - «Instalar» pide al navegador y, mientras contesta, la hoja queda trabada (`locked`). Si acepta, el
@@ -250,8 +253,8 @@ pantalla dice por qué (architecture.md, «Lo que se ve vive en valores con nomb
   volver a dibujar una pantalla.
 - Lo guardado: menos de 1 KB con 20 personas.
 - **El arranque** suma `motion.ts`, `time.ts`, `install.ts`, las preferencias y la pantalla de
-  Configuración: unos 8 KB, sobre los 44 de hoy, dentro del tope de 64 KB que controla `pnpm boot`. El
-  aviso para instalar se baja aparte.
+  Configuración: unos 8 KB, sobre los 64 de antes del módulo, dentro del tope de 256 KB que controla
+  `pnpm boot` (Carlos lo subió de 64 a 256 KB con este módulo). El aviso para instalar se baja aparte.
 
 ## 9. Lo que decidió Carlos
 

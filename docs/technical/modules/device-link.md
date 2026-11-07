@@ -1377,7 +1377,7 @@ Medidos en el cable: con TCP y TLS cada paquete suma unos 60 a 90 bytes, y una c
 | `l=` en la cabecera | Unos 12 bytes por respuesta, con vínculo | — | — |
 | `check` después de un `l=` nuevo | Unos 700 bytes | — | Cuando cambia el vínculo |
 | Código de vincular a la vista | 60 bytes por código, 1 por minuto | 3,6 KB más el latido | La computadora |
-| El arranque | El indicador y el estado: **unos 2 KB**, dentro del tope de 64 KB; el resto, unos 12 KB, con vínculo o al abrir el detalle | — | Una vez por versión |
+| El arranque | El indicador y el estado: **unos 2 KB**, dentro del tope de 256 KB; el resto, unos 12 KB, con vínculo o al abrir el detalle | — | Una vez por versión |
 
 **Un día típico en el celular** (supuestos: 8 horas abiertos, 6 de uso en espejo; el celular apaga la
 pantalla 40 veces, 30 por menos de 5 minutos):

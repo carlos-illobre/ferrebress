@@ -10,6 +10,9 @@ services:
     restart: unless-stopped
     logging: *logging
     security_opt: [no-new-privileges:true]
+    # Para el manifiesto de cada ambiente (04 · R4.7).
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:?falta ENVIRONMENT}
     ports: ["127.0.0.1:${WEB_PORT:?falta WEB_PORT}:80"]
     depends_on:
       server: { condition: service_healthy }

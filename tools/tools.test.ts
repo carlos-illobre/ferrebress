@@ -8,6 +8,7 @@ import { findBrokenLinks } from './checks/doc-links.ts';
 import { findLongFiles, maxLinesPerFile } from './checks/file-sizes.ts';
 import { findCrowdedFolders, maxFilesPerFolder } from './checks/folder-sizes.ts';
 import { findFilesWithoutHeader } from './checks/header-comments.ts';
+import { findLooseTimes } from './checks/loose-times.ts';
 import { findLooseManual } from './checks/manual-code.ts';
 import { findRawHtml } from './checks/raw-html.ts';
 
@@ -93,7 +94,7 @@ describe('findHeavyBoot', () => {
     // Bytes al azar: gzip casi no los achica.
     const noise = randomBytes(maxBootBytes * 2).toString('base64');
     const heavy = project({ 'index.html': page, 'assets/main.js': noise, 'assets/main.css': '' });
-    expect(findHeavyBoot(heavy)[0]).toMatch(/El arranque pesa .* KB con gzip \(máximo 64\.0 KB\)/);
+    expect(findHeavyBoot(heavy)[0]).toMatch(/El arranque pesa .* KB con gzip \(máximo 256\.0 KB\)/);
   });
 });
 
@@ -146,5 +147,22 @@ describe('findRawHtml', () => {
         'e.ts:6',
       ].map((where) => problem(`src/app/${where}`)),
     );
+  });
+});
+
+describe('findLooseTimes', () => {
+  it('avisa las horas escritas fuera de platform/time.ts, salvo en las pruebas', () => {
+    const root = project({
+      'src/app/platform/time.ts':
+        "new Intl.DateTimeFormat('es-AR', { hour: 'numeric', hourCycle: 'h23' });",
+      'src/app/a.ts': 'const h = at.getHours();\nok();\nat.toLocaleTimeString();',
+      'src/app/b.tsx': "format({ hour: '2-digit' });",
+      'src/app/c.test.ts': 'at.getUTCHours();',
+    });
+    expect(findLooseTimes(root)).toEqual([
+      'src/app/a.ts:1: las horas se escriben con platform/time.ts',
+      'src/app/a.ts:3: las horas se escriben con platform/time.ts',
+      'src/app/b.tsx:1: las horas se escriben con platform/time.ts',
+    ]);
   });
 });

@@ -87,11 +87,12 @@ describe('hasta cuándo se puede entrar sin conexión', () => {
   });
 
   it('offline-R2.1: dice hasta cuándo como lo lee la persona', () => {
-    const now = new Date('2026-10-29T08:00:00');
-    expect(whenText(new Date('2026-10-29T21:40:00'), now)).toBe('hoy 21:40');
-    expect(whenText(new Date('2026-10-30T09:05:00'), now)).toBe('mañana 9:05');
-    expect(whenText(new Date('2026-11-03T09:40:00'), now)).toBe('el martes 9:40');
+    // En la hora del negocio (Buenos Aires, -03:00), aunque el dispositivo esté en otra zona.
+    const now = new Date('2026-10-29T08:00:00-03:00');
+    expect(whenText(new Date('2026-10-29T21:40:00-03:00'), now)).toBe('hoy 21:40');
+    expect(whenText(new Date('2026-10-30T09:05:00-03:00'), now)).toBe('mañana 09:05');
+    expect(whenText(new Date('2026-11-03T09:40:00-03:00'), now)).toBe('el martes 09:40');
     vi.useFakeTimers({ now });
-    expect(whenText(new Date('2026-10-29T21:40:00'))).toBe('hoy 21:40');
+    expect(whenText(new Date('2026-10-29T21:40:00-03:00'))).toBe('hoy 21:40');
   });
 });

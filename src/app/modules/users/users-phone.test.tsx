@@ -2,6 +2,7 @@
 // abajo, que hacen lo mismo que la tarjeta de la computadora; lo que todavía no está lo dice.
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { motionOff } from '../../platform/motion.ts';
 import { access, card, inCard, openUsers, row, toast } from './users-test-kit.tsx';
 
 const tile = (name: RegExp) =>
@@ -43,6 +44,12 @@ describe('la tarjeta en el celular', () => {
     fireEvent.click(linkRow(/Huella digital/));
     fireEvent.click(linkRow(/Dispositivos/));
     expect(scrolled).toHaveBeenCalledTimes(3);
+    expect(scrolled).toHaveBeenLastCalledWith({ behavior: 'smooth' });
+    // device-settings-E13: con las animaciones apagadas, va de golpe.
+    motionOff.set(true);
+    fireEvent.click(linkRow(/Dispositivos/));
+    expect(scrolled).toHaveBeenLastCalledWith({ behavior: 'auto' });
+    motionOff.set(false);
   });
 
   it('con un solo celular, «Quitar huella» lo quita; sin ninguno, está apagado', async () => {

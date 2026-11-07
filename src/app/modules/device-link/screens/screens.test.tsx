@@ -106,7 +106,8 @@ describe('el detalle', () => {
 
   it('E26, E26b: directo: la ruta con la latencia, la tira del día, los datos y los botones', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
-    const start = new Date(2026, 10, 4, 8).getTime();
+    // Las 8 en Buenos Aires (tres horas antes que Greenwich).
+    const start = Date.UTC(2026, 10, 4, 11);
     vi.setSystemTime(start);
     const strip = createStrip({ owner: 'ana', now: () => Date.now() });
     strip.mark('direct');
@@ -124,7 +125,7 @@ describe('el detalle', () => {
     expect(screen.getByRole('img').getAttribute('aria-label')).toMatch(
       /directo 2 h, por el servidor 30 min/,
     );
-    expect(screen.getByText('9:00')).toBeTruthy();
+    expect(screen.getByText('09')).toBeTruthy();
     expect(screen.getByText('30 de 30 días')).toBeTruthy();
     act(() => {
       vi.advanceTimersByTime(60_000);

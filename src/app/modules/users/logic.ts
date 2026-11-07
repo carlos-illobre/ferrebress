@@ -2,8 +2,10 @@
 // orden de R3.1, el buscador, los filtros, las cuentas de arriba y cómo se dice cuándo pasó algo,
 // con la hora del servidor. Sin pantallas: lo prueban las pruebas de la lógica.
 import type { PersonRow, Way } from '@ferrebress/shared/contracts/users';
+import { businessDateOf } from '@ferrebress/shared/time/business';
 import { serverNow } from '../../platform/server/clock.ts';
 import { initials, plain } from '../../platform/text.ts';
+import { formatTime } from '../../platform/time.ts';
 
 export type Filter = 'all' | 'active' | 'never' | 'off';
 
@@ -81,28 +83,28 @@ export const nowMs = () => (serverNow() ?? new Date()).getTime();
 const minute = 60_000;
 const hour = 60 * minute;
 const day = 24 * hour;
-const two = (n: number) => String(n).padStart(2, '0');
-const clock = (at: Date) => `${at.getHours()}:${two(at.getMinutes())}`;
-const startOfDay = (at: Date) => new Date(at.getFullYear(), at.getMonth(), at.getDate()).getTime();
+// El día del negocio, como lo usan las fechas: [año, mes, día] (00 · R8.4).
+const dayOf = (at: number) => businessDateOf(new Date(at)).split('-');
+const daysBetween = (from: number, to: number) =>
+  (Date.parse(businessDateOf(new Date(to))) - Date.parse(businessDateOf(new Date(from)))) / day;
 
 // La fecha corta: «12/10», o con el año si no es el de ahora.
 export function dateOf(at: number, now: number): string {
-  const when = new Date(at);
-  const year = when.getFullYear() === new Date(now).getFullYear() ? '' : `/${when.getFullYear()}`;
-  return `${two(when.getDate())}/${two(when.getMonth() + 1)}${year}`;
+  const [year, month, date] = dayOf(at);
+  return `${date}/${month}${year === dayOf(now)[0] ? '' : `/${year}`}`;
 }
 
-// Cuándo pasó, como lo dice la gente: «recién», «hace 5 min», «hace 2 horas», «hoy 7:58»,
-// «ayer 8:02», «hace 3 días» o «el 12/10».
+// Cuándo pasó, como lo dice la gente: «recién», «hace 5 min», «hace 2 horas», «hoy 07:58»,
+// «ayer 08:02», «hace 3 días» o «el 12/10».
 export function sinceOf(at: number, now: number): string {
   const ago = Math.max(0, now - at);
-  const days = Math.round((startOfDay(new Date(now)) - startOfDay(new Date(at))) / day);
+  const days = daysBetween(at, now);
   if (ago < minute) return 'recién';
   if (ago < hour) return `hace ${Math.floor(ago / minute)} min`;
   if (ago < 6 * hour)
     return Math.floor(ago / hour) === 1 ? 'hace 1 hora' : `hace ${Math.floor(ago / hour)} horas`;
-  if (days === 0) return `hoy ${clock(new Date(at))}`;
-  if (days === 1) return `ayer ${clock(new Date(at))}`;
+  if (days === 0) return `hoy ${formatTime(at)}`;
+  if (days === 1) return `ayer ${formatTime(at)}`;
   if (days < 7) return `hace ${days} días`;
   return `el ${dateOf(at, now)}`;
 }

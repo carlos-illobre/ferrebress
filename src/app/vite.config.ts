@@ -2,6 +2,7 @@
 // se arma desde docs/manual/ con tools/manual/ (diseño del manual, § 2): en /manual/ del armado y,
 // en desarrollo, servido desde la memoria. Con MANUAL_MEDIA=pending no se arma (para sacar sus
 // capturas, que no lo muestran); con MANUAL_DIR, se arma otro manual (el de prueba).
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import preact from '@preact/preset-vite';
 import { defineConfig, type Plugin } from 'vite';
@@ -39,8 +40,26 @@ function manual(): Plugin {
   };
 }
 
+// El manifiesto del ambiente de pruebas, armado desde el de producción: la aplicación instalada desde
+// ahí se llama «Ferrebress pruebas» (04 · R4.7). Caddy sirve uno u otro según el ambiente.
+function testingManifest(): Plugin {
+  return {
+    name: 'ferrebress-testing-manifest',
+    generateBundle() {
+      const path = join(import.meta.dirname, 'public/manifest.webmanifest');
+      const manifest = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>;
+      const named = { ...manifest, name: 'Ferrebress pruebas', short_name: 'Ferrebress pruebas' };
+      this.emitFile({
+        type: 'asset',
+        fileName: 'manifest-testing.webmanifest',
+        source: JSON.stringify(named, null, 2),
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [preact(), manual()],
+  plugins: [preact(), manual(), testingManifest()],
   define: { 'import.meta.env.VITE_APP_VERSION': JSON.stringify(version) },
   // Dos páginas: la aplicación y el marco del botón de Google. El service worker se arma aparte, como
   // /sw.js: su dirección no puede cambiar con cada versión.

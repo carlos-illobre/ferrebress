@@ -25,10 +25,13 @@ export type ButtonProps = {
 
 export function Button(props: ButtonProps) {
   const { phase, busy, run } = useWaiting();
+  const waiting = phase === 'mark' || phase === 'bar';
   const classes = [
     'button',
     `button-${props.look ?? 'common'}`,
     props.size && `button-${props.size}`,
+    // La marca de espera sigue girando aunque se apaguen las animaciones (04 · R2.2).
+    waiting && 'keeps-moving',
   ];
   return (
     <button
@@ -36,7 +39,7 @@ export function Button(props: ButtonProps) {
       class={classes.filter(Boolean).join(' ')}
       disabled={props.disabled}
       aria-busy={busy}
-      data-wait={phase === 'mark' || phase === 'bar' ? '' : undefined}
+      data-wait={waiting ? '' : undefined}
       data-mark=""
       data-key={props.shortcut}
       data-close={props.closes ? '' : undefined}

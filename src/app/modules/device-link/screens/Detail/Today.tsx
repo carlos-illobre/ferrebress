@@ -1,7 +1,9 @@
 // La tira del día (R4.4): desde la primera conexión del día hasta ahora, un tramo por estado, con
 // cuánto fue cada uno y qué parte del tiempo juntos fue directo. Se lee de la tira de la persona.
+
 import { useEffect, useState } from 'preact/hooks';
 import { useStore } from '../../../../platform/store.ts';
+import { formatHour } from '../../../../platform/time.ts';
 import { linkStrip } from '../../current.ts';
 import { deviceLinkSettings } from '../../settings.ts';
 import type { Lane, StripView } from '../../strip.ts';
@@ -74,7 +76,7 @@ export function Today() {
       <div class="today-hours" aria-hidden="true">
         {hours(from, to).map((mark) => (
           <span key={mark} style={{ '--at': at(mark) }}>
-            {clock(mark)}
+            {formatHour(mark)}
           </span>
         ))}
         <span>{t.now}</span>

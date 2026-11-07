@@ -224,7 +224,7 @@ puede abrir la sesión con él (§ 4). En la etapa b, cada entrada tendrá la su
   Cumplido, aparece la entrada encima, sin borrar nada, con todo apagado y el aviso de sin conexión
   (sin el de sesión vencida). Lo pendiente sigue pendiente.
 - La aplicación abre sin red porque el service worker guarda el esqueleto al instalarse, y lo de
-  entrar (con esta parte) está en el esqueleto: suma unos 3 KB al tope de 64 KB.
+  entrar (con esta parte) está en el esqueleto: suma unos 3 KB, dentro del tope de 256 KB.
 
 ### Lo pendiente sale primero, en orden
 
@@ -322,7 +322,7 @@ Nada nuevo de `realtime`.
   último uso, la persona por la fachada, los últimos usos por tandas, la última sesión, la fila
   nueva, la sesión y su id en la fila); la prueba las cuenta. Menos de 20 ms sin contar la firma. Unos 1,5 KB de ida y 300 bytes de vuelta, **una vez** por entrada sin conexión.
 - Entrar sin conexión: lo que tarde el lector de la huella.
-- El esqueleto de la aplicación, unos 3 KB más, dentro del tope de 64 KB.
+- El esqueleto de la aplicación, unos 3 KB más, dentro del tope de 256 KB.
 
 ## 11. Pruebas
 

@@ -77,6 +77,14 @@
 		file_server
 	}
 
+	# En el ambiente de pruebas, la aplicación instalada se llama «Ferrebress pruebas», para que su ícono
+	# no se confunda con el de producción (04 · R4.7). Sin ENVIRONMENT, vale el de producción.
+	@testingManifest {
+		path /manifest.webmanifest
+		expression `"{$ENVIRONMENT}" == "testing"`
+	}
+	rewrite @testingManifest /manifest-testing.webmanifest
+
 	handle {
 		root * /srv
 		encode zstd gzip

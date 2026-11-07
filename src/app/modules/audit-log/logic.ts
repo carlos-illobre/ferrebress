@@ -8,6 +8,7 @@ import type {
   StripMark,
 } from '@ferrebress/shared/contracts/audit-log';
 import { addDays, businessTimeZone } from '@ferrebress/shared/time/business';
+import { formatTime } from '../../platform/time.ts';
 
 export type Who = string | 'system' | 'outsider' | undefined;
 export type Dates = { range: Range } | { from: string; until: string } | undefined;
@@ -50,12 +51,6 @@ export function paramsOf(
 }
 
 const zone = { timeZone: businessTimeZone } as const;
-const timeFormat = new Intl.DateTimeFormat('es-AR', {
-  ...zone,
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-});
 const dateFormat = new Intl.DateTimeFormat('es-AR', { ...zone, day: 'numeric', month: 'numeric' });
 const longDate = new Intl.DateTimeFormat('es-AR', {
   ...zone,
@@ -70,7 +65,7 @@ const dayOf = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 });
 
-export const timeOf = (iso: string) => timeFormat.format(new Date(iso));
+export const timeOf = (iso: string) => formatTime(new Date(iso));
 export const shortDateOf = (iso: string) => dateFormat.format(new Date(iso));
 export const businessDay = (iso: string) => dayOf.format(new Date(iso));
 
