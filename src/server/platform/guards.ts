@@ -56,16 +56,19 @@ const provenNow = (proven: Proven | undefined) =>
     : [];
 
 // Anotar con lo que trae el pedido: quién, el dispositivo y la dirección.
+// El nombre, el del dispositivo de la sesión, no el que diga la cabecera: sin sesión no hay nombre.
 const recorder =
-  ({ audit, clock }: Pick<Platform, 'audit' | 'clock'>) =>
+  ({ audit, clock, devices }: Pick<Platform, 'audit' | 'clock' | 'devices'>) =>
   (c: Context, type: string, fields: RecordFields = {}) => {
     const { proven, email: _email, ...rest } = fields;
     const people = [...provenNow(proven), ...(rest.people ?? [])];
+    const session = c.get('session') as RequestSession | undefined;
+    const name = session && devices.nameOf(session.deviceId);
     audit.record({
       type,
       at: clock.now(),
       actor: actorOf(c, fields),
-      device: deviceCodes((name) => c.req.header(name)),
+      device: { ...deviceCodes((header) => c.req.header(header)), ...(name && { name }) },
       ipAddress: c.get('ipAddress') as string,
       ...rest,
       ...(people.length > 0 && { people }),

@@ -3,6 +3,7 @@
 import type { Kysely } from 'kysely';
 import type { Clock } from './clock.ts';
 import type { Config } from './config.ts';
+import type { DeviceNames } from './device-names.ts';
 import type { Events } from './events.ts';
 import type { HeaderFields } from './header-fields.ts';
 import type { Http } from './http.ts';
@@ -32,6 +33,8 @@ export type Platform = {
   start: StartParts;
   // La sesión del pedido: sign-in da cómo se resuelve; cualquier módulo la exige con `require`.
   sessions: SessionGate;
+  // El nombre de cada dispositivo: sign-in da cómo se sabe; la auditoría lo anota (04 · R9).
+  devices: DeviceNames;
   // El permiso de cada ruta: users da cómo se saben; cualquier módulo lo pide con `require(id)`.
   permissions: PermissionGate;
   // El canal en tiempo real: cada módulo declara sus temas y publica en sus claves (diseño de 03, § 3).

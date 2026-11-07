@@ -1,16 +1,11 @@
 // Las reglas de los roles, sin tecnología (02 · R7, R1.3; diseño de 02, §§ 16 y 19): cómo se limpia
 // un nombre o una descripción, quién tiene más permisos que quién, si un cambio da algo y si deja al
 // sistema sin quien administre.
+import { cleanText } from '@ferrebress/shared/text/clean';
 
-// Caracteres de control y de formato: un nombre solo es texto (como los de las personas).
-const unsafe = /[\p{Cc}\p{Cf}]/gu;
-
-// NFC (así «Café» escrito de dos formas es el mismo nombre), sin esos caracteres, sin espacios de más
-// y dentro del largo; vacío es ninguno.
-export function cleanRoleText(text: string | null | undefined, max: number): string | null {
-  const clean = (text ?? '').normalize('NFC').replace(unsafe, '').replace(/\s+/g, ' ').trim();
-  return clean === '' ? null : clean.slice(0, max);
-}
+// Un nombre o una descripción, limpios como cualquier texto que ven otros; vacío es ninguno.
+export const cleanRoleText = (text: string | null | undefined, max: number): string | null =>
+  cleanText(text, max);
 
 // R7.11: `target` tiene algún permiso que `asking` no tiene.
 export const outranks = (target: readonly string[], asking: readonly string[]): boolean =>

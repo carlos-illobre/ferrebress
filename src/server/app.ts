@@ -3,6 +3,7 @@
 import { sql } from 'kysely';
 import { type Clock, systemClock } from './platform/clock.ts';
 import type { Config } from './platform/config.ts';
+import { createDeviceNames } from './platform/device-names.ts';
 import { createEvents } from './platform/events.ts';
 import { createHeaderFields } from './platform/header-fields.ts';
 import { createHttp } from './platform/http.ts';
@@ -56,6 +57,7 @@ export async function createServer(
   const stops: (() => void)[] = [];
   const closing: (() => Promise<void>)[] = [];
   const sessions = createSessionGate();
+  const devices = createDeviceNames();
   const events = createEvents();
   const every: Platform['every'] = (ms, job) => {
     const run = () => job().catch((error: unknown) => console.error(error));
@@ -63,6 +65,7 @@ export async function createServer(
   };
   const platform: Platform = {
     ...{ config, db, audit, clock, limiter, events, http, header, checks, sessions, every },
+    devices,
     start: createStartParts(),
     permissions: createPermissionGate({ audit, clock, limiter }, sessions),
     realtime: createRealtime({ http, sessions, limiter, events, every }),

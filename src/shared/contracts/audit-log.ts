@@ -13,7 +13,7 @@ export type ActorView =
 // `today`: el nombre de hoy, solo si es distinto del de ese momento (05 · R2.3).
 export type TargetView = { kind: string; id: string; name?: string; today?: string };
 
-export type DeviceView = { phone: boolean; browser?: string; os?: string };
+export type DeviceView = { phone: boolean; browser?: string; os?: string; name?: string };
 
 export type AuditView = {
   id: string;

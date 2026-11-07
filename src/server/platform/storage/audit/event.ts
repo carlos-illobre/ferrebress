@@ -14,8 +14,9 @@ export type Tone = 'plain' | 'amber' | 'red';
 
 export type Changes = Record<string, { before: unknown; after: unknown }>;
 
-// El dispositivo en códigos (la lista cerrada de platform/device.ts), no en texto.
-export type DeviceCodes = { phone: boolean; browser?: string; os?: string };
+// El dispositivo en códigos (la lista cerrada de platform/device.ts), no en texto, y el nombre que le
+// puso la persona en ese momento, si tiene (04 · R9).
+export type DeviceCodes = { phone: boolean; browser?: string; os?: string; name?: string };
 
 // Cómo queda una persona después de esta acción, para «(hoy: …)» y los filtros (diseño de 05, § 3).
 export type PersonState = 'active' | 'deactivated' | 'deleted';
