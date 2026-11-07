@@ -1,6 +1,6 @@
 // Las sesiones abiertas y los celulares con huella de la tarjeta (R5): cada uno con «Cerrar» o
-// «Quitar», sin confirmación; «Cerrar todas», con confirmación. En la propia no figuran la sesión
-// que se usa ni sus celulares (R5.2, R5.5). «Cerrar» y «Quitar» no llevan tecla: se recorren con
+// «Quitar», sin confirmación; «Cerrar todas», con confirmación. En la propia no figura la sesión que
+// se usa (R5.2); sus celulares sí, como en Configuración (R5.5). «Cerrar» y «Quitar» no llevan tecla: se recorren con
 // las flechas y se tocan con Enter (R5.8).
 import type { PersonRow, PhoneRow, SessionRow } from '@ferrebress/shared/contracts/users';
 import { Button } from '../../../../ui/button/Button.tsx';
@@ -8,7 +8,7 @@ import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
 import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { closeSession, removePhone } from '../../actions.ts';
-import { dateOf, nowMs, sinceOf, wayNames } from '../../logic.ts';
+import { dateOf, deviceOf, nowMs, sinceOf, wayNames } from '../../logic.ts';
 import { useUsersContext } from '../../state.ts';
 import { cardTexts as t, texts } from '../../texts.ts';
 import './Access.css';
@@ -21,7 +21,7 @@ function Session({ person, session }: { person: PersonRow; session: SessionRow }
         <Icon name={session.isPhone ? 'smartphone' : 'monitor'} />
       </span>
       <span class="users-item-text">
-        <b>{session.deviceLabel}</b>
+        <b>{deviceOf(session)}</b>
         <span>{t.sessionLine(wayNames[session.way], sinceOf(session.createdAt, nowMs()))}</span>
         <span>{t.usedSession(sinceOf(session.lastUsedAt, nowMs()))}</span>
       </span>
@@ -48,7 +48,7 @@ function Phone({ person, phone }: { person: PersonRow; phone: PhoneRow }) {
         <Icon name="fingerprint" />
       </span>
       <span class="users-item-text">
-        <b>{phone.deviceLabel}</b>
+        <b>{deviceOf(phone)}</b>
         <span>{t.linked(dateOf(phone.createdAt, nowMs()))}</span>
         <span>{t.usedPhone(used)}</span>
       </span>
@@ -119,12 +119,10 @@ function Phones({ person, phones }: { person: PersonRow; phones: PhoneRow[] }) {
     <section class="users-section" id="users-phones">
       <div class="users-section-head">
         <h3>
-          {texts.phonesCount} {!person.self && <span>{phones.length}</span>}
+          {texts.phonesCount} <span>{phones.length}</span>
         </h3>
       </div>
-      {person.self ? (
-        <Note>{t.ownPhones}</Note>
-      ) : phones.length > 0 ? (
+      {phones.length > 0 ? (
         <ul class="users-items">
           {phones.map((phone) => (
             <Phone key={phone.id} person={person} phone={phone} />

@@ -69,7 +69,8 @@
 4. Abajo están sus celulares con huella. «Quitar» le saca la huella a ese celular y cierra su sesión.
    Captura: desktop-users · remove · Quitar
 
-> Tus propios celulares van en Configuración.
+> En tu propia tarjeta también están tus celulares, y podés quitarle la huella al que tenés en la
+> mano: seguís adentro. Lo mismo está en Más → Configuración.
 
 ## ¿Qué se hace si se perdió un celular?
 

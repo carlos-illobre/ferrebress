@@ -76,7 +76,7 @@ describe('entrar a la computadora con el celular', () => {
     // Cortar ese celular desde otra computadora cierra también la que él hizo entrar (02 · R5.6).
     const office = computer();
     const userId = (await office.signInWithGoogle(admin)).body.person.userId;
-    // Los celulares propios no van en la tarjeta: se cortan desde «Se perdió un celular».
+    // Desde «Se perdió un celular», que también muestra los propios.
     const lost = (await office.request('/api/lost-phones')).body.people;
     const phoneId = lost[0].phones.find((phone: { passkey: boolean }) => phone.passkey).id;
     const cut = await office.request(`/api/users/${userId}/phones/${phoneId}/cut`, {

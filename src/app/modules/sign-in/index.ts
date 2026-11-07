@@ -1,5 +1,16 @@
 // El módulo de entrar en la aplicación (capítulo 01): la entrada, las hojas del celular, la sesión
 // y salir. Lo usa App, que decide si se ve la entrada o el marco.
+export {
+  accessApi,
+  accessTexts,
+  closeAll as closeAllSessions,
+  closeSession,
+  cutPhone,
+  type How,
+  type Refused,
+  removeHere,
+  type Whom,
+} from './access/index.ts';
 export { signInApi } from './api.ts';
 export { linkPath } from './codes/qr.ts';
 export { usePhoneCode } from './codes/usePhoneCode.ts';

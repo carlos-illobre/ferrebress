@@ -6,26 +6,35 @@ import { useEffect, useState } from 'preact/hooks';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
+import { cutPhone } from '../../../sign-in/index.ts';
 import { usersApi } from '../../api.ts';
-import { nowMs, sinceOf } from '../../logic.ts';
+import { deviceOf, nowMs, sinceOf } from '../../logic.ts';
 import { refused } from '../../refusals.ts';
 import { type Users, useUsersContext } from '../../state.ts';
-import { doneTexts, somethingFailed, dialogTexts as t } from '../../texts.ts';
+import { somethingFailed, dialogTexts as t } from '../../texts.ts';
 import './Overlays.css';
 
 type Owner = LostPhonesResponse['people'][number];
 
 async function cut(users: Users, owner: Owner, phoneId: string) {
   const phone = owner.phones.find((one) => one.id === phoneId) as LostPhone;
-  const result = await usersApi.cut(owner.userId, phoneId, 'lost');
-  users.close();
-  if (!result.ok) return refused(users, result);
-  const { sessions, passkey } = result.data;
-  if (!sessions && !passkey) return showToast(doneTexts.nothingToCut, 'smartphone');
-  users.recount(owner.userId, sessions, passkey ? 1 : 0);
-  if (users.selected === owner.userId) await users.loadAccess(owner.userId);
-  showToast(doneTexts.cut(phone.deviceLabel, owner.displayName, sessions, passkey), 'power');
+  const device = deviceOf(phone);
+  await cutPhone(
+    { userId: owner.userId },
+    { key: phoneId, how: 'lost', said: { device, owner: owner.displayName } },
+    {
+      refuse: (result) => {
+        users.close();
+        refused(users, result);
+      },
+      update: async ({ sessions, passkey }) => {
+        users.close();
+        if (!sessions && !passkey) return;
+        users.recount(owner.userId, sessions, passkey ? 1 : 0);
+        if (users.selected === owner.userId) await users.loadAccess(owner.userId);
+      },
+    },
+  );
 }
 
 function Who({ people, choose }: { people: Owner[]; choose: (owner: Owner) => void }) {
@@ -84,7 +93,7 @@ function Which({
               <Icon name="smartphone" />
             </span>
             <span class="users-item-text">
-              <b>{phone.deviceLabel}</b>
+              <b>{deviceOf(phone)}</b>
               <span>{detail.join(' · ')}</span>
             </span>
             <span class="users-radio" aria-hidden="true" />

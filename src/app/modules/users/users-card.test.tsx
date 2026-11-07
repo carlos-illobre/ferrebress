@@ -125,11 +125,10 @@ describe('la tarjeta de una persona', () => {
     expect(server.bodies('/api/users/graciela/sessions/close')).toHaveLength(1);
   });
 
-  it('users-R5.2, E03: en la propia, la nota de «Salir», la de Configuración y que no se da de baja', async () => {
+  it('users-R5.2, E03: en la propia, la nota de «Salir» y que no se da de baja', async () => {
     openUsers({ '/api/users/ruben/access': { body: { sessions: [], phones: [] } } });
     await choose(/Rubén/);
     expect(await inCard().findByText(/La sesión de esta computadora no figura/)).toBeTruthy();
-    expect(inCard().getByText('Los tuyos van en Configuración.')).toBeTruthy();
     expect(inCard().getByText(/No te podés dar de baja vos/)).toBeTruthy();
     expect(inCard().queryByRole('button', { name: /Dar de baja/ })).toBeNull();
   });

@@ -22,11 +22,5 @@ describe('los textos de Usuarios', () => {
     expect(done.nameCleared(true)).toBe('Nombre borrado: se ve su correo');
     expect(cardTexts.passkeys(1)).toBe('1 registrada');
     expect(cardTexts.devices(1)).toBe('1 con sesión');
-    expect(done.closedAll(0)).toBe('No había sesiones abiertas');
-    expect(done.closedAll(1)).toBe('Se cerró la sesión');
-    expect(done.phoneRemoved(false)).toBe('Celular quitado: ya no entra con la huella');
-    expect(done.cut('Chrome en Android', 'Ana', 0, true)).toBe(
-      'Cortado: Chrome en Android de Ana. Se le quitó la huella',
-    );
   });
 });

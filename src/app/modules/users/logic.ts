@@ -115,3 +115,8 @@ export const wayNames: Record<Way, string> = {
   qr: 'Código QR',
   offline: 'Sin conexión',
 };
+
+// Cómo se llama un dispositivo: el nombre que le pusieron o, sin nombre, su navegador y su sistema
+// (04 · R9.1).
+export const deviceOf = (row: { deviceLabel: string; deviceName?: string }) =>
+  row.deviceName ?? row.deviceLabel;

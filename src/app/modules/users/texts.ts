@@ -87,7 +87,6 @@ export const cardTexts = {
     'La sesión de esta computadora no figura: se cierra con «Salir».',
     'La sesión de este celular no figura: se cierra con «Salir».',
   ),
-  ownPhones: 'Los tuyos van en Configuración.',
   noPhones: 'No vinculó ningún celular con huella.',
   sessionLine: (way: string, since: string) => `${way} · Entró ${since}`,
   usedSession: (since: string) => `Usada ${since}`,
@@ -109,26 +108,6 @@ export const doneTexts = {
   deleted: (email: string) => `Se borró el alta de ${email}`,
   deactivated: (name: string) => `${name} quedó dada de baja`,
   activated: (name: string) => `${name} puede entrar otra vez`,
-  sessionClosed: (device: string) => `Sesión cerrada · ${device}`,
-  nothingToClose: 'Ya estaba cerrada: no había nada que cortar',
-  closedAll: (n: number) =>
-    n === 0
-      ? 'No había sesiones abiertas'
-      : n === 1
-        ? 'Se cerró la sesión'
-        : `Se cerraron las ${n} sesiones`,
-  phoneRemoved: (closed: boolean) =>
-    `Celular quitado: ya no entra con la huella${closed ? ' y se cerró su sesión' : ''}`,
-  nothingToCut: 'Ese celular ya no tiene ni sesión ni huella: no había nada que cortar',
-  cut: (device: string, name: string, sessions: number, passkey: boolean) => {
-    const what = [
-      sessions > 0 &&
-        (sessions === 1 ? 'se cerró su sesión' : `se cerraron sus ${sessions} sesiones`),
-      passkey && 'se le quitó la huella',
-    ].filter(Boolean);
-    const said = what.join(' y ');
-    return `Cortado: ${device} de ${name}. ${said.charAt(0).toUpperCase()}${said.slice(1)}`;
-  },
 };
 
 // Lo que dice cada rechazo del servidor (diseño de 02, § 4).

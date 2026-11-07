@@ -5,7 +5,7 @@ import { Button } from '../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
 import { closeAll, deactivate } from '../../actions.ts';
-import { nowMs, sinceOf } from '../../logic.ts';
+import { deviceOf, nowMs, sinceOf } from '../../logic.ts';
 import { useUsersContext } from '../../state.ts';
 import { cardTexts, dialogTexts as t } from '../../texts.ts';
 import './Overlays.css';
@@ -74,7 +74,7 @@ export function ConfirmCloseAll({ person }: { person: PersonRow }) {
       lead={t.closeAllLead(person.self)}
       lines={sessions.map((session) => ({
         icon: session.isPhone ? 'smartphone' : 'monitor',
-        text: `${session.deviceLabel} · ${cardTexts.usedSession(sinceOf(session.lastUsedAt, now))}`,
+        text: `${deviceOf(session)} · ${cardTexts.usedSession(sinceOf(session.lastUsedAt, now))}`,
       }))}
       yes={cardTexts.closeAll}
       icon="log-out"

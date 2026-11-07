@@ -40,7 +40,7 @@ describe('las sesiones y los celulares, desde Usuarios', () => {
     expect(JSON.stringify(access)).not.toContain(linked.phone.id);
   });
 
-  it('users-E22: en la propia no figuran la sesión que se usa ni los celulares propios', async () => {
+  it('users-E22: en la propia no figura la sesión que se usa; sus celulares sí (aquí, ninguno)', async () => {
     const other = createDevice(kit.server, { ip: '181.8.8.8' });
     await other.signInWithGoogle({ sub: 'sub-admin', email: 'admin@example.com' });
     const access = (await admin.request(`/api/users/${adminId}/access`)).body;

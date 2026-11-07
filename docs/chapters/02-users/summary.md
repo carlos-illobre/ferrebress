@@ -22,7 +22,8 @@ Reglas completas en [rules.md](rules.md).
 - **Sesiones y huellas:** en la tarjeta de cada persona, con dispositivo, cómo y cuándo entró y
   último uso; «Cerrar», «Cerrar todas» (con confirmación) y «Quitar», que también cierra la sesión
   de ese celular; «Se perdió un celular» corta las
-  sesiones y la huella de un celular de un toque; los celulares propios van en Configuración (R5).
+  sesiones y la huella de un celular de un toque; los propios también están en Configuración, con la
+  misma lógica (R5).
 - **La auditoría:** cada cambio, con quién y a quién; los de roles, con lo que había y lo que quedó
   (R6).
 - **Roles y permisos:** cuatro permisos fijos (ver, administrar personas, cortar sesiones y huellas,

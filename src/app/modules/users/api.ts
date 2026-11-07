@@ -3,8 +3,6 @@
 import type { RolesResponse } from '@ferrebress/shared/contracts/roles';
 import type {
   AccessResponse,
-  ClosedResponse,
-  CutResponse,
   LostPhonesResponse,
   PeopleResponse,
   PersonResponse,
@@ -25,11 +23,6 @@ export const usersApi = {
     api<PersonResponse>(`${at(id)}/deactivate`, { version }),
   activate: (id: string, version: number) => api<PersonResponse>(`${at(id)}/activate`, { version }),
   access: (id: string) => api<AccessResponse>(`${at(id)}/access`),
-  closeSession: (id: string, sessionId: string) =>
-    api<ClosedResponse>(`${at(id)}/sessions/${encodeURIComponent(sessionId)}/close`, {}),
-  closeAll: (id: string) => api<ClosedResponse>(`${at(id)}/sessions/close`, {}),
-  cut: (id: string, phoneId: string, from: 'card' | 'lost') =>
-    api<CutResponse>(`${at(id)}/phones/${encodeURIComponent(phoneId)}/cut`, { from }),
   lostPhones: () => api<LostPhonesResponse>('/api/lost-phones'),
   // Los roles (R7.3, R7.5); crearlos, guardarlos y borrarlos, en roles/actions.ts.
   roles: () => api<RolesResponse>('/api/roles'),

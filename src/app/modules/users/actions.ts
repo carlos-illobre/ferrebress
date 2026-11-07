@@ -1,9 +1,11 @@
 // Lo que hace cada botón de Usuarios: llama al servidor, pone la lista y la tarjeta como quedaron
 // y lo dice con una tostada (maquetas de 02). Un rechazo lo atiende `refused`, salvo los del correo,
 // que se devuelven para avisarlos junto al campo (R3.3).
-import type { PersonRow, SessionRow } from '@ferrebress/shared/contracts/users';
+import type { CutResponse, PersonRow, SessionRow } from '@ferrebress/shared/contracts/users';
 import { showToast } from '../../ui/toast/Toast.tsx';
+import * as access from '../sign-in/index.ts';
 import { usersApi } from './api.ts';
+import { deviceOf } from './logic.ts';
 import { confirmOrRefuse, refused } from './refusals.ts';
 import type { Users } from './state.ts';
 import { doneTexts } from './texts.ts';
@@ -94,35 +96,38 @@ export async function activate(users: Users, person: PersonRow) {
   showToast(doneTexts.activated(person.displayName), 'user-check');
 }
 
+// «Cerrar», «Cerrar todas» y «Quitar», con la lógica común (sign-in, diseño de 04b, § 5); acá se
+// ponen al día las cuentas de la lista y la tarjeta.
+const then = <T>(users: Users, id: string, counts: (data: T) => [number, number]) => ({
+  refuse: (result: access.Refused) => refused(users, result),
+  update: async (data: T) => {
+    users.recount(id, ...counts(data));
+    await users.loadAccess(id);
+  },
+});
+
 // «Cerrar», sin confirmación (R5.3).
-export async function closeSession(users: Users, person: PersonRow, session: SessionRow) {
-  const result = await usersApi.closeSession(person.id, session.id);
-  if (!result.ok) return refused(users, result);
-  users.recount(person.id, result.data.closed, 0);
-  await users.loadAccess(person.id);
-  showToast(
-    result.data.closed ? doneTexts.sessionClosed(session.deviceLabel) : doneTexts.nothingToClose,
-    'log-out',
+export const closeSession = (users: Users, person: PersonRow, session: SessionRow) =>
+  access.closeSession(
+    { userId: person.id },
+    { id: session.id, device: deviceOf(session) },
+    then(users, person.id, ({ closed }: { closed: number }) => [closed, 0]),
+  );
+
+// «Cerrar todas», con confirmación (R5.4).
+export function closeAll(users: Users, person: PersonRow) {
+  users.close();
+  return access.closeAllSessions(
+    { userId: person.id },
+    then(users, person.id, ({ closed }: { closed: number }) => [closed, 0]),
   );
 }
 
-// «Cerrar todas», con confirmación (R5.4).
-export async function closeAll(users: Users, person: PersonRow) {
-  const result = await usersApi.closeAll(person.id);
-  users.close();
-  if (!result.ok) return refused(users, result);
-  users.recount(person.id, result.data.closed, 0);
-  await users.loadAccess(person.id);
-  showToast(doneTexts.closedAll(result.data.closed), 'log-out');
-}
-
-// «Quitar» un celular con huella, sin confirmación (R5.6).
-export async function removePhone(users: Users, person: PersonRow, phoneId: string) {
-  const result = await usersApi.cut(person.id, phoneId, 'card');
-  if (!result.ok) return refused(users, result);
-  const { sessions, passkey } = result.data;
-  users.recount(person.id, sessions, passkey ? 1 : 0);
-  await users.loadAccess(person.id);
-  if (!sessions && !passkey) showToast(doneTexts.nothingToCut, 'smartphone');
-  else showToast(doneTexts.phoneRemoved(sessions > 0), 'fingerprint');
-}
+// «Quitar» un celular con huella, sin confirmación (R5.6). El que se está usando, también desde la
+// tarjeta propia: sigue adentro (04 · R6.2).
+export const removePhone = (users: Users, person: PersonRow, phoneId: string) =>
+  access.cutPhone(
+    { userId: person.id },
+    { key: phoneId, how: 'remove' },
+    then(users, person.id, (cut: CutResponse) => [cut.sessions, cut.passkey ? 1 : 0]),
+  );
