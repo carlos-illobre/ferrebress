@@ -12,11 +12,13 @@ import { backToDefaults, choose, preferences } from './preferences.ts';
 import { installRowOf, isDefault, type Preferences } from './rules.ts';
 import { texts } from './texts.ts';
 
-// Pide instalar desde Configuración; si queda, lo confirma con una vibración corta.
-export async function installHere(): Promise<void> {
-  if ((await install()) !== 'accepted') return;
+// Pide instalar (desde Configuración o desde el aviso); si queda, lo confirma con una vibración corta.
+export async function installHere(): Promise<'accepted' | 'dismissed'> {
+  const outcome = await install();
+  if (outcome !== 'accepted') return outcome;
   showToast(texts.install.installedToast, 'check');
   navigator.vibrate?.([10, 40, 10]);
+  return outcome;
 }
 
 export function useSettings() {

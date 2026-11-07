@@ -16,6 +16,8 @@ watchPreferences();
 watchInstall();
 startKeyboard();
 render(<App />, document.getElementById('app') as HTMLElement);
+// Como módulo: el armado le comparte código con la aplicación (`import`), que un service worker
+// común no puede cargar. Si no se puede registrar (un navegador que no lo permite), la aplicación
+// anda igual, sin guardarse.
 if (import.meta.env.PROD && 'serviceWorker' in navigator)
-  // Si no se puede registrar (un navegador que lo impide), la aplicación anda igual, sin instalarse.
-  navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+  navigator.serviceWorker.register('/sw.js', { type: 'module' }).catch(() => undefined);

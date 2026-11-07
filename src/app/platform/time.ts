@@ -11,21 +11,34 @@ export const timeFormat = createStore<TimeFormat>('h24');
 
 const cycles = { h24: 'h23', h12: 'h12' } as const;
 
-function formatter(withMinutes: boolean, format = timeFormat.get()): Intl.DateTimeFormat {
-  return new Intl.DateTimeFormat('es-AR', {
-    timeZone: businessTimeZone,
+// Armar un formateador es caro y una lista escribe muchas horas: uno por forma, y se reusa.
+const made = new Map<string, Intl.DateTimeFormat>();
+function formatter(withMinutes: boolean, format: TimeFormat, zone = businessTimeZone) {
+  const key = `${format}${withMinutes}${zone}`;
+  const found = made.get(key);
+  if (found) return found;
+  const fresh = new Intl.DateTimeFormat('es-AR', {
+    timeZone: zone,
     hour: 'numeric',
     ...(withMinutes && { minute: '2-digit' }),
     hourCycle: cycles[format],
   });
+  made.set(key, fresh);
+  return fresh;
 }
 
 // «14:30» o «2:30 p. m.».
-export const formatTime = (instant: Date | number) => formatter(true).format(instant);
+export const formatTime = (instant: Date | number) =>
+  formatter(true, timeFormat.get()).format(instant);
 
 // En un formato dado, aunque no sea el elegido: para mostrar cómo se vería (04 · R3.1).
 export const formatTimeAs = (instant: Date | number, format: TimeFormat) =>
   formatter(true, format).format(instant);
 
 // Solo la hora, para las marcas de una tira: «14» o «2 p. m.».
-export const formatHour = (instant: Date | number) => formatter(false).format(instant);
+export const formatHour = (instant: Date | number) =>
+  formatter(false, timeFormat.get()).format(instant);
+
+// Una hora del día que ya está en la zona del negocio (de 0 a 24): «9» o «9 a. m.».
+export const formatHourOfDay = (hour: number) =>
+  formatter(false, timeFormat.get(), 'UTC').format(Date.UTC(2000, 0, 1, hour % 24));

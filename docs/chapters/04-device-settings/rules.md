@@ -47,8 +47,8 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   este dispositivo («Con movimiento · 14:30 · En el navegador»), para verlo todo de un vistazo. Dice
   lo que pasa de verdad: si el sistema pide no animar, dice «En el acto», elija lo que elija la
   persona (R2.3).
-- **R1.11** **«Volver a como viene»** deja las animaciones prendidas y el formato de la hora en «Como el
-  sistema», sin confirmación (se recupera eligiendo de nuevo). No toca «Trabajar sin conexión», que
+- **R1.11** **«Volver a como viene»** deja las animaciones prendidas y el formato de la hora en «24 horas»,
+  sin confirmación (se recupera eligiendo de nuevo). No toca «Trabajar sin conexión», que
   tiene sus propias reglas (R5), ni instalar. Ya como viene, no aparece.
 
 ## 2. Animaciones
@@ -148,8 +148,8 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   **entonces** «Así la tenés» lo dice; **cuando** se cambia una preferencia, el resumen cambia en el
   acto.
 - **E33** **Dado** las animaciones apagadas, «24 horas» y «Trabajar sin conexión» prendida, **cuando** se
-  toca «Volver a como viene», **entonces** las animaciones quedan prendidas, el formato en «Como el
-  sistema», «Trabajar sin conexión» sigue prendida y el botón desaparece.
+  toca «Volver a como viene», **entonces** las animaciones quedan prendidas, el formato en «24 horas»,
+  «Trabajar sin conexión» sigue prendida y el botón desaparece.
 - **E34** **Dado** todo como viene, **cuando** se abre Configuración, **entonces** no está «Volver a como
   viene».
 

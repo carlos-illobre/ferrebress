@@ -43,6 +43,54 @@ test('device-settings: Configuración en la computadora', async ({ page }) => {
   await expect(page).toHaveScreenshot('settings-desktop.png');
 });
 
+test.describe('con el movimiento del sistema prendido', () => {
+  test.use({ contextOptions: { reducedMotion: 'no-preference' } });
+
+  test('device-settings: Configuración como abre, con movimiento', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await signedIn(page);
+    await page.goto('/device-settings');
+    await expect(page.getByRole('heading', { name: 'Configuración' })).toBeVisible();
+    await expect(page).toHaveScreenshot('settings-desktop-moving.png');
+  });
+
+  test('device-settings-E13, E14: apagadas, nada se mueve salvo la espera', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await signedIn(page);
+    await page.goto('/device-settings');
+    const motion = (selector: string, pseudo?: string) =>
+      page
+        .locator(selector)
+        .first()
+        .evaluate((element, which) => {
+          const style = getComputedStyle(element, which);
+          return { animation: style.animationName, transition: style.transitionDuration };
+        }, pseudo);
+    expect((await motion('.settings-sample .settings-window')).animation).not.toBe('none');
+    await page.getByRole('switch', { name: /Animaciones/ }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-motion', 'off');
+    expect((await motion('.settings-sample .settings-window')).animation).toBe('none');
+    expect((await motion('.settings-row .switch', '::after')).transition).toBe('0s');
+    expect((await motion('.settings-spinner')).animation).not.toBe('none');
+  });
+
+  test('device-settings: Configuración abre sin conexión, con la aplicación guardada', async ({
+    page,
+    context,
+  }) => {
+    await signedIn(page);
+    await page.goto('/device-settings');
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    // Una vez guardada por el service worker, sin red: la página y Configuración salen de lo guardado.
+    await page.reload();
+    await expect(page.getByRole('heading', { name: 'Configuración' })).toBeVisible();
+    await context.setOffline(true);
+    await page.reload();
+    await expect(page.getByRole('heading', { name: 'Configuración' })).toBeVisible();
+    await expect(page.getByRole('switch', { name: /Animaciones/ })).toBeVisible();
+  });
+});
+
 test.describe('en el celular', () => {
   test.use({
     viewport: { width: 390, height: 844 },

@@ -33,7 +33,7 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
 
 - **R2.1** Sin conexión, en un celular con la opción prendida y que cumple R2.2, la entrada deja
   prendida la huella; Google y «Escanear código QR» siguen apagados. Dice «Sin conexión: podés
-  entrar con la huella hasta el martes 9:40» (el día y la hora en que se cumplen las 24 horas de
+  entrar con la huella hasta el martes 09:40» (el día y la hora en que se cumplen las 24 horas de
   R2.2).
 - **R2.2** Entra solo la cuenta vinculada a ese celular (01 · R2.3), y solo si:
   - en el último contacto con el servidor, la cuenta estaba activa y con el permiso;

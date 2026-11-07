@@ -46,6 +46,16 @@ describe('lo que eligió cada persona en este dispositivo', () => {
     expect(preferences.get()).toEqual({ animations: false, timeFormat: 'h12' });
   });
 
+  it('device-settings-E04: lo elegido queda en este dispositivo: en otro, la misma persona tiene lo de arranque', () => {
+    act(() => person.set(juan));
+    choose(juan.userId, { timeFormat: 'h12' });
+    // Otro dispositivo: otro lugar donde guardar, vacío.
+    localStorage.clear();
+    act(() => person.set(undefined));
+    act(() => person.set(juan));
+    expect(preferences.get()).toEqual({ animations: true, timeFormat: 'h24' });
+  });
+
   it('device-settings-E05: en la entrada, sin nadie, lo de arranque', () => {
     act(() => person.set(juan));
     choose(juan.userId, { animations: false });
@@ -85,10 +95,8 @@ describe('lo que eligió cada persona en este dispositivo', () => {
     const cases = [
       '{roto',
       JSON.stringify({ order: 'x', of: 3 }),
-      JSON.stringify({
-        order: ['__proto__', 'no-es-uuid'],
-        of: { __proto__: { animations: false } },
-      }),
+      // Escrito como texto: un objeto armado en JavaScript no tendría la clave «__proto__».
+      '{"order":["__proto__","no-es-uuid"],"of":{"__proto__":{"animations":false,"timeFormat":"h12"},"no-es-uuid":{"animations":false,"timeFormat":"h12"}}}',
       JSON.stringify({
         order: [juan.userId],
         of: { [juan.userId]: { animations: 'no', timeFormat: 'h24' } },

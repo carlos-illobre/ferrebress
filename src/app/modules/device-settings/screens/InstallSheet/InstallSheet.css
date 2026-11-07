@@ -10,7 +10,7 @@
     display: flex;
     justify-content: center;
     gap: var(--s5);
-    padding: var(--s6) var(--s4);
+    padding: var(--s6) var(--s4) calc(var(--s6) + var(--s3));
     border-radius: var(--radius-card);
     background: var(--sunken);
   }
@@ -21,6 +21,7 @@
     background: var(--sunken-2);
   }
   .install-app.mine {
+    position: relative;
     display: grid;
     place-items: center;
     background: var(--surface);
@@ -28,9 +29,18 @@
   }
   .install-title {
     margin: 0;
+    color: var(--ink);
+    text-align: left;
     font-size: 22px;
     line-height: 28px;
     font-weight: 800;
+  }
+  .install-app.mine small {
+    position: absolute;
+    top: calc(100% + 4px);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
   }
   .install-chips {
     display: flex;

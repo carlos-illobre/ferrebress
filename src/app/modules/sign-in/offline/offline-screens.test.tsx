@@ -92,6 +92,20 @@ describe('la opción «Trabajar sin conexión»', () => {
     expect(offlineOption.get()?.person.userId).toBe(eva.userId);
   });
 
+  it('offline-R1.5: en una sesión abierta sin conexión (sin `offline`), la dueña la puede apagar', () => {
+    fakeFinger();
+    passkeyLinked();
+    enableOffline(eva);
+    const { offline: _, ...withoutFlag } = eva;
+    const { result } = renderHook(() => useOfflineSetting(withoutFlag));
+    expect(result.current).toMatchObject({ on: true });
+    expect(result.current?.blocked).toBeUndefined();
+    act(() => result.current?.toggle());
+    expect(offlineOption.get()).toBeUndefined();
+    act(() => result.current?.toggle());
+    expect(offlineOption.get()).toBeUndefined();
+  });
+
   it('offline-E01, R1.3: se prende con conexión y se apaga siempre; sin conexión, avisa', () => {
     fakeFinger();
     render(<Toasts />);

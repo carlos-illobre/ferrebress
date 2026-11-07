@@ -147,6 +147,13 @@ nombra la capa `pieces` antes que `base.css` declare el orden, y las capas queda
 armado (`vite.config.ts`) pone `@layer base, pieces, screens, widths;` al principio de cada hoja de
 CSS: repetir el orden no cambia nada y lo deja fijo, se parta como se parta.
 
+### El service worker, como módulo
+
+El armado le comparte a `sw.js` un pedazo de código con la aplicación (un `import`), que un service
+worker común no puede cargar: no se registraba. `main.tsx` lo registra con `type: 'module'`, que
+Chrome acepta. Un navegador que no lo acepte sigue sin service worker, como antes. Lo prueba la captura
+«Configuración abre sin conexión».
+
 ### `ui/sheet`: trabarla
 
 La hoja suma la propiedad `locked`: mientras está, no se cierra al bajarla, al tocar afuera ni con
@@ -156,7 +163,7 @@ La hoja suma la propiedad `locked`: mientras está, no se cierra al bajarla, al 
 
 | Archivo | Qué hace |
 |---|---|
-| `index.ts` | La fachada: la pantalla, `applyPreferences(person)` para `App.tsx` y el aviso para instalar (lazy) |
+| `index.ts` | La fachada: la pantalla, `watchPreferences()` para `main.tsx` y el aviso para instalar (`InstallOffer`, que baja la hoja recién cuando toca) |
 | `preferences.ts` | Lo guardado por persona (§ 2): leer y validar, cambiar, volver a como viene, el tope. Al cambiar la persona de la sesión (o no haber nadie, en la entrada) pone `motionOff` y `timeFormat` con lo suyo o lo de arranque (R1.3, E05) |
 | `rules.ts` | La regla pura: lo de arranque, si algo cambió de lo de arranque (R1.11), el resumen de «Así la tenés» (R1.10, que con el sistema pidiendo no animar dice «En el acto»), qué renglón de instalar toca (R4) y qué estado tiene «Trabajar sin conexión» (R5) |
 | `install-offer.ts` | Si toca mostrar el aviso: celular, con sesión, en producción, `installState` en `'can'`, nunca ofrecido y sin otra hoja abierta. Cerrado de cualquier forma, queda `install-offered` (R4.5, E36) |
@@ -203,8 +210,8 @@ Desde la final aprobada, una sola pantalla para los dos anchos (ADR-002):
   «Instalar» (botón, texto o nada, § 4) y, en el celular, «Trabajar sin conexión». Al instalar desde
   acá, una tostada lo confirma, con una vibración corta en el celular; el renglón pasa a «Ya está
   instalada».
-- **«Lo tuyo»:** los cuatro renglones de la etapa b con «Pronto»; tocarlos los sacude, como el resto
-  de lo que falta.
+- **«Lo tuyo»:** los cuatro renglones de la etapa b con «Pronto»; tocarlos dice con una tostada que
+  todavía no está, como en Usuarios.
 - **Teclado (R1.9):** Alt D para «Animaciones», Alt H para el formato (pasa al siguiente), Alt I para
   instalar y Alt O para «Volver a como viene». **La maqueta usa Alt A, que ya es una opción de Más,**
   y la M, que se había propuesto, es el botón «Más» del menú: va la D, libre en el marco. Las pastillas de «Así la tenés» y los
@@ -271,8 +278,8 @@ pantalla dice por qué (architecture.md, «Lo que se ve vive en valores con nomb
    celular, que no decide nada más.
 3. **Dos hojas a la vez:** primero la huella, después el aviso para instalar (R4.6).
 4. **El ambiente de pruebas:** sin el aviso, y la instalada se llama «Ferrebress pruebas» (R4.7). El
-   armado lleva dos manifiestos, `manifest-production.webmanifest` y `manifest-testing.webmanifest`
-   (que dice «Ferrebress pruebas»), y Caddy sirve `/manifest.webmanifest` desde el del ambiente
+   armado lleva `manifest.webmanifest` y `manifest-testing.webmanifest`, que el armado saca del primero
+   y dice «Ferrebress pruebas»; en pruebas, Caddy sirve `/manifest.webmanifest` desde el segundo
    (`rewrite` con `{$ENVIRONMENT}`, que el compose le pasa al contenedor web desde el mismo `.env`).
    La aplicación ya sabe su ambiente por `/api/start` para no mostrar el aviso.
 5. **Una tecla que no choque con el marco** para «Animaciones»: Alt D (Alt M, la aprobada, ya era «Más»).
@@ -286,7 +293,7 @@ navegador sin pantalla: el evento del navegador se simula.
 
 | Escenarios | Prueba |
 |---|---|
-| E01, E10, E11 | Unitarias de la pantalla: está para cualquiera; «Pronto» se sacude; las teclas con Alt |
+| E01, E10, E11 | Unitarias de la pantalla: está para cualquiera; «Pronto» avisa que no está; las teclas con Alt |
 | E02 a E06, E09 | Unitarias de `preferences.ts`: por persona, la entrada con lo de arranque, el tope, sin poder guardar |
 | E07, E08 | Unitarias con dos dispositivos falsos, como las del espejo de 03: la dirección viaja; ninguna clave del módulo ni el aviso pasan por el canal |
 | E12 a E15, E35 | Unitarias de `motion.ts` y de la pantalla; capturas de Configuración con el movimiento apagado (con la marca de espera y la barra moviéndose) y con el sistema pidiendo no animar |
@@ -306,7 +313,7 @@ navegador sin pantalla: el evento del navegador se simula.
    `ui/sheet`.
 2. `[P]` Los cinco lugares que escriben horas pasan a `formatTime` y `formatHour`. Depende de 1.
 3. `[P]` El módulo sin pantallas: `preferences.ts`, `rules.ts`, `install-offer.ts`, `settings.ts`,
-   `texts.ts`, `applyPreferences` en `App.tsx` y la preferencia antes del primer dibujo en `main.tsx`.
+   `texts.ts` y `watchPreferences` en `main.tsx`, antes del primer dibujo.
    Depende de 1.
 4. `sign-in` y el marco: el renglón con sus tres estados por la fachada; sale de Más; `notYet` por la
    fachada del marco; el menú con su dirección. Depende de 3.

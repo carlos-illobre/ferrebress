@@ -27,7 +27,10 @@ export function useOfflineSetting(who: Person | undefined): OfflineRow | undefin
   const current = useStore(offlineOption);
   const online = useStore(onlineStore);
   if (!who || !isPhone() || !can(who, 'offline.work')) return undefined;
-  if (!who.offline)
+  const on = current?.person.userId === who.userId;
+  // Sin `offline` del servidor no se prende; pero si es suya y está prendida (una sesión abierta sin
+  // conexión, que no trae `offline`), la puede apagar igual (15 · R1.5).
+  if (!who.offline && !on)
     return {
       name: t.name,
       detail: t.detail,
@@ -35,7 +38,6 @@ export function useOfflineSetting(who: Person | undefined): OfflineRow | undefin
       toggle: () => undefined,
       blocked: hasPasskey() ? t.otherPasskey : t.needsPasskey,
     };
-  const on = current?.person.userId === who.userId;
   return {
     name: t.name,
     detail: t.detail,

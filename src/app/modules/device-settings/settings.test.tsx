@@ -1,7 +1,10 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { installState } from '../../platform/install.ts';
-import { motionOff } from '../../platform/motion.ts';
+import { startKeyboard } from '../../platform/keyboard.ts';
+import { mirror, type Patch } from '../../platform/mirror/registry.ts';
+import { bindRoute } from '../../platform/mirror/route.ts';
+import { motionOff, still, watchMotion } from '../../platform/motion.ts';
 import { navigate } from '../../platform/router.ts';
 import { timeFormat } from '../../platform/time.ts';
 import { stubMedia } from '../../testing/media.ts';
@@ -59,12 +62,28 @@ describe('Más → Configuración', () => {
     expect(summary().textContent).toContain('En el acto');
   });
 
-  it('device-settings-E15, E35: si el sistema pide no animar lo dice, el resumen dice «En el acto» y la llave se puede tocar', () => {
+  it('device-settings-E15: si el sistema pide no animar lo dice, y el resumen dice «En el acto»', () => {
     openSettings({ reduced: true });
     expect(screen.getByRole('note').textContent).toContain('ya pide no animar');
+    expect(animations().getAttribute('aria-checked')).toBe('true');
     expect(summary().textContent).toContain('En el acto');
+  });
+
+  it('device-settings-E35: con el sistema pidiendo no animar se apaga la llave; cuando deja de pedirlo, sigue sin animaciones', () => {
+    let reduce = true;
+    const media = stubMedia((query) => !query.includes('max-width') && reduce);
+    const stopMotion = watchMotion();
+    act(() => person.set(juan));
+    navigate('/device-settings');
+    open({ who: juan, screens: { deviceSettings: Settings } });
     fireEvent.click(animations());
     expect(animations().getAttribute('aria-checked')).toBe('false');
+    reduce = false;
+    act(() => media.changed());
+    expect(screen.queryByRole('note')).toBeNull();
+    expect(still()).toBe(true);
+    expect(summary().textContent).toContain('En el acto');
+    stopMotion();
   });
 
   it('device-settings-E16, E17, E18: dos formatos, cada uno con la hora de ahora; elegir cambia toda hora', () => {
@@ -80,21 +99,35 @@ describe('Más → Configuración', () => {
     fireEvent.click(h12);
     expect(timeFormat.get()).toBe('h12');
     expect(h12.getAttribute('aria-pressed')).toBe('true');
+    // E18: las horas de la aplicación pasan a a. m./p. m. sin recargar.
+    expect(document.querySelector('.settings-seen')?.textContent?.replace(/\s/g, ' ')).toContain(
+      'Quién hizo qué · 2:05 p. m.',
+    );
+    expect(summary().textContent?.replace(/\s/g, ' ')).toContain('2:05 p. m.');
     vi.useRealTimers();
   });
 
-  it('device-settings-E11: con Alt se ven las teclas; Alt D cambia las animaciones y Alt H el formato', () => {
+  it('device-settings-E11: Alt D cambia las animaciones, Alt H pasa al otro formato y Alt O vuelve a como viene', () => {
     openSettings();
-    const main = screen.getByRole('main');
-    expect(within(main).getByText('D')).toBeTruthy();
-    expect(within(main).getAllByText('H').length).toBeGreaterThan(0);
-    expect(document.querySelector('[data-key="d"]')).toBe(animations());
-    const other = document.querySelector('[data-key="h"]') as HTMLElement;
-    fireEvent.click(other);
+    const stopKeys = startKeyboard();
+    const alt = (key: string) =>
+      act(() => {
+        dispatchEvent(
+          new KeyboardEvent('keydown', { key, code: `Key${key.toUpperCase()}`, altKey: true }),
+        );
+      });
+    alt('d');
+    expect(animations().getAttribute('aria-checked')).toBe('false');
+    alt('h');
     expect(timeFormat.get()).toBe('h12');
+    alt('h');
+    expect(timeFormat.get()).toBe('h24');
+    alt('o');
+    expect(animations().getAttribute('aria-checked')).toBe('true');
+    stopKeys();
   });
 
-  it('device-settings-E33, E34: «Volver a como viene» solo si algo cambió, y no toca lo demás', () => {
+  it('device-settings-E34: «Volver a como viene» solo si algo cambió', () => {
     openSettings();
     expect(screen.queryByRole('button', { name: /Volver a como viene/ })).toBeNull();
     fireEvent.click(animations());
@@ -139,7 +172,7 @@ describe('Más → Configuración', () => {
     await waitFor(() => expect(document.getElementById('settings-install')).toBeNull());
   });
 
-  it('device-settings-E28, E30, E31: «Trabajar sin conexión» en el celular, apagada sin la huella; nunca en la computadora', () => {
+  it('device-settings-E31: en la computadora no está «Trabajar sin conexión»', () => {
     openSettings();
     expect(screen.queryByRole('switch', { name: /Trabajar sin conexión/ })).toBeNull();
   });
@@ -153,7 +186,36 @@ describe('Más → Configuración', () => {
     expect(row.getAttribute('aria-checked')).toBe('true');
     expect(row.textContent).toContain('aunque no haya internet, hasta 24 h');
     expect(summary().textContent).toContain('También sin conexión');
+    // E33: «Volver a como viene» deja lo de arranque y no toca «Trabajar sin conexión».
+    fireEvent.click(animations());
+    fireEvent.click(screen.getByRole('button', { name: /Como viene/ }));
+    expect(animations().getAttribute('aria-checked')).toBe('true');
+    expect(timeFormat.get()).toBe('h24');
+    expect(row.getAttribute('aria-checked')).toBe('true');
     fireEvent.click(row);
+  });
+
+  it('device-settings-E07, E08, E09: con el espejo viaja ir a Configuración, pero no sus valores; nada va al servidor', () => {
+    const sent: Patch[] = [];
+    mirror.attach({ send: (patches) => sent.push(...patches), leader: true, over: 'direct' });
+    const stopRoute = bindRoute(mirror, () => true);
+    const fetched = vi.spyOn(globalThis, 'fetch');
+    openSettings();
+    expect(
+      sent.some(
+        (patch) =>
+          patch.k === 'frame.route' && JSON.stringify(patch.v).includes('/device-settings'),
+      ),
+    ).toBe(true);
+    sent.length = 0;
+    fetched.mockClear();
+    fireEvent.click(animations());
+    fireEvent.click(document.querySelectorAll<HTMLElement>('.settings-format')[1] as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: /Volver a como viene/ }));
+    expect(sent).toEqual([]);
+    expect(fetched).not.toHaveBeenCalled();
+    stopRoute();
+    mirror.detach();
   });
 
   it('device-settings-E30: en el celular sin la huella, apagada y dice por qué', () => {

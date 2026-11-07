@@ -34,6 +34,17 @@ function arrive({ phone = true, testing = false } = {}) {
   act(() => person.set(ana));
 }
 
+// «Atrás» del celular, con los efectos de la hoja ya corridos (los relojes están detenidos).
+async function back() {
+  // La hoja suma su paso al historial al montarse (un efecto, que corre con los relojes de verdad):
+  // recién ahí escucha «atrás».
+  vi.useRealTimers();
+  await waitFor(() => expect((history.state as { step?: string } | null)?.step).toBeTruthy());
+  await act(async () => {
+    dispatchEvent(new PopStateEvent('popstate'));
+  });
+}
+
 const sheet = () => screen.queryByRole('dialog', { name: /Instalá Ferrebress/ });
 const wait = () =>
   act(() => {
@@ -127,5 +138,37 @@ describe('el aviso para instalar', () => {
     await installHere();
     expect(vibrate).toHaveBeenCalledOnce();
     expect(screen.getByText('Listo: Ferrebress quedó con su ícono')).toBeTruthy();
+  });
+
+  it('device-settings-E25, E36: «atrás» lo cierra como «Ahora no»; mientras pregunta el navegador, no', async () => {
+    let answer: (choice: { outcome: 'accepted' | 'dismissed' }) => void = () => undefined;
+    const event = new Event('beforeinstallprompt', { cancelable: true }) as Event &
+      Record<string, unknown>;
+    event.prompt = () => Promise.resolve();
+    event.userChoice = new Promise((resolve) => {
+      answer = resolve;
+    });
+    act(() => {
+      dispatchEvent(event);
+    });
+    arrive();
+    wait();
+    await waitFor(() => expect(sheet()).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: /^Instalar/ }));
+    await back();
+    expect(sheet()).toBeTruthy();
+    await act(async () => answer({ outcome: 'dismissed' }));
+    await waitFor(() => expect(sheet()).toBeNull());
+    expect(screen.getAllByText('Si cambiás de idea, está en Más → Configuración')).toHaveLength(1);
+  });
+
+  it('device-settings-E25: «atrás» del celular cierra el aviso, como «Ahora no»', async () => {
+    browserOffers('dismissed');
+    arrive();
+    wait();
+    await waitFor(() => expect(sheet()).toBeTruthy());
+    await back();
+    expect(sheet()).toBeNull();
+    expect(screen.getByText('Si cambiás de idea, está en Más → Configuración')).toBeTruthy();
   });
 });

@@ -1,7 +1,9 @@
 // Arriba de la lista (R4.9): cuántas acciones hubo en el período, cuántos rechazos y cuánto borró o
 // sacó, que también filtran; y en la computadora, el día en una tira, una raya por acción, que abre
 // la cinta en esa acción (R4.11).
+
 import type { StripMark } from '@ferrebress/shared/contracts/audit-log';
+import { formatHourOfDay } from '../../../platform/time.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import { nearestMark, stripScale, summaryDay } from '../logic.ts';
 import { useAuditLogContext } from '../state.ts';
@@ -88,7 +90,7 @@ function Strip({ strip, today }: { strip: StripMark[]; today: string }) {
       </span>
       <span class="audit-hours" aria-hidden="true">
         {scale.hours.map((hour) => (
-          <span key={hour}>{hour}</span>
+          <span key={hour}>{formatHourOfDay(hour)}</span>
         ))}
       </span>
     </button>
