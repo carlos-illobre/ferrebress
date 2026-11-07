@@ -38,8 +38,10 @@ otros dispositivos, cortar mi propio celular perdido y el nombre del dispositivo
   dispositivo sin darse cuenta.
 - **R1.7** **No va a Quién hizo qué:** es comodidad de cada persona y no pasa por el servidor.
   «Trabajar sin conexión» sigue sus propias reglas (capítulo 15).
-- **R1.8** **«Lo tuyo»** tiene mis celulares con huella, mis sesiones y el nombre de este dispositivo
-  (R6 a R9). Mientras alguna no exista, aparece con «Pronto» (00 · R1.3).
+- **R1.8** **Lo mío** (R6 a R9) se muestra **por dispositivo**: este dispositivo, con su nombre y sus
+  preferencias, y cada uno de los otros dispositivos propios con su sesión y su huella juntas, y
+  debajo de cada celular las computadoras que hizo entrar con su código. Al apuntar a «Se me perdió»,
+  se marca lo que se va a cortar antes de tocar; después queda un recibo con lo cortado. Mientras alguna no exista, aparece con «Pronto» (00 · R1.3).
 - **R1.9** **En la computadora, cada preferencia tiene su atajo** con Alt + letra y se cambia con
   Espacio, como el resto de la aplicación (00 · R2).
 - **R1.10** **«Así la tenés»:** arriba, un resumen de una línea con lo elegido en cada preferencia de
