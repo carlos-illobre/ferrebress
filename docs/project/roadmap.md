@@ -53,7 +53,7 @@ paralelo»).
 | Parte | Qué incluye | Estado |
 |---|---|---|
 | Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
-| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | En curso: sacar el modo llavero (T114) |
+| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
 
 ## Tareas pendientes de la base
 
@@ -176,16 +176,7 @@ No se construyen ahora; el diseño no les cierra la puerta.
 - [ ] T113 [agente] Quién está en línea, en vivo: un punto de color junto a las iniciales de cada
   persona, en la lista y en la tarjeta de Usuarios, en el celular y en la computadora, que cambia
   solo cuando la persona abre o deja la aplicación (el servidor sabe quién la tiene abierta).
-- [ ] T114 [agente] El modo llavero de los roles (02): cada rol es una llave, como en las variantes 3
-  del director de «Los roles de una persona» y «Sin permiso». Lo que ya decidió Carlos: convive con
-  el modo clásico y se elige con un selector en la pestaña Roles, para quien tiene «Administrar
-  roles», que se muda a Administración cuando exista (06); el director de arte arma también la
-  pestaña Roles en modo llavero; no se pide un permiso desde la aplicación, solo se copia el pedido.
-  Para retomarlo: las maquetas son `docs/design/mockups/users-person-roles/{desktop,phone}/variant-3-keyring/`
-  y `docs/design/mockups/app-no-permission/{desktop,phone}/variant-3-keyring/`, con sus ideas en el
-  `art-director-notes.md` de cada carpeta; las reglas del modo clásico (02 · R7) valen igual, y
-  el llavero solo cambia cómo se ven y se tocan los roles. Antes de programarlo: paso 1 (preguntas
-  del selector y del manual), paso 2 (la pestaña Roles en llavero) y el resto de los pasos.
+
 - [x] T118 [agente] La auditoría que se actualiza sola (05 · R4.6, R4.12; 03 · R4.5): «Actualizar
   solo», «3 nuevas», la marca de lo que entra y los medidores de lo que manda el servidor por los
   canales. Carlos la probó y anda; los detalles gráficos de la pantalla quedan para T128.

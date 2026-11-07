@@ -368,7 +368,7 @@ dispositivo» con su próximo pedido. Cruza dos navegadores, la cookie y la memo
   decisiones de Carlos sobre los puntos que cambiaban reglas (R1.3, R4.3, R7.1 y R7.11).
 - **Lo que cambia en otros capítulos:** el menú esconde lo que no se puede usar y abre la primera
   opción permitida (00 · R1.4, R1.8); «Trabajar sin conexión» pasa a pedir su permiso (15 · R1.2).
-- **No resuelve:** el modo llavero (T114), la pantalla de la auditoría (05), las sesiones propias en
+- **No resuelve:** la pantalla de la auditoría (05), las sesiones propias en
   Configuración (04) ni pedir un permiso desde la aplicación (Carlos lo descartó).
 
 ## 15. Entidades
