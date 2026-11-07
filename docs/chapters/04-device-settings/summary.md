@@ -4,7 +4,7 @@ Lo que cada persona elige para sí misma, en Más → Configuración, en dos eta
 en [rules.md](rules.md).
 
 **Estado:** etapa a (preferencias del dispositivo), programada; Carlos la probó y anda, con su manual. Etapa b (lo mío: mis celulares con
-huella, mis sesiones, se me perdió un celular y el nombre del dispositivo), aprobada; sus pantallas, en el paso 2.
+huella, mis sesiones, se me perdió un celular y el nombre del dispositivo), aprobada, con sus pantallas; el diseño técnico, en el paso 3.
 
 ## Cada regla en una línea
 
