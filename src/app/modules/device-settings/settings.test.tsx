@@ -7,6 +7,7 @@ import { bindRoute } from '../../platform/mirror/route.ts';
 import { motionOff, still, watchMotion } from '../../platform/motion.ts';
 import { navigate } from '../../platform/router.ts';
 import { timeFormat } from '../../platform/time.ts';
+import { fakeServer } from '../../testing/fake-server.ts';
 import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
 import { open } from '../frame/frame-test-kit.tsx';
@@ -23,6 +24,8 @@ const juan = {
 let stop: () => void;
 
 function openSettings({ phone = false, reduced = false, who = juan } = {}) {
+  // Lo mío, que no es de estas pruebas: el servidor no lo tiene.
+  fakeServer({ '/api/me/devices': 'waiting' });
   stubMedia((query) => (query.includes('max-width') ? phone : query.includes('reduce') && reduced));
   if (phone) vi.stubGlobal('navigator', { ...navigator, userAgent: 'Android' });
   act(() => person.set(who));
@@ -73,6 +76,7 @@ describe('Más → Configuración', () => {
     let reduce = true;
     const media = stubMedia((query) => !query.includes('max-width') && reduce);
     const stopMotion = watchMotion();
+    fakeServer({ '/api/me/devices': 'waiting' });
     act(() => person.set(juan));
     navigate('/device-settings');
     open({ who: juan, screens: { deviceSettings: Settings } });
@@ -135,14 +139,6 @@ describe('Más → Configuración', () => {
     expect(animations().getAttribute('aria-checked')).toBe('true');
     expect(screen.queryByRole('button', { name: /Volver a como viene/ })).toBeNull();
     expect(screen.getByText('Volvió a como viene')).toBeTruthy();
-  });
-
-  it('device-settings-E10: lo de la etapa b, con «Pronto», y no se abre', () => {
-    openSettings();
-    const later = screen.getByRole('button', { name: /Mis sesiones/ });
-    expect(later.textContent).toContain('Pronto');
-    fireEvent.click(later);
-    expect(screen.getByText('Mis sesiones · pronto. Todavía no está.')).toBeTruthy();
   });
 
   it('las pastillas de «Así la tenés» llevan a su renglón', () => {

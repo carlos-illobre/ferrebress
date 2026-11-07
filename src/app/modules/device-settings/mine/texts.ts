@@ -1,0 +1,83 @@
+// Los textos de lo mío en Configuración (04 · R6 a R10; maqueta device-settings-b/final): largos en
+// la computadora y cortos en el celular (00 · R3).
+const kind = (isPhone: boolean) => (isPhone ? 'este celular' : 'esta computadora');
+
+export const mineTexts = {
+  here: (isPhone: boolean) => (isPhone ? 'Este celular' : 'Esta computadora'),
+  using: 'Lo estás usando',
+  noName: 'Sin nombre',
+  name: {
+    put: 'Ponele nombre',
+    change: 'Cambiar el nombre',
+    clear: 'Borrar',
+    done: 'Listo',
+    label: (isPhone: boolean) => `Nombre de ${kind(isPhone)}`,
+    example: (idea: string) => `Ej.: ${idea}`,
+    repeated: 'Otro dispositivo ya se llama así. Se guarda igual.',
+    saved: (name: string) => `Listo: ahora se llama ${name}`,
+    cleared: 'Nombre borrado: se ve el navegador',
+    ideas: (isPhone: boolean, firstName: string) =>
+      isPhone
+        ? [`Celu de ${firstName}`, 'Celu del depósito', 'Celu del mostrador']
+        : ['Compu de la oficina', 'Compu del mostrador', 'Caja 2'],
+    note: (isPhone: boolean) => ({
+      long: `Es ${isPhone ? 'del celular' : 'de la computadora'}, no tuyo: lo ven todos en las sesiones, el vínculo, Quién hizo qué y al entrar.`,
+      short: `Es ${isPhone ? 'del celular' : 'de la computadora'}: lo ven todos`,
+    }),
+  },
+  passkey: {
+    since: (date: string) => `Tu huella está acá desde ${date}`,
+    used: (when: string) => `Último uso ${when}`,
+    neverUsed: 'Todavía no se usó',
+    remove: 'Quitar',
+    link: 'Vincular este celular con mi huella',
+    other: 'Este celular tiene la huella de otra persona.',
+    linked: 'Listo: desde ahora entrás con tu huella acá',
+    otherAccount: 'Este celular ya tiene la huella de otra persona',
+    confirmWhat: ['Vincular la huella de este celular'],
+  },
+  howYouUse: 'Cómo la usás vos acá',
+  computers: { here: 'Entraron con el código de este celular', other: 'Entró con su código' },
+  entered: (when: string) => `Entró ${when}`,
+  usedNow: 'usada ahora',
+  used: (when: string) => `usada ${when}`,
+  others: 'Tus otros dispositivos',
+  sessions: 'Sesiones abiertas',
+  withPasskey: 'Con tu huella',
+  closeAll: 'Cerrar todas',
+  closeAllTitle: (n: number) => `¿Cerrar tus ${n} sesiones en otros dispositivos?`,
+  closeAllLead: (here: string) =>
+    `Cada uno vuelve a la entrada con su próximo pedido. ${here} sigue adentro.`,
+  closeThem: (n: number) => `Cerrar las ${n}`,
+  cancel: 'Cancelar',
+  lost: 'Se me perdió',
+  close: (name: string) => `Cerrar la sesión de ${name}`,
+  removeOf: (name: string) => `Quitar la huella de ${name}`,
+  sessionOpen: (when: string) => `Sesión abierta · ${when}`,
+  sessionNow: 'Usada ahora',
+  sessionHow: (way: string, when: string) => `Con ${way} · entró ${when}`,
+  passkeySince: (date: string) => `Huella desde ${date}`,
+  goes: { session: 'Se cierra', passkey: 'Se quita' },
+  ways: {
+    google: 'Google',
+    passkey: 'la huella',
+    qr: 'el código',
+    offline: 'la huella, sin conexión',
+  },
+  receipt: {
+    lost: (name: string) => `Cortaste ${name}`,
+    removed: (name: string) => `Quitaste la huella de ${name}`,
+    nobody: 'Nadie puede entrar con él.',
+    session: 'Su sesión',
+    computer: (name: string) => `La sesión de ${name}, que entró con su código`,
+    passkey: 'Su huella',
+    nothing: 'No tenía nada abierto',
+    done: 'Listo',
+  },
+  empty: (isPhone: boolean) => `No tenés nada abierto en otro dispositivo. Solo ${kind(isPhone)}.`,
+  offline: 'Sin conexión: lo tuyo está en el servidor',
+  retry: 'Reintentar',
+  loading: 'Cargando lo tuyo…',
+  failed: 'No se pudo traer lo tuyo',
+  refused: 'No se pudo: probá de nuevo',
+};

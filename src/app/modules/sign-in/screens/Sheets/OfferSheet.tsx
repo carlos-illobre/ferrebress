@@ -4,27 +4,12 @@
 import { useState } from 'preact/hooks';
 import { useStore } from '../../../../platform/store.ts';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
-import { signInApi } from '../../api.ts';
-import { createPasskey } from '../../passkeys/webauthn.ts';
-import { allowOffline, offered, offerPasskey, passkeyLinked, person } from '../../session.ts';
+import { linkHere } from '../../passkeys/link.ts';
+import { offered, offerPasskey, person } from '../../session.ts';
 import { texts } from '../../texts.ts';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
 type Step = 'ask' | 'other-account';
-type Linked = Step | 'linked' | undefined;
-
-async function link(): Promise<Linked> {
-  const options = await signInApi.linkOptions();
-  if (!options.ok) return undefined;
-  const response = await createPasskey(options.data);
-  if (!response) return undefined;
-  const result = await signInApi.link(response);
-  if (!result.ok) return result.error === 'phone-has-other-account' ? 'other-account' : undefined;
-  passkeyLinked();
-  // Con la huella, ya puede prender «Trabajar sin conexión» (15 · R1.3).
-  if (result.data.offline) allowOffline();
-  return 'linked';
-}
 
 export function OfferSheet() {
   const open = useStore(offerPasskey);
@@ -49,7 +34,7 @@ export function OfferSheet() {
             look="orange"
             doing={texts.signingIn}
             onPress={async () => {
-              const linked = await link();
+              const linked = await linkHere();
               if (linked === 'linked') close();
               else setStep(linked ?? 'ask');
             }}

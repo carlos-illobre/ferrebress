@@ -125,6 +125,16 @@ const offeredKey = 'passkey-offered-to';
 
 export const hasPasskey = () => readStored<boolean>(passkeyKey) === true;
 export const passkeyLinked = () => store(passkeyKey, true);
+
+// Se le quitó la huella a este celular (04 · R6.2): ya no tiene huella ni puede trabajar sin conexión.
+export function passkeyRemovedHere(): void {
+  store(passkeyKey, false);
+  const saved = readStored<Saved>(sessionKey);
+  if (!saved?.person.offline) return;
+  const { offline: _, ...who } = saved.person;
+  store(sessionKey, { ...saved, person: who });
+  person.set(who);
+}
 const offeredTo = () => readStored<string[]>(offeredKey) ?? [];
 export const wasOffered = (userId: string) => offeredTo().includes(userId);
 export const offered = (userId: string) => {

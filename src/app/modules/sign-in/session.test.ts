@@ -12,6 +12,7 @@ import {
   offered,
   offerPasskey,
   passkeyLinked,
+  passkeyRemovedHere,
   person,
   sendPendingSignOut,
   signedIn,
@@ -127,5 +128,20 @@ describe('la sesión en la aplicación', () => {
     // A otra persona que entra después en el mismo celular se le ofrece igual.
     expect(wasOffered('u2')).toBe(false);
     expect(readStored('passkey-offered-to')).toEqual(['u1']);
+  });
+});
+
+describe('quitar la huella de este celular', () => {
+  it('device-settings-E42: sin huella y sin «Trabajar sin conexión», sigue adentro', () => {
+    const who = { userId: 'u9', name: 'Ana', email: 'ana@example.com', ...administrator };
+    signedIn({ person: { ...who, offline: true }, sessionId: 's9', offerPasskey: false });
+    passkeyLinked();
+    passkeyRemovedHere();
+    expect(hasPasskey()).toBe(false);
+    expect(person.get()).toEqual(who);
+    expect(readStored<{ person: object }>('session')?.person).toEqual(who);
+    // Sin `offline`, no hay nada más que sacar.
+    passkeyRemovedHere();
+    expect(person.get()).toEqual(who);
   });
 });

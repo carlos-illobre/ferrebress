@@ -5,7 +5,7 @@ import './offline.css';
 
 export function Offline({ look, text }: { look: string; text: string }) {
   return (
-    <p class={`offline ${look}`} role="status">
+    <p class={`offline-notice ${look}`} role="status">
       <Icon name="wifi-off" size="small" />
       {text}
     </p>

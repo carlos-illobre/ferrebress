@@ -1,0 +1,130 @@
+/* Tus otros dispositivos (maqueta device-settings-b/final): las cuentas, «Cerrar todas», el recibo de
+   lo cortado y sin conexión. Cada tarjeta, en Family.css. */
+@layer screens {
+  .mine-others,
+  .mine-others > .mine-server {
+    display: grid;
+    gap: var(--s3);
+    align-content: start;
+  }
+  .mine-counts {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: var(--s3);
+    align-items: stretch;
+  }
+  .mine-count-tile {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    column-gap: var(--s3);
+    align-items: center;
+    padding: var(--s3) var(--s4);
+  }
+  .mine-count-tile .icon {
+    grid-row: span 2;
+    width: 40px;
+    height: 40px;
+    padding: 9px;
+    border-radius: 12px;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .mine-count-tile span {
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .mine-count-tile b {
+    font-size: 22px;
+    line-height: 26px;
+  }
+  /* El recibo de lo cortado: queda hasta «Listo» */
+  .mine-receipt {
+    padding: var(--s3) var(--s4);
+    border-radius: 14px;
+    background: var(--error-soft);
+    color: var(--error-text);
+    animation: mine-receipt var(--time-nav) var(--bounce) both;
+  }
+  .mine-receipt-head {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: var(--s3);
+    align-items: center;
+  }
+  .mine-receipt-head div {
+    display: grid;
+    font-size: 14px;
+  }
+  .mine-receipt-head b {
+    font-size: 16px;
+  }
+  .mine-receipt-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .mine-receipt ul {
+    display: grid;
+    gap: 4px;
+    margin: var(--s2) 0 0 52px;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    font-weight: 650;
+  }
+  .mine-receipt li {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .mine-empty,
+  .mine-load {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: var(--s4);
+    border-radius: 16px;
+    background: var(--sunken);
+    color: var(--text-2);
+    font-size: 15px;
+  }
+  .mine-offline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .mine-dialog p {
+    color: var(--text-2);
+  }
+  .mine-dialog-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--s2);
+  }
+  @keyframes mine-receipt {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+  }
+}
+
+@layer widths {
+  @media (max-width: 899px) {
+    .mine-counts {
+      grid-template-columns: 1fr 1fr;
+    }
+    .mine-counts .button {
+      grid-column: span 2;
+    }
+    .mine-chips,
+    .mine-children {
+      margin-left: 0;
+    }
+  }
+}

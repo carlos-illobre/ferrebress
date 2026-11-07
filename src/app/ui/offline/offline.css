@@ -1,6 +1,6 @@
 /* El aviso de sin conexión: ámbar suave, con el ícono a la izquierda. */
 @layer pieces {
-  .offline {
+  .offline-notice {
     display: flex;
     align-items: center;
     gap: var(--s2);

@@ -2,6 +2,7 @@
 // aviso para instalar del celular sobre el marco: que se vea entero y que el toque le llegue. Lo que
 // dice el navegador (que se puede instalar) se simula.
 import { expect, type Page, test } from '@playwright/test';
+import { mine } from './mine.ts';
 import { administrator } from './person.ts';
 
 const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', ...administrator };
@@ -19,6 +20,12 @@ async function signedIn(page: Page, environment = 'testing') {
       headers: { 'X-Ferrebress': `v=screens; t=${now.getTime()}; e=${environment}` },
     });
   });
+  await page.route('**/api/me/devices', (route) =>
+    route.fulfill({
+      json: mine(/Android|iPhone/.test(route.request().headers()['user-agent'] ?? '')),
+      headers: { 'X-Ferrebress': `v=screens; t=${now.getTime()}; e=testing` },
+    }),
+  );
   await page.clock.setFixedTime(now);
 }
 

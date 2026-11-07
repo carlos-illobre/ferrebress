@@ -2,6 +2,7 @@
 // computadora y en el celular, con algo cambiado para que se vea «Volver a como viene», y el aviso
 // para instalar del celular. Que el navegador sabe instalar se simula, como en las capturas.
 import { expect, type Page } from '@playwright/test';
+import { mine } from '../screens/mine.ts';
 import { ana, type Scene, signedIn } from './scenes.ts';
 import { button, shown } from './users-scenes.ts';
 
@@ -26,6 +27,12 @@ const settled = (page: Page) =>
 async function settings(page: Page, person = ana): Promise<void> {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await signedIn(page, person);
+  // Lo mío, como en la maqueta: este dispositivo y los otros (04 · R1.8).
+  await page.route('**/api/me/devices', (route) =>
+    route.fulfill({
+      json: mine(/Android|iPhone/.test(route.request().headers()['user-agent'] ?? '')),
+    }),
+  );
   await page.goto('/device-settings');
   await expect(page.getByRole('heading', { name: 'Configuración' })).toBeVisible();
   await browserOffers(page);
@@ -42,6 +49,15 @@ async function changed(page: Page): Promise<void> {
   await page.locator('.settings-format').nth(1).click();
   await expect(button(/Volver a como viene|Como viene/)(page)).toBeVisible();
   await page.mouse.move(0, 0);
+  // Arriba, donde están «Así la tenés» y «Volver a como viene».
+  await page.locator('.settings').evaluate((screen) => screen.scrollTo(0, 0));
+  await settled(page);
+}
+
+// Las preferencias de este dispositivo, debajo de su dibujo, a la vista.
+async function preferences(page: Page): Promise<void> {
+  await settings(page);
+  await page.locator('.mine-prefs').evaluate((block) => block.scrollIntoView({ block: 'start' }));
   await settled(page);
 }
 
@@ -63,7 +79,7 @@ export const deviceSettingsScenes: Scene[] = [
   {
     name: 'desktop-settings',
     device: 'computer',
-    prepare: (page) => settings(page),
+    prepare: preferences,
     points: { animations, formats, install },
   },
   {
@@ -75,7 +91,7 @@ export const deviceSettingsScenes: Scene[] = [
   {
     name: 'phone-settings',
     device: 'phone',
-    prepare: (page) => settings(page),
+    prepare: preferences,
     points: { animations, formats, install },
   },
   {

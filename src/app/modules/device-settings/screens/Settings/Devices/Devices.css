@@ -1,0 +1,177 @@
+/* Lo mío en Configuración (maqueta device-settings-b/final): la tarjeta de este dispositivo, con su
+   dibujo y sus preferencias; y los otros dispositivos, con sus fichas, lo que hicieron entrar con su
+   código y el recibo de lo cortado. Lo que se mueve, solo con transform y opacity. */
+@layer screens {
+  .mine-here {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s4);
+    min-width: 0;
+    padding: var(--s4);
+  }
+  .mine-here-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mine-label,
+  .mine-sub {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-2);
+  }
+  .mine-using {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: var(--radius-round);
+    background: var(--success-soft);
+    color: var(--success-text);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .mine-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 99px;
+    background: var(--success);
+    flex: none;
+  }
+  .mine-server {
+    display: grid;
+    gap: var(--s3);
+  }
+  /* Sin conexión: lo del servidor, gris y sin tocar (R10.1) */
+  .mine-server.is-offline {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .mine-here-top {
+    display: grid;
+    justify-items: center;
+    gap: var(--s3);
+  }
+  .mine-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s2);
+    width: 100%;
+  }
+  .mine-name-note {
+    flex-basis: 100%;
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .mine-name-edit {
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    height: 48px;
+    padding: 0 4px 0 14px;
+    border: 2px solid var(--pine);
+    border-radius: var(--radius);
+    box-shadow: var(--ring);
+    background: var(--surface);
+  }
+  .mine-name-edit input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    font: inherit;
+    font-size: 17px;
+    font-weight: 750;
+  }
+  .mine-count {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .mine-count.full {
+    color: var(--error-text);
+  }
+  .mine-ideas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+  /* Las ideas son las pastillas de «Así la tenés», con su número */
+  .mine-idea {
+    position: relative;
+    height: 32px;
+  }
+  .mine-idea kbd {
+    position: absolute;
+    top: -10px;
+    right: -6px;
+  }
+  .mine-repeated,
+  .mine-passkey-note {
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    margin: 0;
+    padding: var(--s2) var(--s3);
+    border-radius: var(--radius);
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+    font-size: 14px;
+    font-weight: 650;
+  }
+  .mine-passkey-note {
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .mine-passkey {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    padding: var(--s2) var(--s2) var(--s2) var(--s4);
+    border-radius: 14px;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .mine-passkey-text {
+    display: grid;
+    flex: 1;
+    font-weight: 700;
+  }
+  .mine-passkey-text small {
+    font-size: 14px;
+    font-weight: 550;
+  }
+  .mine-prefs {
+    border-top: 1px solid var(--border);
+    padding-top: var(--s3);
+  }
+  /* Las preferencias de la etapa a, en la tarjeta, que es más angosta que su lista: la leyenda de la
+     muestra y «La espera gira siempre» van una debajo de la otra. */
+  .mine-prefs .settings-setting {
+    padding: var(--s4) 0;
+  }
+  .mine-prefs .settings-sample {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    column-gap: var(--s3);
+    height: auto;
+    padding: var(--s2) var(--s3);
+  }
+  .mine-prefs .settings-scene {
+    grid-row: span 2;
+  }
+  .mine-prefs .settings-waits {
+    margin-left: 0;
+  }
+}

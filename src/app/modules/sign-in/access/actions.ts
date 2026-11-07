@@ -4,6 +4,8 @@
 import type { ClosedResponse, CutResponse } from '@ferrebress/shared/contracts/users';
 import type { ApiResult } from '../../../platform/server/api.ts';
 import { showToast } from '../../../ui/toast/Toast.tsx';
+import { disableOffline } from '../offline/option.ts';
+import { passkeyRemovedHere } from '../session.ts';
 import { accessApi, type How, type Whom } from './api.ts';
 import { accessTexts as t } from './texts.ts';
 
@@ -54,8 +56,18 @@ export const cutPhone = async (
       showToast(t.cut(phone.said.device, phone.said.owner, cut.sessions, cut.passkey), 'power');
   });
 
-// Quitarle la huella al celular que se está usando (04 · R6.2): sigue adentro.
+// Quitarle la huella al celular que se está usando (04 · R6.2): sigue adentro, sin huella y con
+// «Trabajar sin conexión» apagada.
 export const removeHere = async (then: Then<CutResponse>) =>
-  answer(await accessApi.removeHere(), then, ({ passkey }) =>
-    showToast(passkey ? t.hereRemoved : t.nothingToCut, 'fingerprint'),
+  answer(
+    await accessApi.removeHere(),
+    {
+      ...then,
+      update: (cut) => {
+        passkeyRemovedHere();
+        disableOffline();
+        return then.update?.(cut);
+      },
+    },
+    ({ passkey }) => showToast(passkey ? t.hereRemoved : t.nothingToCut, 'fingerprint'),
   );

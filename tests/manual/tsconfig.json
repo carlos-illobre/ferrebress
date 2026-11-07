@@ -18,6 +18,7 @@
     "../../src/shared/contracts/pairing.ts",
     "../../src/shared/time/business.ts",
     "../../tools/manual/media.ts",
-    "../../tools/manual/text.ts"
+    "../../tools/manual/text.ts",
+    "../screens/mine.ts"
   ]
 }

@@ -6,7 +6,6 @@ export const texts = {
   summary: 'Así la tenés:',
   reset: { long: 'Volver a como viene', short: 'Como viene' },
   resetDone: 'Volvió a como viene',
-  here: 'En esta computadora',
   animations: {
     name: 'Animaciones',
     what: {
@@ -60,16 +59,6 @@ export const texts = {
     offlineOn: 'También sin conexión',
     offlineOff: 'Solo con internet',
   },
-  yours: 'Lo tuyo',
-  soon: 'Pronto',
-  notYet: (name: string) => `${name} · pronto. Todavía no está.`,
-  later: [
-    { name: 'Mis celulares con huella', what: 'Dónde entrás con huella', icon: 'fingerprint' },
-    { name: 'Mis sesiones', what: 'Dónde tenés sesión', icon: 'monitor-smartphone' },
-    { name: 'Cortar mi celular perdido', what: 'Que nadie entre con él', icon: 'plug-off' },
-    { name: 'Nombre del dispositivo', what: 'Cómo la ves en la lista', icon: 'pencil-line' },
-  ],
-  kept: 'Queda guardado en esta computadora, para vos: no cambia nada de otras personas ni de otros dispositivos, y vuelve cuando entres de nuevo. Con el celular en espejo, cada uno tiene lo suyo.',
   // El aviso para instalar (R4.5).
   offer: {
     title: 'Instalá Ferrebress para abrirla desde un ícono',

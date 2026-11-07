@@ -4,18 +4,18 @@
   "height": 618,
   "points": {
     "animations": [
-      21.2,
-      25
+      20.9,
+      20.6
     ],
     "formats": [
-      45.9,
-      60.5
+      35.6,
+      62.6
     ],
     "install": [
-      43.9,
-      79.8
+      33.5,
+      85.7
     ]
   },
-  "hash": "0187d0a5b931a27ac642b685df771b1dbdbe7bc652a98c029ead4428ad4d1c83",
-  "file": "b2da0f98e3e33dfee35f2c143a95ee579fe2f66434e40962f5011ce2e8ad5a45"
+  "hash": "80a5595df533722188b3311cf2242516752e0556e172d6ae78470808c195fbcc",
+  "file": "82a7c59d95cb6197fe9ad85876241952d58350ede03838a8366702bcaed82290"
 }

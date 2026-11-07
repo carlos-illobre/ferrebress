@@ -1,0 +1,109 @@
+/* El dibujo de este dispositivo (maqueta device-settings-b/final): el aparato con su nombre en la
+   pantalla, al lado del nombre en el celular, y el brillo al guardar. */
+@layer screens {
+  /* En el celular, el dibujo a la izquierda y el nombre al lado; escribiéndolo, el campo ocupa todo. */
+  .mine-here-top:has(.is-phone) {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+  }
+  .mine-here-top:has(.is-phone) .mine-name {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .mine-here-top:has(.is-phone) .mine-name-note {
+    text-align: left;
+  }
+  .mine-here-top:has(.mine-name-edit) {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+  .mine-here-top:has(.mine-name-edit) .mine-name {
+    align-items: stretch;
+  }
+  /* El dibujo de este dispositivo, con su nombre en la pantalla */
+  .mine-device {
+    display: grid;
+    justify-items: center;
+  }
+  .mine-screen {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 4px;
+    text-align: center;
+    background: linear-gradient(160deg, #fff 0%, var(--background) 100%);
+    border: 10px solid var(--border-strong);
+  }
+  .is-computer .mine-screen {
+    width: 300px;
+    height: 160px;
+    border-radius: 16px;
+    padding: 0 var(--s4);
+  }
+  .is-computer::after {
+    content: "";
+    width: 132px;
+    height: 8px;
+    border-radius: 8px;
+    background: var(--border-strong);
+  }
+  .mine-stand {
+    width: 64px;
+    height: 20px;
+    background: var(--border-strong);
+    clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%);
+  }
+  .is-phone .mine-screen {
+    width: 150px;
+    height: 230px;
+    border-width: 8px;
+    border-radius: 28px;
+    padding: 0 var(--s3);
+  }
+  .mine-device-name {
+    font-size: 24px;
+    line-height: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--pine-text);
+    overflow-wrap: anywhere;
+  }
+  .is-phone .mine-device-name {
+    font-size: 20px;
+    line-height: 24px;
+  }
+  .mine-device-name.unnamed {
+    color: var(--text-3);
+    font-weight: 700;
+  }
+  .mine-device-label {
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--text-3);
+  }
+  /* Al guardar el nombre, un brillo cruza la pantalla */
+  .mine-screen::after {
+    content: "";
+    position: absolute;
+    inset: -20% auto -20% 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.9), transparent);
+    opacity: 0;
+    transform: translateX(-150%) skewX(-18deg);
+  }
+  .shines .mine-screen::after {
+    animation: mine-shine 0.9s var(--ease) 0.1s;
+  }
+  @keyframes mine-shine {
+    0% {
+      opacity: 1;
+      transform: translateX(-150%) skewX(-18deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(400%) skewX(-18deg);
+    }
+  }
+}
