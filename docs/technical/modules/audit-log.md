@@ -38,7 +38,7 @@ manda por su cuenta por el canal, por tema: el de la pantalla y el total de la a
 | `changes` | `{ campo: { before, after } }`, solo lo que cambió | R2.5 |
 | `data` | Lo demás que el texto necesita (el motivo de un rechazo, el permiso que faltó, cómo entró) | R2.1 |
 | `tone` | `red`, `amber` o `plain`, calculado al anotar (§ 4) | R4.4 |
-| `device` | Códigos, no texto: `{ phone, browser, os }` (`chrome`, `android`) | R2.6 |
+| `device` | Códigos, no texto: `{ phone, browser, os }` (`chrome`, `android`), y el nombre que tenía el dispositivo de la sesión en ese momento, si tenía (`name`, 04 · R9.4); sin sesión, sin nombre | R2.6 |
 | `ipAddress` | La dirección del pedido, la que ya calcula la plataforma | R2.6 |
 
 ### 2.1 Quién es el autor

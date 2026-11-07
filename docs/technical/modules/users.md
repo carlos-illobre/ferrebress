@@ -16,8 +16,9 @@ revisiones independientes están en [users-design-review.md](users-design-review
   - tres arreglos del 01 que esta etapa destapa (§ 6): la memoria de sesiones que puede volver a
     guardar una sesión ya cerrada, la memoria de «de quién es la huella de cada celular» que nadie
     actualiza al quitarla, y el nombre de la persona que «Algo salió mal» guarda sin taparlo.
-- **No resuelve:** roles ni permisos (etapa b), la auditoría para leer (05), los celulares con huella
-  propios (04) ni el espejo (03).
+- **No resuelve:** roles ni permisos (etapa b), la auditoría para leer (05) ni el espejo (03). Los
+  celulares con huella propios figuran en la tarjeta propia, con la misma lógica que Configuración
+  (`sign-in/access/`, diseño de 04b, § 5).
 - **E18 y E24** ya los cumple el 01 (una cuenta dada de baja no entra; un dispositivo cortado vuelve a
   la entrada con su primer pedido y manda lo pendiente con su prueba). Se prueban por ese camino, con
   pruebas que los nombran (`users-E18`, `users-E24`).
@@ -79,7 +80,8 @@ borran a los 30 días) y ya hay uno por persona.
   desde Usuarios.
 - **Sin ciclos:** `sign-in` ya recibe la fachada de `users` al crearse. `users` recibe de `sign-in`,
   al crearse, una función: `accessCounts(userIds, asking)`, cuántas sesiones abiertas y celulares con
-  huella tiene cada persona, sin lo de quien pregunta que no se muestra (R5.2, R5.5). Las conecta
+  huella tiene cada persona, sin la sesión de quien pregunta, que no se muestra (R5.2); sus celulares sí
+  (R5.5). Las conecta
   `src/server/modules.ts`, que usan `main.ts` y las pruebas.
 - **La sesión del pedido, para cualquier módulo** (`platform/session.ts`): `sign-in` le da a la
   plataforma cómo leerla (`sessions.provide`) y cualquier módulo la pide con `sessions.require` y la

@@ -180,7 +180,8 @@ que cada módulo suma a la cabecera y los códigos de 60 segundos que comparten 
 Hoy un proceso alcanza de sobra. Si algún día hacen falta varias copias del servidor, cambia lo que
 vive en memoria, sin tocar las reglas: las sesiones (de la memoria a la base), el hub de los canales y
 lo que los módulos guardan en memoria para él, como los vínculos y los códigos de 03 (a `LISTEN/NOTIFY`
-de PostgreSQL y una tabla chica), y la auditoría (un solo escritor). El reenvío entre el celular y la
+de PostgreSQL y una tabla chica), los nombres de los dispositivos de 04 (cada copia los carga al
+arrancar; un cambio tendría que avisar a las demás) y la auditoría (un solo escritor). El reenvío entre el celular y la
 computadora necesita además que los dos caigan en la misma copia (ADR-017).
 
 ## Controles en `pnpm check`

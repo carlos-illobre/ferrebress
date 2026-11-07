@@ -169,7 +169,7 @@ Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`
 | Ruta | Qué hace | Sesión |
 |---|---|---|
 | `GET /api/sign-in/google/nonce` | Solo un `nonce` nuevo (`{"nonce":"…"}`, menos de 50 bytes), para la entrada que quedó abierta: lo pide un minuto antes de que venza el anterior, mientras se ve (01 · R2.1). Ninguna consulta a la base, el mismo límite que `/api/start` | No |
-| `GET /api/start` | El primer pedido al abrir: ambiente, versión, identificador de cliente de Google, la dirección del script de Google (en las pruebas de punta a punta, uno de prueba), un `nonce` de Google y, si hay cookie válida, quién es | Opcional |
+| `GET /api/start` | El primer pedido al abrir: ambiente, versión, identificador de cliente de Google, la dirección del script de Google (en las pruebas de punta a punta, uno de prueba), un `nonce` de Google, el nombre de este dispositivo si tiene (`deviceName`, de la memoria, también sin sesión: la entrada lo muestra, 04 · R9.4) y, si hay cookie válida, quién es | Opcional |
 | `POST /api/sign-in/google` | Recibe el pase de Google, lo verifica, crea la sesión. Devuelve la persona y si es un celular sin huella vinculada | No |
 | `POST /api/sign-in/passkey/options` | Un desafío para entrar con la huella | No |
 | `POST /api/sign-in/passkey` | Verifica la huella y crea la sesión | No |
@@ -177,7 +177,7 @@ Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`
 | `POST /api/passkeys` | Guarda la llave pública | Igual |
 | `POST /api/sign-in/codes` | La computadora abre su canal de códigos; pone la cookie `__Host-sign-in-screen` | No |
 | `GET /api/realtime?s=sign-in.codes:<pestaña>` | El canal común (`platform/realtime`, diseño de 03, § 3) con el tema `sign-in.codes`: le llegan los códigos, «leído», «cancelado» y el permiso | La cookie de la pantalla |
-| `POST /api/sign-in/codes/read` | El celular manda el código leído (en el cuerpo); lo reserva | No |
+| `POST /api/sign-in/codes/read` | El celular manda el código leído (en el cuerpo); lo reserva. Contesta la computadora con su navegador y, si tiene, su nombre: «¿Entrar en Compu del mostrador (Chrome en Windows)?» (04 · R9.7) | No |
 | `POST /api/sign-in/codes/approve` | El celular aprueba con la huella; si no tenía sesión, entra también | No (lleva la huella) |
 | `POST /api/sign-in/codes/cancel` | El celular toca «No soy yo» | No (lleva el código) |
 | `POST /api/sign-in/codes/claim` | La computadora cambia el permiso por su sesión | La cookie de la pantalla |

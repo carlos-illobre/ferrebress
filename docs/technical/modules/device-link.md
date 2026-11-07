@@ -938,7 +938,7 @@ erDiagram
 |---|---|
 | `id` | UUID v7 |
 | `user_id`, `phone_device_id`, `computer_device_id` | De quién y qué dispositivos, los de **sus sesiones**. El vínculo es de la persona y los dos dispositivos, no de las sesiones (R2.1): otra persona en el mismo dispositivo no lo ve (E11) |
-| `phone_label`, `computer_label` | El nombre de cada uno, el de su sesión al vincular (lista cerrada del servidor) |
+| `phone_label`, `computer_label` | El navegador y el sistema de cada uno, los de su sesión al vincular (lista cerrada del servidor). Al mostrar un lado, va su nombre si tiene (04 · R9.4, de la memoria de `sign-in`), y esta etiqueta de respaldo; cuando cambia un nombre, el otro lado se entera por su canal. En la auditoría, cada lado va por su nombre de ese momento y nunca por su identificador (diseño de 04b, § 8) |
 | `paired_by` | `button` o `sign-in`, para la auditoría (R8.1) |
 | `created_at` | «Desde cuándo» (R4.2) |
 | `mirrored_at` | La última vez que el servidor los presentó o les reenvió algo: vence a los 30 días (R2.2). Una sesión dura como mucho 8 horas, así que un espejo continuo se vuelve a presentar al menos una vez por sesión. Se escribe por tandas una vez por minuto |
