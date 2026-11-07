@@ -1,6 +1,7 @@
 // Las consultas de las sesiones a la base. Cada una es una sola consulta, también la que escribe
 // juntos los últimos usos de muchas sesiones.
 import { type Kysely, sql } from 'kysely';
+import type { DB } from '../tables.generated.ts';
 import type { ClosedReason, SessionLimits } from './rules.ts';
 
 export type SessionRow = {
@@ -25,27 +26,7 @@ export type SessionRow = {
 
 export type Way = 'google' | 'passkey' | 'qr' | 'offline';
 
-export type SessionsTables = {
-  'sign_in.sessions': {
-    id: string;
-    token_hash: Uint8Array;
-    proof_public_key: Uint8Array;
-    user_id: string;
-    device_id: string;
-    device_label: string;
-    ip_address: string;
-    created_at: Date;
-    last_used_at: Date;
-    google_at: Date | null;
-    way: Way;
-    is_phone: boolean;
-    passkey_id: string | null;
-    passkey_at: Date | null;
-    approved_by: string | null;
-    closed_at: Date | null;
-    closed_reason: ClosedReason | null;
-  };
-};
+export type SessionsTables = Pick<DB, 'sign_in.sessions'>;
 
 const columns = [
   'id',

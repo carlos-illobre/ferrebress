@@ -14,6 +14,7 @@ y la misma configuración en la máquina de quien programa y en GitHub.
 | Qué | Con qué | Límite |
 |---|---|---|
 | Tipos | `tsc --build`, modo estricto | Sin errores |
+| Tipos de las tablas | `kysely-codegen` sobre PGlite (ADR-018) | Iguales a lo que dejan las migraciones |
 | Formato y reglas del código | Biome (un solo programa, escrito en Rust) | Sin avisos; entre sus reglas, nada de `dangerouslySetInnerHTML` |
 | Tamaño | Biome: líneas por función; un control propio para las líneas por archivo | 40 líneas por función, 250 por archivo |
 | Complejidad | Biome, `noExcessiveCognitiveComplexity` | 10 por función |

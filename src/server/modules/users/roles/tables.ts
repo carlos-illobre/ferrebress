@@ -1,20 +1,14 @@
 // Las tablas de los roles y sus columnas (diseño de 02, § 15), para leerlas y escribirlas.
-import type { Generated } from 'kysely';
-import type { UsersTables } from '../data.ts';
+import type { DB } from '../tables.generated.ts';
 
-export type RolesTables = UsersTables & {
-  'users.roles': {
-    id: string;
-    name: string;
-    description: string | null;
-    system: Generated<boolean>;
-    version: Generated<number>;
-    created_at: Generated<Date>;
-  };
-  'users.role_permissions': { role_id: string; permission: string };
-  'users.user_roles': { user_id: string; role_id: string };
-  'users.known_permissions': { permission: string };
-};
+export type RolesTables = Pick<
+  DB,
+  | 'users.users'
+  | 'users.roles'
+  | 'users.role_permissions'
+  | 'users.user_roles'
+  | 'users.known_permissions'
+>;
 
 export type Role = {
   id: string;

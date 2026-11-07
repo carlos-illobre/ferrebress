@@ -1,6 +1,7 @@
 // Las consultas de las huellas de cada celular a la base. Un celular tiene a lo sumo una huella
 // activa (R2.3): la base lo garantiza con un índice único.
-import type { Generated, Kysely } from 'kysely';
+import type { Kysely } from 'kysely';
+import type { DB } from '../tables.generated.ts';
 
 export type Passkey = {
   id: string;
@@ -10,20 +11,7 @@ export type Passkey = {
   counter: number;
 };
 
-export type PasskeysTables = {
-  'sign_in.passkeys': {
-    id: string;
-    user_id: string;
-    device_id: string;
-    public_key: Uint8Array;
-    counter: string | number;
-    created_at: Date;
-    last_used_at: Date | null;
-    revoked_at: Date | null;
-    public_id: Generated<string>;
-    device_label: string;
-  };
-};
+export type PasskeysTables = Pick<DB, 'sign_in.passkeys'>;
 
 // Buscar las huellas activas.
 function finding(db: Kysely<PasskeysTables>) {

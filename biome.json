@@ -9,7 +9,8 @@
       "*.ts",
       "!**/dist",
       "!**/coverage",
-      "!**/*.svg"
+      "!**/*.svg",
+      "!**/*.generated.ts"
     ]
   },
   "formatter": {

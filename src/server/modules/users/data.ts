@@ -1,25 +1,10 @@
 // Las consultas de las personas a la base, cada una de una escritura o una lectura. Las que dependen de que nadie
 // cambie la fila a la vez llevan la condición en el mismo `where` (diseño de 02, § 5).
-import { type Generated, type Kysely, sql } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 import type { User } from './rules.ts';
+import type { DB } from './tables.generated.ts';
 
-export type UsersTables = {
-  'users.users': {
-    id: string;
-    email: string;
-    google_subject: string | null;
-    name: string | null;
-    google_name: string | null;
-    active: Generated<boolean>;
-    last_sign_in_at: Date | null;
-    authorized_by: string | null;
-    deactivated_at: Date | null;
-    version: Generated<number>;
-    created_at: Generated<Date>;
-    roles_changed_by: string | null;
-    roles_changed_at: Date | null;
-  };
-};
+export type UsersTables = Pick<DB, 'users.users'>;
 
 const columns = [
   'id',
@@ -44,7 +29,7 @@ const columns = [
 
 type Db = Kysely<UsersTables>;
 // Quién tiene cada rol, que crea la migración de los roles: para autorizar con sus roles.
-type WithRoles = UsersTables & { 'users.user_roles': { user_id: string; role_id: string } };
+type WithRoles = Pick<DB, 'users.users' | 'users.user_roles'>;
 
 // Buscar personas.
 function finding(db: Db) {

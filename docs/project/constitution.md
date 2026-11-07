@@ -198,6 +198,7 @@ Además:
   da.
 - **Una sola base PostgreSQL** con un esquema por módulo; **la auditoría en SQLite**, aparte
   (ADR-004). El esquema cambia con una migración nueva; nunca se edita una aplicada.
+  Después de cada migración, `pnpm db:types` vuelve a generar los tipos de las tablas (ADR-018).
 - **Equipo del local:** una notebook vieja con internet intermitente, con o sin Bluetooth, y un
   celular Android. El único lector de códigos es la cámara del celular.
 

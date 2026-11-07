@@ -19,6 +19,7 @@
     "@electric-sql/pglite": "0.5.12",
     "@types/node": "24.19.2",
     "@types/pg": "8.23.1",
+    "kysely-codegen": "0.20.0",
     "kysely-pglite-dialect": "1.4.0"
   }
 }

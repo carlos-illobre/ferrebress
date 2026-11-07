@@ -1,21 +1,10 @@
 // Las consultas del vínculo (diseño de 03, § 9). Solo el estado actual: un vínculo que termina se
 // borra, y lo que pasó queda en la auditoría.
-import { type Kysely, sql } from 'kysely';
+import { type Insertable, type Kysely, sql } from 'kysely';
 import type { Pairing } from './rules.ts';
+import type { DB } from './tables.generated.ts';
 
-type PairingsTable = {
-  id: string;
-  user_id: string;
-  phone_device_id: string;
-  computer_device_id: string;
-  phone_label: string;
-  computer_label: string;
-  paired_by: 'button' | 'sign-in';
-  created_at: Date;
-  mirrored_at: Date;
-  paused_at: Date | null;
-};
-export type DeviceLinkTables = { 'device_link.pairings': PairingsTable };
+export type DeviceLinkTables = DB;
 type Db = Kysely<DeviceLinkTables>;
 
 const columns = [
@@ -31,7 +20,7 @@ const columns = [
   'paused_at as pausedAt',
 ] as const;
 
-const rowOf = (pairing: Pairing): PairingsTable => ({
+const rowOf = (pairing: Pairing): Insertable<DB['device_link.pairings']> => ({
   id: pairing.id,
   user_id: pairing.userId,
   phone_device_id: pairing.phoneDeviceId,

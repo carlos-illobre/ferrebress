@@ -89,6 +89,7 @@ Siempre los mismos archivos, así quien abrió uno sabe dónde está cada cosa e
 | `data.ts` | Las consultas a las tablas de su esquema, siempre en lote | No decide: guarda y lee lo que le piden |
 | `events.ts` | Los eventos que publica, con su texto para la auditoría | |
 | `migrations/` | Las migraciones de su esquema | |
+| `tables.generated.ts` | Los tipos de las tablas de su esquema, que `pnpm db:types` genera desde las migraciones (ADR-018); `data.ts` toma de ahí los que usa | No se edita a mano |
 
 Si un archivo crece, se parte por responsabilidad con el mismo nombre en plural de carpeta
 (`rules/charge.ts`, `rules/void.ts`).

@@ -1,8 +1,8 @@
 // Las consultas de entrar sin conexión (diseño de 15, § 3 y § 4): las entradas que llegaron y la
 // última sesión de un celular, que da su último contacto con sesión.
 import type { Kysely } from 'kysely';
-import type { SessionsTables } from '../sessions/data.ts';
 import type { ClosedReason } from '../sessions/rules.ts';
+import type { DB } from '../tables.generated.ts';
 import type { OfflineReason } from './rules.ts';
 
 export type OfflineResult = 'confirmed' | 'ended' | 'rejected';
@@ -21,21 +21,7 @@ export type OfflineSignIn = {
   sessionId: string | null;
 };
 
-export type OfflineTables = SessionsTables & {
-  'sign_in.offline_sign_ins': {
-    id: string;
-    user_id: string;
-    device_id: string;
-    credential_id: string;
-    signed_at: Date;
-    received_at: Date;
-    last_contact_at: Date | null;
-    proof_public_key: Uint8Array;
-    result: OfflineResult;
-    reason: OfflineReason | null;
-    session_id: string | null;
-  };
-};
+export type OfflineTables = Pick<DB, 'sign_in.sessions' | 'sign_in.offline_sign_ins'>;
 
 // Las entradas que llegaron.
 const entries = (db: Kysely<OfflineTables>) => ({

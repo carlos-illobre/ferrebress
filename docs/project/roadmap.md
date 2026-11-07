@@ -52,8 +52,8 @@ paralelo»).
 
 | Parte | Qué incluye | Estado |
 |---|---|---|
-| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | En curso: T130 (tipos de la base generados) |
-| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | En curso: T130 (ADR-018 aceptado) |
+| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
+| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
 
 ## Tareas pendientes de la base
 
@@ -117,9 +117,9 @@ paralelo»).
   de «Volver» en lugar del QR, y el botón de Google tardaba más de 5 s con todas en paralelo.
 - [ ] T128 [carlos] Los detalles gráficos de Quién hizo qué con «Actualizar solo» que quedaron
   desprolijos: Carlos los marca cuando quiera verlos.
-- [ ] T129 [carlos] Decidir ADR-018: que los tipos de las tablas se generen desde las migraciones
+- [x] T129 [carlos] Decidir ADR-018: que los tipos de las tablas se generen desde las migraciones
   con `kysely-codegen` sobre PGlite, en lugar de escribirlos a mano en cada `data.ts`.
-- [ ] T130 [agente] Si se acepta ADR-018: `pnpm db:types`, un `tables.generated.ts` por esquema, los
+- [x] T130 [agente] Si se acepta ADR-018: `pnpm db:types`, un `tables.generated.ts` por esquema, los
   `data.ts` de `users`, `sign-in` y `device-link` tomando sus tipos de ahí y el control en
   `pnpm check`. Sin cambiar lo que hace la aplicación. Toca código común y tres módulos cerrados: se
   toma «Código común» antes. Depende de T129.

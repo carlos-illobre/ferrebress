@@ -1,15 +1,9 @@
 // Las consultas de los dispositivos a la base (diseño de 04b, § 2): una por operación. La fila se
 // crea la primera vez que se usa o que se le pone nombre.
 import { type Kysely, sql } from 'kysely';
+import type { DB } from '../tables.generated.ts';
 
-export type DevicesTables = {
-  'sign_in.devices': {
-    device_id: string;
-    name: string | null;
-    last_seen_at: Date;
-    public_key: Uint8Array | null;
-  };
-};
+export type DevicesTables = Pick<DB, 'sign_in.devices'>;
 
 type Db = Kysely<DevicesTables>;
 

@@ -27,7 +27,8 @@ export default defineConfig({
       // src/app/main.tsx monta la aplicación en la página y src/app/google-button.ts, el marco del
       // botón de Google; src/app/sw.ts conecta los eventos del service worker con
       // platform/offline/worker.ts; src/server/testing/pglite-template.ts corre antes de las
-      // pruebas, fuera de ellas; src/server/platform/storage/audit/thread.ts conecta el hilo de
+      // pruebas, fuera de ellas; src/server/db-types.ts escribe o controla los tipos de las tablas con
+      // table-types.ts; src/server/platform/storage/audit/thread.ts conecta el hilo de
       // lectura de la auditoría con query.ts, que se prueba en el mismo hilo (y el hilo, en
       // query.test.ts, sin cobertura: la de otro hilo no se mide); src/app/platform/peer/rtc.ts es el
       // adaptador de WebRTC, que solo habla con el navegador: su lógica está en direct.ts, que se
@@ -35,6 +36,7 @@ export default defineConfig({
       exclude: [
         'tools/cli.ts',
         'src/server/main.ts',
+        'src/server/db-types.ts',
         'src/server/first-administrator.ts',
         'src/app/main.tsx',
         'src/app/sw.ts',

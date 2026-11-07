@@ -2,7 +2,13 @@
   "minLines": 8,
   "threshold": 0,
   "reporters": ["console"],
-  "ignore": ["**/*.test.ts", "**/*.test.tsx", "**/node_modules/**", "**/dist/**"],
+  "ignore": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/*.generated.ts"
+  ],
   "absolute": false,
   "exitCode": 1
 }
