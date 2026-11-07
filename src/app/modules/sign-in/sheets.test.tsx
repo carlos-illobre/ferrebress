@@ -47,6 +47,19 @@ describe('las hojas del celular', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
+  it('device-settings-E59: con nombre, el celular pregunta por el nombre y el navegador', async () => {
+    const named = {
+      ...reading,
+      computer: { label: 'Chrome en Windows', name: 'Compu del mostrador' },
+    };
+    fakeServer({ '/api/sign-in/codes/read': { body: named } });
+    render(<Code code="c1" />);
+    fireEvent.click(screen.getByText('leer'));
+    expect(
+      await screen.findByText('¿Entrar en Compu del mostrador (Chrome en Windows)?'),
+    ).toBeTruthy();
+  });
+
   it('sign-in-E16b: si hay que vincular la huella, lo dice con el correo de la cuenta', async () => {
     fakeServer({
       '/api/sign-in/codes/read': { body: { ...reading, registration: {} } },

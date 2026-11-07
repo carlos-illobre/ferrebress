@@ -30,7 +30,7 @@ function Ask({ code, read }: { code: Code; read: ReadCodeResponse }) {
         name={linking ? 'fingerprint' : 'monitor'}
         {...(!linking && { look: 'computer' })}
       />
-      <h2>{linking ? texts.code.linkTitle : texts.code.ask(read.computer.label)}</h2>
+      <h2>{linking ? texts.code.linkTitle : texts.code.ask(read.computer)}</h2>
       <p class="sheet-sub" data-private="">
         {linking ? texts.code.linkDetail((person.get() as Person).email) : texts.code.askDetail}
       </p>

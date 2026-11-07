@@ -64,6 +64,7 @@ export const texts = {
   } as Record<string, string>,
   from_where: 'Desde dónde',
   device: 'Dispositivo',
+  deviceName: 'Su nombre',
   phone: 'Celular',
   computer: 'Computadora',
   browser: 'Navegador',

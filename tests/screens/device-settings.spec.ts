@@ -47,6 +47,8 @@ test('device-settings: Configuración en la computadora', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Configuración' })).toBeVisible();
   await browserOffers(page);
   await expect(page.getByRole('button', { name: /Instalar/ })).toBeVisible();
+  // Lo mío llega después de abrir: se espera a verlo.
+  await expect(page.getByText('Celu de Rubén')).toBeVisible();
   await expect(page).toHaveScreenshot('settings-desktop.png');
 });
 
@@ -58,6 +60,8 @@ test.describe('con el movimiento del sistema prendido', () => {
     await signedIn(page);
     await page.goto('/device-settings');
     await expect(page.getByRole('heading', { name: 'Configuración' })).toBeVisible();
+    // Lo mío llega después de abrir: se espera a verlo.
+    await expect(page.getByText('Celu de Rubén')).toBeVisible();
     await expect(page).toHaveScreenshot('settings-desktop-moving.png');
   });
 
@@ -115,6 +119,8 @@ test.describe('en el celular', () => {
     await signedIn(page);
     await page.goto('/device-settings');
     await expect(page.getByRole('heading', { name: 'Configuración' })).toBeVisible();
+    // Lo mío llega después de abrir: se espera a verlo.
+    await expect(page.getByText('Celu de Rubén')).toBeVisible();
     await expect(page).toHaveScreenshot('settings-phone.png');
   });
 

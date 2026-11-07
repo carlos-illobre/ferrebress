@@ -95,12 +95,12 @@ export const PhoneShot = () => (
 );
 
 export function Status() {
-  const { online } = useEntrance();
+  const { online, start } = useEntrance();
   return (
     <p class="status">
       <span class="status-device desktop-only">
         <Icon name="monitor" size="small" />
-        {texts.device}
+        {start.deviceName ?? texts.device}
       </span>
       <span class="status-net" role="status">
         {online ? texts.online : texts.offline}

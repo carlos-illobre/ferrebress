@@ -82,31 +82,33 @@ export function DetailBody({ event, today }: { event: AuditView; today: string }
           </dl>
         </section>
       )}
-      <section class="audit-block">
-        <h3>{texts.from_where}</h3>
-        <dl class="audit-where">
-          {event.device && (
-            <div>
-              <dt>{texts.device}</dt>
-              <dd>{event.device.phone ? texts.phone : texts.computer}</dd>
-            </div>
-          )}
-          {browser && (
-            <div>
-              <dt>{texts.browser}</dt>
-              <dd>{browser}</dd>
-            </div>
-          )}
-          {event.ipAddress && (
-            <div>
-              <dt>{texts.address}</dt>
-              <dd>{event.ipAddress}</dd>
-            </div>
-          )}
-        </dl>
-        {event.device && <p class="audit-note">{texts.browserNote}</p>}
-      </section>
+      <Where event={event} browser={browser} />
       {event.truncated && <p class="audit-note">{texts.truncated}</p>}
     </div>
+  );
+}
+
+// Desde dónde (05 · R2.6): el tipo de dispositivo, su nombre de ese momento, el navegador y la
+// dirección.
+function Where({ event, browser }: { event: AuditView; browser: string | undefined }) {
+  const rows = [
+    event.device && [texts.device, event.device.phone ? texts.phone : texts.computer],
+    event.device?.name && [texts.deviceName, event.device.name],
+    browser && [texts.browser, browser],
+    event.ipAddress && [texts.address, event.ipAddress],
+  ].filter((row): row is [string, string] => !!row);
+  return (
+    <section class="audit-block">
+      <h3>{texts.from_where}</h3>
+      <dl class="audit-where" data-private="">
+        {rows.map(([name, value]) => (
+          <div key={name}>
+            <dt>{name}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {event.device && <p class="audit-note">{texts.browserNote}</p>}
+    </section>
   );
 }

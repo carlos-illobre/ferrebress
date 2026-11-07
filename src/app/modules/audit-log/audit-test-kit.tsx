@@ -34,7 +34,7 @@ const base = (
   targets: [],
   changes: {},
   data: {},
-  device: { phone: false, browser: 'chrome', os: 'windows' },
+  device: { phone: false, browser: 'chrome', os: 'windows', name: 'Caja 2' },
   ipAddress: '190.0.0.1',
   ...more,
 });

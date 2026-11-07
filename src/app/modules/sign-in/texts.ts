@@ -141,7 +141,10 @@ export const texts = {
       'Este celular ya tiene la huella de otra cuenta. Para cambiarla, hay que quitar la anterior.',
   },
   code: {
-    ask: (label: string) => `¿Entrar en ${label}?`,
+    // Con nombre, el nombre y el navegador: «¿Entrar en Compu del mostrador (Chrome en Windows)?»
+    // (R2.5, 04 · R9.7).
+    ask: ({ label, name }: { label: string; name?: string }) =>
+      `¿Entrar en ${name ? `${name} (${label})` : label}?`,
     askDetail:
       'Una computadora pide entrar con tu usuario. Si no la tenés adelante, no pongas la huella.',
     go: 'Sí, entrar con la huella',

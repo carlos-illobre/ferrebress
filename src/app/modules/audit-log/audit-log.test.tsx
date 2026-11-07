@@ -67,12 +67,14 @@ describe('Quién hizo qué', () => {
     expect(detail()).toContain('Pedro');
   });
 
-  it('audit-log-E32, E35d: en la computadora, el detalle de la primera y de la que marca el teclado', async () => {
+  it('audit-log-E32, E35d, R2.6: en la computadora, el detalle de la primera y de la que marca el teclado', async () => {
     openAuditLog();
     await screen.findByText('25 acciones');
     expect(detail()).toContain('Ana Gómez le sacó el rol Cajero a Martín');
     expect(detail()).toContain('Cajero, Encargado');
     expect(detail()).toContain('Chrome en Windows');
+    // El nombre del dispositivo de ese momento (04 · R9.4).
+    expect(detail()).toContain('Su nombreCaja 2');
     expect(detail()).toContain('190.0.0.1');
     expect(detail()).toContain('hora del servidor');
     // Que la lista ya escuche al teclado (los efectos corren después de dibujar).

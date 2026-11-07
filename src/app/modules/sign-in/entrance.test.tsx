@@ -17,8 +17,8 @@ import {
 
 const start = startReply().body as Parameters<typeof Entrance>[0]['start'];
 
-function open({ signInFirst = false, onScan = vi.fn(), onStale = vi.fn() } = {}) {
-  render(<Entrance start={start} onScan={onScan} signInFirst={signInFirst} onStale={onStale} />);
+function open({ signInFirst = false, onScan = vi.fn(), onStale = vi.fn(), given = start } = {}) {
+  render(<Entrance start={given} onScan={onScan} signInFirst={signInFirst} onStale={onStale} />);
   return { onScan, onStale, card: screen.getByRole('region', { name: 'Entrar' }) };
 }
 
@@ -53,6 +53,14 @@ describe('la entrada en la computadora', () => {
     expect(card.querySelector('.note')).not.toBeNull();
     expect(document.querySelector('.test-banner')).not.toBeNull();
     expect(screen.getByText('En línea')).toBeTruthy();
+    expect(screen.getByText('Esta computadora')).toBeTruthy();
+  });
+
+  it('device-settings-E52: arriba a la derecha, el nombre de la computadora si tiene', () => {
+    googleFrame();
+    fakeServer({ '/api/sign-in/codes': 'waiting', [codesPath()]: 'waiting' });
+    open({ given: { ...start, deviceName: 'Compu del mostrador' } });
+    expect(document.querySelector('.status-device')?.textContent).toBe('Compu del mostrador');
   });
 
   it('app-E32: «Ver el manual» abre el manual sin haber entrado; sin conexión, gris', () => {
