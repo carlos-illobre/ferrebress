@@ -35,6 +35,25 @@
 ## Opciones descartadas
 
 - **Contraseñas:** Carlos no las quiere.
+- **Un framework de autenticación (better-auth):** la entrada se arma con piezas chicas, `jose`
+  para el pase de Google y `@simplewebauthn/server` para la huella, en lugar de un framework.
+  better-auth resolvería lo genérico (Google, la huella, la tabla y la cookie de la sesión, los
+  límites de pedidos), pero:
+  - Lo propio de Ferrebress no viene en él y se escribiría igual, como plugins suyos: el QR
+    propio, entrar sin conexión, la llave de prueba de cada sesión, «un celular, una cuenta» y
+    cortar un celular perdido.
+  - Sus sesiones no cumplen el ADR-015: guarda el pase tal cual en la base, no su huella; para no
+    consultar la base en cada pedido guarda la sesión en la cookie, y entonces cerrarla ya no es
+    instantáneo, o necesita un almacenamiento aparte; y no trae el tope desde que se entró junto
+    con el vencimiento por falta de uso.
+  - Trae sus propias tablas de personas, sesiones y cuentas, y sus propias migraciones, que chocan
+    con las de `users` y `sign-in`.
+  - Es una dependencia grande en producción, con más superficie de ataque.
+  - Sus rutas y sus respuestas reemplazan a los contratos de `src/shared/contracts` y a la
+    auditoría de cada ruta.
+
+  Convendría para cuentas de clientes, si la venta online (T101) las necesita: registrarse,
+  recuperar el acceso, entrar con otros proveedores. Esa entrada iría aparte de la del personal.
 
 ## Dónde se entra con qué
 
