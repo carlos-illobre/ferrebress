@@ -114,7 +114,8 @@ export const claimCodeBody = z.object({ permit: base64url(64), proofPublicKey: b
 
 export type ReadCodeResponse = {
   secret: string;
-  computer: { label: string };
+  // `name`: el que le pusieron a la computadora, si tiene (04 · R9.7).
+  computer: { label: string; name?: string };
   holdSeconds: number;
   authentication: unknown;
   // Solo si el celular entró con Google hace poco y todavía no tiene huella.

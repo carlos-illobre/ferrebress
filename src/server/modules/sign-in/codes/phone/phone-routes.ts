@@ -51,6 +51,12 @@ export function registerPhoneRoutes(ctx: SignInContext): void {
   registerApproveRoute(ctx);
 }
 
+// «¿Entrar en Compu del mostrador (Chrome en Windows)?» (01 · R2.5, 04 · R9.7): el nombre de ahora.
+function nameOf(ctx: SignInContext, deviceId: string | undefined) {
+  const name = deviceId && ctx.devices.nameOf(deviceId);
+  return name ? { name } : {};
+}
+
 // Con sesión y sin huella, la huella nueva solo se crea recién pasado por Google: si no puede
 // vincularla ahora, primero entra, sin reservar el código (R2.7, tercer punto).
 async function mustSignInFirst(ctx: SignInContext, c: Context): Promise<boolean> {
@@ -72,7 +78,7 @@ async function read(ctx: SignInContext, c: Context, screen: Screen): Promise<Rea
     !(await ctx.passkeys.findActiveByDevice(session.deviceId));
   return {
     secret: reservation.secret,
-    computer: { label: screen.deviceLabel },
+    computer: { label: screen.deviceLabel, ...nameOf(ctx, screen.deviceId) },
     holdSeconds: holdMs / 1000,
     authentication: await authenticationOptions(ctx, challenge),
     ...(canLink && { registration: await registrationOptions(ctx, session, challenge) }),

@@ -62,6 +62,13 @@ function reading(db: Db) {
       deviceIds.length === 0 ? Promise.resolve([]) : ofDevices(userId, deviceIds).execute(),
     forUser: (userId: string): Promise<Pairing[]> =>
       select().where('user_id', '=', userId).execute(),
+    // Los de un dispositivo, de cualquier persona (un nombre nuevo, 04 · R9.4).
+    withDevice: (deviceId: string): Promise<Pairing[]> =>
+      select()
+        .where((eb) =>
+          eb.or([eb('phone_device_id', '=', deviceId), eb('computer_device_id', '=', deviceId)]),
+        )
+        .execute(),
   };
 }
 

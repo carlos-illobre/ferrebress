@@ -43,7 +43,8 @@ function openScreen(ctx: SignInContext, c: Context, tab: string | undefined) {
     : ctx.throttle(c, [`codes:open:${ip}`], codeSettings.openPerIp);
   if (blocked) return blocked;
   if (previous) ctx.screens.drop(previous);
-  const screen = ctx.screens.open(ip, deviceLabel(c.req.header('User-Agent')), owner);
+  const device = { label: deviceLabel(c.req.header('User-Agent')), id: c.get('deviceId') };
+  const screen = ctx.screens.open(ip, device, owner);
   if (!screen) return ctx.tooMany(c, codeSettings.codeTtlMs);
   setCookie(c, cookie.name, screen.id, { ...cookie.options, httpOnly: true, sameSite: 'Strict' });
   return c.json({ ok: true });

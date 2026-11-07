@@ -22,6 +22,8 @@ export type Screen = {
   owner?: string;
   ipAddress: string;
   deviceLabel: string;
+  // El dispositivo que dijo ser, para mostrar su nombre al celular (04 · R9.7). Nunca sale.
+  deviceId?: string;
   openedAt: number;
   channel?: Channel;
   code?: string;
@@ -44,7 +46,11 @@ function registry({ screens, now }: State) {
   };
   return {
     // Una pantalla nueva, o undefined si se llegó al tope total o al de esa dirección.
-    open(ipAddress: string, deviceLabel: string, owner?: string): Screen | undefined {
+    open(
+      ipAddress: string,
+      device: { label: string; id?: string | undefined },
+      owner?: string,
+    ): Screen | undefined {
       sweep();
       const fromIp = [...screens.values()].filter(
         (screen) => screen.ipAddress === ipAddress,
@@ -54,7 +60,8 @@ function registry({ screens, now }: State) {
       const screen: Screen = {
         id: random(32),
         ipAddress,
-        deviceLabel,
+        deviceLabel: device.label,
+        ...(device.id && { deviceId: device.id }),
         openedAt: now(),
         ...(owner && { owner }),
       };

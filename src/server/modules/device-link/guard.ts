@@ -39,7 +39,7 @@ export function guardRequests(ctx: DeviceLinkContext): void {
     // `/api/start` pide las partes solo con sesión.
     const session = (await sessions.identify(c)) as RequestSession;
     const pairing = await ctx.members.pairingOf(session.userId, session.deviceId);
-    return pairing ? viewOf(pairing, sideOf(session)) : null;
+    return pairing ? viewOf(pairing, sideOf(session), ctx.names) : null;
   });
   header.contribute('l', (c: Context) => {
     const session = c.get('session') as RequestSession | undefined;

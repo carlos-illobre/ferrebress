@@ -28,7 +28,7 @@ export function recordEnded(ctx: DeviceLinkContext, ended: Pairing[], reason: En
       type: 'device-link.ended',
       at: ctx.platform.clock.now(),
       actor: { kind: 'system' },
-      targets: [{ kind: 'person', id: pairing.userId }, ...targetsOf(pairing)],
+      targets: [{ kind: 'person', id: pairing.userId }, ...targetsOf(pairing, ctx.names)],
       data: { reason },
     });
 }
@@ -88,14 +88,14 @@ export function afterPairing(ctx: DeviceLinkContext, paired: Paired, actor: Acto
       type: 'device-link.replaced',
       at,
       actor,
-      targets: [person, ...targetsOf(old)],
+      targets: [person, ...targetsOf(old, ctx.names)],
       data: { how: pairing.pairedBy },
     });
   ctx.platform.audit.record({
     type: 'device-link.paired',
     at,
     actor,
-    targets: [person, ...targetsOf(pairing)],
+    targets: [person, ...targetsOf(pairing, ctx.names)],
     data: { how: pairing.pairedBy },
   });
 }

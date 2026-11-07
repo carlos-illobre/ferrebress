@@ -1,6 +1,10 @@
 // El nombre de cada dispositivo (04 · R9; diseño de 04b, § 3 y § 10): ponerlo, cambiarlo y borrarlo
 // desde el dispositivo de la sesión, verlo en /api/start y en Quién hizo qué, y que se borre solo.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { testConfig } from '../../../testing/config.ts';
+import { createAuthenticator } from '../../../testing/sign-in/authenticator.ts';
+import { androidPhone } from '../../../testing/sign-in/offline-kit.ts';
+import { openScreen } from '../../../testing/sign-in/screen-channel.ts';
 import {
   createDevice,
   createSignInServer,
@@ -38,9 +42,9 @@ describe('el nombre del dispositivo', () => {
         body: { name: 'Compu del mostrador', repeated: false },
       });
     });
-    // La escritura, en su transacción con el aviso; la primera vez de la sesión, también sus permisos
-    // para la cabecera.
-    expect(queries).toBeLessThanOrEqual(4);
+    // La escritura, en su transacción con el aviso (el vínculo busca los suyos con ese dispositivo);
+    // la primera vez de la sesión, también sus permisos para la cabecera.
+    expect(queries).toBeLessThanOrEqual(5);
     expect((await device.request('/api/start')).body.deviceName).toBe('Compu del mostrador');
     // Sin sesión también, para la entrada de la computadora (01 · R2.5).
     await device.request('/api/sign-out', {});
@@ -111,6 +115,21 @@ describe('el nombre del dispositivo', () => {
       expect((await device.request('/api/me/device-name', { name: `N ${i}` })).status).toBe(200);
     expect((await device.request('/api/me/device-name', { name: 'Otro' })).status).toBe(429);
     now += 61 * 60_000;
+  });
+
+  it('device-settings-E59: el celular pregunta «¿Entrar en …?» con el nombre y el navegador de la computadora', async () => {
+    const pc = await signedIn();
+    await pc.request('/api/me/device-name', { name: 'Compu del mostrador' });
+    await pc.request('/api/sign-out', {});
+    const screen = await openScreen(server, pc);
+    const phone = createDevice(server, { userAgent: androidPhone, ip: pc.ip });
+    await phone.signInWithGoogle(admin);
+    const authenticator = createAuthenticator(testConfig.PUBLIC_ORIGIN);
+    const options = await phone.request('/api/passkeys/options', {});
+    await phone.request('/api/passkeys', { response: authenticator.create(options.body) });
+    const read = await phone.request('/api/sign-in/codes/read', { code: screen.lastCode() });
+    expect(read.body.computer).toEqual({ label: 'Chrome en Windows', name: 'Compu del mostrador' });
+    await screen.close();
   });
 
   it('device-settings-E58: el nombre de uno que nadie usa en un año se borra en la limpieza del día', async () => {

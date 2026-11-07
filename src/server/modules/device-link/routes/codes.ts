@@ -39,10 +39,10 @@ async function link(ctx: DeviceLinkContext, c: Context, ticket: Ticket, mayRepla
   if ('refused' in paired) return paired;
   afterPairing(ctx, paired, { kind: 'person', userId: ticket.phone.userId });
   ctx.platform.realtime.publish(codeTopic, ticket.computerSessionId, {
-    paired: viewOf(paired.pairing, 'computer'),
+    paired: viewOf(paired.pairing, 'computer', ctx.names),
   });
   ctx.codes.stop(ticket.computerSessionId);
-  return c.json<ReadCodeResponse>({ pairing: viewOf(paired.pairing, 'phone') });
+  return c.json<ReadCodeResponse>({ pairing: viewOf(paired.pairing, 'phone', ctx.names) });
 }
 
 async function read(ctx: DeviceLinkContext, c: Context, code: string) {
@@ -76,7 +76,7 @@ async function read(ctx: DeviceLinkContext, c: Context, code: string) {
   const key = ctx.tickets.issue(session.id, { ...ticket, replaces: idsOf(linked.refused) });
   return c.json<ReadCodeResponse>({
     ticket: key as string,
-    replaces: replacesOf(linked.refused, phone, computer),
+    replaces: replacesOf(linked.refused, phone, computer, ctx.names),
   });
 }
 

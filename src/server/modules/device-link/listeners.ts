@@ -4,8 +4,16 @@
 import type { ServerEvents } from '../../platform/events.ts';
 import type { DeviceLinkContext } from './context.ts';
 import type { DeviceLinkData } from './data.ts';
-import { afterEnding, afterPairing, type Paired, pair, recordEnded } from './lifecycle.ts';
-import type { EndReason, Pairing } from './rules.ts';
+import {
+  afterEnding,
+  afterPairing,
+  keyOf,
+  type Paired,
+  pair,
+  pairingTopic,
+  recordEnded,
+} from './lifecycle.ts';
+import { type EndReason, type Names, type Pairing, viewOf } from './rules.ts';
 
 type Ending<K extends keyof ServerEvents> = {
   event: K;
@@ -45,8 +53,27 @@ function listenToEnding<K extends keyof ServerEvents>(ctx: DeviceLinkContext, en
   });
 }
 
+// Un dispositivo con otro nombre: el otro lado de cada vínculo suyo se entera por su canal, con el
+// nombre nuevo (la memoria de los nombres se pone al día recién después).
+function listenToRenames(ctx: DeviceLinkContext) {
+  ctx.platform.events.on('device.renamed', async ({ deviceId, name }, trx) => {
+    const pairings = await ctx.dataIn(trx).withDevice(deviceId);
+    // El otro lado ve solo el nombre de este dispositivo.
+    const names: Names = () => name ?? undefined;
+    return () => {
+      for (const pairing of pairings) {
+        const other = pairing.phoneDeviceId === deviceId ? 'computer' : 'phone';
+        ctx.platform.realtime.publish(pairingTopic, keyOf(pairing.id, other), {
+          pairing: viewOf(pairing, other, names),
+        });
+      }
+    };
+  });
+}
+
 export function listenToOthers(ctx: DeviceLinkContext): void {
   for (const ending of endings) listenToEnding(ctx, ending as Ending<keyof ServerEvents>);
+  listenToRenames(ctx);
   // Entrar a la computadora con el celular los vincula, reemplazando sin preguntar (R1.5).
   ctx.platform.events.on('sign-in.phone-approved', async (approved, trx) => {
     const { userId } = approved;

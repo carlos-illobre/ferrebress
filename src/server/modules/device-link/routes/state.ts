@@ -24,7 +24,7 @@ async function unpair(ctx: DeviceLinkContext, c: Context) {
   afterEnding(ctx, ended);
   for (const pairing of ended)
     ctx.record(c, 'device-link.unpaired', {
-      targets: [{ kind: 'person', id: pairing.userId }, ...targetsOf(pairing)],
+      targets: [{ kind: 'person', id: pairing.userId }, ...targetsOf(pairing, ctx.names)],
       data: { from: found.side },
     });
   return c.json({ ok: true });
@@ -39,9 +39,9 @@ async function setPaused(ctx: DeviceLinkContext, c: Context, paused: boolean) {
   ctx.members.known(updated);
   const other: Side = otherSide(found.side);
   ctx.platform.realtime.publish(pairingTopic, keyOf(updated.id, other), {
-    pairing: viewOf(updated, other),
+    pairing: viewOf(updated, other, ctx.names),
   });
-  return c.json({ pairing: viewOf(updated, found.side) });
+  return c.json({ pairing: viewOf(updated, found.side, ctx.names) });
 }
 
 // La confirmación (§ 7): el vínculo de ahora y, con la huella DTLS del otro, si el otro lado de esta
@@ -52,7 +52,7 @@ async function check(ctx: DeviceLinkContext, c: Context) {
   const { pairing, side } = found;
   ctx.members.useSession(pairing.id, side, sessionOf(c).id);
   const fingerprint = c.req.query('fp');
-  const view = viewOf(pairing, side);
+  const view = viewOf(pairing, side, ctx.names);
   if (fingerprint === undefined) return c.json<CheckResponse>({ pairing: view });
   const other = otherSide(side);
   const otherSession = ctx.members.sessionOf(pairing.id, other);

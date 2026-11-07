@@ -7,7 +7,7 @@ import type { Platform } from '../../platform/modules.ts';
 import { createRotatingCodes } from '../../platform/realtime/rotating-codes.ts';
 import { type DeviceLinkTables, deviceLinkData } from './data.ts';
 import { createMembers } from './members.ts';
-import type { Device, Pairing } from './rules.ts';
+import { type Device, labelOf, type Names, type Pairing } from './rules.ts';
 import { deviceLinkSettings } from './settings.ts';
 
 // El boleto de reemplazar (R1.4): con qué sesión del celular se pidió, los dos dispositivos y qué
@@ -28,6 +28,8 @@ export function createDeviceLinkContext(platform: Platform, { wait }: DeviceLink
   return {
     platform,
     data,
+    // El nombre de cada dispositivo, de la memoria de sign-in (04 · R9.4).
+    names: ((deviceId) => platform.devices.nameOf(deviceId)) as Names,
     // Las consultas dentro de una transacción de otro (un aviso de Entrar o de Usuarios).
     dataIn: (trx: unknown) => deviceLinkData(trx as Kysely<DeviceLinkTables>),
     members: createMembers(data),
@@ -48,7 +50,7 @@ export type DeviceLinkContext = ReturnType<typeof createDeviceLinkContext>;
 
 // Los dos dispositivos de un vínculo, como objetivos de la auditoría, por su nombre de ese momento y
 // nunca por su identificador: es lo único que ata una sesión a un dispositivo (diseño de 04b, § 8).
-export const targetsOf = (pairing: Pairing) => [
-  { kind: 'phone', id: '', name: pairing.phoneLabel },
-  { kind: 'computer', id: '', name: pairing.computerLabel },
+export const targetsOf = (pairing: Pairing, names: Names) => [
+  { kind: 'phone', id: '', name: labelOf(pairing, 'phone', names) },
+  { kind: 'computer', id: '', name: labelOf(pairing, 'computer', names) },
 ];

@@ -43,22 +43,30 @@ export const replacedBy = (existing: Pairing[], phone: Device, computer: Device)
       (pairing.phoneDeviceId === phone.deviceId || pairing.computerDeviceId === computer.deviceId),
   );
 
+// El nombre de cada dispositivo, si tiene (04 · R9): lo da sign-in, por la plataforma.
+export type Names = (deviceId: string) => string | undefined;
+
+// Cómo se llama un lado: su nombre o, sin nombre, la etiqueta guardada al vincular. No pisa nada:
+// al borrar el nombre vuelve sola la etiqueta (diseño de 04b, § 5).
+export const labelOf = (pairing: Pairing, side: Side, names: Names) =>
+  names(deviceOf(pairing, side)) ?? (side === 'phone' ? pairing.phoneLabel : pairing.computerLabel);
+
 // Lo que el celular le pregunta a la persona antes de reemplazar (R1.4).
-export function replacesOf(replaced: Pairing[], phone: Device, computer: Device) {
+export function replacesOf(replaced: Pairing[], phone: Device, computer: Device, names: Names) {
   const ofPhone = replaced.find((pairing) => pairing.phoneDeviceId === phone.deviceId);
   const ofComputer = replaced.find((pairing) => pairing.computerDeviceId === computer.deviceId);
   return {
-    ...(ofPhone && { phone: ofPhone.computerLabel }),
+    ...(ofPhone && { phone: labelOf(ofPhone, 'computer', names) }),
     ...(ofComputer && { computer: true as const }),
   };
 }
 
 const day = 24 * 60 * 60_000;
 
-export const viewOf = (pairing: Pairing, side: Side): PairingView => ({
+export const viewOf = (pairing: Pairing, side: Side, names: Names): PairingView => ({
   id: pairing.id,
   side,
-  other: { label: side === 'phone' ? pairing.computerLabel : pairing.phoneLabel },
+  other: { label: labelOf(pairing, otherSide(side), names) },
   since: pairing.createdAt.getTime(),
   lastMirrored: pairing.mirroredAt.getTime(),
   expiresAt: pairing.mirroredAt.getTime() + deviceLinkSettings.pairingDays * day,
