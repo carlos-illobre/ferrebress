@@ -90,8 +90,8 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
 - **R5.1** En la tarjeta de cada persona están sus sesiones abiertas y sus celulares con huella. La
   tarjeta cerrada dice cuántas tiene de cada cosa; sin ninguna, no lo dice. Verlas pide «Ver las
   personas»; cerrarlas, quitar un celular y «Se perdió un celular» piden «Cortar sesiones y
-  huellas». Las propias también están en Configuración, sin ningún permiso (04 · R6 a R8), con la
-  misma pieza.
+  huellas». Las propias también están en Configuración, sin ningún permiso (04 · R6 a R8): hacen lo
+  mismo, cada lugar con su forma.
 - **R5.2** **Cada sesión** muestra el dispositivo («Chrome en Android»), cómo entró (Google, huella,
   código QR o sin conexión), cuándo entró y su último uso, de la usada más recientemente a la más
   vieja. Las vencidas y las cerradas no figuran. La del dispositivo que se está usando no figura

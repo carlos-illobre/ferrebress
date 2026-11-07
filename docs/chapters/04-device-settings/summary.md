@@ -24,7 +24,7 @@ huella, mis sesiones, se me perdió un celular y el nombre del dispositivo), apr
 - **Mis celulares con huella:** los propios, con «Este» en el que se usa; «Quitar» como en Usuarios,
   salvo el de la mano, que sigue adentro; «Vincular este celular con mi huella» (R6).
 - **Mis sesiones:** las de otros dispositivos, con «Cerrar» y «Cerrar todas» (R7). Lo mismo que en la
-  tarjeta propia de Usuarios, con la misma pieza.
+  tarjeta propia de Usuarios, que lo hace igual aunque lo muestre a su manera.
 - **Se me perdió:** en cada celular propio, corta todo de un toque (R8).
 - **El nombre del dispositivo:** del dispositivo, lo pone cualquiera que lo use, hasta 30 letras; se ve en
   todos lados y queda en Quién hizo qué (R9). Sin conexión, «Lo tuyo» gris (R10).

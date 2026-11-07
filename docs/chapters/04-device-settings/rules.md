@@ -117,7 +117,7 @@ otros dispositivos, cortar mi propio celular perdido y el nombre del dispositivo
 ## 6. Mis celulares con huella
 
 Lo mismo que muestra la tarjeta de la persona en Usuarios (02 · R5), para los propios y sin ningún
-permiso. Es la misma pieza en los dos lugares.
+permiso. Hace lo mismo en los dos lugares, aunque cada uno lo muestre a su manera.
 
 - **R6.1** **Cada celular con huella propio** muestra su nombre (R9), cuándo se vinculó y su último uso.
   El celular desde el que se mira lleva la marca «Este».

@@ -158,8 +158,9 @@ En este orden, y ante un empate se mira la siguiente:
    abre.
 3. **Sin repetir:** lo mismo dos veces por la misma razón se junta; solo se repite si eso hace
    más simple o más rápido el código. Es una regla del código, no de las pantallas: una misma
-   función puede estar en dos menús si a quien la usa le sirve encontrarla en los dos; entonces es
-   una sola pieza reutilizable, que cada lugar usa. Lo que usan el servidor y la aplicación (el cálculo de
+   función puede estar en dos menús si a quien la usa le sirve encontrarla en los dos. Lo que no se
+   repite es la lógica: está una sola vez y cada lugar la usa. Cómo se ve puede ser distinto en cada
+   lugar. Lo que usan el servidor y la aplicación (el cálculo de
    precios, la forma de la API) está una sola vez en `src/shared/`.
 4. **Menos líneas y declarativo:** entre dos soluciones iguales en lo anterior, la de menos
    líneas. Nunca a costa de que se entienda.
