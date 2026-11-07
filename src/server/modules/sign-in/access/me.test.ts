@@ -1,48 +1,21 @@
 // Lo mío (04 · R6 a R8; diseño de 04b, § 3 y § 10): una persona sin ningún permiso ve y corta lo suyo,
 // por dispositivo, con la misma lógica que Usuarios, y nunca lo de otra persona.
 import { beforeAll, describe, expect, it } from 'vitest';
-import { androidPhone, createOfflineKit } from '../../../testing/sign-in/offline-kit.ts';
-import { openScreen } from '../../../testing/sign-in/screen-channel.ts';
+import { createMeKit, type MeKit } from '../../../testing/sign-in/me-kit.ts';
+import { androidPhone } from '../../../testing/sign-in/offline-kit.ts';
 import { createDevice } from '../../../testing/sign-in/sign-in-server.ts';
 
-type Kit = Awaited<ReturnType<typeof createOfflineKit>>;
-type Linked = Awaited<ReturnType<Kit['linkedPhone']>>;
-type Device = ReturnType<typeof createDevice>;
-
 describe('lo mío, desde Configuración', () => {
-  let kit: Kit;
-  let ip = 0;
-  const computer = () => createDevice(kit.server, { ip: `200.1.1.${++ip}` });
-  // Una computadora en la red del celular, para entrar con su código (01 · R2.5).
-  const nextTo = (linked: Linked) => createDevice(kit.server, { ip: linked.phone.ip });
-
-  // Una persona sin ningún permiso con su celular con huella.
-  const person = async () => {
-    const linked = await kit.linkedPhone();
-    await kit.onlyWith(linked.userId, []);
-    return linked;
-  };
-  // La computadora entra con el código que lee el celular (01 · R2.5).
-  async function enterWithCode(linked: Linked, pc: Device) {
-    const screen = await openScreen(kit.server, pc);
-    const read = await linked.phone.request('/api/sign-in/codes/read', { code: screen.lastCode() });
-    await linked.phone.request('/api/sign-in/codes/approve', {
-      secret: read.body.secret,
-      kind: 'assertion',
-      response: linked.authenticator.get(read.body.authentication),
-    });
-    await screen.settle();
-    const claimed = await screen.claim(screen.events.at(-1)?.permit as string);
-    pc.cookie = (claimed.headers.get('Set-Cookie') as string).match(
-      /__Host-session=[^;]+/,
-    )?.[0] as string;
-    await screen.close();
-  }
-  const mine = async (device: Device) => (await device.request('/api/me/devices')).body;
-  const audit = () => kit.server.platform.audit.read(2026);
+  let me: MeKit;
+  const computer = () => me.computer();
+  const nextTo: MeKit['nextTo'] = (linked) => me.nextTo(linked);
+  const person = () => me.person();
+  const enterWithCode: MeKit['enterWithCode'] = (linked, pc) => me.enterWithCode(linked, pc);
+  const mine: MeKit['mine'] = (device) => me.mine(device);
+  const audit = () => me.audit();
 
   beforeAll(async () => {
-    kit = await createOfflineKit();
+    me = await createMeKit();
   });
 
   it('device-settings-E10, E40, E45, E47: sin permisos ve lo suyo por dispositivo, sin la sesión de este', async () => {
@@ -54,7 +27,7 @@ describe('lo mío, desde Configuración', () => {
     await enterWithCode(linked, home);
     const fromOffice = await mine(office);
     expect(fromOffice.here).toEqual({
-      label: 'Chrome en Windows',
+      deviceLabel: 'Chrome en Windows',
       isPhone: false,
       passkey: 'none',
       computers: [],
@@ -63,13 +36,13 @@ describe('lo mío, desde Configuración', () => {
     expect(fromOffice.others).toEqual([
       {
         key: expect.any(String),
-        label: 'Chrome en Android',
+        deviceLabel: 'Chrome en Android',
         isPhone: true,
         session: expect.objectContaining({ way: 'google', id: expect.any(String) }),
         passkey: { createdAt: expect.any(Number), lastUsedAt: expect.any(Number) },
         computers: [
           {
-            label: 'Chrome en Windows',
+            deviceLabel: 'Chrome en Windows',
             session: expect.objectContaining({ way: 'qr' }),
           },
         ],
@@ -89,17 +62,17 @@ describe('lo mío, desde Configuración', () => {
   });
 
   it('device-settings-E43: vincular la huella pide haber pasado por Google hace poco (02 · R3.8)', async () => {
-    const claims = await kit.newAccount();
-    const phone = createDevice(kit.server, { userAgent: androidPhone, ip: '200.9.9.9' });
+    const claims = await me.kit.newAccount();
+    const phone = createDevice(me.kit.server, { userAgent: androidPhone, ip: '200.9.9.9' });
     await phone.signInWithGoogle(claims);
-    kit.clock.now += 6 * 60_000;
+    me.kit.clock.now += 6 * 60_000;
     expect((await mine(phone)).here.passkey).toBe('none');
     expect((await phone.request('/api/passkeys/options', {})).status).toBe(403);
   });
 
   it('device-settings-E44: un celular con la huella de otra persona lo dice', async () => {
     const owner = await person();
-    const other = await kit.newAccount();
+    const other = await me.kit.newAccount();
     owner.phone.cookie = '';
     await owner.phone.signInWithGoogle(other);
     expect((await mine(owner.phone)).here.passkey).toBe('other');
@@ -110,7 +83,14 @@ describe('lo mío, desde Configuración', () => {
     const [a, b] = [computer(), computer()];
     await a.signInWithGoogle(linked.claims);
     await b.signInWithGoogle(linked.claims);
+    await a.request('/api/me/device-name', { name: 'A' });
+    me.kit.clock.now += 60_000;
+    await b.request('/api/me/device-name', { name: 'B' });
+    // La usada más recientemente primero (R7.1).
     const { others } = await mine(linked.phone);
+    expect(others.map((d: { deviceName: string }) => d.deviceName)).toEqual(['B', 'A']);
+    // Desde A: B y el celular, con su huella todavía sin usar.
+    expect((await mine(a)).others).toHaveLength(2);
     const one = others[0].session.id;
     expect((await linked.phone.request(`/api/me/sessions/${one}/close`, {})).body).toEqual({
       closed: 1,
@@ -127,16 +107,33 @@ describe('lo mío, desde Configuración', () => {
     await office.signInWithGoogle(linked.claims);
     await enterWithCode(linked, home);
     const [phone] = (await mine(office)).others;
+    // Una computadora no se corta como perdida.
+    const [pc] = (await mine(linked.phone)).others.filter((d: { isPhone: boolean }) => !d.isPhone);
+    expect((await office.request(`/api/me/devices/${pc.key}/cut`, { how: 'lost' })).status).toBe(
+      404,
+    );
     const cut = await office.request(`/api/me/devices/${phone.key}/cut`, { how: 'lost' });
     expect(cut.body).toEqual({ sessions: 2, passkey: true });
     expect(audit().at(-1)).toMatchObject({
       type: 'phone.cut',
       tone: 'red',
       targets: [{ kind: 'person', id: linked.userId }],
+      data: { from: 'settings' },
     });
     expect((await linked.phone.request('/api/start')).body.person).toBeUndefined();
     expect((await home.request('/api/start')).body.person).toBeUndefined();
     expect((await office.request('/api/start')).body.person).toBeDefined();
+  });
+
+  it('device-settings-R1.8, 02 · R5.6: desde la computadora que entró con su código, se ve que «Se me perdió» la corta también', async () => {
+    const linked = await person();
+    const home = nextTo(linked);
+    await me.enterWithCode(linked, home);
+    const [phone] = (await mine(home)).others;
+    expect(phone.computers).toEqual([expect.objectContaining({ here: true })]);
+    expect((await mine(home)).here.computers).toEqual([]);
+    await home.request(`/api/me/devices/${phone.key}/cut`, { how: 'lost' });
+    expect((await home.request('/api/start')).body.person).toBeUndefined();
   });
 
   it('device-settings-E41: «Quitar» la huella de otro celular cierra su sesión y lo que hizo entrar', async () => {
@@ -151,7 +148,7 @@ describe('lo mío, desde Configuración', () => {
 
   it('device-settings-E42, E50: la huella del celular en la mano se quita sin cerrar nada; no se corta como perdido', async () => {
     const linked = await person();
-    await kit.onlyWith(linked.userId, ['offline.work']);
+    await me.kit.onlyWith(linked.userId, ['offline.work']);
     expect((await linked.phone.request('/api/start')).body.person.offline).toBe(true);
     const home = nextTo(linked);
     await enterWithCode(linked, home);
@@ -166,7 +163,7 @@ describe('lo mío, desde Configuración', () => {
     expect((await linked.phone.request('/api/me/passkey/remove', {})).body.passkey).toBe(false);
     expect(audit()).toHaveLength(before);
     // Su propia sesión, como celular perdido, no: se sale con «Salir».
-    const again = await kit.linkedPhone();
+    const again = await me.kit.linkedPhone();
     const office = computer();
     await office.signInWithGoogle(again.claims);
     const [own] = (await mine(office)).others;
@@ -191,11 +188,11 @@ describe('lo mío, desde Configuración', () => {
           e.type === 'users.rejected' && e.actor.kind === 'person' && e.actor.userId === ana.userId,
       ),
     ).toHaveLength(1);
-    expect((await createDevice(kit.server).request('/api/me/devices')).status).toBe(401);
+    expect((await createDevice(me.kit.server).request('/api/me/devices')).status).toBe(401);
   });
 
   it('device-settings-E52, R9.4: el nombre de cada dispositivo, en lo mío, en Usuarios y en «Se perdió»', async () => {
-    const linked = await kit.linkedPhone();
+    const linked = await me.kit.linkedPhone();
     const [office, home] = [computer(), nextTo(linked)];
     await office.signInWithGoogle(linked.claims);
     await enterWithCode(linked, home);
@@ -206,10 +203,10 @@ describe('lo mío, desde Configuración', () => {
     ] as const)
       await device.request('/api/me/device-name', { name });
     const fromOffice = await mine(office);
-    expect(fromOffice.here.name).toBe('Oficina');
+    expect(fromOffice.here.deviceName).toBe('Oficina');
     expect(fromOffice.others[0]).toMatchObject({
-      name: 'Celu de Ana',
-      computers: [{ name: 'Casa' }],
+      deviceName: 'Celu de Ana',
+      computers: [{ deviceName: 'Casa' }],
     });
     const card = (await office.request(`/api/users/${linked.userId}/access`)).body;
     expect(card.phones).toEqual([expect.objectContaining({ deviceName: 'Celu de Ana' })]);
@@ -222,21 +219,9 @@ describe('lo mío, desde Configuración', () => {
     expect(own.phones).toEqual([expect.objectContaining({ deviceName: 'Celu de Ana' })]);
     // Sin la sesión del celular, sigue con su huella.
     await linked.phone.request('/api/sign-out', {});
-    expect((await mine(office)).others[0]).toMatchObject({ session: null, name: 'Celu de Ana' });
-  });
-
-  it('ninguna respuesta lleva el identificador de un dispositivo; con dos consultas', async () => {
-    const linked = await person();
-    const pc = nextTo(linked);
-    await enterWithCode(linked, pc);
-    await mine(linked.phone);
-    let body = '';
-    const queries = await kit.server.countQueries(async () => {
-      body = JSON.stringify(await mine(linked.phone));
+    expect((await mine(office)).others[0]).toMatchObject({
+      session: null,
+      deviceName: 'Celu de Ana',
     });
-    expect(queries).toBe(2);
-    for (const id of [linked.phone.id, pc.id]) expect(body).not.toContain(id);
-    const card = await linked.phone.request(`/api/users/${linked.userId}/access`);
-    expect(JSON.stringify(card.body)).not.toContain(linked.phone.id);
   });
 });

@@ -111,7 +111,11 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Formato de la hora | Cómo se escribe la hora: 24 horas o a. m./p. m. | `timeFormat` (`h24`, `h12`) |
 | Instalar | Dejar la aplicación con su ícono en el dispositivo | `install` |
 | Nombre del dispositivo | Cómo se llama un dispositivo para todos los que lo usan («Compu del mostrador») | `deviceName` |
-| Se me perdió | Cortar de un toque un celular propio: sus sesiones, las computadoras que hizo entrar y su huella | `lostPhone` |
+| Se me perdió | Cortar de un toque un celular propio: sus sesiones, las computadoras que hizo entrar y su huella | `how: 'lost'` (el corte, `cutPhone`) |
+| Quitar (una huella) | Sacarle la huella a un celular; si es otro, también se cierran sus sesiones y lo que hizo entrar | `how: 'remove'`; el de la mano, `removeHere` |
+| Lo mío | Lo de la persona de la sesión en Configuración: sus dispositivos, sesiones y huellas, sin permiso | `mine`; en la API, `/api/me` |
+| Clave del dispositivo | El identificador opaco con que la aplicación nombra a otro dispositivo propio para cortarlo: el de su huella o el de su sesión, nunca el del dispositivo | `deviceKey` (`key`) |
+| Recibo | Lo que queda en Configuración después de cortar: qué se cortó, hasta «Listo» | `receipt` |
 
 ## Usuarios y acceso
 

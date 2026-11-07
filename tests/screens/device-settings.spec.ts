@@ -20,10 +20,10 @@ async function signedIn(page: Page, environment = 'testing') {
       headers: { 'X-Ferrebress': `v=screens; t=${now.getTime()}; e=${environment}` },
     });
   });
+  // Sin la hora del servidor: la pone /api/start, y una segunda movería la hora por milisegundos.
   await page.route('**/api/me/devices', (route) =>
     route.fulfill({
       json: mine(/Android|iPhone/.test(route.request().headers()['user-agent'] ?? '')),
-      headers: { 'X-Ferrebress': `v=screens; t=${now.getTime()}; e=testing` },
     }),
   );
   await page.clock.setFixedTime(now);

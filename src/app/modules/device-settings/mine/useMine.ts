@@ -3,6 +3,8 @@
 // Cerrar y cortar usan la lógica común de sign-in; acá se arma el recibo y se pone al día la pantalla.
 import type { MyDevice, MyDevicesResponse } from '@ferrebress/shared/contracts/device-settings';
 import { useEffect, useState } from 'preact/hooks';
+import { online as onlineStore } from '../../../platform/server/api.ts';
+import { useStore } from '../../../platform/store.ts';
 import { showToast } from '../../../ui/toast/Toast.tsx';
 import {
   accessApi,
@@ -24,7 +26,11 @@ export type MineState =
 
 export function useMine() {
   // local: lo mío es de cada dispositivo, no se espeja (R1.6).
-  const [state, setState] = useState<MineState>({ status: 'loading' });
+  const [loaded, setState] = useState<MineState>({ status: 'loading' });
+  // Si se corta la conexión con la pantalla abierta, lo mío queda gris al momento (R10.1).
+  const online = useStore(onlineStore);
+  const state: MineState =
+    !online && loaded.status === 'ready' ? { status: 'offline', data: loaded.data } : loaded;
   // local: el recibo es de quien cortó, en su dispositivo.
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const goneOffline = () =>

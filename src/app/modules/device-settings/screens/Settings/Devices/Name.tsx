@@ -6,7 +6,7 @@ import {
   deviceNameMax,
   isRepeated,
 } from '@ferrebress/shared/contracts/device-settings';
-import { lettersIn } from '@ferrebress/shared/text/clean';
+import { cleanText, lettersIn } from '@ferrebress/shared/text/clean';
 import { useEffect, useRef } from 'preact/hooks';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
@@ -36,7 +36,8 @@ function Field({
 }: Props & { draft: { text: string } }) {
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => input.current?.focus(), []);
-  const letters = lettersIn(draft.text.trim());
+  // Contadas como las cuenta la limpieza: lo que se va a guardar.
+  const letters = lettersIn(cleanText(draft.text, Number.POSITIVE_INFINITY) ?? '');
   const clean = cleanDeviceName(draft.text);
   const submit = (event: Event) => {
     event.preventDefault();

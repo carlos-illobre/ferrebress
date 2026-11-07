@@ -14,15 +14,15 @@ const session = (id: string, way: 'google' | 'passkey' | 'qr', entered: string, 
 const hereOf = (isPhone: boolean) =>
   isPhone
     ? {
-        label: 'Chrome en Android',
-        name: 'Celu de Ana',
+        deviceLabel: 'Chrome en Android',
+        deviceName: 'Celu de Ana',
         isPhone: true,
         passkey: 'mine',
         since: { createdAt: at('2026-09-12T13:00:00Z'), lastUsedAt: at('2026-11-06T13:15:00Z') },
         computers: [
           {
-            label: 'Chrome en Windows',
-            name: 'Compu del mostrador',
+            deviceLabel: 'Chrome en Windows',
+            deviceName: 'Compu del mostrador',
             session: session(
               '0192d3a4-0000-7000-8000-000000000001',
               'qr',
@@ -32,13 +32,13 @@ const hereOf = (isPhone: boolean) =>
           },
         ],
       }
-    : { label: 'Chrome en Windows', isPhone: false, passkey: 'none', computers: [] };
+    : { deviceLabel: 'Chrome en Windows', isPhone: false, passkey: 'none', computers: [] };
 
 const others = [
   {
     key: '0192d3a4-0000-7000-8000-000000000010',
-    label: 'Chrome en Android',
-    name: 'Celu de Rubén',
+    deviceLabel: 'Chrome en Android',
+    deviceName: 'Celu de Rubén',
     isPhone: true,
     session: session(
       '0192d3a4-0000-7000-8000-000000000011',
@@ -49,8 +49,8 @@ const others = [
     passkey: { createdAt: at('2026-09-12T13:00:00Z'), lastUsedAt: at('2026-11-06T13:15:00Z') },
     computers: [
       {
-        label: 'Chrome en Windows',
-        name: 'Caja 2',
+        deviceLabel: 'Chrome en Windows',
+        deviceName: 'Caja 2',
         session: session(
           '0192d3a4-0000-7000-8000-000000000012',
           'qr',
@@ -62,7 +62,7 @@ const others = [
   },
   {
     key: '0192d3a4-0000-7000-8000-000000000020',
-    label: 'Chrome en Android',
+    deviceLabel: 'Chrome en Android',
     isPhone: true,
     session: null,
     passkey: { createdAt: at('2026-03-03T13:00:00Z'), lastUsedAt: at('2026-11-04T22:20:00Z') },

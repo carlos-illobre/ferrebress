@@ -38,8 +38,9 @@ que decide Carlos está en § 12.
   como mucho, junto con el último uso de la sesión que ya se escribe (ninguna escritura más).
 - **Quién puso el nombre** queda en la auditoría, no acá.
 - **Sin índice más que la clave:** son unas decenas de filas.
-- **La limpieza diaria** que ya corre en `sign-in` borra la fila de un dispositivo sin sesión ni huella y
-  con `last_seen_at` de hace más de `devices.forgetAfterDays` (365, en el `settings.ts` de `sign-in`).
+- **La limpieza diaria** que ya corre en `sign-in` borra la fila de un dispositivo con `last_seen_at` de
+  hace más de `devices.forgetAfterDays` (365, en el `settings.ts` de `sign-in`), también la de un
+  celular con huella que nadie usó en ese tiempo (R9.6).
 - **En la memoria:** `sign-in` tiene los nombres en un `Map` (tope `devices.maxInMemory`, 1000: una
   ferretería tiene decenas), cargado al arrancar y al día con cada cambio. Lo leen la auditoría, la
   entrada, el vínculo y las listas.
@@ -75,8 +76,11 @@ una vez por ventana, como en Usuarios. Las formas y los errores, en
   de 1 a 30 letras (contadas igual en la aplicación, el servidor y la base); no puede tener caracteres
   de control, invisibles ni de dirección del texto (`\p{Cc}`, `\p{Cf}`). Es la misma limpieza que el
   nombre de una persona y el de un rol: se junta una sola vez en `src/shared/text/clean.ts` y las tres
-  la usan. «Se repite» compara después de limpiar, sin distinguir mayúsculas.
-- **Límite:** cambiar el nombre, como mucho 10 veces por hora por sesión (`devices.renamesPerHour`).
+  la usan. Además saca los rellenos que se ven en blanco, los caracteres de uso privado, sin asignar
+  o sueltos, y deja a lo sumo dos marcas sobre cada letra. «Se repite» compara después de limpiar, sin
+  distinguir mayúsculas ni tildes.
+- **Límite:** cambiar el nombre, como mucho 10 veces por hora por sesión y por dispositivo
+  (`devices.renames`): entrar de nuevo no da más cambios.
 
 ### `/api/start` y la entrada
 
@@ -187,7 +191,11 @@ cambiar su lógica ni sus piezas (`AnimationsRow`, `TimeRow`, `InstallRow`, `Off
 ## 9. Metas de performance
 
 - `GET /api/me/devices`: 2 consultas por índice de la persona; menos de 15 ms; unos 2 KB.
-- Cambiar el nombre: 1 consulta; la memoria se actualiza al confirmar.
+- Cambiar el nombre: en su transacción con el aviso, leer el nombre de antes con la fila trabada,
+  escribir el nuevo y que el vínculo busque los suyos con ese dispositivo (más abrir y confirmar). Los
+  cambios de nombre van de a uno por vez en el proceso, así la memoria queda en el orden de la base; la
+  memoria se actualiza al confirmar.
+- Cerrar una sesión: 5 consultas; cerrar todas: 4; quitar la huella del celular en la mano: 1.
 - La auditoría, la entrada, el vínculo y las listas leen el nombre de la memoria.
 - Las pruebas cuentan las consultas de cada ruta nueva.
 - La aplicación: lo mío es parte de Configuración, que está en el arranque; suma unos 6 KB, dentro del

@@ -68,10 +68,13 @@ export type SessionRow = {
 };
 
 // Un celular con huella (R5.5). `id` es opaco: ni el del dispositivo ni el de la huella.
+// `here`: es el celular desde el que se mira, en la tarjeta propia (se le quita la huella como en
+// Configuración, 04 · R6.2).
 export type PhoneRow = {
   id: string;
   deviceLabel: string;
   deviceName?: string;
+  here?: true;
   createdAt: number;
   lastUsedAt: number | null;
 };

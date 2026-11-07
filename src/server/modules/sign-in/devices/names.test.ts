@@ -43,5 +43,9 @@ describe('los nombres de los dispositivos, en memoria', () => {
     // Uno nuevo con el tope lleno hace olvidar el que hace más que no cambia.
     await few.rename(ids[2] as string, 'Depósito');
     expect(ids.map(few.nameOf)).toEqual([undefined, undefined, 'Depósito']);
+    // Uno que la base no acepta no queda en memoria, y los que vienen después siguen.
+    await expect(few.rename(ids[2] as string, 'x'.repeat(31))).rejects.toThrow();
+    expect(few.nameOf(ids[2] as string)).toBe('Depósito');
+    expect(await few.rename(ids[2] as string, 'Depósito 2')).toBe('Depósito');
   });
 });

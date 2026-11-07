@@ -1,7 +1,12 @@
 // Lo que hace cada botón de Usuarios: llama al servidor, pone la lista y la tarjeta como quedaron
 // y lo dice con una tostada (maquetas de 02). Un rechazo lo atiende `refused`, salvo los del correo,
 // que se devuelven para avisarlos junto al campo (R3.3).
-import type { CutResponse, PersonRow, SessionRow } from '@ferrebress/shared/contracts/users';
+import type {
+  CutResponse,
+  PersonRow,
+  PhoneRow,
+  SessionRow,
+} from '@ferrebress/shared/contracts/users';
 import { showToast } from '../../ui/toast/Toast.tsx';
 import * as access from '../sign-in/index.ts';
 import { usersApi } from './api.ts';
@@ -123,11 +128,11 @@ export function closeAll(users: Users, person: PersonRow) {
   );
 }
 
-// «Quitar» un celular con huella, sin confirmación (R5.6). El que se está usando, también desde la
-// tarjeta propia: sigue adentro (04 · R6.2).
-export const removePhone = (users: Users, person: PersonRow, phoneId: string) =>
-  access.cutPhone(
-    { userId: person.id },
-    { key: phoneId, how: 'remove' },
-    then(users, person.id, (cut: CutResponse) => [cut.sessions, cut.passkey ? 1 : 0]),
-  );
+// «Quitar» un celular con huella, sin confirmación (R5.6). El que se está usando, en la tarjeta
+// propia, como en Configuración: sigue adentro, sin huella ni «Trabajar sin conexión» (04 · R6.2).
+export function removePhone(users: Users, person: PersonRow, phone: PhoneRow) {
+  const counts = then(users, person.id, (cut: CutResponse) => [cut.sessions, cut.passkey ? 1 : 0]);
+  return phone.here
+    ? access.removeHere(counts)
+    : access.cutPhone({ userId: person.id }, { key: phone.id, how: 'remove' }, counts);
+}

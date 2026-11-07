@@ -42,9 +42,10 @@ describe('el nombre del dispositivo', () => {
         body: { name: 'Compu del mostrador', repeated: false },
       });
     });
-    // La escritura, en su transacción con el aviso (el vínculo busca los suyos con ese dispositivo);
-    // la primera vez de la sesión, también sus permisos para la cabecera.
-    expect(queries).toBeLessThanOrEqual(5);
+    // Abrir la transacción, leer el nombre de antes trabado, escribir el nuevo, el vínculo busca los
+    // suyos con ese dispositivo, y confirmar; la primera vez de la sesión, también sus permisos para
+    // la cabecera.
+    expect(queries).toBe(6);
     expect((await device.request('/api/start')).body.deviceName).toBe('Compu del mostrador');
     // Sin sesión también, para la entrada de la computadora (01 · R2.5).
     await device.request('/api/sign-out', {});
@@ -138,10 +139,11 @@ describe('el nombre del dispositivo', () => {
     await used.request('/api/me/device-name', { name: 'Nuevo' });
     await unused.request('/api/sign-out', {});
     await server.runJobs();
-    // Pasa más de un año: las sesiones cerradas ya se borraron; la del otro se sigue usando.
+    // Pasa más de un año: uno no se usa más; el otro, una vez por mes.
     for (let i = 0; i < 13; i++) {
       now += 30 * day;
       await used.signInWithGoogle(admin);
+      await used.request('/api/me/devices');
       await server.runJobs();
     }
     expect((await unused.request('/api/start')).body.deviceName).toBeUndefined();

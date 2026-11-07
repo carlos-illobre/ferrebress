@@ -57,7 +57,7 @@ function Phone({ person, phone }: { person: PersonRow; phone: PhoneRow }) {
           look="soft"
           size="small"
           doing={t.remove}
-          onPress={() => removePhone(users, person, phone.id)}
+          onPress={() => removePhone(users, person, phone)}
         >
           {t.remove}
         </Button>

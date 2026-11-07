@@ -7,4 +7,9 @@ export const deviceSettingsSettings = {
   // El aviso para instalar aparece un momento después de llegar al marco, no encima del cambio de
   // pantalla (04 · R4.5).
   offerAfterMs: second,
+  // Lo mío (diseño de 04b, § 7): hasta cuándo una sesión dice «usada ahora», cuánto dura el brillo
+  // al guardar el nombre y cuánto se puede mover el dedo apoyado en «Se me perdió» sin dejar de cortar.
+  usedNowMs: 5 * 60 * second,
+  shineMs: 900,
+  stillFingerPx: 10,
 };

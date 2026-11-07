@@ -2,7 +2,7 @@
 // sesiones, quitar su huella y cambiar sus roles, que lleva a «Roles de…») y tres renglones abajo (su
 // huella, sus dispositivos y su historial, que llega con la Auditoría). Hacen lo mismo que la tarjeta
 // de la computadora: no hay ninguna acción nueva.
-import type { PersonRow } from '@ferrebress/shared/contracts/users';
+import type { PersonRow, PhoneRow } from '@ferrebress/shared/contracts/users';
 import type { ComponentChildren } from 'preact';
 import { still } from '../../../../platform/motion.ts';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
@@ -46,7 +46,7 @@ export function Tiles({ person }: { person: PersonRow }) {
   // Con un solo celular, «Quitar huella» lo quita; con más, lleva a la lista para elegir cuál.
   const removeOne = () =>
     phones.length === 1
-      ? removePhone(users, person, (phones[0] as { id: string }).id)
+      ? removePhone(users, person, phones[0] as PhoneRow)
       : scrollTo('users-phones');
   const tiles: Tile[] = [
     {

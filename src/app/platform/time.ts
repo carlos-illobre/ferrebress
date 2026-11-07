@@ -62,6 +62,28 @@ export function dateOf(at: number, now: number): string {
   return `${date}/${month}${year === dayOf(now)[0] ? '' : `/${year}`}`;
 }
 
+const months = [
+  'ene.',
+  'feb.',
+  'mar.',
+  'abr.',
+  'may.',
+  'jun.',
+  'jul.',
+  'ago.',
+  'sep.',
+  'oct.',
+  'nov.',
+  'dic.',
+];
+
+// La fecha con el mes en letras: «12 sep.», o con el año si no es el de ahora.
+export function dayMonthOf(at: number, now: number): string {
+  const [year, month, date] = dayOf(at);
+  const day = `${Number(date)} ${months[Number(month) - 1]}`;
+  return year === dayOf(now)[0] ? day : `${day} ${year}`;
+}
+
 // Cuándo pasó, como lo dice la gente: «recién», «hace 5 min», «hace 2 horas», «hoy 07:58»,
 // «ayer 08:02», «hace 3 días» o «el 12/10».
 export function sinceOf(at: number, now: number): string {

@@ -14,8 +14,15 @@ describe('limpiar un texto que ven otros', () => {
     expect(cleanText('ñandú🔧ñandú', 6)).toBe('ñandú🔧');
   });
 
-  it('dos nombres son el mismo sin importar mayúsculas', () => {
+  it('dos nombres son el mismo sin importar mayúsculas ni tildes', () => {
     expect(sameText('Compu del mostrador', 'compu DEL Mostrador')).toBe(true);
-    expect(sameText('Compu', 'Compú')).toBe(false);
+    expect(sameText('Compu', 'Compú')).toBe(true);
+    expect(sameText('Compu', 'Caja')).toBe(false);
+  });
+
+  it('seguridad: sin rellenos que se ven en blanco, letras de nadie ni marcas apiladas', () => {
+    expect(cleanText('\u3164\u2800\uFFA0\u115F', 30)).toBeNull();
+    expect(cleanText('Ca\uE000ja\uD800', 30)).toBe('Caja');
+    expect(cleanText('a\u0301\u0301\u0301\u0301b', 30)).toBe('á\u0301\u0301b');
   });
 });

@@ -22,6 +22,11 @@ export function cleanDeviceName(raw: string): string | null | undefined {
 export const isRepeated = (name: string, others: readonly string[]) =>
   others.some((other) => sameText(other, name));
 
+// Cómo se llama un dispositivo: el nombre que le pusieron o, sin nombre, su navegador y su sistema
+// (R9.1). La única vez que se escribe: la usan Usuarios y Configuración.
+export const shownName = (device: { deviceLabel: string; deviceName?: string | undefined }) =>
+  device.deviceName ?? device.deviceLabel;
+
 export type DeviceNameResponse = { name: string | null; repeated: boolean };
 
 // Lo mío (R1.8, R6 a R8): las horas, en milisegundos desde 1970 (hora del servidor). Ningún
@@ -30,14 +35,20 @@ export type MySession = { id: string; way: Way; createdAt: number; lastUsedAt: n
 export type MyPasskey = { createdAt: number; lastUsedAt: number | null };
 
 // Una computadora que un celular hizo entrar con su código, por su sesión.
-export type MyComputer = { label: string; name?: string; session: MySession };
+// `here`: es este dispositivo, que entró con el código de ese celular; cortarlo lo corta también.
+export type MyComputer = {
+  deviceLabel: string;
+  deviceName?: string;
+  session: MySession;
+  here?: true;
+};
 
 // Otro dispositivo propio, con su sesión abierta y su huella juntas (R1.8). `key` nombra al celular
 // para «Quitar» y «Se me perdió»: el de su huella o, sin huella, el de su sesión.
 export type MyDevice = {
   key: string;
-  label: string;
-  name?: string;
+  deviceLabel: string;
+  deviceName?: string;
   isPhone: boolean;
   session: MySession | null;
   passkey: MyPasskey | null;
@@ -49,8 +60,8 @@ export type MyDevice = {
 // ferretería, para avisar mientras se escribe si se repite (E54).
 export type MyDevicesResponse = {
   here: {
-    label: string;
-    name?: string;
+    deviceLabel: string;
+    deviceName?: string;
     isPhone: boolean;
     passkey: 'mine' | 'other' | 'none';
     since?: MyPasskey;

@@ -33,6 +33,30 @@ function createSeen(clock: Platform['clock'], write: (ids: string[]) => Promise<
   };
 }
 
+// Pone, cambia o borra (nulo) el nombre, con el aviso (el vínculo lo muestra); la memoria, después de
+// confirmarlo en la base. De a uno por vez en este proceso: la memoria queda en el orden en que se
+// confirmaron. Devuelve el nombre que tenía.
+function renamer(
+  { db, clock, events }: Pick<Platform, 'db' | 'clock' | 'events'>,
+  remember: (deviceId: string, name: string | null) => void,
+) {
+  let renaming: Promise<unknown> = Promise.resolve();
+  return (deviceId: string, name: string | null): Promise<string | null> => {
+    const done = renaming.then(() =>
+      events.transaction(db, async (trx, publish) => {
+        const before = await devicesData(trx as never).rename(deviceId, name, clock.now());
+        await publish('device.renamed', { deviceId, name });
+        return before;
+      }),
+    );
+    renaming = done.then(
+      () => remember(deviceId, name),
+      () => undefined,
+    );
+    return done;
+  };
+}
+
 export function createDeviceNames({ db, clock, events }: Platform) {
   const data = devicesData(db as never);
   const names = new Map<string, string>();
@@ -53,15 +77,7 @@ export function createDeviceNames({ db, clock, events }: Platform) {
     // Los nombres de los demás dispositivos, para avisar si se repite (R9.3).
     othersThan: (deviceId: string) =>
       [...names].filter(([id]) => id !== deviceId).map(([, name]) => name),
-    // Pone, cambia o borra (nulo) el nombre, con el aviso (el vínculo lo muestra); la memoria, después
-    // de confirmarlo en la base.
-    async rename(deviceId: string, name: string | null) {
-      await events.transaction(db, async (trx, publish) => {
-        await devicesData(trx as never).rename(deviceId, name, clock.now());
-        await publish('device.renamed', { deviceId, name });
-      });
-      remember(deviceId, name);
-    },
+    rename: renamer({ db, clock, events }, remember),
     // Que se usó: se escribe con la próxima tanda, si todavía no se anotó hoy.
     touch: seen.touch,
     flush: seen.flush,

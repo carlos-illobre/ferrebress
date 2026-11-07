@@ -83,7 +83,5 @@ export const wayNames: Record<Way, string> = {
   offline: 'Sin conexión',
 };
 
-// Cómo se llama un dispositivo: el nombre que le pusieron o, sin nombre, su navegador y su sistema
-// (04 · R9.1).
-export const deviceOf = (row: { deviceLabel: string; deviceName?: string }) =>
-  row.deviceName ?? row.deviceLabel;
+// Cómo se llama un dispositivo (04 · R9.1), la regla común.
+export { shownName as deviceOf } from '@ferrebress/shared/contracts/device-settings';

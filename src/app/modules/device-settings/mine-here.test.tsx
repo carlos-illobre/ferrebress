@@ -31,7 +31,13 @@ vi.mock('../sign-in/index.ts', async (original) => ({
 
 const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', ...administrator };
 const here = (change: Partial<MyDevicesResponse['here']>): MyDevicesResponse => ({
-  here: { label: 'Chrome en Android', isPhone: true, passkey: 'none', computers: [], ...change },
+  here: {
+    deviceLabel: 'Chrome en Android',
+    isPhone: true,
+    passkey: 'none',
+    computers: [],
+    ...change,
+  },
   others: [],
   names: ['Caja'],
 });
@@ -59,12 +65,12 @@ describe('este dispositivo en Configuración', () => {
   });
 
   it('device-settings-E52 a E55: ponerle nombre, con la cuenta, las ideas, el aviso de repetido, y borrarlo', async () => {
-    const named = { ...here({ isPhone: false, label: 'Chrome en Windows' }) };
+    const named = { ...here({ isPhone: false, deviceLabel: 'Chrome en Windows' }) };
     const server = openMine(
       {
         '/api/me/devices': [
           ok(named),
-          ok({ ...named, here: { ...named.here, name: 'caja' } }),
+          ok({ ...named, here: { ...named.here, deviceName: 'caja' } }),
           ok(named),
         ],
         '/api/me/device-name': [
@@ -103,7 +109,7 @@ describe('este dispositivo en Configuración', () => {
   it('device-settings-E42: la huella del celular en la mano se quita y sigue adentro', async () => {
     const used = { createdAt: 1_600_000_000_000, lastUsedAt: 1_699_990_000_000 };
     const computer = {
-      label: 'Chrome en Windows',
+      deviceLabel: 'Chrome en Windows',
       session: {
         id: 's1',
         way: 'qr' as const,
@@ -111,7 +117,12 @@ describe('este dispositivo en Configuración', () => {
         lastUsedAt: 1_699_000_000_000,
       },
     };
-    const mine = here({ name: 'Celu de Ana', passkey: 'mine', since: used, computers: [computer] });
+    const mine = here({
+      deviceName: 'Celu de Ana',
+      passkey: 'mine',
+      since: used,
+      computers: [computer],
+    });
     openMine({
       '/api/me/devices': [ok(mine), ok(here({}))],
       '/api/me/passkey/remove': ok({ sessions: 0, passkey: true }),
@@ -159,7 +170,11 @@ describe('este dispositivo en Configuración', () => {
 
   it('device-settings-E57: sin conexión, lo último que se vio, gris, y «Reintentar»; un rechazo se dice', async () => {
     openMine({
-      '/api/me/devices': [ok(here({ name: 'Celu' })), 'offline', ok(here({ name: 'Celu' }))],
+      '/api/me/devices': [
+        ok(here({ deviceName: 'Celu' })),
+        'offline',
+        ok(here({ deviceName: 'Celu' })),
+      ],
       '/api/me/device-name': [{ status: 500, body: { error: 'unexpected' } }],
     });
     fireEvent.click(await screen.findByRole('button', { name: /Cambiar el nombre/ }));

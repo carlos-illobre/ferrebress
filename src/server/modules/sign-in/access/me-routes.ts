@@ -41,7 +41,8 @@ export function registerMyAccessRoutes(ctx: SignInContext) {
       cutPhone(ctx, c, {
         userId: me(c),
         key: c.req.param('deviceKey') as string,
-        from: cutting.of(c).how === 'lost' ? 'lost' : 'settings',
+        how: cutting.of(c).how,
+        place: 'settings',
       }),
   );
   http.post('/api/me/passkey/remove', sessions.require, limited, (c) =>

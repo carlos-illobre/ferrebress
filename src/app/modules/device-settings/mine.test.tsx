@@ -5,6 +5,7 @@ import type { MyDevicesResponse } from '@ferrebress/shared/contracts/device-sett
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate } from '../../platform/router.ts';
+import { online } from '../../platform/server/api.ts';
 import { fakeServer, type Reply } from '../../testing/fake-server.ts';
 import { inApp } from '../../testing/link-screens.ts';
 import { stubMedia } from '../../testing/media.ts';
@@ -24,24 +25,26 @@ const session = (id: string, way: 'google' | 'qr' = 'google') => ({
 });
 const rubens = {
   key: 'k-ruben',
-  label: 'Chrome en Android',
-  name: 'Celu de Rubén',
+  deviceLabel: 'Chrome en Android',
+  deviceName: 'Celu de Rubén',
   isPhone: true,
   session: session('s-ruben'),
   passkey: { createdAt: now - 86_400_000, lastUsedAt: null },
-  computers: [{ label: 'Chrome en Windows', name: 'Caja 2', session: session('s-caja', 'qr') }],
+  computers: [
+    { deviceLabel: 'Chrome en Windows', deviceName: 'Caja 2', session: session('s-caja', 'qr') },
+  ],
 };
-const { name: _, ...unnamed } = rubens;
+const { deviceName: _, ...unnamed } = rubens;
 const old = { ...unnamed, key: 'k-old', session: null, computers: [] };
 const fromComputer: MyDevicesResponse = {
-  here: { label: 'Chrome en Windows', isPhone: false, passkey: 'none', computers: [] },
+  here: { deviceLabel: 'Chrome en Windows', isPhone: false, passkey: 'none', computers: [] },
   others: [
     rubens,
     { ...old, passkey: { createdAt: now, lastUsedAt: now } },
     {
       ...old,
       key: 'k-mac',
-      label: 'Chrome en macOS',
+      deviceLabel: 'Chrome en macOS',
       isPhone: false,
       session: session('s-mac'),
       passkey: null,
@@ -113,6 +116,31 @@ describe('lo mío en Configuración', () => {
     expect(server.sent.filter((s) => s.path === '/api/me/devices').length).toBe(4);
   });
 
+  it('device-settings-R1.8, R10.1: esta computadora, colgada del celular que la hizo entrar, sin ×; sin conexión, gris al momento', async () => {
+    const thisOne = {
+      deviceLabel: 'Chrome en Windows',
+      session: session('s-me', 'qr'),
+      here: true as const,
+    };
+    openMine({
+      '/api/me/devices': ok({ ...fromComputer, others: [{ ...rubens, computers: [thisOne] }] }),
+    });
+    const ruben = within(
+      await screen
+        .findByRole('heading', { name: 'Celu de Rubén' })
+        .then(() => family('Celu de Rubén')),
+    );
+    expect(ruben.getByText('Esta computadora')).toBeTruthy();
+    expect(
+      ruben.queryByRole('button', { name: /Cerrar la sesión de Chrome en Windows/ }),
+    ).toBeNull();
+    expect(document.querySelector('.mine-counts')?.textContent).toContain('Sesiones abiertas1');
+    act(() => online.set(false));
+    expect(screen.getByText('Sin conexión: lo tuyo está en el servidor')).toBeTruthy();
+    act(() => online.set(true));
+    expect(screen.queryByText('Sin conexión: lo tuyo está en el servidor')).toBeNull();
+  });
+
   it('device-settings-E49, E41: «Se me perdió» y «Quitar» dejan el recibo con lo cortado; «Listo» lo saca', async () => {
     const server = openMine({
       '/api/me/devices': ok(fromComputer),
@@ -136,7 +164,7 @@ describe('lo mío en Configuración', () => {
     expect(screen.queryByText('Cortaste Celu de Rubén')).toBeNull();
   });
 
-  it('device-settings-E50, R8.1: en el celular se corta al soltar el dedo sin moverlo; un desplazamiento no corta', async () => {
+  it('device-settings-R8.1, R1.8: en el celular se corta al soltar el dedo sin moverlo; un desplazamiento no corta', async () => {
     const away = { ...rubens, session: { ...rubens.session, lastUsedAt: now - 7_200_000 } };
     const fromPhone = {
       ...fromComputer,

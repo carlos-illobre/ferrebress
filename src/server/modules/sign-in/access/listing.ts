@@ -17,32 +17,38 @@ import { accessData } from './data.ts';
 
 const time = (at: Date | null) => (at ? at.getTime() : null);
 
-async function read(ctx: SignInContext, userId: string, asking: RequestSession) {
+// `withAsking`: también la sesión del pedido (lo mío la necesita para saber qué celular la hizo
+// entrar); la tarjeta de Usuarios no la muestra.
+async function read(
+  ctx: SignInContext,
+  userId: string,
+  asking: RequestSession,
+  withAsking = false,
+) {
   const data = accessData(ctx.platform.db as never);
   const now = ctx.platform.clock.now();
   const [open, passkeys] = await Promise.all([
-    data.openSessionsOf(userId, asking.id, now, signInSettings.session),
+    data.openSessionsOf(userId, withAsking ? null : asking.id, now, signInSettings.session),
     data.passkeysOf(userId),
   ]);
   const lastUsed = (id: string, stored: Date) =>
     Math.max(stored.getTime(), ctx.store.lastUsedOf(id)?.getTime() ?? 0);
-  const sessions = open.map((s) => ({
-    ...s,
-    createdAt: s.createdAt.getTime(),
-    lastUsedAt: lastUsed(s.id, s.lastUsedAt),
-  }));
+  // Con el último uso de la memoria, que puede cambiar el orden de la base.
+  const sessions = open
+    .map((s) => ({
+      ...s,
+      createdAt: s.createdAt.getTime(),
+      lastUsedAt: lastUsed(s.id, s.lastUsedAt),
+    }))
+    .sort((a, b) => b.lastUsedAt - a.lastUsedAt);
   return { sessions, passkeys };
 }
 
 // El nombre del dispositivo, si tiene (de la memoria).
-function nameOf(ctx: SignInContext, deviceId: string): { name?: string } {
-  const name = ctx.devices.nameOf(deviceId);
-  return name ? { name } : {};
+function nameOf(ctx: SignInContext, deviceId: string): { deviceName?: string } {
+  const deviceName = ctx.devices.nameOf(deviceId);
+  return deviceName ? { deviceName } : {};
 }
-const deviceNameOf = (ctx: SignInContext, deviceId: string): { deviceName?: string } => {
-  const { name } = nameOf(ctx, deviceId);
-  return name ? { deviceName: name } : {};
-};
 
 // La tarjeta de Usuarios: sus sesiones abiertas y sus celulares con huella, también los propios.
 export async function accessCard(
@@ -54,11 +60,12 @@ export async function accessCard(
   return {
     sessions: sessions.map(({ deviceId, approvedBy: _, ...s }) => ({
       ...s,
-      ...deviceNameOf(ctx, deviceId),
+      ...nameOf(ctx, deviceId),
     })),
     phones: passkeys.map(({ deviceId, passkeyId: _, ...p }) => ({
       ...p,
-      ...deviceNameOf(ctx, deviceId),
+      ...nameOf(ctx, deviceId),
+      ...(deviceId === asking.deviceId && userId === asking.userId && { here: true as const }),
       createdAt: p.createdAt.getTime(),
       lastUsedAt: time(p.lastUsedAt),
     })),
@@ -75,6 +82,11 @@ const sessionOfRow = (s: Row): MySession => ({
   lastUsedAt: s.lastUsedAt,
 });
 
+// La sesión de este dispositivo no figura (R7.1), salvo como la computadora que hizo entrar un celular:
+// «Se me perdió» en él la corta también (02 · R5.6), y lo tiene que avisar.
+const hidden = (s: Row, phone: string | undefined, asking: RequestSession) =>
+  s.deviceId === asking.deviceId && (s.id !== asking.id || !phone);
+
 // Las sesiones de otros dispositivos: las de las computadoras que un celular propio hizo entrar con
 // su código, debajo de ese celular, y las demás sueltas.
 function byPhone(ctx: SignInContext, asking: RequestSession, { sessions, passkeys }: Read) {
@@ -82,13 +94,16 @@ function byPhone(ctx: SignInContext, asking: RequestSession, { sessions, passkey
   const computersOf = new Map<string, MyComputer[]>();
   const loose: Row[] = [];
   for (const s of sessions) {
-    if (s.deviceId === asking.deviceId) continue;
     const phone = s.approvedBy ? phoneOf.get(s.approvedBy) : undefined;
+    if (hidden(s, phone, asking)) continue;
     if (!phone) {
       loose.push(s);
       continue;
     }
-    const computer = { label: s.deviceLabel, ...nameOf(ctx, s.deviceId), session: sessionOfRow(s) };
+    const computer = {
+      ...{ deviceLabel: s.deviceLabel, ...nameOf(ctx, s.deviceId), session: sessionOfRow(s) },
+      ...(s.id === asking.id && { here: true as const }),
+    };
     computersOf.set(phone, [...(computersOf.get(phone) ?? []), computer]);
   }
   return { loose, computersOf };
@@ -100,13 +115,13 @@ export async function myDevices(
   ctx: SignInContext,
   asking: RequestSession,
 ): Promise<MyDevicesResponse> {
-  const { sessions, passkeys } = await read(ctx, asking.userId, asking);
+  const { sessions, passkeys } = await read(ctx, asking.userId, asking, true);
   const { loose, computersOf } = byPhone(ctx, asking, { sessions, passkeys });
   const mine = passkeys.find((p) => p.deviceId === asking.deviceId);
   const other = !mine && asking.isPhone && (await ownerOf(ctx, asking.deviceId)) !== undefined;
   return {
     here: {
-      label: asking.deviceLabel,
+      deviceLabel: asking.deviceLabel,
       ...nameOf(ctx, asking.deviceId),
       isPhone: asking.isPhone,
       passkey: mine ? 'mine' : other ? 'other' : 'none',
@@ -130,12 +145,13 @@ function othersOf(
     computersOf,
   }: { loose: Row[]; passkeys: Read['passkeys']; computersOf: Map<string, MyComputer[]> },
 ): MyDevice[] {
+  // De la usada más recientemente a la más vieja (R7.1, 02 · R5.2), como vienen de `read`: de cada
+  // dispositivo, su sesión más reciente. Los celulares que solo tienen huella, al final.
   const devices = new Map<string, MyDevice>();
-  // De la más vieja a la más nueva: si un dispositivo tiene dos, queda la usada más recientemente.
-  for (const s of loose.toReversed()) {
-    devices.set(s.deviceId, {
-      ...{ key: s.id, label: s.deviceLabel, ...nameOf(ctx, s.deviceId), isPhone: s.isPhone },
-      ...{ session: sessionOfRow(s), passkey: null, computers: computersOf.get(s.deviceId) ?? [] },
+  for (const [deviceId, [s]] of Map.groupBy(loose, (row) => row.deviceId) as Map<string, [Row]>) {
+    devices.set(deviceId, {
+      ...{ key: s.id, deviceLabel: s.deviceLabel, ...nameOf(ctx, deviceId), isPhone: s.isPhone },
+      ...{ session: sessionOfRow(s), passkey: null, computers: computersOf.get(deviceId) ?? [] },
     });
   }
   for (const p of passkeys) {
@@ -143,7 +159,7 @@ function othersOf(
     const passkey = { createdAt: p.createdAt.getTime(), lastUsedAt: time(p.lastUsedAt) };
     const known = devices.get(p.deviceId);
     devices.set(p.deviceId, {
-      ...{ key: p.id, label: p.deviceLabel, ...nameOf(ctx, p.deviceId), isPhone: true },
+      ...{ key: p.id, deviceLabel: p.deviceLabel, ...nameOf(ctx, p.deviceId), isPhone: true },
       ...{ session: known?.session ?? null, passkey, computers: computersOf.get(p.deviceId) ?? [] },
     });
   }

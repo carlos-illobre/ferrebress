@@ -7,20 +7,21 @@ import { useState } from 'preact/hooks';
 import { isPhone as onPhone } from '../../../../../platform/device/device.ts';
 import { useLoaded } from '../../../../../platform/lazy.ts';
 import { useStore } from '../../../../../platform/store.ts';
-import { dateOf, nowMs } from '../../../../../platform/time.ts';
+import { dayMonthOf, nowMs } from '../../../../../platform/time.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { loadConfirmSheet, person } from '../../../../sign-in/index.ts';
 import { lastUseOf } from '../../../mine/rules.ts';
 import { mineTexts as t } from '../../../mine/texts.ts';
 import type { Mine } from '../../../mine/useMine.ts';
+import { deviceSettingsSettings } from '../../../settings.ts';
 import { Computers } from './Family.tsx';
 import { type Draft, Name } from './Name.tsx';
 
 type Here = MyDevicesResponse['here'];
 
 function Drawing({ here, draft, shines }: { here: Here; draft: Draft; shines: boolean }) {
-  const shown = draft ? draft.text.trim() : here.name;
+  const shown = draft ? draft.text.trim() : here.deviceName;
   return (
     <div
       class={`mine-device ${here.isPhone ? 'is-phone' : 'is-computer'}${shines ? ' shines' : ''}`}
@@ -29,7 +30,7 @@ function Drawing({ here, draft, shines }: { here: Here; draft: Draft; shines: bo
         <span class={shown ? 'mine-device-name' : 'mine-device-name unnamed'}>
           {shown || t.noName}
         </span>
-        <span class="mine-device-label">{here.label}</span>
+        <span class="mine-device-label">{here.deviceLabel}</span>
       </div>
       {!here.isPhone && <span class="mine-stand" />}
     </div>
@@ -75,7 +76,7 @@ function Passkey({ here, mine, disabled }: { here: Here; mine: Mine; disabled: b
     <div class="mine-passkey">
       <Icon name="fingerprint" />
       <span class="mine-passkey-text">
-        <span>{t.passkey.since(dateOf(since.createdAt, now))}</span>
+        <span>{t.passkey.since(dayMonthOf(since.createdAt, now))}</span>
         <small>{lastUseOf(since.lastUsedAt, now)}</small>
       </span>
       <Button
@@ -104,7 +105,7 @@ function FromServer({ here, mine, disabled }: { here: Here; mine: Mine; disabled
     if (!saved) return;
     setDraft(undefined);
     setShines(true);
-    setTimeout(() => setShines(false), 900);
+    setTimeout(() => setShines(false), deviceSettingsSettings.shineMs);
   };
   return (
     <div class={disabled ? 'mine-server is-offline' : 'mine-server'}>
@@ -114,7 +115,7 @@ function FromServer({ here, mine, disabled }: { here: Here; mine: Mine; disabled
           <Name
             {...{
               isPhone: here.isPhone,
-              name: here.name,
+              name: here.deviceName,
               names,
               ideas,
               draft,

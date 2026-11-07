@@ -42,7 +42,12 @@ function reading(db: Db) {
 function card(db: Db) {
   const open = (now: Date, limits: SessionLimits) => openSessions(db, now, limits);
   return {
-    openSessionsOf: (userId: string, exceptSession: string, now: Date, limits: SessionLimits) =>
+    openSessionsOf: (
+      userId: string,
+      exceptSession: string | null,
+      now: Date,
+      limits: SessionLimits,
+    ) =>
       open(now, limits)
         .select([
           'id',
@@ -55,7 +60,7 @@ function card(db: Db) {
           'last_used_at as lastUsedAt',
         ])
         .where('user_id', '=', userId)
-        .where('id', '!=', exceptSession)
+        .$if(exceptSession !== null, (query) => query.where('id', '!=', exceptSession as string))
         .orderBy('last_used_at', 'desc')
         .execute(),
 
@@ -139,6 +144,7 @@ function cutting(db: Db) {
         .select(['device_id as deviceId', sql<null>`null`.as('id')])
         .where('user_id', '=', userId)
         .where('id', '=', phoneId)
+        .where('is_phone', '=', true)
         .executeTakeFirst();
     },
 

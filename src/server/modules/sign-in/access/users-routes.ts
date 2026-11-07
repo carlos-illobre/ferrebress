@@ -64,10 +64,10 @@ function registerCutting(ctx: SignInContext, { ids, steps, notOutranked, limited
     ids('sessionId'),
     notOutranked,
     limited,
-    (c) => closeSessions(ctx, c, person(c), c.req.param('sessionId') as string, 'card'),
+    (c) => closeSessions(ctx, c, person(c), c.req.param('sessionId') as string, 'users'),
   );
   http.post('/api/users/:id/sessions/close', ...steps, ids(), notOutranked, limited, (c) =>
-    closeSessions(ctx, c, person(c), null, 'card'),
+    closeSessions(ctx, c, person(c), null, 'users'),
   );
   const cutting = readBody(bySchema(cutBody));
   http.post(
@@ -81,7 +81,8 @@ function registerCutting(ctx: SignInContext, { ids, steps, notOutranked, limited
       cutPhone(ctx, c, {
         userId: person(c),
         key: c.req.param('phoneId') as string,
-        from: cutting.of(c).from,
+        how: cutting.of(c).from === 'lost' ? 'lost' : 'remove',
+        place: 'users',
       }),
   );
 }

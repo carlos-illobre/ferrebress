@@ -5,15 +5,18 @@
 import type { MyComputer, MyDevice } from '@ferrebress/shared/contracts/device-settings';
 import { useRef, useState } from 'preact/hooks';
 import { isPhone } from '../../../../../platform/device/device.ts';
-import { dateOf, nowMs, sinceOf } from '../../../../../platform/time.ts';
+import { dayMonthOf, nowMs, sinceOf } from '../../../../../platform/time.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { lastUseOf, nameOf } from '../../../mine/rules.ts';
 import { mineTexts as t } from '../../../mine/texts.ts';
 import type { Mine } from '../../../mine/useMine.ts';
+import { deviceSettingsSettings } from '../../../settings.ts';
 
 const iconOf = (device: { isPhone?: boolean }) => (device.isPhone ? 'smartphone' : 'monitor');
 const usedLine = (lastUsedAt: number, now: number) =>
-  now - lastUsedAt < 5 * 60_000 ? t.usedNow : t.used(sinceOf(lastUsedAt, now));
+  now - lastUsedAt < deviceSettingsSettings.usedNowMs
+    ? t.usedNow
+    : t.used(sinceOf(lastUsedAt, now));
 
 function X({ label, act, kind }: { label: string; act: () => unknown; kind?: string }) {
   return (
@@ -53,17 +56,20 @@ export function Computers({
             <Icon name="monitor" size="small" />
           </span>
           <span class="mine-child-text">
-            <b>{nameOf(computer)}</b>
+            <b>{computer.here ? t.thisComputer : nameOf(computer)}</b>
             <span>
               {t.entered(sinceOf(computer.session.createdAt, now))} ·{' '}
               {usedLine(computer.session.lastUsedAt, now)}
             </span>
           </span>
           <span class="mine-goes-tag">{t.goes.session}</span>
-          <X
-            label={t.close(nameOf(computer))}
-            act={() => mine.closeSession(computer.session.id, nameOf(computer))}
-          />
+          {/* La de esta computadora se cierra con «Salir» (R7.1). */}
+          {!computer.here && (
+            <X
+              label={t.close(nameOf(computer))}
+              act={() => mine.closeSession(computer.session.id, nameOf(computer))}
+            />
+          )}
         </div>
       ))}
     </div>
@@ -79,7 +85,7 @@ function Chips({ device, mine }: { device: MyDevice; mine: Mine }) {
         <span class="mine-chip mine-goes">
           <span class="mine-dot" />
           <span>
-            {now - session.lastUsedAt < 5 * 60_000
+            {now - session.lastUsedAt < deviceSettingsSettings.usedNowMs
               ? t.sessionNow
               : t.sessionOpen(sinceOf(session.lastUsedAt, now))}
           </span>
@@ -96,7 +102,7 @@ function Chips({ device, mine }: { device: MyDevice; mine: Mine }) {
       {passkey && (
         <span class="mine-chip mine-goes">
           <Icon name="fingerprint" size="small" />
-          <span>{t.passkeySince(dateOf(passkey.createdAt, now))}</span>
+          <span>{t.passkeySince(dayMonthOf(passkey.createdAt, now))}</span>
           <span class="mine-chip-detail">{lastUseOf(passkey.lastUsedAt, now)}</span>
           <span class="mine-goes-tag">{t.goes.passkey}</span>
           <X
@@ -119,11 +125,12 @@ function Lost({ cut }: { cut: () => unknown }) {
   const phone = isPhone();
   const moved = (event: PointerEvent) =>
     !start.current ||
-    Math.hypot(event.clientX - start.current.x, event.clientY - start.current.y) > 10;
+    Math.hypot(event.clientX - start.current.x, event.clientY - start.current.y) >
+      deviceSettingsSettings.stillFingerPx;
   return (
     <button
       type="button"
-      class={`button button-red button-small mine-lost mine-aims${pressing ? ' pressing' : ''}`}
+      class={`button button-danger button-small mine-lost mine-aims${pressing ? ' pressing' : ''}`}
       data-mark=""
       onClick={() => !phone && void cut()}
       onPointerDown={(event) => {
@@ -153,7 +160,7 @@ export function Family({ device, mine }: { device: MyDevice; mine: Mine }) {
         </span>
         <div class="mine-family-text">
           <h3>{nameOf(device)}</h3>
-          <span>{device.name ? device.label : t.noName}</span>
+          <span>{device.deviceName ? device.deviceLabel : t.noName}</span>
         </div>
         {device.isPhone && <Lost cut={() => mine.cut(device, 'lost')} />}
       </div>

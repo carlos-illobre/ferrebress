@@ -9,8 +9,11 @@ import { sessionOf } from '../../../platform/session.ts';
 import type { SignInContext } from '../context.ts';
 import { accessData } from './data.ts';
 
-// Desde dónde se cortó, para la auditoría: la tarjeta de Usuarios, «Se perdió un celular» o lo mío.
-export type From = 'card' | 'lost' | 'settings';
+// Desde dónde, para la auditoría: Usuarios o lo mío (Configuración). Cómo se corta un celular:
+// «Quitar» su huella o cortarlo como perdido.
+export type Place = 'users' | 'settings';
+export type How = 'remove' | 'lost';
+const fromOf = (place: Place) => (place === 'settings' ? { from: 'settings' } : {});
 
 // Un rechazo, anotado una vez por minuto por motivo y persona, como los de las personas (02 · R6.1).
 export function refuse(
@@ -34,7 +37,7 @@ export async function closeSessions(
   c: Context,
   userId: string,
   id: string | null,
-  from: From,
+  place: Place,
 ) {
   const asking = sessionOf(c);
   if (id && (await ctx.store.findById(id))?.userId !== userId)
@@ -54,7 +57,7 @@ export async function closeSessions(
   if (ids.length > 0)
     ctx.record(c, type, {
       targets: [{ kind: 'person', id: userId }],
-      data: { sessions: ids.length, ...(from === 'settings' && { from }) },
+      data: { sessions: ids.length, ...fromOf(place) },
     });
   return c.json<ClosedResponse>({ closed: ids.length });
 }
@@ -65,18 +68,18 @@ export async function closeSessions(
 export async function cutPhone(
   ctx: SignInContext,
   c: Context,
-  { userId, key, from }: { userId: string; key: string; from: From },
+  { userId, key, how, place }: { userId: string; key: string; how: How; place: Place },
 ) {
   const asking = sessionOf(c);
   const phone = await accessData(ctx.platform.db as never).phoneOf(userId, key);
   if (!phone) return refuse(ctx, c, userId, 404, 'not-found');
   if (phone.deviceId === asking.deviceId) {
-    const own = userId === asking.userId && from !== 'lost' && phone.id !== null;
-    return own ? removeHere(ctx, c, from) : refuse(ctx, c, userId, 409, 'self');
+    const own = userId === asking.userId && how === 'remove' && phone.id !== null;
+    return own ? removeHere(ctx, c, place) : refuse(ctx, c, userId, 409, 'self');
   }
   ctx.store.beginClose();
   const { events, db, clock } = ctx.platform;
-  const cause = from === 'lost' ? 'cut' : 'removed';
+  const cause = how === 'lost' ? 'cut' : 'removed';
   const done = await events.transaction(db, async (trx, publish) => {
     const result = await accessData(trx as never).cutPhone(userId, phone.deviceId, clock.now());
     await publish('passkey.removed', { userId, deviceId: phone.deviceId, cause });
@@ -86,10 +89,10 @@ export async function cutPhone(
   ctx.phoneOwners.delete(phone.deviceId);
   ctx.people.forget([userId]);
   const response = { sessions: done.sessionIds.length, passkey: done.passkey };
-  const type = from === 'lost' ? 'phone.cut' : 'passkey.removed';
+  const type = how === 'lost' ? 'phone.cut' : 'passkey.removed';
   ctx.record(c, type, {
     targets: [{ kind: 'person', id: userId }],
-    data: { ...response, ...(from === 'settings' && { from }) },
+    data: { ...response, ...fromOf(place) },
   });
   return c.json<CutResponse>(response);
 }
@@ -97,7 +100,7 @@ export async function cutPhone(
 // Quitar la huella del celular que se está usando (04 · R6.2, E42): deja de entrar con ella y de
 // aprobar computadoras, y se le apaga «Trabajar sin conexión»; no cierra ninguna sesión ni el vínculo
 // (§ 12, 5), porque no es un celular perdido.
-export async function removeHere(ctx: SignInContext, c: Context, from: From) {
+export async function removeHere(ctx: SignInContext, c: Context, place: Place) {
   const { userId, deviceId } = sessionOf(c);
   const passkey = await accessData(ctx.platform.db as never).removePasskey(userId, deviceId);
   ctx.phoneOwners.delete(deviceId);
@@ -106,7 +109,7 @@ export async function removeHere(ctx: SignInContext, c: Context, from: From) {
   if (passkey)
     ctx.record(c, 'passkey.removed', {
       targets: [{ kind: 'person', id: userId }],
-      data: { ...response, ...(from === 'settings' && { from }) },
+      data: { ...response, ...fromOf(place) },
     });
   return c.json<CutResponse>(response);
 }

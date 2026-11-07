@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { formatHour, formatHourOfDay, formatTime, formatTimeAs, timeFormat } from './time.ts';
+import {
+  dayMonthOf,
+  formatHour,
+  formatHourOfDay,
+  formatTime,
+  formatTimeAs,
+  timeFormat,
+} from './time.ts';
 
 // Las 17:05 en Greenwich son las 14:05 en Buenos Aires.
 const afternoon = Date.UTC(2026, 10, 6, 17, 5);
@@ -26,5 +33,10 @@ describe('cómo se escribe una hora', () => {
     // device-settings-E17: cómo se vería en el otro, sin cambiar el elegido.
     expect(formatTimeAs(afternoon, 'h24')).toBe('14:05');
     expect(timeFormat.get()).toBe('h12');
+  });
+
+  it('device-settings R6.1: la fecha con el mes en letras, con el año si no es el de ahora', () => {
+    expect(dayMonthOf(Date.UTC(2026, 8, 12, 15), afternoon)).toBe('12 sep.');
+    expect(dayMonthOf(Date.UTC(2025, 2, 3, 15), afternoon)).toBe('3 mar. 2025');
   });
 });

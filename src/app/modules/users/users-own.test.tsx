@@ -13,19 +13,26 @@ describe('la tarjeta propia', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('users-R5.5, E22, device-settings-E46: en la propia, sus celulares con su nombre, y se quita el que está en la mano', async () => {
-    const phone = { id: 'f9', deviceLabel: 'Chrome', deviceName: 'Celu de Rubén', createdAt: 0 };
+    const phone = {
+      id: 'f9',
+      deviceLabel: 'Chrome',
+      deviceName: 'Celu de Rubén',
+      createdAt: 0,
+      here: true,
+    };
     const server = openUsers({
       '/api/users/ruben/access': [
         { body: { sessions: [], phones: [{ ...phone, lastUsedAt: null }] } },
         { body: { sessions: [], phones: [] } },
       ],
-      '/api/users/ruben/phones/f9/cut': { body: { sessions: 0, passkey: true } },
+      '/api/me/passkey/remove': { body: { sessions: 0, passkey: true } },
     });
     await choose(/Rubén/);
     expect(await inCard().findByText(/La sesión de esta computadora no figura/)).toBeTruthy();
     expect(inCard().getByText('Celu de Rubén')).toBeTruthy();
     fireEvent.click(inCard().getByRole('button', { name: 'Quitar' }));
     await waitFor(() => expect(inCard().queryByText('Celu de Rubén')).toBeNull());
-    expect(server.bodies('/api/users/ruben/phones/f9/cut')).toEqual([{ from: 'card' }]);
+    // El de la mano, como en Configuración: sin huella y sin «Trabajar sin conexión» (04 · R6.2).
+    expect(server.bodies('/api/me/passkey/remove')).toEqual([{}]);
   });
 });

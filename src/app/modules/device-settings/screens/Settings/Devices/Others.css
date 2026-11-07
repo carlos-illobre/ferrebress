@@ -7,6 +7,14 @@
     gap: var(--s3);
     align-content: start;
   }
+  /* «Tus otros dispositivos», con el peso de un título, como en la maqueta */
+  .mine-others > h2.settings-group {
+    margin: 0;
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: 750;
+    color: var(--ink);
+  }
   .mine-counts {
     display: grid;
     grid-template-columns: 1fr 1fr auto;

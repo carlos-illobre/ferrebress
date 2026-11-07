@@ -141,6 +141,12 @@ por día, marca las vencidas que nadie volvió a usar y borra las de más de 30 
 No hay tablas de códigos QR, desafíos, `nonce` de Google ni intentos: viven en la memoria del
 servidor (§ 8) y duran segundos o minutos.
 
+### `sign_in.devices` y lo mío
+
+El nombre de cada dispositivo y el último día que se usó (migración `006-devices`), y las rutas de lo
+mío, `/api/me/*`, que cortan con la misma lógica que Usuarios: en el diseño de 04b
+([`device-settings-b.md`](device-settings-b.md), § 2 y § 3).
+
 ## 4. API
 
 Todo bajo `/api`, con JSON validado con los contratos de `src/shared/contracts/`.
