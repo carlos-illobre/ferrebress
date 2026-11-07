@@ -4,7 +4,7 @@ Lo que cada persona elige para sí misma. Se construye en dos etapas (roadmap): 
 del dispositivo** (R1 a R5) y **b. Lo mío** (R6 a R10): mis celulares con huella, mis sesiones en
 otros dispositivos, cortar mi propio celular perdido y el nombre del dispositivo. Lo que un Administrador fija para todos está en Administración (capítulo 06).
 
-**Estado:** etapa a, aprobada; etapa b, en el paso 1: por aprobar.
+**Estado:** etapa a, aprobada; etapa b, aprobada.
 
 **Lo que no está acá, y por qué:**
 
