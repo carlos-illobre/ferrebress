@@ -121,6 +121,8 @@ createServer((request, response) => {
   const path = url.pathname;
   if (path === '/api/start') return json(response, start);
   if (path === '/api/sign-in/codes') return json(response, {});
+  // El `nonce` que firma la llave del dispositivo antes de abrir una sesión (diseño de 01, § 6).
+  if (path === '/api/sign-in/device-nonce') return json(response, { nonce: 'n' });
   if (path === '/api/realtime') return realtime(request, response, url);
   if (path === '/api/realtime/subscriptions') return subscriptions(request, response);
   if (path === '/__push') return push(response, url);

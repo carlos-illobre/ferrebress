@@ -2,7 +2,7 @@
 export const platformSettings = {
   bodyLimitBytes: 64 * 1024,
   // La versión del contrato más vieja que el servidor todavía entiende (00 · R5.5).
-  minContractVersion: 1,
+  minContractVersion: 2,
   // Los pedidos rechazados se anotan una vez por ventana y por clave (revisión de seguridad, 19).
   rejectedAuditWindow: { max: 1, windowMs: 60_000 },
   // El limitador barre las claves vencidas con más de 10.000, como mucho una vez por minuto.

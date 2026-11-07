@@ -121,3 +121,10 @@ export type ReadCodeResponse = {
   // Solo si el celular entró con Google hace poco y todavía no tiene huella.
   registration?: unknown;
 };
+
+// La prueba del dispositivo al abrir una sesión (diseño de 01, § 6): en esta cabecera, el `nonce`, la
+// parte pública de la llave del dispositivo y su firma de este texto, separados por puntos.
+export const deviceProofHeaderName = 'X-Device-Proof';
+export const deviceProofMessage = (deviceId: string, nonce: string, proofPublicKey: string) =>
+  `device-proof:${deviceId}:${nonce}:${proofPublicKey}`;
+export type DeviceNonceResponse = { nonce: string };

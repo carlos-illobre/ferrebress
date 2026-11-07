@@ -219,7 +219,8 @@ describe('vincular la huella al aprobar', () => {
       server.platform.db,
     );
     const other = createDevice(server, { userAgent: androidPhone, ip: '181.7.0.2' });
-    Object.assign(other, { id: device.id });
+    // El mismo celular: su identificador y su llave (diseño de 01, § 6).
+    Object.assign(other, { id: device.id, proveDevice: device.proveDevice });
     await other.signInWithGoogle({ sub: 'sub-otra', email: 'otra@example.com' });
     const options = await other.request('/api/passkeys/options', {});
     await other.request('/api/passkeys', {

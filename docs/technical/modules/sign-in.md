@@ -322,6 +322,29 @@ la computadora. Solo el celular usa la huella.
   guarda con la sesión. Con ella la aplicación firma lo que manda cuando la cookie no sirve: hoy, la
   salida pendiente (§ 7); en el módulo 15, lo hecho sin conexión. Un código malicioso en la página
   podría usarla mientras está abierta, pero no llevársela. Se borra al salir.
+- **El dispositivo, atado a su llave** (revisión de seguridad del código de 04b, punto 1): el
+  identificador del dispositivo lo guarda el navegador y cualquiera lo puede copiar con F12, también de
+  una cookie. Por eso cada dispositivo tiene además su **llave del dispositivo**: un par ECDSA P-256 que
+  el navegador crea una sola vez, **que no se puede exportar** (ni con F12) y que queda en IndexedDB
+  junto a la de prueba. El servidor guarda su parte pública en `sign_in.devices.public_key`, la primera
+  vez que ese dispositivo entra; desde ahí, el identificador vale solo con esa llave.
+  - **Al abrir una sesión, por cualquiera de los cinco caminos** (Google, la huella, la huella del
+    celular al aprobar una computadora, el permiso de la computadora y la entrada sin conexión al
+    confirmarse), la aplicación pide un `nonce` (`GET /api/sign-in/device-nonce`: de un uso, 2
+    minutos, con el límite de los pedidos sin sesión) y manda en la cabecera `X-Device-Proof` el
+    `nonce`, la parte pública de la llave del dispositivo y su firma de
+    `device-proof:<dispositivo>:<nonce>:<llave de prueba de la sesión>`. Atar la firma a la llave de
+    prueba nueva hace que no sirva para otra entrada.
+  - **`openSession` la verifica antes de crear la sesión:** `nonce` vigente y sin usar, firma buena y
+    llave igual a la guardada para ese dispositivo; si el dispositivo todavía no tenía llave, la ata.
+    Si no, `401 device-unproven` y queda en la auditoría como `sign-in.rejected` con ese motivo.
+  - **Lo que sigue confiando en la cabecera, sin sesión:** el nombre en la entrada (solo se le muestra
+    a quien manda el identificador), las claves de los límites y la pantalla del código QR. Con sesión,
+    todo usa el dispositivo de la sesión, que ya quedó probado.
+  - **El primer uso** ata la llave que llegue primero: un identificador copiado antes de que su
+    dispositivo vuelva a entrar se podría atar a otra llave. Las sesiones duran 8 horas como mucho:
+    al día siguiente del despliegue, todo dispositivo que entró ya tiene su llave.
+  - **La versión del contrato pasa a 2:** una aplicación vieja, sin la llave, recibe «actualizá».
 - **Cada pedido con cookie:** `sign-in` registra en `platform/http` la función que responde «quién
   es»: busca el hash en memoria (si no está, una consulta que trae también si la persona sigue
   activa, y lo guarda solo si la sesión es válida: una cookie inventada no ocupa memoria), aplica los dos límites

@@ -1,3 +1,4 @@
+import { contractVersion } from '@ferrebress/shared/contracts/contract-version';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { api, newVersion, online, permissionsHash, sessionClosed, updateRequired } from './api.ts';
 import { serverNow } from './clock.ts';
@@ -30,7 +31,7 @@ describe('hablar con el servidor', () => {
     expect(init).toMatchObject({
       method: 'POST',
       body: '{}',
-      headers: { 'X-App-Version': '1', 'Content-Type': 'application/json' },
+      headers: { 'X-App-Version': String(contractVersion), 'Content-Type': 'application/json' },
     });
     expect(init.headers['X-Device-Id']).toMatch(/^[0-9a-f-]{36}$/);
   });

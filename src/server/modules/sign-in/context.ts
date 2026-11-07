@@ -93,6 +93,7 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
     }),
     nonces: createOneUse<true>(platform.clock, signInSettings.nonce),
     challenges: createOneUse<Challenge>(platform.clock, signInSettings.challenge),
+    deviceNonces: createOneUse<true>(platform.clock, signInSettings.deviceNonce),
     passkeys: passkeysData(platform.db as Kysely<PasskeysTables>),
     // El nombre de cada dispositivo, en memoria (04 · R9).
     devices: createDeviceNames(platform),

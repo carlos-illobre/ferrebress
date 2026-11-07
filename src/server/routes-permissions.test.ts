@@ -23,6 +23,7 @@ const routes: Record<string, Needs> = {
   'GET /api/realtime': 'public',
   'POST /api/realtime/subscriptions': 'public',
   // El vínculo (capítulo 03): con sesión, sin permiso propio (R1.2).
+  'GET /api/sign-in/device-nonce': 'public',
   'POST /api/me/device-name': 'session',
   'GET /api/me/devices': 'session',
   'POST /api/me/sessions/:sessionId/close': 'session',

@@ -20,6 +20,7 @@ import { addAccess } from './migrations/003-access.ts';
 import { addApproved } from './migrations/004-approved.ts';
 import { indexPasskeysByUser } from './migrations/005-passkeys-user.ts';
 import { addDevices } from './migrations/006-devices.ts';
+import { addDeviceKeys } from './migrations/007-device-keys.ts';
 import { registerOfflineRoutes } from './offline/routes.ts';
 import { registerLinkRoutes } from './passkeys/link-routes.ts';
 import { registerPasskeySignInRoutes } from './passkeys/sign-in-routes.ts';
@@ -68,6 +69,7 @@ export function createSignInModule(options: SignInOptions) {
         '004-approved': addApproved,
         '005-passkeys-user': indexPasskeysByUser,
         '006-devices': addDevices,
+        '007-device-keys': addDeviceKeys,
       },
     },
     async register(platform) {

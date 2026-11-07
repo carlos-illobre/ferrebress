@@ -1,9 +1,14 @@
 // Las consultas de los dispositivos a la base (diseño de 04b, § 2): una por operación. La fila se
 // crea la primera vez que se usa o que se le pone nombre.
-import type { Kysely } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 
 export type DevicesTables = {
-  'sign_in.devices': { device_id: string; name: string | null; last_seen_at: Date };
+  'sign_in.devices': {
+    device_id: string;
+    name: string | null;
+    last_seen_at: Date;
+    public_key: Uint8Array | null;
+  };
 };
 
 type Db = Kysely<DevicesTables>;
@@ -49,16 +54,33 @@ const using = (db: Db) => ({
       .execute();
   },
 
-  // Borra los que nadie usa desde `before` (R9.6), también los de un celular con huella que nadie usó
-  // en un año: el nombre puede ser un dato personal. Devuelve cuáles.
+  // Borra el nombre de los que nadie usa desde `before` (R9.6), también el de un celular con huella
+  // que nadie usó en un año: puede ser un dato personal. La fila queda, con su llave. Devuelve cuáles.
   forgetUnused: async (before: Date) =>
     (
       await db
-        .deleteFrom('sign_in.devices')
+        .updateTable('sign_in.devices')
+        .set({ name: null })
         .where('last_seen_at', '<', before)
+        .where('name', 'is not', null)
         .returning('device_id')
         .execute()
     ).map((row) => row.device_id),
+
+  // Ata la llave al dispositivo si todavía no tenía una, y dice si la que tiene es esa: una consulta.
+  bindKey: async (deviceId: string, key: Uint8Array, at: Date) => {
+    const row = await db
+      .insertInto('sign_in.devices')
+      .values({ device_id: deviceId, name: null, last_seen_at: at, public_key: key })
+      .onConflict((oc) =>
+        oc.column('device_id').doUpdateSet({
+          public_key: sql<Uint8Array>`coalesce(sign_in.devices.public_key, excluded.public_key)`,
+        }),
+      )
+      .returning('public_key')
+      .executeTakeFirstOrThrow();
+    return !!row.public_key && Buffer.from(row.public_key).equals(Buffer.from(key));
+  },
 });
 
 export const devicesData = (db: Db) => ({ ...naming(db), ...using(db) });

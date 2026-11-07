@@ -1,13 +1,15 @@
-// Poner, cambiar o borrar el nombre del dispositivo de la sesión (04 · R9.2, R9.3; diseño de 04b,
-// § 3): con sesión y sin permiso, siempre el de la sesión y nunca el que diga el pedido, con un límite
-// por sesión. Queda en Quién hizo qué con el nombre anterior y el nuevo, sin el identificador.
+// El `nonce` que firma la llave del dispositivo al entrar (diseño de 01, § 6), y poner, cambiar o
+// borrar el nombre del dispositivo de la sesión (04 · R9.2, R9.3; diseño de 04b, § 3): con sesión y
+// sin permiso, siempre el de la sesión y nunca el que diga el pedido, con un límite por sesión y por
+// dispositivo. Queda en Quién hizo qué con el nombre anterior y el nuevo, sin el identificador.
 import {
   cleanDeviceName,
   type DeviceNameResponse,
   deviceNameBody,
   isRepeated,
 } from '@ferrebress/shared/contracts/device-settings';
-import { readBody } from '../../../platform/guards.ts';
+import type { DeviceNonceResponse } from '@ferrebress/shared/contracts/sign-in';
+import { byAddress, readBody } from '../../../platform/guards.ts';
 import { sessionOf } from '../../../platform/session.ts';
 import type { SignInContext } from '../context.ts';
 import { signInSettings } from '../settings.ts';
@@ -26,6 +28,17 @@ export function registerDeviceRoutes(ctx: SignInContext) {
       `device-name:device:${sessionOf(c).deviceId}`,
     ],
     signInSettings.devices.renames,
+  );
+  // El `nonce` que firma la llave del dispositivo al entrar (diseño de 01, § 6), por cualquier camino;
+  // con el límite de los pedidos sin sesión, por dirección.
+  http.get(
+    '/api/sign-in/device-nonce',
+    ctx.limit(byAddress('start'), signInSettings.limits.start),
+    (c) => {
+      const nonce = ctx.deviceNonces.issue(c.get('ipAddress'), true);
+      if (!nonce) return ctx.tooMany(c, signInSettings.deviceNonce.ttlMs);
+      return c.json<DeviceNonceResponse>({ nonce });
+    },
   );
   http.post('/api/me/device-name', sessions.require, limited, body.step, async (c) => {
     const { deviceId, deviceLabel } = sessionOf(c);

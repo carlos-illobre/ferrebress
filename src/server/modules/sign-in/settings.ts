@@ -22,6 +22,9 @@ export const signInSettings = {
     replaceOldest: true,
   },
   challenge: { ttlMs: 5 * minute, maxTotal: 100_000, maxPerOwner: 10 },
+  // El `nonce` que firma la llave del dispositivo al entrar (diseño de 01, § 6): por dirección, como el
+  // de Google.
+  deviceNonce: { ttlMs: 2 * minute, maxTotal: 100_000, maxPerOwner: 100, replaceOldest: true },
   limits: {
     // Los cambios de acceso desde Usuarios: el mismo límite por sesión que las personas (02, § 9).
     accessChanges: { max: 60, windowMs: minute },

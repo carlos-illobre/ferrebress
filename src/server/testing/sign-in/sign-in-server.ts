@@ -1,6 +1,7 @@
 // Un servidor con personas y entrar, y lo que necesita una prueba para hablarle como la
 // aplicación: el origen, el dispositivo, la llave de prueba y la cookie de la sesión.
 import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
+import { deviceProofHeaderName, deviceProofMessage } from '@ferrebress/shared/contracts/sign-in';
 import type { Kysely } from 'kysely';
 import { createServer } from '../../app.ts';
 import { addFirstAdministrator } from '../../modules/users/first.ts';
@@ -60,7 +61,11 @@ export async function createSignInServer(clock?: Clock, options: SignInServerOpt
 
 export type SignInServer = Awaited<ReturnType<typeof createSignInServer>>;
 
-type Device = { id: string; cookie: string };
+type Device = {
+  id: string;
+  cookie: string;
+  proveDevice?: (proofPublicKey: string) => Promise<string>;
+};
 
 // Un pedido como lo hace la aplicación, desde Caddy, que anota la cookie que le devuelve el servidor.
 async function request(
@@ -71,8 +76,12 @@ async function request(
   body?: unknown,
   extra: Record<string, string> = {},
 ) {
+  // Lo que abre una sesión lleva la prueba del dispositivo (diseño de 01, § 6), como la aplicación.
+  const proof = (body as { proofPublicKey?: string } | undefined)?.proofPublicKey;
   const headers: Record<string, string> = {
     ...appHeaders(device.id),
+    ...(proof &&
+      device.proveDevice && { [deviceProofHeaderName]: await device.proveDevice(proof) }),
     ...extra,
     ...(agent.userAgent && { 'User-Agent': agent.userAgent }),
     'X-Real-IP': agent.ip,
@@ -101,6 +110,11 @@ export function createDevice(
   { userAgent = chromeWindows, ip = '190.1.2.3' } = {},
 ) {
   const { publicKey, privateKey } = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
+  // La llave del dispositivo, que no cambia (diseño de 01, § 6).
+  const deviceKey = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
+  const devicePublicKey = deviceKey.publicKey
+    .export({ format: 'der', type: 'spki' })
+    .toString('base64url');
   const device = {
     id: randomUUID(),
     cookie: '',
@@ -113,6 +127,18 @@ export function createDevice(
       ),
     request: (path: string, body?: unknown, extra?: Record<string, string>) =>
       request(server, device, { userAgent, ip }, path, body, extra),
+    // La cabecera que prueba ser este dispositivo para la sesión que se abre con esa llave de prueba.
+    async proveDevice(proofPublicKey: string) {
+      const { nonce } = (await device.request('/api/sign-in/device-nonce')).body as {
+        nonce: string;
+      };
+      const message = deviceProofMessage(device.id, nonce, proofPublicKey);
+      const signature = sign('sha256', Buffer.from(message), {
+        key: deviceKey.privateKey,
+        dsaEncoding: 'ieee-p1363',
+      }).toString('base64url');
+      return `${nonce}.${devicePublicKey}.${signature}`;
+    },
     // Abre la aplicación y entra con Google con estos datos del pase.
     async signInWithGoogle(claims: Record<string, unknown>) {
       const start = await device.request('/api/start');

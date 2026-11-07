@@ -1,4 +1,4 @@
-// La llave de prueba de la sesión (ADR-015): un par de llaves que el navegador crea y que no se
+// La llave de prueba de la sesión (ADR-015) y la del dispositivo (diseño de 01, § 6): un par de llaves que el navegador crea y que no se
 // pueden exportar. La privada queda en IndexedDB y firma lo que se manda cuando la cookie no
 // sirve (una salida pendiente; en el módulo 15, lo hecho sin conexión); el servidor guarda la
 // pública. Un código malicioso en la página podría usarla mientras está abierta, pero no copiarla.
@@ -47,6 +47,33 @@ export async function signWithProofKey(message: string): Promise<string | undefi
   return base64url(
     await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, pair.privateKey, data),
   );
+}
+
+// La llave del dispositivo (diseño de 01, § 6): otro par que no se puede exportar, que se crea una sola
+// vez y no se borra al salir. Con ella el dispositivo prueba ser el que dice al abrir una sesión.
+const deviceKey = 'device';
+
+async function devicePair(): Promise<CryptoKeyPair> {
+  const stored = await request<CryptoKeyPair | undefined>(
+    (store) => store.get(deviceKey),
+    'readonly',
+  );
+  if (stored) return stored;
+  const pair = await crypto.subtle.generateKey(algorithm, false, ['sign', 'verify']);
+  await request((store) => store.put(pair, deviceKey), 'readwrite');
+  return pair;
+}
+
+// La parte pública de la llave del dispositivo y su firma de un mensaje.
+export async function signWithDeviceKey(message: string) {
+  const pair = await devicePair();
+  const data = new TextEncoder().encode(message);
+  return {
+    publicKey: base64url(await crypto.subtle.exportKey('spki', pair.publicKey)),
+    signature: base64url(
+      await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, pair.privateKey, data),
+    ),
+  };
 }
 
 export async function forgetProofKey(): Promise<void> {

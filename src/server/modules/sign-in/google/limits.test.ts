@@ -94,4 +94,17 @@ describe('los límites de intentos con Google', () => {
       signInSettings.nonce.maxTotal = maxTotal;
     }
   });
+
+  it('con la memoria llena de nonces del dispositivo, el nonce del dispositivo frena', async () => {
+    const { maxTotal } = signInSettings.deviceNonce;
+    signInSettings.deviceNonce.maxTotal = 2;
+    try {
+      for (let ip = 0; ip < 2; ip++)
+        await createDevice(server, { ip: `205.0.${ip}.1` }).request('/api/sign-in/device-nonce');
+      const other = createDevice(server, { ip: '205.0.9.1' });
+      expect((await other.request('/api/sign-in/device-nonce')).status).toBe(429);
+    } finally {
+      signInSettings.deviceNonce.maxTotal = maxTotal;
+    }
+  });
 });

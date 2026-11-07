@@ -1,5 +1,6 @@
 // Presentarse, el respaldo y lo que el vínculo suma a cada pedido, en el servidor (diseño de 03, § 3.5,
 // § 4, § 7; capítulo 03, R2.6, R3; E18, E38, E39).
+import { contractVersion } from '@ferrebress/shared/contracts/contract-version';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { listen, settle, signedIn, time } from '../../testing/device-link.ts';
 import { createSignInServer, type SignInServer } from '../../testing/sign-in/sign-in-server.ts';
@@ -160,7 +161,7 @@ describe('lo que el vínculo suma a cada pedido', () => {
         body: '{}',
         headers: {
           'X-Device-Id': phone.id,
-          'X-App-Version': '1',
+          'X-App-Version': String(contractVersion),
           'User-Agent': phone.userAgent,
           Cookie: phone.cookie,
           Origin: 'https://ferrebress-pruebas.duckdns.org',
@@ -199,7 +200,7 @@ describe('lo que el vínculo suma a cada pedido', () => {
       body: '{}',
       headers: {
         'X-Device-Id': computer.id,
-        'X-App-Version': '1',
+        'X-App-Version': String(contractVersion),
         Origin: 'https://ferrebress-pruebas.duckdns.org',
         'Content-Type': 'application/json',
         'X-Pairing': id,

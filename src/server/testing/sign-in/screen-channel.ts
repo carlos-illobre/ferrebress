@@ -1,5 +1,6 @@
 // Para las pruebas de entrar con el celular: abre la pantalla de una computadora y junta los
 // avisos que le llegan por el canal, y una forma de esperar que maneja la prueba.
+import { deviceProofHeaderName } from '@ferrebress/shared/contracts/sign-in';
 import { appHeaders, testConfig } from '../config.ts';
 import type { createDevice, SignInServer } from './sign-in-server.ts';
 
@@ -70,13 +71,16 @@ export async function openScreen(
       await reader.cancel();
       await settle();
     },
-    claim: (permit: string) =>
+    claim: async (permit: string) =>
       server.http.request(
         '/api/sign-in/codes/claim',
         {
           method: 'POST',
           body: JSON.stringify({ permit, proofPublicKey: computer.proofPublicKey }),
-          headers,
+          headers: {
+            ...headers,
+            [deviceProofHeaderName]: await computer.proveDevice(computer.proofPublicKey),
+          },
         },
         fromCaddy,
       ),

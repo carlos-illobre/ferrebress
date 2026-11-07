@@ -53,7 +53,7 @@ describe('las consultas de cada pedido', () => {
   });
 
   // Con sus roles y permisos (02 · R7.1): una consulta más.
-  it('entrar con Google: hasta 4 en la computadora, hasta 5 en el celular', async () => {
+  it('entrar con Google: hasta 5 en la computadora, hasta 6 en el celular (una, atar la llave del dispositivo)', async () => {
     const pc = device();
     const start = await pc.request('/api/start');
     const credential = await server.google.credential({ ...admin, nonce: start.body.googleNonce });
@@ -62,18 +62,18 @@ describe('las consultas de cada pedido', () => {
         credential: pass,
         proofPublicKey: from.proofPublicKey,
       });
-    expect(await server.countQueries(() => google(pc, credential))).toBeLessThanOrEqual(4);
+    expect(await server.countQueries(() => google(pc, credential))).toBeLessThanOrEqual(5);
     const phone = device(androidPhone);
     const phoneStart = await phone.request('/api/start');
     const phonePass = await server.google.credential({
       ...admin,
       nonce: phoneStart.body.googleNonce,
     });
-    expect(await server.countQueries(() => google(phone, phonePass))).toBeLessThanOrEqual(5);
+    expect(await server.countQueries(() => google(phone, phonePass))).toBeLessThanOrEqual(6);
   });
 
   // Entrar anota la última entrada, solo si la persona sigue activa (02, § 5): una consulta más.
-  it('entrar con la huella: 5; leer un código: hasta 3; aprobarlo: hasta 5', async () => {
+  it('entrar con la huella: 6 (una, atar la llave del dispositivo); leer un código: hasta 3; aprobarlo: hasta 5', async () => {
     const ip = '190.7.9.1';
     const phone = createDevice(server, { ip, userAgent: androidPhone });
     await phone.signInWithGoogle(admin);
@@ -92,7 +92,7 @@ describe('las consultas de cada pedido', () => {
       await server.countQueries(async () => {
         entered = (await signIn()).status;
       }),
-    ).toBe(5);
+    ).toBe(6);
     expect(entered).toBe(200);
     // Entró con la huella: la persona no estaba en memoria, la busca una vez y después ya no.
     expect((await phone.request('/api/start')).body.person).toMatchObject({ email: admin.email });

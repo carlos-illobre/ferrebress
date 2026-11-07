@@ -33,9 +33,15 @@ export function held(reply: Reply) {
   return { reply: { held: promise }, release: () => resolve(reply) };
 }
 
+// El `nonce` que firma la llave del dispositivo al entrar (diseño de 01, § 6): lo contesta siempre,
+// salvo que la prueba diga otra cosa.
+const always: Record<string, Reply> = { '/api/sign-in/device-nonce': { body: { nonce: 'n' } } };
+
 export function fakeServer(routes: Record<string, Reply | Reply[]>) {
   const sent: Sent[] = [];
-  const left = new Map(Object.entries(routes).map(([path, reply]) => [path, [reply].flat()]));
+  const left = new Map(
+    Object.entries({ ...always, ...routes }).map(([path, reply]) => [path, [reply].flat()]),
+  );
   const fetch = vi.fn(async (path: string, init?: RequestInit) => {
     sent.push({ path, body: init?.body ? JSON.parse(String(init.body)) : undefined });
     const replies = left.get(path) ?? [{ status: 404, body: { error: 'not-found' } }];

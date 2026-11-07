@@ -23,7 +23,9 @@ export type SignInErrorCode =
   | 'session-closed'
   // Entrar sin conexión (15 · R3): el servidor no la confirmó, o ya la había confirmado.
   | 'offline-not-confirmed'
-  | 'offline-already-confirmed';
+  | 'offline-already-confirmed'
+  // El dispositivo no probó con su llave ser el que dice (diseño de 01, § 6).
+  | 'device-unproven';
 
 // Usuarios (capítulo 02).
 export type UsersErrorCode =

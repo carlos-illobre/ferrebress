@@ -7,6 +7,7 @@ import { deviceLabel, isPhone } from '../../../platform/device.ts';
 import { provenPerson } from '../../../platform/guards.ts';
 import { Refused } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
+import { proveDevice } from '../devices/proof.ts';
 import { writeSessionCookie } from './cookie.ts';
 import type { Way } from './data.ts';
 import { isProofKey } from './proof.ts';
@@ -49,6 +50,10 @@ type Opening = {
 // dieron de baja mientras entraba, la sesión recién creada se cierra: una baja a la vez o cerró esta
 // sesión o la deja para que la cierre esto, nunca abierta.
 export async function openSession(ctx: SignInContext, c: Context, opening: Opening) {
+  await proveDevice(ctx, c, {
+    proofPublicKey: opening.proofPublicKey,
+    method: opening.data.method,
+  });
   const now = ctx.platform.clock.now();
   const fields = {
     userId: opening.userId,

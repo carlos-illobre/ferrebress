@@ -169,14 +169,14 @@ describe('entrar sin conexión: la confirmación del servidor', () => {
   });
 
   // Confirmar anota la última entrada (02 · R3.2): una más que antes.
-  it('las consultas: /api/start desde el celular, ninguna con la sesión en memoria; confirmar, como mucho 10', async () => {
+  it('las consultas: /api/start desde el celular, ninguna con la sesión en memoria; confirmar, como mucho 11 (una, atar la llave del dispositivo)', async () => {
     const linked = await kit.linkedPhone();
     await linked.phone.request('/api/start');
     expect(await kit.server.countQueries(() => linked.phone.request('/api/start'))).toBe(0);
     linked.phone.cookie = '';
     const entry = await kit.offlineEntry(linked);
     const count = await kit.server.countQueries(() => kit.send(linked, entry));
-    expect(count).toBeLessThanOrEqual(10);
+    expect(count).toBeLessThanOrEqual(11);
   });
 
   it('offline-E01 a E04: la persona trae `offline` solo con su huella en este celular', async () => {

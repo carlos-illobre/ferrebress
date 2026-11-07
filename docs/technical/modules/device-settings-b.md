@@ -170,6 +170,10 @@ cambiar su lógica ni sus piezas (`AnimationsRow`, `TimeRow`, `InstallRow`, `Off
 
 - **Datos que toca:** las sesiones y las huellas propias, y el nombre de los dispositivos, que puede ser
   un dato personal («Celu de Juan»): se borra con el dispositivo (§ 2).
+- **El dispositivo de la sesión está probado:** al entrar, el dispositivo firma con su llave, que no
+  se puede exportar (diseño de 01, § 6). Copiar su identificador con F12 ya no permite renombrarlo ni
+  quedar anotado «desde» él. Lo eligió Carlos frente a una cookie del servidor, que con F12 también se
+  copia.
 - **Los nombres de todos los dispositivos** van a cualquiera con sesión en `GET /api/me/devices`: los
   necesita el aviso de «otro ya se llama así» mientras se escribe (R9.3). Carlos lo aceptó así.
 - **Quién puede:** cualquiera con sesión, solo lo suyo: las rutas toman la persona de la sesión y nunca

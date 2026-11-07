@@ -28,6 +28,7 @@ const refusals: Record<string, string> = {
   'code-expired': 'Intentó entrar con un código vencido',
   'other-challenge': 'Intentó entrar con un código que no era el suyo',
   'invalid-permit': 'Intentó entrar con un permiso del celular que no sirve',
+  'device-unproven': 'Intentó entrar desde un dispositivo que no probó ser el que dice',
 };
 
 export const signInTypes = {

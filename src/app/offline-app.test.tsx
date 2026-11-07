@@ -49,7 +49,9 @@ describe('la aplicación con una entrada sin conexión por confirmar', () => {
     });
     render(<App />);
     expect(await screen.findByRole('region', { name: 'Tu sesión' })).toBeTruthy();
-    expect(server.sent.map((sent) => sent.path).slice(0, 2)).toEqual([
+    // Antes, el `nonce` que firma la llave del dispositivo (diseño de 01, § 6).
+    expect(server.sent.map((sent) => sent.path).slice(0, 3)).toEqual([
+      '/api/sign-in/device-nonce',
       '/api/sign-in/offline',
       '/api/start',
     ]);

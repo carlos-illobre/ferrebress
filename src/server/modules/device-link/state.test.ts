@@ -1,5 +1,6 @@
 // El vínculo ya hecho, en el servidor (capítulo 03, R2, R5, R8; E10 a E17, E27 a E30, E38, E39, E41,
 // E42): saber si el otro está, desconectar y reconectar, desvincular, confirmar, y lo que lo termina.
+import { contractVersion } from '@ferrebress/shared/contracts/contract-version';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { listen, settle, signedIn, time } from '../../testing/device-link.ts';
 import { createSignInServer, type SignInServer } from '../../testing/sign-in/sign-in-server.ts';
@@ -51,7 +52,10 @@ describe('el otro lado', () => {
     const stranger = await signedIn(server, true);
     expect((await listen(server, stranger, `device-link.pairing:${id}`)).status).toBe(403);
     const anonymousTab = await server.http.request(`/api/realtime?s=device-link.pairing:${id}`, {
-      headers: { 'X-Device-Id': '0192d3a4-1b2c-7d3e-8f40-123456789abc', 'X-App-Version': '1' },
+      headers: {
+        'X-Device-Id': '0192d3a4-1b2c-7d3e-8f40-123456789abc',
+        'X-App-Version': String(contractVersion),
+      },
     });
     expect(anonymousTab.status).toBe(401);
   });
