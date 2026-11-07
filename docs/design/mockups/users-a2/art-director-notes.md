@@ -1,11 +1,10 @@
-# Usuarios (segunda ronda): tres ideas para Carlos
+# Usuarios (segunda ronda): dos ideas para Carlos
 
-Las capturas lado a lado están en `desktop-comparison.png` y `phone-comparison.png`. Cada variante
+Cada variante
 se abre sola desde su `index.html` y usa `../../../../common/` y `../../extra/`, donde están los
-íconos que se suman (Lucide), los datos de mentira, las piezas comunes (`shared.*`) y el tablero
-de la variante 3 (`keyrack.*`).
+íconos que se suman (Lucide), los datos de mentira,y las piezas comunes (`shared.*`).
 
-Las seis maquetas muestran a las mismas nueve personas, así se comparan igual con igual. Vos sos
+Las cuatro maquetas muestran a las mismas nueve personas, así se comparan igual con igual. Vos sos
 Roberto Gaitán. Además están Graciela, Martín «del depósito», Lucía (con un correo de Google
 Workspace) y Nahuel, que tiene dos celulares que se llaman igual, «Chrome en Android», y una
 notebook que no usa hace 41 días. Jorge y una persona sin nombre (sofia.quiroga@…) todavía no
@@ -13,19 +12,17 @@ entraron, y Diego y Ramiro están dados de baja. En total hay 8 sesiones, 5 celu
 9 aparatos.
 
 Para ver cómo queda sin conexión: en la 1 y la 2 de la computadora, tocá la pastilla verde «En
-línea» del lateral; en los celulares, la línea de conexión; en la 3 de la computadora, Alt C.
+línea» del lateral; en los celulares, la línea de conexión.
 
-## Las tres ideas
+## Las dos ideas
 
 | | La idea en una frase | Ideas del catálogo |
 |---|---|---|
 | **1 · La ficha** (evolución) | La lista de personas a la izquierda y la ficha de la elegida fija a la derecha, como Contactos o la bandeja de Linear. Arriba, cuatro números, entre ellos la sesión olvidada. Autorizar es una sola línea con Enter arriba de la lista, y «Se perdió un celular» resuelve el caso en dos toques. | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 |
 | **2 · Las puertas abiertas** (reinvención) | La pantalla no arranca por las personas sino por los aparatos donde hay alguien adentro, ordenados en una línea de tiempo, desde «Ahora» hasta «Hace más de un mes». Cada aparato junta su sesión y su huella, y con «Cortar» las saca a las dos. Las personas viven en un cajón (o en un segmento, en el celular), y autorizar muestra el pase de la persona mientras lo escribís. | 4, 11, 12, 13, 14, 15, 16, 17 |
-| **3 · El tablero de llaves** (la que nadie se animaría) | No hay marco: la pantalla entera es el tablero perforado de la ferretería. Cada persona es un llavero colgado y cada aparato, una llave. Para cortar, se descuelga la llave y se tira al cajón. Para dar de baja, se tira el llavero entero (con confirmación). También se le puede hablar: «se perdió el celular de Nahuel». | 4, 12, 18, 19, 20, 21, 22, 23, 24 |
 
-**Las tres son ideas distintas, no tres versiones de la misma.** La 1 es una lista con su detalle.
-La 2 cambia de qué se trata la pantalla: de quién puede entrar pasa a dónde hay alguien adentro. La
-3 cambia la forma de tocarla: se arrastra, se habla, y no hay marco.
+**Las dos son ideas distintas, no dos versiones de la misma.** La 1 es una lista con su detalle.
+La 2 cambia de qué se trata la pantalla: de quién puede entrar pasa a dónde hay alguien adentro.
 
 ### Qué rompe cada una
 
@@ -41,16 +38,6 @@ La 2 cambia de qué se trata la pantalla: de quién puede entrar pasa a dónde h
     Hay que saber qué sesión y qué huella son del mismo aparato.
   - Las sesiones de una persona se cierran todas juntas desde la persona elegida en los filtros, no
     desde su tarjeta.
-- **3 · El tablero de llaves:**
-  - Saca el marco entero: no hay lateral, menú de abajo ni pestañas. Auditoría queda como un
-    enlace, y se vuelve a Más con la ×.
-  - Arrastrar es el gesto principal, pero sigue habiendo un menú al tocar y teclas.
-  - Las bajas no están en la lista: aparecen abajo como «dados vuelta».
-  - Suma la voz.
-  - **Rompe la paleta:** el latón de las llaves (`--laton`, #D6B25E) no está en «Mostrador». Es
-    una propuesta, y está marcada así en `extra/keyrack.css`.
-  - La baja sigue pidiendo confirmación y borrar sigue siendo solo para quien nunca entró, como
-    piden las reglas.
 
 ## Cuál me gusta más
 
@@ -62,9 +49,6 @@ ve sola en ámbar sin que nadie la busque. Y cortar un celular perdido pasa de c
 
 Para la persona en sí (cambiarle el nombre, darla de baja), la ficha fija de la 1 es más clara que
 el cajón de la 2. Yo armaría la 2 con la ficha de la 1 a la derecha cuando se elige a alguien.
-
-**De la 3 rescataría la voz.** Decirle «se perdió el celular de Nahuel» al celular, con el cliente
-esperando, es más rápido que cualquier pantalla.
 
 ## Cómo se mueve cada interacción
 
@@ -85,15 +69,6 @@ esperando, es más rápido que cualquier pantalla.
   número de arriba baja. Vibra doble.
 - **La línea de tiempo (2):** al pasar sobre una cara, la cara sube 3 px y su aparato se marca en
   la pared. El punto verde de «Ahora» late despacio.
-- **Colgar un llavero (3):** el llavero se balancea en su gancho (14°, −8°, 4°, −1,5° y 0, en
-  1,1 s) hasta quedar quieto. Se siente que pesa.
-- **Descolgar una llave (3):** la llave se levanta inclinada −4° y con sombra, el cajón rojo sube
-  desde abajo y se pone rojo lleno al pasar por encima. Al soltarla, la llave cae girando 35° y se
-  desvanece. Si se suelta afuera, vuelve a su lugar en 260 ms.
-- **La voz (3):** una franja pino sube desde abajo con la onda que se mueve (solo con `scaleY`),
-  y la frase se escribe letra por letra. Las llaves de las que habla tiemblan en su argolla.
-- **Dar de alta (3):** el llavero «dado vuelta» gira sobre su eje y vuelve a colgarse arriba,
-  balanceándose.
 
 Todo se mueve solo con `transform` y `opacity`. Con «reducir movimiento», nada se mueve y todo
 cambia de golpe.
@@ -107,13 +82,8 @@ cambia de golpe.
   al pasar por encima o con el foco. Saqué las iniciales chicas (11 px) del renglón del dueño. El
   dorso de la pieza se salía de la tarjeta. En el pase, la cara tapaba el logotipo. Y en el
   celular, abrir la hoja corría la pantalla de fondo (ahora el foco espera a que termine de subir).
-- **3:** en el celular, los llaveros eran demasiado altos y el cajón se veía sin estar arrastrando.
-  La franja de la voz asomaba abajo, y el correo sin nombre se salía del llavero.
 - **Lo más flojo que queda:**
   - En la 2 de la computadora, la segunda fila de aparatos queda cortada y hay que bajar.
-  - En la 3 de la computadora, la mitad de abajo del tablero queda vacía con estas nueve personas;
-    con más personas, se llena hacia el costado.
-  - La voz es de mentira, con dos frases fijas que se alternan.
   - La 1 es la más segura y la menos nueva.
 
 ## Catálogo de ideas
@@ -134,7 +104,7 @@ las reglas tal cual.
    mano. *Fuera:* sí, las reglas no lo piden.
 4. **Se perdió un celular, en dos toques.** De quién y, si tiene uno solo, ya está elegido; dice qué
    cortó con un tilde que se dibuja. *Resuelve:* el susto. *Variantes:* 1 (diálogo), 2 (directo en
-   la pared), 3 (con la voz). *Patrón:* «Borrar este dispositivo» de Buscar de Apple. *Ahorra:* lo
+   la pared). *Patrón:* «Borrar este dispositivo» de Buscar de Apple. *Ahorra:* lo
    que piden las reglas. *Fuera:* no.
 5. **La semana de cada persona.** Siete cuadritos, L a D, con los días que usó Ferrebress.
    *Resuelve:* saber si alguien dejó de venir sin leer fechas. *Variantes:* 1. *Patrón:* el anillo
@@ -150,21 +120,21 @@ las reglas tal cual.
    izquierda; el botón sigue, para quien usa guantes. *Resuelve:* una mano. *Variantes:* 1, 2
    (celular). *Patrón:* Mail de iOS. *Ahorra:* 1 toque. *Fuera:* no.
 9. **Baja con lo que va a pasar.** La confirmación dice cuántas sesiones se cierran y cuántas
-   huellas se quitan, con sus números. *Resuelve:* que la baja no sorprenda. *Variantes:* 1, 2, 3.
+   huellas se quitan, con sus números. *Resuelve:* que la baja no sorprenda. *Variantes:* 1, 2.
    *Patrón:* borrar un repositorio en GitHub. *Ahorra:* nada; da seguridad. *Fuera:* no.
 10. **«Dar de alta» desde la tostada.** Después de una baja, la tostada ofrece volver atrás.
     *Resuelve:* la baja equivocada. *Variantes:* 1. *Patrón:* «Deshacer» de Gmail. *Ahorra:* buscar
     a la persona. *Fuera:* no, porque es un alta normal (las huellas no vuelven).
 11. **Los aparatos primero.** La pantalla muestra dónde hay alguien adentro, no quién puede entrar.
-    *Resuelve:* la pregunta de seguridad de verdad. *Variantes:* 2, 3. *Patrón:* «Tus dispositivos»
+    *Resuelve:* la pregunta de seguridad de verdad. *Variantes:* 2. *Patrón:* «Tus dispositivos»
     de una cuenta de Google. *Ahorra:* 2 toques por aparato. *Fuera:* sí, cambia el orden de R3.1.
 12. **Un aparato, una pieza.** La sesión y la huella del mismo celular van juntas, con dos insignias
     (llave y huella). *Resuelve:* que Nahuel tenga «Chrome en Android» repetido tres veces sin saber
-    cuál es cuál. *Variantes:* 2, 3. *Patrón:* AirTag en Buscar. *Ahorra:* entender. *Fuera:* sí,
+    cuál es cuál. *Variantes:* 2. *Patrón:* AirTag en Buscar. *Ahorra:* entender. *Fuera:* sí,
     hay que saber qué sesión es de qué huella.
 13. **Cortar de un toque, en cualquier aparato.** Cierra la sesión y quita la huella; al dorso se
     pueden hacer por separado. *Resuelve:* el celular perdido, el robado y el que se fue.
-    *Variantes:* 2, 3. *Patrón:* «Cerrar sesión» de Netflix por dispositivo. *Ahorra:* 3 toques.
+    *Variantes:* 2. *Patrón:* «Cerrar sesión» de Netflix por dispositivo. *Ahorra:* 3 toques.
     *Fuera:* sí, generaliza R5.7.
 14. **La línea de tiempo del último uso.** Cinco cajas (Ahora, Hoy, Semana, Mes, Más de un mes) con
     las caras de quien está adentro; la última, en ámbar. *Resuelve:* ver lo olvidado sin leer.
@@ -180,26 +150,3 @@ las reglas tal cual.
     nombre, Baja, Borrar, Dar de alta). *Resuelve:* que la persona no tape los aparatos.
     *Variantes:* 2. *Patrón:* el panel de miembros de Slack. *Ahorra:* nada. *Fuera:* sí, saca la
     lista del centro.
-18. **Pantalla sin marco.** El tablero ocupa todo; se vuelve con la × o Alt X. *Resuelve:* una
-    tarea de seguridad sin distracciones. *Variantes:* 3. *Patrón:* modo de una sola tarea del
-    iPhone. *Ahorra:* nada. *Fuera:* sí, rompe el marco de la aplicación.
-19. **Cada persona es un llavero y cada aparato una llave.** El tablero perforado de la ferretería
-    como metáfora. *Resuelve:* que quien nunca usó «sesiones» lo entienda igual. *Variantes:* 3.
-    *Patrón:* el tablero de llaves de cualquier comercio. *Ahorra:* explicar. *Fuera:* sí.
-20. **Tirar al cajón.** Se arrastra una llave (cortar) o un llavero (baja, con confirmación; o
-    borrar, si nunca entró) al cajón que aparece abajo. *Resuelve:* un gesto que se recuerda.
-    *Variantes:* 3. *Patrón:* tirar a la papelera en el Finder. *Ahorra:* 1 toque. *Fuera:* sí,
-    arrastrar es el gesto principal (el menú y las teclas siguen).
-21. **La llave oxidada.** La llave sin usar hace más de un mes se ve gris. *Resuelve:* lo olvidado.
-    *Variantes:* 3 (en la 2 es ámbar). *Patrón:* los íconos apagados de iOS. *Ahorra:* buscar.
-    *Fuera:* sí.
-22. **Decí qué pasó.** Con la voz: «se perdió el celular de Nahuel» marca sus celulares, pregunta
-    cuál y corta; «autorizá a walter punto ibarra arroba example punto com» cuelga su llavero.
-    Espacio en la computadora y el botón grande en el celular. *Resuelve:* las manos ocupadas y el
-    apuro. *Variantes:* 3. *Patrón:* Siri en atajos. *Ahorra:* casi todo. *Fuera:* sí.
-23. **Colgar un llavero.** Autorizar es escribir en un llavero en blanco que se cuelga y se
-    balancea. *Resuelve:* que autorizar se sienta como entregar una llave. *Variantes:* 3.
-    *Patrón:* crear una tarjeta en Trello. *Ahorra:* igual que la idea 2. *Fuera:* no.
-24. **Los dados vuelta.** Las bajas quedan abajo como llaveros dados vuelta; al tocarlos, giran y
-    vuelven a colgarse (alta). *Resuelve:* ver las bajas sin mezclarlas. *Variantes:* 3. *Patrón:*
-    el archivo de Gmail. *Ahorra:* 1 toque. *Fuera:* sí, saca las bajas de la lista.
