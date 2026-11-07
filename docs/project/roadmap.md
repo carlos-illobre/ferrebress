@@ -53,7 +53,7 @@ paralelo»).
 | Parte | Qué incluye | Estado |
 |---|---|---|
 | Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
-| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | En curso: almacenamiento de 15b en T110 |
+| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
 
 ## Tareas pendientes de la base
 
@@ -165,6 +165,14 @@ No se construyen ahora; el diseño no les cierra la puerta.
   se hace a mano con el talonario. Lo guardado en el celular va cifrado con una clave que solo da
   la huella (PRF de la passkey), si no es costoso. Perder lo no enviado (el celular roto o borrado)
   es un riesgo aceptado.
+  Cómo se guarda, para el diseño técnico (paso 3): comparar IndexedDB directo (como hoy la llave
+  de prueba), `idb` (una capa fina, de alrededor de 1 KB) y Dexie (índices, consultas y avisos
+  cuando algo cambia), para lo bajado (buscar por código y por texto sin cargarlo todo) y para la
+  cola (que un comando quede guardado antes de decir «listo», en orden, mandado una sola vez aunque
+  haya dos pestañas, y cifrado). Zustand queda descartado: es estado en memoria, como
+  `platform/store.ts`; su `persist` guarda todo el estado como un solo JSON en cada cambio, sin
+  índices ni cifrado, rompe lo que no es JSON (la llave de prueba, los bytes cifrados), no es una
+  cola y con Preact necesita la capa de compatibilidad de React.
 - [ ] T113 [agente] Quién está en línea, en vivo: un punto de color junto a las iniciales de cada
   persona, en la lista y en la tarjeta de Usuarios, en el celular y en la computadora, que cambia
   solo cuando la persona abre o deja la aplicación (el servidor sabe quién la tiene abierta).
