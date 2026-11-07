@@ -648,6 +648,43 @@
      "path": "mockups/device-settings-install/phone/variant-3-sticker/index.html"
     }
    ]
+  },
+  {
+   "id": "device-settings-b",
+   "title": "Configuración · Lo tuyo",
+   "module": "04 · Configuración del dispositivo",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "1 · La lista",
+     "path": "mockups/device-settings-b/desktop/variant-1-list/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · Por dispositivo",
+     "path": "mockups/device-settings-b/desktop/variant-2-devices/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · El tablero de llaves",
+     "path": "mockups/device-settings-b/desktop/variant-3-keys/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · La lista",
+     "path": "mockups/device-settings-b/phone/variant-1-list/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · Por dispositivo",
+     "path": "mockups/device-settings-b/phone/variant-2-devices/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · El tablero de llaves",
+     "path": "mockups/device-settings-b/phone/variant-3-keys/index.html"
+    }
+   ]
   }
  ]
 }

@@ -1,0 +1,150 @@
+/* Variante 3 · El tablero de llaves. Sin el marco de la aplicación: un tablero perforado de
+   ferretería con una llave por dispositivo, su rótulo de cinta en relieve y sus sellos. */
+
+.t3 { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; height: 100vh; height: 100dvh; }
+.t3-cab { display: flex; align-items: center; gap: 16px; padding: 22px 32px 14px; }
+.t3-volver { flex: none; border-radius: 99px; }
+.t3-titulo { display: grid; }
+.t3-titulo h1 { margin: 0; }
+.t3-explica { margin: 0 0 0 16px; max-width: 520px; font-size: 14px; line-height: 20px; color: var(--texto-2); }
+.t3-explica b { color: var(--tinta); }
+.t3-todas { margin-left: auto; }
+.t3-todas .kbd { height: 22px; }
+.t3-cuerpo { display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 24px; padding: 0 32px 12px; min-height: 0; }
+.pastilla.chica { height: 24px; padding: 0 9px; font-size: 13px; }
+.del-servidor { transition: opacity var(--t); }
+
+/* ---------- La cinta de rotular: letras en relieve sobre cinta pino ---------- */
+.cinta { display: inline-flex; align-items: center; max-width: 100%; padding: 5px 10px 4px; border-radius: 4px; background: linear-gradient(180deg, #1D4B40 0%, var(--pino) 55%, #0E2E26 100%); color: #fff; font-weight: 800; font-size: 14px; line-height: 18px; letter-spacing: .09em; text-shadow: 0 1px 0 rgba(0, 0, 0, .45), 0 -1px 0 rgba(255, 255, 255, .22); box-shadow: 0 1px 2px rgba(26, 29, 27, .3), inset 0 0 0 1px rgba(255, 255, 255, .06); white-space: nowrap; overflow: hidden; }
+.cinta:empty { display: none; }
+.cinta span { display: inline-block; }
+.cinta .arriba { transform: translateY(-.6px); }
+.cinta .abajo { transform: translateY(.7px); }
+.cinta .nueva { animation: estampa 180ms var(--rebote); }
+@keyframes estampa { from { opacity: 0; transform: scale(1.7); } }
+.cinta.gris { background: var(--hundido-2); color: var(--texto-2); text-shadow: none; box-shadow: none; letter-spacing: .04em; }
+.cinta.grande { font-size: 22px; line-height: 28px; padding: 10px 16px 9px; border-radius: 6px; white-space: normal; overflow-wrap: anywhere; justify-content: center; }
+.cinta.cortada { animation: cortada .4s var(--curva); }
+@keyframes cortada { 30% { transform: translateX(6px) rotate(-1deg); } 100% { transform: none; } }
+
+/* ---------- La que tenés en la mano ---------- */
+.mano { overflow: auto; padding: 4px 4px 16px; }
+.llavero-mano { position: relative; padding-top: 26px; display: grid; justify-items: center; }
+.argolla { position: absolute; top: 0; left: 50%; width: 52px; height: 52px; margin-left: -26px; border-radius: 99px; border: 6px solid #C9C3B5; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .25), 0 2px 3px rgba(26, 29, 27, .2); z-index: 2; }
+.mano-tag { position: relative; width: 100%; display: grid; gap: 12px; justify-items: center; padding: 40px 20px 20px; border-radius: 32px 32px 18px 18px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-2); text-align: center; }
+.ojal { position: absolute; top: 12px; left: 50%; width: 18px; height: 18px; margin-left: -9px; border-radius: 99px; background: var(--fondo); box-shadow: inset 0 2px 3px rgba(26, 29, 27, .28); }
+.mano-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.mano-cinta { display: grid; justify-items: center; gap: 6px; min-height: 48px; align-content: center; }
+.sin-rot { font-size: 15px; font-weight: 650; color: var(--texto-3); }
+.rotuladora { width: 100%; display: flex; gap: 8px; }
+.rotu-campo { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 10px; border-radius: var(--r); border: 1px solid var(--borde-fuerte); background: var(--superficie); box-shadow: var(--sombra-1); color: var(--texto-3); }
+.rotu-campo:focus-within { border-color: var(--pino); box-shadow: 0 0 0 4px rgba(18, 56, 47, .12); }
+.rotu-campo input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-weight: 700; color: var(--tinta); }
+.rotu-campo .kbd { height: 22px; }
+.contador { font-size: 12px; font-weight: 700; color: var(--texto-3); white-space: nowrap; }
+.contador.lleno { color: var(--error-texto); }
+.rotu-ideas { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.rotu-chip { height: 32px; padding: 0 12px; font-size: 14px; }
+.mano-nota { margin: 0; }
+.mano-huella { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 4px 4px 4px 10px; border-radius: 12px; background: var(--pino-suave); }
+.mano-vincular { width: 100%; }
+.mano-cadena { display: grid; justify-items: center; width: 100%; padding-top: 4px; }
+.cadena-tit { font-size: 13px; font-weight: 700; color: var(--texto-3); margin: 8px 0 -2px; }
+.mano-cadena .llave3 { width: 220px; }
+
+/* ---------- El tablero perforado ---------- */
+.tablero { overflow: auto; border-radius: 24px; padding: 20px 24px 40px; background-color: #EAE6DC; background-image: radial-gradient(circle, rgba(26, 29, 27, .16) 3px, transparent 3.6px); background-size: 32px 32px; background-position: 16px 16px; box-shadow: inset 0 1px 4px rgba(26, 29, 27, .10); }
+.ganchera { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 20px; align-items: start; }
+.col3 { display: flex; flex-direction: column; align-items: center; transition: transform 420ms var(--rebote); touch-action: none; }
+.col3.tirando, .col3.tirando .llave3, .llave3.chica.tirando { transition: none; }
+.gancho { position: relative; z-index: 2; width: 12px; height: 30px; border-radius: 6px; margin-bottom: -12px; background: linear-gradient(90deg, #A9A395 0%, #F2EFE8 45%, #9C9687 100%); box-shadow: 0 3px 4px rgba(26, 29, 27, .25); }
+.libre { opacity: .7; }
+.libre-txt { margin-top: 20px; font-size: 14px; font-weight: 650; color: var(--texto-3); text-align: center; }
+
+/* ---------- Una llave ---------- */
+.llave3 { position: relative; width: 100%; max-width: 200px; display: flex; flex-direction: column; align-items: center; perspective: 900px; outline: none; cursor: grab; touch-action: none; transition: transform 420ms var(--rebote), opacity 300ms; }
+.llave3:focus-visible .faz { box-shadow: 0 0 0 3px var(--pino-2), var(--sombra-2); }
+.giro { position: relative; width: 100%; transform-origin: 50% 0; transition: transform 520ms var(--curva); transform-style: preserve-3d; }
+.llave3:not(.girada):hover > .giro { animation: vaiven 1.4s ease-in-out; }
+@keyframes vaiven { 20% { transform: rotate(3deg); } 50% { transform: rotate(-2deg); } 75% { transform: rotate(1deg); } }
+.girada > .giro { transform: rotateY(180deg); }
+.faz { display: grid; justify-items: center; gap: 8px; padding: 30px 12px 14px; border-radius: 26px 26px 14px 14px; background: var(--superficie); border: 1px solid var(--borde); box-shadow: var(--sombra-2); text-align: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.faz .ojal { top: 10px; width: 14px; height: 14px; margin-left: -7px; }
+.dorso { position: absolute; inset: 0; transform: rotateY(180deg); align-content: center; gap: 6px; padding: 24px 10px 10px; }
+.dorso b { font-size: 14px; line-height: 18px; }
+.dorso .btn { width: 100%; }
+.llave-ico { width: 40px; height: 40px; border-radius: 99px; display: grid; place-items: center; background: var(--hundido); color: var(--texto-2); }
+.llave-det { font-size: 13px; line-height: 17px; font-weight: 600; color: var(--texto-2); }
+.sellos { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.sellos:empty { display: none; }
+/* Sellos de goma: lo que tiene la llave */
+.sello { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 8px; border-radius: 6px; border: 1.5px solid currentColor; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; transform: rotate(-2deg); background: var(--superficie); }
+.sello .punto { width: 7px; height: 7px; border-radius: 99px; background: currentColor; }
+.sello.ses { color: var(--logro-texto); }
+.sello.hue { color: var(--pino-texto); transform: rotate(2deg); }
+.sello .i-s { width: 14px; height: 14px; }
+.chica { width: 86%; }
+.chica .faz { padding: 24px 10px 12px; gap: 6px; border-radius: 22px 22px 12px 12px; }
+.chica .llave-ico { width: 32px; height: 32px; }
+.chica .cinta { font-size: 13px; }
+.eslabon { position: relative; z-index: 2; width: 12px; height: 26px; margin: -8px 0 -12px; border-radius: 7px; border: 3px solid #B9B3A5; }
+/* Tirando: pasada la línea, se suelta */
+.se-suelta .faz { box-shadow: 0 0 0 3px var(--error), var(--sombra-3); }
+.se-suelta .frente::after { content: "Soltá para bajarla"; position: absolute; left: 50%; bottom: -34px; transform: translateX(-50%); white-space: nowrap; padding: 4px 10px; border-radius: 99px; background: var(--error); color: #fff; font-size: 13px; font-weight: 800; }
+.cae { transition: transform 560ms cubic-bezier(.55, 0, .9, .45), opacity 560ms var(--curva-salida) !important; transform: translateY(110vh) rotate(18deg) !important; opacity: 0; }
+
+/* ---------- Pie: lo de la etapa a, en pastillas que se tocan ---------- */
+.t3-pie { display: flex; align-items: center; gap: 12px; padding: 10px 32px 16px; }
+.t3-pie .para-vos { flex: none; }
+.t3-luz { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 99px; background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; }
+.t3-luz .punto { width: 8px; height: 8px; border-radius: 99px; background: currentColor; }
+.t3-luz.sin { background: var(--urgente-suave); color: var(--urgente-texto); }
+
+/* ---------- El recibo de lo que se cortó ---------- */
+.recibos { position: fixed; right: 32px; bottom: 76px; z-index: 60; display: grid; gap: 8px; }
+.recibo3 { width: 280px; padding: 14px 16px 12px; background: var(--superficie); border-radius: 4px; box-shadow: var(--sombra-3); font-size: 14px; line-height: 20px; cursor: pointer; animation: imprime var(--t-nav) var(--curva) both; transition: opacity var(--t), transform var(--t); border-top: 4px solid var(--error); }
+.recibo3.se-va { opacity: 0; transform: translateY(12px); }
+.recibo3-cab { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; letter-spacing: .12em; color: var(--error-texto); }
+.recibo3 b { display: block; font-size: 16px; margin: 4px 0; }
+.recibo3 ul { margin: 0; padding: 0 0 0 18px; color: var(--texto-2); font-weight: 600; }
+.recibo3-pie { margin-top: 8px; padding-top: 8px; border-top: 1.5px dashed var(--borde-fuerte); font-size: 13px; font-weight: 700; color: var(--texto-3); }
+@keyframes imprime { from { opacity: 0; transform: translateY(24px); } }
+
+/* =================== Celular =================== */
+@media (max-width: 899px) {
+  .t3-cab { padding: 30px 16px 8px; gap: 12px; flex-wrap: wrap; }
+  .t3-titulo .t-titulo { font-size: 26px; line-height: 30px; }
+  .t3-todas { min-height: 40px; }
+  .t3-cab .sin-red-pastilla { order: 5; }
+  .t3-cuerpo { display: block; overflow: auto; padding: 0 16px 16px; }
+  .mano { overflow: visible; padding: 0; }
+  .mano-tag { padding: 34px 14px 16px; gap: 10px; }
+  .cinta.grande { font-size: 20px; line-height: 24px; }
+  .tablero { margin-top: 16px; padding: 16px 12px 32px; border-radius: 20px; }
+  .ganchera { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .faz { padding: 28px 8px 12px; }
+  .cinta { font-size: 13px; letter-spacing: .06em; padding: 4px 8px 3px; }
+  .t3-pie { padding: 8px 16px 14px; gap: 8px; border-top: 1px solid var(--borde); background: rgba(255, 255, 255, .92); }
+  .t3-pie .asi { margin: 0; padding: 0; flex: 1; min-width: 0; }
+  .t3-luz { display: none; }
+  .offline .t3-luz { display: inline-flex; }
+  .recibos { left: 16px; right: 16px; bottom: 84px; }
+  .recibo3 { width: auto; }
+  .mano-cadena .llave3 { width: 180px; }
+}
+
+/* Ajustes después de la primera captura */
+.llavero-mano { grid-template-columns: minmax(0, 1fr); }
+.mano-tag { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.mano-top .t-etiqueta { white-space: nowrap; }
+.chica .cinta { font-size: 12px; letter-spacing: .05em; }
+.faz .cinta { max-width: 100%; text-overflow: ellipsis; }
+@media (max-width: 899px) {
+  .rotu-ideas .rotu-chip { height: 30px; padding: 0 10px; font-size: 13px; }
+  .mano-nota { font-size: 13px; line-height: 18px; }
+  .mano-cadena .llave3 { width: 170px; }
+}
+.mano-top > * { flex: 0 0 auto; }
+.rotuladora { flex-wrap: wrap; }
+.rotu-campo { flex-basis: 100%; }
+.rotuladora .btn { flex: 1; }

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Configuración · Lo tuyo · 1 La lista</title>
+<link rel="stylesheet" href="../../../../common/common.css">
+<link rel="stylesheet" href="../../shared/base.css">
+<link rel="stylesheet" href="../../shared/v1.css">
+<script src="../../../../common/icons.js"></script>
+<script src="../../shared/icons-extra.js"></script>
+<script src="../../../../common/navigate.js" defer></script>
+</head>
+<body>
+<div class="prueba" aria-hidden="true"><div class="prueba-borde"></div><div class="prueba-cartel">Ambiente de prueba<span> · nada de esto es real</span></div></div>
+
+<div class="app">
+  <nav class="lateral solo-compu" aria-label="Menú">
+    <div class="lado-marca"><img src="../../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button type="button" class="btn btn-fantasma lado-plegar" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <button type="button" class="nav-item" data-ir="sales"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></button>
+    <button type="button" class="nav-item" data-ir="products"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></button>
+    <button type="button" class="nav-item" data-ir="stock"><i class="i" data-i="package"></i><span class="txt">Depósito</span></button>
+    <button type="button" class="nav-item" data-ir="business-overview"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></button>
+    <button type="button" class="nav-item" aria-current="page" data-ir="more"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></button>
+    <div class="pie">
+      <div class="vinculo-tarjeta">
+        <button type="button" class="indicador" data-indicador aria-label="Vínculo con el celular">
+          <span class="indicador-ico"><i class="i" data-i="smartphone"></i><span class="dot"></span></span>
+          <span class="indicador-txt"><b>Directo</b><small data-nombre-de="celu-ruben">Celu de Rubén</small></span>
+          <span class="kbd">L</span>
+        </button>
+        <div class="luz" data-luz><span class="punto"></span><span data-luz-txt>En línea · todo enviado</span></div>
+      </div>
+      <div class="persona"><div class="usuario"><span class="avatar">RP</span><div><b class="persona-nombre">Rubén Paredes</b><div class="t-detalle">Administrador</div></div></div><button type="button" class="btn chico" data-ir="sign-in"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+
+  <main class="contenido">
+    <header class="cabecera">
+      <nav class="migas t-detalle solo-compu" aria-label="Dónde estoy"><button type="button" data-ir="more">Más</button><i class="i i-s" data-i="chevron-right"></i><span>Configuración</span></nav>
+      <button type="button" class="volver solo-celu" data-ir="more"><i class="i" data-i="chevron-left"></i>Más</button>
+      <h1 class="t-titulo">Configuración</h1>
+      <div class="p-estado solo-celu">
+        <button type="button" class="indicador-pastilla" data-indicador><i class="i i-s" data-i="monitor"></i><span class="dot"></span>Directo</button>
+        <span class="pastilla urgente sin-red-pastilla"><i class="i i-s" data-i="wifi-off"></i>Sin conexión</span>
+      </div>
+      <div class="sub-pantalla">
+        <span class="para-vos"><span class="cara" aria-hidden="true">RP</span><span>Solo para vos, en <span class="largo">esta computadora</span><span class="corto">este celular</span></span></span>
+        <div class="asi"><span class="t-etiqueta solo-compu">Así la tenés:</span><div class="asi-pastillas" data-asi></div></div>
+      </div>
+    </header>
+
+    <section class="pantalla v1" aria-label="Configuración">
+      <div class="col-prefs">
+        <h2 class="grupo-titulo"><span class="largo">En esta computadora</span><span class="corto">En este celular</span></h2>
+        <div class="tarjeta prefs">
+          <div class="pref">
+            <span class="pref-ico"><i class="i" data-i="sparkles"></i></span>
+            <div><div class="pref-nombre" id="n-anim">Animaciones</div><div class="pref-que">Pantallas y avisos con un movimiento corto</div></div>
+            <span class="pref-der"><span class="kbd">A</span><button type="button" class="llave" role="switch" aria-labelledby="n-anim" data-pref="anim"></button></span>
+          </div>
+          <div class="pref">
+            <span class="pref-ico"><i class="i" data-i="clock"></i></span>
+            <div><div class="pref-nombre" id="n-hora">Formato de la hora</div><div class="pref-que">La hora es la del negocio</div></div>
+            <span class="pref-der"><span class="kbd">H</span><span class="segmentos hora" role="radiogroup" aria-labelledby="n-hora"><button type="button" role="radio" data-hora-op="24">14:30</button><button type="button" role="radio" data-hora-op="12">2:30 p. m.</button></span></span>
+          </div>
+          <div class="pref" data-instalar-fila>
+            <span class="pref-ico"><i class="i" data-i="app-window"></i></span>
+            <div><div class="pref-nombre"><span class="largo">Instalar en este dispositivo</span><span class="corto">Instalar en este celular</span></div><div class="pref-que">Abrila desde un ícono</div></div>
+            <span class="pref-der" data-instalar-estado></span>
+          </div>
+        </div>
+        <div class="guardado solo-compu"><i class="i" data-i="info"></i><span>Esto queda guardado en esta computadora, solo para vos. <b>Lo tuyo</b>, a la derecha, está en el servidor: lo ves igual desde cualquier dispositivo donde entres.</span></div>
+      </div>
+
+      <section class="col-tuyo" aria-labelledby="lo-tuyo-titulo">
+        <h2 class="grupo-titulo" id="lo-tuyo-titulo">Lo tuyo <span class="pastilla urgente chica sin-red-pastilla"><i class="i i-s" data-i="wifi-off"></i>Sin conexión</span></h2>
+        <div class="tuyo del-servidor" data-tuyo></div>
+      </section>
+    </section>
+  </main>
+
+  <nav class="nav-inferior solo-celu" aria-label="Menú">
+    <button type="button" data-ir="sales"><i class="i" data-i="shopping-cart"></i>Vender</button>
+    <button type="button" data-ir="products"><i class="i" data-i="tags"></i>Catálogo</button>
+    <button type="button" data-ir="stock"><i class="i" data-i="package"></i>Depósito</button>
+    <button type="button" data-ir="business-overview"><i class="i" data-i="chart-column"></i>Negocio</button>
+    <button type="button" aria-current="page" data-ir="more"><i class="i" data-i="menu"></i>Más</button>
+  </nav>
+</div>
+<script src="../../shared/base.js"></script>
+<script src="../../shared/v1.js"></script>
+</body>
+</html>

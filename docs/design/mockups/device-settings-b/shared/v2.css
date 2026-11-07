@@ -1,0 +1,130 @@
+/* Variante 2 · Por dispositivo. A la izquierda, este dispositivo dibujado con su nombre y sus
+   preferencias; a la derecha, una tarjeta por cada otro dispositivo, con lo que hizo entrar colgado. */
+
+.pantalla.v2 { display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 24px; align-items: start; padding: 4px 32px 32px; overflow: auto; flex: 1; min-height: 0; }
+.cabecera .asi { margin-left: 8px; }
+.pastilla.chica { height: 24px; padding: 0 9px; font-size: 13px; }
+
+/* ---------- Este dispositivo ---------- */
+.hero { padding: 16px; display: grid; gap: 14px; }
+.hero-cab { display: flex; align-items: center; justify-content: space-between; }
+.hero-dibujo { display: grid; place-items: center; padding: 8px 0 0; transition: opacity var(--t); }
+.aparato { position: relative; display: grid; justify-items: center; }
+.aparato-pantalla { position: relative; overflow: hidden; display: grid; place-content: center; justify-items: center; gap: 4px; text-align: center; background: linear-gradient(160deg, #FFFFFF 0%, var(--fondo) 100%); border: 10px solid var(--tinta); box-shadow: var(--sombra-2); }
+.es-pc .aparato-pantalla { width: 320px; height: 168px; border-radius: 16px; padding: 0 16px; }
+.es-pc .pie-monitor { width: 64px; height: 22px; background: linear-gradient(var(--borde-fuerte), var(--hundido-2)); clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%); }
+.es-pc .pie-monitor::after { content: ""; display: block; }
+.es-pc::after { content: ""; width: 132px; height: 8px; border-radius: 8px; background: var(--borde-fuerte); }
+.es-celu .aparato-pantalla { width: 150px; height: 236px; border-radius: 28px; border-width: 8px; padding: 0 12px; }
+.es-celu .aparato-pantalla::before { content: ""; position: absolute; top: 8px; left: 50%; width: 44px; height: 8px; margin-left: -22px; border-radius: 99px; background: var(--tinta); }
+.aparato-nombre { font-size: 26px; line-height: 30px; font-weight: 800; letter-spacing: -.02em; color: var(--pino); overflow-wrap: anywhere; }
+.es-celu .aparato-nombre { font-size: 21px; line-height: 26px; }
+.aparato-nombre.sin { color: var(--texto-3); font-weight: 700; }
+.aparato-nombre.late { animation: late var(--t) var(--rebote); }
+@keyframes late { from { transform: scale(1.06); } }
+.aparato-auto { font-size: 13px; font-weight: 650; color: var(--texto-3); }
+/* Al guardar, un brillo cruza la pantalla del dibujo */
+.aparato-pantalla::after { content: ""; position: absolute; inset: -20% auto -20% 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .9), transparent); transform: translateX(-150%) skewX(-18deg); opacity: 0; }
+.aparato.brilla .aparato-pantalla::after { animation: brillo .9s var(--curva) .1s; }
+@keyframes brillo { 0% { opacity: 1; transform: translateX(-150%) skewX(-18deg); } 100% { opacity: 1; transform: translateX(400%) skewX(-18deg); } }
+
+.hero-nombre { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; transition: opacity var(--t); }
+.hero-nombre .kbd { height: 22px; background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.4); color: inherit; }
+.hero-nota { margin: 0; flex-basis: 100%; text-align: center; }
+.nombre-edit { flex-basis: 100%; display: flex; gap: 8px; align-items: center; height: 48px; padding: 0 4px 0 14px; border-radius: var(--r); border: 2px solid var(--pino); box-shadow: 0 0 0 4px rgba(18, 56, 47, .12); background: var(--superficie); }
+.nombre-edit input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 17px; font-weight: 750; }
+.contador { font-size: 13px; font-weight: 700; color: var(--texto-3); white-space: nowrap; }
+.contador.lleno { color: var(--error-texto); }
+.sugeridos { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.chico-chip { height: 32px; padding: 0 12px; font-size: 14px; }
+.hero-nombre .aviso { flex-basis: 100%; }
+.hero-huella { display: grid; gap: 10px; }
+.vincular { width: 100%; }
+.hero-prefs { border-top: 1px solid var(--borde); padding-top: 12px; }
+.hero-sub { font-size: 14px; font-weight: 700; color: var(--texto-2); margin: 0 0 4px; }
+.hero .prefs .pref { padding: 8px 0; grid-template-columns: 32px minmax(0, 1fr) auto; }
+.hero .prefs .pref + .pref { border-top: 1px solid var(--borde); }
+.hero .pref-ico { width: 32px; height: 32px; }
+
+/* ---------- Los otros ---------- */
+.otros-cab { display: flex; align-items: center; gap: 12px; margin: 0 0 12px 4px; }
+.otros-cab h2 { margin: 0; }
+.del-servidor { transition: opacity var(--t); }
+.cuentas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: stretch; margin-bottom: 12px; }
+.cuentas .resumen { padding: 12px 14px; }
+.cuentas .btn.todas { height: auto; }
+.cuentas .kbd { height: 22px; }
+.familias { display: grid; gap: 12px; }
+.fam { padding: 16px; transition: opacity var(--t) var(--curva); }
+.fam-cab { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.fam-ico { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: var(--hundido); color: var(--texto-2); }
+.fam-txt h3 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 750; }
+.fam-txt span { font-size: 14px; color: var(--texto-2); }
+.fichas { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0 62px; }
+.fichas:empty { display: none; }
+.ficha { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 4px 0 12px; border-radius: 999px; background: var(--hundido); font-size: 14px; font-weight: 700; transition: opacity var(--t) var(--curva-salida), transform var(--t) var(--curva-salida); }
+.ficha .punto { width: 8px; height: 8px; border-radius: 99px; background: var(--logro); }
+.ficha.ses > span:nth-child(2) { color: var(--tinta); }
+.ficha-det { font-weight: 550; color: var(--texto-2); }
+.ficha .i-s { color: var(--pino-texto); }
+.ficha.grande { width: 100%; min-height: 44px; padding: 0 4px 0 14px; background: var(--pino-suave); color: var(--pino-texto); }
+.ficha.grande .btn { margin-left: auto; }
+.ficha-x { width: 28px; height: 28px; border-radius: 99px; border: 0; background: var(--superficie); color: var(--texto-2); display: grid; place-items: center; box-shadow: var(--sombra-1); }
+.ficha-x:active { transform: scale(.9); }
+.hijos { margin: 12px 0 0 62px; padding-left: 14px; border-left: 2px dashed var(--borde-fuerte); display: grid; gap: 6px; }
+.hijos-tit { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--texto-3); }
+.hijo { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 6px 8px 8px; border-radius: 12px; background: var(--hundido); transition: opacity var(--t) var(--curva-salida), transform var(--t) var(--curva-salida); }
+.hijo-ico { width: 32px; height: 32px; border-radius: 9px; background: var(--superficie); display: grid; place-items: center; color: var(--texto-2); }
+.hijo-txt { display: grid; font-size: 14px; line-height: 18px; color: var(--texto-2); }
+.hijo-txt b { color: var(--tinta); font-size: 15px; }
+.vivo { font-style: normal; color: var(--logro-texto); font-weight: 700; }
+.hero .hijos { margin: 0; }
+
+/* Antes de cortar: lo que se va, en rojo, con su etiqueta */
+.se-corta { display: none; height: 22px; padding: 0 8px; border-radius: 99px; background: var(--error); color: #fff; font-size: 12px; font-weight: 800; align-items: center; }
+.apuntado .se-corta { display: inline-flex; animation: aparece var(--t) var(--rebote); }
+.apuntado .ficha, .apuntado .hijo { background: var(--error-suave); box-shadow: inset 0 0 0 1.5px var(--error); }
+.apuntado .ficha .i-s, .apuntado .ficha-det { color: var(--error-texto); }
+.apuntado .hijos { border-left-color: var(--error); }
+.apuntado .ficha-x { display: none; }
+@keyframes aparece { from { opacity: 0; transform: scale(.7); } }
+.cae { opacity: 0; transform: translateY(18px) rotate(-4deg); }
+
+.cortado { padding: 12px 16px; border: 1.5px dashed var(--borde-fuerte); background: transparent; border-radius: var(--r-tarjeta); margin-bottom: 12px; animation: aparece var(--t-nav) var(--curva); }
+.cortado .fam-ico { background: var(--error-suave); color: var(--error-texto); }
+.cortado .fam-txt h3 { font-size: 16px; }
+.vacio { display: flex; gap: 10px; align-items: center; padding: 16px; border-radius: 16px; background: var(--hundido); color: var(--texto-2); font-size: 15px; margin: 0; }
+
+/* =================== Celular =================== */
+@media (max-width: 899px) {
+  .pantalla.v2 { display: block; overflow: visible; padding: 12px 16px 24px; }
+  .col-otros { margin-top: 24px; }
+  .otros-cab h2 { font-size: 18px; }
+  .cuentas { grid-template-columns: 1fr 1fr; }
+  .cuentas .btn.todas { grid-column: 1 / -1; min-height: 44px; }
+  .cuentas .resumen { gap: 10px; }
+  .cuentas .resumen .ico { width: 32px; height: 32px; }
+  .cuentas .resumen .et { font-size: 13px; line-height: 16px; }
+  .fam { padding: 14px; }
+  .fam-cab { grid-template-columns: 44px minmax(0, 1fr); }
+  .fam-cab .btn { grid-column: 1 / -1; justify-self: stretch; min-height: 40px; }
+  .fam-ico { width: 44px; height: 44px; }
+  .fichas, .hijos { margin-left: 0; }
+  .ficha { flex-wrap: wrap; padding: 6px 4px 6px 12px; border-radius: 14px; }
+  .ficha-det { flex-basis: 100%; order: 3; margin: -6px 0 2px 16px; font-size: 13px; }
+  .ficha.grande { flex-wrap: nowrap; padding: 0 4px 0 14px; }
+  .es-celu .aparato-pantalla { width: 132px; height: 206px; }
+  .hero .prefs .segmentos.hora > button { padding: 0 9px; }
+}
+@media (max-width: 899px) {
+  .hero { grid-template-columns: 124px minmax(0, 1fr); align-items: center; column-gap: 14px; }
+  .hero-cab, .hero-huella, .hero-prefs { grid-column: 1 / -1; }
+  .hero-dibujo { padding: 0; }
+  .es-celu .aparato-pantalla { width: 112px; height: 176px; border-radius: 22px; border-width: 7px; padding: 0 8px; }
+  .es-celu .aparato-nombre { font-size: 17px; line-height: 21px; }
+  .es-celu .aparato-auto { font-size: 12px; line-height: 15px; }
+  .hero-nombre { justify-content: flex-start; }
+  .hero-nombre .btn { min-height: 40px; }
+  .hero-nota { text-align: left; }
+  .hero-nombre:has(.nombre-edit) { grid-column: 1 / -1; }
+}
