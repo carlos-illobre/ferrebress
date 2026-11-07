@@ -170,6 +170,8 @@ cambiar su lógica ni sus piezas (`AnimationsRow`, `TimeRow`, `InstallRow`, `Off
 
 - **Datos que toca:** las sesiones y las huellas propias, y el nombre de los dispositivos, que puede ser
   un dato personal («Celu de Juan»): se borra con el dispositivo (§ 2).
+- **Los nombres de todos los dispositivos** van a cualquiera con sesión en `GET /api/me/devices`: los
+  necesita el aviso de «otro ya se llama así» mientras se escribe (R9.3). Carlos lo aceptó así.
 - **Quién puede:** cualquiera con sesión, solo lo suyo: las rutas toman la persona de la sesión y nunca
   la reciben. Un `deviceKey` o una sesión de otra persona da `404`. El nombre, solo el del dispositivo de
   la sesión.

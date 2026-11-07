@@ -125,7 +125,9 @@ permiso. Hace lo mismo en los dos lugares, aunque cada uno lo muestre a su maner
   02 · R5.6. **El celular que se está usando** es la excepción: quitarle la huella no cierra la sesión
   ni nada más (tampoco el vínculo con la computadora, 03 · R2.3), porque no es un celular perdido; solo
   deja de entrar con la huella y de aprobar la entrada de una computadora, y se le apaga «Trabajar sin
-  conexión» (15 · R1.5). En la tarjeta propia de Usuarios pasa lo mismo.
+  conexión» (15 · R1.5). Las computadoras que hizo entrar con su código siguen abiertas, y como ya no
+  tiene huella, «Se me perdió» sobre él tampoco las corta: se cierran desde su propia tarjeta. En la
+  tarjeta propia de Usuarios pasa lo mismo.
 - **R6.3** **«Vincular este celular con mi huella»** aparece en el celular que se está usando si no tiene
   ninguna huella vinculada, y hace lo mismo que el ofrecimiento al entrar (01 · R2.2). Como vincular
   pide haber pasado por Google hace poco, primero pide volver a confirmar quién es (02 · R3.8) y al
