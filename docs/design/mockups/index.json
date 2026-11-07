@@ -656,6 +656,16 @@
    "variants": [
     {
      "device": "desktop",
+     "name": "Final",
+     "path": "mockups/device-settings-b/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/device-settings-b/final/index.html"
+    },
+    {
+     "device": "desktop",
      "name": "1 · La lista",
      "path": "mockups/device-settings-b/desktop/variant-1-list/index.html"
     },

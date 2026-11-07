@@ -1,0 +1,386 @@
+/* Más → Configuración · Lo tuyo (04 · etapa b) · maqueta final. Una sola página para la computadora y
+   el celular (ADR-002): el corte es 900 px, como el marco. Se enlaza después de common/common.css.
+   Base: la variante 2 «Por dispositivo» del director (../shared/base.css y ../shared/v2.css), con el
+   recibo de lo cortado de la variante 1 (../shared/v1.css). Las preferencias son las de la final
+   aprobada de la etapa a (../../device-settings-a/final/settings.css), dentro de la tarjeta de este
+   dispositivo. */
+
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { overflow: hidden; }
+:focus-visible { outline: 3px solid var(--pino-2); outline-offset: 2px; }
+.solo-celu { display: none !important; }
+.corto { display: none; }
+input { font: inherit; color: inherit; }
+
+/* ---------- Ambiente de pruebas (00 · R10): magenta, fijo ---------- */
+.prueba { position: fixed; inset: 0; z-index: 900; pointer-events: none; }
+.prueba-borde { position: absolute; inset: 0; border: 7px solid #d6007a; box-shadow: inset 0 0 22px rgb(214 0 122 / .45); opacity: .85; }
+.prueba-cartel { position: absolute; top: 0; left: 50%; transform: translateX(-50%); padding: 4px 16px 5px; border-radius: 0 0 12px 12px; background: #d6007a; color: #fff; font-size: 14px; font-weight: 750; line-height: 1.2; white-space: nowrap; box-shadow: 0 2px 8px rgb(0 0 0 / .25); }
+
+/* ---------- Teclas: solo mientras Alt está apretado (00 · R2.9) ---------- */
+.kbd { display: none; }
+body.alt .kbd { display: inline-flex; }
+body.alt:not(.quieto) .kbd { animation: kbd-entra var(--t-micro) var(--curva); }
+@keyframes kbd-entra { from { opacity: 0; transform: scale(.8); } }
+/* La marca del teclado en los botones de cada dispositivo (00 · R2.4, R2.5), como en Usuarios */
+.marca-tecla { outline: 3px solid var(--accion); outline-offset: 2px; }
+
+/* =================== El marco de la computadora: lateral de 216 px =================== */
+.app { grid-template-columns: 216px 1fr; min-height: 0; }
+.lateral { padding: 20px 8px 8px; position: relative; z-index: 3; }
+.lado-marca { display: flex; align-items: center; justify-content: space-between; height: 36px; margin: 0 0 21px 8px; }
+.lado-marca img { height: 36px; width: auto; }
+.lado-plegar { min-height: 36px; width: 36px; padding: 0; color: var(--texto-2); }
+.nav-item { width: 100%; border: 0; background: none; text-align: left; }
+.nav-item .i { color: var(--texto-2); }
+.nav-item[aria-current="page"] { background: var(--pino-suave); color: var(--pino); font-weight: 750; }
+.nav-item[aria-current="page"] .i { color: var(--pino); }
+.lateral .pie { gap: 8px; }
+.persona { border: 1px solid var(--borde); border-radius: var(--r-tarjeta); padding: 12px; display: grid; gap: 12px; background: var(--superficie); }
+.persona .usuario { padding: 0; }
+.persona .btn { width: 100%; }
+.persona-nombre { display: block; font-weight: 750; font-size: 15px; }
+.avatar { background: var(--accion-suave); color: var(--accion-texto); }
+
+/* La tarjeta del vínculo: el indicador, la luz y lo que gasta la aplicación */
+.vinculo-tarjeta { display: grid; gap: 4px; padding: 4px; border-radius: calc(var(--r) + 4px); border: 1px solid var(--borde); background: var(--superficie); box-shadow: var(--sombra-1); }
+.dot { position: relative; width: 10px; height: 10px; border-radius: 99px; flex: none; background: var(--logro); color: var(--logro); }
+.dot::after { content: ""; position: absolute; inset: -4px; border-radius: 99px; background: currentColor; opacity: 0; animation: latido 2.4s var(--curva) infinite; }
+@keyframes latido { 0% { opacity: .35; transform: scale(.4); } 100% { opacity: 0; transform: scale(1.5); } }
+.indicador { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); align-items: center; gap: 10px; width: 100%; padding: 8px 10px 8px 8px; border-radius: var(--r); border: 0; background: var(--superficie); text-align: left; transition: transform var(--t-micro) var(--curva); }
+.indicador:active { transform: scale(.97); }
+.indicador-ico { position: relative; width: 36px; height: 36px; border-radius: 10px; background: var(--hundido); display: grid; place-items: center; color: var(--texto-2); }
+.indicador-ico .dot { position: absolute; right: -3px; bottom: -3px; border: 2px solid var(--superficie); width: 14px; height: 14px; }
+.indicador-txt { min-width: 0; display: grid; }
+.indicador-txt b { font-size: 14px; line-height: 18px; font-weight: 800; color: var(--logro-texto); }
+.indicador-txt small { font-size: 14px; line-height: 18px; color: var(--texto-2); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.indicador .kbd { position: absolute; right: -6px; top: -10px; height: 22px; box-shadow: 0 0 0 2px var(--superficie); }
+.luz { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 36px; padding: 6px 12px; border-radius: var(--r); background: var(--logro-suave); color: var(--logro-texto); font-size: 14px; font-weight: 700; line-height: 18px; }
+.luz .punto, .p-luz .punto { width: 8px; height: 8px; border-radius: 99px; background: currentColor; flex: none; }
+.luz.sin { background: var(--urgente-suave); color: var(--urgente-texto); }
+.gasto-app { margin: 0; padding: 2px 12px 4px; font-size: 14px; line-height: 18px; font-weight: 600; color: var(--texto-2); white-space: nowrap; }
+.gasto-app b, .pastilla-gasto b { color: var(--tinta); font-weight: 750; }
+
+/* =================== La cabecera: título, «Volver a como viene», «Solo para vos» y «Así la tenés» =================== */
+.cabecera { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0 16px; padding: 16px 32px 12px; }
+.migas { grid-column: 1; display: flex; align-items: center; gap: 4px; }
+.migas button { padding: 0; border: 0; background: none; color: var(--pino-texto); font-weight: 700; font-size: 14px; }
+.cabecera h1 { grid-column: 1; margin: 0; white-space: nowrap; }
+.como-viene { grid-column: 2; grid-row: 1 / span 2; align-self: center; position: relative; }
+.como-viene .kbd { height: 22px; }
+.sub-pantalla { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; margin-top: 6px; min-width: 0; }
+.para-vos { flex: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px 0 4px; border-radius: 99px; background: var(--pino-suave); color: var(--pino-texto); font-size: 14px; font-weight: 700; }
+.cara { width: 22px; height: 22px; border-radius: 99px; display: grid; place-items: center; flex: none; background: var(--pino); color: #fff; font-size: 11px; font-weight: 800; }
+.asi { display: flex; align-items: center; gap: 8px; min-width: 0; margin-left: 8px; white-space: nowrap; }
+.asi-pastillas { display: flex; align-items: center; gap: 8px; }
+.asi-pastilla { height: 30px; background: var(--superficie); border: 1px solid var(--borde); color: var(--tinta); font: inherit; font-size: 14px; font-weight: 650; }
+.asi-pastilla .i-s { color: var(--pino-texto); }
+.asi-pastilla .tipo { color: var(--texto-2); font-weight: 600; }
+
+/* =================== La pantalla: este dispositivo a la izquierda, los otros a la derecha =================== */
+.pantalla { display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 24px; align-items: start; padding: 4px 32px 32px; overflow: auto; flex: 1; min-height: 0; }
+.pastilla.chica { height: 24px; padding: 0 9px; font-size: 14px; }
+.del-servidor { transition: opacity var(--t); }
+
+/* ---------- Este dispositivo ---------- */
+.hero { padding: 16px; display: grid; gap: 14px; }
+.hero-cab { display: flex; align-items: center; justify-content: space-between; }
+.hero-dibujo { display: grid; place-items: center; padding: 8px 0 0; }
+/* El dibujo: el borde del aparato va en gris claro (el lenguaje visual no deja negro de adorno) */
+.aparato { position: relative; display: grid; justify-items: center; }
+.aparato-pantalla { position: relative; overflow: hidden; display: grid; place-content: center; justify-items: center; gap: 4px; text-align: center; background: linear-gradient(160deg, #FFFFFF 0%, var(--fondo) 100%); border: 10px solid var(--borde-fuerte); box-shadow: var(--sombra-2); }
+.es-pc .aparato-pantalla { width: 320px; height: 168px; border-radius: 16px; padding: 0 16px; }
+.es-pc .pie-monitor { width: 64px; height: 22px; background: linear-gradient(var(--borde-fuerte), var(--hundido-2)); clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%); }
+.es-pc::after { content: ""; width: 132px; height: 8px; border-radius: 8px; background: var(--borde-fuerte); }
+.es-celu .aparato-pantalla { width: 150px; height: 236px; border-radius: 28px; border-width: 8px; padding: 0 12px; }
+.es-celu .aparato-pantalla::before { content: ""; position: absolute; top: 8px; left: 50%; width: 44px; height: 8px; margin-left: -22px; border-radius: 99px; background: var(--borde-fuerte); }
+.aparato-nombre { font-size: 26px; line-height: 30px; font-weight: 800; letter-spacing: -.02em; color: var(--pino); overflow-wrap: anywhere; }
+.es-celu .aparato-nombre { font-size: 21px; line-height: 26px; }
+.aparato-nombre.sin { color: var(--texto-3); font-weight: 700; }
+.aparato-nombre.late { animation: late var(--t) var(--rebote); }
+@keyframes late { from { transform: scale(1.06); } }
+.aparato-auto { font-size: 14px; line-height: 18px; font-weight: 650; color: var(--texto-3); }
+/* Al guardar, un brillo cruza la pantalla del dibujo */
+.aparato-pantalla::after { content: ""; position: absolute; inset: -20% auto -20% 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .9), transparent); transform: translateX(-150%) skewX(-18deg); opacity: 0; }
+.aparato.brilla .aparato-pantalla::after { animation: brillo .9s var(--curva) .1s; }
+@keyframes brillo { 0% { opacity: 1; transform: translateX(-150%) skewX(-18deg); } 100% { opacity: 1; transform: translateX(400%) skewX(-18deg); } }
+
+/* El nombre (R9) */
+.hero-nombre { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
+.hero-nombre .kbd { height: 22px; }
+.hero-nombre .btn-accion .kbd { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.4); color: inherit; }
+.hero-nota { margin: 0; flex-basis: 100%; text-align: center; }
+.nombre-edit { flex-basis: 100%; display: flex; gap: 8px; align-items: center; height: 48px; padding: 0 4px 0 14px; border-radius: var(--r); border: 2px solid var(--pino); box-shadow: 0 0 0 4px rgba(18, 56, 47, .12); background: var(--superficie); }
+.nombre-edit input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 17px; font-weight: 750; }
+.contador { font-size: 14px; font-weight: 700; color: var(--texto-3); white-space: nowrap; }
+.contador.lleno { color: var(--error-texto); }
+.sugeridos { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.chico-chip { position: relative; height: 32px; padding: 0 12px; font-size: 14px; }
+.chico-chip .kbd { position: absolute; right: -6px; top: -10px; height: 22px; }
+.hero-nombre .aviso { flex-basis: 100%; }
+
+/* La huella de este celular y lo que hizo entrar */
+.hero-huella { display: grid; gap: 10px; }
+.vincular { width: 100%; }
+
+/* Las preferencias de este dispositivo: los renglones de la etapa a, en la tarjeta */
+.hero-prefs { border-top: 1px solid var(--borde); padding-top: 12px; }
+.hero-sub { font-size: 14px; font-weight: 700; color: var(--texto-2); margin: 0 0 4px; }
+.ajuste { padding: 14px 0; }
+.ajuste + .ajuste { border-top: 1px solid var(--borde); }
+.ajuste:last-child { padding-bottom: 0; }
+.ajuste-cab { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto auto; gap: 12px; align-items: center; }
+.ajuste-ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino-texto); }
+.ajuste-nombre { font-weight: 700; font-size: 16px; line-height: 22px; }
+.ajuste-que { font-size: 14px; line-height: 20px; color: var(--texto-2); }
+.ajuste-cuerpo { margin: 12px 0 0; }
+.ajuste.apagado .ajuste-nombre, .ajuste.apagado .ajuste-ico { opacity: .55; }
+.ajuste .kbd { height: 22px; }
+
+/* La llave: la perilla se corre (transform) y el color entra con un fundido de su capa (opacity) */
+.llave { position: relative; width: 52px; height: 32px; flex: none; padding: 0; border: 0; border-radius: 999px; background: var(--hundido-2); overflow: hidden; }
+.llave::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--pino); opacity: 0; transition: opacity var(--t) var(--curva); }
+.llave::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 99px; background: var(--superficie); box-shadow: 0 2px 4px rgb(26 29 27 / .22); transition: transform var(--t) var(--curva); }
+.llave[aria-checked="true"]::before { opacity: 1; }
+.llave[aria-checked="true"]::after { transform: translateX(20px); }
+.llave:disabled { opacity: .5; cursor: not-allowed; }
+
+/* La muestra de la animación: una ventanita que sube y un aviso que entra, en bucle */
+.muestra { position: relative; border-radius: 12px; background: var(--hundido); overflow: hidden; display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 4px 14px; padding: 8px 14px; }
+.escena { position: relative; width: 96px; height: 56px; grid-row: span 2; }
+.ventana { position: absolute; left: 10px; right: 10px; top: 10px; height: 30px; border-radius: 8px; background: var(--superficie); box-shadow: var(--sombra-2); animation: ventana 2.4s var(--curva) infinite; }
+.ventana::before { content: ""; position: absolute; left: 8px; top: 9px; width: 44px; height: 5px; border-radius: 9px; background: var(--hundido-2); }
+.ventana::after { content: ""; position: absolute; left: 8px; top: 18px; width: 28px; height: 5px; border-radius: 9px; background: var(--hundido-2); }
+.aviso-mini { position: absolute; left: 24px; right: 24px; bottom: 2px; height: 10px; border-radius: 9px; background: var(--pino); animation: aviso-mini 2.4s var(--curva) infinite; }
+@keyframes ventana { 0%, 8% { transform: translateY(16px); opacity: 0; } 26%, 78% { transform: none; opacity: 1; } 92%, 100% { transform: translateY(6px); opacity: 0; } }
+@keyframes aviso-mini { 0%, 30% { transform: translateY(14px); opacity: 0; } 44%, 78% { transform: none; opacity: 1; } 90%, 100% { transform: translateY(14px); opacity: 0; } }
+/* Apagadas: la misma escena aparece y desaparece en el acto, por pasos, sin moverse */
+.muestra.en-el-acto .ventana { animation: corte 2.4s steps(1) infinite !important; }
+.muestra.en-el-acto .aviso-mini { animation: corte-aviso 2.4s steps(1) infinite !important; }
+@keyframes corte { 0% { opacity: 0; } 20% { opacity: 1; } 85% { opacity: 0; } }
+@keyframes corte-aviso { 0% { opacity: 0; } 40% { opacity: 1; } 85% { opacity: 0; } }
+/* Si el sistema pide no animar, la muestra queda quieta, con todo a la vista */
+.muestra.quieta .ventana, .muestra.quieta .aviso-mini { animation: none !important; transform: none; opacity: 1; }
+.muestra-leyenda { font-size: 14px; line-height: 20px; color: var(--texto-2); }
+.muestra-leyenda b { color: var(--tinta); }
+.espera-ej { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--texto-2); font-weight: 600; white-space: nowrap; }
+.aviso-sistema { margin-top: 12px; }
+/* La marca de espera: sigue girando aunque las animaciones estén apagadas (R2.2) */
+.espera { width: 18px; height: 18px; border-radius: 99px; border: 2.5px solid var(--pino); border-right-color: transparent; display: inline-block; animation: gira .8s linear infinite !important; }
+@keyframes gira { to { transform: rotate(360deg); } }
+
+/* El formato de la hora: dos fichas con la hora de ahora escrita en cada formato (R3.1) */
+.formatos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.formato { position: relative; display: grid; gap: 2px; text-align: left; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--borde-fuerte); background: var(--superficie); box-shadow: var(--sombra-1); transition: transform var(--t-micro) var(--curva); }
+.formato:active { transform: scale(.98); }
+.formato-hora { font-size: 24px; line-height: 30px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; }
+.formato-nombre { font-size: 14px; line-height: 18px; font-weight: 650; color: var(--texto-2); }
+.formato-ok { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 99px; background: var(--pino); color: #fff; display: grid; place-items: center; opacity: 0; transform: scale(.6); transition: opacity var(--t) var(--curva), transform var(--t) var(--rebote); }
+.formato[aria-checked="true"] { border: 2px solid var(--pino); padding: 11px 13px; background: var(--pino-suave); }
+.formato[aria-checked="true"] .formato-nombre { color: var(--pino-texto); }
+.formato[aria-checked="true"] .formato-ok { opacity: 1; transform: none; }
+.donde-se-ve { margin-top: 10px; font-size: 14px; color: var(--texto-2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.donde-se-ve .pastilla { height: 26px; }
+
+/* ---------- Los otros: una tarjeta por dispositivo ---------- */
+.otros-cab { display: flex; align-items: center; gap: 12px; margin: 0 0 12px 4px; }
+.otros-cab h2 { margin: 0; }
+.cuentas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: stretch; margin-bottom: 12px; }
+.cuentas .resumen { padding: 12px 14px; }
+.cuentas .btn.todas { height: auto; }
+.cuentas .kbd { height: 22px; }
+.familias { display: grid; gap: 12px; }
+.fam { padding: 16px; transition: opacity var(--t) var(--curva); }
+.fam-cab { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.fam-ico { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: var(--hundido); color: var(--texto-2); }
+.fam-txt h3 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 750; }
+.fam-txt span { font-size: 14px; color: var(--texto-2); }
+
+/* La sesión y la huella, como fichas con su × */
+.fichas { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0 62px; }
+.fichas:empty { display: none; }
+.ficha { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 4px 0 12px; border-radius: 999px; background: var(--hundido); font-size: 14px; font-weight: 700; transition: opacity var(--t) var(--curva-salida), transform var(--t) var(--curva-salida); }
+.ficha .punto { width: 8px; height: 8px; border-radius: 99px; background: var(--logro); flex: none; }
+.ficha-det { font-weight: 550; color: var(--texto-2); }
+.ficha .i-s { color: var(--pino-texto); }
+.ficha.grande { width: 100%; min-height: 44px; padding: 6px 4px 6px 14px; border-radius: 14px; background: var(--pino-suave); color: var(--pino-texto); }
+.ficha.grande .ficha-txt { display: grid; }
+.ficha.grande .ficha-det { color: var(--pino-texto); }
+.ficha.grande .btn { margin-left: auto; }
+.ficha-x { width: 28px; height: 28px; flex: none; border-radius: 99px; border: 0; background: var(--superficie); color: var(--texto-2); display: grid; place-items: center; box-shadow: var(--sombra-1); transition: transform var(--t-micro) var(--curva); }
+.ficha-x:active { transform: scale(.9); }
+
+/* Las computadoras que entraron con el código de un celular, colgadas de él */
+.hijos { margin: 12px 0 0 62px; padding-left: 14px; border-left: 2px dashed var(--borde-fuerte); display: grid; gap: 6px; }
+.hijos-tit { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--texto-3); }
+.hijo { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 6px 8px 8px; border-radius: 12px; background: var(--hundido); transition: opacity var(--t) var(--curva-salida), transform var(--t) var(--curva-salida); }
+.hijo-ico { width: 32px; height: 32px; border-radius: 9px; background: var(--superficie); display: grid; place-items: center; color: var(--texto-2); }
+.hijo-txt { display: grid; font-size: 14px; line-height: 18px; color: var(--texto-2); }
+.hijo-txt b { color: var(--tinta); font-size: 15px; }
+.vivo { font-style: normal; color: var(--logro-texto); font-weight: 700; }
+.hero .hijos { margin: 0; }
+
+/* Antes de cortar: lo que se va, en rojo, con su etiqueta (R1.8) */
+.se-corta { display: none; height: 22px; padding: 0 8px; border-radius: 99px; background: var(--error); color: #fff; font-size: 13px; font-weight: 800; align-items: center; white-space: nowrap; }
+.apuntado .se-corta { display: inline-flex; animation: aparece var(--t) var(--rebote); }
+.apuntado .ficha, .apuntado .hijo { background: var(--error-suave); box-shadow: inset 0 0 0 1.5px var(--error); }
+.apuntado .ficha .i-s, .apuntado .ficha-det { color: var(--error-texto); }
+.apuntado .hijos { border-left-color: var(--error); }
+.apuntado .ficha-x { display: none; }
+@keyframes aparece { from { opacity: 0; transform: scale(.7); } }
+/* Al tocar, cae girando y se funde, una tras otra */
+.cae { opacity: 0; transform: translateY(18px) rotate(-4deg); }
+
+/* El recibo de lo que se cortó (de la variante 1): queda hasta que se toca «Listo» */
+.recibos { display: grid; gap: 12px; margin-bottom: 12px; }
+.recibo { padding: 12px 14px; border-radius: 14px; background: var(--error-suave); color: var(--error-texto); animation: recibo-entra var(--t-nav) var(--rebote) both; }
+.recibo-cab { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; }
+.recibo-ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--superficie); color: var(--error-texto); }
+.recibo-cab b { font-size: 16px; }
+.recibo-cab .t-detalle { color: var(--error-texto); }
+.recibo ul { list-style: none; margin: 8px 0 0 52px; padding: 0; display: grid; gap: 4px; font-size: 14px; font-weight: 650; }
+.recibo li { display: flex; gap: 8px; align-items: center; }
+@keyframes recibo-entra { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+
+.vacio { display: flex; gap: 10px; align-items: center; padding: 16px; border-radius: 16px; background: var(--hundido); color: var(--texto-2); font-size: 15px; margin: 0; }
+
+/* =================== «Sin conexión»: lo del servidor se ve gris (R10) =================== */
+.sin-red-pastilla { display: none; }
+.offline .sin-red-pastilla { display: inline-flex; }
+.offline .del-servidor { opacity: .5; filter: grayscale(1); pointer-events: none; user-select: none; }
+
+/* =================== Capas: «Cerrar todas», vincular la huella, el pedido del navegador =================== */
+.capa { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: rgb(26 29 27 / .30); opacity: 0; pointer-events: none; transition: opacity var(--t) var(--curva); }
+.capa.abierta { opacity: 1; pointer-events: auto; }
+.dialogo { width: 440px; max-width: calc(100vw - 32px); background: var(--superficie); border-radius: var(--r-hoja); box-shadow: var(--sombra-3); padding: 24px; transform: translateY(12px) scale(.98); opacity: 0; transition: transform var(--t-nav) var(--curva), opacity var(--t) var(--curva); }
+.capa.abierta .dialogo { transform: none; opacity: 1; }
+.dialogo h2 { margin: 0 0 6px; font-size: 20px; line-height: 26px; font-weight: 750; letter-spacing: -.01em; }
+.dialogo p { margin: 0; }
+.pie-dialogo { display: flex; gap: 8px; justify-content: flex-end; margin-top: 24px; }
+.asa { width: 40px; height: 5px; border-radius: 99px; background: var(--borde-fuerte); margin: 0 auto 16px; }
+.huella-grande { width: 96px; height: 96px; margin: 8px auto 16px; border-radius: 99px; display: grid; place-items: center; background: var(--pino-suave); color: var(--pino); }
+.huella-grande .i { width: 48px; height: 48px; }
+.huella-grande.leyendo { animation: leyendo 1s var(--curva) infinite; }
+@keyframes leyendo { 50% { transform: scale(1.06); } }
+.centrado { text-align: center; }
+/* Lo pregunta el navegador, no Ferrebress: imita al de Chrome, neutro */
+.pedido-nav { display: grid; grid-template-columns: 48px 1fr; gap: 4px 14px; align-items: center; }
+.pedido-nav h2 { margin: 0; }
+.pedido-ico { width: 48px; height: 48px; border-radius: 12px; background: #fff; border: 1px solid var(--borde); display: grid; place-items: center; grid-row: span 2; }
+.pedido-ico img { width: 28px; height: 28px; }
+.pedido-sitio { font-size: 14px; color: var(--texto-3); }
+.pedido-nota { margin: 16px 0 0 !important; }
+
+/* =================== Tostadas =================== */
+.tostadas { position: fixed; left: 50%; bottom: 24px; z-index: 80; display: grid; gap: 8px; justify-items: center; transform: translateX(-50%); pointer-events: none; }
+.tostadas .tostada { pointer-events: auto; max-width: 600px; animation: sube var(--t-nav) var(--curva) both; }
+.tostadas .tostada.se-va { animation: baja var(--t) var(--curva-salida) both; }
+.tostada .i { color: #9FD9BC; }
+@keyframes sube { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes baja { to { transform: translateY(16px); opacity: 0; } }
+
+/* =================== Animaciones apagadas o el sistema pide no animar: nada se mueve por adorno =================== */
+body.quieto *:not(.espera), body.quieto *::before, body.quieto *::after { animation: none !important; transition: none !important; }
+
+/* =================== Panel «Casos» (no es parte de la pantalla) =================== */
+.casos-btn { position: fixed; right: 16px; bottom: 16px; z-index: 950; height: 32px; padding: 0 12px; border-radius: 99px; border: 1px dashed var(--borde-fuerte); background: rgb(255 255 255 / .9); color: var(--texto-2); font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+.casos { position: fixed; right: 16px; bottom: 56px; z-index: 951; width: 300px; max-height: calc(100vh - 80px); overflow: auto; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-3); padding: 14px; display: none; font-size: 14px; }
+.casos.abierto { display: block; }
+.casos h3 { margin: 0 0 2px; font-size: 15px; font-weight: 800; }
+.casos-nota { color: var(--texto-3); margin: 0 0 10px; line-height: 18px; }
+.casos fieldset { border: 0; margin: 0 0 10px; padding: 0; }
+.casos legend { font-weight: 750; color: var(--texto-2); margin-bottom: 4px; }
+.casos label { display: flex; align-items: center; gap: 8px; min-height: 28px; cursor: pointer; }
+.casos input { accent-color: var(--pino); }
+.casos .btn { width: 100%; }
+body.captura .casos-btn, body.captura .casos { display: none !important; }
+
+/* =========================================================================
+   CELULAR (debajo de 900 px): sin lateral; arriba «‹ Más», el título con «Como viene», la pastilla
+   del vínculo, «Solo para vos» y «Así la tenés»; este celular y después los otros; el menú abajo.
+   ========================================================================= */
+@media (max-width: 899px) {
+  .solo-compu { display: none !important; }
+  .solo-celu { display: revert !important; }
+  .largo { display: none; }
+  .corto { display: inline; }
+  .prueba-cartel span { display: none; }
+  .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+  .contenido { height: auto; flex: 1; min-height: 0; overflow: auto; }
+
+  .cabecera { padding: 32px 16px 0; gap: 0 12px; }
+  .volver { grid-column: 1; justify-self: start; display: inline-flex !important; align-items: center; gap: 2px; height: 36px; padding: 0 8px 0 2px; margin-left: -6px; border: 0; background: none; color: var(--pino-texto); font-weight: 700; font-size: 16px; }
+  .como-viene { grid-row: 2; align-self: center; }
+  .p-estado { grid-column: 1 / -1; display: flex !important; align-items: center; gap: 8px; margin-top: 6px; }
+  .indicador-pastilla { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 3px 14px 3px 10px; border-radius: 999px; border: 0; background: var(--logro-suave); color: var(--logro-texto); box-shadow: var(--sombra-1); text-align: left; transition: transform var(--t-micro) var(--curva); }
+  .indicador-pastilla:active { transform: scale(.96); }
+  .pastilla-txt { display: grid; }
+  .pastilla-txt b { font-size: 14px; line-height: 18px; font-weight: 750; }
+  .pastilla-gasto { font-size: 14px; line-height: 18px; font-weight: 600; color: var(--texto-2); white-space: nowrap; }
+  .offline .p-luz.sin-red-pastilla { display: inline-flex !important; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 999px; background: var(--urgente-suave); color: var(--urgente-texto); font-size: 14px; font-weight: 750; }
+  .sub-pantalla { display: grid; gap: 8px; margin-top: 10px; }
+  .para-vos { justify-self: start; }
+  /* «Así la tenés» en una línea que se desplaza de costado; cada pastilla lleva a su preferencia */
+  .asi { margin: 0 -16px; padding: 0 16px 2px; overflow-x: auto; scrollbar-width: none; }
+  .asi::-webkit-scrollbar { display: none; }
+  .asi-pastilla { flex: none; cursor: pointer; transition: transform var(--t-micro) var(--curva); }
+  .asi-pastilla:active { transform: scale(.96); }
+
+  .pantalla { display: block; overflow: visible; padding: 12px 16px 24px; }
+  .col-otros { margin-top: 24px; }
+  .otros-cab h2 { font-size: 18px; }
+
+  /* Este celular: el dibujo al costado del nombre */
+  .hero { grid-template-columns: 124px minmax(0, 1fr); align-items: center; column-gap: 14px; }
+  .hero-cab, .hero-huella, .hero-prefs { grid-column: 1 / -1; }
+  .hero-dibujo { padding: 0; }
+  .es-celu .aparato-pantalla { width: 112px; height: 176px; border-radius: 22px; border-width: 7px; padding: 0 8px; }
+  .es-celu .aparato-nombre { font-size: 17px; line-height: 21px; }
+  .es-celu .aparato-auto { font-size: 14px; line-height: 17px; }
+  .hero-nombre { justify-content: flex-start; }
+  .hero-nombre .btn { min-height: 40px; }
+  .hero-nota { text-align: left; }
+  .hero-nombre:has(.nombre-edit) { grid-column: 1 / -1; }
+  .ajuste-cab { grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .formato { padding: 10px; }
+  .formato[aria-checked="true"] { padding: 9px; }
+  .formato-hora { font-size: 20px; line-height: 26px; }
+  /* El tilde va sobre la esquina: adentro tapaba «2:30 p. m.» (como en la etapa a) */
+  .formato-ok { top: -7px; right: -7px; width: 20px; height: 20px; box-shadow: 0 0 0 2px var(--superficie); }
+  .formato-ok .i-s { width: 12px; height: 12px; }
+  .muestra { grid-template-columns: 96px minmax(0, 1fr); }
+  .escena { grid-row: auto; }
+
+  /* Los otros */
+  .cuentas { grid-template-columns: 1fr 1fr; }
+  .cuentas .btn.todas { grid-column: 1 / -1; min-height: 44px; }
+  .cuentas .resumen { gap: 10px; }
+  .cuentas .resumen .ico { width: 32px; height: 32px; }
+  .fam { padding: 14px; }
+  .fam-cab { grid-template-columns: 44px minmax(0, 1fr); }
+  .fam-cab .btn { grid-column: 1 / -1; justify-self: stretch; min-height: 44px; }
+  .fam-ico { width: 44px; height: 44px; }
+  .fichas, .hijos { margin-left: 0; }
+  .ficha { flex-wrap: wrap; padding: 6px 4px 6px 12px; border-radius: 14px; }
+  .ficha-det { flex-basis: 100%; order: 3; margin: -6px 0 2px 16px; }
+  .ficha.grande { flex-wrap: nowrap; }
+  .ficha.grande { gap: 6px; padding-left: 12px; }
+  .ficha.grande .ficha-det { margin: 0; }
+  .ficha.grande .btn { padding: 0 10px; }
+  .recibo ul { margin-left: 0; }
+
+  .nav-inferior { display: grid !important; flex: none; height: 76px; }
+  .nav-inferior button { display: grid; justify-items: center; align-content: center; gap: 2px; border: 0; background: none; color: var(--texto-2); font-size: 14px; font-weight: 650; padding: 0; }
+  .nav-inferior button .i { width: 26px; height: 26px; }
+  .nav-inferior button[aria-current="page"] { color: var(--accion); font-weight: 800; }
+
+  /* Las capas suben como hoja desde abajo */
+  .capa { place-items: end center; }
+  .dialogo { width: 100%; max-width: none; border-radius: var(--r-hoja) var(--r-hoja) 0 0; padding: 8px 16px 28px; opacity: 1; transform: translateY(100%); }
+  .pie-dialogo .btn { flex: 1; }
+  .tostadas { bottom: 96px; width: calc(100% - 32px); }
+  .tostadas .tostada { max-width: 100%; }
+  .casos-btn { bottom: 88px; }
+  .casos { bottom: 128px; max-height: calc(100vh - 160px); }
+}
