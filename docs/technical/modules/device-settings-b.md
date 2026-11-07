@@ -221,22 +221,14 @@ cambiar su lógica ni sus piezas (`AnimationsRow`, `TimeRow`, `InstallRow`, `Off
    el nombre en la entrada y en Quién hizo qué. Depende de 4.
 6. Las capturas, las de punta a punta, los documentos de § 5, las revisiones (paso 7) y el manual (paso 9).
 
-## 12. Lo que decide Carlos
+## 12. Lo que decidió Carlos
 
-1. **Vincular la huella desde Configuración (E43).** Vincular pide haber pasado por Google hace menos de 5
-   minutos (es lo que protege que alguien con el celular de otro no le vincule su huella). Se propone que
-   «Vincular este celular con mi huella» abra primero «volver a confirmar quién es» (02 · R3.8), que ya
-   existe, y al volver de Google siga solo.
-2. **«Vuelve solo al volver la conexión» (R10.1).** Es un pedido automático (unos 2 KB, solo con
-   Configuración a la vista), y la constitución pide anotarlo y que lo apruebes. Se propone **no hacerlo:**
-   lo mío queda gris con «Sin conexión» y un «Reintentar», como cuando falla una carga. Cambia R10.1 y E57.
-3. **Borrar solos los nombres de los dispositivos que nadie usa** en un año. No está en R9. Se propone que
-   sí, porque el nombre puede ser un dato personal y la base guarda solo el presente.
-4. **«¿Entrar en …?» del celular** (01 · R2.5). Hoy dice el navegador de la computadora («Chrome en
-   Windows»), de una lista cerrada, para que una computadora no pueda hacerse pasar por otra con un
-   texto que elige. Con nombres, se propone mostrar los dos: «Compu del mostrador (Chrome en Windows)».
-5. **Quitar la huella del celular en la mano, ¿termina el vínculo con la computadora?** 03 · R2.3 dice que
-   quitar la huella termina el vínculo; 04 · R6.2 dice que quitar la propia «no cierra nada más». Se
-   propone que **no** lo termine: es el celular en uso, no uno perdido.
-6. **El celular en la mano, en la tarjeta propia de Usuarios.** Hoy no se puede cortar. Se propone que haga
-   lo mismo que en Configuración: quitarle la huella sin cerrar nada (la misma lógica).
+1. **Vincular la huella desde Configuración (E43):** «Vincular este celular con mi huella» abre primero
+   «volver a confirmar quién es» (02 · R3.8) y, al volver de Google, sigue solo (R6.3).
+2. **Sin pedido automático al volver la conexión:** lo mío queda gris con «Reintentar» (R10.1, E57).
+3. **El nombre de un dispositivo que nadie usa en un año se borra solo** (R9.6, E58).
+4. **«¿Entrar en …?» muestra el nombre y el navegador** (01 · R2.5, R9.7, E59).
+5. **Quitar la huella del celular en la mano no termina el vínculo** (03 · R2.3, R6.2, E60):
+   `/api/me/passkey/remove` no avisa a `device-link`.
+6. **En la tarjeta propia de Usuarios, el celular en la mano** se puede quitar como en Configuración, con
+   la misma lógica (R6.2).

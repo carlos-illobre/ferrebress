@@ -123,10 +123,13 @@ permiso. Hace lo mismo en los dos lugares, aunque cada uno lo muestre a su maner
   El celular desde el que se mira lleva la marca «Este».
 - **R6.2** **«Quitar»** un celular, sin confirmación (se arregla vinculándolo de nuevo), hace lo de
   02 · R5.6. **El celular que se está usando** es la excepción: quitarle la huella no cierra la sesión
-  ni nada más, porque no es un celular perdido; solo deja de entrar con la huella y de aprobar la
-  entrada de una computadora, y se le apaga «Trabajar sin conexión» (15 · R1.5).
+  ni nada más (tampoco el vínculo con la computadora, 03 · R2.3), porque no es un celular perdido; solo
+  deja de entrar con la huella y de aprobar la entrada de una computadora, y se le apaga «Trabajar sin
+  conexión» (15 · R1.5). En la tarjeta propia de Usuarios pasa lo mismo.
 - **R6.3** **«Vincular este celular con mi huella»** aparece en el celular que se está usando si no tiene
-  ninguna huella vinculada, y hace lo mismo que el ofrecimiento al entrar (01 · R2.2). Si el celular
+  ninguna huella vinculada, y hace lo mismo que el ofrecimiento al entrar (01 · R2.2). Como vincular
+  pide haber pasado por Google hace poco, primero pide volver a confirmar quién es (02 · R3.8) y al
+  volver sigue solo. Si el celular
   tiene la huella de otra persona, en su lugar dice «Este celular tiene la huella de otra persona»
   (01 · R2.3). En la computadora no aparece (01 · R2.4).
 
@@ -161,12 +164,17 @@ permiso. Hace lo mismo en los dos lugares, aunque cada uno lo muestre a su maner
   derecha, en lugar de «Esta computadora» (01 · R2.5).
 - **R9.5** **Cambiarlo queda en Quién hizo qué,** con el nombre anterior y el nuevo. Lo ya anotado sigue
   mostrando el nombre que tenía el dispositivo en ese momento (como las personas, 05 · R2.3).
+- **R9.6** **El nombre de un dispositivo que nadie usa desde hace un año se borra solo:** puede ser un
+  dato personal («Celu de Juan»), y la base guarda solo el presente.
+- **R9.7** **Al aprobar la entrada de una computadora con el celular,** se ve su nombre y su navegador
+  (01 · R2.5).
 
 ## 10. Sin conexión
 
-- **R10.1** **Lo de la etapa b necesita conexión:** está en el servidor. Sin conexión, «Lo tuyo» se ve
-  gris, con «Sin conexión», como Usuarios (00 · R4.4), y vuelve solo al volver la conexión. Las
-  preferencias de la etapa a siguen andando.
+- **R10.1** **Lo de la etapa b necesita conexión:** está en el servidor. Sin conexión, lo mío se ve
+  gris, con «Sin conexión» (00 · R4.4), y con «Reintentar» para volver a pedirlo: no se pide solo al
+  volver la conexión, para no gastar datos sin que nadie lo pida. Las preferencias de la etapa a
+  siguen andando.
 
 ## Escenarios
 
@@ -335,6 +343,12 @@ permiso. Hace lo mismo en los dos lugares, aunque cada uno lo muestre a su maner
 
 ### Sin conexión
 
-- **E57** **Dado** el dispositivo sin conexión, **cuando** se abre Configuración, **entonces** «Lo tuyo» se
-  ve gris con «Sin conexión», las preferencias se pueden cambiar, y al volver la conexión «Lo tuyo»
-  vuelve solo.
+- **E57** **Dado** el dispositivo sin conexión, **cuando** se abre Configuración, **entonces** lo mío se
+  ve gris con «Sin conexión» y las preferencias se pueden cambiar; con la conexión de vuelta,
+  «Reintentar» lo trae.
+- **E58** **Dado** un dispositivo con nombre que nadie usa desde hace más de un año, **cuando** pasa la
+  limpieza del día, **entonces** su nombre se borra.
+- **E59** **Dado** una computadora llamada «Compu del mostrador», **cuando** se la hace entrar con el
+  celular, **entonces** el celular pregunta «¿Entrar en Compu del mostrador (Chrome en Windows)?».
+- **E60** **Dado** el celular en la mano vinculado con la computadora, **cuando** se le quita la huella
+  desde Configuración, **entonces** el vínculo sigue.

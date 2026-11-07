@@ -56,7 +56,8 @@ quita, el resto sigue andando igual.
   - se reemplaza por otro (R1.4, R1.5);
   - vence (R2.2);
   - se cierra desde otro dispositivo la sesión de uno de los dos (02 · R5.3, R5.4);
-  - se le quita la huella al celular o se lo corta como perdido (02 · R5.6, R5.7);
+  - se le quita la huella al celular o se lo corta como perdido (02 · R5.6, R5.7), salvo que se la
+    quite la misma persona en ese celular (04 · R6.2): no es un celular perdido;
   - la persona se da de baja (02 · R4.1).
 - **R2.4** Al terminar, cada uno sigue por su lado en la pantalla en la que estaba, y su indicador
   dice «Sin vincular». Para volver a trabajar juntos se vincula de nuevo.

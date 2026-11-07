@@ -53,7 +53,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
     entrar a la computadora, conectá este celular al mismo Wi-Fi»; la computadora sigue mostrando su
     código.
   - Antes de pedir la huella, el celular muestra qué computadora pide entrar: «¿Entrar en Chrome en
-    Windows?».
+    Windows?». Si la computadora tiene nombre (04 · R9), dice los dos: «¿Entrar en Compu del mostrador
+    (Chrome en Windows)?», porque el nombre lo elige una persona y el navegador no.
   - Si al aprobar la cuenta no puede entrar (dada de baja) o hay demasiados intentos, el celular
     dice lo mismo que la entrada (R1.3, R2.9), con la cuenta regresiva.
   - Leer el código con «Escanear»: si el celular no puede abrir la cámara, dice «No se pudo abrir
