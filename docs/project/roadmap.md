@@ -53,7 +53,7 @@ paralelo»).
 | Parte | Qué incluye | Estado |
 |---|---|---|
 | Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
-| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | En curso: TanStack Query para el catálogo |
+| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
 
 ## Tareas pendientes de la base
 
@@ -123,6 +123,17 @@ paralelo»).
   `data.ts` de `users`, `sign-in` y `device-link` tomando sus tipos de ahí y el control en
   `pnpm check`. Sin cambiar lo que hace la aplicación. Toca código común y tres módulos cerrados: se
   toma «Código común» antes. Depende de T129.
+- [ ] T131 [agente] En el paso 3 del catálogo (07), decidir con un ADR si la aplicación pide sus datos
+  con TanStack Query (`@tanstack/preact-query`) en lugar del código propio de `platform/` (pedir al
+  abrir, `useLatest`, `useMirroredQuery`). A favor: la caché entre pantallas (los productos se ven en
+  ventas, compras, stock y listas), marcar como viejo lo que cambió en lugar de corregir la lista a
+  mano, las listas por páginas y las búsquedas, y que es conocida; pesa unos 11 KB con gzip. En contra:
+  no sabe del espejo entre el celular y la computadora, sus valores de fábrica (reintentos, volver a
+  pedir al volver a la ventana) gastan datos y chocan con los límites de pedidos, su caché guardada
+  choca con no guardar nada en el dispositivo, y 15b sigue siendo propio. Antes de decidir, una
+  prueba chica: una lista con `useQuery` que ande con el espejo (el que sigue recibe por el Wi-Fi) y
+  con los avisos por SSE. Si encaja, se usa desde el catálogo y resuelve T123; si no, el catálogo
+  suma la caché entre pantallas al código propio. Las pantallas que ya existen no se pasan por esto.
 
 ## Tareas futuras
 
