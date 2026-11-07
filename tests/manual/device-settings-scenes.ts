@@ -17,7 +17,7 @@ const browserOffers = (page: Page) =>
   });
 
 // Quieta, salvo la espera de muestra, que gira siempre (04 · R2.2).
-const settled = (page: Page) =>
+export const settled = (page: Page) =>
   page.waitForFunction(() =>
     document.getAnimations().every((one) => one.effect?.getTiming().iterations === Infinity),
   );

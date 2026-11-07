@@ -1,0 +1,21 @@
+{
+  "device": "computer",
+  "width": 1100,
+  "height": 618,
+  "points": {
+    "field": [
+      29.6,
+      52
+    ],
+    "ideas": [
+      33.5,
+      60.4
+    ],
+    "done": [
+      45,
+      52
+    ]
+  },
+  "hash": "f073aed4b20378eaafd1e27abf08a3c0b30e4d35a14eeca836a50e81b30166c0",
+  "file": "d4dc8028978ca72f412351e8ef7b37daea6ca4e5fce4b7e5cc3561cb5947b46a"
+}

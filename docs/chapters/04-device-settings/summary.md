@@ -3,8 +3,8 @@
 Lo que cada persona elige para sí misma, en Más → Configuración, en dos etapas. Reglas completas
 en [rules.md](rules.md).
 
-**Estado:** etapa a (preferencias del dispositivo), programada; Carlos la probó y anda, con su manual. Etapa b (lo mío: mis celulares con
-huella, mis sesiones, se me perdió un celular y el nombre del dispositivo), aprobada, con sus pantallas; el diseño técnico, en el paso 3.
+**Estado:** las dos etapas programadas; Carlos las probó y andan, con su manual en el capítulo
+«Configuración».
 
 ## Cada regla en una línea
 

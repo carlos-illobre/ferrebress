@@ -1,0 +1,21 @@
+{
+  "device": "phone",
+  "width": 585,
+  "height": 1266,
+  "points": {
+    "field": [
+      40.6,
+      62.9
+    ],
+    "ideas": [
+      54.5,
+      70.1
+    ],
+    "done": [
+      91.3,
+      62.9
+    ]
+  },
+  "hash": "aa524d6f0b4fe234793a8e9c9a9f726050f97fea6ff50982104125860e000482",
+  "file": "7713db40fc6970daf029a106cd8fe1e9950954bb27d5ad110a0cef36f132596c"
+}

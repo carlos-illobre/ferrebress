@@ -1,0 +1,25 @@
+{
+  "device": "computer",
+  "width": 1100,
+  "height": 618,
+  "points": {
+    "name": [
+      29.4,
+      51.2
+    ],
+    "all": [
+      88,
+      24.8
+    ],
+    "close": [
+      82.9,
+      43.5
+    ],
+    "lost": [
+      87.8,
+      36.5
+    ]
+  },
+  "hash": "2b0007a9f44a69b06492c15731732b545c16d9354acf847cfc2bd1bb08182349",
+  "file": "7d6e7a28186493cf8cd0d14511431d2fe05c32e99a886e9f989f743d5fb0d4b3"
+}

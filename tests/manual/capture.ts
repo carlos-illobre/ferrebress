@@ -18,6 +18,7 @@ import {
   phoneData,
   toWebp,
 } from './media.ts';
+import { mineScenes } from './mine-scenes.ts';
 import { rolesScenes } from './roles-scenes.ts';
 import { now, type Scene, scenes } from './scenes.ts';
 import { signInScenes } from './sign-in-scenes.ts';
@@ -86,6 +87,7 @@ for (const scene of [
   ...auditLogScenes,
   ...deviceLinkScenes,
   ...deviceSettingsScenes,
+  ...mineScenes,
 ]) {
   test(scene.name, async ({ browser, baseURL }, testInfo) => {
     const device = devices[scene.device];
