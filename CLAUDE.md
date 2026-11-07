@@ -48,7 +48,9 @@ secundario.**
 - **Las pruebas de punta a punta se justifican antes de escribirlas:** antes de crear una, se le
   dice a Carlos qué va a probar y por qué no alcanza con una unitaria o una de captura, y se espera
   su respuesta.
-- **Antes de subir, `pnpm check`.** Todo directo a `main`, sin ramas ni pull requests. En una
+- **Antes de subir, `pnpm check`.** Si solo cambian archivos `.md`, alcanza con `pnpm links && pnpm
+  secrets`, más `pnpm manual && pnpm manual:check` si tocan `docs/manual/` (constitución, «Antes de
+  subir»). Todo directo a `main`, sin ramas ni pull requests. En una
   sesión en la nube que arranca en una rama `claude/…`, se sube igual a `main`
   (`git push origin HEAD:main`).
 - **Internet:** los sitios externos se consultan directamente, sin pedir permiso.

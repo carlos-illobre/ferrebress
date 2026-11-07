@@ -296,8 +296,8 @@ mismo ni se pisen:
 - **En los archivos compartidos cada módulo toca solo lo suyo:** en el
   [glosario](glossary.md), su sección; en [qué necesita internet](../chapters/what-needs-internet.md),
   sus filas. No se editan las líneas de otro módulo.
-- **Antes de subir,** siempre: traer `main` (`git pull --rebase`), volver a correr `pnpm check` y
-  recién entonces subir.
+- **Antes de subir,** siempre: traer `main` (`git pull --rebase`), volver a correr los controles
+  que le tocan al cambio («Antes de subir», abajo) y recién entonces subir.
 - **Carlos atiende una cosa por vez:** cada sesión le dice en qué módulo y en qué paso está, al
   principio de cada mensaje.
 
@@ -305,8 +305,16 @@ mismo ni se pisen:
 
 `pnpm check` corre los tipos, los límites de tamaño y complejidad, qué puede importar a qué,
 las pruebas unitarias con su cobertura, las dependencias con fallas conocidas y que los enlaces de
-la documentación funcionen (ADR-016). No se
-sube nada que no lo pase. Las pruebas de punta a punta corren antes de cerrar un módulo.
+la documentación funcionen (ADR-016). No se sube nada que no pase los controles que le tocan:
+
+| Qué cambia | Qué se corre |
+|---|---|
+| Solo archivos `.md` fuera de `docs/manual/` | `pnpm links && pnpm secrets` |
+| Archivos `.md` de `docs/manual/` | Lo anterior, más `pnpm manual && pnpm manual:check` |
+| Cualquier otro archivo (código, configuración, `package.json`, `.github/`, imágenes) | `pnpm check` entero |
+
+El resto de `pnpm check` no lee la documentación. GitHub corre `pnpm check` entero en cada subida
+igual. Las pruebas de punta a punta corren antes de cerrar un módulo.
 
 ## Cómo se cambia
 
