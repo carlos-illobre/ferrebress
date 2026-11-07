@@ -49,8 +49,8 @@ quita, el resto sigue andando igual.
   cuando la misma persona vuelve a entrar en ese dispositivo. Si entra otra persona, el vínculo no
   se le aplica y para ella ese dispositivo no está vinculado.
 - **R2.2** **Dura 30 días desde la última vez que los dos estuvieron conectados en espejo**: un
-  vínculo que se usa no vence. Cuando exista Administración (capítulo 06), los días los fija un
-  Administrador ahí.
+  vínculo que se usa no vence. Los días los fija un Administrador en Administración (06 · R7); de
+  arranque, 30.
 - **R2.3** **Se termina** cuando:
   - se desvincula desde cualquiera de los dos (R5.3);
   - se reemplaza por otro (R1.4, R1.5);

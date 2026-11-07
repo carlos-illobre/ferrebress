@@ -106,8 +106,8 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   - pasan **60 minutos sin pedidos al servidor**; cada pedido vuelve a contar desde cero;
   - pasan **8 horas desde que se entró**, aunque se esté usando;
   - alguien la cierra a distancia o la persona es dada de baja (capítulo 02).
-- **R3.2** Los dos tiempos los fija un Administrador desde Administración (capítulo 06); hasta que
-  exista, valen 60 minutos y 8 horas. Los cuenta el reloj del servidor.
+- **R3.2** Los dos tiempos los fija un Administrador desde Administración (06 · R6); de arranque,
+  60 minutos y 8 horas. Los cuenta el reloj del servidor.
 - **R3.3** Solo cuentan como uso los pedidos al servidor. Mirar una pantalla sin pedir nada no
   cuenta. Usar el celular y la computadora en espejo cuenta como uso de las dos sesiones (03 · R2.5).
   Lo que una pantalla pide sola, sin que nadie la toque, no cuenta: por ejemplo, Quién hizo qué

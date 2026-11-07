@@ -13,7 +13,7 @@ escribe con el catálogo (capítulo 07).
 - **Reemplazar:** con el botón, se avisa antes; al entrar con el celular, se reemplaza sin
   preguntar y el celular avisa después (R1.4, R1.5).
 - **Cuánto dura:** es del dispositivo y la persona, no de la sesión; al salir queda dormido; vence a
-  los 30 días sin usarse, que fijará Administración (R2).
+  los 30 días sin usarse, que se cambian en Administración (R2).
 - **El espejo y las sesiones:** usarlo cuenta como uso de las dos; un vínculo terminado deja de espejar
   a más tardar a los 4 minutos de uso (R2.5, R2.6).
 - **Qué lo termina:** desvincular, reemplazar, vencer, cerrar una de las dos sesiones desde otro

@@ -172,7 +172,7 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 - **R8.3** Las cantidades van siempre con su unidad, abreviada igual en todas partes: «3 un.»,
   «1,5 kg», «2 m», «0,5 L».
 - **R8.4** Las fechas y horas las pone el servidor y se muestran en la zona horaria
-  del negocio, que fija un Administrador y es la misma para todos. El día del negocio («hoy» para
+  del negocio, que se fija al instalar el sistema y es la misma para todos (06 · R5). El día del negocio («hoy» para
   las ventas, el cierre de caja) sale de esa zona.
 - **R8.5** Cada persona elige en Configuración solo el formato de la hora (24 horas o a. m./p. m.);
   por omisión, 24 horas (04 · R3). La fecha no se elige: va en el orden día,

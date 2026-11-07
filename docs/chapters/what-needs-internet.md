@@ -23,3 +23,4 @@ conexión, la pantalla se pone gris y solo deja salir.
 | 04 · Configuración | Ver y cambiar las preferencias del dispositivo | Sí | Se guardan en el dispositivo |
 | 04 · Configuración | Lo tuyo: tus dispositivos, cerrar, quitar, «Se me perdió» y el nombre del dispositivo | No | Está en el servidor; sin conexión se ve gris lo último que se vio, con «Reintentar» |
 | 05 · Quién hizo qué | Consultar lo que hizo cada persona | No | El registro está en el servidor |
+| 06 · Administración | Ver y cambiar los ajustes para todos | No | Están en el servidor y valen para todos; sin conexión se ve gris lo último que se vio, con «Reintentar» |

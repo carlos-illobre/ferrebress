@@ -21,7 +21,7 @@ se dejó y qué propone mejorar (constitución, paso 1).
 | 03 · Celular y computadora ([`03-device-link`](03-device-link/summary.md)) | Vincular, espejo, lector de códigos, fotos, en dos etapas: a. vínculo y espejo; b. lector de códigos y fotos | Etapa a: reglas y pantallas aprobadas; diseño técnico; etapa b: por escribir |
 | 04 · Configuración del dispositivo ([`04-device-settings`](04-device-settings/summary.md)) | Lo que cada persona elige para sí misma, en dos etapas: a. preferencias del dispositivo; b. lo mío | Etapa a: Carlos la probó y anda, con su manual; etapa b: por escribir |
 | 05 · Quién hizo qué ([`05-audit-log`](05-audit-log/summary.md)) | El registro de cada acción y cómo se consulta, en Más → Usuarios | Programado; paso 7: las revisiones del código |
-| 06 · Administración (`06-administration`) | Los ajustes para todos y las anomalías | Por escribir |
+| 06 · Administración ([`06-administration`](06-administration/summary.md)) | Lo que un Administrador fija para todos, en dos etapas: a. ajustes para todos; b. anomalías | Etapa a: reglas para aprobar; etapa b: por escribir |
 | 07 · Catálogo (`07-catalog`) | Productos, proveedores, costo, margen, precio, búsqueda, duplicados | Por escribir |
 | 08 · Listas de precios (`08-price-lists`) | Subir, revisar y aplicar la lista de un proveedor | Por escribir |
 | 09 · Stock (`09-stock`) | Cuánto hay, correcciones y anomalías de stock | Por escribir |
@@ -56,11 +56,8 @@ Carlos ya las confirmó. El analista de negocio de cada capítulo parte de acá 
   permite; se desinstala desde el sistema. Cada persona elige el formato de la hora (por omisión,
   el del sistema). Trabajar sin conexión se habilita acá. El vínculo entre celular y
   computadora no está acá: va solo en su indicador (03).
-- **06 · Administración:** la decide un Administrador y la cumplen todos los dispositivos (la
-  configuración, en cambio, la decide cada persona para su dispositivo). Ajustes: el redondeo del
-  precio (hoy $1.000), los márgenes rápidos (hoy 300, 200, 100, 50 y 25 %), la zona horaria del
-  negocio, y los dos tiempos de la sesión (60 minutos sin uso y 8 horas de tope). Tiene la pantalla
-  de anomalías, a la que cada módulo le suma las suyas.
+- **06 · Administración:** la pantalla de anomalías, a la que cada módulo le suma las suyas (etapa b;
+  los ajustes de la etapa a ya están en su capítulo).
 - **07 · Catálogo:** todo producto viene de la lista de precios de un proveedor; no se dan de alta
   productos a mano. El proveedor en uso es el más barato según la última lista de cada proveedor,
   sin límite de días, y se puede cambiar a mano. El precio de venta se guarda junto al producto y

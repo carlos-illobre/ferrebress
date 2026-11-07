@@ -13,7 +13,7 @@ Entrar, salir y el marco vacío al que se llega. Reglas completas en [rules.md](
   celular leyendo el QR de Ferrebress (60 s, un uso, solo en la misma red, muestra qué computadora pide),
   nunca con la entrada entre dispositivos del navegador; sin conexión no se entra; límite de intentos por dispositivo y por cuenta (R2).
 - **Sesión:** vence a los 60 minutos sin pedidos y a las 8 horas de haber entrado, cambiables por
-  un Administrador; al vencer, la entrada aparece encima y la misma persona sigue donde estaba (R3).
+  un Administrador en Administración (06); al vencer, la entrada aparece encima y la misma persona sigue donde estaba (R3).
 - **Lo sin enviar:** queda en el dispositivo, se manda cuando entra cualquiera, a nombre de quien lo
   hizo y con la prueba de su pase (R4).
 - **Salir:** en la tarjeta de la persona (computadora) o en Más (celular), con o sin conexión (R5).

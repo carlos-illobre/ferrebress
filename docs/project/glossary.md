@@ -181,6 +181,19 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Diario de la conexión | Las últimas entradas de lo que le pasó al vínculo en un dispositivo, sin datos personales | `linkJournal` |
 | Tira del día | Los tramos de hoy por estado del vínculo, en el detalle del indicador | `dayStrip` |
 
+## Administración
+
+| Castellano | Qué es | En el código |
+|---|---|---|
+| Ajuste (para todos) | Un valor que fija un Administrador en Administración y cumplen todos los dispositivos | `setting` |
+| Redondeo | Llevar el precio calculado para arriba, al múltiplo siguiente del paso | `rounding` |
+| Paso del redondeo | El múltiplo al que se redondea: $ 1.000, $ 500… o sin redondeo | `roundingStep` |
+| Margen rápido | Uno de los cinco atajos para elegir el margen de un producto | `quickMargin` |
+| Zona horaria del negocio | La zona de la que salen la hora que se muestra y el día del negocio | `businessTimeZone` |
+| Tiempo sin uso | Lo que una sesión aguanta sin pedidos al servidor | `sessionIdle` |
+| Tope de la sesión | Lo que dura una sesión desde que se entró, aunque se use | `sessionMax` |
+| Días del vínculo | Lo que dura un vínculo desde el último espejo | `pairingDays` |
+
 ## Auditoría, mejoras y procesos
 
 | Castellano | Qué es | En el código |
