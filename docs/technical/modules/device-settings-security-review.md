@@ -191,3 +191,178 @@ pasando sin tocarla. Sin costo.
 
 Fuentes consultadas: [Chrome, «Get installed related apps»](https://developer.chrome.com/docs/capabilities/get-installed-related-apps)
 y [web.dev, «get installed related apps»](https://web.dev/articles/get-installed-related-apps).
+
+## Paso 7: el código
+
+Revisión del código de la etapa a contra el [diseño](device-settings.md) corregido: los commits
+`3a847c5`, `b4b453a` y `c88c60e`. Leí `src/app/modules/device-settings/` entero,
+`src/app/platform/{install,motion,time}.ts`, `src/app/modules/sign-in/offline/setting.ts` (y, para
+entenderlo, `option.ts`, `enter.ts` y `session.ts`), los cambios en `ui/sheet`, en el marco, en
+`App.tsx` y `main.tsx`, `src/app/vite.config.ts`, `src/app/public/manifest.webmanifest`,
+`deploy/Caddyfile`, `deploy/compose.yml` y las pruebas. Corrí las unitarias del módulo, de las tres
+piezas de `platform/` y de `sign-in/offline` (12 archivos, 67 pruebas, todas pasan), levanté el
+`Caddyfile` del repositorio en `caddy:2.11-alpine` con `ENVIRONMENT=testing` y `production`, y corrí
+`pnpm audit --prod`.
+
+### Resumen
+
+**No encontré nada que frene.** El código no suma rutas, pedidos, eventos, canales ni dependencias; no
+dibuja texto que venga de afuera (ningún `innerHTML` ni `dangerouslySetInnerHTML`) y no pasa nada por
+el espejo (ningún `useMirrored` en el módulo). La llave de «Trabajar sin conexión» se prende solo con
+`offline` del servidor, y hay una prueba que intenta el ataque del punto 1 del paso 4 y falla. Lo que
+queda son mejoras: la más importante es que, en una sesión abierta sin conexión, la dueña de la huella
+no puede apagar la opción y el renglón le dice que la huella es de otra persona.
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 7.1 | En una sesión abierta sin conexión, la dueña de la huella no puede apagar «Trabajar sin conexión» y lee que la huella es de otra | Mejora importante |
+| 7.2 | E07/E08 (el espejo) no tienen prueba: nada comprueba que los valores no viajan | Mejora |
+| 7.3 | La prueba de `__proto__` no prueba lo que dice | Mejora |
+| 7.4 | El manifiesto de pruebas no tiene prueba que lo compruebe | Mejora |
+
+### Cómo quedó lo del paso 4
+
+1. **La llave y la marca del celular: resuelto.** `setting.ts:30-37`: sin `offline` del servidor, el
+   renglón vuelve con `toggle: () => undefined` y la marca `passkey` solo elige el texto.
+   `offline-screens.test.tsx`, «device-settings-E30, E37»: Ana prende la suya, Beto con el permiso y
+   la marca puesta toca la llave y `offline-option` sigue siendo Ana. Es la prueba que intenta el
+   ataque. Queda un caso cercano, el 7.1.
+2. **La validación al leer: resuelto.** `preferences.ts`: `JSON.parse` dentro de `readStored` con
+   `try`, `order` y `of` comprobados como arreglo y objeto, clave con forma de UUID antes de
+   `Object.hasOwn`, cada valor con `flag` y `oneOf`, repetidas descartadas y el tope aplicado al leer.
+   La prueba de seguridad cubre JSON roto, tipos cambiados, valores fuera de lo esperado, más de 20 y
+   repetidas; la de `__proto__`, ver 7.3. Una clave rara en la sesión (`person.userId`) no llega a
+   leer del prototipo: `read()` arma `of` solo con claves validadas.
+3. **`usedAt`: resuelto.** No se guarda ninguna hora: solo `order`, y cambia solo al cambiar una
+   preferencia (`choose`), no al entrar.
+4. **El aviso en pruebas: resuelto.** `shouldOffer` exige `!testing`, y `App.tsx` pasa
+   `start.environment !== 'production'` (también lo apaga en `e2e`). El armado emite
+   `manifest-testing.webmanifest` y Caddy lo sirve en `/manifest.webmanifest` cuando `ENVIRONMENT` es
+   `testing`. Lo comprobé con el `Caddyfile` del repositorio: con `testing` sale «Ferrebress pruebas»,
+   con `production` sale «Ferrebress», y las dos con `application/manifest+json`, `no-cache`, la
+   política de contenido de la aplicación y `nosniff`. El service worker no guarda el manifiesto
+   (`kindOf` solo guarda `/assets/` y la página), así que un manifiesto viejo no queda pegado. Ver 7.4.
+5. **El espejo: resuelto en el código, sin prueba.** El aviso tiene estado local (`useState` en
+   `install-offer.ts` y en `InstallSheet.tsx`, con su comentario) y los valores se leen de los
+   `Store` del dispositivo. Ver 7.2.
+6. **`when.ts`: resuelto.** Cambió solo el texto (`formatTime`, el día del negocio para «hoy» y
+   «mañana»); `offlineUntil`, el margen del reloj y la hora más alta vista siguen en `option.ts` sin
+   cambios.
+
+### 7.1. Sin conexión, la dueña de la huella no puede apagar la opción
+
+**Dónde:** `src/app/modules/sign-in/offline/setting.ts:30-37`, con `option.ts:19` (la opción guarda la
+persona sin `offline`) y `enter.ts:53` (`signedInOffline({ ...current.person, email: '' }, …)`).
+Diseño § 3: «Sin conexión, Configuración abre igual, también para apagar "Trabajar sin conexión" sin
+red»; 15 · R1.5, «el celular deja de poder entrar sin conexión cuando la persona apaga la opción».
+
+**Lo que pasa, paso a paso** (comprobado leyendo el código, no con una prueba):
+
+1. Ana vinculó su huella en el celular (la marca `passkey` queda puesta) y prendió la opción.
+2. Se corta internet. Ana entra con la huella: la persona de la sesión es la de `offline-option`, que
+   no tiene `offline`.
+3. Abre Más → Configuración. `useOfflineSetting` cae en `!who.offline`: la llave aparece apagada, sin
+   poder tocarse, y como la marca está puesta dice «Este celular tiene la huella de otra persona: solo
+   ella puede trabajar sin conexión acá.». Le dice a la dueña que la huella es de otra, y le muestra
+   apagada una opción que está prendida.
+4. Ana quiere dejar de poder entrar sin conexión en ese celular (por ejemplo, porque lo deja en el
+   depósito para el turno de otro). No puede hasta que vuelva la red.
+
+No da entrada a nadie: para entrar sin conexión hace falta la huella de Ana, y el servidor decide al
+volver la conexión. Pero el único control que la persona tiene sobre su propia entrada sin conexión
+(R1.5) no está cuando más sentido tiene, y el texto la confunde sobre de quién es la huella. Antes del
+módulo, en Más, el renglón directamente no aparecía en esa sesión: lo nuevo es el texto equivocado y
+que el diseño prometía poder apagarla.
+
+**Qué propongo:** en `useOfflineSetting`, si la sesión se abrió sin conexión (`offlineSession()`) y
+`offlineOption.get()?.person.userId === who.userId`, devolver el renglón prendido con un `toggle` que
+solo apaga (`disableOffline`); prenderla sigue pidiendo `offline` del servidor. Así la marca sigue sin
+habilitar nada y la persona de `offline-option` (que entró con su firma) es la que se usa para saber
+que la huella es suya, como proponía el punto 1 del paso 4. Una unitaria: sesión sin conexión de Ana,
+marca puesta, la llave prendida, se toca, `offline-option` queda vacía; y la misma sesión con otra
+persona en la opción no puede ni apagarla ni prenderla. Cuesta unas diez líneas y una prueba.
+
+### 7.2. El espejo no tiene su prueba
+
+**Dónde:** diseño § 10, fila «E07, E08: unitarias con dos dispositivos falsos… ninguna clave del módulo
+ni el aviso pasan por el canal»; no hay ninguna prueba que nombre `device-settings-E07` ni `E08`.
+
+Hoy no hay ataque: comprobé que el módulo no usa `useMirrored` y que el aviso y los valores son
+locales. El riesgo es el de una regresión: la regla general de la arquitectura es llevar «lo abierto
+encima» a valores con nombre, y si alguien la aplica a esta pantalla, quien está en la computadora
+vinculada le cambia las preferencias al celular de otro (E08) y ve el estado de su llave de «Trabajar
+sin conexión», sin que ninguna prueba falle.
+
+**Qué propongo:** la unitaria que dice el diseño, con los dos dispositivos falsos del espejo de 03: ir
+a `/device-settings` viaja; apagar las animaciones en uno no cambia `motionOff` ni `preferences` en el
+otro; ningún mensaje del canal lleva `animations`, `timeFormat`, `install` ni la opción sin conexión.
+Cuesta una prueba, con lo que ya existe en 03.
+
+### 7.3. La prueba de `__proto__` no prueba lo que dice
+
+**Dónde:** `src/app/modules/device-settings/preferences.test.ts:89-90`.
+
+`{ __proto__: { animations: false } }` en un literal de JavaScript no crea una clave `__proto__`: cambia
+el prototipo del objeto, y `JSON.stringify` lo deja afuera. Lo comprobé: sale `"of":{}`. Lo guardado
+que prueba no tiene la clave peligrosa en `of`; solo en `order`, donde la frena el control de UUID. El
+código está bien (el UUID se mira antes que `Object.hasOwn` y `of` se arma solo con claves validadas),
+pero si mañana alguien afloja el control de UUID, esta prueba sigue pasando.
+
+**Qué propongo:** escribir ese caso como texto JSON, que sí crea la clave:
+`'{"order":["__proto__"],"of":{"__proto__":{"animations":false,"timeFormat":"h12"}}}'`, y otro con un
+UUID en `order` y `of` heredando del prototipo. Cuesta dos líneas.
+
+### 7.4. El manifiesto de pruebas no tiene prueba
+
+**Dónde:** `deploy/Caddyfile:80-86` (`expression "{$ENVIRONMENT}" == "testing"`), `deploy/compose.yml:13-15`.
+
+Funciona (lo comprobé, punto 4 de arriba), y pasarle al contenedor web solo `ENVIRONMENT`, en lugar
+del `.env` entero, está bien: Caddy no ve ningún secreto. Dos cosas:
+
+- Ninguna prueba lo comprueba: si alguien mueve el `rewrite` debajo del `handle` o cambia el nombre del
+  archivo que emite `vite.config.ts`, el ambiente de pruebas vuelve a servir «Ferrebress» y lo que pide
+  R4.7 (que nadie cargue ventas de verdad en pruebas) se pierde en silencio.
+- La comparación es contra el texto exacto `testing`, y Caddy no valida el valor. Hoy eso está
+  cubierto por otro lado: el servidor lee el mismo `.env` y lo valida contra `testing`, `production`
+  y `e2e` (`src/server/platform/config.ts:12`), así que con un valor mal escrito no arranca, y el
+  contenedor web espera a que el servidor esté sano. Si algún día el web arranca sin el servidor, esa
+  defensa se pierde.
+
+No es un ataque (cambiar `ENVIRONMENT` exige la máquina), por eso es mejora.
+
+**Qué propongo:** una comprobación en las de punta a punta de cabeceras (`tests/e2e/headers.spec.ts`)
+o en la paridad de configuración: con `ENVIRONMENT=testing`, `/manifest.webmanifest` dice «Ferrebress
+pruebas»; con `production`, «Ferrebress». Si se quiere no depender del servidor, la condición al revés:
+producción solo con `"{$ENVIRONMENT}" == "production"` y el de pruebas para todo lo demás, así un valor
+mal escrito cae del lado que no confunde. Cuesta una prueba y, lo segundo, una línea.
+
+### El resto, punto por punto
+
+- **Entrar sin permiso:** nada nuevo; no hay sesión, código ni ruta nueva. La entrada sin conexión no
+  cambió (solo el texto de `when.ts`).
+- **Permisos:** Configuración no pide permiso ni trae nada del servidor. «Trabajar sin conexión»:
+  `can(who, 'offline.work')` para mostrarla y `who.offline` del servidor para prenderla, en el celular
+  (`isPhone()`); falsear que es un celular no sirve, porque prender sigue pidiendo `offline`. Lo del
+  apagado sin red, en 7.1.
+- **Lo que entra de afuera:** solo `localStorage`, validado (punto 2 del paso 4). `installed` e
+  `install-offered` se comparan con `=== true`. `beforeinstallprompt` y `appinstalled` los manda solo
+  el navegador; `getInstalledRelatedApps()` se lee como un largo, sin dibujar nada.
+- **El navegador:** sin cambios en la política de contenido; el ícono del aviso es `/icons/icon-192.png`,
+  del mismo origen. `prompt()` lo dibuja el navegador y pide un toque. El `rewrite` del manifiesto
+  conserva todas las cabeceras de la aplicación (comprobado).
+- **Datos personales y secretos:** en el dispositivo, identificadores y su orden, sin horas. Nada sale
+  de la máquina. El contenedor web recibe solo `ENVIRONMENT`.
+- **Abuso y disponibilidad:** sin pedidos ni canales. Lo guardado está acotado a 20 filas al leer y al
+  escribir; un `preferences` enorme puesto a mano se recorre solo hasta juntar 20 válidas (o hasta el
+  final del arreglo, que lo pone quien ya tiene el dispositivo).
+- **Sin conexión:** nada nuevo que se haga sin conexión; ver 7.1.
+- **Auditoría:** nada que anotar (R1.7), como dice el diseño.
+- **El despliegue:** el `rewrite` y la variable, ver 7.4. Sin puertos, volúmenes ni privilegios nuevos.
+- **Dependencias:** ninguna nueva (ni `package.json` ni `pnpm-lock.yaml` cambiaron). `pnpm audit --prod`:
+  «No known vulnerabilities found».
+
+Dos cosas que no son de seguridad y dejo a la revisión del código: con la hoja de instalar trabada,
+«atrás» del celular la cierra igual (`InstallSheet.tsx:24` llama a `dismiss` desde `useBackStep`, que
+no mira `locked`), contra lo que dice el diseño en § 4; y `related_applications` usa
+`/manifest.webmanifest` relativo, cuando el diseño pide la dirección completa y su `id` para que lo
+reconozca Chrome en la computadora. No pude comprobar en un navegador si la dirección relativa alcanza.
