@@ -46,8 +46,9 @@ export function createDeviceLinkContext(platform: Platform, { wait }: DeviceLink
 
 export type DeviceLinkContext = ReturnType<typeof createDeviceLinkContext>;
 
-// Los dos dispositivos de un vínculo, como objetivos de la auditoría (con su nombre de ese momento).
+// Los dos dispositivos de un vínculo, como objetivos de la auditoría, por su nombre de ese momento y
+// nunca por su identificador: es lo único que ata una sesión a un dispositivo (diseño de 04b, § 8).
 export const targetsOf = (pairing: Pairing) => [
-  { kind: 'phone', id: pairing.phoneDeviceId, name: pairing.phoneLabel },
-  { kind: 'computer', id: pairing.computerDeviceId, name: pairing.computerLabel },
+  { kind: 'phone', id: '', name: pairing.phoneLabel },
+  { kind: 'computer', id: '', name: pairing.computerLabel },
 ];

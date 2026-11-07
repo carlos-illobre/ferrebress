@@ -41,7 +41,13 @@ describe('vincular con el botón', () => {
       other: { label: 'Chrome en Android' },
       paused: false,
     });
-    expect(audit('device-link.paired').at(-1)?.data).toEqual({ how: 'button' });
+    const paired = audit('device-link.paired').at(-1);
+    expect(paired?.data).toEqual({ how: 'button' });
+    // Por el nombre, nunca por el identificador del dispositivo (diseño de 04b, § 8).
+    expect(paired?.targets?.slice(1)).toEqual([
+      { kind: 'phone', id: '', name: 'Chrome en Android' },
+      { kind: 'computer', id: '', name: 'Chrome en Windows' },
+    ]);
     await shown.tab.close();
   });
 

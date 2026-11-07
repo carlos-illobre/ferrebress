@@ -32,6 +32,26 @@ describe('cómo se muestra una acción', () => {
     });
   });
 
+  it('device-settings R9: un dispositivo no muestra su identificador, tampoco en lo anotado antes', () => {
+    const view = viewOf(
+      {
+        ...{ id: '2026:1', type: 'device-link.paired', at, tone: 'plain' },
+        actor: { kind: 'person', userId: 'u1' },
+        targets: [
+          { kind: 'person', id: 'u1' },
+          { kind: 'phone', id: '0192d3a4-1b2c-7d3e-8f40-123456789abc', name: 'Chrome en Android' },
+          { kind: 'computer', id: '0192d3a4-1b2c-7d3e-8f40-cba987654321', name: 'Caja' },
+        ],
+      },
+      new Map(),
+    );
+    expect(view.targets).toEqual([
+      { kind: 'person', id: 'u1' },
+      { kind: 'phone', id: '', name: 'Chrome en Android' },
+      { kind: 'computer', id: '', name: 'Caja' },
+    ]);
+  });
+
   it('audit-log-E07: «(hoy: …)» solo si cambió; sin nombre de ese momento, el de hoy', () => {
     const names = new Map([['u1', 'Ana Gómez']]);
     const base = { id: '2026:1', type: 'sign-out', at, tone: 'plain' as const };

@@ -122,6 +122,10 @@ export const daysOf = (events: Stored[]): BusinessDate[] => [
   ...new Set(events.map((event) => businessDateOf(event.at))),
 ];
 
+// Los objetivos que son un dispositivo no muestran su identificador, tampoco en lo anotado antes de
+// dejar de guardarlo: es lo único que ata una sesión a un dispositivo (diseño de 04b, § 8).
+const deviceKinds = new Set(['phone', 'computer', 'device']);
+
 // Una acción como la ve quien tiene el permiso: con el nombre de hoy si cambió, y solo los datos
 // que su tipo muestra.
 export function viewOf(event: Stored, namesToday: Map<string, string>): AuditView {
@@ -131,6 +135,7 @@ export function viewOf(event: Stored, namesToday: Map<string, string>): AuditVie
   };
   const target = (one: { kind: string; id: string; name?: string }): TargetView => ({
     ...one,
+    ...(deviceKinds.has(one.kind) && { id: '' }),
     ...(one.kind === 'person' && today(one.id, one.name)),
   });
   const { actor } = event;
