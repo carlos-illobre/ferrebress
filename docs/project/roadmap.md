@@ -53,7 +53,7 @@ paralelo»).
 | Parte | Qué incluye | Estado |
 |---|---|---|
 | Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/ui/`, `src/app/styles/` | Libre |
-| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
+| Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | En curso: dividir 06 en dos etapas |
 
 ## Tareas pendientes de la base
 
