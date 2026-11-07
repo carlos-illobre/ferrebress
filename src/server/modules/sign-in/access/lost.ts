@@ -53,7 +53,10 @@ export async function lostPhones(
     userId,
     displayName: names.get(userId) as string,
     self: userId === asking.userId,
-    phones: list.map(({ userId: _, deviceId: __, ...phone }) => phone),
+    phones: list.map(({ userId: _, deviceId, ...phone }) => {
+      const deviceName = ctx.devices.nameOf(deviceId);
+      return { ...phone, ...(deviceName && { deviceName }) };
+    }),
   }));
   return { people };
 }

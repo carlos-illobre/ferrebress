@@ -56,9 +56,11 @@ export type PersonResponse = { person: PersonRow };
 // Cómo entró una sesión (R5.2).
 export type Way = 'google' | 'passkey' | 'qr' | 'offline';
 
+// `deviceName`: el nombre que le pusieron al dispositivo (04 · R9.4), si tiene.
 export type SessionRow = {
   id: string;
   deviceLabel: string;
+  deviceName?: string;
   way: Way;
   isPhone: boolean;
   createdAt: number;
@@ -69,6 +71,7 @@ export type SessionRow = {
 export type PhoneRow = {
   id: string;
   deviceLabel: string;
+  deviceName?: string;
   createdAt: number;
   lastUsedAt: number | null;
 };
@@ -79,6 +82,7 @@ export type AccessResponse = { sessions: SessionRow[]; phones: PhoneRow[] };
 export type LostPhone = {
   id: string;
   deviceLabel: string;
+  deviceName?: string;
   sessions: number;
   passkey: boolean;
   lastUsedAt: number | null;

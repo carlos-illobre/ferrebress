@@ -6,7 +6,8 @@ import type { ServerModule } from '../../platform/modules.ts';
 import type { AccessCounts, Users } from '../users/index.ts';
 import { registerConfirmRoutes } from './access/confirm.ts';
 import { countsOf } from './access/counts.ts';
-import { registerAccessRoutes } from './access/routes.ts';
+import { registerMyAccessRoutes } from './access/me-routes.ts';
+import { registerUsersAccessRoutes } from './access/users-routes.ts';
 import { defineCodesTopic } from './codes/computer/codes-topic.ts';
 import { registerComputerRoutes } from './codes/computer/computer-routes.ts';
 import { registerPhoneRoutes } from './codes/phone/phone-routes.ts';
@@ -99,7 +100,8 @@ function registerRoutes(ctx: SignInContext) {
   registerComputerRoutes(ctx);
   defineCodesTopic(ctx);
   registerPhoneRoutes(ctx);
-  registerAccessRoutes(ctx);
+  registerUsersAccessRoutes(ctx);
+  registerMyAccessRoutes(ctx);
   registerConfirmRoutes(ctx);
   registerDeviceRoutes(ctx);
 }

@@ -28,12 +28,11 @@ function reading(db: Db) {
         .groupBy('user_id')
         .execute(),
 
-    passkeyCounts: (userIds: string[], exceptUser: string) =>
+    passkeyCounts: (userIds: string[]) =>
       db
         .selectFrom('sign_in.passkeys')
         .select(['user_id as userId', sql<number>`count(*)::int`.as('n')])
         .where('user_id', 'in', userIds)
-        .where('user_id', '!=', exceptUser)
         .groupBy('user_id')
         .execute(),
   };
@@ -47,6 +46,8 @@ function card(db: Db) {
       open(now, limits)
         .select([
           'id',
+          'device_id as deviceId',
+          'approved_by as approvedBy',
           'device_label as deviceLabel',
           'way',
           'is_phone as isPhone',
@@ -63,6 +64,8 @@ function card(db: Db) {
         .selectFrom('sign_in.passkeys')
         .select([
           'public_id as id',
+          'id as passkeyId',
+          'device_id as deviceId',
           'device_label as deviceLabel',
           'created_at as createdAt',
           'last_used_at as lastUsedAt',
@@ -162,9 +165,18 @@ function cutting(db: Db) {
   };
 }
 
-// «Cerrar», «Cerrar todas» y volver a confirmar.
+// «Cerrar», «Cerrar todas», quitar la huella del celular en la mano y volver a confirmar.
 function closing(db: Db) {
   return {
+    // Quita la huella de esa persona en ese celular, sin cerrar nada (04 · R6.2). Dice si tenía.
+    removePasskey: async (userId: string, deviceId: string) =>
+      (await db
+        .deleteFrom('sign_in.passkeys')
+        .where('user_id', '=', userId)
+        .where('device_id', '=', deviceId)
+        .returning('id')
+        .executeTakeFirst()) !== undefined,
+
     // «Cerrar» una, o «Cerrar todas» (`sessionId` nulo), de esa persona, nunca la del pedido.
     closeSessions: async (userId: string, sessionId: string | null, except: string, at: Date) =>
       (

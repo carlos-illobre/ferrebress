@@ -124,20 +124,18 @@ describe('las sesiones y los celulares, desde Usuarios', () => {
     expect((await second.request('/api/start')).body.person).toBeUndefined();
   });
 
-  it('el celular desde el que se pide no se corta, y uno de otra persona da 404', async () => {
+  it('device-settings-E42, R6.2: el celular en la mano no se corta como perdido; «Quitar» le saca la huella sin cerrar nada; uno de otra persona da 404', async () => {
     const linked = await kit.linkedPhone();
     const [phone] = (await linked.phone.request(`/api/users/${adminId}/access`)).body.phones;
     expect(phone).toBeUndefined();
     const own = (await linked.phone.request('/api/lost-phones')).body.people;
     expect(own.some((p: { userId: string }) => p.userId === linked.userId)).toBe(false);
     const [mine] = (await admin.request(`/api/users/${linked.userId}/access`)).body.phones;
-    expect(
-      (
-        await linked.phone.request(`/api/users/${linked.userId}/phones/${mine.id}/cut`, {
-          from: 'card',
-        })
-      ).body.error,
-    ).toBe('self');
+    const cut = (from: string) =>
+      linked.phone.request(`/api/users/${linked.userId}/phones/${mine.id}/cut`, { from });
+    expect((await cut('lost')).body.error).toBe('self');
+    expect((await cut('card')).body).toEqual({ sessions: 0, passkey: true });
+    expect((await linked.phone.request('/api/start')).body.person).toBeDefined();
     expect(
       (await admin.request(`/api/users/${adminId}/phones/${mine.id}/cut`, { from: 'card' })).status,
     ).toBe(404);

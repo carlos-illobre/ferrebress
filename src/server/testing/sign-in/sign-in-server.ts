@@ -105,6 +105,7 @@ export function createDevice(
     id: randomUUID(),
     cookie: '',
     userAgent,
+    ip,
     proofPublicKey: publicKey.export({ format: 'der', type: 'spki' }).toString('base64url'),
     prove: (message: string) =>
       sign('sha256', Buffer.from(message), { key: privateKey, dsaEncoding: 'ieee-p1363' }).toString(
