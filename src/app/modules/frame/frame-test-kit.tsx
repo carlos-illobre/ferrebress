@@ -5,8 +5,8 @@ import { type Mock, vi } from 'vitest';
 import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
-import { Frame, type FrameProps, type SettingRow } from './index.ts';
-import type { Option } from './menu.ts';
+import { Frame, type FrameProps } from './index.ts';
+import { moreOptions, type Option } from './menu.ts';
 
 export const person = {
   userId: 'u1',
@@ -23,25 +23,17 @@ export function media({ phone = false, reduced = false } = {}) {
 export function open({
   testing = true,
   onSignOut = vi.fn<() => unknown>(),
-  setting,
   screens,
   who = person,
 }: {
   who?: FrameProps['person'];
   testing?: boolean;
   onSignOut?: Mock<() => unknown>;
-  setting?: SettingRow;
   screens?: FrameProps['screens'];
 } = {}): { onSignOut: Mock<() => unknown>; side: HTMLElement } {
   render(
     <>
-      <Frame
-        person={who}
-        testing={testing}
-        onSignOut={onSignOut}
-        setting={setting}
-        screens={screens}
-      />
+      <Frame person={who} testing={testing} onSignOut={onSignOut} screens={screens} />
       <Toasts />
     </>,
   );
@@ -68,4 +60,12 @@ export function withPath(option: Option, path: string | undefined, run: () => vo
     if (before === undefined) delete option.path;
     else option.path = before;
   }
+}
+
+// Como si ninguna opción tuviera pantalla todavía (ni Usuarios ni Configuración).
+export function withoutScreens(run: () => void): void {
+  const [users, settings] = ['users', 'deviceSettings'].map(
+    (id) => moreOptions.find((option) => option.id === id) as Option,
+  );
+  withPath(users as Option, undefined, () => withPath(settings as Option, undefined, run));
 }

@@ -1,0 +1,147 @@
+/* Las animaciones y el formato de la hora (R2, R3): la muestra que se mueve o aparece de golpe, el
+   aviso del sistema y las fichas con la hora de ahora. */
+@layer screens {
+  /* La muestra de la animación (R2): una ventanita que aparece; quieta si no se mueve. */
+  .settings-sample {
+    display: flex;
+    align-items: center;
+    gap: var(--s4);
+    height: 72px;
+    margin: var(--s3) 0 0 56px;
+    padding: 0 var(--s4);
+    border-radius: 12px;
+    background: var(--sunken);
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-2);
+  }
+  .settings-scene {
+    position: relative;
+    flex: none;
+    width: 120px;
+    height: 56px;
+  }
+  .settings-window {
+    position: absolute;
+    inset: 10px 14px auto;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: var(--shadow-2);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .settings-sample.moving .settings-window {
+      animation: settings-window 2.4s var(--ease) infinite;
+    }
+  }
+  @keyframes settings-window {
+    0%,
+    8% {
+      transform: translateY(16px);
+      opacity: 0;
+    }
+    26%,
+    78% {
+      transform: none;
+      opacity: 1;
+    }
+    92%,
+    100% {
+      transform: translateY(6px);
+      opacity: 0;
+    }
+  }
+  .settings-waits {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    margin-left: auto;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  /* La espera gira siempre (R2.2). */
+  .settings-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid var(--pine);
+    border-right-color: transparent;
+    border-radius: var(--radius-round);
+    animation: settings-spin 0.8s linear infinite;
+  }
+  @keyframes settings-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+  .settings-system {
+    margin: var(--s3) 0 0 56px;
+    padding: var(--s3) var(--s4);
+    border-radius: 12px;
+    background: var(--pine-soft);
+    color: var(--pine-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  /* El formato de la hora (R3): una ficha por formato, con la hora de ahora. */
+  .settings-formats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s2);
+    margin: var(--s3) 0 0 56px;
+  }
+  .settings-format {
+    position: relative;
+    display: grid;
+    gap: 2px;
+    padding: var(--s3) 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    font: inherit;
+    color: inherit;
+    text-align: left;
+  }
+  .settings-format[aria-pressed="true"] {
+    border: 2px solid var(--pine);
+    padding: 11px 13px;
+    background: var(--pine-soft);
+  }
+  .settings-format-time {
+    font-size: 24px;
+    line-height: 30px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  .settings-format b {
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--text-2);
+  }
+  .settings-format[aria-pressed="true"] b {
+    color: var(--pine-text);
+  }
+  .settings-format small {
+    font-size: 14px;
+    color: var(--text-3);
+  }
+  .settings-seen {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    margin: var(--s3) 0 0 56px;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+}
+
+@layer widths {
+  @media (max-width: 899px) {
+    .settings-sample,
+    .settings-formats,
+    .settings-system {
+      margin-left: 0;
+    }
+  }
+}

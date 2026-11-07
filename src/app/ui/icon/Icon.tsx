@@ -3,6 +3,7 @@
 import './icon.css';
 import type { VNode } from 'preact';
 import type { auditLogShapes } from './audit-log-shapes.tsx';
+import type { deviceSettingsShapes } from './device-settings-shapes.tsx';
 import type { linkShapes } from './link-shapes.tsx';
 import { menuShapes } from './menu-shapes.tsx';
 import type { peopleShapes } from './people-shapes.tsx';
@@ -17,7 +18,8 @@ export type IconName =
   | keyof typeof peopleShapes
   | keyof typeof rolesShapes
   | keyof typeof auditLogShapes
-  | keyof typeof linkShapes;
+  | keyof typeof linkShapes
+  | keyof typeof deviceSettingsShapes;
 
 // Los íconos de una pantalla que se baja a pedido llegan con ella.
 export function addShapes(more: Record<string, VNode>): void {

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { formatHour, formatTime, timeFormat } from './time.ts';
+import { formatHour, formatTime, formatTimeAs, timeFormat } from './time.ts';
 
 // Las 17:05 en Greenwich son las 14:05 en Buenos Aires.
 const afternoon = Date.UTC(2026, 10, 6, 17, 5);
@@ -20,5 +20,8 @@ describe('cómo se escribe una hora', () => {
     expect(plain(formatTime(afternoon))).toBe('2:05 p. m.');
     expect(plain(formatHour(afternoon))).toBe('2 p. m.');
     expect(inH24).toBe('14:05');
+    // device-settings-E17: cómo se vería en el otro, sin cambiar el elegido.
+    expect(formatTimeAs(afternoon, 'h24')).toBe('14:05');
+    expect(timeFormat.get()).toBe('h12');
   });
 });

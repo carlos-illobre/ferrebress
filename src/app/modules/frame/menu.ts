@@ -84,7 +84,8 @@ const settings: Option[] = [
     name: 'Configuración',
     icon: 'settings',
     shortcut: 'g',
-    detail: 'Lo tuyo, en este celular',
+    detail: 'Lo tuyo, en este dispositivo',
+    path: '/device-settings',
     tone: 'neutral',
   },
   {

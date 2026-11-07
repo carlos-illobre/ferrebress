@@ -7,6 +7,7 @@ import type { Environment } from '@ferrebress/shared/contracts/server-header';
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { frameLink, watchDeviceLink } from './modules/device-link/index.ts';
+import { InstallOffer, Settings } from './modules/device-settings/index.ts';
 import {
   announceUpdate,
   Dialogs,
@@ -33,7 +34,6 @@ import {
   signOut,
   unknownToServer,
   useNonceRenewal,
-  useOfflineSetting,
   usePhoneCode,
   watchOffline,
   watchPermissions,
@@ -49,7 +49,7 @@ import { useStore } from './platform/store.ts';
 import { Toasts } from './ui/toast/Toast.tsx';
 
 // La pantalla de cada opción del menú que ya existe.
-const screens = { users: UsersSlot };
+const screens = { users: UsersSlot, deviceSettings: Settings };
 
 // Sin conexión al abrir, no se sabe nada del servidor: se sigue con lo guardado (R3.6), también
 // el último ambiente, para que el de pruebas siga con su marco y su menú (00 · R10.1).
@@ -187,7 +187,6 @@ export function App() {
     if (pending) void recheck();
     if (entrance) renew();
   });
-  const setting = useOfflineSetting(who);
 
   if (!start) return <Dialogs />;
   const testing = start.environment !== 'production';
@@ -195,7 +194,7 @@ export function App() {
     <>
       {who && (
         <div class="behind-manual" hidden={manual} inert={manual}>
-          <Frame {...{ person: who, testing, setting, ...frameParts }} />
+          <Frame {...{ person: who, testing, ...frameParts }} />
         </div>
       )}
       {entrance && (
@@ -218,6 +217,7 @@ export function App() {
       {manual && <ManualSlot testing={testing} />}
       <CodeSheet code={code} />
       <OfferSheet />
+      {who && !closed && <InstallOffer testing={testing} />}
       <Dialogs />
       <Toasts />
     </>

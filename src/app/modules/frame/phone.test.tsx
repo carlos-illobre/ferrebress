@@ -30,7 +30,7 @@ describe('el marco en el celular', () => {
     // Una sola lista, sin grupos (00 · R1.2).
     expect(screenMore.querySelectorAll('.phone-more-group')).toHaveLength(1);
     expect(within(screenMore).getByText('Lo que no coincide')).toBeTruthy();
-    expect(within(screenMore).getAllByText('Pronto')).toHaveLength(5);
+    expect(within(screenMore).getAllByText('Pronto')).toHaveLength(4);
     const anomalies = within(screenMore).getByRole('button', { name: /Anomalías/ });
     expect(anomalies.querySelector('.phone-more-icon.urgent')).not.toBeNull();
     expect(anomalies.lastElementChild?.className).toBe('coming-soon');
@@ -41,31 +41,8 @@ describe('el marco en el celular', () => {
     expect(onSignOut).toHaveBeenCalledOnce();
   });
 
-  it('offline-E01: debajo de Configuración, el interruptor de otro módulo, que se toca entero', () => {
-    const toggle = vi.fn();
-    const setting = { name: 'Trabajar sin conexión', detail: 'Hasta 24 horas', on: false, toggle };
-    open({ setting });
-    fireEvent.click(
-      within(screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement).getByRole(
-        'button',
-        { name: /Más/ },
-      ),
-    );
-    const row = screen.getByRole('switch', { name: /Trabajar sin conexión/ });
-    expect(row.getAttribute('aria-checked')).toBe('false');
-    expect(row.closest('li')?.previousElementSibling?.textContent).toContain('Configuración');
-    fireEvent.click(row);
-    expect(toggle).toHaveBeenCalledOnce();
-  });
-
-  it('app-E02b, offline-E01: en producción también lo que falta, con «Pronto», y el interruptor debajo de Configuración', () => {
-    const setting = {
-      name: 'Trabajar sin conexión',
-      detail: 'Hasta 24 horas',
-      on: false,
-      toggle: vi.fn(),
-    };
-    open({ testing: false, setting });
+  it('app-E02b, device-settings-E28: en producción también lo que falta, con «Pronto»; «Trabajar sin conexión» ya no está en Más', () => {
+    open({ testing: false });
     fireEvent.click(
       within(screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement).getByRole(
         'button',
@@ -74,8 +51,7 @@ describe('el marco en el celular', () => {
     );
     const screenMore = screen.getByRole('region', { name: 'Más' });
     expect(within(screenMore).getAllByText('Pronto').length).toBeGreaterThan(0);
-    const row = screen.getByRole('switch', { name: /Trabajar sin conexión/ });
-    expect(row.closest('li')?.previousElementSibling?.textContent).toContain('Configuración');
+    expect(screen.queryByRole('switch', { name: /Trabajar sin conexión/ })).toBeNull();
   });
 
   it('app-E02b: en producción, Más tiene todas sus opciones, en el orden de la computadora', () => {

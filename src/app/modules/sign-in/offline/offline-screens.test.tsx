@@ -6,7 +6,7 @@ import { codesPath } from '../../../testing/codes-stream.ts';
 import { fakeServer } from '../../../testing/fake-server.ts';
 import { Toasts } from '../../../ui/toast/Toast.tsx';
 import { Entrance } from '../index.ts';
-import { person } from '../session.ts';
+import { passkeyLinked, person } from '../session.ts';
 import { startReply } from '../sign-in-test-kit.ts';
 import { eva, fakeFinger, resetOffline } from './offline-kit.ts';
 import { contacted, enableOffline, offlineOption } from './option.ts';
@@ -65,12 +65,31 @@ describe('la opción «Trabajar sin conexión»', () => {
     act(() => online.set(true));
   });
 
-  it('offline-E02, E04: solo en el celular y si el servidor dice que puede', () => {
+  it('offline-E02, E04, device-settings-E29, E31: solo en el celular y con el permiso', () => {
     expect(renderHook(() => useOfflineSetting(eva)).result.current).toBeUndefined();
     fakeFinger();
-    const { offline: _, ...without } = eva;
+    const without = { ...eva, permissions: [] };
     expect(renderHook(() => useOfflineSetting(without)).result.current).toBeUndefined();
     expect(renderHook(() => useOfflineSetting(undefined)).result.current).toBeUndefined();
+  });
+
+  it('device-settings-E30, E37: con el permiso y sin su huella en el celular, apagada y dice por qué; nunca se prende', () => {
+    fakeFinger();
+    const { offline: _, ...beto } = { ...eva, userId: 'beto' };
+    const { result } = renderHook(() => useOfflineSetting(beto));
+    expect(result.current).toMatchObject({
+      on: false,
+      blocked: 'Para usarla, primero vinculá tu huella en este celular.',
+    });
+    act(() => result.current?.toggle());
+    expect(offlineOption.get()).toBeUndefined();
+    // Con la huella de otra persona (Ana prendió la suya): no se la puede reemplazar.
+    passkeyLinked();
+    enableOffline(eva);
+    const other = renderHook(() => useOfflineSetting(beto)).result;
+    expect(other.current?.blocked).toMatch(/huella de otra persona/);
+    act(() => other.current?.toggle());
+    expect(offlineOption.get()?.person.userId).toBe(eva.userId);
   });
 
   it('offline-E01, R1.3: se prende con conexión y se apaga siempre; sin conexión, avisa', () => {

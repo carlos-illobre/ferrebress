@@ -84,6 +84,10 @@ export const texts = {
     name: 'Trabajar sin conexión',
     detail: 'Entrá con la huella aunque no haya internet, hasta 24 horas',
     needsInternet: 'Para prenderla hace falta internet.',
+    // 04 · R5.3: con el permiso, sin la huella de esta persona en este celular.
+    needsPasskey: 'Para usarla, primero vinculá tu huella en este celular.',
+    otherPasskey:
+      'Este celular tiene la huella de otra persona: solo ella puede trabajar sin conexión acá.',
   },
   signingIn: 'Entrando',
   // La espera mientras se abre la sesión (R2.11): lo mismo en el celular y en la computadora.

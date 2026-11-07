@@ -215,10 +215,11 @@ export const scenes: Scene[] = [
     points: { notice: (page) => page.getByText('No se pudo confirmar tu entrada sin conexión') },
   },
   {
-    name: 'phone-more-offline',
+    name: 'phone-settings-offline',
     device: 'phone',
     prepare: async (page) => {
       await openMore(page, { ...ana, offline: true });
+      await page.getByRole('button', { name: /Configuración/ }).click();
       const option = page.getByRole('switch', { name: 'Trabajar sin conexión' });
       await option.click();
       await expect(option).toHaveAttribute('aria-checked', 'true');

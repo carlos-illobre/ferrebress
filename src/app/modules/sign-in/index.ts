@@ -6,7 +6,7 @@ export { usePhoneCode } from './codes/usePhoneCode.ts';
 export { useNonceRenewal } from './google/renew.ts';
 export { pendingEntries } from './offline/pending.ts';
 export { sendPending } from './offline/send.ts';
-export { useOfflineSetting } from './offline/setting.ts';
+export { type OfflineRow, useOfflineSetting } from './offline/setting.ts';
 export { watchOffline } from './offline/watch.ts';
 export { watchPermissions } from './permissions-watch.ts';
 export { Entrance } from './screens/Entrance/Entrance.tsx';
@@ -16,6 +16,7 @@ export { OfferSheet } from './screens/Sheets/OfferSheet.tsx';
 export {
   confirmed,
   hasPendingSignOut,
+  offerPasskey,
   person,
   rejectedBefore,
   signOut,

@@ -1,9 +1,8 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { newVersion } from '../../platform/server/api.ts';
-import { media, open, person, withPath } from './frame-test-kit.tsx';
+import { media, open, person, withoutScreens } from './frame-test-kit.tsx';
 import { Dialogs, registerWork, watchBackground, watchCrashes } from './index.ts';
-import { moreOptions, type Option } from './menu.ts';
 import { crash, reportCrash } from './notices/crash/crash.ts';
 import { discardWork, halfDone } from './work.ts';
 
@@ -25,7 +24,7 @@ describe('lo que el marco cuida', () => {
   });
 
   it('app-E01: en pruebas, sin ninguna opción que exista, queda abierta la primera parte', () => {
-    withPath(moreOptions.find((option) => option.id === 'users') as Option, undefined, () => {
+    withoutScreens(() => {
       const { side } = open();
       expect(
         within(side)

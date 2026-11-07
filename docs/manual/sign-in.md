@@ -129,8 +129,8 @@
 - Ícono: wifi-off
 - Aclaración: Con «Trabajar sin conexión» prendido, entrás con la huella aunque se corte internet.
 
-1. Con internet, en Más, prendé «Trabajar sin conexión». Aparece si ya entrás con la huella en este celular.
-   Captura: phone-more-offline · offline · Trabajar sin conexión
+1. Con internet, en Más → Configuración, prendé «Trabajar sin conexión». Si todavía no entrás con la huella en este celular, aparece apagada y te dice qué hacer.
+   Captura: phone-settings-offline · offline · Trabajar sin conexión
 2. Sin internet, la entrada dice hasta cuándo podés entrar. Tocá «Ingresar con huella».
    Captura: phone-offline-finger · until · Hasta cuándo
 3. Cuando vuelve internet, Ferrebress confirma tu entrada solo. Si no puede, te pide entrar de nuevo, sin perder nada.

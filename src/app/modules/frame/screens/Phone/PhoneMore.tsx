@@ -1,9 +1,7 @@
 // Más en el celular (maqueta del marco): una pantalla entera con el título, la luz, la persona, las
 // opciones en una sola lista, en el orden de la computadora, con su ícono y qué son, y «Salir» aparte
 // (00 · R1.2, 01 · R5.1). Lo que todavía no existe dice «Pronto» y no lleva flecha, porque no se abre
-// (00 · R1.3). Debajo de Configuración puede ir un interruptor de otro módulo
-// (hoy, «Trabajar sin conexión», 15 · R1).
-import { Fragment } from 'preact';
+// (00 · R1.3).
 import { useWaiting } from '../../../../platform/waiting.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { initials, roleNames, useFrame } from '../../context.ts';
@@ -43,26 +41,21 @@ export function PhoneMore() {
   );
 }
 
-// Las opciones. El interruptor de otro módulo va debajo de Configuración.
+// Las opciones.
 function MoreList() {
   const { person } = useFrame();
   return (
     <div>
       <ul class="surface phone-more-card phone-more-group">
         {moreFor(person).map((option) => (
-          <Fragment key={option.id}>
-            <li>
-              <MoreOption option={option} />
-            </li>
-            {option.id === settingsAfter && <SettingOption />}
-          </Fragment>
+          <li key={option.id}>
+            <MoreOption option={option} />
+          </li>
         ))}
       </ul>
     </div>
   );
 }
-
-const settingsAfter = 'deviceSettings';
 
 function MoreOption({ option }: { option: Option }) {
   const { notYet, online, phoneMore } = useFrame();
@@ -91,34 +84,6 @@ function MoreOption({ option }: { option: Option }) {
         <Icon name="chevron-right" />
       )}
     </button>
-  );
-}
-
-// El interruptor de otro módulo (hoy, «Trabajar sin conexión»): se toca todo el renglón.
-function SettingOption() {
-  const { setting } = useFrame();
-  if (!setting) return null;
-  return (
-    <li>
-      <button
-        type="button"
-        class="phone-more-option phone-more-switch"
-        role="switch"
-        aria-checked={setting.on}
-        aria-labelledby="phone-more-switch-name"
-        aria-describedby="phone-more-switch-detail"
-        onClick={setting.toggle}
-      >
-        <span class="phone-more-icon neutral">
-          <Icon name="wifi-off" />
-        </span>
-        <span class="phone-more-text">
-          <b id="phone-more-switch-name">{setting.name}</b>
-          <small id="phone-more-switch-detail">{setting.detail}</small>
-        </span>
-        <span class="switch" aria-hidden="true" />
-      </button>
-    </li>
   );
 }
 

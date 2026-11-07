@@ -58,8 +58,25 @@ function testingManifest(): Plugin {
   };
 }
 
+// El orden de las capas de CSS (styles/base.css), al principio de cada hoja armada. Vite parte el
+// CSS en archivos por pedazo, y la página puede cargar primero uno compartido (el de los botones y
+// las hojas) que nombra una capa antes que base.css: esa capa quedaría primera y perdería contra
+// todas. Repetir el orden en cada archivo no cambia nada y lo deja fijo pase lo que pase.
+const layerOrder = '@layer base, pieces, screens, widths;';
+
+function layersFirst(): Plugin {
+  return {
+    name: 'ferrebress-layers-first',
+    generateBundle(_, bundle) {
+      for (const file of Object.values(bundle))
+        if (file.type === 'asset' && file.fileName.endsWith('.css'))
+          file.source = `${layerOrder}${String(file.source)}`;
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [preact(), manual(), testingManifest()],
+  plugins: [preact(), manual(), testingManifest(), layersFirst()],
   define: { 'import.meta.env.VITE_APP_VERSION': JSON.stringify(version) },
   // Dos páginas: la aplicación y el marco del botón de Google. El service worker se arma aparte, como
   // /sw.js: su dirección no puede cambiar con cada versión.

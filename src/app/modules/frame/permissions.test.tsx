@@ -63,9 +63,9 @@ describe('el marco con permisos', () => {
       'Hola, soy Rubén Paredes. ¿Me podés dar el permiso «Ver las personas» en Ferrebress? Lo necesito para usar Usuarios.',
     );
     await act(async () => {
-      fireEvent.click(within(main).getByRole('button', { name: /Ir a Vender/ }));
+      fireEvent.click(within(main).getByRole('button', { name: /Ir a Configuración/ }));
     });
-    expect(route.get().path).toBe('/');
+    expect(route.get().path).toBe('/device-settings');
   });
 
   it('users-E48: le sacan el permiso con Usuarios abierto: lo dice y a los 5 segundos va a la primera opción', async () => {
@@ -87,12 +87,12 @@ describe('el marco con permisos', () => {
     });
     const dialog = screen.getByRole('alertdialog', { name: 'Ya no tenés permiso para Usuarios' });
     expect(dialog.textContent).toContain('Graciela Benítez te sacó «Administrador» recién.');
-    expect(dialog.textContent).toContain('Te llevo a Vender');
+    expect(dialog.textContent).toContain('Te llevo a Configuración');
     act(() => {
       vi.advanceTimersByTime(5000);
     });
     expect(screen.queryByRole('alertdialog')).toBeNull();
-    expect(route.get().path).toBe('/');
+    expect(route.get().path).toBe('/device-settings');
   });
 
   it('audit-log-E13: Quién hizo qué por la dirección sin su permiso: «Sin permiso», sin pedirle nada', async () => {
@@ -161,7 +161,7 @@ describe('el marco con permisos', () => {
     expect(dialog.textContent).toContain('Cambiaron los permisos de un rol que tenés.');
     expect(dialog.textContent).not.toContain('Graciela');
     expect(dialog.querySelector('.pill-gone')).toBeNull();
-    fireEvent.click(within(dialog).getByRole('button', { name: /Ir a Vender ahora/ }));
+    fireEvent.click(within(dialog).getByRole('button', { name: /Ir a Configuración ahora/ }));
   });
 
   it('R7.7: con un rol y una persona, en singular', async () => {

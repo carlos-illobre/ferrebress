@@ -1,0 +1,44 @@
+/* El aviso para instalar (maqueta device-settings-install/final): el inicio del celular en chico, con
+   el ícono de Ferrebress ya puesto, el título, dos ventajas (con la pastilla de Configuración) y
+   los botones. */
+@layer screens {
+  .install-sheet {
+    display: grid;
+    gap: var(--s4);
+  }
+  .install-home {
+    display: flex;
+    justify-content: center;
+    gap: var(--s5);
+    padding: var(--s6) var(--s4);
+    border-radius: var(--radius-card);
+    background: var(--sunken);
+  }
+  .install-app {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--sunken-2);
+  }
+  .install-app.mine {
+    display: grid;
+    place-items: center;
+    background: var(--surface);
+    box-shadow: var(--shadow-2);
+  }
+  .install-title {
+    margin: 0;
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 800;
+  }
+  .install-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    margin: 0;
+  }
+  .install-sheet .button {
+    width: 100%;
+  }
+}

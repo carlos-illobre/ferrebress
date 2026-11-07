@@ -13,13 +13,7 @@ import { useCollapse } from '../../behavior/useCollapse.ts';
 import { usePanels } from '../../behavior/usePanels.ts';
 import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
 import { useTip } from '../../behavior/useTip.ts';
-import {
-  FrameContext,
-  type FrameLink,
-  type FrameState,
-  type SettingRow,
-  shake,
-} from '../../context.ts';
+import { FrameContext, type FrameLink, type FrameState, shake } from '../../context.ts';
 import { allowed, firstOption, goToFirst, insideAt, type Option, optionAt } from '../../menu.ts';
 import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
 import { texts } from '../../texts.ts';
@@ -38,7 +32,6 @@ export type FrameProps = {
   person: Person;
   testing: boolean;
   onSignOut: () => unknown;
-  setting?: SettingRow | undefined;
   link?: FrameLink | undefined;
   // La pantalla de cada opción que ya existe, por su id: las pone cada módulo, por App.
   screens?: Partial<Record<string, ComponentType>> | undefined;
@@ -53,7 +46,7 @@ const notYetWith = (tip: FrameState['tip']) => (element: HTMLElement, name: stri
 };
 
 export function Frame(props: FrameProps) {
-  const { person, testing, onSignOut, setting, screens, children, link } = props;
+  const { person, testing, onSignOut, screens, children, link } = props;
   const online = useStore(onlineStore);
   // La opción abierta es la de la dirección; en cualquier otra, la primera que puede usar (R1.4).
   const opened = optionAt(useStore(route).path);
@@ -85,7 +78,6 @@ export function Frame(props: FrameProps) {
     tip,
     notYet: notYetWith(tip),
     signOut: onSignOut,
-    setting,
     link,
   };
   return (

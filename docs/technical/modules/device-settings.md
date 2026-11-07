@@ -139,6 +139,14 @@ en 24 horas.
   evento sirve una sola vez.
 - Nada pide a la red.
 
+### El orden de las capas de CSS, en cada hoja armada
+
+Con Configuración en el arranque, Vite separa en un archivo propio lo que comparten el arranque y el
+manual (los íconos, el botón, la hoja), y la página lo carga antes que el CSS principal. Ese archivo
+nombra la capa `pieces` antes que `base.css` declare el orden, y las capas quedaban desordenadas. El
+armado (`vite.config.ts`) pone `@layer base, pieces, screens, widths;` al principio de cada hoja de
+CSS: repetir el orden no cambia nada y lo deja fijo, se parta como se parta.
+
 ### `ui/sheet`: trabarla
 
 La hoja suma la propiedad `locked`: mientras está, no se cierra al bajarla, al tocar afuera ni con
@@ -153,7 +161,7 @@ La hoja suma la propiedad `locked`: mientras está, no se cierra al bajarla, al 
 | `rules.ts` | La regla pura: lo de arranque, si algo cambió de lo de arranque (R1.11), el resumen de «Así la tenés» (R1.10, que con el sistema pidiendo no animar dice «En el acto»), qué renglón de instalar toca (R4) y qué estado tiene «Trabajar sin conexión» (R5) |
 | `install-offer.ts` | Si toca mostrar el aviso: celular, con sesión, en producción, `installState` en `'can'`, nunca ofrecido y sin otra hoja abierta. Cerrado de cualquier forma, queda `install-offered` (R4.5, E36) |
 | `texts.ts` | Los textos, largos en la computadora y cortos en el celular |
-| `settings.ts` | `maxPeople`, lo que tarda el aviso en aparecer después de llegar al marco y lo que dura «Listo» |
+| `settings.ts` | `maxPeople` y lo que tarda el aviso en aparecer después de llegar al marco |
 | `screens/Settings/` | La pantalla de Configuración |
 | `screens/InstallSheet/` | El aviso para instalar |
 
@@ -173,11 +181,10 @@ y con ella alguien con el permiso podría reemplazar la opción de la dueña de 
 entere. El tercer estado cubre también el celular con la huella de otra persona; su texto lo decide
 Carlos (§ 9).
 
-**Dónde vive cada cosa:** el tipo `SettingRow` pasa a `device-settings` y `sign-in` exporta por su
-fachada `useOfflineSetting`, que lo cumple; `App.tsx` le pasa el renglón a la pantalla, como hoy se lo
-pasa al marco. Así ni `sign-in` importa a `device-settings` ni al revés, y no hay ciclo. El marco deja
-de dibujarlo: salen `setting` de `FrameState` y el renglón de `PhoneMore`. La sacudida de lo que falta
-(`notYet`, `shake`) sale por la fachada del marco.
+**Dónde vive cada cosa:** `sign-in` exporta por su fachada `useOfflineSetting` y su tipo
+(`OfflineRow`), y `device-settings` lo usa: la dirección es una sola (`device-settings` → `sign-in`) y
+no hay ciclo. El marco deja de dibujarlo: salen `setting` de `FrameState` y el renglón de `PhoneMore`.
+Lo de la etapa b, al tocarlo, dice con una tostada que todavía no está, como en Usuarios.
 
 **El menú:** la opción `deviceSettings` de `frame/menu.ts` pasa a tener su dirección,
 `/device-settings`, y deja de decir «Pronto». Su detalle dice «Lo tuyo, en este dispositivo».
@@ -194,13 +201,13 @@ Desde la final aprobada, una sola pantalla para los dos anchos (ADR-002):
 - **«En este dispositivo»:** «Animaciones» (llave, con su muestra y el aviso del sistema), «Formato
   de la hora» (fichas, con la hora de ahora en cada una y «Se ve así en Quién hizo qué»),
   «Instalar» (botón, texto o nada, § 4) y, en el celular, «Trabajar sin conexión». Al instalar desde
-  acá, el botón dice «Listo» un instante, con una vibración corta en el celular, y la tostada lo
-  confirma, como en la maqueta.
+  acá, una tostada lo confirma, con una vibración corta en el celular; el renglón pasa a «Ya está
+  instalada».
 - **«Lo tuyo»:** los cuatro renglones de la etapa b con «Pronto»; tocarlos los sacude, como el resto
   de lo que falta.
-- **Teclado (R1.9):** Alt M para «Animaciones», Alt H para el formato (pasa al siguiente), Alt I para
-  instalar y Alt O para «Volver a como viene». **La maqueta usa Alt A, que ya es una opción de Más:**
-  se propone M (de «movimiento») y Carlos lo aprobó (§ 9). Las pastillas de «Así la tenés» y los
+- **Teclado (R1.9):** Alt D para «Animaciones», Alt H para el formato (pasa al siguiente), Alt I para
+  instalar y Alt O para «Volver a como viene». **La maqueta usa Alt A, que ya es una opción de Más,**
+  y la M, que se había propuesto, es el botón «Más» del menú: va la D, libre en el marco. Las pastillas de «Así la tenés» y los
   renglones de «Pronto» se alcanzan con Tab y las flechas, sin tecla propia. En las fichas, las
   flechas; Espacio cambia la llave.
 
@@ -219,8 +226,8 @@ pantalla dice por qué (architecture.md, «Lo que se ve vive en valores con nomb
   `install-offered`:** si la persona cierra la aplicación con la hoja abierta, tampoco vuelve.
 - **Con otra hoja abierta, espera.** En la primera entrada del celular, el ofrecimiento de la huella
   va primero (§ 9); el aviso aparece al cerrarse esa hoja, o en la próxima llegada al marco.
-- «Instalar» pide al navegador y, mientras contesta, la hoja queda trabada (`locked`). Si acepta, el
-  botón dice «Listo» y la hoja se cierra (E26). Si cancela o se cierra de cualquier otra forma, se
+- «Instalar» pide al navegador y, mientras contesta, la hoja queda trabada (`locked`). Si acepta, la
+  hoja se cierra y una tostada lo confirma (E26). Si cancela o se cierra de cualquier otra forma, se
   cierra con la tostada «Si cambiás de idea, está en Más → Configuración» (R4.5, E36).
 - En la computadora nunca aparece (E27).
 
@@ -268,7 +275,7 @@ pantalla dice por qué (architecture.md, «Lo que se ve vive en valores con nomb
    (que dice «Ferrebress pruebas»), y Caddy sirve `/manifest.webmanifest` desde el del ambiente
    (`rewrite` con `{$ENVIRONMENT}`, que el compose le pasa al contenedor web desde el mismo `.env`).
    La aplicación ya sabe su ambiente por `/api/start` para no mostrar el aviso.
-5. **Alt M** para «Animaciones».
+5. **Una tecla que no choque con el marco** para «Animaciones»: Alt D (Alt M, la aprobada, ya era «Más»).
 
 ## 10. Pruebas
 

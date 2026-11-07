@@ -20,9 +20,6 @@ export type FrameState = {
   // Lo que todavía no está, al tocarlo: se sacude y lo dice (R1.3).
   notYet: (element: HTMLElement, name: string) => void;
   signOut: () => unknown;
-  // Un interruptor de otro módulo para Más del celular, debajo de Configuración: hoy, «Trabajar sin
-  // conexión» (15 · R1). El marco solo lo muestra.
-  setting: SettingRow | undefined;
   // Las piezas del vínculo con el otro dispositivo (03): el indicador del lateral, el del título del
   // celular y lo que abren (el detalle). El marco solo las pone en su lugar.
   link: FrameLink | undefined;
@@ -36,8 +33,6 @@ export type FrameLink = {
   Phone: ComponentType<WithLight>;
   Over: ComponentType;
 };
-
-export type SettingRow = { name: string; detail: string; on: boolean; toggle: () => void };
 
 export const FrameContext = createContext<FrameState | undefined>(undefined);
 

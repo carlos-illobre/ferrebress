@@ -1,27 +1,48 @@
-// La opción «Trabajar sin conexión» de Más (15 · R1): se ve solo en el celular, si la persona trae
-// `offline` del servidor (tiene el permiso y su propia huella en este celular). Prenderla necesita
-// conexión; apagarla, no. El marco la muestra sin saber de estas reglas.
+// La opción «Trabajar sin conexión» (15 · R1, 04 · R5), que Configuración muestra: solo en el
+// celular y para quien tiene el permiso. Se prende solo si el servidor dice que la huella de este
+// celular es de esta persona (`offline`): la marca de huella guardada es del celular, no de la
+// persona, y solo elige el texto de por qué no se puede. Prenderla necesita conexión; apagarla, no.
+import { can } from '@ferrebress/shared/contracts/can';
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { isPhone } from '../../../platform/device/device.ts';
 import { lastReply, online as onlineStore } from '../../../platform/server/api.ts';
 import { useStore } from '../../../platform/store.ts';
 import { showToast } from '../../../ui/toast/Toast.tsx';
-import type { SettingRow } from '../../frame/index.ts';
+import { hasPasskey } from '../session.ts';
 import { texts } from '../texts.ts';
 import { contacted, disableOffline, enableOffline, offlineOption } from './option.ts';
 
-export function useOfflineSetting(who: Person | undefined): SettingRow | undefined {
+// `blocked`: no se puede prender, y por qué (04 · R5.3).
+export type OfflineRow = {
+  name: string;
+  detail: string;
+  on: boolean;
+  toggle: () => void;
+  blocked?: string;
+};
+
+const t = texts.offlineSetting;
+
+export function useOfflineSetting(who: Person | undefined): OfflineRow | undefined {
   const current = useStore(offlineOption);
   const online = useStore(onlineStore);
-  if (!who?.offline || !isPhone()) return undefined;
+  if (!who || !isPhone() || !can(who, 'offline.work')) return undefined;
+  if (!who.offline)
+    return {
+      name: t.name,
+      detail: t.detail,
+      on: false,
+      toggle: () => undefined,
+      blocked: hasPasskey() ? t.otherPasskey : t.needsPasskey,
+    };
   const on = current?.person.userId === who.userId;
   return {
-    name: texts.offlineSetting.name,
-    detail: texts.offlineSetting.detail,
+    name: t.name,
+    detail: t.detail,
     on,
     toggle() {
       if (on) return disableOffline();
-      if (!online) return showToast(texts.offlineSetting.needsInternet, 'wifi-off');
+      if (!online) return showToast(t.needsInternet, 'wifi-off');
       // El último pedido que el servidor aceptó con esta sesión es el último contacto.
       contacted(lastReply.get() ?? Date.now());
       enableOffline(who);

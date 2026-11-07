@@ -1,5 +1,5 @@
 // Entrar sin conexión en el celular (capítulo 15), tal como quedó aprobado: la entrada que el
-// servidor no confirmó, encima del marco (R3.2), y la opción «Trabajar sin conexión» de Más (R1).
+// servidor no confirmó, encima del marco (R3.2), y la opción «Trabajar sin conexión» de Configuración (R1, 04 · R5).
 // Las respuestas del servidor las arma cada prueba.
 import { expect, type Page, test } from '@playwright/test';
 import { administrator } from './person.ts';
@@ -13,11 +13,12 @@ const start = {
   googleNonce: 'screens',
 };
 
-async function answerStart(page: Page, body: unknown) {
+// `at`: la hora que dice el servidor; fija donde la captura la muestra.
+async function answerStart(page: Page, body: unknown, at = Date.now()) {
   await page.route('**/api/start', (route) =>
     route.fulfill({
       json: body,
-      headers: { 'X-Ferrebress': `v=screens; t=${Date.now()}; e=testing` },
+      headers: { 'X-Ferrebress': `v=screens; t=${at}; e=testing` },
     }),
   );
 }
@@ -49,7 +50,7 @@ test('offline-R3.2: la entrada que el servidor no confirmó, encima del marco, t
   await expect(page).toHaveScreenshot('entrance-phone-not-confirmed.png');
 });
 
-test('offline-E01: «Trabajar sin conexión» en Más, debajo de Configuración, se prende al tocarlo', async ({
+test('offline-E01, device-settings-E28: «Trabajar sin conexión», en Configuración, se prende al tocarlo', async ({
   page,
 }) => {
   const person = { ...ana, offline: true };
@@ -57,11 +58,15 @@ test('offline-E01: «Trabajar sin conexión» en Más, debajo de Configuración,
     sessionId: 's',
     person,
   });
-  await answerStart(page, { ...start, person });
+  // La hora de ahora se ve en Configuración: fija, para que la captura salga siempre igual.
+  const at = new Date('2026-11-06T17:05:00Z');
+  await answerStart(page, { ...start, person }, at.getTime());
+  await page.clock.setFixedTime(at);
   await page.goto('/');
   await page.getByRole('button', { name: 'Más', exact: true }).tap();
+  await page.getByRole('button', { name: /Configuración/ }).tap();
   const option = page.getByRole('switch', { name: 'Trabajar sin conexión' });
   await option.tap();
   await expect(option).toHaveAttribute('aria-checked', 'true');
-  await expect(page).toHaveScreenshot('more-phone-offline-option.png', { animations: 'disabled' });
+  await expect(page).toHaveScreenshot('settings-phone-offline-on.png', { animations: 'disabled' });
 });

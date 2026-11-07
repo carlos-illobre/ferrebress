@@ -4,6 +4,7 @@ import { render } from 'preact';
 import './styles/tokens.css';
 import './styles/base.css';
 import { App } from './App.tsx';
+import { watchPreferences } from './modules/device-settings/index.ts';
 import { watchInstall } from './platform/install.ts';
 import { startKeyboard } from './platform/keyboard.ts';
 import { watchMotion } from './platform/motion.ts';
@@ -11,6 +12,7 @@ import { watchMotion } from './platform/motion.ts';
 // Antes de dibujar: el movimiento, para que nada arranque y se corte, y el aviso del navegador de que
 // se puede instalar, que llega una sola vez y temprano (diseño de 04, § 4).
 watchMotion();
+watchPreferences();
 watchInstall();
 startKeyboard();
 render(<App />, document.getElementById('app') as HTMLElement);
