@@ -8,6 +8,7 @@ import { createGuardedMemory } from '../../platform/memory.ts';
 import type { Platform } from '../../platform/modules.ts';
 import { displayName, type User, type Users } from '../users/index.ts';
 import { createScreens } from './codes/computer/screens.ts';
+import { createDeviceNames } from './devices/names.ts';
 import type { GoogleSettings } from './google/verify.ts';
 import { type PasskeysTables, passkeysData } from './passkeys/data.ts';
 import { createSessionStore } from './sessions/store.ts';
@@ -93,6 +94,8 @@ export function createContext(platform: Platform, { users, google, wait }: SignI
     nonces: createOneUse<true>(platform.clock, signInSettings.nonce),
     challenges: createOneUse<Challenge>(platform.clock, signInSettings.challenge),
     passkeys: passkeysData(platform.db as Kysely<PasskeysTables>),
+    // El nombre de cada dispositivo, en memoria (04 · R9).
+    devices: createDeviceNames(platform),
     // De quién es la huella de cada celular, ya consultada (diseño de 15, § 10): así /api/start con
     // la sesión en memoria sigue sin consultar la base. Vincular la actualiza.
     phoneOwners: new Map<string, string | undefined>(),

@@ -11,12 +11,14 @@ import { defineCodesTopic } from './codes/computer/codes-topic.ts';
 import { registerComputerRoutes } from './codes/computer/computer-routes.ts';
 import { registerPhoneRoutes } from './codes/phone/phone-routes.ts';
 import { createContext, type SignInContext } from './context.ts';
+import { registerDeviceRoutes } from './devices/routes.ts';
 import { registerGoogleRoutes } from './google/routes.ts';
 import { createSignIn } from './migrations/001-sign-in.ts';
 import { createOffline } from './migrations/002-offline.ts';
 import { addAccess } from './migrations/003-access.ts';
 import { addApproved } from './migrations/004-approved.ts';
 import { indexPasskeysByUser } from './migrations/005-passkeys-user.ts';
+import { addDevices } from './migrations/006-devices.ts';
 import { registerOfflineRoutes } from './offline/routes.ts';
 import { registerLinkRoutes } from './passkeys/link-routes.ts';
 import { registerPasskeySignInRoutes } from './passkeys/sign-in-routes.ts';
@@ -34,11 +36,13 @@ export type SignInOptions = {
 
 // Lo que avisa Entrar, para quien lo necesite sin que Entrar lo conozca (el vínculo, diseño de 03,
 // § 11.1): sesiones cerradas desde Usuarios con sus dispositivos, una huella quitada o un celular
-// cortado, y un celular que hizo entrar a una computadora.
+// cortado, un dispositivo con otro nombre y un celular que hizo entrar a una computadora.
 declare module '../../platform/events.ts' {
   interface ServerEvents {
     'sessions.revoked': { userId: string; deviceIds: string[] };
     'passkey.removed': { userId: string; deviceId: string; cause: 'removed' | 'cut' };
+    // Se puso, cambió o borró (nulo) el nombre de un dispositivo (04 · R9).
+    'device.renamed': { deviceId: string; name: string | null };
     'sign-in.phone-approved': {
       userId: string;
       phoneDeviceId: string;
@@ -62,9 +66,10 @@ export function createSignInModule(options: SignInOptions) {
         '003-access': addAccess,
         '004-approved': addApproved,
         '005-passkeys-user': indexPasskeysByUser,
+        '006-devices': addDevices,
       },
     },
-    register(platform) {
+    async register(platform) {
       const { config } = platform;
       const keys = googleKeys ?? createRemoteJWKSet(new URL(config.GOOGLE_JWKS_URL));
       const google = { clientId: config.GOOGLE_CLIENT_ID, issuer: config.GOOGLE_ISSUER, keys };
@@ -73,6 +78,9 @@ export function createSignInModule(options: SignInOptions) {
         (c) => requestSession(ctx, c),
         (id) => ctx.store.isOpen(id),
       );
+      await ctx.devices.load();
+      platform.devices.provide(ctx.devices.nameOf);
+      ctx.store.onUsed(ctx.devices.touch);
       registerRoutes(ctx);
       listenToUsers(ctx);
       scheduleJobs(ctx, registerOfflineRoutes(ctx));
@@ -93,6 +101,7 @@ function registerRoutes(ctx: SignInContext) {
   registerPhoneRoutes(ctx);
   registerAccessRoutes(ctx);
   registerConfirmRoutes(ctx);
+  registerDeviceRoutes(ctx);
 }
 
 // La baja cierra sus sesiones y borra sus huellas en la misma transacción; la memoria se pone al día
@@ -126,12 +135,19 @@ function listenToUsers(ctx: SignInContext) {
 
 function scheduleJobs(ctx: SignInContext, offline: ReturnType<typeof registerOfflineRoutes>) {
   const { platform } = ctx;
-  platform.every(signInSettings.lastUsedFlushMs, ctx.store.flush);
-  platform.every(signInSettings.cleanupEveryMs, ctx.store.cleanUp);
+  const flush = async () => {
+    await ctx.store.flush();
+    await ctx.devices.flush();
+  };
+  platform.every(signInSettings.lastUsedFlushMs, flush);
+  platform.every(signInSettings.cleanupEveryMs, async () => {
+    await ctx.store.cleanUp();
+    await ctx.devices.cleanUp();
+  });
   platform.every(signInSettings.cleanupEveryMs, () =>
     offline.removeOlderThan(
       new Date(platform.clock.now().getTime() - signInSettings.offline.retentionMs),
     ),
   );
-  platform.onClose(ctx.store.flush);
+  platform.onClose(flush);
 }

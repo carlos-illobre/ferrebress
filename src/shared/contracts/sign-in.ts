@@ -53,6 +53,8 @@ export type StartResponse = {
   googleScriptUrl: string;
   googleNonce?: string;
   person?: Person;
+  // El nombre de este dispositivo, si tiene, también sin sesión: la entrada lo muestra (01 · R2.5).
+  deviceName?: string;
   // Lo que suma cada módulo, con sesión, por su nombre (diseño de 03, § 10.1); cada uno lee lo suyo.
   parts?: Record<string, unknown>;
 };

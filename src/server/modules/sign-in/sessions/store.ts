@@ -40,9 +40,12 @@ function createMemory() {
   return {
     byKey,
     closings: 0,
-    touch: (session: Session, at: Date) => {
+    // Quien quiere enterarse de cada uso (el último día de cada dispositivo, diseño de 04b, § 2).
+    used: (_deviceId: string) => undefined as void,
+    touch(session: Session, at: Date) {
       session.lastUsedAt = at;
       lastUsed.set(session.id, at);
+      this.used(session.deviceId);
     },
     forget(ids: string[]) {
       for (const [key, session] of byKey) if (ids.includes(session.id)) byKey.delete(key);
@@ -183,6 +186,9 @@ export function sessionStoreOf(data: Data, clock: Clock, onEnded: OnEnded) {
 
     ...closing(deps),
     ...fromOutside(memory, onEnded),
+    onUsed: (listener: (deviceId: string) => void) => {
+      memory.used = listener;
+    },
     flush,
 
     // La limpieza diaria: las que venció las saca de la memoria y las anota.

@@ -37,6 +37,13 @@ export const signInSettings = {
     // Un rechazo por límite se anota una vez por ventana (revisión de seguridad, punto 19).
     throttledAudit: { max: 1, windowMs: minute },
   },
+  // El nombre de los dispositivos (04 · R9; diseño de 04b, § 2 y § 3): cuántos en memoria, a cuánto
+  // sin uso se borran y cuántas veces por hora se puede cambiar desde una sesión.
+  devices: {
+    maxInMemory: 1000,
+    forgetAfterDays: 365,
+    renames: { max: 10, windowMs: hour },
+  },
   // Entrar sin conexión (15 · R2.2; diseño de 15, § 4).
   offline: {
     // Cuánto se puede entrar sin conexión desde el último contacto con sesión (15 · R2.2).

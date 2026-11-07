@@ -9,6 +9,7 @@ export const groups = {
   roles: 'Roles',
   offline: 'Sin conexión',
   'device-link': 'Celular y computadora',
+  'device-settings': 'Configuración',
   refused: 'Rechazos',
   other: 'Otros',
 } as const;

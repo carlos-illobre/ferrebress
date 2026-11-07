@@ -45,10 +45,14 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
     const googleNonce = ctx.nonces.issue(c.get('ipAddress'), true);
     if (!googleNonce) return ctx.tooMany(c, signInSettings.nonce.ttlMs);
     const parts = who ? await ctx.platform.start.collect(c) : {};
+    // De la memoria, para quien manda el identificador del dispositivo, que está solo en él.
+    const deviceId = c.get('deviceId');
+    const deviceName = deviceId && ctx.devices.nameOf(deviceId);
     return c.json<StartResponse>({
       ...base,
       googleNonce,
       ...(who && { person: who }),
+      ...(deviceName && { deviceName }),
       ...(Object.keys(parts).length > 0 && { parts }),
     });
   });
