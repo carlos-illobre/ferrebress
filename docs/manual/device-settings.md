@@ -44,7 +44,7 @@
 
 - Id: name
 - Dispositivo: computadora
-- Ícono: monitor
+- Ícono: pencil-line
 
 1. En Más → Configuración, debajo del dibujo de esta computadora, tocá «Ponele nombre», o Alt K. Si ya tiene uno, dice «Cambiar el nombre».
    Captura: desktop-mine · name · Ponele nombre
@@ -74,7 +74,7 @@
 
 - Id: lost
 - Dispositivo: computadora
-- Ícono: x
+- Ícono: scissors
 
 1. En la tarjeta de ese celular, en «Tus otros dispositivos», tocá «Se me perdió». No pregunta: corta en el acto.
    Captura: desktop-mine · lost · Se me perdió
@@ -115,7 +115,7 @@
 
 - Id: name
 - Dispositivo: celular
-- Ícono: smartphone
+- Ícono: pencil-line
 
 1. En Más → Configuración, al lado del dibujo de este celular, tocá «Ponele nombre», o «Cambiar el nombre» si ya tiene uno.
    Captura: phone-mine · name · Cambiar el nombre
@@ -154,7 +154,7 @@
 
 - Id: lost
 - Dispositivo: celular
-- Ícono: x
+- Ícono: scissors
 
 1. En la tarjeta de ese celular, apoyá el dedo en «Se me perdió»: lo que se va a cortar se pone rojo. Al soltarlo, corta. Si arrastrás el dedo para bajar la pantalla, no corta nada.
    Captura: phone-mine-others · lost · Se me perdió

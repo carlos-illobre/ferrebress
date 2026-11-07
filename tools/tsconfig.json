@@ -12,6 +12,7 @@
     "../src/shared/contracts/manual.ts",
     "../src/app/modules/manual/icons.ts",
     "../src/app/modules/manual/people-icons.ts",
+    "../src/app/modules/manual/device-settings-icons.ts",
     "../src/app/modules/manual/shape.ts"
   ]
 }

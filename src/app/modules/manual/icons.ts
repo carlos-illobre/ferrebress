@@ -2,12 +2,14 @@
 // 0.460 (licencia ISC), copiados de docs/design/common/icons/. Son datos y no JSX: tools/manual/ los
 // lee para rechazar un ícono que no está, y se bajan con la pantalla, así el arranque no crece. Un
 // capítulo con un ícono nuevo agrega acá su renglón, o en el archivo de su capítulo
-// (people-icons.ts) si este se llena.
+// (people-icons.ts, device-settings-icons.ts) si este se llena.
+import { deviceSettingsIcons } from './device-settings-icons.ts';
 import { peopleIcons } from './people-icons.ts';
 import type { Shape } from './shape.ts';
 
 export const manualIcons: Record<string, Shape[]> = {
   ...peopleIcons,
+  ...deviceSettingsIcons,
   'arrow-left': [
     ['path', { d: 'm12 19-7-7 7-7' }],
     ['path', { d: 'M19 12H5' }],
