@@ -1,5 +1,5 @@
 // 5 · Entrar sin conexión con la huella, en el celular (15 · R1 a R3; E01, E07, E15): con la huella
-// vinculada se prende «Trabajar sin conexión», se sale, se corta la red, se entra con la huella y,
+// vinculada se prende «Trabajar sin conexión» en Configuración, se sale, se corta la red, se entra con la huella y,
 // al volver la red, el servidor confirma la entrada y la sesión sigue sin volver a entrar.
 import { expect, test } from '@playwright/test';
 import { phone } from './support/devices.ts';
@@ -13,10 +13,13 @@ test('offline-E07, E11, E15: entra sin conexión con la huella después de salir
   await signInWithGoogle(page);
   await page.getByRole('button', { name: 'Sí, usar la huella' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
+  // La opción está en Más → Configuración (04 · R5).
   await page.getByRole('button', { name: 'Más', exact: true }).click();
+  await page.getByRole('button', { name: /Configuración/ }).click();
   const option = page.getByRole('switch', { name: /Trabajar sin conexión/ });
   await option.click();
   await expect(option).toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('button', { name: 'Más', exact: true }).click();
   // Que termine lo que pide la entrada al salir antes de cortar: una respuesta que llega después
   // del corte prendería la luz de nuevo.
   const started = page.waitForResponse('**/api/start');
