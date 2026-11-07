@@ -7,7 +7,7 @@ import { useState } from 'preact/hooks';
 import { isPhone as onPhone } from '../../../../../platform/device/device.ts';
 import { useLoaded } from '../../../../../platform/lazy.ts';
 import { useStore } from '../../../../../platform/store.ts';
-import { dateOf, nowMs, sinceOf } from '../../../../../platform/time.ts';
+import { dateOf, nowMs } from '../../../../../platform/time.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { loadConfirmSheet, person } from '../../../../sign-in/index.ts';
