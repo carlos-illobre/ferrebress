@@ -4,7 +4,7 @@ Lo que un Administrador fija para todos y cumplen todos los dispositivos, en Má
 dos etapas: a. ajustes para todos; b. anomalías, que se escribe con el stock. Reglas completas en
 [rules.md](rules.md).
 
-**Estado:** etapa a, para aprobar; etapa b, por escribir.
+**Estado:** etapa a, reglas aprobadas; etapa b, por escribir.
 
 ## Cada regla en una línea
 
