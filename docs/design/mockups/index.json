@@ -665,6 +665,43 @@
      "path": "mockups/device-settings-b/phone/variant-3-keys/index.html"
     }
    ]
+  },
+  {
+   "id": "administration-settings",
+   "title": "Administración · Ajustes para todos",
+   "module": "06 · Administración",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "1 · Los renglones",
+     "path": "mockups/administration-settings/desktop/variant-1-rows/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · Probar antes de elegir",
+     "path": "mockups/administration-settings/desktop/variant-2-preview/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · El ticket de la casa",
+     "path": "mockups/administration-settings/desktop/variant-3-ticket/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · Los renglones",
+     "path": "mockups/administration-settings/phone/variant-1-rows/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · Probar antes de elegir",
+     "path": "mockups/administration-settings/phone/variant-2-preview/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · El ticket de la casa",
+     "path": "mockups/administration-settings/phone/variant-3-ticket/index.html"
+    }
+   ]
   }
  ]
 }
