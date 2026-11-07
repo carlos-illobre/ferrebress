@@ -113,6 +113,7 @@ quita, el resto sigue andando igual.
   - «Esperando al celular» o «Esperando a la computadora»: el otro no tiene la aplicación abierta;
   - «Sin internet»: vinculados, sin conexión directa y sin internet para encontrarse (R3.4).
 - **R4.2** **Al tocarlo, muestra el detalle:** el estado explicado en una frase, con qué dispositivo
+  (por su nombre, 04 · R9, o por el navegador si no tiene)
   está vinculado («Chrome en Android»), desde cuándo y hasta cuándo dura si no se usa (R2.2), y
   los botones que tocan en ese estado:
   - «Vincular el celular», en la computadora: siempre, también si ya hay vínculo (R1.4);

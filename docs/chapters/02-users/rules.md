@@ -90,7 +90,8 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
 - **R5.1** En la tarjeta de cada persona están sus sesiones abiertas y sus celulares con huella. La
   tarjeta cerrada dice cuántas tiene de cada cosa; sin ninguna, no lo dice. Verlas pide «Ver las
   personas»; cerrarlas, quitar un celular y «Se perdió un celular» piden «Cortar sesiones y
-  huellas». Las propias, sin ningún permiso, van en Configuración (capítulo 04, R7.2).
+  huellas». Las propias también están en Configuración, sin ningún permiso (04 · R6 a R8), con la
+  misma pieza.
 - **R5.2** **Cada sesión** muestra el dispositivo («Chrome en Android»), cómo entró (Google, huella,
   código QR o sin conexión), cuándo entró y su último uso, de la usada más recientemente a la más
   vieja. Las vencidas y las cerradas no figuran. La del dispositivo que se está usando no figura
@@ -103,8 +104,7 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   (salvo la del dispositivo que se está usando, si es la propia). Es para un celular robado del que
   no se sabe cuál es la sesión.
 - **R5.5** **Cada celular con huella** muestra su nombre («Chrome en Android»), cuándo se vinculó y su
-  último uso. Los propios no figuran: van en Configuración (capítulo 04), y hasta que exista no se
-  ven.
+  último uso. En la tarjeta propia también figuran los propios, como en Configuración (04 · R6).
 - **R5.6** **«Quitar»** un celular con huella, sin confirmación (se arregla vinculándolo de nuevo):
   - ese celular deja de entrar con la huella y de aprobar la entrada de una computadora;
   - se cierra la sesión abierta en ese celular, si hay: es el caso del celular perdido;
@@ -149,7 +149,7 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   «Ver las personas», y «Trabajar sin conexión» (15 · R1.2), en su grupo «Sin conexión».
 - **R7.2** **Lo que no pide ningún permiso:** entrar, salir y el manual; la configuración del propio
   dispositivo (salvo «Trabajar sin conexión», que pide su permiso, 15 · R1.2), y ver y cerrar las sesiones propias y cortar el propio celular perdido, en
-  Configuración (capítulo 04; hasta que exista, solo lo hace quien tiene los permisos de R7.1);
+  Configuración (04 · R6 a R8);
   avisar un error o pedir una mejora (capítulo 12); vincular y desvincular el propio celular y la
   propia computadora (capítulo 03).
 - **R7.3** **Un rol** es un grupo de permisos con un nombre y, si se quiere, una descripción de
@@ -268,9 +268,9 @@ El capítulo va en dos etapas. **Etapa a:** personas y sesiones. **Etapa b:** ro
   tarjeta cerrada, **entonces** dice cuántas tiene de cada cosa; **cuando** se la abre, cada sesión
   muestra el dispositivo, cómo entró, cuándo entró y su último uso, la usada más recientemente
   primero.
-- **E22** **Dado** la tarjeta propia, **cuando** se la abre, **entonces** no figuran la sesión del
-  dispositivo que se está usando ni los celulares con huella propios; sí, las sesiones propias de
-  otros dispositivos.
+- **E22** **Dado** la tarjeta propia, **cuando** se la abre, **entonces** no figura la sesión del
+  dispositivo que se está usando; sí, las sesiones propias de otros dispositivos y los celulares con
+  huella propios (04 · E46).
 - **E23** **Dado** una sesión de otro dispositivo, **cuando** se la cierra, **entonces** desaparece de
   la lista sin confirmación, quien la cerró sigue donde estaba, y ese dispositivo vuelve a la entrada
   con su próximo pedido, con «Tu sesión se cerró desde otro dispositivo».

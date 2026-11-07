@@ -1,16 +1,15 @@
 # 04 · Configuración del dispositivo: reglas
 
 Lo que cada persona elige para sí misma. Se construye en dos etapas (roadmap): **a. Preferencias
-del dispositivo**, que es lo que está escrito acá, y **b. Lo mío** (mis celulares con huella, mis
-sesiones en otros dispositivos, cortar mi propio celular perdido y el nombre del dispositivo), que
-se escribe después. Lo que un Administrador fija para todos está en Administración (capítulo 06).
+del dispositivo** (R1 a R5) y **b. Lo mío** (R6 a R10): mis celulares con huella, mis sesiones en
+otros dispositivos, cortar mi propio celular perdido y el nombre del dispositivo. Lo que un Administrador fija para todos está en Administración (capítulo 06).
 
-**Estado:** etapa a, aprobada.
+**Estado:** etapa a, aprobada; etapa b, en el paso 1: por aprobar.
 
 **Lo que no está acá, y por qué:**
 
 - **El vínculo entre celular y computadora** no se repite en Configuración: se ve y se maneja
-  entero desde su indicador (03 · R4). Cada cosa, en un solo lugar.
+  entero desde su indicador (03 · R4), como eligió Carlos.
 - **Ver los importes con decimales** se suma a Configuración con el catálogo (capítulo 07): antes
   no hay ningún importe en la aplicación sobre el que se note.
 - **El formato de la fecha no se elige:** en el país todos los dispositivos la muestran igual (día,
@@ -39,8 +38,8 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   dispositivo sin darse cuenta.
 - **R1.7** **No va a Quién hizo qué:** es comodidad de cada persona y no pasa por el servidor.
   «Trabajar sin conexión» sigue sus propias reglas (capítulo 15).
-- **R1.8** **Lo de la etapa b** (mis celulares con huella, mis sesiones, cortar mi celular perdido, el
-  nombre del dispositivo) aparece con la marca «Pronto» hasta que exista (00 · R1.3).
+- **R1.8** **«Lo tuyo»** tiene mis celulares con huella, mis sesiones y el nombre de este dispositivo
+  (R6 a R9). Mientras alguna no exista, aparece con «Pronto» (00 · R1.3).
 - **R1.9** **En la computadora, cada preferencia tiene su atajo** con Alt + letra y se cambia con
   Espacio, como el resto de la aplicación (00 · R2).
 - **R1.10** **«Así la tenés»:** arriba, un resumen de una línea con lo elegido en cada preferencia de
@@ -113,6 +112,60 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   nadie puede reemplazar la opción de la dueña de la huella.
 - **R5.4** **En la computadora no aparece** (15 · R1.1).
 
+## 6. Mis celulares con huella
+
+Lo mismo que muestra la tarjeta de la persona en Usuarios (02 · R5), para los propios y sin ningún
+permiso. Es la misma pieza en los dos lugares.
+
+- **R6.1** **Cada celular con huella propio** muestra su nombre (R9), cuándo se vinculó y su último uso.
+  El celular desde el que se mira lleva la marca «Este».
+- **R6.2** **«Quitar»** un celular, sin confirmación (se arregla vinculándolo de nuevo), hace lo de
+  02 · R5.6. **El celular que se está usando** es la excepción: quitarle la huella no cierra la sesión
+  ni nada más, porque no es un celular perdido; solo deja de entrar con la huella y de aprobar la
+  entrada de una computadora, y se le apaga «Trabajar sin conexión» (15 · R1.5).
+- **R6.3** **«Vincular este celular con mi huella»** aparece en el celular que se está usando si no tiene
+  ninguna huella vinculada, y hace lo mismo que el ofrecimiento al entrar (01 · R2.2). Si el celular
+  tiene la huella de otra persona, en su lugar dice «Este celular tiene la huella de otra persona»
+  (01 · R2.3). En la computadora no aparece (01 · R2.4).
+
+## 7. Mis sesiones
+
+- **R7.1** **Las sesiones propias en otros dispositivos,** como en Usuarios (02 · R5.2): el dispositivo
+  (R9), cómo entró, cuándo y su último uso. La del dispositivo que se está usando no figura: se
+  cierra con «Salir».
+- **R7.2** **«Cerrar»** una, sin confirmación, y **«Cerrar todas»**, con confirmación, como 02 · R5.3 y
+  R5.4: nunca la del dispositivo que se está usando.
+
+## 8. Se me perdió un celular
+
+- **R8.1** **Cada celular propio**, con huella o con una sesión abierta, salvo el que se está usando,
+  lleva **«Se me perdió»**: de un toque y sin confirmación hace lo de «Se perdió un celular»
+  (02 · R5.7) con ese celular (cierra sus sesiones y las de las computadoras que hizo entrar con el
+  código QR, y le quita la huella), y dice qué cortó. No hace falta elegir de quién es.
+- **R8.2** Lo que se corta así queda en Quién hizo qué igual que desde Usuarios (02 · R6).
+
+## 9. El nombre del dispositivo
+
+- **R9.1** **Cada dispositivo puede tener un nombre** («Compu del mostrador», «Celu de Juan»). Es del
+  dispositivo, no de la persona: es el mismo para todos los que lo usan. Sin nombre, se lo llama como
+  hoy, por el navegador y el sistema («Chrome en Windows»).
+- **R9.2** **Lo pone o lo cambia, en Configuración, cualquiera que esté usando ese dispositivo,** sin
+  permiso. Desde un dispositivo no se le cambia el nombre a otro.
+- **R9.3** **Hasta 30 letras.** Puede repetirse entre dispositivos; si otro dispositivo de la ferretería ya
+  se llama igual, lo avisa sin impedirlo. Borrarlo vuelve al nombre de R9.1.
+- **R9.4** **Se ve en todos lados donde se nombra un dispositivo:** las sesiones y los celulares con
+  huella, en Usuarios y en Configuración; el indicador del vínculo, su detalle y sus avisos (03 · R4,
+  R1); Quién hizo qué, en desde dónde se hizo (05); y la entrada de la computadora, arriba a la
+  derecha, en lugar de «Esta computadora» (01 · R2.5).
+- **R9.5** **Cambiarlo queda en Quién hizo qué,** con el nombre anterior y el nuevo. Lo ya anotado sigue
+  mostrando el nombre que tenía el dispositivo en ese momento (como las personas, 05 · R2.3).
+
+## 10. Sin conexión
+
+- **R10.1** **Lo de la etapa b necesita conexión:** está en el servidor. Sin conexión, «Lo tuyo» se ve
+  gris, con «Sin conexión», como Usuarios (00 · R4.4), y vuelve solo al volver la conexión. Las
+  preferencias de la etapa a siguen andando.
+
 ## Escenarios
 
 ### La pantalla
@@ -137,9 +190,8 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   solo en la computadora: el celular sigue con las suyas y su llave no se mueve.
 - **E09** **Dado** una persona que cambia una preferencia, **cuando** se mira Quién hizo qué,
   **entonces** no figura.
-- **E10** **Dado** la etapa b sin construir, **cuando** se abre Configuración, **entonces** mis celulares
-  con huella, mis sesiones, cortar mi celular perdido y el nombre del dispositivo aparecen con
-  «Pronto» y no se pueden abrir.
+- **E10** **Dado** cualquier persona con sesión, **cuando** abre Configuración, **entonces** en «Lo tuyo»
+  están sus celulares con huella, sus sesiones en otros dispositivos y el nombre de este dispositivo.
 - **E11** **Dado** la computadora en Configuración, **cuando** se aprieta Alt, **entonces** se ve la tecla
   de cada preferencia; con Alt + esa letra, o llegando con Tab y apretando Espacio, la preferencia
   cambia.
@@ -224,3 +276,63 @@ se escribe después. Lo que un Administrador fija para todos está en Administra
   y dice que el celular tiene la huella de otra persona; la opción de Ana sigue igual.
 - **E31** **Dado** la computadora, **cuando** se abre Configuración, **entonces** no está «Trabajar sin
   conexión».
+
+### Mis celulares con huella
+
+- **E40** **Dado** una persona sin ningún permiso con dos celulares con huella, **cuando** abre
+  Configuración desde uno de ellos, **entonces** ve los dos, con su nombre, cuándo se vinculó y su
+  último uso, y el que tiene en la mano dice «Este».
+- **E41** **Dado** E40, **cuando** quita la huella del otro celular, **entonces** ese celular deja de
+  entrar con la huella, se cierran su sesión y las de las computadoras que hizo entrar, sin
+  confirmación.
+- **E42** **Dado** E40, **cuando** quita la huella del celular que tiene en la mano, **entonces** sigue
+  adentro, ese celular deja de entrar con la huella y se le apaga «Trabajar sin conexión».
+- **E43** **Dado** un celular sin ninguna huella vinculada, **cuando** se abre Configuración, **entonces**
+  está «Vincular este celular con mi huella» y, al usarlo, el celular queda vinculado a esa persona.
+- **E44** **Dado** un celular con la huella de otra persona, **cuando** se abre Configuración, **entonces**
+  no está «Vincular» y dice «Este celular tiene la huella de otra persona».
+- **E45** **Dado** la computadora, **cuando** se abre Configuración, **entonces** se ven los celulares
+  con huella propios, sin «Vincular este celular».
+- **E46** **Dado** una persona con permiso de Usuarios, **cuando** abre su propia tarjeta en Usuarios,
+  **entonces** ve sus celulares con huella y sus sesiones de otros dispositivos, igual que en
+  Configuración.
+
+### Mis sesiones
+
+- **E47** **Dado** una persona con sesiones abiertas en otros dos dispositivos, **cuando** abre
+  Configuración, **entonces** ve esas dos, con el dispositivo, cómo entró, cuándo y su último uso, y no
+  la del dispositivo que está usando.
+- **E48** **Dado** E47, **cuando** cierra una, **entonces** desaparece sin confirmación y ese dispositivo
+  vuelve a la entrada con su próximo pedido; con «Cerrar todas», después de confirmar, se cierran las
+  dos y sigue adentro en el que está usando.
+
+### Se me perdió un celular
+
+- **E49** **Dado** una persona sin ningún permiso, en la computadora, con un celular con huella y
+  sesión abierta, **cuando** toca «Se me perdió» en ese celular, **entonces** sin confirmación se cierran
+  la sesión del celular y las de las computadoras que hizo entrar con el código QR, se le quita la
+  huella, y dice qué cortó.
+- **E50** **Dado** el celular que se está usando, **cuando** se mira su renglón, **entonces** no tiene
+  «Se me perdió».
+- **E51** **Dado** E49, **cuando** se mira Quién hizo qué, **entonces** está lo cortado, como si se
+  hubiera hecho desde Usuarios.
+
+### El nombre del dispositivo
+
+- **E52** **Dado** una computadora sin nombre, **cuando** alguien le pone «Compu del mostrador» desde
+  Configuración, **entonces** ese nombre se ve en las sesiones, en el vínculo, en Quién hizo qué y en su
+  entrada, para todos los que la usan.
+- **E53** **Dado** un nombre de más de 30 letras, **cuando** se lo quiere guardar, **entonces** no deja.
+- **E54** **Dado** otro dispositivo que ya se llama «Compu del mostrador», **cuando** se le pone el mismo
+  nombre a esta, **entonces** avisa que ya hay otro igual y lo guarda igual.
+- **E55** **Dado** un dispositivo con nombre, **cuando** se lo borra, **entonces** vuelve a llamarse por el
+  navegador y el sistema («Chrome en Windows»).
+- **E56** **Dado** un dispositivo al que le cambiaron el nombre, **cuando** se mira Quién hizo qué,
+  **entonces** está el cambio, con el nombre anterior y el nuevo, y lo hecho antes sigue con el nombre
+  de entonces.
+
+### Sin conexión
+
+- **E57** **Dado** el dispositivo sin conexión, **cuando** se abre Configuración, **entonces** «Lo tuyo» se
+  ve gris con «Sin conexión», las preferencias se pueden cambiar, y al volver la conexión «Lo tuyo»
+  vuelve solo.

@@ -3,15 +3,14 @@
 Lo que cada persona elige para sí misma, en Más → Configuración, en dos etapas. Reglas completas
 en [rules.md](rules.md).
 
-**Estado:** etapa a (preferencias del dispositivo), programada; Carlos la probó y anda, con su manual. La etapa b (lo mío:
-mis celulares con huella, mis sesiones, cortar mi celular perdido y el nombre del dispositivo) se
-escribe después.
+**Estado:** etapa a (preferencias del dispositivo), programada; Carlos la probó y anda, con su manual. Etapa b (lo mío: mis celulares con
+huella, mis sesiones, se me perdió un celular y el nombre del dispositivo), en el paso 1: por aprobar.
 
 ## Cada regla en una línea
 
 - **La pantalla:** en el celular y en la computadora, sin permiso; cada preferencia es de esa persona
   en ese dispositivo, se guarda en el dispositivo y vale en el momento; con el espejo, cada uno
-  muestra y cambia lo suyo; no va a Quién hizo qué; lo de la etapa b, con «Pronto»; arriba «Así la
+  muestra y cambia lo suyo; no va a Quién hizo qué; arriba «Así la
   tenés» y «Volver a como viene» (R1).
 - **Animaciones:** prendidas de arranque; apagadas, nada se mueve por adorno, salvo la marca de
   espera y la barra de avance; si el sistema pide no animar, manda el sistema (R2).
@@ -22,6 +21,13 @@ escribe después.
   y nunca en pruebas, donde la instalada se llama «Ferrebress pruebas» (R4).
 - **Trabajar sin conexión:** se muda de Más a Configuración, solo en el celular y con su permiso; sin
   la huella vinculada, apagada y dice por qué; se prende solo si el servidor confirma la huella (R5).
+- **Mis celulares con huella:** los propios, con «Este» en el que se usa; «Quitar» como en Usuarios,
+  salvo el de la mano, que sigue adentro; «Vincular este celular con mi huella» (R6).
+- **Mis sesiones:** las de otros dispositivos, con «Cerrar» y «Cerrar todas» (R7). Lo mismo que en la
+  tarjeta propia de Usuarios, con la misma pieza.
+- **Se me perdió:** en cada celular propio, corta todo de un toque (R8).
+- **El nombre del dispositivo:** del dispositivo, lo pone cualquiera que lo use, hasta 30 letras; se ve en
+  todos lados y queda en Quién hizo qué (R9). Sin conexión, «Lo tuyo» gris (R10).
 - **Afuera:** el vínculo (va solo en su indicador, 03), los decimales (con el catálogo, 07) y cuánto
   guarda el dispositivo (con 15, etapa b).
 

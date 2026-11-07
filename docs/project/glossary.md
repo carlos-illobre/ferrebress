@@ -110,6 +110,8 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Animaciones | El movimiento por adorno de la aplicación, que se puede apagar | `animations` |
 | Formato de la hora | Cómo se escribe la hora: 24 horas o a. m./p. m. | `timeFormat` (`h24`, `h12`) |
 | Instalar | Dejar la aplicación con su ícono en el dispositivo | `install` |
+| Nombre del dispositivo | Cómo se llama un dispositivo para todos los que lo usan («Compu del mostrador») | `deviceName` |
+| Se me perdió | Cortar de un toque un celular propio: sus sesiones, las computadoras que hizo entrar y su huella | `lostPhone` |
 
 ## Usuarios y acceso
 

@@ -46,8 +46,9 @@ registro se decide con el plan de copias de la base.
   nombre que tenía en ese momento. Una acción puede tocar más de una.
 - **R2.5** **Qué cambió:** de cada cambio, solo lo que cambió, con lo que había antes y lo que
   quedó («Nombre: Marcos → Marcos Pérez»). No se guarda la cosa entera.
-- **R2.6** **Desde dónde:** el tipo de dispositivo (celular o computadora), el navegador y la
-  dirección de internet desde la que llegó el pedido.
+- **R2.6** **Desde dónde:** el tipo de dispositivo (celular o computadora), su nombre si tiene
+  (04 · R9), con el de ese momento, el navegador y la dirección de internet desde la que llegó el
+  pedido.
 
 ## 3. Quién lo ve
 

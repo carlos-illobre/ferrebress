@@ -161,8 +161,8 @@ enviar es «Salir» (R5.2).
   íconos, que no tiene que parecerse a la computadora. En el celular también está Google. Lo que se ofrece
   depende del dispositivo y no del ancho: la computadora siempre muestra el QR y nunca la huella ni
   «Escanear», aunque su ventana sea angosta; ahí el QR va arriba, sus pasos debajo, y después Google.
-  Arriba a la derecha dice «Esta computadora» y si llega al servidor; cuando las computadoras tengan
-  nombre (capítulo 04), irá el suyo.
+  Arriba a la derecha dice el nombre de la computadora (04 · R9), o «Esta computadora» si no tiene, y
+  si llega al servidor.
   - La entrada del celular lleva debajo del logo «Tu ferretería, siempre en orden», y dice
     «Iniciá sesión» y «Accedé a tu cuenta para gestionar precios,
     ventas y stock desde cualquier lugar.»; sus formas de entrar son «Continuar con Google»,
