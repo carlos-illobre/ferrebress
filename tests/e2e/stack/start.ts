@@ -87,6 +87,7 @@ export default async function start(): Promise<() => Promise<void>> {
       GOOGLE_SCRIPT_URL: `${origin}/e2e-google.js`,
       E2E_FIRST_ADMIN_EMAIL: adminEmail,
       TRUSTED_PROXY: '127.0.0.1',
+      BUSINESS_TIME_ZONE: 'America/Argentina/Buenos_Aires',
     },
   });
   // El servidor arranca mientras se arma la aplicación: es lo que más tarda.

@@ -5,6 +5,7 @@
 export const permissionGroups = {
   users: { name: 'Usuarios', detail: 'Las personas, sus roles, sesiones y huellas' },
   offline: { name: 'Sin conexión', detail: 'Entrar con la huella sin internet' },
+  administration: { name: 'Administración', detail: 'Los ajustes que valen para todos' },
 } as const;
 
 export type PermissionGroup = keyof typeof permissionGroups;
@@ -54,6 +55,14 @@ export const permissions = [
     group: 'offline',
     name: 'Trabajar sin conexión',
     explanation: 'Prender en su celular la entrada con la huella sin internet, desde Más.',
+    includes: [],
+  },
+  {
+    id: 'settings.change',
+    group: 'administration',
+    name: 'Cambiar los ajustes',
+    explanation:
+      'Cambiar en Administración el redondeo, los márgenes rápidos, los tiempos de la sesión y los días del vínculo.',
     includes: [],
   },
 ] as const satisfies readonly {

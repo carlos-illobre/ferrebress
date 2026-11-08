@@ -13,6 +13,7 @@ const valid = {
   GOOGLE_JWKS_URL: 'https://www.googleapis.com/oauth2/v3/certs',
   GOOGLE_SCRIPT_URL: 'https://accounts.google.com/gsi/client',
   TRUSTED_PROXY: '172.20.0.2',
+  BUSINESS_TIME_ZONE: 'America/Argentina/Buenos_Aires',
 };
 
 describe('la configuración del .env', () => {
@@ -33,6 +34,13 @@ describe('la configuración del .env', () => {
     expect(error?.message).toContain('DATABASE_URL');
     expect(error?.message).toContain('PORT');
     expect(error?.message).not.toContain('postgres://');
+  });
+
+  it('la zona horaria del negocio tiene que existir', () => {
+    expect(readConfig(valid).BUSINESS_TIME_ZONE).toBe('America/Argentina/Buenos_Aires');
+    expect(() => readConfig({ ...valid, BUSINESS_TIME_ZONE: 'Marte/Olympus' })).toThrow(
+      /BUSINESS_TIME_ZONE/,
+    );
   });
 
   it.each(['testing', 'production'])('con %s no acepta un emisor de Google de prueba', (env) => {

@@ -13,7 +13,7 @@ export function whenText(until: Date, now = new Date()): string {
   if (days === 1) return `mañana ${time}`;
   const weekday = until.toLocaleDateString('es-AR', {
     weekday: 'long',
-    timeZone: businessTimeZone,
+    timeZone: businessTimeZone(),
   });
   return `el ${weekday} ${time}`;
 }

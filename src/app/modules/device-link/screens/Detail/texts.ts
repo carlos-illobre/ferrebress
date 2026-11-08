@@ -2,7 +2,7 @@
 // celular. Los que hablan desde un lado («el celular no tiene Ferrebress abierto») se eligen por el
 // lado, no por el ancho: un celular acostado o una computadora angosta dicen lo de su lado. Se bajan
 // con el detalle, no en el arranque.
-import { addDays, businessDateOf, businessTimeZone } from '@ferrebress/shared/time/business';
+import { addDays, businessDateOf, businessFormat } from '@ferrebress/shared/time/business';
 import { formatTime } from '../../../../platform/time.ts';
 import type { Words } from '../../../../ui/say/Say.tsx';
 
@@ -173,14 +173,10 @@ export const clock = (at: number) => formatTime(at);
 
 // El día: «jueves 3 de diciembre».
 // Las fechas, en la zona del negocio y como en la maqueta: «jueves 3 de diciembre».
-const parts = new Intl.DateTimeFormat('es-AR', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-  timeZone: businessTimeZone,
-});
+const parts = () =>
+  businessFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
 const partsOf = (at: number) =>
-  Object.fromEntries(parts.formatToParts(new Date(at)).map((part) => [part.type, part.value]));
+  Object.fromEntries(parts().formatToParts(new Date(at)).map((part) => [part.type, part.value]));
 
 export const day = (at: number) => {
   const { weekday, day: date, month } = partsOf(at);

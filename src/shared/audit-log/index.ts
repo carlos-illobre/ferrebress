@@ -1,6 +1,7 @@
 // El catálogo de Quién hizo qué (diseño de 05, § 4): junta los tipos de acción de cada módulo. Cada
 // archivo es del módulo que nombra; este, del código común.
 import type { AuditView, ToneName } from '../contracts/audit-log.ts';
+import { administrationTypes } from './administration.ts';
 import { auditLogTypes } from './audit-log.ts';
 import { deviceLinkTypes } from './device-link.ts';
 import { deviceSettingsTypes } from './device-settings.ts';
@@ -21,6 +22,7 @@ export const catalog: Record<string, Entry> = {
   ...offlineTypes,
   ...deviceLinkTypes,
   ...deviceSettingsTypes,
+  ...administrationTypes,
   ...platformTypes,
   ...auditLogTypes,
 };

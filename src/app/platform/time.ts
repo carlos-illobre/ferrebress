@@ -15,7 +15,7 @@ const cycles = { h24: 'h23', h12: 'h12' } as const;
 
 // Armar un formateador es caro y una lista escribe muchas horas: uno por forma, y se reusa.
 const made = new Map<string, Intl.DateTimeFormat>();
-function formatter(withMinutes: boolean, format: TimeFormat, zone = businessTimeZone) {
+function formatter(withMinutes: boolean, format: TimeFormat, zone = businessTimeZone()) {
   const key = `${format}${withMinutes}${zone}`;
   const found = made.get(key);
   if (found) return found;

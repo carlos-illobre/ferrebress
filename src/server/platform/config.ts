@@ -7,6 +7,18 @@ const text = z.string().check(z.minLength(1));
 const googleIssuer = 'https://accounts.google.com';
 const googleScript = 'https://accounts.google.com/gsi/client';
 
+// Una zona horaria que el sistema conoce. Se prueba armando un formato con ella: la lista de
+// `Intl.supportedValuesOf('timeZone')` no trae todos los nombres que acepta, como
+// `America/Argentina/Buenos_Aires` (diseño de 06, § 5).
+function isTimeZone(zone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: zone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // Sin valores por omisión: lo que cambia entre ambientes tiene que estar escrito.
 const configSchema = z.object({
   ENVIRONMENT: z.enum(environments),
@@ -23,6 +35,8 @@ const configSchema = z.object({
   // que el comando del primer Administrador no ve (diseño de 02, § 7).
   E2E_FIRST_ADMIN_EMAIL: z.optional(z.email()),
   TRUSTED_PROXY: text,
+  // La zona horaria del negocio (06 · R5): se fija al instalar y no cambia con el servidor andando.
+  BUSINESS_TIME_ZONE: text.check(z.refine(isTimeZone)),
 });
 
 export type Config = z.infer<typeof configSchema>;

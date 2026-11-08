@@ -10,9 +10,11 @@ export const permissionIcons: Record<PermissionId, IconName> = {
   'roles.manage': 'shield',
   'audit-log.view': 'file-text',
   'offline.work': 'wifi-off',
+  'settings.change': 'sliders-horizontal',
 };
 
 export const groupIcons: Record<PermissionGroup, IconName> = {
   users: 'users',
   offline: 'wifi-off',
+  administration: 'sliders-horizontal',
 };

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   addDays,
   businessDateOf,
@@ -34,5 +34,42 @@ describe('los días del negocio', () => {
     expect(isBusinessDate('2026-13-01')).toBe(false);
     expect(isBusinessDate('2026-11-4')).toBe(false);
     expect(isBusinessDate('mañana')).toBe(false);
+  });
+});
+
+describe('la zona del negocio (06 · R5)', () => {
+  const fresh = async () => {
+    vi.resetModules();
+    return import('./business.ts');
+  };
+
+  it('hasta que alguien la fija, vale la del sistema', async () => {
+    const business = await fresh();
+    expect(business.businessTimeZone()).toBe(
+      new Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+  });
+
+  it('fijarla cambia el día de un instante y los formatos', async () => {
+    const business = await fresh();
+    business.setBusinessTimeZone('Asia/Tokyo');
+    expect(business.businessDateOf(new Date('2026-11-04T16:00:00Z'))).toBe('2026-11-05');
+    const hour = business.businessFormat('en-US', { hour: 'numeric', hourCycle: 'h23' });
+    expect(hour.format(new Date('2026-11-04T16:00:00Z'))).toBe('01');
+    expect(business.businessFormat('en-US', { hour: 'numeric', hourCycle: 'h23' })).toBe(hour);
+    business.setBusinessTimeZone('America/Argentina/Buenos_Aires');
+    expect(business.businessDateOf(new Date('2026-11-04T16:00:00Z'))).toBe('2026-11-04');
+    expect(
+      business.businessFormat('en-US', { hour: 'numeric', hourCycle: 'h23' }).format(
+        new Date('2026-11-04T16:00:00Z'),
+      ),
+    ).toBe('13');
+  });
+
+  it('fijada para siempre, no se puede cambiar', async () => {
+    const business = await fresh();
+    business.setBusinessTimeZone('America/Argentina/Buenos_Aires', { final: true });
+    expect(() => business.setBusinessTimeZone('Asia/Tokyo')).toThrow('ya está fijada');
+    expect(business.businessTimeZone()).toBe('America/Argentina/Buenos_Aires');
   });
 });

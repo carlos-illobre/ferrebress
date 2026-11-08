@@ -7,7 +7,7 @@ import type {
   Range,
   StripMark,
 } from '@ferrebress/shared/contracts/audit-log';
-import { addDays, businessTimeZone } from '@ferrebress/shared/time/business';
+import { addDays, businessFormat } from '@ferrebress/shared/time/business';
 import { formatTime } from '../../platform/time.ts';
 
 export type Who = string | 'system' | 'outsider' | undefined;
@@ -50,28 +50,18 @@ export function paramsOf(
   };
 }
 
-const zone = { timeZone: businessTimeZone } as const;
-const dateFormat = new Intl.DateTimeFormat('es-AR', { ...zone, day: 'numeric', month: 'numeric' });
-const longDate = new Intl.DateTimeFormat('es-AR', {
-  ...zone,
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-});
-const dayOf = new Intl.DateTimeFormat('en-CA', {
-  ...zone,
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-});
+const dateFormat = () => businessFormat('es-AR', { day: 'numeric', month: 'numeric' });
+const longDate = () =>
+  businessFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+const dayOf = () => businessFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
 export const timeOf = (iso: string) => formatTime(new Date(iso));
-export const shortDateOf = (iso: string) => dateFormat.format(new Date(iso));
-export const businessDay = (iso: string) => dayOf.format(new Date(iso));
+export const shortDateOf = (iso: string) => dateFormat().format(new Date(iso));
+export const businessDay = (iso: string) => dayOf().format(new Date(iso));
 
 // «Hoy, miércoles 4 de noviembre», «Ayer, …» o la fecha sola.
 export function dayTitle(date: string, today: string): string {
-  const long = longDate.format(new Date(`${date}T15:00:00Z`));
+  const long = longDate().format(new Date(`${date}T15:00:00Z`));
   if (date === today) return `Hoy, ${long}`;
   if (date === addDays(today, -1)) return `Ayer, ${long}`;
   return long.charAt(0).toUpperCase() + long.slice(1);

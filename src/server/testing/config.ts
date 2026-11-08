@@ -18,6 +18,7 @@ export const testConfig: Config = {
   GOOGLE_JWKS_URL: 'https://www.googleapis.com/oauth2/v3/certs',
   GOOGLE_SCRIPT_URL: 'https://accounts.google.com/gsi/client',
   TRUSTED_PROXY: '172.20.0.2',
+  BUSINESS_TIME_ZONE: 'America/Argentina/Buenos_Aires',
 };
 
 // Las cabeceras que la aplicación manda en todo pedido: su dispositivo y su versión del contrato.

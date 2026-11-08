@@ -10,6 +10,7 @@ export const groups = {
   offline: 'Sin conexión',
   'device-link': 'Celular y computadora',
   'device-settings': 'Configuración',
+  administration: 'Administración',
   refused: 'Rechazos',
   other: 'Otros',
 } as const;

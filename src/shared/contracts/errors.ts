@@ -59,6 +59,19 @@ export type DeviceLinkErrorCode =
   | 'peer-gone'
   | 'pairing-ended';
 
-export type ErrorCode = PlatformErrorCode | SignInErrorCode | UsersErrorCode | DeviceLinkErrorCode;
+// Administración (capítulo 06): un valor fuera de su rango o sus opciones, otro lo cambió antes, el
+// redondeo cambia precios y hay que confirmar cuántos, y el recálculo falló.
+export type AdministrationErrorCode =
+  | 'invalid-setting'
+  | 'setting-changed'
+  | 'confirm-prices'
+  | 'recalc-failed';
+
+export type ErrorCode =
+  | PlatformErrorCode
+  | SignInErrorCode
+  | UsersErrorCode
+  | DeviceLinkErrorCode
+  | AdministrationErrorCode;
 
 export type ErrorBody = { error: ErrorCode } & Record<string, unknown>;

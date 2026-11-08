@@ -4,9 +4,11 @@
 import { serve } from '@hono/node-server';
 import { createServer } from './app.ts';
 import { createModules } from './modules.ts';
+import { setBusinessTimeZone } from '@ferrebress/shared/time/business';
 import { readConfig } from './platform/config.ts';
 
 const config = readConfig(process.env);
+setBusinessTimeZone(config.BUSINESS_TIME_ZONE, { final: true });
 const { modules } = createModules();
 const { http, close } = await createServer(config, modules);
 // En IPv4: así la conexión de Caddy llega con su dirección tal cual (platform/http).
