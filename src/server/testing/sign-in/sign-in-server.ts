@@ -4,6 +4,7 @@ import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
 import { deviceProofHeaderName, deviceProofMessage } from '@ferrebress/shared/contracts/sign-in';
 import type { Kysely } from 'kysely';
 import { createServer } from '../../app.ts';
+import type { PriceRecalculator } from '../../modules/administration/index.ts';
 import { addFirstAdministrator } from '../../modules/users/first.ts';
 import { type RolesTables, rolesData } from '../../modules/users/roles/data.ts';
 import { createModules } from '../../modules.ts';
@@ -14,11 +15,17 @@ import { createTestGoogle } from './google.ts';
 export const chromeWindows =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36';
 
-export type SignInServerOptions = { wait?: (ms: number) => Promise<void> };
+export type SignInServerOptions = {
+  wait?: (ms: number) => Promise<void>;
+  recalculator?: PriceRecalculator;
+};
 
 export async function createSignInServer(clock?: Clock, options: SignInServerOptions = {}) {
   const google = await createTestGoogle(testConfig.GOOGLE_CLIENT_ID);
-  const { modules, users, people } = createModules({ googleKeys: google.keys, ...options });
+  const { modules, users, people, administration } = createModules({
+    googleKeys: google.keys,
+    ...options,
+  });
   const jobs: (() => void)[] = [];
   const schedule = (_: number, run: () => void) => {
     jobs.push(run);
@@ -56,7 +63,10 @@ export async function createSignInServer(clock?: Clock, options: SignInServerOpt
     await run();
     return queries.count - before;
   };
-  return { ...server, users, people: people(), deactivate, google, runJobs, countQueries };
+  return {
+    ...server,
+    ...{ users, people: people(), administration, deactivate, google, runJobs, countQueries },
+  };
 }
 
 export type SignInServer = Awaited<ReturnType<typeof createSignInServer>>;

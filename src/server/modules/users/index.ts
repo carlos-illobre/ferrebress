@@ -99,6 +99,11 @@ function facade(
   return {
     findById: (id: string) => data().findById(id),
     findByIds: (ids: string[]) => data().findByIds(ids),
+    // El nombre que se ve de una persona (Administración: «Lo cambió <persona> recién»).
+    async nameOf(id: string): Promise<string | null> {
+      const user = await data().findById(id);
+      return user ? displayName(user) : null;
+    },
 
     // La cuenta que corresponde a un pase de Google. La primera vez la ata, solo si sigue siendo
     // esa persona con ese correo (02, § 5): si no, no está autorizada.

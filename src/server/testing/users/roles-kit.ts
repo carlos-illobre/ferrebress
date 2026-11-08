@@ -1,17 +1,21 @@
 // Para probar los roles desde la aplicación (02 · R7; diseño de 02, § 23): un servidor con el primer
 // Administrador ya adentro, personas con los roles que se pidan, cada una con su dispositivo y su
 // sesión, y un reloj que se adelanta para que Google deje de ser reciente (R3.8).
-import { createDevice, createSignInServer } from '../sign-in/sign-in-server.ts';
+import {
+  createDevice,
+  createSignInServer,
+  type SignInServerOptions,
+} from '../sign-in/sign-in-server.ts';
 
 export const minutes = (n: number) => n * 60_000;
 
 type Device = ReturnType<typeof createDevice>;
 type Person = { id: string; version: number };
 
-export async function createRolesKit() {
+export async function createRolesKit(options: SignInServerOptions = {}) {
   let now = new Date('2026-10-31T09:00:00Z').getTime();
   const clock = { now: () => new Date(now) };
-  const server = await createSignInServer(clock);
+  const server = await createSignInServer(clock, options);
   const admin = createDevice(server);
   const adminId = (await admin.signInWithGoogle({ sub: 'sub-admin', email: 'admin@example.com' }))
     .body.person.userId as string;
