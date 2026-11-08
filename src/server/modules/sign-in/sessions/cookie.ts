@@ -1,5 +1,5 @@
 // La cookie de la sesión (diseño de 01, § 4): `__Host-session`, que la página no puede leer, solo
-// se manda a este sitio y vence con el tope de la sesión.
+// se manda a este sitio y vence con la opción más larga del tope de la sesión.
 import type { Context } from 'hono';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
 import { signInSettings } from '../settings.ts';
@@ -14,7 +14,7 @@ export const writeSessionCookie = (c: Context, token: string): void =>
     ...options,
     httpOnly: true,
     sameSite: 'Strict',
-    maxAge: signInSettings.session.maxMs / 1000,
+    maxAge: signInSettings.cookieMaxMs / 1000,
   });
 
 export const clearSessionCookie = (c: Context): void => {

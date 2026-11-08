@@ -68,6 +68,10 @@ const routes: Record<string, Needs> = {
   'POST /api/roles/:id/delete': 'roles.manage',
   'POST /api/users/:id/roles': 'roles.manage',
   'GET /api/audit-log': 'audit-log.view',
+  // Administración (capítulo 06): los ajustes se ven con sesión y se cambian con su permiso (R1.2).
+  'GET /api/administration': 'session',
+  'GET /api/administration/rounding': 'session',
+  'POST /api/administration/settings/:key': 'settings.change',
   'GET /api/audit-log/new': 'audit-log.view',
   'GET /api/audit-log/people': 'audit-log.view',
   'GET /api/audit-log/day': 'audit-log.view',

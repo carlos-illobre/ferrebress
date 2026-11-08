@@ -51,6 +51,8 @@ export type StartResponse = {
   googleClientId: string;
   // El script del botón de Google; en las pruebas de punta a punta, uno de prueba.
   googleScriptUrl: string;
+  // La zona horaria del negocio, también sin sesión: la entrada muestra horas (06 · R5).
+  businessTimeZone: string;
   googleNonce?: string;
   person?: Person;
   // El nombre de este dispositivo, si tiene, también sin sesión: la entrada lo muestra (01 · R2.5).

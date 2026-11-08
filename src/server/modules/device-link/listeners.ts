@@ -64,7 +64,7 @@ function listenToRenames(ctx: DeviceLinkContext) {
       for (const pairing of pairings) {
         const other = pairing.phoneDeviceId === deviceId ? 'computer' : 'phone';
         ctx.platform.realtime.publish(pairingTopic, keyOf(pairing.id, other), {
-          pairing: viewOf(pairing, other, names),
+          pairing: viewOf(pairing, other, names, ctx.pairingDays()),
         });
       }
     };

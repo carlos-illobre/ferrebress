@@ -2,7 +2,6 @@
 // dispositivo, qué vínculos termina uno nuevo, cuándo vence y cómo lo ve cada lado.
 
 import type { PairingView, Side } from '@ferrebress/shared/contracts/device-link';
-import { deviceLinkSettings } from './settings.ts';
 
 export type Pairing = {
   id: string;
@@ -63,16 +62,20 @@ export function replacesOf(replaced: Pairing[], phone: Device, computer: Device,
 
 const day = 24 * 60 * 60_000;
 
-export const viewOf = (pairing: Pairing, side: Side, names: Names): PairingView => ({
+export const viewOf = (pairing: Pairing, side: Side, names: Names, days: number): PairingView => ({
   id: pairing.id,
   side,
   other: { label: labelOf(pairing, otherSide(side), names) },
   since: pairing.createdAt.getTime(),
   lastMirrored: pairing.mirroredAt.getTime(),
-  expiresAt: pairing.mirroredAt.getTime() + deviceLinkSettings.pairingDays * day,
-  lastsDays: deviceLinkSettings.pairingDays,
+  expiresAt: pairing.mirroredAt.getTime() + days * day,
+  lastsDays: days,
   paused: pairing.pausedAt !== null,
 });
+
+// Si ya pasaron los días del vínculo desde la última vez que espejaron (R2.2, 06 · R7.3).
+export const isDue = (lastMirrored: number, days: number, now: number): boolean =>
+  now - lastMirrored >= days * day;
 
 // Por qué terminó solo un vínculo (R2.3), por cada aviso de otro módulo.
 export type EndReason =

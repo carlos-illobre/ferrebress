@@ -29,9 +29,16 @@ export function createModules(options: ModulesOptions = {}) {
     nameOf: (id) => users.users.nameOf(id),
     ...(options.recalculator && { recalculator: options.recalculator }),
   });
-  const signIn = createSignInModule({ users: users.users, ...options });
+  const signIn = createSignInModule({
+    users: users.users,
+    sessionTimes: () => admin.administration.settings(),
+    ...options,
+  });
   // El vínculo espera con el mismo reloj que la entrada (sus códigos del QR se renuevan igual).
-  const deviceLink = createDeviceLinkModule({ wait: options.wait ?? sleep });
+  const deviceLink = createDeviceLinkModule({
+    wait: options.wait ?? sleep,
+    pairingDays: () => admin.administration.settings().pairingDays,
+  });
   const modules = [admin.module, users.module, signIn, createAuditLogModule(), deviceLink];
   return {
     modules,

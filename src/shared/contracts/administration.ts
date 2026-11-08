@@ -78,7 +78,10 @@ export const saveSettingBody = z.strictObject({
 });
 export type SaveSettingBody = z.infer<typeof saveSettingBody>;
 
-export type SettingState<K extends SettingKey = SettingKey> = { value: Settings[K]; version: number };
+export type SettingState<K extends SettingKey = SettingKey> = {
+  value: Settings[K];
+  version: number;
+};
 export type AdministrationResponse = {
   settings: { [K in SettingKey]: SettingState<K> };
   businessTimeZone: string;

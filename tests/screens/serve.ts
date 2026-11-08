@@ -25,6 +25,7 @@ const start = {
   version: 'screens',
   googleClientId: 'screens',
   googleScriptUrl: '/google-button-screens.js',
+  businessTimeZone: 'America/Argentina/Buenos_Aires',
   googleNonce: 'screens',
 };
 const types: Record<string, string> = {

@@ -15,7 +15,7 @@ describe('los tipos de las tablas (ADR-018)', () => {
   it('genera un archivo por módulo con esquema, solo con sus tablas y sin las de migraciones', async () => {
     const files = await generateTableTypes();
     expect([...files.keys()].sort()).toEqual(
-      ['device-link', 'sign-in', 'users'].map(tableTypesPath),
+      ['administration', 'device-link', 'sign-in', 'users'].map(tableTypesPath),
     );
     const users = files.get(tableTypesPath('users')) ?? '';
     expect(users).toMatch(/^\/\/ Las tablas del esquema `users`/);
@@ -36,7 +36,7 @@ describe('los tipos de las tablas (ADR-018)', () => {
 
   it('avisa los que faltan o no coinciden, y escribirlos los pone al día', async () => {
     const root = mkdtempSync(join(tmpdir(), 'ferrebress-table-types-'));
-    expect(await findStaleTableTypes(root)).toHaveLength(3);
+    expect(await findStaleTableTypes(root)).toHaveLength(4);
     await writeTableTypes(root);
     expect(await findStaleTableTypes(root)).toEqual([]);
     const path = join(root, tableTypesPath('users'));

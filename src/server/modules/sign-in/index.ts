@@ -34,6 +34,8 @@ export type SignInOptions = {
   googleKeys?: JWTVerifyGetKey;
   // Cómo esperar el próximo código; las pruebas lo manejan a mano.
   wait?: (ms: number) => Promise<void>;
+  // Los dos tiempos de la sesión de ahora, de Administración (01 · R3.2, 06 · R6).
+  sessionTimes: () => { sessionIdle: number; sessionMax: number };
 };
 
 // Lo que avisa Entrar, para quien lo necesite sin que Entrar lo conozca (el vínculo, diseño de 03,
@@ -55,8 +57,14 @@ declare module '../../platform/events.ts' {
   }
 }
 
+const minute = 60_000;
+
 export function createSignInModule(options: SignInOptions) {
-  const { users, googleKeys, wait = sleep } = options;
+  const { users, googleKeys, wait = sleep, sessionTimes } = options;
+  const limits = () => {
+    const { sessionIdle, sessionMax } = sessionTimes();
+    return { idleMs: sessionIdle * minute, maxMs: sessionMax * 60 * minute };
+  };
   let ctx: SignInContext;
   const module: ServerModule = {
     name: 'sign-in',
@@ -76,7 +84,7 @@ export function createSignInModule(options: SignInOptions) {
       const { config } = platform;
       const keys = googleKeys ?? createRemoteJWKSet(new URL(config.GOOGLE_JWKS_URL));
       const google = { clientId: config.GOOGLE_CLIENT_ID, issuer: config.GOOGLE_ISSUER, keys };
-      ctx = createContext(platform, { users, google, wait });
+      ctx = createContext(platform, { users, google, wait, limits });
       platform.sessions.provide(
         (c) => requestSession(ctx, c),
         (id) => ctx.store.isOpen(id),

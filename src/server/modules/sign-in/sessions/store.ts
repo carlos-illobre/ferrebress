@@ -9,7 +9,7 @@ import type { Clock } from '../../../platform/clock.ts';
 import { newId } from '../../../platform/ids.ts';
 import { signInSettings } from '../settings.ts';
 import { type SessionRow, type SessionsTables, sessionsData } from './data.ts';
-import { type ClosedReason, closedReasonOf } from './rules.ts';
+import { type ClosedReason, closedReasonOf, type SessionLimits } from './rules.ts';
 
 export type Session = SessionRow;
 export type Resolved =
@@ -81,7 +81,7 @@ async function createSession(data: Data, clock: Clock, fields: NewSession) {
 // Quién es el dueño del pase, y anota el uso. Una cookie inventada no queda en memoria.
 // `used`: si el pedido cuenta como uso; lo que una pantalla pide sola no (01 · R3.3).
 async function resolveSession(
-  { data, memory, clock, onEnded }: Deps,
+  { data, memory, clock, limits, onEnded }: Deps,
   token: string,
   used: boolean,
 ): Promise<Resolved> {
@@ -91,7 +91,7 @@ async function resolveSession(
   const session = remembered ?? (await data.findByTokenHash(Buffer.from(key, 'hex')));
   if (!session) return { kind: 'closed', reason: 'unknown' };
   const now = clock.now();
-  const reason = closedReasonOf(session, now, signInSettings.session);
+  const reason = closedReasonOf(session, now, limits());
   if (!reason) {
     if (!remembered && memory.closings === closings) memory.byKey.set(key, session);
     if (used) memory.touch(session, now);
@@ -155,15 +155,21 @@ function fromOutside(memory: Memory, onEnded: OnEnded) {
 
 // Avisa cada sesión que termina, por el motivo que sea: la auditoría y la plataforma.
 export type OnEnded = (session: { id: string; userId: string }, reason: ClosedReason) => void;
-type Deps = { data: Data; memory: Memory; clock: Clock; onEnded: OnEnded };
+// Los dos tiempos de ahora: los fija Administración y valen en el próximo pedido (01 · R3.2, 06 · R6.3).
+export type Limits = () => SessionLimits;
+type Deps = { data: Data; memory: Memory; clock: Clock; limits: Limits; onEnded: OnEnded };
 
-export const createSessionStore = (db: Kysely<unknown>, clock: Clock, onEnded: OnEnded) =>
-  sessionStoreOf(sessionsData(db as Kysely<SessionsTables>), clock, onEnded);
+export const createSessionStore = (
+  db: Kysely<unknown>,
+  clock: Clock,
+  limits: Limits,
+  onEnded: OnEnded,
+) => sessionStoreOf(sessionsData(db as Kysely<SessionsTables>), clock, limits, onEnded);
 
 // La memoria sobre unas consultas dadas: las pruebas pasan unas que contestan cuando ellas quieren.
-export function sessionStoreOf(data: Data, clock: Clock, onEnded: OnEnded) {
+export function sessionStoreOf(data: Data, clock: Clock, limits: Limits, onEnded: OnEnded) {
   const memory = createMemory();
-  const deps = { data, memory, clock, onEnded };
+  const deps = { data, memory, clock, limits, onEnded };
   const flush = async () => {
     const entries = memory.drain();
     if (entries.length > 0) await data.writeLastUsed(entries);
@@ -181,7 +187,7 @@ export function sessionStoreOf(data: Data, clock: Clock, onEnded: OnEnded) {
     // Si una sesión sigue abierta, mirando solo la memoria (el canal en tiempo real, en cada latido).
     isOpen(id: string): boolean {
       const session = [...memory.byKey.values()].find((known) => known.id === id);
-      return !!session && closedReasonOf(session, clock.now(), signInSettings.session) === null;
+      return !!session && closedReasonOf(session, clock.now(), limits()) === null;
     },
 
     ...closing(deps),
@@ -194,11 +200,7 @@ export function sessionStoreOf(data: Data, clock: Clock, onEnded: OnEnded) {
     // La limpieza diaria: las que venció las saca de la memoria y las anota.
     async cleanUp(): Promise<void> {
       await flush();
-      const ended = await data.cleanUp(
-        clock.now(),
-        signInSettings.session,
-        signInSettings.closedRetentionMs,
-      );
+      const ended = await data.cleanUp(clock.now(), limits(), signInSettings.closedRetentionMs);
       memory.forget(ended.map((session) => session.id));
       for (const session of ended) onEnded(session, session.reason);
     },

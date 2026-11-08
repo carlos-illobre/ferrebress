@@ -39,10 +39,12 @@ async function link(ctx: DeviceLinkContext, c: Context, ticket: Ticket, mayRepla
   if ('refused' in paired) return paired;
   afterPairing(ctx, paired, { kind: 'person', userId: ticket.phone.userId });
   ctx.platform.realtime.publish(codeTopic, ticket.computerSessionId, {
-    paired: viewOf(paired.pairing, 'computer', ctx.names),
+    paired: viewOf(paired.pairing, 'computer', ctx.names, ctx.pairingDays()),
   });
   ctx.codes.stop(ticket.computerSessionId);
-  return c.json<ReadCodeResponse>({ pairing: viewOf(paired.pairing, 'phone', ctx.names) });
+  return c.json<ReadCodeResponse>({
+    pairing: viewOf(paired.pairing, 'phone', ctx.names, ctx.pairingDays()),
+  });
 }
 
 async function read(ctx: DeviceLinkContext, c: Context, code: string) {

@@ -51,8 +51,7 @@ export function paramsOf(
 }
 
 const dateFormat = () => businessFormat('es-AR', { day: 'numeric', month: 'numeric' });
-const longDate = () =>
-  businessFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+const longDate = () => businessFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
 const dayOf = () => businessFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
 export const timeOf = (iso: string) => formatTime(new Date(iso));

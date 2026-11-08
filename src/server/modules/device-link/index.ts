@@ -3,8 +3,8 @@
 // quitarlo es sacarlo de la lista de módulos.
 import type { ServerModule } from '../../platform/modules.ts';
 import { createDeviceLinkContext, type DeviceLinkDependencies } from './context.ts';
+import { expireDue, flushMirrored } from './expiry.ts';
 import { guardRequests } from './guard.ts';
-import { afterEnding, recordEnded } from './lifecycle.ts';
 import { listenToOthers } from './listeners.ts';
 import { createPairings } from './migrations/001-device-link.ts';
 import { registerCodeRoutes } from './routes/codes.ts';
@@ -28,20 +28,9 @@ export function createDeviceLinkModule(dependencies: DeviceLinkDependencies): Se
       guardRequests(ctx);
       listenToOthers(ctx);
       // La última vez que espejaron, por tandas; y una vez por día, los que vencieron (R2.2).
-      const flush = async () => {
-        const entries = ctx.members.drainMirrored();
-        if (entries.length > 0) await ctx.data.touch(entries);
-      };
-      platform.every(deviceLinkSettings.flushMirroredEveryMs, flush);
-      platform.onClose(flush);
-      platform.every(day, async () => {
-        const before = new Date(
-          platform.clock.now().getTime() - deviceLinkSettings.pairingDays * day,
-        );
-        const expired = await ctx.data.removeOlderThan(before);
-        afterEnding(ctx, expired);
-        recordEnded(ctx, expired, 'expired');
-      });
+      platform.every(deviceLinkSettings.flushMirroredEveryMs, () => flushMirrored(ctx));
+      platform.onClose(() => flushMirrored(ctx));
+      platform.every(day, () => expireDue(ctx));
     },
   };
 }

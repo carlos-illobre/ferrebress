@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import type { SessionRow, sessionsData } from './data.ts';
 import { sessionStoreOf } from './store.ts';
 
+const limits = () => ({ idleMs: 60 * 60_000, maxMs: 8 * 60 * 60_000 });
+
 const now = new Date('2026-10-31T12:00:00Z');
 const clock = { now: () => now };
 
@@ -38,7 +40,7 @@ describe('la memoria de sesiones', () => {
       findByTokenHash,
       closeForUser: async () => ['s1'],
     } as unknown as ReturnType<typeof sessionsData>;
-    const store = sessionStoreOf(data, clock, () => {});
+    const store = sessionStoreOf(data, clock, limits, () => {});
     // El pedido lee su sesión de la base…
     const reading = store.resolve('pase');
     // …mientras otra persona la cierra (la baja) y confirma.
@@ -57,7 +59,7 @@ describe('la memoria de sesiones', () => {
   it('sin cierres en el medio, lo leído queda en memoria y el próximo pedido no consulta', async () => {
     const findByTokenHash = vi.fn(async () => row);
     const data = { findByTokenHash } as unknown as ReturnType<typeof sessionsData>;
-    const store = sessionStoreOf(data, clock, () => {});
+    const store = sessionStoreOf(data, clock, limits, () => {});
     await store.resolve('otro');
     await store.resolve('otro');
     expect(findByTokenHash).toHaveBeenCalledTimes(1);
@@ -69,7 +71,7 @@ describe('la memoria de sesiones', () => {
       findByTokenHash: async () => row,
       close: async () => undefined,
     } as unknown as ReturnType<typeof sessionsData>;
-    const store = sessionStoreOf(data, clock, (session, reason) =>
+    const store = sessionStoreOf(data, clock, limits, (session, reason) =>
       ended.push(`${session.id}:${reason}`),
     );
     expect(store.isOpen('s1')).toBe(false);

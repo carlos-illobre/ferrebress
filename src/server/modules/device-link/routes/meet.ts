@@ -10,6 +10,7 @@ import { bySchema, readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import { sessionOf } from '../../../platform/session.ts';
 import type { DeviceLinkContext } from '../context.ts';
+import { pairingOf } from '../expiry.ts';
 import { keyOf, pairingTopic } from '../lifecycle.ts';
 import { otherSide, sideOf } from '../rules.ts';
 import { checkSdp } from '../sdp.ts';
@@ -18,7 +19,7 @@ import { deviceLinkSettings } from '../settings.ts';
 // El vínculo de quien pide y la clave del otro lado, si el otro escucha; si no, por qué.
 async function toOther(ctx: DeviceLinkContext, c: Context) {
   const session = sessionOf(c);
-  const pairing = await ctx.members.pairingOf(session.userId, session.deviceId);
+  const pairing = await pairingOf(ctx, session.userId, session.deviceId);
   if (!pairing) return { refused: fail(c, 409, 'not-paired') };
   const side = sideOf(session);
   const other = otherSide(side);
@@ -68,7 +69,7 @@ async function relay(ctx: DeviceLinkContext, c: Context, messages: unknown[]) {
 // Por qué no se logró el directo: una línea en el registro, en números y listas cerradas (§ 15).
 async function report(ctx: DeviceLinkContext, c: Context, body: z.infer<typeof reportBody>) {
   const session = sessionOf(c);
-  const pairing = await ctx.members.pairingOf(session.userId, session.deviceId);
+  const pairing = await pairingOf(ctx, session.userId, session.deviceId);
   if (!pairing) return fail(c, 409, 'not-paired');
   const device = deviceCodes((name) => c.req.header(name));
   console.info(

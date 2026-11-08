@@ -3,8 +3,10 @@
 // entrada se dibuja antes de que conteste. Si la sesión se cierra mientras se usa, la entrada
 // aparece encima de lo que había, sin perderlo (R3.4). Atiende también
 // la dirección del QR (/link#<código>) y la cámara de «Escanear».
+
 import type { Environment } from '@ferrebress/shared/contracts/server-header';
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
+import { businessTimeZone, setBusinessTimeZone } from '@ferrebress/shared/time/business';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { frameLink, watchDeviceLink } from './modules/device-link/index.ts';
 import { InstallOffer, Settings } from './modules/device-settings/index.ts';
@@ -54,11 +56,19 @@ const screens = { users: UsersSlot, deviceSettings: Settings };
 // Sin conexión al abrir, no se sabe nada del servidor: se sigue con lo guardado (R3.6), también
 // el último ambiente, para que el de pruebas siga con su marco y su menú (00 · R10.1).
 const environmentKey = 'environment';
+// La zona horaria del negocio (06 · R5): llega con /api/start y se guarda, así sin conexión las horas
+// salen igual (diseño de 06, § 5). Sin ninguna guardada, la del navegador, que en el local es la misma.
+const zoneKey = 'businessTimeZone';
+function applyZone(zone: string | undefined): string {
+  if (zone) setBusinessTimeZone(zone);
+  return businessTimeZone();
+}
 const unknown = (): StartResponse => ({
   environment: readStored<Environment>(environmentKey) ?? 'production',
   version: '',
   googleClientId: '',
   googleScriptUrl: '',
+  businessTimeZone: applyZone(readStored<string>(zoneKey)),
 });
 
 async function boot(): Promise<StartResponse | undefined> {
@@ -67,6 +77,7 @@ async function boot(): Promise<StartResponse | undefined> {
   if (!start.ok) return unknown();
   startParts.set(start.data.parts ?? {});
   store(environmentKey, start.data.environment);
+  store(zoneKey, applyZone(start.data.businessTimeZone));
   // Recién abierta, con una versión nueva en el servidor, se actualiza antes de que se use (R5.2).
   if (updateOnOpen(start.data.version)) return undefined;
   // Una sesión abierta sin conexión que todavía no se pudo confirmar sigue (15 · R2.7); una que el

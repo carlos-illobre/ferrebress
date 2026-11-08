@@ -18,6 +18,8 @@ function mirroredLog() {
   const mirrored = new Map<string, Date>();
   return {
     mirroredNow: (pairingId: string, at: Date) => void mirrored.set(pairingId, at),
+    // La última vez que espejaron, todavía sin escribir.
+    mirroredAt: (pairingId: string): Date | undefined => mirrored.get(pairingId),
     drainMirrored(): [string, Date][] {
       const entries = [...mirrored];
       mirrored.clear();

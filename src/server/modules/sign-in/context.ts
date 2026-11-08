@@ -11,7 +11,7 @@ import { createScreens } from './codes/computer/screens.ts';
 import { createDeviceNames } from './devices/names.ts';
 import type { GoogleSettings } from './google/verify.ts';
 import { type PasskeysTables, passkeysData } from './passkeys/data.ts';
-import { createSessionStore } from './sessions/store.ts';
+import { createSessionStore, type Limits } from './sessions/store.ts';
 import { codeSettings, signInSettings } from './settings.ts';
 
 // Quién es cada persona con sesión, como la muestra la aplicación, en memoria: así /api/start con
@@ -51,6 +51,7 @@ export type SignInDependencies = {
   users: Users;
   google: GoogleSettings;
   wait: (ms: number) => Promise<void>;
+  limits: Limits;
 };
 
 const { throttledAudit } = signInSettings.limits;
@@ -73,14 +74,19 @@ const createPermits = (clock: Platform['clock']) =>
     replaceOldest: true,
   });
 
-export function createContext(platform: Platform, { users, google, wait }: SignInDependencies) {
+export function createContext(
+  platform: Platform,
+  { users, google, wait, limits }: SignInDependencies,
+) {
   return {
     platform,
     users,
     google,
+    // Los dos tiempos de la sesión de ahora (01 · R3.2).
+    limits,
     // Salir ya queda anotado como «Salió»; los demás fines, como «Terminó una sesión». La plataforma
     // se entera de todos (el canal en tiempo real cierra lo de esa sesión).
-    store: createSessionStore(platform.db, platform.clock, (session, reason) => {
+    store: createSessionStore(platform.db, platform.clock, limits, (session, reason) => {
       if (reason !== 'sign-out')
         platform.audit.record({
           type: 'session.ended',

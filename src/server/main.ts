@@ -1,10 +1,11 @@
 // Arranca el servidor con el .env y conecta cada módulo con lo que necesita (los adaptadores,
 // cuando los haya, solo se conectan acá). Queda fuera de la cobertura: lo que arma se prueba en
 // app.ts y en cada módulo (vitest.config.ts).
+
+import { setBusinessTimeZone } from '@ferrebress/shared/time/business';
 import { serve } from '@hono/node-server';
 import { createServer } from './app.ts';
 import { createModules } from './modules.ts';
-import { setBusinessTimeZone } from '@ferrebress/shared/time/business';
 import { readConfig } from './platform/config.ts';
 
 const config = readConfig(process.env);

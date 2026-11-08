@@ -20,6 +20,7 @@ export const startReply = (extra: Record<string, unknown> = {}) => ({
     version: 'app-test',
     googleClientId: 'cliente',
     googleScriptUrl: 'https://accounts.google.com/gsi/client',
+    businessTimeZone: 'America/Argentina/Buenos_Aires',
     googleNonce: 'nonce',
     ...extra,
   },

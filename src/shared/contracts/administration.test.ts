@@ -35,7 +35,9 @@ describe('los ajustes para todos', () => {
 
   it('administration-E25 y E26: los márgenes se ordenan de mayor a menor', () => {
     expect(settingValue('quickMargins', [300, 200, 150, 50, 25])).toEqual([300, 200, 150, 50, 25]);
-    expect(settingValue('quickMargins', [300, 200, 100, 50, 400])).toEqual([400, 300, 200, 100, 50]);
+    expect(settingValue('quickMargins', [300, 200, 100, 50, 400])).toEqual([
+      400, 300, 200, 100, 50,
+    ]);
   });
 
   it('administration-E27 y E28: sin repetidos, enteros de 1 a 10.000 y siempre cinco', () => {

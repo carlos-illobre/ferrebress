@@ -85,6 +85,12 @@ export type Profile = {
   rolesChangedAt: number | null;
 };
 
+// El nombre que se ve de una persona (Administración: «Lo cambió <persona> recién»).
+async function nameOf(data: ReturnType<typeof usersData>, id: string): Promise<string | null> {
+  const user = await data.findById(id);
+  return user ? displayName(user) : null;
+}
+
 async function signedIn(data: ReturnType<typeof usersData>, id: string, at: Date) {
   const user = await data.recordSignIn(id, at);
   return user && { name: displayName(user), email: user.email };
@@ -99,11 +105,7 @@ function facade(
   return {
     findById: (id: string) => data().findById(id),
     findByIds: (ids: string[]) => data().findByIds(ids),
-    // El nombre que se ve de una persona (Administración: «Lo cambió <persona> recién»).
-    async nameOf(id: string): Promise<string | null> {
-      const user = await data().findById(id);
-      return user ? displayName(user) : null;
-    },
+    nameOf: (id: string) => nameOf(data(), id),
 
     // La cuenta que corresponde a un pase de Google. La primera vez la ata, solo si sigue siendo
     // esa persona con ese correo (02, § 5): si no, no está autorizada.

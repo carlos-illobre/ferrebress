@@ -2,8 +2,6 @@
 const minute = 60_000;
 
 export const deviceLinkSettings = {
-  // Vence a los 30 días sin espejar (R2.2); cuando exista Administración, lo fija un Administrador.
-  pairingDays: 30,
   // El código del QR de vincular (R1.3) y el boleto de reemplazar (R1.4).
   codeTtlMs: minute,
   ticketTtlMs: 2 * minute,

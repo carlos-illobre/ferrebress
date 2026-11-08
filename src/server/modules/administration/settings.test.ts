@@ -145,12 +145,16 @@ describe('los ajustes para todos', () => {
       save('sessionMax', { value: 12, version: 0 }),
     ]);
     expect([idle.status, max.status]).toEqual([200, 200]);
-    expect(kit.server.administration.settings()).toMatchObject({ sessionIdle: 120, sessionMax: 12 });
+    expect(kit.server.administration.settings()).toMatchObject({
+      sessionIdle: 120,
+      sessionMax: 12,
+    });
   });
 
   it('el límite de cambios por sesión', async () => {
     let last = 0;
-    for (let i = 0; i < 31; i++) last = (await save('sessionMax', { value: 12, version: 1 })).status;
+    for (let i = 0; i < 31; i++)
+      last = (await save('sessionMax', { value: 12, version: 1 })).status;
     expect(last).toBe(429);
   });
 
@@ -158,7 +162,9 @@ describe('los ajustes para todos', () => {
     expect(await kit.server.countQueries(() => read())).toBe(0);
     const other = await kit.person([await kit.systemRole()]);
     expect(
-      await kit.server.countQueries(() => save('pairingDays', { value: 20, version: 1 }, other.device)),
+      await kit.server.countQueries(() =>
+        save('pairingDays', { value: 20, version: 1 }, other.device),
+      ),
     ).toBeLessThanOrEqual(6);
   });
 });
@@ -173,9 +179,9 @@ describe('lo guardado se valida al arrancar', () => {
     );
     const { modules } = createModules();
     const admin = modules.find((one) => one.name === 'administration');
-    await expect(
-      admin?.register({ ...first.platform } as never),
-    ).rejects.toThrow('El ajuste sessionIdle guardado no es válido');
+    await expect(admin?.register({ ...first.platform } as never)).rejects.toThrow(
+      'El ajuste sessionIdle guardado no es válido',
+    );
     await first.close();
     // Una clave que ya no existe se ignora; lo que vale se carga con su versión. Quien lo cambió ya
     // no está: el choque se dice sin nombre.
@@ -204,7 +210,10 @@ describe('quien lo cambió ya no está', () => {
       kit.server.platform.db,
     );
     expect(
-      await kit.admin.request('/api/administration/settings/pairingDays', { value: 20, version: 0 }),
+      await kit.admin.request('/api/administration/settings/pairingDays', {
+        value: 20,
+        version: 0,
+      }),
     ).toMatchObject({ status: 409, body: { error: 'setting-changed', by: '' } });
     await kit.server.close();
   });

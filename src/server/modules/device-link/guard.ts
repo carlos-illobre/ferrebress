@@ -10,6 +10,7 @@ import type { Context } from 'hono';
 import { fail } from '../../platform/http.ts';
 import type { RequestSession } from '../../platform/session.ts';
 import type { DeviceLinkContext } from './context.ts';
+import { pairingOf } from './expiry.ts';
 import { keyOf, pairingTopic } from './lifecycle.ts';
 import { otherSide, type Pairing, sideOf, viewOf } from './rules.ts';
 
@@ -26,7 +27,7 @@ function fingerprintOf(ctx: DeviceLinkContext, pairing: Pairing, session: Reques
 // Si la escritura hecha con ese vínculo todavía vale: el vínculo es el de la sesión y el otro lado
 // sigue con su sesión abierta.
 async function stillPaired(ctx: DeviceLinkContext, session: RequestSession, pairingId: string) {
-  const pairing = await ctx.members.pairingOf(session.userId, session.deviceId);
+  const pairing = await pairingOf(ctx, session.userId, session.deviceId);
   if (pairing?.id !== pairingId) return false;
   const other = ctx.members.sessionOf(pairing.id, otherSide(sideOf(session)));
   return other === undefined || ctx.platform.sessions.isOpen(other);
@@ -38,8 +39,8 @@ export function guardRequests(ctx: DeviceLinkContext): void {
   start.contribute('pairing', async (c) => {
     // `/api/start` pide las partes solo con sesión.
     const session = (await sessions.identify(c)) as RequestSession;
-    const pairing = await ctx.members.pairingOf(session.userId, session.deviceId);
-    return pairing ? viewOf(pairing, sideOf(session), ctx.names) : null;
+    const pairing = await pairingOf(ctx, session.userId, session.deviceId);
+    return pairing ? viewOf(pairing, sideOf(session), ctx.names, ctx.pairingDays()) : null;
   });
   header.contribute('l', (c: Context) => {
     const session = c.get('session') as RequestSession | undefined;

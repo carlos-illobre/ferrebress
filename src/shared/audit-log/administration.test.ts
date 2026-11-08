@@ -22,7 +22,9 @@ describe('un ajuste para todos en Quién hizo qué', () => {
   it('administration-E09: el ajuste con el valor anterior y el nuevo', () => {
     expect(entryOf('settings.changed').group).toBe('administration');
     expect(says('pairingDays', 30, 15)).toBe('Cambió los días del vínculo: 30 días → 15 días');
-    expect(says('sessionIdle', 60, 30)).toBe('Cambió el tiempo sin uso de la sesión: 60 min → 30 min');
+    expect(says('sessionIdle', 60, 30)).toBe(
+      'Cambió el tiempo sin uso de la sesión: 60 min → 30 min',
+    );
     expect(says('sessionMax', 8, 4)).toBe('Cambió el tope de la sesión: 8 h → 4 h');
     expect(says('quickMargins', [300, 200, 100, 50, 25], [300, 200, 150, 50, 25])).toBe(
       'Cambió los márgenes rápidos: 300, 200, 100, 50, 25 % → 300, 200, 150, 50, 25 %',

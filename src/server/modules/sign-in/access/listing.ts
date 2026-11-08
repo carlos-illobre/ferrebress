@@ -12,7 +12,6 @@ import type { AccessResponse } from '@ferrebress/shared/contracts/users';
 import type { RequestSession } from '../../../platform/session.ts';
 import type { SignInContext } from '../context.ts';
 import { ownerOf } from '../offline/phone-owner.ts';
-import { signInSettings } from '../settings.ts';
 import { accessData } from './data.ts';
 
 const time = (at: Date | null) => (at ? at.getTime() : null);
@@ -28,7 +27,7 @@ async function read(
   const data = accessData(ctx.platform.db as never);
   const now = ctx.platform.clock.now();
   const [open, passkeys] = await Promise.all([
-    data.openSessionsOf(userId, withAsking ? null : asking.id, now, signInSettings.session),
+    data.openSessionsOf(userId, withAsking ? null : asking.id, now, ctx.limits()),
     data.passkeysOf(userId),
   ]);
   const lastUsed = (id: string, stored: Date) =>

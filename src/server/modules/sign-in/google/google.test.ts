@@ -39,7 +39,7 @@ describe('entrar con Google', () => {
       offerPasskey: false,
     });
     expect(response.cookie).toMatch(
-      /^__Host-session=[\w-]{43}; Max-Age=28800; Path=\/; HttpOnly; Secure; SameSite=Strict$/,
+      /^__Host-session=[\w-]{43}; Max-Age=86400; Path=\/; HttpOnly; Secure; SameSite=Strict$/,
     );
     const start = await device.request('/api/start');
     expect(start.body).toMatchObject({
@@ -202,7 +202,11 @@ describe('las llaves de Google', () => {
     const { createUsersModule } = await import('../../users/index.ts');
     const { testConfig } = await import('../../../testing/config.ts');
     const { module, users } = createUsersModule({ accessCounts: async () => new Map() });
-    const server = await createServer(testConfig, [module, createSignInModule({ users })]);
+    const sessionTimes = () => ({ sessionIdle: 60, sessionMax: 8 });
+    const server = await createServer(testConfig, [
+      module,
+      createSignInModule({ users, sessionTimes }),
+    ]);
     const headers = (await import('../../../testing/config.ts')).appHeaders();
     expect((await server.http.request('/api/start', { headers })).status).toBe(200);
     await server.close();

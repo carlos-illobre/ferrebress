@@ -5,6 +5,7 @@ import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import { sessionOf } from '../../../platform/session.ts';
 import { type DeviceLinkContext, targetsOf } from '../context.ts';
+import { pairingOf } from '../expiry.ts';
 import { afterEnding, keyOf, pairingTopic } from '../lifecycle.ts';
 import { otherSide, type Pairing, sideOf, viewOf } from '../rules.ts';
 import { deviceLinkSettings } from '../settings.ts';
@@ -12,7 +13,7 @@ import { deviceLinkSettings } from '../settings.ts';
 // El vínculo de la sesión del pedido, y de qué lado está.
 async function mine(ctx: DeviceLinkContext, c: Context) {
   const session = sessionOf(c);
-  const pairing = await ctx.members.pairingOf(session.userId, session.deviceId);
+  const pairing = await pairingOf(ctx, session.userId, session.deviceId);
   return pairing ? { pairing, side: sideOf(session) } : undefined;
 }
 
@@ -39,9 +40,9 @@ async function setPaused(ctx: DeviceLinkContext, c: Context, paused: boolean) {
   ctx.members.known(updated);
   const other: Side = otherSide(found.side);
   ctx.platform.realtime.publish(pairingTopic, keyOf(updated.id, other), {
-    pairing: viewOf(updated, other, ctx.names),
+    pairing: viewOf(updated, other, ctx.names, ctx.pairingDays()),
   });
-  return c.json({ pairing: viewOf(updated, found.side, ctx.names) });
+  return c.json({ pairing: viewOf(updated, found.side, ctx.names, ctx.pairingDays()) });
 }
 
 // La confirmación (§ 7): el vínculo de ahora y, con la huella DTLS del otro, si el otro lado de esta
@@ -52,7 +53,7 @@ async function check(ctx: DeviceLinkContext, c: Context) {
   const { pairing, side } = found;
   ctx.members.useSession(pairing.id, side, sessionOf(c).id);
   const fingerprint = c.req.query('fp');
-  const view = viewOf(pairing, side, ctx.names);
+  const view = viewOf(pairing, side, ctx.names, ctx.pairingDays());
   if (fingerprint === undefined) return c.json<CheckResponse>({ pairing: view });
   const other = otherSide(side);
   const otherSession = ctx.members.sessionOf(pairing.id, other);

@@ -50,7 +50,8 @@ export function registerRoutes(ctx: AdministrationContext) {
     knownKey,
     limited,
     body.step,
-    async (c) => change(ctx, c, settingKeyOf(c.req.param('key') as string) as SettingKey, body.of(c)),
+    async (c) =>
+      change(ctx, c, settingKeyOf(c.req.param('key') as string) as SettingKey, body.of(c)),
   );
 }
 
@@ -99,7 +100,8 @@ function saveIn(
       version,
       userId,
     );
-    if (saved !== undefined && key === 'roundingStep') await ctx.recalculator.apply(Number(value), trx);
+    if (saved !== undefined && key === 'roundingStep')
+      await ctx.recalculator.apply(Number(value), trx);
     return saved;
   });
 }

@@ -5,6 +5,7 @@ import {
   type SignInResponse,
   type StartResponse,
 } from '@ferrebress/shared/contracts/sign-in';
+import { businessTimeZone } from '@ferrebress/shared/time/business';
 import type { Context } from 'hono';
 import { isPhone } from '../../../platform/device.ts';
 import { byAddress, byAddressAndDevice, readBody } from '../../../platform/guards.ts';
@@ -38,6 +39,7 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
       version: config.VERSION,
       googleClientId: config.GOOGLE_CLIENT_ID,
       googleScriptUrl: config.GOOGLE_SCRIPT_URL,
+      businessTimeZone: businessTimeZone(),
     };
     const who = await personOf(ctx, c);
     // El nonce va también con sesión: un celular sin huella vuelve a entrar con Google para

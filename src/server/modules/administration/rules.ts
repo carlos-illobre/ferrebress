@@ -1,6 +1,10 @@
 // La regla de un cambio de ajuste (06 · R2.2, R3.4): si el valor vale y, en el redondeo, si hace
 // falta confirmar cuántos precios cambian. Sin tecnología: recibe lo que necesita.
-import { type SettingKey, type Settings, settingValue } from '@ferrebress/shared/contracts/administration';
+import {
+  type SettingKey,
+  type Settings,
+  settingValue,
+} from '@ferrebress/shared/contracts/administration';
 
 export type ChangeCheck<K extends SettingKey> =
   | { kind: 'invalid' }

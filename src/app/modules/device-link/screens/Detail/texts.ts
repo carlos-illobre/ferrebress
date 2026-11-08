@@ -173,10 +173,13 @@ export const clock = (at: number) => formatTime(at);
 
 // El día: «jueves 3 de diciembre».
 // Las fechas, en la zona del negocio y como en la maqueta: «jueves 3 de diciembre».
-const parts = () =>
-  businessFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+const parts = () => businessFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
 const partsOf = (at: number) =>
-  Object.fromEntries(parts().formatToParts(new Date(at)).map((part) => [part.type, part.value]));
+  Object.fromEntries(
+    parts()
+      .formatToParts(new Date(at))
+      .map((part) => [part.type, part.value]),
+  );
 
 export const day = (at: number) => {
   const { weekday, day: date, month } = partsOf(at);

@@ -7,6 +7,7 @@ import type { Side } from '@ferrebress/shared/contracts/device-link';
 import * as z from 'zod/mini';
 import type { RequestSession } from '../../platform/session.ts';
 import type { DeviceLinkContext } from './context.ts';
+import { pairingOf } from './expiry.ts';
 import { keyOf, pairingTopic } from './lifecycle.ts';
 import { deviceOf, otherSide, sideOf } from './rules.ts';
 
@@ -58,7 +59,7 @@ function definePairingTopic(ctx: DeviceLinkContext): void {
     // Un tema con sesión: el canal no lo deja escuchar sin ella.
     authorize: async (listener, pairingId) => {
       const session = listener.session as RequestSession;
-      const pairing = await ctx.members.pairingOf(session.userId, session.deviceId);
+      const pairing = await pairingOf(ctx, session.userId, session.deviceId);
       const side = sideOf(session);
       if (pairing?.id !== pairingId || deviceOf(pairing, side) !== session.deviceId)
         return { refused: 'not-paired' };

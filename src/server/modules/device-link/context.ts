@@ -20,14 +20,22 @@ export type Ticket = {
   replaces: string[];
 };
 
-export type DeviceLinkDependencies = { wait: (ms: number) => Promise<void> };
+export type DeviceLinkDependencies = {
+  wait: (ms: number) => Promise<void>;
+  // Los días del vínculo de ahora, de Administración (R2.2, 06 · R7).
+  pairingDays: () => number;
+};
 
-export function createDeviceLinkContext(platform: Platform, { wait }: DeviceLinkDependencies) {
+export function createDeviceLinkContext(
+  platform: Platform,
+  { wait, pairingDays }: DeviceLinkDependencies,
+) {
   const data = deviceLinkData(platform.db as Kysely<DeviceLinkTables>);
   const now = () => platform.clock.now().getTime();
   return {
     platform,
     data,
+    pairingDays,
     // El nombre de cada dispositivo, de la memoria de sign-in (04 · R9.4).
     names: ((deviceId) => platform.devices.nameOf(deviceId)) as Names,
     // Las consultas dentro de una transacción de otro (un aviso de Entrar o de Usuarios).

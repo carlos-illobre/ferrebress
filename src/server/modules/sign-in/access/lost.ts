@@ -4,7 +4,6 @@
 import type { LostPhone, LostPhonesResponse } from '@ferrebress/shared/contracts/users';
 import type { RequestSession } from '../../../platform/session.ts';
 import type { SignInContext } from '../context.ts';
-import { signInSettings } from '../settings.ts';
 import type { AccessData } from './data.ts';
 
 type Phone = LostPhone & { userId: string; deviceId: string };
@@ -18,7 +17,7 @@ export async function lostPhones(
   now: Date,
 ): Promise<LostPhonesResponse> {
   const [sessions, passkeys] = await Promise.all([
-    data.openPhoneSessions(now, signInSettings.session),
+    data.openPhoneSessions(now, ctx.limits()),
     data.allPasskeys(),
   ]);
   const phones = new Map<string, Phone>();

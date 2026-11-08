@@ -3,7 +3,6 @@
 // (R5.5). Dos consultas para toda la lista, que siempre tiene al menos a quien pregunta.
 import type { RequestSession } from '../../../platform/session.ts';
 import type { SignInContext } from '../context.ts';
-import { signInSettings } from '../settings.ts';
 import { accessData } from './data.ts';
 
 export async function countsOf(ctx: SignInContext, userIds: string[], asking: RequestSession) {
@@ -11,7 +10,7 @@ export async function countsOf(ctx: SignInContext, userIds: string[], asking: Re
   const counts = new Map(userIds.map((id) => [id, { sessions: 0, phones: 0 }]));
   const now = ctx.platform.clock.now();
   const [sessions, phones] = await Promise.all([
-    data.sessionCounts(userIds, asking.id, now, signInSettings.session),
+    data.sessionCounts(userIds, asking.id, now, ctx.limits()),
     data.passkeyCounts(userIds),
   ]);
   for (const row of sessions) (counts.get(row.userId) as { sessions: number }).sessions = row.n;

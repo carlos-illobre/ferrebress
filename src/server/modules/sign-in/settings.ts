@@ -1,6 +1,7 @@
-// Lo de entrar que es igual en todos los ambientes (diseño de 01, § 8 y § 11): los tiempos de la
-// sesión (hasta que existan en Administración), los plazos de lo que vive en memoria y los
-// límites de intentos.
+// Lo de entrar que es igual en todos los ambientes (diseño de 01, § 8 y § 11): cuánto dura la cookie
+// de la sesión, los plazos de lo que vive en memoria y los límites de intentos. Los dos tiempos de la
+// sesión los fija Administración (06 · R6).
+import { longestSessionHours } from '@ferrebress/shared/contracts/administration';
 import { offlineWindowHours } from '@ferrebress/shared/contracts/offline-sign-in';
 import { codeSeconds, googleNonceMinutes } from '@ferrebress/shared/contracts/sign-in';
 
@@ -8,7 +9,9 @@ const minute = 60_000;
 const hour = 60 * minute;
 
 export const signInSettings = {
-  session: { idleMs: 60 * minute, maxMs: 8 * hour },
+  // La cookie dura lo que la opción más larga del tope: quien cierra la sesión es el servidor, y así
+  // subir el tope alarga también las sesiones abiertas (06 · R6.3, E36).
+  cookieMaxMs: longestSessionHours * hour,
   // Cada cuánto se escriben juntos los últimos usos, y cuánto se guardan las sesiones cerradas.
   lastUsedFlushMs: minute,
   closedRetentionMs: 30 * 24 * hour,

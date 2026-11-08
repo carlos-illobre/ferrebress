@@ -45,9 +45,7 @@ describe('la zona del negocio (06 · R5)', () => {
 
   it('hasta que alguien la fija, vale la del sistema', async () => {
     const business = await fresh();
-    expect(business.businessTimeZone()).toBe(
-      new Intl.DateTimeFormat().resolvedOptions().timeZone,
-    );
+    expect(business.businessTimeZone()).toBe(new Intl.DateTimeFormat().resolvedOptions().timeZone);
   });
 
   it('fijarla cambia el día de un instante y los formatos', async () => {
@@ -60,9 +58,9 @@ describe('la zona del negocio (06 · R5)', () => {
     business.setBusinessTimeZone('America/Argentina/Buenos_Aires');
     expect(business.businessDateOf(new Date('2026-11-04T16:00:00Z'))).toBe('2026-11-04');
     expect(
-      business.businessFormat('en-US', { hour: 'numeric', hourCycle: 'h23' }).format(
-        new Date('2026-11-04T16:00:00Z'),
-      ),
+      business
+        .businessFormat('en-US', { hour: 'numeric', hourCycle: 'h23' })
+        .format(new Date('2026-11-04T16:00:00Z')),
     ).toBe('13');
   });
 

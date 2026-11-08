@@ -34,6 +34,7 @@ export const start = (person?: Person): StartResponse => ({
   version: 'screens',
   googleClientId: 'screens',
   googleScriptUrl: '/google-button-screens.js',
+  businessTimeZone: 'America/Argentina/Buenos_Aires',
   googleNonce: 'screens',
   ...(person && { person }),
 });

@@ -28,7 +28,8 @@ describe('cambiar el redondeo', () => {
   });
   afterAll(() => kit.server.close());
 
-  const save = (body: object) => kit.admin.request('/api/administration/settings/roundingStep', body);
+  const save = (body: object) =>
+    kit.admin.request('/api/administration/settings/roundingStep', body);
   const step = () => kit.server.administration.settings().roundingStep;
 
   it('el panel muestra lo que dice quien recalcula, a cualquiera con sesión', async () => {
