@@ -1,0 +1,142 @@
+/* Más → Administración (maqueta administration-settings/final): en la computadora, la lista de los
+   ajustes a la izquierda y el panel del elegido a la derecha; en el celular, la lista se vuelve tiras
+   que se deslizan arriba y el panel ocupa el ancho. Solo transform y opacity se mueven. */
+@layer screens {
+  .admin {
+    height: 100%;
+    overflow: auto;
+    padding: var(--s5) var(--s8) var(--s6);
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: var(--s4);
+  }
+  .admin-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s3);
+  }
+  .admin-title {
+    margin: 0;
+    font-size: 28px;
+    line-height: 34px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .admin-for-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    height: 32px;
+    padding: 0 var(--s3);
+    border-radius: var(--radius-round);
+    background: var(--pine-soft);
+    color: var(--pine-text);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .admin-permission,
+  .admin-offline,
+  .admin-note {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    margin: 0;
+    padding: var(--s2) var(--s3);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .admin-permission {
+    flex-basis: 100%;
+    background: var(--sunken);
+    color: var(--text-2);
+  }
+  .admin-offline {
+    grid-column: 1 / -1;
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+  }
+  .admin-note {
+    margin-top: var(--s2);
+  }
+  .admin-note-invalid,
+  .admin-note-failed {
+    background: var(--error-soft);
+    color: var(--error-text);
+  }
+  .admin-note-changed {
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+  }
+  .admin-retry {
+    margin-left: auto;
+    height: 36px;
+    padding: 0 var(--s3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font: inherit;
+    font-weight: 700;
+  }
+  .admin-body {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: var(--s4) var(--s6);
+    min-height: 0;
+  }
+  .admin-list,
+  .admin-panel {
+    grid-row: 2;
+  }
+  .admin-list {
+    display: grid;
+    align-content: start;
+    gap: var(--s4);
+  }
+  .admin-list-group h2 {
+    margin: 0 0 6px var(--s2);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-2);
+  }
+  .admin-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    min-height: 52px;
+    padding: 6px 10px 6px 8px;
+    border: 0;
+    border-radius: var(--radius);
+    background: none;
+    font: inherit;
+    font-size: 15px;
+    text-align: left;
+  }
+  .admin-item:hover {
+    background: var(--sunken);
+  }
+  .admin-item[aria-selected="true"] {
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .admin-item kbd {
+    position: absolute;
+    left: -4px;
+    top: -6px;
+  }
+  .admin-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0 var(--s2);
+    font-size: 14px;
+    color: var(--text-3);
+  }
+}

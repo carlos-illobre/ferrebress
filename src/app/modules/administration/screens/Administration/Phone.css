@@ -1,0 +1,75 @@
+/* Administración en el celular (maqueta administration-settings/final): la lista se vuelve tiras que se
+   deslizan arriba y el panel ocupa el ancho, con su grupo encima. */
+@layer screens {
+  /* En el celular, las tiras arriba y el panel con su grupo encima. */
+  @media (max-width: 899px) {
+    .admin {
+      padding: var(--s3) var(--s4) var(--s4);
+    }
+    .admin-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .admin-list {
+      grid-row: 2;
+      display: flex;
+      overflow-x: auto;
+      gap: var(--s2);
+    }
+    .admin-list-group {
+      display: contents;
+    }
+    .admin-list-group h2,
+    .admin-item kbd {
+      display: none;
+    }
+    .admin-item {
+      flex: none;
+      grid-template-columns: auto;
+      width: auto;
+      min-height: 56px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .admin-item svg {
+      display: none;
+    }
+    .admin-item[aria-selected="true"] {
+      background: var(--pine);
+      color: var(--surface);
+    }
+    .admin-panel {
+      grid-row: 3;
+      padding: var(--s4);
+    }
+    .admin-group {
+      display: block;
+      margin: 0 0 4px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-2);
+    }
+    .admin-head,
+    .admin-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .admin-big {
+      margin-left: 0;
+      text-align: left;
+    }
+    .admin-options-seven {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .admin-margins {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--s1);
+    }
+    .admin-margin input {
+      font-size: 22px;
+    }
+    .admin-for-all .desktop-only {
+      display: none;
+    }
+  }
+}

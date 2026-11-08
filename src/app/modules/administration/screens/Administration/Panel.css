@@ -1,0 +1,212 @@
+/* El panel del ajuste elegido: su cabecera, las opciones con lo que harían, los ejemplos del
+   redondeo, las teclas de los márgenes y la hora del negocio (maqueta administration-settings/final). */
+@layer screens {
+  .admin-panel {
+    min-height: 0;
+    overflow: auto;
+    padding: var(--s6) 28px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-2);
+  }
+  .admin-group {
+    display: none;
+  }
+  .admin-head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s4);
+  }
+  .admin-panel-title {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .admin-subtitle,
+  .admin-detail {
+    margin: 4px 0 0;
+    font-size: 15px;
+    color: var(--text-2);
+  }
+  .admin-big {
+    display: grid;
+    flex: none;
+    margin-left: auto;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--text-2);
+  }
+  .admin-big b {
+    font-size: 32px;
+    line-height: 36px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .admin-big .admin-big-looking {
+    color: var(--action-text);
+  }
+  .admin-subhead {
+    margin: var(--s6) 0 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-2);
+  }
+  .admin-options {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: var(--s2);
+  }
+  .admin-option {
+    position: relative;
+    display: grid;
+    gap: 2px;
+    align-content: center;
+    justify-items: start;
+    min-height: 72px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font: inherit;
+    text-align: left;
+    transition: transform var(--time-micro) var(--ease);
+  }
+  .admin-option:active {
+    transform: scale(0.97);
+  }
+  .admin-option:hover,
+  .admin-option:focus-visible {
+    border-color: var(--pine);
+    box-shadow: 0 0 0 3px var(--pine-soft);
+  }
+  .admin-option[aria-checked="true"] {
+    border-color: var(--pine);
+    background: var(--pine);
+    color: var(--surface);
+  }
+  .admin-option-value {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 800;
+  }
+  .admin-option-effect {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--action-text);
+  }
+  .admin-option[aria-checked="true"] .admin-option-effect {
+    color: var(--on-dark);
+  }
+  .admin-initial {
+    position: absolute;
+    top: -9px;
+    right: 8px;
+    padding: 0 var(--s2);
+    border-radius: var(--radius-round);
+    background: var(--sunken-2);
+    color: var(--text-2);
+    font-size: 12px;
+    font-weight: 750;
+  }
+  .admin-showcase {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin: var(--s2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .admin-showcase li {
+    display: grid;
+    gap: 4px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--background);
+  }
+  .admin-showcase .admin-changes {
+    border-color: var(--action);
+    background: var(--action-soft);
+  }
+  .admin-showcase-name {
+    font-size: 14px;
+    font-weight: 650;
+  }
+  .admin-price {
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .admin-margins {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--s3);
+  }
+  .admin-margin {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: var(--s3);
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 4px;
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    font-size: 18px;
+    font-weight: 800;
+  }
+  .admin-margin:focus-within {
+    border-color: var(--pine);
+  }
+  .admin-margin-key {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-small);
+    background: var(--pine);
+    color: var(--surface);
+    font-size: 15px;
+  }
+  .admin-margin input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    font: inherit;
+    font-size: 32px;
+  }
+  .admin-clock {
+    display: grid;
+    gap: var(--s1);
+    margin-top: var(--s5);
+    padding: var(--s6);
+    border-radius: var(--radius-card);
+    background: var(--background);
+  }
+  .admin-clock-time {
+    font-size: 64px;
+    line-height: 64px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+  .admin-locked {
+    justify-self: start;
+    padding: 2px var(--s3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-round);
+    font-size: 14px;
+    font-weight: 700;
+  }
+}

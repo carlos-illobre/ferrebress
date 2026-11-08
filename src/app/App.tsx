@@ -8,6 +8,7 @@ import type { Environment } from '@ferrebress/shared/contracts/server-header';
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
 import { businessTimeZone, setBusinessTimeZone } from '@ferrebress/shared/time/business';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { AdministrationSlot } from './modules/administration/index.ts';
 import { frameLink, watchDeviceLink } from './modules/device-link/index.ts';
 import { InstallOffer, Settings } from './modules/device-settings/index.ts';
 import {
@@ -51,7 +52,7 @@ import { useStore } from './platform/store.ts';
 import { Toasts } from './ui/toast/Toast.tsx';
 
 // La pantalla de cada opción del menú que ya existe.
-const screens = { users: UsersSlot, deviceSettings: Settings };
+const screens = { users: UsersSlot, deviceSettings: Settings, administration: AdministrationSlot };
 
 // Sin conexión al abrir, no se sabe nada del servidor: se sigue con lo guardado (R3.6), también
 // el último ambiente, para que el de pruebas siga con su marco y su menú (00 · R10.1).

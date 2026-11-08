@@ -64,8 +64,12 @@ export function withPath(option: Option, path: string | undefined, run: () => vo
 
 // Como si ninguna opción tuviera pantalla todavía (ni Usuarios ni Configuración).
 export function withoutScreens(run: () => void): void {
-  const [users, settings] = ['users', 'deviceSettings'].map(
+  const [users, settings, administration] = ['users', 'deviceSettings', 'administration'].map(
     (id) => moreOptions.find((option) => option.id === id) as Option,
   );
-  withPath(users as Option, undefined, () => withPath(settings as Option, undefined, run));
+  withPath(users as Option, undefined, () =>
+    withPath(settings as Option, undefined, () =>
+      withPath(administration as Option, undefined, run),
+    ),
+  );
 }

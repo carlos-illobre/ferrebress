@@ -1,0 +1,153 @@
+/* El día de mostrador de la sesión, los días del vínculo con su calendario, sin conexión, cargando y
+   la confirmación del redondeo (maqueta administration-settings/final). */
+@layer screens {
+  .admin-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s5);
+  }
+  .admin-day {
+    position: relative;
+    height: 56px;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--sunken);
+  }
+  .admin-day-max,
+  .admin-day-idle {
+    position: absolute;
+    transform-origin: left;
+    transition: transform var(--time-nav) var(--ease);
+  }
+  .admin-day-max {
+    inset: 0;
+    background: var(--pine-soft);
+  }
+  .admin-day-idle {
+    top: 12px;
+    width: 100%;
+    height: 32px;
+    border: 1px dashed var(--urgent);
+    border-radius: var(--radius-small);
+    background: var(--urgent-soft);
+  }
+  .admin-says {
+    display: grid;
+    gap: 6px;
+    margin: var(--s3) 0 0;
+    padding-left: var(--s5);
+    font-size: 15px;
+  }
+  .admin-days {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s3);
+  }
+  .admin-days-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .admin-days-field input {
+    width: 56px;
+    border: 0;
+    outline: 0;
+    background: none;
+    font: inherit;
+    font-size: 22px;
+    font-weight: 800;
+    text-align: right;
+  }
+  .admin-chip {
+    height: 36px;
+    padding: 0 var(--s3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-round);
+    background: var(--surface);
+    font: inherit;
+    font-weight: 700;
+  }
+  .admin-chip[aria-pressed="true"] {
+    border-color: var(--pine);
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .admin-slider {
+    width: 100%;
+    height: 32px;
+    margin: var(--s4) 0 4px;
+    accent-color: var(--pine);
+  }
+  .admin-weeks {
+    display: grid;
+    grid-template-columns: repeat(27, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .admin-weeks i {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: var(--sunken);
+  }
+  .admin-weeks .admin-week-today {
+    background: var(--pine);
+  }
+  .admin-weeks .admin-week-lives {
+    background: var(--success);
+  }
+  .admin-weeks .admin-week-ends {
+    background: var(--error);
+  }
+  .admin-never,
+  .admin-loading {
+    display: grid;
+    justify-items: center;
+    gap: var(--s2);
+    padding: var(--s10) var(--s4);
+    text-align: center;
+  }
+  .admin-confirm .admin-confirm-count {
+    font-size: 18px;
+    font-weight: 800;
+  }
+  .admin-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--s2);
+    margin-top: var(--s4);
+  }
+  .admin-cancel,
+  .admin-do {
+    height: 44px;
+    padding: 0 var(--s4);
+    border-radius: var(--radius);
+    font: inherit;
+    font-weight: 700;
+  }
+  .admin-cancel {
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+  }
+  .admin-do {
+    border: 0;
+    background: var(--action);
+    color: var(--surface);
+    box-shadow: var(--shadow-action);
+  }
+  .admin-unloaded {
+    margin: var(--s8);
+  }
+  /* Sin conexión, lo último que se vio, gris y sin poder tocarse (R1.6). */
+  .admin-stale .admin-list,
+  .admin-stale .admin-panel {
+    opacity: 0.5;
+    filter: grayscale(1);
+    pointer-events: none;
+  }
+}

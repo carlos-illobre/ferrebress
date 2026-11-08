@@ -30,7 +30,7 @@ describe('el marco en el celular', () => {
     // Una sola lista, sin grupos (00 · R1.2).
     expect(screenMore.querySelectorAll('.phone-more-group')).toHaveLength(1);
     expect(within(screenMore).getByText('Lo que no coincide')).toBeTruthy();
-    expect(within(screenMore).getAllByText('Pronto')).toHaveLength(4);
+    expect(within(screenMore).getAllByText('Pronto')).toHaveLength(3);
     const anomalies = within(screenMore).getByRole('button', { name: /Anomalías/ });
     expect(anomalies.querySelector('.phone-more-icon.urgent')).not.toBeNull();
     expect(anomalies.lastElementChild?.className).toBe('coming-soon');

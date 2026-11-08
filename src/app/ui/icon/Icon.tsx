@@ -2,6 +2,7 @@
 // dibujados en la aplicación, sin bajar nada, y solo los que usa alguna pantalla.
 import './icon.css';
 import type { VNode } from 'preact';
+import type { administrationShapes } from './administration-shapes.tsx';
 import type { auditLogShapes } from './audit-log-shapes.tsx';
 import type { deviceSettingsShapes } from './device-settings-shapes.tsx';
 import type { linkShapes } from './link-shapes.tsx';
@@ -19,7 +20,8 @@ export type IconName =
   | keyof typeof rolesShapes
   | keyof typeof auditLogShapes
   | keyof typeof linkShapes
-  | keyof typeof deviceSettingsShapes;
+  | keyof typeof deviceSettingsShapes
+  | keyof typeof administrationShapes;
 
 // Los íconos de una pantalla que se baja a pedido llegan con ella.
 export function addShapes(more: Record<string, VNode>): void {

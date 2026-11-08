@@ -94,6 +94,9 @@ const settings: Option[] = [
     icon: 'sliders-horizontal',
     shortcut: 't',
     detail: 'Ajustes para todos',
+    path: '/administration',
+    needsInternet: true,
+    tone: 'neutral',
   },
   {
     id: 'manual',

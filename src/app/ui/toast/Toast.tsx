@@ -1,14 +1,15 @@
 // La tostada de «Mostrador»: un aviso corto que se va solo a los 2,4 segundos (lo que todavía no
 // está, «Aviso guardado», la versión nueva). Una sola a la vez, para toda la aplicación. Puede traer
 // un botón (el de «Desvincular» del vínculo, 03 · R1.5): entonces dura 6 segundos, para alcanzar a
-// tocarlo, y es lo único de la tostada que recibe toques.
+// tocarlo, y es lo único de la tostada que recibe toques. Quien pide otro tiempo lo dice en `ms` (el
+// «Deshacer» de Administración, 5 segundos, 06 · R2.1).
 import { createStore, useStore } from '../../platform/store.ts';
 import { Icon, type IconName } from '../icon/Icon.tsx';
 import { Say, type Words } from '../say/Say.tsx';
 import './toast.css';
 import { uiSettings } from '../settings.ts';
 
-type Action = { label: string; run: () => void };
+type Action = { label: string; run: () => void; ms?: number };
 type Shown = { words: Words; icon: IconName; action?: Action | undefined };
 
 const current = createStore<Shown | undefined>(undefined);
@@ -20,7 +21,7 @@ export function showToast(words: Words | string, icon: IconName = 'clock', actio
   current.set({ words: said, icon, action });
   timer = setTimeout(
     () => current.set(undefined),
-    action ? uiSettings.toast.withActionMs : uiSettings.toast.ms,
+    action ? (action.ms ?? uiSettings.toast.withActionMs) : uiSettings.toast.ms,
   );
 }
 
