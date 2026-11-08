@@ -602,7 +602,10 @@ los desafíos y el `nonce`, y la versión mínima de la aplicación.
   delante Caddy en Docker, con la imagen y el `Caddyfile` de producción. El script de Google es
   uno de prueba servido por la propia aplicación: dibuja el botón como Google y la prueba le pasa
   un pase firmado por el emisor de prueba, con el `nonce` que le dio la entrada. Hace falta Docker
-  prendido.
+  prendido. Cada dispositivo de prueba manda su propia dirección en `X-Forwarded-For` (una de
+  documentación de IPv6, pública, distinta por dispositivo y por worker), y Caddy la toma como la
+  real, igual que con el proxy de la máquina en producción. Si todos salieran de `127.0.0.1`, la
+  suite entera compartiría los límites por dirección (§ 8) y las últimas pruebas recibirían 429.
 
   **Para que tarden lo mínimo** (todas juntas, unos 10 s):
   - Todo se levanta una sola vez para todas, y el servidor arranca mientras se arma la aplicación.
