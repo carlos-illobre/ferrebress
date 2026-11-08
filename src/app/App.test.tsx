@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
+import { businessTimeZone, setBusinessTimeZone } from '@ferrebress/shared/time/business';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App.tsx';
 import { person } from './modules/sign-in/session.ts';
@@ -75,6 +76,21 @@ describe('la aplicación al abrir', () => {
     vi.useRealTimers();
     expect(screen.getByRole('region', { name: 'Tu sesión' })).toBeTruthy();
     expect(screen.queryByRole('region', { name: 'Entrar' })).toBeNull();
+  });
+
+  it('administration-E30: sin conexión al abrir usa la zona guardada; una que no existe, no', async () => {
+    person.set(ana);
+    store('businessTimeZone', 'Asia/Tokyo');
+    fakeServer({ '/api/start': 'offline' });
+    render(<App />);
+    expect(await screen.findByRole('region', { name: 'Tu sesión' })).toBeTruthy();
+    expect(businessTimeZone()).toBe('Asia/Tokyo');
+    cleanup();
+    store('businessTimeZone', 'Marte/Olympus');
+    render(<App />);
+    expect(await screen.findByRole('region', { name: 'Tu sesión' })).toBeTruthy();
+    expect(businessTimeZone()).toBe('Asia/Tokyo');
+    setBusinessTimeZone('America/Argentina/Buenos_Aires');
   });
 
   it('R3.6: si el servidor no contesta JSON (un despliegue), sigue como sin conexión', async () => {

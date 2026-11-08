@@ -58,6 +58,21 @@ const items: Item[][] = [
 ];
 const groups = ['Precios', 'Negocio', 'Acceso'];
 
+// Con la tecla del ajuste se llega también a sus opciones: el cursor va a la elegida (o a la caja),
+// y desde ahí ← → las recorren (R1.8). Después de dibujar el panel nuevo.
+const focusChosen = (panel: Panel) => {
+  const target = () =>
+    document.querySelector<HTMLElement>(
+      `[data-panel="${panel}"] [aria-pressed="true"], [data-panel="${panel}"] input`,
+    );
+  const tryFocus = (left: number) => {
+    const found = target();
+    if (found) found.focus();
+    else if (left > 0) setTimeout(() => tryFocus(left - 1), 16);
+  };
+  tryFocus(10);
+};
+
 export function List({
   view,
   settings,
@@ -81,7 +96,10 @@ export function List({
               aria-selected={view.panel === item.panel}
               data-key={item.key}
               data-mark=""
-              onClick={() => view.setPanel(item.panel)}
+              onClick={() => {
+                view.setPanel(item.panel);
+                focusChosen(item.panel);
+              }}
             >
               <Icon name={item.icon} />
               <span>{item.name}</span>

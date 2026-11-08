@@ -27,13 +27,20 @@ type Saving = {
 
 type Refusal = { error: string } & Record<string, unknown>;
 
+// Por qué no vale (R2.2): un margen repetido dice cuál (E27); lo demás, el rango.
+function invalid(key: SettingKey, raw: unknown): string {
+  if (key !== 'quickMargins') return texts.invalid.pairingDays;
+  const margins = raw as number[];
+  const repeated = margins.find((margin, i) => margins.indexOf(margin) !== i);
+  return repeated === undefined ? texts.invalid.quickMargins : texts.repeated(repeated);
+}
+
 export function saving(deps: Saving) {
   async function save<K extends SettingKey>(key: K, raw: Settings[K], confirmed?: number) {
     if (!deps.editable) return;
     const now = deps.latest.current?.settings[key] as SettingState<K>;
     const value = settingValue(key, raw);
-    if (value === undefined)
-      return deps.setSaid({ key, kind: 'invalid', text: texts.invalid[key as 'pairingDays'] });
+    if (value === undefined) return deps.setSaid({ key, kind: 'invalid', text: invalid(key, raw) });
     deps.setSaid(null);
     const result = await administrationApi.save(key, {
       value,

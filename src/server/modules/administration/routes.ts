@@ -9,6 +9,7 @@ import {
   type SettingKey,
   saveSettingBody,
   settingKeyOf,
+  settingValue,
 } from '@ferrebress/shared/contracts/administration';
 import { businessTimeZone } from '@ferrebress/shared/time/business';
 import type { Context, MiddlewareHandler } from 'hono';
@@ -63,46 +64,45 @@ async function change(
 ) {
   const before = ctx.memory.states()[key];
   const rounding = key === 'roundingStep';
-  const prices = rounding ? await ctx.recalculator.changesWith(Number(raw)) : 0;
+  // Se cuenta solo un paso que vale: uno inválido no llega a quien recalcula.
+  const valid = settingValue(key, raw) !== undefined;
+  const prices = rounding && valid ? await ctx.recalculator.changesWith(Number(raw)) : 0;
   const check = checkChange(key, raw, before.value, prices, confirmed);
   if (check.kind === 'invalid') return fail(c, 400, 'invalid-setting', { key });
   if (check.kind === 'confirm')
     return c.json<ConfirmPrices & { error: string }>({ error: 'confirm-prices', prices }, 409);
   if (check.kind === 'same') return c.json<SaveSettingResponse>(before);
   const { userId } = sessionOf(c);
-  const saved = await saveIn(ctx, key, check.value, version, userId).catch((error: unknown) => {
-    // El recálculo falló: la transacción se deshizo y no cambió nada (R3.5, E22).
-    console.error(error);
-    throw new Refused(503, 'recalc-failed');
-  });
+  const { saved, changed } = await saveIn(ctx, key, check.value, version, userId);
   if (saved === undefined) return changedBy(ctx, c, key);
   const after = { value: check.value, version: saved };
   ctx.memory.put(key, after);
   ctx.record(c, 'settings.changed', {
     changes: { value: { before: before.value, after: after.value } },
-    data: { key, ...(rounding && { prices }) },
+    data: { key, ...(rounding && { prices: changed }) },
   });
   return c.json<SaveSettingResponse>(after);
 }
 
-// Guarda con la versión que se vio y, en el redondeo, recalcula en la misma transacción.
+// Guarda con la versión que se vio y, en el redondeo, recalcula en la misma transacción: si el
+// recálculo falla, la transacción se deshace y no cambia nada (R3.5, E22). Devuelve también cuántos
+// precios cambiaron de verdad, para Quién hizo qué.
 function saveIn(
   ctx: AdministrationContext,
   key: SettingKey,
   value: unknown,
   version: number,
   userId: string,
-): Promise<number | undefined> {
+): Promise<{ saved: number | undefined; changed: number }> {
   return ctx.platform.db.transaction().execute(async (trx) => {
-    const saved = await administrationData(trx as Kysely<AdministrationTables>).save(
-      key,
-      value,
-      version,
-      userId,
-    );
-    if (saved !== undefined && key === 'roundingStep')
-      await ctx.recalculator.apply(Number(value), trx);
-    return saved;
+    const data = administrationData(trx as Kysely<AdministrationTables>);
+    const saved = await data.save(key, value, version, userId);
+    if (saved === undefined || key !== 'roundingStep') return { saved, changed: 0 };
+    const changed = await ctx.recalculator.apply(Number(value), trx).catch((error: unknown) => {
+      console.error(error);
+      throw new Refused(503, 'recalc-failed');
+    });
+    return { saved, changed };
   });
 }
 

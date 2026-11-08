@@ -1,23 +1,12 @@
 // La configuración del .env (diseño de 01, § 11): la valida al arrancar y frena si falta algo,
 // así un error de configuración se ve antes de atender el primer pedido.
 import { environments } from '@ferrebress/shared/contracts/server-header';
+import { isTimeZone } from '@ferrebress/shared/time/business';
 import * as z from 'zod/mini';
 
 const text = z.string().check(z.minLength(1));
 const googleIssuer = 'https://accounts.google.com';
 const googleScript = 'https://accounts.google.com/gsi/client';
-
-// Una zona horaria que el sistema conoce. Se prueba armando un formato con ella: la lista de
-// `Intl.supportedValuesOf('timeZone')` no trae todos los nombres que acepta, como
-// `America/Argentina/Buenos_Aires` (diseño de 06, § 5).
-function isTimeZone(zone: string): boolean {
-  try {
-    new Intl.DateTimeFormat('en-US', { timeZone: zone });
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 // Sin valores por omisión: lo que cambia entre ambientes tiene que estar escrito.
 const configSchema = z.object({

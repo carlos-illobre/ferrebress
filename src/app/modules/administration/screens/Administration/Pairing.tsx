@@ -9,22 +9,30 @@ import { groupOf, names, texts, what } from '../../texts.ts';
 import { Heading, Said, Subhead } from './Heading.tsx';
 import { locked, type PanelProps } from './look.ts';
 
-const typedIn = (event: Event) => Number((event.target as HTMLInputElement).value);
+const typedIn = (event: Event) => (event.target as HTMLInputElement).value;
 
-type Days = { days: number; locked: boolean; type: (n: number) => void; save: (n: number) => void };
+// Lo escrito, como lo escribió; los días, solo si es un número que se puede mostrar (lo que no vale lo
+// dice la validación al guardar, R2.2).
+type Days = {
+  text: string;
+  days: number;
+  locked: boolean;
+  type: (text: string) => void;
+  save: (text: string) => void;
+};
 
 // Escribir los días o elegir uno de los de siempre; lo escrito se guarda al salir o con Enter.
-function DaysField({ days, locked: off, type, save, chosen }: Days & { chosen: number }) {
+function DaysField({ text, locked: off, type, save, chosen }: Days & { chosen: number }) {
   return (
     <div class="admin-days">
       <label class="admin-days-field">
         <input
           inputMode="numeric"
           aria-label={names.pairingDays}
-          value={String(days)}
+          value={text}
           readOnly={off}
           onInput={(event) => type(typedIn(event))}
-          onBlur={() => save(days)}
+          onBlur={() => save(text)}
           onKeyDown={(event) => event.key === 'Enter' && (event.target as HTMLInputElement).blur()}
         />
         <span>{texts.pairing.days}</span>
@@ -36,7 +44,7 @@ function DaysField({ days, locked: off, type, save, chosen }: Days & { chosen: n
           class="admin-chip"
           aria-pressed={chosen === n}
           disabled={off}
-          onClick={() => save(n)}
+          onClick={() => save(String(n))}
         >
           {n}
         </button>
@@ -78,15 +86,19 @@ function Slider({ days, locked: off, type, save }: Days) {
 export function PairingPanel({ view, settings }: PanelProps) {
   const t = texts.pairing;
   // local: lo que se escribe o se desliza, hasta guardarlo; lo guardado viaja con el aviso.
-  const [typed, setTyped] = useState<number | undefined>();
-  const days = typed ?? settings.pairingDays;
+  const [typed, setTyped] = useState<string | undefined>();
+  const text = typed ?? String(settings.pairingDays);
+  const asNumber = Number(text);
+  const shows = Number.isInteger(asNumber) && asNumber >= 1 && asNumber <= 365;
+  const days = shows ? asNumber : settings.pairingDays;
   const props: Days = {
+    text,
     days,
     locked: locked(view),
     type: setTyped,
     save: (value) => {
       setTyped(undefined);
-      if (value !== settings.pairingDays) void view.save('pairingDays', value);
+      if (value !== String(settings.pairingDays)) void view.save('pairingDays', Number(value));
     },
   };
   return (

@@ -71,3 +71,12 @@ describe('la zona del negocio (06 · R5)', () => {
     expect(business.businessTimeZone()).toBe('America/Argentina/Buenos_Aires');
   });
 });
+
+describe('una zona horaria válida', () => {
+  it('conoce las del sistema, también Buenos Aires de Argentina, y no las inventadas', async () => {
+    const { isTimeZone } = await import('./business.ts');
+    expect(isTimeZone('America/Argentina/Buenos_Aires')).toBe(true);
+    expect(isTimeZone('UTC')).toBe(true);
+    expect(isTimeZone('Marte/Olympus')).toBe(false);
+  });
+});

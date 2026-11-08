@@ -6,7 +6,11 @@
 
 import type { Environment } from '@ferrebress/shared/contracts/server-header';
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
-import { businessTimeZone, setBusinessTimeZone } from '@ferrebress/shared/time/business';
+import {
+  businessTimeZone,
+  isTimeZone,
+  setBusinessTimeZone,
+} from '@ferrebress/shared/time/business';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { AdministrationSlot } from './modules/administration/index.ts';
 import { frameLink, watchDeviceLink } from './modules/device-link/index.ts';
@@ -60,8 +64,10 @@ const environmentKey = 'environment';
 // La zona horaria del negocio (06 · R5): llega con /api/start y se guarda, así sin conexión las horas
 // salen igual (diseño de 06, § 5). Sin ninguna guardada, la del navegador, que en el local es la misma.
 const zoneKey = 'businessTimeZone';
+// La guardada se valida: una que el navegador no conoce rompería cada fecha (revisión de seguridad
+// de 06, 7.4).
 function applyZone(zone: string | undefined): string {
-  if (zone) setBusinessTimeZone(zone);
+  if (zone && isTimeZone(zone)) setBusinessTimeZone(zone);
   return businessTimeZone();
 }
 const unknown = (): StartResponse => ({

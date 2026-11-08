@@ -1,7 +1,8 @@
 // La lógica de Administración (diseño de 06, § 7): los ajustes que trae el servidor, el ajuste
 // elegido, guardar al cambiar con «Deshacer», el choque con otro, la confirmación del redondeo, el
 // permiso y sin conexión. Lo que se ve vive en valores con nombre, así el espejo lo copia al otro
-// dispositivo vinculado (también el aviso de lo guardado, que lleva el valor nuevo: E08).
+// dispositivo vinculado; lo guardado entra en lo que trajo el servidor, que también viaja, así el
+// otro lo ve también por el servidor (E08).
 import type {
   AdministrationResponse,
   SettingKey,

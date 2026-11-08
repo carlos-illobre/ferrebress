@@ -10,6 +10,18 @@ let zone: string | undefined;
 let final = false;
 let formats: { date: Intl.DateTimeFormat; parts: Intl.DateTimeFormat } | undefined;
 
+// Una zona horaria que el sistema conoce. Se prueba armando un formato con ella: la lista de
+// `Intl.supportedValuesOf('timeZone')` no trae todos los nombres que acepta, como
+// `America/Argentina/Buenos_Aires` (diseño de 06, § 5).
+export function isTimeZone(zone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: zone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export const businessTimeZone = (): string =>
   zone ?? new Intl.DateTimeFormat().resolvedOptions().timeZone;
 

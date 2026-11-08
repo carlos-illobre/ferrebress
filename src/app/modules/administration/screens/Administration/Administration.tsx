@@ -111,7 +111,7 @@ function Body({ view }: { view: View }) {
         </p>
       )}
       <List view={view} settings={values} clock={clock} />
-      <section class="admin-panel" role="tabpanel">
+      <section class="admin-panel" role="tabpanel" data-panel={view.panel}>
         <Panel view={view} values={values} clock={clock} />
       </section>
     </div>

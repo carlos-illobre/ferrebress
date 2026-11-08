@@ -47,7 +47,7 @@ Corregido con sus dos revisiones ([diseño](administration-design-review.md),
   necesita migración.
 - **Guardar es una sola sentencia:** `insert … on conflict (key) do update … where settings.version =
   <la que se vio> returning version`. Sin fila y con versión 0, inserta; con la fila y la versión que se
-  vio, actualiza; si no devuelve nada, otro cambió antes y da `409 changed`. Dos primeros cambios a la
+  vio, actualiza; si no devuelve nada, otro cambió antes y da `409 setting-changed`. Dos primeros cambios a la
   vez no chocan al insertar: el segundo no devuelve nada.
 - **Sin índices más que la clave:** son cinco filas.
 - **Cuándo cambió y la historia** están en la auditoría, no acá (constitución, V).
@@ -87,11 +87,11 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 - **Errores del `POST`:**
   - `403 forbidden`, con el permiso, como cualquier ruta (R1.5, E03, E05).
   - `404`: una clave que no está en la lista.
-  - `400 invalid`, con el rango o las opciones: un valor que no cumple § 2 (R2.2, E24, E27, E28, E37,
+  - `400 invalid-setting`, con el rango o las opciones: un valor que no cumple § 2 (R2.2, E24, E27, E28, E37,
     E38).
-  - `409 changed`, con el valor y la versión de ahora y el nombre de quien lo cambió (R2.3, E12): una
+  - `409 setting-changed`, con el valor y la versión de ahora y el nombre de quien lo cambió (R2.3, E12): una
     consulta, solo en este caso.
-  - `409 confirm`, con cuántos precios cambian: un `roundingStep` que cambia precios, sin
+  - `409 confirm-prices`, con cuántos precios cambian: un `roundingStep` que cambia precios, sin
     `confirmed` o con un número distinto del de ahora (R3.4, E18, E41). `confirmed` es **el número que se
     vio**: si ya no es el de ahora (alguien cambió costos en el medio), se vuelve a preguntar con el
     número nuevo.
@@ -187,11 +187,11 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 
 ## 7. Pantallas
 
-- **Lo que viene del servidor** se pide con `useMirroredQuery`. Para que el otro dispositivo vinculado vea
-  un cambio también por el servidor (E08), el aviso de lo guardado es un valor con nombre espejado que
-  lleva el ajuste, el valor y la versión nuevos: el otro lo aplica a lo que muestra.
-- **Valores con nombre,** espejados: el ajuste elegido, la confirmación del redondeo abierta, el aviso de
-  lo guardado y el de «Lo cambió <persona> recién».
+- **Lo que viene del servidor** se pide con `useMirroredQuery`. Lo guardado entra en lo que trajo el
+  servidor (`update`), que viaja como cualquier valor con nombre, también por el servidor: así el otro
+  dispositivo vinculado ve el cambio (E08).
+- **Valores con nombre,** espejados: el ajuste elegido, la confirmación del redondeo abierta y lo que se
+  dice en el lugar de un ajuste (un valor que no vale, «Lo cambió <persona> recién»).
 - **Local:** la opción sobre la que se pasa con el mouse (es del dispositivo que tiene el mouse) y el
   cursor.
 - **Cuándo se guarda:** una opción, al tocarla; lo escrito (los márgenes, los días), al salir de la caja
@@ -244,7 +244,7 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 - `GET /api/administration/rounding`: hoy 0 consultas. Con el catálogo, una consulta que cuenta por paso
   en la base y otra con los ejemplos: menos de 100 ms con 10.000 precios.
 - `POST` de un ajuste que no es el redondeo: una sentencia en PostgreSQL (abrir y confirmar aparte), la
-  auditoría en SQLite y, solo en un `409 changed`, el nombre (1 más). Menos de 20 ms.
+  auditoría en SQLite y, solo en un `409 setting-changed`, el nombre (1 más). Menos de 20 ms.
 - `POST` del redondeo: lo anterior, en la transacción, más lo de quien recalcula. La meta del recálculo
   se fija con 07.
 - Al arrancar: 1 consulta para cargar los ajustes.
@@ -260,7 +260,7 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 | E03, E05 | La ruta sin el permiso: `403`, nada cambia, queda el intento; la pantalla pierde el permiso y queda sin poder tocarse |
 | E08 | Dos dispositivos vinculados, por el directo y por el servidor: el cambio en uno se ve en el otro |
 | E09 a E11, E14 | Guardar, la auditoría con el antes y el después, deshacer como otro cambio, dos cambios seguidos; otra pantalla no pide nada |
-| E12, E13 | Dos `POST` con la misma versión, también desde los valores de arranque: el segundo da `409 changed` con el valor de ahora; con claves distintas, los dos pasan |
+| E12, E13 | Dos `POST` con la misma versión, también desde los valores de arranque: el segundo da `409 setting-changed` con el valor de ahora; con claves distintas, los dos pasan |
 | E15 a E17 | La regla del redondeo, en `src/shared/pricing/` |
 | E18 a E24, E41 | El `POST` del redondeo con un recalculador de mentira: pide confirmar el número, vuelve a pedir si cambió, aplica, cancela, sin cambios guarda solo, falla y no cambia nada, paso inválido |
 | E25 a E29 | El `POST` de los márgenes: orden, repetidos, rangos |

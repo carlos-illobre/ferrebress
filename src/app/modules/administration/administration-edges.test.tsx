@@ -1,9 +1,12 @@
 // Los bordes de la pantalla de Administración: sin saber quién tiene el permiso o quién cambió algo,
 // sin los números del redondeo, el celular y la hora que se mueve sola.
-import { fireEvent, screen } from '@testing-library/preact';
-import { describe, expect, it, vi } from 'vitest';
+
+import { fireEvent, screen, waitFor } from '@testing-library/preact';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { mirror, type Patch } from '../../platform/mirror/registry.ts';
+import { timeFormat } from '../../platform/time.ts';
 import { stubMedia } from '../../testing/media.ts';
-import { openAdministration, saveOf, seller } from './administration-test-kit.tsx';
+import { openAdministration, option, saveOf, seller } from './administration-test-kit.tsx';
 
 const _ok = (value: unknown, version = 1) => ({ body: { value, version } });
 
@@ -58,5 +61,50 @@ describe('Administración, los bordes', () => {
     });
     fireEvent.click(await screen.findByRole('button', { name: /\$ 10\b/ }));
     expect(await screen.findByText('7 de 7 precios cambian')).toBeTruthy();
+  });
+});
+
+describe('Administración con el teclado y el espejo', () => {
+  afterEach(() => mirror.detach());
+
+  it('administration-E08: lo guardado viaja al otro dispositivo vinculado', async () => {
+    const sent: Patch[] = [];
+    mirror.attach({ send: (patches) => sent.push(...patches), leader: true, over: 'relayed' });
+    openAdministration({ [saveOf('sessionMax')]: { body: { value: 12, version: 1 } } });
+    fireEvent.click(await screen.findByRole('tab', { name: /Tope de la sesión/ }));
+    fireEvent.click(option(/12 h/));
+    await waitFor(() =>
+      expect(
+        sent.some(
+          (patch) =>
+            patch.k === 'q:administration' &&
+            JSON.stringify(patch.v).includes('"sessionMax":{"value":12,"version":1}'),
+        ),
+      ).toBe(true),
+    );
+  });
+
+  it('administration-E31: con a. m./p. m., la hora del negocio se ve así', async () => {
+    timeFormat.set('h12');
+    openAdministration();
+    fireEvent.click(await screen.findByRole('tab', { name: /Zona horaria/ }));
+    expect(document.querySelector('.admin-clock-time')?.textContent).toMatch(/2:30\sp\.\s?m\./);
+    timeFormat.set('h24');
+  });
+});
+
+describe('los días del vínculo, escritos mal', () => {
+  it('una letra o un número enorme no rompen el panel; al salir, dice el rango', async () => {
+    openAdministration();
+    fireEvent.click(await screen.findByRole('tab', { name: /Días del vínculo/ }));
+    const field = screen.getByRole('textbox', { name: 'Días del vínculo' }) as HTMLInputElement;
+    const expires = document.querySelector('.admin-big b')?.textContent;
+    fireEvent.input(field, { target: { value: 'abc' } });
+    await waitFor(() => expect(field.value).toBe('abc'));
+    expect(document.querySelector('.admin-big b')?.textContent).toBe(expires);
+    fireEvent.input(field, { target: { value: '99999999999' } });
+    await waitFor(() => expect(field.value).toBe('99999999999'));
+    fireEvent.focusOut(field);
+    expect(await screen.findByText('Entre 1 y 365 días.')).toBeTruthy();
   });
 });

@@ -72,8 +72,9 @@ export const texts = {
   undo: 'Deshacer',
   changedBy: (who: string, value: string) =>
     `Lo cambió ${who || 'otra persona'} recién: ahora vale ${value}.`,
+  repeated: (margin: number) => `Ya hay un margen rápido de ${margin} %.`,
   invalid: {
-    quickMargins: 'Va un entero entre 1 y 10.000, sin repetir.',
+    quickMargins: 'Va un entero entre 1 y 10.000.',
     pairingDays: 'Entre 1 y 365 días.',
   },
   failed: 'No se pudo guardar. Probá de nuevo.',

@@ -49,13 +49,17 @@ describe('los tiempos de la sesión', () => {
   });
 
   it('administration-E36: subir el tope alarga la sesión abierta, con la cookie que ya tenía', async () => {
+    // El tope está en 4 horas (la prueba de antes): la sesión se abre con ese tope.
     await kit.reconfirm();
-    expect((await set('sessionMax', 12)).status).toBe(200);
     const seller = await someone();
-    for (let hours = 0; hours < 10; hours++) {
+    const hourOfUse = async () => {
       kit.later(minutes(60));
       await seller.request('/api/start');
-    }
+      await kit.admin.request('/api/start');
+    };
+    for (let hours = 0; hours < 3; hours++) await hourOfUse();
+    expect((await set('sessionMax', 12)).status).toBe(200);
+    for (let hours = 3; hours < 10; hours++) await hourOfUse();
     expect(await isOpen(seller)).toBe(true);
     kit.later(minutes(2 * 60));
     expect(await isOpen(seller)).toBe(false);

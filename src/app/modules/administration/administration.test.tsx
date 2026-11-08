@@ -105,7 +105,10 @@ describe('Administración', () => {
     const first = screen.getByLabelText('Margen de la tecla 1') as HTMLInputElement;
     first.value = '300';
     fireEvent.focusOut(first);
-    expect(await screen.findByText('Va un entero entre 1 y 10.000, sin repetir.')).toBeTruthy();
+    expect(await screen.findByText('Ya hay un margen rápido de 300 %.')).toBeTruthy();
+    first.value = '0';
+    fireEvent.focusOut(first);
+    expect(await screen.findByText('Va un entero entre 1 y 10.000.')).toBeTruthy();
     // Lo mismo que tenía no se manda.
     const second = screen.getByLabelText('Margen de la tecla 2') as HTMLInputElement;
     fireEvent.focusOut(second);
@@ -148,20 +151,6 @@ describe('Administración', () => {
     expect(screen.getByText(/el tope llega a las 8:00, después de cerrar/)).toBeTruthy();
     fireEvent.mouseEnter(option(/^4 h/));
     expect(screen.getByText(/a las 12:00 entra de nuevo/)).toBeTruthy();
-  });
-
-  it('R1.8: ← y → recorren las opciones sin elegir', async () => {
-    const server = openAdministration();
-    const now = await screen.findByRole('button', { name: /\$ 1\.000/ });
-    now.focus();
-    fireEvent.keyDown(now, { key: 'ArrowRight' });
-    expect(document.activeElement).toBe(option(/\$ 5\.000/));
-    fireEvent.keyDown(option(/\$ 5\.000/), { key: 'ArrowRight' });
-    fireEvent.keyDown(option(/\$ 5\.000/), { key: 'ArrowLeft' });
-    fireEvent.keyDown(option(/\$ 1\.000/), { key: 'Tab' });
-    expect(document.activeElement).toBe(option(/\$ 1\.000/));
-    fireEvent.click(option(/\$ 1\.000/));
-    expect(server.bodies(saveOf('roundingStep'))).toEqual([]);
   });
 
   it('administration-E38, E39: los días se escriben, se eligen o se deslizan', async () => {
