@@ -114,7 +114,7 @@ columnas que suma Usuarios están en ese diseño (§ 2).
 | `device_id` | `uuid` | El dispositivo |
 | `device_label` | `text` | «Chrome en Windows», armado por el servidor (§ 5) |
 | `ip_address` | `inet` | Desde dónde se entró |
-| `created_at` | `timestamptz` | Para el tope de 8 horas |
+| `created_at` | `timestamptz` | Para el tope de la sesión (06 · R6) |
 | `last_used_at` | `timestamptz` | Para los 60 minutos sin uso; se escribe por tandas |
 | `google_at` | `timestamptz` | Cuándo pasó por Google en esta sesión (para vincular la huella) |
 | `closed_at` | `timestamptz` | |
@@ -342,8 +342,8 @@ la computadora. Solo el celular usa la huella.
     a quien manda el identificador), las claves de los límites y la pantalla del código QR. Con sesión,
     todo usa el dispositivo de la sesión, que ya quedó probado.
   - **El primer uso** ata la llave que llegue primero: un identificador copiado antes de que su
-    dispositivo vuelva a entrar se podría atar a otra llave. Las sesiones duran 8 horas como mucho:
-    al día siguiente del despliegue, todo dispositivo que entró ya tiene su llave.
+    dispositivo vuelva a entrar se podría atar a otra llave. Las sesiones duran como mucho el tope que
+    fija Administración, 24 horas en la opción más larga: al día siguiente del despliegue, todo dispositivo que entró ya tiene su llave.
   - **La versión del contrato pasa a 2:** una aplicación vieja, sin la llave, recibe «actualizá».
 - **Cada pedido con cookie:** `sign-in` registra en `platform/http` la función que responde «quién
   es»: busca el hash en memoria (si no está, una consulta que trae también si la persona sigue
@@ -542,6 +542,7 @@ como a quién, nunca como quien lo hizo (diseño de 05, § 2.1).
 | `GOOGLE_ISSUER`, `GOOGLE_JWKS_URL` | Quién emite el pase de Google y dónde están sus llaves; en las pruebas, un emisor de prueba |
 | `GOOGLE_SCRIPT_URL` | El script del botón de Google; en las pruebas de punta a punta, uno de prueba |
 | `TRUSTED_PROXY` | La dirección de Caddy, la única de la que se acepta la dirección de internet |
+| `BUSINESS_TIME_ZONE` | La zona horaria del negocio, fija en el compose (diseño de 06, § 5) |
 
 - **Si falta una variable,** el servidor no arranca y dice su nombre, nunca un valor.
 - **Con `testing` o `production`,** el servidor no arranca si `GOOGLE_ISSUER` no es
@@ -551,8 +552,9 @@ como a quién, nunca como quien lo hizo (diseño de 05, § 2.1).
 - **`DATABASE_URL` es un secreto** (lleva la contraseña): el `.env` de la máquina tiene permisos
   `600`.
 
-**En un archivo de configuración del repositorio** (igual en todos los ambientes): los 60 minutos y
-las 8 horas (hasta que exista Administración), los límites de intentos, los plazos de los códigos,
+**En un archivo de configuración del repositorio** (igual en todos los ambientes): cuánto dura la
+cookie de la sesión (la opción más larga del tope, 24 horas; los dos tiempos los fija Administración,
+diseño de 06), los límites de intentos, los plazos de los códigos,
 los desafíos y el `nonce`, y la versión mínima de la aplicación.
 
 ## 12. Pruebas

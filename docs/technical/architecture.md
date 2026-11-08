@@ -168,7 +168,8 @@ que cada módulo suma a la cabecera y los códigos de 60 segundos que comparten 
 - **En el dispositivo**, solo si habilitó trabajar sin conexión: lo justo para atender y la cola
   de lo pendiente, en IndexedDB (ADR-007). Si no lo habilitó, solo lo que no es del negocio ni
   secreto, en `localStorage`: el identificador del dispositivo, sus preferencias, el nombre y rol de
-  quien entró, una salida pendiente, el último aviso de «Algo salió mal» y, con el vínculo del celular y la
+  quien entró, la zona horaria del negocio (diseño de 06), una salida pendiente, el último aviso de
+  «Algo salió mal» y, con el vínculo del celular y la
   computadora, la tira del día de cada persona y el diario de la conexión, sin datos personales
   (diseño de 03); y, en IndexedDB, la llave
   de prueba de la sesión, que no se puede exportar (ADR-015).
@@ -181,8 +182,8 @@ que cada módulo suma a la cabecera y los códigos de 60 segundos que comparten 
 Hoy un proceso alcanza de sobra. Si algún día hacen falta varias copias del servidor, cambia lo que
 vive en memoria, sin tocar las reglas: las sesiones (de la memoria a la base), el hub de los canales y
 lo que los módulos guardan en memoria para él, como los vínculos y los códigos de 03 (a `LISTEN/NOTIFY`
-de PostgreSQL y una tabla chica), los nombres de los dispositivos de 04 (cada copia los carga al
-arrancar; un cambio tendría que avisar a las demás) y la auditoría (un solo escritor). El reenvío entre el celular y la
+de PostgreSQL y una tabla chica), los nombres de los dispositivos de 04 y los ajustes para todos de 06
+(cada copia los carga al arrancar; un cambio tendría que avisar a las demás) y la auditoría (un solo escritor). El reenvío entre el celular y la
 computadora necesita además que los dos caigan en la misma copia (ADR-017).
 
 ## Controles en `pnpm check`

@@ -30,6 +30,9 @@ services:
       PORT: "3000"
       AUDIT_PATH: /data/audit
       TRUSTED_PROXY: 172.30.0.10
+      # La zona horaria del negocio (06 · R5): se fija al instalar y es la misma en pruebas y en
+      # producción, así que no va en el .env (constitución, VIII).
+      BUSINESS_TIME_ZONE: America/Argentina/Buenos_Aires
     volumes:
       - audit-data:/data/audit
     depends_on:

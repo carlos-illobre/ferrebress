@@ -941,7 +941,7 @@ erDiagram
 | `phone_label`, `computer_label` | El navegador y el sistema de cada uno, los de su sesión al vincular (lista cerrada del servidor). Al mostrar un lado, va su nombre si tiene (04 · R9.4, de la memoria de `sign-in`), y esta etiqueta de respaldo; cuando cambia un nombre, el otro lado se entera por su canal. En la auditoría, cada lado va por su nombre de ese momento y nunca por su identificador (diseño de 04b, § 8) |
 | `paired_by` | `button` o `sign-in`, para la auditoría (R8.1) |
 | `created_at` | «Desde cuándo» (R4.2) |
-| `mirrored_at` | La última vez que el servidor los presentó o les reenvió algo: vence a los 30 días (R2.2). Una sesión dura como mucho 8 horas, así que un espejo continuo se vuelve a presentar al menos una vez por sesión. Se escribe por tandas una vez por minuto |
+| `mirrored_at` | La última vez que el servidor los presentó o les reenvió algo: vence a los días que fija Administración, 30 de arranque (R2.2); un vínculo vencido se termina en su próximo contacto. Una sesión dura como mucho el tope que fija Administración (hasta 24 horas), así que un espejo continuo se vuelve a presentar al menos una vez por sesión. Se escribe por tandas una vez por minuto |
 | `paused_at` | «Desconectado» (R5.1) |
 
 **Índices:** único sobre `(user_id, phone_device_id)` y único sobre `(user_id, computer_device_id)`: el

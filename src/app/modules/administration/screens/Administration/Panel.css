@@ -90,12 +90,13 @@
     border-color: var(--pine);
     box-shadow: 0 0 0 3px var(--pine-soft);
   }
-  .admin-option[aria-checked="true"] {
+  .admin-option[aria-pressed="true"] {
     border-color: var(--pine);
     background: var(--pine);
     color: var(--surface);
   }
   .admin-option-value {
+    white-space: nowrap;
     font-size: 18px;
     line-height: 24px;
     font-weight: 800;
@@ -105,10 +106,11 @@
     font-weight: 600;
     color: var(--action-text);
   }
-  .admin-option[aria-checked="true"] .admin-option-effect {
+  .admin-option[aria-pressed="true"] .admin-option-effect {
     color: var(--on-dark);
   }
   .admin-initial {
+    white-space: nowrap;
     position: absolute;
     top: -9px;
     right: 8px;

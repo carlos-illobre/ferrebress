@@ -112,6 +112,16 @@
     padding: var(--s10) var(--s4);
     text-align: center;
   }
+  .admin-confirm {
+    width: min(480px, calc(100vw - 32px));
+    padding: var(--s6);
+  }
+  .admin-confirm h2 {
+    margin: 0 0 var(--s1);
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: 750;
+  }
   .admin-confirm .admin-confirm-count {
     font-size: 18px;
     font-weight: 800;

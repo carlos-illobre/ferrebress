@@ -26,8 +26,10 @@ Corregido con sus dos revisiones ([diseño](administration-design-review.md),
   la forma de quien recalcula (`PriceRecalculator`: contar cuántos precios cambian, dar ejemplos y aplicar
   dentro de una transacción) y el catálogo se la pasa al crearse. Hasta 07 no hay nadie: no hay precios,
   no cambia ninguno y se guarda sin preguntar (E21). Las pruebas de E18 a E22 usan uno de mentira.
-- **La zona horaria sale del `.env`** (`BUSINESS_TIME_ZONE`, R5) y la recibe la aplicación en
-  `/api/start`, que la guarda en el dispositivo para usarla sin conexión.
+- **La zona horaria sale de la configuración del servidor** (`BUSINESS_TIME_ZONE`, R5), fijada en el
+  compose junto a `TRUSTED_PROXY`: es la misma en pruebas y en producción, así que no va en el `.env`
+  (constitución, VIII). La aplicación la recibe en `/api/start` y la guarda en el dispositivo para
+  usarla sin conexión.
 
 ## 2. Entidades
 
@@ -156,8 +158,8 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
   arrancar (una segunda vez es un error).
 - `src/server/platform/config.ts`: `BUSINESS_TIME_ZONE`, obligatoria y sin valor por omisión
   (constitución, VIII), validada armando un `Intl.DateTimeFormat` con ella (la lista de
-  `Intl.supportedValuesOf` no trae `America/Argentina/Buenos_Aires`). Va en `.env.example`, en el `.env`
-  de pruebas, en `src/server/testing/config.ts` y en `tests/e2e/stack/start.ts`.
+  `Intl.supportedValuesOf` no trae `America/Argentina/Buenos_Aires`). Va en `deploy/compose.yml`, en
+  `src/server/testing/config.ts` y en `tests/e2e/stack/start.ts`.
 
 ### La aplicación
 
@@ -234,7 +236,7 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
   `settings.ts` del módulo); es una pantalla que se toca poco.
 - **Secretos:** ninguno nuevo. `BUSINESS_TIME_ZONE` no es secreto.
 - **Auditoría:** cada cambio con el valor anterior y el nuevo; los intentos sin permiso. Cambiar la zona en
-  el `.env` no queda en la auditoría: lo aceptó Carlos (§ 12, 5).
+  la configuración no queda en la auditoría: lo aceptó Carlos (§ 12, 5).
 
 ## 9. Metas de performance
 
@@ -294,6 +296,6 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
    alcanza: el corte lo hace el servidor de verdad con la cookie, en un navegador de verdad.
 4. **Si cambió el número de precios** entre que se vio y se confirmó, se vuelve a preguntar con el número
    nuevo (R3.4, E41).
-5. **La zona en el `.env` queda así:** se fija al instalar y nadie la toca; cambiarla editando el archivo
-   no queda en Quién hizo qué. Hoy es una sola ferretería, y quien puede editar el `.env` ya puede todo
+5. **La zona en la configuración queda así:** se fija al instalar y nadie la toca; cambiarla editando la
+   configuración no queda en Quién hizo qué. Hoy es una sola ferretería, y quien puede editar el `.env` ya puede todo
    en el servidor.
