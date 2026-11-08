@@ -74,7 +74,8 @@ anomalías.
   de guardar, se ve cuántos precios cambian y se confirma con «Cambiar 3.412 precios» o se cancela: es
   la única confirmación de la pantalla, porque cambia de golpe todos los precios del negocio. Si no
   cambia ningún precio, se guarda sin preguntar. Este ajuste no lleva «Deshacer»: para volver se
-  elige el paso anterior, que muestra de nuevo cuántos cambian.
+  elige el paso anterior, que muestra de nuevo cuántos cambian. Si entre que se vio el número y se
+  confirmó cambió cuántos precios cambian, no se aplica: se vuelve a preguntar con el número nuevo.
 - **R3.5** **Todos los precios quedan con el mismo redondeo:** no hay precios con el paso viejo y
   otros con el nuevo. Si recalcular falla, no cambia nada: ni el paso ni ningún precio.
 
@@ -179,6 +180,9 @@ anomalías.
   «Deshacer».
 - **E24** **Dado** un pedido al servidor con un paso que no está en la lista (por ejemplo, $ 300),
   **cuando** llega, **entonces** se rechaza sin cambiar nada.
+- **E41** **Dado** E18, **cuando** antes de confirmar cambian los costos y con el paso nuevo pasan a
+  cambiar otros precios, **entonces** no se aplica y se vuelve a ver cuántos cambian ahora, para
+  confirmar de nuevo.
 
 ### Los márgenes rápidos
 

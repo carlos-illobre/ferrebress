@@ -4,7 +4,7 @@ Implementa la etapa a del [capítulo 06](../../chapters/06-administration/rules.
 escenarios E01 a E40, y lo que trae en 00 · R8.4, 01 · R3.2 y 03 · R2.2. La pantalla aprobada es
 [`mockups/administration-settings/final/`](../../design/mockups/administration-settings/final/).
 Corregido con sus dos revisiones ([diseño](administration-design-review.md),
-[seguridad](administration-security-review.md)); lo que decide Carlos está en § 12.
+[seguridad](administration-security-review.md)); lo que decidió Carlos está en § 12.
 
 ## 1. La idea técnica
 
@@ -90,7 +90,7 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
   - `409 changed`, con el valor y la versión de ahora y el nombre de quien lo cambió (R2.3, E12): una
     consulta, solo en este caso.
   - `409 confirm`, con cuántos precios cambian: un `roundingStep` que cambia precios, sin
-    `confirmed` o con un número distinto del de ahora (R3.4, E18). `confirmed` es **el número que se
+    `confirmed` o con un número distinto del de ahora (R3.4, E18, E41). `confirmed` es **el número que se
     vio**: si ya no es el de ahora (alguien cambió costos en el medio), se vuelve a preguntar con el
     número nuevo.
   - `503 recalc-failed`: falló el recálculo; no cambió nada (R3.5, E22). Queda en el registro del
@@ -234,7 +234,7 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
   `settings.ts` del módulo); es una pantalla que se toca poco.
 - **Secretos:** ninguno nuevo. `BUSINESS_TIME_ZONE` no es secreto.
 - **Auditoría:** cada cambio con el valor anterior y el nuevo; los intentos sin permiso. Cambiar la zona en
-  el `.env` no queda en la auditoría (§ 12, 5).
+  el `.env` no queda en la auditoría: lo aceptó Carlos (§ 12, 5).
 
 ## 9. Metas de performance
 
@@ -260,7 +260,7 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 | E09 a E11, E14 | Guardar, la auditoría con el antes y el después, deshacer como otro cambio, dos cambios seguidos; otra pantalla no pide nada |
 | E12, E13 | Dos `POST` con la misma versión, también desde los valores de arranque: el segundo da `409 changed` con el valor de ahora; con claves distintas, los dos pasan |
 | E15 a E17 | La regla del redondeo, en `src/shared/pricing/` |
-| E18 a E24 | El `POST` del redondeo con un recalculador de mentira: pide confirmar el número, vuelve a pedir si cambió, aplica, cancela, sin cambios guarda solo, falla y no cambia nada, paso inválido |
+| E18 a E24, E41 | El `POST` del redondeo con un recalculador de mentira: pide confirmar el número, vuelve a pedir si cambió, aplica, cancela, sin cambios guarda solo, falla y no cambia nada, paso inválido |
 | E25 a E29 | El `POST` de los márgenes: orden, repetidos, rangos |
 | E30, E31 | La zona en la pantalla, con 24 horas y a. m./p. m.; `BUSINESS_TIME_ZONE` inválida no arranca; la zona guardada se usa sin conexión |
 | E32 a E37 | Los tiempos: opciones; una sesión vieja se cierra en su próximo pedido; subir el tope alarga la abierta (con el reloj de mentira) |
@@ -284,21 +284,16 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
    `device-link.md`, donde dicen «8 horas como mucho»; el `.env.example`), las revisiones (paso 7) y el
    manual (paso 9).
 
-## 12. Para que decida Carlos
+## 12. Lo que decidió Carlos
 
-1. **El redondeo sin precios:** hasta que exista el catálogo no hay precios para mostrar. Propongo que el
-   panel muestre el ejemplo de la regla con el paso elegido y diga «Todavía no hay precios».
-2. **El avance del recálculo** («1.263 de 1.650») se programa con el catálogo: antes, sin precios, el
-   cambio es instantáneo y no habría con qué probarlo.
+1. **El redondeo sin precios:** hasta que exista el catálogo, el panel muestra el ejemplo de la regla con
+   el paso elegido y dice «Todavía no hay precios».
+2. **El avance del recálculo** («1.263 de 1.650») se programa con el catálogo.
 3. **Una prueba de punta a punta:** un Administrador baja el tiempo sin uso y la sesión de otro
-   dispositivo, ya pasada, termina en su próximo pedido (E33). Una unitaria no alcanza porque el corte lo
-   hace el servidor de verdad con la cookie, y la entrada aparece encima en el navegador.
-4. **Si cambió el número de precios entre que se vio y se confirmó,** se vuelve a preguntar con el número
-   nuevo, en lugar de aplicar igual (R3.4).
-5. **La zona en el `.env`** se puede cambiar editando el archivo y reiniciando, sin que quede en Quién hizo
-   qué. Opciones:
-   - A. El servidor la guarda la primera vez que arranca; si después el `.env` dice otra, no arranca y
-     dice por qué. Cambiarla pide un paso a mano en la base, a propósito.
-   - B. Dejarla así: la zona se fija al instalar y nadie la toca.
-
-   Propongo B: hoy es una sola ferretería, y quien puede editar el `.env` ya puede todo en el servidor.
+   dispositivo, ya pasada, termina en su próximo pedido, con la entrada encima (E33). La unitaria no
+   alcanza: el corte lo hace el servidor de verdad con la cookie, en un navegador de verdad.
+4. **Si cambió el número de precios** entre que se vio y se confirmó, se vuelve a preguntar con el número
+   nuevo (R3.4, E41).
+5. **La zona en el `.env` queda así:** se fija al instalar y nadie la toca; cambiarla editando el archivo
+   no queda en Quién hizo qué. Hoy es una sola ferretería, y quien puede editar el `.env` ya puede todo
+   en el servidor.
