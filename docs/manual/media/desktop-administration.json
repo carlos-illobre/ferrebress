@@ -1,0 +1,17 @@
+{
+  "device": "computer",
+  "width": 1100,
+  "height": 618,
+  "points": {
+    "rounding": [
+      19.5,
+      22.9
+    ],
+    "steps": [
+      77.2,
+      41.4
+    ]
+  },
+  "hash": "005d6d3b765dbac19dadb2dc9cfb702b5f7ee477e1c15c301992706c4c295401",
+  "file": "47e01d278b8b2db90c6c52676f389c01c8d8a4899bad43b96872eea80094fef4"
+}

@@ -40,6 +40,6 @@ paso 9 de cada uno (constitución). La aplicación lo arma desde estos archivos;
 - tickets · Mejoras y errores · bug
 - device-settings · Configuración · settings · device-settings.md
 - device-link · Celular y computadora · smartphone · device-link.md
-- administration · Administración · sliders-horizontal
+- administration · Administración · sliders-horizontal · administration.md
 - customers · Clientes · users
 - offline · Trabajar sin conexión · wifi-off · → sign-in: no-internet (computadora), offline (celular)

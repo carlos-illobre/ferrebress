@@ -6,6 +6,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { type Scene as SceneFile, sha256 } from '../../tools/manual/media.ts';
+import { administrationScenes } from './administration-scenes.ts';
 import { auditLogScenes } from './audit-log-scenes.ts';
 import { deviceLinkScenes } from './device-link-scenes.ts';
 import { deviceSettingsScenes } from './device-settings-scenes.ts';
@@ -86,6 +87,7 @@ for (const scene of [
   ...rolesScenes,
   ...auditLogScenes,
   ...deviceLinkScenes,
+  ...administrationScenes,
   ...deviceSettingsScenes,
   ...mineScenes,
 ]) {

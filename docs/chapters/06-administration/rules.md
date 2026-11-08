@@ -5,7 +5,7 @@ para sí misma está en Configuración (capítulo 04). Se construye en dos etapa
 para todos** (R1 a R7) y **b. Anomalías**, que se escribe con el stock, el primer capítulo que suma
 anomalías.
 
-**Estado:** etapa a, aprobada; etapa b, por escribir.
+**Estado:** etapa a, aprobada y programada; etapa b, por escribir.
 
 **Lo que no está acá, y por qué:**
 

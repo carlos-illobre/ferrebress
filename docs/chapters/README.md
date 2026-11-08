@@ -21,7 +21,7 @@ se dejó y qué propone mejorar (constitución, paso 1).
 | 03 · Celular y computadora ([`03-device-link`](03-device-link/summary.md)) | Vincular, espejo, lector de códigos, fotos, en dos etapas: a. vínculo y espejo; b. lector de códigos y fotos | Etapa a: reglas y pantallas aprobadas; diseño técnico; etapa b: por escribir |
 | 04 · Configuración del dispositivo ([`04-device-settings`](04-device-settings/summary.md)) | Lo que cada persona elige para sí misma, en dos etapas: a. preferencias del dispositivo; b. lo mío | Etapa a: Carlos la probó y anda, con su manual; etapa b: por escribir |
 | 05 · Quién hizo qué ([`05-audit-log`](05-audit-log/summary.md)) | El registro de cada acción y cómo se consulta, en Más → Usuarios | Programado; paso 7: las revisiones del código |
-| 06 · Administración ([`06-administration`](06-administration/summary.md)) | Lo que un Administrador fija para todos, en dos etapas: a. ajustes para todos; b. anomalías | Etapa a: reglas y pantalla aprobadas; etapa b: por escribir |
+| 06 · Administración ([`06-administration`](06-administration/summary.md)) | Lo que un Administrador fija para todos, en dos etapas: a. ajustes para todos; b. anomalías | Etapa a: Carlos la probó y la aprobó, con su manual; etapa b: por escribir |
 | 07 · Catálogo (`07-catalog`) | Productos, proveedores, costo, margen, precio, búsqueda, duplicados | Por escribir |
 | 08 · Listas de precios (`08-price-lists`) | Subir, revisar y aplicar la lista de un proveedor | Por escribir |
 | 09 · Stock (`09-stock`) | Cuánto hay, correcciones y anomalías de stock | Por escribir |
