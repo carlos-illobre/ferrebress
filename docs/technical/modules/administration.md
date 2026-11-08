@@ -2,32 +2,32 @@
 
 Implementa la etapa a del [capítulo 06](../../chapters/06-administration/rules.md): R1 a R7, con sus
 escenarios E01 a E40, y lo que trae en 00 · R8.4, 01 · R3.2 y 03 · R2.2. La pantalla aprobada es
-[`mockups/administration-settings/final/`](../../design/mockups/administration-settings/final/). Lo que
-decide Carlos está en § 12.
+[`mockups/administration-settings/final/`](../../design/mockups/administration-settings/final/).
+Corregido con sus dos revisiones ([diseño](administration-design-review.md),
+[seguridad](administration-security-review.md)); lo que decide Carlos está en § 12.
 
 ## 1. La idea técnica
 
 - **Un ajuste es una fila con su versión.** Los ajustes viven en una tabla de clave y valor, cada uno con
-  su número de versión. Cambiar uno pide la versión que se vio: si otro lo cambió antes, no se pisa
-  (R2.3), y dos ajustes distintos se guardan sin chocar (E13). Es el mismo mecanismo que los roles
-  (diseño de 02).
-- **La lista de ajustes es fija y la comparte el servidor con la aplicación,** como los permisos:
+  su número de versión. Cambiar uno manda la versión que se vio, y la base lo escribe solo si sigue
+  siendo esa, en una sola sentencia: si otro lo cambió antes, no se pisa (R2.3), y dos ajustes distintos
+  se guardan sin chocar (E13).
+- **La lista de ajustes es fija y la comparten el servidor y la aplicación,** como los permisos:
   `src/shared/contracts/administration.ts` dice de cada ajuste su clave, su grupo, su valor de arranque y
-  cómo se valida. Un capítulo nuevo suma sus filas (R1.3).
-- **Los ajustes están en la memoria del servidor.** Se cargan al arrancar y se actualizan al confirmar
-  cada cambio. Quien los usa los lee de la fachada sin consultar la base: `sign-in` en cada pedido y en
-  cada latido (que hoy leen su `settings.ts` sin esperar), y `device-link` al armar su vista. Así un
-  cambio vale en el próximo pedido de cualquier dispositivo (R2.4, R6.3, R7.3).
-- **`administration` no conoce a quien lo usa:** `sign-in` y `device-link` importan su fachada, nunca al
-  revés. Para que un módulo reaccione en el momento a un cambio, `administration` publica el evento
-  `settings.changed`.
+  sus opciones o su rango. Un capítulo nuevo suma sus filas (R1.3).
+- **Los ajustes están en la memoria del servidor.** Se cargan y se validan al arrancar, y se actualizan
+  en el mismo pedido que los cambia, apenas confirma. Quien los usa los lee de la fachada sin consultar la
+  base: `sign-in` en cada pedido y en cada latido, y `device-link` en cada contacto. Así un cambio vale en
+  el próximo pedido de cualquier dispositivo (R2.4, R6.3, R7.3).
+- **`administration` no conoce a quien lo usa.** `sign-in` y `device-link` reciben su fachada al
+  registrarse, en `server/modules.ts`, como reciben hoy la de otros módulos. `administration` no importa
+  a ninguno de los dos.
 - **El redondeo recalcula precios que son del catálogo**, que todavía no existe. `administration` define
-  la forma de quien recalcula (`PriceRecalculator`: contar cuántos cambian, mostrar ejemplos y aplicar
-  dentro de una transacción) y el catálogo se anota al registrarse. Sin nadie anotado (hasta 07), no hay
-  precios: no cambia ninguno y se guarda sin preguntar (E21).
-- **La zona horaria sale del `.env`** (`BUSINESS_TIME_ZONE`, R5). Deja de estar escrita en
-  `src/shared/time/business.ts`: el servidor la fija al arrancar y la aplicación la recibe en
-  `/api/start`.
+  la forma de quien recalcula (`PriceRecalculator`: contar cuántos precios cambian, dar ejemplos y aplicar
+  dentro de una transacción) y el catálogo se la pasa al crearse. Hasta 07 no hay nadie: no hay precios,
+  no cambia ninguno y se guarda sin preguntar (E21). Las pruebas de E18 a E22 usan uno de mentira.
+- **La zona horaria sale del `.env`** (`BUSINESS_TIME_ZONE`, R5) y la recibe la aplicación en
+  `/api/start`, que la guarda en el dispositivo para usarla sin conexión.
 
 ## 2. Entidades
 
@@ -38,14 +38,17 @@ decide Carlos está en § 12.
 | `key` | `text`, clave | El ajuste: `roundingStep`, `quickMargins`, `sessionIdle`, `sessionMax`, `pairingDays` |
 | `value` | `jsonb`, `not null` | Su valor, con la forma que dice el contrato |
 | `version` | `integer`, `not null` | Sube en 1 con cada cambio (R2.3) |
-| `changed_at` | `timestamptz`, nulo | Cuándo cambió por última vez; nulo, si nunca cambió |
-| `changed_by` | `uuid`, nulo | Quién lo cambió por última vez, para «Lo cambió <persona> recién» |
+| `changed_by` | `uuid`, `not null` | Quién lo cambió por última vez, para «Lo cambió <persona> recién» |
 
 - **Los valores de arranque no están en la tabla:** están en el contrato. Una clave sin fila vale lo de
   arranque, con versión 0; el primer cambio inserta la fila. Así un ajuste nuevo de otro capítulo no
   necesita migración.
+- **Guardar es una sola sentencia:** `insert … on conflict (key) do update … where settings.version =
+  <la que se vio> returning version`. Sin fila y con versión 0, inserta; con la fila y la versión que se
+  vio, actualiza; si no devuelve nada, otro cambió antes y da `409 changed`. Dos primeros cambios a la
+  vez no chocan al insertar: el segundo no devuelve nada.
 - **Sin índices más que la clave:** son cinco filas.
-- **La historia de cada ajuste está en la auditoría,** no acá (constitución, V).
+- **Cuándo cambió y la historia** están en la auditoría, no acá (constitución, V).
 
 ### Los ajustes
 
@@ -57,40 +60,55 @@ decide Carlos está en § 12.
 | `sessionMax` | Horas | 8 | Uno de 4, 8, 12, 24 (R6.2) |
 | `pairingDays` | Días | 30 | Entero de 1 a 365 (R7.2) |
 
+**Al arrancar** se leen todas las filas y cada valor se valida con el contrato. Si la lectura falla o un
+valor no es válido (una opción que se sacó del contrato, una fila tocada a mano), **el servidor no
+arranca** y dice cuál: arrancar con lo de arranque alargaría en silencio lo que bajó un Administrador.
+
 ## 3. API
 
-Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesión.
+Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesión y van por `POST` o
+`GET`, como el resto de la API.
 
 | Ruta | Qué hace | Permiso | Consultas |
 |---|---|---|---|
-| `GET /api/administration` | Los ajustes con su valor, su versión y quién y cuándo los cambió por última vez; la zona horaria del negocio con su nombre; si quien pide puede cambiarlos | Ninguno (R1.2) | 1: los nombres de quienes los cambiaron; los ajustes salen de la memoria |
+| `GET /api/administration` | Los ajustes con su valor y su versión, y la zona horaria del negocio | Ninguno (R1.2) | 0: salen de la memoria |
 | `GET /api/administration/rounding` | Para el panel del redondeo: cuántos precios hay, cuántos cambian con cada paso y hasta cinco ejemplos | Ninguno | Las de quien recalcula; hoy, 0 |
-| `PUT /api/administration/settings/:key` | `{ value, version, confirmed? }`. Cambia un ajuste | «Cambiar los ajustes» | 3: trabar la fila, escribirla y la auditoría |
+| `POST /api/administration/settings/:key` | `{ value, version, confirmed? }`. Cambia un ajuste | «Cambiar los ajustes» | Ver § 9 |
 
+- **El orden del `POST`:** sesión, permiso, clave, cuerpo. La clave se busca en un `Map` de la lista del
+  contrato (`constructor` o `__proto__` no son claves). El cuerpo se valida estricto: sin campos de más,
+  `version` entera de 0 a 2.147.483.647 y `value` con la forma de esa clave.
+- **Si puede cambiarlos** la pantalla lo sabe por los permisos de la sesión (`can`), que ya tiene y que se
+  ponen al día solos cuando cambian (02 · R7.8). El `GET` no lo dice.
 - **Quién lo tiene** (R1.2, E02): la pantalla usa la ruta que ya existe, `GET
   /api/permissions/:permission/holders` (diseño de 02).
-- **Errores del `PUT`:**
-  - `400 invalid`, con el rango: valor que no cumple la tabla de § 2 (R2.2, E24, E27, E28, E37, E38).
+- **Errores del `POST`:**
   - `403 forbidden`, con el permiso, como cualquier ruta (R1.5, E03, E05).
   - `404`: una clave que no está en la lista.
-  - `409 changed`, con el valor y la versión de ahora y el nombre de quien lo cambió (R2.3, E12).
-  - `409 confirm`, con cuántos precios cambian: un `roundingStep` que cambia precios, sin `confirmed`
-    (R3.4, E18). Con `confirmed: true` se recalcula; si el número de ahora ya no es el que se vio, igual
-    se aplica: la persona confirmó cambiar el paso, y el número que vio era el de un momento antes.
-  - `503 recalc-failed`: falló el recálculo; no cambió nada (R3.5, E22).
-- **Deshacer** (R2.1) no es una ruta: es otro `PUT` con el valor anterior y la versión nueva. Si otro lo
-  cambió en el medio, da `409 changed`, como cualquier cambio.
-- **`/api/start`** suma `businessTimeZone` (con o sin sesión: la entrada también muestra horas).
+  - `400 invalid`, con el rango o las opciones: un valor que no cumple § 2 (R2.2, E24, E27, E28, E37,
+    E38).
+  - `409 changed`, con el valor y la versión de ahora y el nombre de quien lo cambió (R2.3, E12): una
+    consulta, solo en este caso.
+  - `409 confirm`, con cuántos precios cambian: un `roundingStep` que cambia precios, sin
+    `confirmed` o con un número distinto del de ahora (R3.4, E18). `confirmed` es **el número que se
+    vio**: si ya no es el de ahora (alguien cambió costos en el medio), se vuelve a preguntar con el
+    número nuevo.
+  - `503 recalc-failed`: falló el recálculo; no cambió nada (R3.5, E22). Queda en el registro del
+    servidor con su error.
+- **Deshacer** (R2.1) no es una ruta: es otro `POST` con el valor anterior y la versión que devolvió el
+  cambio. Un cambio nuevo del mismo ajuste reemplaza el aviso, y «Deshacer» es siempre el del último:
+  así nunca lleva una versión vieja propia.
+- **`/api/start`** suma `businessTimeZone`, con o sin sesión (la entrada también muestra horas).
 
 ## 4. Eventos y auditoría
 
-- **`settings.changed`**, en la transacción del cambio: `{ key, before, after, prices? }`. Lo escuchan
-  `device-link`, que corre ya su limpieza de vínculos vencidos si bajaron los días (R7.3, E39), y la
-  memoria de `administration`, que se actualiza al confirmar.
-- **En Quién hizo qué,** grupo nuevo «Administración»: «Cambió <ajuste>», con el valor anterior y el nuevo
-  (R2.5, E09), y en el redondeo, cuántos precios cambiaron (E19). Deshacer queda como otro cambio (E10).
+- **En Quién hizo qué,** grupo nuevo «Administración»: `settings.changed`, «Cambió <ajuste>», con el
+  valor anterior y el nuevo (R2.5, E09), y en el redondeo, cuántos precios cambiaron (E19). Deshacer
+  queda como otro cambio (E10).
 - **Rechazos:** sin permiso, el `permission.denied` que ya anota la plataforma una vez por minuto (E03).
   Los `400` y `409` no se anotan: son errores de quien tiene el permiso, que la pantalla ya muestra.
+- **Sin eventos entre módulos.** La memoria se actualiza en el mismo pedido. Los vínculos vencidos se
+  terminan en su próximo contacto (§ 5), así que `device-link` no necesita enterarse del cambio.
 
 ## 5. Dónde vive cada cosa
 
@@ -98,25 +116,29 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 
 | Archivo | Qué hace |
 |---|---|
-| `index.ts` | La fachada: `settings()` (los valores de ahora, sin esperar), `onRounding(recalculator)` para el catálogo, el registro de las rutas y del permiso |
+| `index.ts` | La fachada: `settings()` (los valores de ahora, sin esperar), el registro de las rutas y el `PriceRecalculator` que recibe al crearse |
 | `routes.ts` | Las tres rutas |
 | `rules.ts` | Validar un valor contra el contrato, ordenar los márgenes, decidir si hace falta confirmar |
-| `data.ts` | Leer todas las filas; trabar, insertar o actualizar una |
-| `memory.ts` | Los valores en memoria, cargados al arrancar y al día con cada cambio confirmado |
-| `events.ts` | `settings.changed` |
+| `data.ts` | Leer todas las filas y guardar una con su versión |
+| `memory.ts` | Los valores en memoria: se cargan al arrancar y se reemplazan solo con una versión mayor |
 | `migrations/001-settings.ts` | La tabla |
 
 ### Lo que cambia en otros módulos
 
 - **`sign-in`:**
   - `closedReasonOf`, `isOpen`, la limpieza diaria y las listas de sesiones abiertas leen los dos tiempos
-    de `administration.settings()` en lugar de su `settings.ts` (01 · R3.2).
-  - La cookie de la sesión dura lo que la opción más larga (24 horas, en el `settings.ts` de `sign-in`):
+    de la fachada de `administration` en lugar de su `settings.ts` (01 · R3.2).
+  - La cookie de la sesión dura lo que la opción más larga de `sessionMax` en el contrato (hoy, 24 horas):
     el servidor es quien cierra la sesión. Si la cookie durara el tope de ese momento, subir el tope no
     alargaría las sesiones abiertas (E36).
   - `/api/start` suma `businessTimeZone`.
-- **`device-link`:** `viewOf` y la limpieza diaria leen `pairingDays` de la fachada, y la limpieza corre
-  también al recibir `settings.changed` de `pairingDays` (03 · R2.2).
+- **`device-link`:**
+  - `viewOf`, la limpieza diaria y la comprobación de cada contacto (`pairingOf`, `stillPaired`) leen
+    `pairingDays` de la fachada.
+  - **En cada contacto,** si `mirroredAt + días` ya pasó, el vínculo se termina como vencido, por el mismo
+    camino que la limpieza (03 · R2.3, R7.3, E39). Así un vínculo no vive más que su plazo, también con
+    1 día.
+  - Antes de limpiar, la limpieza escribe lo espejado que quedó en memoria, como hace `sign-in`.
 - **`users`:** nada; el permiso nuevo se le suma solo al rol Administrador al arrancar (02 · R7.4).
 
 ### Código común
@@ -125,13 +147,24 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 - `src/shared/contracts/permissions.ts`: el grupo `administration` y el permiso `settings.change`,
   «Cambiar los ajustes».
 - `src/shared/audit-log/administration.ts`: cómo se ve `settings.changed` en Quién hizo qué.
-- `src/shared/time/business.ts`: la zona deja de estar escrita; `setBusinessTimeZone(zone)` la fija una
-  vez (el servidor al arrancar, la aplicación al recibir `/api/start`) y los formatos se arman con ella.
+- `src/shared/pricing/rounding.ts`: el redondeo para arriba al paso (E15 a E17). Lo usan el panel (los
+  ejemplos) y, con 07, el catálogo.
+- `src/shared/time/business.ts`: la zona deja de estar escrita. `businessTimeZone()` es una función, y los
+  formatos se arman la primera vez que se usan con la zona de ese momento. Los archivos que hoy copian la
+  zona al cargarse (`app/platform/time.ts`, `sign-in/offline/when.ts`, `audit-log/logic.ts`, el detalle
+  del vínculo) la piden a la función. `setBusinessTimeZone(zone)` la fija: en el servidor, una sola vez al
+  arrancar (una segunda vez es un error).
 - `src/server/platform/config.ts`: `BUSINESS_TIME_ZONE`, obligatoria y sin valor por omisión
-  (constitución, VIII), validada con `Intl.supportedValuesOf('timeZone')`; en `.env.example` y en el
-  `.env` de pruebas, `America/Argentina/Buenos_Aires`.
+  (constitución, VIII), validada armando un `Intl.DateTimeFormat` con ella (la lista de
+  `Intl.supportedValuesOf` no trae `America/Argentina/Buenos_Aires`). Va en `.env.example`, en el `.env`
+  de pruebas, en `src/server/testing/config.ts` y en `tests/e2e/stack/start.ts`.
 
-### La aplicación, `src/app/modules/administration/`
+### La aplicación
+
+- **La zona:** al recibir `/api/start`, `setBusinessTimeZone` y se guarda en `localStorage` (no es del
+  negocio ni secreta; se suma a la lista de la arquitectura). Al arrancar, sin conexión, se usa la
+  guardada. Sin ninguna (la primera vez, sin conexión), la del navegador, que en el local es la misma.
+- **`src/app/modules/administration/`:**
 
 | Archivo | Qué hace |
 |---|---|
@@ -144,24 +177,33 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 
 ## 6. Conexiones
 
-- **`piggyback`:** el campo `a` de la cabecera lleva la suma de las versiones de los ajustes (unos 4
-  bytes). La aplicación lo escucha solo con Administración a la vista: si cambia, vuelve a pedir
-  `GET /api/administration` (E08, E14). Con la pantalla cerrada no pide nada.
-- **Nada de canales.** El avance del recálculo («1.263 de 1.650») usa el canal `temporary` y se programa
-  con el catálogo, que es cuando hay precios para recalcular (§ 12, 2).
+- **Solo `request`.** Sin campos nuevos en la cabecera ni canales: la pantalla pide los ajustes al abrirse
+  y al guardar recibe el valor nuevo; si otro cambió algo mientras tanto, lo dice el `409` (R2.3). Ningún
+  pedido automático nuevo.
+- **El avance del recálculo** («1.263 de 1.650») usa el canal `temporary` y se programa con el catálogo,
+  que es cuando hay precios para recalcular (§ 12, 2).
 
 ## 7. Pantallas
 
-- **Lo que viene del servidor** se pide con `useMirroredQuery` en modo `forward`: con el celular y la
-  computadora vinculados, el otro lo recibe por el espejo (R1.7).
-- **Valores con nombre,** espejados: el ajuste elegido, la opción sobre la que se pasa (lo que muestra el
-  panel), la confirmación del redondeo abierta y el aviso de «Lo cambió <persona> recién».
-- **Local:** el cursor.
-- **Teclas:** la de cada ajuste en la lista (R, M, Z, S, T, V) y ← → para sus opciones (R1.8); en la
-  confirmación, «Cambiar N precios» y «Cancelar»; «Deshacer» en el aviso. Se declaran con los atributos
-  de `platform/keyboard`.
+- **Lo que viene del servidor** se pide con `useMirroredQuery`. Para que el otro dispositivo vinculado vea
+  un cambio también por el servidor (E08), el aviso de lo guardado es un valor con nombre espejado que
+  lleva el ajuste, el valor y la versión nuevos: el otro lo aplica a lo que muestra.
+- **Valores con nombre,** espejados: el ajuste elegido, la confirmación del redondeo abierta, el aviso de
+  lo guardado y el de «Lo cambió <persona> recién».
+- **Local:** la opción sobre la que se pasa con el mouse (es del dispositivo que tiene el mouse) y el
+  cursor.
+- **Cuándo se guarda:** una opción, al tocarla; lo escrito (los márgenes, los días), al salir de la caja
+  o con Enter; el deslizador de los días, al soltarlo. Antes de mandar, la pantalla valida con el
+  contrato y dice en el lugar lo que no vale (E28, E38).
+- **Teclas:** Alt más la del ajuste en la lista (R, M, Z, S, T, V) y ← → para sus opciones (R1.8); D
+  deshacer; en la confirmación, P «Cambiar N precios» y C «Cancelar»; cuando falla el recálculo, A «Ahora
+  no» y R «Reintentar». Se declaran con los atributos de `platform/keyboard`.
+- **La hora del negocio** (R5.1) sale del reloj del servidor que ya tiene la aplicación
+  (`platform/server/clock.ts`) en la zona del negocio y se mueve sola cada minuto, sin pedidos.
 - **Piezas:** las de `ui/` (Toast con su acción, Dialog, LoadState, Offline). Los botones de opciones
   usan el estilo de los de Configuración; no se suma una pieza nueva a `ui/`.
+- **Sin el permiso** (E02, E05): todo se ve y nada se toca. Si lo pierde con la pantalla abierta, la
+  pantalla se pone así con los permisos nuevos.
 - **Sin conexión** (R1.6): gris con lo último que se vio en esta sesión de la aplicación, con
   «Reintentar»; sin nada visto, «Hace falta conexión» (E06, E07). No se guarda nada en el dispositivo.
 - **Sin precios** (hasta el catálogo): el panel del redondeo muestra el ejemplo de la regla
@@ -169,35 +211,43 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 
 ## 8. Seguridad
 
-- **Qué datos toca:** cinco números del negocio, quién los cambió y la zona horaria. Nada personal más
-  que el nombre de quien cambió cada uno, que ve cualquiera con sesión (R1.2: lo mismo que en Quién hizo
-  qué ven quienes tienen ese permiso; acá es solo el último).
+- **Qué datos toca:** cinco números del negocio y la zona horaria. El nombre de quien cambió un ajuste
+  sale solo en el `409`, a quien tiene el permiso y acaba de chocar con él.
 - **Quién puede hacer cada cosa:** verlos, cualquiera con sesión; cambiarlos, «Cambiar los ajustes»,
-  controlado por el servidor en cada `PUT`, también en el que deshace.
-- **Lo que entra de afuera:** la clave de la dirección se busca en la lista fija; el cuerpo se valida con
-  el esquema del contrato (forma, tipo y valores de § 2) antes de la regla. Un valor fuera de la lista no
-  llega a la base (E24, E37).
+  controlado por el servidor en cada `POST`, también en el que deshace.
+- **Lo que entra de afuera:** la clave, buscada en un `Map` de la lista fija; el cuerpo, validado
+  estricto con el esquema del contrato antes de la regla. Un valor fuera de la lista o del rango no llega
+  a la base (E24, E37). Contra pedidos desde otros sitios, el control de `Origin` y la cookie
+  `SameSite=Strict` que ya tiene la plataforma.
+- **Lo guardado también se valida,** al arrancar (§ 2): un valor que no es un número no puede dejar
+  sesiones que nunca vencen.
 - **El abuso que se cuida:**
-  - Acortar los tiempos de la sesión a lo mínimo deja a todos con sesiones de 15 minutos sin uso, pero no
-    los deja afuera: es una decisión del negocio, queda en Quién hizo qué y se revierte.
-  - Bajar los días del vínculo a 1 corta los vínculos de todos: lo mismo.
-  - Cambiar el redondeo recalcula todos los precios: pide confirmación y es todo o nada (R3.5).
-  - Quien pierde el permiso mientras tiene la pantalla abierta no puede guardar (E05): el permiso se mira
-    en cada pedido.
-- **Límite de pedidos:** el `PUT`, 30 por minuto por sesión (en el `settings.ts` del módulo), con el
-  `limit` común; es una pantalla que se toca poco.
+  - Acortar los tiempos o los días al mínimo deja sesiones cortas y corta vínculos, pero no deja a nadie
+    afuera: las opciones son cerradas, queda en Quién hizo qué y se revierte.
+  - **Riesgo aceptado:** subir los tiempos alarga también una sesión robada que siga abierta. Es lo que
+    pide R6.3 (vale para las abiertas) y queda en Quién hizo qué.
+  - Cambiar el redondeo recalcula todos los precios: pide confirmar el número y es todo o nada (R3.5). Con
+    07 se le pone un límite propio más bajo al recálculo y al `GET` de sus números.
+  - Quien pierde el permiso con la pantalla abierta no puede guardar (E05): el permiso se mira en cada
+    pedido.
+- **Límite de pedidos:** el `POST`, con el `limit` por sesión que ya existe, 30 por minuto (en el
+  `settings.ts` del módulo); es una pantalla que se toca poco.
 - **Secretos:** ninguno nuevo. `BUSINESS_TIME_ZONE` no es secreto.
-- **Auditoría:** cada cambio con el valor anterior y el nuevo; los intentos sin permiso.
+- **Auditoría:** cada cambio con el valor anterior y el nuevo; los intentos sin permiso. Cambiar la zona en
+  el `.env` no queda en la auditoría (§ 12, 5).
 
 ## 9. Metas de performance
 
-- `GET /api/administration`: 1 consulta (los nombres); menos de 10 ms; unos 700 bytes comprimido.
+- `GET /api/administration`: 0 consultas; menos de 5 ms; unos 500 bytes comprimido.
 - `GET /api/administration/rounding`: hoy 0 consultas. Con el catálogo, una consulta que cuenta por paso
-  en la base (no en el servidor) y otra con los ejemplos: menos de 100 ms con 10.000 precios.
-- `PUT`: 3 consultas en una transacción, más lo de quien recalcula en el redondeo; menos de 20 ms.
+  en la base y otra con los ejemplos: menos de 100 ms con 10.000 precios.
+- `POST` de un ajuste que no es el redondeo: una sentencia en PostgreSQL (abrir y confirmar aparte), la
+  auditoría en SQLite y, solo en un `409 changed`, el nombre (1 más). Menos de 20 ms.
+- `POST` del redondeo: lo anterior, en la transacción, más lo de quien recalcula. La meta del recálculo
+  se fija con 07.
+- Al arrancar: 1 consulta para cargar los ajustes.
 - Leer un ajuste desde otro módulo: de la memoria, sin consultas ni esperas.
-- La cabecera suma unos 6 bytes por respuesta.
-- La aplicación: el módulo se baja al abrirlo; unos 12 KB comprimido.
+- La aplicación: el módulo se baja al abrirlo; unos 12 KB comprimido. `/api/start` suma unos 40 bytes.
 - Las pruebas cuentan las consultas de cada ruta.
 
 ## 10. Pruebas
@@ -205,30 +255,34 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 | Escenarios | Prueba |
 |---|---|
 | E01, E02, E04, E06, E07 | La pantalla con el servidor de mentira: con y sin permiso, sin conexión; el permiso nuevo en el rol Administrador al arrancar |
-| E03, E05 | La ruta sin el permiso: `403`, nada cambia, queda el intento |
-| E08, E14 | La cabecera `a` cambia con un ajuste; la pantalla a la vista vuelve a pedir, cerrada no |
-| E09 a E11 | Guardar, la auditoría con el antes y el después, deshacer como otro cambio |
-| E12, E13 | Dos `PUT` con la misma versión: el segundo da `409 changed` con el valor de ahora; con claves distintas, los dos pasan |
-| E15 a E17 | La regla del redondeo, en `src/shared/` (la va a usar el catálogo) |
-| E18 a E24 | El `PUT` del redondeo con un recalculador de mentira: pide confirmar, aplica, cancela, sin cambios guarda solo, falla y deshace todo, paso inválido |
-| E25 a E29 | El `PUT` de los márgenes: orden, repetidos, rangos |
-| E30, E31 | La zona horaria en la pantalla, con 24 horas y a. m./p. m.; `BUSINESS_TIME_ZONE` inválida no arranca |
+| E03, E05 | La ruta sin el permiso: `403`, nada cambia, queda el intento; la pantalla pierde el permiso y queda sin poder tocarse |
+| E08 | Dos dispositivos vinculados, por el directo y por el servidor: el cambio en uno se ve en el otro |
+| E09 a E11, E14 | Guardar, la auditoría con el antes y el después, deshacer como otro cambio, dos cambios seguidos; otra pantalla no pide nada |
+| E12, E13 | Dos `POST` con la misma versión, también desde los valores de arranque: el segundo da `409 changed` con el valor de ahora; con claves distintas, los dos pasan |
+| E15 a E17 | La regla del redondeo, en `src/shared/pricing/` |
+| E18 a E24 | El `POST` del redondeo con un recalculador de mentira: pide confirmar el número, vuelve a pedir si cambió, aplica, cancela, sin cambios guarda solo, falla y no cambia nada, paso inválido |
+| E25 a E29 | El `POST` de los márgenes: orden, repetidos, rangos |
+| E30, E31 | La zona en la pantalla, con 24 horas y a. m./p. m.; `BUSINESS_TIME_ZONE` inválida no arranca; la zona guardada se usa sin conexión |
 | E32 a E37 | Los tiempos: opciones; una sesión vieja se cierra en su próximo pedido; subir el tope alarga la abierta (con el reloj de mentira) |
-| E38 a E40 | Los días: rango; al bajarlos, la limpieza corre y anota los vínculos vencidos; al subirlos, siguen |
+| E38 a E40 | Los días: rango; al bajarlos, el vínculo vencido se termina en su próximo contacto; al subirlos, sigue |
+| Seguridad | Claves como `__proto__`; campos de más; un valor inválido guardado no deja arrancar |
 | Capturas | La pantalla en la computadora y en el celular, con el panel de cada ajuste, la confirmación y sin permiso |
 
 ## 11. Tareas
 
-1. **Código común** (tomarlo antes): el contrato de los ajustes, el permiso, la auditoría, la zona
-   horaria que se fija al arrancar y `BUSINESS_TIME_ZONE`.
-2. **El servidor de `administration`:** la migración, la memoria, las rutas, el evento y el
-   recalculador vacío. Depende de 1.
+1. **Código común** (tomarlo antes): el contrato de los ajustes, el permiso, la auditoría, el redondeo, la
+   zona como función que se fija y `BUSINESS_TIME_ZONE`.
+2. **El servidor de `administration`:** la migración, la carga y la validación al arrancar, la memoria y
+   las rutas. Depende de 1.
 3. `[P]` **`sign-in`** lee los tiempos de la fachada; la cookie con el tope más largo; la zona en
    `/api/start`. Depende de 2.
-4. `[P]` **`device-link`** lee los días de la fachada y limpia al cambiar. Depende de 2.
-5. **La aplicación:** la zona desde `/api/start`, el módulo y la pantalla, la cabecera `a`. Depende de 3.
-6. Las capturas, las de punta a punta (§ 12, 3), los documentos (`mobile-data.md`, la arquitectura, el
-   `.env.example`, qué necesita internet), las revisiones (paso 7) y el manual (paso 9).
+4. `[P]` **`device-link`** lee los días de la fachada, termina el vencido en cada contacto y escribe lo
+   espejado antes de limpiar. Depende de 2.
+5. **La aplicación:** la zona desde `/api/start` y guardada, el módulo y la pantalla. Depende de 3.
+6. Las capturas, la de punta a punta si Carlos la aprueba (§ 12, 3), los documentos (la arquitectura:
+   los ajustes en memoria en «Escala» y la zona en lo que se guarda en el dispositivo; `sign-in.md` y
+   `device-link.md`, donde dicen «8 horas como mucho»; el `.env.example`), las revisiones (paso 7) y el
+   manual (paso 9).
 
 ## 12. Para que decida Carlos
 
@@ -238,6 +292,13 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
    cambio es instantáneo y no habría con qué probarlo.
 3. **Una prueba de punta a punta:** un Administrador baja el tiempo sin uso y la sesión de otro
    dispositivo, ya pasada, termina en su próximo pedido (E33). Una unitaria no alcanza porque el corte lo
-   hace el servidor de verdad con la cookie y la entrada que aparece encima en el navegador.
-4. **Un pedido automático nuevo** para `mobile-data.md`: con Administración a la vista, si otro cambia un
-   ajuste, la pantalla vuelve a pedir los ajustes (unos 700 bytes, una vez por cambio).
+   hace el servidor de verdad con la cookie, y la entrada aparece encima en el navegador.
+4. **Si cambió el número de precios entre que se vio y se confirmó,** se vuelve a preguntar con el número
+   nuevo, en lugar de aplicar igual (R3.4).
+5. **La zona en el `.env`** se puede cambiar editando el archivo y reiniciando, sin que quede en Quién hizo
+   qué. Opciones:
+   - A. El servidor la guarda la primera vez que arranca; si después el `.env` dice otra, no arranca y
+     dice por qué. Cambiarla pide un paso a mano en la base, a propósito.
+   - B. Dejarla así: la zona se fija al instalar y nadie la toca.
+
+   Propongo B: hoy es una sola ferretería, y quien puede editar el `.env` ya puede todo en el servidor.
