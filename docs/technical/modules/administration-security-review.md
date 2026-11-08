@@ -50,6 +50,9 @@ abierto (sesiones que no vencen). El punto 4 es un error que impide arrancar: la
 | 11 | La cookie de 24 horas | Sin cambio |
 | 12 | La cabecera `a` en respuestas sin sesión | Mejora menor |
 
+El diseño se corrigió con estos puntos; cómo quedó cada uno en el código está en el paso 7, «Los
+puntos del paso 4 en el código».
+
 ## Los puntos
 
 ### 1. Un valor guardado que no cumple el contrato puede dejar las sesiones sin vencer
@@ -285,3 +288,199 @@ abierto (sesiones que no vencen). El punto 4 es un error que impide arrancar: la
 Fuentes del punto 4: lo comprobé en Node 22.22 con ICU 77.1; el comportamiento de ICU está descrito en
 [WebKit, bug 218542](https://bugs.webkit.org/show_bug.cgi?id=218542) y en
 [Node, issue 43678](https://github.com/nodejs/node/issues/43678).
+
+## Paso 7: el código
+
+Revisión del código de la etapa a (commits `5bf6e26` a `c8a6627`) contra el
+[diseño corregido](administration.md). Leí todo lo que cambió en `src/server/modules/administration/`,
+`src/server/modules/sign-in/` (`index.ts`, `context.ts`, `settings.ts`, `sessions/store.ts`,
+`sessions/cookie.ts`, `access/`, `google/routes.ts`), `src/server/modules/device-link/` (`expiry.ts`,
+`guard.ts`, `topics.ts`, `rules.ts`, `routes/`, `members.ts`, `index.ts`), `src/server/modules.ts`,
+`src/server/main.ts`, `src/server/platform/config.ts`, `src/shared/contracts/administration.ts`,
+`src/shared/time/business.ts`, `src/shared/audit-log/administration.ts`, `src/app/App.tsx` y
+`src/app/modules/administration/`, con sus pruebas, y `deploy/compose.yml`.
+
+Lo que corrí:
+
+- Las pruebas del módulo y las que tocan lo que cambió (`vitest run` sobre
+  `src/server/modules/administration`, `src/app/modules/administration`, el contrato, `config.test.ts` y
+  `routes-permissions.test.ts`): 14 archivos, 79 pruebas, todas pasan.
+- `pnpm audit --prod`: «No known vulnerabilities found». La etapa no suma dependencias (no cambian
+  `package.json` ni `pnpm-lock.yaml`).
+- A mano, con Node 22: `setBusinessTimeZone('[object Object]')` y después `businessDateOf(...)` tira
+  `RangeError: Invalid time zone specified` (punto 7.4).
+
+No corrí las pruebas de punta a punta ni levanté el compose: no hacían falta para lo que miré y no
+encontré nada que dependa de ellas, salvo lo que digo en 7.6.
+
+### Resumen
+
+**No encontré nada que frene.** La ruta que cambia está en el orden correcto (sesión, permiso, clave,
+límite, cuerpo), la clave se busca en un `Map`, el cuerpo es estricto, lo guardado se valida al
+arrancar y un valor malo no deja arrancar, el primer cambio no se pisa, la memoria se pone al día en el
+mismo pedido y solo hacia adelante, los tiempos de la sesión valen en el próximo pedido (también en el
+latido del canal) y el vínculo vencido se termina en su próximo contacto. Cada riesgo que el § 8 dice
+cubrir tiene su prueba que intenta el ataque y falla, salvo los que listo en 7.6.
+
+Lo que encontré son mejoras: dos para cuando llegue el catálogo (cómo se cuenta y se anota el
+recálculo), una de disponibilidad en la aplicación (una zona guardada que no vale la deja sin abrir sin
+conexión) y huecos de prueba.
+
+| # | Punto | Gravedad |
+|---|---|---|
+| 7.1 | El número de precios se cuenta fuera de la transacción y con el valor sin validar | Mejora (para 07) |
+| 7.2 | La auditoría anota los precios contados, no los que se cambiaron | Mejora (para 07) |
+| 7.3 | Cualquier falla al guardar sale como «falló el recálculo» | Mejora menor |
+| 7.4 | Una zona guardada que no vale deja la aplicación sin abrir sin conexión | Mejora (disponibilidad) |
+| 7.5 | En el servidor, la zona sin fijar vale la del sistema | Mejora menor |
+| 7.6 | Riesgos del diseño sin su prueba | Mejora |
+
+### Los puntos del paso 4 en el código
+
+| # del paso 4 | Cómo quedó | Dónde | Prueba |
+|---|---|---|---|
+| 1. Un valor guardado inválido deja sesiones sin vencer | Resuelto: cada fila se valida con el esquema del contrato al cargar y una que no vale tira `InvalidSetting`, que frena el arranque. `closedReasonOf` no se protegió contra un `NaN`, pero ya no le puede llegar uno: la ruta y la carga validan | `administration/memory.ts:32-45` | `settings.test.ts:172-198` |
+| 2. Arrancar con lo de arranque si la lectura falla | Resuelto: `register` espera `data.all()`; si la consulta falla, la promesa se rechaza y `createServer` (que espera cada `register`, `app.ts:79`) no arranca. Una tabla vacía vale lo de arranque | `administration/index.ts:30` | No hay una que haga fallar la lectura (7.6) |
+| 3. La memoria atrasada respecto de la base | Resuelto: no hay oyentes; el `POST` pone la memoria al día apenas confirma, y solo con una versión mayor. Varias copias del servidor: anotado en «Escala» de la arquitectura | `routes.ts:79-80`, `memory.ts:55-58` | `memory.test.ts` |
+| 4. `Intl.supportedValuesOf` rechaza `America/Argentina/Buenos_Aires` | Resuelto: se valida armando un `Intl.DateTimeFormat` | `platform/config.ts:13-20` | `config.test.ts:39-44` |
+| 5. Claves heredadas (`__proto__`, `constructor`) | Resuelto: `Map`, permiso antes que la clave, cuerpo con `strictObject` y `version` entre 0 y 2³¹ − 1 | `contracts/administration.ts:50-51, 73-78`; `routes.ts:46-55` | `settings.test.ts:99-104` (la cota de `version` no tiene prueba, 7.6) |
+| 6. El primer cambio sin fila que trabar | Resuelto: `insert … on conflict do nothing returning` con versión 0 y `update … where version` con otra; sin fila devuelta, `409` | `data.ts:21-41` | `settings.test.ts:113-140` (dos a la vez desde los de arranque) |
+| 7. El vínculo vencido solo se corta en la limpieza | Resuelto: `pairingOf` de `expiry.ts` mira el plazo en cada contacto (estado, presentarse, el respaldo, el tema del canal, `/api/start` y las escrituras con vínculo) y, si venció, corre la limpieza antes, con lo espejado escrito. Si la limpieza falla, el pedido falla: no sigue con el vínculo (falla cerrado) | `device-link/expiry.ts:27-41`, `guard.ts:29-33`, `topics.ts:60-62` | `pairing-days.test.ts` |
+| 8. La zona sin conexión y fijada una vez | En parte: el servidor la fija una sola vez (`final`) y la aplicación la guarda y la usa sin conexión. Queda 7.4 y 7.5 | `time/business.ts:13-25`, `App.tsx:62-81` | `business.test.ts:46-70`; sin prueba de la zona guardada (7.6) |
+| 9. Subir los tiempos alarga las sesiones robadas | Riesgo aceptado, escrito en el § 8 del diseño. En Quién hizo qué sale «Cambió el tope de la sesión: 8 h → 24 h» | `audit-log/administration.ts` | `settings.test.ts:58-70` (la forma), `sessions.test.ts:51-62` (E36) |
+| 10. El recálculo con el catálogo | Pendiente de 07, como dice el diseño. Lo nuevo que vi en el código, en 7.1 y 7.2 | — | — |
+| 11. La cookie de 24 horas | Como el diseño: `Max-Age` sale de la opción más larga del contrato, calculado. Sigue `__Host-`, `HttpOnly`, `Secure`, `SameSite=Strict` | `sign-in/settings.ts:12-14`, `sessions/cookie.ts` | `google.test.ts:42` |
+| 12. La cabecera `a` sin sesión | Resuelto: el diseño sacó el campo y el código no suma nada a la cabecera | — | — |
+
+### 7.1 El número de precios se cuenta fuera de la transacción y con el valor sin validar — Mejora (para 07)
+
+- **Dónde:** `src/server/modules/administration/routes.ts:64-67` y `:96-105`.
+- **Qué pasa:** `change` llama a `recalculator.changesWith(Number(raw))` **antes** de validar el valor
+  (`checkChange` valida después) y **fuera** de la transacción; el recálculo (`apply`) corre después,
+  dentro de otra. Hoy el recalculador es `noPrices` y no consulta nada, así que no hay nada que atacar.
+  Con el catálogo:
+  - Quien tiene el permiso (o una sesión robada de Administrador) manda `value: "1000"`, `value: [1]`
+    o `value: 1e308`, 30 por minuto: cada uno corre la cuenta sobre todos los precios antes de que
+    `checkChange` lo rechace con `400`. Es el pedido más caro del módulo con un valor que nunca se iba a
+    guardar.
+  - Decisión 4 del diseño (§ 12): se aplica solo si el número confirmado es el de ahora. El número se
+    compara con una cuenta hecha antes de abrir la transacción: si alguien cambia costos entre la
+    cuenta y el `apply`, se aplican otros precios que los confirmados. Es la misma ventana que la
+    decisión quiso cerrar, más chica.
+- **Propuesta:** validar el valor con `settingValue` antes de contar (dos líneas: el `400` sale antes),
+  y con 07, contar dentro de la transacción del cambio, con los precios trabados, y comparar ahí con
+  `confirmed`. Lo segundo se decide cuando se escriba el recalculador; cuesta poco si se escribe así
+  desde el principio.
+
+### 7.2 La auditoría anota los precios contados, no los que se cambiaron — Mejora (para 07)
+
+- **Dónde:** `routes.ts:81-84` y `:104`; `recalculator.ts:12` (`apply` devuelve un número).
+- **Qué pasa:** `settings.changed` lleva `prices` de `changesWith` (la cuenta previa). Lo que devuelve
+  `apply` (cuántos cambió de verdad) se descarta. Por 7.1, los dos pueden ser distintos, y Quién hizo qué
+  diría «cambiaron 3.412 precios» cuando cambiaron 3.415. No da acceso a nada; le quita exactitud a la
+  auditoría de un cambio que toca todos los precios.
+- **Propuesta:** anotar lo que devuelve `apply`. Una línea, con 07.
+
+### 7.3 Cualquier falla al guardar sale como «falló el recálculo» — Mejora menor
+
+- **Dónde:** `routes.ts:73-77`.
+- **Qué pasa:** el `catch` convierte en `503 recalc-failed` cualquier error de la transacción, también el
+  de un ajuste que no es el redondeo (la base que se cae al guardar los días del vínculo). La pantalla
+  dice algo falso y el registro del servidor lo anota igual (`console.error`), así que no se pierde el
+  error. No es un ataque: es diagnóstico. Lo que se escribe en el registro son ajustes y un `uuid`, sin
+  datos personales.
+- **Propuesta:** atrapar solo lo que tira el recalculador (o solo cuando `key === 'roundingStep'`) y dejar
+  que el resto sea el `500` de la plataforma. Unas líneas.
+
+### 7.4 Una zona guardada que no vale deja la aplicación sin abrir sin conexión — Mejora (disponibilidad)
+
+- **Dónde:** `src/app/App.tsx:62-72` (`applyZone(readStored<string>(zoneKey))`) y
+  `src/shared/time/business.ts:18-25`.
+- **Qué pasa:** la zona guardada en `localStorage` se fija sin validar. `readStored` devuelve lo que
+  haya, como sea (un número, un objeto, un texto cualquiera), y `setBusinessTimeZone` lo acepta; el
+  primer formato que se arma tira `RangeError` (lo comprobé: con `[object Object]`,
+  `businessDateOf` falla). Con conexión no pasa nada, porque `/api/start` trae la buena antes; sin
+  conexión, `unknown()` usa la guardada y cada hora que se escribe (la entrada sin conexión de 15, la
+  tira del vínculo) falla.
+- **Quién lo hace:** solo quien puede escribir en el `localStorage` del sitio: un script del mismo
+  origen (que ya podría hacer cualquier cosa) o alguien con el dispositivo en la mano y las herramientas
+  del navegador. No da acceso ni datos: deja ese dispositivo sin abrir sin conexión hasta que vuelva la
+  red. Lo más probable no es un ataque, sino un valor que se escribió mal en otra versión.
+- **Propuesta:** validar antes de fijar (en `setBusinessTimeZone` o en `applyZone`), con el mismo
+  `Intl.DateTimeFormat` de `config.ts`; si no vale, ignorarla y seguir con la del navegador. Llevar
+  `isTimeZone` a `src/shared/time/` para usarla en los dos lados. Unas 5 líneas y una prueba (una zona
+  guardada que no vale, sin conexión, abre igual).
+
+### 7.5 En el servidor, la zona sin fijar vale la del sistema — Mejora menor
+
+- **Dónde:** `src/shared/time/business.ts:13-14`.
+- **Qué pasa:** `businessTimeZone()` devuelve la del sistema mientras nadie la fija. En el servidor la
+  fija `main.ts` en la segunda línea, antes de crear los módulos, así que hoy no hay camino que la use sin
+  fijar. Pero un comando nuevo del servidor (como `first-administrator.ts`) que use un día del negocio y
+  no la fije usaría la del contenedor (UTC, salvo que se configure), y correría tres horas el día de lo
+  que escriba, sin error. En la revisión del paso 4 (punto 8) propuse que en el servidor fuera un error;
+  el diseño lo dejó en «una segunda vez es un error».
+- **Propuesta:** que el valor de respaldo sea solo de la aplicación (por ejemplo, que la aplicación fije
+  la del navegador al arrancar y que `businessTimeZone()` sin fijar tire un error). Unas líneas; hoy no
+  cambia nada de lo que corre.
+
+### 7.6 Riesgos del diseño sin su prueba — Mejora
+
+Cada riesgo que el diseño dice cubrir tiene una prueba que intenta el ataque y falla: sin sesión (`401`),
+sin permiso (`403`, nada cambia y queda `permission.denied`), claves `__proto__` y `constructor`, campos
+de más, valores fuera de rango o de las opciones, dos primeros cambios a la vez, el límite de 30 por
+minuto (`429`), un valor guardado inválido que no deja arrancar, quien perdió el permiso con la pantalla
+abierta (E05, en la pantalla), bajar los tiempos y los días (E33 a E35, E39) y la matriz de permisos de
+todas las rutas (`routes-permissions.test.ts`). Faltan:
+
+- **La lectura que falla al arrancar** (punto 2 del paso 4): ninguna prueba hace fallar `data.all()`. El
+  código lo cumple (lo leí), pero nada impide que alguien le ponga un `catch` mañana. Una prueba con una
+  base cerrada antes de `register`.
+- **Las cotas de `version` y `confirmed`:** ninguna prueba manda `version: 2147483648` o negativa, que
+  hoy frena el esquema (sin la cota sería un `500` de la base). Dos líneas en la prueba de «un cuerpo que
+  no es el del contrato».
+- **La zona guardada sin conexión** (§ 10 del diseño, E31: «la zona guardada se usa sin conexión»):
+  `App.tsx` no tiene prueba de que guarda la zona ni de que la usa al abrir sin conexión. Junto con 7.4.
+- **La de punta a punta de E33** (§ 12, 3, que Carlos aprobó): no está en `tests/e2e/`. Es la que prueba
+  el corte con la cookie de verdad en un navegador; no es un hueco de seguridad del código (la unitaria
+  `sessions.test.ts:27-35` prueba la regla), pero el diseño la promete.
+
+### Lo que miré y no encontré nada
+
+1. **Entrar sin permiso:** ninguna forma nueva de entrar. Las tres rutas piden sesión; la cookie sigue
+   `__Host-`, `HttpOnly`, `Secure`, `SameSite=Strict`, ahora con `Max-Age` de 24 horas calculado del
+   contrato. Una sesión cerrada sigue cerrada al subir el tope (el motivo queda en la base). Los tiempos
+   nuevos valen también en `isOpen`, que usa el canal en cada latido, así que bajarlos corta también los
+   canales abiertos. Si la memoria de los ajustes no cargó, `settings()` tira un error y cada pedido con
+   cookie falla: falla cerrado.
+2. **Permisos:** el `POST` pide «Cambiar los ajustes» en el servidor antes de mirar la clave y el cuerpo,
+   también en deshacer (es otro `POST`). No hay identificadores de otros en las rutas. El nombre de quien
+   cambió un ajuste sale solo en el `409 changed`, que ya pasó el permiso; el `GET` no trae `changed_by`.
+   La pantalla decide si deja tocar con `can`, pero no confía en eso: el servidor vuelve a mirar.
+3. **Lo que entra de afuera:** cuerpo con el tope de 64 KB de la plataforma, `strictObject`, valores con
+   el esquema de cada clave; los márgenes se ordenan en el servidor. A la base el valor llega como
+   parámetro de la consulta (`data.ts:24`, `JSON.stringify` convertido a `jsonb` en la base), sin
+   armar texto de SQL. `BUSINESS_TIME_ZONE` sale
+   del compose, no de la aplicación ni de la base. Lo espejado del otro dispositivo (el aviso, la
+   confirmación abierta) es de la misma persona y el servidor vuelve a validar lo que se manda.
+4. **La aplicación en el navegador:** no hay `innerHTML` ni `dangerouslySetInnerHTML` en lo que cambió;
+   el nombre de quien cambió y la zona se escriben como texto. Lo único nuevo en el dispositivo es la
+   zona, que no es secreta ni personal y está en la lista de la arquitectura (salvo 7.4). Lo último que se
+   vio queda en memoria por persona (`WeakMap` con la persona de la sesión), no en el dispositivo.
+5. **Datos personales y secretos:** el único dato personal es el nombre en el `409`. Nada sale de la
+   máquina. Ningún secreto nuevo; la zona va en el compose, no en el `.env`. El registro del servidor
+   anota el error del recálculo, sin datos personales.
+6. **Abuso:** el `POST`, 30 por minuto por sesión, con la clave `settings:session:<id>`, y el freno
+   anotado una vez por minuto. Los mínimos (15 minutos, 4 horas, 1 día) no dejan a nadie afuera. El
+   `GET` de los ajustes no consulta la base; el del redondeo hoy tampoco (lo de 07, en el punto 10 del
+   paso 4 y en 7.1). Terminar un vínculo vencido en un contacto corre la limpieza de todos los vencidos:
+   pasa una vez por vínculo vencido, porque después ya no está, y dos a la vez no borran dos veces
+   (`delete … returning`).
+7. **Sin conexión:** Administración no cambia nada sin conexión y no hay cola; nada que falsear ni
+   repetir. La zona, en 7.4.
+8. **Auditoría:** cada cambio con quién, el antes y el después, la dirección y el dispositivo
+   (`createGuards.record`); los rechazos sin permiso y los frenados, una vez por minuto. Los `400` y
+   `409` no se anotan, como dice el diseño. La auditoría solo recibe filas (ADR-004).
+9. **El despliegue:** solo cambia `deploy/compose.yml`, con `BUSINESS_TIME_ZONE` en el `environment` del
+   servidor. Caddy, puertos, usuarios del contenedor y volúmenes no cambian.
+10. **Dependencias:** ninguna nueva; `pnpm audit --prod` sin fallas conocidas.
