@@ -126,6 +126,19 @@
     font-size: 18px;
     font-weight: 800;
   }
+  .admin-confirm-examples {
+    display: grid;
+    gap: 4px;
+    margin: var(--s2) 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+  }
+  .admin-confirm-examples li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s3);
+  }
   .admin-confirm-actions {
     display: flex;
     justify-content: flex-end;

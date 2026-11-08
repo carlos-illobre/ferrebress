@@ -1,8 +1,12 @@
 // El panel de los márgenes rápidos (R4): las cinco teclas, que se escriben y se guardan al salir.
-import { thousands } from '../../logic.ts';
+import { roundUp } from '@ferrebress/shared/pricing/rounding';
+import { pesos, shown, thousands } from '../../logic.ts';
 import { groupOf, texts, what } from '../../texts.ts';
 import { Heading, Said, Subhead } from './Heading.tsx';
 import { locked, type PanelProps } from './look.ts';
+
+// El costo de ejemplo con el que cada tecla dice a cuánto vende (maqueta final).
+const exampleCost = 4000;
 
 export function MarginsPanel({ view, settings }: PanelProps) {
   const t = texts.margins;
@@ -37,9 +41,16 @@ export function MarginsPanel({ view, settings }: PanelProps) {
               }
             />
             <span>%</span>
+            <span class="admin-margin-sells">
+              {t.sells}{' '}
+              <b>{pesos(roundUp(exampleCost * (1 + margin / 100), settings.roundingStep))}</b>
+            </span>
           </label>
         ))}
       </div>
+      <p class="admin-detail">
+        {t.example(pesos(exampleCost), shown('roundingStep', settings.roundingStep))}
+      </p>
       <Said note={view.said} keys={['quickMargins']} />
     </>
   );

@@ -281,7 +281,7 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 4. `[P]` **`device-link`** lee los días de la fachada, termina el vencido en cada contacto y escribe lo
    espejado antes de limpiar. Depende de 2.
 5. **La aplicación:** la zona desde `/api/start` y guardada, el módulo y la pantalla. Depende de 3.
-6. Las capturas, la de punta a punta si Carlos la aprueba (§ 12, 3), los documentos (la arquitectura:
+6. Las capturas, los documentos (la arquitectura:
    los ajustes en memoria en «Escala» y la zona en lo que se guarda en el dispositivo; `sign-in.md` y
    `device-link.md`, donde dicen «8 horas como mucho»; el `.env.example`), las revisiones (paso 7) y el
    manual (paso 9).
@@ -291,9 +291,9 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 1. **El redondeo sin precios:** hasta que exista el catálogo, el panel muestra el ejemplo de la regla con
    el paso elegido y dice «Todavía no hay precios».
 2. **El avance del recálculo** («1.263 de 1.650») se programa con el catálogo.
-3. **Una prueba de punta a punta:** un Administrador baja el tiempo sin uso y la sesión de otro
-   dispositivo, ya pasada, termina en su próximo pedido, con la entrada encima (E33). La unitaria no
-   alcanza: el corte lo hace el servidor de verdad con la cookie, en un navegador de verdad.
+3. **Sin prueba de punta a punta de E33:** necesita que pasen al menos 15 minutos de verdad sin usar una
+   sesión, y el servidor de las pruebas no deja adelantar su reloj. El corte lo prueban las unitarias
+   contra el servidor de verdad, con el reloj de mentira (E33 a E36), sin navegador.
 4. **Si cambió el número de precios** entre que se vio y se confirmó, se vuelve a preguntar con el número
    nuevo (R3.4, E41).
 5. **La zona en la configuración queda así:** se fija al instalar y nadie la toca; cambiarla editando la

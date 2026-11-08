@@ -220,7 +220,11 @@ describe('Administración', () => {
     openAdministration();
     expect(await screen.findByRole('tab', { name: /Redondeo/ })).toBeTruthy();
     online.set(false);
-    await waitFor(() => expect(screen.getByText('Sin conexión')).toBeTruthy());
+    await waitFor(() =>
+      expect(
+        screen.getByText(/Sin conexión: es lo último que se vio, a las \d+:\d\d/),
+      ).toBeTruthy(),
+    );
     expect((option(/\$ 500/) as HTMLButtonElement).disabled).toBe(true);
   });
 

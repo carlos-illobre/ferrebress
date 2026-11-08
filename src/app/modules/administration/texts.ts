@@ -57,10 +57,10 @@ export const texts = {
   loading: 'Cargando los ajustes…',
   loadFailed: 'No se pudieron traer los ajustes.',
   retry: 'Reintentar',
-  offline: {
-    long: 'Sin conexión: es lo último que se vio. Con conexión se puede cambiar.',
-    short: 'Sin conexión',
-  },
+  offline: (at: string) => ({
+    long: `Sin conexión: es lo último que se vio, a las ${at}. Con conexión se puede cambiar.`,
+    short: `Sin conexión · ${at}`,
+  }),
   neverSeen: 'Hace falta conexión',
   neverSeenDetail: 'Los ajustes están en el servidor y este dispositivo todavía no los vio.',
   hint: 'Pasá por una opción para ver su efecto',
@@ -111,6 +111,9 @@ export const texts = {
     subtitle: 'Se ordenan solos; cambiarlos no toca ningún producto.',
     touch: 'Tocá un número para cambiarlo',
     key: (n: number) => `Margen de la tecla ${n}`,
+    sells: 'Vende a',
+    // Un costo de ejemplo, para ver a cuánto vende cada tecla con el redondeo de ahora.
+    example: (cost: string, step: string) => `Con un costo de ${cost} y el redondeo de ${step}`,
   },
   zone: {
     title: 'Zona horaria del negocio',

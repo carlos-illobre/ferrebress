@@ -14,6 +14,7 @@ import { useMirroredQuery } from '../../platform/mirror/query.ts';
 import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
 import { oneOf } from '../../platform/schema.ts';
 import { online as onlineStore } from '../../platform/server/api.ts';
+import { serverNow } from '../../platform/server/clock.ts';
 import { useStore } from '../../platform/store.ts';
 import { person as me } from '../sign-in/index.ts';
 import { administrationApi } from './api.ts';
@@ -26,7 +27,7 @@ import { type Panel, panels } from './texts.ts';
 
 // Lo último que se vio, de esa persona, en esta sesión de la aplicación (no se guarda en el
 // dispositivo).
-const lastSeen = new WeakMap<object, AdministrationResponse>();
+const lastSeen = new WeakMap<object, { data: AdministrationResponse; at: Date }>();
 
 // Lo que se ve: lo que trae el servidor y los valores con nombre, que el espejo copia al otro
 // dispositivo vinculado.
@@ -80,11 +81,12 @@ export function useAdministration() {
 
   // Lo último que se vio, para volver a mostrarlo sin conexión (R1.6, E06).
   useEffect(() => {
-    if (query.data) lastSeen.set(who as object, query.data);
+    if (query.data) lastSeen.set(who as object, { data: query.data, at: serverNow() as Date });
   }, [query.data]);
 
   return {
-    ...{ data: query.data ?? (query.failed ? lastSeen.get(who as object) : undefined) },
+    ...{ data: query.data ?? (query.failed ? lastSeen.get(who as object)?.data : undefined) },
+    seenAt: lastSeen.get(who as object)?.at,
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },
     ...{ prices: preview.data, panel, setPanel, said, asked, looking, setLooking },
     ...{ canChange, editable, online, save, chooseStep },

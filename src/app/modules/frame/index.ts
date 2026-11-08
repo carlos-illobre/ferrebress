@@ -12,6 +12,7 @@ export {
   watchBackground,
 } from './notices/update/update.ts';
 export { groupIcons, permissionIcons } from './permission-icons.ts';
+export { MoreCrumb } from './screens/Crumbs/MoreCrumb.tsx';
 export { Frame, type FrameProps, TestEnvironment } from './screens/Frame/Frame.tsx';
 export { PhoneLight } from './screens/Phone/Phone.tsx';
 export { discardWork, halfDone, registerWork, type Work } from './work.ts';

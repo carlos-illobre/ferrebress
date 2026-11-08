@@ -11,7 +11,7 @@ import { addShapes, Icon } from '../../../../ui/icon/Icon.tsx';
 import { peopleShapes } from '../../../../ui/icon/people-shapes.tsx';
 import { LoadState } from '../../../../ui/load-state/LoadState.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
-import { PhoneLight } from '../../../frame/index.ts';
+import { MoreCrumb, PhoneLight } from '../../../frame/index.ts';
 import { administrationApi } from '../../api.ts';
 import { administrationSettings } from '../../settings.ts';
 import { texts } from '../../texts.ts';
@@ -31,6 +31,7 @@ import './Phone.css';
 addShapes({
   ...administrationShapes,
   hourglass: peopleShapes.hourglass,
+  'chevron-left': peopleShapes['chevron-left'],
   'lock-keyhole': peopleShapes['lock-keyhole'],
   'cloud-off': auditLogShapes['cloud-off'],
 });
@@ -103,7 +104,7 @@ function Body({ view }: { view: View }) {
       {!(view.fresh && view.online) && (
         <p class="admin-offline" role="status">
           <Icon name="wifi-off" size="small" />
-          <Say words={texts.offline} />
+          <Say words={texts.offline(formatTime(view.seenAt as Date))} />
           <button type="button" class="admin-retry" data-key="r" data-mark="" onClick={view.retry}>
             {texts.retry}
             <kbd>R</kbd>
@@ -123,6 +124,7 @@ export function Administration() {
   return (
     <div class="admin">
       <header class="admin-header">
+        <MoreCrumb name={texts.title} />
         <h1 class="admin-title">{texts.title}</h1>
         <PhoneLight />
         <span class="admin-for-all">

@@ -16,6 +16,10 @@
     align-items: center;
     gap: var(--s3);
   }
+  .admin-header .more-crumbs,
+  .admin-header .more-back {
+    flex-basis: 100%;
+  }
   .admin-title {
     margin: 0;
     font-size: 28px;

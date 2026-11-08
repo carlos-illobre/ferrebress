@@ -1,0 +1,29 @@
+/* Dónde está una pantalla de Más: la miga de la computadora y el «‹ Más» del celular. */
+@layer screens {
+  .more-crumbs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .more-crumbs button,
+  .more-back {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 2px 4px;
+    border: 0;
+    border-radius: var(--radius-small);
+    background: none;
+    color: var(--pine-text);
+    font: inherit;
+    font-weight: 700;
+  }
+  .more-crumbs span {
+    color: var(--ink);
+  }
+  .more-back {
+    font-size: 17px;
+  }
+}
