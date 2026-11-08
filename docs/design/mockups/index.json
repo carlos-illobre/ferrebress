@@ -673,6 +673,16 @@
    "variants": [
     {
      "device": "desktop",
+     "name": "Final",
+     "path": "mockups/administration-settings/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/administration-settings/final/index.html"
+    },
+    {
+     "device": "desktop",
      "name": "1 · Los renglones",
      "path": "mockups/administration-settings/desktop/variant-1-rows/index.html"
     },

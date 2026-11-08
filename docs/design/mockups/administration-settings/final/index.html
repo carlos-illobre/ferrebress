@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Administración · Ajustes para todos · final</title>
+<link rel="stylesheet" href="../../../common/common.css">
+<link rel="stylesheet" href="settings.css">
+<link rel="stylesheet" href="preview.css">
+<script src="../../../common/icons.js"></script>
+<script src="icons-extra.js"></script>
+</head>
+<body>
+<div class="prueba" aria-hidden="true"><div class="prueba-borde"></div><div class="prueba-cartel">Ambiente de prueba<span> · nada de esto es real</span></div></div>
+
+<div class="app">
+  <!-- ======== Computadora: el lateral, con la tarjeta del vínculo al pie ======== -->
+  <nav class="lateral solo-compu" aria-label="Menú">
+    <div class="lado-marca"><img src="../../../common/brand/logo-on-light.png" alt="Ferrebress" width="141" height="36"><button type="button" class="btn btn-fantasma lado-plegar" aria-label="Minimizar el menú"><i class="i" data-i="panel-left-close"></i></button></div>
+    <button type="button" class="nav-item"><i class="i" data-i="shopping-cart"></i><span class="txt">Vender</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="tags"></i><span class="txt">Catálogo</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="package"></i><span class="txt">Depósito</span></button>
+    <button type="button" class="nav-item"><i class="i" data-i="chart-column"></i><span class="txt">Negocio</span></button>
+    <button type="button" class="nav-item" aria-current="page"><i class="i" data-i="ellipsis"></i><span class="txt">Más</span></button>
+    <div class="pie">
+      <!-- El indicador del vínculo, la luz debajo y, debajo de la luz, lo que gasta la aplicación (00 · R4.1; 03 · R4.1, R4.5) -->
+      <div class="vinculo-tarjeta">
+        <button type="button" class="indicador" data-tone="logro" data-indicador data-tecla="l" aria-haspopup="dialog" aria-label="Vínculo: Directo, con Chrome en Android">
+          <span class="indicador-ico"><i class="i" data-i="smartphone"></i><span class="dot"></span></span>
+          <span class="indicador-txt"><b>Directo</b><small>Chrome en Android</small></span>
+          <span class="kbd">L</span>
+        </button>
+        <div class="luz" data-luz></div>
+        <p class="gasto-app" title="Lo que gasta ahora toda la aplicación, por todos sus canales, medido sobre el último minuto">Aplicación: <b>0 KB/min</b></p>
+      </div>
+      <div class="persona"><div class="usuario"><span class="avatar" data-persona-ini>RP</span><div class="txt"><b class="persona-nombre" data-persona-nombre>Rubén Paredes</b><div class="t-detalle" data-persona-rol>Administrador</div></div></div><button type="button" class="btn chico txt"><i class="i i-s" data-i="log-out"></i>Salir</button></div>
+    </div>
+  </nav>
+
+  <main class="contenido">
+    <header class="cabecera">
+      <nav class="migas t-detalle solo-compu" aria-label="Dónde estoy"><button type="button">Más</button><i class="i i-s" data-i="chevron-right"></i><span>Administración</span></nav>
+      <button type="button" class="volver solo-celu"><i class="i" data-i="chevron-left"></i>Más</button>
+      <h1 class="t-titulo">Administración</h1>
+      <!-- Celular: la pastilla del vínculo debajo del título; la luz, a su lado, solo sin conexión (00 · R4.1; 03 · R4.1, R4.5) -->
+      <div class="p-estado solo-celu">
+        <button type="button" class="indicador-pastilla" data-tone="logro" data-indicador aria-haspopup="dialog" aria-label="Vínculo: Directo, con Chrome en Windows"><i class="i i-s" data-i="monitor"></i><span class="dot"></span><span class="pastilla-txt"><b>Directo</b><span class="pastilla-gasto"><b>0 KB/min</b></span></span></button>
+        <span class="p-luz"><span class="punto"></span><span>Sin conexión</span></span>
+      </div>
+      <div class="cab-der"><span class="para-todos"><i class="i i-s" data-i="users"></i><span class="largo">Lo que se fija acá vale para todos</span><span class="corto">Vale para todos</span></span></div>
+      <div class="permiso" data-permiso hidden></div>
+    </header>
+    <section class="pantalla v2" id="lienzo" aria-label="Ajustes para todos"></section>
+  </main>
+
+  <nav class="nav-inferior solo-celu" aria-label="Menú">
+    <button type="button"><i class="i" data-i="shopping-cart"></i>Vender</button>
+    <button type="button"><i class="i" data-i="tags"></i>Catálogo</button>
+    <button type="button"><i class="i" data-i="package"></i>Depósito</button>
+    <button type="button"><i class="i" data-i="chart-column"></i>Negocio</button>
+    <button type="button" aria-current="page"><i class="i" data-i="menu"></i>Más</button>
+  </nav>
+</div>
+<script src="settings.js"></script>
+<script src="preview.js"></script>
+</body>
+</html>
