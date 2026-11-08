@@ -41,6 +41,9 @@ anomalías.
 - **R1.7** **Con el celular y la computadora vinculados,** ir a Administración se espeja como
   cualquier pantalla (03 · R6). Un cambio hecho en uno se ve en los dos, porque es el mismo valor
   para todos.
+- **R1.8** **Las opciones de un ajuste no llevan atajo propio:** con el teclado se llega al ajuste
+  con su atajo (00 · R2.8) y se recorren sus opciones con ← y →. Una tecla por opción llenaría la
+  pantalla de letras sin ahorrar nada.
 
 ## 2. Cómo se guarda un ajuste
 
@@ -68,7 +71,7 @@ anomalías.
 - **R3.3** **Dónde se aplica lo dice cada capítulo que calcula un precio** (el catálogo, la venta).
   El precio que alguien escribe a mano no se redondea.
 - **R3.4** **Cambiar el paso recalcula en ese momento todos los precios de venta guardados.** Antes
-  de guardar, se ve cuántos precios cambian («Cambian 3.412 precios») y se confirma o se cancela: es
+  de guardar, se ve cuántos precios cambian y se confirma con «Cambiar 3.412 precios» o se cancela: es
   la única confirmación de la pantalla, porque cambia de golpe todos los precios del negocio. Si no
   cambia ningún precio, se guarda sin preguntar. Este ajuste no lleva «Deshacer»: para volver se
   elige el paso anterior, que muestra de nuevo cuántos cambian.
@@ -163,7 +166,7 @@ anomalías.
 - **E17** **Dado** «sin redondeo», **cuando** el sistema calcula un precio de $ 1.201, **entonces**
   queda en $ 1.201.
 - **E18** **Dado** precios guardados, **cuando** se elige otro paso, **entonces** antes de guardar se
-  ve cuántos precios cambian, con «Confirmar» y «Cancelar».
+  ve cuántos precios cambian, con «Cambiar <cuántos> precios» y «Cancelar».
 - **E19** **Dado** E18, **cuando** se confirma, **entonces** todos los precios de venta guardados
   quedan redondeados con el paso nuevo, y en Quién hizo qué queda el cambio con cuántos precios
   cambiaron.

@@ -52,21 +52,19 @@ en la dirección no aparece.
   - Tocar el indicador muestra una tostada: su detalle está en la maqueta del vínculo.
 - **Las teclas, solo con Alt apretado** (00 · R2.9): la variante mostraba siempre «Ctrl Z» en
   «Deshacer».
-- **Un atajo con Alt para cada botón** (00 · R2.8, R2.10). Las teclas de los ajustes ya estaban
+- **Un atajo con Alt para cada botón** (00 · R2.8, R2.10; 06 · R1.8). Las teclas de los ajustes ya estaban
   (R, M, Z, S, T, V). Se suman:
   - «Deshacer»: D. Ctrl Z sigue deshaciendo fuera de una caja de texto; adentro, es el de editar
     texto (R2.11).
-  - En la confirmación del redondeo, «Cancelar» C y «Confirmar» O (en lugar de las teclas «Esc» y
-    «Enter» que mostraba). Esc y Enter siguen andando.
+  - En la confirmación del redondeo, «Cancelar» C y «Cambiar N precios» P (en lugar de las teclas
+    «Esc» y «Enter» que mostraba). Esc y Enter siguen andando.
   - Cuando el recálculo falla, «Ahora no» A y «Reintentar» R.
   - Sin conexión, «Reintentar» R.
   - El indicador del vínculo, L, como en las otras finales.
-- **«Confirmar» en la confirmación del redondeo** (E18): el botón decía «Cambiar 1.650 precios».
-  El número sigue en grande arriba de los ejemplos.
 - **La espera del recálculo** (00 · R7.1 a R7.3). En la variante, la barra aparecía al confirmar y
   terminaba en 1,25 s. Ahora:
-  - al confirmar, «Confirmar» y «Cancelar» se traban, y Esc y tocar afuera no cierran;
-  - a los 300 ms, «Confirmar» muestra la marca de espera (el círculo que gira);
+  - al confirmar, «Cambiar N precios» y «Cancelar» se traban, y Esc y tocar afuera no cierran;
+  - a los 300 ms, «Cambiar N precios» muestra la marca de espera (el círculo que gira);
   - a los 2 s aparece la barra, que dice qué hace y cuánto lleva: «Recalculando 1.650 precios…
     1.263 de 1.650»;
   - al terminar dice «Listo» un instante, en verde, y recién ahí se cierra con la tostada.

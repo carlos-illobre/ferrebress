@@ -285,7 +285,7 @@
       '<div class="cuantos"><span class="t-numero">' + AS.miles(n) + '</span><span class="t-cuerpo">de ' + AS.miles(AS.TOTAL_PRECIOS) + " precios cambian</span></div>" +
       AS.ejemplosHtml(paso, 3) +
       '<div class="barra-espera" role="status" hidden><div class="barra-dice"><span data-barra-que>Recalculando ' + AS.miles(n) + ' precios…</span><span data-barra-cuanto></span></div><div class="avance"><b></b></div></div>' +
-      '<div class="pie-dialogo"><button type="button" class="btn btn-fantasma" data-cerrar data-tecla="c">Cancelar<span class="kbd">C</span></button><button type="button" class="btn btn-accion" data-confirma data-tecla="o"><i class="i i-s sin-espera" data-i="check"></i><i class="i i-s espera-ico" data-i="loader-circle"></i>Confirmar<span class="kbd">O</span></button></div>',
+      '<div class="pie-dialogo"><button type="button" class="btn btn-fantasma" data-cerrar data-tecla="c">Cancelar<span class="kbd">C</span></button><button type="button" class="btn btn-accion" data-confirma data-tecla="p"><i class="i i-s sin-espera" data-i="check"></i><i class="i i-s espera-ico" data-i="loader-circle"></i>Cambiar ' + AS.miles(n) + ' precios<span class="kbd">P</span></button></div>',
       function (capa) { recalcular(capa, paso, n, alTerminar); });
     return c;
   };
