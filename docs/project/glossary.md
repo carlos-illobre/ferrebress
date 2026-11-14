@@ -15,7 +15,15 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Producto | Lo que se vende, con su descripción, marca, código de barras y unidad | `product` |
 | Proveedor | Quien le vende a la ferretería | `supplier` |
 | Lista (de precios) | El archivo que manda un proveedor con sus productos y precios | `priceList` |
-| Lector de lista | Lo que entiende el formato de la lista de un proveedor | `priceListReader` |
+| Lector | Lo que entiende un formato de planilla de un proveedor: recibe las celdas y devuelve los productos. Un proveedor tiene varios | `reader` |
+| Lector automático | El que arma el sistema solo, cuando ningún lector reconoce una planilla | `autoReader` |
+| Comprobación | La revisión de lo que devuelve un lector, antes de darlo por bueno | `check` |
+| Fila salteada | Una fila de la planilla que no se pudo leer como producto, con su motivo | `skippedRow` |
+| Lista completa / solo cambios | Si la lista trae todo lo que vende el proveedor o solo una parte | `scope` (`full`, `partial`) |
+| En espera / aplicada / descartada / no se pudo leer | Los estados de una lista | `status` (`pending`, `applying`, `applied`, `discarded`, `unreadable`) |
+| Aplicar / descartar | Guardar lo que trae una lista, o dejarla sin efecto | `apply` / `discard` |
+| Cómo cobra | Lo que se configura de un proveedor para calcular el costo: IVA incluido, descuentos e IVA de arranque | `terms` |
+| Dado de baja | El producto que ya no trae ningún proveedor, o el proveedor que se dio de baja | `discontinued` (producto), `inactive` (proveedor) |
 | Código del proveedor | Cómo identifica un proveedor a un producto | `supplierCode` |
 | Precio de lista | Lo que figura en la lista del proveedor, antes de descuentos | `listPrice` |
 | Descuento | Lo que el proveedor resta al precio de lista | `discount` |
@@ -31,7 +39,6 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Fraccionado | Lo que se vende con decimales (por kilo, metro, litro) | `fractional` |
 | Ficha del producto | Todo lo de un producto en una pantalla | `productDetail` |
 | Foto del producto | La foto que se le saca al producto | `productPhoto` |
-| Remarcar | Cambiar el precio de lo que está en la estantería | `reprice` |
 
 ## Ventas
 
@@ -76,7 +83,8 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Ajuste de stock | Una corrección a mano, con su motivo | `stockAdjustment` |
 | Conteo | Contar lo que hay en un sector | `stockCount` |
 | Sector | Una parte del local o del depósito que se cuenta junta | `area` |
-| Anomalía | Una diferencia entre el sistema y la realidad | `anomaly` |
+| Anomalía | Algo que el sistema encontró y alguien tiene que mirar: una diferencia con la realidad o algo que no pudo hacer solo | `anomaly` |
+| Revisada / cerrada | La anomalía que alguien marcó como vista, o que dejó de valer sola | `reviewed` / `closed` |
 | No inventariado | Lo que se vendió sin stock registrado: el stock queda en cero y se anota como anomalía | `uninventoried` |
 
 ## Números del negocio

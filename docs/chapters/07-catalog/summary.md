@@ -19,11 +19,8 @@ están escritas; abajo, lo que Carlos ya confirmó y lo que falta preguntarle al
 - **IVA del producto:** 21 % (de arranque), 10,5 % o 27 %. No hay productos exentos.
 - **Cambiar un dato** del producto o del proveedor se guarda al cambiarlo, con «Deshacer» 5
   segundos y sin botón «Guardar».
-- **Proveedores** (pasan al capítulo 08, que los necesita para sus listas): tienen su pantalla dentro de Catálogo, para darlos de alta, cambiarlos, darlos
-  de baja y buscarlos. Se guarda el nombre (único y obligatorio), el vendedor, el teléfono o
-  WhatsApp, el correo y una nota; los ve cualquiera con sesión. Dar de baja un proveedor que es el
-  único de algunos productos los deja sin costo: antes se ve cuántos y se confirma con «Dar de baja
-  y dejar 12 sin precio».
+- **Los proveedores, cómo cobran y el permiso «Ver costos»** están en el capítulo 08, que los
+  necesita para sus listas.
 - **El código del proveedor** es único dentro de cada proveedor; dos proveedores pueden usar el
   mismo.
 - **El proveedor en uso:** el costo sale del más barato, salvo que alguien haya elegido otro a
@@ -48,8 +45,9 @@ están escritas; abajo, lo que Carlos ya confirmó y lo que falta preguntarle al
   «Sin precio»; arriba, el total y cuántos están sin precio.
 - **La ficha:** en la computadora, al lado de la lista; en el celular, ocupa la pantalla. «Así se
   calcula» muestra la cuenta.
-- **Permisos:** «Ver costos» (proveedores, costos y «Así se calcula»; sin él se ven el precio de
-  venta y el margen), «Cambiar márgenes» y «Administrar productos y proveedores». Ver el catálogo y
+- **Permisos:** «Cambiar márgenes» y «Cambiar los datos de un producto» (la unidad y el IVA); con
+  «Ver costos» (08 · R1.2) se ven los proveedores, los costos y «Así se calcula», y sin él, el
+  precio de venta y el margen. Ver el catálogo y
   los precios de venta no pide permiso.
 - **Teclado en la computadora:** ↑ ↓ cambian de producto, Mayús + 1 a 5 eligen el margen y F1
   pliega «Así se calcula».

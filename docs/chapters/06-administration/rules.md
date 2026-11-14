@@ -2,18 +2,17 @@
 
 Lo que un Administrador fija para todos y cumplen todos los dispositivos. Lo que cada persona elige
 para sí misma está en Configuración (capítulo 04). Se construye en dos etapas (roadmap): **a. Ajustes
-para todos** (R1 a R7) y **b. Anomalías**, que se escribe con el stock, el primer capítulo que suma
-anomalías.
+para todos** (R1 a R7) y **b. Anomalías** (R9), que se construye con las listas de precios
+(capítulo 08), el primer capítulo que suma anomalías. Los ajustes de las listas (R8) también llegan
+con ese capítulo.
 
-**Estado:** etapa a, aprobada y programada; etapa b, por escribir.
+**Estado:** etapa a, aprobada y programada; R8 y la etapa b, a aprobar por Carlos con el capítulo
+08.
 
 **Lo que no está acá, y por qué:**
 
 - **La zona horaria del negocio no se cambia desde la aplicación:** se fija una sola vez, al instalar
   el sistema, porque cambiarla corre el día de las ventas y el cierre de caja. Acá solo se ve (R5).
-- **Cuánto tiene que subir un costo para obligar a remarcar y el IVA cuando la lista no lo dice**
-  son ajustes de las listas de precios (capítulo 08): se suman a esta pantalla con ese capítulo
-  (R1.3).
 - **No hay un tiempo de sesión por rol:** con tres personas no hace falta; vale el mismo para todos
   (R6.4).
 - **No hay «Volver a los valores de arranque»:** cada valor anterior queda en Quién hizo qué (R2.5).
@@ -27,8 +26,8 @@ anomalías.
   para cambiarlo y quién lo tiene.
 - **R1.3** **Cada ajuste dice en una línea qué cambia**, y la pantalla dice arriba que lo que se fija
   acá vale para todos. Los ajustes se agrupan por tema: los precios (el redondeo y los márgenes
-  rápidos), el negocio (la zona horaria) y el acceso (los tiempos de la sesión y los días del
-  vínculo). Cada capítulo que trae un ajuste para todos lo suma acá, en su grupo, con las mismas
+  rápidos), las listas de precios (R8), el negocio (la zona horaria) y el acceso (los tiempos de la
+  sesión y los días del vínculo). Cada capítulo que trae un ajuste para todos lo suma acá, en su grupo, con las mismas
   reglas.
 - **R1.4** **Un solo permiso:** «Cambiar los ajustes», en el grupo «Administración», que deja
   cambiar cualquier ajuste de esta pantalla. Como todo permiso nuevo, se le suma solo al rol
@@ -114,6 +113,38 @@ anomalías.
 - **R7.3** **Un cambio vale desde ese momento para todos los vínculos, también los que ya existen.**
   Si se acorta y un vínculo ya pasó el plazo nuevo, se termina en su próximo contacto con el
   servidor, como si hubiera vencido (03 · R2.3).
+
+## 8. Las listas de precios
+
+- **R8.1** **Cuánto tiene que cambiar un costo para marcarlo «para revisar»** al ver qué cambia una
+  lista (08 · R6.4): un porcentaje entero de 1 a 1.000; de arranque, 50 %.
+- **R8.2** **Cuántos productos de un proveedor tiene que dar de baja una lista para avisarlo antes
+  de aplicar** (08 · R6.5): un porcentaje entero de 1 a 100; de arranque, 20 %.
+- **R8.3** **El tamaño máximo del archivo de una lista** (08 · R4.2): de 1 a 100 MB; de arranque,
+  30 MB.
+- **R8.4** **Valen desde la lista siguiente que se sube;** una lista que ya está en espera se vuelve
+  a mirar con los valores nuevos.
+
+## 9. Las anomalías
+
+- **R9.1** **Una anomalía es algo que el sistema encontró y alguien tiene que mirar:** una
+  diferencia entre el sistema y la realidad, o algo que no pudo hacer solo. Cada capítulo suma las
+  suyas; las primeras son las de las listas de precios (08 · R9.2).
+- **R9.2** **Más → Administración → Anomalías**, en el celular y en la computadora. Muestra las
+  abiertas, de la más nueva a la más vieja, cada una con su tipo, cuándo pasó, de qué se trata y un
+  enlace a lo que la causó (la lista, el proveedor). Se filtra por tipo y por estado.
+- **R9.3** **Un solo permiso:** «Revisar las anomalías», en el grupo «Administración», que deja
+  verlas y marcarlas. Se le suma solo al rol Administrador (02 · R7.4). Sin él, la opción no está en
+  el menú (02 · R7.7).
+- **R9.4** **Los estados:** abierta; **revisada**, cuando alguien la marca «Revisada», con una nota
+  si quiere; y **cerrada**, cuando deja de valer sola, según lo que diga su capítulo. Una revisada
+  se puede volver a abrir. Las revisadas y las cerradas se ven con el filtro.
+- **R9.5** **Cuántas hay abiertas se ve en el menú,** en Más y en Administración, para quien tiene
+  el permiso; sin abiertas, no hay número. El número llega con los pedidos que ya hace la
+  aplicación, sin aviso en vivo (constitución, III).
+- **R9.6** **Necesita conexión,** como toda la pantalla (R1.6), y se espeja como cualquiera (R1.7).
+- **R9.7** **Marcar una anomalía como revisada o volver a abrirla va a Quién hizo qué,** con la nota
+  (05 · R1.1).
 
 ## Escenarios
 
@@ -230,3 +261,35 @@ anomalías.
 - **E40** **Dado** los días en 30 y un vínculo que estuvo en espejo por última vez hace 20 días,
   **cuando** se los pasa a 60, **entonces** ese vínculo sigue hasta los 60 días desde ese último
   espejo.
+
+### Las listas de precios
+
+- **E42** **Dado** quien tiene «Cambiar los ajustes», **cuando** escribe 0, 1.001 o un número con
+  decimales en el porcentaje para revisar, **entonces** no se guarda y se dice «Entre 1 y 1.000 %».
+- **E43** **Dado** el porcentaje para revisar en 50 % y una lista en espera con un costo que sube 40
+  %, **cuando** se cambia el ajuste a 30 % y se vuelve a mirar la lista, **entonces** ese costo
+  aparece «para revisar».
+- **E44** **Dado** el tamaño máximo, **cuando** se escribe 0 o 101, **entonces** no se guarda y se
+  dice «Entre 1 y 100 MB».
+
+### Las anomalías
+
+- **E45** **Dado** una persona sin «Revisar las anomalías», **cuando** abre Más → Administración,
+  **entonces** no ve Anomalías; si la abre por su dirección, ve que no tiene permiso y cuál hace
+  falta.
+- **E46** **Dado** una persona sin «Revisar las anomalías», **cuando** pide las anomalías o marca una
+  por fuera de la pantalla, **entonces** el servidor lo rechaza diciendo qué permiso falta y queda
+  el intento en Quién hizo qué.
+- **E47** **Dado** dos anomalías abiertas, **cuando** quien tiene el permiso mira el menú,
+  **entonces** Más y Administración muestran un 2.
+- **E48** **Dado** una anomalía abierta, **cuando** se la marca «Revisada» con una nota,
+  **entonces** deja de verse entre las abiertas, el número del menú baja y en Quién hizo qué queda
+  quién la revisó y la nota.
+- **E49** **Dado** una anomalía revisada, **cuando** se la busca con el filtro y se la vuelve a
+  abrir, **entonces** vuelve a las abiertas.
+- **E50** **Dado** una anomalía que su capítulo cierra sola, **cuando** eso pasa, **entonces** deja
+  de verse entre las abiertas sin que nadie la toque, y se ve con el filtro como cerrada.
+- **E51** **Dado** ninguna anomalía abierta, **cuando** se abre Anomalías, **entonces** dice que no
+  hay nada para revisar.
+- **E52** **Dado** un dispositivo sin conexión, **cuando** se abre Anomalías, **entonces** se ve gris
+  lo último que se vio, con «Reintentar», y no se puede marcar nada.
