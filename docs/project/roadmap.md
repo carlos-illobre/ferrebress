@@ -140,6 +140,11 @@ paralelo»).
   en su capítulo.
 - [ ] T133 [agente] El avance a la vista pasado 1 segundo, en toda la aplicación (00 · R7.3): hoy
   aparece a los 2 segundos y solo cuando se sabe cuánto falta.
+- [ ] T134 [agente] Que la interfaz se pueda rehacer entera sin tocar nada más: en la aplicación, lo
+  gráfico (las pantallas, sus estilos, las piezas de `ui/` y los tokens) queda separado de todo lo
+  demás (las reglas, los datos, la sesión, sin conexión, el espejo, el teclado), que se usa sin
+  cambios desde una interfaz nueva. Primero una revisión de todo el código que diga qué está
+  mezclado; después el arreglo, sin cambiar lo que hace la aplicación.
 
 ## Tareas futuras
 
