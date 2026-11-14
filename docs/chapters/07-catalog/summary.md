@@ -1,9 +1,9 @@
 # 07 · Catálogo: resumen
 
 Productos, proveedores, costo, margen, precio, búsqueda y la ficha del producto, en tres etapas:
-**a. catálogo base**, **b. código y foto** (con 03b) y **c. duplicados e historia** (después de 08).
+**a. catálogo base**, **b. código y foto** (con 03b) y **c. duplicados e historia** (después de 08a).
 
-**Estado:** etapa a, en pausa en el paso 1. Espera a las listas de precios (capítulo 08), porque
+**Estado:** etapa a, en pausa en el paso 1. Espera a las listas de precios (capítulo 08, etapa a), porque
 los productos salen solo de las listas: sin ellas no hay nada que probar. Las reglas todavía no
 están escritas; abajo, lo que Carlos ya confirmó y lo que falta preguntarle al retomarla.
 
@@ -19,7 +19,7 @@ están escritas; abajo, lo que Carlos ya confirmó y lo que falta preguntarle al
 - **IVA del producto:** 21 % (de arranque), 10,5 % o 27 %. No hay productos exentos.
 - **Cambiar un dato** del producto o del proveedor se guarda al cambiarlo, con «Deshacer» 5
   segundos y sin botón «Guardar».
-- **Proveedores:** tienen su pantalla dentro de Catálogo, para darlos de alta, cambiarlos, darlos
+- **Proveedores** (pasan al capítulo 08, que los necesita para sus listas): tienen su pantalla dentro de Catálogo, para darlos de alta, cambiarlos, darlos
   de baja y buscarlos. Se guarda el nombre (único y obligatorio), el vendedor, el teléfono o
   WhatsApp, el correo y una nota; los ve cualquiera con sesión. Dar de baja un proveedor que es el
   único de algunos productos los deja sin costo: antes se ve cuántos y se confirma con «Dar de baja
