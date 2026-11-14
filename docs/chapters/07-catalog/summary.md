@@ -54,18 +54,16 @@ están escritas; abajo, lo que Carlos ya confirmó y lo que falta preguntarle al
 - **Teclado en la computadora:** ↑ ↓ cambian de producto, Mayús + 1 a 5 eligen el margen y F1
   pliega «Así se calcula».
 
+- **Todo proveedor manda su lista:** sin lista no se sabe qué se va a facturar, así que no hay
+  lista escrita a mano.
+- **Un producto dado de baja** deja de aparecer en la búsqueda, salvo que tenga stock (se suma con
+  09); si una lista posterior lo vuelve a traer, vuelve solo, con su margen de antes.
+- **La descripción, la marca y el código de barras** los pone siempre la lista; la unidad y el IVA
+  cambiados a mano, no. Hasta que exista la ficha, todo producto arranca como «un.».
+
 ## Lo que falta preguntar al retomarla
 
-Las tres primeras se preguntan también con 08, que es donde se aplican.
-
-1. **Lo que no viene en ninguna lista** (un proveedor que solo manda la factura): ¿una «lista a
-   mano», escrita en la aplicación y aplicada como un Excel, o solo el ítem libre de Vender?
-2. **Un producto dado de baja:** ¿deja de aparecer en la búsqueda, salvo que tenga stock (entonces
-   sigue, con «Ya no lo trae ningún proveedor»)? ¿Vuelve solo, con su margen de antes, si una lista
-   posterior lo trae otra vez?
-3. **Los datos que la lista no trae** (la unidad, a veces el IVA o la marca): ¿se cambian a mano
-   en la ficha, sin que la próxima lista los pise? La descripción, ¿siempre la pone la lista?
-4. **El paso de redondeo más chico:** ¿0,01, porque el peso no tiene fracciones de centavo, o
+1. **El paso de redondeo más chico:** ¿0,01, porque el peso no tiene fracciones de centavo, o
    libre (hasta 0,0000001)?
-5. **Pasos que no son 1, 10, 100…** (como $ 250 o $ 300): ¿valen?
-6. **«Sin redondeo»:** ¿se saca, si equivale al paso de 0,01?
+2. **Pasos que no son 1, 10, 100…** (como $ 250 o $ 300): ¿valen?
+3. **«Sin redondeo»:** ¿se saca, si equivale al paso de 0,01?
