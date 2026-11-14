@@ -22,8 +22,8 @@ se dejó y qué propone mejorar (constitución, paso 1).
 | 04 · Configuración del dispositivo ([`04-device-settings`](04-device-settings/summary.md)) | Lo que cada persona elige para sí misma, en dos etapas: a. preferencias del dispositivo; b. lo mío | Etapa a: Carlos la probó y anda, con su manual; etapa b: por escribir |
 | 05 · Quién hizo qué ([`05-audit-log`](05-audit-log/summary.md)) | El registro de cada acción y cómo se consulta, en Más → Usuarios | Programado; paso 7: las revisiones del código |
 | 06 · Administración ([`06-administration`](06-administration/summary.md)) | Lo que un Administrador fija para todos, en dos etapas: a. ajustes para todos; b. anomalías | Etapa a: Carlos la probó y la aprobó, con su manual; etapa b: por escribir |
-| 07 · Catálogo (`07-catalog`) | Productos, proveedores, costo, margen, precio, búsqueda, duplicados | Por escribir |
-| 08 · Listas de precios (`08-price-lists`) | Subir, revisar y aplicar la lista de un proveedor | Por escribir |
+| 07 · Catálogo ([`07-catalog`](07-catalog/summary.md)) | Productos, proveedores, costo, margen, precio, búsqueda, duplicados, en tres etapas: a. catálogo base; b. código y foto; c. duplicados e historia | Etapa a: en pausa en el paso 1 hasta cerrar 08; lo confirmado y las preguntas, en su resumen |
+| 08 · Listas de precios (`08-price-lists`) | Subir, revisar y aplicar la lista de un proveedor; de ahí salen los productos | Paso 1 |
 | 09 · Stock (`09-stock`) | Cuánto hay, correcciones y anomalías de stock | Por escribir |
 | 10 · Vender (`10-sales`) | Vender, cobrar, ventas del día, corregir, anular, cambio, consultas no satisfechas | Por escribir |
 | 11 · Compras (`11-purchases`) | Ingreso de mercadería y pedidos a proveedores | Por escribir |
