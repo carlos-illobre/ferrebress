@@ -5,8 +5,8 @@ dos etapas: a. ajustes para todos; b. anomalías, que se construye con las lista
 [rules.md](rules.md).
 
 **Estado:** etapa a, programada: Carlos la probó y la aprobó, con su manual en el capítulo
-«Administración»; los ajustes de las listas (R8) y la etapa b (R9), a aprobar por Carlos con el
-capítulo 08.
+«Administración»; los ajustes de las listas (R8) y la etapa b (R9), con las reglas aprobadas, se
+construyen con el capítulo 08.
 
 ## Cada regla en una línea
 

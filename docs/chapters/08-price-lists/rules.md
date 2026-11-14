@@ -9,7 +9,7 @@ Se construye en tres etapas (roadmap): **a. La lista a mano** (R1 a R9, este doc
 lectores generados por IA** y **c. Otros formatos y ofertas**, que se escriben cuando les toque. Lo
 que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 
-**Estado:** etapa a, reglas a aprobar por Carlos.
+**Estado:** etapa a, reglas aprobadas; etapas b y c, por escribir.
 
 **Lo que no está acá, y por qué:**
 

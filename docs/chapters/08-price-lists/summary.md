@@ -4,7 +4,7 @@ Los proveedores y sus listas, de donde salen los productos, en Catálogo → Lis
 **a. la lista a mano**, **b. los lectores generados por IA** y **c. otros formatos y ofertas**.
 Reglas completas de la etapa a en [rules.md](rules.md).
 
-**Estado:** etapa a, reglas a aprobar por Carlos; etapas b y c, por escribir.
+**Estado:** etapa a, reglas aprobadas, en el paso 2 (pantallas); etapas b y c, por escribir.
 
 ## Cada regla en una línea (etapa a)
 
