@@ -712,6 +712,43 @@
      "path": "mockups/administration-settings/phone/variant-3-ticket/index.html"
     }
    ]
+  },
+  {
+   "id": "price-lists-suppliers",
+   "title": "Listas · proveedores y subir lista",
+   "module": "08 · Listas de precios",
+   "variants": [
+    {
+     "device": "desktop",
+     "name": "1 · La mesa de entrada",
+     "path": "mockups/price-lists-suppliers/desktop/variant-1-desk/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "2 · La bandeja se sirve sola",
+     "path": "mockups/price-lists-suppliers/desktop/variant-2-tray/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "3 · El estante",
+     "path": "mockups/price-lists-suppliers/desktop/variant-3-shelf/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "1 · La mesa de entrada",
+     "path": "mockups/price-lists-suppliers/phone/variant-1-desk/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "2 · La bandeja se sirve sola",
+     "path": "mockups/price-lists-suppliers/phone/variant-2-tray/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "3 · El estante",
+     "path": "mockups/price-lists-suppliers/phone/variant-3-shelf/index.html"
+    }
+   ]
   }
  ]
 }
