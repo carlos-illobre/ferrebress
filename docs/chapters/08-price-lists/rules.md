@@ -120,10 +120,14 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 - **R4.2** **Formatos:** Excel (`.xlsx` y `.xls`) y CSV. El tamaño máximo lo fija un Administrador
   (06 · R8); de arranque, 30 MB. Un archivo de otro formato o más grande se rechaza diciendo por qué,
   sin guardarlo.
-- **R4.3** **De quién es:** si se subió desde la pantalla de un proveedor, es de ese proveedor. Si
-  no, el sistema la reconoce con los lectores que ya existen (R5.2). Si ningún lector la reconoce,
-  pregunta «¿De qué proveedor es?», con la lista de proveedores y «Proveedor nuevo»; es la única
-  pregunta, y solo la primera vez de cada formato.
+- **R4.3** **De quién es:** si se subió desde la pantalla de un proveedor, es de ese proveedor y no
+  se pregunta nada. Si no, el sistema lo deduce, en este orden: por el lector que reconoce la
+  planilla (R5.2); y si ninguno la reconoce, por el nombre del proveedor escrito en el nombre del
+  archivo o en las primeras filas de la planilla, sin distinguir acentos ni mayúsculas. Después le
+  pregunta a quien la subió si es ese: «¿Es de Bulonera Centro?», con «Sí» y «No, es de otro». Con
+  «Sí» sigue; con «No, es de otro» (o si no pudo deducir ninguno), pide elegirlo de la lista de
+  proveedores, con un buscador y «Proveedor nuevo». La lectura sigue mientras tanto, para no hacer
+  esperar: si el proveedor elegido no es el que se dedujo, la planilla se vuelve a leer como suya.
 - **R4.4** **El archivo original se guarda siempre,** tal como se subió y con su nombre, también el
   de una lista que no se pudo leer o que se descartó. Lo baja quien tiene «Ver costos».
 - **R4.5** **La fecha de la lista** es la que dice la planilla o el nombre del archivo. Si no la
@@ -334,12 +338,16 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 
 ### Subir una lista
 
-- **E29** **Dado** una planilla de un formato que ya tiene lector, **cuando** se la sube desde «Subir
-  lista» sin decir de quién es, **entonces** el sistema dice de qué proveedor es, su fecha y qué
-  cambia, sin preguntar nada.
-- **E30** **Dado** una planilla que ningún lector reconoce, subida desde «Subir lista», **cuando**
-  termina de subir, **entonces** pregunta «¿De qué proveedor es?», con los proveedores y «Proveedor
-  nuevo».
+- **E29** **Dado** una planilla de un formato que ya tiene lector de Bulonera Centro, **cuando** se la
+  sube desde «Subir lista» sin decir de quién es, **entonces** pregunta «¿Es de Bulonera Centro?»; con
+  «Sí», sigue y muestra su fecha y qué cambia.
+- **E29b** **Dado** una planilla que ningún lector reconoce, cuyo título dice «IXNOVA de HNZ SRL», y
+  un proveedor «Ixnova», **cuando** se la sube, **entonces** pregunta «¿Es de Ixnova?».
+- **E29c** **Dado** E29, **cuando** se contesta «No, es de otro», **entonces** pide elegir el
+  proveedor de la lista, con un buscador y «Proveedor nuevo», y la planilla se lee como del elegido.
+- **E30** **Dado** una planilla que ningún lector reconoce y que no nombra a ningún proveedor,
+  **cuando** termina de subir, **entonces** no pregunta «¿Es de…?»: pide directamente elegir el
+  proveedor de la lista, con un buscador y «Proveedor nuevo».
 - **E31** **Dado** E30, **cuando** se elige «Proveedor nuevo» y se escribe su nombre, **entonces**
   el proveedor queda dado de alta y la planilla se lee como suya.
 - **E32** **Dado** una planilla subida desde la pantalla de un proveedor, **cuando** termina de
