@@ -47,7 +47,9 @@ Reglas completas de la etapa a en [rules.md](rules.md).
 - **Cuándo:** cuando ningún lector entiende una planilla y el lector automático duda, una IA escribe
   el lector: el código que lee ese formato. Queda guardado, y las planillas siguientes con ese
   formato no pasan por la IA. La IA decide sola qué columna es qué (por ejemplo, cuál es el precio
-  por unidad): si hiciera falta una persona para eso, no sirve.
+  por unidad).
+- **Si la IA tiene una duda, se la pregunta a quien subió la lista,** como en un chat: pregunta todo
+  lo que necesite y la persona le contesta ahí mismo.
 - **La IA no lee los precios ni calcula nada:** solo escribe el lector. Lo que el lector devuelve
   pasa la misma comprobación que cualquier otro; si no la pasa, se le devuelven los errores para que
   lo corrija, hasta la cantidad de intentos que fija un Administrador, y si tampoco, la lista no se
@@ -65,4 +67,10 @@ Reglas completas de la etapa a en [rules.md](rules.md).
 
 ## Lo que falta decidir
 
-Nada de la etapa a.
+Nada de la etapa a. De la etapa b, sobre el chat con la IA:
+
+1. ¿La IA pregunta solo cuando no puede decidir sola, o también quien subió la lista puede
+   escribirle primero (por ejemplo, «leíste mal la marca: corregilo») al ver qué cambia?
+2. Si quien subió la lista no contesta o cierra la pantalla, ¿la lista espera con la pregunta
+   abierta, y la puede contestar otra persona con «Cargar listas»?
+3. ¿Lo conversado queda guardado con el lector, para ver después por qué lee como lee?
