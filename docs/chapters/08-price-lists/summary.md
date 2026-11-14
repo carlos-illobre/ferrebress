@@ -48,8 +48,15 @@ Reglas completas de la etapa a en [rules.md](rules.md).
   el lector: el código que lee ese formato. Queda guardado, y las planillas siguientes con ese
   formato no pasan por la IA. La IA decide sola qué columna es qué (por ejemplo, cuál es el precio
   por unidad).
-- **Si la IA tiene una duda, se la pregunta a quien subió la lista,** como en un chat: pregunta todo
-  lo que necesite y la persona le contesta ahí mismo.
+- **El chat con la IA:** si la IA tiene una duda al escribir un lector, la pregunta como en un
+  chat, y pregunta todo lo que necesite. También se le puede escribir primero al ver qué cambia una
+  lista de un lector generado («leíste mal la marca: corregilo»), y la IA corrige el lector.
+- **Quién chatea:** solo quien tiene el permiso «Chatear con la IA», además de «Cargar listas». Si
+  quien subió la lista no lo tiene, no contesta o cierra la pantalla, la lista espera con la
+  pregunta abierta, y la contesta cualquier otra persona que tenga los dos permisos.
+- **Lo conversado queda guardado con el lector,** para ver después por qué lee como lee, y va a
+  Quién hizo qué.
+- **Si se acaban los créditos de la IA,** el chat se deshabilita y un mensaje lo dice.
 - **La IA no lee los precios ni calcula nada:** solo escribe el lector. Lo que el lector devuelve
   pasa la misma comprobación que cualquier otro; si no la pasa, se le devuelven los errores para que
   lo corrija, hasta la cantidad de intentos que fija un Administrador, y si tampoco, la lista no se
@@ -67,10 +74,4 @@ Reglas completas de la etapa a en [rules.md](rules.md).
 
 ## Lo que falta decidir
 
-Nada de la etapa a. De la etapa b, sobre el chat con la IA:
-
-1. ¿La IA pregunta solo cuando no puede decidir sola, o también quien subió la lista puede
-   escribirle primero (por ejemplo, «leíste mal la marca: corregilo») al ver qué cambia?
-2. Si quien subió la lista no contesta o cierra la pantalla, ¿la lista espera con la pregunta
-   abierta, y la puede contestar otra persona con «Cargar listas»?
-3. ¿Lo conversado queda guardado con el lector, para ver después por qué lee como lee?
+Nada.
