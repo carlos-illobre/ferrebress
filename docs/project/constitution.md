@@ -188,6 +188,15 @@ Además:
   conocerlo. Un patrón fuera de la lista necesita un ADR.
 - **Los límites se controlan con herramientas** en `pnpm check`, no con la buena voluntad.
 
+### XIII. Los números del negocio los fija el Administrador
+
+Ningún número del negocio queda fijo en el código: umbrales, topes, tamaños, porcentajes, plazos,
+márgenes. Cada uno tiene un valor de arranque y lo cambia un Administrador en Administración
+(capítulo 06), con las reglas de cualquier ajuste para todos. Vale para toda la aplicación y para
+todo lo que venga: el capítulo que trae un número del negocio lo suma a Administración. Los tiempos
+técnicos (cuánto dura «Deshacer», cuánto se espera una respuesta, los reintentos) quedan fijos en el
+código, con nombre y en un solo lugar (XII).
+
 ## Restricciones técnicas
 
 - **Cada tecnología elegida tiene su ADR**, con las opciones, sus pros y contras, y el porqué.

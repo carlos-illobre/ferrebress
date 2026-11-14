@@ -134,6 +134,12 @@ paralelo»).
   prueba chica: una lista con `useQuery` que ande con el espejo (el que sigue recibe por el Wi-Fi) y
   con los avisos por SSE. Si encaja, se usa desde el catálogo y resuelve T123; si no, el catálogo
   suma la caché entre pantallas al código propio. Las pantallas que ya existen no se pasan por esto.
+- [ ] T132 [agente] Que los números del negocio que hoy están fijos en los capítulos cerrados pasen a
+  Administración (constitución, XIII): por ejemplo, las 24 horas sin conexión (15) y los topes de
+  entradas (01). Primero, la lista completa para que Carlos la vea; cada uno es un cambio de regla
+  en su capítulo.
+- [ ] T133 [agente] El avance a la vista pasado 1 segundo, en toda la aplicación (00 · R7.3): hoy
+  aparece a los 2 segundos y solo cuando se sabe cuánto falta.
 
 ## Tareas futuras
 

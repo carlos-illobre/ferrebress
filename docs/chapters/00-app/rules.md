@@ -158,8 +158,11 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 
 - **R7.1** Lo que responde en menos de 300 ms no muestra ninguna espera.
 - **R7.2** Pasados 300 ms, lo que se tocó muestra una marca de espera y no se puede volver a tocar.
-- **R7.3** Pasados 2 segundos, una barra dice qué está haciendo y cuánto falta, si se sabe. Al
-  terminar dice «Listo» un instante, salvo la espera de entrar: al llegar al marco no aparece nada.
+- **R7.3** Pasado 1 segundo, se ve qué está haciendo y su avance, en toda la aplicación y en todo
+  lo que venga. Lo que se puede medir (subir un archivo, leer o aplicar una lista) dice cuánto lleva
+  y cuánto falta; lo que no (esperar al servidor), muestra que sigue trabajando. No tiene que ser
+  una barra: la forma la decide el director de arte. Al terminar dice «Listo» un instante, salvo la
+  espera de entrar: al llegar al marco no aparece nada.
 - **R7.4** Toda búsqueda espera 150 ms sin que se tipee antes de buscar, y deja sin efecto la
   búsqueda anterior si todavía no había terminado.
 
@@ -324,10 +327,10 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   espera.
 - **E41** **Dado** algo que tarda 1 segundo, **cuando** se lo toca, **entonces** pasados 300 ms aparece
   la marca de espera y no se lo puede tocar de nuevo hasta que termina.
-- **E42** **Dado** algo que tarda 5 segundos, **cuando** se lo toca, **entonces** pasados 2 segundos
-  aparece la barra que dice qué está haciendo.
-- **E56** **Dado** una entrada con la huella que tardó más de 2 segundos, **cuando** se llega al
-  marco, **entonces** no aparece la barra ni «Listo».
+- **E42** **Dado** algo que tarda 5 segundos, **cuando** se lo toca, **entonces** pasado 1 segundo
+  se ve qué está haciendo y su avance.
+- **E56** **Dado** una entrada con la huella que tardó más de 1 segundo, **cuando** se llega al
+  marco, **entonces** no aparece el avance ni «Listo».
 - **E43** **Dado** una búsqueda, **cuando** se tipea «mecha» de corrido, **entonces** se busca una sola
   vez, 150 ms después de la última letra.
 - **E44** **Dado** una búsqueda en curso, **cuando** se sigue tipeando, **entonces** la búsqueda
