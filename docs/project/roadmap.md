@@ -156,7 +156,9 @@ paralelo»).
   la aplicación: Carlos las va pasando a medida que usa la aplicación, hasta llegar al juego que le
   sirve. Cada una es un cambio de regla en 00 y un archivo de `keyboard/navigation/rules/`.
 - [ ] T138 [agente] Las capas enchufables (ADR-020): sin conexión y el vínculo con su espejo pasan
-  a sus carpetas, enganchados en puntos con nombre del núcleo, con los controles de `pnpm check`.
+  a sus carpetas, enganchados en puntos con nombre del núcleo, con los controles de `pnpm check`. Y
+  el tiempo real, en sus tres partes: el protocolo en `src/shared/realtime/`, el hub y el canal sin
+  nada de la ferretería, y los temas de cada módulo en su `realtime.ts`.
   Sin cambiar lo que hace la aplicación. Después de T134, que hace lo mismo con el teclado.
 
 ## Tareas futuras

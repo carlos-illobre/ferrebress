@@ -161,7 +161,10 @@ declaran en `platform/keyboard` y la cola sin conexión guarda comandos (ADR-007
 ## Las conexiones
 
 Un solo módulo, `realtime`, con cuatro formas de conectarse. Cada funcionalidad declara qué
-necesita (un tema, o un campo de la cabecera si puede esperar) y el módulo elige cómo (ADR-003, ADR-017):
+necesita (un tema, o un campo de la cabecera si puede esperar) y el módulo elige cómo (ADR-003, ADR-017).
+Es un juego de herramientas: cada vez que algo necesita recibir datos del servidor sin pedirlos, el
+diseño técnico elige la forma más conveniente de estas y dice por qué; si ninguna es óptima, se le
+avisa a Carlos antes de diseñar otra, para sumarla al juego (ADR-020):
 
 | Forma | Para qué | Cómo | Prioriza |
 |---|---|---|---|
