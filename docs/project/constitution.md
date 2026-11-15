@@ -169,8 +169,9 @@ Además:
 
 - **Organizado por funcionalidad, no por capa técnica.** Un módulo tiene el mismo nombre en el
   capítulo, en el servidor y en la aplicación.
-- **Lo transversal, en capas enchufables** (ADR-020): el teclado, trabajar sin conexión y el
-  vínculo entre el celular y la computadora viven en sus propias carpetas, se enganchan en puntos
+- **Lo transversal, en capas enchufables** (ADR-020): el teclado, trabajar sin conexión, el
+  vínculo entre el celular y la computadora, «Algo salió mal», el medidor de datos y la anotación
+  de la auditoría viven en sus propias carpetas, se enganchan en puntos
   con nombre del núcleo y el núcleo no las conoce. Si se puede, su parte general no sabe nada del
   negocio, para poder llevarla a otro proyecto.
 - **Carpetas chicas, agrupadas por concepto.** Siempre que varios archivos comparten un concepto,

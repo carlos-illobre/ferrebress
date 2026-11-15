@@ -43,8 +43,21 @@ que sirvan para otro proyecto con otras reglas de negocio.
 |---|---|---|---|
 | Los atajos | `src/app/keyboard/shortcuts/` | Las teclas de cada pantalla (ADR-019) | Qué pantalla está arriba, los modelos |
 | La navegación | `src/app/keyboard/navigation/` | Las flechas, Enter y Esc, iguales en toda la aplicación (ADR-019) | Los roles de accesibilidad de la vista |
-| Sin conexión | `src/app/offline/`, `src/server/offline/` | Guardar en el dispositivo, la cola de lo pendiente, el service worker, entrar con la huella sin conexión, lo apartado de quien se dio de baja (ADR-007, capítulo 15) | Cómo se manda un comando, el estado de la conexión, las opciones de Configuración, las formas de entrar |
+| Sin conexión | `src/app/offline/`, `src/server/offline/` | Guardar en el dispositivo, la cola de lo pendiente, el service worker, entrar con la huella sin conexión, lo apartado de quien se dio de baja (ADR-007, capítulo 15); y, porque usan el mismo service worker, instalar la aplicación y la versión nueva (00 · R5, capítulo 04) | Cómo se manda un comando, el estado de la conexión, las opciones de Configuración, las formas de entrar, el arranque de la aplicación |
+| «Algo salió mal» | `src/app/crash-report/` | Captura los errores inesperados de toda la aplicación, con la captura de la pantalla (tapando lo privado) y los últimos pasos, y los manda (00 · R9) | Los errores sin atender, qué pantalla está arriba, lo privado del contrato de la vista |
+| El medidor de datos | `src/app/meter/` | Mide lo que entra y sale por cada canal y lo muestra a quien lo pide (03 · R4.5) | Cómo se manda un pedido, el canal en tiempo real, los transportes |
+| La auditoría | `src/server/audit-log/` (la anotación; la consulta es el módulo 05) | Anota cada acción de cada módulo con quién, cuándo y qué cambió, y los intentos rechazados (capítulo 05) | Después de cada comando del servidor, los rechazos de permisos |
 | El vínculo y el espejo | `src/app/device-link/`, `src/server/device-link/` | Vincular el celular y la computadora, la conexión directa, el espejo de lo que se ve (ADR-003, ADR-017, capítulo 03) | Los valores con nombre de la pantalla, el canal en tiempo real |
+
+**Lo que no es una capa, y por qué:**
+
+- **Los permisos, la sesión y el límite de pedidos:** son transversales, pero son seguridad. Como
+  capa, algo que se engancha se puede olvidar, y un módulo nuevo quedaría abierto. Siguen siendo un
+  paso obligatorio de cada ruta, en la plataforma.
+- **Las animaciones y el movimiento:** son de cada vista (ADR-019).
+- **Los textos:** ya están separados por módulo; serían una capa solo si hubiera otro idioma.
+- **La observabilidad del servidor** (registros, tiempos y consultas de cada pedido): todavía no
+  hace falta; cuando haga falta para producción, nace como capa.
 
 **Los servicios de plataforma no son capas.** Un aspecto se engancha en el núcleo y el núcleo no
 sabe de él. Un servicio de plataforma es al revés: los módulos dependen de él, como de hablar con el
