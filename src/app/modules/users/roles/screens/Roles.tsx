@@ -5,10 +5,10 @@ import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useEffect } from 'preact/hooks';
 import { navigate, route } from '../../../../platform/router.ts';
 import { useStore } from '../../../../platform/store.ts';
+import { notify } from '../../../../platform/view/notify.ts';
 import { addShapes } from '../../../../ui/icon/Icon.tsx';
 import { rolesShapes } from '../../../../ui/icon/roles-shapes.tsx';
 import { LoadState } from '../../../../ui/load-state/LoadState.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { useUsersContext } from '../../state.ts';
 import { duplicateOf, emptyDraft, fromRole } from '../draft.ts';
 import { activeHolders, ids, listPath, type NewState } from '../paths.ts';
@@ -25,7 +25,7 @@ function NewRole() {
   const asked = (useStore(route).state ?? {}) as NewState;
   const source = users.roleRows?.find((one) => one.id === asked.duplicate);
   useEffect(() => {
-    if (source) showToast(t.copied(source.name), 'copy');
+    if (source) notify(t.copied(source.name), 'copy');
   }, []);
   return <RoleScreen start={source ? duplicateOf(source) : emptyDraft(asked.name ?? '')} />;
 }

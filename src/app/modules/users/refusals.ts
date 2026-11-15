@@ -2,7 +2,7 @@
 // la persona como quedó o sacarla, y decirlo con su texto.
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import type { ApiResult } from '../../platform/server/api.ts';
-import { showToast } from '../../ui/toast/Toast.tsx';
+import { notify } from '../../platform/view/notify.ts';
 import type { Users } from './state.ts';
 import { refusalTexts, somethingFailed } from './texts.ts';
 
@@ -25,7 +25,7 @@ export function refused(users: Users, result: Failed, target?: string): void {
     users.select(undefined);
     users.drop(target);
   }
-  showToast(refusalText(result.error), 'triangle-alert');
+  notify(refusalText(result.error), 'triangle-alert');
 }
 
 // Lo que pide confirmar quién es abre la hoja, que al confirmar repite `again`; cualquier otro

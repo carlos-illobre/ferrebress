@@ -3,10 +3,10 @@
 // se usa (R5.2); sus celulares sí, como en Configuración (R5.5). «Cerrar» y «Quitar» no llevan tecla: se recorren con
 // las flechas y se tocan con Enter (R5.8).
 import type { PersonRow, PhoneRow, SessionRow } from '@ferrebress/shared/contracts/users';
+import { notify } from '../../../../platform/view/notify.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { closeSession, removePhone } from '../../actions.ts';
 import { dateOf, deviceOf, nowMs, sinceOf, wayNames } from '../../logic.ts';
 import { useUsersContext } from '../../state.ts';
@@ -154,7 +154,7 @@ export function Access({ person }: { person: PersonRow }) {
 // Lo que todavía no está (el historial es la Auditoría, capítulo 05): lo dice al tocarlo.
 export function Soon({ name, className }: { name: string; className: string }) {
   return (
-    <button type="button" class={className} onClick={() => showToast(t.soon(name))}>
+    <button type="button" class={className} onClick={() => notify(t.soon(name))}>
       {name}
       <Icon name="chevron-right" size="small" />
     </button>

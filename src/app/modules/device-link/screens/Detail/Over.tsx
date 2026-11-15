@@ -4,9 +4,9 @@
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useStore } from '../../../../platform/store.ts';
+import { notify } from '../../../../platform/view/notify.ts';
 import { addShapes } from '../../../../ui/icon/Icon.tsx';
 import { linkShapes } from '../../../../ui/icon/link-shapes.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { linkActions } from '../../actions.ts';
 import { linkRuntime } from '../../current.ts';
 import { detailOpen, reading, unpairAsked } from '../../detail.ts';
@@ -29,7 +29,7 @@ function useCode(runtime: Runtime) {
   const page = {
     onBack: () => setShown(false),
     onPaired: (pairing: PairingView) => {
-      showToast(detailTexts.toast.pairedComputer, 'check');
+      notify(detailTexts.toast.pairedComputer, 'check');
       runtime.dispatch({ type: 'serverSaid', pairing });
       // Vinculados: después del tilde, el detalle se cierra (pedido de Carlos): ya no hace falta.
       setTimeout(() => {
@@ -62,8 +62,8 @@ function Reader({ runtime }: { runtime: Runtime }) {
 
 // Desconectar y reconectar se avisan al pie, con el texto de su lado.
 function tellAct(act: Act, phone: boolean): void {
-  if (act === 'pause') showToast(detailTexts.toast.paused, 'unplug');
-  if (act === 'resume') showToast(detailTexts.toast.resumed[phone ? 'phone' : 'computer'], 'check');
+  if (act === 'pause') notify(detailTexts.toast.paused, 'unplug');
+  if (act === 'resume') notify(detailTexts.toast.resumed[phone ? 'phone' : 'computer'], 'check');
 }
 
 export function Over({ runtime }: { runtime: Runtime }) {
@@ -98,7 +98,7 @@ export function Over({ runtime }: { runtime: Runtime }) {
           onUnpair={async () => {
             if (!(await actions.unpair())) return;
             setAsking(false);
-            showToast(detailTexts.toast.unpaired, 'unlink');
+            notify(detailTexts.toast.unpaired, 'unlink');
           }}
         />
       )}
@@ -110,7 +110,7 @@ export function Over({ runtime }: { runtime: Runtime }) {
 function useDirectNotice(view: LinkView) {
   const trying = useRef(false);
   useEffect(() => {
-    if (trying.current && view.status === 'direct') showToast(detailTexts.toast.direct, 'zap');
+    if (trying.current && view.status === 'direct') notify(detailTexts.toast.direct, 'zap');
     trying.current = view.probe === 'trying';
   }, [view.status, view.probe]);
 }

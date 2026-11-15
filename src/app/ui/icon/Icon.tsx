@@ -13,7 +13,12 @@ import { shapes } from './shapes.tsx';
 
 const all: Record<string, VNode> = { ...shapes, ...menuShapes };
 
-export type IconName =
+import type { IconName } from '../../platform/view/icon-name.ts';
+
+export type { IconName };
+
+// Los que dibuja esta vista: tienen que ser exactamente los del contrato (platform/view/icon-name.ts).
+type Drawn =
   | keyof typeof shapes
   | keyof typeof menuShapes
   | keyof typeof peopleShapes
@@ -22,6 +27,11 @@ export type IconName =
   | keyof typeof linkShapes
   | keyof typeof deviceSettingsShapes
   | keyof typeof administrationShapes;
+export const drawsEveryIcon: [IconName] extends [Drawn]
+  ? [Drawn] extends [IconName]
+    ? true
+    : never
+  : never = true;
 
 // Los íconos de una pantalla que se baja a pedido llegan con ella.
 export function addShapes(more: Record<string, VNode>): void {

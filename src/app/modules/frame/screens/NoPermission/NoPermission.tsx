@@ -6,10 +6,10 @@ import { type PermissionId, permissionOf } from '@ferrebress/shared/contracts/pe
 import type { HoldersResponse } from '@ferrebress/shared/contracts/roles';
 import { useEffect, useState } from 'preact/hooks';
 import { api } from '../../../../platform/server/api.ts';
+import { notify } from '../../../../platform/view/notify.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { initials, useFrame } from '../../context.ts';
 import type { Option } from '../../menu.ts';
 import { permissionIcons } from '../../permission-icons.ts';
@@ -37,7 +37,7 @@ export function NoPermission({
   }, [option.permission]);
   const copy = async () => {
     await navigator.clipboard.writeText(words.request(person.name, permission.name, option.name));
-    showToast(words.copied, 'copy');
+    notify(words.copied, 'copy');
   };
   return (
     <section class="surface no-permission" aria-label={words.title(option.name)}>

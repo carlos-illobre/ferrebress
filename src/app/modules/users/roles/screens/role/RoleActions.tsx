@@ -4,8 +4,8 @@
 // barra de arriba de PhoneBar. El Administrador no muestra «Borrar el rol» (R7.4).
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { navigate } from '../../../../../platform/router.ts';
+import { notify } from '../../../../../platform/view/notify.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
-import { showToast } from '../../../../../ui/toast/Toast.tsx';
 import { refusalText } from '../../../refusals.ts';
 import { useUsersContext } from '../../../state.ts';
 import { removeRole } from '../../actions.ts';
@@ -22,11 +22,11 @@ function useRemove(draft: Draft) {
     const names = holding.map((one) =>
       one.active ? one.displayName : t.inactiveMark(one.displayName),
     );
-    if (names.length > 0) return showToast(t.inUse(names), 'triangle-alert');
+    if (names.length > 0) return notify(t.inUse(names), 'triangle-alert');
     const result = await removeRole({ id, version: draft.version });
-    if (!result.ok) return showToast(refusalText(result.error), 'triangle-alert');
+    if (!result.ok) return notify(refusalText(result.error), 'triangle-alert');
     await users.reload();
-    showToast(t.removed(draft.original.name), 'trash-2');
+    notify(t.removed(draft.original.name), 'trash-2');
     return navigate(listPath, { force: true });
   };
 }

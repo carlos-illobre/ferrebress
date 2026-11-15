@@ -4,10 +4,10 @@
 // espeja.
 import { useRef, useState } from 'preact/hooks';
 import { useBackStep } from '../../../../platform/back-step.ts';
+import { notify } from '../../../../platform/view/notify.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { texts } from '../../texts.ts';
 import { installHere } from '../../useSettings.ts';
 import './InstallSheet.css';
@@ -21,7 +21,7 @@ export function InstallSheet({ onClose }: { onClose: () => void }) {
   const askingNow = useRef(false);
   const dismiss = () => {
     onClose();
-    showToast(t.later, 'settings');
+    notify(t.later, 'settings');
   };
   useBackStep(() => {
     if (!askingNow.current) dismiss();

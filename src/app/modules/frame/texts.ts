@@ -1,5 +1,5 @@
 // Los textos del marco, con su forma larga (computadora) y corta (celular), 00 · R3.
-import type { Words } from '../../ui/say/Say.tsx';
+import type { Words } from '../../platform/view/words.ts';
 
 const same = (text: string): Words => ({ long: text, short: text });
 

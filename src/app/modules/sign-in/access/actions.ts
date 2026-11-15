@@ -3,7 +3,7 @@
 // día lo suyo (`update`) y recién ahí dice cómo salió. Un rechazo lo atiende quien llama (`refuse`).
 import type { ClosedResponse, CutResponse } from '@ferrebress/shared/contracts/users';
 import type { ApiResult } from '../../../platform/server/api.ts';
-import { showToast } from '../../../ui/toast/Toast.tsx';
+import { notify } from '../../../platform/view/notify.ts';
 import { disableOffline } from '../offline/option.ts';
 import { passkeyRemovedHere } from '../session.ts';
 import { accessApi, type How, type Whom } from './api.ts';
@@ -33,13 +33,13 @@ export const closeSession = async (
   then: Then<ClosedResponse>,
 ) =>
   answer(await accessApi.closeSession(whom, session.id), then, ({ closed }) =>
-    showToast(closed ? t.sessionClosed(session.device) : t.nothingToClose, 'log-out'),
+    notify(closed ? t.sessionClosed(session.device) : t.nothingToClose, 'log-out'),
   );
 
 // «Cerrar todas», después de confirmar: nunca la del dispositivo que se está usando.
 export const closeAll = async (whom: Whom, then: Then<ClosedResponse>) =>
   answer(await accessApi.closeAll(whom), then, ({ closed }) =>
-    showToast(t.closedAll(closed), 'log-out'),
+    notify(t.closedAll(closed), 'log-out'),
   );
 
 // «Quitar» o cortar como perdido un celular. `said`: cómo se dice lo cortado como perdido; sin él
@@ -50,10 +50,10 @@ export const cutPhone = async (
   then: Then<CutResponse>,
 ) =>
   answer(await accessApi.cut(whom, phone.key, phone.how), then, (cut) => {
-    if (!cut.sessions && !cut.passkey) showToast(t.nothingToCut, 'smartphone');
-    else if (phone.how === 'remove') showToast(t.phoneRemoved(cut.sessions > 0), 'fingerprint');
+    if (!cut.sessions && !cut.passkey) notify(t.nothingToCut, 'smartphone');
+    else if (phone.how === 'remove') notify(t.phoneRemoved(cut.sessions > 0), 'fingerprint');
     else if (phone.said)
-      showToast(t.cut(phone.said.device, phone.said.owner, cut.sessions, cut.passkey), 'power');
+      notify(t.cut(phone.said.device, phone.said.owner, cut.sessions, cut.passkey), 'power');
   });
 
 // Quitarle la huella al celular que se está usando (04 · R6.2): sigue adentro, sin huella y con
@@ -69,5 +69,5 @@ export const removeHere = async (then: Then<CutResponse>) =>
         return then.update?.(cut);
       },
     },
-    ({ passkey }) => showToast(passkey ? t.hereRemoved : t.nothingToCut, 'fingerprint'),
+    ({ passkey }) => notify(passkey ? t.hereRemoved : t.nothingToCut, 'fingerprint'),
   );

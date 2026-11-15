@@ -5,8 +5,8 @@
 import type { PersonRow, PhoneRow } from '@ferrebress/shared/contracts/users';
 import type { ComponentChildren } from 'preact';
 import { still } from '../../../../platform/motion.ts';
+import { notify } from '../../../../platform/view/notify.ts';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { removePhone } from '../../actions.ts';
 import { useUsersContext } from '../../state.ts';
 import { cardTexts as t } from '../../texts.ts';
@@ -112,7 +112,7 @@ export function Rows() {
       <Row icon="monitor" name={t.devicesRow} act={() => scrollTo('users-sessions')}>
         {t.devices(sessions)}
       </Row>
-      <Row icon="clock" name={t.historyRow} act={() => showToast(t.soon(t.historyRow))}>
+      <Row icon="clock" name={t.historyRow} act={() => notify(t.soon(t.historyRow))}>
         {t.soonShort}
       </Row>
     </div>

@@ -4,7 +4,7 @@
 // con el detalle, no en el arranque.
 import { addDays, businessDateOf, businessFormat } from '@ferrebress/shared/time/business';
 import { formatTime } from '../../../../platform/time.ts';
-import type { Words } from '../../../../ui/say/Say.tsx';
+import type { Words } from '../../../../platform/view/words.ts';
 
 const words = (long: string, short: string): Words => ({ long, short });
 

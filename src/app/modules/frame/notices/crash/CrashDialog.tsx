@@ -3,11 +3,11 @@
 // (R9.5). Lo que se estaba haciendo sigue ahí (R9.3).
 import { useStore } from '../../../../platform/store.ts';
 import { formatTime } from '../../../../platform/time.ts';
+import { notify } from '../../../../platform/view/notify.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { texts } from '../../texts.ts';
 import { type Crash, crash, saveReport } from './crash.ts';
 
@@ -55,7 +55,7 @@ export function CrashDialog() {
             onPress={() => {
               saveReport(shown);
               close();
-              showToast(t.saved, 'check');
+              notify(t.saved, 'check');
             }}
           >
             {t.report}

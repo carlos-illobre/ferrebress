@@ -3,10 +3,10 @@
 // sin ofrecer cambiar de cuenta (R1.6); un código vencido ofrece leer el nuevo (E04).
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { useEffect, useState } from 'preact/hooks';
+import { notify } from '../../../../platform/view/notify.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Camera } from '../../../../ui/camera/Camera.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { acceptTicket, pairCodeOf, type Reading, readCode } from '../../pair.ts';
 import { detailTexts } from '../Detail/texts.ts';
 
@@ -91,7 +91,7 @@ export function Read({ code, onPaired, onClose }: Props) {
   const [step, setStep] = useState<Step>(code ? { kind: 'asking' } : { kind: 'camera' });
   const settle = (reading: Reading) => {
     if (reading.kind !== 'paired') return setStep(reading);
-    showToast(detailTexts.toast.pairedPhone, 'check');
+    notify(detailTexts.toast.pairedPhone, 'check');
     onPaired(reading.pairing);
   };
   const read = (value: string) => {

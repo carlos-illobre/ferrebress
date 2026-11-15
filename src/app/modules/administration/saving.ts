@@ -8,7 +8,7 @@ import {
   type Settings,
   settingValue,
 } from '@ferrebress/shared/contracts/administration';
-import { showToast } from '../../ui/toast/Toast.tsx';
+import { notify } from '../../platform/view/notify.ts';
 import { administrationApi } from './api.ts';
 import { shown } from './logic.ts';
 import type { Confirm, Note } from './schemas.ts';
@@ -55,9 +55,9 @@ export function saving(deps: Saving) {
     // vuelven a pedir con el paso nuevo.
     if (key === 'roundingStep') {
       deps.refreshPrices();
-      return showToast(words, 'check');
+      return notify(words, 'check');
     }
-    showToast(words, 'check', {
+    notify(words, 'check', {
       label: texts.undo,
       ms: administrationSettings.undoMs,
       run: () => void save(key, now.value),

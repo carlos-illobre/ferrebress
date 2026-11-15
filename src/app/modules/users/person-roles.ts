@@ -2,7 +2,7 @@
 // quedaron y lo dice. Dar algo puede pedir confirmar quién es (R3.8): al confirmar, se repite solo.
 // La pestaña Roles guarda lo suyo en roles/actions.ts.
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import { showToast } from '../../ui/toast/Toast.tsx';
+import { notify } from '../../platform/view/notify.ts';
 import { usersApi } from './api.ts';
 import { roleTexts } from './person-roles-texts.ts';
 import { confirmOrRefuse } from './refusals.ts';
@@ -18,7 +18,7 @@ async function settle(users: Users, result: Result, done: string, again: () => u
     return false;
   }
   await users.reload();
-  showToast(done, 'shield-check');
+  notify(done, 'shield-check');
   return true;
 }
 

@@ -5,7 +5,7 @@
 import { product } from '@ferrebress/shared/contracts/product';
 import { newVersion } from '../../../../platform/server/api.ts';
 import { createStore } from '../../../../platform/store.ts';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
+import { notify } from '../../../../platform/view/notify.ts';
 import { texts } from '../../texts.ts';
 import { halfDone } from '../../work.ts';
 
@@ -29,7 +29,7 @@ export function announceUpdate(): void {
   try {
     if (sessionStorage.getItem(updatedKey) !== '1') return;
     sessionStorage.removeItem(updatedKey);
-    showToast(texts.update.done, 'check');
+    notify(texts.update.done, 'check');
   } catch {
     // Sin sessionStorage no se dice: la aplicación igual está actualizada.
   }

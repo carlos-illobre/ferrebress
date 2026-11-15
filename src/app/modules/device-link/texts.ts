@@ -1,6 +1,6 @@
 // Los textos del vínculo (maqueta aprobada de 03, device-link-indicator/final): largos en la
 // computadora, que explican; cortos en el celular (00 · R3). Los dos dicen lo mismo.
-import type { Words } from '../../ui/say/Say.tsx';
+import type { Words } from '../../platform/view/words.ts';
 
 const words = (long: string, short: string): Words => ({ long, short });
 

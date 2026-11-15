@@ -5,7 +5,7 @@ import type { MyDevice, MyDevicesResponse } from '@ferrebress/shared/contracts/d
 import { useEffect, useState } from 'preact/hooks';
 import { online as onlineStore } from '../../../platform/server/api.ts';
 import { useStore } from '../../../platform/store.ts';
-import { showToast } from '../../../ui/toast/Toast.tsx';
+import { notify } from '../../../platform/view/notify.ts';
 import {
   accessApi,
   closeAllSessions,
@@ -48,7 +48,7 @@ export function useMine() {
   // Un rechazo: sin conexión, gris; si no, se dice y se vuelve a pedir lo de ahora.
   const refuse = (result: Refused) => {
     if (result.error === 'offline') return goneOffline();
-    showToast(t.refused, 'triangle-alert');
+    notify(t.refused, 'triangle-alert');
     void load();
   };
   return {
@@ -85,15 +85,15 @@ function actions(
     async rename(name: string) {
       const result = await accessApi.rename(name);
       if (!result.ok) return refuse(result);
-      showToast(result.data.name ? t.name.saved(result.data.name) : t.name.cleared, 'pencil-line');
+      notify(result.data.name ? t.name.saved(result.data.name) : t.name.cleared, 'pencil-line');
       await load();
       return result.data;
     },
     // Después de volver a confirmar quién es (02 · R3.8).
     async link() {
       const linked = await linkHere();
-      if (linked === 'linked') showToast(t.passkey.linked, 'fingerprint');
-      if (linked === 'other-account') showToast(t.passkey.otherAccount, 'triangle-alert');
+      if (linked === 'linked') notify(t.passkey.linked, 'fingerprint');
+      if (linked === 'other-account') notify(t.passkey.otherAccount, 'triangle-alert');
       await load();
     },
   };

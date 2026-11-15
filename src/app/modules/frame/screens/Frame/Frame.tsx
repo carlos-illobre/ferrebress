@@ -8,7 +8,7 @@ import { isNarrow } from '../../../../platform/narrow.ts';
 import { route } from '../../../../platform/router.ts';
 import { online as onlineStore } from '../../../../platform/server/api.ts';
 import { useStore } from '../../../../platform/store.ts';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
+import { notify } from '../../../../platform/view/notify.ts';
 import { useCollapse } from '../../behavior/useCollapse.ts';
 import { usePanels } from '../../behavior/usePanels.ts';
 import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
@@ -41,7 +41,7 @@ export type FrameProps = {
 // Lo que todavía no está, al tocarlo: se sacude y lo dice, en un globo o, angosto, en una tostada.
 const notYetWith = (tip: FrameState['tip']) => (element: HTMLElement, name: string) => {
   shake(element);
-  if (isNarrow()) showToast(texts.notYetShort(name));
+  if (isNarrow()) notify(texts.notYetShort(name));
   else tip.notYet(element, name);
 };
 

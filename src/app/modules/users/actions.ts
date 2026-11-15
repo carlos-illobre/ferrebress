@@ -7,7 +7,7 @@ import type {
   PhoneRow,
   SessionRow,
 } from '@ferrebress/shared/contracts/users';
-import { showToast } from '../../ui/toast/Toast.tsx';
+import { notify } from '../../platform/view/notify.ts';
 import * as access from '../sign-in/index.ts';
 import { usersApi } from './api.ts';
 import { deviceOf } from './logic.ts';
@@ -36,7 +36,7 @@ export async function authorize(
   users.setSearch('');
   users.select(result.data.person.id);
   users.close();
-  showToast(doneTexts.authorized, 'user-check');
+  notify(doneTexts.authorized, 'user-check');
   return undefined;
 }
 
@@ -62,7 +62,7 @@ export async function change(
     return undefined;
   }
   users.put(result.data.person);
-  showToast(changedSaying(person, field, text), 'check');
+  notify(changedSaying(person, field, text), 'check');
   return undefined;
 }
 
@@ -79,7 +79,7 @@ export async function remove(users: Users, person: PersonRow) {
   if (!result.ok) return refused(users, result, person.id);
   users.select(undefined);
   users.drop(person.id);
-  showToast(doneTexts.deleted(person.email), 'trash-2');
+  notify(doneTexts.deleted(person.email), 'trash-2');
 }
 
 // Dar de baja (con confirmación, R4.1): se le cierra todo, así que sus cantidades quedan en cero.
@@ -90,7 +90,7 @@ export async function deactivate(users: Users, person: PersonRow) {
   users.put(result.data.person);
   users.patch(person.id, { sessions: 0, phones: 0 });
   users.select(person.id);
-  showToast(doneTexts.deactivated(person.displayName), 'user-x');
+  notify(doneTexts.deactivated(person.displayName), 'user-x');
 }
 
 export async function activate(users: Users, person: PersonRow) {
@@ -98,7 +98,7 @@ export async function activate(users: Users, person: PersonRow) {
   if (!result.ok)
     return void confirmOrRefuse(users, result, () => activate(users, person), person.id);
   users.put(result.data.person);
-  showToast(doneTexts.activated(person.displayName), 'user-check');
+  notify(doneTexts.activated(person.displayName), 'user-check');
 }
 
 // «Cerrar», «Cerrar todas» y «Quitar», con la lógica común (sign-in, diseño de 04b, § 5); acá se

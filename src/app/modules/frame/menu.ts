@@ -4,7 +4,7 @@
 import { can } from '@ferrebress/shared/contracts/can';
 import type { PermissionId } from '@ferrebress/shared/contracts/permissions';
 import { navigate } from '../../platform/router.ts';
-import type { IconName } from '../../ui/icon/Icon.tsx';
+import type { IconName } from '../../platform/view/icon-name.ts';
 
 export type Option = {
   id: string;

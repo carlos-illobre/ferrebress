@@ -1,7 +1,7 @@
 // Los textos de Usuarios (maquetas aprobadas de 02, users-a/final). Largos en la computadora, que
 // explican; cortos en el celular (00 · R3). Los del servidor no llegan a la pantalla: cada error
 // tiene su texto acá.
-import type { Words } from '../../ui/say/Say.tsx';
+import type { Words } from '../../platform/view/words.ts';
 
 const words = (long: string, short: string): Words => ({ long, short });
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;

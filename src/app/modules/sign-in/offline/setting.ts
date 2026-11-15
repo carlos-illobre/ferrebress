@@ -7,7 +7,7 @@ import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { isPhone } from '../../../platform/device/device.ts';
 import { lastReply, online as onlineStore } from '../../../platform/server/api.ts';
 import { useStore } from '../../../platform/store.ts';
-import { showToast } from '../../../ui/toast/Toast.tsx';
+import { notify } from '../../../platform/view/notify.ts';
 import { hasPasskey } from '../session.ts';
 import { texts } from '../texts.ts';
 import { contacted, disableOffline, enableOffline, offlineOption } from './option.ts';
@@ -44,7 +44,7 @@ export function useOfflineSetting(who: Person | undefined): OfflineRow | undefin
     on,
     toggle() {
       if (on) return disableOffline();
-      if (!online) return showToast(t.needsInternet, 'wifi-off');
+      if (!online) return notify(t.needsInternet, 'wifi-off');
       // El último pedido que el servidor aceptó con esta sesión es el último contacto.
       contacted(lastReply.get() ?? Date.now());
       enableOffline(who);

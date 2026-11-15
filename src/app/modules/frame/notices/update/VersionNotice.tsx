@@ -3,10 +3,10 @@
 // se abra la aplicación, que se actualiza sola.
 import { newVersion } from '../../../../platform/server/api.ts';
 import { useStore } from '../../../../platform/store.ts';
+import { notify } from '../../../../platform/view/notify.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
-import { showToast } from '../../../../ui/toast/Toast.tsx';
 import { texts } from '../../texts.ts';
 import { dismissed, update } from './update.ts';
 
@@ -35,7 +35,7 @@ export function VersionNotice() {
           closes
           onPress={() => {
             dismissed.set(true);
-            showToast(t.later);
+            notify(t.later);
           }}
         >
           {t.notNow}

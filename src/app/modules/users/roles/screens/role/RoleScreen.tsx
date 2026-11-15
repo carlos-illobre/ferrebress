@@ -10,8 +10,8 @@ import * as z from 'zod/mini';
 import { isPhone } from '../../../../../platform/device/device.ts';
 import { useMirrored } from '../../../../../platform/mirror/use-mirrored.ts';
 import { guardNavigation, navigate } from '../../../../../platform/router.ts';
+import { notify } from '../../../../../platform/view/notify.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
-import { showToast } from '../../../../../ui/toast/Toast.tsx';
 import { PhoneLight, registerWork } from '../../../../frame/index.ts';
 import { usersApi } from '../../../api.ts';
 import { refusalText } from '../../../refusals.ts';
@@ -72,14 +72,14 @@ function useSave(draft: Draft, setDraft: (draft: Draft) => void) {
   const changedOver = async () => {
     const [roles, people] = await Promise.all([usersApi.roles(), usersApi.people()]);
     const role = roles.ok && roles.data.roles.find((one) => one.id === draft.id);
-    if (!role || !people.ok) return showToast(somethingFailed, 'triangle-alert');
+    if (!role || !people.ok) return notify(somethingFailed, 'triangle-alert');
     setDraft(reapply(draft, role, ids(activeHolders(people.data.people, role.id))));
     setNotice(t.changedOver);
     await users.reload();
   };
   const saved = async (id: string) => {
     await users.reload();
-    showToast((draft.id ? t.saved : t.created)(draft.name.trim()), 'shield-check');
+    notify((draft.id ? t.saved : t.created)(draft.name.trim()), 'shield-check');
     navigate(listPath, { force: true, state: { arriving: id } });
   };
   // Lo que el servidor no guardó: confirmar y repetir, poner el borrador encima o decir qué y dónde.
@@ -87,7 +87,7 @@ function useSave(draft: Draft, setDraft: (draft: Draft) => void) {
     if (outcome.kind === 'confirm-first')
       return users.askToConfirm(again, whatItGives(draft, nameOf));
     if (outcome.kind === 'changed') return changedOver();
-    if (outcome.kind === 'other') return showToast(refusalText(outcome.error), 'triangle-alert');
+    if (outcome.kind === 'other') return notify(refusalText(outcome.error), 'triangle-alert');
     return setErrors(outcome.errors);
   };
   const save = async (): Promise<unknown> => {
