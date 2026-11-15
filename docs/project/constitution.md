@@ -235,6 +235,12 @@ Las pantallas, una por vez: el director de arte crea tres versiones; Carlos las 
 comentarios; el maquetador construye la maqueta final con lo del director y esos comentarios;
 Carlos la evalúa, y si pide cambios vuelve el maquetador, hasta que la aprueba.
 
+**La interfaz de hoy es provisoria.** Mientras no esté definida toda la funcionalidad, las
+pantallas de cada módulo sirven para probarla: cuando estén todas, Carlos encarga el diseño
+definitivo de cada una afuera y la interfaz se rehace entera. Por eso cada pantalla vive en sus
+propios archivos, separados de todo lo que no es gráfico (las reglas, los datos, la sesión, sin
+conexión, el espejo, el teclado, los textos), que se usa sin cambios desde la interfaz nueva.
+
 **Antes del paso 1, el alcance.** Antes de empezar un módulo, el agente le lista a Carlos todo lo
 que abarca, para que evalúe si se puede dividir en módulos más chicos. Se empieza
 recién con su respuesta.

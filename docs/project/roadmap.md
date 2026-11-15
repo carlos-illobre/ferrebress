@@ -145,6 +145,9 @@ paralelo»).
   demás (las reglas, los datos, la sesión, sin conexión, el espejo, el teclado), que se usa sin
   cambios desde una interfaz nueva. Primero una revisión de todo el código que diga qué está
   mezclado; después el arreglo, sin cambiar lo que hace la aplicación.
+- [ ] T135 [carlos] Cuando esté definida toda la funcionalidad, encargar afuera el diseño definitivo
+  de cada pantalla y rehacer la interfaz con él (constitución, «La interfaz de hoy es provisoria»).
+  Depende de T134.
 
 ## Tareas futuras
 
