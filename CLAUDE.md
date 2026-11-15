@@ -24,9 +24,9 @@ secundario.**
   ve la persona, en castellano.
 - **La documentación vive en `docs/`, fuera de `src/`.** En `src/` solo documentación que ayude a
   entender el código.
-- **Un módulo a la vez, entero:** reglas, pantallas, diseño técnico, código, pruebas y manual, en
-  los nueve pasos de la constitución. No se programa sin las reglas, las pantallas y el diseño
-  técnico aprobados por Carlos.
+- **Un módulo a la vez, entero:** reglas, pantallas, diseño técnico, código y pruebas, en los pasos
+  de la constitución. No se programa sin las reglas, las pantallas y el diseño técnico aprobados por
+  Carlos.
 - **Toda regla que define Carlos se cuestiona:** cada vez, se le ofrecen las alternativas mejores
   que se encuentren y las desventajas de aplicarla tal cual; decide él.
 - **La documentación describe el presente:** sin fechas, sin numerar decisiones y sin historia.
@@ -37,8 +37,10 @@ secundario.**
 - **El analista de negocio pregunta todo.** Sin las preguntas, Carlos no puede describir bien el
   requerimiento: casos, bordes, errores y permisos, todas juntas y en tandas hasta que no quede
   nada sin respuesta.
-- **Las pantallas salen del director de arte**, siempre tres versiones para que Carlos elija. La
-  referencia de partida son las maquetas v2 de `docs/design/mockups/`.
+- **Primero un servidor sólido y una aplicación que funcione; la interfaz gráfica, al final.** Las
+  maquetas (director de arte y maquetador) y el manual están en pausa. Las pantallas se especifican
+  por su funcionalidad en `screens.md`, y la vista está separada de toda la lógica, para poder
+  cambiarla o tener varias vistas de la misma lógica (constitución, «Cómo se trabaja»).
 - **El proyecto anterior (`ferre`) se usa solo para leer** y se deja de usar cuando el último
   capítulo tenga sus reglas aprobadas (T006): la documentación no
   lo nombra, salvo la [guía de migración](docs/project/migration-from-ferre.md), que dice cómo

@@ -223,7 +223,7 @@ Cada módulo del negocio es un capítulo en `docs/chapters/`, con un número fij
 |---|---|
 | `summary.md` | Una página para entrar rápido: cada regla en una línea, lo que más pesa y lo que falta decidir. Es lo primero que se lee |
 | `rules.md` | Las reglas vigentes, con sus escenarios numerados (`E01`, `E02`…) en forma *dado / cuando / entonces*, incluidos los de error, de borde y de seguridad |
-| `screens.md` | Qué tiene que poder hacer cada rol en cada pantalla y qué maqueta de `docs/design/mockups/` vale |
+| `screens.md` | Las pantallas del capítulo: qué muestra cada una, qué puede hacer cada rol, en qué orden, con el teclado y en el celular. Describe la funcionalidad, no el aspecto; si hay una maqueta aprobada, dice cuál |
 
 `rules.md` tiene siempre lo vigente: cada cambio lo actualiza en el mismo commit. No hay otro
 documento de requerimientos (ni `spec.md` ni plantillas de Spec Kit): una regla está en un solo
@@ -231,15 +231,21 @@ lugar.
 
 ### Los nueve pasos de un módulo
 
-Las pantallas, una por vez: el director de arte crea tres versiones; Carlos las ve y da sus
-comentarios; el maquetador construye la maqueta final con lo del director y esos comentarios;
-Carlos la evalúa, y si pide cambios vuelve el maquetador, hasta que la aprueba.
+**Lo que importa ahora: un servidor sólido y prolijo, y una aplicación que funcione, con la vista
+separada de todo lo demás.** La interfaz gráfica se hace al final. Por eso, mientras tanto:
 
-**La interfaz de hoy es provisoria.** Mientras no esté definida toda la funcionalidad, las
-pantallas de cada módulo sirven para probarla: cuando estén todas, Carlos encarga el diseño
-definitivo de cada una afuera y la interfaz se rehace entera. Por eso cada pantalla vive en sus
-propios archivos, separados de todo lo que no es gráfico (las reglas, los datos, la sesión, sin
-conexión, el espejo, el teclado, los textos), que se usa sin cambios desde la interfaz nueva.
+- **Los pasos 2, 2b y 9 están en pausa:** no se hacen maquetas (ni el director de arte ni el
+  maquetador) ni el manual. Se retoman cuando se haga la interfaz.
+- **Las pantallas se especifican por su funcionalidad** en el paso 1, en `screens.md`: qué muestra
+  cada una, qué puede hacer cada rol, en qué orden, los estados (vacía, cargando, sin conexión, sin
+  permiso, error), el teclado y el celular. No dicen cómo se ven.
+- **La vista es intercambiable.** Toda la lógica y el estado de una pantalla (qué datos muestra,
+  qué acciones tiene, qué tecla hace qué, qué es privado) están fuera de los componentes gráficos,
+  en una capa que no dibuja nada. Los componentes gráficos solo muestran lo que esa capa les da y
+  le avisan lo que toca la persona, en sus propios archivos. Así puede haber varias vistas de la
+  misma lógica, y cambiar una no toca nada más. Cómo se hace, en la arquitectura y su ADR.
+- **La vista de hoy es provisoria:** simple y usable, sin cuidado gráfico, solo para probar la
+  funcionalidad.
 
 **Antes del paso 1, el alcance.** Antes de empezar un módulo, el agente le lista a Carlos todo lo
 que abarca, para que evalúe si se puede dividir en módulos más chicos. Se empieza
@@ -251,16 +257,16 @@ programó no puede revisarse.
 
 | Paso | Rol | Qué hace | Deja | Aprueba Carlos |
 |---|---|---|---|---|
-| 1 | Analista de negocio | Parte de lo que había en el proyecto anterior (la [guía de migración](migration-from-ferre.md)), mientras exista, y le pregunta a Carlos **todo** lo que haga falta para cubrir la funcionalidad completa: cada caso, cada borde, cada error, cada permiso. Dice qué se tomó, qué se descarta por desactualizado y qué propone mejorar. Toda regla o decisión que define Carlos la cuestiona: le ofrece las alternativas mejores que encuentre y las desventajas de aplicarla tal cual. Las preguntas van todas juntas, en tandas, hasta que no quede nada sin respuesta: lo que Carlos no contestó o no quedó claro se vuelve a preguntar | `rules.md` y `summary.md`, con los escenarios | Sí |
-| 2 | Director de arte (skill `art-director`), un perfil artístico e innovador | Tres versiones muy distintas de cada pantalla, una pantalla por vez y en el orden en que se usan, funcionando y con sus animaciones, en el visor de maquetas. Carlos elige una antes de pasar a la siguiente. Solo pantallas de este módulo. La interfaz es lo más importante: va antes que todo lo técnico. **Sin restricciones:** puede romper las reglas, el marco y el menú para un diseño más innovador, llamativo y artístico, diciendo qué rompe; nadie le pone límites en el encargo | `docs/design/mockups/<pantalla>/` y `screens.md` | Sí: las ve y da sus comentarios, con los que trabaja el maquetador |
-| 2b | Maquetador (agente `mockup-builder`), un desarrollador frontend | Lleva las ideas del director, por exóticas que sean, a la tecnología disponible, y construye la maqueta final: toma como base lo que hizo el director de arte (la variante elegida y lo que Carlos quiera de las otras), le suma las directivas de Carlos y la ajusta a las reglas aprobadas. El director diseña sin límites; el maquetador pone los límites. Nunca modifica lo del director. El menú lo arma como más le guste: el menú que muestran las maquetas no es una decisión, el final lo decide Carlos al implementar | `docs/design/mockups/<pantalla>/final/` | Sí: la evalúa; si pide cambios, vuelve el maquetador |
-| 3 | Arquitecto | Entidades, API, eventos, permisos, conexiones, la sección «Seguridad», las **metas de performance** (consultas por pedido, milisegundos, bytes) y las tareas con sus dependencias; un ADR si hay una decisión técnica | `docs/technical/modules/<module>.md` | — |
+| 1 | Analista de negocio | Escribe las reglas y las pantallas por su funcionalidad. Parte de lo que había en el proyecto anterior (la [guía de migración](migration-from-ferre.md)), mientras exista, y le pregunta a Carlos **todo** lo que haga falta para cubrir la funcionalidad completa: cada caso, cada borde, cada error, cada permiso. Dice qué se tomó, qué se descarta por desactualizado y qué propone mejorar. Toda regla o decisión que define Carlos la cuestiona: le ofrece las alternativas mejores que encuentre y las desventajas de aplicarla tal cual. Las preguntas van todas juntas, en tandas, hasta que no quede nada sin respuesta: lo que Carlos no contestó o no quedó claro se vuelve a preguntar | `rules.md`, `screens.md` y `summary.md`, con los escenarios | Sí |
+| 2 | *En pausa.* Director de arte (skill `art-director`), un perfil artístico e innovador | Tres versiones muy distintas de cada pantalla, una pantalla por vez y en el orden en que se usan, funcionando y con sus animaciones, en el visor de maquetas. Carlos elige una antes de pasar a la siguiente. Solo pantallas de este módulo. **Sin restricciones:** puede romper las reglas, el marco y el menú para un diseño más innovador, llamativo y artístico, diciendo qué rompe; nadie le pone límites en el encargo | `docs/design/mockups/<pantalla>/` | Sí: las ve y da sus comentarios, con los que trabaja el maquetador |
+| 2b | *En pausa.* Maquetador (agente `mockup-builder`), un desarrollador frontend | Lleva las ideas del director, por exóticas que sean, a la tecnología disponible, y construye la maqueta final: toma como base lo que hizo el director de arte (la variante elegida y lo que Carlos quiera de las otras), le suma las directivas de Carlos y la ajusta a las reglas aprobadas. El director diseña sin límites; el maquetador pone los límites. Nunca modifica lo del director. El menú lo arma como más le guste: el menú que muestran las maquetas no es una decisión, el final lo decide Carlos al implementar | `docs/design/mockups/<pantalla>/final/` | Sí: la evalúa; si pide cambios, vuelve el maquetador |
+| 3 | Arquitecto | Entidades, API, eventos, permisos, conexiones, la lógica de cada pantalla separada de su vista, la sección «Seguridad», las **metas de performance** (consultas por pedido, milisegundos, bytes) y las tareas con sus dependencias; un ADR si hay una decisión técnica | `docs/technical/modules/<module>.md` | — |
 | 4 | Revisor del diseño (agente `design-reviewer`) y revisor de seguridad (agente `security-reviewer`), por separado | El primero busca puntos débiles y mejoras al diseño técnico, contra la constitución y las restricciones de Carlos. El segundo lo mira como un atacante: entrar sin permiso, ver o cambiar lo ajeno, lo que entra de afuera, datos personales, abuso, despliegue y dependencias | `docs/technical/modules/<module>-design-review.md` y `<module>-security-review.md` | — |
 | 5 | Arquitecto | Corrige el diseño con lo que encontraron los dos revisores y se lo presenta a Carlos | El diseño final | Sí |
 | 6 | Desarrollador | Primero las pruebas: una por escenario y las que cuentan las consultas de cada pedido, todas fallando. Después el código que las hace pasar, con cobertura total; `pnpm check` en verde | Pruebas y código | — |
-| 7 | Revisor del código (agente `code-reviewer`) y revisor de seguridad (agente `security-reviewer`), por separado | El primero compara el código con las reglas, las pantallas y el diseño, y además analiza si lo no funcional que construyó el módulo se podría extraer a una librería para otros proyectos (ver abajo). El segundo busca cómo atacarlo y que cada riesgo cubierto tenga una prueba que lo intente. Lo que encuentran se arregla, salvo el análisis de librería | `docs/technical/modules/<module>-code-review.md` y la sección del código de `<module>-security-review.md` | — |
+| 7 | Revisor del código (agente `code-reviewer`) y revisor de seguridad (agente `security-reviewer`), por separado | El primero compara el código con las reglas, las pantallas y el diseño, mira que la vista no tenga lógica, y además analiza si lo no funcional que construyó el módulo se podría extraer a una librería para otros proyectos (ver abajo). El segundo busca cómo atacarlo y que cada riesgo cubierto tenga una prueba que lo intente. Lo que encuentran se arregla, salvo el análisis de librería | `docs/technical/modules/<module>-code-review.md` y la sección del código de `<module>-security-review.md` | — |
 | 8 | Carlos | Lo prueba en el ambiente de pruebas; los ajustes vuelven al paso que corresponda | — | Sí: cierra el módulo |
-| 9 | Redactor | El manual del módulo (la pantalla del manual se diseña en el paso 9 del primer módulo, no antes): capturas, texto para quien atiende la ferretería sin saber de informática y un clip solo si la funcionalidad es lo bastante grande para verla en video | `docs/manual/` y la pantalla del manual | — |
+| 9 | *En pausa.* Redactor | El manual del módulo (la pantalla del manual se diseña en el paso 9 del primer módulo, no antes): capturas, texto para quien atiende la ferretería sin saber de informática y un clip solo si la funcionalidad es lo bastante grande para verla en video | `docs/manual/` y la pantalla del manual | — |
 
 **El análisis de librería (paso 7)** es solo informativo: no se arregla nada ni se crea ninguna
 librería; Carlos decide si algún día se hace. Se hace solo si el módulo agregó o cambió algo no
