@@ -32,6 +32,7 @@ src/app/
 │   ├── api.ts, state.ts, rules.ts, settings.ts, texts.ts
 │   ├── use<Screen>.ts   el modelo de cada pantalla
 │   └── keys/<screen>.ts la capa del teclado de cada pantalla (abajo)
+├── keyboard/            la capa del teclado: el motor y el mapa de teclas (keymap.ts)
 ├── shell/               la lógica de la aplicación entera (arrancar, la sesión, qué pantalla va),
 │                        también sin dibujo
 └── views/<view>/        una vista: todo lo que se dibuja
@@ -57,17 +58,31 @@ src/app/
 - **Cada vista carga cada módulo cuando se abre**, como hoy (`platform/lazy.ts`): la vista registra
   por módulo una carga diferida de sus pantallas.
 
-**El teclado es una capa que se pone o se saca.** Cada pantalla tiene su archivo de teclado
-(`modules/<module>/keys/<screen>.ts`), que dice qué tecla hace qué **sobre el modelo** de esa
-pantalla: el atajo de cada acción (Alt y una letra, 00 · R2.8), qué se recorre con las flechas y qué
-hace Enter (la lista de cosas del modelo y la acción de elegir una), qué hace Esc y a dónde lleva
-/ (00 · R2). El motor (`platform/keyboard/`) escucha las teclas, sabe qué pantallas están abiertas
-y cuál está arriba (cada modelo se anuncia al abrirse, con un nombre) y llama a las acciones del
-modelo; las capas del teclado se encuentran solas (`import.meta.glob`), sin registrarlas a mano.
+**El teclado es una capa que se pone o se saca, y sus teclas se configuran en un solo archivo.**
 
-- **Sacar el teclado de una pantalla es borrar su archivo; sacarlo de toda la aplicación, borrar
-  esos archivos y el motor.** Nada más cambia: los modelos no saben del teclado, y las vistas
-  tampoco lo necesitan.
+- **Cada pantalla tiene su archivo de teclado** (`modules/<module>/keys/<screen>.ts`), que declara
+  **los comandos** de esa pantalla, cada uno con un nombre y lo que hace **sobre el modelo**:
+  `users.list.authorize` llama a `authorize()`, `users.list.next` mueve la marca por la lista,
+  `users.list.open` abre la persona marcada. No dice ninguna tecla.
+- **Qué tecla o combinación ejecuta cada comando está en un solo archivo de configuración**
+  (`src/app/keyboard/keymap.ts`), para toda la aplicación: `'users.list.authorize': 'Alt+A'`,
+  `'users.list.next': 'ArrowDown'`. Cambiar una tecla es cambiar una línea de ese archivo, sin
+  tocar la pantalla ni su lógica. Un comando sin tecla en el mapa no se puede usar con el teclado;
+  una tecla del mapa cuyo comando no existe es un error.
+- **Una tecla vale en el contexto de la pantalla:** la misma combinación puede hacer cosas
+  distintas en pantallas distintas, y solo vale la de la pantalla que está arriba (00 · R2.10). Lo
+  que vale en toda la aplicación (el menú, ir a Más) lleva el contexto `app`. `pnpm check` controla
+  que dentro de un mismo contexto, y entre un contexto y `app`, ninguna combinación se repita, y
+  que no se use una que reserva el navegador (Ctrl+T, Ctrl+W, F5…).
+- **Las reglas del teclado de la aplicación (00 · R2)** siguen igual: el mapa de arranque es el de
+  hoy.
+- **El motor** (`src/app/keyboard/`) escucha las teclas, sabe qué pantallas están abiertas y cuál
+  está arriba (cada modelo se anuncia al abrirse, con un nombre), busca en el mapa qué comando de esa
+  pantalla corresponde y lo ejecuta sobre su modelo. Las capas del teclado se encuentran solas
+  (`import.meta.glob`), sin registrarlas a mano.
+- **Sacar el teclado de una pantalla es borrar su archivo (y sus líneas del mapa); sacarlo de toda
+  la aplicación, borrar esos archivos, el mapa y el motor (`src/app/keyboard/`).** Nada más cambia:
+  los modelos no saben del teclado, y las vistas tampoco lo necesitan.
 - **Lo que se ve del teclado es opcional para la vista:** cuál es la cosa marcada y qué atajo tiene
   cada acción (para mostrarlos con Alt, 00 · R2.9) los da `useKeyHints(<pantalla>)`, que devuelve
   nada si la pantalla no tiene capa de teclado. Una vista que no los muestra igual funciona con el
