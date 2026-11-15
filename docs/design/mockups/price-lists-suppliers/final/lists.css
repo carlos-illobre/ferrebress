@@ -274,7 +274,7 @@ body.captura .casos-btn, body.captura .casos { display: none !important; }
   .pantalla { overflow: auto; padding: 12px 16px 16px; gap: 10px; }
   .herramientas { flex-wrap: wrap; gap: 10px; }
   .buscar { flex: 1 1 100%; min-width: 0; }
-  .chips { flex-wrap: nowrap; }
+  .herramientas .chips { flex-wrap: nowrap; }
   .chips .chip { height: 40px; }
   .tabla { flex: none; overflow: visible; background: none; border: 0; box-shadow: none; }
   .cols, .pie-tabla { display: none; }
