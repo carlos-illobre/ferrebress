@@ -98,7 +98,8 @@ body.alt:not(.quieto) .kbd:not(.siempre) { animation: kbd-entra var(--t-micro) v
 .btn .kbd, .chip .kbd, .soltar .kbd { position: absolute; right: -8px; top: -10px; height: 22px; box-shadow: 0 0 0 2px var(--fondo); }
 
 /* =================== La tabla de proveedores =================== */
-.tabla { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.tabla { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.cols { border-radius: var(--r-tarjeta) var(--r-tarjeta) 0 0; }
 .cols, .prov { display: grid; grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1.05fr) 196px 236px 36px 20px; gap: 0 12px; align-items: center; }
 .cols { flex: none; padding: 10px 16px; border-bottom: 1px solid var(--borde); font-size: 14px; font-weight: 700; color: var(--texto-2); }
 .cols span:first-child { grid-column: 1 / span 2; }
@@ -107,7 +108,7 @@ body.alt:not(.quieto) .kbd:not(.siempre) { animation: kbd-entra var(--t-micro) v
 .prov:last-child { border-bottom: 0; }
 .prov:hover { background: #FBFAF7; }
 .prov.marcado { box-shadow: inset 0 0 0 2px var(--pino-2); background: #FBFAF7; }
-.prov.leyendo { background: var(--pino-suave); }
+.prov.leyendo { background: #FBFAF7; box-shadow: inset 3px 0 0 var(--pino-texto); }
 .prov::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 2px var(--logro); opacity: 0; pointer-events: none; }
 .prov.recien::after { animation: recien 1.4s var(--curva); }
 @keyframes recien { 15% { opacity: 1; } 100% { opacity: 0; } }
@@ -174,13 +175,16 @@ body:not(.quieto) .s-paso.ahora .bola { animation: gira 2.4s linear infinite; }
 .s-acciones .btn, .pregunta .btn, .elegir .btn { position: relative; }
 
 /* La pregunta «¿Es de…?» (R4.3) */
-.pregunta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; padding: 8px 8px 8px 12px; border-radius: var(--r); background: var(--urgente-suave); color: var(--urgente-texto); }
-.pregunta b { font-size: 15px; font-weight: 800; color: var(--tinta); margin-right: auto; }
-.pregunta small { flex: 0 0 100%; font-size: 14px; font-weight: 600; }
+.s-quien { grid-column: 2 / -1; min-width: 0; display: grid; gap: 6px; }
+.s-quien:empty { display: none; }
+.pregunta { display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 14px; border-radius: var(--r); background: var(--urgente-suave); color: var(--urgente-texto); }
+.pregunta b { font-size: 16px; font-weight: 800; color: var(--tinta); white-space: nowrap; }
+.pregunta small { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; }
 .confirmado { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; color: var(--logro-texto); }
 
 /* Elegir el proveedor de la lista, con buscador y «Proveedor nuevo» */
-.elegir { margin-top: 4px; border: 1px solid var(--borde); border-radius: var(--r); background: var(--superficie); box-shadow: var(--sombra-3); padding: 10px; display: grid; gap: 8px; }
+.subida .elegir { position: absolute; z-index: 5; left: 76px; bottom: calc(100% - 8px); width: 440px; }
+.elegir { border: 1px solid var(--borde); border-radius: var(--r); background: var(--superficie); box-shadow: var(--sombra-3); padding: 10px; display: grid; gap: 8px; }
 .elegir-cab { display: flex; align-items: center; gap: 8px; }
 .elegir-cab b { font-size: 15px; font-weight: 800; margin-right: auto; }
 .elegir .campo { height: 40px; padding: 0 12px; }
@@ -195,7 +199,11 @@ body:not(.quieto) .s-paso.ahora .bola { animation: gira 2.4s linear infinite; }
 .error-campo { color: var(--error-texto); font-size: 14px; font-weight: 650; }
 
 .s-res .pastilla { height: 26px; }
-.s-msg { grid-column: 2 / -1; }
+.s-msg { grid-column: 2 / 3; align-self: center; }
+.s-acciones { grid-column: 3; }
+.subida[data-fase="espera"] .s-der { max-width: 560px; }
+.s-cuenta > span { white-space: nowrap; }
+.s-res { flex-wrap: wrap; }
 
 /* =================== Soltar un archivo en cualquier lado =================== */
 .gota { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; background: rgb(244 242 236 / .86); opacity: 0; pointer-events: none; transition: opacity var(--t) var(--curva); }
@@ -253,7 +261,7 @@ body.captura .casos-btn, body.captura .casos { display: none !important; }
   .acciones { grid-column: 2; grid-row: 1; align-self: center; }
   .acciones .btn { min-height: 40px; padding: 0 12px; font-size: 15px; }
   .cabecera .sub { grid-column: 2; grid-row: 2; font-size: 14px; text-align: right; }
-  .p-estado.solo-celu { display: flex !important; grid-column: 1; grid-row: 2; align-items: center; gap: 8px; }
+  .cab-estado.solo-celu { display: flex !important; grid-column: 1; grid-row: 2; align-items: center; gap: 8px; }
   .indicador-pastilla { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 2px 14px 2px 10px; border-radius: 999px; border: 0; background: var(--logro-suave); color: var(--logro-texto); box-shadow: var(--sombra-1); text-align: left; }
   .pastilla-txt { display: grid; }
   .pastilla-txt b { font-size: 14px; line-height: 17px; font-weight: 750; }
@@ -296,12 +304,14 @@ body.captura .casos-btn, body.captura .casos { display: none !important; }
   .s-ico { width: 40px; height: 40px; }
   .s-tit { font-size: 16px; line-height: 22px; }
   .s-der { grid-column: 1 / -1; }
-  .s-pasos, .s-nota.solo-compu { display: none; }
+  .s-pasos, .s-der > .s-nota:not(:first-child), .pregunta small { display: none; }
+  .s-fila { flex-wrap: nowrap; } .s-fila .segmentos { flex: 1; } .segmentos > * { white-space: nowrap; }
+  .s-acciones .btn { min-height: 40px; }
   .s-der .segmentos { display: flex; } .s-der .segmentos > * { flex: 1; justify-content: center; }
   .s-avance { grid-column: 1 / -1; }
-  .s-acciones { grid-column: 1 / -1; }
-  .s-acciones .btn { flex: 1; }
-  .s-msg { grid-column: 1 / -1; }
+  .s-acciones { grid-column: 1 / -1; justify-content: space-between; }
+  .s-msg, .s-quien { grid-column: 1 / -1; }
+  .pregunta { flex-wrap: wrap; }
   .espejo { margin-left: 0; }
   .pregunta { margin-top: 2px; }
   .pregunta .btn { flex: 1; }
@@ -316,3 +326,4 @@ body.captura .casos-btn, body.captura .casos { display: none !important; }
   .casos-btn { top: 4px; right: 8px; }
   .casos { top: 40px; right: 8px; width: calc(100% - 16px); }
 }
+.prov:not(.marcado) .kbd { display: none !important; }

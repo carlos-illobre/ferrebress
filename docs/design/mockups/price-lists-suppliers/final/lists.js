@@ -96,7 +96,7 @@
     lienzo.innerHTML = h;
     var input = $("#q");
     input.addEventListener("input", function () { var v = this.value; clearTimeout(input._t); input._t = setTimeout(function () { q = v; pagina = 1; marca = -1; pintarFilas(); }, 150); });
-    pintarFilas(); pintarSubida(); pintarBarraCelu();
+    pintarFilas(); pintarBarraCelu(); pintarSubida();
     window.pintarIconos(lienzo); window.pintarIconos($(".cabecera"));
   }
   function chip(f, txt, n, tono, t) {
@@ -233,7 +233,7 @@
     if (corre && !callado) tostada("Subida cancelada: no se guardó nada.");
     refrescar();
   }
-  function refrescar() { pintarFilas(); pintarSubida(); pintarBarraCelu(); }
+  function refrescar() { pintarFilas(); pintarBarraCelu(); pintarSubida(); }
 
   function titulo(j) {
     var p = j.leeComo() && prov(j.leeComo()), n = p ? p.nom + " · " : "";
@@ -262,8 +262,8 @@
 
     /* Izquierda: el archivo y de quién es */
     var izq = '<div class="s-izq"><div class="s-tit" data-tit>' + esc(titulo(j)) + '</div><div class="s-arch">' + esc(f.nombre) + " · " + f.peso + "</div>";
-    if (!f.rechazada) izq += quien(j, pm);
     izq += "</div>";
+    var qn = f.rechazada ? "" : '<div class="s-quien">' + quien(j, pm) + "</div>";
 
     /* Derecha: completa o solo cambios, el espejo y los pasos */
     var der = '<div class="s-der">';
@@ -294,7 +294,7 @@
     acc += "</div>";
     if (/ilegible|rechazada/.test(j.fase) || (j.fase === "espera" && f.anterior)) ab = '<div class="s-msg">' + mensaje(j) + "</div>";
 
-    el.innerHTML = '<span class="s-ico"><i class="i i-l" data-i="' + ico + '"></i></span>' + izq + der + ab + acc;
+    el.innerHTML = '<span class="s-ico"><i class="i i-l" data-i="' + ico + '"></i></span>' + izq + der + qn + ab + acc;
     window.pintarIconos(el);
     if (chico() && j.resp === "elegir" && !j.prov && !$(".capa")) abrirHoja();
     var fq = $("#elige-q", el); if (fq && document.activeElement !== fq && !chico() && eligeEnfocar) { fq.focus(); fq.setSelectionRange(fq.value.length, fq.value.length); eligeEnfocar = false; }
@@ -318,12 +318,12 @@
     if (j.resp === "pregunta") {
       var d = prov(j.ded);
       return '<div class="pregunta" role="group" aria-label="De qué proveedor es"><b>¿Es de ' + esc(d.nom) + "?</b>" +
-        '<button type="button" class="btn chico btn-oscuro" data-si data-tecla="s">Sí' + kbd("S") + '</button><button type="button" class="btn chico" data-no data-tecla="o">No, es de otro' + kbd("O") + "</button>" +
-        '<small class="solo-compu">' + j.f.como + ". La lectura sigue mientras tanto.</small></div>";
+        '<small><span class="largo">' + j.f.como + '. La lectura sigue mientras tanto.</span><span class="corto">La lectura sigue mientras tanto.</span></small>' +
+        '<button type="button" class="btn chico btn-oscuro" data-si data-tecla="s">Sí' + kbd("S") + '</button><button type="button" class="btn chico" data-no data-tecla="o">No, es de otro' + kbd("O") + "</button></div>";
     }
     if (j.resp === "elegir") {
       if (chico()) return '<div class="pregunta"><b>¿De qué proveedor es?</b><button type="button" class="btn chico btn-oscuro" data-abrir-hoja>Elegir proveedor</button></div>';
-      return elegir(j, pm);
+      return '<div class="pregunta"><b>¿De qué proveedor es?</b><small>' + (j.ded ? "Elegilo de la lista." : "No se pudo deducir: elegilo de la lista.") + " La lectura sigue mientras tanto.</small></div>" + elegir(j, pm);
     }
     var txt = j.prov === j.ded ? "Es de " + esc(prov(j.prov).nom) : "Elegiste " + esc(prov(j.prov).nom);
     var h = '<div class="confirmado"><i class="i i-s" data-i="check"></i>' + txt + "</div>";
