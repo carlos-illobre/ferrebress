@@ -149,6 +149,9 @@ paralelo»).
 - [ ] T135 [carlos] La interfaz gráfica, al final, cuando esté toda la funcionalidad: los pasos 2,
   2b y 9 de todos los módulos (maquetas y manual), con vistas nuevas sobre la misma lógica. Depende
   de T134.
+- [ ] T136 [agente] El redondeo nuevo (06 · R3.2 y R3.6, 00 · R8.2): los pasos de $ 0,05 a
+  $ 10.000 con un 1 o un 5, «sin redondeo» como un centavo y los precios con los decimales del
+  paso. Hoy la lista es la vieja. Con 07a, que es donde se ven los precios.
 
 ## Tareas futuras
 

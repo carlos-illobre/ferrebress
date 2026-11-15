@@ -32,11 +32,9 @@ están escritas; abajo, lo que Carlos ya confirmó y lo que falta preguntarle al
 - **El margen:** uno de los cinco márgenes rápidos de Administración, o un porcentaje entero de 1 a
   10.000 escrito a mano; sin margen, el producto dice «sin precio», y sin costo, «sin costo». El
   precio nuevo se ve en menos de 100 ms. No hay cambio de margen de varios productos a la vez.
-- **El redondeo, libre:** el paso es cualquier número mayor que cero. Con 100.000, todo precio
-  calculado es múltiplo de 100.000 y ninguno es menor; con 0,01, sale con centavos. El precio final
-  se muestra con los decimales del paso; los costos y «Así se calcula» muestran siempre los suyos.
-  No hay un ajuste aparte para ver los importes con decimales. Cambia lo que dicen hoy 06 · R3.2,
-  00 · R8.2 y el capítulo 04, que se corrigen al escribir las reglas de esta etapa.
+- **El redondeo:** el paso es un 1 o un 5 seguido de ceros, de $ 0,05 a $ 10.000, o «sin redondeo»
+  (un centavo); el precio final se muestra con los decimales del paso, y los costos y «Así se
+  calcula», con sus centavos (06 · R3.2 y R3.6).
 - **Buscar:** las palabras en cualquier orden, sin acentos ni mayúsculas, palabras empezadas, con
   un error de tipeo; la coincidencia exacta de código va primera, y un código escrito entero se
   encuentra aunque tenga signos. Necesita conexión: el catálogo vive en el servidor y se baja de a
@@ -61,7 +59,4 @@ están escritas; abajo, lo que Carlos ya confirmó y lo que falta preguntarle al
 
 ## Lo que falta preguntar al retomarla
 
-1. **El paso de redondeo más chico:** ¿0,01, porque el peso no tiene fracciones de centavo, o
-   libre (hasta 0,0000001)?
-2. **Pasos que no son 1, 10, 100…** (como $ 250 o $ 300): ¿valen?
-3. **«Sin redondeo»:** ¿se saca, si equivale al paso de 0,01?
+Nada.

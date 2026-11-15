@@ -17,7 +17,12 @@ Valen para todas, salvo que se diga otra cosa:
 
 ## 1. Catálogo → Listas
 
-Los proveedores y la entrada para subir una lista.
+Los proveedores y la entrada para subir una lista. **Maqueta de referencia:** «La mesa de entrada»
+([computadora](../../design/mockups/price-lists-suppliers/desktop/variant-1-desk/) y
+[celular](../../design/mockups/price-lists-suppliers/phone/variant-1-desk/)), ajustada a estas
+reglas; para el avance de la lectura, la escena de «El estante»
+([computadora](../../design/mockups/price-lists-suppliers/desktop/variant-3-shelf/)). La vista es
+provisoria.
 
 **Muestra:**
 
@@ -40,7 +45,8 @@ Los proveedores y la entrada para subir una lista.
 - Subir una lista sin decir de quién es (pantalla 2), con «Cargar listas». En la computadora,
   también soltando el archivo sobre la pantalla.
 - Subir la lista de un proveedor en particular, desde su renglón: no se pregunta de quién es (R4.3).
-- Dar de alta un proveedor con solo su nombre, con «Administrar proveedores» (R2.2). El nombre
+- Dar de alta un proveedor con solo su nombre, con «Administrar proveedores» (R2.2); al subir una
+  lista, también con «Cargar listas». El nombre
   repetido se rechaza en el lugar (E10).
 - Abrir un proveedor (pantalla 4).
 
@@ -62,17 +68,21 @@ subiendo se sigue viendo mientras se trabaja en otra cosa.
    ahí mismo diciendo por qué, sin subirlo (R4.2).
 2. Se ve el avance de la subida y, después, el de la lectura: cuántas filas leyó de cuántas
    (R4.9).
-3. Si no se subió desde un proveedor: «¿Es de Bulonera Centro?», con «Sí» y «No, es de otro»
-   (R4.3). Con «No, es de otro», o si no se dedujo ninguno, se elige el proveedor de una lista con
-   buscador y «Proveedor nuevo» (se escribe el nombre y queda dado de alta). La lectura sigue
-   mientras tanto.
+3. De quién es (R4.3): si lo reconoció su lector, se ve el proveedor con «Cambiar», sin
+   preguntar; si se dedujo por el nombre, «¿Es de Bulonera Centro?», con «Sí» y «No, es de otro».
+   Con «No», con «Cambiar» o si no se dedujo ninguno, se elige de una lista con buscador y
+   «Proveedor nuevo», que deja escribir el nombre y, si se quiere, los demás datos (R2.2). La
+   lectura sigue mientras tanto.
 4. «Lista completa» (de arranque) o «Solo cambios», que se puede cambiar mientras sube y lee, con
    la aclaración de que una lista de solo cambios no da de baja nada (R4.7).
 5. Si el proveedor ya tenía una lista en espera, se avisa que esta la reemplaza (R4.8).
 6. Al terminar de leer, se pasa a ver qué cambia (pantalla 3).
 
 **Se puede:** cancelar mientras sube o lee; la lista queda descartada y su archivo, guardado
-(R4.4).
+(R4.11). Subir otras listas mientras tanto, de otros proveedores: cada una con su avance (R4.10).
+
+**El avance de la lectura** se muestra como en la escena de lectura de la maqueta «El estante»: la
+planilla que se lee fila por fila, con cuántas filas leyó de cuántas.
 
 **Si no se pudo leer:** dice por qué, que la lista quedó guardada y que hay una anomalía para que
 alguien la mire (R4.6). No pregunta qué columna es qué.

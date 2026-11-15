@@ -65,8 +65,10 @@ capítulo 08.
 - **R3.1** **El precio de venta que calcula el sistema se redondea siempre para arriba**, al
   múltiplo siguiente del paso elegido. Un precio que ya es múltiplo queda igual. Con el paso de
   $ 1.000: $ 15.001 pasa a $ 16.000, y $ 15.000 queda en $ 15.000.
-- **R3.2** **Se elige solo el paso,** de esta lista: sin redondeo, $ 10, $ 50, $ 100, $ 500,
-  $ 1.000 o $ 5.000. De arranque, $ 1.000. La dirección no se elige: siempre para arriba.
+- **R3.2** **Se elige solo el paso,** de esta lista: sin redondeo, $ 0,05, $ 0,10, $ 0,50, $ 1,
+  $ 5, $ 10, $ 50, $ 100, $ 500, $ 1.000, $ 5.000 o $ 10.000 (un 1 o un 5 seguido de ceros, entre
+  un centavo y diez mil pesos). «Sin redondeo» es el paso de un centavo: el peso no tiene fracciones
+  de centavo. De arranque, $ 1.000. La dirección no se elige: siempre para arriba.
 - **R3.3** **Dónde se aplica lo dice cada capítulo que calcula un precio** (el catálogo, la venta).
   El precio que alguien escribe a mano no se redondea.
 - **R3.4** **Cambiar el paso recalcula en ese momento todos los precios de venta guardados.** Antes
@@ -77,6 +79,10 @@ capítulo 08.
   confirmó cambió cuántos precios cambian, no se aplica: se vuelve a preguntar con el número nuevo.
 - **R3.5** **Todos los precios quedan con el mismo redondeo:** no hay precios con el paso viejo y
   otros con el nuevo. Si recalcular falla, no cambia nada: ni el paso ni ningún precio.
+- **R3.6** **Los precios se muestran con los decimales del paso:** con pasos de $ 1 o más, sin
+  decimales («$ 16.000»); con $ 0,10 o $ 0,50, con un decimal; con $ 0,05 o sin redondeo, con dos
+  («$ 1.201,37»). Los costos y la cuenta de un precio («Así se calcula») muestran siempre sus
+  centavos, para que la cuenta cierre. No hay otro ajuste para ver los importes con decimales.
 
 ## 4. Los márgenes rápidos
 
@@ -195,8 +201,14 @@ capítulo 08.
   **entonces** queda en $ 16.000; y uno de $ 15.000 queda en $ 15.000.
 - **E16** **Dado** el paso de $ 50, **cuando** el sistema calcula un precio de $ 1.201, **entonces**
   queda en $ 1.250.
-- **E17** **Dado** «sin redondeo», **cuando** el sistema calcula un precio de $ 1.201, **entonces**
-  queda en $ 1.201.
+- **E17** **Dado** «sin redondeo», **cuando** el sistema calcula un precio de $ 1.201,003,
+  **entonces** queda en $ 1.201,01 y se muestra «$ 1.201,01».
+- **E17b** **Dado** el paso de $ 0,50, **cuando** el sistema calcula un precio de $ 1.201,20,
+  **entonces** queda en $ 1.201,50 y se muestra «$ 1.201,5».
+- **E17c** **Dado** el paso de $ 10.000, **cuando** el sistema calcula un precio de $ 3.630,
+  **entonces** queda en $ 10.000.
+- **E17d** **Dado** el paso de $ 1.000, **cuando** se mira la cuenta de un precio de costo
+  $ 1.649,14, **entonces** el costo se muestra «$ 1.649,14» y el precio que se cobra, «$ 4.000».
 - **E18** **Dado** precios guardados, **cuando** se elige otro paso, **entonces** antes de guardar se
   ve cuántos precios cambian, con «Cambiar <cuántos> precios» y «Cancelar».
 - **E19** **Dado** E18, **cuando** se confirma, **entonces** todos los precios de venta guardados

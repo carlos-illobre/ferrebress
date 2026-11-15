@@ -28,7 +28,7 @@ en [rules.md](rules.md).
 - **Se me perdió:** en cada celular propio, corta todo de un toque (R8).
 - **El nombre del dispositivo:** del dispositivo, lo pone cualquiera que lo use, hasta 30 letras; se ve en
   todos lados y queda en Quién hizo qué (R9). Sin conexión, «Lo tuyo» gris (R10).
-- **Afuera:** el vínculo (va solo en su indicador, 03), los decimales (con el catálogo, 07) y cuánto
+- **Afuera:** el vínculo (va solo en su indicador, 03), los decimales (salen del redondeo de Administración, 06) y cuánto
   guarda el dispositivo (con 15, etapa b).
 
 ## Lo que falta decidir

@@ -170,8 +170,8 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 
 - **R8.1** Todo número calculado deja ver cómo se calculó, con los números de origen, desde la misma
   pantalla donde se muestra. La forma la decide el director de arte.
-- **R8.2** Los importes van con «$» y punto de miles: «$ 45.500». Por omisión, sin decimales; cada
-  persona puede elegir verlos en Configuración.
+- **R8.2** Los importes van con «$» y punto de miles: «$ 45.500». Los precios, con los decimales del
+  paso de redondeo de Administración (06 · R3.6); los costos y las cuentas, siempre con centavos.
 - **R8.3** Las cantidades van siempre con su unidad, abreviada igual en todas partes: «3 un.»,
   «1,5 kg», «2 m», «0,5 L».
 - **R8.4** Las fechas y horas las pone el servidor y se muestran en la zona horaria
@@ -339,7 +339,7 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
 ### Los formatos
 
 - **E45** **Dado** un importe de 45500, **cuando** se lo muestra, **entonces** dice «$ 45.500»; con
-  los decimales elegidos en Configuración, «$ 45.500,00».
+  el paso de redondeo «sin redondeo», un precio de 45500 dice «$ 45.500,00».
 - **E46** **Dado** una cantidad de 1,5 kg, **cuando** se la muestra, **entonces** dice «1,5 kg», y 3
   unidades dicen «3 un.».
 - **E47** **Dado** dos personas, una con formato de 24 horas y otra con a. m./p. m., **cuando** miran

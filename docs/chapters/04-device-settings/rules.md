@@ -10,8 +10,8 @@ otros dispositivos, cortar mi propio celular perdido y el nombre del dispositivo
 
 - **El vínculo entre celular y computadora** no se repite en Configuración: se ve y se maneja
   entero desde su indicador (03 · R4), como eligió Carlos.
-- **Ver los importes con decimales** se suma a Configuración con el catálogo (capítulo 07): antes
-  no hay ningún importe en la aplicación sobre el que se note.
+- **Ver los importes con decimales no es una preferencia de cada persona:** los decimales salen del
+  paso de redondeo que fija un Administrador, igual para todos (06 · R3.6).
 - **El formato de la fecha no se elige:** en el país todos los dispositivos la muestran igual (día,
   mes y año) y la opción cambiaría poco. Cada pantalla la muestra en el orden día, mes y año, larga
   o corta según el lugar, y dice «hoy» y «ayer» donde le sirve.

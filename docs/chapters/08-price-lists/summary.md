@@ -22,7 +22,7 @@ escribir.
   cuántos costos cambian, o desde la próxima. El costo es lo que se paga por una unidad, sin IVA, con
   los descuentos uno sobre otro; no se redondea y deja ver su cuenta (R3).
 - **Subir una lista:** un archivo Excel o CSV, sin decir nada más; el sistema reconoce de quién es y,
-  deduce el proveedor (por su lector o por su nombre en la planilla) y le pregunta a quien la subió si es ese; si no lo es, o no lo pudo deducir, se elige de la lista; el archivo se guarda siempre; la fecha es la de la planilla o, si
+  deduce el proveedor: si lo reconoce su lector, no pregunta; si lo deduce por el nombre, pregunta si es ese; si no, se elige de la lista (quien carga listas puede dar de alta uno nuevo); varias a la vez, de proveedores distintos, y se pueden cancelar; el archivo se guarda siempre; la fecha es la de la planilla o, si
   no la dice, la del servidor; completa o de solo cambios; una en espera por proveedor; el avance
   siempre a la vista (R4).
 - **Los lectores:** uno por cada formato de planilla de cada proveedor; cada uno dice si una

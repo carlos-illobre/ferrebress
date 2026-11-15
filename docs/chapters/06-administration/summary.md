@@ -18,8 +18,9 @@ construyen con el capítulo 08.
   cambian lo mismo a la vez, el segundo ve el valor nuevo y decide de nuevo; los dispositivos lo
   reciben con su próximo pedido, sin aviso en vivo; cada cambio, con el valor anterior y el nuevo, a
   Quién hizo qué (R2).
-- **El redondeo:** siempre para arriba al múltiplo del paso (sin redondeo, $ 10, $ 50, $ 100, $ 500,
-  $ 1.000 de arranque, o $ 5.000); el precio a mano no se redondea; cambiarlo recalcula en ese
+- **El redondeo:** siempre para arriba al múltiplo del paso (un 1 o un 5 seguido de ceros, de
+  $ 0,05 a $ 10.000; «sin redondeo» es un centavo; $ 1.000 de arranque); los precios se muestran con
+  los decimales del paso, y los costos y su cuenta, con centavos; el precio a mano no se redondea; cambiarlo recalcula en ese
   momento todos los precios, después de ver cuántos cambian y confirmar con «Cambiar N precios»; todo o nada (R3).
 - **Los márgenes rápidos:** siempre cinco, enteros de 1 a 10.000 %, sin repetirse, ordenados de mayor
   a menor para las teclas 1 a 5; de arranque 300, 200, 100, 50 y 25; cambiarlos no toca ningún

@@ -67,7 +67,10 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
   mayúsculas), el vendedor, el teléfono o WhatsApp, el correo y una nota. Los ve cualquiera con
   sesión (R1.3).
 - **R2.2** **Se da de alta** con solo el nombre, desde la pantalla o al subir una lista que no es de
-  ningún proveedor conocido (R4.3). Lo demás se completa cuando se quiera.
+  ningún proveedor conocido (R4.3). Lo demás se completa ahí mismo, si se quiere, o después. Al
+  subir una lista, lo puede dar de alta quien tiene «Cargar listas», aunque no tenga «Administrar
+  proveedores»: si no, no podría subir la lista de un proveedor nuevo. Cambiarlo después, darlo de
+  baja o cambiar cómo cobra sigue pidiendo «Administrar proveedores».
 - **R2.3** **La pantalla de un proveedor** muestra sus datos, cómo cobra (R3), sus listas (R6.7) y
   sus productos (R8).
 - **R2.4** **Dar de baja un proveedor** lo saca de la lista de proveedores, descarta su lista en
@@ -120,14 +123,18 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 - **R4.2** **Formatos:** Excel (`.xlsx` y `.xls`) y CSV. El tamaño máximo lo fija un Administrador
   (06 · R8); de arranque, 30 MB. Un archivo de otro formato o más grande se rechaza diciendo por qué,
   sin guardarlo.
-- **R4.3** **De quién es:** si se subió desde la pantalla de un proveedor, es de ese proveedor y no
-  se pregunta nada. Si no, el sistema lo deduce, en este orden: por el lector que reconoce la
-  planilla (R5.2); y si ninguno la reconoce, por el nombre del proveedor escrito en el nombre del
-  archivo o en las primeras filas de la planilla, sin distinguir acentos ni mayúsculas. Después le
-  pregunta a quien la subió si es ese: «¿Es de Bulonera Centro?», con «Sí» y «No, es de otro». Con
-  «Sí» sigue; con «No, es de otro» (o si no pudo deducir ninguno), pide elegirlo de la lista de
-  proveedores, con un buscador y «Proveedor nuevo». La lectura sigue mientras tanto, para no hacer
-  esperar: si el proveedor elegido no es el que se dedujo, la planilla se vuelve a leer como suya.
+- **R4.3** **De quién es:** si se subió desde la pantalla de un proveedor, es de ese proveedor. Si
+  no, el sistema lo deduce:
+  - **Por su lector** (R5.2): si un lector de un proveedor reconoce la planilla, no hay duda. No se
+    pregunta nada: el proveedor se ve bien a la vista, con «Cambiar», mientras sube y lee.
+  - **Por su nombre,** si ningún lector la reconoce: el nombre de un proveedor escrito en el nombre
+    del archivo o en las primeras filas, sin distinguir acentos ni mayúsculas. Como puede fallar, se
+    pregunta: «¿Es de Bulonera Centro?», con «Sí» y «No, es de otro».
+  - Con «No, es de otro», con «Cambiar», o si no pudo deducir ninguno, se elige el proveedor de la
+    lista, con un buscador y «Proveedor nuevo».
+
+  La lectura sigue mientras tanto, para no hacer esperar. Si se cambia el proveedor deducido, la
+  planilla se vuelve a leer como del elegido; si no se había deducido ninguno, no hace falta.
 - **R4.4** **El archivo original se guarda siempre,** tal como se subió y con su nombre, también el
   de una lista que no se pudo leer o que se descartó. Lo baja quien tiene «Ver costos».
 - **R4.5** **La fecha de la lista** es la que dice la planilla o el nombre del archivo. Si no la
@@ -139,7 +146,11 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
   proveedor («Lista completa», de arranque) o solo una parte («Solo cambios»). Una lista de solo
   cambios nunca da de baja nada (R7.3).
 - **R4.8** **Una lista en espera por proveedor:** subir otra lista del mismo proveedor descarta la
-  que estaba esperando, y se dice.
+  que estaba esperando, y se dice. Si la anterior todavía se estaba subiendo o leyendo, se cancela.
+- **R4.10** **Se pueden subir varias listas a la vez,** de proveedores distintos: cada una muestra su
+  avance y su pregunta, si la tiene, y se sigue trabajando mientras tanto.
+- **R4.11** **Mientras sube o lee, se puede cancelar:** la lista queda descartada y su archivo,
+  guardado (R4.4).
 - **R4.9** **El avance se ve siempre** (00 · R7.3): al subir, cuánto del archivo; al leer, cuántas
   filas de cuántas. Una lista de 10.000 filas muestra qué cambia en menos de 10 segundos.
 
@@ -339,17 +350,29 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 ### Subir una lista
 
 - **E29** **Dado** una planilla de un formato que ya tiene lector de Bulonera Centro, **cuando** se la
-  sube desde «Subir lista» sin decir de quién es, **entonces** pregunta «¿Es de Bulonera Centro?»; con
-  «Sí», sigue y muestra su fecha y qué cambia.
+  sube desde «Subir lista» sin decir de quién es, **entonces** no pregunta nada: muestra que es de
+  Bulonera Centro, con «Cambiar», y sigue hasta mostrar qué cambia.
 - **E29b** **Dado** una planilla que ningún lector reconoce, cuyo título dice «IXNOVA de HNZ SRL», y
   un proveedor «Ixnova», **cuando** se la sube, **entonces** pregunta «¿Es de Ixnova?».
-- **E29c** **Dado** E29, **cuando** se contesta «No, es de otro», **entonces** pide elegir el
-  proveedor de la lista, con un buscador y «Proveedor nuevo», y la planilla se lee como del elegido.
+- **E29c** **Dado** E29b, **cuando** se contesta «No, es de otro», **entonces** pide elegir el
+  proveedor de la lista, con un buscador y «Proveedor nuevo», y la planilla se vuelve a leer como
+  del elegido.
+- **E29d** **Dado** E29, **cuando** se toca «Cambiar» y se elige otro proveedor, **entonces** la
+  planilla se vuelve a leer como del elegido.
 - **E30** **Dado** una planilla que ningún lector reconoce y que no nombra a ningún proveedor,
   **cuando** termina de subir, **entonces** no pregunta «¿Es de…?»: pide directamente elegir el
   proveedor de la lista, con un buscador y «Proveedor nuevo».
 - **E31** **Dado** E30, **cuando** se elige «Proveedor nuevo» y se escribe su nombre, **entonces**
-  el proveedor queda dado de alta y la planilla se lee como suya.
+  el proveedor queda dado de alta y la planilla se lee como suya, sin volver a empezar.
+- **E31b** **Dado** una persona con «Cargar listas» y sin «Administrar proveedores», **cuando** al
+  subir una lista da de alta un proveedor nuevo con su nombre y su teléfono, **entonces** queda dado
+  de alta con los dos; después no puede cambiarle el teléfono.
+- **E31c** **Dado** una lista de Bulonera Centro leyéndose, **cuando** se sube otra de Aceros
+  Litoral, **entonces** las dos avanzan a la vez, cada una con su avance.
+- **E31d** **Dado** una lista de Bulonera Centro leyéndose, **cuando** se sube otra de Bulonera
+  Centro, **entonces** la primera se cancela, se dice, y sigue la segunda.
+- **E31e** **Dado** una lista leyéndose, **cuando** se la cancela, **entonces** queda descartada,
+  no cambia nada y su archivo se puede bajar.
 - **E32** **Dado** una planilla subida desde la pantalla de un proveedor, **cuando** termina de
   subir, **entonces** no se pregunta de quién es.
 - **E33** **Dado** un archivo `.pdf` o `.docx`, **cuando** se lo sube, **entonces** se rechaza
