@@ -5,7 +5,7 @@ Los proveedores y sus listas, de donde salen los productos, en Catálogo → Lis
 Reglas completas de la etapa a en [rules.md](rules.md); sus pantallas, por su funcionalidad, en
 [screens.md](screens.md).
 
-**Estado:** etapa a, reglas aprobadas; las pantallas, a aprobar por Carlos; etapas b y c, por
+**Estado:** etapa a, reglas y pantallas aprobadas; sigue el diseño técnico; etapas b y c, por
 escribir.
 
 ## Cada regla en una línea (etapa a)
