@@ -720,6 +720,21 @@
    "variants": [
     {
      "device": "desktop",
+     "name": "Final",
+     "path": "mockups/price-lists-suppliers/final/index.html"
+    },
+    {
+     "device": "phone",
+     "name": "Final",
+     "path": "mockups/price-lists-suppliers/final/index.html"
+    },
+    {
+     "device": "desktop",
+     "name": "Referencia de Carlos",
+     "path": "mockups/price-lists-suppliers/carlos-reference.webp"
+    },
+    {
+     "device": "desktop",
      "name": "1 · La mesa de entrada",
      "path": "mockups/price-lists-suppliers/desktop/variant-1-desk/index.html"
     },

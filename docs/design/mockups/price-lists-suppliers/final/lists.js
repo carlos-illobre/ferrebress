@@ -136,7 +136,8 @@
         '<i class="i flecha" data-i="chevron-right"></i></div>';
     }).join("");
     var pie = $("#pie");
-    if (pie && !chico()) {
+    if (pie) pie.hidden = !P.length;
+    if (pie && !chico() && P.length) {
       var pags2 = Math.max(1, Math.ceil(todas / POR_PAGINA)), desde = todas ? (pagina - 1) * POR_PAGINA + 1 : 0, hasta = Math.min(todas, pagina * POR_PAGINA);
       var nums = ""; for (var k = 1; k <= pags2; k++) nums += '<span class="pag' + (k === pagina ? " actual" : "") + '">' + k + "</span>";
       pie.innerHTML = '<span>Mostrando ' + desde + "–" + hasta + " de " + todas + '</span><div class="paginas"><button type="button" class="btn btn-icono chico" data-pag="-1" aria-label="Página anterior" data-tecla="a"' + (pagina === 1 ? " disabled" : "") + '><i class="i i-s" data-i="chevron-left"></i>' + kbd("A") + "</button>" + nums +
