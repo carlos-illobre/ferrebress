@@ -31,8 +31,11 @@ src/app/
 │   ├── index.ts         la fachada: el registro y lo que usan las vistas y los demás módulos
 │   ├── api.ts, state.ts, rules.ts, settings.ts, texts.ts
 │   ├── use<Screen>.ts   el modelo de cada pantalla
-│   └── keys/<screen>.ts la capa del teclado de cada pantalla (abajo)
-├── keyboard/            la capa del teclado: el motor y el mapa de teclas (keymap.ts)
+│   ├── shortcuts/       los atajos de cada pantalla (abajo)
+│   └── navigation/      lo que se recorre con las flechas en cada pantalla (abajo)
+├── keyboard/            el teclado, en dos capas independientes (abajo)
+│   ├── shortcuts/       el motor de los atajos y su mapa de teclas (keymap.ts)
+│   └── navigation/      el motor de la navegación y su mapa de teclas (keymap.ts)
 ├── shell/               la lógica de la aplicación entera (arrancar, la sesión, qué pantalla va),
 │                        también sin dibujo
 └── views/<view>/        una vista: todo lo que se dibuja
@@ -58,44 +61,66 @@ src/app/
 - **Cada vista carga cada módulo cuando se abre**, como hoy (`platform/lazy.ts`): la vista registra
   por módulo una carga diferida de sus pantallas.
 
-**El teclado es una capa que se pone o se saca, y sus teclas se configuran en un solo archivo.**
+**El teclado son dos capas independientes, que se ponen o se sacan por separado:** los atajos y la
+navegación. Las dos trabajan sobre los modelos, no sobre el HTML, y ninguna sabe de la otra.
 
-- **Cada pantalla tiene su archivo de teclado** (`modules/<module>/keys/<screen>.ts`), que declara
-  **los comandos** de esa pantalla, cada uno con un nombre y lo que hace **sobre el modelo**:
-  `users.list.authorize` llama a `authorize()`, `users.list.next` mueve la marca por la lista,
-  `users.list.open` abre la persona marcada. No dice ninguna tecla.
+- **Qué pantalla está arriba lo sabe la plataforma, no el teclado** (`platform/screens.ts`): cada
+  modelo se anuncia al abrirse con un nombre (`users.list`) y se retira al cerrarse; lo que se abre
+  encima (una hoja, una confirmación) es otra pantalla con su nombre. Las dos capas leen de ahí, y
+  solo vale la pantalla de más arriba (00 · R2.10). Sin ninguna capa, ese registro igual existe y no
+  molesta.
+
+**La capa de los atajos** (`src/app/keyboard/shortcuts/`):
+
+- **Cada pantalla declara sus comandos** en su archivo (`modules/<module>/shortcuts/<screen>.ts`),
+  cada uno con un nombre y lo que hace sobre el modelo: `users.list.authorize` llama a
+  `authorize()`, `users.list.search` lleva al buscador. No dice ninguna tecla.
 - **Qué tecla o combinación ejecuta cada comando está en un solo archivo de configuración**
-  (`src/app/keyboard/keymap.ts`), para toda la aplicación: `'users.list.authorize': 'Alt+A'`,
-  `'users.list.next': 'ArrowDown'`. Cambiar una tecla es cambiar una línea de ese archivo, sin
+  (`src/app/keyboard/shortcuts/keymap.ts`), para toda la aplicación: `'users.list.authorize':
+  'Alt+A'`, `'users.list.search': '/'`. Cambiar una tecla es cambiar una línea de ese archivo, sin
   tocar la pantalla ni su lógica. Un comando sin tecla en el mapa no se puede usar con el teclado;
   una tecla del mapa cuyo comando no existe es un error.
-- **Una tecla vale en el contexto de la pantalla:** la misma combinación puede hacer cosas
-  distintas en pantallas distintas, y solo vale la de la pantalla que está arriba (00 · R2.10). Lo
-  que vale en toda la aplicación (el menú, ir a Más) lleva el contexto `app`. `pnpm check` controla
-  que dentro de un mismo contexto, y entre un contexto y `app`, ninguna combinación se repita, y
-  que no se use una que reserva el navegador (Ctrl+T, Ctrl+W, F5…).
-- **Las reglas del teclado de la aplicación (00 · R2)** siguen igual: el mapa de arranque es el de
-  hoy.
-- **El motor** (`src/app/keyboard/`) escucha las teclas, sabe qué pantallas están abiertas y cuál
-  está arriba (cada modelo se anuncia al abrirse, con un nombre), busca en el mapa qué comando de esa
-  pantalla corresponde y lo ejecuta sobre su modelo. Las capas del teclado se encuentran solas
-  (`import.meta.glob`), sin registrarlas a mano.
-- **Sacar el teclado de una pantalla es borrar su archivo (y sus líneas del mapa); sacarlo de toda
-  la aplicación, borrar esos archivos, el mapa y el motor (`src/app/keyboard/`).** Nada más cambia:
-  los modelos no saben del teclado, y las vistas tampoco lo necesitan.
-- **Lo que se ve del teclado es opcional para la vista:** cuál es la cosa marcada y qué atajo tiene
-  cada acción (para mostrarlos con Alt, 00 · R2.9) los da `useKeyHints(<pantalla>)`, que devuelve
-  nada si la pantalla no tiene capa de teclado. Una vista que no los muestra igual funciona con el
-  teclado; una aplicación sin la capa, igual se ve.
-- **El teclado ya no lee el HTML:** hoy el motor busca marcas escritas en cada pantalla
-  (`data-key`, `data-mark`, `data-layer`); con la capa, trabaja sobre los modelos. Lo único que la
-  vista hace por el teclado es llevar el foco o el desplazamiento a la cosa marcada, si muestra la
-  marca.
+- **Una tecla vale en el contexto de su pantalla:** la misma combinación puede hacer cosas
+  distintas en pantallas distintas. Lo que vale en toda la aplicación (las partes del menú, Más)
+  lleva el contexto `app`. `pnpm check` controla que dentro de un contexto, y entre un contexto y
+  `app`, ninguna combinación se repita, y que no se use una que reserva el navegador (Ctrl+T,
+  Ctrl+W, F5…).
+- **Lo que se ve:** qué atajo tiene cada acción, para mostrarlo con Alt (00 · R2.9), lo da
+  `useShortcutHints(<pantalla>)`; sin la capa, devuelve nada.
+
+**La capa de la navegación** (`src/app/keyboard/navigation/`):
+
+- **Cada pantalla declara qué se recorre** en su archivo (`modules/<module>/navigation/<screen>.ts`):
+  las listas del modelo que recorren las flechas (00 · R2.4), qué hace Enter con lo marcado (R2.6), a
+  dónde lleva → con lo que se abre al costado y ← para volver, qué cierra Esc (R2.7) y las páginas de
+  RePág y AvPág. Lo marcado vive en la capa, no en el modelo.
+- **Sus teclas tienen su propio mapa, chico** (`src/app/keyboard/navigation/keymap.ts`): siguiente,
+  anterior, entrar, volver, cerrar, página siguiente y anterior, con las flechas, Enter, Esc, RePág y
+  AvPág de arranque. No hay una tecla por pantalla: es el mismo mapa para todas. Sirve para cambiar
+  las teclas de moverse sin tocar ninguna pantalla.
+- **Lo que se ve:** cuál es la cosa marcada lo da `useNavigationMark(<pantalla>)`, para que la vista
+  la resalte y lleve el foco o el desplazamiento ahí; sin la capa, devuelve nada.
+
+**Poner y sacar:**
+
+- **Sacar los atajos** es borrar `src/app/keyboard/shortcuts/` y las carpetas `shortcuts/` de los
+  módulos; **sacar la navegación**, borrar `src/app/keyboard/navigation/` y las carpetas
+  `navigation/` de los módulos. Se puede sacar una sola, las dos, o una sola pantalla de una de las
+  dos (su archivo y, en los atajos, sus líneas del mapa). Nada más cambia: los modelos y las vistas
+  no saben de ninguna de las dos.
+- **Las capas se encuentran solas** (`import.meta.glob`): nadie las registra ni las importa a mano,
+  así que borrar sus archivos no deja ninguna línea rota. Sin capas, la aplicación se sigue usando
+  con el mouse, el dedo y el Tab del navegador.
+- **Las reglas del teclado de la aplicación (00 · R2)** siguen igual con las dos capas puestas: los
+  mapas de arranque son los de hoy.
+- **El teclado ya no lee el HTML:** hoy el motor busca marcas escritas en cada pantalla (`data-key`,
+  `data-mark`, `data-layer`); con las capas, trabaja sobre los modelos.
 
 **El contrato de la vista** (`platform/view/`): lo que cualquier vista tiene que cumplir, porque de
 eso dependen reglas que no son gráficas.
 
-1. **El teclado,** si la vista quiere mostrarlo: lo lee de `useKeyHints` y no decide ninguna tecla.
+1. **El teclado,** si la vista quiere mostrarlo: lo lee de `useShortcutHints` y
+   `useNavigationMark`, y no decide ninguna tecla.
 2. **Lo privado:** todo lo que muestra un nombre, un correo o un dato personal lleva
    `privateProps()`, para que la captura de «Algo salió mal» lo tape.
 3. **Los avisos:** la lógica los pide con `notify(…)`; la vista los dibuja con lo que lee de
@@ -121,8 +146,8 @@ eso dependen reglas que no son gráficas.
   JSX; de `preact` solo `preact/hooks`, `createContext` y tipos.
 - `views/` importa de los módulos solo su fachada, y de la plataforma solo `platform/view/`.
 - Una vista no importa otra.
-- Nadie importa una capa del teclado (`keys/`): solo la encuentra el motor. Ningún modelo ni vista
-  escucha teclas (`keydown`).
+- Nadie importa una capa del teclado (`shortcuts/`, `navigation/`) salvo su propio motor, y una capa
+  no importa la otra. Ningún modelo ni vista escucha teclas (`keydown`).
 - En `views/`, sin `fetch`, temporizadores, `localStorage`, `history` ni `document` (salvo en
   `platform/view/`), y cada `useState` o `useRef` con su `// vista:`.
 - En las pruebas, sin buscar por clase ni por selectores de CSS, salvo las de las piezas de `ui/`.
