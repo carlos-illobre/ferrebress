@@ -81,8 +81,9 @@ body.alt:not(.quieto) .kbd:not(.siempre) { animation: kbd-entra var(--t-micro) v
 .offline [data-sube], .offline #nuevo { opacity: .45; pointer-events: none; box-shadow: none; }
 
 /* =================== Barra: buscar, filtros, soltar =================== */
-.barra { flex: none; display: flex; align-items: center; gap: 12px; }
-.buscar { flex: 0 1 300px; height: 44px; min-width: 200px; position: relative; }
+.herramientas { flex: none; display: flex; align-items: center; gap: 12px; }
+.buscar { flex: 0 1 280px; height: 44px; min-width: 200px; position: relative; }
+.herramientas .chips { flex: none; flex-wrap: nowrap; }
 .buscar input { flex: 1; border: 0; outline: 0; background: none; min-width: 0; font-weight: 600; }
 .buscar input::-webkit-search-cancel-button { display: none; }
 .buscar:focus-within { border-color: var(--pino); box-shadow: 0 0 0 4px rgb(18 56 47 / .12); color: var(--tinta); }
@@ -91,13 +92,14 @@ body.alt:not(.quieto) .kbd:not(.siempre) { animation: kbd-entra var(--t-micro) v
 .chip.elegido .n { background: rgb(255 255 255 / .18); color: #fff; }
 .chip .n.urgente { background: var(--urgente-suave); color: var(--urgente-texto); }
 .chip .n.error { background: var(--error-suave); color: var(--error-texto); }
-.soltar { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: var(--r); border: 1.5px dashed var(--borde-fuerte); background: transparent; color: var(--texto-2); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.soltar { margin-left: auto; min-width: 0; flex: 0 1 auto; overflow: hidden; display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: var(--r); border: 1.5px dashed var(--borde-fuerte); background: transparent; color: var(--texto-2); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.soltar > span { overflow: hidden; text-overflow: ellipsis; }
 .soltar:hover { border-color: var(--pino-texto); color: var(--pino-texto); }
 .btn .kbd, .chip .kbd, .soltar .kbd { position: absolute; right: -8px; top: -10px; height: 22px; box-shadow: 0 0 0 2px var(--fondo); }
 
 /* =================== La tabla de proveedores =================== */
 .tabla { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-.cols, .prov { display: grid; grid-template-columns: 40px minmax(170px, 1.15fr) minmax(220px, 1.1fr) minmax(200px, 1fr) 190px 36px 20px; gap: 0 14px; align-items: center; }
+.cols, .prov { display: grid; grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1.05fr) 196px 236px 36px 20px; gap: 0 12px; align-items: center; }
 .cols { flex: none; padding: 10px 16px; border-bottom: 1px solid var(--borde); font-size: 14px; font-weight: 700; color: var(--texto-2); }
 .cols span:first-child { grid-column: 1 / span 2; }
 .filas { flex: 1; min-height: 0; overflow: auto; }
@@ -140,7 +142,7 @@ body.alt:not(.quieto) .kbd:not(.siempre) { animation: kbd-entra var(--t-micro) v
 .pag.actual { background: var(--pino); border-color: var(--pino); color: #fff; }
 
 /* =================== La subida =================== */
-.subida { position: relative; flex: none; display: grid; grid-template-columns: 44px minmax(0, 1fr) minmax(300px, 1.05fr); gap: 4px 16px; padding: 14px 16px; border-top: 1px solid var(--borde); background: var(--superficie); }
+.subida { position: relative; flex: none; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 8px 16px; padding: 12px 16px; border-top: 1px solid var(--borde); background: var(--superficie); }
 .entra { animation: entra var(--t-nav) var(--rebote, var(--curva)) both; }
 @keyframes entra { from { opacity: 0; transform: translateY(8px); } }
 .s-ico { width: 44px; height: 44px; border-radius: var(--r-chico); display: grid; place-items: center; background: var(--logro-suave); color: var(--logro-texto); }
@@ -148,10 +150,10 @@ body.alt:not(.quieto) .kbd:not(.siempre) { animation: kbd-entra var(--t-micro) v
 .s-izq { min-width: 0; display: grid; gap: 4px; align-content: start; }
 .s-tit { font-size: 18px; line-height: 24px; font-weight: 800; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .s-arch { font-size: 14px; line-height: 18px; color: var(--texto-2); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.s-der { min-width: 0; display: grid; gap: 8px; align-content: start; }
+.s-der { min-width: 0; display: grid; gap: 6px; align-content: start; }
 .s-fila { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .s-nota { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--texto-2); font-weight: 500; }
-.espejo { margin-left: auto; }
+.espejo { margin-right: 4px; }
 .s-pasos { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 650; color: var(--texto-2); }
 .s-paso { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .s-paso .bola { width: 20px; height: 20px; border-radius: 99px; border: 2px solid var(--borde-fuerte); display: grid; place-items: center; flex: none; }
@@ -168,7 +170,7 @@ body:not(.quieto) .s-paso.ahora .bola { animation: gira 2.4s linear infinite; }
 .riel > span { position: absolute; left: 10px; top: 0; line-height: 18px; font-size: 13px; font-weight: 800; color: #fff; }
 .s-cuenta { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; font-size: 14px; color: var(--texto-2); font-weight: 600; }
 .s-cuenta b { font-size: 16px; color: var(--tinta); font-weight: 800; }
-.s-acciones { display: flex; gap: 8px; justify-content: flex-end; align-self: end; }
+.s-acciones { display: flex; gap: 8px; align-items: center; justify-content: flex-end; align-self: end; }
 .s-acciones .btn, .pregunta .btn, .elegir .btn { position: relative; }
 
 /* La pregunta «¿Es de…?» (R4.3) */
@@ -262,7 +264,7 @@ body.captura .casos-btn, body.captura .casos { display: none !important; }
   .celu-pestanas button { flex: 1; height: 44px; border: 0; background: none; border-radius: 10px; font-weight: 700; font-size: 15px; color: var(--texto-2); }
   .celu-pestanas button[aria-current="page"] { background: var(--superficie); color: var(--pino); box-shadow: var(--sombra-1); font-weight: 800; }
   .pantalla { overflow: auto; padding: 12px 16px 16px; gap: 10px; }
-  .barra { flex-wrap: wrap; gap: 10px; }
+  .herramientas { flex-wrap: wrap; gap: 10px; }
   .buscar { flex: 1 1 100%; min-width: 0; }
   .chips { flex-wrap: nowrap; }
   .chips .chip { height: 40px; }

@@ -86,11 +86,11 @@
     var h = "";
     if (S.offline) h += '<div class="aviso urgente arriba"><i class="i" data-i="wifi-off"></i><span><b>Sin conexión.</b> <span class="largo">Se ve lo último que se vio; no se puede subir ni cambiar nada.</span><span class="corto">Es lo último que se vio.</span></span><button type="button" class="btn chico" data-reintentar data-tecla="r"><i class="i i-s" data-i="refresh-cw"></i>Reintentar' + kbd("R") + "</button></div>";
     if (!pm.costos) h += '<div class="aviso pino arriba"><i class="i" data-i="lock"></i><span><span class="largo">Ves los datos de contacto de los proveedores. Sus listas y sus costos necesitan el permiso «Ver costos».</span><span class="corto">Ves solo los datos de contacto.</span></span></div>';
-    h += '<div class="barra">' +
+    h += '<div class="herramientas">' +
       '<label class="campo buscar"><i class="i" data-i="search"></i><input id="q" type="search" placeholder="Buscar proveedor…" aria-label="Buscar proveedor" autocomplete="off" value="' + esc(q) + '"><span class="kbd">Alt B</span></label>' +
       '<div class="chips del-servidor" role="group" aria-label="Filtrar" data-c>' +
         chip("todos", "Todos", c.todos, "", "1") + chip("espera", "En espera", c.espera, "urgente", "2") + chip("ilegible", '<span class="largo">No se pudo leer</span><span class="corto">No leídas</span>', c.ilegible, "error", "3") + "</div>" +
-      '<button type="button" class="soltar solo-compu" data-sube data-elegir-archivo><i class="i" data-i="cloud-upload"></i>Arrastrá un Excel o CSV · .xlsx, .xls, .csv · Hasta 30 MB</button></div>' +
+      '<button type="button" class="soltar solo-compu" data-sube data-elegir-archivo><i class="i" data-i="cloud-upload"></i><span>Arrastrá un Excel o CSV · .xlsx, .xls, .csv · Hasta 30 MB</span></button></div>' +
       '<div class="tabla tarjeta del-servidor"><div class="cols" aria-hidden="true"><span>Proveedor / vendedor</span><span>Contacto</span><span data-c>Última lista aplicada</span><span data-c>Estado</span><span></span><span></span></div>' +
       '<div class="filas" id="filas" role="list"></div><div id="subida-compu"></div><div class="pie-tabla" id="pie"></div></div>';
     lienzo.innerHTML = h;
@@ -268,11 +268,10 @@
     /* Derecha: completa o solo cambios, el espejo y los pasos */
     var der = '<div class="s-der">';
     if (!fin) der += '<div class="s-fila"><div class="segmentos" role="group" aria-label="Qué trae la lista"><button type="button" class="' + (j.completa ? "elegido" : "") + '" data-tipo="1" aria-pressed="' + j.completa + '" data-tecla="l">Lista completa' + kbd("L") + '</button><button type="button" class="' + (j.completa ? "" : "elegido") + '" data-tipo="0" aria-pressed="' + !j.completa + '" data-tecla="m">Solo cambios' + kbd("M") + "</button></div>" +
-      '<span class="pastilla logro espejo"><i class="i i-s" data-i="check"></i><span class="largo">Sincronizado con tu celular</span><span class="corto">Se ve en la computadora</span></span></div>' +
-      '<div class="s-nota"><i class="i i-s" data-i="info"></i>Solo cambios nunca da de baja productos.</div>' +
       '<div class="s-pasos solo-compu">' + paso(j.fase === "subiendo" ? "ahora" : "hecho", "Archivo subido", '<small data-pct-sub>' + Math.round((j.fase === "subiendo" ? j.p : 1) * 100) + " %</small>") +
         '<i class="i i-s s-flecha" data-i="arrow-right"></i>' + paso(j.fase === "leyendo" ? "ahora" : /leida|listo/.test(j.fase) ? "hecho" : "", "Lectura", "") +
-        '<i class="i i-s s-flecha" data-i="arrow-right"></i>' + paso(j.fase === "listo" ? "hecho" : "", "Revisión", "") + "</div>";
+        '<i class="i i-s s-flecha" data-i="arrow-right"></i>' + paso(j.fase === "listo" ? "hecho" : "", "Revisión", "") + "</div></div>" +
+      '<div class="s-nota"><i class="i i-s" data-i="info"></i>Solo cambios nunca da de baja productos.</div>';
     else der += resultado(j);
     der += "</div>";
 
@@ -284,6 +283,7 @@
         '<div class="s-cuenta"><span data-cuenta>' + cuenta(j) + "</span><span>" + pie(j) + "</span></div></div>";
     }
     var acc = '<div class="s-acciones">';
+    if (corre) acc += '<span class="pastilla logro espejo"><i class="i i-s" data-i="check"></i><span class="largo">Sincronizado con tu celular</span><span class="corto">Se ve en la computadora</span></span>';
     if (corre) acc += '<button type="button" class="btn" data-cerrar data-tecla="c">Cancelar' + kbd("C") + "</button>";
     else {
       acc += '<button type="button" class="btn' + (j.fase === "espera" && f.anterior ? "" : " btn-fantasma") + '" data-cerrar data-tecla="c">' + (j.fase === "espera" && f.anterior ? "Descartar" : "Cerrar") + kbd("C") + "</button>";
