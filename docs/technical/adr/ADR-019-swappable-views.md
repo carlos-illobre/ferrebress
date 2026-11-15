@@ -31,11 +31,10 @@ src/app/
 │   ├── index.ts         la fachada: el registro y lo que usan las vistas y los demás módulos
 │   ├── api.ts, state.ts, rules.ts, settings.ts, texts.ts
 │   ├── use<Screen>.ts   el modelo de cada pantalla
-│   ├── shortcuts/       los atajos de cada pantalla (abajo)
-│   └── navigation/      lo que se recorre con las flechas en cada pantalla (abajo)
+│   └── shortcuts/       los atajos de cada pantalla (abajo)
 ├── keyboard/            el teclado, en dos capas independientes (abajo)
 │   ├── shortcuts/       el motor de los atajos y su mapa de teclas (keymap.ts)
-│   └── navigation/      el motor de la navegación y su mapa de teclas (keymap.ts)
+│   └── navigation/      las reglas de navegación, iguales para toda la aplicación, y su mapa
 ├── shell/               la lógica de la aplicación entera (arrancar, la sesión, qué pantalla va),
 │                        también sin dibujo
 └── views/<view>/        una vista: todo lo que se dibuja
@@ -90,37 +89,46 @@ navegación. Las dos trabajan sobre los modelos, no sobre el HTML, y ninguna sab
 
 **La capa de la navegación** (`src/app/keyboard/navigation/`):
 
-- **Cada pantalla declara qué se recorre** en su archivo (`modules/<module>/navigation/<screen>.ts`):
-  las listas del modelo que recorren las flechas (00 · R2.4), qué hace Enter con lo marcado (R2.6), a
-  dónde lleva → con lo que se abre al costado y ← para volver, qué cierra Esc (R2.7) y las páginas de
-  RePág y AvPág. Lo marcado vive en la capa, no en el modelo.
-- **Sus teclas tienen su propio mapa, chico** (`src/app/keyboard/navigation/keymap.ts`): siguiente,
-  anterior, entrar, volver, cerrar, página siguiente y anterior, con las flechas, Enter, Esc, RePág y
-  AvPág de arranque. No hay una tecla por pantalla: es el mismo mapa para todas. Sirve para cambiar
-  las teclas de moverse sin tocar ninguna pantalla.
-- **Lo que se ve:** cuál es la cosa marcada lo da `useNavigationMark(<pantalla>)`, para que la vista
-  la resalte y lleve el foco o el desplazamiento ahí; sin la capa, devuelve nada.
+- **Las reglas de navegación son las mismas para toda la aplicación,** no cambian de una pantalla a
+  otra (00 · R2): por ejemplo, en una grilla o una tabla ↑ y ↓ recorren las filas, y ← y → salen de
+  la grilla al menú del costado. Por eso no hay archivos de navegación por pantalla.
+- **Cada regla, en su archivo** (`keyboard/navigation/rules/<rule>.ts`), para sumarlas, cambiarlas o
+  sacarlas de a una a medida que Carlos las va ajustando usando la aplicación.
+- **Trabaja sobre la estructura que la vista declara con los roles de accesibilidad,** no sobre
+  marcas propias ni sobre clases: una grilla o una tabla es un `grid` o un `table` con sus filas, el
+  menú es la `navigation` principal, las pestañas son un `tablist`, lo que se abre encima es un
+  `dialog`. Cualquier vista que use bien esos roles (lo pide igual la accesibilidad, punto 5 del
+  contrato) se navega sola, sin escribir nada para el teclado. Qué hace Enter con una fila es lo
+  que hace la fila al tocarla.
+- **Sus teclas tienen su propio mapa, chico** (`keyboard/navigation/keymap.ts`): siguiente, anterior,
+  salir al menú, entrar, cerrar, página siguiente y anterior, con las flechas, Enter, Esc, RePág y
+  AvPág de arranque. Sirve para cambiar las teclas de moverse sin tocar ninguna regla.
+- **Lo marcado vive en la capa:** la vista lo ve porque la capa le pone a lo marcado el atributo
+  estándar que corresponde (`aria-selected` o `aria-current`) y lleva el desplazamiento ahí; la
+  vista solo le da forma con su CSS.
 
 **Poner y sacar:**
 
 - **Sacar los atajos** es borrar `src/app/keyboard/shortcuts/` y las carpetas `shortcuts/` de los
-  módulos; **sacar la navegación**, borrar `src/app/keyboard/navigation/` y las carpetas
-  `navigation/` de los módulos. Se puede sacar una sola, las dos, o una sola pantalla de una de las
-  dos (su archivo y, en los atajos, sus líneas del mapa). Nada más cambia: los modelos y las vistas
+  módulos; **sacar la navegación**, borrar `src/app/keyboard/navigation/`. Se puede sacar una sola
+  capa, las dos, los atajos de una sola pantalla (su archivo y sus líneas del mapa) o una sola regla
+  de navegación (su archivo). Nada más cambia: los modelos y las vistas
   no saben de ninguna de las dos.
 - **Las capas se encuentran solas** (`import.meta.glob`): nadie las registra ni las importa a mano,
   así que borrar sus archivos no deja ninguna línea rota. Sin capas, la aplicación se sigue usando
   con el mouse, el dedo y el Tab del navegador.
 - **Las reglas del teclado de la aplicación (00 · R2)** siguen igual con las dos capas puestas: los
   mapas de arranque son los de hoy.
-- **El teclado ya no lee el HTML:** hoy el motor busca marcas escritas en cada pantalla (`data-key`,
-  `data-mark`, `data-layer`); con las capas, trabaja sobre los modelos.
+- **El teclado ya no depende de marcas propias en el HTML:** hoy el motor busca `data-key`,
+  `data-mark` y `data-layer` escritos en cada pantalla; con las capas, los atajos trabajan sobre los
+  modelos y la navegación sobre los roles de accesibilidad que cualquier vista ya tiene que tener.
 
 **El contrato de la vista** (`platform/view/`): lo que cualquier vista tiene que cumplir, porque de
 eso dependen reglas que no son gráficas.
 
-1. **El teclado,** si la vista quiere mostrarlo: lo lee de `useShortcutHints` y
-   `useNavigationMark`, y no decide ninguna tecla.
+1. **El teclado:** la vista no decide ninguna tecla. Si quiere mostrar los atajos, los lee de
+   `useShortcutHints`; para que la navegación ande, usa bien los roles (`grid`, `table`, `row`,
+   `navigation`, `tablist`, `dialog`) y le da forma a lo marcado (`aria-selected`).
 2. **Lo privado:** todo lo que muestra un nombre, un correo o un dato personal lleva
    `privateProps()`, para que la captura de «Algo salió mal» lo tape.
 3. **Los avisos:** la lógica los pide con `notify(…)`; la vista los dibuja con lo que lee de
@@ -146,7 +154,7 @@ eso dependen reglas que no son gráficas.
   JSX; de `preact` solo `preact/hooks`, `createContext` y tipos.
 - `views/` importa de los módulos solo su fachada, y de la plataforma solo `platform/view/`.
 - Una vista no importa otra.
-- Nadie importa una capa del teclado (`shortcuts/`, `navigation/`) salvo su propio motor, y una capa
+- Nadie importa una capa del teclado (`keyboard/`, `shortcuts/`) salvo su propio motor, y una capa
   no importa la otra. Ningún modelo ni vista escucha teclas (`keydown`).
 - En `views/`, sin `fetch`, temporizadores, `localStorage`, `history` ni `document` (salvo en
   `platform/view/`), y cada `useState` o `useRef` con su `// vista:`.

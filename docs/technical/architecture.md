@@ -53,7 +53,8 @@ src/
     ├── platform/    tecnología sin negocio ni dibujo: api, realtime, peer, mirror, storage,
     │                offline, camera, keyboard, router, clock, meter; view/ es el contrato de las vistas
     ├── keyboard/    el teclado, en dos capas que se ponen o se sacan: shortcuts/ (los atajos, con
-    │                su mapa de teclas) y navigation/ (las flechas, Enter, Esc, con el suyo)
+    │                su mapa de teclas) y navigation/ (las reglas de las flechas, Enter y Esc, iguales para
+    │                toda la aplicación, con su mapa)
     ├── shell/       la lógica de la aplicación entera: arrancar, la sesión, qué pantalla va
     ├── modules/<module>/  la lógica de cada módulo y el modelo de cada pantalla
     └── views/<view>/      una vista: su composición, sus piezas (ui/), sus estilos (styles/) y
@@ -131,7 +132,6 @@ pantallas con los modelos del módulo.
 | `rules.ts` | Las reglas puras de la aplicación, si las hay |
 | `texts.ts` | Los textos en castellano, con su forma larga y corta |
 | `shortcuts/<screen>.ts` | Los atajos de una pantalla: sus comandos sobre el modelo, sin teclas (las pone `keyboard/shortcuts/keymap.ts`) |
-| `navigation/<screen>.ts` | Lo que se recorre con las flechas en una pantalla y qué hacen Enter y Esc |
 | `use<Screen>.ts` | El modelo de una pantalla: los datos listos para mostrar y las acciones con nombre. Todo el estado y los efectos de la pantalla están acá |
 
 Y en cada vista (`views/<view>/<module>/`):

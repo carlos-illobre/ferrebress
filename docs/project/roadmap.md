@@ -152,6 +152,9 @@ paralelo»).
 - [ ] T136 [agente] El redondeo nuevo (06 · R3.2 y R3.6, 00 · R8.2): los pasos de $ 0,05 a
   $ 10.000 con un 1 o un 5, «sin redondeo» como un centavo y los precios con los decimales del
   paso. Hoy la lista es la vieja. Con 07a, que es donde se ven los precios.
+- [ ] T137 [carlos] Las reglas de navegación con el teclado (00 · R2.1 a R2.7), iguales para toda
+  la aplicación: Carlos las va pasando a medida que usa la aplicación, hasta llegar al juego que le
+  sirve. Cada una es un cambio de regla en 00 y un archivo de `keyboard/navigation/rules/`.
 
 ## Tareas futuras
 

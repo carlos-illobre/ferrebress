@@ -39,7 +39,9 @@ ambiente de pruebas.
 
 ## 2. El teclado
 
-Vale solo en la computadora: en el celular no hay atajos ni marca.
+Vale solo en la computadora: en el celular no hay atajos ni marca. La navegación (las flechas,
+Enter y Esc: R2.1 a R2.7) tiene las mismas reglas en toda la aplicación, y Carlos las va ajustando
+al usarla; los atajos (R2.8 a R2.11) son de cada pantalla.
 
 - **R2.1** Hay dos focos: el **cursor**, que se mueve con Tab o con el mouse, y la **marca**, que se
   mueve con las flechas. Las flechas nunca mueven el cursor a otro lugar.
@@ -48,7 +50,9 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   en una caja con texto, ← sale hacia las pestañas solo si el cursor está al principio del texto, y
   → solo si está al final; si no, mueven el cursor dentro del texto. Con la caja vacía, salen
   siempre.
-- **R2.4** ↑ y ↓ recorren el menú, y los renglones de las listas y las grillas de la pantalla.
+- **R2.4** ↑ y ↓ recorren el menú, y los renglones de las listas y las filas de las grillas y las
+  tablas de la pantalla. Con la marca en una fila de una grilla o una tabla, ← y → salen de la
+  grilla al menú del costado.
 - **R2.5** La marca se ve igual en todas las pantallas. Aparece al tocar una flecha y se esconde al
   usar el mouse.
 - **R2.6** Enter abre o activa lo marcado. Con el cursor en la caja principal y nada marcado, hace
@@ -234,6 +238,8 @@ Vale solo en la computadora: en el celular no hay atajos ni marca.
   la marca pasa a las pestañas; tocando ← otra vez desde la primera pestaña, pasa al menú.
 - **E09** **Dado** la marca en el menú, **cuando** se tocan ↑ o ↓, **entonces** recorre las partes;
   Enter abre la marcada.
+- **E09b** **Dado** la marca en una fila de una grilla o una tabla, **cuando** se toca ← o →,
+  **entonces** la marca sale de la grilla y pasa al menú del costado.
 - **E10** **Dado** un renglón marcado, **cuando** se toca Enter, **entonces** se abre o se activa ese
   renglón. Sin nada marcado, Enter en la caja principal hace la acción principal de la pantalla.
 - **E11** **Dado** cualquier pantalla, **cuando** se mantiene apretado Alt, **entonces** cada botón
