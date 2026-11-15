@@ -171,9 +171,10 @@ Además:
   capítulo, en el servidor y en la aplicación.
 - **Lo transversal, en capas enchufables** (ADR-020): el teclado, trabajar sin conexión, el
   vínculo entre el celular y la computadora, «Algo salió mal», el medidor de datos y la anotación
-  de la auditoría viven en sus propias carpetas, se enganchan en puntos
-  con nombre del núcleo y el núcleo no las conoce. Si se puede, su parte general no sabe nada del
-  negocio, para poder llevarla a otro proyecto.
+  de la auditoría viven en sus propias carpetas, se enganchan en puntos con nombre del núcleo y el
+  núcleo no las conoce. Todo lo tecnológico se diseña como un aspecto, sin nada del negocio, para
+  usarlo en otros proyectos agregándole sus capas; se programa como capa, no con programación
+  orientada a aspectos.
 - **Carpetas chicas, agrupadas por concepto.** Siempre que varios archivos comparten un concepto,
   van juntos en una subcarpeta con ese nombre, aunque la carpeta no esté cerca del tope: el tope
   es un límite, no la señal para agrupar. Como mucho 20 archivos por carpeta, sin contar las
