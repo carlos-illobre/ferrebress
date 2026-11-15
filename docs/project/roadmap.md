@@ -155,6 +155,9 @@ paralelo»).
 - [ ] T137 [carlos] Las reglas de navegación con el teclado (00 · R2.1 a R2.7), iguales para toda
   la aplicación: Carlos las va pasando a medida que usa la aplicación, hasta llegar al juego que le
   sirve. Cada una es un cambio de regla en 00 y un archivo de `keyboard/navigation/rules/`.
+- [ ] T138 [agente] Las capas enchufables (ADR-020): sin conexión y el vínculo con su espejo pasan
+  a sus carpetas, enganchados en puntos con nombre del núcleo, con los controles de `pnpm check`.
+  Sin cambiar lo que hace la aplicación. Después de T134, que hace lo mismo con el teclado.
 
 ## Tareas futuras
 
