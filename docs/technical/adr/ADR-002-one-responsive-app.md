@@ -23,7 +23,8 @@ de los renglones son las mismas.
   sale de detectar esa capacidad, no del ancho.
 - **La estética vive en CSS.** Las pantallas no llevan estilos en línea ni nombres de clase de
   apariencia; usan los tokens del lenguaje visual (`styles/`) y las piezas de `ui/`. Cambiar el
-  aspecto es tocar CSS.
+  aspecto es tocar CSS; cambiar la vista entera, HTML incluido, es cambiar de vista sin tocar la
+  lógica (ADR-019).
 - **Organizada por módulo**, con Preact y Vite como PWA (ADR-013). Cada módulo se baja recién cuando se abre.
 - **Lo que se ve vive en valores con nombre** (ver [arquitectura](../architecture.md)), que el espejo
   copia al otro dispositivo sin que la pantalla lo sepa (ADR-017).

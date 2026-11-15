@@ -26,3 +26,4 @@ Cada tecnología elegida tiene su ADR, con las opciones, los pros, los contras y
 | [ADR-016](ADR-016-checks-before-pushing.md) | Qué controla `pnpm check` y con qué herramientas | Aceptado |
 | [ADR-017](ADR-017-realtime-channel-and-mirror.md) | Un canal con temas para lo que llega del servidor, y un espejo de valores con nombre | Aceptado |
 | [ADR-018](ADR-018-generated-table-types.md) | Los tipos de las tablas, generados desde las migraciones | Aceptado |
+| [ADR-019](ADR-019-swappable-views.md) | La vista, aparte e intercambiable | Aceptado |

@@ -48,14 +48,14 @@ src/
 │   ├── adapters/    lo que habla con un proveedor que se puede cambiar; cumple una interfaz
 │   │                que define el módulo que lo usa
 │   └── modules/<module>/
-└── app/
-    ├── main.tsx     arma la aplicación: registra cada módulo
-    ├── platform/    tecnología sin negocio: api, realtime, peer, mirror, storage, offline,
-    │                camera, keyboard, router, clock, meter (lo que manda el servidor por los canales)
-    ├── ui/          las piezas del lenguaje visual (Button, Sheet, Table…), sin estilos
-    │                de pantalla
-    ├── styles/      los tokens del lenguaje visual (colores, letra, medidas) y el marco
-    └── modules/<module>/
+└── app/             la lógica, sin dibujo, y aparte las vistas que la dibujan (ADR-019)
+    ├── main.ts      arranca la plataforma, elige la vista y la monta
+    ├── platform/    tecnología sin negocio ni dibujo: api, realtime, peer, mirror, storage,
+    │                offline, camera, keyboard, router, clock, meter; view/ es el contrato de las vistas
+    ├── shell/       la lógica de la aplicación entera: arrancar, la sesión, qué pantalla va
+    ├── modules/<module>/  la lógica de cada módulo y el modelo de cada pantalla
+    └── views/<view>/      una vista: su composición, sus piezas (ui/), sus estilos (styles/) y
+                           las pantallas de cada módulo
 ```
 
 `src/` no tiene reglas que no estén en `docs/`. Cada módulo puede tener un `README.md` corto que
@@ -118,26 +118,38 @@ escribe solo sus tablas (ADR-001).
 
 ## Un módulo de la aplicación
 
+La lógica y la vista están separadas (ADR-019): el módulo no dibuja nada, y cada vista dibuja sus
+pantallas con los modelos del módulo.
+
 | Archivo | Qué hace |
 |---|---|
-| `index.ts` | El registro: sus rutas, su lugar en el menú, sus acciones de teclado y lo que baja para trabajar sin conexión |
+| `index.ts` | La fachada: el registro (sus rutas, su lugar en el menú, lo que baja para trabajar sin conexión) y lo que usan las vistas y los demás módulos |
 | `api.ts` | Las llamadas al servidor del módulo, una sola vez |
 | `state.ts` | La máquina de estados del proceso (la venta en curso, el ingreso): acciones con nombre y un reductor puro |
-| `texts.ts` | Los textos en castellano |
-| `use<Thing>.ts` | La lógica de una pantalla, sin HTML |
-| `screens/<Screen>/<Screen>.tsx` | El HTML semántico de la pantalla, sin lógica |
-| `screens/<Screen>/<Screen>.css` | Su estilo, para el celular y la computadora, con media queries |
+| `rules.ts` | Las reglas puras de la aplicación, si las hay |
+| `texts.ts` | Los textos en castellano, con su forma larga y corta |
+| `keys.ts` | Qué tecla hace qué en sus pantallas |
+| `use<Screen>.ts` | El modelo de una pantalla: los datos listos para mostrar y las acciones con nombre. Todo el estado y los efectos de la pantalla están acá |
 
-Las pantallas usan solo los tokens de `styles/` y las piezas de `ui/`: cambiar la estética es
-tocar CSS (ADR-002). Cada módulo se baja recién cuando se abre (`platform/lazy.ts`). Lo que
-repiten varias pantallas está una sola vez en `platform/`: si la pantalla es angosta, al día con la
-ventana (`narrow.ts`), quedarse con la respuesta del último pedido (`latest.ts`) y llamar desde un
-efecto a la función de ahora (`current.ts`).
+Y en cada vista (`views/<view>/<module>/`):
+
+| Archivo | Qué hace |
+|---|---|
+| `<Screen>.tsx` | Dibuja el modelo de su pantalla y le avisa lo que toca la persona, sin lógica |
+| `<Screen>.css` | Su estilo, para el celular y la computadora, con media queries (ADR-002) |
+| `index.ts` | La carga diferida de las pantallas del módulo en esa vista |
+
+Una vista usa solo los tokens de sus `styles/` y las piezas de sus `ui/`. Lo que cualquier vista
+tiene que cumplir (el teclado, lo privado, los avisos, los textos, la accesibilidad) está en
+`platform/view/` (ADR-019, «El contrato de la vista»). Cada módulo se baja recién cuando se abre
+(`platform/lazy.ts`). Lo que repiten varios modelos está una sola vez en `platform/`: si la pantalla
+es angosta, al día con la ventana (`narrow.ts`), quedarse con la respuesta del último pedido
+(`latest.ts`) y llamar desde un efecto a la función de ahora (`current.ts`).
 
 **Lo que se ve vive en valores con nombre.** La dirección, lo abierto encima (una hoja, un detalle,
 una confirmación), lo escrito en un buscador o en un campo, lo elegido y lo que trajo el servidor para
 mostrar no van en estado local de la pantalla: van en valores con nombre de `platform/mirror/`
-(`useMirrored`, y `useMirroredQuery` para lo que se pide al servidor). Sin vínculo se comportan como
+(`useMirrored`, y `useMirroredQuery` para lo que se pide al servidor), dentro del modelo. Sin vínculo se comportan como
 valores comunes; con el celular y la computadora vinculados, el espejo los copia al otro dispositivo sin
 que la pantalla lo sepa (ADR-003, ADR-017). Lo que es solo del dispositivo (el menú minimizado, dónde
 está el cursor, la cámara abierta) queda local, con un comentario que dice por qué. Las teclas se
