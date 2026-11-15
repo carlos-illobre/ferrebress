@@ -3,9 +3,9 @@
 // nuevas» más abajo, como mucho una vez cada 5 s, sin hoy no hay selector, y no viaja por el espejo.
 import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { startKeyboard } from '../../platform/keyboard.ts';
 import { meter } from '../../platform/meter.ts';
 import { mirror } from '../../platform/mirror/registry.ts';
+import { startKeyboard } from '../../testing/keyboard.ts';
 import { detail, events, first, firstPhone, openAuditLog, page } from './audit-test-kit.tsx';
 import { auditLogSettings } from './settings.ts';
 

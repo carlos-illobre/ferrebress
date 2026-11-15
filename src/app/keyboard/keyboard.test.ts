@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { startKeyboard } from './keyboard.ts';
+import { startKeyboard } from '../testing/keyboard.ts';
 
 const press = (key: string, extra: KeyboardEventInit = {}, target: EventTarget = window) =>
   target.dispatchEvent(

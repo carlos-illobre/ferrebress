@@ -1,13 +1,13 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { installState } from '../../platform/install.ts';
-import { startKeyboard } from '../../platform/keyboard.ts';
 import { mirror, type Patch } from '../../platform/mirror/registry.ts';
 import { bindRoute } from '../../platform/mirror/route.ts';
 import { motionOff, still, watchMotion } from '../../platform/motion.ts';
 import { navigate } from '../../platform/router.ts';
 import { timeFormat } from '../../platform/time.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
+import { startKeyboard } from '../../testing/keyboard.ts';
 import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
 import { open } from '../frame/frame-test-kit.tsx';

@@ -16,6 +16,12 @@ que sirvan para otro proyecto con otras reglas de negocio.
 
 ## Decisión
 
+**Se diseña pensando en aspectos y se programa con capas enchufables.** En el diseño y la
+arquitectura, todo lo tecnológico que no depende del negocio se piensa como un aspecto: una
+preocupación transversal, con su propio diseño, que no se mezcla con ningún módulo. En el código, cada
+aspecto se construye como una capa enchufable, con los puntos de enganche de abajo, sin las
+herramientas de la programación orientada a aspectos (ver «Opciones descartadas»).
+
 **Cada funcionalidad transversal es una capa enchufable, en su propia carpeta.**
 
 - **Obligatorio: sus archivos aparte y el acoplamiento bajo.** Todo lo de una capa vive en su
@@ -31,11 +37,12 @@ que sirvan para otro proyecto con otras reglas de negocio.
   aplicación, el registro de módulos en el servidor). Nadie la importa a mano.
 - **Una capa no importa otra,** ni importa la lógica de un módulo por dentro: si necesita algo de
   un módulo, lo pide por su fachada o por un punto de enganche.
-- **Deseable: independiente del negocio.** La parte general de una capa (el motor del teclado, la
-  cola sin conexión, el vínculo) no nombra nada de la ferretería: ni productos ni ventas ni
-  personas. Lo que es de Ferrebress queda en las carpetas de la capa dentro de cada módulo. Así la
-  parte general se puede llevar a otro proyecto. El análisis de librería del paso 7 (constitución)
-  dice, para cada capa, qué la ata todavía a Ferrebress.
+- **Todo lo tecnológico es independiente del negocio, para reutilizarlo en otros proyectos.** La
+  parte general de una capa (el motor del teclado, la cola sin conexión, el vínculo, el canal en
+  tiempo real) no nombra nada de la ferretería: ni productos ni ventas ni personas. Lo que es de
+  Ferrebress queda en las carpetas de la capa dentro de cada módulo. Otro proyecto se lleva la
+  parte general y le agrega sus propias carpetas por módulo. El análisis de librería del paso 7
+  (constitución) dice, para cada capa, qué la ata todavía a Ferrebress.
 
 **Las capas de hoy:**
 

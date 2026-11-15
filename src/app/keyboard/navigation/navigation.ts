@@ -1,8 +1,7 @@
-// El teclado de la computadora (00 · R2): las pantallas no escuchan teclas, solo marcan en su HTML
-// qué se puede hacer, y este motor lo hace andar:
-//   data-layer   una capa (la pantalla, o lo que se abre encima): solo vale la de más arriba (R2.10),
-//                y con Alt solo se ven sus teclas (R2.9)
-//   data-key     el atajo de un botón, Alt más esa tecla (R2.8)
+// La capa de la navegación con el teclado (00 · R2.1 a R2.7, ADR-019 y ADR-020): las flechas, Enter,
+// Esc, / y las páginas, con las mismas reglas en toda la aplicación. Las pantallas no escuchan
+// teclas, solo marcan en su HTML qué se puede recorrer, y esta capa lo hace andar:
+//   data-layer   una capa (la pantalla, o lo que se abre encima): solo vale la de más arriba (R2.10)
 //   data-mark    lo que recorren las flechas (R2.4) y activa Enter (R2.6); → abre lo que tiene
 //                aria-expanded, como Más, y ← cierra lo que se abrió encima
 //   data-close   lo que hace Esc en esa capa (R2.7)
@@ -12,14 +11,10 @@
 //   data-page    los botones de una lista por páginas: RePág toca "previous" y AvPág, "next"
 // Cada vez que la marca cambia, avisa con el evento «mark» en document, para el rótulo del menú.
 // En el celular no hay atajos ni marca.
-import { isPhone } from './device/device.ts';
+import { isPhone } from '../../platform/device/device.ts';
+import { layers, topLayer, visible } from '../../platform/view/layers.ts';
 
-const showKeysClass = 'show-keys';
 const markedClass = 'marked';
-
-const visible = (element: Element) => element.checkVisibility();
-const layers = () => [...document.querySelectorAll('[data-layer]')].filter(visible);
-const topLayer = (): Element => layers().at(-1) ?? document.body;
 const somethingOnTop = () => layers().length > 1;
 
 const marks = (layer: Element) =>
@@ -139,41 +134,15 @@ const actions: Record<string, (event: KeyboardEvent) => void> = {
 };
 
 function onKeyDown(event: KeyboardEvent): void {
-  if (event.key === 'Alt') {
-    topLayer().classList.add(showKeysClass);
-    event.preventDefault();
-  } else if (event.altKey) shortcut(event);
-  else actions[event.key]?.(event);
+  if (!event.altKey) actions[event.key]?.(event);
 }
 
-// Alt más la tecla del botón (R2.8): la letra o el número, sin importar la distribución del teclado.
-function shortcut(event: KeyboardEvent): void {
-  const key = event.code.replace(/^(Key|Digit)/, '').toLowerCase();
-  const button = [
-    ...topLayer().querySelectorAll<HTMLElement>(`[data-key="${CSS.escape(key)}"]:not([disabled])`),
-  ].find(visible);
-  if (!button) return;
-  event.preventDefault();
-  button.click();
-}
-
-function hideKeys(): void {
-  for (const element of document.querySelectorAll(`.${showKeysClass}`))
-    element.classList.remove(showKeysClass);
-}
-
-const onKeyUp = (event: KeyboardEvent) => {
-  if (event.key === 'Alt') hideKeys();
-};
-
-// Prende el teclado en la computadora; devuelve cómo apagarlo.
-export function startKeyboard(): () => void {
+// Prende la navegación en la computadora; devuelve cómo apagarla.
+export function startNavigation(): () => void {
   if (isPhone()) return () => {};
   const listeners: [string, EventListener][] = [
     ['keydown', onKeyDown as EventListener],
-    ['keyup', onKeyUp as EventListener],
     ['mousemove', unmark],
-    ['blur', hideKeys],
   ];
   for (const [type, listener] of listeners) addEventListener(type, listener);
   return () => {

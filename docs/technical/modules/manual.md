@@ -337,7 +337,7 @@ cada segmento del avance; ← → pasan de paso con el buscador vacío; ↑ ↓ 
 los resultados; `/` lleva al buscador; Esc cierra «Todos los pasos» o borra lo buscado. En la
 computadora el cursor arranca en el buscador (R2.2); en el celular, en ningún lado (R2.12).
 
-**Lo que se agrega a `platform/keyboard.ts`** (código común, tarea propia), sin que las pantallas
+**Lo que se agrega a las capas del teclado (`keyboard/`)** (código común, tarea propia), sin que las pantallas
 escuchen teclas:
 
 - `data-arrows` en una capa: ← y → tocan sus botones `data-arrow="previous"` y `"next"` en vez de
@@ -407,7 +407,7 @@ Las controla `pnpm manual` (los topes de § 2) y, para el arranque, `pnpm boot`.
 | E53 | Unitaria del manual: con una sesión abierta, no muestra nada de la persona y no hace ningún pedido fuera de `/manual/` (se espía `fetch`) |
 | R4.4 | Unitarias: sin conexión, «Ver el manual» y Más → Manual grises; con el manual abierto, lo que no llegó dice «Sin conexión» |
 | La dirección | Unitarias de `address.ts`: valores que no existen, `c=../api/start` y parecidos se ignoran |
-| El teclado | Unitarias de `data-arrows`, `data-slash` y `data-clear` en `platform/keyboard.ts` |
+| El teclado | Unitarias de `data-arrows`, `data-slash` y `data-clear` en las capas del teclado (`keyboard/`) |
 | El lector | Unitarias de cada error de § 2 (también un enlace fuera de `docs/manual/`, un enlace simbólico, un archivo disfrazado y uno pasado de tope) y de lo que arma con un manual de prueba |
 | Pantallas | Capturas de referencia (`tests/screens/manual.spec.ts`) con el manual de prueba de `tests/manual/fixture/`, que no cambia cuando cambia el de verdad |
 | De punta a punta | Una sola, aprobada por Carlos, en `tests/e2e/headers.spec.ts`: lo de `/manual/` sale con `no-store` y la política de la aplicación, lo que falta da 404, y abrir una tarea no viola la política de estilos (lo pone Caddy, que solo corre en el stack de Docker) |

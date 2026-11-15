@@ -6,7 +6,6 @@ import './styles/base.css';
 import { App } from './App.tsx';
 import { watchPreferences } from './modules/device-settings/index.ts';
 import { watchInstall } from './platform/install.ts';
-import { startKeyboard } from './platform/keyboard.ts';
 import { watchMotion } from './platform/motion.ts';
 
 // Antes de dibujar: el movimiento, para que nada arranque y se corte, y el aviso del navegador de que
@@ -14,7 +13,9 @@ import { watchMotion } from './platform/motion.ts';
 watchMotion();
 watchPreferences();
 watchInstall();
-startKeyboard();
+// Las capas enchufables (ADR-020) se encuentran solas: cada carpeta con un index.ts que exporta start.
+const layers = import.meta.glob<{ start: () => unknown }>('./keyboard/*/index.ts', { eager: true });
+for (const layer of Object.values(layers)) layer.start();
 render(<App />, document.getElementById('app') as HTMLElement);
 // Como módulo: el armado le comparte código con la aplicación (`import`), que un service worker
 // común no puede cargar. Si no se puede registrar (un navegador que no lo permite), la aplicación

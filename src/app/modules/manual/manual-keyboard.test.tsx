@@ -3,7 +3,7 @@
 import type { ChapterEntry, Task } from '@ferrebress/shared/contracts/manual';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { startKeyboard } from '../../platform/keyboard.ts';
+import { startKeyboard } from '../../testing/keyboard.ts';
 import { chapter, index, media, serveManual, show } from './manual-test-kit.tsx';
 
 const guide = () => screen.getByRole('main') as HTMLElement;

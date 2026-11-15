@@ -1,7 +1,7 @@
 // Las teclas de Usuarios en la computadora (00 · R2.8; diseño de 02, § 8).
 import { act, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
-import { startKeyboard } from '../../platform/keyboard.ts';
+import { startKeyboard } from '../../testing/keyboard.ts';
 import { openUsers, roles } from './users-test-kit.tsx';
 
 const lost = (phones: object[]) => ({

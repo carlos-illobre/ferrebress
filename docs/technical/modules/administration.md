@@ -199,7 +199,7 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
   contrato y dice en el lugar lo que no vale (E28, E38).
 - **Teclas:** Alt más la del ajuste en la lista (R, M, Z, S, T, V) y ← → para sus opciones (R1.8); D
   deshacer; en la confirmación, P «Cambiar N precios» y C «Cancelar»; cuando falla el recálculo, A «Ahora
-  no» y R «Reintentar». Se declaran con los atributos de `platform/keyboard`.
+  no» y R «Reintentar». Se declaran con los atributos de las capas del teclado (`keyboard/`).
 - **La hora del negocio** (R5.1) sale del reloj del servidor que ya tiene la aplicación
   (`platform/server/clock.ts`) en la zona del negocio y se mueve sola cada minuto, sin pedidos.
 - **Piezas:** las de `ui/` (Toast con su acción, Dialog, LoadState, Offline). Los botones de opciones

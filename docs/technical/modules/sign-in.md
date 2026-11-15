@@ -458,7 +458,7 @@ como a quién, nunca como quien lo hizo (diseño de 05, § 2.1).
 - **Preact, Vite y CSS común** (ADR-013), una sola aplicación para los dos anchos (ADR-002).
 - **El espejo no copia acciones sino valores con nombre** (03, ADR-017): el teclado aprieta el botón
   mismo, y la entrada, que no se espeja, no necesita más.
-- **`platform/keyboard`:** las reglas del capítulo 00 (R2). Cada pantalla declara sus acciones con
+- **las capas del teclado (`keyboard/`):** las reglas del capítulo 00 (R2). Cada pantalla declara sus acciones con
   su tecla; el motor muestra las teclas con Alt, dentro del botón a la derecha, y las ejecuta. Las
   pantallas no escuchan teclas.
 - **`platform/server/api`:** un `fetch` que pone las cabeceras, lee `X-Ferrebress` y traduce los errores.

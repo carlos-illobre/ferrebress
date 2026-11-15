@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { startKeyboard } from '../platform/keyboard.ts';
+import { startKeyboard } from '../testing/keyboard.ts';
 import { later } from '../testing/later.ts';
 import { Button } from './button/Button.tsx';
 import { Icon } from './icon/Icon.tsx';

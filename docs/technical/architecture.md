@@ -51,7 +51,7 @@ src/
 └── app/             la lógica, sin dibujo, y aparte las vistas que la dibujan (ADR-019)
     ├── main.ts      arranca la plataforma, elige la vista y la monta
     ├── platform/    tecnología sin negocio ni dibujo: api, realtime, peer, mirror, storage,
-    │                offline, camera, keyboard, router, clock, meter; view/ es el contrato de las vistas
+    │                offline, camera, router, clock, meter; view/ es el contrato de las vistas
     ├── keyboard/    el teclado, en dos capas que se ponen o se sacan: shortcuts/ (los atajos, con
     │                su mapa de teclas) y navigation/ (las reglas de las flechas, Enter y Esc, iguales para
     │                toda la aplicación, con su mapa)
@@ -155,8 +155,8 @@ mostrar no van en estado local de la pantalla: van en valores con nombre de `pla
 (`useMirrored`, y `useMirroredQuery` para lo que se pide al servidor), dentro del modelo. Sin vínculo se comportan como
 valores comunes; con el celular y la computadora vinculados, el espejo los copia al otro dispositivo sin
 que la pantalla lo sepa (ADR-003, ADR-017). Lo que es solo del dispositivo (el menú minimizado, dónde
-está el cursor, la cámara abierta) queda local, con un comentario que dice por qué. Las teclas se
-declaran en `platform/keyboard` y la cola sin conexión guarda comandos (ADR-007).
+está el cursor, la cámara abierta) queda local, con un comentario que dice por qué. El teclado son
+dos capas aparte (`keyboard/`, ADR-019) y la cola sin conexión guarda comandos (ADR-007).
 
 ## Las conexiones
 
