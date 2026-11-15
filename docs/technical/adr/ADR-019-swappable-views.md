@@ -29,8 +29,9 @@ src/app/
 │   └── view/            lo poco que una vista usa de la plataforma (el contrato, abajo)
 ├── modules/<module>/    la lógica de cada módulo: sin JSX, sin CSS, sin HTML
 │   ├── index.ts         la fachada: el registro y lo que usan las vistas y los demás módulos
-│   ├── api.ts, state.ts, rules.ts, settings.ts, texts.ts, keys.ts
-│   └── use<Screen>.ts   el modelo de cada pantalla
+│   ├── api.ts, state.ts, rules.ts, settings.ts, texts.ts
+│   ├── use<Screen>.ts   el modelo de cada pantalla
+│   └── keys/<screen>.ts la capa del teclado de cada pantalla (abajo)
 ├── shell/               la lógica de la aplicación entera (arrancar, la sesión, qué pantalla va),
 │                        también sin dibujo
 └── views/<view>/        una vista: todo lo que se dibuja
@@ -56,12 +57,30 @@ src/app/
 - **Cada vista carga cada módulo cuando se abre**, como hoy (`platform/lazy.ts`): la vista registra
   por módulo una carga diferida de sus pantallas.
 
+**El teclado es una capa que se pone o se saca.** Cada pantalla tiene su archivo de teclado
+(`modules/<module>/keys/<screen>.ts`), que dice qué tecla hace qué **sobre el modelo** de esa
+pantalla: el atajo de cada acción (Alt y una letra, 00 · R2.8), qué se recorre con las flechas y qué
+hace Enter (la lista de cosas del modelo y la acción de elegir una), qué hace Esc y a dónde lleva
+/ (00 · R2). El motor (`platform/keyboard/`) escucha las teclas, sabe qué pantallas están abiertas
+y cuál está arriba (cada modelo se anuncia al abrirse, con un nombre) y llama a las acciones del
+modelo; las capas del teclado se encuentran solas (`import.meta.glob`), sin registrarlas a mano.
+
+- **Sacar el teclado de una pantalla es borrar su archivo; sacarlo de toda la aplicación, borrar
+  esos archivos y el motor.** Nada más cambia: los modelos no saben del teclado, y las vistas
+  tampoco lo necesitan.
+- **Lo que se ve del teclado es opcional para la vista:** cuál es la cosa marcada y qué atajo tiene
+  cada acción (para mostrarlos con Alt, 00 · R2.9) los da `useKeyHints(<pantalla>)`, que devuelve
+  nada si la pantalla no tiene capa de teclado. Una vista que no los muestra igual funciona con el
+  teclado; una aplicación sin la capa, igual se ve.
+- **El teclado ya no lee el HTML:** hoy el motor busca marcas escritas en cada pantalla
+  (`data-key`, `data-mark`, `data-layer`); con la capa, trabaja sobre los modelos. Lo único que la
+  vista hace por el teclado es llevar el foco o el desplazamiento a la cosa marcada, si muestra la
+  marca.
+
 **El contrato de la vista** (`platform/view/`): lo que cualquier vista tiene que cumplir, porque de
 eso dependen reglas que no son gráficas.
 
-1. **El teclado:** qué tecla hace qué se declara en la lógica (`keys.ts` de cada módulo). La vista
-   lo aplica con `keyProps(…)`, que devuelve las marcas que necesita el motor del teclado; nunca las
-   escribe a mano.
+1. **El teclado,** si la vista quiere mostrarlo: lo lee de `useKeyHints` y no decide ninguna tecla.
 2. **Lo privado:** todo lo que muestra un nombre, un correo o un dato personal lleva
    `privateProps()`, para que la captura de «Algo salió mal» lo tape.
 3. **Los avisos:** la lógica los pide con `notify(…)`; la vista los dibuja con lo que lee de
@@ -87,6 +106,8 @@ eso dependen reglas que no son gráficas.
   JSX; de `preact` solo `preact/hooks`, `createContext` y tipos.
 - `views/` importa de los módulos solo su fachada, y de la plataforma solo `platform/view/`.
 - Una vista no importa otra.
+- Nadie importa una capa del teclado (`keys/`): solo la encuentra el motor. Ningún modelo ni vista
+  escucha teclas (`keydown`).
 - En `views/`, sin `fetch`, temporizadores, `localStorage`, `history` ni `document` (salvo en
   `platform/view/`), y cada `useState` o `useRef` con su `// vista:`.
 - En las pruebas, sin buscar por clase ni por selectores de CSS, salvo las de las piezas de `ui/`.
@@ -105,6 +126,8 @@ eso dependen reglas que no son gráficas.
   ya existe (`platform/store.ts`, el espejo) sigue igual.
 - **Clases de modelo (MVVM con objetos):** más código para lo mismo que hace un hook en Preact, y
   pelea con cómo Preact sabe cuándo volver a dibujar.
+- **El teclado marcado en el HTML** (como estaba): cada vista tenía que poner las marcas a mano, y
+  sacar el teclado era tocar todas las pantallas.
 - **Web Components o una biblioteca de componentes «sin cabeza»:** resuelven piezas sueltas
   (un menú, un diálogo), no la separación de los procesos de cada módulo.
 
