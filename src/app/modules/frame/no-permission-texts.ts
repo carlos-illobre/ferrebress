@@ -1,5 +1,5 @@
 // Los textos de «Sin permiso» y de «Ya no tenés permiso» (02 · R7.7, R7.8).
-import type { Words } from '../../../../platform/view/words.ts';
+import type { Words } from '../../platform/view/words.ts';
 
 export const words = {
   title: (screen: string) => `No tenés permiso para ${screen}`,

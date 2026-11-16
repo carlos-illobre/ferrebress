@@ -11,7 +11,7 @@ import { inApp } from '../../testing/link-screens.ts';
 import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
 import { Settings } from '../../views/basic/device-settings/Settings/Settings.tsx';
-import { open } from '../frame/frame-test-kit.tsx';
+import { open } from '../../views/basic/frame/frame-test-kit.tsx';
 import { person } from '../sign-in/index.ts';
 
 const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', ...administrator };

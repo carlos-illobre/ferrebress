@@ -1,9 +1,15 @@
 // Un renglón del menú de la computadora: su ícono, su nombre, «Pronto» si todavía no existe y su
 // tecla. Minimizado, el nombre queda para el lector de pantalla y lo dice el rótulo.
+
+import {
+  exists,
+  type Option,
+  openOption,
+  texts,
+  unavailable,
+  useFrame,
+} from '../../../../modules/frame/model.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { useFrame } from '../../context.ts';
-import { exists, type Option, openOption, unavailable } from '../../menu.ts';
-import { texts } from '../../texts.ts';
 
 export function MenuItem({ option }: { option: Option }) {
   const frame = useFrame();

@@ -2,11 +2,11 @@
 // contesta matchMedia, abrir el marco y las teclas.
 import { render, screen } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
-import { stubMedia } from '../../testing/media.ts';
-import { administrator } from '../../testing/person.ts';
-import { Toasts } from '../../ui/toast/Toast.tsx';
-import { Frame, type FrameProps } from './index.ts';
-import { moreOptions, type Option } from './menu.ts';
+import { moreOptions, type Option } from '../../../modules/frame/model.ts';
+import { stubMedia } from '../../../testing/media.ts';
+import { administrator } from '../../../testing/person.ts';
+import { Toasts } from '../../../ui/toast/Toast.tsx';
+import { Frame, type FrameProps } from './Frame/Frame.tsx';
 
 export const person = {
   userId: 'u1',

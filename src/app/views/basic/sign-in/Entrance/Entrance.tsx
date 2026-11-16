@@ -1,13 +1,14 @@
 // La entrada (capítulo 01, R7.1): una sola pantalla que se adapta al ancho, desde su maqueta
 // aprobada (docs/design/mockups/sign-in/adapted/). Se ve sin sesión, y encima de lo que había si
 // la sesión se cerró (R3.4).
-import { TestEnvironment } from '../../../../modules/frame/index.ts';
+
 import {
   EntranceContext,
   type EntranceProps,
   texts,
   useEntranceModel,
 } from '../../../../modules/sign-in/model.ts';
+import { TestEnvironment } from '../../frame/index.ts';
 import { Card } from './Card.tsx';
 import { Entering } from './entering/Entering.tsx';
 import { Brand, PhoneShot, Seals, Status, Wave, WhatFor } from './scene/Scene.tsx';

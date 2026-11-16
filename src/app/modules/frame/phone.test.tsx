@@ -1,8 +1,8 @@
 import { act, fireEvent, screen, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { later } from '../../testing/later.ts';
-import { media, open, withPath } from './frame-test-kit.tsx';
-import { PhoneLight } from './index.ts';
+import { media, open, withPath } from '../../views/basic/frame/frame-test-kit.tsx';
+import { PhoneLight } from '../../views/basic/frame/index.ts';
 import { moreOptions, type Option, parts } from './menu.ts';
 
 describe('el marco en el celular', () => {

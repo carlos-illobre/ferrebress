@@ -2,11 +2,20 @@
 // opciones en una sola lista, en el orden de la computadora, con su ícono y qué son, y «Salir» aparte
 // (00 · R1.2, 01 · R5.1). Lo que todavía no existe dice «Pronto» y no lleva flecha, porque no se abre
 // (00 · R1.3).
+
+import {
+  exists,
+  initials,
+  moreFor,
+  type Option,
+  openOption,
+  roleNames,
+  texts,
+  unavailable,
+  useFrame,
+} from '../../../../modules/frame/model.ts';
 import { useWaiting } from '../../../../platform/waiting.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { initials, roleNames, useFrame } from '../../context.ts';
-import { exists, moreFor, type Option, openOption, unavailable } from '../../menu.ts';
-import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './PhoneMore.css';
 import '../../../../ui/switch/switch.css';

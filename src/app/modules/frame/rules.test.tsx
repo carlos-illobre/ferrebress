@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { newVersion } from '../../platform/server/api.ts';
-import { media, open, person, withoutScreens } from './frame-test-kit.tsx';
-import { Dialogs, registerWork, watchBackground, watchCrashes } from './index.ts';
+import { media, open, person, withoutScreens } from '../../views/basic/frame/frame-test-kit.tsx';
+import { Dialogs } from '../../views/basic/frame/index.ts';
+import { registerWork, watchBackground, watchCrashes } from './index.ts';
 import { crash, reportCrash } from './notices/crash/crash.ts';
 import { discardWork, halfDone } from './work.ts';
 

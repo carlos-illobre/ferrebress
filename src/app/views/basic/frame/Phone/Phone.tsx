@@ -3,10 +3,17 @@
 // teclas: en el celular no hay atajos (00 · R2).
 
 import { useContext } from 'preact/hooks';
+import {
+  exists,
+  FrameContext,
+  moreOptions,
+  type Option,
+  openOption,
+  partsFor,
+  texts,
+  useFrame,
+} from '../../../../modules/frame/model.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { FrameContext, useFrame } from '../../context.ts';
-import { exists, moreOptions, type Option, openOption, partsFor } from '../../menu.ts';
-import { texts } from '../../texts.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './Phone.css';
 

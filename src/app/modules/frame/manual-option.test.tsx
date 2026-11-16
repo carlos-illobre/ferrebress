@@ -4,7 +4,7 @@ import { act, fireEvent, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate } from '../../platform/router.ts';
 import { online } from '../../platform/server/api.ts';
-import { media, open, withoutScreens } from './frame-test-kit.tsx';
+import { media, open, withoutScreens } from '../../views/basic/frame/frame-test-kit.tsx';
 
 const sideMore = (side: HTMLElement) => within(side).getByRole('button', { name: /^Más/ });
 

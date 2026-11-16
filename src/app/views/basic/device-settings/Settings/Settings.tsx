@@ -9,11 +9,11 @@ import {
   texts,
   useDeviceSettings,
 } from '../../../../modules/device-settings/model.ts';
-import { PhoneLight } from '../../../../modules/frame/index.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { deviceSettingsShapes } from '../../../../ui/icon/device-settings-shapes.tsx';
 import { addShapes, Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
+import { PhoneLight } from '../../frame/index.ts';
 import { HereCard } from './Devices/Here.tsx';
 import { Others } from './Devices/Others.tsx';
 import './Devices/Devices.css';

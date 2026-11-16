@@ -2,8 +2,8 @@
 // Carlos, 01 · R6); sin las piezas del vínculo, la luz siempre.
 import { fireEvent, render, screen } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
+import { PhoneLight } from '../../views/basic/frame/Phone/Phone.tsx';
 import { FrameContext, type FrameLink, type FrameState } from './context.ts';
-import { PhoneLight } from './screens/Phone/Phone.tsx';
 
 const link: FrameLink = {
   Side: () => null,

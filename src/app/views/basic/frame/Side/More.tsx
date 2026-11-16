@@ -1,11 +1,16 @@
 // Más en la computadora: un panel al costado del menú, agrandado o minimizado, porque sus opciones
 // con «Pronto» no entran en el menú angosto. Siempre tiene algo: el manual existe. → lo abre, ← y Esc
 // lo cierran (es una capa).
+
+import {
+  moreFor,
+  moreOptions,
+  type Place,
+  px,
+  texts,
+  useFrame,
+} from '../../../../modules/frame/model.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { type Place, px } from '../../behavior/usePanels.ts';
-import { useFrame } from '../../context.ts';
-import { moreFor, moreOptions } from '../../menu.ts';
-import { texts } from '../../texts.ts';
 import { MenuItem } from './MenuItem.tsx';
 
 export function More() {

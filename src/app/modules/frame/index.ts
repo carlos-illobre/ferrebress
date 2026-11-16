@@ -1,10 +1,9 @@
-// El módulo del capítulo 00 en la aplicación: el marco que rodea cada pantalla, el marco del
-// ambiente de pruebas y los avisos (la versión nueva, «Algo salió mal»), que también usa la entrada.
+// El módulo del capítulo 00 en la aplicación: lo que hace el marco que rodea cada pantalla y sus
+// avisos (la versión nueva, «Algo salió mal»). Su vista está en views/basic/frame.
 
 export type { FrameLink } from './context.ts';
 export { isMenuPath, moreOptions, parts } from './menu.ts';
 export { forgetReport, watchCrashes } from './notices/crash/crash.ts';
-export { Dialogs, VersionNotice } from './notices/Notices.tsx';
 export {
   announceUpdate,
   updateOnOpen,
@@ -12,7 +11,4 @@ export {
   watchBackground,
 } from './notices/update/update.ts';
 export { groupIcons, permissionIcons } from './permission-icons.ts';
-export { MoreCrumb } from './screens/Crumbs/MoreCrumb.tsx';
-export { Frame, type FrameProps, TestEnvironment } from './screens/Frame/Frame.tsx';
-export { PhoneLight } from './screens/Phone/Phone.tsx';
 export { discardWork, halfDone, registerWork, type Work } from './work.ts';

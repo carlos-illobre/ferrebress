@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { route } from '../../platform/router.ts';
-import { person, withoutScreens } from './frame-test-kit.tsx';
+import { person, withoutScreens } from '../../views/basic/frame/frame-test-kit.tsx';
 import { goToFirst, isMenuPath } from './menu.ts';
 
 describe('las direcciones del menú', () => {

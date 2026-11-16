@@ -5,8 +5,8 @@ import { newVersion, updateRequired } from '../../../platform/server/api.ts';
 import { waitBar } from '../../../platform/waiting.ts';
 import { later } from '../../../testing/later.ts';
 import { Toasts } from '../../../ui/toast/Toast.tsx';
+import { Dialogs, VersionNotice, WaitNotice } from '../../../views/basic/frame/notices/Notices.tsx';
 import { crash, forgetReport, reportCrash, watchCrashes } from './crash/crash.ts';
-import { Dialogs, VersionNotice, WaitNotice } from './Notices.tsx';
 import { announceUpdate, dismissed, updateOnOpen, watchBackground } from './update/update.ts';
 
 vi.mock('html-to-image', () => ({

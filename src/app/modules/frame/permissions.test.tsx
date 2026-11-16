@@ -7,8 +7,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
-import { media, open, person } from './frame-test-kit.tsx';
-import { Frame } from './index.ts';
+import { media, open, person } from '../../views/basic/frame/frame-test-kit.tsx';
+import { Frame } from '../../views/basic/frame/index.ts';
 
 const seller: Person = {
   ...person,

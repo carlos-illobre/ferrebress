@@ -15,8 +15,6 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { watchDeviceLink } from './modules/device-link/index.ts';
 import {
   announceUpdate,
-  Dialogs,
-  Frame,
   forgetReport,
   updateOnOpen,
   watchBackground,
@@ -51,6 +49,7 @@ import { AdministrationSlot } from './views/basic/administration/Slot.tsx';
 import { frameLink } from './views/basic/device-link/frame-link.tsx';
 import { InstallOffer } from './views/basic/device-settings/InstallOffer.tsx';
 import { Settings } from './views/basic/device-settings/Settings/Settings.tsx';
+import { Dialogs, Frame } from './views/basic/frame/index.ts';
 import { ManualSlot } from './views/basic/manual/ManualSlot.tsx';
 import { Camera, CodeSheet, Entrance, OfferSheet } from './views/basic/sign-in/index.ts';
 import { UsersSlot } from './views/basic/users/index.ts';

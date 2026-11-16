@@ -4,12 +4,12 @@
 // recorre pasos (data-arrows). No lee la sesión ni pide nada a /api (R6.2, E53). En el ambiente de
 // pruebas lleva el marco y el cartel, como toda pantalla (R10.1).
 import type { Device } from '@ferrebress/shared/contracts/manual';
-import { TestEnvironment } from '../../../../modules/frame/index.ts';
 import type { Back, View } from '../../../../modules/manual/model.ts';
 import { type ManualScreen, texts, useManualScreen } from '../../../../modules/manual/model.ts';
 import { useNarrow } from '../../../../platform/view/narrow.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import logo from '../../../../styles/brand/logo-on-light.webp';
+import { TestEnvironment } from '../../frame/index.ts';
 import { AllSteps } from '../AllSteps/AllSteps.tsx';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import { Guide, GuideOffline } from '../Guide/Guide.tsx';

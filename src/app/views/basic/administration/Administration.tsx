@@ -8,7 +8,6 @@ import {
   useAdministration,
   type Administration as View,
 } from '../../../modules/administration/model.ts';
-import { MoreCrumb, PhoneLight } from '../../../modules/frame/index.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { administrationShapes } from '../../../ui/icon/administration-shapes.tsx';
 import { auditLogShapes } from '../../../ui/icon/audit-log-shapes.tsx';
@@ -16,6 +15,7 @@ import { addShapes, Icon } from '../../../ui/icon/Icon.tsx';
 import { peopleShapes } from '../../../ui/icon/people-shapes.tsx';
 import { LoadState } from '../../../ui/load-state/LoadState.tsx';
 import { Say } from '../../../ui/say/Say.tsx';
+import { MoreCrumb, PhoneLight } from '../frame/index.ts';
 import { Confirm } from './Confirm.tsx';
 import { List } from './List.tsx';
 import { MarginsPanel } from './Margins.tsx';

@@ -3,22 +3,31 @@
 // página para los dos anchos: desde 900 px es la computadora y debajo, el celular (ADR-002).
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { ComponentChildren, ComponentType } from 'preact';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useMemo } from 'preact/hooks';
+import {
+  FrameContext,
+  type FrameLink,
+  type FrameState,
+  firstOption,
+  type Option,
+  optionAt,
+  shake,
+  texts,
+  useCollapse,
+  useLostPermission,
+  usePanels,
+  usePhoneMore,
+  useTip,
+  useWork,
+} from '../../../../modules/frame/model.ts';
 import { isNarrow } from '../../../../platform/narrow.ts';
 import { route } from '../../../../platform/router.ts';
 import { online as onlineStore } from '../../../../platform/server/api.ts';
 import { useStore } from '../../../../platform/store.ts';
 import { notify } from '../../../../platform/view/notify.ts';
-import { useCollapse } from '../../behavior/useCollapse.ts';
-import { usePanels } from '../../behavior/usePanels.ts';
-import { usePhoneMore } from '../../behavior/usePhoneMore.ts';
-import { useTip } from '../../behavior/useTip.ts';
-import { FrameContext, type FrameLink, type FrameState, shake } from '../../context.ts';
-import { allowed, firstOption, goToFirst, insideAt, type Option, optionAt } from '../../menu.ts';
-import { VersionNotice, WaitNotice } from '../../notices/Notices.tsx';
-import { texts } from '../../texts.ts';
 import { NoPermission } from '../NoPermission/NoPermission.tsx';
-import { type LostPermission, PermissionLost } from '../NoPermission/PermissionLost.tsx';
+import { PermissionLost } from '../NoPermission/PermissionLost.tsx';
+import { VersionNotice, WaitNotice } from '../notices/Notices.tsx';
 import { PhoneNav } from '../Phone/Phone.tsx';
 import { PhoneMore } from '../Phone/PhoneMore.tsx';
 import { PhoneSheets } from '../Phone/PhoneSheets.tsx';
@@ -89,7 +98,7 @@ export function Frame(props: FrameProps) {
       >
         <Side />
         {work}
-        {lost.now && <PermissionLost lost={lost.now} first={firstOption(person)} onGo={lost.go} />}
+        {lost.now && <PermissionLost lost={lost.now} first={lost.first} onGo={lost.go} />}
         <PhoneMore />
         <PhoneNav />
         <WaitNotice />
@@ -116,16 +125,11 @@ function Work({
   Screen: ComponentType | undefined;
   children?: ComponentChildren;
 }) {
-  const guarded = useGuarded(person, opened);
-  const blocked = guarded?.permission && !allowed(guarded, person) ? guarded.permission : undefined;
+  const { blocked, first, goToFirst } = useWork(person, opened);
   return (
     <main class="work-area" aria-label={texts.workArea}>
-      {guarded && blocked ? (
-        <NoPermission
-          option={{ ...guarded, permission: blocked }}
-          first={firstOption(person)}
-          go={() => goToFirst(person)}
-        />
+      {blocked ? (
+        <NoPermission option={blocked} first={first} go={goToFirst} />
       ) : Screen ? (
         <Screen />
       ) : (
@@ -133,38 +137,6 @@ function Work({
       )}
     </main>
   );
-}
-
-// Lo que se mira: lo de adentro con su propio permiso, si la dirección es suya (05 · E13). Abierto por
-// la dirección sin el permiso, «Sin permiso»; si se lo sacan con eso abierto, no: lo cierra la
-// pantalla de la opción (02 · R7.8).
-function useGuarded(person: Person, opened: Option | undefined) {
-  const path = useStore(route).path;
-  const inner = insideAt(opened, path);
-  const had = useRef<string>(undefined);
-  if (!inner) had.current = undefined;
-  else if (allowed(inner, person)) had.current = path;
-  return inner && had.current !== path ? inner : opened;
-}
-
-// R7.8: si con los permisos nuevos ya no puede usar la pantalla abierta, lo dice y la deja.
-function useLostPermission(person: Person, opened: Option | undefined) {
-  const before = useRef(person);
-  // local: el permiso perdido de la sesión de este dispositivo.
-  const [now, setNow] = useState<LostPermission>();
-  useEffect(() => {
-    const was = before.current;
-    before.current = person;
-    // La que se veía: la de la dirección o, sin ninguna, la primera que podía usar (R1.4).
-    const shown = opened ?? firstOption(was);
-    if (was !== person && allowed(shown, was) && !allowed(shown, person))
-      setNow({ option: shown, before: was, after: person });
-  }, [person, opened]);
-  const go = useCallback(() => {
-    setNow(undefined);
-    goToFirst(person);
-  }, [person]);
-  return { now, go };
 }
 
 const frameClass = ({ collapsed, phase }: ReturnType<typeof useCollapse>, moreOpen: boolean) =>

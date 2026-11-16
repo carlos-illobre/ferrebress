@@ -2,9 +2,8 @@
 // <pantalla>», donde «Más» abre el panel de Más; en el celular, «‹ Más», que vuelve a Más. Fuera del
 // marco (una pantalla sola, en sus pruebas) no hay nada.
 import { useContext } from 'preact/hooks';
+import { FrameContext, texts } from '../../../../modules/frame/model.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { FrameContext } from '../../context.ts';
-import { texts } from '../../texts.ts';
 import './MoreCrumb.css';
 
 export function MoreCrumb({ name }: { name: string }) {

@@ -1,11 +1,10 @@
 // El menú de la computadora (00 · R1): el logotipo con el botón de minimizar, las cinco partes y el
 // pie con la luz y la persona. Agrandado mide 216 px y minimizado 64, solo con íconos (R1.6).
+
+import { partsFor, texts, useFrame } from '../../../../modules/frame/model.ts';
 import isotype from '../../../../styles/brand/isotype.svg';
 import logo from '../../../../styles/brand/logo-on-light.webp';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { useFrame } from '../../context.ts';
-import { partsFor } from '../../menu.ts';
-import { texts } from '../../texts.ts';
 import { MenuItem } from './MenuItem.tsx';
 import { More } from './More.tsx';
 import { SideFooter } from './SideFooter.tsx';

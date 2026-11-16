@@ -2,10 +2,10 @@
 // volver, el título, los botones y, debajo, los tres pasos y la vista previa. Lo que hace vive en su
 // modelo (useRoleScreen); acá solo se muestra.
 
-import { PhoneLight } from '../../../../../modules/frame/index.ts';
 import { type Draft, rolesTexts as t, useRoleScreen } from '../../../../../modules/users/model.ts';
 import { isPhone } from '../../../../../platform/device/device.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { PhoneLight } from '../../../frame/index.ts';
 import { Discard } from './Discard.tsx';
 import './RoleScreen.css';
 import './RolePhone.css';

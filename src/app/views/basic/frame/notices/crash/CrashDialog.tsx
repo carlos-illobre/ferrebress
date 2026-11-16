@@ -1,15 +1,15 @@
 // «Algo salió mal» (00 · R9), desde su maqueta: qué pasó, qué hacer, qué va en el aviso (la captura
 // y los últimos pasos), el código y la hora, y dos botones: «Seguir sin avisar» y «Avisar y seguir»
 // (R9.5). Lo que se estaba haciendo sigue ahí (R9.3).
-import { useStore } from '../../../../platform/store.ts';
-import { formatTime } from '../../../../platform/time.ts';
-import { notify } from '../../../../platform/view/notify.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { Say } from '../../../../ui/say/Say.tsx';
-import { texts } from '../../texts.ts';
-import { type Crash, crash, saveReport } from './crash.ts';
+
+import { type Crash, crash, saveReport, texts } from '../../../../../modules/frame/model.ts';
+import { useStore } from '../../../../../platform/store.ts';
+import { formatTime } from '../../../../../platform/time.ts';
+import { notify } from '../../../../../platform/view/notify.ts';
+import { Button } from '../../../../../ui/button/Button.tsx';
+import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
+import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { Say } from '../../../../../ui/say/Say.tsx';
 
 const time = (at: number) => formatTime(at);
 

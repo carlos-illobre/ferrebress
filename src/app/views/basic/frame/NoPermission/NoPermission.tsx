@@ -2,18 +2,19 @@
 // por la dirección algo que la persona no puede usar. Dice qué permiso falta y para qué sirve, qué
 // roles lo tienen y quiénes son, quién lo puede dar y los roles propios; lleva a la primera opción que
 // sí puede usar y copia el pedido. Es del marco: vale para cualquier opción.
-import { type PermissionId, permissionOf } from '@ferrebress/shared/contracts/permissions';
+import type { PermissionId } from '@ferrebress/shared/contracts/permissions';
 import type { HoldersResponse } from '@ferrebress/shared/contracts/roles';
-import { useEffect, useState } from 'preact/hooks';
-import { api } from '../../../../platform/server/api.ts';
-import { notify } from '../../../../platform/view/notify.ts';
+import type { Option } from '../../../../modules/frame/model.ts';
+import {
+  initials,
+  permissionIcons,
+  useFrame,
+  useNoPermission,
+} from '../../../../modules/frame/model.ts';
+import { words } from '../../../../modules/frame/no-permission-texts.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
-import { initials, useFrame } from '../../context.ts';
-import type { Option } from '../../menu.ts';
-import { permissionIcons } from '../../permission-icons.ts';
-import { words } from './texts.ts';
 import './NoPermission.css';
 
 // `first`: la primera opción que sí puede usar, y cómo ir (las da el marco).
@@ -27,18 +28,7 @@ export function NoPermission({
   go: () => void;
 }) {
   const { person } = useFrame();
-  const permission = permissionOf(option.permission);
-  // local: lo que trae el servidor para este dispositivo.
-  const [holders, setHolders] = useState<HoldersResponse>();
-  useEffect(() => {
-    void api<HoldersResponse>(`/api/permissions/${option.permission}/holders`).then(
-      (reply) => reply.ok && setHolders(reply.data),
-    );
-  }, [option.permission]);
-  const copy = async () => {
-    await navigator.clipboard.writeText(words.request(person.name, permission.name, option.name));
-    notify(words.copied, 'copy');
-  };
+  const { permission, holders, address, copy } = useNoPermission(person, option);
   return (
     <section class="surface no-permission" aria-label={words.title(option.name)}>
       <div class="no-permission-door" aria-hidden="true">
@@ -46,7 +36,7 @@ export function NoPermission({
       </div>
       <div class="no-permission-body">
         <h1>{words.title(option.name)}</h1>
-        <p class="no-permission-path">{words.opened(`${location.host}${option.path as string}`)}</p>
+        <p class="no-permission-path">{words.opened(address)}</p>
         <div class="no-permission-needs">
           <span class="no-permission-icon">
             <Icon name={permissionIcons[option.permission]} />

@@ -3,8 +3,8 @@
 import { fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate } from '../../platform/router.ts';
-import { media, open } from './frame-test-kit.tsx';
-import { MoreCrumb } from './index.ts';
+import { media, open } from '../../views/basic/frame/frame-test-kit.tsx';
+import { MoreCrumb } from '../../views/basic/frame/index.ts';
 
 const Screen = () => <MoreCrumb name="Administración" />;
 

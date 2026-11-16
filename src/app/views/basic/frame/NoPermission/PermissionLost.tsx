@@ -2,17 +2,16 @@
 // pantalla abierta mientras la usaba. Dice quién le sacó qué rol, los roles que tenía y los que tiene,
 // que lo de otras pantallas sigue como lo dejó, y a los 5 segundos va solo a su primera opción, o
 // antes con el botón.
-import type { Person } from '@ferrebress/shared/contracts/sign-in';
-import { useEffect, useState } from 'preact/hooks';
+import {
+  type LostPermission,
+  type Option,
+  usePermissionLost,
+} from '../../../../modules/frame/model.ts';
+import { words } from '../../../../modules/frame/no-permission-texts.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import type { Option } from '../../menu.ts';
-import { words } from './texts.ts';
 import './PermissionLost.css';
-import { frameSettings } from '../../settings.ts';
-
-export type LostPermission = { option: Option; before: Person; after: Person };
 
 export function PermissionLost({
   lost,
@@ -23,18 +22,8 @@ export function PermissionLost({
   first: Option;
   onGo: () => void;
 }) {
-  // local: la cuenta regresiva de este aviso.
-  const [left, setLeft] = useState(frameSettings.permissionLostSeconds);
-  useEffect(() => {
-    const timer = setInterval(() => setLeft((seconds) => seconds - 1), 1000);
-    return () => clearInterval(timer);
-  }, []);
-  useEffect(() => {
-    if (left <= 0) onGo();
-  }, [left, onGo]);
-  const { before, after } = lost;
-  const kept = new Set(after.roles.map((role) => role.id));
-  const removed = before.roles.filter((role) => !kept.has(role.id)).map((role) => role.name);
+  const { left, part, removed, had } = usePermissionLost(lost, onGo);
+  const { after } = lost;
   return (
     <Dialog label={words.lostTitle(lost.option.name)} className="lost-permission">
       <h2>
@@ -54,8 +43,8 @@ export function PermissionLost({
       <dl class="lost-permission-roles">
         <dt>{words.had}</dt>
         <dd>
-          {before.roles.map((role) => (
-            <span key={role.id} class={kept.has(role.id) ? 'pill' : 'pill pill-gone'}>
+          {had.map((role) => (
+            <span key={role.id} class={role.gone ? 'pill pill-gone' : 'pill'}>
               {role.name}
             </span>
           ))}
@@ -75,10 +64,7 @@ export function PermissionLost({
       </p>
       <footer>
         <span class="lost-permission-count" aria-live="polite">
-          <b style={{ '--part': String(Math.max(left, 0) / frameSettings.permissionLostSeconds) }}>
-            {Math.max(left, 0)}
-          </b>{' '}
-          {words.leaving(first.name)}
+          <b style={{ '--part': String(part) }}>{left}</b> {words.leaving(first.name)}
         </span>
         <Button look="action" icon={first.icon} doing={words.going} onPress={onGo} primary>
           {words.goNow(first.name)}

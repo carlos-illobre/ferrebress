@@ -2,11 +2,11 @@
 // pestañas Usuarios · Roles · Quién hizo qué (del capítulo 05), cada una con su permiso. En el celular
 // «Se perdió un celular» va arriba de la lista y «Autorizar a alguien», abajo (maqueta).
 
-import { PhoneLight } from '../../../../modules/frame/index.ts';
 import { texts, useUsersContext } from '../../../../modules/users/model.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { PhoneLight } from '../../frame/index.ts';
 import './Head.css';
 
 export function AuthorizeButton() {
