@@ -9,7 +9,7 @@ import {
   withOfflinePasskey,
   withPasskey,
 } from '../../../../modules/sign-in/model.ts';
-import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
+import { Icon, type IconName } from '../../ui/icon/Icon.tsx';
 
 // En el celular, cada forma de entrar es un círculo con su ícono y debajo qué es: todo es el botón.
 function RoundWay({

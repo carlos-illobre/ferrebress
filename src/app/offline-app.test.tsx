@@ -1,7 +1,6 @@
 import 'fake-indexeddb/auto';
 import { render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from './App.tsx';
 import { eva, resetOffline } from './modules/sign-in/offline/offline-kit.ts';
 import { contacted } from './modules/sign-in/offline/option.ts';
 import { addEntry, entries } from './modules/sign-in/offline/pending.ts';
@@ -9,6 +8,7 @@ import { offlineSession, person } from './modules/sign-in/session.ts';
 import { googleFrame, startReply } from './modules/sign-in/sign-in-test-kit.ts';
 import { store } from './platform/device/storage.ts';
 import { fakeServer } from './testing/fake-server.ts';
+import { App } from './views/index.ts';
 
 vi.mock('./platform/camera/scanner.ts', () => ({ scan: vi.fn() }));
 

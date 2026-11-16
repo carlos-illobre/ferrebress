@@ -2,7 +2,7 @@
 // guarda y Esc cancela. Un correo que no se puede usar se dice debajo, sin perder lo escrito (R3.3).
 import { useEffect, useRef } from 'preact/hooks';
 import { cardTexts, type EditableModel, useEditable } from '../../../../modules/users/model.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 
 type Props = {
   value: string;

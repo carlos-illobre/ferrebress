@@ -11,7 +11,7 @@ import {
   useAuditLogContext,
 } from '../../../modules/audit-log/model.ts';
 import { formatHourOfDay } from '../../../platform/view/time.ts';
-import { Icon } from '../../../ui/icon/Icon.tsx';
+import { Icon } from '../ui/icon/Icon.tsx';
 import './Summary.css';
 
 function totalLabel(dates: ReturnType<typeof useAuditLogContext>['filters']['dates']) {

@@ -3,8 +3,8 @@
 // manda otro; la cuenta regresiva solo lo muestra.
 
 import { minutes, texts, useComputerQr } from '../../../../../modules/sign-in/model.ts';
-import isotype from '../../../../../styles/brand/isotype.svg';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import isotype from '../../../styles/brand/isotype.svg';
+import { Icon } from '../../../ui/icon/Icon.tsx';
 
 export function QrBlock() {
   const { qr, read, left, share } = useComputerQr();

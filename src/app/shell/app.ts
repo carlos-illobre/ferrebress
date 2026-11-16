@@ -1,8 +1,8 @@
-// La aplicación (diseño de 01, § 5, «Al abrir la aplicación»): manda primero la salida pendiente,
-// pregunta /api/start y muestra el marco si hay sesión o la entrada si no; sin nadie guardado, la
-// entrada se dibuja antes de que conteste. Si la sesión se cierra mientras se usa, la entrada
-// aparece encima de lo que había, sin perderlo (R3.4). Atiende también
-// la dirección del QR (/link#<código>) y la cámara de «Escanear».
+// La aplicación entera, sin dibujo (ADR-019; diseño de 01, § 5, «Al abrir la aplicación»): manda
+// primero la salida pendiente, pregunta /api/start y dice si va el marco (hay sesión) o la entrada
+// (no hay); sin nadie guardado, la entrada se dibuja antes de que conteste. Si la sesión se cierra
+// mientras se usa, la entrada aparece encima de lo que había, sin perderlo (R3.4). Atiende también la
+// dirección del QR (/link#<código>), la cámara de «Escanear» y el manual, que va encima de todo.
 
 import type { Environment } from '@ferrebress/shared/contracts/server-header';
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
@@ -12,15 +12,15 @@ import {
   setBusinessTimeZone,
 } from '@ferrebress/shared/time/business';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { watchDeviceLink } from './modules/device-link/index.ts';
+import { watchDeviceLink } from '../modules/device-link/index.ts';
 import {
   announceUpdate,
   forgetReport,
   updateOnOpen,
   watchBackground,
   watchCrashes,
-} from './modules/frame/index.ts';
-import { manualPath } from './modules/manual/index.ts';
+} from '../modules/frame/index.ts';
+import { manualPath } from '../modules/manual/index.ts';
 import {
   confirmed,
   hasPendingSignOut,
@@ -36,26 +36,14 @@ import {
   usePhoneCode,
   watchOffline,
   watchPermissions,
-} from './modules/sign-in/index.ts';
-import { useCurrent } from './platform/current.ts';
-import { readStored, store } from './platform/device/storage.ts';
-import { clearHash, navigate, route } from './platform/router.ts';
-import { sessionClosed } from './platform/server/api.ts';
-import { useReconnect } from './platform/server/reconnect.ts';
-import { startParts } from './platform/server/start-parts.ts';
-import { useStore } from './platform/store.ts';
-import { Toasts } from './ui/toast/Toast.tsx';
-import { AdministrationSlot } from './views/basic/administration/Slot.tsx';
-import { frameLink } from './views/basic/device-link/frame-link.tsx';
-import { InstallOffer } from './views/basic/device-settings/InstallOffer.tsx';
-import { Settings } from './views/basic/device-settings/Settings/Settings.tsx';
-import { Dialogs, Frame } from './views/basic/frame/index.ts';
-import { ManualSlot } from './views/basic/manual/ManualSlot.tsx';
-import { Camera, CodeSheet, Entrance, OfferSheet } from './views/basic/sign-in/index.ts';
-import { UsersSlot } from './views/basic/users/index.ts';
-
-// La pantalla de cada opción del menú que ya existe.
-const screens = { users: UsersSlot, deviceSettings: Settings, administration: AdministrationSlot };
+} from '../modules/sign-in/index.ts';
+import { useCurrent } from '../platform/current.ts';
+import { readStored, store } from '../platform/device/storage.ts';
+import { clearHash, navigate, route } from '../platform/router.ts';
+import { sessionClosed } from '../platform/server/api.ts';
+import { useReconnect } from '../platform/server/reconnect.ts';
+import { startParts } from '../platform/server/start-parts.ts';
+import { useStore } from '../platform/store.ts';
 
 // Sin conexión al abrir, no se sabe nada del servidor: se sigue con lo guardado (R3.6), también
 // el último ambiente, para que el de pruebas siga con su marco y su menú (00 · R10.1).
@@ -106,7 +94,7 @@ async function recheck(): Promise<void> {
 }
 
 // Salir borra también el aviso de «Algo salió mal» guardado (diseño de 01, § 7).
-async function leave(): Promise<void> {
+export async function leave(): Promise<void> {
   forgetReport();
   await signOut();
 }
@@ -183,10 +171,10 @@ function useStart(scan: (code: string) => void) {
   return { start, who, closed, refresh, renew };
 }
 
-// Lo que el marco recibe de los módulos: sus pantallas, el vínculo y cómo salir.
-const frameParts = { screens, link: frameLink, onSignOut: leave };
-
-export function App() {
+// Lo que la vista necesita para armar la aplicación: qué va (la entrada, el marco, el manual, la
+// cámara), con qué datos, y lo que se puede hacer.
+export function useApp() {
+  // local: la cámara de «Escanear» es de este celular.
   const [camera, setCamera] = useState(false);
   const code = usePhoneCode();
   const { start, who, closed, refresh, renew } = useStart((linked) => void code.scanned(linked));
@@ -194,7 +182,8 @@ export function App() {
   // tocarse, con lo que se estaba haciendo; la entrada se desmonta, así se cierran su canal del QR y
   // la renovación de Google (ADR-003), y al volver se monta de nuevo.
   const manual = useStore(route).path === manualPath;
-  const entrance = (!who || !!closed || code.state.step === 'sign-in-first') && !manual;
+  const signInFirst = code.state.step === 'sign-in-first';
+  const entrance = (!who || !!closed || signInFirst) && !manual;
   useNonceRenewal(start?.googleNonce, entrance, renew);
   // Con la entrada apagada por un pedido que falló teniendo red, se vuelve a probar con el mismo
   // pedido mínimo del nonce (01 · R2.8); con una entrada sin conexión por confirmar, mandándola
@@ -204,39 +193,23 @@ export function App() {
     if (pending) void recheck();
     if (entrance) renew();
   });
-
-  if (!start) return <Dialogs />;
-  const testing = start.environment !== 'production';
-  return (
-    <>
-      {who && (
-        <div class="behind-manual" hidden={manual} inert={manual}>
-          <Frame {...{ person: who, testing, ...frameParts }} />
-        </div>
-      )}
-      {entrance && (
-        <Entrance
-          start={start}
-          onScan={() => setCamera(true)}
-          signInFirst={code.state.step === 'sign-in-first'}
-          onStale={refresh}
-        />
-      )}
-      {camera && (
-        <Camera
-          onCode={(read) => {
-            setCamera(false);
-            void code.scanned(read);
-          }}
-          onClose={() => setCamera(false)}
-        />
-      )}
-      {manual && <ManualSlot testing={testing} />}
-      <CodeSheet code={code} />
-      <OfferSheet />
-      {who && !closed && <InstallOffer testing={testing} />}
-      <Dialogs />
-      <Toasts />
-    </>
-  );
+  return {
+    start,
+    who,
+    closed,
+    testing: !!start && start.environment !== 'production',
+    manual,
+    entrance,
+    signInFirst,
+    code,
+    refresh,
+    leave,
+    camera,
+    openCamera: () => setCamera(true),
+    closeCamera: () => setCamera(false),
+    scanned(read: string) {
+      setCamera(false);
+      void code.scanned(read);
+    },
+  };
 }

@@ -1,7 +1,6 @@
 import 'fake-indexeddb/auto';
 import { render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from './App.tsx';
 import { person } from './modules/sign-in/session.ts';
 import { signInSettings } from './modules/sign-in/settings.ts';
 import { googleFrame, startReply } from './modules/sign-in/sign-in-test-kit.ts';
@@ -10,6 +9,7 @@ import { navigate } from './platform/router.ts';
 import { sessionClosed } from './platform/server/api.ts';
 import { fakeServer } from './testing/fake-server.ts';
 import { later } from './testing/later.ts';
+import { App } from './views/index.ts';
 
 describe('la entrada abierta', () => {
   beforeEach(() => {

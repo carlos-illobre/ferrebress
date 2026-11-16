@@ -4,8 +4,8 @@ import { readStored } from '../../../platform/device/storage.ts';
 import { newVersion, updateRequired } from '../../../platform/server/api.ts';
 import { waitBar } from '../../../platform/waiting.ts';
 import { later } from '../../../testing/later.ts';
-import { Toasts } from '../../../ui/toast/Toast.tsx';
 import { Dialogs, VersionNotice, WaitNotice } from '../../../views/basic/frame/notices/Notices.tsx';
+import { Toasts } from '../../../views/basic/ui/toast/Toast.tsx';
 import { crash, forgetReport, reportCrash, watchCrashes } from './crash/crash.ts';
 import { announceUpdate, dismissed, updateOnOpen, watchBackground } from './update/update.ts';
 

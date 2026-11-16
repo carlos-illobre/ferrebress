@@ -2,7 +2,7 @@
 // su clase. El texto de adentro no se puede cambiar con el CSS: se elige al dibujarlo, al día con el
 // ancho (00 · R3.2). `masked`: lo que se busca son nombres o correos, que las capturas tapan.
 import type { ComponentChildren, Ref } from 'preact';
-import { useNarrow } from '../../platform/narrow.ts';
+import { useNarrow } from '../../../../platform/view/narrow.ts';
 import type { Words } from '../say/Say.tsx';
 import './search.css';
 
@@ -12,7 +12,6 @@ type Input = {
   'aria-label': string;
   maxLength?: number;
   ref?: Ref<HTMLInputElement>;
-  onKeyDown?: (event: KeyboardEvent) => unknown;
   'data-slash'?: '' | undefined;
   'data-clear'?: '';
   'data-autofocus'?: '' | undefined;

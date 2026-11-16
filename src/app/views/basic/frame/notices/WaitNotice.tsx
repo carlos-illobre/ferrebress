@@ -4,8 +4,8 @@
 // cuando apareció el marco (la de entrar, con la huella o Google) no se muestra: al entrar no hay
 // ningún «Listo».
 import { texts, useWaitNotice } from '../../../../modules/frame/model.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { Say } from '../../../../ui/say/Say.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
+import { Say } from '../../ui/say/Say.tsx';
 
 export function WaitNotice() {
   const shown = useWaitNotice();

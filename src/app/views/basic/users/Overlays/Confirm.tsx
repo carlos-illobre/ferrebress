@@ -11,9 +11,9 @@ import {
   dialogTexts as t,
   useUsersContext,
 } from '../../../../modules/users/model.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
-import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Dialog } from '../../ui/dialog/Dialog.tsx';
+import { Icon, type IconName } from '../../ui/icon/Icon.tsx';
 import './Overlays.css';
 
 type Line = { icon: IconName; text: string };

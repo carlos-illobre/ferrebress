@@ -86,7 +86,7 @@ negocio. Es código común: una tarea propia que se toma antes (constitución, �
   apagadas se reproduce igual, y queda quieto solo si el sistema pide no animar, como hoy.
 - **Ningún paso del código espera el fin de una animación** (hoy no hay `animationend` ni
   `transitionend`): apagarlas no deja nada a medio hacer.
-- **Se aplica antes del primer dibujo.** `main.tsx` lee la preferencia de la última persona guardada
+- **Se aplica antes del primer dibujo.** `main.ts` lee la preferencia de la última persona guardada
   en la sesión y pone el atributo antes de dibujar, para que las animaciones de entrada no arranquen y
   se corten.
 
@@ -118,7 +118,7 @@ en 24 horas.
 
 ### `platform/install.ts`: instalar (R4)
 
-- **Escucha `beforeinstallprompt` desde el arranque** (`main.tsx`, antes de dibujar), porque el
+- **Escucha `beforeinstallprompt` desde el arranque** (`main.ts`, antes de dibujar), porque el
   navegador lo manda una sola vez y temprano. Lo guarda y llama a `preventDefault()`, para que el
   navegador no muestre su propio cartel encima del aviso de la aplicación.
 - Un `Store` `installState`: `'can'` (llegó el evento), `'installed-here'` (abierta desde el ícono:
@@ -150,7 +150,7 @@ CSS: repetir el orden no cambia nada y lo deja fijo, se parta como se parta.
 ### El service worker, como módulo
 
 El armado le comparte a `sw.js` un pedazo de código con la aplicación (un `import`), que un service
-worker común no puede cargar: no se registraba. `main.tsx` lo registra con `type: 'module'`, que
+worker común no puede cargar: no se registraba. `main.ts` lo registra con `type: 'module'`, que
 Chrome acepta. Un navegador que no lo acepte sigue sin service worker, como antes. Lo prueba la captura
 «Configuración abre sin conexión».
 
@@ -163,7 +163,7 @@ La hoja suma la propiedad `locked`: mientras está, no se cierra al bajarla, al 
 
 | Archivo | Qué hace |
 |---|---|
-| `index.ts` | La fachada: la pantalla, `watchPreferences()` para `main.tsx` y el aviso para instalar (`InstallOffer`, que baja la hoja recién cuando toca) |
+| `index.ts` | La fachada: la pantalla, `watchPreferences()` para `main.ts` y el aviso para instalar (`InstallOffer`, que baja la hoja recién cuando toca) |
 | `preferences.ts` | Lo guardado por persona (§ 2): leer y validar, cambiar, volver a como viene, el tope. Al cambiar la persona de la sesión (o no haber nadie, en la entrada) pone `motionOff` y `timeFormat` con lo suyo o lo de arranque (R1.3, E05) |
 | `rules.ts` | La regla pura: lo de arranque, si algo cambió de lo de arranque (R1.11), el resumen de «Así la tenés» (R1.10, que con el sistema pidiendo no animar dice «En el acto»), qué renglón de instalar toca (R4) y qué estado tiene «Trabajar sin conexión» (R5) |
 | `install-offer.ts` | Si toca mostrar el aviso: celular, con sesión, en producción, `installState` en `'can'`, nunca ofrecido y sin otra hoja abierta. Cerrado de cualquier forma, queda `install-offered` (R4.5, E36) |
@@ -313,7 +313,7 @@ navegador sin pantalla: el evento del navegador se simula.
    `ui/sheet`.
 2. `[P]` Los cinco lugares que escriben horas pasan a `formatTime` y `formatHour`. Depende de 1.
 3. `[P]` El módulo sin pantallas: `preferences.ts`, `rules.ts`, `install-offer.ts`, `settings.ts`,
-   `texts.ts` y `watchPreferences` en `main.tsx`, antes del primer dibujo.
+   `texts.ts` y `watchPreferences` en `main.ts`, antes del primer dibujo.
    Depende de 1.
 4. `sign-in` y el marco: el renglón con sus tres estados por la fachada; sale de Más; `notYet` por la
    fachada del marco; el menú con su dirección. Depende de 3.

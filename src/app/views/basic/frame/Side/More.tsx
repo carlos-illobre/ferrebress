@@ -10,7 +10,7 @@ import {
   texts,
   useFrame,
 } from '../../../../modules/frame/model.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import { MenuItem } from './MenuItem.tsx';
 
 export function More() {

@@ -7,7 +7,7 @@ import { realtime, type TopicHandler } from '../../../platform/realtime/channel.
 import { syncServerTime } from '../../../platform/server/clock.ts';
 import { fakeServer, type Reply } from '../../../testing/fake-server.ts';
 import { narrowOnly, stubMedia } from '../../../testing/media.ts';
-import { Toasts } from '../../../ui/toast/Toast.tsx';
+import { Toasts } from '../ui/toast/Toast.tsx';
 import { AuditLog } from './AuditLog.tsx';
 
 export const now = Date.parse('2026-10-28T15:00:00Z');

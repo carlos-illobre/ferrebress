@@ -13,7 +13,7 @@ import { shapes } from './shapes.tsx';
 
 const all: Record<string, VNode> = { ...shapes, ...menuShapes };
 
-import type { IconName } from '../../platform/view/icon-name.ts';
+import type { IconName } from '../../../../platform/view/icon-name.ts';
 
 export type { IconName };
 

@@ -5,8 +5,8 @@ import type { SettingsView } from '../../../../modules/device-settings/model.ts'
 import { moves, texts } from '../../../../modules/device-settings/model.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import type { TimeFormat } from '../../../../platform/view/time.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { Say } from '../../../../ui/say/Say.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
+import { Say } from '../../ui/say/Say.tsx';
 import { nowIn, nowText } from './Summary.tsx';
 import './Rows.css';
 

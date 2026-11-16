@@ -3,10 +3,10 @@
 // sacude.
 
 import { texts, useUpdateRequired } from '../../../../../modules/frame/model.ts';
-import { Button } from '../../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
-import { Say } from '../../../../../ui/say/Say.tsx';
+import { Button } from '../../../ui/button/Button.tsx';
+import { Dialog } from '../../../ui/dialog/Dialog.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
+import { Say } from '../../../ui/say/Say.tsx';
 
 export function UpdateBlock() {
   const { required, update } = useUpdateRequired();

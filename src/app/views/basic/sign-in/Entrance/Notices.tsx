@@ -2,7 +2,7 @@
 // entrar: no autorizada (R1.3), sin conexión (R2.8) o demasiados intentos (R2.9).
 
 import { minutes, texts, useEntrance, whenText } from '../../../../modules/sign-in/model.ts';
-import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
+import { Icon, type IconName } from '../../ui/icon/Icon.tsx';
 
 // La sesión vence sola por no usarla o por el tope (R3.1, R3.2); si no, alguien la cerró.
 // Sin cookie (venció a las 8 horas y el navegador la borró) el servidor no sabe el motivo: venció.

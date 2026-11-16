@@ -5,8 +5,8 @@
 
 import { texts, useEntranceModelContext } from '../../../../modules/sign-in/model.ts';
 import { isPhone } from '../../../../platform/view/device.ts';
-import logo from '../../../../styles/brand/logo-on-light.webp';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import logo from '../../styles/brand/logo-on-light.webp';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import { FingerButton, ScanButton } from './Buttons.tsx';
 import { Entering } from './entering/Entering.tsx';
 import { GoogleButton } from './google/GoogleButton.tsx';

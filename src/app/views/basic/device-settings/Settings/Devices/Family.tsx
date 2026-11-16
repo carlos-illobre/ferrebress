@@ -13,7 +13,7 @@ import {
 } from '../../../../../modules/device-settings/model.ts';
 import { isPhone } from '../../../../../platform/view/device.ts';
 import { dayMonthOf, nowMs, sinceOf } from '../../../../../platform/view/time.ts';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
 
 const iconOf = (device: { isPhone?: boolean }) => (device.isPhone ? 'smartphone' : 'monitor');
 const usedLine = (lastUsedAt: number, now: number) =>

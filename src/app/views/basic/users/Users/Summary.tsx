@@ -9,8 +9,8 @@ import {
   texts,
   useUsersContext,
 } from '../../../../modules/users/model.ts';
-import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
-import { Search } from '../../../../ui/search/Search.tsx';
+import { Icon, type IconName } from '../../ui/icon/Icon.tsx';
+import { Search } from '../../ui/search/Search.tsx';
 import './Summary.css';
 
 function Stat({

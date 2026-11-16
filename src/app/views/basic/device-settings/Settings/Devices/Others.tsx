@@ -10,11 +10,11 @@ import {
 } from '../../../../../modules/device-settings/model.ts';
 import { isPhone } from '../../../../../platform/view/device.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
-import { Button } from '../../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
-import { LoadState } from '../../../../../ui/load-state/LoadState.tsx';
-import { Offline } from '../../../../../ui/offline/Offline.tsx';
+import { Button } from '../../../ui/button/Button.tsx';
+import { Dialog } from '../../../ui/dialog/Dialog.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
+import { LoadState } from '../../../ui/load-state/LoadState.tsx';
+import { Offline } from '../../../ui/offline/Offline.tsx';
 import { Family } from './Family.tsx';
 
 function CloseAll({ n, closing }: { n: number; closing: DeviceSettings['closingAll'] }) {

@@ -2,8 +2,8 @@
 // y los filtros; la lista de atrás cambia mientras se escribe. «Limpiar» saca todo.
 
 import { dialogTexts as d, texts, useUsersContext } from '../../../../modules/users/model.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Dialog } from '../../ui/dialog/Dialog.tsx';
 import { Chips, RoleChips, SearchBox } from '../Users/Summary.tsx';
 import './Overlays.css';
 

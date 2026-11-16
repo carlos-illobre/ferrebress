@@ -7,7 +7,7 @@ import type { ComponentChildren } from 'preact';
 import { removePhone, cardTexts as t, useUsersContext } from '../../../../modules/users/model.ts';
 import { notify } from '../../../../platform/view/notify.ts';
 import { showPart } from '../../../../platform/view/page.ts';
-import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
+import { Icon, type IconName } from '../../ui/icon/Icon.tsx';
 import './Phone.css';
 
 type Tile = {

@@ -5,7 +5,7 @@ import { useEffect } from 'preact/hooks';
 import type { Administration } from '../../../modules/administration/model.ts';
 import { names, type Panel, shown, texts } from '../../../modules/administration/model.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
-import { Icon, type IconName } from '../../../ui/icon/Icon.tsx';
+import { Icon, type IconName } from '../ui/icon/Icon.tsx';
 
 // command: el atajo que lo elige (modules/administration/shortcuts/administration.ts).
 type Item = {

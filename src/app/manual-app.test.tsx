@@ -3,13 +3,13 @@
 import 'fake-indexeddb/auto';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from './App.tsx';
 import { person } from './modules/sign-in/session.ts';
 import { ana, googleFrame, startReply } from './modules/sign-in/sign-in-test-kit.ts';
 import { navigate } from './platform/router.ts';
 import { sessionClosed } from './platform/server/api.ts';
 import { fakeServer } from './testing/fake-server.ts';
 import { chapter, index, media } from './views/basic/manual/manual-test-kit.tsx';
+import { App } from './views/index.ts';
 
 const manualFiles = {
   '/manual/index.json': { body: index },

@@ -3,7 +3,7 @@
 // el arranque, así se ve aunque no haya llegado el código del manual.
 
 import type { Back } from '../../../../modules/manual/model.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import './NeedsInternet.css';
 
 export const needsInternet = 'El manual necesita internet.';

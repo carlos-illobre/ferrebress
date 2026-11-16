@@ -1,7 +1,7 @@
 // Un ícono del manual (icons.ts), dibujado con Preact desde sus datos: del color del texto y
 // decorativo, como los de ui/icon. Uno que no está no dibuja nada (el lector ya lo rechaza).
 import { h } from 'preact';
-import '../../../../ui/icon/icon.css';
+import '../../ui/icon/icon.css';
 import { manualIcons } from '../../../../modules/manual/model.ts';
 
 export function Glyph({ name, size }: { name: string; size?: 'small' | 'large' | 'huge' }) {

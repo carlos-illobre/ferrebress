@@ -11,7 +11,7 @@ import {
   texts,
   useNotice,
 } from '../../../../modules/sign-in/model.ts';
-import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
+import { Sheet } from '../../ui/sheet/Sheet.tsx';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
 type Code = ReturnType<typeof usePhoneCode>;

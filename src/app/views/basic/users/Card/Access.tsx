@@ -17,9 +17,9 @@ import {
 } from '../../../../modules/users/model.ts';
 import { notify } from '../../../../platform/view/notify.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { Say } from '../../../../ui/say/Say.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
+import { Say } from '../../ui/say/Say.tsx';
 import './Access.css';
 
 function Session({ person, session }: { person: PersonRow; session: SessionRow }) {

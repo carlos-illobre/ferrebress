@@ -10,7 +10,7 @@ import {
   useEntranceModelContext,
 } from '../../../../../modules/sign-in/model.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
 import { GoogleG } from './GoogleG.tsx';
 import './google-slot.css';
 

@@ -5,10 +5,10 @@
 import { type Crash, saveReport, texts, useCrash } from '../../../../../modules/frame/model.ts';
 import { notify } from '../../../../../platform/view/notify.ts';
 import { formatTime } from '../../../../../platform/view/time.ts';
-import { Button } from '../../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
-import { Say } from '../../../../../ui/say/Say.tsx';
+import { Button } from '../../../ui/button/Button.tsx';
+import { Dialog } from '../../../ui/dialog/Dialog.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
+import { Say } from '../../../ui/say/Say.tsx';
 
 const time = (at: number) => formatTime(at);
 

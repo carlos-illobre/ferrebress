@@ -10,10 +10,10 @@ import {
 } from '../../../../../modules/sign-in/model.ts';
 import { isPhone } from '../../../../../platform/view/device.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
-import logoDark from '../../../../../styles/brand/logo-on-dark-large.webp';
-import logoLight from '../../../../../styles/brand/logo-on-light-large.webp';
-import type { IconName } from '../../../../../ui/icon/Icon.tsx';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import logoDark from '../../../styles/brand/logo-on-dark-large.webp';
+import logoLight from '../../../styles/brand/logo-on-light-large.webp';
+import type { IconName } from '../../../ui/icon/Icon.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
 import phone from './phone-selling.webp';
 
 const pointIcons: IconName[] = ['shopping-cart', 'file-text', 'package'];

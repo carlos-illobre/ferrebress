@@ -5,7 +5,7 @@
 import { entryOf, type Piece } from '@ferrebress/shared/audit-log/index';
 import type { ActorView, AuditView, TargetView } from '@ferrebress/shared/contracts/audit-log';
 import { texts } from '../../../modules/audit-log/model.ts';
-import { Icon, type IconName } from '../../../ui/icon/Icon.tsx';
+import { Icon, type IconName } from '../ui/icon/Icon.tsx';
 
 export function ActionIcon({ event }: { event: AuditView }) {
   return (

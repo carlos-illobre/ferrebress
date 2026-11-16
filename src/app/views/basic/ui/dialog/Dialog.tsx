@@ -6,8 +6,8 @@
 // cierra: se sacude.
 import type { ComponentChildren } from 'preact';
 import { createPortal } from 'preact/compat';
-import { useEffect, useRef } from 'preact/hooks';
-import { isPhone } from '../../platform/device/device.ts';
+import { useRef } from 'preact/hooks';
+import { pageTop, useModal } from '../../../../platform/view/page.ts';
 import './dialog.css';
 
 // La sacudida vuelve a empezar aunque ya estuviera sacudiéndose.
@@ -26,17 +26,9 @@ export function Dialog({
   className: string;
   children: ComponentChildren;
 }) {
+  // vista: la tarjeta, para sacudirla y para que lo de atrás quede inerte mientras está abierta.
   const box = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const app = document.getElementById('app') as HTMLElement;
-    app.inert = true;
-    // La caja de texto principal, si tiene (data-autofocus, 00 · R2.2); si no, el botón principal.
-    const first = box.current?.querySelector<HTMLElement>('[data-autofocus]');
-    if (!isPhone()) (first ?? box.current?.querySelector<HTMLElement>('[data-primary]'))?.focus();
-    return () => {
-      app.inert = false;
-    };
-  }, []);
+  useModal(box);
   return createPortal(
     <>
       <div class="veil" onClick={() => shake(box.current as HTMLElement)} aria-hidden="true" />
@@ -51,6 +43,6 @@ export function Dialog({
         {children}
       </section>
     </>,
-    document.body,
+    pageTop(),
   );
 }

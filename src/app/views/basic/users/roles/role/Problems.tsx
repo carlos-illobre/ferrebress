@@ -5,7 +5,7 @@ import { permissionOf } from '@ferrebress/shared/contracts/permissions';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import type { DraftErrors, PersonError } from '../../../../../modules/users/model.ts';
 import { rolesTexts as t } from '../../../../../modules/users/model.ts';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
 
 // El motivo de cada cosa, en su lugar.
 export const nameProblem = (error: DraftErrors['name']) =>

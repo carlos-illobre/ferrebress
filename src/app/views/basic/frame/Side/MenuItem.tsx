@@ -9,7 +9,7 @@ import {
   unavailable,
   useFrame,
 } from '../../../../modules/frame/model.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 
 export function MenuItem({ option }: { option: Option }) {
   const frame = useFrame();

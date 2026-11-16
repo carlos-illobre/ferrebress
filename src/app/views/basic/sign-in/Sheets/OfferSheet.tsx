@@ -3,7 +3,7 @@
 // del celular y, vinculada la huella, la hoja se cierra sin avisar (R2.11).
 
 import { texts, useOffer } from '../../../../modules/sign-in/model.ts';
-import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
+import { Sheet } from '../../ui/sheet/Sheet.tsx';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
 export function OfferSheet() {

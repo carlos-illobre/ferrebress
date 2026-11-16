@@ -5,7 +5,7 @@ import { roundUp } from '@ferrebress/shared/pricing/rounding';
 import type { Administration, Confirm as Asked } from '../../../modules/administration/model.ts';
 import { pesos, shown, texts, thousands } from '../../../modules/administration/model.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
-import { Dialog } from '../../../ui/dialog/Dialog.tsx';
+import { Dialog } from '../ui/dialog/Dialog.tsx';
 
 export function Confirm({ view, asked }: { view: Administration; asked: Asked }) {
   const t = texts.rounding;

@@ -15,8 +15,8 @@ import {
   useUsersContext,
 } from '../../../../modules/users/model.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import { PersonRoles } from '../PersonRoles/PersonRoles.tsx';
 import { Avatar, LastSignIn, RolePills } from '../Users/List.tsx';
 import { Access, Note } from './Access.tsx';

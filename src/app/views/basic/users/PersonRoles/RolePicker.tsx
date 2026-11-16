@@ -2,7 +2,7 @@
 // descripción, tildado si lo tiene, y su número, que lo tilda con el teclado si el cursor está en
 // la lista. Lo usan autorizar y la tarjeta. No guarda nada: avisa el conjunto nuevo.
 import type { RoleSummary } from '@ferrebress/shared/contracts/roles';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import './RolePicker.css';
 
 export function RolePicker({

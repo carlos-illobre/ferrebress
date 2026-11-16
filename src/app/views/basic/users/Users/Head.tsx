@@ -4,9 +4,9 @@
 
 import { texts, useUsersContext } from '../../../../modules/users/model.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { PhoneLight } from '../../frame/index.ts';
+import { Button } from '../../ui/button/Button.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import './Head.css';
 
 export function AuthorizeButton() {

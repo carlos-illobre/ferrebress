@@ -29,7 +29,7 @@ export default defineConfig({
       include: ['tools/**/*.ts', 'src/**/*.{ts,tsx}', 'packages/*/src/**/*.ts'],
       // Solo conectan lo que se prueba con el proceso o el navegador (ADR-016): tools/cli.ts elige
       // el control y sale con su resultado; src/server/main.ts lee el .env y abre el puerto;
-      // src/app/main.tsx monta la aplicación en la página y src/app/google-button.ts, el marco del
+      // src/app/main.ts monta la aplicación en la página y src/app/google-button.ts, el marco del
       // botón de Google; src/app/sw.ts conecta los eventos del service worker con
       // platform/offline/worker.ts; src/server/testing/pglite-template.ts corre antes de las
       // pruebas, fuera de ellas; src/server/db-types.ts escribe o controla los tipos de las tablas con
@@ -43,7 +43,7 @@ export default defineConfig({
         'src/server/main.ts',
         'src/server/db-types.ts',
         'src/server/first-administrator.ts',
-        'src/app/main.tsx',
+        'src/app/main.ts',
         'src/app/sw.ts',
         'src/app/google-button.ts',
         'src/server/testing/pglite-template.ts',

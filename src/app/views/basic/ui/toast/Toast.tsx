@@ -1,5 +1,5 @@
 // La tostada de «Mostrador»: dibuja el aviso al pie que pidió la lógica (platform/view/notify.ts).
-import { useNotice } from '../../platform/view/notify.ts';
+import { useNotice } from '../../../../platform/view/notify.ts';
 import { Icon } from '../icon/Icon.tsx';
 import { Say } from '../say/Say.tsx';
 import './toast.css';

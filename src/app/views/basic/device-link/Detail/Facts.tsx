@@ -2,7 +2,7 @@
 // con la barra de los días que quedan.
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { day, detailTexts, since } from '../../../../modules/device-link/model.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 
 const dayMs = 86_400_000;
 

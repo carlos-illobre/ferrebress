@@ -3,8 +3,8 @@
 // le pasa a `read`, que dice si es un código que le sirve; al primero que sirve, se apaga y avisa.
 // Si no hay cámara o no dan permiso, lo dice. El botón atrás del celular la cierra.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { useBackStep } from '../../platform/back-step.ts';
-import { scan } from '../../platform/camera/scanner.ts';
+import { useBackStep } from '../../../../platform/view/back-step.ts';
+import { scan } from '../../../../platform/view/camera.ts';
 import { Icon } from '../icon/Icon.tsx';
 import './camera.css';
 

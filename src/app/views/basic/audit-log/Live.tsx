@@ -5,8 +5,8 @@
 import { texts, useAuditLogContext } from '../../../modules/audit-log/model.ts';
 import { kbPerMinute } from '../../../platform/view/meter.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
-import { Icon } from '../../../ui/icon/Icon.tsx';
-import '../../../ui/switch/switch.css';
+import { Icon } from '../ui/icon/Icon.tsx';
+import '../ui/switch/switch.css';
 import './Live.css';
 
 export function LiveSwitch() {

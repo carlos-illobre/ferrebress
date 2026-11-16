@@ -11,9 +11,9 @@ import {
   useLost,
   useUsersContext,
 } from '../../../../modules/users/model.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Dialog } from '../../ui/dialog/Dialog.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import './Overlays.css';
 
 function Who({ people, choose }: { people: Owner[]; choose: (owner: Owner) => void }) {

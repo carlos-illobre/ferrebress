@@ -18,7 +18,7 @@ import {
   tiedBy,
   toggle,
 } from '../../../../../modules/users/model.ts';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
 import { selfProblem } from './Problems.tsx';
 
 const groups = Object.keys(permissionGroups) as PermissionGroup[];

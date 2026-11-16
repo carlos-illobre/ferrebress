@@ -13,8 +13,8 @@ import {
   useRate,
 } from '../../../../modules/device-link/model.ts';
 import { kbPerMinute } from '../../../../platform/view/meter.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { Say, type Words } from '../../../../ui/say/Say.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
+import { Say, type Words } from '../../ui/say/Say.tsx';
 import './Indicator.css';
 
 export function labelOf(view: LinkView): Words {

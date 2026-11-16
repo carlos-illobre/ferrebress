@@ -58,7 +58,7 @@ function testingManifest(): Plugin {
   };
 }
 
-// El orden de las capas de CSS (styles/base.css), al principio de cada hoja armada. Vite parte el
+// El orden de las capas de CSS (views/basic/styles/base.css), al principio de cada hoja armada. Vite parte el
 // CSS en archivos por pedazo, y la página puede cargar primero uno compartido (el de los botones y
 // las hojas) que nombra una capa antes que base.css: esa capa quedaría primera y perdería contra
 // todas. Repetir el orden en cada archivo no cambia nada y lo deja fijo pase lo que pase.

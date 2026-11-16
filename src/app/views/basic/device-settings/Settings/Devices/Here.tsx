@@ -8,9 +8,9 @@ import { lastUseOf, mineTexts as t } from '../../../../../modules/device-setting
 import { isPhone as onPhone } from '../../../../../platform/view/device.ts';
 import { useLoaded } from '../../../../../platform/view/lazy.ts';
 import { dayMonthOf, nowMs } from '../../../../../platform/view/time.ts';
-import { Button } from '../../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { loadConfirmSheet } from '../../../sign-in/index.ts';
+import { Button } from '../../../ui/button/Button.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
 import { Computers } from './Family.tsx';
 import { Name } from './Name.tsx';
 

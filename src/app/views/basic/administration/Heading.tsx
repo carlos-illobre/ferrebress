@@ -2,7 +2,7 @@
 // derecha, el número grande (cuántos precios, cuándo vence).
 import type { ComponentChildren } from 'preact';
 import type { Note } from '../../../modules/administration/model.ts';
-import { Icon, type IconName } from '../../../ui/icon/Icon.tsx';
+import { Icon, type IconName } from '../ui/icon/Icon.tsx';
 
 type HeadingProps = {
   group: string;

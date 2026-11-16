@@ -17,7 +17,7 @@ import {
   useFolds,
 } from '../../../../modules/manual/model.ts';
 import { isPhone } from '../../../../platform/view/device.ts';
-import { Search } from '../../../../ui/search/Search.tsx';
+import { Search } from '../../ui/search/Search.tsx';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import { Results } from './Results.tsx';
 import { detailOf, Group, Row, Soon } from './Rows.tsx';

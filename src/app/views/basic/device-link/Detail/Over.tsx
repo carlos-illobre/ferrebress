@@ -3,8 +3,8 @@
 // vínculo, con sus íconos. Lo que hace cada cosa está en el modelo (useLinkDetail).
 
 import { useLinkDetail } from '../../../../modules/device-link/model.ts';
-import { addShapes } from '../../../../ui/icon/Icon.tsx';
-import { linkShapes } from '../../../../ui/icon/link-shapes.tsx';
+import { addShapes } from '../../ui/icon/Icon.tsx';
+import { linkShapes } from '../../ui/icon/link-shapes.tsx';
 import { ConfirmUnpair } from '../Confirm/Confirm.tsx';
 import { Read } from '../Read/Read.tsx';
 import { Detail } from './Detail.tsx';

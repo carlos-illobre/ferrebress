@@ -4,9 +4,9 @@
 
 import { rolesTexts as t, useRoleList } from '../../../../../modules/users/model.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
-import { Button } from '../../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
-import { Search } from '../../../../../ui/search/Search.tsx';
+import { Button } from '../../../ui/button/Button.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
+import { Search } from '../../../ui/search/Search.tsx';
 import { RoleRow } from './RoleRow.tsx';
 
 function SearchBox({ query, setQuery }: { query: string; setQuery: (query: string) => void }) {

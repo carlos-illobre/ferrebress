@@ -7,7 +7,7 @@
    formas de entrar están en phone-dark-ways.css y «Entrando», en entering/entering-phone.css. */
 @font-face {
   font-family: "Google Sans Local";
-  src: url("../../../../../styles/fonts/google-sans-latin.woff2") format("woff2");
+  src: url("../../../styles/fonts/google-sans-latin.woff2") format("woff2");
   font-weight: 400 700;
   font-style: normal;
   font-display: block;

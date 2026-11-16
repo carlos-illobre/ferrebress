@@ -8,9 +8,9 @@ import {
   useOpenedRole,
   useRolesTab,
 } from '../../../../modules/users/model.ts';
-import { addShapes } from '../../../../ui/icon/Icon.tsx';
-import { rolesShapes } from '../../../../ui/icon/roles-shapes.tsx';
-import { LoadState } from '../../../../ui/load-state/LoadState.tsx';
+import { addShapes } from '../../ui/icon/Icon.tsx';
+import { rolesShapes } from '../../ui/icon/roles-shapes.tsx';
+import { LoadState } from '../../ui/load-state/LoadState.tsx';
 import { RoleList } from './list/RoleList.tsx';
 import { RoleScreen } from './role/RoleScreen.tsx';
 import './Roles.css';

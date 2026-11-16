@@ -8,9 +8,9 @@ import {
   type Option,
   usePermissionLost,
 } from '../../../../modules/frame/model.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Dialog } from '../../ui/dialog/Dialog.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import './PermissionLost.css';
 
 export function PermissionLost({

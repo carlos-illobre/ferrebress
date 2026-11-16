@@ -9,9 +9,9 @@ import {
   texts,
   useConfirm,
 } from '../../../../modules/sign-in/model.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Dialog } from '../../ui/dialog/Dialog.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import './confirm.css';
 
 const t = confirmTexts;

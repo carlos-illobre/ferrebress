@@ -2,7 +2,7 @@
 // vista; deslizarla hacia abajo la cierra.
 
 import { texts, useFrame } from '../../../../modules/frame/model.ts';
-import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
+import { Sheet } from '../../ui/sheet/Sheet.tsx';
 import { Pending } from '../Pending/Pending.tsx';
 
 export function PhoneSheets() {

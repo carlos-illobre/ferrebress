@@ -12,7 +12,7 @@ import { meter } from '../../../platform/meter.ts';
 import { startParts } from '../../../platform/server/start-parts.ts';
 import { fakeRuntime, inApp, narrow } from '../../../testing/link-screens.ts';
 import { pc, phone } from '../../../testing/pairing.ts';
-import { Toasts } from '../../../ui/toast/Toast.tsx';
+import { Toasts } from '../ui/toast/Toast.tsx';
 import { Layer as Over } from './Detail/Over.tsx';
 import { frameLink } from './frame-link.tsx';
 import { PhoneIndicator, SideIndicator } from './Indicator/Indicator.tsx';

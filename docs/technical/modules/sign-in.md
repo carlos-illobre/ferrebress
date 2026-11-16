@@ -38,7 +38,7 @@ ferrebress/
 │   ├── server/testing/              lo que comparten las pruebas; sign-in/ (el Google y la huella
 │   │                                de prueba, el canal, el servidor armado)
 │   └── app/
-│       ├── main.tsx                 arma la aplicación y registra los módulos
+│       ├── main.ts                  arranca la aplicación y monta la vista
 │       ├── platform/                server/ (api, realtime, clock: hablar con el servidor),
 │       │                            device/ (device, proof-key, storage: lo del dispositivo),
 │       │                            keyboard, router, store, waiting, offline (el service worker)
@@ -468,7 +468,7 @@ como a quién, nunca como quien lo hizo (diseño de 05, § 2.1).
 - **`platform/router`:** la dirección es un valor compartido, que el menú cambia. Atrás y adelante
   del navegador funcionan. Cada opción del menú tiene su dirección (`frame/menu.ts`); el marco
   muestra la pantalla de la opción de la dirección, o la primera que existe (00 · R1.4), y cada
-  módulo le pasa su pantalla por `App.tsx`.
+  módulo le pasa su pantalla por `views/basic/index.tsx`.
 - **`platform/realtime`:** el canal común con temas (diseño de 03, § 3), que reemplaza al canal propio
   de la entrada; la espera del código es el tema `sign-in.codes`. `platform/server/api` lee la cabecera.
   Cada tema declara qué permiso hace falta para escucharlo. La conexión directa entre dispositivos

@@ -15,7 +15,7 @@ import {
   useAuditLogContext,
 } from '../../../modules/audit-log/model.ts';
 import { useMarkedId } from '../../../platform/view/page.ts';
-import { Icon } from '../../../ui/icon/Icon.tsx';
+import { Icon } from '../ui/icon/Icon.tsx';
 import { ActionIcon, Actor, Said } from './Pieces.tsx';
 import './Ledger.css';
 

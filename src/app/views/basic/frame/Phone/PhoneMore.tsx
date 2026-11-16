@@ -15,10 +15,10 @@ import {
   useFrame,
 } from '../../../../modules/frame/model.ts';
 import { useWaiting } from '../../../../platform/view/waiting.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import { LightText } from '../Pending/Pending.tsx';
 import './PhoneMore.css';
-import '../../../../ui/switch/switch.css';
+import '../../ui/switch/switch.css';
 
 export function PhoneMore() {
   const { person, panels, phoneMore } = useFrame();

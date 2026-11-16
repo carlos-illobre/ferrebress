@@ -2,11 +2,11 @@
 // dibujado en la aplicación (05 · R4.10).
 import { catalog, entryOf } from '@ferrebress/shared/audit-log/index';
 import { describe, expect, it } from 'vitest';
-import { auditLogShapes } from '../../ui/icon/audit-log-shapes.tsx';
-import { menuShapes } from '../../ui/icon/menu-shapes.tsx';
-import { peopleShapes } from '../../ui/icon/people-shapes.tsx';
-import { rolesShapes } from '../../ui/icon/roles-shapes.tsx';
-import { shapes } from '../../ui/icon/shapes.tsx';
+import { auditLogShapes } from '../../views/basic/ui/icon/audit-log-shapes.tsx';
+import { menuShapes } from '../../views/basic/ui/icon/menu-shapes.tsx';
+import { peopleShapes } from '../../views/basic/ui/icon/people-shapes.tsx';
+import { rolesShapes } from '../../views/basic/ui/icon/roles-shapes.tsx';
+import { shapes } from '../../views/basic/ui/icon/shapes.tsx';
 import { queryString } from './api.ts';
 import { browserOf, dayTitle, initials, isNewer, stripScale, summaryDay } from './logic.ts';
 

@@ -6,9 +6,9 @@ import { act, fireEvent, render, screen, within } from '@testing-library/preact'
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
-import { Toasts } from '../../ui/toast/Toast.tsx';
 import { media, open, person } from '../../views/basic/frame/frame-test-kit.tsx';
 import { Frame } from '../../views/basic/frame/index.ts';
+import { Toasts } from '../../views/basic/ui/toast/Toast.tsx';
 
 const seller: Person = {
   ...person,

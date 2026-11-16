@@ -7,12 +7,12 @@ import { texts, UsersContext, useUsers, useUsersContext } from '../../../../modu
 import { useBackStep } from '../../../../platform/view/back-step.ts';
 import { useLoaded } from '../../../../platform/view/lazy.ts';
 import { useNarrow } from '../../../../platform/view/narrow.ts';
-import { addShapes } from '../../../../ui/icon/Icon.tsx';
-import { peopleShapes } from '../../../../ui/icon/people-shapes.tsx';
-import { LoadState } from '../../../../ui/load-state/LoadState.tsx';
-import { Offline } from '../../../../ui/offline/Offline.tsx';
 import { AuditLog as AuditLogTab } from '../../audit-log/AuditLog.tsx';
 import { loadConfirmSheet } from '../../sign-in/index.ts';
+import { addShapes } from '../../ui/icon/Icon.tsx';
+import { peopleShapes } from '../../ui/icon/people-shapes.tsx';
+import { LoadState } from '../../ui/load-state/LoadState.tsx';
+import { Offline } from '../../ui/offline/Offline.tsx';
 import { Card } from '../Card/Card.tsx';
 import { Authorize } from '../Overlays/Authorize.tsx';
 import { ConfirmCloseAll, ConfirmDeactivate } from '../Overlays/Confirm.tsx';

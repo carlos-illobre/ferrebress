@@ -8,7 +8,7 @@ import {
 } from '@ferrebress/shared/contracts/permissions';
 import type { Draft } from '../../../../../modules/users/model.ts';
 import { groupIcons, rolesTexts as t } from '../../../../../modules/users/model.ts';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
 
 const groups = Object.keys(permissionGroups) as PermissionGroup[];
 

@@ -4,7 +4,7 @@
 import type { RoleRow as Row } from '@ferrebress/shared/contracts/roles';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { activeHolders, initialsOf, rolesTexts as t } from '../../../../../modules/users/model.ts';
-import { Icon } from '../../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../../ui/icon/Icon.tsx';
 import './RoleRow.css';
 
 const tones = 5;

@@ -9,7 +9,7 @@ import {
   texts,
   timeOf,
 } from '../../../modules/audit-log/model.ts';
-import { Icon } from '../../../ui/icon/Icon.tsx';
+import { Icon } from '../ui/icon/Icon.tsx';
 import { Actor, PersonName, Said } from './Pieces.tsx';
 import './Detail.css';
 

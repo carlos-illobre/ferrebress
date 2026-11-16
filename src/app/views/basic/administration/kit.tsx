@@ -8,7 +8,7 @@ import { online } from '../../../platform/server/api.ts';
 import { syncServerTime } from '../../../platform/server/clock.ts';
 import { fakeServer, type Reply } from '../../../testing/fake-server.ts';
 import { administrator } from '../../../testing/person.ts';
-import { Toasts } from '../../../ui/toast/Toast.tsx';
+import { Toasts } from '../ui/toast/Toast.tsx';
 import { Administration } from './Administration.tsx';
 
 // La hora del servidor: miércoles 4 de noviembre de 2026, 14:30 en Buenos Aires.

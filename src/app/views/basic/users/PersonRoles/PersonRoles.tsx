@@ -9,8 +9,8 @@ import {
   usePersonRoles,
   useUsersContext,
 } from '../../../../modules/users/model.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import { Problem } from './Problem.tsx';
 import { RolePicker } from './RolePicker.tsx';
 import './PersonRoles.css';

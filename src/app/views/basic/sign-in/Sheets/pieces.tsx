@@ -2,7 +2,7 @@
 // y los botones de abajo. Cada botón muestra su espera.
 import type { ComponentChildren } from 'preact';
 import { useWaiting } from '../../../../platform/view/waiting.ts';
-import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
+import { Icon, type IconName } from '../../ui/icon/Icon.tsx';
 import './sheets.css';
 
 export const SheetIcon = ({ name, look }: { name: IconName; look?: 'computer' }) => (

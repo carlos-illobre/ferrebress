@@ -2,7 +2,7 @@
 // ícono o «todavía no está»). En el celular, lo mismo lo dice una tostada.
 
 import { px, texts, useFrame } from '../../../../modules/frame/model.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 
 export function Tips() {
   const { tip } = useFrame();

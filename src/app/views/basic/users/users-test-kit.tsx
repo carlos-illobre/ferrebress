@@ -7,7 +7,7 @@ import { syncServerTime } from '../../../platform/server/clock.ts';
 import { fakeServer, type Reply } from '../../../testing/fake-server.ts';
 import { stubMedia } from '../../../testing/media.ts';
 import { administrator } from '../../../testing/person.ts';
-import { Toasts } from '../../../ui/toast/Toast.tsx';
+import { Toasts } from '../ui/toast/Toast.tsx';
 import { Users } from './Users/Users.tsx';
 
 // La hora que dice el servidor de mentira en cada respuesta.

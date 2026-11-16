@@ -13,12 +13,12 @@ import {
   useAuditLog,
   useAuditLogContext,
 } from '../../../modules/audit-log/model.ts';
-import { Button } from '../../../ui/button/Button.tsx';
-import { auditLogShapes } from '../../../ui/icon/audit-log-shapes.tsx';
-import { addShapes } from '../../../ui/icon/Icon.tsx';
-import { LoadState } from '../../../ui/load-state/LoadState.tsx';
-import { Offline } from '../../../ui/offline/Offline.tsx';
-import { Sheet } from '../../../ui/sheet/Sheet.tsx';
+import { Button } from '../ui/button/Button.tsx';
+import { auditLogShapes } from '../ui/icon/audit-log-shapes.tsx';
+import { addShapes } from '../ui/icon/Icon.tsx';
+import { LoadState } from '../ui/load-state/LoadState.tsx';
+import { Offline } from '../ui/offline/Offline.tsx';
+import { Sheet } from '../ui/sheet/Sheet.tsx';
 import { DetailBody } from './Detail.tsx';
 import { Filters } from './Filters.tsx';
 import { Ledger, Pager } from './Ledger.tsx';

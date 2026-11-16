@@ -1034,7 +1034,7 @@ sequenceDiagram
 - **Sin sesión**, la aplicación lleva a la entrada y no vincula (E40). **Con una entrada sin conexión que
   el servidor todavía no confirmó** (E36), dice «Para vincular hace falta internet. Probá cuando vuelva
   la conexión.» y no lee el código.
-- **La dirección es `/pair#<código>`**, distinta de la de entrar (`/link#…`); `App.tsx` atiende las dos.
+- **La dirección es `/pair#<código>`**, distinta de la de entrar (`/link#…`); `shell/app.ts` atiende las dos.
   Si «Leer el código» del indicador lee un `/link#`, o «Escanear» de la entrada lee un `/pair#`, cada uno
   dice que no es su código («Este no es un código para vincular» / el aviso de código vencido de la
   entrada) y no hace nada.
@@ -1135,7 +1135,7 @@ pastilla del celular, en un renglón debajo del estado, muestran `useRate()` del
 | Las tostadas | Los dos | Las de la maqueta («Vinculados: fuiste a la pantalla de la compu», «Desconectados…», «Ahora van directo por el Wi-Fi»), en `screens/Detail/Over.tsx`, y la de R1.5, en `replaced.ts` |
 | La cámara | Solo el celular | Común: el lector y el dibujo del QR en `platform/camera/` y la pantalla en `ui/camera/Camera.tsx`; la entrada y el vínculo le pasan sus textos y qué código les sirve |
 
-- El indicador se enchufa en el marco por `App.tsx`; quitarlo es quitar esa línea. Los textos, largos y
+- El indicador se enchufa en el marco por la composición de la vista (`views/basic/index.tsx`); quitarlo es quitar esa línea. Los textos, largos y
   cortos, en `device-link/texts.ts`.
 - **La tira** (R4.4): tramos `[desde, hasta, grupo]` en `localStorage`, con la clave
   `device-link.strip.<hash corto de la persona>`, así otra persona en la misma computadora no ve ni suma
@@ -1543,7 +1543,7 @@ como su propia tarea del plan; **[otro módulo]** toca un módulo ya cerrado sin
    Depende de 1 y 4.
 8. **[otro módulo] Las pantallas que existen** (`frame`, `users`, `audit-log`, `manual`) pasan su estado
    visible a valores con nombre según la tabla de § 5.1; `frame` suma el diario a «Algo salió mal» y
-   `App.tsx` atiende `/pair`. Sin vínculo nada cambia. Depende de 6.
+   `shell/app.ts` atiende `/pair`. Sin vínculo nada cambia. Depende de 6.
 9. **[común]** Los contratos: `src/shared/contracts/device-link.ts` y `src/shared/audit-log/device-link.ts`.
    Depende de 2.
 10. **`device-link` del servidor:** la migración, reglas, datos, `members.ts`, las rutas con `check`, los

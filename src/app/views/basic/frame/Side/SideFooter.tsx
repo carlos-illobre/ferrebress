@@ -10,8 +10,8 @@ import {
   texts,
   useFrame,
 } from '../../../../modules/frame/model.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import { LightText, Pending } from '../Pending/Pending.tsx';
 import { CloseForKeyboard } from './More.tsx';
 

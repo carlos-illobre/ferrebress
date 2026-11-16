@@ -9,8 +9,8 @@ import {
   texts,
   useUsersContext,
 } from '../../../../modules/users/model.ts';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { Say } from '../../../../ui/say/Say.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
+import { Say } from '../../ui/say/Say.tsx';
 import './List.css';
 
 // Dos tonos que se alternan por persona, siempre el mismo para cada una (maqueta).

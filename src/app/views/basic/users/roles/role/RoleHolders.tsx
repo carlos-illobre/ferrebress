@@ -15,7 +15,7 @@ import {
   undo,
 } from '../../../../../modules/users/model.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
-import { Button } from '../../../../../ui/button/Button.tsx';
+import { Button } from '../../../ui/button/Button.tsx';
 import { GivePicker } from './GivePicker.tsx';
 import { personProblem, selfProblem } from './Problems.tsx';
 

@@ -5,7 +5,7 @@ import { type Mock, vi } from 'vitest';
 import { moreOptions, type Option } from '../../../modules/frame/model.ts';
 import { stubMedia } from '../../../testing/media.ts';
 import { administrator } from '../../../testing/person.ts';
-import { Toasts } from '../../../ui/toast/Toast.tsx';
+import { Toasts } from '../ui/toast/Toast.tsx';
 import { Frame, type FrameProps } from './Frame/Frame.tsx';
 
 export const person = {

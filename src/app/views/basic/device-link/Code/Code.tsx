@@ -4,9 +4,9 @@
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { detailTexts, usePairCode } from '../../../../modules/device-link/model.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
-import isotype from '../../../../styles/brand/isotype.svg';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Icon } from '../../../../ui/icon/Icon.tsx';
+import isotype from '../../styles/brand/isotype.svg';
+import { Button } from '../../ui/button/Button.tsx';
+import { Icon } from '../../ui/icon/Icon.tsx';
 import './Code.css';
 
 type Props = {

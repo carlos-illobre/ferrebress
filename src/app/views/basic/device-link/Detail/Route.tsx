@@ -3,7 +3,7 @@
 
 import type { LinkView, Status } from '../../../../modules/device-link/model.ts';
 import { detailTexts, useRoundTrip } from '../../../../modules/device-link/model.ts';
-import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
+import { Icon, type IconName } from '../../ui/icon/Icon.tsx';
 
 const medium: Record<Status, IconName> = {
   unpaired: 'plus',

@@ -274,7 +274,7 @@ Nada nuevo de `realtime`.
   está así). Al volver sin confirmar, el aviso de arriba `not-confirmed`, como el de sesión vencida.
 - **Más** (`frame/screens/Phone/`): el renglón «Trabajar sin conexión» con su interruptor, debajo de
   Configuración (mientras Configuración no existe, después de Usuarios), desde
-  `mockups/app-frame/final/`. Más es una sola lista, sin grupos (00 · R1.2). El marco no conoce las reglas: `App.tsx` le pasa el
+  `mockups/app-frame/final/`. Más es una sola lista, sin grupos (00 · R1.2). El marco no conoce las reglas: `views/basic/index.tsx` le pasa el
   renglón (qué dice, si está prendido y qué hace al tocarlo), como le pasa hoy `onSignOut`.
 - Los textos, en `sign-in/texts.ts`.
 

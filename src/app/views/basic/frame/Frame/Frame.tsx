@@ -32,7 +32,7 @@ import { PhoneSheets } from '../Phone/PhoneSheets.tsx';
 import { Side } from '../Side/Side.tsx';
 import { PendingPanel } from '../Side/SideFooter.tsx';
 import { Tips } from './Tips.tsx';
-import '../../../../styles/test-environment.css';
+import '../../styles/test-environment.css';
 import './Frame.css';
 
 export type FrameProps = {

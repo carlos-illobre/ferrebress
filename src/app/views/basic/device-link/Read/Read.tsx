@@ -3,9 +3,9 @@
 // sin ofrecer cambiar de cuenta (R1.6); un código vencido ofrece leer el nuevo (E04).
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { detailTexts, useReadCode } from '../../../../modules/device-link/model.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Camera } from '../../../../ui/camera/Camera.tsx';
-import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Camera } from '../../ui/camera/Camera.tsx';
+import { Dialog } from '../../ui/dialog/Dialog.tsx';
 
 type Props = {
   code: string | undefined;

@@ -3,8 +3,8 @@
 
 import { type RoleScreenModel, rolesTexts as t } from '../../../../../modules/users/model.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
-import { Button } from '../../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
+import { Button } from '../../../ui/button/Button.tsx';
+import { Dialog } from '../../../ui/dialog/Dialog.tsx';
 
 export function Discard({ role }: { role: RoleScreenModel }) {
   const keys = useShortcutHints('role-discard');

@@ -7,9 +7,9 @@ import { detailTexts, type LinkView, onPhone } from '../../../../modules/device-
 import { useNarrow } from '../../../../platform/view/narrow.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { serverNow } from '../../../../platform/view/time.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Say, type Words } from '../../../../ui/say/Say.tsx';
-import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Say, type Words } from '../../ui/say/Say.tsx';
+import { Sheet } from '../../ui/sheet/Sheet.tsx';
 import { Code } from '../Code/Code.tsx';
 import { labelOf } from '../Indicator/Indicator.tsx';
 import { type Act, Actions } from './Actions.tsx';

@@ -3,8 +3,8 @@
 import type { Side } from '@ferrebress/shared/contracts/pairing';
 import { detailTexts } from '../../../../modules/device-link/model.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Dialog } from '../../ui/dialog/Dialog.tsx';
 
 type Props = { side: Side; other: string; onCancel: () => void; onUnpair: () => Promise<unknown> };
 

@@ -2,7 +2,6 @@ import 'fake-indexeddb/auto';
 import { businessTimeZone, setBusinessTimeZone } from '@ferrebress/shared/time/business';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from './App.tsx';
 import { person } from './modules/sign-in/session.ts';
 import {
   ana,
@@ -17,6 +16,7 @@ import { navigate } from './platform/router.ts';
 import { newVersion, sessionClosed } from './platform/server/api.ts';
 import { fakeServer } from './testing/fake-server.ts';
 import { later } from './testing/later.ts';
+import { App } from './views/index.ts';
 
 // Estas pruebas son de la aplicación, no de Usuarios (la primera opción del menú): su lugar queda
 // vacío y no pide nada.

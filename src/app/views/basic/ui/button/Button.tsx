@@ -2,7 +2,7 @@
 // flechas, si es lo que hace Esc) y maneja su espera (00 · R7): si lo que hace tarda, muestra la
 // marca y no se puede volver a tocar hasta que termine.
 import type { ComponentChildren } from 'preact';
-import { useWaiting } from '../../platform/waiting.ts';
+import { useWaiting } from '../../../../platform/view/waiting.ts';
 import { Icon, type IconName } from '../icon/Icon.tsx';
 import './button.css';
 

@@ -3,7 +3,7 @@
 import { render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fakeServer } from '../../../testing/fake-server.ts';
-import { Toasts } from '../../../ui/toast/Toast.tsx';
+import { Toasts } from '../../../views/basic/ui/toast/Toast.tsx';
 import { closeAll, closeSession, cutPhone, removeHere } from './actions.ts';
 import { accessApi } from './api.ts';
 

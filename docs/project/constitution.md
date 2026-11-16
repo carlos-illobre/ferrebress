@@ -315,8 +315,9 @@ mismo ni se pisen:
 - **Solo se toma un módulo libre cuyos módulos previos estén cerrados** (columna «Depende de» del
   plan). Dos módulos donde uno depende del otro no van a la vez.
 - **El código común tiene un dueño por vez.** Cambiar `src/shared/`, `src/server/platform/`,
-  `src/app/platform/`, `src/app/ui/` o `src/app/styles/` es una tarea propia del plan, que se toma
-  igual que un módulo. Quien lo necesita y no lo tiene, lo anota y espera, o trabaja en otra parte.
+  `src/app/platform/`, `src/app/views/basic/ui/` o `src/app/views/basic/styles/` es una tarea
+  propia del plan, que se toma igual que un módulo. Quien lo necesita y no lo tiene, lo anota y
+  espera, o trabaja en otra parte.
 - **Los documentos del proyecto** (esta constitución, la arquitectura, los ADR, el plan salvo la
   columna de estado) se tocan como el código común: con la tarea «Documentos del proyecto»
   tomada.

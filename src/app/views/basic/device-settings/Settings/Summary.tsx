@@ -10,8 +10,8 @@ import {
   serverNow,
   type TimeFormat,
 } from '../../../../platform/view/time.ts';
-import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
-import { Say, type Words } from '../../../../ui/say/Say.tsx';
+import { Icon, type IconName } from '../../ui/icon/Icon.tsx';
+import { Say, type Words } from '../../ui/say/Say.tsx';
 
 // Ahora, con la hora del servidor si ya la dijo (diseño de 04, § 4).
 const now = () => serverNow() ?? new Date();

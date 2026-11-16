@@ -4,8 +4,8 @@
 import type { LinkView } from '../../../../modules/device-link/model.ts';
 import { type Act, choicesOf, detailTexts } from '../../../../modules/device-link/model.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
-import { Button } from '../../../../ui/button/Button.tsx';
-import { Say } from '../../../../ui/say/Say.tsx';
+import { Button } from '../../ui/button/Button.tsx';
+import { Say } from '../../ui/say/Say.tsx';
 
 export type { Act };
 
