@@ -1,7 +1,7 @@
 // «Se perdió un celular» (02 · R5.7): de quién, cuál y «Cortar».
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
-import { access, openUsers, roles, row, toast } from './users-test-kit.tsx';
+import { access, openUsers, roles, row, toast } from '../../views/basic/users/users-test-kit.tsx';
 
 const dialog = () => screen.getByRole('alertdialog');
 const lost = (phones: object[]) => ({

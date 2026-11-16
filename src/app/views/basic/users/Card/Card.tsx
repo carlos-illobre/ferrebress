@@ -1,0 +1,192 @@
+// La tarjeta de una persona (maquetas de 02): quién es, con el nombre y el correo para cambiar; si
+// nunca entró o está dada de baja, qué quiere decir; si no, sus sesiones y sus celulares; y abajo,
+// dar de baja, borrar el alta o dar de alta. En la computadora va al costado de la lista; en lo
+// angosto la reemplaza, entrando desde la derecha, y el botón atrás vuelve a la lista.
+import type { PersonRow } from '@ferrebress/shared/contracts/users';
+import {
+  activate,
+  change,
+  dateOf,
+  footOf,
+  nowMs,
+  remove,
+  cardTexts as t,
+  texts,
+  useUsersContext,
+} from '../../../../modules/users/model.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
+import { Button } from '../../../../ui/button/Button.tsx';
+import { Icon } from '../../../../ui/icon/Icon.tsx';
+import { PersonRoles } from '../PersonRoles/PersonRoles.tsx';
+import { Avatar, LastSignIn, RolePills } from '../Users/List.tsx';
+import { Access, Note } from './Access.tsx';
+import { Editable } from './Edit.tsx';
+import { Rows, Tiles } from './Phone.tsx';
+import './Card.css';
+
+// El nombre se cambia con «Administrar personas»; el correo, además, si nunca entró y no tiene más
+// permisos que quien mira (R7.11).
+function Who({ person }: { person: PersonRow }) {
+  const users = useUsersContext();
+  return (
+    <div class="users-who" data-private="">
+      {users.may.manage ? (
+        <Editable
+          className="users-who-name"
+          value={person.name ?? ''}
+          shown={person.displayName}
+          label={t.editName}
+          placeholder={t.namePlaceholder(person.neverSignedIn)}
+          save={(value) => change(users, person, 'name', value)}
+        />
+      ) : (
+        <div class="users-who-name">
+          <span>{person.displayName}</span>
+        </div>
+      )}
+      {person.neverSignedIn && !users.may.manageOver(person) ? (
+        <div class="users-who-email">
+          <span>{person.email}</span>
+        </div>
+      ) : person.neverSignedIn ? (
+        <Editable
+          className="users-who-email"
+          value={person.email}
+          shown={person.email}
+          label={t.editEmail}
+          placeholder={t.emailExample}
+          save={(value) => change(users, person, 'email', value)}
+        />
+      ) : (
+        <div class="users-who-email">
+          <span>{person.email}</span>
+          <span class="users-bound" title={t.bound}>
+            <Icon name="lock-keyhole" size="small" />
+            <span class="visually-hidden">{t.bound}</span>
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Pills({ person }: { person: PersonRow }) {
+  const authorized = dateOf(person.authorizedAt, nowMs());
+  const when = person.deactivatedAt
+    ? t.deactivatedAt(dateOf(person.deactivatedAt, nowMs()))
+    : person.authorizedBy
+      ? t.authorizedAt(authorized)
+      : t.installed(authorized);
+  return (
+    <div class="users-pills">
+      {person.self && <span class="users-pill you">{texts.you}</span>}
+      <RolePills person={person} />
+      {!person.active && <span class="users-pill off">{texts.deactivated}</span>}
+      <span class="users-when">
+        <LastSignIn person={person} /> · {when}
+      </span>
+    </div>
+  );
+}
+
+function Middle({ person }: { person: PersonRow }) {
+  if (!person.active)
+    return (
+      <p class="users-notice pine">
+        <Icon name="info" />
+        <span>{t.offHint}</span>
+      </p>
+    );
+  if (person.neverSignedIn)
+    return (
+      <p class="users-notice urgent" data-private="">
+        <Icon name="info" />
+        <span>{t.neverHint(person.email)}</span>
+      </p>
+    );
+  return (
+    <>
+      <Tiles person={person} />
+      <Access person={person} />
+      <Rows />
+    </>
+  );
+}
+
+// Dar de alta, borrar el alta o dar de baja (footOf).
+function Foot({ person }: { person: PersonRow }) {
+  const users = useUsersContext();
+  const keys = useShortcutHints('users');
+  const foot = footOf(person, users.may);
+  if (foot === 'self') return <Note>{t.selfNote}</Note>;
+  if (foot === 'activate')
+    return (
+      <Button
+        icon="user-check"
+        keyHint={keys.activate}
+        doing={t.activate}
+        onPress={() => activate(users, person)}
+        disabled={!users.online}
+      >
+        {t.activate}
+      </Button>
+    );
+  if (foot === 'delete')
+    return (
+      <>
+        <Button
+          look="danger"
+          icon="trash-2"
+          keyHint={keys.remove}
+          doing={t.delete}
+          onPress={() => remove(users, person)}
+        >
+          {t.delete}
+        </Button>
+        <span class="users-foot-hint">{t.deleteHint}</span>
+      </>
+    );
+  if (!foot) return null;
+  return (
+    <Button
+      look="danger"
+      icon="user-x"
+      keyHint={keys.deactivate}
+      doing={t.deactivate}
+      onPress={() => users.open({ kind: 'deactivate', person })}
+    >
+      {t.deactivate}
+    </Button>
+  );
+}
+
+export function Card() {
+  const users = useUsersContext();
+  const person = users.person;
+  if (!person)
+    return (
+      <aside class="users-card empty">
+        <Icon name="users" size="large" />
+        <b>{t.choose}</b>
+        <span>{t.chooseHint}</span>
+      </aside>
+    );
+  return (
+    <aside class="users-card" aria-label={person.displayName} key={person.id}>
+      <button type="button" class="users-back phone-only" onClick={() => users.select(undefined)}>
+        <Icon name="chevron-left" />
+        {t.back}
+      </button>
+      <div class="users-card-head">
+        <Avatar person={person} large />
+        <Who person={person} />
+      </div>
+      <Pills person={person} />
+      <Middle person={person} />
+      {users.may.roles && <PersonRoles person={person} />}
+      <div class="users-card-foot">
+        <Foot person={person} />
+      </div>
+    </aside>
+  );
+}

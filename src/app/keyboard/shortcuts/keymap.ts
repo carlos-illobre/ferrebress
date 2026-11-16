@@ -69,4 +69,19 @@ export const keymap: Record<string, string> = {
   // La entrada (01 · R7.1, R7.2).
   'sign-in.manual': 'Alt+M',
   'sign-in.retryGoogle': 'Alt+R',
+  // Usuarios (02 · R2, R5): autorizar, un celular perdido y la tarjeta de la persona elegida.
+  'users.authorize': 'Alt+Z',
+  'users.lost': 'Alt+I',
+  'users.activate': 'Alt+L',
+  'users.remove': 'Alt+B',
+  'users.deactivate': 'Alt+B',
+  'users.closeAll': 'Alt+D',
+  // Los roles (02 · R7.12, R7.13).
+  'users-roles.newRole': 'Alt+O',
+  'role.back': 'Alt+L',
+  'role.duplicate': 'Alt+U',
+  'role.remove': 'Alt+B',
+  'role.save': 'Alt+G',
+  'role.giveTo': 'Alt+R',
+  'role-discard.discard': 'Alt+T',
 };

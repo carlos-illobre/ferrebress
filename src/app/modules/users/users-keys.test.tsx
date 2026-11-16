@@ -1,8 +1,18 @@
 // Las teclas de Usuarios en la computadora (00 · R2.8; diseño de 02, § 8).
-import { act, screen, waitFor } from '@testing-library/preact';
-import { describe, expect, it } from 'vitest';
+import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { startKeyboard } from '../../testing/keyboard.ts';
-import { openUsers, roles } from './users-test-kit.tsx';
+import {
+  access,
+  graciela,
+  inCard,
+  openUsers,
+  pedro,
+  roles,
+  row,
+  sofia,
+  toast,
+} from '../../views/basic/users/users-test-kit.tsx';
 
 const lost = (phones: object[]) => ({
   body: {
@@ -31,5 +41,59 @@ describe('las teclas de Usuarios en la computadora (00 · R2.8)', () => {
     alt('i');
     expect(screen.getByRole('alertdialog', { name: '¿De quién es el celular?' })).toBeTruthy();
     stop();
+  });
+});
+
+const altKey = (letter: string) =>
+  fireEvent.keyDown(window, { key: letter, code: `Key${letter}`, altKey: true });
+const choose = async (name: RegExp) => {
+  await screen.findByText('Rubén Paredes');
+  fireEvent.click(row(name));
+};
+
+describe('las teclas de la tarjeta de una persona (00 · R2.8)', () => {
+  let stop: () => void;
+  beforeEach(() => {
+    stop = startKeyboard();
+  });
+  afterEach(() => stop());
+
+  it('Alt L da de alta a quien está dada de baja, y el botón muestra su tecla', async () => {
+    openUsers({
+      '/api/users/sofia/activate': {
+        body: { person: { ...sofia, active: true, deactivatedAt: null, version: 2 } },
+      },
+    });
+    await choose(/Sofía/);
+    const button = await inCard().findByRole('button', { name: /Dar de alta/ });
+    expect(button.querySelector('kbd')?.textContent).toBe('L');
+    altKey('L');
+    await waitFor(() => expect(toast()).toBe('Sofía Blanco puede entrar otra vez'));
+  });
+
+  it('Alt B borra el alta de quien nunca entró', async () => {
+    openUsers({ '/api/users/pedro/delete': { body: { removed: true } } });
+    await choose(/pedro/);
+    await inCard().findByRole('button', { name: /Borrar el alta/ });
+    altKey('B');
+    await waitFor(() => expect(toast()).toBe(`Se borró el alta de ${pedro.displayName}`));
+  });
+
+  it('Alt B pregunta antes de dar de baja y Alt D antes de cerrar todas sus sesiones', async () => {
+    openUsers({ '/api/users/graciela/access': { body: access } });
+    await choose(/Graciela/);
+    await inCard().findByRole('button', { name: /Cerrar todas/ });
+    altKey('B');
+    expect(
+      screen.getByRole('alertdialog', { name: `¿Dar de baja a ${graciela.displayName}?` }),
+    ).toBeTruthy();
+    act(() => {
+      dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    });
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    altKey('D');
+    expect(
+      screen.getByRole('alertdialog', { name: '¿Cerrar las 2 sesiones de Graciela Benítez?' }),
+    ).toBeTruthy();
   });
 });

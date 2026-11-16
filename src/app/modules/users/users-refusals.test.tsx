@@ -2,8 +2,15 @@
 // no está y un error cualquiera.
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  access,
+  inCard,
+  openUsers,
+  row,
+  ruben,
+  toast,
+} from '../../views/basic/users/users-test-kit.tsx';
 import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
-import { access, inCard, openUsers, row, ruben, toast } from './users-test-kit.tsx';
 
 const choose = async (name: RegExp) => {
   await screen.findByText('Rubén Paredes');

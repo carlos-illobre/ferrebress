@@ -3,9 +3,9 @@
 import { render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { updateRequired } from '../../platform/server/api.ts';
-import { UsersSlot } from './index.ts';
+import { UsersSlot } from '../../views/basic/users/index.ts';
 
-vi.mock('./screens/Users/Users.tsx', () => Promise.reject(new Error('no está')));
+vi.mock('../../views/basic/users/Users/Users.tsx', () => Promise.reject(new Error('no está')));
 
 describe('el lugar de Usuarios', () => {
   afterEach(() => {

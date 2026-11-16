@@ -39,7 +39,6 @@ import {
   watchOffline,
   watchPermissions,
 } from './modules/sign-in/index.ts';
-import { UsersSlot } from './modules/users/index.ts';
 import { useCurrent } from './platform/current.ts';
 import { readStored, store } from './platform/device/storage.ts';
 import { clearHash, navigate, route } from './platform/router.ts';
@@ -54,6 +53,7 @@ import { InstallOffer } from './views/basic/device-settings/InstallOffer.tsx';
 import { Settings } from './views/basic/device-settings/Settings/Settings.tsx';
 import { ManualSlot } from './views/basic/manual/ManualSlot.tsx';
 import { Camera, CodeSheet, Entrance, OfferSheet } from './views/basic/sign-in/index.ts';
+import { UsersSlot } from './views/basic/users/index.ts';
 
 // La pantalla de cada opción del menú que ya existe.
 const screens = { users: UsersSlot, deviceSettings: Settings, administration: AdministrationSlot };

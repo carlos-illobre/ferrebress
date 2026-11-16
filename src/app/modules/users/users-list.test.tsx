@@ -4,8 +4,8 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { route } from '../../platform/router.ts';
 import { online } from '../../platform/server/api.ts';
+import { openUsers, roles, row, viewer } from '../../views/basic/users/users-test-kit.tsx';
 import { person as me, pendingEntries } from '../sign-in/index.ts';
-import { openUsers, roles, row, viewer } from './users-test-kit.tsx';
 
 const names = () =>
   [...document.querySelectorAll('.users-row .users-name em')].map((one) => one.textContent);

@@ -3,7 +3,7 @@
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { held } from '../../testing/fake-server.ts';
-import { access, inCard, openUsers, row, toast } from './users-test-kit.tsx';
+import { access, inCard, openUsers, row, toast } from '../../views/basic/users/users-test-kit.tsx';
 
 const choose = async (name: RegExp) => {
   await screen.findByText('Rubén Paredes');

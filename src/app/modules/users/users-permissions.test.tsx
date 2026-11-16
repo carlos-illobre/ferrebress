@@ -5,8 +5,6 @@ import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { narrowOnly, stubMedia } from '../../testing/media.ts';
-import { person as me } from '../sign-in/index.ts';
-import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
 import {
   access,
   graciela,
@@ -19,7 +17,9 @@ import {
   ruben,
   toast,
   viewer,
-} from './users-test-kit.tsx';
+} from '../../views/basic/users/users-test-kit.tsx';
+import { person as me } from '../sign-in/index.ts';
+import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
 
 const admin = roles[0]?.id as string;
 const shift = { id: 'enc', name: 'Encargado de turno', description: null };

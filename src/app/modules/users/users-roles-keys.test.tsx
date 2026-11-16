@@ -1,32 +1,86 @@
-import { act, fireEvent, screen, within } from '@testing-library/preact';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
 import { online } from '../../platform/server/api.ts';
-import { all, openRoles, role, rolesRoute, typeIn } from './users-roles-kit.tsx';
-import { openUsers, roleRows } from './users-test-kit.tsx';
+import { startKeyboard } from '../../testing/keyboard.ts';
+import {
+  all,
+  openRoles,
+  role,
+  rolesRoute,
+  typeIn,
+} from '../../views/basic/users/users-roles-kit.tsx';
+import { openUsers, roleRows, toast } from '../../views/basic/users/users-test-kit.tsx';
 
-const _rowOf = (name: string) => screen.getByRole('button', { name: `Abrir «${name}»` });
+const alt = (letter: string) =>
+  fireEvent.keyDown(window, { key: letter, code: `Key${letter}`, altKey: true });
 const search = (text: string) =>
   fireEvent.input(screen.getByRole('searchbox', { name: /Buscá un rol/ }), {
     target: { value: text },
   });
 
 describe('la pestaña Roles con el teclado, sin conexión y al salir (02 · R7.13, E64)', () => {
-  afterEach(() => vi.unstubAllGlobals());
+  let stop: (() => void) | undefined;
+  afterEach(() => {
+    stop?.();
+    stop = undefined;
+    vi.unstubAllGlobals();
+  });
 
-  it('teclado: el cursor arranca en el buscador; Enter abre el primero; Alt O, un rol nuevo', async () => {
+  it('teclado: el cursor arranca en el buscador; Enter abre el primero; Alt L vuelve; Alt O, un rol nuevo', async () => {
+    stop = startKeyboard();
     await openRoles();
     const box = screen.getByRole('searchbox', { name: /Buscá un rol/ });
     expect(document.activeElement).toBe(box);
     expect(box.hasAttribute('data-slash')).toBe(true);
-    expect(screen.getByRole('button', { name: /Nuevo rol/ }).getAttribute('data-key')).toBe('o');
+    expect(
+      screen.getByRole('button', { name: /Nuevo rol/ }).querySelector('kbd')?.textContent,
+    ).toBe('O');
     search('encar');
     fireEvent.keyDown(box, { key: 'a' });
     fireEvent.keyDown(box, { key: 'Enter' });
     await screen.findByText('Información del rol');
     expect(route.get().path).toBe('/users/roles/enc');
-    const crumb = document.querySelector('.role-crumbs .role-back') as HTMLElement;
-    expect(crumb.getAttribute('data-key')).toBe('l');
+    alt('L');
+    await screen.findByRole('button', { name: /Nuevo rol/ });
+    expect(route.get().path).toBe('/users/roles');
+    alt('O');
+    await screen.findByText('Información del rol');
+    expect(route.get().path).toBe('/users/roles/new');
+  });
+
+  it('teclado: en un rol, Alt R elige a quién darlo, Alt G guarda y Alt T descarta al salir', async () => {
+    stop = startKeyboard();
+    const server = await openRoles(
+      { '/api/roles/enc': [{ status: 409, body: { error: 'role-name-taken' } }] },
+      '/users/roles/enc',
+    );
+    alt('R');
+    expect(await screen.findByRole('alertdialog', { name: 'Darle este rol a…' })).toBeTruthy();
+    act(() => {
+      dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    });
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    // Sin cambios, Alt G no manda nada; Alt B no borra un rol que alguien tiene, y lo dice.
+    alt('G');
+    alt('B');
+    await waitFor(() => expect(toast()).toContain('No se puede borrar'));
+    expect(server.bodies('/api/roles/enc')).toEqual([]);
+    typeIn('Nombre del rol', 'Cajero');
+    alt('G');
+    await waitFor(() => expect(server.bodies('/api/roles/enc')).toHaveLength(1));
+    navigate('/users');
+    await screen.findByRole('alertdialog', { name: '¿Descartar los cambios del rol?' });
+    alt('T');
+    await waitFor(() => expect(route.get().path).toBe('/users'));
+  });
+
+  it('teclado: Alt U duplica el rol', async () => {
+    stop = startKeyboard();
+    await openRoles({}, '/users/roles/enc');
+    alt('U');
+    await waitFor(() => expect(route.get().path).toBe('/users/roles/new'));
+    expect(route.get().state).toEqual({ duplicate: 'enc' });
   });
 
   it('si no se pudieron traer los roles, lo dice y deja reintentar', async () => {

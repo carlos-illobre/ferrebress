@@ -2,8 +2,15 @@
 // confirmar quién es y «Se perdió un celular»; y sus teclas en la computadora.
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  graciela,
+  openUsers,
+  person,
+  roles,
+  row,
+  toast,
+} from '../../views/basic/users/users-test-kit.tsx';
 import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
-import { graciela, openUsers, person, roles, row, toast } from './users-test-kit.tsx';
 
 const dialog = () => screen.getByRole('alertdialog');
 const field = (name: RegExp) => within(dialog()).getByRole('textbox', { name }) as HTMLInputElement;

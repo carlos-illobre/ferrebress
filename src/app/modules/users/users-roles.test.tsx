@@ -2,7 +2,6 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
 import { narrowOnly, stubMedia } from '../../testing/media.ts';
-import { person as me } from '../sign-in/index.ts';
 import {
   all,
   encRow,
@@ -12,8 +11,9 @@ import {
   saveButton,
   settle,
   typeIn,
-} from './users-roles-kit.tsx';
-import { openUsers, roleRows, toast } from './users-test-kit.tsx';
+} from '../../views/basic/users/users-roles-kit.tsx';
+import { openUsers, roleRows, toast } from '../../views/basic/users/users-test-kit.tsx';
+import { person as me } from '../sign-in/index.ts';
 
 const rowOf = (name: string) => screen.getByRole('button', { name: `Abrir «${name}»` });
 const search = (text: string) =>

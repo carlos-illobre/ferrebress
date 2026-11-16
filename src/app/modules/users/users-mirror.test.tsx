@@ -3,7 +3,7 @@
 import { act, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mirror } from '../../platform/mirror/registry.ts';
-import { access, card, inCard, openUsers, row } from './users-test-kit.tsx';
+import { access, card, inCard, openUsers, row } from '../../views/basic/users/users-test-kit.tsx';
 
 afterEach(() => vi.unstubAllGlobals());
 

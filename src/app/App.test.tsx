@@ -20,7 +20,7 @@ import { later } from './testing/later.ts';
 
 // Estas pruebas son de la aplicación, no de Usuarios (la primera opción del menú): su lugar queda
 // vacío y no pide nada.
-vi.mock('./modules/users/index.ts', () => ({ UsersSlot: () => null }));
+vi.mock('./views/basic/users/index.ts', () => ({ UsersSlot: () => null }));
 
 vi.mock('./platform/camera/scanner.ts', () => ({ scan: vi.fn() }));
 

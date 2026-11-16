@@ -2,7 +2,6 @@
 // persona elegida y su tarjeta, pedida al elegirla; y lo que está abierto encima. No se guarda nada
 // en el dispositivo. Lo comparten las piezas por UsersContext.
 
-import { can } from '@ferrebress/shared/contracts/can';
 import type { RoleRow, RoleSummary } from '@ferrebress/shared/contracts/roles';
 import type { AccessResponse, PersonRow } from '@ferrebress/shared/contracts/users';
 import { createContext } from 'preact';
@@ -13,6 +12,7 @@ import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
 import { isWide } from '../../platform/narrow.ts';
 import { navigate, route } from '../../platform/router.ts';
 import { oneOf } from '../../platform/schema.ts';
+import { useScreen } from '../../platform/screens.ts';
 import {
   filters,
   type Overlay,
@@ -27,9 +27,10 @@ export type { Overlay } from './overlay.ts';
 
 import { online as onlineStore } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
-import { person as me, pendingEntries } from '../sign-in/index.ts';
+import { pendingEntries } from '../sign-in/index.ts';
 import { usersApi } from './api.ts';
 import { type Filter, visible } from './logic.ts';
+import { useMay } from './may.ts';
 import { listPath } from './roles/paths.ts';
 
 // Lo que trae el servidor lo pide cada dispositivo, con su sesión y su permiso; los roles, para las
@@ -135,23 +136,6 @@ function useView() {
   return { filter, setFilter, search, setSearch, role, setRole, tab, setTab, inRole };
 }
 
-// Lo que puede hacer quien mira (R7.7, R7.11): lo demás no aparece; el servidor igual lo rechaza.
-function useMay() {
-  const who = useStore(me);
-  const has = (id: Parameters<typeof can>[1]) => can(who, id);
-  const over = (target: PersonRow) => !target.outranks;
-  return {
-    authorize: has('users.manage') && has('roles.manage'),
-    manage: has('users.manage'),
-    // Cambiar el correo, dar de baja y de alta: no sobre quien tiene más.
-    manageOver: (target: PersonRow) => has('users.manage') && over(target),
-    cutOver: (target: PersonRow) => has('users.cut') && over(target),
-    cut: has('users.cut'),
-    roles: has('roles.manage'),
-    audit: has('audit-log.view'),
-  };
-}
-
 // Los roles con sus permisos, para quien los administra (R7.3). Quiénes los tienen sale de la lista.
 function useRoleRows(may: boolean) {
   // local: del servidor, con el permiso de quien mira en este dispositivo.
@@ -187,6 +171,23 @@ function useTabClosing(tab: Tab, may: { roles: boolean; audit: boolean }) {
   }, [lost]);
 }
 
+// Lo que está abierto encima viaja al otro dispositivo.
+function useOverlay(people: PersonRow[] | undefined) {
+  const [open, setOpen] = useMirrored('users.screen.overlay', null, z.nullable(opened));
+  return {
+    overlay: overlayOf(open, people),
+    setOverlay: (next: Overlay | undefined) => setOpen(next ? openedOf(next) : null),
+  };
+}
+
+// En la computadora, la tarjeta nunca queda vacía: sin nadie elegido, el primero de la lista (la
+// propia). En lo angosto la tarjeta tapa la lista, así que no se abre sola.
+function useFirstOnWide(first: string | undefined, card: ReturnType<typeof useCard>) {
+  useEffect(() => {
+    if (first && !card.selected && isWide()) card.select(first, true);
+  }, [first, card.selected]);
+}
+
 export function useUsers() {
   const list = useList();
   const may = useMay();
@@ -196,9 +197,7 @@ export function useUsers() {
   // Una entrada sin conexión que el servidor todavía no confirmó: su sesión todavía no existe allá
   // y un pedido la daría por cerrada (15 · R3). Se espera a que la confirme.
   const unconfirmed = useStore(pendingEntries) > 0;
-  const [open, setOpen] = useMirrored('users.screen.overlay', null, z.nullable(opened));
-  const overlay = overlayOf(open, list.people);
-  const setOverlay = (next: Overlay | undefined) => setOpen(next ? openedOf(next) : null);
+  const { overlay, setOverlay } = useOverlay(list.people);
   const retrying = useRetry();
   const view = useView();
   useTabClosing(view.tab, may);
@@ -208,14 +207,9 @@ export function useUsers() {
     if (online && !unconfirmed && !roleRows.roleRows) void roleRows.loadRoles();
   }, [online, unconfirmed, may.roles]);
   const shown = list.people ? visible(list.people, view.filter, view.search, view.role) : [];
-  // En la computadora, la tarjeta nunca queda vacía: sin nadie elegido, el primero de la lista (la
-  // propia). En lo angosto la tarjeta tapa la lista, así que no se abre sola.
-  const first = shown[0]?.id;
-  useEffect(() => {
-    if (first && !card.selected && isWide()) card.select(first, true);
-  }, [first, card.selected]);
+  useFirstOnWide(shown[0]?.id, card);
   const person = list.people?.find((one) => one.id === card.selected);
-  return {
+  const model = {
     ...list,
     ...card,
     may,
@@ -231,6 +225,9 @@ export function useUsers() {
     ...retrying,
     ...view,
   };
+  // La lista de personas, mientras no hay nada encima (R2; 00 · R2.10).
+  useScreen('users', model, view.tab === 'people' && !overlay && !retrying.retry);
+  return model;
 }
 
 export type Users = ReturnType<typeof useUsers>;

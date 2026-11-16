@@ -1,9 +1,9 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { openRoles, role, saveButton, typeIn } from '../../views/basic/users/users-roles-kit.tsx';
+import { roleRows, toast } from '../../views/basic/users/users-test-kit.tsx';
 import { Dialogs, discardWork, halfDone, watchCrashes } from '../frame/index.ts';
 import { reportCrash } from '../frame/notices/crash/crash.ts';
-import { openRoles, role, saveButton, typeIn } from './users-roles-kit.tsx';
-import { roleRows, toast } from './users-test-kit.tsx';
 
 const holder = (name: string) => within(role().getByText(name).closest('li') as HTMLElement);
 const give = async (name: string) => {

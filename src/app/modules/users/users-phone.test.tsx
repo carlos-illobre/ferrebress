@@ -3,7 +3,14 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { motionOff } from '../../platform/motion.ts';
-import { access, card, inCard, openUsers, row, toast } from './users-test-kit.tsx';
+import {
+  access,
+  card,
+  inCard,
+  openUsers,
+  row,
+  toast,
+} from '../../views/basic/users/users-test-kit.tsx';
 
 const tile = (name: RegExp) =>
   within(card().querySelector('.users-tiles') as HTMLElement).getByRole('button', { name });

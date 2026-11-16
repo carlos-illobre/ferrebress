@@ -1,7 +1,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { route } from '../../platform/router.ts';
-import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
 import {
   encRow,
   everyone,
@@ -12,8 +11,9 @@ import {
   saveButton,
   shift,
   typeIn,
-} from './users-roles-kit.tsx';
-import { person, roleRows, roles, toast } from './users-test-kit.tsx';
+} from '../../views/basic/users/users-roles-kit.tsx';
+import { person, roleRows, roles, toast } from '../../views/basic/users/users-test-kit.tsx';
+import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
 
 const holder = (name: string) => within(role().getByText(name).closest('li') as HTMLElement);
 const give = async (name: string) => {

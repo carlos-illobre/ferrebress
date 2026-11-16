@@ -2,7 +2,7 @@
 // con la misma lógica para quitarlos, también el que se tiene en la mano (04 · R6.2).
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { inCard, openUsers, row } from './users-test-kit.tsx';
+import { inCard, openUsers, row } from '../../views/basic/users/users-test-kit.tsx';
 
 const choose = async (name: RegExp) => {
   await screen.findByText('Rubén Paredes');

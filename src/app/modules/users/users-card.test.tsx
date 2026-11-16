@@ -13,7 +13,7 @@ import {
   row,
   sofia,
   toast,
-} from './users-test-kit.tsx';
+} from '../../views/basic/users/users-test-kit.tsx';
 
 const choose = async (name: RegExp) => {
   await screen.findByText('Rubén Paredes');
