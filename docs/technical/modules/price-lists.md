@@ -542,7 +542,7 @@ Los modelos de § 7, con lo que espeja cada uno (ADR-019):
   quien manda); la cola guarda identificadores; 2 procesos lectores para todo el servidor; aplicar, de a
   una lista a la vez en todo el servidor; bajar archivos, 2 a la vez por persona; el disco, con los
   ajustes de 06 · R8.6 y R8.7.
-- **Dependencias:** SheetJS 0.20.3 desde su sitio, con su suma de comprobación en el `pnpm-lock.yaml`
+- **Dependencias:** SheetJS 0.20.3 bajado de su sitio y guardado en `src/server/vendor/`, con su suma de comprobación en el `pnpm-lock.yaml`
   (como no viene del registro, `pnpm audit` no lo mira: se revisan sus avisos al actualizarlo), y
   `quickjs-emscripten-core` con una sola variante de WebAssembly.
 - **La auditoría:** § 5.

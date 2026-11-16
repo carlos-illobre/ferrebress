@@ -33,10 +33,11 @@ filas y celdas, cada celda con su valor y el texto que se ve. Con las opciones c
   tamaño, que la suma no pase un tope razonable frente al tamaño del archivo y que las cabeceras
   coincidan. Con el tamaño declarado, SheetJS descomprime dentro de ese espacio y no crece: un archivo
   que miente no consigue más memoria.
-- **Se instala desde el sitio de SheetJS**, con la versión fija y su suma de comprobación en el
-  `pnpm-lock.yaml`: el paquete `xlsx` del registro de npm quedó en la 0.18.5, sin arreglos de
-  seguridad desde 2022. Como no viene del registro, `pnpm audit` no lo mira: sus avisos se revisan al
-  actualizarlo.
+- **Se baja del sitio de SheetJS y se guarda en el repositorio** (`src/server/vendor/`), con la
+  versión fija y su suma de comprobación en el `pnpm-lock.yaml` (instalado desde una dirección, el
+  lockfile no la guarda; desde un archivo, sí), como recomienda SheetJS: el paquete `xlsx` del registro
+  de npm quedó en la 0.18.5, sin arreglos de seguridad desde 2022. Así construir la imagen no depende de
+  su sitio. Como no viene del registro, `pnpm audit` no lo mira: sus avisos se revisan al actualizarlo.
 
 **Un lector es código JavaScript que corre en QuickJS compilado a WebAssembly**
 (`quickjs-emscripten-core`, con una sola variante), dentro del proceso lector.

@@ -19,7 +19,7 @@ describe('bajar un archivo (08 · E40, E68)', () => {
 
   it('el nombre, sin saltos de línea, comillas, barras ni lo que da vuelta el texto', () => {
     expect(cleanFileName('lista\r\nSet-Cookie: x".xlsx')).toBe('listaSet-Cookie: x.xlsx');
-    expect(cleanFileName('fdp‮slx.exe')).toBe('fdpslx.exe');
+    expect(cleanFileName(`fdp${String.fromCharCode(0x202e)}slx.exe`)).toBe('fdpslx.exe');
     expect(cleanFileName('../../etc/passwd')).toBe('....etcpasswd');
     expect(cleanFileName('\u0000')).toBe('lista');
   });

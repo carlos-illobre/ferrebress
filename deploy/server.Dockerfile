@@ -11,6 +11,8 @@ RUN --mount=type=secret,id=ca,required=false npm install --global pnpm@10.15.0
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY src/shared/package.json src/shared/
 COPY src/server/package.json src/server/
+# SheetJS va en el repositorio, con su suma en el lockfile (ADR-021).
+COPY src/server/vendor src/server/vendor
 RUN --mount=type=secret,id=ca,required=false \
     pnpm install --frozen-lockfile --prod --filter @ferrebress/server...
 
