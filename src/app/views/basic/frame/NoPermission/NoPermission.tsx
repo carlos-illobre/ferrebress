@@ -11,6 +11,7 @@ import {
   permissionIcons,
   useNoPermission,
 } from '../../../../modules/frame/model.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../ui/button/Button.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { Say } from '../../ui/say/Say.tsx';
@@ -29,6 +30,7 @@ export function NoPermission({
 }) {
   const { person } = useFrame();
   const { permission, holders, address, copy } = useNoPermission(person, option);
+  const keys = useShortcutHints('no-permission');
   return (
     <section class="surface no-permission" aria-label={noPermissionWords.title(option.name)}>
       <div class="no-permission-door" aria-hidden="true">
@@ -67,7 +69,7 @@ export function NoPermission({
           >
             {noPermissionWords.goTo(first.name)}
           </Button>
-          <Button icon="copy" doing={noPermissionWords.copying} onPress={copy} shortcut="c">
+          <Button icon="copy" doing={noPermissionWords.copying} onPress={copy} keyHint={keys.copy}>
             {noPermissionWords.copy}
           </Button>
         </div>

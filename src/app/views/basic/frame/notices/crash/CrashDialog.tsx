@@ -4,6 +4,7 @@
 
 import { type Crash, saveReport, texts, useCrash } from '../../../../../modules/frame/model.ts';
 import { notify } from '../../../../../platform/view/notify.ts';
+import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
 import { formatTime } from '../../../../../platform/view/time.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Dialog } from '../../../ui/dialog/Dialog.tsx';
@@ -13,7 +14,8 @@ import { Say } from '../../../ui/say/Say.tsx';
 const time = (at: number) => formatTime(at);
 
 export function CrashDialog() {
-  const { shown, close } = useCrash();
+  const { shown, close, report } = useCrash();
+  const keys = useShortcutHints('crash');
   if (!shown) return null;
   const t = texts.crash;
   return (
@@ -41,20 +43,16 @@ export function CrashDialog() {
       <div class="crash-foot">
         <span class="crash-code">{t.code(shown.code, time(shown.at))}</span>
         <div class="crash-buttons">
-          <Button doing={t.goOn} shortcut="s" closes onPress={close}>
+          <Button doing={t.goOn} keyHint={keys.goOn} closes onPress={close}>
             {t.goOn}
           </Button>
           <Button
             doing={t.reported}
             look="action"
             icon="send"
-            shortcut="v"
+            keyHint={keys.report}
             primary
-            onPress={() => {
-              saveReport(shown);
-              close();
-              notify(t.saved, 'check');
-            }}
+            onPress={report}
           >
             {t.report}
           </Button>

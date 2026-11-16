@@ -14,8 +14,8 @@ export type ButtonProps = {
   look?: 'common' | 'action' | 'dark' | 'plain' | 'danger' | 'soft' | 'red';
   size?: 'small' | 'large';
   icon?: IconName;
-  // Alt más esta tecla lo aprieta en la computadora (una letra o un número), en las pantallas que
-  // todavía no declaran sus atajos.
+  // Su letra sola en una región con letras propias, como el menú y lo que se abre desde él
+  // (00 · R2.13). Los botones de las pantallas no dicen su tecla: está en el mapa de teclas.
   shortcut?: string;
   // La tecla de su atajo, del mapa (platform/view/shortcut-hints.ts): solo se muestra.
   keyHint?: string | undefined;

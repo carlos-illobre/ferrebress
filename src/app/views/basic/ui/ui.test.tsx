@@ -69,17 +69,19 @@ describe('las piezas', () => {
     const onClose = vi.fn();
     render(
       <>
-        <Button doing="x" onPress={behind} shortcut="a">
+        <Button doing="x" onPress={behind}>
           Atrás
         </Button>
         <Sheet title="Entrar a la computadora" onClose={onClose}>
-          <Button doing="y" onPress={inside} shortcut="a">
+          <Button doing="y" onPress={inside}>
             Adentro
           </Button>
         </Sheet>
       </>,
     );
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', code: 'KeyA', altKey: true }));
+    // Las flechas recorren solo lo de la hoja, y Enter toca lo marcado.
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     expect(inside).toHaveBeenCalledOnce();
     expect(behind).not.toHaveBeenCalled();
     expect(screen.getByRole('dialog', { name: 'Entrar a la computadora' })).toBeTruthy();

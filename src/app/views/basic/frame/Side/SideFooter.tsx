@@ -83,6 +83,7 @@ function PersonCard({ open }: { open: boolean }) {
       class={open ? 'person open side-panel' : 'person'}
       aria-label={texts.session}
       data-panel=""
+      data-letters=""
       {...(open && { 'data-layer': '' })}
     >
       <div class="person-who" data-private="">
@@ -110,6 +111,7 @@ export function PendingPanel() {
       aria-label={texts.pending.title}
       data-layer=""
       data-panel=""
+      data-letters=""
       style={{ left: px((panels.place as Place).left) }}
     >
       <Button

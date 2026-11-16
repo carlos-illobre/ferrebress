@@ -1,10 +1,9 @@
 // La capa de los atajos. Cada pantalla declara sus comandos sobre su modelo (define.ts) y un mapa de
 // teclas les pone la combinación; al apretarla, se ejecuta el comando de la pantalla de más arriba.
 // Mientras Alt está apretado, la página de arriba lleva la clase show-keys, para que la vista
-// muestre las teclas. Los botones que todavía dicen su tecla con data-key también andan: Alt más
-// esa tecla los toca, y van primero, porque uno de esos puede estar encima de una pantalla que ya
-// declaró sus comandos.
-import { lettersOf, topLayer, visible } from '../layers.ts';
+// muestre las teclas. Las teclas de los botones no se escriben en el HTML; las letras sin Alt de una
+// región como el menú son de la navegación (data-letters).
+import { topLayer } from '../layers.ts';
 import { comboOf, shownKey } from './combo.ts';
 import type { ScreenShortcuts } from './define.ts';
 
@@ -52,19 +51,6 @@ export function hintsOf(keymap: Readonly<Record<string, string>>): ShortcutHints
   return shown;
 }
 
-// Alt más la tecla de un botón con data-key: la letra o el número, sin importar la distribución.
-// Los de una región con letras propias (un menú) no: esos van sin Alt, por la navegación.
-function marked(event: KeyboardEvent): boolean {
-  const key = event.code.replace(/^(Key|Digit)/, '').toLowerCase();
-  const button = [
-    ...topLayer().querySelectorAll<HTMLElement>(`[data-key="${CSS.escape(key)}"]:not([disabled])`),
-  ].find((one) => visible(one) && !lettersOf(one));
-  if (!button) return false;
-  event.preventDefault();
-  button.click();
-  return true;
-}
-
 function hideKeys(): void {
   for (const element of document.querySelectorAll(`.${showKeysClass}`))
     element.classList.remove(showKeysClass);
@@ -86,7 +72,7 @@ export function startShortcuts(setup: ShortcutsSetup): () => void {
     if (event.key === 'Alt') {
       topLayer().classList.add(showKeysClass);
       event.preventDefault();
-    } else if (!(event.altKey && marked(event))) declaredCommand(event);
+    } else declaredCommand(event);
   };
   const onKeyUp = (event: KeyboardEvent) => {
     if (event.key === 'Alt') hideKeys();

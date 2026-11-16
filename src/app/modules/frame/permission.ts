@@ -7,6 +7,7 @@ import type { HoldersResponse } from '@ferrebress/shared/contracts/roles';
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { route } from '../../platform/router.ts';
+import { useScreen } from '../../platform/screens.ts';
 import { api } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
 import { notify } from '../../platform/view/notify.ts';
@@ -90,7 +91,7 @@ export function useNoPermission(person: Person, option: Option & { permission: P
       (reply) => reply.ok && setHolders(reply.data),
     );
   }, [option.permission]);
-  return {
+  const model = {
     permission,
     holders,
     // Por dónde entró, para que se entienda de qué pantalla se habla.
@@ -100,4 +101,8 @@ export function useNoPermission(person: Person, option: Option & { permission: P
       notify(words.copied, 'copy');
     },
   };
+  useScreen('no-permission', model);
+  return model;
 }
+
+export type NoPermissionModel = ReturnType<typeof useNoPermission>;

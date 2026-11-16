@@ -3,6 +3,7 @@
 // sacude.
 
 import { texts, useUpdateRequired } from '../../../../../modules/frame/model.ts';
+import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Dialog } from '../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../ui/icon/Icon.tsx';
@@ -10,6 +11,7 @@ import { Say } from '../../../ui/say/Say.tsx';
 
 export function UpdateBlock() {
   const { required, update } = useUpdateRequired();
+  const keys = useShortcutHints('update-required');
   if (!required) return null;
   const t = texts.update;
   return (
@@ -26,7 +28,7 @@ export function UpdateBlock() {
         look="action"
         size="large"
         icon="refresh-cw"
-        shortcut="a"
+        keyHint={keys.update}
         primary
         onPress={update}
       >

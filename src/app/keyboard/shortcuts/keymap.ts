@@ -84,4 +84,11 @@ export const keymap: Record<string, string> = {
   'role.save': 'Alt+G',
   'role.giveTo': 'Alt+R',
   'role-discard.discard': 'Alt+T',
+  // Los avisos del marco (00 · R5, R9) y «Sin permiso» (02 · R7.7).
+  'crash.goOn': 'Alt+S',
+  'crash.report': 'Alt+V',
+  'version-notice.later': 'Alt+N',
+  'version-notice.update': 'Alt+A',
+  'update-required.update': 'Alt+A',
+  'no-permission.copy': 'Alt+C',
 };

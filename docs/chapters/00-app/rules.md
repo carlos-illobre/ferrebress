@@ -71,9 +71,9 @@ las va ajustando al usarla; los atajos (R2.8 a R2.11) son de cada pantalla.
   editar texto.
 - **R2.12** En el celular el cursor nunca arranca en una caja de texto, para que no se abra el
   teclado solo.
-- **R2.13** Alt 0 lleva la marca al menú, a la parte abierta. Con la marca en el menú, o en Más,
-  cada opción se elige con su letra sola, sin Alt, y las letras se ven sobre cada opción mientras
-  la marca está ahí. Con Alt, las letras son todas de la pantalla que se ve: las del menú no las
+- **R2.13** Alt 0 lleva la marca al menú, a la parte abierta. Con la marca en el menú o en lo que
+  se abre desde él (Más, tu sesión, lo pendiente), cada opción se elige con su letra sola, sin Alt,
+  y las letras se ven sobre cada opción mientras la marca está ahí. Con Alt, las letras son todas de la pantalla que se ve: las del menú no las
   pisan.
 
 ## 3. Los textos

@@ -3,12 +3,14 @@
 // se abra la aplicación, que se actualiza sola.
 
 import { texts, useVersionNotice } from '../../../../../modules/frame/model.ts';
+import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import { Say } from '../../../ui/say/Say.tsx';
 
 export function VersionNotice() {
   const notice = useVersionNotice();
+  const keys = useShortcutHints('version-notice');
   if (!notice.shown) return null;
   const t = texts.update;
   return (
@@ -27,13 +29,19 @@ export function VersionNotice() {
           doing={t.notNow}
           look="plain"
           size="small"
-          shortcut="n"
+          keyHint={keys.later}
           closes
           onPress={notice.later}
         >
           {t.notNow}
         </Button>
-        <Button doing={t.updating} look="dark" size="small" shortcut="a" onPress={notice.update}>
+        <Button
+          doing={t.updating}
+          look="dark"
+          size="small"
+          keyHint={keys.update}
+          onPress={notice.update}
+        >
           {t.now}
         </Button>
       </div>

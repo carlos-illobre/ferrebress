@@ -174,7 +174,7 @@ describe('el marco', () => {
     expect(screen.queryByRole('list', { name: 'Más' })).toBeNull();
   });
 
-  it('minimizado, las iniciales abren la tarjeta al costado, que solo deja usar sus teclas; lo pendiente se cierra con Alt C', () => {
+  it('minimizado, las iniciales abren la tarjeta al costado, que solo deja usar sus teclas; lo pendiente se cierra con la C sola (00 · R2.13)', () => {
     media({ reduced: true });
     const stop = startKeyboard();
     open();
@@ -194,6 +194,8 @@ describe('el marco', () => {
     act(() => letter('z'));
     expect(screen.getByRole('dialog', { name: 'Lo que está por enviar' })).toBeTruthy();
     act(() => alt('c'));
+    expect(screen.getByRole('dialog', { name: 'Lo que está por enviar' })).toBeTruthy();
+    act(() => letter('c'));
     expect(screen.queryByRole('dialog')).toBeNull();
     stop();
   });

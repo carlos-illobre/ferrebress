@@ -40,22 +40,8 @@ describe('el teclado de la computadora', () => {
     window.dispatchEvent(new KeyboardEvent('keyup', { key: 'Shift' }));
   });
 
-  it('app-E12, E13 y E14: Alt más la tecla de un botón lo toca; solo valen los de la capa de arriba', () => {
-    const clicks = page(`
-      <main data-layer><button id="google" data-key="g">Google</button><button id="off" data-key="o" disabled>No</button></main>
-      <section data-layer><button id="cancel" data-key="c">Cancelar</button></section>`);
-    press('g', { altKey: true, code: 'KeyG' });
-    press('o', { altKey: true, code: 'KeyO' });
-    press('c', { altKey: true, code: 'KeyC' });
-    expect(clicks).toEqual(['cancel']);
-    document.querySelector('section')?.remove();
-    press('g', { altKey: true, code: 'KeyG' });
-    press('1', { altKey: true, code: 'Digit1' });
-    expect(clicks).toEqual(['cancel', 'google']);
-  });
-
   it('app-E16: en una caja con texto, Ctrl+C, V, X, Z y A hacen lo de siempre', () => {
-    document.body.innerHTML = '<main data-layer><input aria-label="Buscar" data-key="c" /></main>';
+    document.body.innerHTML = '<main data-layer><input aria-label="Buscar" /></main>';
     const box = document.querySelector('input') as HTMLInputElement;
     box.focus();
     for (const key of ['c', 'v', 'x', 'z', 'a'])
