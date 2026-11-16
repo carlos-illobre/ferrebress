@@ -1,7 +1,7 @@
 // Las marcas del teclado para pantallas que recorren pasos (diseño del manual, § 5): ← y → tocan
 // «anterior» y «siguiente» de la capa, `/` lleva a la caja de buscar y Esc la vacía antes de cerrar.
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { startKeyboard } from '../../testing/keyboard.ts';
+import { startKeyboard } from '../testing.ts';
 
 const press = (key: string, target: EventTarget = window) =>
   target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));

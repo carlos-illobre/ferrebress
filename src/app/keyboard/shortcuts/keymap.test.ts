@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { ScreenShortcuts } from './define.ts';
+import { declared } from './index.ts';
 import { keymap } from './keymap.ts';
 
-const declared = Object.values(
-  import.meta.glob<{ shortcuts: ScreenShortcuts }>(
-    ['../../modules/*/shortcuts/*.ts', '!**/*.test.ts'],
-    { eager: true },
-  ),
-).map((file) => file.shortcuts);
 const commands = new Set(
   declared.flatMap(({ screen, commands: all }) =>
     Object.keys(all).map((name) => `${screen}.${name}`),

@@ -67,6 +67,11 @@ explique su código y enlace su diseño en `docs/technical/modules/`.
 Fuera de `src/`:
 
 ```
+packages/<layer>/    la parte general de cada capa enchufable, sin nada de Ferrebress, como un
+                     paquete del espacio de trabajo (ADR-020): hoy, keyboard/
+```
+
+```
 docs/manual/         el manual (su contenido, no su código): la lista de capítulos, un archivo
                      por capítulo y media/ con las capturas y los clips
 tools/               los controles de pnpm check; tools/manual/ es el lector que arma el manual

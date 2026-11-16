@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { startKeyboard } from '../testing/keyboard.ts';
+import { startKeyboard } from './testing.ts';
 
 const press = (key: string, extra: KeyboardEventInit = {}, target: EventTarget = window) =>
   target.dispatchEvent(
@@ -202,12 +202,10 @@ describe('el teclado de la computadora', () => {
 });
 
 describe('en el celular', () => {
-  it('app-E17: no hay atajos ni marca', () => {
-    vi.stubGlobal('navigator', { userAgent: 'Android', userAgentData: { mobile: true } });
-    const stop = startKeyboard();
+  it('app-E17: sin teclado físico no hay atajos ni marca', () => {
+    const stop = startKeyboard(true);
     press('Alt');
     expect(document.body.classList.contains('show-keys')).toBe(false);
     stop();
-    vi.unstubAllGlobals();
   });
 });

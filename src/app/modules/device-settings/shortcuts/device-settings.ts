@@ -1,6 +1,6 @@
 // Los atajos de Más → Configuración (04 · R1.9, R9.2; 00 · R2.8): las preferencias, volver a lo de
 // arranque, el nombre del dispositivo y sus ideas. Las teclas están en keyboard/shortcuts/keymap.ts.
-import { defineShortcuts } from '../../../keyboard/shortcuts/define.ts';
+import { defineShortcuts } from '@ferrebress/keyboard';
 import { countsOf } from '../mine/rules.ts';
 import type { DeviceSettings } from '../useDeviceSettings.ts';
 

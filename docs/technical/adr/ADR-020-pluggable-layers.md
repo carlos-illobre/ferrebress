@@ -44,12 +44,21 @@ herramientas de la programación orientada a aspectos (ver «Opciones descartada
   parte general y le agrega sus propias carpetas por módulo. El análisis de librería del paso 7
   (constitución) dice, para cada capa, qué la ata todavía a Ferrebress.
 
+**La parte general de cada capa es un paquete del espacio de trabajo** (`packages/<layer>/`, por
+ejemplo `@ferrebress/keyboard`), con su `package.json`, su README y sus pruebas, que la aplicación
+usa como cualquier dependencia. Recibe todo lo que necesita al prenderse (qué pantalla está arriba,
+la configuración, dónde avisar), así no conoce la aplicación: `pnpm check` falla si un paquete
+importa algo de `src/`. Lo que es de Ferrebress (la configuración, el mapa de teclas, qué se manda
+sin conexión) queda en `src/app/<layer>/` y en las carpetas de la capa dentro de cada módulo. Cuando
+haya un segundo proyecto, llevarse un paquete es mover su carpeta a su propio repositorio y
+publicarlo; mientras tanto, cambiarlo es un solo commit.
+
 **Las capas de hoy:**
 
 | Capa | Carpeta | Qué hace | Se engancha en |
 |---|---|---|---|
-| Los atajos | `src/app/keyboard/shortcuts/` | Las teclas de cada pantalla (ADR-019) | Qué pantalla está arriba, los modelos |
-| La navegación | `src/app/keyboard/navigation/` | Las flechas, Enter y Esc, iguales en toda la aplicación (ADR-019) | Los roles de accesibilidad de la vista |
+| Los atajos | `packages/keyboard/` (el motor), `src/app/keyboard/shortcuts/` (el mapa de teclas) | Las teclas de cada pantalla (ADR-019) | Qué pantalla está arriba, los modelos |
+| La navegación | `packages/keyboard/` (el motor), `src/app/keyboard/navigation/` | Las flechas, Enter y Esc, iguales en toda la aplicación (ADR-019) | Los roles de accesibilidad de la vista |
 | Sin conexión | `src/app/offline/`, `src/server/offline/` | Guardar en el dispositivo, la cola de lo pendiente, el service worker, entrar con la huella sin conexión, lo apartado de quien se dio de baja (ADR-007, capítulo 15); y, porque usan el mismo service worker, instalar la aplicación y la versión nueva (00 · R5, capítulo 04) | Cómo se manda un comando, el estado de la conexión, las opciones de Configuración, las formas de entrar, el arranque de la aplicación |
 | «Algo salió mal» | `src/app/crash-report/` | Captura los errores inesperados de toda la aplicación, con la captura de la pantalla (tapando lo privado) y los últimos pasos, y los manda (00 · R9) | Los errores sin atender, qué pantalla está arriba, lo privado del contrato de la vista |
 | El medidor de datos | `src/app/meter/` | Mide lo que entra y sale por cada canal y lo muestra a quien lo pide (03 · R4.5) | Cómo se manda un pedido, el canal en tiempo real, los transportes |

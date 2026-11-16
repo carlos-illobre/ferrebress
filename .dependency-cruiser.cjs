@@ -22,6 +22,13 @@ module.exports = {
       to: { dependencyTypes: ['npm', 'core'], pathNot: '/node_modules/zod/' },
     },
     {
+      // Las capas que sirven para otros proyectos (ADR-020) no saben nada de Ferrebress.
+      name: 'paquetes-sin-la-aplicacion',
+      severity: 'error',
+      from: { path: '^packages/' },
+      to: { path: '^src/' },
+    },
+    {
       name: 'platform-sin-negocio',
       severity: 'error',
       from: { path: '^src/(server|app)/platform/' },

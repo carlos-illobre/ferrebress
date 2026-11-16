@@ -7,6 +7,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@ferrebress/keyboard": "workspace:*",
     "@ferrebress/shared": "workspace:*",
     "@zxing/library": "0.23.0",
     "html-to-image": "1.11.13",

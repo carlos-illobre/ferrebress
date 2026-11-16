@@ -1,18 +1,17 @@
-// La capa de la navegación con el teclado (00 · R2.1 a R2.7, ADR-019 y ADR-020): las flechas, Enter,
-// Esc, / y las páginas, con las mismas reglas en toda la aplicación. Las pantallas no escuchan
+// La capa de la navegación con el teclado: las flechas, Enter, Esc, / y las páginas, con las mismas
+// reglas en toda la aplicación. Las pantallas no escuchan
 // teclas, solo marcan en su HTML qué se puede recorrer, y esta capa lo hace andar:
-//   data-layer   una capa (la pantalla, o lo que se abre encima): solo vale la de más arriba (R2.10)
-//   data-mark    lo que recorren las flechas (R2.4) y activa Enter (R2.6); → abre lo que tiene
+//   data-layer   una capa (la pantalla, o lo que se abre encima): solo vale la de más arriba
+//   data-mark    lo que recorren las flechas y activa Enter; → abre lo que tiene
 //                aria-expanded, como Más, y ← cierra lo que se abrió encima
-//   data-close   lo que hace Esc en esa capa (R2.7)
+//   data-close   lo que hace Esc en esa capa
 //   data-arrows  una capa que recorre pasos: ← y → tocan sus botones data-arrow="previous" y
 //                "next", salvo con el cursor en una caja con texto (el manual)
 //   data-slash   la caja a la que lleva / ; data-clear, la que Esc vacía antes de cerrar nada
 //   data-page    los botones de una lista por páginas: RePág toca "previous" y AvPág, "next"
 // Cada vez que la marca cambia, avisa con el evento «mark» en document, para el rótulo del menú.
 // En el celular no hay atajos ni marca.
-import { isPhone } from '../../platform/device/device.ts';
-import { layers, topLayer, visible } from '../../platform/view/layers.ts';
+import { layers, topLayer, visible } from '../layers.ts';
 
 const markedClass = 'marked';
 const somethingOnTop = () => layers().length > 1;
@@ -59,7 +58,7 @@ function closeTop(): void {
   if (wasMarkedInside) setTimeout(() => mark(back));
 }
 
-// En una caja con texto, ← y → mueven el cursor salvo en el principio o el final (R2.3).
+// En una caja con texto, ← y → mueven el cursor salvo en el principio o el final.
 function caretKeepsArrow(event: KeyboardEvent): boolean {
   const target = event.target as HTMLInputElement;
   if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') return false;
@@ -137,9 +136,9 @@ function onKeyDown(event: KeyboardEvent): void {
   if (!event.altKey) actions[event.key]?.(event);
 }
 
-// Prende la navegación en la computadora; devuelve cómo apagarla.
-export function startNavigation(): () => void {
-  if (isPhone()) return () => {};
+// Prende la navegación; devuelve cómo apagarla. Sin teclado físico (un celular), no hace nada.
+export function startNavigation({ touchOnly = false } = {}): () => void {
+  if (touchOnly) return () => {};
   const listeners: [string, EventListener][] = [
     ['keydown', onKeyDown as EventListener],
     ['mousemove', unmark],

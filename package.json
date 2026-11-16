@@ -11,7 +11,7 @@
     "types": "tsc --build",
     "lint": "biome check . && node tools/cli.ts html && node tools/cli.ts local",
     "format": "biome check --write .",
-    "imports": "depcruise src --config .dependency-cruiser.cjs",
+    "imports": "depcruise src packages --config .dependency-cruiser.cjs",
     "repeated": "jscpd src",
     "secrets": "secretlint \"**/*\"",
     "vulnerable": "pnpm audit --prod --audit-level moderate",

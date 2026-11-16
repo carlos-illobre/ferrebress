@@ -1,6 +1,6 @@
 // Los atajos de Administración (06 · R1.8, 00 · R2.8): elegir cada ajuste y reintentar. Las teclas
 // están en keyboard/shortcuts/keymap.ts.
-import { defineShortcuts } from '../../../keyboard/shortcuts/define.ts';
+import { defineShortcuts } from '@ferrebress/keyboard';
 import type { Administration } from '../useAdministration.ts';
 
 // «Reintentar» está solo si lo que se ve no está al día (sin conexión, o falló el pedido).

@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../dist/types/keyboard",
+    "rootDir": ".",
+    "lib": ["es2024", "dom", "dom.iterable"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "vitest.config.ts"]
+}
