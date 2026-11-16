@@ -13,6 +13,8 @@ RUN --mount=type=secret,id=ca,required=false npm install --global pnpm@10.15.0
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY src/shared/package.json src/shared/
 COPY src/app/package.json src/app/
+# Las capas que sirven para otros proyectos (ADR-020): son chicas, van enteras.
+COPY packages packages
 RUN --mount=type=secret,id=ca,required=false \
     pnpm install --frozen-lockfile --filter @ferrebress/app...
 COPY tsconfig.base.json ./
