@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { auditLogShapes } from '../../views/basic/ui/icon/audit-log-shapes.tsx';
 import { menuShapes } from '../../views/basic/ui/icon/menu-shapes.tsx';
 import { peopleShapes } from '../../views/basic/ui/icon/people-shapes.tsx';
+import { priceListsShapes } from '../../views/basic/ui/icon/price-lists-shapes.tsx';
 import { rolesShapes } from '../../views/basic/ui/icon/roles-shapes.tsx';
 import { shapes } from '../../views/basic/ui/icon/shapes.tsx';
 import { queryString } from './api.ts';
@@ -12,7 +13,14 @@ import { browserOf, dayTitle, initials, isNewer, stripScale, summaryDay } from '
 
 describe('la pantalla de Quién hizo qué, sin dibujo', () => {
   it('audit-log-E35b: cada ícono del catálogo está dibujado', () => {
-    const drawn = { ...shapes, ...menuShapes, ...peopleShapes, ...rolesShapes, ...auditLogShapes };
+    const drawn = {
+      ...shapes,
+      ...menuShapes,
+      ...peopleShapes,
+      ...rolesShapes,
+      ...auditLogShapes,
+      ...priceListsShapes,
+    };
     const icons = [...Object.values(catalog), entryOf('nada')].map((entry) => entry.icon);
     expect(icons.filter((icon) => !(icon in drawn))).toEqual([]);
   });

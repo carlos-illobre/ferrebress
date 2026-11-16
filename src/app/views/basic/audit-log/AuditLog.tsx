@@ -15,6 +15,7 @@ import {
 import { Button } from '../ui/button/Button.tsx';
 import { auditLogShapes } from '../ui/icon/audit-log-shapes.tsx';
 import { addShapes } from '../ui/icon/Icon.tsx';
+import { priceListsShapes } from '../ui/icon/price-lists-shapes.tsx';
 import { LoadState } from '../ui/load-state/LoadState.tsx';
 import { Offline } from '../ui/offline/Offline.tsx';
 import { Sheet } from '../ui/sheet/Sheet.tsx';
@@ -27,6 +28,7 @@ import { Tape } from './Tape.tsx';
 import './AuditLog.css';
 
 addShapes(auditLogShapes);
+addShapes(priceListsShapes);
 
 function Empty() {
   const log = useAuditLogContext();

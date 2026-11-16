@@ -44,7 +44,8 @@ export type ProductRow = {
   discontinued: boolean;
 };
 
-export const catalogData = (db: Db) => ({
+// Crear y poner al día.
+const writes = (db: Db) => ({
   async create(products: readonly NewProduct[]): Promise<void> {
     if (products.length === 0) return;
     await sql`
@@ -74,6 +75,18 @@ export const catalogData = (db: Db) => ({
       from jsonb_to_recordset(${rowsOf(costs)}) as v(id uuid, cost bigint, "supplierId" uuid)
       where p.id = v.id`.execute(db);
   },
+});
+
+// El costo de un proveedor, la baja y leerlos.
+const states = (db: Db) => ({
+  // Sin el costo de ese proveedor (se lo dio de baja, R2.4).
+  async dropSupplier(supplierId: string): Promise<void> {
+    await db
+      .updateTable('catalog.products')
+      .set({ cost: null, cost_supplier_id: null })
+      .where('cost_supplier_id', '=', supplierId)
+      .execute();
+  },
 
   async setDiscontinued(ids: readonly string[], discontinued: boolean): Promise<void> {
     if (ids.length === 0) return;
@@ -94,7 +107,7 @@ export const catalogData = (db: Db) => ({
               'unit',
               'vat',
               'vat_manual as vatManual',
-              'cost',
+              sql<string | null>`cost::text`.as('cost'),
               'cost_supplier_id as supplierId',
               'discontinued',
             ])
@@ -103,5 +116,7 @@ export const catalogData = (db: Db) => ({
             .execute()
         ).map((row) => ({ ...row, cost: row.cost === null ? null : BigInt(row.cost) })),
 });
+
+export const catalogData = (db: Db) => ({ ...writes(db), ...states(db) });
 
 export type CatalogData = ReturnType<typeof catalogData>;

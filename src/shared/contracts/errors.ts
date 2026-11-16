@@ -67,11 +67,29 @@ export type AdministrationErrorCode =
   | 'confirm-prices'
   | 'recalc-failed';
 
+// Las anomalías (06 · R9): otro la cambió antes.
+export type AnomaliesErrorCode = 'anomaly-changed';
+
+// Las listas de precios (capítulo 08): un dato que no vale, el nombre de otro, otro lo cambió antes,
+// lo que cambia costos se confirma, una lista se está aplicando y el recálculo falló.
+export type PriceListsErrorCode =
+  | 'invalid-field'
+  | 'supplier-exists'
+  | 'supplier-inactive'
+  | 'field-changed'
+  | 'terms-changed'
+  | 'confirm-costs'
+  | 'confirm-deactivate'
+  | 'list-applying'
+  | 'not-inactive';
+
 export type ErrorCode =
   | PlatformErrorCode
   | SignInErrorCode
   | UsersErrorCode
   | DeviceLinkErrorCode
-  | AdministrationErrorCode;
+  | AdministrationErrorCode
+  | AnomaliesErrorCode
+  | PriceListsErrorCode;
 
 export type ErrorBody = { error: ErrorCode } & Record<string, unknown>;

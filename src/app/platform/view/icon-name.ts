@@ -2,6 +2,8 @@
 // contrato de las vistas (ADR-019): cada vista tiene que saber dibujar cada uno, con la forma que quiera.
 export type IconName =
   | 'app-window'
+  | 'archive'
+  | 'archive-restore'
   | 'arrow-left'
   | 'arrow-right'
   | 'arrow-up'
@@ -53,6 +55,7 @@ export type IconName =
   | 'monitor-smartphone'
   | 'monitor-x'
   | 'mouse-pointer-2'
+  | 'notebook-pen'
   | 'package'
   | 'panel-left-close'
   | 'panel-left-open'

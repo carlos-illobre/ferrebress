@@ -8,6 +8,7 @@ import type { deviceSettingsShapes } from './device-settings-shapes.tsx';
 import type { linkShapes } from './link-shapes.tsx';
 import { menuShapes } from './menu-shapes.tsx';
 import type { peopleShapes } from './people-shapes.tsx';
+import type { priceListsShapes } from './price-lists-shapes.tsx';
 import type { rolesShapes } from './roles-shapes.tsx';
 import { shapes } from './shapes.tsx';
 
@@ -24,6 +25,7 @@ type Drawn =
   | keyof typeof peopleShapes
   | keyof typeof rolesShapes
   | keyof typeof auditLogShapes
+  | keyof typeof priceListsShapes
   | keyof typeof linkShapes
   | keyof typeof deviceSettingsShapes
   | keyof typeof administrationShapes;

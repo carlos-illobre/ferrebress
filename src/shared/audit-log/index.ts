@@ -9,6 +9,7 @@ import { deviceSettingsTypes } from './device-settings.ts';
 import { type Entry, type Group, groups, type ToneInput, text } from './kinds.ts';
 import { offlineTypes } from './offline.ts';
 import { platformTypes } from './platform.ts';
+import { priceListsTypes } from './price-lists.ts';
 import { rolesTypes } from './roles.ts';
 import { signInTypes } from './sign-in.ts';
 import { usersTypes } from './users.ts';
@@ -25,6 +26,7 @@ export const catalog: Record<string, Entry> = {
   ...deviceSettingsTypes,
   ...administrationTypes,
   ...anomaliesTypes,
+  ...priceListsTypes,
   ...platformTypes,
   ...auditLogTypes,
 };

@@ -11,6 +11,7 @@ export const groups = {
   'device-link': 'Celular y computadora',
   'device-settings': 'Configuración',
   administration: 'Administración',
+  'price-lists': 'Listas de precios',
   refused: 'Rechazos',
   other: 'Otros',
 } as const;

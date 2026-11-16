@@ -89,7 +89,7 @@ puede tener varios artículos y guarda lo cambiado a mano), y sus pruebas se esc
 | `name` | `text`, `not null` | Como se escribió, de 1 a 80 letras |
 | `name_key` | `text`, `not null`, único | `searchKey(name)` (`src/shared/text/`): sin acentos, mayúsculas ni espacios de más. Único entre todos, también los dados de baja (R2.1, E10, E94) |
 | `seller`, `phone`, `email`, `note` | `text` | Los datos de R2.1, opcionales: hasta 80, 40, 120 y 500 letras; el correo con forma de correo |
-| `terms` | `jsonb`, `not null` | Cómo cobra (R3.2): `{ vatIncluded, discounts: [{ id, name, percent, brand }], defaultVat, onChange }`; `percent` en centésimos (1 a 9.999), `brand` como `searchKey` o `null` para todas; `defaultVat` en décimos (210, 105, 270); `onChange`, `recalculate` o `next` |
+| `terms` | `jsonb`, `not null` | Cómo cobra (R3.2): `{ vatIncluded, discounts: [{ id, name, percent, brand }], defaultVat, onChange }`; `percent` en centésimos (1 a 9.999), `brand` como se escribió (se compara con `searchKey`) o `null` para todas; hasta 20 descuentos; `defaultVat` en décimos (210, 105, 270); `onChange`, `recalculate` o `next` |
 | `terms_version` | `integer`, `not null` | Cómo cobra va entero: guardar manda la versión que se vio |
 | `inactive` | `boolean`, `not null`, `false` | Dado de baja (R2.4, R2.5) |
 | `last_list_id`, `last_list_date` | `uuid`, `date` | La última lista aplicada (R1.1, R6.10) |
@@ -176,8 +176,9 @@ Lo que trajo cada fila de una lista leída y lo que le pasa, para mostrarla y ap
 | `vat` | `smallint` | Lo que dijo la lista, o el de arranque del proveedor (R3.6) |
 | `cost`, `basis` | `bigint`, `jsonb`, `not null` | El costo, sin redondear, y su base (R3.4) |
 | `list_id` | `uuid`, `not null` | La última lista que lo trajo |
-| `discontinued_list_id` | `uuid` | Desde qué lista dejó de venir (R7.4, R8.2); `null` si viene. Al dar de baja el proveedor, la lista es `null` y el motivo, `supplier-inactive` |
+| `discontinued`, `discontinued_list_id` | `boolean`, `uuid` | Si dejó de venir y desde qué lista (R7.4, R8.2). Al dar de baja el proveedor, quedan todos dados de baja sin lista |
 
+- **Los costos se leen como texto** (`cost::text`): PGlite da un `bigint` como número y pierde precisión pasado 2^53.
 - **Índices:** `(supplier_id, discontinued, search_key)`, para la lista alfabética de R8.1 de a 50; y
   `(product_id)`, para saber si un producto tiene otro proveedor (R7.4).
 
@@ -429,8 +430,8 @@ datos de vendedores queda en el dispositivo), con «Reintentar» (E07).
 
 ### `catalog` y `anomalies`
 
-- **`src/server/modules/catalog/`:** `index.ts` (la fachada: crear, actualizar, poner el costo, dar de baja
-  y traer de vuelta productos en lote, dentro de una transacción ajena), `data.ts` y su migración.
+- **`src/server/modules/catalog/`:** `index.ts` (la fachada: crear, actualizar, poner el costo, quitar el
+  costo de un proveedor, dar de baja y traer de vuelta productos en lote, dentro de una transacción ajena), `data.ts` y su migración.
 - **`src/server/modules/anomalies/`:** `index.ts` (la fachada `open` y `close`, y el campo de la cabecera),
   `routes.ts`, `rules.ts`, `data.ts`, `events.ts` y su migración.
 

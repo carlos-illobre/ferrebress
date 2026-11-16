@@ -89,3 +89,31 @@ describe('una anomalía en Quién hizo qué', () => {
     expect(says('anomalies.reopened', { kind: 'constructor' })).toBe('Volvió a abrir una anomalía');
   });
 });
+
+describe('un proveedor en Quién hizo qué', () => {
+  const says = (type: string, data: Record<string, unknown> = {}) =>
+    read(
+      entryOf(type).says({
+        ...{ id: '2026:3', at: '2026-11-07T13:00:00.000Z', type, tone: 'plain' },
+        ...{ actor: { kind: 'person', id: 'u-ana' }, changes: {}, data },
+        targets: [{ kind: 'supplier', id: 's1', name: 'Bulonera Centro' }],
+      }),
+    );
+
+  it('price-lists-R9.1: el alta, un dato, cómo cobra, la baja y la reactivación', () => {
+    expect(entryOf('suppliers.created').group).toBe('price-lists');
+    expect(says('suppliers.created')).toBe('Dio de alta al proveedor Bulonera Centro');
+    expect(says('suppliers.changed', { field: 'phone' })).toBe(
+      'Cambió el teléfono de Bulonera Centro',
+    );
+    expect(says('suppliers.changed', { field: 'otro' })).toBe('Cambió un dato de Bulonera Centro');
+    expect(says('suppliers.terms-changed', { costs: 2167 })).toBe(
+      'Cambió cómo cobra Bulonera Centro (cambiaron 2.167 costos)',
+    );
+    expect(says('suppliers.terms-changed')).toBe('Cambió cómo cobra Bulonera Centro');
+    expect(says('suppliers.deactivated', { costs: 30, discontinued: 12 })).toBe(
+      'Dio de baja a Bulonera Centro (30 perdieron su costo, 12 quedaron dados de baja)',
+    );
+    expect(says('suppliers.reactivated')).toBe('Reactivó a Bulonera Centro');
+  });
+});

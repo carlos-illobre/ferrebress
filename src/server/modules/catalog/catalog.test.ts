@@ -52,14 +52,14 @@ describe('el catálogo', () => {
   });
 
   it('un costo muy grande no pierde precisión', async () => {
-    const big = product({ cost: 99_999_999_999_900n });
+    const big = product({ cost: 999_999_999_999_999_000n });
     await run((trx) => server.catalog.create(trx, [big]));
     await run((trx) =>
       server.catalog.setCosts(trx, [
-        { id: big.id, cost: 99_999_999_999_901n, supplierId: supplier },
+        { id: big.id, cost: 999_999_999_999_999_001n, supplierId: supplier },
       ]),
     );
-    expect((await read([big.id]))[0]?.cost).toBe(99_999_999_999_901n);
+    expect((await read([big.id]))[0]?.cost).toBe(999_999_999_999_999_001n);
   });
 
   it('price-lists-R7.3: pone al día lo que trae el artículo; el IVA cambiado a mano no se toca', async () => {

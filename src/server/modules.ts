@@ -11,6 +11,7 @@ import { createAnomaliesModule } from './modules/anomalies/index.ts';
 import { createAuditLogModule } from './modules/audit-log/index.ts';
 import { createCatalogModule } from './modules/catalog/index.ts';
 import { createDeviceLinkModule } from './modules/device-link/index.ts';
+import { createPriceListsModule } from './modules/price-lists/index.ts';
 import { createSignInModule } from './modules/sign-in/index.ts';
 import { createUsersModule } from './modules/users/index.ts';
 import { sleep } from './platform/clock.ts';
@@ -43,9 +44,13 @@ export function createModules(options: ModulesOptions = {}) {
   });
   const anomalies = createAnomaliesModule({ nameOf: (id) => users.users.nameOf(id) });
   const catalog = createCatalogModule();
+  const priceLists = createPriceListsModule({
+    catalog: catalog.catalog,
+    anomalies: anomalies.anomalies,
+  });
   const modules = [
     ...[admin.module, users.module, signIn, createAuditLogModule(), deviceLink],
-    ...[anomalies.module, catalog.module],
+    ...[anomalies.module, catalog.module, priceLists.module],
   ];
   return {
     modules,
