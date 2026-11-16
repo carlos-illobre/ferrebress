@@ -16,6 +16,12 @@ describe('los ajustes para todos', () => {
       sessionIdle: 60,
       sessionMax: 8,
       pairingDays: 30,
+      reviewPercent: 50,
+      goneWarnPercent: 20,
+      maxFileMb: 30,
+      confirmRows: 200_000,
+      filesMb: 100,
+      unappliedFileDays: 30,
     });
     expect(longestSessionHours).toBe(24);
   });
@@ -67,5 +73,26 @@ describe('los ajustes para todos', () => {
     expect(saveSettingBody.safeParse({ value: 15, version: -1 }).success).toBe(false);
     expect(saveSettingBody.safeParse({ value: 15, version: 2 ** 31 }).success).toBe(false);
     expect(saveSettingBody.safeParse({ value: 15, version: 0, other: 1 }).success).toBe(false);
+  });
+
+  it('administration-R8: los ajustes de las listas, enteros dentro de su rango', () => {
+    const edges = {
+      reviewPercent: [1, 1000],
+      goneWarnPercent: [1, 100],
+      maxFileMb: [1, 100],
+      confirmRows: [1000, 10_000_000],
+      filesMb: [10, 100_000],
+      unappliedFileDays: [1, 3650],
+    } as const;
+    for (const [key, [min, max]] of Object.entries(edges) as [
+      keyof typeof edges,
+      readonly [number, number],
+    ][]) {
+      expect(settingValue(key, min)).toBe(min);
+      expect(settingValue(key, max)).toBe(max);
+      expect(settingValue(key, min - 1)).toBeUndefined();
+      expect(settingValue(key, max + 1)).toBeUndefined();
+      expect(settingValue(key, min + 0.5)).toBeUndefined();
+    }
   });
 });

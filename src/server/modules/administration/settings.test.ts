@@ -27,6 +27,12 @@ describe('los ajustes para todos', () => {
         sessionIdle: { value: 60, version: 0 },
         sessionMax: { value: 8, version: 0 },
         pairingDays: { value: 30, version: 0 },
+        reviewPercent: { value: 50, version: 0 },
+        goneWarnPercent: { value: 20, version: 0 },
+        maxFileMb: { value: 30, version: 0 },
+        confirmRows: { value: 200_000, version: 0 },
+        filesMb: { value: 100, version: 0 },
+        unappliedFileDays: { value: 30, version: 0 },
       },
       businessTimeZone: 'America/Argentina/Buenos_Aires',
     });

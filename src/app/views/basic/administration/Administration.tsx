@@ -3,6 +3,7 @@
 // haría cada opción antes de tocarla. Una sola pantalla para los dos anchos (ADR-002): en el celular,
 // la lista se vuelve tiras arriba. Se baja recién al abrirla (AdministrationSlot).
 
+import { valuesOf } from '@ferrebress/shared/contracts/administration';
 import {
   texts,
   useAdministration,
@@ -81,13 +82,7 @@ function Body({ view }: { view: View }) {
     );
   if (!settings)
     return <LoadState look="admin-loading" failed={view.failed} texts={texts} retry={view.retry} />;
-  const values = {
-    roundingStep: settings.roundingStep.value,
-    quickMargins: settings.quickMargins.value,
-    sessionIdle: settings.sessionIdle.value,
-    sessionMax: settings.sessionMax.value,
-    pairingDays: settings.pairingDays.value,
-  };
+  const values = valuesOf(settings);
   return (
     <div class={`admin-body ${view.fresh && view.online ? '' : 'admin-stale'}`}>
       {!(view.fresh && view.online) && (

@@ -15,6 +15,21 @@ const shown: Record<SettingKey, { name: string; value: (raw: unknown) => string 
   sessionIdle: { name: 'el tiempo sin uso de la sesión', value: (raw) => `${raw} min` },
   sessionMax: { name: 'el tope de la sesión', value: (raw) => `${raw} h` },
   pairingDays: { name: 'los días del vínculo', value: (raw) => `${raw} días` },
+  reviewPercent: { name: 'cuánto cambia un costo para revisar', value: (raw) => `${raw} %` },
+  goneWarnPercent: { name: 'cuántas bajas avisan', value: (raw) => `${raw} %` },
+  maxFileMb: { name: 'el tamaño máximo de una lista', value: (raw) => `${raw} MB` },
+  confirmRows: {
+    name: 'desde cuántas filas se avisa',
+    value: (raw) => `${thousands(Number(raw))} filas`,
+  },
+  filesMb: {
+    name: 'cuánto ocupan los archivos de las listas',
+    value: (raw) => `${thousands(Number(raw))} MB`,
+  },
+  unappliedFileDays: {
+    name: 'los días de una lista que no se aplicó',
+    value: (raw) => `${thousands(Number(raw))} días`,
+  },
 };
 
 export const administrationTypes = {

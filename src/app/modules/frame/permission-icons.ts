@@ -11,10 +11,15 @@ export const permissionIcons: Record<PermissionId, IconName> = {
   'audit-log.view': 'file-text',
   'offline.work': 'wifi-off',
   'settings.change': 'sliders-horizontal',
+  'anomalies.review': 'triangle-alert',
+  'price-lists.costs': 'tag',
+  'price-lists.suppliers': 'store',
+  'price-lists.load': 'package',
 };
 
 export const groupIcons: Record<PermissionGroup, IconName> = {
   users: 'users',
   offline: 'wifi-off',
+  catalog: 'tags',
   administration: 'sliders-horizontal',
 };

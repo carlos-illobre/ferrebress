@@ -5,6 +5,7 @@
 export const permissionGroups = {
   users: { name: 'Usuarios', detail: 'Las personas, sus roles, sesiones y huellas' },
   offline: { name: 'Sin conexión', detail: 'Entrar con la huella sin internet' },
+  catalog: { name: 'Catálogo', detail: 'Los proveedores, sus listas de precios y los costos' },
   administration: { name: 'Administración', detail: 'Los ajustes que valen para todos' },
 } as const;
 
@@ -62,8 +63,39 @@ export const permissions = [
     group: 'administration',
     name: 'Cambiar los ajustes',
     explanation:
-      'Cambiar en Administración el redondeo, los márgenes rápidos, los tiempos de la sesión y los días del vínculo.',
+      'Cambiar en Administración el redondeo, los márgenes rápidos, los ajustes de las listas, los tiempos de la sesión y los días del vínculo, y borrar a mano el archivo de una lista.',
     includes: [],
+  },
+  {
+    id: 'anomalies.review',
+    group: 'administration',
+    name: 'Revisar las anomalías',
+    explanation:
+      'Ver en Administración lo que el sistema encontró y marcarlo revisado o volver a abrirlo.',
+    includes: [],
+  },
+  {
+    id: 'price-lists.costs',
+    group: 'catalog',
+    name: 'Ver costos',
+    explanation:
+      'Ver cómo cobra cada proveedor, sus listas, los costos con su explicación y los productos de cada proveedor, y bajar el archivo original de una lista.',
+    includes: [],
+  },
+  {
+    id: 'price-lists.suppliers',
+    group: 'catalog',
+    name: 'Administrar proveedores',
+    explanation:
+      'Dar de alta, cambiar, dar de baja y reactivar un proveedor, y cambiar cómo cobra. Incluye «Ver costos».',
+    includes: ['price-lists.costs'],
+  },
+  {
+    id: 'price-lists.load',
+    group: 'catalog',
+    name: 'Cargar listas',
+    explanation: 'Subir una lista de precios, aplicarla y descartarla. Incluye «Ver costos».',
+    includes: ['price-lists.costs'],
   },
 ] as const satisfies readonly {
   id: string;

@@ -1,4 +1,4 @@
-// Los ajustes para todos (06 · R1 a R7; diseño de 06, § 2 y § 3): la lista fija, con el valor de
+// Los ajustes para todos (06 · R1 a R8; diseño de 06, § 2 y § 3): la lista fija, con el valor de
 // arranque, las opciones o el rango de cada uno, y la forma de lo que entra y sale de sus rutas. La
 // comparten el servidor, que valida y guarda, y la aplicación, que muestra y valida antes de mandar.
 // Un capítulo nuevo que trae un ajuste para todos suma su fila (R1.3).
@@ -9,13 +9,20 @@ export const sessionIdleOptions = [15, 30, 60, 120] as const;
 export const sessionMaxOptions = [4, 8, 12, 24] as const;
 export const quickMarginRange = { min: 1, max: 10_000, count: 5 } as const;
 export const pairingDaysRange = { min: 1, max: 365 } as const;
+// Las listas de precios (R8).
+export const reviewPercentRange = { min: 1, max: 1000 } as const;
+export const goneWarnPercentRange = { min: 1, max: 100 } as const;
+export const maxFileMbRange = { min: 1, max: 100 } as const;
+export const confirmRowsRange = { min: 1000, max: 10_000_000 } as const;
+export const filesMbRange = { min: 10, max: 100_000 } as const;
+export const unappliedFileDaysRange = { min: 1, max: 3650 } as const;
 
 const oneOf = (options: readonly number[]) => z.int().check(z.refine((n) => options.includes(n)));
 const between = (range: { min: number; max: number }) =>
   z.int().check(z.minimum(range.min), z.maximum(range.max));
 const distinct = (list: number[]) => new Set(list).size === list.length;
 
-export type SettingGroup = 'prices' | 'business' | 'access';
+export type SettingGroup = 'prices' | 'lists' | 'business' | 'access';
 
 // Cada ajuste: su grupo en la pantalla, su valor de arranque y cómo se valida.
 export const settingList = {
@@ -30,6 +37,12 @@ export const settingList = {
   sessionIdle: { group: 'access', initial: 60, schema: oneOf(sessionIdleOptions) },
   sessionMax: { group: 'access', initial: 8, schema: oneOf(sessionMaxOptions) },
   pairingDays: { group: 'access', initial: 30, schema: between(pairingDaysRange) },
+  reviewPercent: { group: 'lists', initial: 50, schema: between(reviewPercentRange) },
+  goneWarnPercent: { group: 'lists', initial: 20, schema: between(goneWarnPercentRange) },
+  maxFileMb: { group: 'lists', initial: 30, schema: between(maxFileMbRange) },
+  confirmRows: { group: 'lists', initial: 200_000, schema: between(confirmRowsRange) },
+  filesMb: { group: 'lists', initial: 100, schema: between(filesMbRange) },
+  unappliedFileDays: { group: 'lists', initial: 30, schema: between(unappliedFileDaysRange) },
 } as const satisfies Record<
   string,
   { group: SettingGroup; initial: number | readonly number[]; schema: z.ZodMiniType }
@@ -42,6 +55,12 @@ export type Settings = {
   sessionIdle: number;
   sessionMax: number;
   pairingDays: number;
+  reviewPercent: number;
+  goneWarnPercent: number;
+  maxFileMb: number;
+  confirmRows: number;
+  filesMb: number;
+  unappliedFileDays: number;
 };
 
 export const settingKeys = Object.keys(settingList) as SettingKey[];
@@ -56,7 +75,17 @@ export const initialSettings = (): Settings => ({
   sessionIdle: settingList.sessionIdle.initial,
   sessionMax: settingList.sessionMax.initial,
   pairingDays: settingList.pairingDays.initial,
+  reviewPercent: settingList.reviewPercent.initial,
+  goneWarnPercent: settingList.goneWarnPercent.initial,
+  maxFileMb: settingList.maxFileMb.initial,
+  confirmRows: settingList.confirmRows.initial,
+  filesMb: settingList.filesMb.initial,
+  unappliedFileDays: settingList.unappliedFileDays.initial,
 });
+
+// Solo los valores, sin las versiones.
+export const valuesOf = (settings: AdministrationResponse['settings']): Settings =>
+  Object.fromEntries(settingKeys.map((key) => [key, settings[key].value])) as Settings;
 
 // El valor tal cual se guarda: los márgenes, de mayor a menor (R4.2). `undefined` si no vale.
 export function settingValue<K extends SettingKey>(key: K, raw: unknown): Settings[K] | undefined {

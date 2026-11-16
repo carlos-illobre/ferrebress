@@ -23,6 +23,12 @@ export const names: Record<SettingKey | 'zone', string> = {
   sessionIdle: 'Sin uso',
   sessionMax: 'Tope de la sesión',
   pairingDays: 'Días del vínculo',
+  reviewPercent: 'Para revisar',
+  goneWarnPercent: 'Aviso de bajas',
+  maxFileMb: 'Tamaño de una lista',
+  confirmRows: 'Aviso de filas',
+  filesMb: 'Espacio de los archivos',
+  unappliedFileDays: 'Listas sin aplicar',
 };
 
 // Qué cambia cada ajuste, en una línea (R1.3).
@@ -48,6 +54,30 @@ export const what: Record<SettingKey | 'zone', Words> = {
     short: 'Desde que se entró',
   },
   pairingDays: { long: 'Lo que dura el vínculo sin estar en espejo', short: 'Sin estar en espejo' },
+  reviewPercent: {
+    long: 'Un costo que cambia más que esto se marca para revisar antes de aplicar la lista',
+    short: 'Costo que cambia más que esto',
+  },
+  goneWarnPercent: {
+    long: 'Si una lista da de baja más productos del proveedor que esto, se avisa antes de aplicarla',
+    short: 'Bajas de más se avisan',
+  },
+  maxFileMb: {
+    long: 'El archivo más grande que se acepta como lista de precios',
+    short: 'El archivo más grande',
+  },
+  confirmRows: {
+    long: 'Una planilla con más filas que esto se pregunta antes de leerla; no es un tope',
+    short: 'Más filas se preguntan',
+  },
+  filesMb: {
+    long: 'Lo que ocupan entre todos los archivos de las listas; al pasarlo se borran los más viejos',
+    short: 'Al pasarlo, se borran los viejos',
+  },
+  unappliedFileDays: {
+    long: 'El archivo de una lista que nunca se aplicó se borra pasados estos días',
+    short: 'Se borran pasados los días',
+  },
 };
 
 export const texts = {

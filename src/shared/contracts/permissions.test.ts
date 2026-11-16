@@ -23,6 +23,15 @@ describe('los permisos (02 · R7.1)', () => {
     expect(withIncluded(['offline.work'])).toEqual(['offline.work']);
   });
 
+  it('price-lists-E03: administrar proveedores y cargar listas incluyen ver costos', () => {
+    expect(withIncluded(['price-lists.load'])).toEqual(['price-lists.costs', 'price-lists.load']);
+    expect(withIncluded(['price-lists.suppliers'])).toEqual([
+      'price-lists.costs',
+      'price-lists.suppliers',
+    ]);
+    expect(withIncluded(['anomalies.review'])).toEqual(['anomalies.review']);
+  });
+
   it('reconoce los ids de la lista y nada más', () => {
     expect(isPermission('users.view')).toBe(true);
     expect(isPermission('users.delete')).toBe(false);

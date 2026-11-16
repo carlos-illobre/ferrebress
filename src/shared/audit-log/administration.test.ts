@@ -31,6 +31,23 @@ describe('un ajuste para todos en Quién hizo qué', () => {
     );
   });
 
+  it('administration-E09: los ajustes de las listas', () => {
+    expect(says('reviewPercent', 50, 30)).toBe(
+      'Cambió cuánto cambia un costo para revisar: 50 % → 30 %',
+    );
+    expect(says('goneWarnPercent', 20, 10)).toBe('Cambió cuántas bajas avisan: 20 % → 10 %');
+    expect(says('maxFileMb', 30, 50)).toBe('Cambió el tamaño máximo de una lista: 30 MB → 50 MB');
+    expect(says('confirmRows', 200_000, 1_000_000)).toBe(
+      'Cambió desde cuántas filas se avisa: 200.000 filas → 1.000.000 filas',
+    );
+    expect(says('filesMb', 100, 2000)).toBe(
+      'Cambió cuánto ocupan los archivos de las listas: 100 MB → 2.000 MB',
+    );
+    expect(says('unappliedFileDays', 30, 7)).toBe(
+      'Cambió los días de una lista que no se aplicó: 30 días → 7 días',
+    );
+  });
+
   it('administration-E19: el redondeo, con cuántos precios cambiaron', () => {
     expect(says('roundingStep', 1000, 500, 1650)).toBe(
       'Cambió el redondeo: $ 1.000 → $ 500 (cambiaron 1.650 precios)',
