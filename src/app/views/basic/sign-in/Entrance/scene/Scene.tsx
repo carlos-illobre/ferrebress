@@ -8,8 +8,7 @@ import {
   useEntrance,
   useEntranceModelContext,
 } from '../../../../../modules/sign-in/model.ts';
-import { isPhone } from '../../../../../platform/device/device.ts';
-import { navigate } from '../../../../../platform/router.ts';
+import { isPhone } from '../../../../../platform/view/device.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
 import logoDark from '../../../../../styles/brand/logo-on-dark-large.webp';
 import logoLight from '../../../../../styles/brand/logo-on-light-large.webp';

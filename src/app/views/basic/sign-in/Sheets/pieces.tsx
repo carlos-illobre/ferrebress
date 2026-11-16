@@ -1,7 +1,7 @@
 // Las piezas de las hojas del celular, como en la maqueta de la entrada: el ícono redondo de arriba
 // y los botones de abajo. Cada botón muestra su espera.
 import type { ComponentChildren } from 'preact';
-import { useWaiting } from '../../../../platform/waiting.ts';
+import { useWaiting } from '../../../../platform/view/waiting.ts';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
 import './sheets.css';
 

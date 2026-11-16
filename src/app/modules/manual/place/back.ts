@@ -3,7 +3,8 @@
 // que se muestra sale de esa lista, nunca de un texto guardado. Sin de dónde (se escribió la
 // dirección), «Ir a Ferrebress» lleva al principio; `app` (Más sin una parte abierta) dice
 // «Ferrebress». Nunca lleva a una dirección que venga de afuera.
-import { navigate } from '../../../platform/router.ts';
+import { navigate, route } from '../../../platform/router.ts';
+import { useStore } from '../../../platform/store.ts';
 import { moreOptions, parts } from '../../frame/index.ts';
 
 // A dónde vuelve «Volver»: el nombre largo (computadora), el corto (celular) y cómo.
@@ -46,3 +47,6 @@ export function backOf(state: unknown): Back {
     go: (open) => history.go(-(open + 1)),
   };
 }
+
+// Adónde vuelve el manual abierto ahora, según la dirección por la que se llegó.
+export const useBack = (): Back => backOf(useStore(route).state);

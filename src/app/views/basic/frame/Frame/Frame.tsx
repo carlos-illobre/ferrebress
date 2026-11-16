@@ -15,15 +15,13 @@ import {
   texts,
   useCollapse,
   useLostPermission,
+  useOpened,
   usePanels,
   usePhoneMore,
   useTip,
   useWork,
 } from '../../../../modules/frame/model.ts';
-import { isNarrow } from '../../../../platform/narrow.ts';
-import { route } from '../../../../platform/router.ts';
-import { online as onlineStore } from '../../../../platform/server/api.ts';
-import { useStore } from '../../../../platform/store.ts';
+import { isNarrow } from '../../../../platform/view/narrow.ts';
 import { notify } from '../../../../platform/view/notify.ts';
 import { NoPermission } from '../NoPermission/NoPermission.tsx';
 import { PermissionLost } from '../NoPermission/PermissionLost.tsx';
@@ -56,10 +54,7 @@ const notYetWith = (tip: FrameState['tip']) => (element: HTMLElement, name: stri
 
 export function Frame(props: FrameProps) {
   const { person, testing, onSignOut, screens, children, link } = props;
-  const online = useStore(onlineStore);
-  // La opción abierta es la de la dirección; en cualquier otra, la primera que puede usar (R1.4).
-  const opened = optionAt(useStore(route).path);
-  const current = opened?.id ?? firstOption(person).id;
+  const { online, opened, current } = useOpened(person);
   const Screen = screens?.[current];
   const lost = useLostPermission(person, opened);
   const collapse = useCollapse();

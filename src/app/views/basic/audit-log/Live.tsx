@@ -3,7 +3,7 @@
 // nuevas» arriba de la lista, que lleva a la página 1 con lo nuevo marcado.
 
 import { texts, useAuditLogContext } from '../../../modules/audit-log/model.ts';
-import { kbPerMinute } from '../../../platform/meter.ts';
+import { kbPerMinute } from '../../../platform/view/meter.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import '../../../ui/switch/switch.css';

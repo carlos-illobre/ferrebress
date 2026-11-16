@@ -63,9 +63,9 @@ module.exports = {
       to: { path: '^src/app/modules/', pathNot: '^src/app/modules/[^/]+/model\\.ts$' },
     },
     {
-      // Mientras dure T134, avisa: lo que la vista usa de la plataforma tiene que pasar a platform/view.
+      // De la plataforma, la vista usa solo su contrato (platform/view).
       name: 'la-vista-solo-usa-el-contrato',
-      severity: 'warn',
+      severity: 'error',
       from: { path: '^src/app/views/', pathNot: 'kit\\.tsx$' },
       to: { path: '^src/app/platform/', pathNot: '^src/app/platform/view/' },
     },

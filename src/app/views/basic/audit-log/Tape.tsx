@@ -13,7 +13,7 @@ import {
   useAuditLogContext,
   useTapeScreen,
 } from '../../../modules/audit-log/model.ts';
-import { useBackStep } from '../../../platform/back-step.ts';
+import { useBackStep } from '../../../platform/view/back-step.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Icon } from '../../../ui/icon/Icon.tsx';

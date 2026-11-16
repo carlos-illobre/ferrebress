@@ -3,9 +3,8 @@
 // separado por «o» (la entrada oscura). En la computadora, mientras se abre la sesión, la espera la
 // tapa (R2.11).
 
-import { entering, texts } from '../../../../modules/sign-in/model.ts';
-import { isPhone } from '../../../../platform/device/device.ts';
-import { useStore } from '../../../../platform/store.ts';
+import { texts, useEntranceModelContext } from '../../../../modules/sign-in/model.ts';
+import { isPhone } from '../../../../platform/view/device.ts';
 import logo from '../../../../styles/brand/logo-on-light.webp';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { FingerButton, ScanButton } from './Buttons.tsx';
@@ -15,7 +14,7 @@ import { ClosedNotice, MainNotice } from './Notices.tsx';
 import { QrBlock } from './qr/QrBlock.tsx';
 
 export function Card() {
-  const way = useStore(entering);
+  const { way } = useEntranceModelContext();
   // Lo de cada dispositivo depende de qué es, no del ancho de la ventana: la computadora siempre
   // muestra el QR y nunca la huella ni «Escanear» (R2.6), aunque la ventana sea angosta.
   const phone = isPhone();

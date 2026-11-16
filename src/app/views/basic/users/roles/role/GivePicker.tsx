@@ -3,8 +3,8 @@
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useState } from 'preact/hooks';
 import { initialsOf, rolesTexts as t } from '../../../../../modules/users/model.ts';
-import { useBackStep } from '../../../../../platform/back-step.ts';
-import { plain } from '../../../../../platform/text.ts';
+import { useBackStep } from '../../../../../platform/view/back-step.ts';
+import { plain } from '../../../../../platform/view/text.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';

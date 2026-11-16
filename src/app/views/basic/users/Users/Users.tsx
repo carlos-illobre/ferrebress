@@ -4,9 +4,9 @@
 // y vuelve sola (R2.2).
 
 import { texts, UsersContext, useUsers, useUsersContext } from '../../../../modules/users/model.ts';
-import { useBackStep } from '../../../../platform/back-step.ts';
-import { useLoaded } from '../../../../platform/lazy.ts';
-import { useNarrow } from '../../../../platform/narrow.ts';
+import { useBackStep } from '../../../../platform/view/back-step.ts';
+import { useLoaded } from '../../../../platform/view/lazy.ts';
+import { useNarrow } from '../../../../platform/view/narrow.ts';
 import { addShapes } from '../../../../ui/icon/Icon.tsx';
 import { peopleShapes } from '../../../../ui/icon/people-shapes.tsx';
 import { LoadState } from '../../../../ui/load-state/LoadState.tsx';

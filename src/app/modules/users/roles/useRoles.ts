@@ -12,7 +12,7 @@ import { useStore } from '../../../platform/store.ts';
 import { notify } from '../../../platform/view/notify.ts';
 import { useUsersContext } from '../state.ts';
 import { duplicateOf, emptyDraft, fromRole } from './draft.ts';
-import { activeHolders, ids, listPath, type NewState, newPath } from './paths.ts';
+import { activeHolders, ids, listPath, type NewState, newPath, rolePath } from './paths.ts';
 import { filterRoles, searchIndex } from './search.ts';
 import { rolesTexts as t } from './texts.ts';
 
@@ -75,6 +75,7 @@ export function useRoleList() {
     wanted: query.trim(),
     arriving: (useStore(route).state as { arriving?: string } | null)?.arriving,
     openNew: (state: NewState = {}) => navigate(newPath, { state }),
+    openRole: (id: string) => navigate(rolePath(id)),
   };
   useScreen('users-roles', model);
   return model;

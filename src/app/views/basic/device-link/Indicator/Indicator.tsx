@@ -6,9 +6,13 @@
 import type { Side } from '@ferrebress/shared/contracts/pairing';
 import type { ComponentChildren } from 'preact';
 import type { LinkView } from '../../../../modules/device-link/model.ts';
-import { detailOpen, texts, useLinkView } from '../../../../modules/device-link/model.ts';
-import { kbPerMinute, useRate } from '../../../../platform/meter.ts';
-import { useStore } from '../../../../platform/store.ts';
+import {
+  texts,
+  useDetailToggle,
+  useLinkView,
+  useRate,
+} from '../../../../modules/device-link/model.ts';
+import { kbPerMinute } from '../../../../platform/view/meter.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say, type Words } from '../../../../ui/say/Say.tsx';
 import './Indicator.css';
@@ -48,7 +52,7 @@ export function SideIndicator({ light, offline }: WithLight) {
 }
 
 function SideButton({ view }: { view: LinkView }) {
-  const open = useStore(detailOpen);
+  const { open, toggle } = useDetailToggle();
   const label = labelOf(view);
   const detail = view.status === 'unpaired' ? texts.tapToPair : view.other;
   return (
@@ -63,7 +67,7 @@ function SideButton({ view }: { view: LinkView }) {
       aria-expanded={open}
       aria-controls="link-detail"
       aria-label={texts.open(label.long, view.other)}
-      onClick={() => detailOpen.set(!open)}
+      onClick={toggle}
     >
       <span class="link-indicator-icon">
         <Icon name="smartphone" />
@@ -83,7 +87,7 @@ function SideButton({ view }: { view: LinkView }) {
 // vínculo, la luz en su lugar (00 · R4.1). La luz la da el marco.
 export function PhoneIndicator({ light, offline }: WithLight) {
   const view = useLinkView();
-  const open = useStore(detailOpen);
+  const { open, toggle } = useDetailToggle();
   if (view.hidden) return <>{light}</>;
   const label = labelOf(view);
   return (
@@ -96,7 +100,7 @@ export function PhoneIndicator({ light, offline }: WithLight) {
         aria-expanded={open}
         aria-controls="link-detail"
         aria-label={texts.open(label.long, view.other)}
-        onClick={() => detailOpen.set(!open)}
+        onClick={toggle}
       >
         <Icon name="monitor" size="small" />
         <span class="link-dot" />

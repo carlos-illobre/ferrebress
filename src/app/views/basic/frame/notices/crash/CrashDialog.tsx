@@ -2,10 +2,9 @@
 // y los últimos pasos), el código y la hora, y dos botones: «Seguir sin avisar» y «Avisar y seguir»
 // (R9.5). Lo que se estaba haciendo sigue ahí (R9.3).
 
-import { type Crash, crash, saveReport, texts } from '../../../../../modules/frame/model.ts';
-import { useStore } from '../../../../../platform/store.ts';
-import { formatTime } from '../../../../../platform/time.ts';
+import { type Crash, saveReport, texts, useCrash } from '../../../../../modules/frame/model.ts';
 import { notify } from '../../../../../platform/view/notify.ts';
+import { formatTime } from '../../../../../platform/view/time.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
@@ -14,10 +13,9 @@ import { Say } from '../../../../../ui/say/Say.tsx';
 const time = (at: number) => formatTime(at);
 
 export function CrashDialog() {
-  const shown = useStore(crash);
+  const { shown, close } = useCrash();
   if (!shown) return null;
   const t = texts.crash;
-  const close = () => crash.set(undefined);
   return (
     <Dialog label={t.title} className="crash-dialog">
       <div class="crash-head">

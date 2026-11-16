@@ -2,14 +2,8 @@
 // arranque, y lo que abren (el detalle), que se baja recién cuando el vínculo llegó y algo se abre.
 
 import type { FrameLink } from '../../../modules/device-link/model.ts';
-import {
-  detailOpen,
-  linkRuntime,
-  reading,
-  unpairAsked,
-} from '../../../modules/device-link/model.ts';
-import { useLoaded } from '../../../platform/lazy.ts';
-import { useStore } from '../../../platform/store.ts';
+import { useOverShown } from '../../../modules/device-link/model.ts';
+import { useLoaded } from '../../../platform/view/lazy.ts';
 import { PhoneIndicator, SideIndicator } from './Indicator/Indicator.tsx';
 
 function LoadedOver() {
@@ -18,11 +12,7 @@ function LoadedOver() {
 }
 
 function LinkOver() {
-  const runtime = useStore(linkRuntime);
-  const open = useStore(detailOpen);
-  const read = useStore(reading);
-  const asked = useStore(unpairAsked);
-  return (open || read || asked) && runtime ? <LoadedOver /> : null;
+  return useOverShown() ? <LoadedOver /> : null;
 }
 
 export const frameLink: FrameLink = { Side: SideIndicator, Phone: PhoneIndicator, Over: LinkOver };

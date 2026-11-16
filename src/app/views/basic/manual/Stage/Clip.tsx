@@ -3,7 +3,7 @@
 // otra vez (también con Alt V, como «Ver el clip»). Con «reducir movimiento», solo el último cuadro.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { mediaUrl, texts } from '../../../../modules/manual/model.ts';
-import { systemStill } from '../../../../platform/motion.ts';
+import { systemStill } from '../../../../platform/view/motion.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import './Clip.css';

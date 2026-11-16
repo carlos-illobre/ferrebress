@@ -8,7 +8,7 @@ import {
   type Receipt,
   mineTexts as t,
 } from '../../../../../modules/device-settings/model.ts';
-import { isPhone } from '../../../../../platform/device/device.ts';
+import { isPhone } from '../../../../../platform/view/device.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';

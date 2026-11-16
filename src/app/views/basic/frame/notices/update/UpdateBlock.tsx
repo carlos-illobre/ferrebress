@@ -2,16 +2,14 @@
 // aplicación se bloquea con un solo botón. No se cierra: no tiene nada para Esc, y tocar afuera lo
 // sacude.
 
-import { texts, update } from '../../../../../modules/frame/model.ts';
-import { updateRequired } from '../../../../../platform/server/api.ts';
-import { useStore } from '../../../../../platform/store.ts';
+import { texts, useUpdateRequired } from '../../../../../modules/frame/model.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../../ui/say/Say.tsx';
 
 export function UpdateBlock() {
-  const required = useStore(updateRequired);
+  const { required, update } = useUpdateRequired();
   if (!required) return null;
   const t = texts.update;
   return (

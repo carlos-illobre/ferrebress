@@ -28,6 +28,7 @@ export {
 } from './logic.ts';
 export { type Owner, useLost } from './lost.ts';
 export { saveRoles } from './person-roles.ts';
+export { useAuthorize, usePersonRoles } from './person-roles-model.ts';
 export { personRoleTexts } from './person-roles-texts.ts';
 export { refusalText, refused } from './refusals.ts';
 export { removeRole, type SaveOutcome, saveDraft } from './roles/actions.ts';

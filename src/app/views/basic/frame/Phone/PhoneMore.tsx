@@ -14,7 +14,7 @@ import {
   unavailable,
   useFrame,
 } from '../../../../modules/frame/model.ts';
-import { useWaiting } from '../../../../platform/waiting.ts';
+import { useWaiting } from '../../../../platform/view/waiting.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { LightText } from '../Pending/Pending.tsx';
 import './PhoneMore.css';

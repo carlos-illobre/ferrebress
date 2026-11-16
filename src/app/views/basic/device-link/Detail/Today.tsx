@@ -9,7 +9,7 @@ import {
   lanes,
   useStrip,
 } from '../../../../modules/device-link/model.ts';
-import { formatHour } from '../../../../platform/time.ts';
+import { formatHour } from '../../../../platform/view/time.ts';
 
 export function Today() {
   const view = useStrip();

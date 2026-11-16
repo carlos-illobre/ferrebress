@@ -3,13 +3,7 @@
 // su recuadro, y como mucho dos círculos (pedido de Carlos).
 import type { RoleRow as Row } from '@ferrebress/shared/contracts/roles';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import {
-  activeHolders,
-  initialsOf,
-  rolePath,
-  rolesTexts as t,
-} from '../../../../../modules/users/model.ts';
-import { navigate } from '../../../../../platform/router.ts';
+import { activeHolders, initialsOf, rolesTexts as t } from '../../../../../modules/users/model.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import './RoleRow.css';
 
@@ -35,12 +29,14 @@ export function RoleRow({
   people,
   arriving,
   first,
+  open,
 }: {
   role: Row;
   people: PersonRow[];
   arriving: boolean;
   // El primero de la lista: Enter en el buscador lo abre (00 · R2.6).
   first: boolean;
+  open: () => void;
 }) {
   const holders = activeHolders(people, role.id);
   const count = role.permissions.length;
@@ -51,7 +47,7 @@ export function RoleRow({
       aria-label={t.open(role.name)}
       data-mark=""
       data-default={first ? '' : undefined}
-      onClick={() => navigate(rolePath(role.id))}
+      onClick={open}
     >
       <span class="roles-icon">
         <Icon name={role.system ? 'shield-check' : 'users'} />

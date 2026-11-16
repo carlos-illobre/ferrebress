@@ -11,8 +11,8 @@ import {
   nameOf,
   mineTexts as t,
 } from '../../../../../modules/device-settings/model.ts';
-import { isPhone } from '../../../../../platform/device/device.ts';
-import { dayMonthOf, nowMs, sinceOf } from '../../../../../platform/time.ts';
+import { isPhone } from '../../../../../platform/view/device.ts';
+import { dayMonthOf, nowMs, sinceOf } from '../../../../../platform/view/time.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 
 const iconOf = (device: { isPhone?: boolean }) => (device.isPhone ? 'smartphone' : 'monitor');

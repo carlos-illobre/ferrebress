@@ -2,18 +2,14 @@
 // tarjeta en la esquina con «Ahora no» y «Actualizar». Cerrada, no vuelve hasta la próxima vez que
 // se abra la aplicación, que se actualiza sola.
 
-import { dismissed, texts, update } from '../../../../../modules/frame/model.ts';
-import { newVersion } from '../../../../../platform/server/api.ts';
-import { useStore } from '../../../../../platform/store.ts';
-import { notify } from '../../../../../platform/view/notify.ts';
+import { texts, useVersionNotice } from '../../../../../modules/frame/model.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../../ui/say/Say.tsx';
 
 export function VersionNotice() {
-  const waiting = useStore(newVersion);
-  const closed = useStore(dismissed);
-  if (!waiting || closed) return null;
+  const notice = useVersionNotice();
+  if (!notice.shown) return null;
   const t = texts.update;
   return (
     <section class="version-notice" role="status" aria-label={t.title} data-layer="">
@@ -33,14 +29,11 @@ export function VersionNotice() {
           size="small"
           shortcut="n"
           closes
-          onPress={() => {
-            dismissed.set(true);
-            notify(t.later);
-          }}
+          onPress={notice.later}
         >
           {t.notNow}
         </Button>
-        <Button doing={t.updating} look="dark" size="small" shortcut="a" onPress={update}>
+        <Button doing={t.updating} look="dark" size="small" shortcut="a" onPress={notice.update}>
           {t.now}
         </Button>
       </div>

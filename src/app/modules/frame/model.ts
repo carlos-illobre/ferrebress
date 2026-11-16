@@ -30,6 +30,7 @@ export {
 export { words as noPermissionWords } from './no-permission-texts.ts';
 export { type Crash, crash, saveReport } from './notices/crash/crash.ts';
 export { dismissed, update } from './notices/update/update.ts';
+export { useCrash, useOpened, useUpdateRequired, useVersionNotice } from './notices-model.ts';
 export {
   type LostPermission,
   useLostPermission,

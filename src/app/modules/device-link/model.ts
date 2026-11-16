@@ -1,11 +1,13 @@
 // Lo que las vistas usan de este módulo (ADR-019): sus modelos, sus textos y las cuentas que
 // muestran. Las vistas no importan nada más del módulo; index.ts es lo que va en el arranque.
 
+// Lo que entra y sale por el canal, para el indicador.
+export { useRate } from '../../platform/meter.ts';
 // El lugar del vínculo en el marco.
 export type { FrameLink } from '../frame/index.ts';
 export { linkRuntime, linkStrip } from './current.ts';
 export { type Act, choicesOf } from './detail/choices.ts';
-export { detailOpen, reading, unpairAsked } from './detail/open.ts';
+export { detailOpen, reading, unpairAsked, useDetailToggle, useOverShown } from './detail/open.ts';
 export { useRoundTrip } from './detail/round-trip.ts';
 export { clock, day, detailTexts, duration, since } from './detail/texts.ts';
 export { hours, lanes, useStrip } from './detail/today.ts';

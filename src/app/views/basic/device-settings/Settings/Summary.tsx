@@ -3,9 +3,13 @@
 
 import type { SettingsView } from '../../../../modules/device-settings/model.ts';
 import { moves, texts } from '../../../../modules/device-settings/model.ts';
-import { still } from '../../../../platform/motion.ts';
-import { serverNow } from '../../../../platform/server/clock.ts';
-import { formatTime, formatTimeAs, type TimeFormat } from '../../../../platform/time.ts';
+import { still } from '../../../../platform/view/motion.ts';
+import {
+  formatTime,
+  formatTimeAs,
+  serverNow,
+  type TimeFormat,
+} from '../../../../platform/view/time.ts';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
 import { Say, type Words } from '../../../../ui/say/Say.tsx';
 

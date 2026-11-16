@@ -2,22 +2,17 @@
 // ninguno tildado de antemano (E42). Un correo sin forma de correo o ya cargado se dice junto al
 // campo, sin perder lo escrito; sin ningún rol, junto a los roles.
 
-import { useState } from 'preact/hooks';
-import * as z from 'zod/mini';
 import {
-  authorize,
   refusalTexts,
   dialogTexts as t,
+  useAuthorize,
   useUsersContext,
 } from '../../../../modules/users/model.ts';
-import { useMirrored } from '../../../../platform/mirror/use-mirrored.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { RolePicker } from '../PersonRoles/RolePicker.tsx';
 import './Overlays.css';
-
-const looksLikeEmail = (text: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text.trim());
 
 // Sus roles: ninguno tildado de antemano (E42); sin ninguno, se dice acá.
 function RolesField(props: {
@@ -77,65 +72,42 @@ function EmailField(props: {
   );
 }
 
-const text = z.string().check(z.maxLength(320));
-const ids = z.array(z.string().check(z.maxLength(64))).check(z.maxLength(60));
-
 export function Authorize() {
-  const users = useUsersContext();
-  // Lo escrito y lo tildado viaja al otro dispositivo; los avisos, no.
-  const [name, setName] = useMirrored('users.authorize.name', '', text);
-  const [email, setEmail] = useMirrored('users.authorize.email', '', text);
-  const [error, setError] = useState<string>(); // local: lo que contestó a este dispositivo
-  const [roles, setRoles] = useMirrored<string[]>('users.authorize.roles', [], ids);
-  const [noRoles, setNoRoles] = useState(false); // local: el aviso de este dispositivo
-  const send = async () => {
-    if (!looksLikeEmail(email)) return setError(refusalTexts['bad-request']);
-    if (roles.length === 0) return setNoRoles(true);
-    const refused = await authorize(users, { name, email, roles }, send);
-    if (refused) setError(refusalTexts[refused]);
-  };
+  const form = useAuthorize();
   return (
     <Dialog label={t.authorizeTitle} className="users-dialog users-authorize">
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void send();
+          void form.send();
         }}
         noValidate
       >
         <h2>{t.authorizeTitle}</h2>
         <p class="users-lead">{t.authorizeLead}</p>
-        <EmailField
-          email={email}
-          error={error}
-          onInput={(value) => {
-            setEmail(value);
-            setError(undefined);
-          }}
-        />
+        <EmailField email={form.email} error={form.error} onInput={form.typeEmail} />
         <label class="users-field users-field-name" data-private="">
           <span>{t.name}</span>
           <input
-            value={name}
+            value={form.name}
             autocomplete="off"
             maxLength={80}
-            onInput={(event) => setName(event.currentTarget.value)}
+            onInput={(event) => form.typeName(event.currentTarget.value)}
           />
           <small>{t.nameHint}</small>
         </label>
-        <RolesField
-          chosen={roles}
-          missing={noRoles}
-          onChange={(next) => {
-            setRoles(next);
-            setNoRoles(false);
-          }}
-        />
+        <RolesField chosen={form.roles} missing={form.noRoles} onChange={form.chooseRoles} />
         <div class="users-dialog-foot">
-          <Button look="plain" doing={t.cancel} onPress={users.close} closes>
+          <Button look="plain" doing={t.cancel} onPress={form.close} closes>
             {t.cancel}
           </Button>
-          <Button look="action" icon="user-check" doing={t.authorizeYes} onPress={send} primary>
+          <Button
+            look="action"
+            icon="user-check"
+            doing={t.authorizeYes}
+            onPress={form.send}
+            primary
+          >
             {t.authorizeYes}
           </Button>
         </div>

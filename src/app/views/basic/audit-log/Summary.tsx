@@ -10,7 +10,7 @@ import {
   texts,
   useAuditLogContext,
 } from '../../../modules/audit-log/model.ts';
-import { formatHourOfDay } from '../../../platform/time.ts';
+import { formatHourOfDay } from '../../../platform/view/time.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import './Summary.css';
 

@@ -4,18 +4,15 @@
 // red, lo dice. Este archivo va en el arranque, con la historia (`place/back.ts`) y la pantalla sin
 // red: nada más del manual.
 
-import { backOf } from '../../../modules/manual/model.ts';
-import { isPhone } from '../../../platform/device/device.ts';
-import { useLazy } from '../../../platform/lazy.ts';
-import { route } from '../../../platform/router.ts';
-import { useStore } from '../../../platform/store.ts';
+import { useBack } from '../../../modules/manual/model.ts';
+import { isPhone } from '../../../platform/view/device.ts';
+import { useLazy } from '../../../platform/view/lazy.ts';
 import { VersionNotice } from '../frame/index.ts';
 import { NeedsInternet } from './place/NeedsInternet.tsx';
 
 export function ManualSlot({ testing }: { testing: boolean }) {
   const screen = useLazy(() => import('./Manual/Manual.tsx'));
-  const where = useStore(route);
-  const back = backOf(where.state);
+  const back = useBack();
   if (screen === 'offline') return <NeedsInternet back={back} />;
   if (!screen) return null;
   return (

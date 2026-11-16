@@ -5,7 +5,7 @@
 
 import type { Way } from '../../../../../modules/sign-in/model.ts';
 import { texts } from '../../../../../modules/sign-in/model.ts';
-import { isPhone } from '../../../../../platform/device/device.ts';
+import { isPhone } from '../../../../../platform/view/device.ts';
 import isotype from '../../../../../styles/brand/isotype.svg';
 import logoOnDark from '../../../../../styles/brand/logo-on-dark-large.webp';
 import logo from '../../../../../styles/brand/logo-on-light.webp';

@@ -5,9 +5,9 @@ import type { MyDevicesResponse } from '@ferrebress/shared/contracts/device-sett
 import type { ComponentChildren } from 'preact';
 import type { DeviceSettings, NameModel } from '../../../../../modules/device-settings/model.ts';
 import { lastUseOf, mineTexts as t } from '../../../../../modules/device-settings/model.ts';
-import { isPhone as onPhone } from '../../../../../platform/device/device.ts';
-import { useLoaded } from '../../../../../platform/lazy.ts';
-import { dayMonthOf, nowMs } from '../../../../../platform/time.ts';
+import { isPhone as onPhone } from '../../../../../platform/view/device.ts';
+import { useLoaded } from '../../../../../platform/view/lazy.ts';
+import { dayMonthOf, nowMs } from '../../../../../platform/view/time.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { loadConfirmSheet } from '../../../sign-in/index.ts';

@@ -4,24 +4,19 @@
 
 import { permissions } from '@ferrebress/shared/contracts/permissions';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import { useState } from 'preact/hooks';
-import * as z from 'zod/mini';
 import {
-  refusalTexts,
-  saveRoles,
   personRoleTexts as t,
+  usePersonRoles,
   useUsersContext,
 } from '../../../../modules/users/model.ts';
-import { useMirrored } from '../../../../platform/mirror/use-mirrored.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Problem } from './Problem.tsx';
 import { RolePicker } from './RolePicker.tsx';
 import './PersonRoles.css';
-import { useNarrow } from '../../../../platform/narrow.ts';
+import { useNarrow } from '../../../../platform/view/narrow.ts';
 
 const firstName = (person: PersonRow) => person.displayName.split(/[\s@]/)[0] as string;
-const same = (a: string[], b: string[]) => a.length === b.length && a.every((id) => b.includes(id));
 
 // Lo que va a poder con esos roles, y de cuáles le viene cada permiso.
 function Abilities({ chosen }: { chosen: string[] }) {
@@ -43,31 +38,6 @@ function Abilities({ chosen }: { chosen: string[] }) {
   );
 }
 
-// Lo elegido, el aviso sin roles y guardar: lo comparten la computadora y el celular.
-function useChosen(person: PersonRow) {
-  const users = useUsersContext();
-  const [chosen, setChosen] = useMirrored<string[]>(
-    `users.card.roles:${person.id}`,
-    person.roleIds,
-    z.array(z.string().check(z.maxLength(64))).check(z.maxLength(60)),
-  );
-  const [error, setError] = useState<string>(); // local: lo que contestó a este dispositivo
-  return {
-    chosen,
-    error,
-    changed: !same(chosen, person.roleIds),
-    choose: (next: string[]) => {
-      setChosen(next);
-      setError(undefined);
-    },
-    undo: () => setChosen(person.roleIds),
-    save: async () => {
-      if (chosen.length === 0) return setError(refusalTexts['no-roles']);
-      return saveRoles(users, person, chosen);
-    },
-  };
-}
-
 export function PersonRoles({ person }: { person: PersonRow }) {
   return useNarrow() ? <PhoneRoles person={person} /> : <DesktopRoles person={person} />;
 }
@@ -75,7 +45,7 @@ export function PersonRoles({ person }: { person: PersonRow }) {
 // La computadora (variante 1): la lista para tildar y, debajo, lo que va a poder.
 function DesktopRoles({ person }: { person: PersonRow }) {
   const users = useUsersContext();
-  const roles = useChosen(person);
+  const roles = usePersonRoles(person);
   const title = t.title(firstName(person));
   return (
     <section id="users-roles" class="person-roles" aria-label={title}>
@@ -104,7 +74,7 @@ function DesktopRoles({ person }: { person: PersonRow }) {
 // lo que va a poder y el pie fijo con lo que cambia y «Guardar».
 function PhoneRoles({ person }: { person: PersonRow }) {
   const users = useUsersContext();
-  const roles = useChosen(person);
+  const roles = usePersonRoles(person);
   // La tarjeta se abre con la lista ya traída.
   const others = (users.people as PersonRow[]).filter((one) => one.id !== person.id && one.active);
   const title = t.question(firstName(person));
@@ -178,7 +148,13 @@ function RoleSwitches(props: {
 }
 
 // Lo que cambia («Eso es»: lo que gana y lo que pierde), que dar pide confirmar, y «Guardar».
-function PhoneFoot({ person, roles }: { person: PersonRow; roles: ReturnType<typeof useChosen> }) {
+function PhoneFoot({
+  person,
+  roles,
+}: {
+  person: PersonRow;
+  roles: ReturnType<typeof usePersonRoles>;
+}) {
   const users = useUsersContext();
   const name = (id: string) => users.roles.find((role) => role.id === id)?.name;
   const added = roles.chosen.filter((id) => !person.roleIds.includes(id));

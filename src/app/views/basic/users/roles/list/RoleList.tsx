@@ -71,6 +71,7 @@ export function RoleList() {
                 people={people}
                 arriving={role.id === arriving}
                 first={index === 0}
+                open={() => list.openRole(role.id)}
               />
             </li>
           ))}

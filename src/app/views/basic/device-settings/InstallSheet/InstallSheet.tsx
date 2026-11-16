@@ -4,7 +4,7 @@
 // espeja.
 import { useRef, useState } from 'preact/hooks';
 import { installHere, texts } from '../../../../modules/device-settings/model.ts';
-import { useBackStep } from '../../../../platform/back-step.ts';
+import { useBackStep } from '../../../../platform/view/back-step.ts';
 import { notify } from '../../../../platform/view/notify.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';

@@ -4,9 +4,9 @@
 
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
 import { detailTexts, type LinkView, onPhone } from '../../../../modules/device-link/model.ts';
-import { useNarrow } from '../../../../platform/narrow.ts';
-import { serverNow } from '../../../../platform/server/clock.ts';
+import { useNarrow } from '../../../../platform/view/narrow.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
+import { serverNow } from '../../../../platform/view/time.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Say, type Words } from '../../../../ui/say/Say.tsx';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
