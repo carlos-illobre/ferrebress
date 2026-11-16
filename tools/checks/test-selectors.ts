@@ -1,8 +1,8 @@
 // Que las pruebas busquen como la persona (ADR-019): por rol, nombre y texto, nunca por clase ni por
 // selectores de CSS. Solo los conductores de cada pantalla (los kits, en la carpeta de su vista)
-// saben cómo está armado el HTML; las pruebas de las piezas de ui/ sí miran sus clases. Mientras
-// dure T134, `pending` dice qué pruebas todavía buscan por el HTML: esas no fallan, y si una ya quedó
-// limpia hay que sacarla de la lista, así solo se achica.
+// saben cómo está armado el HTML; las pruebas de las piezas de ui/ sí miran sus clases. `pending`
+// dice qué pruebas todavía buscan por el HTML: esas no fallan, y si una ya quedó limpia hay que
+// sacarla de la lista, así solo se achica.
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { listFiles, readText } from '../files.ts';

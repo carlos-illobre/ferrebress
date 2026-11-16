@@ -29,7 +29,7 @@ El mismo nombre se usa en el capítulo (`docs/chapters/NN-<module>/`), en el dis
 | 05 | `audit-log` | La auditoría (lo que hacen las personas): guardarla, con el dato afectado de cada acción, y consultarla en Más → Usuarios → Auditoría. La historia de un dato se muestra con el catálogo (T115) y cuánto se guarda se decide con las copias (T116) | Va antes del catálogo porque lo usan los que siguen: la historia de precios y de stock se lee de acá, y Carlos ve en la auditoría lo que hace cada módulo mientras lo prueba | 01 | Hecho: Carlos lo probó y lo aprobó, con su manual |
 | 06 | `administration` | En dos etapas, en Más → Administración. **a. Ajustes para todos:** lo que fija un Administrador y cumplen todos los dispositivos (redondeo, márgenes rápidos, zona horaria, días del vínculo, los tiempos de la sesión). **b. Anomalías:** la pantalla de anomalías, a la que cada módulo le suma las suyas; se construye con 08a | La a, antes del catálogo, que necesita el redondeo y los márgenes: mejor editarlos de entrada que dejar valores fijos; la b, con las listas de precios, el primer módulo que suma anomalías | a: 02b, 05; b: 06a | a: hecha: Carlos la probó y la aprobó, con su manual en el capítulo «Administración»; b: En curso con 08a: paso 3 |
 | 07 | `catalog` | En tres etapas. **a. Catálogo base:** productos (enteros o fraccionados), proveedores, costo, margen y precio con su cuenta, búsqueda, la ficha del producto y la preferencia de ver los importes con decimales, en Configuración. **b. Código y foto:** el código de barras y la foto del producto, junto con 03b, que usa la misma cámara del celular. **c. Duplicados e historia:** unir en uno el mismo artículo de varios proveedores (sugeridos o a mano) y volver a separarlos, y la historia del precio de un producto (T115) | La base de vender. La a, después de las listas, porque los productos salen solo de ellas; la c, también después de las listas, porque los duplicados aparecen al comparar listas de varios proveedores | a: 08a; b: 07a, 03a; c: 07a, 08a | a: en pausa en el paso 1, hasta cerrar 08a (lo confirmado y las preguntas, en su resumen); b: libre; c: libre |
-| 08 | `price-lists` | En tres etapas. **a. La lista a mano:** los proveedores (datos de contacto y cómo cobran: IVA y descuentos), subir el Excel o el CSV de un proveedor, reconocer de quién es, leerlo con el lector de ese formato o con el lector automático, ver qué cambia, aplicarlo o descartarlo, y el archivo original; aplicar una lista da de alta los productos, les pone o cambia el costo y da de baja los que ya no trae ningún proveedor, que es la única forma de crear productos; los productos de cada proveedor se ven en una lista simple hasta que exista el catálogo; Administración → Lectores. **b. Los lectores generados por IA:** cuando ningún lector entiende una planilla, una IA escribe el lector, que queda guardado; la clave y el modelo, en Administración, con el rol «Superadministrador». **c. Otros formatos y ofertas:** listas en PDF y las ofertas de un proveedor, que bajan el costo mientras duran. No se reciben listas solas (por correo o por portal) ni hay aviso de qué remarcar: si cambian los precios, se sube la lista nueva | Sin listas no hay productos: va antes del catálogo | a: 06a; b: 08a; c: 08a | a: En curso: paso 3, después de T134; b: libre; c: libre |
+| 08 | `price-lists` | En tres etapas. **a. La lista a mano:** los proveedores (datos de contacto y cómo cobran: IVA y descuentos), subir el Excel o el CSV de un proveedor, reconocer de quién es, leerlo con el lector de ese formato o con el lector automático, ver qué cambia, aplicarlo o descartarlo, y el archivo original; aplicar una lista da de alta los productos, les pone o cambia el costo y da de baja los que ya no trae ningún proveedor, que es la única forma de crear productos; los productos de cada proveedor se ven en una lista simple hasta que exista el catálogo; Administración → Lectores. **b. Los lectores generados por IA:** cuando ningún lector entiende una planilla, una IA escribe el lector, que queda guardado; la clave y el modelo, en Administración, con el rol «Superadministrador». **c. Otros formatos y ofertas:** listas en PDF y las ofertas de un proveedor, que bajan el costo mientras duran. No se reciben listas solas (por correo o por portal) ni hay aviso de qué remarcar: si cambian los precios, se sube la lista nueva | Sin listas no hay productos: va antes del catálogo | a: 06a; b: 08a; c: 08a | a: Paso 3, el diseño técnico; b: libre; c: libre |
 | 09 | `stock` | Cuánto hay de cada producto, correcciones a mano y las anomalías de stock | Vender lo descuenta | 07, 08a | Libre |
 | 10 | `sales` | Vender, cobrar, ventas del día, corregir, anular, cambio de producto, consultas no satisfechas | El corazón del mostrador | 07, 09 | Libre |
 | 11 | `purchases` | Ingreso de mercadería y pedidos a proveedores | Atender proveedores | 07, 09 | Libre |
@@ -52,7 +52,7 @@ paralelo»).
 
 | Parte | Qué incluye | Estado |
 |---|---|---|
-| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/views/basic/ui/`, `src/app/views/basic/styles/` | En curso: T134 |
+| Código común | `src/shared/`, `src/server/platform/`, `src/app/platform/`, `src/app/views/basic/ui/`, `src/app/views/basic/styles/` | Libre |
 | Documentos del proyecto | La constitución, la arquitectura y los ADR, este plan (salvo la columna de estado) | Libre |
 
 ## Tareas pendientes de la base
@@ -140,12 +140,13 @@ paralelo»).
   en su capítulo.
 - [ ] T133 [agente] El avance a la vista pasado 1 segundo, en toda la aplicación (00 · R7.3): hoy
   aparece a los 2 segundos y solo cuando se sabe cuánto falta.
-- [ ] T134 [agente] **Antes de programar 08a.** Que la interfaz se pueda rehacer entera sin tocar nada más: en la aplicación, lo
+- [x] T134 [agente] **Antes de programar 08a.** Que la interfaz se pueda rehacer entera sin tocar nada más: en la aplicación, lo
   gráfico (las pantallas, sus estilos, las piezas de `ui/` y los tokens) queda separado de todo lo
   demás (las reglas, los datos, la sesión, sin conexión, el espejo, el teclado), que se usa sin
-  cambios desde una interfaz nueva o desde varias vistas a la vez. La revisión de qué está mezclado
-  está en `docs/technical/ui-separation-review.md`; falta el ADR del patrón, los controles en
-  `pnpm check` y el arreglo, sin cambiar lo que hace la aplicación.
+  cambios desde una interfaz nueva o desde varias vistas a la vez (ADR-019, con sus controles en
+  `pnpm check`). Lo que queda de la revisión (`docs/technical/ui-separation-review.md`) sigue en
+  T137 (la navegación sobre los roles de accesibilidad) y en T138 («Algo salió mal», que lee la
+  página, y la actividad que mira el vínculo en cada pestaña).
 - [ ] T135 [carlos] La interfaz gráfica, al final, cuando esté toda la funcionalidad: los pasos 2,
   2b y 9 de todos los módulos (maquetas y manual), con vistas nuevas sobre la misma lógica. Depende
   de T134.
@@ -154,7 +155,10 @@ paralelo»).
   paso. Hoy la lista es la vieja. Con 07a, que es donde se ven los precios.
 - [ ] T137 [carlos] Las reglas de navegación con el teclado (00 · R2.1 a R2.7), iguales para toda
   la aplicación: Carlos las va pasando a medida que usa la aplicación, hasta llegar al juego que le
-  sirve. Cada una es un cambio de regla en 00 y un archivo de `keyboard/navigation/rules/`.
+  sirve. Cada una es un cambio de regla en 00 y un archivo de `keyboard/navigation/rules/`. Con
+  ellas, la navegación pasa a trabajar sobre los roles de accesibilidad (ADR-019) en vez de las
+  marcas de hoy (`data-mark`, `data-layer`): cambia qué recorren las flechas, así que va con sus
+  reglas.
 - [ ] T138 [agente] Las capas enchufables (ADR-020): sin conexión (con instalar y la versión
   nueva), el vínculo con su espejo, «Algo salió mal», el medidor de datos y la anotación de la
   auditoría en el servidor pasan a sus carpetas, enganchados en puntos con nombre del núcleo, con los controles de `pnpm check`. Y

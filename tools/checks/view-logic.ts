@@ -3,8 +3,8 @@
 // por qué es de cómo se ve (en el mismo renglón o arriba de los que van seguidos), y lo privado se
 // marca con privateProps(). En modules/ tampoco se escuchan teclas. Las teclas son de las capas del
 // teclado; lo demás, de los modelos. Los kits y las pruebas no cuentan.
-// Mientras dure T134, `pending` dice qué archivos todavía no se separaron: esos no fallan, pero si
-// uno ya quedó limpio hay que sacarlo de la lista, así solo se achica.
+// `pending` dice qué archivos todavía no se separaron: esos no fallan, pero si uno ya quedó limpio
+// hay que sacarlo de la lista, así solo se achica.
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { listFiles, readText } from '../files.ts';
