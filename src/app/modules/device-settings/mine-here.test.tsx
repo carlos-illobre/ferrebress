@@ -6,12 +6,13 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate } from '../../platform/router.ts';
 import { fakeServer, type Reply } from '../../testing/fake-server.ts';
+import { startKeyboard } from '../../testing/keyboard.ts';
 import { inApp } from '../../testing/link-screens.ts';
 import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
+import { Settings } from '../../views/basic/device-settings/Settings/Settings.tsx';
 import { open } from '../frame/frame-test-kit.tsx';
 import { person } from '../sign-in/index.ts';
-import { Settings } from './index.ts';
 
 const linking = vi.hoisted(() => ({ result: 'linked' as 'linked' | 'other-account' | undefined }));
 vi.mock('../sign-in/index.ts', async (original) => ({
@@ -104,6 +105,22 @@ describe('este dispositivo en Configuración', () => {
     fireEvent.click(await screen.findByRole('button', { name: /Borrar/ }));
     await waitFor(() => expect(toast()).toBe('Nombre borrado: se ve el navegador'));
     expect(server.bodies('/api/me/device-name')).toEqual([{ name: 'caja' }, { name: '' }]);
+  });
+
+  it('device-settings-E52, app-E11: Alt K abre el nombre, cada idea muestra su tecla y Alt 1 la elige', async () => {
+    const stop = startKeyboard();
+    const named = { ...here({ isPhone: false, deviceLabel: 'Chrome en Windows' }) };
+    openMine({ '/api/me/devices': ok(named) }, false);
+    const put = await screen.findByRole('button', { name: /Ponele nombre/ });
+    expect(put.querySelector('kbd')?.textContent).toBe('K');
+    fireEvent.keyDown(window, { key: 'k', code: 'KeyK', altKey: true });
+    await screen.findByRole('textbox');
+    const first = screen
+      .getAllByRole('button')
+      .find((button) => button.querySelector('kbd')?.textContent === '1') as HTMLElement;
+    fireEvent.keyDown(window, { key: '1', code: 'Digit1', altKey: true });
+    expect(`${(input() as HTMLInputElement).value}1`).toBe(first.textContent);
+    stop();
   });
 
   it('device-settings-E42: la huella del celular en la mano se quita y sigue adentro', async () => {

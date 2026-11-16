@@ -1,6 +1,3 @@
-// Configuración del dispositivo (capítulo 04): la pantalla de Más → Configuración, que va en el
-// arranque para abrir sin conexión; lo que eligió cada persona, que se aplica antes de dibujar; y el
-// aviso para instalar del celular, que se baja recién cuando toca.
-export { InstallOffer } from './InstallOffer.tsx';
+// Configuración del dispositivo (capítulo 04): lo que eligió cada persona, que se aplica antes de
+// dibujar. Lo que usan las vistas está en model.ts (ADR-019); sus pantallas, en cada vista.
 export { watchPreferences } from './preferences.ts';
-export { Settings } from './screens/Settings/Settings.tsx';

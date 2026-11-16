@@ -4,13 +4,16 @@
 // conexión); y los otros dispositivos propios. Una sola pantalla para los dos anchos (ADR-002). Va en
 // el arranque, así las preferencias abren sin conexión (diseño de 04, § 3).
 
+import {
+  type SettingsView,
+  texts,
+  useDeviceSettings,
+} from '../../../../modules/device-settings/model.ts';
+import { PhoneLight } from '../../../../modules/frame/index.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { deviceSettingsShapes } from '../../../../ui/icon/device-settings-shapes.tsx';
 import { addShapes, Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
-import { PhoneLight } from '../../../frame/index.ts';
-import { useMine } from '../../mine/useMine.ts';
-import { texts } from '../../texts.ts';
-import { type SettingsView, useSettings } from '../../useSettings.ts';
 import { HereCard } from './Devices/Here.tsx';
 import { Others } from './Devices/Others.tsx';
 import './Devices/Devices.css';
@@ -25,21 +28,16 @@ import './Settings.css';
 addShapes(deviceSettingsShapes);
 
 function Head({ view }: { view: SettingsView }) {
+  const keys = useShortcutHints('device-settings');
   return (
     <header class="settings-head">
       <div class="settings-heading">
         <h1 class="settings-title">{texts.title}</h1>
         {view.changed && (
-          <button
-            type="button"
-            class="settings-reset"
-            data-key="o"
-            data-mark=""
-            onClick={view.reset}
-          >
+          <button type="button" class="settings-reset" data-mark="" onClick={view.reset}>
             <Icon name="rotate-ccw" size="small" />
             <Say words={texts.reset} />
-            <kbd>O</kbd>
+            {keys.reset && <kbd>{keys.reset}</kbd>}
           </button>
         )}
       </div>
@@ -50,13 +48,13 @@ function Head({ view }: { view: SettingsView }) {
 }
 
 export function Settings() {
-  const view = useSettings();
-  const mine = useMine();
+  const model = useDeviceSettings();
+  const { settings: view, mine } = model;
   return (
     <div class="settings">
       <Head view={view} />
       <section class="settings-body" aria-label={texts.title}>
-        <HereCard mine={mine}>
+        <HereCard model={model}>
           <div class="settings-card">
             <AnimationsRow view={view} />
             <TimeRow view={view} />
@@ -64,7 +62,7 @@ export function Settings() {
             <OfflineRow view={view} />
           </div>
         </HereCard>
-        <Others mine={mine} />
+        <Others model={model} />
       </section>
     </div>
   );

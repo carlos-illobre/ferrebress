@@ -10,9 +10,10 @@ import { fakeServer } from '../../testing/fake-server.ts';
 import { startKeyboard } from '../../testing/keyboard.ts';
 import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
+import { Settings } from '../../views/basic/device-settings/Settings/Settings.tsx';
 import { open } from '../frame/frame-test-kit.tsx';
 import { person } from '../sign-in/index.ts';
-import { Settings, watchPreferences } from './index.ts';
+import { watchPreferences } from './index.ts';
 
 const juan = {
   userId: '0190a000-0000-7000-8000-000000000001',

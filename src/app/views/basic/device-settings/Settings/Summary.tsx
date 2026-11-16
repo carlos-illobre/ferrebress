@@ -1,13 +1,13 @@
 // «Así la tenés» (R1.10): una pastilla por preferencia, con lo que pasa de verdad (con el sistema
 // pidiendo no animar, «En el acto»). Tocar una lleva a su renglón; es local, no se espeja.
+
+import type { SettingsView } from '../../../../modules/device-settings/model.ts';
+import { moves, texts } from '../../../../modules/device-settings/model.ts';
 import { still } from '../../../../platform/motion.ts';
 import { serverNow } from '../../../../platform/server/clock.ts';
 import { formatTime, formatTimeAs, type TimeFormat } from '../../../../platform/time.ts';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
 import { Say, type Words } from '../../../../ui/say/Say.tsx';
-import { moves } from '../../rules.ts';
-import { texts } from '../../texts.ts';
-import type { SettingsView } from '../../useSettings.ts';
 
 // Ahora, con la hora del servidor si ya la dijo (diseño de 04, § 4).
 const now = () => serverNow() ?? new Date();

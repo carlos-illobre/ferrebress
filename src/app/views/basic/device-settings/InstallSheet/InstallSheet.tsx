@@ -3,13 +3,12 @@
 // Cerrada sin instalar, de cualquier forma, recuerda dónde está instalar. Es del celular: no se
 // espeja.
 import { useRef, useState } from 'preact/hooks';
+import { installHere, texts } from '../../../../modules/device-settings/model.ts';
 import { useBackStep } from '../../../../platform/back-step.ts';
 import { notify } from '../../../../platform/view/notify.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
-import { texts } from '../../texts.ts';
-import { installHere } from '../../useSettings.ts';
 import './InstallSheet.css';
 
 const t = texts.offer;

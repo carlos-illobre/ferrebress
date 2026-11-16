@@ -2,37 +2,31 @@
 // recibo de lo cortado y una tarjeta por dispositivo. Sin conexión, lo último que se vio, gris, con
 // «Reintentar»: no se pide solo al volver la conexión (R10.1).
 import type { MyDevicesResponse } from '@ferrebress/shared/contracts/device-settings';
-import { useState } from 'preact/hooks';
+import type { DeviceSettings, Mine } from '../../../../../modules/device-settings/model.ts';
+import {
+  countsOf,
+  type Receipt,
+  mineTexts as t,
+} from '../../../../../modules/device-settings/model.ts';
 import { isPhone } from '../../../../../platform/device/device.ts';
+import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Dialog } from '../../../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { LoadState } from '../../../../../ui/load-state/LoadState.tsx';
 import { Offline } from '../../../../../ui/offline/Offline.tsx';
-import { countsOf, type Receipt } from '../../../mine/rules.ts';
-import { mineTexts as t } from '../../../mine/texts.ts';
-import type { Mine } from '../../../mine/useMine.ts';
 import { Family } from './Family.tsx';
 
-function CloseAll({ n, mine, close }: { n: number; mine: Mine; close: () => void }) {
+function CloseAll({ n, closing }: { n: number; closing: DeviceSettings['closingAll'] }) {
   return (
     <Dialog label={t.closeAllTitle(n)} className="mine-dialog">
       <h2>{t.closeAllTitle(n)}</h2>
       <p>{t.closeAllLead(t.here(isPhone()))}</p>
       <div class="mine-dialog-foot">
-        <Button look="plain" doing={t.cancel} onPress={close} closes>
+        <Button look="plain" doing={t.cancel} onPress={closing.cancel} closes>
           {t.cancel}
         </Button>
-        <Button
-          look="red"
-          icon="log-out"
-          doing={t.closeThem(n)}
-          onPress={async () => {
-            close();
-            await mine.closeAll();
-          }}
-          primary
-        >
+        <Button look="red" icon="log-out" doing={t.closeThem(n)} onPress={closing.confirm} primary>
           {t.closeThem(n)}
         </Button>
       </div>
@@ -40,10 +34,10 @@ function CloseAll({ n, mine, close }: { n: number; mine: Mine; close: () => void
   );
 }
 
-function Counts({ data, mine }: { data: MyDevicesResponse; mine: Mine }) {
-  // local: «Cerrar todas» cierra las de esta persona desde este dispositivo, no se espeja.
-  const [asking, setAsking] = useState(false);
+function Counts({ data, model }: { data: MyDevicesResponse; model: DeviceSettings }) {
   const counts = countsOf(data);
+  const closing = model.closingAll;
+  const keys = useShortcutHints('device-settings');
   return (
     <div class="mine-counts">
       <div class="surface mine-count-tile">
@@ -57,11 +51,11 @@ function Counts({ data, mine }: { data: MyDevicesResponse; mine: Mine }) {
         <b>{counts.passkeys}</b>
       </div>
       {counts.sessions > 1 && (
-        <Button icon="log-out" shortcut="x" doing={t.closeAll} onPress={() => setAsking(true)}>
+        <Button icon="log-out" keyHint={keys.closeAll} doing={t.closeAll} onPress={closing.ask}>
           {t.closeAll}
         </Button>
       )}
-      {asking && <CloseAll n={counts.sessions} mine={mine} close={() => setAsking(false)} />}
+      {closing.asking && <CloseAll n={counts.sessions} closing={closing} />}
     </div>
   );
 }
@@ -93,10 +87,11 @@ function ReceiptCard({ receipt, done }: { receipt: Receipt; done: () => void }) 
   );
 }
 
-function List({ data, mine }: { data: MyDevicesResponse; mine: Mine }) {
+function List({ data, model }: { data: MyDevicesResponse; model: DeviceSettings }) {
+  const { mine } = model;
   return (
     <>
-      <Counts data={data} mine={mine} />
+      <Counts data={data} model={model} />
       {mine.receipts.map((receipt) => (
         <ReceiptCard key={receipt.key} receipt={receipt} done={() => mine.dismiss(receipt.key)} />
       ))}
@@ -112,7 +107,8 @@ function List({ data, mine }: { data: MyDevicesResponse; mine: Mine }) {
   );
 }
 
-export function Others({ mine }: { mine: Mine }) {
+export function Others({ model }: { model: DeviceSettings }) {
+  const { mine } = model;
   const { state } = mine;
   const texts = { loading: t.loading, loadFailed: t.failed, retry: t.retry };
   return (
@@ -130,7 +126,7 @@ export function Others({ mine }: { mine: Mine }) {
       )}
       {'data' in state && state.data ? (
         <div class={state.status === 'offline' ? 'mine-server is-offline' : 'mine-server'}>
-          <List data={state.data} mine={mine} />
+          <List data={state.data} model={model} />
         </div>
       ) : (
         state.status !== 'offline' && (

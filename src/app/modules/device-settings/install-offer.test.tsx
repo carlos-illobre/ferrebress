@@ -4,8 +4,8 @@ import { installState, watchInstall } from '../../platform/install.ts';
 import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
+import { InstallOffer } from '../../views/basic/device-settings/InstallOffer.tsx';
 import { offerPasskey, person } from '../sign-in/index.ts';
-import { InstallOffer } from './index.ts';
 import { deviceSettingsSettings } from './settings.ts';
 import { installHere } from './useSettings.ts';
 

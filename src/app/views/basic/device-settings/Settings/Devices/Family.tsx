@@ -4,13 +4,16 @@
 // soltarlo si no se movió.
 import type { MyComputer, MyDevice } from '@ferrebress/shared/contracts/device-settings';
 import { useRef, useState } from 'preact/hooks';
+import type { Mine } from '../../../../../modules/device-settings/model.ts';
+import {
+  deviceSettingsSettings,
+  lastUseOf,
+  nameOf,
+  mineTexts as t,
+} from '../../../../../modules/device-settings/model.ts';
 import { isPhone } from '../../../../../platform/device/device.ts';
 import { dayMonthOf, nowMs, sinceOf } from '../../../../../platform/time.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
-import { lastUseOf, nameOf } from '../../../mine/rules.ts';
-import { mineTexts as t } from '../../../mine/texts.ts';
-import type { Mine } from '../../../mine/useMine.ts';
-import { deviceSettingsSettings } from '../../../settings.ts';
 
 const iconOf = (device: { isPhone?: boolean }) => (device.isPhone ? 'smartphone' : 'monitor');
 const usedLine = (lastUsedAt: number, now: number) =>

@@ -12,9 +12,10 @@ import type { ScreenShortcuts } from './define.ts';
 import { keymap } from './keymap.ts';
 
 const declared = Object.values(
-  import.meta.glob<{ shortcuts: ScreenShortcuts }>('../../modules/*/shortcuts/*.ts', {
-    eager: true,
-  }),
+  import.meta.glob<{ shortcuts: ScreenShortcuts }>(
+    ['../../modules/*/shortcuts/*.ts', '!**/*.test.ts'],
+    { eager: true },
+  ),
 ).map((file) => file.shortcuts);
 
 const showKeysClass = 'show-keys';

@@ -1,8 +1,9 @@
 // El lugar del aviso para instalar, que App pone sobre el marco: la hoja se baja recién cuando toca.
-import { useLoaded } from '../../platform/lazy.ts';
-import { useInstallOffer } from './install-offer.ts';
 
-const loadSheet = () => import('./screens/InstallSheet/InstallSheet.tsx');
+import { useInstallOffer } from '../../../modules/device-settings/model.ts';
+import { useLoaded } from '../../../platform/lazy.ts';
+
+const loadSheet = () => import('./InstallSheet/InstallSheet.tsx');
 
 function Loaded({ onClose }: { onClose: () => void }) {
   const sheet = useLoaded(loadSheet);

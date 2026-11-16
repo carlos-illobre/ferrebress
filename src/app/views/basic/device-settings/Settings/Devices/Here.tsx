@@ -3,28 +3,24 @@
 // preferencias de la etapa a, que se mudan adentro sin cambiar (`children`).
 import type { MyDevicesResponse } from '@ferrebress/shared/contracts/device-settings';
 import type { ComponentChildren } from 'preact';
-import { useState } from 'preact/hooks';
+import type { DeviceSettings, NameModel } from '../../../../../modules/device-settings/model.ts';
+import { lastUseOf, mineTexts as t } from '../../../../../modules/device-settings/model.ts';
+import { loadConfirmSheet } from '../../../../../modules/sign-in/index.ts';
 import { isPhone as onPhone } from '../../../../../platform/device/device.ts';
 import { useLoaded } from '../../../../../platform/lazy.ts';
-import { useStore } from '../../../../../platform/store.ts';
 import { dayMonthOf, nowMs } from '../../../../../platform/time.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
-import { loadConfirmSheet, person } from '../../../../sign-in/index.ts';
-import { lastUseOf } from '../../../mine/rules.ts';
-import { mineTexts as t } from '../../../mine/texts.ts';
-import type { Mine } from '../../../mine/useMine.ts';
-import { deviceSettingsSettings } from '../../../settings.ts';
 import { Computers } from './Family.tsx';
-import { type Draft, Name } from './Name.tsx';
+import { Name } from './Name.tsx';
 
 type Here = MyDevicesResponse['here'];
 
-function Drawing({ here, draft, shines }: { here: Here; draft: Draft; shines: boolean }) {
-  const shown = draft ? draft.text.trim() : here.deviceName;
+function Drawing({ here, name }: { here: Here; name: NameModel }) {
+  const shown = name.shown;
   return (
     <div
-      class={`mine-device ${here.isPhone ? 'is-phone' : 'is-computer'}${shines ? ' shines' : ''}`}
+      class={`mine-device ${here.isPhone ? 'is-phone' : 'is-computer'}${name.shines ? ' shines' : ''}`}
     >
       <div class="mine-screen">
         <span class={shown ? 'mine-device-name' : 'mine-device-name unnamed'}>
@@ -45,9 +41,9 @@ function Confirm({ done, close }: { done: () => unknown; close: () => void }) {
   ) : null;
 }
 
-function Passkey({ here, mine, disabled }: { here: Here; mine: Mine; disabled: boolean }) {
-  // local: vincular la huella es de este celular.
-  const [confirming, setConfirming] = useState(false);
+function Passkey({ model, disabled }: { model: DeviceSettings; disabled: boolean }) {
+  const { mine, linking } = model;
+  const here = model.here as Here;
   const now = nowMs();
   if (here.passkey === 'other')
     return (
@@ -63,12 +59,12 @@ function Passkey({ here, mine, disabled }: { here: Here; mine: Mine; disabled: b
           look="dark"
           icon="fingerprint"
           doing={t.passkey.link}
-          onPress={() => setConfirming(true)}
+          onPress={linking.ask}
           disabled={disabled}
         >
           {t.passkey.link}
         </Button>
-        {confirming && <Confirm done={mine.link} close={() => setConfirming(false)} />}
+        {linking.confirming && <Confirm done={linking.confirmed} close={linking.close} />}
       </>
     );
   const since = here.since as NonNullable<Here['since']>;
@@ -92,49 +88,31 @@ function Passkey({ here, mine, disabled }: { here: Here; mine: Mine; disabled: b
   );
 }
 
-function FromServer({ here, mine, disabled }: { here: Here; mine: Mine; disabled: boolean }) {
-  // local: el nombre es de este dispositivo; el otro, en espejo, muestra el suyo (R1.6).
-  const [draft, setDraft] = useState<Draft>(undefined);
-  // local: el brillo al guardar, en el dispositivo que guardó.
-  const [shines, setShines] = useState(false);
-  const who = useStore(person);
-  const ideas = t.name.ideas(here.isPhone, who?.name.split(' ')[0] ?? '');
-  const names = mine.state.status === 'ready' ? mine.state.data.names : [];
-  const save = async (name: string) => {
-    const saved = await mine.rename(name);
-    if (!saved) return;
-    setDraft(undefined);
-    setShines(true);
-    setTimeout(() => setShines(false), deviceSettingsSettings.shineMs);
-  };
+function FromServer({ model, disabled }: { model: DeviceSettings; disabled: boolean }) {
+  const here = model.here as Here;
   return (
     <div class={disabled ? 'mine-server is-offline' : 'mine-server'}>
       <div class="mine-here-top">
-        <Drawing here={here} draft={draft} shines={shines} />
+        <Drawing here={here} name={model.name} />
         <div class="mine-name">
-          <Name
-            {...{
-              isPhone: here.isPhone,
-              name: here.deviceName,
-              names,
-              ideas,
-              draft,
-              setDraft,
-              save,
-              disabled,
-            }}
-          />
+          <Name isPhone={here.isPhone} name={model.name} disabled={disabled} />
         </div>
       </div>
-      {here.isPhone && <Passkey here={here} mine={mine} disabled={disabled} />}
-      <Computers computers={here.computers} here mine={mine} />
+      {here.isPhone && <Passkey model={model} disabled={disabled} />}
+      <Computers computers={here.computers} here mine={model.mine} />
     </div>
   );
 }
 
-export function HereCard({ mine, children }: { mine: Mine; children: ComponentChildren }) {
-  const { state } = mine;
-  const here = 'data' in state ? state.data?.here : undefined;
+export function HereCard({
+  model,
+  children,
+}: {
+  model: DeviceSettings;
+  children: ComponentChildren;
+}) {
+  const { state } = model.mine;
+  const here = model.here;
   return (
     <article class="surface mine-here" aria-label={t.here(here?.isPhone ?? onPhone())}>
       <header class="mine-here-head">
@@ -144,7 +122,7 @@ export function HereCard({ mine, children }: { mine: Mine; children: ComponentCh
           {t.using}
         </span>
       </header>
-      {here && <FromServer here={here} mine={mine} disabled={state.status === 'offline'} />}
+      {here && <FromServer model={model} disabled={state.status === 'offline'} />}
       <div class="mine-prefs">
         <h3 class="mine-sub">{t.howYouUse}</h3>
         {children}

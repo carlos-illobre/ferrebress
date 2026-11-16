@@ -1,10 +1,15 @@
 // Instalar en este dispositivo (R4.1 a R4.3) y, en el celular, trabajar sin conexión (R5): el botón,
 // «Ya está instalada» o los pasos del iPhone; la llave, o apagada con por qué no se puede.
+
+import {
+  installHere,
+  type SettingsView,
+  texts,
+} from '../../../../modules/device-settings/model.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
-import { texts } from '../../texts.ts';
-import { installHere, type SettingsView } from '../../useSettings.ts';
 
 const t = texts.install;
 
@@ -27,6 +32,7 @@ function InstallText({ row }: { row: NonNullable<SettingsView['install']> }) {
 }
 
 export function InstallRow({ view }: { view: SettingsView }) {
+  const keys = useShortcutHints('device-settings');
   if (!view.install) return null;
   return (
     <div class="settings-setting" id="settings-install">
@@ -36,7 +42,13 @@ export function InstallRow({ view }: { view: SettingsView }) {
         </span>
         <InstallText row={view.install} />
         {view.install === 'button' && (
-          <Button look="action" icon="download" shortcut="i" doing={t.button} onPress={installHere}>
+          <Button
+            look="action"
+            icon="download"
+            keyHint={keys.install}
+            doing={t.button}
+            onPress={installHere}
+          >
             {t.button}
           </Button>
         )}

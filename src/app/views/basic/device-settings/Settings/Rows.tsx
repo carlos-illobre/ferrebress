@@ -1,11 +1,12 @@
 // Las animaciones (R2) y el formato de la hora (R3), con su muestra: la ventanita que se mueve o
 // aparece de golpe, y la hora de ahora escrita con cada formato.
+
+import type { SettingsView } from '../../../../modules/device-settings/model.ts';
+import { moves, texts } from '../../../../modules/device-settings/model.ts';
 import type { TimeFormat } from '../../../../platform/time.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
-import { moves } from '../../rules.ts';
-import { texts } from '../../texts.ts';
-import type { SettingsView } from '../../useSettings.ts';
 import { nowIn, nowText } from './Summary.tsx';
 import './Rows.css';
 
@@ -13,6 +14,7 @@ const a = texts.animations;
 
 export function AnimationsRow({ view }: { view: SettingsView }) {
   const on = view.chosen.animations;
+  const keys = useShortcutHints('device-settings');
   return (
     <div class="settings-setting" id="settings-animations">
       <button
@@ -21,7 +23,6 @@ export function AnimationsRow({ view }: { view: SettingsView }) {
         role="switch"
         aria-checked={on}
         aria-labelledby="settings-animations-name"
-        data-key="d"
         data-mark=""
         onClick={() => view.set({ animations: !on })}
       >
@@ -34,7 +35,7 @@ export function AnimationsRow({ view }: { view: SettingsView }) {
             <Say words={a.what} />
           </small>
         </span>
-        <kbd>D</kbd>
+        {keys.animations && <kbd>{keys.animations}</kbd>}
         <span class="switch" aria-hidden="true" />
       </button>
       <div
@@ -66,6 +67,7 @@ const formats: TimeFormat[] = ['h24', 'h12'];
 export function TimeRow({ view }: { view: SettingsView }) {
   const chosen = view.chosen.timeFormat;
   const now = nowText();
+  const keys = useShortcutHints('device-settings');
   return (
     <div class="settings-setting" id="settings-time">
       <div class="settings-row">
@@ -86,15 +88,13 @@ export function TimeRow({ view }: { view: SettingsView }) {
             type="button"
             class="settings-format"
             aria-pressed={format === chosen}
-            // Alt H pasa al otro formato (R1.9).
-            data-key={format === chosen ? undefined : 'h'}
             data-mark=""
             onClick={() => view.set({ timeFormat: format })}
           >
             <span class="settings-format-time">{nowIn(format)}</span>
             <b>{t[format].name}</b>
             <small class="desktop-only">{t[format].detail}</small>
-            {format !== chosen && <kbd>H</kbd>}
+            {format !== chosen && keys.otherTimeFormat && <kbd>{keys.otherTimeFormat}</kbd>}
           </button>
         ))}
       </div>
