@@ -11,7 +11,7 @@ import {
   seller,
   tab,
   toast,
-} from './administration-test-kit.tsx';
+} from '../../views/basic/administration/kit.tsx';
 
 const ok = (value: unknown, version = 1) => ({ body: { value, version } });
 

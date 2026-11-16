@@ -13,13 +13,16 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { useMirroredQuery } from '../../platform/mirror/query.ts';
 import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
 import { oneOf } from '../../platform/schema.ts';
+import { useScreen } from '../../platform/screens.ts';
 import { online as onlineStore } from '../../platform/server/api.ts';
 import { serverNow } from '../../platform/server/clock.ts';
 import { useStore } from '../../platform/store.ts';
+import { formatTime } from '../../platform/time.ts';
 import { person as me } from '../sign-in/index.ts';
 import { administrationApi } from './api.ts';
 import { saving } from './saving.ts';
 import { type Confirm, type Note, schemas } from './schemas.ts';
+import { administrationSettings } from './settings.ts';
 
 export type { Confirm, Note } from './schemas.ts';
 
@@ -54,46 +57,99 @@ function useShown() {
   return { query, preview, panel, setPanel, said, setSaid, asked, setAsked };
 }
 
-export function useAdministration() {
-  const { query, preview, panel, setPanel, said, setSaid, asked, setAsked } = useShown();
+// La hora del negocio, con el reloj del servidor (que ya se sabe: los ajustes llegaron de él), y se
+// mueve sola sin pedidos (R5.1).
+const serverDate = () => serverNow() as Date;
+function useClock(): string {
+  const [now, setNow] = useState(serverDate()); // local: la hora la mueve cada dispositivo
+  useEffect(() => {
+    const timer = setInterval(() => setNow(serverDate()), administrationSettings.clockMs);
+    return () => clearInterval(timer);
+  }, []);
+  return formatTime(now);
+}
+
+// Sin el permiso: qué roles lo tienen (R1.2, E02). Lo pide cada dispositivo, con su sesión.
+function useHolders(canChange: boolean): string {
+  const [roles, setRoles] = useState(''); // local: lo pide cada dispositivo, con su sesión
+  useEffect(() => {
+    if (canChange) return;
+    void administrationApi.holders().then((result) => {
+      if (result.ok) setRoles(result.data.roles.map((role) => role.name).join(', '));
+    });
+  }, [canChange]);
+  return roles;
+}
+
+type Shown = ReturnType<typeof useShown>;
+
+// Guardar al cambiar (R2), sobre lo de ahora: también para un «Deshacer» que se toca después de otro
+// cambio.
+function useSave(shown: Shown, editable: boolean) {
+  const { query, preview, asked, setSaid, setAsked } = shown;
+  const latest = useRef(query.data);
+  latest.current = query.data;
+  const update = useRef(query.update);
+  update.current = query.update;
+  const put = (key: SettingKey, state: SettingState) =>
+    update.current((now) => ({ ...now, settings: { ...now.settings, [key]: state } }));
+  return saving({
+    ...{ latest, put, editable, asked, setSaid, setAsked },
+    refreshPrices: preview.invalidate,
+  });
+}
+
+// Lo último que se vio, para volver a mostrarlo sin conexión (R1.6, E06).
+function useLastSeen(who: object, data: AdministrationResponse | undefined) {
+  useEffect(() => {
+    if (data) lastSeen.set(who, { data, at: serverNow() as Date });
+  }, [data]);
+  return lastSeen.get(who);
+}
+
+// Elegir un ajuste para mirar (R1.8): su panel, y el cursor a sus opciones. Cuántas veces se eligió
+// es de este dispositivo: la vista lleva el cursor cada vez, también cuando se eligió con el teclado.
+function useChoose(setPanel: Shown['setPanel']) {
+  const [chosen, setChosen] = useState(0); // local: el cursor es de este dispositivo
+  const choose = (panel: Panel) => {
+    setPanel(panel);
+    setChosen((times) => times + 1);
+  };
+  return { chosen, choose };
+}
+
+function useModel() {
+  const shown = useShown();
+  const { query, preview, panel, setPanel, said, asked, setAsked } = shown;
   // local: la opción sobre la que pasa el mouse es del dispositivo que tiene el mouse.
   const [looking, setLooking] = useState<{ key: SettingKey; value: number } | undefined>();
   const who = useStore(me);
   const online = useStore(onlineStore);
   const canChange = !!who && can(who, 'settings.change');
   const editable = canChange && online && !!query.data;
-
-  // Lo de ahora, también para un «Deshacer» que se toca después de otro cambio.
-  const latest = useRef(query.data);
-  latest.current = query.data;
-  const update = useRef(query.update);
-  update.current = query.update;
-
-  const put = (key: SettingKey, state: SettingState) =>
-    update.current((now) => ({ ...now, settings: { ...now.settings, [key]: state } }));
-  const save = saving({
-    ...{ latest, put, editable, asked, setSaid, setAsked },
-    refreshPrices: preview.invalidate,
-  });
-
-  // Un paso nuevo del redondeo: pregunta el servidor si cambian precios (R3.4).
-  const chooseStep = (step: number) => void save('roundingStep', step);
-
-  // Lo último que se vio, para volver a mostrarlo sin conexión (R1.6, E06).
-  useEffect(() => {
-    if (query.data) lastSeen.set(who as object, { data: query.data, at: serverNow() as Date });
-  }, [query.data]);
-
+  const save = useSave(shown, editable);
+  const seen = useLastSeen(who as object, query.data);
   return {
-    ...{ data: query.data ?? (query.failed ? lastSeen.get(who as object)?.data : undefined) },
-    seenAt: lastSeen.get(who as object)?.at,
+    ...{ data: query.data ?? (query.failed ? seen?.data : undefined) },
+    seenAtShown: formatTime(seen?.at as Date),
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },
     ...{ prices: preview.data, panel, setPanel, said, asked, looking, setLooking },
-    ...{ canChange, editable, online, save, chooseStep },
+    ...{ canChange, editable, online, save, clock: useClock(), holders: useHolders(canChange) },
+    ...useChoose(setPanel),
+    // Un paso nuevo del redondeo: pregunta el servidor si cambian precios (R3.4).
+    chooseStep: (step: number) => void save('roundingStep', step),
     cancel: () => setAsked(null),
     confirmStep: () =>
       void save('roundingStep', (asked as Confirm).step, (asked as Confirm).prices),
   };
+}
+
+// El modelo de Más → Administración (ADR-019); la confirmación del redondeo es otra pantalla encima.
+export function useAdministration() {
+  const model = useModel();
+  useScreen('administration', model);
+  useScreen('administration-confirm', model, !!model.asked);
+  return model;
 }
 
 export type Administration = ReturnType<typeof useAdministration>;

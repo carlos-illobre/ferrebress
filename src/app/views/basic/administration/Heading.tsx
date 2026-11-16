@@ -1,8 +1,8 @@
 // La cabecera de cada panel: su grupo, su nombre con su candado sin el permiso, qué cambia y, a la
 // derecha, el número grande (cuántos precios, cuándo vence).
 import type { ComponentChildren } from 'preact';
-import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
-import type { Note } from '../../useAdministration.ts';
+import type { Note } from '../../../modules/administration/model.ts';
+import { Icon, type IconName } from '../../../ui/icon/Icon.tsx';
 
 type HeadingProps = {
   group: string;

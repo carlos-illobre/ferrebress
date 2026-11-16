@@ -1,8 +1,14 @@
 // El panel de los tiempos de la sesión (R6): las dos listas y un día en el mostrador con lo que
 // harían.
 import { sessionIdleOptions, sessionMaxOptions } from '@ferrebress/shared/contracts/administration';
-import { counterDay, maxEnds } from '../../logic.ts';
-import { groupOf, names, texts, what } from '../../texts.ts';
+import {
+  counterDay,
+  groupOf,
+  maxEnds,
+  names,
+  texts,
+  what,
+} from '../../../modules/administration/model.ts';
 import { Heading, Said, Subhead } from './Heading.tsx';
 import { locked, looked, onLook, type PanelProps } from './look.ts';
 import { Options } from './Options.tsx';

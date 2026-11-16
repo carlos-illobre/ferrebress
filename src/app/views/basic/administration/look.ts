@@ -1,7 +1,7 @@
 // Lo que comparten los paneles: si se puede tocar, la opción que se mira antes de elegirla y cómo se
 // avisa que se mira otra.
 import type { Settings } from '@ferrebress/shared/contracts/administration';
-import type { Administration } from '../../useAdministration.ts';
+import type { Administration } from '../../../modules/administration/model.ts';
 
 export type PanelProps = { view: Administration; settings: Settings };
 

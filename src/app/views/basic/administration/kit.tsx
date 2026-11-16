@@ -3,13 +3,13 @@
 // permiso.
 import type { AdministrationResponse } from '@ferrebress/shared/contracts/administration';
 import { render, screen } from '@testing-library/preact';
-import { online } from '../../platform/server/api.ts';
-import { syncServerTime } from '../../platform/server/clock.ts';
-import { fakeServer, type Reply } from '../../testing/fake-server.ts';
-import { administrator } from '../../testing/person.ts';
-import { Toasts } from '../../ui/toast/Toast.tsx';
-import { person as me } from '../sign-in/index.ts';
-import { Administration } from './screens/Administration/Administration.tsx';
+import { person as me } from '../../../modules/sign-in/index.ts';
+import { online } from '../../../platform/server/api.ts';
+import { syncServerTime } from '../../../platform/server/clock.ts';
+import { fakeServer, type Reply } from '../../../testing/fake-server.ts';
+import { administrator } from '../../../testing/person.ts';
+import { Toasts } from '../../../ui/toast/Toast.tsx';
+import { Administration } from './Administration.tsx';
 
 // La hora del servidor: miércoles 4 de noviembre de 2026, 14:30 en Buenos Aires.
 export const now = Date.parse('2026-11-04T17:30:00Z');

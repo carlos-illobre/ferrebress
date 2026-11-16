@@ -2,7 +2,13 @@
 // confirmación, cancelar y el recálculo que falla.
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
-import { openAdministration, option, saveOf, tab, toast } from './administration-test-kit.tsx';
+import {
+  openAdministration,
+  option,
+  saveOf,
+  tab,
+  toast,
+} from '../../views/basic/administration/kit.tsx';
 
 const ok = (value: unknown, version = 1) => ({ body: { value, version } });
 

@@ -1,9 +1,9 @@
 // Cuando el código de Administración no se puede bajar: sin red, lo dice.
 import { render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { AdministrationSlot } from './index.ts';
+import { AdministrationSlot } from './Slot.tsx';
 
-vi.mock('./screens/Administration/Administration.tsx', () => Promise.reject(new Error('no está')));
+vi.mock('./Administration.tsx', () => Promise.reject(new Error('no está')));
 
 describe('el lugar de Administración', () => {
   afterEach(() => vi.restoreAllMocks());

@@ -1,11 +1,16 @@
 // El panel de los días del vínculo (R7): escribirlos, elegirlos o deslizarlos, con el día en que
 // vence y el calendario.
 import { useState } from 'preact/hooks';
-import { useNarrow } from '../../../../platform/narrow.ts';
-import { serverNow } from '../../../../platform/server/clock.ts';
-import { expiresOn, weeks } from '../../logic.ts';
-import { administrationSettings } from '../../settings.ts';
-import { groupOf, names, texts, what } from '../../texts.ts';
+import {
+  administrationSettings,
+  expiresIn,
+  groupOf,
+  names,
+  texts,
+  weeks,
+  what,
+} from '../../../modules/administration/model.ts';
+import { useNarrow } from '../../../platform/view/narrow.ts';
 import { Heading, Said, Subhead } from './Heading.tsx';
 import { locked, type PanelProps } from './look.ts';
 
@@ -111,7 +116,7 @@ export function PairingPanel({ view, settings }: PanelProps) {
         locked={props.locked}
         big={{
           label: t.expires,
-          value: expiresOn(days, (serverNow() as Date).getTime()),
+          value: expiresIn(days),
           looking: days !== settings.pairingDays,
         }}
       />

@@ -1,9 +1,9 @@
 // El lugar de Administración baja la pantalla y la muestra.
 import { render, screen } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
-import { AdministrationSlot } from './index.ts';
+import { AdministrationSlot } from './Slot.tsx';
 
-vi.mock('./screens/Administration/Administration.tsx', () => ({
+vi.mock('./Administration.tsx', () => ({
   Administration: () => <p>la pantalla</p>,
 }));
 

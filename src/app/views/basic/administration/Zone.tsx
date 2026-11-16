@@ -1,6 +1,7 @@
 // El panel de la zona horaria (R5): se ve, con la hora del negocio, y no se toca.
-import { groupOf, texts } from '../../texts.ts';
-import type { Administration } from '../../useAdministration.ts';
+
+import type { Administration } from '../../../modules/administration/model.ts';
+import { groupOf, texts } from '../../../modules/administration/model.ts';
 import { Heading } from './Heading.tsx';
 
 export function ZonePanel({ view, clock }: { view: Administration; clock: string }) {

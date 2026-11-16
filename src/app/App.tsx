@@ -12,7 +12,6 @@ import {
   setBusinessTimeZone,
 } from '@ferrebress/shared/time/business';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { AdministrationSlot } from './modules/administration/index.ts';
 import { frameLink, watchDeviceLink } from './modules/device-link/index.ts';
 import { InstallOffer, Settings } from './modules/device-settings/index.ts';
 import {
@@ -54,6 +53,7 @@ import { useReconnect } from './platform/server/reconnect.ts';
 import { startParts } from './platform/server/start-parts.ts';
 import { useStore } from './platform/store.ts';
 import { Toasts } from './ui/toast/Toast.tsx';
+import { AdministrationSlot } from './views/basic/administration/Slot.tsx';
 
 // La pantalla de cada opción del menú que ya existe.
 const screens = { users: UsersSlot, deviceSettings: Settings, administration: AdministrationSlot };

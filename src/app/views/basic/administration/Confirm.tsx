@@ -2,15 +2,18 @@
 // «Cancelar»; si el recálculo no se pudo, lo dice y deja reintentar (R3.5, E22).
 
 import { roundUp } from '@ferrebress/shared/pricing/rounding';
-import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
-import { pesos, shown, thousands } from '../../logic.ts';
-import { texts } from '../../texts.ts';
-import type { Administration, Confirm as Asked } from '../../useAdministration.ts';
+import type { Administration, Confirm as Asked } from '../../../modules/administration/model.ts';
+import { pesos, shown, texts, thousands } from '../../../modules/administration/model.ts';
+import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
+import { Dialog } from '../../../ui/dialog/Dialog.tsx';
 
 export function Confirm({ view, asked }: { view: Administration; asked: Asked }) {
   const t = texts.rounding;
   const title = t.confirmTitle(shown('roundingStep', asked.step));
   const prices = thousands(asked.prices);
+  const keys = useShortcutHints('administration-confirm');
+  const cancelKey = asked.failed ? keys.later : keys.cancel;
+  const doKey = asked.failed ? keys.retry : keys.confirm;
   return (
     <Dialog label={title} className="admin-confirm">
       <h2>{title}</h2>
@@ -40,27 +43,19 @@ export function Confirm({ view, asked }: { view: Administration; asked: Asked })
         </p>
       )}
       <div class="admin-confirm-actions">
-        <button
-          type="button"
-          class="admin-cancel"
-          data-key={asked.failed ? 'a' : 'c'}
-          data-close=""
-          data-mark=""
-          onClick={view.cancel}
-        >
+        <button type="button" class="admin-cancel" data-close="" data-mark="" onClick={view.cancel}>
           {asked.failed ? t.later : t.cancel}
-          <kbd>{asked.failed ? 'A' : 'C'}</kbd>
+          {cancelKey && <kbd>{cancelKey}</kbd>}
         </button>
         <button
           type="button"
           class="admin-do"
-          data-key={asked.failed ? 'r' : 'p'}
           data-primary=""
           data-mark=""
           onClick={view.confirmStep}
         >
           {asked.failed ? texts.retry : t.confirm(prices)}
-          <kbd>{asked.failed ? 'R' : 'P'}</kbd>
+          {doKey && <kbd>{doKey}</kbd>}
         </button>
       </div>
     </Dialog>

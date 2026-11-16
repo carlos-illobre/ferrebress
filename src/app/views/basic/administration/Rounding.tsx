@@ -2,8 +2,15 @@
 // ejemplos con el paso que se mira.
 import { roundingSteps } from '@ferrebress/shared/contracts/administration';
 import { roundUp } from '@ferrebress/shared/pricing/rounding';
-import { pesos, shown, thousands } from '../../logic.ts';
-import { groupOf, names, texts, what } from '../../texts.ts';
+import {
+  groupOf,
+  names,
+  pesos,
+  shown,
+  texts,
+  thousands,
+  what,
+} from '../../../modules/administration/model.ts';
 import { Heading, Said, Subhead } from './Heading.tsx';
 import { locked, looked, onLook, type PanelProps } from './look.ts';
 import { Options } from './Options.tsx';

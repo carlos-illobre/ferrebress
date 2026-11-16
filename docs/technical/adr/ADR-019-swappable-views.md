@@ -28,7 +28,8 @@ src/app/
 │   │                    lo guardado, sin conexión, teclado, cámara, dirección…)
 │   └── view/            lo poco que una vista usa de la plataforma (el contrato, abajo)
 ├── modules/<module>/    la lógica de cada módulo: sin JSX, sin CSS, sin HTML
-│   ├── index.ts         la fachada: el registro y lo que usan las vistas y los demás módulos
+│   ├── index.ts         la fachada para los demás módulos y el arranque (liviana)
+│   ├── model.ts         la fachada para las vistas: los modelos, los textos, las cuentas que muestran
 │   ├── api.ts, state.ts, rules.ts, settings.ts, texts.ts
 │   ├── use<Screen>.ts   el modelo de cada pantalla
 │   └── shortcuts/       los atajos de cada pantalla (abajo)
@@ -140,19 +141,26 @@ eso dependen reglas que no son gráficas.
 
 **Las pruebas siguen la misma línea:**
 
-- **Los escenarios de los capítulos se prueban sobre los modelos**, sin dibujar nada
-  (`renderHook`): no se rompen al cambiar la vista y llevan la cobertura.
-- **Las pruebas de una vista** son pocas: que cada pantalla muestre su modelo y llame a sus
-  acciones, buscando solo por rol, nombre y texto, nunca por clase ni por estructura. Viven con la
-  vista y se van con ella.
-- **Las de punta a punta y las de captura** buscan por rol y texto, para que sigan valiendo con otra
-  vista que use los mismos textos.
+- **Los escenarios de los capítulos se prueban como los usa la persona,** pero a través de un
+  **conductor de cada pantalla** (el «kit» de la pantalla, un objeto de página): `kit.save()`,
+  `kit.shownSettings()`, `kit.choose('Redondeo')`. Las pruebas de los escenarios no tocan el HTML;
+  solo el conductor sabe cómo está armada la vista. Cada vista tiene sus conductores, en su
+  carpeta: cambiar de vista es escribir los conductores nuevos, y las pruebas de los escenarios
+  siguen iguales y dicen si la vista nueva cumple todo.
+- **Lo que no tiene que ver con la vista se prueba sobre los modelos**, sin dibujar nada
+  (`renderHook`): las reglas, los temporizadores, los choques, lo que se manda al servidor.
+- **Los conductores buscan por rol, nombre y texto,** nunca por clase ni por estructura, así la
+  mayoría sirve también para una vista nueva que use los mismos textos y roles.
+- **Las de punta a punta y las de captura** también buscan por rol y texto. Las imágenes de
+  referencia de las de captura son de la vista de hoy: se rehacen con la nueva.
 
 **Los límites se controlan en `pnpm check`** (constitución, XII):
 
 - `modules/`, `shell/` y `platform/` no importan `views/` ni archivos `.tsx` ni `.css`, y no usan
   JSX; de `preact` solo `preact/hooks`, `createContext` y tipos.
-- `views/` importa de los módulos solo su fachada, y de la plataforma solo `platform/view/`.
+- `views/` importa de los módulos solo su `model.ts`, y de la plataforma solo `platform/view/`.
+  `model.ts` va aparte de `index.ts` para que lo que usan las vistas se baje con la pantalla y no
+  pese en el arranque.
 - Una vista no importa otra.
 - Nadie importa una capa del teclado (`keyboard/`, `shortcuts/`) salvo su propio motor, y una capa
   no importa la otra. Ningún modelo ni vista escucha teclas (`keydown`).

@@ -6,7 +6,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mirror, type Patch } from '../../platform/mirror/registry.ts';
 import { timeFormat } from '../../platform/time.ts';
 import { stubMedia } from '../../testing/media.ts';
-import { openAdministration, option, saveOf, seller } from './administration-test-kit.tsx';
+import {
+  openAdministration,
+  option,
+  saveOf,
+  seller,
+} from '../../views/basic/administration/kit.tsx';
 
 const _ok = (value: unknown, version = 1) => ({ body: { value, version } });
 

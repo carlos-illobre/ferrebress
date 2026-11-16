@@ -2,7 +2,7 @@
 // recorren sin elegir.
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
-import { openAdministration, option, saveOf } from './administration-test-kit.tsx';
+import { openAdministration, option, saveOf } from '../../views/basic/administration/kit.tsx';
 
 describe('Administración con el teclado', () => {
   it('R1.8: la tecla del ajuste lleva a su opción elegida', async () => {

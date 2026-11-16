@@ -1,7 +1,13 @@
 // El panel de los márgenes rápidos (R4): las cinco teclas, que se escriben y se guardan al salir.
 import { roundUp } from '@ferrebress/shared/pricing/rounding';
-import { pesos, shown, thousands } from '../../logic.ts';
-import { groupOf, texts, what } from '../../texts.ts';
+import {
+  groupOf,
+  pesos,
+  shown,
+  texts,
+  thousands,
+  what,
+} from '../../../modules/administration/model.ts';
 import { Heading, Said, Subhead } from './Heading.tsx';
 import { locked, type PanelProps } from './look.ts';
 

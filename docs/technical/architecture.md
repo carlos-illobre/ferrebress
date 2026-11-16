@@ -126,7 +126,8 @@ pantallas con los modelos del módulo.
 
 | Archivo | Qué hace |
 |---|---|
-| `index.ts` | La fachada: el registro (sus rutas, su lugar en el menú, lo que baja para trabajar sin conexión) y lo que usan las vistas y los demás módulos |
+| `index.ts` | La fachada para los demás módulos y el arranque: el registro (sus rutas, su lugar en el menú, lo que baja para trabajar sin conexión), liviana |
+| `model.ts` | La fachada para las vistas: los modelos, los textos y las cuentas que muestran; se baja con la pantalla |
 | `api.ts` | Las llamadas al servidor del módulo, una sola vez |
 | `state.ts` | La máquina de estados del proceso (la venta en curso, el ingreso): acciones con nombre y un reductor puro |
 | `rules.ts` | Las reglas puras de la aplicación, si las hay |
