@@ -72,6 +72,14 @@ const reads = (db: Db) => ({
       .$if(lock, (q) => q.forUpdate())
       .executeTakeFirst() as Promise<SupplierRecord | undefined>,
 
+  // Los activos con su nombre como clave, para saber de quién es una lista por su nombre (R4.3).
+  nameKeys: (): Promise<{ id: string; nameKey: string }[]> =>
+    db
+      .selectFrom('price_lists.suppliers')
+      .select(['id', 'name_key as nameKey'])
+      .where('inactive', '=', false)
+      .execute(),
+
   byNameKey: (nameKey: string) =>
     db
       .selectFrom('price_lists.suppliers')

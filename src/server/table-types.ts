@@ -13,6 +13,8 @@ const overrides = {
   columns: {
     'device_link.pairings.paired_by': "'button' | 'sign-in'",
     'anomalies.anomalies.status': "'open' | 'reviewed' | 'closed'",
+    'price_lists.lists.status':
+      "'queued' | 'reading' | 'pending' | 'applying' | 'applied' | 'discarded' | 'unreadable'",
   },
 };
 

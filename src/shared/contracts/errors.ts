@@ -81,7 +81,10 @@ export type PriceListsErrorCode =
   | 'confirm-costs'
   | 'confirm-deactivate'
   | 'list-applying'
-  | 'not-inactive';
+  | 'not-inactive'
+  | 'file-format'
+  | 'file-too-large'
+  | 'list-closed';
 
 export type ErrorCode =
   | PlatformErrorCode

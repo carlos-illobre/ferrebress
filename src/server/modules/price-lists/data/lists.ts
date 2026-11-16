@@ -36,20 +36,14 @@ const states = (db: Db) => ({
       .where('status', '=', 'applying')
       .executeTakeFirst()) !== undefined,
 
-  // Descarta las vivas de un proveedor; devuelve cuáles, para cortar su lectura.
-  discardLive: async (
-    supplierId: string,
-    reason: string,
-    by: string,
-    at: Date,
-  ): Promise<string[]> =>
+  // Las vivas de un proveedor, también la que espera en la cola (R2.4).
+  liveIds: async (supplierId: string): Promise<string[]> =>
     (
       await db
-        .updateTable('price_lists.lists')
-        .set({ status: 'discarded', reason, decided_by: by, decided_at: at, waiting_for: null })
+        .selectFrom('price_lists.lists')
+        .select('id')
         .where('supplier_id', '=', supplierId)
         .where('status', 'in', liveStatuses)
-        .returning('id')
         .execute()
     ).map((row) => row.id),
 });

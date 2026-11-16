@@ -75,19 +75,37 @@ export interface PriceListsLists {
   id: string;
   list_date: Timestamp | null;
   new_reader: Generated<boolean>;
+  read_at: Timestamp | null;
   reader_id: string | null;
   reason: string | null;
   result: Json | null;
   rows_read: number | null;
   rows_total: number | null;
   scope: Generated<string>;
-  status: string;
+  size_confirmed: Generated<boolean>;
+  status: "queued" | "reading" | "pending" | "applying" | "applied" | "discarded" | "unreadable";
   supplier_confirmed: Generated<boolean>;
   supplier_from: string | null;
   supplier_id: string | null;
   uploaded_at: Timestamp;
   uploaded_by: string;
   waiting_for: string | null;
+}
+
+export interface PriceListsReaders {
+  active: Generated<boolean>;
+  code: string | null;
+  code_sha: Uint8Array | null;
+  created_at: Timestamp;
+  file_key: string | null;
+  id: string;
+  last_list_id: string | null;
+  origin: string;
+  params: Json | null;
+  pending_list_id: string | null;
+  proof_list_id: string | null;
+  supplier_id: string | null;
+  template: string | null;
 }
 
 export interface PriceListsSuppliers {
@@ -110,5 +128,6 @@ export interface DB {
   "price_lists.items": PriceListsItems;
   "price_lists.list_rows": PriceListsListRows;
   "price_lists.lists": PriceListsLists;
+  "price_lists.readers": PriceListsReaders;
   "price_lists.suppliers": PriceListsSuppliers;
 }

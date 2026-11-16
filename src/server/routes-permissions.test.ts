@@ -83,6 +83,12 @@ const routes: Record<string, Needs> = {
   'POST /api/price-lists/suppliers/:id/terms': 'price-lists.suppliers',
   'POST /api/price-lists/suppliers/:id/deactivate': 'price-lists.suppliers',
   'POST /api/price-lists/suppliers/:id/reactivate': 'price-lists.suppliers',
+  'POST /api/price-lists/lists': 'price-lists.load',
+  'GET /api/price-lists/lists/:id': 'price-lists.costs',
+  'POST /api/price-lists/lists/:id/size': 'price-lists.load',
+  'POST /api/price-lists/lists/:id/scope': 'price-lists.load',
+  'POST /api/price-lists/lists/:id/cancel': 'price-lists.load',
+  'POST /api/price-lists/lists/:id/supplier': 'price-lists.load',
   'GET /api/audit-log/new': 'audit-log.view',
   'GET /api/audit-log/people': 'audit-log.view',
   'GET /api/audit-log/day': 'audit-log.view',
@@ -112,6 +118,7 @@ describe('lo que pide cada ruta de /api', () => {
   // Lo mismo con los temas del canal: cada uno dice si se escucha sin sesión, y uno nuevo que no está
   // en la tabla no pasa. Sin sesión, uno con sesión no se abre.
   const topics: Record<string, 'public' | 'session'> = {
+    'price-lists.list': 'session',
     'sign-in.codes': 'public',
     'device-link.code': 'session',
     'device-link.pairing': 'session',
@@ -131,12 +138,20 @@ describe('lo que pide cada ruta de /api', () => {
     }
   });
 
+  // La subida de una lista es el único camino que recibe un archivo (diseño de 08, § 3).
+  const as = (route: string) =>
+    route === 'POST /api/price-lists/lists' ? { 'Content-Type': 'application/octet-stream' } : {};
+
   it('sin la sesión, 401', async () => {
     const stranger = createDevice(kit.server);
     for (const [route, needs] of Object.entries(routes)) {
       if (needs === 'public') continue;
       const method = route.split(' ')[0];
-      const reply = await stranger.request(pathOf(route), method === 'POST' ? {} : undefined);
+      const reply = await stranger.request(
+        pathOf(route),
+        method === 'POST' ? {} : undefined,
+        as(route),
+      );
       expect([route, reply.status]).toEqual([route, 401]);
     }
   });
@@ -146,7 +161,11 @@ describe('lo que pide cada ruta de /api', () => {
     for (const [route, needs] of Object.entries(routes)) {
       if (needs === 'public' || needs === 'session') continue;
       const method = route.split(' ')[0];
-      const reply = await nobody.device.request(pathOf(route), method === 'POST' ? {} : undefined);
+      const reply = await nobody.device.request(
+        pathOf(route),
+        method === 'POST' ? {} : undefined,
+        as(route),
+      );
       expect([route, reply.status, reply.body]).toEqual([
         route,
         403,

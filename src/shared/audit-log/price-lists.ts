@@ -70,4 +70,27 @@ export const priceListsTypes = {
     shows: [],
     says: (e) => [text('Reactivó a '), supplier(e)],
   },
+  'lists.uploaded': {
+    group: 'price-lists',
+    tone: 'plain',
+    icon: 'file-up',
+    name: 'Subió una lista',
+    shows: ['scope'],
+    says: (e) => [
+      text('Subió la lista '),
+      named(e, 'list', 'sin nombre'),
+      ...(e.data.scope === 'partial' ? [text(' (solo cambios)')] : []),
+    ],
+  },
+  'lists.discarded': {
+    group: 'price-lists',
+    tone: 'plain',
+    icon: 'file-x',
+    name: 'Descartó una lista',
+    shows: ['reason'],
+    says: (e) => [
+      text(e.data.reason === 'cancelled' ? 'Canceló la lista ' : 'Descartó la lista '),
+      named(e, 'list', 'sin nombre'),
+    ],
+  },
 } satisfies Record<string, Entry>;

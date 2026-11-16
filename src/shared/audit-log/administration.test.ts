@@ -117,3 +117,27 @@ describe('un proveedor en Quién hizo qué', () => {
     expect(says('suppliers.reactivated')).toBe('Reactivó a Bulonera Centro');
   });
 });
+
+describe('una lista en Quién hizo qué', () => {
+  const says = (type: string, data: Record<string, unknown> = {}, name?: string) =>
+    read(
+      entryOf(type).says({
+        ...{ id: '2026:4', at: '2026-11-07T13:00:00.000Z', type, tone: 'plain' },
+        ...{ actor: { kind: 'person', id: 'u-ana' }, changes: {}, data },
+        targets: name ? [{ kind: 'list', id: 'l1', name }] : [],
+      }),
+    );
+
+  it('price-lists-R9.1: subir, cancelar y descartar una lista', () => {
+    expect(says('lists.uploaded', { scope: 'full' }, 'lista.xlsx')).toBe(
+      'Subió la lista lista.xlsx',
+    );
+    expect(says('lists.uploaded', { scope: 'partial' }, 'cambios.xlsx')).toBe(
+      'Subió la lista cambios.xlsx (solo cambios)',
+    );
+    expect(says('lists.discarded', { reason: 'cancelled' }, 'lista.xlsx')).toBe(
+      'Canceló la lista lista.xlsx',
+    );
+    expect(says('lists.discarded', { reason: 'by-hand' })).toBe('Descartó la lista sin nombre');
+  });
+});

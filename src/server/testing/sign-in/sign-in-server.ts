@@ -5,6 +5,7 @@ import { deviceProofHeaderName, deviceProofMessage } from '@ferrebress/shared/co
 import type { Kysely } from 'kysely';
 import { createServer } from '../../app.ts';
 import type { PriceRecalculator } from '../../modules/administration/index.ts';
+import type { PriceListsOptions } from '../../modules/price-lists/index.ts';
 import { addFirstAdministrator } from '../../modules/users/first.ts';
 import { type RolesTables, rolesData } from '../../modules/users/roles/data.ts';
 import { createModules } from '../../modules.ts';
@@ -18,32 +19,21 @@ export const chromeWindows =
 export type SignInServerOptions = {
   wait?: (ms: number) => Promise<void>;
   recalculator?: PriceRecalculator;
+  // Las listas de precios: dónde se guardan los archivos (el proceso lector los lee del disco), dónde
+  // están los lectores de un programador y los procesos lectores.
+  filesPath?: string;
+  priceLists?: PriceListsOptions;
 };
 
-export async function createSignInServer(clock?: Clock, options: SignInServerOptions = {}) {
-  const google = await createTestGoogle(testConfig.GOOGLE_CLIENT_ID);
-  const { modules, users, people, administration, anomalies, catalog } = createModules({
-    googleKeys: google.keys,
-    ...options,
-  });
-  const jobs: (() => void)[] = [];
-  const schedule = (_: number, run: () => void) => {
-    jobs.push(run);
-    return () => {};
-  };
-  // Cuántas consultas a la base hizo el servidor: las pruebas miran cuántas suma cada pedido.
-  const queries = { count: 0 };
-  const server = await createServer(testConfig, modules, {
-    ...(clock && { clock }),
-    schedule,
-    onQuery: () => void queries.count++,
-  });
-  // La primera persona, como la carga la instalación (02 · R1.2).
-  await addFirstAdministrator(server.platform.db, server.platform.clock, 'admin@example.com');
-  // Da de baja a alguien como lo hace Usuarios, desde otra persona activa que se suma para eso, es
-  // Administrador y ya entró: así la regla de no quedarse sin nadie (02 · R1.3) no frena las pruebas
-  // que dan de baja a la única.
-  const deactivate = async (userId: string) => {
+// Da de baja a alguien como lo hace Usuarios, desde otra persona activa que se suma para eso, es
+// Administrador y ya entró: así la regla de no quedarse sin nadie (02 · R1.3) no frena las pruebas
+// que dan de baja a la única.
+function deactivator(
+  server: Awaited<ReturnType<typeof createServer>>,
+  users: Modules['users'],
+  people: Modules['people'],
+) {
+  return async (userId: string) => {
     const system = await rolesData(server.platform.db as Kysely<RolesTables>).systemRoleId();
     const other = (await people().authorize(userId, `otra-${userId}@example.com`, null, [
       system,
@@ -52,6 +42,33 @@ export async function createSignInServer(clock?: Clock, options: SignInServerOpt
     const user = (await users.findById(userId)) as { version: number };
     return people().deactivate(other.user.id, userId, user.version);
   };
+}
+
+type Modules = ReturnType<typeof createModules>;
+
+export async function createSignInServer(clock?: Clock, options: SignInServerOptions = {}) {
+  const google = await createTestGoogle(testConfig.GOOGLE_CLIENT_ID);
+  const { filesPath, ...moduleOptions } = options;
+  const { modules, users, people, administration, anomalies, catalog, priceLists } = createModules({
+    googleKeys: google.keys,
+    ...moduleOptions,
+  });
+  const jobs: (() => void)[] = [];
+  const schedule = (_: number, run: () => void) => {
+    jobs.push(run);
+    return () => {};
+  };
+  // Cuántas consultas a la base hizo el servidor: las pruebas miran cuántas suma cada pedido.
+  const queries = { count: 0 };
+  const config = filesPath ? { ...testConfig, FILES_PATH: filesPath } : testConfig;
+  const server = await createServer(config, modules, {
+    ...(clock && { clock }),
+    schedule,
+    onQuery: () => void queries.count++,
+  });
+  // La primera persona, como la carga la instalación (02 · R1.2).
+  await addFirstAdministrator(server.platform.db, server.platform.clock, 'admin@example.com');
+  const deactivate = deactivator(server, users, people);
   // Corre ya los trabajos periódicos, como si hubiera pasado su tiempo.
   const runJobs = async () => {
     for (const job of jobs) job();
@@ -66,7 +83,7 @@ export async function createSignInServer(clock?: Clock, options: SignInServerOpt
   return {
     ...server,
     ...{ users, people: people(), administration, deactivate, google, runJobs, countQueries },
-    ...{ anomalies, catalog },
+    ...{ anomalies, catalog, priceLists },
   };
 }
 
@@ -100,8 +117,12 @@ async function request(
   };
   const post = {
     method: 'POST',
-    body: JSON.stringify(body),
-    headers: { ...headers, Origin: testConfig.PUBLIC_ORIGIN, 'Content-Type': 'application/json' },
+    body: body instanceof Uint8Array ? (body as Uint8Array<ArrayBuffer>) : JSON.stringify(body),
+    headers: {
+      ...headers,
+      Origin: testConfig.PUBLIC_ORIGIN,
+      'Content-Type': extra['Content-Type'] ?? 'application/json',
+    },
   };
   const fromCaddy = { incoming: { socket: { remoteAddress: testConfig.TRUSTED_PROXY } } };
   const response = await server.http.request(

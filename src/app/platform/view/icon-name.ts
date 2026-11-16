@@ -35,6 +35,8 @@ export type IconName =
   | 'ellipsis'
   | 'eye'
   | 'file-text'
+  | 'file-up'
+  | 'file-x'
   | 'film'
   | 'fingerprint'
   | 'fingerprint-arches'

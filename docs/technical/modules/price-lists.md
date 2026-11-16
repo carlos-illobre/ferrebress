@@ -126,7 +126,7 @@ puede tener varios artículos y guarda lo cambiado a mano), y sus pruebas se esc
 | `scope` | `text`, `not null`, `'full'` | `full` o `partial` (R4.7) |
 | `file_sha256` | `bytea` | Su archivo; `null` cuando ya no se guarda (R4.4, E88) |
 | `file_name` | `text`, `not null` | El nombre con que se subió, hasta 200 letras, sin saltos de línea ni caracteres de control o que dan vuelta el texto |
-| `list_date`, `date_from` | `date`, `text` | La fecha (R4.5) y de dónde salió: `sheet`, `file-name` o `server`, con `ignored` si la de la planilla no se tomó (E84) |
+| `list_date`, `date_from` | `date`, `text` | La fecha (R4.5) y de dónde salió: `sheet`, `file-name`, `server` o `server-ignored` si la de la planilla no se tomó (E84) |
 | `reader_id`, `new_reader` | `uuid`, `boolean` | Quién la leyó y si es un lector nuevo (R5.7) |
 | `rows_total`, `rows_read` | `integer` | El avance, para quien llega en el medio |
 | `attempts` | `smallint`, `not null`, `0` | Cuántas veces se empezó a leer: se suma en la base antes de mandarla al proceso lector |
@@ -134,6 +134,8 @@ puede tener varios artículos y guarda lo cambiado a mano), y sus pruebas se esc
 | `result` | `jsonb` | Al aplicarse: cuántos se crearon, cambiaron de costo, se dieron de baja y volvieron (E60) |
 | `uploaded_by`, `uploaded_at` | `uuid`, `timestamptz`, `not null` | Quién y cuándo (R6.7) |
 | `decided_by`, `decided_at` | `uuid`, `timestamptz` | Quién la aplicó o la descartó |
+| `read_at` | `timestamptz` | Cuándo terminó de leerse: puede seguir esperando de quién es (R4.3) (migración `004-readers`) |
+| `size_confirmed` | `boolean`, `not null` | Se confirmó leer una planilla grande (R4.12): si se corta, se retoma sin volver a preguntar (migración `004-readers`) |
 
 - **Índices:** `(supplier_id, uploaded_at desc)`, para las listas de un proveedor, de a 20 (R6.7); y uno
   único parcial, `(supplier_id) where status in ('reading', 'pending', 'applying')`: una sola lista viva
@@ -483,6 +485,11 @@ Las vistas, en `src/app/views/basic/price-lists/` y `anomalies/` (ADR-019).
   programador nuevo o cambiado al arrancar, o uno que quedó activo), y solo con la última lista de cada
   proveedor que no tenga después una leída: las anteriores quedan como están (su anomalía se cierra con
   la siguiente que se lee, R9.2). Entra a la cola como cualquiera.
+- **Mientras se lee,** las filas se guardan de a bloques; si ya se sabe de quién es la lista, con su
+  costo y el que tenía su artículo. Una lista sin proveedor sigue leyéndose y espera la respuesta con
+  `waiting_for = 'supplier'`; al elegirlo se les pone el costo a todas, sin volver a leer.
+- **Un proceso que se cuelga o muere** deja la lista con un intento más: se reintenta una vez y, al
+  segundo, queda «No se pudo leer» con `crashed`.
 - **Una lectura vieja no pisa a una nueva:** cada corrida lleva su número de intento, y el resultado de
   un bloque se guarda solo si la lista sigue en ese intento y «leyendo».
 - **Los archivos** se borran: al aplicar una lista, el de la aplicada anterior del mismo proveedor (si

@@ -11,7 +11,7 @@ import { createAnomaliesModule } from './modules/anomalies/index.ts';
 import { createAuditLogModule } from './modules/audit-log/index.ts';
 import { createCatalogModule } from './modules/catalog/index.ts';
 import { createDeviceLinkModule } from './modules/device-link/index.ts';
-import { createPriceListsModule } from './modules/price-lists/index.ts';
+import { createPriceListsModule, type PriceListsOptions } from './modules/price-lists/index.ts';
 import { createSignInModule } from './modules/sign-in/index.ts';
 import { createUsersModule } from './modules/users/index.ts';
 import { sleep } from './platform/clock.ts';
@@ -22,6 +22,8 @@ export type ModulesOptions = {
   wait?: (ms: number) => Promise<void>;
   // Quien recalcula los precios al cambiar el redondeo: hasta el catálogo, las pruebas pasan el suyo.
   recalculator?: PriceRecalculator;
+  // Dónde están los lectores de un programador y los procesos lectores: las pruebas pasan los suyos.
+  priceLists?: PriceListsOptions;
 };
 
 export function createModules(options: ModulesOptions = {}) {
@@ -44,10 +46,14 @@ export function createModules(options: ModulesOptions = {}) {
   });
   const anomalies = createAnomaliesModule({ nameOf: (id) => users.users.nameOf(id) });
   const catalog = createCatalogModule();
-  const priceLists = createPriceListsModule({
-    catalog: catalog.catalog,
-    anomalies: anomalies.anomalies,
-  });
+  const priceLists = createPriceListsModule(
+    {
+      catalog: catalog.catalog,
+      anomalies: anomalies.anomalies,
+      settings: () => admin.administration.settings(),
+    },
+    options.priceLists,
+  );
   const modules = [
     ...[admin.module, users.module, signIn, createAuditLogModule(), deviceLink],
     ...[anomalies.module, catalog.module, priceLists.module],
@@ -59,5 +65,6 @@ export function createModules(options: ModulesOptions = {}) {
     administration: admin.administration,
     anomalies: anomalies.anomalies,
     catalog: catalog.catalog,
+    priceLists: priceLists.priceLists,
   };
 }

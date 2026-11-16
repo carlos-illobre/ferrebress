@@ -1,6 +1,6 @@
 // Las rutas de los proveedores (08 · R1.3, R2; diseño de 08, § 3): verlos con cualquier sesión, sus
-// datos de cobro con «Ver costos», y darlos de alta y cambiarlos con «Administrar proveedores». Un
-// alta también la puede hacer quien tiene «Cargar listas», al subir la lista de uno nuevo (R2.2).
+// datos de cobro con «Ver costos», y darlos de alta y cambiarlos con «Administrar proveedores». Quien
+// tiene «Cargar listas» da de alta uno nuevo al subir su lista, por la ruta de la lista (R2.2).
 import {
   type ChangeSupplierBody,
   changeSupplierBody,
@@ -23,20 +23,18 @@ import { permissionsOf } from '../../../platform/permissions.ts';
 import { sessionOf } from '../../../platform/session.ts';
 import type { PriceListsContext } from '../context.ts';
 import { asDb } from '../data/db.ts';
-import { suppliersData } from '../data/suppliers.ts';
+import { type SupplierRecord, suppliersData } from '../data/suppliers.ts';
+import type { Reading } from '../reading/service.ts';
 import { newSupplierOf, responseOf, rowOf, supplierTarget } from '../rules/suppliers.ts';
 import { priceListsSettings } from '../settings.ts';
 import { registerSupplierStateRoutes } from './supplier-state.ts';
 
 const seesCosts = (c: Context) => permissionsOf(c).includes('price-lists.costs');
 
-export function registerSupplierRoutes(ctx: PriceListsContext) {
+export function registerSupplierRoutes(ctx: PriceListsContext, reading: Reading) {
   const { http, sessions, permissions } = ctx.platform;
   const data = suppliersData(asDb(ctx.platform.db));
   const manage = permissions.require('price-lists.suppliers');
-  // Dar de alta: con «Administrar proveedores» o con «Cargar listas» (R2.2).
-  const createAllowed: MiddlewareHandler = async (c, next) =>
-    permissionsOf(c).includes('price-lists.load') ? next() : manage(c, next);
   const id = uuidParams('id');
   const limited = ctx.limit(
     (c) => [`price-lists:suppliers:${sessionOf(c).id}`],
@@ -50,7 +48,7 @@ export function registerSupplierRoutes(ctx: PriceListsContext) {
   http.post(
     '/api/price-lists/suppliers',
     sessions.require,
-    createAllowed,
+    manage,
     limited,
     created.step,
     async (c) => create(ctx, c, data, created.of(c)),
@@ -66,7 +64,7 @@ export function registerSupplierRoutes(ctx: PriceListsContext) {
     async (c) => change(ctx, c, data, changed.of(c)),
   );
 
-  registerSupplierStateRoutes(ctx, { manage, id, limited });
+  registerSupplierStateRoutes(ctx, reading, { manage, id, limited });
 }
 
 // Ver los proveedores: los activos y uno, con cualquier sesión (R1.3); los dados de baja, con
@@ -109,6 +107,20 @@ async function create(
   data: ReturnType<typeof suppliersData>,
   body: NewSupplierBody,
 ) {
+  const added = await addSupplier(ctx, c, data, body);
+  return added instanceof Response
+    ? added
+    : c.json<SupplierResponse>(responseOf(added, seesCosts(c)));
+}
+
+// Da de alta un proveedor y lo anota; si no se puede, la respuesta que lo dice. Lo usa también la
+// ruta de una lista, al dar de alta el de una lista nueva (R2.2, E31b).
+export async function addSupplier(
+  ctx: PriceListsContext,
+  c: Context,
+  data: ReturnType<typeof suppliersData>,
+  body: NewSupplierBody,
+): Promise<SupplierRecord | Response> {
   const values = newSupplierOf(body);
   if ('invalid' in values) return fail(c, 400, 'invalid-field', { field: values.invalid });
   const record = { id: newId(ctx.platform.clock), ...values, terms: initialTerms() };
@@ -119,8 +131,7 @@ async function create(
     targets: [supplierTarget(record)],
     data: { filled: privateSupplierFields.filter((field) => record[field] !== null) },
   });
-  const saved = { ...record, termsVersion: 1, inactive: false, lastListDate: null };
-  return c.json<SupplierResponse>(responseOf(saved, seesCosts(c)));
+  return { ...record, termsVersion: 1, inactive: false, lastListDate: null };
 }
 
 // El nombre ya lo tiene otro: si está dado de baja, se ofrece reactivarlo (E94).

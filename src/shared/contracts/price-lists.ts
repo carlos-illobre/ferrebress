@@ -137,62 +137,83 @@ export type ConfirmDeactivate = {
   discontinued: number;
 };
 
-// --- El lector (R5; diseño de 08, § 4) ---
+// El lector (R5): en su archivo.
+export * from './price-lists-reader.ts';
 
-// Una celda: su valor (número, texto, verdadero o falso; una fecha, como texto AAAA-MM-DD) y el texto
-// que se ve. Una celda vacía es `null`. Las combinadas llegan en su primera celda.
-export type Cell = { v: number | string | boolean; t: string } | null;
-export type SheetRows = Cell[][];
+// --- Las listas (R4) ---
 
-// Las primeras filas de cada hoja, para reconocer la planilla y para leer cada bloque.
-export const headRows = 50;
-export type Head = { name: string; rows: SheetRows }[];
-
-// Un bloque de filas de una hoja: desde qué fila (contando desde 0), sus filas y las anteriores
-// (hasta `lookBack`), para saber, por ejemplo, la marca del renglón de arriba.
-export const blockRows = 5000;
-export const lookBack = 1000;
-export type Block = { sheet: number; start: number; rows: SheetRows; before: SheetRows };
-
-// Dónde está un dato: la fila y la columna, en la misma hoja. La marca puede estar en un renglón de
-// arriba.
-export type CellRef = [row: number, col: number];
-
-export const rowKinds = ['product', 'skipped', 'title', 'brand', 'empty'] as const;
-export type RowKind = (typeof rowKinds)[number];
-
-// Lo que devuelve un lector por cada fila del bloque: qué es y, en un producto, dónde está cada dato.
-// Nunca los datos: el servidor lee las celdas (R5.4, E48).
-export type ReaderRow = {
-  row: number;
-  kind: RowKind;
-  // En una salteada, el motivo, si el lector lo sabe (otra moneda, por ejemplo).
-  reason?: SkipReason;
-  at?: {
-    code: CellRef;
-    description: CellRef;
-    price: CellRef;
-    brand?: CellRef;
-    vat?: CellRef;
-    barcode?: CellRef;
-  };
-};
-
-// Un lector es un programa de JavaScript que corre encerrado (ADR-021) y deja en `globalThis.reader`
-// estas dos funciones. El automático recibe además sus datos en `globalThis.params`.
-export type ReaderModule = {
-  recognizes(head: Head): 'yes' | 'no' | 'unsure';
-  read(block: Block, head: Head): ReaderRow[];
-};
-
-// Por qué se salteó una fila (R5.4).
-export const skipReasons = [
-  'no-code',
-  'no-description',
-  'no-price',
-  'zero-price',
-  'not-a-number',
-  'repeated-code',
-  'other-currency',
+export const listStatuses = [
+  'queued',
+  'reading',
+  'pending',
+  'applying',
+  'applied',
+  'discarded',
+  'unreadable',
 ] as const;
-export type SkipReason = (typeof skipReasons)[number];
+export type ListStatus = (typeof listStatuses)[number];
+export type ListScope = 'full' | 'partial';
+export type SupplierFrom = 'screen' | 'reader' | 'name' | 'chosen';
+
+// Los formatos que se aceptan (R4.2).
+export const listExtensions = ['.xlsx', '.xls', '.csv'] as const;
+export const fileNameMax = 200;
+
+const uuidText = z
+  .string()
+  .check(z.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/));
+
+// Subir: el nombre del archivo, el proveedor si se sube desde su pantalla, y si es completa (R4.7).
+export const uploadQuery = z.strictObject({
+  name: z.string().check(z.minLength(1), z.maxLength(fileNameMax)),
+  supplierId: z.optional(uuidText),
+  scope: z.optional(z.enum(['full', 'partial'])),
+});
+export type UploadQuery = z.infer<typeof uploadQuery>;
+
+// De quién es (R4.3): uno que existe, o uno nuevo, que puede dar de alta quien tiene «Cargar listas».
+export const listSupplierBody = z.union([
+  z.strictObject({ supplierId: uuidText }),
+  z.strictObject({ newSupplier: newSupplierBody }),
+]);
+export type ListSupplierBody = z.infer<typeof listSupplierBody>;
+
+export const scopeBody = z.strictObject({ scope: z.enum(['full', 'partial']) });
+
+// Por qué no se pudo leer una lista (R4.6) o por qué se descartó.
+export type ListReason =
+  | 'too-big'
+  | 'damaged'
+  | 'empty'
+  | 'no-reader'
+  | 'auto-unsure'
+  | 'reader-failed'
+  | 'crashed'
+  | 'cancelled'
+  | 'replaced'
+  | 'supplier-inactive'
+  | 'by-hand'
+  | 'interrupted';
+
+// El avance (R4.9), lo que llega por el tema `price-lists.list` mientras una pantalla espera.
+export type ListProgress = {
+  status: ListStatus;
+  waitingFor?: 'supplier' | 'size';
+  rowsRead: number;
+  rowsTotal?: number;
+  reason?: ListReason;
+};
+
+// Una lista: su estado, de quién es y cómo se supo, su fecha y su archivo.
+export type ListState = ListProgress & {
+  id: string;
+  fileName: string;
+  scope: ListScope;
+  supplier?: { id: string; name: string; from: SupplierFrom; confirmed: boolean };
+  listDate?: string;
+  dateFrom?: string;
+  newReader?: true;
+  uploadedAt: string;
+  // Si todavía se guarda su archivo (R4.4).
+  file: boolean;
+};

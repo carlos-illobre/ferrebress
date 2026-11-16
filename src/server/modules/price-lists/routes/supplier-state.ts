@@ -21,6 +21,8 @@ import { asDb } from '../data/db.ts';
 import { itemsData } from '../data/items.ts';
 import { listsData } from '../data/lists.ts';
 import { type SupplierRecord, suppliersData } from '../data/suppliers.ts';
+import { discard } from '../reading/assign.ts';
+import type { Reading } from '../reading/service.ts';
 import { supplierTarget } from '../rules/suppliers.ts';
 import { changesCosts, recalculatedItems, recalculatedRows } from '../rules/terms.ts';
 import { priceListsSettings } from '../settings.ts';
@@ -54,7 +56,11 @@ async function lockedSupplier(trx: Transaction<unknown>, supplierId: string): Pr
 const refuse = (c: Context, refused: 'not-found' | 'list-applying') =>
   refused === 'not-found' ? fail(c, 404, 'not-found') : fail(c, 409, 'list-applying');
 
-export function registerSupplierStateRoutes(ctx: PriceListsContext, steps: Steps) {
+export function registerSupplierStateRoutes(
+  ctx: PriceListsContext,
+  reading: Reading,
+  steps: Steps,
+) {
   const { http, sessions } = ctx.platform;
   const { manage, id, limited } = steps;
   const terms = readBody(bySchema(termsBody));
@@ -65,7 +71,7 @@ export function registerSupplierStateRoutes(ctx: PriceListsContext, steps: Steps
     changeTerms(ctx, c, terms.of(c)),
   );
   http.post(`${base}/deactivate`, sessions.require, manage, id, limited, deactivate.step, (c) =>
-    deactivated(ctx, c, deactivate.of(c).confirmed),
+    deactivated(ctx, c, reading, deactivate.of(c).confirmed),
   );
   http.post(`${base}/reactivate`, sessions.require, manage, id, limited, async (c) => {
     const data = suppliersData(asDb(ctx.platform.db));
@@ -160,16 +166,37 @@ async function recalculateItems(
   return { costs };
 }
 
+// Sus productos sin su costo, los que no trae nadie más dados de baja, sus listas vivas descartadas y
+// él fuera de la lista. Devuelve las listas que hay que dejar de leer.
+async function withoutSupplier(
+  ctx: PriceListsContext,
+  trx: Transaction<unknown>,
+  supplierId: string,
+  discontinued: string[],
+  userId: string,
+): Promise<string[]> {
+  const data = dataIn(trx);
+  await ctx.catalog.dropSupplier(trx, supplierId);
+  for (const batch of chunks(discontinued)) await ctx.catalog.discontinue(trx, batch);
+  await data.items.discontinueAll(supplierId);
+  const stopped = await data.lists.liveIds(supplierId);
+  for (const listId of stopped)
+    await discard(trx, listId, 'supplier-inactive', userId, ctx.platform.clock.now());
+  await data.suppliers.setInactive(supplierId, true);
+  return stopped;
+}
+
 type DeactivateOutcome =
   | { refused: 'not-found' | 'list-applying' }
   | { confirm: { costs: number; discontinued: number } }
-  | { done: { name: string; costs: number; discontinued: number } };
+  | { done: { name: string; costs: number; discontinued: number; stopped: string[] } };
 
 // Dar de baja (R2.4): quita su costo de sus productos, da de baja los que no trae nadie más, descarta
 // su lista viva y lo saca de la lista. Siempre se confirma con los dos números (E12).
 async function deactivated(
   ctx: PriceListsContext,
   c: Context,
+  reading: Reading,
   confirmed: { costs: number; discontinued: number } | undefined,
 ) {
   const supplierId = c.req.param('id') as string;
@@ -185,22 +212,14 @@ async function deactivated(
       const counts = { costs, discontinued: discontinued.length };
       if (confirmed?.costs !== counts.costs || confirmed.discontinued !== counts.discontinued)
         return { confirm: counts };
-      await ctx.catalog.dropSupplier(trx, supplierId);
-      for (const batch of chunks(discontinued)) await ctx.catalog.discontinue(trx, batch);
-      await data.items.discontinueAll(supplierId);
-      await data.lists.discardLive(
-        supplierId,
-        'supplier-inactive',
-        userId,
-        ctx.platform.clock.now(),
-      );
-      await data.suppliers.setInactive(supplierId, true);
-      return { done: { name: now.name, ...counts } };
+      const stopped = await withoutSupplier(ctx, trx, supplierId, discontinued, userId);
+      return { done: { name: now.name, ...counts, stopped } };
     });
   if ('refused' in outcome) return refuse(c, outcome.refused);
   if ('confirm' in outcome)
     return c.json<ConfirmDeactivate>({ error: 'confirm-deactivate', ...outcome.confirm }, 409);
-  const { name, ...counts } = outcome.done;
+  const { name, stopped, ...counts } = outcome.done;
+  for (const listId of stopped) reading.stop(listId);
   ctx.record(c, 'suppliers.deactivated', {
     targets: [supplierTarget({ id: supplierId, name })],
     data: counts,

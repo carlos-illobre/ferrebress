@@ -101,15 +101,9 @@ describe('los proveedores', () => {
     expect((await outsider.request('/api/price-lists/suppliers', { name: 'X' })).status).toBe(401);
   });
 
-  it('price-lists-R2.2 y E31b: con «Cargar listas» da de alta, pero no cambia', async () => {
-    const created = await create({ name: 'Pinturería Oeste' }, kit.loader.device);
-    expect(created.status).toBe(200);
-    const refused = await change(
-      created.body.id,
-      { field: 'note', before: null, value: 'x' },
-      kit.loader.device,
-    );
-    expect(refused.status).toBe(403);
+  it('price-lists-R2.2: con «Cargar listas» no se da de alta un proveedor por esta ruta', async () => {
+    const refused = await create({ name: 'Pinturería Oeste' }, kit.loader.device);
+    expect(refused.body).toMatchObject({ error: 'forbidden', permission: 'price-lists.suppliers' });
   });
 
   it('price-lists-E10: un nombre que ya existe, sin distinguir acentos ni mayúsculas, no se guarda', async () => {

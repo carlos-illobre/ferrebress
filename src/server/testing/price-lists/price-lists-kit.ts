@@ -5,6 +5,7 @@ import type { Terms } from '@ferrebress/shared/contracts/price-lists';
 import { costWith } from '@ferrebress/shared/pricing/basis';
 import { type Kysely, sql } from 'kysely';
 import type { Catalog } from '../../modules/catalog/index.ts';
+import type { SignInServerOptions } from '../sign-in/sign-in-server.ts';
 import { createRolesKit, type RolesKit } from '../users/roles-kit.ts';
 
 export type Article = { code: string; listPrice: bigint; brand?: string; vat?: number };
@@ -107,8 +108,8 @@ type Seed = {
   adminId: string;
 };
 
-export async function createPriceListsKit() {
-  const kit = await createRolesKit();
+export async function createPriceListsKit(options: SignInServerOptions = {}) {
+  const kit = await createRolesKit(options);
   const db = kit.server.platform.db;
   const as = async (name: string, permissions: string[]) =>
     kit.person([await kit.role(name, permissions)]);
