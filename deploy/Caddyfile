@@ -49,6 +49,21 @@
 		X-Frame-Options SAMEORIGIN
 	}
 
+	# Subir una lista de precios (08 · R4.2): el único camino con un cuerpo grande, hasta el máximo
+	# del ajuste de 06 · R8.3. El servidor corta antes, con el ajuste de ahora.
+	@upload {
+		method POST
+		path /api/price-lists/lists
+	}
+	handle @upload {
+		request_body {
+			max_size 100MB
+		}
+		reverse_proxy server:3000 {
+			header_up X-Real-IP {client_ip}
+		}
+	}
+
 	handle /api/* {
 		request_body {
 			max_size 64KB

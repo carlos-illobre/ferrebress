@@ -25,7 +25,13 @@ import { platformSettings } from './settings.ts';
 import type { AuditLog } from './storage/audit/write.ts';
 
 export type HttpVariables = { ipAddress: string; deviceId: string | undefined };
-export type Http = Hono<{ Variables: HttpVariables }>;
+type Handler = MiddlewareHandler<{ Variables: HttpVariables }>;
+export type Http = Hono<{ Variables: HttpVariables }> & {
+  // La única excepción a «el cuerpo es JSON de hasta 64 KB»: un camino que recibe un archivo como
+  // cuerpo crudo (`application/octet-stream`), del tamaño que decide la ruta, que lo lee como flujo
+  // con su tope (08, diseño § 3). Lo demás (el origen, el dispositivo, la versión) sigue igual.
+  upload(path: string, ...handlers: Handler[]): void;
+};
 
 export type HttpOptions = {
   environment: Environment;
@@ -80,14 +86,22 @@ export class Refused extends Error {
 }
 
 export function createHttp(options: HttpOptions): Http {
-  const http: Http = new Hono();
+  const uploads = new Set<string>();
+  const isUpload = (c: Context) => c.req.method === 'POST' && uploads.has(c.req.path);
+  const http = Object.assign(new Hono<{ Variables: HttpVariables }>(), {
+    upload(path: string, ...handlers: Handler[]) {
+      uploads.add(path);
+      http.post(path, ...(handlers as [Handler]));
+    },
+  });
   const reject = rejecter(options);
+  const limit = bodyLimit({
+    maxSize: platformSettings.bodyLimitBytes,
+    onError: (c) => reject(c, 'size'),
+  });
   http.use('/api/*', identify(options), stamp(options));
-  http.use(
-    '/api/*',
-    bodyLimit({ maxSize: platformSettings.bodyLimitBytes, onError: (c) => reject(c, 'size') }),
-  );
-  http.use('/api/*', guard(options.publicOrigin, reject));
+  http.use('/api/*', (c, next) => (isUpload(c) ? next() : limit(c, next)));
+  http.use('/api/*', guard(options.publicOrigin, reject, isUpload));
   http.use('/api/*', async (c, next) => (await options.checks?.run(c)) ?? (await next()));
   http.notFound((c) => fail(c, 404, 'not-found'));
   http.onError((error, c) => {
@@ -141,9 +155,10 @@ type Reason = 'size' | 'origin' | 'content-type' | 'device' | 'contract' | 'vers
 function guard(
   publicOrigin: string,
   reject: (c: Context, reason: Reason) => Response,
+  isUpload: (c: Context) => boolean,
 ): MiddlewareHandler {
   return async (c, next) => {
-    const reason = rejectionReason(c, publicOrigin);
+    const reason = rejectionReason(c, publicOrigin, isUpload(c));
     if (reason) return reject(c, reason);
     await next();
   };
@@ -151,7 +166,7 @@ function guard(
 
 // Todo pedido trae el dispositivo (un UUID) y la versión del contrato (un entero); sin ellos no
 // viene de la aplicación. Solo /api/health, que miran el despliegue y Docker, no los pide.
-function rejectionReason(c: Context, publicOrigin: string): Reason | undefined {
+function rejectionReason(c: Context, publicOrigin: string, upload: boolean): Reason | undefined {
   if (c.req.path === '/api/health') return undefined;
   if (!c.get('deviceId')) return 'device';
   const contract = Number(c.req.header(appVersionHeaderName) || Number.NaN);
@@ -159,7 +174,8 @@ function rejectionReason(c: Context, publicOrigin: string): Reason | undefined {
   if (contract < platformSettings.minContractVersion) return 'version';
   if (c.req.method === 'GET' || c.req.method === 'HEAD') return undefined;
   if (c.req.header('Origin') !== publicOrigin) return 'origin';
-  if (c.req.header('Content-Type')?.split(';')[0] !== 'application/json') return 'content-type';
+  const type = upload ? 'application/octet-stream' : 'application/json';
+  if (c.req.header('Content-Type')?.split(';')[0] !== type) return 'content-type';
   return undefined;
 }
 

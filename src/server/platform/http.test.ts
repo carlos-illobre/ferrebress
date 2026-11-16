@@ -182,3 +182,41 @@ describe('todo pedido de /api', () => {
     server.close();
   });
 });
+
+describe('el camino para subir un archivo (08, diseño § 3)', () => {
+  const raw = (bytes: number, type = 'application/octet-stream') => ({
+    method: 'POST',
+    body: new Uint8Array(bytes),
+    headers: { ...appHeaders(), Origin: origin, 'Content-Type': type },
+  });
+
+  function withUpload() {
+    const set = setUp();
+    set.http.upload('/api/upload', async (c) =>
+      c.json({ size: (await c.req.arrayBuffer()).byteLength }),
+    );
+    return set;
+  }
+
+  it('acepta un cuerpo crudo de más de 64 KB, y solo ahí', async () => {
+    const { http } = withUpload();
+    const response = await http.request('/api/upload', raw(200 * 1024));
+    expect(await response.json()).toEqual({ size: 200 * 1024 });
+    expect((await http.request('/api/echo', raw(10))).status).toBe(400);
+  });
+
+  it('en ese camino no acepta JSON, y en los demás el tope de 64 KB sigue', async () => {
+    const { http, rejected } = withUpload();
+    expect((await http.request('/api/upload', raw(10, 'application/json'))).status).toBe(400);
+    const big = post({ text: 'x'.repeat(70 * 1024) });
+    expect((await http.request('/api/echo', big)).status).toBe(400);
+    expect(rejected().map((event) => event.data?.reason)).toEqual(['content-type', 'size']);
+  });
+
+  it('sin el origen de la aplicación, tampoco', async () => {
+    const { http } = withUpload();
+    const request = raw(10);
+    request.headers.Origin = 'https://otro.example';
+    expect((await http.request('/api/upload', request)).status).toBe(400);
+  });
+});

@@ -17,6 +17,7 @@ import { platformSettings } from './platform/settings.ts';
 import { createStartParts } from './platform/start-parts.ts';
 import { openAuditLog } from './platform/storage/audit/write.ts';
 import { migrate, openDatabase } from './platform/storage/db.ts';
+import { openFiles } from './platform/storage/files.ts';
 
 // Cómo se programa un trabajo periódico; las pruebas pasan uno que corre cuando ellas quieren.
 export type Schedule = (ms: number, run: () => void) => () => void;
@@ -65,7 +66,7 @@ export async function createServer(
   };
   const platform: Platform = {
     ...{ config, db, audit, clock, limiter, events, http, header, checks, sessions, every },
-    devices,
+    ...{ devices, files: openFiles(config.FILES_PATH) },
     start: createStartParts(),
     permissions: createPermissionGate({ audit, clock, limiter }, sessions),
     realtime: createRealtime({ http, sessions, limiter, events, every }),

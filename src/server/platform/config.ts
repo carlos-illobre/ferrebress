@@ -16,6 +16,8 @@ const configSchema = z.object({
   PUBLIC_ORIGIN: z.url(),
   DATABASE_URL: text,
   AUDIT_PATH: text,
+  // Dónde se guardan los archivos que se suben (08 · R4.4); `:memory:` en las pruebas.
+  FILES_PATH: text,
   GOOGLE_CLIENT_ID: text,
   GOOGLE_ISSUER: z.url(),
   GOOGLE_JWKS_URL: z.url(),

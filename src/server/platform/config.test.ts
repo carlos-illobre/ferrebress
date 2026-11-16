@@ -8,6 +8,7 @@ const valid = {
   PUBLIC_ORIGIN: 'https://ferrebress-pruebas.duckdns.org',
   DATABASE_URL: 'postgres://db/ferrebress',
   AUDIT_PATH: '/data/audit',
+  FILES_PATH: '/data/files',
   GOOGLE_CLIENT_ID: 'cliente.apps.googleusercontent.com',
   GOOGLE_ISSUER: 'https://accounts.google.com',
   GOOGLE_JWKS_URL: 'https://www.googleapis.com/oauth2/v3/certs',

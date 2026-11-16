@@ -450,8 +450,6 @@ datos de vendedores queda en el dispositivo), con «Reintentar» (E07).
 - `src/server/platform/download.ts`: devolver un archivo para bajar con las cabeceras de § 3.
 - `src/app/platform/server/upload.ts`: subir con su avance (`XMLHttpRequest`), usando lo de `api.ts` para
   las cabeceras, la respuesta y los errores, y el punto de enganche del medidor de datos.
-- `src/app/platform/panels.ts`: un punto de enganche para lo que sigue a la vista entre pantallas, donde
-  `price-lists` registra sus subidas desde su `index.ts` (el shell no sabe de listas, ADR-020).
 - `deploy/`: el volumen de los archivos, `mem_limit` del contenedor del servidor y el camino de 100 MB en
   Caddy.
 
@@ -461,7 +459,7 @@ datos de vendedores queda en el dispositivo), con «Reintentar» (E07).
 |---|---|
 | `api.ts` | Las llamadas de § 3 |
 | `useSuppliers.ts` | Catálogo → Listas (screens.md, 1) |
-| `useUploads.ts` | Las listas que se suben y se leen, cada una con su avance y su pregunta (R4.10), en el panel registrado en `platform/panels.ts` |
+| `uploads.ts`, `useUploads.ts` | Las listas que se suben y se leen, cada una con su avance y su pregunta (R4.10): viven en un almacén del módulo, fuera de cualquier pantalla, así siguen mientras se trabaja en otra cosa; la vista básica pone su panel en su composición (el shell no sabe de listas) |
 | `useListReview.ts` | Ver qué cambia y aplicar (screens.md, 3) |
 | `useSupplier.ts` | La pantalla de un proveedor, en partes (screens.md, 4) |
 | `useReaders.ts`, `useFiles.ts` | Administración → Lectores y Archivos de listas |

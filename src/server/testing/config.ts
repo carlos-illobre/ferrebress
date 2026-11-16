@@ -13,6 +13,7 @@ export const testConfig: Config = {
   PUBLIC_ORIGIN: 'https://ferrebress-pruebas.duckdns.org',
   DATABASE_URL: 'memory://',
   AUDIT_PATH: ':memory:',
+  FILES_PATH: ':memory:',
   GOOGLE_CLIENT_ID: 'cliente.apps.googleusercontent.com',
   GOOGLE_ISSUER: 'https://accounts.google.com',
   GOOGLE_JWKS_URL: 'https://www.googleapis.com/oauth2/v3/certs',

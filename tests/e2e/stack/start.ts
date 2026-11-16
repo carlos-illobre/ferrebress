@@ -81,6 +81,7 @@ export default async function start(): Promise<() => Promise<void>> {
       PUBLIC_ORIGIN: origin,
       DATABASE_URL: 'memory://',
       AUDIT_PATH: join(dir, 'audit'),
+      FILES_PATH: join(dir, 'files'),
       GOOGLE_CLIENT_ID: clientId,
       GOOGLE_ISSUER: google.issuer,
       GOOGLE_JWKS_URL: google.issuer,

@@ -74,7 +74,7 @@ export async function api<T>(
     );
     return { ok: false, error: 'unexpected' };
   }
-  const headers = { ...appHeaders(), ...decorated(path, body !== undefined), ...extra };
+  const headers = { ...requestHeaders(path, body !== undefined), ...extra };
   const init: RequestInit =
     body === undefined
       ? { headers }
@@ -84,6 +84,18 @@ export async function api<T>(
           headers: { ...headers, 'Content-Type': 'application/json' },
         };
   const response = await fetch(path, { ...init, ...(signal && { signal }) }).catch(() => undefined);
+  return settle<T>(response);
+}
+
+// Las cabeceras de un pedido: las de la aplicación y las que suman los módulos a las escrituras.
+export const requestHeaders = (path: string, write: boolean): Record<string, string> => ({
+  ...appHeaders(),
+  ...decorated(path, write),
+});
+
+// Lo que llegó, igual para cualquier pedido (también una subida, upload.ts): la cabecera del servidor,
+// la conexión, la sesión cerrada, la versión vieja y el error.
+export async function settle<T>(response: Response | undefined): Promise<ApiResult<T>> {
   if (response) await readServerHeader(response);
   // Sin respuesta, o sin JSON (el 502 de Caddy mientras el servidor se reinicia, una página de error
   // del proxy), no se llega al servidor: se sigue como sin conexión (R3.6).

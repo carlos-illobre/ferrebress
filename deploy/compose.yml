@@ -25,16 +25,21 @@ services:
     # El servidor corre como el usuario node y no necesita ningún permiso del sistema.
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]
+    # Un tope de memoria: si algo se pasa (una planilla armada para inflarse, 08), muere el servidor
+    # y Docker lo levanta, sin llevarse la base ni la máquina.
+    mem_limit: 1g
     env_file: .env
     environment:
       PORT: "3000"
       AUDIT_PATH: /data/audit
+      FILES_PATH: /data/files
       TRUSTED_PROXY: 172.30.0.10
       # La zona horaria del negocio (06 · R5): se fija al instalar y es la misma en pruebas y en
       # producción, así que no va en el .env (constitución, VIII).
       BUSINESS_TIME_ZONE: America/Argentina/Buenos_Aires
     volumes:
       - audit-data:/data/audit
+      - list-files:/data/files
     depends_on:
       db: { condition: service_healthy }
     networks: [internal]
@@ -56,6 +61,8 @@ services:
 volumes:
   db-data:
   audit-data:
+  # Los archivos de las listas de precios: un respaldo que se borra solo (08 · R4.4).
+  list-files:
 networks:
   internal:
     ipam:

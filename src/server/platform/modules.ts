@@ -15,12 +15,15 @@ import type { SessionGate } from './session.ts';
 import type { StartParts } from './start-parts.ts';
 import type { AuditLog } from './storage/audit/write.ts';
 import type { ModuleSchema } from './storage/db.ts';
+import type { FileStore } from './storage/files.ts';
 
 // Lo que la plataforma le da a cada módulo al registrarlo.
 export type Platform = {
   config: Config;
   db: Kysely<unknown>;
   audit: AuditLog;
+  // Los archivos que se suben, una vez por contenido (08 · R4.4).
+  files: FileStore;
   clock: Clock;
   limiter: RateLimiter;
   events: Events;
