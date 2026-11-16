@@ -6,8 +6,10 @@ los ajustes de las listas (R8), las anomalías (R9) y los archivos de las listas
 las de [08](../../chapters/08-price-lists/screens.md) y las de Lectores, Anomalías y Archivos de listas de
 [06](../../chapters/06-administration/screens.md). Cómo se abre una planilla y cómo corre un lector, en el
 [ADR-021](../adr/ADR-021-reading-price-lists.md). Corregido con sus dos revisiones
-([diseño](price-lists-design-review.md), [seguridad](price-lists-security-review.md)); lo que decidió
-Carlos está en § 13.
+([diseño](price-lists-design-review.md), [seguridad](price-lists-security-review.md)) y aprobado por
+Carlos; lo que decidió está en § 13, más tres cosas que aprobó: el archivo de una lista que nunca se
+aplicó se borra a los 30 días de arranque, lo borra a mano quien tiene «Cambiar los ajustes» y
+Archivos de listas la ve quien tiene «Ver costos».
 
 **Lo que se prueba con 07:** E12, E13 y E74 (un producto con dos proveedores) y E28, E72, E76 y E95 (lo
 cambiado a mano en un producto) piden lo que hace el catálogo. El diseño los deja posibles (un producto

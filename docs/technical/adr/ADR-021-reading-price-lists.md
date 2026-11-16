@@ -1,6 +1,6 @@
 # ADR-021: Leer las listas de precios: SheetJS para abrir, lectores encerrados en QuickJS
 
-**Estado:** propuesto
+**Estado:** aceptado
 
 ## Contexto
 
