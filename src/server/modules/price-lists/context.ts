@@ -13,6 +13,8 @@ export type PriceListsDependencies = {
   anomalies: Anomalies;
   // Los ajustes de las listas (06 · R8), los de ahora.
   settings: () => Settings;
+  // El nombre de una persona: quién subió y quién decidió cada lista (R6.7).
+  nameOf: (userId: string) => Promise<string | null>;
 };
 
 export function createPriceListsContext(platform: Platform, dependencies: PriceListsDependencies) {

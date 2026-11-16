@@ -58,3 +58,31 @@ export const skipReasons = [
   'other-currency',
 ] as const;
 export type SkipReason = (typeof skipReasons)[number];
+
+// Los estados de una lista (R6.7) y sus motivos: los usa también el proceso lector.
+export const listStatuses = [
+  'queued',
+  'reading',
+  'pending',
+  'applying',
+  'applied',
+  'discarded',
+  'unreadable',
+] as const;
+export type ListStatus = (typeof listStatuses)[number];
+
+// Por qué no se pudo leer una lista (R4.6) o por qué se descartó.
+export type ListReason =
+  | 'too-big'
+  | 'damaged'
+  | 'empty'
+  | 'no-reader'
+  | 'auto-unsure'
+  | 'reader-failed'
+  | 'crashed'
+  | 'cancelled'
+  | 'replaced'
+  | 'supplier-inactive'
+  | 'by-hand'
+  | 'interrupted'
+  | 'apply-failed';

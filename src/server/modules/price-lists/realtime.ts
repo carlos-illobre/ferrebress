@@ -1,7 +1,7 @@
 // El avance de una lista (08 · R4.9; diseño de 08, § 6): el tema `price-lists.list`, en la forma
 // `temporary` (ADR-003): llega en el momento y el canal está abierto solo mientras una pantalla espera.
 // Lo escucha quien tiene «Ver costos»; al suscribirse, el estado de ahora.
-import { listStatuses } from '@ferrebress/shared/contracts/price-lists';
+import { type ListProgress, listStatuses } from '@ferrebress/shared/contracts/price-lists';
 import * as z from 'zod/mini';
 import type { Platform } from '../../platform/modules.ts';
 import type { RequestSession } from '../../platform/session.ts';
@@ -16,6 +16,7 @@ const progress = z.strictObject({
   status: z.enum(listStatuses),
   waitingFor: z.optional(z.enum(['supplier', 'size'])),
   rowsRead: z.int(),
+  applied: z.optional(z.int()),
   rowsTotal: z.optional(z.int()),
   reason: z.optional(z.string()),
 });
@@ -39,10 +40,14 @@ export function registerListTopic(platform: Platform) {
     },
     recheckOn: ['users.permissions-changed'],
   });
-  // Avisa el avance de una lista a quien la mira.
-  // Las listas no se borran: la que se avisa existe.
-  return async (listId: string) => {
-    const list = (await data.one(listId)) as ListRecord;
-    realtime.publish(listTopic, listId, progressOf(list));
+  return {
+    // Avisa el avance de una lista a quien la mira. Las listas no se borran: la que se avisa existe.
+    publish: async (listId: string) => {
+      const list = (await data.one(listId)) as ListRecord;
+      realtime.publish(listTopic, listId, progressOf(list));
+    },
+    // Mientras se aplica, sin consultar la base (la tiene la transacción que aplica).
+    progress: (listId: string, progress: ListProgress) =>
+      realtime.publish(listTopic, listId, progress),
   };
 }

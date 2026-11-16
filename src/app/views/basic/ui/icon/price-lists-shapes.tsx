@@ -45,4 +45,19 @@ export const priceListsShapes = {
       <path d="m9.5 12.5 5 5" />
     </>
   ),
+  // Una lista aplicada y los costos que cambió.
+  'file-check': (
+    <>
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+      <path d="m9 15 2 2 4-4" />
+    </>
+  ),
+  'circle-dollar-sign': (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+      <path d="M12 18V6" />
+    </>
+  ),
 };

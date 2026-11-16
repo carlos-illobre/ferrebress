@@ -139,5 +139,9 @@ describe('una lista en Quién hizo qué', () => {
       'Canceló la lista lista.xlsx',
     );
     expect(says('lists.discarded', { reason: 'by-hand' })).toBe('Descartó la lista sin nombre');
+    expect(says('lists.applied', { created: 4, changed: 1200, gone: 2 }, 'lista.xlsx')).toBe(
+      'Aplicó la lista lista.xlsx de un proveedor: 4 nuevos, 1.200 costos, 2 bajas',
+    );
+    expect(says('lists.costs', {})).toBe('Cambió el costo de 0 productos con una lista');
   });
 });

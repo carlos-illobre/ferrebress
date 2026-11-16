@@ -84,7 +84,10 @@ export type PriceListsErrorCode =
   | 'not-inactive'
   | 'file-format'
   | 'file-too-large'
-  | 'list-closed';
+  | 'list-closed'
+  | 'list-applied'
+  | 'list-too-old'
+  | 'numbers-changed';
 
 export type ErrorCode =
   | PlatformErrorCode

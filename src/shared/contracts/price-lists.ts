@@ -2,6 +2,7 @@
 // comparten el servidor, que valida, y la aplicación, que muestra y valida antes de mandar. Los costos
 // viajan en millonésimos de peso, como texto: en un JSON un número tan grande pierde precisión.
 import * as z from 'zod/mini';
+import type { ListReason, ListStatus } from './price-lists-reader.ts';
 
 // --- Los proveedores (R2) ---
 
@@ -120,6 +121,8 @@ export type SupplierResponse = SupplierContact & {
   inactive: boolean;
   lastListDate?: string;
   terms?: { value: Terms; version: number };
+  // Con «Ver costos», sus últimas listas (R6.7).
+  lists?: import('./price-lists-review.ts').SupplierListsPage;
 };
 
 export type TermsResponse = { value: Terms; version: number; costs: number };
@@ -142,16 +145,6 @@ export * from './price-lists-reader.ts';
 
 // --- Las listas (R4) ---
 
-export const listStatuses = [
-  'queued',
-  'reading',
-  'pending',
-  'applying',
-  'applied',
-  'discarded',
-  'unreadable',
-] as const;
-export type ListStatus = (typeof listStatuses)[number];
 export type ListScope = 'full' | 'partial';
 export type SupplierFrom = 'screen' | 'reader' | 'name' | 'chosen';
 
@@ -180,26 +173,13 @@ export type ListSupplierBody = z.infer<typeof listSupplierBody>;
 
 export const scopeBody = z.strictObject({ scope: z.enum(['full', 'partial']) });
 
-// Por qué no se pudo leer una lista (R4.6) o por qué se descartó.
-export type ListReason =
-  | 'too-big'
-  | 'damaged'
-  | 'empty'
-  | 'no-reader'
-  | 'auto-unsure'
-  | 'reader-failed'
-  | 'crashed'
-  | 'cancelled'
-  | 'replaced'
-  | 'supplier-inactive'
-  | 'by-hand'
-  | 'interrupted';
-
 // El avance (R4.9), lo que llega por el tema `price-lists.list` mientras una pantalla espera.
 export type ListProgress = {
   status: ListStatus;
   waitingFor?: 'supplier' | 'size';
   rowsRead: number;
+  // Mientras se aplica, cuántas filas lleva (R6.6).
+  applied?: number;
   rowsTotal?: number;
   reason?: ListReason;
 };
@@ -216,4 +196,10 @@ export type ListState = ListProgress & {
   uploadedAt: string;
   // Si todavía se guarda su archivo (R4.4).
   file: boolean;
+  // En espera: el resumen (R6.2); aplicada: lo que hizo (E60).
+  summary?: import('./price-lists-review.ts').ListSummary;
+  result?: import('./price-lists-review.ts').ListResult;
 };
+
+// Ver qué cambia, aplicar y los productos de un proveedor (R6 a R8): en su archivo.
+export * from './price-lists-review.ts';

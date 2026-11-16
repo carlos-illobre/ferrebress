@@ -67,7 +67,8 @@ puede tener varios artículos y guarda lo cambiado a mano), y sus pruebas se esc
   descuentos aplicados y la lista con su fecha. La cuenta (R3.4) sale de ahí, aunque después cambie cómo
   cobra el proveedor con «Desde la próxima lista». Recalcular (R3.5) rehace el costo desde la misma base
   con lo nuevo.
-- **Aplicar es una transacción**, de a bloques de 1.000 filas, con el avance por el mismo tema. Traba la
+- **Aplicar es una transacción**, de a bloques de 1.000 filas (entre uno y otro cede el turno, así llega
+  un «Cancelar» y se atienden otros pedidos), con el avance por el mismo tema. Traba la
   fila del proveedor al empezar: cambiar cómo cobra o darlo de baja mientras tanto contesta `409
   list-applying` (R2.6), y una lista nueva del mismo proveedor queda en cola (R4.8). Entre bloque y bloque
   mira si se canceló: si sí, se deshace todo (R4.11, E86). Lo que va a Quién hizo qué se junta en memoria
@@ -180,6 +181,8 @@ Lo que trajo cada fila de una lista leída y lo que le pasa, para mostrarla y ap
 | `list_id` | `uuid`, `not null` | La última lista que lo trajo |
 | `discontinued`, `discontinued_list_id` | `boolean`, `uuid` | Si dejó de venir y desde qué lista (R7.4, R8.2). Al dar de baja el proveedor, quedan todos dados de baja sin lista |
 
+- **El orden de los productos** (R8.1) es el de `search_key`, que en un artículo empieza por la
+  descripción (descripción, código y marca, sin acentos): orden alfabético y búsqueda en una sola columna.
 - **Los costos se leen como texto** (`cost::text`): PGlite da un `bigint` como número y pierde precisión pasado 2^53.
 - **Índices:** `(supplier_id, discontinued, search_key)`, para la lista alfabética de R8.1 de a 50; y
   `(product_id)`, para saber si un producto tiene otro proveedor (R7.4).
@@ -369,7 +372,8 @@ programador, el automático y los de la etapa b:
 | `suppliers.terms-changed` | «Cambió cómo cobra <proveedor>» | Lo anterior, lo nuevo y cuántos costos cambiaron (E22) |
 | `suppliers.deactivated`, `suppliers.reactivated` | «Dio de baja a…», «Reactivó a…» | Cuántos perdieron su costo y cuántos quedaron dados de baja |
 | `lists.uploaded` | «Subió la lista <archivo>» | El archivo y su alcance; el proveedor, si se sabe |
-| `lists.applied` | «Aplicó la lista de <proveedor> del <fecha>» | Sus números (E80) y los cambios de cada artículo, juntos y comprimidos, con un dato afectado por producto |
+| `lists.applied` | «Aplicó la lista <archivo> de <proveedor>: 4 nuevos, 31 costos, 2 bajas» | Sus números (E80) y su fecha |
+| `lists.costs` | «Cambió el costo de 80 productos con una lista» | De a 80 productos: cada uno como dato afectado y, en el mismo orden, su costo anterior y el nuevo |
 | `lists.discarded` | «Descartó la lista…» | Por qué: a mano, cancelada o reemplazada |
 | `files.deleted`, `files.restored` | «Borró el archivo…» | Su lista (06 · R10.2) |
 | `readers.activated`, `readers.deactivated`, `readers.assigned` | «Desactivó el lector…» | El proveedor y de dónde salió (E50) |
@@ -377,11 +381,11 @@ programador, el automático y los de la etapa b:
 Las de `anomalies` van en el grupo «Administración», que es el capítulo que las describe:
 `anomalies.reviewed` («Marcó revisada…», con la nota) y `anomalies.reopened` (06 · R9.7).
 
-- **Los costos de cada artículo** (R9.1, E71) van dentro de `lists.applied` y `suppliers.terms-changed`:
-  un evento por lista, con el costo anterior y el nuevo de cada uno, y cada producto como dato afectado
+- **Los costos de cada artículo** (R9.1, E71) van en eventos `lists.costs` de a 80 productos (una acción
+  pesa como mucho 8 KB, diseño de 05, § 2.2; con 5.000 productos en uno solo, se cortarían): con el costo anterior y el nuevo de cada uno, y cada producto como dato afectado
   (`targets: [{ kind: 'product', id }]`), así la historia del costo de un producto se lee por su
   identificador (T115). Un artículo con el mismo costo no suma nada (E77). Con 20 proveedores de 5.000
-  artículos por semana son 20 eventos, no 100.000 (corrige el número del ADR-004).
+  artículos por semana son, como mucho, unos 1.300 eventos, no 100.000 (corrige el número del ADR-004).
 - **Se escriben al confirmar**, con `events.transaction`: lo que se deshace no queda anotado.
 - **Rechazos:** sin permiso, el `permission.denied` de la plataforma (R1.4, E04). Los `409` no se anotan.
 - **Entre módulos:** `price-lists` abre y cierra anomalías por la fachada de `anomalies` dentro de su

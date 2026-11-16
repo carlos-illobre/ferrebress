@@ -28,3 +28,42 @@ describe('el costo de las filas', () => {
     expect(out[0]?.basis).toMatchObject({ vat: 210, listId: 'l', listDate: null });
   });
 });
+
+describe('cómo se muestra una fila del detalle', () => {
+  it('con todo lo que tiene, y una salteada solo con lo que traía', async () => {
+    const { rowOf } = await import('./review.ts');
+    const base = { at: 0, sheet: 0, row: 1, code: 'A1', description: 'Mecha', basis: null };
+    expect(
+      rowOf({
+        ...base,
+        brand: 'Bremen',
+        change: 'changed',
+        cost: '2',
+        previous: '1',
+        variation: 100,
+        skipped: null,
+        cells: null,
+      }),
+    ).toEqual({
+      code: 'A1',
+      description: 'Mecha',
+      brand: 'Bremen',
+      change: 'changed',
+      cost: '2',
+      previous: '1',
+      variation: 100,
+    });
+    expect(
+      rowOf({
+        ...base,
+        brand: null,
+        change: null,
+        cost: null,
+        previous: null,
+        variation: null,
+        skipped: 'no-price',
+        cells: ['A1'],
+      }),
+    ).toEqual({ code: 'A1', description: 'Mecha', skipped: 'no-price', cells: ['A1'] });
+  });
+});

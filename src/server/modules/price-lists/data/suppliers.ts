@@ -13,10 +13,14 @@ export type SupplierRecord = {
   terms: Terms;
   termsVersion: number;
   inactive: boolean;
+  lastListId: string | null;
   lastListDate: string | null;
 };
 
-export type NewSupplier = Omit<SupplierRecord, 'inactive' | 'lastListDate' | 'termsVersion'> & {
+export type NewSupplier = Omit<
+  SupplierRecord,
+  'inactive' | 'lastListId' | 'lastListDate' | 'termsVersion'
+> & {
   nameKey: string;
 };
 
@@ -33,6 +37,7 @@ const columns = (db: Db) =>
       'terms',
       'terms_version as termsVersion',
       'inactive',
+      'last_list_id as lastListId',
       dateText('last_list_date').as('lastListDate'),
     ]);
 
@@ -131,6 +136,15 @@ const states = (db: Db) => ({
       .where('terms_version', '=', version)
       .executeTakeFirst();
     return result.numUpdatedRows > 0n;
+  },
+
+  // La última lista aplicada (R1.1, R6.10).
+  async setLastList(id: string, listId: string, date: string | null): Promise<void> {
+    await db
+      .updateTable('price_lists.suppliers')
+      .set({ last_list_id: listId, last_list_date: date })
+      .where('id', '=', id)
+      .execute();
   },
 
   async setInactive(id: string, inactive: boolean): Promise<boolean> {

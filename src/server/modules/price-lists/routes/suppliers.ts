@@ -27,6 +27,7 @@ import { type SupplierRecord, suppliersData } from '../data/suppliers.ts';
 import type { Reading } from '../reading/service.ts';
 import { newSupplierOf, responseOf, rowOf, supplierTarget } from '../rules/suppliers.ts';
 import { priceListsSettings } from '../settings.ts';
+import { listsPage } from './history.ts';
 import { registerSupplierStateRoutes } from './supplier-state.ts';
 
 const seesCosts = (c: Context) => permissionsOf(c).includes('price-lists.costs');
@@ -95,7 +96,11 @@ function registerSupplierReads(
   http.get('/api/price-lists/suppliers/:id', sessions.require, id, async (c) => {
     const record = await data.one(c.req.param('id'));
     if (!record) return fail(c, 404, 'not-found');
-    return c.json<SupplierResponse>(responseOf(record, seesCosts(c)));
+    const costs = seesCosts(c);
+    const response = responseOf(record, costs);
+    return c.json<SupplierResponse>(
+      costs ? { ...response, lists: await listsPage(ctx, record.id) } : response,
+    );
   });
 }
 
@@ -131,7 +136,7 @@ export async function addSupplier(
     targets: [supplierTarget(record)],
     data: { filled: privateSupplierFields.filter((field) => record[field] !== null) },
   });
-  return { ...record, termsVersion: 1, inactive: false, lastListDate: null };
+  return { ...record, termsVersion: 1, inactive: false, lastListId: null, lastListDate: null };
 }
 
 // El nombre ya lo tiene otro: si está dado de baja, se ofrece reactivarlo (E94).

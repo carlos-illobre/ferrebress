@@ -10,19 +10,22 @@ import type { Context } from 'hono';
 import { bySchema, readBody } from '../../../platform/guards.ts';
 import { fail, uuidParams } from '../../../platform/http.ts';
 import { sessionOf } from '../../../platform/session.ts';
+import type { Applying } from '../apply/service.ts';
 import type { PriceListsContext } from '../context.ts';
 import { asDb } from '../data/db.ts';
 import { readingData } from '../data/reading.ts';
 import { discard } from '../reading/assign.ts';
 import type { Reading } from '../reading/service.ts';
 import { priceListsSettings } from '../settings.ts';
+import { registerApplyRoutes } from './apply.ts';
 import { registerListSupplierRoute } from './list-supplier.ts';
+import { registerRowsRoute } from './rows.ts';
 import { listState } from './state.ts';
 import { uploadList } from './upload-list.ts';
 
 const base = '/api/price-lists/lists';
 
-export function registerListRoutes(ctx: PriceListsContext, reading: Reading) {
+export function registerListRoutes(ctx: PriceListsContext, reading: Reading, applying: Applying) {
   const { http, sessions, permissions } = ctx.platform;
   const load = permissions.require('price-lists.load');
   const id = uuidParams('id');
@@ -54,15 +57,19 @@ export function registerListRoutes(ctx: PriceListsContext, reading: Reading) {
     changeScope(ctx, c, scope.of(c).scope),
   );
   http.post(`${base}/:id/cancel`, sessions.require, load, id, limited, (c) =>
-    cancel(ctx, c, reading),
+    cancel(ctx, c, reading, applying),
   );
 
   registerListSupplierRoute(ctx, reading, { load, id, limited });
+  registerApplyRoutes(ctx, applying, { load, id, limited });
+  registerRowsRoute(ctx);
 }
 
 // Cancelar mientras se lee (R4.11, E31e): queda descartada, con su archivo.
-async function cancel(ctx: PriceListsContext, c: Context, reading: Reading) {
+async function cancel(ctx: PriceListsContext, c: Context, reading: Reading, applying: Applying) {
   const listId = c.req.param('id') as string;
+  // Mientras se aplica, se deshace todo y vuelve a esperar (R4.11, E86): sigue por el tema.
+  if (applying.cancel(listId)) return c.json({ cancelling: true }, 202);
   const outcome = await ctx.platform.db.transaction().execute(async (trx) => {
     const list = await readingData(asDb(trx)).one(listId, true);
     if (!list) return 'not-found' as const;

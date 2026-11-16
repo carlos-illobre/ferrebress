@@ -93,4 +93,32 @@ export const priceListsTypes = {
       named(e, 'list', 'sin nombre'),
     ],
   },
+  // Con sus números (E80).
+  'lists.applied': {
+    group: 'price-lists',
+    tone: 'plain',
+    icon: 'file-check',
+    name: 'Aplicó una lista',
+    shows: ['created', 'changed', 'gone', 'restored', 'listDate'],
+    says: (e) => [
+      text('Aplicó la lista '),
+      named(e, 'list', 'sin nombre'),
+      text(' de '),
+      supplier(e),
+      text(
+        `: ${thousands(count(e.data.created))} nuevos, ${thousands(count(e.data.changed))} costos, ${thousands(count(e.data.gone))} bajas`,
+      ),
+    ],
+  },
+  // Los costos de cada producto, de a tandas: el anterior y el nuevo (R9.1).
+  'lists.costs': {
+    group: 'price-lists',
+    tone: 'plain',
+    icon: 'circle-dollar-sign',
+    name: 'Cambiaron costos por una lista',
+    shows: ['costs'],
+    says: (e) => [
+      text(`Cambió el costo de ${thousands(e.targets.length)} productos con una lista`),
+    ],
+  },
 } satisfies Record<string, Entry>;

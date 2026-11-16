@@ -51,6 +51,7 @@ export function createModules(options: ModulesOptions = {}) {
       catalog: catalog.catalog,
       anomalies: anomalies.anomalies,
       settings: () => admin.administration.settings(),
+      nameOf: (id) => users.users.nameOf(id),
     },
     options.priceLists,
   );

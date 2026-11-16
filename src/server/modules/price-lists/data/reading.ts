@@ -1,74 +1,11 @@
 // Las consultas de una lista mientras se sube y se lee (diseño de 08, § 1 y § 8). Lo que llega del
 // proceso lector se guarda solo si la lista sigue leyéndose en ese intento: una lectura vieja no pisa
 // a una nueva.
-import type {
-  ListReason,
-  ListScope,
-  ListStatus,
-  SupplierFrom,
-} from '@ferrebress/shared/contracts/price-lists';
 import { sql } from 'kysely';
-import { type Db, dateText } from './db.ts';
+import type { Db } from './db.ts';
+import { columns, hex, type ListRecord, type NewList } from './list-record.ts';
 
-export type ListRecord = {
-  id: string;
-  supplierId: string | null;
-  supplierFrom: SupplierFrom | null;
-  supplierConfirmed: boolean;
-  status: ListStatus;
-  waitingFor: 'supplier' | 'size' | null;
-  scope: ListScope;
-  fileSha: string | null;
-  fileName: string;
-  listDate: string | null;
-  dateFrom: string | null;
-  readerId: string | null;
-  newReader: boolean;
-  rowsTotal: number | null;
-  rowsRead: number | null;
-  attempts: number;
-  reason: ListReason | null;
-  readAt: Date | null;
-  sizeConfirmed: boolean;
-  uploadedBy: string;
-  uploadedAt: Date;
-};
-
-export type NewList = {
-  id: string;
-  fileSha: string;
-  size: number;
-  fileName: string;
-  scope: ListScope;
-  supplierId: string | null;
-  by: string;
-  at: Date;
-};
-
-const hex = (sha: string) => Buffer.from(sha, 'hex');
-
-const columns = (db: Db) =>
-  db
-    .selectFrom('price_lists.lists')
-    .select([
-      ...(['id', 'supplier_id as supplierId', 'supplier_from as supplierFrom'] as const),
-      ...([
-        'supplier_confirmed as supplierConfirmed',
-        'status',
-        'waiting_for as waitingFor',
-      ] as const),
-      ...([
-        'scope',
-        'file_name as fileName',
-        'date_from as dateFrom',
-        'reader_id as readerId',
-      ] as const),
-      ...(['new_reader as newReader', 'rows_total as rowsTotal', 'rows_read as rowsRead'] as const),
-      ...(['attempts', 'reason', 'read_at as readAt', 'size_confirmed as sizeConfirmed'] as const),
-      ...(['uploaded_by as uploadedBy', 'uploaded_at as uploadedAt'] as const),
-      sql<string | null>`encode(file_sha256, 'hex')`.as('fileSha'),
-      dateText('list_date').as('listDate'),
-    ]);
+export type { ListRecord, NewList } from './list-record.ts';
 
 // Crearla.
 const lifecycle = (db: Db) => ({
@@ -144,6 +81,21 @@ const queries = (db: Db) => ({
       .where('status', 'in', ['reading', 'pending', 'applying'])
       .execute(),
 
+  // La que espera en la cola detrás de una que se aplicaba (R4.8, E85).
+  queuedOf: async (supplierId: string): Promise<string | undefined> =>
+    (
+      await db
+        .selectFrom('price_lists.lists')
+        .select('id')
+        .where('supplier_id', '=', supplierId)
+        .where('status', '=', 'queued')
+        .orderBy('uploaded_at', 'desc')
+        .executeTakeFirst()
+    )?.id,
+});
+
+// Las que usan un archivo.
+const files = (db: Db) => ({
   // Cuántas listas usan ese contenido: si ninguna, el archivo se puede borrar.
   usesFile: async (sha: string): Promise<number> =>
     Number(
@@ -220,13 +172,16 @@ type ListColumn =
   | 'read_at'
   | 'size_confirmed'
   | 'decided_by'
-  | 'decided_at';
+  | 'decided_at'
+  | 'result'
+  | 'file_sha256';
 
 export const readingData = (db: Db) => ({
   ...lifecycle(db),
   ...reads(db),
   ...changes(db),
   ...queries(db),
+  ...files(db),
   ...restart(db),
 });
 

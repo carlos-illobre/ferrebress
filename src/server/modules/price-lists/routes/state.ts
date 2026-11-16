@@ -1,10 +1,31 @@
-// Una lista como la ve la pantalla, con el nombre de su proveedor.
-import type { ListState } from '@ferrebress/shared/contracts/price-lists';
+// Una lista como la ve la pantalla, con el nombre de su proveedor; en espera, con su resumen (R6.2);
+// aplicada, con lo que hizo (E60).
+import type { ListState, ListSummary } from '@ferrebress/shared/contracts/price-lists';
 import type { PriceListsContext } from '../context.ts';
-import { asDb } from '../data/db.ts';
-import { readingData } from '../data/reading.ts';
-import { suppliersData } from '../data/suppliers.ts';
+import { asDb, type Db } from '../data/db.ts';
+import { type ListRecord, readingData } from '../data/reading.ts';
+import { reviewData } from '../data/review.ts';
+import { type SupplierRecord, suppliersData } from '../data/suppliers.ts';
 import { stateOf } from '../rules/lists.ts';
+import { summaryOf } from '../rules/review.ts';
+
+// El resumen de una lista leída de un proveedor sabido (2 consultas).
+export async function summaryFor(
+  ctx: PriceListsContext,
+  db: Db,
+  list: ListRecord,
+  supplier: SupplierRecord,
+): Promise<ListSummary> {
+  const { reviewPercent, goneWarnPercent } = ctx.settings();
+  const review = reviewData(db);
+  const counts = await review.counts(list.id, reviewPercent);
+  const gone = await review.gone(list.id, supplier.id);
+  const tooOld =
+    supplier.lastListDate !== null &&
+    list.listDate !== null &&
+    list.listDate < supplier.lastListDate;
+  return summaryOf(counts, gone, { scope: list.scope, tooOld }, goneWarnPercent);
+}
 
 export async function listState(
   ctx: PriceListsContext,
@@ -14,5 +35,8 @@ export async function listState(
   const list = await readingData(db).one(listId);
   if (!list) return undefined;
   const supplier = list.supplierId ? await suppliersData(db).one(list.supplierId) : undefined;
-  return stateOf(list, supplier?.name);
+  const state = stateOf(list, supplier?.name);
+  if (list.status === 'pending' && supplier)
+    return { ...state, summary: await summaryFor(ctx, db, list, supplier) };
+  return list.result ? { ...state, result: list.result } : state;
 }
