@@ -158,7 +158,7 @@ Lo que trajo cada fila de una lista leída y lo que le pasa, para mostrarla y ap
 | `cost`, `basis` | `bigint`, `jsonb` | El costo nuevo y su base, calculados al leer y al cambiar cómo cobra |
 | `previous_cost` | `bigint` | El costo de su artículo al leer, si existía |
 | `change` | `text` | `new`, `changed`, `same`, o `null` en una salteada |
-| `skipped` | `text` | El motivo de una fila salteada (R5.4): `no-code`, `no-price`, `zero-price`, `not-a-number`, `repeated-code`, `other-currency` |
+| `skipped` | `text` | El motivo de una fila salteada (R5.4): `no-code`, `no-description`, `no-price`, `zero-price`, `not-a-number`, `repeated-code`, `other-currency` |
 | `cells` | `jsonb` | Lo que traía una fila salteada, como texto |
 
 - **Índices:** `(list_id, change, abs_variation desc)` (la variación, calculada), para «los que cambian

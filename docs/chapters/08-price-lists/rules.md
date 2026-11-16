@@ -194,7 +194,7 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 - **R5.4** **La comprobación:** lo que devuelve un lector no se da por bueno sin revisarlo. Cada
   producto tiene código, descripción y un precio mayor que cero; todo precio que devuelve está
   escrito en la planilla; y cada fila de la planilla termina como producto o como fila salteada con
-  su motivo: sin código, sin precio, precio cero o negativo, precio que no es un número, código
+  su motivo: sin código, sin descripción, sin precio, precio cero o negativo, precio que no es un número, código
   repetido en la misma lista, o en otra moneda. Los títulos, los renglones de marca y las filas
   vacías no son filas salteadas.
 - **R5.5** **Si el lector automático duda o no pasa la comprobación** (por ejemplo, hay dos columnas
