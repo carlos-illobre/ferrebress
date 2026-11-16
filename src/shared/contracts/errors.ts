@@ -87,7 +87,11 @@ export type PriceListsErrorCode =
   | 'list-closed'
   | 'list-applied'
   | 'list-too-old'
-  | 'numbers-changed';
+  | 'numbers-changed'
+  | 'reader-pending'
+  | 'file-in-use'
+  | 'file-gone'
+  | 'too-many-downloads';
 
 export type ErrorCode =
   | PlatformErrorCode

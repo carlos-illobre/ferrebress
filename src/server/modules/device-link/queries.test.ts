@@ -44,7 +44,8 @@ describe('las consultas del vínculo', () => {
     // Aceptar: abrir y cerrar la transacción, leer los vínculos de los dos dispositivos, borrar el
     // reemplazado y crear el nuevo. Preguntar no escribe. Confirmar no consulta la base: el vínculo
     // está en memoria. Los trabajos: vencer en una consulta, y los de la entrada (con los dos de los
-    // dispositivos: anotar los usados hoy y borrar los que nadie usa).
-    expect(counts).toEqual({ read: 5, ask: 3, accept: 5, check: 0, jobs: 7 });
+    // dispositivos: anotar los usados hoy y borrar los que nadie usa), más los 5 de la limpieza de las
+    // listas de precios (sin archivos: los que vencen, el tamaño, los que hay y las filas viejas).
+    expect(counts).toEqual({ read: 5, ask: 3, accept: 5, check: 0, jobs: 12 });
   });
 });

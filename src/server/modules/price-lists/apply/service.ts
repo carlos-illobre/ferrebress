@@ -5,7 +5,7 @@ import type { ListProgress } from '@ferrebress/shared/contracts/price-lists';
 import type { RecordFields } from '../../../platform/guards.ts';
 import type { PriceListsContext } from '../context.ts';
 import { asDb } from '../data/db.ts';
-import { type ListRecord, readingData } from '../data/reading.ts';
+import { readingData } from '../data/reading.ts';
 import { discard } from '../reading/assign.ts';
 import type { Reading } from '../reading/service.ts';
 import { auditChunk, chunksOf } from '../rules/apply.ts';

@@ -14,6 +14,15 @@ const fieldOf = (raw: unknown): string =>
 const supplier = (e: Parameters<Entry['says']>[0]) => named(e, 'supplier', 'un proveedor');
 const count = (raw: unknown): number => (typeof raw === 'number' ? raw : 0);
 const thousands = (n: number) => n.toLocaleString('es-AR');
+const origins: Record<string, string> = {
+  programmer: 'el lector de un programador',
+  auto: 'el lector automático',
+  ai: 'el lector generado por IA',
+};
+const readerOf = (data: Record<string, unknown>) => {
+  const origin = origins[String(data.origin)] ?? 'un lector';
+  return typeof data.supplier === 'string' ? `${origin} de ${data.supplier}` : origin;
+};
 
 export const priceListsTypes = {
   'suppliers.created': {
@@ -120,5 +129,47 @@ export const priceListsTypes = {
     says: (e) => [
       text(`Cambió el costo de ${thousands(e.targets.length)} productos con una lista`),
     ],
+  },
+  // Los lectores (R5.8, E50): de dónde salió y de qué proveedor.
+  'readers.activated': {
+    group: 'price-lists',
+    tone: 'plain',
+    icon: 'play',
+    name: 'Activó un lector',
+    shows: ['origin', 'supplier'],
+    says: (e) => [text(`Activó ${readerOf(e.data)}`)],
+  },
+  'readers.deactivated': {
+    group: 'price-lists',
+    tone: 'amber',
+    icon: 'pause',
+    name: 'Desactivó un lector',
+    shows: ['origin', 'supplier'],
+    says: (e) => [text(`Desactivó ${readerOf(e.data)}`)],
+  },
+  'readers.assigned': {
+    group: 'price-lists',
+    tone: 'plain',
+    icon: 'link-2',
+    name: 'Asoció un lector a un proveedor',
+    shows: ['origin'],
+    says: (e) => [text(`Asoció ${readerOf(e.data)} a `), supplier(e)],
+  },
+  // Los archivos de las listas (06 · R10.2).
+  'files.deleted': {
+    group: 'price-lists',
+    tone: 'amber',
+    icon: 'trash-2',
+    name: 'Borró el archivo de una lista',
+    shows: [],
+    says: () => [text('Borró el archivo de una lista')],
+  },
+  'files.restored': {
+    group: 'price-lists',
+    tone: 'plain',
+    icon: 'undo-2',
+    name: 'Deshizo el borrado de un archivo',
+    shows: [],
+    says: () => [text('Deshizo el borrado del archivo de una lista')],
   },
 } satisfies Record<string, Entry>;

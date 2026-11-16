@@ -11,10 +11,16 @@ export const cleanFileName = (name: string): string =>
 export function download(chunks: AsyncIterable<Uint8Array>, name: string): Response {
   const clean = cleanFileName(name);
   const fallback = clean.normalize('NFD').replace(/[^\x20-\x7E]/g, '_');
+  // De a una parte, cuando quien baja la pide: así no se junta el archivo entero en memoria.
+  const parts = chunks[Symbol.asyncIterator]();
   const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      for await (const chunk of chunks) controller.enqueue(chunk);
-      controller.close();
+    async pull(controller) {
+      const part = await parts.next();
+      if (part.done) controller.close();
+      else controller.enqueue(part.value);
+    },
+    async cancel() {
+      await parts.return?.();
     },
   });
   return new Response(stream, {

@@ -48,6 +48,7 @@ export type IconName =
   | 'info'
   | 'key-round'
   | 'link'
+  | 'link-2'
   | 'lock'
   | 'lock-keyhole'
   | 'log-in'

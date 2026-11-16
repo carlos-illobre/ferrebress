@@ -111,8 +111,10 @@ puede tener varios artículos y guarda lo cambiado a mano), y sus pruebas se esc
 
 - **Escribir:** el archivo va primero al almacén (con un nombre de paso y renombrado al terminar) y
   después la fila. Si la transacción falla, queda un archivo sin fila, que una limpieza diaria borra.
-- **Cuánto ocupan entre todos** se lleva en la memoria del servidor (se suma al guardar y se resta al
-  borrar), para la cabecera de Archivos de listas y para decidir qué borrar sin consultar.
+- **Cuánto ocupan entre todos** se cuenta con una consulta (una fila por archivo: son pocas), para la
+  cabecera de Archivos de listas y para decidir qué borrar; así no puede desfasarse.
+- **Borrar uno a mano** lo marca (`deleting_at`): desde ese momento las listas lo muestran como que ya no
+  se guarda y no se baja; con «Deshacer» vuelve. Pasado el «Deshacer», la limpieza lo saca del almacén.
 
 ### `price_lists.lists` (migración `002-lists`)
 
@@ -497,7 +499,7 @@ Las vistas, en `src/app/views/basic/price-lists/` y `anomalies/` (ADR-019).
 - **Una lectura vieja no pisa a una nueva:** cada corrida lleva su número de intento, y el resultado de
   un bloque se guarda solo si la lista sigue en ese intento y «leyendo».
 - **Los archivos** se borran: al aplicar una lista, el de la aplicada anterior del mismo proveedor (si
-  ninguna otra lista usa ese contenido); una vez por día, los de listas que nunca se aplicaron con más
+  ninguna otra lista usa ese contenido); una vez por hora, los de listas que nunca se aplicaron con más
   días que el ajuste (06 · R8.7), los marcados a mano con el «Deshacer» vencido y los que quedaron sin
   fila; y al guardar uno nuevo, si entre todos pasan el ajuste (06 · R8.6), los más viejos hasta quedar
   debajo, salvo el más nuevo y los de listas leyéndose o aplicándose.

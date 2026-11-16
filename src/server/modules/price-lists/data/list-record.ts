@@ -18,6 +18,7 @@ export type ListRecord = {
   waitingFor: 'supplier' | 'size' | null;
   scope: ListScope;
   fileSha: string | null;
+  fileDeleting: boolean;
   fileName: string;
   listDate: string | null;
   dateFrom: string | null;
@@ -50,25 +51,26 @@ export type NewList = {
 export const hex = (sha: string) => Buffer.from(sha, 'hex');
 
 export const columns = (db: Db) =>
-  db
-    .selectFrom('price_lists.lists')
-    .select([
-      ...(['id', 'supplier_id as supplierId', 'supplier_from as supplierFrom'] as const),
-      ...([
-        'supplier_confirmed as supplierConfirmed',
-        'status',
-        'waiting_for as waitingFor',
-      ] as const),
-      ...([
-        'scope',
-        'file_name as fileName',
-        'date_from as dateFrom',
-        'reader_id as readerId',
-      ] as const),
-      ...(['new_reader as newReader', 'rows_total as rowsTotal', 'rows_read as rowsRead'] as const),
-      ...(['attempts', 'reason', 'read_at as readAt', 'size_confirmed as sizeConfirmed'] as const),
-      ...(['uploaded_by as uploadedBy', 'uploaded_at as uploadedAt'] as const),
-      ...(['decided_by as decidedBy', 'decided_at as decidedAt', 'result'] as const),
-      sql<string | null>`encode(file_sha256, 'hex')`.as('fileSha'),
-      dateText('list_date').as('listDate'),
-    ]);
+  db.selectFrom('price_lists.lists').select([
+    ...(['id', 'supplier_id as supplierId', 'supplier_from as supplierFrom'] as const),
+    ...([
+      'supplier_confirmed as supplierConfirmed',
+      'status',
+      'waiting_for as waitingFor',
+    ] as const),
+    ...([
+      'scope',
+      'file_name as fileName',
+      'date_from as dateFrom',
+      'reader_id as readerId',
+    ] as const),
+    ...(['new_reader as newReader', 'rows_total as rowsTotal', 'rows_read as rowsRead'] as const),
+    ...(['attempts', 'reason', 'read_at as readAt', 'size_confirmed as sizeConfirmed'] as const),
+    ...(['uploaded_by as uploadedBy', 'uploaded_at as uploadedAt'] as const),
+    ...(['decided_by as decidedBy', 'decided_at as decidedAt', 'result'] as const),
+    sql<string | null>`encode(file_sha256, 'hex')`.as('fileSha'),
+    // Borrado a mano, esperando el «Deshacer» (06 · R10.2): ya no se ofrece.
+    sql<boolean>`exists (select 1 from price_lists.files f where f.sha256 = file_sha256
+        and f.deleting_at is not null)`.as('fileDeleting'),
+    dateText('list_date').as('listDate'),
+  ]);

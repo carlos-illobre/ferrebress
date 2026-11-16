@@ -34,6 +34,6 @@ export function stateOf(list: ListRecord, supplierName: string | undefined): Lis
     ...(list.dateFrom && { dateFrom: list.dateFrom }),
     ...(list.newReader && { newReader: true as const }),
     uploadedAt: list.uploadedAt.toISOString(),
-    file: list.fileSha !== null,
+    file: list.fileSha !== null && !list.fileDeleting,
   };
 }

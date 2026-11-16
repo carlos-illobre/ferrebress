@@ -23,4 +23,22 @@ describe('bajar un archivo (08 · E40, E68)', () => {
     expect(cleanFileName('../../etc/passwd')).toBe('....etcpasswd');
     expect(cleanFileName('\u0000')).toBe('lista');
   });
+
+  it('de a una parte cuando se pide; si se deja de bajar, no sigue leyendo', async () => {
+    let finished = false;
+    async function* slow() {
+      try {
+        yield new TextEncoder().encode('uno');
+        yield new TextEncoder().encode('dos');
+      } finally {
+        finished = true;
+      }
+    }
+    const response = download(slow(), 'lista.csv');
+    const reader = (response.body as ReadableStream<Uint8Array>).getReader();
+    expect(new TextDecoder().decode((await reader.read()).value)).toBe('uno');
+    expect(finished).toBe(false);
+    await reader.cancel();
+    expect(finished).toBe(true);
+  });
 });

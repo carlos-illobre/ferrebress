@@ -17,6 +17,7 @@ import type { PriceListsContext } from '../context.ts';
 import { asDb } from '../data/db.ts';
 import { type ListRecord, readingData } from '../data/reading.ts';
 import { suppliersData } from '../data/suppliers.ts';
+import { keepUnderLimit } from '../files/cleanup.ts';
 import { assign } from '../reading/assign.ts';
 import type { Reading } from '../reading/service.ts';
 import { extensionOf } from '../rules/format.ts';
@@ -84,6 +85,8 @@ export async function uploadList(ctx: PriceListsContext, c: Context, reading: Re
   });
   for (const other of stopped.filter((one) => one !== listId)) reading.stop(other);
   if (!stopped.includes(listId)) await reading.start(listId);
+  // Con uno más, entre todos pueden pasar el tamaño del ajuste (06 · R8.6, E89).
+  await keepUnderLimit(ctx);
   ctx.record(c, 'lists.uploaded', {
     targets: [{ kind: 'list', id: listId, name: upload.name }],
     data: {

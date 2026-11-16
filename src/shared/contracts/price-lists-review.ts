@@ -1,5 +1,5 @@
-// Ver qué cambia y aplicar una lista (08 · R6) y los productos de un proveedor (R8): lo que piden y
-// devuelven sus rutas.
+// Ver qué cambia y aplicar una lista (08 · R6), los productos de un proveedor (R8), los lectores (R5.8)
+// y los archivos de las listas (06 · R10): lo que piden y devuelven sus rutas.
 import * as z from 'zod/mini';
 import type { CostBasis } from '../pricing/basis.ts';
 import type { ListReason, ListStatus, SkipReason } from './price-lists-reader.ts';
@@ -101,3 +101,43 @@ export type SupplierItem = {
   goneSince?: { listId?: string; listDate?: string };
 };
 export type ItemsPage = { items: SupplierItem[]; next?: string };
+
+// --- Lectores (R5.8) ---
+
+export type ReaderOrigin = 'programmer' | 'auto' | 'ai';
+export type ReaderView = {
+  id: string;
+  origin: ReaderOrigin;
+  supplier?: { id: string; name: string };
+  active: boolean;
+  createdAt: string;
+  // La última lista que leyó.
+  lastList?: { id: string; fileName: string; listDate?: string };
+};
+export type ReadersResponse = { readers: ReaderView[] };
+export const readerActiveBody = z.strictObject({ active: z.boolean() });
+export const readerSupplierBody = z.strictObject({
+  supplierId: z.string().check(z.regex(/^[0-9a-f-]{36}$/)),
+});
+
+// --- Archivos de listas (06 · R10) ---
+
+export type ListFileView = {
+  sha256: string;
+  size: number;
+  storedAt: string;
+  // Marcado para borrar, esperando el «Deshacer» (R10.2).
+  deleting: boolean;
+  // Las listas que lo usan, con su proveedor y su estado.
+  lists: { id: string; fileName: string; status: ListStatus; supplier?: string }[];
+};
+export type FilesPage = {
+  files: ListFileView[];
+  next?: string;
+  // Cuánto ocupan entre todos, contra el ajuste (06 · R8.6).
+  totalBytes: number;
+  limitBytes: number;
+};
+export const filesQuery = z.strictObject({
+  after: z.optional(z.string().check(z.regex(/^\d{1,16}_[0-9a-f]{64}$/))),
+});

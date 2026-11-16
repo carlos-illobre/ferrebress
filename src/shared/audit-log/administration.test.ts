@@ -145,3 +145,26 @@ describe('una lista en Quién hizo qué', () => {
     expect(says('lists.costs', {})).toBe('Cambió el costo de 0 productos con una lista');
   });
 });
+
+describe('los lectores y los archivos en Quién hizo qué', () => {
+  const says = (type: string, data: Record<string, unknown> = {}) =>
+    read(
+      entryOf(type).says({
+        ...{ id: '2026:5', at: '2026-11-07T13:00:00.000Z', type, tone: 'plain' },
+        ...{ actor: { kind: 'person', id: 'u-ana' }, changes: {}, data },
+        targets: [{ kind: 'supplier', id: 's1', name: 'Bulonera Centro' }],
+      }),
+    );
+
+  it('price-lists-E50 y administration-E53', () => {
+    expect(says('readers.deactivated', { origin: 'auto', supplier: 'Bulonera Centro' })).toBe(
+      'Desactivó el lector automático de Bulonera Centro',
+    );
+    expect(says('readers.activated', { origin: 'otro' })).toBe('Activó un lector');
+    expect(says('readers.assigned', { origin: 'programmer' })).toBe(
+      'Asoció el lector de un programador a Bulonera Centro',
+    );
+    expect(says('files.deleted')).toBe('Borró el archivo de una lista');
+    expect(says('files.restored')).toBe('Deshizo el borrado del archivo de una lista');
+  });
+});

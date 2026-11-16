@@ -4,6 +4,7 @@
 import type { Platform, ServerModule } from '../../platform/modules.ts';
 import { type Applying, createApplying } from './apply/service.ts';
 import { createPriceListsContext, type PriceListsDependencies } from './context.ts';
+import { cleanUp } from './files/cleanup.ts';
 import { createSuppliers } from './migrations/001-suppliers.ts';
 import { createLists } from './migrations/002-lists.ts';
 import { createItems } from './migrations/003-items.ts';
@@ -12,8 +13,10 @@ import { createReadingPool, type ReadingPool } from './reading/pool.ts';
 import { programmerReaders, resume } from './reading/resume.ts';
 import { createReading, type Reading } from './reading/service.ts';
 import { registerListTopic } from './realtime.ts';
+import { registerFileRoutes } from './routes/files.ts';
 import { registerHistoryRoutes } from './routes/history.ts';
 import { registerListRoutes } from './routes/lists.ts';
+import { registerReaderRoutes } from './routes/readers.ts';
 import { registerSupplierRoutes } from './routes/suppliers.ts';
 import { priceListsSettings } from './settings.ts';
 
@@ -48,6 +51,10 @@ async function start(
   registerSupplierRoutes(ctx, reading);
   registerListRoutes(ctx, reading, applying);
   registerHistoryRoutes(ctx);
+  registerReaderRoutes(ctx, reading);
+  registerFileRoutes(ctx);
+  // Lo que se borra solo, una vez por hora.
+  platform.every(60 * 60_000, () => cleanUp(ctx));
   const dir = options.readersDir ?? new URL('./readers/', import.meta.url);
   const resumeNow = () => resume(ctx, reading, programmerReaders(dir));
   await resumeNow();
