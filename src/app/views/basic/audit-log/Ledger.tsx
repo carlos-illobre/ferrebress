@@ -14,6 +14,7 @@ import {
   timeOf,
   useAuditLogContext,
 } from '../../../modules/audit-log/model.ts';
+import { useMarkedId } from '../../../platform/view/page.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import { ActionIcon, Actor, Said } from './Pieces.tsx';
 import './Ledger.css';
@@ -22,6 +23,7 @@ function Row({ event, today }: { event: AuditView; today: string }) {
   const log = useAuditLogContext();
   const other = businessDay(event.at) !== today;
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: Espacio y Enter sobre el renglón los maneja la navegación del teclado (ADR-019), no la vista.
     <div
       role="option"
       tabIndex={-1}
@@ -31,7 +33,6 @@ function Row({ event, today }: { event: AuditView; today: string }) {
       data-id={event.id}
       data-new={log.fresh.has(event.id) ? '' : undefined}
       onClick={() => log.select(event.id)}
-      onKeyDown={(key) => key.key === ' ' && log.select(event.id)}
     >
       <ActionIcon event={event} />
       <span class="audit-time">
@@ -54,14 +55,7 @@ function Row({ event, today }: { event: AuditView; today: string }) {
 // Lo que marca el teclado es lo que muestra el detalle.
 function useMarkSelects() {
   const log = useAuditLogContext();
-  useEffect(() => {
-    const follow = (event: Event) => {
-      const id = (event as CustomEvent<HTMLElement | undefined>).detail?.dataset.id;
-      if (id) log.select(id);
-    };
-    document.addEventListener('mark', follow);
-    return () => document.removeEventListener('mark', follow);
-  }, [log.select]);
+  useMarkedId(log.select, [log.select]);
 }
 
 // Qué se desplaza: la lista y todo lo que la contiene (en Usuarios se desplaza todo su contenido). Le

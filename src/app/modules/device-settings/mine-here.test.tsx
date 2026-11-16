@@ -92,7 +92,10 @@ describe('este dispositivo en Configuración', () => {
     );
     // Con Enter tampoco se guarda.
     fireEvent.submit(input().closest('form') as HTMLFormElement);
+    // Esc en la caja lo cancela, por la navegación del teclado.
+    const stopKeys = startKeyboard();
     fireEvent.keyDown(input(), { key: 'Escape' });
+    stopKeys();
     expect(screen.queryByRole('textbox')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: /Ponele nombre/ }));
     fireEvent.click(screen.getByRole('button', { name: /Caja 2/ }));

@@ -17,21 +17,11 @@ type OptionsProps<T extends number> = {
   onChoose: (value: T) => void;
 };
 
-// ← y → mueven el cursor entre las opciones de ese grupo, sin elegir.
-function move(event: KeyboardEvent) {
-  const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-  const here = event.target as HTMLElement;
-  const all = [...(here.parentElement as HTMLElement).children] as HTMLElement[];
-  const next = all[all.indexOf(here) + step];
-  if (!step || !next) return;
-  event.preventDefault();
-  next.focus();
-}
-
 export function Options<T extends number>(props: OptionsProps<T>) {
   const { values, chosen, initial, disabled, text, effect, onLook, onChoose } = props;
   return (
-    <fieldset class={`admin-options ${props.look ?? ''}`} aria-label={props.label}>
+    // ← y → mueven el cursor entre las opciones del grupo, sin elegir (la navegación del teclado).
+    <fieldset class={`admin-options ${props.look ?? ''}`} aria-label={props.label} data-roving="">
       {values.map((value) => (
         <button
           key={value}
@@ -40,7 +30,6 @@ export function Options<T extends number>(props: OptionsProps<T>) {
           aria-pressed={value === chosen}
           tabIndex={value === chosen ? 0 : -1}
           disabled={disabled}
-          onKeyDown={move}
           onMouseEnter={() => onLook(value)}
           onMouseLeave={() => onLook(undefined)}
           onFocus={() => onLook(value)}

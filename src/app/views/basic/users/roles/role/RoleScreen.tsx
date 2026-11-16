@@ -3,7 +3,6 @@
 // modelo (useRoleScreen); acá solo se muestra.
 
 import { type Draft, rolesTexts as t, useRoleScreen } from '../../../../../modules/users/model.ts';
-import { isPhone } from '../../../../../platform/device/device.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { PhoneLight } from '../../../frame/index.ts';
 import { Discard } from './Discard.tsx';
@@ -42,13 +41,7 @@ export function RoleScreen({ start }: { start: Draft }) {
       <Problems errors={errors} notice={role.notice} people={role.people} />
       <div class="role-columns">
         <div class="role-steps">
-          <RoleInfo
-            draft={draft}
-            change={change}
-            errors={errors}
-            focus={!isPhone()}
-            save={role.save}
-          />
+          <RoleInfo draft={draft} change={change} errors={errors} />
           <RolePermissions draft={draft} change={change} errors={errors} />
           <RoleHolders role={role} />
         </div>

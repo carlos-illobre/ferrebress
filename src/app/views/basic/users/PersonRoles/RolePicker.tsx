@@ -19,22 +19,16 @@ export function RolePicker({
   const toggle = (id: string) =>
     onChange(chosen.includes(id) ? chosen.filter((one) => one !== id) : [...chosen, id]);
   return (
-    // Con el cursor en la lista, su número lo tilda o lo destilda (00 · R2).
-    <fieldset
-      class="role-picker"
-      onKeyDown={(event) => {
-        const role = /^[1-9]$/.test(event.key) ? roles[Number(event.key) - 1] : undefined;
-        if (!role || event.altKey || event.ctrlKey || event.metaKey) return;
-        event.preventDefault();
-        toggle(role.id);
-      }}
-    >
+    // Con el cursor en la lista, su número lo tilda o lo destilda (00 · R2): lo hace la navegación
+    // del teclado con data-letters.
+    <fieldset class="role-picker" data-letters="">
       <legend class="visually-hidden">{label}</legend>
       {roles.map((role, index) => (
         <label key={role.id} class={chosen.includes(role.id) ? 'role-pick on' : 'role-pick'}>
           <input
             type="checkbox"
             checked={chosen.includes(role.id)}
+            {...(index < 9 && { 'data-key': String(index + 1) })}
             onChange={() => toggle(role.id)}
           />
           <span class="role-pick-box" aria-hidden="true">

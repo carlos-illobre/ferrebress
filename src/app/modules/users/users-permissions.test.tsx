@@ -4,6 +4,7 @@
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { keyboardForEachTest } from '../../testing/keyboard.ts';
 import { narrowOnly, stubMedia } from '../../testing/media.ts';
 import {
   access,
@@ -33,6 +34,8 @@ const choose = async (name: RegExp) => {
 const as = (permissions: Person['permissions']) => me.set({ ...viewer, permissions });
 
 describe('Usuarios según los permisos', () => {
+  keyboardForEachTest();
+
   afterEach(() => {
     vi.unstubAllGlobals();
     me.set(undefined);
@@ -214,10 +217,10 @@ describe('Usuarios según los permisos', () => {
     const first = within(picker).getByRole('checkbox', {
       name: /Administrador/,
     }) as HTMLInputElement;
-    fireEvent.keyDown(first, { key: '1' });
+    fireEvent.keyDown(first, { key: '1', code: 'Digit1' });
     expect(first.checked).toBe(true);
-    fireEvent.keyDown(first, { key: '1', altKey: true });
-    fireEvent.keyDown(first, { key: 'x' });
+    fireEvent.keyDown(first, { key: '1', code: 'Digit1', altKey: true });
+    fireEvent.keyDown(first, { key: 'x', code: 'KeyX' });
     expect(first.checked).toBe(true);
   });
 });

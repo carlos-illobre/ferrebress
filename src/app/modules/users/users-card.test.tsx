@@ -2,6 +2,7 @@
 // o el correo, borrar el alta, dar de baja y de alta, y los rechazos del servidor.
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { keyboardForEachTest } from '../../testing/keyboard.ts';
 import { narrowOnly, stubMedia } from '../../testing/media.ts';
 import {
   access,
@@ -22,6 +23,8 @@ const choose = async (name: RegExp) => {
 const press = (input: HTMLElement, key: string) => fireEvent.keyDown(input, { key });
 
 describe('la tarjeta de una persona', () => {
+  keyboardForEachTest();
+
   afterEach(() => vi.unstubAllGlobals());
 
   it('users-R5.1, R5.2, R5.5: sin elegir a nadie lo dice; elegida, sus sesiones y celulares', async () => {

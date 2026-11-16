@@ -31,13 +31,16 @@ function Field({ isPhone, name }: Props) {
           placeholder={t.name.example(name.ideas[0] as string)}
           aria-label={t.name.label(isPhone)}
           onInput={(event) => name.type(event.currentTarget.value)}
-          onKeyDown={(event) => event.key === 'Escape' && name.cancel()}
         />
         <span class={name.letters > deviceNameMax ? 'mine-count full' : 'mine-count'}>
           {name.letters}/{deviceNameMax}
         </span>
         <button type="submit" class="button button-action button-small" disabled={!name.canSave}>
           {t.name.done}
+        </button>
+        {/* Lo que hace Esc en la caja (la navegación del teclado); el lector de pantalla sí lo ve. */}
+        <button type="button" class="visually-hidden" data-close="" onClick={name.cancel}>
+          {t.cancel}
         </button>
       </form>
       <Ideas name={name} />

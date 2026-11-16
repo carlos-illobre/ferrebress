@@ -9,8 +9,7 @@ import './MoreCrumb.css';
 export function MoreCrumb({ name }: { name: string }) {
   const frame = useContext(FrameContext);
   if (!frame) return null;
-  const openMore = () =>
-    frame.panels.toggle('more', document.querySelector('.part.more') as Element);
+  const openMore = () => frame.panels.toggle('more');
   return (
     <>
       <nav class="more-crumbs desktop-only" aria-label={texts.whereAmI}>

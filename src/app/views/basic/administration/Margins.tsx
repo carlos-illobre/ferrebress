@@ -42,9 +42,7 @@ export function MarginsPanel({ view, settings }: PanelProps) {
               defaultValue={thousands(margin)}
               readOnly={locked(view)}
               onBlur={(event) => write(i, (event.target as HTMLInputElement).value)}
-              onKeyDown={(event) =>
-                event.key === 'Enter' && (event.target as HTMLInputElement).blur()
-              }
+              data-commit=""
             />
             <span>%</span>
             <span class="admin-margin-sells">

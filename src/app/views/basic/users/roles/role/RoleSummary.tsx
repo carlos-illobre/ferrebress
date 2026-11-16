@@ -7,10 +7,11 @@ import {
   rolesTexts as t,
   useUsersContext,
 } from '../../../../../modules/users/model.ts';
+import { showPart } from '../../../../../platform/view/page.ts';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { Faces } from '../list/RoleRow.tsx';
 
-const goTo = (id: string) => () => document.getElementById(id)?.scrollIntoView({ block: 'start' });
+const goTo = (id: string) => () => showPart(id, { smooth: false, block: 'start' });
 
 export function RoleSummary({ draft }: { draft: Draft }) {
   const people = useUsersContext().people as PersonRow[];

@@ -71,6 +71,7 @@ export const cardTexts = {
   namePlaceholder: (never: boolean) =>
     never ? 'Vacío: se ve su correo' : 'Vacío: vuelve al de Google',
   editHelp: 'Enter guarda · Esc cancela',
+  cancelEdit: 'Cancelar el cambio',
   authorizedAt: (date: string) => `Autorizada el ${date}`,
   // El primer Administrador, que cargó el comando al instalar (R1.2).
   installed: (date: string) => `Desde la instalación, el ${date}`,

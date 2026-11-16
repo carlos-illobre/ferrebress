@@ -1,7 +1,7 @@
 // Cambiar el nombre o el correo en la tarjeta (R3.5, R3.6): el lápiz lo vuelve una caja; Enter
 // guarda y Esc cancela. Un correo que no se puede usar se dice debajo, sin perder lo escrito (R3.3).
-import { useEffect, useRef, useState } from 'preact/hooks';
-import { cardTexts, refusalTexts } from '../../../../modules/users/model.ts';
+import { useEffect, useRef } from 'preact/hooks';
+import { cardTexts, type EditableModel, useEditable } from '../../../../modules/users/model.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 
 type Props = {
@@ -14,47 +14,43 @@ type Props = {
   save: (value: string) => Promise<string | undefined>;
 };
 
-function Box({ props, done }: { props: Props; done: () => void }) {
-  // local: lo que contestó el servidor a este dispositivo.
-  const [error, setError] = useState<string>();
+function Box({ props, edit }: { props: Props; edit: EditableModel }) {
+  // vista: la caja aparece con lo escrito elegido, para reemplazarlo de una.
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => input.current?.select(), []);
-  const keys = async (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      event.stopPropagation();
-      done();
-    }
-    if (event.key !== 'Enter') return;
-    event.preventDefault();
-    const refused = await props.save((input.current as HTMLInputElement).value);
-    if (refused) setError(refusalTexts[refused]);
-    else done();
-  };
   return (
-    <div class={error ? 'users-edit wrong' : 'users-edit'}>
+    <form
+      class={edit.error ? 'users-edit wrong' : 'users-edit'}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void edit.submit((input.current as HTMLInputElement).value);
+      }}
+    >
       <input
         ref={input}
         aria-label={props.label}
-        aria-invalid={!!error}
+        aria-invalid={!!edit.error}
         // Sin controlar: al borrar el aviso no vuelve al texto de antes lo que se está escribiendo.
         defaultValue={props.value}
         placeholder={props.placeholder}
         autocomplete="off"
-        onKeyDown={(event) => void keys(event)}
-        onInput={() => setError(undefined)}
-        onBlur={done}
+        onInput={edit.typing}
+        onBlur={edit.done}
       />
-      <span class="users-edit-help" role={error ? 'alert' : undefined}>
-        {error ?? cardTexts.editHelp}
+      <span class="users-edit-help" role={edit.error ? 'alert' : undefined}>
+        {edit.error ?? cardTexts.editHelp}
       </span>
-    </div>
+      {/* Lo que hace Esc en la caja (la navegación del teclado); el lector de pantalla sí lo ve. */}
+      <button type="button" class="visually-hidden" data-close="" onClick={edit.done}>
+        {cardTexts.cancelEdit}
+      </button>
+    </form>
   );
 }
 
 export function Editable(props: Props) {
-  // local: editar es de quien toca el lápiz.
-  const [editing, setEditing] = useState(false);
-  if (editing) return <Box props={props} done={() => setEditing(false)} />;
+  const edit = useEditable(props.save);
+  if (edit.editing) return <Box props={props} edit={edit} />;
   return (
     <div class={props.className}>
       <span>{props.shown}</span>
@@ -63,7 +59,7 @@ export function Editable(props: Props) {
         class="users-pencil"
         aria-label={props.label}
         data-mark=""
-        onClick={() => setEditing(true)}
+        onClick={edit.start}
       >
         <Icon name="pencil" size="small" />
       </button>

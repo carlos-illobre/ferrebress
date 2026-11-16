@@ -2,9 +2,12 @@
 // recorren sin elegir.
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
+import { keyboardForEachTest } from '../../testing/keyboard.ts';
 import { openAdministration, option, saveOf } from '../../views/basic/administration/kit.tsx';
 
 describe('Administración con el teclado', () => {
+  keyboardForEachTest();
+
   it('R1.8: la tecla del ajuste lleva a su opción elegida', async () => {
     openAdministration();
     fireEvent.click(await screen.findByRole('tab', { name: /Sin uso/ }));

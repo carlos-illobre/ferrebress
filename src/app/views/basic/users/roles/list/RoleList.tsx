@@ -3,23 +3,11 @@
 // ofrece crear un rol con lo escrito como nombre.
 
 import { rolesTexts as t, useRoleList } from '../../../../../modules/users/model.ts';
-import { isPhone } from '../../../../../platform/device/device.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
 import { Search } from '../../../../../ui/search/Search.tsx';
 import { RoleRow } from './RoleRow.tsx';
-
-// En la computadora el cursor arranca en el buscador; en el celular no (00 · R2.12).
-const focusOnDesktop = (input: HTMLInputElement | null) => {
-  if (input && !isPhone() && document.activeElement === document.body) input.focus();
-};
-
-// Enter sin nada marcado abre el primero, o crea uno con lo escrito (00 · R2.6).
-const openFirst = () =>
-  (
-    document.querySelector('.roles-rows [data-mark], .roles-nothing [data-mark]') as HTMLElement
-  ).click();
 
 function SearchBox({ query, setQuery }: { query: string; setQuery: (query: string) => void }) {
   return (
@@ -33,8 +21,9 @@ function SearchBox({ query, setQuery }: { query: string; setQuery: (query: strin
       onText={setQuery}
       data-slash=""
       data-clear=""
-      ref={focusOnDesktop}
-      onKeyDown={(event) => event.key === 'Enter' && openFirst()}
+      // En la computadora el cursor arranca acá (00 · R2.2), y Enter abre el primero de la lista o
+      // crea uno con lo escrito (00 · R2.6): lo hace la navegación del teclado.
+      data-autofocus=""
     />
   );
 }
@@ -68,15 +57,21 @@ export function RoleList() {
             doing={t.createNamed(wanted)}
             onPress={() => openNew({ name: wanted })}
             disabled={!list.online}
+            enterDoes
           >
             <span data-private="">{t.createNamed(wanted)}</span>
           </Button>
         </div>
       ) : (
         <ul class="roles-rows">
-          {shown.map((role) => (
+          {shown.map((role, index) => (
             <li key={role.id}>
-              <RoleRow role={role} people={people} arriving={role.id === arriving} />
+              <RoleRow
+                role={role}
+                people={people}
+                arriving={role.id === arriving}
+                first={index === 0}
+              />
             </li>
           ))}
         </ul>

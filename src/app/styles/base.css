@@ -89,12 +89,12 @@
   .show-keys kbd {
     display: inline-flex;
   }
-  /* El menú tiene sus letras sin Alt (00 · R2.13): se ven mientras la marca está adentro, y con Alt
-     no, porque con Alt las letras son de la pantalla. */
-  .show-keys [data-letters]:not(:has(.marked)) kbd {
+  /* El menú y las listas con números tienen sus teclas sin Alt (00 · R2.13): se ven mientras la
+     marca o el cursor están adentro, y con Alt no, porque con Alt las letras son de la pantalla. */
+  .show-keys [data-letters]:not(:has(.marked, input:focus)) kbd {
     display: none;
   }
-  [data-letters]:has(.marked) kbd {
+  [data-letters]:has(.marked, input:focus) kbd {
     display: inline-flex;
   }
 

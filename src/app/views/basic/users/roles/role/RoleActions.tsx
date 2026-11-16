@@ -41,6 +41,7 @@ function Existing({ role }: Props) {
 
 // «Guardar rol» («Crear el rol» en uno nuevo): apagado sin cambios o sin conexión.
 // `short`: en el celular, «Guardar» o «Crear», para que entre junto a «Borrar» y «Duplicar».
+// En la computadora, Enter en el nombre del rol lo toca (`enterDoes`, 00 · R2.6).
 function SaveButton({
   role,
   keyHint,
@@ -55,6 +56,7 @@ function SaveButton({
       doing={t.save}
       onPress={role.save}
       disabled={!role.dirty || !role.online}
+      enterDoes={!short}
     >
       {short ? (draft.id ? t.saveShort : t.createShort) : draft.id ? t.save : t.create}
     </Button>

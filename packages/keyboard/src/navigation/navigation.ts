@@ -16,6 +16,7 @@
 // En el celular no hay atajos ni marca.
 import { layers, lettersOf, topLayer, visible } from '../layers.ts';
 import { comboOf } from '../shortcuts/combo.ts';
+import { enterInBox, escapeInForm, isTextBox, roving, space, watchAutofocus } from './boxes.ts';
 
 const markedClass = 'marked';
 const somethingOnTop = () => layers().length > 1;
@@ -82,9 +83,6 @@ function arrow(event: KeyboardEvent): void {
   event.preventDefault();
 }
 
-const isTextBox = (target: EventTarget | null): target is HTMLInputElement =>
-  target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
-
 const sideways: Record<string, string> = { ArrowLeft: 'previous', ArrowRight: 'next' };
 const pages: Record<string, string> = { PageUp: 'previous', PageDown: 'next' };
 
@@ -115,29 +113,39 @@ function clearBox(event: KeyboardEvent): boolean {
 }
 
 function onEscape(event: KeyboardEvent): void {
-  if (clearBox(event)) return;
+  if (clearBox(event) || escapeInForm(event)) return;
   if (somethingOnTop()) closeTop();
   else unmark();
 }
 
 const onArrow = (event: KeyboardEvent) => {
+  if (sideways[event.key] && roving(event)) return;
   if (!layerArrow(event) && !caretKeepsArrow(event)) arrow(event);
 };
+
+// Enter: lo marcado; si no hay nada marcado y el cursor está en una caja, lo de la caja.
+function onEnter(event: KeyboardEvent): void {
+  const current = marked();
+  if (current) current.click();
+  else enterInBox(event);
+}
 
 const onPage = (event: KeyboardEvent) =>
   topLayer().querySelector<HTMLElement>(`[data-page="${pages[event.key]}"]`)?.click();
 
-// La región con letras propias donde está la marca, o la capa de arriba si es una.
-function lettersHere(): Element | undefined {
+// La región con letras propias donde está la marca, o el cursor en una casilla (un botón tocado con
+// el mouse no cuenta: si no, una letra cualquiera abriría algo), o la capa de arriba si es una.
+function lettersHere(event: KeyboardEvent): Element | undefined {
   const top = topLayer();
   if (top.hasAttribute('data-letters')) return top;
-  const current = marked();
-  return current && top.contains(current) ? lettersOf(current) : undefined;
+  const box = event.target instanceof HTMLInputElement && event.target;
+  const here = [marked(), box].find((one) => one && top.contains(one));
+  return here ? lettersOf(here) : undefined;
 }
 
 // Una letra o un número sin Alt en una región con letras propias: toca su botón.
 function letter(event: KeyboardEvent): boolean {
-  const region = lettersHere();
+  const region = lettersHere(event);
   const key = /^(Key|Digit)(.)$/.exec(event.code)?.[2]?.toLowerCase();
   // Escribiendo en una caja, las letras son del texto.
   if (!region || !key || event.ctrlKey || event.metaKey || isTextBox(event.target)) return false;
@@ -165,7 +173,8 @@ function toLetters(event: KeyboardEvent): void {
 const actions: Record<string, (event: KeyboardEvent) => void> = {
   ...Object.fromEntries(Object.keys(steps).map((key) => [key, onArrow])),
   ...Object.fromEntries(Object.keys(pages).map((key) => [key, onPage])),
-  Enter: () => marked()?.click(),
+  Enter: onEnter,
+  ' ': space,
   Escape: onEscape,
   '/': slash,
 };
@@ -186,7 +195,9 @@ export function startNavigation({
     ['mousemove', unmark],
   ];
   for (const [type, listener] of listeners) addEventListener(type, listener);
+  const stopWatching = watchAutofocus();
   return () => {
     for (const [type, listener] of listeners) removeEventListener(type, listener);
+    stopWatching();
   };
 }

@@ -4,6 +4,7 @@ import type { AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
+import { keyboardForEachTest } from '../../testing/keyboard.ts';
 import {
   detail,
   events,
@@ -17,6 +18,8 @@ import {
 const _chip = (name: RegExp) => screen.getByRole('button', { name }) as HTMLElement;
 
 describe('Quién hizo qué', () => {
+  keyboardForEachTest();
+
   afterEach(() => {
     vi.unstubAllGlobals();
     act(() => online.set(true));

@@ -38,7 +38,7 @@ function DaysField({ text, locked: off, type, save, chosen }: Days & { chosen: n
           readOnly={off}
           onInput={(event) => type(typedIn(event))}
           onBlur={() => save(text)}
-          onKeyDown={(event) => event.key === 'Enter' && (event.target as HTMLInputElement).blur()}
+          data-commit=""
         />
         <span>{texts.pairing.days}</span>
       </label>

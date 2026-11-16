@@ -1,7 +1,7 @@
 // Lo que se abre desde el marco, de a uno por vez: Más, la tarjeta de la persona minimizada y lo
 // pendiente al costado del menú, y la hoja de lo pendiente del celular. Tocar afuera, cambiar el tamaño de la
 // ventana o abrir otro lo cierra.
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 
 export type Panel = 'more' | 'person' | 'pending' | 'phonePending';
 
@@ -20,6 +20,8 @@ export function beside(anchor: Element): Place {
 export function usePanels() {
   // local: lo que se abre del marco cambia de forma entre la computadora y el celular (un panel al costado, una hoja); viaja la dirección.
   const [open, setOpen] = useState<{ panel: Panel; place?: Place }>();
+  // De dónde sale cada panel, para abrirlo también desde otro lado (el camino de Más).
+  const anchors = useRef(new Map<Panel, Element>());
 
   useEffect(() => {
     if (!open) return;
@@ -39,10 +41,15 @@ export function usePanels() {
   return {
     open: open?.panel,
     place: open?.place,
-    toggle(panel: Panel, anchor?: Element) {
+    toggle(panel: Panel, from?: Element) {
+      const anchor = from ?? anchors.current.get(panel);
       setOpen(
         open?.panel === panel ? undefined : { panel, ...(anchor && { place: beside(anchor) }) },
       );
+    },
+    // El botón de donde sale el panel se anota al dibujarse.
+    anchor: (panel: Panel) => (element: Element | null) => {
+      if (element) anchors.current.set(panel, element);
     },
     close: () => setOpen(undefined),
   };

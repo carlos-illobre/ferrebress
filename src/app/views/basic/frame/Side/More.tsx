@@ -23,6 +23,7 @@ export function More() {
       <button
         type="button"
         class="part opens more"
+        ref={frame.panels.anchor('more')}
         data-mark=""
         data-key="m"
         aria-haspopup="true"

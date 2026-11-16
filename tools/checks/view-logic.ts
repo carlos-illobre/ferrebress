@@ -41,19 +41,6 @@ export function findLogicInViews(root: string, pending: readonly string[]): stri
   ];
 }
 
-// Lo que falta separar (T134).
-export const pendingViews = [
-  'src/app/modules/device-link/tabs.ts',
-  'src/app/views/basic/administration/Margins.tsx',
-  'src/app/views/basic/administration/Options.tsx',
-  'src/app/views/basic/administration/Pairing.tsx',
-  'src/app/views/basic/audit-log/Ledger.tsx',
-  'src/app/views/basic/device-settings/Settings/Devices/Name.tsx',
-  'src/app/views/basic/frame/Crumbs/MoreCrumb.tsx',
-  'src/app/views/basic/users/Card/Edit.tsx',
-  'src/app/views/basic/users/Card/Phone.tsx',
-  'src/app/views/basic/users/PersonRoles/RolePicker.tsx',
-  'src/app/views/basic/users/roles/list/RoleList.tsx',
-  'src/app/views/basic/users/roles/role/RoleInfo.tsx',
-  'src/app/views/basic/users/roles/role/RoleSummary.tsx',
-];
+// Lo que falta separar. Quién tiene el vínculo en cada pestaña mira la actividad de la persona
+// (también las teclas): es de la capa del vínculo y sale de los módulos con T138.
+export const pendingViews = ['src/app/modules/device-link/tabs.ts'];

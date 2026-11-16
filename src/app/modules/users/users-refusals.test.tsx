@@ -2,6 +2,7 @@
 // no está y un error cualquiera.
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { keyboardForEachTest } from '../../testing/keyboard.ts';
 import {
   access,
   inCard,
@@ -19,6 +20,8 @@ const choose = async (name: RegExp) => {
 const press = (input: HTMLElement, key: string) => fireEvent.keyDown(input, { key });
 
 describe('los rechazos en la tarjeta', () => {
+  keyboardForEachTest();
+
   afterEach(() => vi.unstubAllGlobals());
 
   it('users-E30: con una versión vieja, la trae como quedó; si ya no está, la saca; si no, lo dice', async () => {

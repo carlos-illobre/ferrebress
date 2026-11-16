@@ -13,6 +13,7 @@ export {
   remove,
   removePhone,
 } from './actions.ts';
+export { type EditableModel, useEditable } from './editable.ts';
 export {
   counts,
   dateOf,

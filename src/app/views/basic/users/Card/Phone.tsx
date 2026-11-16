@@ -5,13 +5,10 @@
 import type { PersonRow, PhoneRow } from '@ferrebress/shared/contracts/users';
 import type { ComponentChildren } from 'preact';
 import { removePhone, cardTexts as t, useUsersContext } from '../../../../modules/users/model.ts';
-import { still } from '../../../../platform/motion.ts';
 import { notify } from '../../../../platform/view/notify.ts';
+import { showPart } from '../../../../platform/view/page.ts';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
 import './Phone.css';
-
-const scrollTo = (id: string) =>
-  document.getElementById(id)?.scrollIntoView({ behavior: still() ? 'auto' : 'smooth' });
 
 type Tile = {
   icon: IconName;
@@ -45,7 +42,7 @@ export function Tiles({ person }: { person: PersonRow }) {
   const removeOne = () =>
     phones.length === 1
       ? removePhone(users, person, phones[0] as PhoneRow)
-      : scrollTo('users-phones');
+      : showPart('users-phones');
   const tiles: Tile[] = [
     {
       icon: 'lock',
@@ -67,7 +64,7 @@ export function Tiles({ person }: { person: PersonRow }) {
       icon: 'user-check',
       name: t.changeRole,
       tone: 'green',
-      act: () => scrollTo('users-roles'),
+      act: () => showPart('users-roles'),
       allowed: users.may.roles,
     },
   ];
@@ -104,10 +101,10 @@ export function Rows() {
   const phones = users.access?.phones.length ?? 0;
   return (
     <div class="surface users-link-rows phone-only">
-      <Row icon="fingerprint" name={t.passkeyRow} act={() => scrollTo('users-phones')}>
+      <Row icon="fingerprint" name={t.passkeyRow} act={() => showPart('users-phones')}>
         {t.passkeys(phones)}
       </Row>
-      <Row icon="monitor" name={t.devicesRow} act={() => scrollTo('users-sessions')}>
+      <Row icon="monitor" name={t.devicesRow} act={() => showPart('users-sessions')}>
         {t.devices(sessions)}
       </Row>
       <Row icon="clock" name={t.historyRow} act={() => notify(t.soon(t.historyRow))}>

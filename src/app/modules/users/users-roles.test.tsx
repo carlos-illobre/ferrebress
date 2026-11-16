@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
+import { startKeyboard } from '../../testing/keyboard.ts';
 import { narrowOnly, stubMedia } from '../../testing/media.ts';
 import {
   all,
@@ -22,7 +23,15 @@ const search = (text: string) =>
   });
 
 describe('la pestaña Roles (02 · R7.12, R7.13)', () => {
-  afterEach(() => vi.unstubAllGlobals());
+  // Enter en las cajas es de la navegación del teclado (ADR-019).
+  let stopKeys: () => void;
+  beforeEach(() => {
+    stopKeys = startKeyboard();
+  });
+  afterEach(() => {
+    stopKeys();
+    vi.unstubAllGlobals();
+  });
 
   it('users-E57, E60: cada rol con su descripción, cuántos permisos y quiénes lo tienen', async () => {
     await openRoles();
@@ -207,6 +216,9 @@ describe('la pestaña Roles (02 · R7.12, R7.13)', () => {
       configurable: true,
       get: () => ({ mobile: true }),
     });
+    // En el celular el teclado no se prende (00 · R2.12): se prende de nuevo como en la aplicación.
+    stopKeys();
+    stopKeys = startKeyboard();
     stubMedia(narrowOnly);
     navigate('/users/roles', { replace: true, force: true });
     openUsers({ '/api/users': { body: all }, '/api/roles': rolesRoute }, true);

@@ -34,10 +34,13 @@ export function RoleRow({
   role,
   people,
   arriving,
+  first,
 }: {
   role: Row;
   people: PersonRow[];
   arriving: boolean;
+  // El primero de la lista: Enter en el buscador lo abre (00 · R2.6).
+  first: boolean;
 }) {
   const holders = activeHolders(people, role.id);
   const count = role.permissions.length;
@@ -47,6 +50,7 @@ export function RoleRow({
       class={arriving ? 'surface roles-row arriving' : 'surface roles-row'}
       aria-label={t.open(role.name)}
       data-mark=""
+      data-default={first ? '' : undefined}
       onClick={() => navigate(rolePath(role.id))}
     >
       <span class="roles-icon">

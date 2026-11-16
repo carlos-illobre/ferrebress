@@ -23,6 +23,8 @@ export type ButtonProps = {
   closes?: boolean;
   // El principal de un diálogo: el cursor arranca ahí en la computadora y Enter lo toca.
   primary?: boolean;
+  // Lo que hace Enter con el cursor en una caja de la pantalla y nada marcado (00 · R2.6).
+  enterDoes?: boolean;
   disabled?: boolean;
 };
 
@@ -33,6 +35,7 @@ const keyboardMarks = (props: ButtonProps) => ({
   'data-key': props.shortcut,
   'data-close': props.closes ? '' : undefined,
   'data-primary': props.primary ? '' : undefined,
+  'data-default': props.enterDoes ? '' : undefined,
 });
 
 function Contents(props: ButtonProps) {

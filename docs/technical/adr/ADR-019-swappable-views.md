@@ -104,6 +104,13 @@ navegación. Las dos trabajan sobre los modelos, no sobre el HTML, y ninguna sab
   `dialog`. Cualquier vista que use bien esos roles (lo pide igual la accesibilidad, punto 5 del
   contrato) se navega sola, sin escribir nada para el teclado. Qué hace Enter con una fila es lo
   que hace la fila al tocarla.
+- **Lo que los roles no dicen, la vista lo declara con un atributo, y ninguna vista escucha
+  teclas:** `data-autofocus` (la caja donde arranca el cursor, 00 · R2.2), `data-default` (lo que
+  hace Enter en una caja sin nada marcado, R2.6), `data-commit` (Enter deja la caja y guarda), un
+  botón `data-close` dentro de un formulario (lo que hace Esc en sus cajas), `data-roving` (← y →
+  llevan el cursor por un grupo de opciones) y `data-letters` (una región con teclas sin Alt, como
+  el menú, R2.13). Enter en la caja de un formulario lo manda y Espacio elige una fila. Las
+  marcas de hoy (`data-mark`, `data-layer`) se pasan a los roles de a poco.
 - **Sus teclas tienen su propio mapa, chico** (`keyboard/navigation/keymap.ts`): siguiente, anterior,
   salir al menú, entrar, cerrar, página siguiente y anterior, con las flechas, Enter, Esc, RePág y
   AvPág de arranque. Sirve para cambiar las teclas de moverse sin tocar ninguna regla.
