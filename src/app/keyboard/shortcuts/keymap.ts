@@ -57,4 +57,13 @@ export const keymap: Record<string, string> = {
   'link-code.back': 'Alt+O',
   'link-unpair.cancel': 'Alt+C',
   'link-unpair.unpair': 'Alt+X',
+  // Quién hizo qué (05 · R4.5, R4.6, R4.11).
+  'audit-log.by': 'Alt+P',
+  'audit-log.to': 'Alt+A',
+  'audit-log.dates': 'Alt+F',
+  'audit-log.kind': 'Alt+T',
+  'audit-log.clearFilters': 'Alt+X',
+  'audit-log.live': 'Alt+R',
+  'audit-log.newOnes': 'Alt+N',
+  'audit-tape.play': 'Alt+R',
 };

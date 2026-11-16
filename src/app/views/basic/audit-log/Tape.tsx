@@ -2,39 +2,24 @@
 // pantalla completa. Una fila por persona, un punto por acción y la línea de quién a quién; el
 // cabezal, que se arrastra, se pasa con ← → o los botones, o recorre solo con «Reproducir el día»;
 // tocar una fila aísla a esa persona. La acción del cabezal se lee abajo, como un subtítulo.
-import type { AuditDay, AuditView } from '@ferrebress/shared/contracts/audit-log';
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import type { AuditDay } from '@ferrebress/shared/contracts/audit-log';
+import { useRef } from 'preact/hooks';
+import {
+  lanesOf,
+  shortDateOf,
+  swipeOf,
+  type TapeState,
+  texts,
+  useAuditLogContext,
+  useTapeScreen,
+} from '../../../modules/audit-log/model.ts';
 import { useBackStep } from '../../../platform/back-step.ts';
-import { useLatest } from '../../../platform/latest.ts';
+import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Icon } from '../../../ui/icon/Icon.tsx';
-import { auditApi } from '../api.ts';
-import { shortDateOf } from '../logic.ts';
-import { useAuditLogContext } from '../state.ts';
-import { lanesOf, stepMs, swipeOf, visibleOf } from '../tape.ts';
-import { texts } from '../texts.ts';
 import { DetailBody } from './Detail.tsx';
 import { TapeBoard } from './TapeBoard.tsx';
 import './Tape.css';
-
-function useDay(first: { date: string; at?: string }) {
-  // local: el día que trae el servidor lo pide cada dispositivo.
-  const [day, setDay] = useState<AuditDay>();
-  // local: el cabezal de la cinta es de cada dispositivo (diseño de 03, § 5.1).
-  const [at, setAt] = useState<string | undefined>(first.at);
-  const latest = useLatest();
-  // Si se cambia de día antes de que llegue el anterior, vale el último.
-  const load = async (date: string, focus?: string) => {
-    const result = await latest(auditApi.day(date));
-    if (!result?.ok) return;
-    setDay(result.data);
-    setAt(focus ?? result.data.events?.[0]?.id);
-  };
-  useEffect(() => {
-    void load(first.date, first.at);
-  }, []);
-  return { day, at, setAt, load };
-}
 
 function Week({ day, load }: { day: AuditDay; load: (date: string) => unknown }) {
   return (
@@ -63,75 +48,9 @@ function Week({ day, load }: { day: AuditDay; load: (date: string) => unknown })
   );
 }
 
-// «Reproducir»: un paso por acción, hasta la última o hasta que se toque algo.
-function usePlay(
-  steps: AuditView[],
-  at: string | undefined,
-  setAt: (id: string) => void,
-  wide: boolean,
-) {
-  // local: reproducir corre en cada dispositivo.
-  const [playing, setPlaying] = useState(false);
-  const position = useRef(at);
-  position.current = at;
-  useEffect(() => {
-    if (!playing) return;
-    const timer = setInterval(
-      () => {
-        const index = steps.findIndex((event) => event.id === position.current);
-        const next = steps[index + 1];
-        if (next) setAt(next.id);
-        else setPlaying(false);
-      },
-      stepMs(steps.length, wide),
-    );
-    const stop = () => document.hidden && setPlaying(false);
-    document.addEventListener('visibilitychange', stop);
-    return () => {
-      clearInterval(timer);
-      document.removeEventListener('visibilitychange', stop);
-    };
-  }, [playing, steps]);
-  return { playing, toggle: () => setPlaying(!playing), stop: () => setPlaying(false) };
-}
-
-// Lo que pasa en la cinta: el día, el cabezal, la persona aislada y «Reproducir».
-function useTape(wide: boolean, first: { date: string; at?: string }) {
-  const { day, at, setAt, load } = useDay(first);
-  // local: lo resaltado al pasar el dedo o el mouse.
-  const [isolated, setIsolated] = useState<string>();
-  const events = useMemo(() => day?.events ?? [], [day]);
-  const steps = useMemo(() => visibleOf(events, isolated), [events, isolated]);
-  const play = usePlay(steps, at, setAt, wide);
-  const index = steps.findIndex((event) => event.id === at);
-  return {
-    day,
-    load,
-    events,
-    steps,
-    play,
-    index,
-    isolated,
-    current: events.find((event) => event.id === at),
-    move: setAt,
-    // En los extremos no hace nada: los botones se apagan y deslizar no se pasa.
-    go(step: 1 | -1) {
-      const next = steps[index + step];
-      if (next) setAt(next.id);
-    },
-    // Aislar a alguien que no está en el cabezal lleva el cabezal a su primera acción.
-    isolate(id: string) {
-      const next = isolated === id ? undefined : id;
-      setIsolated(next);
-      const visible = visibleOf(events, next);
-      if (!visible.some((event) => event.id === at) && visible[0]) setAt(visible[0].id);
-    },
-  };
-}
-type TapeState = ReturnType<typeof useTape>;
-
 function Controls({ tape }: { tape: TapeState }) {
   const { play, index, steps, go } = tape;
+  const keys = useShortcutHints('audit-tape');
   return (
     <div class="tape-controls">
       <button
@@ -148,7 +67,7 @@ function Controls({ tape }: { tape: TapeState }) {
         <Button
           look="action"
           icon={play.playing ? 'pause' : 'play'}
-          shortcut="r"
+          keyHint={keys.play}
           doing={texts.play}
           onPress={play.toggle}
         >
@@ -213,7 +132,7 @@ function useSwipe(tape: TapeState) {
 
 export function Tape() {
   const log = useAuditLogContext();
-  const tape = useTape(log.wide, log.tape as { date: string; at?: string });
+  const tape = useTapeScreen(log.wide, log.tape as { date: string; at?: string });
   const swipe = useSwipe(tape);
   useBackStep(log.closeTape);
   return (

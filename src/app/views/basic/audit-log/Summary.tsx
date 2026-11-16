@@ -3,11 +3,15 @@
 // la cinta en esa acción (R4.11).
 
 import type { StripMark } from '@ferrebress/shared/contracts/audit-log';
+import {
+  nearestMark,
+  stripScale,
+  summaryDay,
+  texts,
+  useAuditLogContext,
+} from '../../../modules/audit-log/model.ts';
 import { formatHourOfDay } from '../../../platform/time.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
-import { nearestMark, stripScale, summaryDay } from '../logic.ts';
-import { useAuditLogContext } from '../state.ts';
-import { texts } from '../texts.ts';
 import './Summary.css';
 
 function totalLabel(dates: ReturnType<typeof useAuditLogContext>['filters']['dates']) {

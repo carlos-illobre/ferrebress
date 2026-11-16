@@ -4,7 +4,15 @@ import type { AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
-import { detail, events, first, firstPhone, openAuditLog, page, rows } from './audit-test-kit.tsx';
+import {
+  detail,
+  events,
+  first,
+  firstPhone,
+  openAuditLog,
+  page,
+  rows,
+} from '../../views/basic/audit-log/audit-test-kit.tsx';
 
 const _chip = (name: RegExp) => screen.getByRole('button', { name }) as HTMLElement;
 

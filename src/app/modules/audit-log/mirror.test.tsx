@@ -3,7 +3,7 @@
 import { act, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 import { mirror } from '../../platform/mirror/registry.ts';
-import { first, openAuditLog } from './audit-test-kit.tsx';
+import { first, openAuditLog } from '../../views/basic/audit-log/audit-test-kit.tsx';
 
 describe('lo pedido, desde el otro dispositivo', () => {
   it('lo que llega del otro se pide acá; lo que no se entiende, la primera página', async () => {

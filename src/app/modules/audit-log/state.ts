@@ -3,16 +3,23 @@
 // filtrar, al pasar de página) y, con «Actualizar solo» prendido, al llegar un aviso (R4.6, live.ts):
 // esa puesta al día no cambia lo que se ve en el otro dispositivo ni la acción elegida. No guarda nada
 // en el dispositivo.
-import type { AuditPage, AuditPerson, Summary } from '@ferrebress/shared/contracts/audit-log';
+import type {
+  AuditPage,
+  AuditPerson,
+  AuditView,
+  Summary,
+} from '@ferrebress/shared/contracts/audit-log';
 import { createContext } from 'preact';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import * as z from 'zod/mini';
 import { useLatest } from '../../platform/latest.ts';
 import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
 import { isNarrow } from '../../platform/narrow.ts';
+import { useScreen } from '../../platform/screens.ts';
 import { online as onlineStore } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
 import { auditApi } from './api.ts';
+import type { Which } from './filter-options.ts';
 import { useLive } from './live.ts';
 import {
   type Asked,
@@ -119,13 +126,43 @@ function useLoading(wide: boolean) {
 
 // En la computadora, de a 20 y con la tira; en lo angosto, de a 10 (R4.3). Se decide al abrir: girar
 // el celular no cambia el tamaño de la página a mitad de camino.
+// La acción elegida, aunque al ponerse al día sola haya pasado a la página 2 (R4.6, R4.7): se sigue
+// mostrando la que estaba hasta que se elija otra.
+function useChosen(page: AuditPage | undefined, selected: string | undefined) {
+  const kept = useRef<AuditView | undefined>(undefined);
+  const found = page?.events.find((one) => one.id === selected);
+  if (found || kept.current?.id !== selected) kept.current = found;
+  return kept.current;
+}
+
+// Qué filtro tiene abierta su lista (R4.5): de este dispositivo.
+function useOpenFilter() {
+  const [open, setOpen] = useState<Which>(); // local: el desplegable de este dispositivo
+  return {
+    openFilter: open,
+    toggleFilter: (which: Which) => setOpen((now) => (now === which ? undefined : which)),
+    closeFilter: () => setOpen(undefined),
+  };
+}
+
 export function useAuditLog() {
-  const [wide] = useState(() => !isNarrow()); // local: el ancho de este dispositivo, al abrir
+  const model = useAuditLogModel();
+  useScreen('audit-log', model);
+  return model;
+}
+
+// Las personas de los filtros: se piden antes que la primera página.
+function usePeople() {
   const [people, setPeople] = useState<AuditPerson[]>([]); // local: del servidor
-  // Las personas se piden antes que la primera página.
   useEffect(() => {
     void auditApi.people().then((result) => result.ok && setPeople(result.data.people));
   }, []);
+  return people;
+}
+
+function useAuditLogModel() {
+  const [wide] = useState(() => !isNarrow()); // local: el ancho de este dispositivo, al abrir
+  const people = usePeople();
   const { ask, atTop, refresh, count, loadedAt, ...loaded } = useLoading(wide);
   const { filters, page } = loaded;
   const [tape, setTape] = useMirrored('audit-log.tape', null, z.nullable(tapeAt));
@@ -142,6 +179,8 @@ export function useAuditLog() {
     JSON.stringify(next.dates) !== JSON.stringify(filters.dates);
   return {
     ...loaded,
+    chosen: useChosen(page, loaded.selected),
+    ...useOpenFilter(),
     live,
     wide,
     people,

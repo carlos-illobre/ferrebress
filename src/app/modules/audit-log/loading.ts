@@ -24,18 +24,22 @@ export function readAsked(text: string): Asked {
   }
 }
 
-// Si está arriba de todo (la página 1, sin haber bajado: R4.6), y cómo volver. Lo que se desplaza no
-// es siempre la lista: en la pantalla de Usuarios se desplaza todo su contenido. Se miran la lista y
-// todo lo que la contiene.
-function scrollers(): HTMLElement[] {
-  const found: HTMLElement[] = [];
-  for (let el = document.querySelector<HTMLElement>('.audit-ledger'); el; el = el.parentElement)
-    found.push(el);
-  return found;
-}
-const scrolledTop = () => scrollers().every((el) => el.scrollTop < auditLogSettings.live.topPx);
+// Si la lista está arriba de todo (la página 1, sin haber bajado: R4.6), y cómo volver. Qué se
+// desplaza lo sabe la vista (en la pantalla de Usuarios se desplaza todo su contenido, no solo la
+// lista): lo registra con ledgerScroll.set; sin vista registrada, cuenta como arriba.
+export type LedgerScroll = { atTop: () => boolean; toTop: () => void };
+let scroller: LedgerScroll | undefined;
+export const ledgerScroll = {
+  set(given: LedgerScroll): () => void {
+    scroller = given;
+    return () => {
+      scroller = undefined;
+    };
+  },
+};
+export const scrolledTop = () => scroller?.atTop() ?? true;
 export function toTop(): void {
-  for (const el of scrollers()) el.scrollTop = 0;
+  scroller?.toTop();
 }
 
 // Lo que entra se marca un momento (R4.6, E50): las filas que llegaron después de la foto anterior.

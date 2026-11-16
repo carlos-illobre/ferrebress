@@ -2,11 +2,19 @@
 // acción con el ícono de su tipo, la hora (y la fecha si no es de hoy), quién, qué pasó y el
 // dispositivo, con su color; la hora del celular, con su marca (E09). En la computadora, recorrerla con el teclado cambia el detalle (E35d).
 import type { AuditPage, AuditView } from '@ferrebress/shared/contracts/audit-log';
-import { useEffect } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
+import {
+  auditLogSettings,
+  businessDay,
+  byDay,
+  dayTitle,
+  ledgerScroll,
+  shortDateOf,
+  texts,
+  timeOf,
+  useAuditLogContext,
+} from '../../../modules/audit-log/model.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
-import { businessDay, byDay, dayTitle, shortDateOf, timeOf } from '../logic.ts';
-import { useAuditLogContext } from '../state.ts';
-import { texts } from '../texts.ts';
 import { ActionIcon, Actor, Said } from './Pieces.tsx';
 import './Ledger.css';
 
@@ -56,10 +64,30 @@ function useMarkSelects() {
   }, [log.select]);
 }
 
+// Qué se desplaza: la lista y todo lo que la contiene (en Usuarios se desplaza todo su contenido). Le
+// dice a la lógica si está arriba de todo y cómo volver (R4.6).
+function useScroll(list: { current: HTMLElement | null }) {
+  useEffect(() => {
+    const scrollers = () => {
+      const found: HTMLElement[] = [];
+      for (let el = list.current; el; el = el.parentElement) found.push(el);
+      return found;
+    };
+    return ledgerScroll.set({
+      atTop: () => scrollers().every((el) => el.scrollTop < auditLogSettings.live.topPx),
+      toTop: () => {
+        for (const el of scrollers()) el.scrollTop = 0;
+      },
+    });
+  }, []);
+}
+
 export function Ledger({ page }: { page: AuditPage }) {
   useMarkSelects();
+  const list = useRef<HTMLDivElement>(null);
+  useScroll(list);
   return (
-    <div class="audit-ledger" role="listbox" aria-label={texts.title}>
+    <div class="audit-ledger" role="listbox" aria-label={texts.title} ref={list}>
       {byDay(page.events).map((day) => (
         <section key={day.date} class="audit-day">
           <h2>

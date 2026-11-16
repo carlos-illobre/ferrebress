@@ -3,12 +3,12 @@
 import type { AuditPage, AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { act, render } from '@testing-library/preact';
 import { vi } from 'vitest';
-import { realtime, type TopicHandler } from '../../platform/realtime/channel.ts';
-import { syncServerTime } from '../../platform/server/clock.ts';
-import { fakeServer, type Reply } from '../../testing/fake-server.ts';
-import { narrowOnly, stubMedia } from '../../testing/media.ts';
-import { Toasts } from '../../ui/toast/Toast.tsx';
-import { AuditLog } from './screens/AuditLog.tsx';
+import { realtime, type TopicHandler } from '../../../platform/realtime/channel.ts';
+import { syncServerTime } from '../../../platform/server/clock.ts';
+import { fakeServer, type Reply } from '../../../testing/fake-server.ts';
+import { narrowOnly, stubMedia } from '../../../testing/media.ts';
+import { Toasts } from '../../../ui/toast/Toast.tsx';
+import { AuditLog } from './AuditLog.tsx';
 
 export const now = Date.parse('2026-10-28T15:00:00Z');
 const at = (time: string, day = '2026-10-28') => new Date(`${day}T${time}:00-03:00`).toISOString();

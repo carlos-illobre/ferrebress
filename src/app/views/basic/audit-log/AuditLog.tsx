@@ -5,15 +5,20 @@
 // «Actualizar» (R4.6).
 import type { AuditPage, AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { useRef } from 'preact/hooks';
+import {
+  AuditLogContext,
+  hasFilters,
+  summaryDay,
+  texts,
+  useAuditLog,
+  useAuditLogContext,
+} from '../../../modules/audit-log/model.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { auditLogShapes } from '../../../ui/icon/audit-log-shapes.tsx';
 import { addShapes } from '../../../ui/icon/Icon.tsx';
 import { LoadState } from '../../../ui/load-state/LoadState.tsx';
 import { Offline } from '../../../ui/offline/Offline.tsx';
 import { Sheet } from '../../../ui/sheet/Sheet.tsx';
-import { hasFilters, summaryDay } from '../logic.ts';
-import { AuditLogContext, useAuditLog, useAuditLogContext } from '../state.ts';
-import { texts } from '../texts.ts';
 import { DetailBody } from './Detail.tsx';
 import { Filters } from './Filters.tsx';
 import { Ledger, Pager } from './Ledger.tsx';
@@ -43,18 +48,9 @@ function Empty() {
   );
 }
 
-// La acción elegida, aunque al ponerse al día sola haya pasado a la página 2 (R4.6, R4.7): se sigue
-// mostrando la que estaba hasta que se elija otra.
-function useChosen(page: AuditPage, selected: string | undefined): AuditView | undefined {
-  const kept = useRef<AuditView | undefined>(undefined);
-  const found = page.events.find((one) => one.id === selected);
-  if (found || kept.current?.id !== selected) kept.current = found;
-  return kept.current;
-}
-
 function Detail({ page }: { page: AuditPage }) {
   const log = useAuditLogContext();
-  const event = useChosen(page, log.selected);
+  const event = log.chosen;
   const today = page.today;
   if (!log.wide)
     return event ? (

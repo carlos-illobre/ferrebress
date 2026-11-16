@@ -2,9 +2,16 @@
 // acción, que lleva el cabezal ahí; y las líneas de quién a quién, la del cabezal resaltada. En el
 // celular el tiempo va hacia abajo: se dan vuelta los ejes.
 import type { AuditView } from '@ferrebress/shared/contracts/audit-log';
-import { initials, timeOf } from '../logic.ts';
-import { type Lane, lanesFor, nearest, timeline, visibleOf } from '../tape.ts';
-import { texts } from '../texts.ts';
+import {
+  initials,
+  type Lane,
+  lanesFor,
+  nearest,
+  texts,
+  timeline,
+  timeOf,
+  visibleOf,
+} from '../../../modules/audit-log/model.ts';
 
 type Props = {
   events: AuditView[];

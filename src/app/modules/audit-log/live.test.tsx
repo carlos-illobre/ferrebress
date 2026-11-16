@@ -6,7 +6,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { meter } from '../../platform/meter.ts';
 import { mirror } from '../../platform/mirror/registry.ts';
 import { startKeyboard } from '../../testing/keyboard.ts';
-import { detail, events, first, firstPhone, openAuditLog, page } from './audit-test-kit.tsx';
+import {
+  detail,
+  events,
+  first,
+  firstPhone,
+  openAuditLog,
+  page,
+} from '../../views/basic/audit-log/audit-test-kit.tsx';
 import { auditLogSettings } from './settings.ts';
 
 const settle = (ms = 30) => act(() => new Promise((resolve) => setTimeout(resolve, ms)));

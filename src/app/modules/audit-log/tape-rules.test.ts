@@ -2,7 +2,7 @@
 // cae cada acción, la más cercana al arrastrar, el gesto de deslizar y cuánto espera «Reproducir».
 import type { AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { describe, expect, it } from 'vitest';
-import { events } from './audit-test-kit.tsx';
+import { events } from '../../views/basic/audit-log/audit-test-kit.tsx';
 import { lanesOf, nearest, stepMs, swipeOf, timeline, visibleOf } from './tape.ts';
 
 const today = events.slice(0, 4).toReversed();

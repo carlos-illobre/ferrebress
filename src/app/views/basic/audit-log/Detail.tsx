@@ -2,9 +2,14 @@
 // lado de la lista; en el celular, en una hoja que sube al tocar la acción.
 import type { AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { isPermission, permissionOf } from '@ferrebress/shared/contracts/permissions';
+import {
+  browserOf,
+  businessDay,
+  dayTitle,
+  texts,
+  timeOf,
+} from '../../../modules/audit-log/model.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
-import { browserOf, businessDay, dayTitle, timeOf } from '../logic.ts';
-import { texts } from '../texts.ts';
 import { Actor, PersonName, Said } from './Pieces.tsx';
 import './Detail.css';
 

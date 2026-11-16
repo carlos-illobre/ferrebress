@@ -3,12 +3,17 @@
 import type { AuditPage } from '@ferrebress/shared/contracts/audit-log';
 import type { ComponentChildren } from 'preact';
 import { useState } from 'preact/hooks';
+import {
+  hasFilters,
+  optionsOf,
+  shownValue,
+  texts,
+  useAuditLogContext,
+  type Which,
+} from '../../../modules/audit-log/model.ts';
+import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Icon } from '../../../ui/icon/Icon.tsx';
-import { optionsOf, shownValue, type Which } from '../filter-options.ts';
-import { hasFilters } from '../logic.ts';
-import { useAuditLogContext } from '../state.ts';
-import { texts } from '../texts.ts';
 import './Filters.css';
 
 // Elegir los días a mano: desde y hasta.
@@ -90,18 +95,10 @@ function Pop({ which, close }: { which: Which; close: () => void }) {
   );
 }
 
-function Chip({
-  which,
-  shortcut,
-  children,
-}: {
-  which: Which;
-  shortcut: string;
-  children: ComponentChildren;
-}) {
+function Chip({ which, children }: { which: Which; children: ComponentChildren }) {
   const log = useAuditLogContext();
-  // local: el desplegable de este dispositivo.
-  const [open, setOpen] = useState(false);
+  const keys = useShortcutHints('audit-log');
+  const open = log.openFilter === which;
   const value = shownValue(which, log.filters, log.people);
   return (
     <div class="audit-chip-wrap">
@@ -109,41 +106,33 @@ function Chip({
         type="button"
         class={value ? 'audit-chip on' : 'audit-chip'}
         aria-expanded={open}
-        data-key={shortcut}
         data-mark=""
-        onClick={() => setOpen(!open)}
+        onClick={() => log.toggleFilter(which)}
       >
         {children}
         <b data-private="">{value ?? (which === 'dates' ? texts.allDates : texts.all)}</b>
-        <kbd>{shortcut.toUpperCase()}</kbd>
+        {keys[which] && <kbd>{keys[which]}</kbd>}
       </button>
-      {open && <Pop which={which} close={() => setOpen(false)} />}
+      {open && <Pop which={which} close={log.closeFilter} />}
     </div>
   );
 }
 
 export function Filters() {
   const log = useAuditLogContext();
+  const keys = useShortcutHints('audit-log');
   return (
     <div class="audit-filters">
-      <Chip which="by" shortcut="p">
-        {texts.by}
-      </Chip>
-      <Chip which="to" shortcut="a">
-        {texts.to}
-      </Chip>
-      <Chip which="dates" shortcut="f">
-        {texts.dates}
-      </Chip>
-      <Chip which="kind" shortcut="t">
-        {texts.kind}
-      </Chip>
+      <Chip which="by">{texts.by}</Chip>
+      <Chip which="to">{texts.to}</Chip>
+      <Chip which="dates">{texts.dates}</Chip>
+      <Chip which="kind">{texts.kind}</Chip>
       {hasFilters(log.filters) && (
         <Button
           look="plain"
           size="small"
           icon="x"
-          shortcut="x"
+          keyHint={keys.clearFilters}
           doing={texts.clearFilters}
           onPress={log.clear}
         >

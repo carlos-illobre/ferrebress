@@ -5,7 +5,7 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mirror } from '../../platform/mirror/registry.ts';
 import { held } from '../../testing/fake-server.ts';
-import { first, openAuditLog, page } from './audit-test-kit.tsx';
+import { first, openAuditLog, page } from '../../views/basic/audit-log/audit-test-kit.tsx';
 import { auditLogSettings } from './settings.ts';
 
 const settle = (ms = 30) => act(() => new Promise((resolve) => setTimeout(resolve, ms)));

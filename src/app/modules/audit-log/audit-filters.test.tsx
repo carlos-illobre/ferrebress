@@ -3,7 +3,8 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { held } from '../../testing/fake-server.ts';
-import { openAuditLog, page, rows } from './audit-test-kit.tsx';
+import { startKeyboard } from '../../testing/keyboard.ts';
+import { openAuditLog, page, rows } from '../../views/basic/audit-log/audit-test-kit.tsx';
 
 const chip = (name: RegExp) => screen.getByRole('button', { name }) as HTMLElement;
 
@@ -59,14 +60,20 @@ describe('los filtros de Quién hizo qué', () => {
   });
 
   it('audit-log-E35: con el teclado se llega a cada filtro, a las páginas y a cada fila', async () => {
+    const stop = startKeyboard();
     openAuditLog();
     await screen.findByText('25 acciones');
-    const keys = [...document.querySelectorAll<HTMLElement>('.audit [data-key]')].map(
-      (one) => one.dataset.key,
-    );
-    expect(keys).toEqual(expect.arrayContaining(['p', 'a', 'f', 't', 'r']));
-    expect(chip(/Hecho por/).dataset.key).toBe('p');
-    expect(chip(/Hecho a/).dataset.key).toBe('a');
+    for (const [letter, name] of [
+      ['P', /Hecho por/],
+      ['A', /Hecho a/],
+      ['F', /Fecha/],
+      ['T', /Tipo/],
+    ] as const) {
+      expect(chip(name).querySelector('kbd')?.textContent).toBe(letter);
+      fireEvent.keyDown(window, { key: letter.toLowerCase(), code: `Key${letter}`, altKey: true });
+      expect(chip(name).getAttribute('aria-expanded')).toBe('true');
+    }
+    stop();
     const pages = [...document.querySelectorAll<HTMLElement>('[data-page]')].map(
       (one) => one.dataset.page,
     );

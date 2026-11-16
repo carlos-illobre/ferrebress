@@ -3,7 +3,7 @@
 import type { AuditDay } from '@ferrebress/shared/contracts/audit-log';
 import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { detail, events, openAuditLog, rows } from './audit-test-kit.tsx';
+import { detail, events, openAuditLog, rows } from '../../views/basic/audit-log/audit-test-kit.tsx';
 import { stepMs } from './tape.ts';
 
 const today = events.slice(0, 4).toReversed();
