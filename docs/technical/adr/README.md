@@ -28,3 +28,4 @@ Cada tecnología elegida tiene su ADR, con las opciones, los pros, los contras y
 | [ADR-018](ADR-018-generated-table-types.md) | Los tipos de las tablas, generados desde las migraciones | Aceptado |
 | [ADR-019](ADR-019-swappable-views.md) | La vista, aparte e intercambiable | Aceptado |
 | [ADR-020](ADR-020-pluggable-layers.md) | Lo transversal, en capas enchufables | Aceptado |
+| [ADR-021](ADR-021-reading-price-lists.md) | Leer las listas de precios: SheetJS para abrir, lectores encerrados en QuickJS | Propuesto |
