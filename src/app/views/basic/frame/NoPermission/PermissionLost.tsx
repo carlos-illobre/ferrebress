@@ -12,6 +12,7 @@ import { Button } from '../../ui/button/Button.tsx';
 import { Dialog } from '../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import './PermissionLost.css';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 export function PermissionLost({
   lost,
@@ -33,7 +34,7 @@ export function PermissionLost({
         {noPermissionWords.lostTitle(lost.option.name)}
       </h2>
       {removed.length > 0 ? (
-        <p data-private="">
+        <p {...privateProps()}>
           <b>{after.rolesChangedBy ?? noPermissionWords.someone}</b>
           {noPermissionWords.tookAway(removed)}
         </p>

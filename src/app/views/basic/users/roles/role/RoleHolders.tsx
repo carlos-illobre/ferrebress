@@ -13,6 +13,7 @@ import {
   take,
   undo,
 } from '../../../../../modules/users/model.ts';
+import { privateProps } from '../../../../../platform/view/private.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { GivePicker } from './GivePicker.tsx';
@@ -51,7 +52,7 @@ function Holder(props: {
   const taken = draft.take.includes(person.id);
   const state = given ? 'given' : taken ? 'taken' : '';
   return (
-    <li class={`role-holder ${state}`} data-private="">
+    <li class={`role-holder ${state}`} {...privateProps()}>
       <span class="role-holder-face">{initialsOf(person)}</span>
       <span class="role-holder-name">
         <b>
@@ -115,7 +116,7 @@ export function RoleHolders({ role }: { role: RoleScreenModel }) {
         ))}
       </ul>
       {inactive.length > 0 && (
-        <p class="role-inactive" data-private="">
+        <p class="role-inactive" {...privateProps()}>
           {t.alsoInactive(inactive.map((one) => one.displayName).join(', '))}
         </p>
       )}

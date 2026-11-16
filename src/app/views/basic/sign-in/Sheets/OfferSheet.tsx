@@ -3,6 +3,7 @@
 // del celular y, vinculada la huella, la hoja se cierra sin avisar (R2.11).
 
 import { texts, useOffer } from '../../../../modules/sign-in/model.ts';
+import { privateProps } from '../../../../platform/view/private.ts';
 import { Sheet } from '../../ui/sheet/Sheet.tsx';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
@@ -16,7 +17,7 @@ export function OfferSheet() {
         <>
           <SheetIcon name="fingerprint" />
           <h2>{texts.offer.title}</h2>
-          <p class="sheet-sub" data-private="">
+          <p class="sheet-sub" {...privateProps()}>
             {texts.offer.detail(offer.email)}
           </p>
           <SheetButton look="orange" doing={texts.signingIn} onPress={offer.accept}>

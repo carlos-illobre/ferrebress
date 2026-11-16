@@ -13,6 +13,7 @@ import { Dialog } from '../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { RolePicker } from '../PersonRoles/RolePicker.tsx';
 import './Overlays.css';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 // Sus roles: ninguno tildado de antemano (E42); sin ninguno, se dice acá.
 function RolesField(props: {
@@ -86,7 +87,7 @@ export function Authorize() {
         <h2>{t.authorizeTitle}</h2>
         <p class="users-lead">{t.authorizeLead}</p>
         <EmailField email={form.email} error={form.error} onInput={form.typeEmail} />
-        <label class="users-field users-field-name" data-private="">
+        <label class="users-field users-field-name" {...privateProps()}>
           <span>{t.name}</span>
           <input
             value={form.name}

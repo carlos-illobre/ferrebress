@@ -13,6 +13,7 @@ import { Button } from '../../ui/button/Button.tsx';
 import { Dialog } from '../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import './confirm.css';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 const t = confirmTexts;
 
@@ -37,7 +38,7 @@ export function ConfirmSheet({ onConfirmed, onClose, what = [] }: Props) {
       <h2>{t.title}</h2>
       <p>{t.lead}</p>
       {what.length > 0 && (
-        <ul class="confirm-what" data-private="">
+        <ul class="confirm-what" {...privateProps()}>
           {what.map((line) => (
             <li key={line}>{line}</li>
           ))}

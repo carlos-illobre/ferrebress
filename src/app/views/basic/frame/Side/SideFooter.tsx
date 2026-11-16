@@ -3,6 +3,7 @@
 // luz es un punto y la persona, sus iniciales, que abren la misma tarjeta al costado.
 
 import { initials, roleNames, texts } from '../../../../modules/frame/model.ts';
+import { privateProps } from '../../../../platform/view/private.ts';
 import { Button } from '../../ui/button/Button.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { type Place, px } from '../behavior/usePanels.ts';
@@ -57,7 +58,7 @@ function PersonMini() {
     <button
       type="button"
       class="person-mini"
-      data-private=""
+      {...privateProps()}
       data-mark=""
       data-key="s"
       data-name={person.name}
@@ -86,7 +87,7 @@ function PersonCard({ open }: { open: boolean }) {
       data-letters=""
       {...(open && { 'data-layer': '' })}
     >
-      <div class="person-who" data-private="">
+      <div class="person-who" {...privateProps()}>
         <span class="avatar">{initials(person.name)}</span>
         <div>
           <b>{person.name}</b>

@@ -3,6 +3,7 @@
 // ofrece crear un rol con lo escrito como nombre.
 
 import { rolesTexts as t, useRoleList } from '../../../../../modules/users/model.ts';
+import { privateProps } from '../../../../../platform/view/private.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Icon } from '../../../ui/icon/Icon.tsx';
@@ -50,7 +51,7 @@ export function RoleList() {
       {shown.length === 0 ? (
         <div class="roles-nothing">
           <Icon name="search" size="large" />
-          <b data-private="">{t.nothing(wanted)}</b>
+          <b {...privateProps()}>{t.nothing(wanted)}</b>
           <p>{t.nothingHint}</p>
           <Button
             icon="plus"
@@ -59,7 +60,7 @@ export function RoleList() {
             disabled={!list.online}
             enterDoes
           >
-            <span data-private="">{t.createNamed(wanted)}</span>
+            <span {...privateProps()}>{t.createNamed(wanted)}</span>
           </Button>
         </div>
       ) : (

@@ -15,10 +15,11 @@ import { Button } from '../../ui/button/Button.tsx';
 import { Dialog } from '../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import './Overlays.css';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 function Who({ people, choose }: { people: Owner[]; choose: (owner: Owner) => void }) {
   return (
-    <div class="users-options" data-private="">
+    <div class="users-options" {...privateProps()}>
       {people.map((owner) => (
         <button
           key={owner.userId}
@@ -88,7 +89,7 @@ export function Lost() {
   const { people, owner, chosen, title, lead, choose, pick, cut } = useLost(users);
   return (
     <Dialog label={title} className="users-dialog">
-      <h2 data-private="">{title}</h2>
+      <h2 {...privateProps()}>{title}</h2>
       <p class="users-lead">{lead}</p>
       {owner ? (
         <Which owner={owner} chosen={chosen} choose={pick} />

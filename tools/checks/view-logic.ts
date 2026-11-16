@@ -1,8 +1,8 @@
 // Que la vista solo muestre (ADR-019): en views/ no se escuchan teclas ni se usa fetch,
-// temporizadores, localStorage, history ni document, y cada useState o useRef dice con `// vista:`
-// por qué es de cómo se ve (en el mismo renglón o arriba de los que van seguidos); en modules/,
-// tampoco se escuchan teclas. Las teclas son de las capas del teclado; lo demás, de los modelos.
-// Los kits y las pruebas no cuentan.
+// temporizadores, localStorage, history ni document; cada useState o useRef dice con `// vista:`
+// por qué es de cómo se ve (en el mismo renglón o arriba de los que van seguidos), y lo privado se
+// marca con privateProps(). En modules/ tampoco se escuchan teclas. Las teclas son de las capas del
+// teclado; lo demás, de los modelos. Los kits y las pruebas no cuentan.
 // Mientras dure T134, `pending` dice qué archivos todavía no se separaron: esos no fallan, pero si
 // uno ya quedó limpio hay que sacarlo de la lista, así solo se achica.
 import { existsSync } from 'node:fs';
@@ -36,6 +36,9 @@ const what = (path: string, text: string): string[] => [
     : []),
   ...(path.includes('/views/')
     ? unmarked(text).map((line) => `renglón ${line}: estado sin «// vista:» que diga por qué`)
+    : []),
+  ...(path.includes('/views/') && /data-private/.test(text)
+    ? ['marca lo privado a mano; va con privateProps() (platform/view/private.ts)']
     : []),
 ];
 

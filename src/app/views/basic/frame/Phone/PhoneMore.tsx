@@ -19,6 +19,7 @@ import { useFrame } from '../context.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './PhoneMore.css';
 import '../../ui/switch/switch.css';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 export function PhoneMore() {
   const { person, panels, phoneMore } = useFrame();
@@ -36,7 +37,7 @@ export function PhoneMore() {
       <section
         class="surface phone-more-card phone-more-person"
         aria-label={texts.session}
-        data-private=""
+        {...privateProps()}
       >
         <span class="avatar">{initials(person.name)}</span>
         <div>

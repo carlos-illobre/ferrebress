@@ -68,4 +68,11 @@ describe('findLogicInViews', () => {
       'src/app/views/basic/a/A.tsx: renglón 7: estado sin «// vista:» que diga por qué (la vista solo muestra, ADR-019)',
     ]);
   });
+
+  it('en una vista, lo privado se marca con privateProps()', () => {
+    const root = project({ 'src/app/views/basic/a/A.tsx': '<b data-private="">Ana</b>' });
+    expect(findLogicInViews(root, [])).toEqual([
+      'src/app/views/basic/a/A.tsx: marca lo privado a mano; va con privateProps() (platform/view/private.ts) (la vista solo muestra, ADR-019)',
+    ]);
+  });
 });

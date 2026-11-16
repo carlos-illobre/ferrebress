@@ -15,6 +15,7 @@ import { Problem } from './Problem.tsx';
 import { RolePicker } from './RolePicker.tsx';
 import './PersonRoles.css';
 import { useNarrow } from '../../../../platform/view/narrow.ts';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 const firstName = (person: PersonRow) => person.displayName.split(/[\s@]/)[0] as string;
 
@@ -49,7 +50,7 @@ function DesktopRoles({ person }: { person: PersonRow }) {
   const title = t.title(firstName(person));
   return (
     <section id="users-roles" class="person-roles" aria-label={title}>
-      <h3 data-private="">
+      <h3 {...privateProps()}>
         {title} <small>{t.hint}</small>
       </h3>
       <RolePicker roles={users.roles} chosen={roles.chosen} label={title} onChange={roles.choose} />
@@ -80,8 +81,8 @@ function PhoneRoles({ person }: { person: PersonRow }) {
   const title = t.question(firstName(person));
   return (
     <section id="users-roles" class="person-roles phone" aria-label={title}>
-      <h3 data-private="">{title}</h3>
-      <label class="person-like" data-private="">
+      <h3 {...privateProps()}>{title}</h3>
+      <label class="person-like" {...privateProps()}>
         <span>{t.like}</span>
         <select
           value=""

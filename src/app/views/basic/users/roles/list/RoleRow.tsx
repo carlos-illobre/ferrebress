@@ -6,6 +6,7 @@ import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { activeHolders, initialsOf, rolesTexts as t } from '../../../../../modules/users/model.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import './RoleRow.css';
+import { privateProps } from '../../../../../platform/view/private.ts';
 
 const tones = 5;
 
@@ -62,7 +63,7 @@ export function RoleRow({
           <b>{count}</b>
           <span>{t.permissionsWord(count)}</span>
         </span>
-        <span class={holders.length ? 'roles-stat' : 'roles-stat empty'} data-private="">
+        <span class={holders.length ? 'roles-stat' : 'roles-stat empty'} {...privateProps()}>
           {holders.length > 0 ? (
             <>
               <span class="desktop-only">

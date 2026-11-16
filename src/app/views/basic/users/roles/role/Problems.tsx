@@ -5,6 +5,7 @@ import { permissionOf } from '@ferrebress/shared/contracts/permissions';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import type { DraftErrors, PersonError } from '../../../../../modules/users/model.ts';
 import { rolesTexts as t } from '../../../../../modules/users/model.ts';
+import { privateProps } from '../../../../../platform/view/private.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 
 // El motivo de cada cosa, en su lugar.
@@ -51,7 +52,7 @@ export function Problems(props: {
   const shown = props.errors ? which(props.errors, props.people) : [];
   if (shown.length === 0) return null;
   return (
-    <p class="role-problems" role="alert" data-private="">
+    <p class="role-problems" role="alert" {...privateProps()}>
       <Icon name="triangle-alert" size="small" />
       {t.problems(shown.join(', '))}
     </p>

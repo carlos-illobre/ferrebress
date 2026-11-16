@@ -23,13 +23,14 @@ import { Access, Note } from './Access.tsx';
 import { Editable } from './Edit.tsx';
 import { Rows, Tiles } from './Phone.tsx';
 import './Card.css';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 // El nombre se cambia con «Administrar personas»; el correo, además, si nunca entró y no tiene más
 // permisos que quien mira (R7.11).
 function Who({ person }: { person: PersonRow }) {
   const users = useUsersContext();
   return (
-    <div class="users-who" data-private="">
+    <div class="users-who" {...privateProps()}>
       {users.may.manage ? (
         <Editable
           className="users-who-name"
@@ -99,7 +100,7 @@ function Middle({ person }: { person: PersonRow }) {
     );
   if (person.neverSignedIn)
     return (
-      <p class="users-notice urgent" data-private="">
+      <p class="users-notice urgent" {...privateProps()}>
         <Icon name="info" />
         <span>{t.neverHint(person.email)}</span>
       </p>

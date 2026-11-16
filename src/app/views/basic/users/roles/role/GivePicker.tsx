@@ -3,6 +3,7 @@
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { initialsOf, rolesTexts as t, useGivePicker } from '../../../../../modules/users/model.ts';
 import { useBackStep } from '../../../../../platform/view/back-step.ts';
+import { privateProps } from '../../../../../platform/view/private.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Dialog } from '../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../ui/icon/Icon.tsx';
@@ -27,7 +28,7 @@ export function GivePicker({ candidates, pick, close }: Props) {
         data-autofocus=""
       />
       {shown.length === 0 && <p class="role-none">{t.pickNone}</p>}
-      <ul class="role-give-list" data-private="">
+      <ul class="role-give-list" {...privateProps()}>
         {shown.map((one) => (
           <li key={one.id}>
             <button

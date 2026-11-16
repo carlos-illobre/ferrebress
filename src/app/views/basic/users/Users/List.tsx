@@ -12,6 +12,7 @@ import {
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { Say } from '../../ui/say/Say.tsx';
 import './List.css';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 // Dos tonos que se alternan por persona, siempre el mismo para cada una (maqueta).
 const toneOf = (id: string) => [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 2;
@@ -95,7 +96,7 @@ function Row({ person }: { person: PersonRow }) {
       onClick={() => users.select(person.id)}
     >
       <Avatar person={person} />
-      <span class="users-row-body" data-private="">
+      <span class="users-row-body" {...privateProps()}>
         <span class="users-name">
           <em>{person.displayName}</em>
           {person.self && <span class="users-pill you">{texts.you}</span>}

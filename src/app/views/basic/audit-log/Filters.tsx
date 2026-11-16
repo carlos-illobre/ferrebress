@@ -15,6 +15,7 @@ import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { Button } from '../ui/button/Button.tsx';
 import { Icon } from '../ui/icon/Icon.tsx';
 import './Filters.css';
+import { privateProps } from '../../../platform/view/private.ts';
 
 // Elegir los días a mano: desde y hasta.
 function PickDates({ close }: { close: () => void }) {
@@ -70,7 +71,7 @@ function Pop({ which, close }: { which: Which; close: () => void }) {
           <Icon name="x" size="small" />
           {texts.close}
         </button>
-        <div class="audit-pop-list" data-private="">
+        <div class="audit-pop-list" {...privateProps()}>
           {options.map((option) => (
             <button
               key={option.label}
@@ -110,7 +111,7 @@ function Chip({ which, children }: { which: Which; children: ComponentChildren }
         onClick={() => log.toggleFilter(which)}
       >
         {children}
-        <b data-private="">{value ?? (which === 'dates' ? texts.allDates : texts.all)}</b>
+        <b {...privateProps()}>{value ?? (which === 'dates' ? texts.allDates : texts.all)}</b>
         {keys[which] && <kbd>{keys[which]}</kbd>}
       </button>
       {open && <Pop which={which} close={log.closeFilter} />}

@@ -2,6 +2,7 @@
 // entrar: no autorizada (R1.3), sin conexión (R2.8) o demasiados intentos (R2.9).
 
 import { minutes, texts, useEntrance, whenText } from '../../../../modules/sign-in/model.ts';
+import { privateProps } from '../../../../platform/view/private.ts';
 import { Icon, type IconName } from '../../ui/icon/Icon.tsx';
 
 // La sesión vence sola por no usarla o por el tope (R3.1, R3.2); si no, alguien la cerró.
@@ -83,7 +84,7 @@ export function MainNotice() {
   if (notice?.kind === 'not-authorized')
     return (
       <Shown kind="error" icon="ban">
-        <span data-private="">{texts.notAuthorized(notice.email)}</span>
+        <span {...privateProps()}>{texts.notAuthorized(notice.email)}</span>
       </Shown>
     );
   if (notice?.kind === 'expired')

@@ -17,6 +17,7 @@ import { Icon } from '../../ui/icon/Icon.tsx';
 import { Say } from '../../ui/say/Say.tsx';
 import { useFrame } from '../context.ts';
 import './NoPermission.css';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 // `first`: la primera opción que sí puede usar, y cómo ir (las da el marco).
 export function NoPermission({
@@ -90,7 +91,7 @@ function Holders({ holders }: { holders: HoldersResponse }) {
       {holders.roles.length === 0 ? (
         <p class="no-permission-nobody">{noPermissionWords.nobody}</p>
       ) : (
-        <ul class="no-permission-roles" data-private="">
+        <ul class="no-permission-roles" {...privateProps()}>
           {holders.roles.map((role) => (
             <li key={role.id}>
               <span class="no-permission-icon">
@@ -110,7 +111,7 @@ function Holders({ holders }: { holders: HoldersResponse }) {
         </ul>
       )}
       {holders.grantedBy.length > 0 && (
-        <p class="no-permission-granted" data-private="">
+        <p class="no-permission-granted" {...privateProps()}>
           <Say words={noPermissionWords.grantedBy} />{' '}
           {holders.grantedBy.map((name, index) => (
             <span key={name}>

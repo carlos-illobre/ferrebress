@@ -12,6 +12,7 @@ import {
 import { Icon } from '../ui/icon/Icon.tsx';
 import { Actor, PersonName, Said } from './Pieces.tsx';
 import './Detail.css';
+import { privateProps } from '../../../platform/view/private.ts';
 
 // Un valor de antes o de después, en palabras: los permisos, por su nombre.
 function shown(field: string, value: unknown): string {
@@ -46,7 +47,7 @@ export function DetailBody({ event, today }: { event: AuditView; today: string }
   const changes = Object.entries(event.changes);
   const browser = browserOf(event.device);
   return (
-    <div class="audit-detail-body" data-private="">
+    <div class="audit-detail-body" {...privateProps()}>
       <div class="audit-pills">
         {event.tone !== 'plain' && (
           <span class={`audit-pill audit-${event.tone}`}>
@@ -105,7 +106,7 @@ function Where({ event, browser }: { event: AuditView; browser: string | undefin
   return (
     <section class="audit-block">
       <h3>{texts.from_where}</h3>
-      <dl class="audit-where" data-private="">
+      <dl class="audit-where" {...privateProps()}>
         {rows.map(([name, value]) => (
           <div key={name}>
             <dt>{name}</dt>

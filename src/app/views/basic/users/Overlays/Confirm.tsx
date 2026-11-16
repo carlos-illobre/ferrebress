@@ -15,6 +15,7 @@ import { Button } from '../../ui/button/Button.tsx';
 import { Dialog } from '../../ui/dialog/Dialog.tsx';
 import { Icon, type IconName } from '../../ui/icon/Icon.tsx';
 import './Overlays.css';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 type Line = { icon: IconName; text: string };
 
@@ -29,9 +30,9 @@ function Ask(props: {
   const users = useUsersContext();
   return (
     <Dialog label={props.title} className="users-dialog">
-      <h2 data-private="">{props.title}</h2>
+      <h2 {...privateProps()}>{props.title}</h2>
       <p class="users-lead">{props.lead}</p>
-      <ul class="users-consequences" data-private="">
+      <ul class="users-consequences" {...privateProps()}>
         {props.lines.map((line, index) => (
           <li key={index}>
             <Icon name={line.icon} />

@@ -8,6 +8,7 @@ import {
   useUsersContext,
 } from '../../../../../modules/users/model.ts';
 import { showPart } from '../../../../../platform/view/page.ts';
+import { privateProps } from '../../../../../platform/view/private.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import { Faces } from '../list/RoleRow.tsx';
 
@@ -26,7 +27,7 @@ export function RoleSummary({ draft }: { draft: Draft }) {
         <b>{count}</b>
         <span>{t.permissionsWord(count)}</span>
       </button>
-      <button type="button" class="roles-stat" onClick={goTo('role-who')} data-private="">
+      <button type="button" class="roles-stat" onClick={goTo('role-who')} {...privateProps()}>
         {holders.length > 0 ? (
           <Faces people={holders} max={2} />
         ) : (

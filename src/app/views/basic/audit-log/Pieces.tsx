@@ -1,10 +1,11 @@
 // Lo que muestran la lista, el detalle y la cinta de cada acción: su ícono (R4.10), quién la hizo y
 // su texto en trozos, con los nombres de las personas (R4.7). Todo como texto: un nombre
 // con algo que parece código de página se ve tal cual (E38). Los datos de personas llevan
-// data-private: «Algo salió mal» no se los lleva.
+// privateProps: «Algo salió mal» no se los lleva.
 import { entryOf, type Piece } from '@ferrebress/shared/audit-log/index';
 import type { ActorView, AuditView, TargetView } from '@ferrebress/shared/contracts/audit-log';
 import { texts } from '../../../modules/audit-log/model.ts';
+import { privateProps } from '../../../platform/view/private.ts';
 import { Icon, type IconName } from '../ui/icon/Icon.tsx';
 
 export function ActionIcon({ event }: { event: AuditView }) {
@@ -19,7 +20,7 @@ export function ActionIcon({ event }: { event: AuditView }) {
 // acción, no filtra (para eso están «Hecho por» y «Hecho a»).
 export function PersonName({ person }: { person: TargetView }) {
   return (
-    <span class="audit-person" data-private="">
+    <span class="audit-person" {...privateProps()}>
       {person.name ?? person.today ?? ''}
       {person.today && person.name && <small> {texts.today(person.today)}</small>}
     </span>
@@ -31,7 +32,7 @@ export function Actor({ actor }: { actor: ActorView }) {
   if (actor.kind === 'person') return <PersonName person={actor} />;
   if (actor.kind === 'system') return <span class="audit-actor">{texts.system}</span>;
   return (
-    <span class="audit-actor audit-outsider" data-private="">
+    <span class="audit-actor audit-outsider" {...privateProps()}>
       {actor.email ?? texts.outsider}
     </span>
   );

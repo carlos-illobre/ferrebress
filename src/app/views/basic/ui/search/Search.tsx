@@ -5,6 +5,7 @@ import type { ComponentChildren, Ref } from 'preact';
 import { useNarrow } from '../../../../platform/view/narrow.ts';
 import type { Words } from '../say/Say.tsx';
 import './search.css';
+import { privateProps } from '../../../../platform/view/private.ts';
 
 // Lo que pasa tal cual a la caja: las marcas del teclado (/, Esc y foco al abrir) y su largo.
 type Input = {
@@ -38,7 +39,7 @@ export function Search({
   const narrow = useNarrow();
   const words = typeof placeholder === 'string' ? undefined : placeholder;
   return (
-    <label class={`search ${look}`} data-private={masked ? '' : undefined}>
+    <label class={`search ${look}`} {...(masked && privateProps())}>
       {icon}
       <input
         type="search"

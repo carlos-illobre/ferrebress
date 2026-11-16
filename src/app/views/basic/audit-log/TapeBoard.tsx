@@ -12,6 +12,7 @@ import {
   timeOf,
   visibleOf,
 } from '../../../modules/audit-log/model.ts';
+import { privateProps } from '../../../platform/view/private.ts';
 
 type Props = {
   events: AuditView[];
@@ -32,7 +33,7 @@ function Lanes({ lanes, isolated, isolate }: Pick<Props, 'lanes' | 'isolated' | 
           type="button"
           class="tape-lane"
           data-mark=""
-          data-private=""
+          {...privateProps()}
           aria-pressed={isolated === lane.id}
           // Con alguien aislado, Escape primero lo suelta (R4.11).
           data-close={isolated === lane.id ? '' : undefined}

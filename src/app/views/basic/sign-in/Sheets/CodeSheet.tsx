@@ -11,6 +11,7 @@ import {
   texts,
   useNotice,
 } from '../../../../modules/sign-in/model.ts';
+import { privateProps } from '../../../../platform/view/private.ts';
 import { Sheet } from '../../ui/sheet/Sheet.tsx';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
@@ -35,7 +36,7 @@ function Ask({ code, read }: { code: Code; read: ReadCodeResponse }) {
         {...(!linking && { look: 'computer' })}
       />
       <h2>{linking ? texts.code.linkTitle : texts.code.ask(read.computer)}</h2>
-      <p class="sheet-sub" data-private="">
+      <p class="sheet-sub" {...privateProps()}>
         {linking ? texts.code.linkDetail((person.get() as Person).email) : texts.code.askDetail}
       </p>
       <SheetButton look="orange" doing={texts.signingIn} onPress={code.touch}>
@@ -52,7 +53,7 @@ function Ask({ code, read }: { code: Code; read: ReadCodeResponse }) {
 function Refused({ initial }: { initial: Notice }) {
   const { notice } = useNotice(initial);
   if (initial.kind === 'not-authorized')
-    return <h2 data-private="">{texts.notAuthorized(initial.email)}</h2>;
+    return <h2 {...privateProps()}>{texts.notAuthorized(initial.email)}</h2>;
   const seconds = notice?.kind === 'too-many' ? notice.seconds : 0;
   return (
     <>
