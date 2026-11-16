@@ -3,10 +3,9 @@
 // celular es una hoja que sube, que el botón atrás cierra; ahí el consejo va solo en el último paso.
 // ← y → pasan de paso (data-arrows de la capa, diseño del manual, § 5).
 import type { Task } from '@ferrebress/shared/contracts/manual';
-import { useCaptures } from '../../files/media.ts';
-import { taskAfter, tasksOf } from '../../state.ts';
-import { texts } from '../../texts.ts';
-import type { View } from '../../view.ts';
+import type { View } from '../../../../modules/manual/model.ts';
+import { taskAfter, tasksOf, texts, useCaptures } from '../../../../modules/manual/model.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import { SheetStep } from '../SheetStep/SheetStep.tsx';
 import { Stage } from '../Stage/Stage.tsx';
@@ -14,6 +13,7 @@ import './Guide.css';
 
 function Head({ view, task }: { view: View; task: Task }) {
   const { act, narrow, index, state } = view;
+  const hints = useShortcutHints('manual');
   const chapter = index.chapters.find((one) => one.id === state.chapter)?.name;
   return (
     <div class="manual-guide-head">
@@ -26,24 +26,22 @@ function Head({ view, task }: { view: View; task: Task }) {
           <button
             type="button"
             class="button button-small"
-            data-key="v"
             aria-label={texts.seeClip}
             onClick={() => act({ type: 'playClip' })}
           >
             <Glyph name="zap" size="small" />
             <span class="desktop-only">{texts.seeClip}</span>
-            <kbd>V</kbd>
+            {hints.clip && <kbd>{hints.clip}</kbd>}
           </button>
         )}
         <button
           type="button"
           class="button button-small"
-          data-key="t"
           onClick={() => act({ type: 'openAllSteps' })}
         >
           <Glyph name="list-checks" size="small" />
           <span>{texts.allSteps}</span>
-          <kbd>T</kbd>
+          {hints.allSteps && <kbd>{hints.allSteps}</kbd>}
         </button>
         {narrow && <CloseSheet view={view} />}
       </div>
@@ -74,6 +72,7 @@ function nextLabel(view: View, task: Task) {
 
 function Controls({ view, task }: { view: View; task: Task }) {
   const { act, state } = view;
+  const hints = useShortcutHints('manual');
   const first =
     tasksOf(view.index, state.chapter, state.device)[0]?.id === task.id && state.step === 0;
   return (
@@ -82,29 +81,28 @@ function Controls({ view, task }: { view: View; task: Task }) {
         type="button"
         class="button button-large manual-previous"
         aria-label={texts.previous}
-        data-key="a"
         data-arrow="previous"
         disabled={first}
         onClick={() => act({ type: 'previous' })}
       >
         <Glyph name="arrow-left" />
-        <kbd>A</kbd>
+        {hints.previous && <kbd>{hints.previous}</kbd>}
       </button>
       <button
         type="button"
         class="button button-action button-large"
-        data-key="s"
         data-arrow="next"
         onClick={() => act({ type: 'next' })}
       >
         <span>{nextLabel(view, task)}</span>
-        <kbd>S</kbd>
+        {hints.next && <kbd>{hints.next}</kbd>}
       </button>
     </div>
   );
 }
 
 function Progress({ view, task }: { view: View; task: Task }) {
+  const hints = useShortcutHints('manual');
   return (
     <div class="manual-progress">
       {task.steps.map((_, at) => (
@@ -114,11 +112,9 @@ function Progress({ view, task }: { view: View; task: Task }) {
           class={at <= view.state.step ? 'manual-progress-step done' : 'manual-progress-step'}
           aria-label={texts.stepLabel(at + 1)}
           aria-current={at === view.state.step ? 'step' : undefined}
-          // R2.8: un número por paso, del 1 al 9.
-          data-key={at < 9 ? String(at + 1) : undefined}
           onClick={() => view.act({ type: 'goToStep', step: at })}
         >
-          {at < 9 && <kbd>{at + 1}</kbd>}
+          {hints[`step${at + 1}`] && <kbd>{hints[`step${at + 1}`]}</kbd>}
         </button>
       ))}
     </div>

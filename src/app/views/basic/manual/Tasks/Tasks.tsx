@@ -5,19 +5,23 @@
 // abre el marcado (00 · R2.4, R2.6).
 import type { ChapterEntry } from '@ferrebress/shared/contracts/manual';
 import type { ComponentChildren } from 'preact';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
+import type { View } from '../../../../modules/manual/model.ts';
+import {
+  type Folds,
+  maxQuery,
+  minQuery,
+  soonId,
+  tasksOf,
+  texts,
+  useFolds,
+} from '../../../../modules/manual/model.ts';
 import { isPhone } from '../../../../platform/device/device.ts';
 import { Search } from '../../../../ui/search/Search.tsx';
-import { maxQuery, minQuery } from '../../search.ts';
-import { tasksOf } from '../../state.ts';
-import { texts } from '../../texts.ts';
-import type { View } from '../../view.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import { Results } from './Results.tsx';
 import { detailOf, Group, Row, Soon } from './Rows.tsx';
 import './Tasks.css';
-
-type Folds = { isOpen: (id: string) => boolean; toggle: (id: string) => void };
 
 // El título de un capítulo de la lista, que lo pliega (R6.9).
 function ChapterGroup(props: { entry: ChapterEntry; folds: Folds; children: ComponentChildren }) {
@@ -81,34 +85,6 @@ function GoesTo({ view, entry, folds }: { view: View; entry: ChapterEntry; folds
       </ul>
     </ChapterGroup>
   );
-}
-
-// Qué capítulos están abiertos: al empezar, el de la tarea que se lee (o el primero escrito), y se
-// abre solo el de la tarea que se abre desde el buscador o la dirección. No se guarda (R6.8).
-const soonId = 'soon';
-
-function useFolds(view: View): Folds {
-  const first = view.index.chapters.find((entry) => entry.tasks)?.id;
-  // local: lo desplegado del índice.
-  const [open, setOpen] = useState(() => new Set([view.state.chapter ?? first]));
-  // Solo cuando cambia la tarea que se lee: si no, volvería a abrir el que se acaba de plegar.
-  const { chapter, task } = view.state;
-  const reading = chapter && task ? `${chapter}/${task}` : undefined;
-  const last = useRef(reading);
-  useEffect(() => {
-    if (!chapter || reading === last.current) return;
-    last.current = reading;
-    setOpen((now) => new Set(now).add(chapter));
-  }, [reading]);
-  return {
-    isOpen: (id) => open.has(id),
-    toggle: (id) =>
-      setOpen((now) => {
-        const next = new Set(now);
-        if (!next.delete(id)) next.add(id);
-        return next;
-      }),
-  };
 }
 
 function Contents({ view, folds }: { view: View; folds: Folds }) {

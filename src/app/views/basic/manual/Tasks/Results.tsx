@@ -2,9 +2,9 @@
 // tarea con el fragmento que coincidió y lo buscado resaltado, agrupadas bajo su capítulo en el orden
 // de la lista; en el ambiente de pruebas, también los capítulos que faltan cuyo nombre coincide. Sin
 // nada, lo dice. Sin conexión, el buscador dice «Sin conexión».
-import { tasksOf } from '../../state.ts';
-import { texts } from '../../texts.ts';
-import type { View } from '../../view.ts';
+
+import type { View } from '../../../../modules/manual/model.ts';
+import { tasksOf, texts } from '../../../../modules/manual/model.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import { highlighted, Row, Soon } from './Rows.tsx';
 

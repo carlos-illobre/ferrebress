@@ -3,8 +3,8 @@
 // un paso del otro dispositivo lo aclara (R6.3); y el clip, cuando se lo pide. Lo que no llegó por
 // falta de red se ve gris con «Sin conexión» (R4.4).
 import type { Step, Task } from '@ferrebress/shared/contracts/manual';
-import type { Captures } from '../../files/media.ts';
-import { texts } from '../../texts.ts';
+import type { Captures } from '../../../../modules/manual/model.ts';
+import { texts } from '../../../../modules/manual/model.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import { Clip } from './Clip.tsx';
 import { Shot } from './Shot.tsx';

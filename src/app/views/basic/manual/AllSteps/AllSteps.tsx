@@ -5,8 +5,9 @@
 // celular es otra hoja, que atrás o la × cierran.
 import type { Chapter } from '@ferrebress/shared/contracts/manual';
 import { useEffect, useRef } from 'preact/hooks';
-import { texts } from '../../texts.ts';
-import type { View } from '../../view.ts';
+import type { View } from '../../../../modules/manual/model.ts';
+import { texts } from '../../../../modules/manual/model.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import { SheetStep } from '../SheetStep/SheetStep.tsx';
 import './AllSteps.css';
@@ -60,6 +61,7 @@ function Parts({ chapter, view }: { chapter: Chapter; view: View }) {
 export function AllSteps({ view }: { view: View }) {
   const body = useRef<HTMLDivElement>(null);
   const close = () => view.act({ type: 'closeAllSteps' });
+  const hints = useShortcutHints('manual-all-steps');
   const chapter = typeof view.chapter === 'object' ? view.chapter : undefined;
   useEffect(() => {
     const target = body.current?.querySelector<HTMLElement>(`[data-task="${view.state.allFrom}"]`);
@@ -73,13 +75,12 @@ export function AllSteps({ view }: { view: View }) {
         <button
           type="button"
           class="button button-small desktop-only"
-          data-key="t"
           data-close=""
           onClick={close}
         >
           <Glyph name="arrow-left" size="small" />
           <span>{texts.backToGuide}</span>
-          <kbd>T</kbd>
+          {hints.close && <kbd>{hints.close}</kbd>}
         </button>
         <button
           type="button"

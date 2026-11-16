@@ -5,8 +5,7 @@
 import type { ChapterEntry, TaskSummary } from '@ferrebress/shared/contracts/manual';
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
-import { marks } from '../../search.ts';
-import { texts } from '../../texts.ts';
+import { marks, texts } from '../../../../modules/manual/model.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
 
 export function Row({

@@ -1,6 +1,6 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { loaded, media, serveManual, show } from './manual-test-kit.tsx';
+import { loaded, media, serveManual, show } from '../../views/basic/manual/manual-test-kit.tsx';
 
 const sheet = () => screen.getByRole('main', { hidden: true }) as HTMLElement;
 const search = () => screen.getByRole('searchbox', { name: 'Buscar en el manual' });
@@ -61,9 +61,8 @@ describe('el manual en el celular', () => {
     await loaded();
     expect(screen.queryByRole('button', { name: 'Cerrar' })).toBeNull();
     act(() => width.changeWidth(false));
-    expect(screen.getAllByRole('button', { name: /Celular/ })[0]?.getAttribute('data-key')).toBe(
-      'l',
-    );
+    // Arriba, la barra de la computadora, con los dispositivos.
+    expect(screen.getAllByRole('button', { name: /Celular/ })[0]?.closest('header')).toBeTruthy();
   });
 
   it('en el celular el consejo va solo en el último paso; «Seguir» pasa de tarea y «Terminé» cierra la hoja', async () => {

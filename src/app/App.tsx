@@ -22,7 +22,7 @@ import {
   watchBackground,
   watchCrashes,
 } from './modules/frame/index.ts';
-import { ManualSlot, manualPath } from './modules/manual/index.ts';
+import { manualPath } from './modules/manual/index.ts';
 import {
   Camera,
   CodeSheet,
@@ -55,6 +55,7 @@ import { Toasts } from './ui/toast/Toast.tsx';
 import { AdministrationSlot } from './views/basic/administration/Slot.tsx';
 import { InstallOffer } from './views/basic/device-settings/InstallOffer.tsx';
 import { Settings } from './views/basic/device-settings/Settings/Settings.tsx';
+import { ManualSlot } from './views/basic/manual/ManualSlot.tsx';
 
 // La pantalla de cada opción del menú que ya existe.
 const screens = { users: UsersSlot, deviceSettings: Settings, administration: AdministrationSlot };

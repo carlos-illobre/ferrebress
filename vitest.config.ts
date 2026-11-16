@@ -4,6 +4,10 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    // Sin guardar los archivos transformados entre corridas: el guardado no se entera de los archivos
+    // nuevos que trae un import.meta.glob (por ejemplo, los atajos de una pantalla nueva, ADR-019), y
+    // una prueba podía seguir con la lista vieja.
+    fsModuleCache: false,
     projects: [
       {
         test: {

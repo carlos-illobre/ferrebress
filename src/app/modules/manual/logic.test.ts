@@ -1,6 +1,6 @@
 import type { SearchTask } from '@ferrebress/shared/contracts/manual';
 import { describe, expect, it } from 'vitest';
-import { index } from './manual-test-kit.tsx';
+import { index } from '../../views/basic/manual/manual-test-kit.tsx';
 import { readAddress, validAddress, writeAddress } from './place/address.ts';
 import { marks, normalize, searchManual } from './search.ts';
 import { firstTask, reduce, startState, tasksOf } from './state.ts';

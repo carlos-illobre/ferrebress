@@ -9,9 +9,9 @@ import type {
 } from '@ferrebress/shared/contracts/manual';
 import { cleanup, render, screen } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
-import { navigate } from '../../platform/router.ts';
-import { narrowOnly, stubMedia } from '../../testing/media.ts';
-import { Manual } from './screens/Manual/Manual.tsx';
+import { navigate } from '../../../platform/router.ts';
+import { narrowOnly, stubMedia } from '../../../testing/media.ts';
+import { Manual } from './Manual/Manual.tsx';
 
 const capture = (
   scene: string,

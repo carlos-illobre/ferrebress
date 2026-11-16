@@ -2,9 +2,9 @@
 // cuando se toca «Ver el clip», con su último cuadro de imagen de espera. Al terminar se puede ver
 // otra vez (también con Alt V, como «Ver el clip»). Con «reducir movimiento», solo el último cuadro.
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { mediaUrl, texts } from '../../../../modules/manual/model.ts';
 import { systemStill } from '../../../../platform/motion.ts';
-import { mediaUrl } from '../../files/api.ts';
-import { texts } from '../../texts.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import './Clip.css';
 
@@ -13,6 +13,7 @@ export function Clip({ name }: { name: string }) {
   // local: el video corre en cada dispositivo.
   const [ended, setEnded] = useState(false);
   const poster = mediaUrl(`${name}.end.webp`);
+  const hints = useShortcutHints('manual');
   const play = () => {
     setEnded(false);
     void video.current?.play().catch(() => setEnded(true));
@@ -38,7 +39,7 @@ export function Clip({ name }: { name: string }) {
         aria-label={texts.clipTitle}
       />
       {ended && (
-        <button type="button" class="manual-clip-play" data-key="v" onClick={play}>
+        <button type="button" class="manual-clip-play" onClick={play}>
           <span class="manual-clip-button">
             <Glyph name="play" size="large" />
           </span>
@@ -46,7 +47,7 @@ export function Clip({ name }: { name: string }) {
             <b>{texts.clipTitle}</b>
             <small>{texts.clipDetail}</small>
           </span>
-          <kbd>V</kbd>
+          {hints.clip && <kbd>{hints.clip}</kbd>}
         </button>
       )}
     </div>

@@ -4,7 +4,13 @@ import type { ChapterEntry, Task } from '@ferrebress/shared/contracts/manual';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startKeyboard } from '../../testing/keyboard.ts';
-import { chapter, index, media, serveManual, show } from './manual-test-kit.tsx';
+import {
+  chapter,
+  index,
+  media,
+  serveManual,
+  show,
+} from '../../views/basic/manual/manual-test-kit.tsx';
 
 const guide = () => screen.getByRole('main') as HTMLElement;
 
@@ -31,6 +37,14 @@ describe('el teclado del manual', () => {
     alt('KeyV');
     expect(play).toHaveBeenCalledTimes(2);
     expect(document.querySelector('video')).not.toBe(first);
+    // Alt T abre «Todos los pasos», que muestra su tecla, y Alt T lo cierra.
+    alt('KeyT');
+    const back = await screen.findByRole('button', { name: /Volver al paso a paso/ });
+    expect(back.querySelector('kbd')?.textContent).toBe('T');
+    alt('KeyT');
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: /Volver al paso a paso/ })).toBeNull(),
+    );
     stop();
   });
 
@@ -45,9 +59,11 @@ describe('el teclado del manual', () => {
       'sign-in.json': { ...chapter, tasks: [long, ...rest] },
       'index.json': { ...index, chapters: [{ ...entry, tasks: summaries }, ...others] },
     });
+    const stop = startKeyboard();
     show();
     const ninth = await screen.findByRole('button', { name: 'Paso 9' });
     expect(ninth.textContent).toBe('9');
     expect(screen.getByRole('button', { name: 'Paso 10' }).textContent).toBe('');
+    stop();
   });
 });

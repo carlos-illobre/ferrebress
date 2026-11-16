@@ -91,7 +91,7 @@ export default defineConfig({
         // El código del manual vive en /manual/, que el service worker no guarda (diseño del
         // manual, § 4).
         chunkFileNames: (chunk) =>
-          chunk.facadeModuleId?.includes('/modules/manual/screens/Manual/')
+          chunk.facadeModuleId?.includes('/views/basic/manual/Manual/')
             ? 'manual/app-[hash].js'
             : 'assets/[name]-[hash].js',
         assetFileNames: (asset) =>

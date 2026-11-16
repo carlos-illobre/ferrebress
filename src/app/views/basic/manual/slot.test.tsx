@@ -2,12 +2,12 @@
 // y se pide actualizar; sin red, lo dice y deja volver.
 import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { navigate } from '../../platform/router.ts';
-import { updateRequired } from '../../platform/server/api.ts';
-import { ManualSlot } from './index.ts';
+import { navigate } from '../../../platform/router.ts';
+import { updateRequired } from '../../../platform/server/api.ts';
+import { ManualSlot } from './ManualSlot.tsx';
 
 // El código del manual que no llega: el import() de la pantalla falla.
-vi.mock('./screens/Manual/Manual.tsx', () => Promise.reject(new Error('no está')));
+vi.mock('./Manual/Manual.tsx', () => Promise.reject(new Error('no está')));
 
 describe('el lugar del manual', () => {
   afterEach(() => {

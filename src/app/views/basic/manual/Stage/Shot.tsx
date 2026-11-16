@@ -7,7 +7,7 @@
 // nunca con style="…" en el HTML (diseño del manual, § 8).
 import type { Capture } from '@ferrebress/shared/contracts/manual';
 import { useLayoutEffect, useRef } from 'preact/hooks';
-import { texts } from '../../texts.ts';
+import { texts } from '../../../../modules/manual/model.ts';
 
 const gap = 8;
 

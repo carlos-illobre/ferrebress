@@ -11,5 +11,7 @@ export default defineProject({
     include: ['**/*.test.{ts,tsx}'],
     exclude: ['node_modules/**'],
     setupFiles: ['testing/setup.ts'],
+    // Ver vitest.config.ts de la raíz: el guardado no se entera de los archivos nuevos de un glob.
+    fsModuleCache: false,
   },
 });

@@ -1,7 +1,13 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { updateRequired } from '../../platform/server/api.ts';
-import { index, loaded, media, serveManual, show } from './manual-test-kit.tsx';
+import {
+  index,
+  loaded,
+  media,
+  serveManual,
+  show,
+} from '../../views/basic/manual/manual-test-kit.tsx';
 
 const guide = () => screen.getByRole('main') as HTMLElement;
 

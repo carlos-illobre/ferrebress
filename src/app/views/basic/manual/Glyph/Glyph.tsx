@@ -2,7 +2,7 @@
 // decorativo, como los de ui/icon. Uno que no está no dibuja nada (el lector ya lo rechaza).
 import { h } from 'preact';
 import '../../../../ui/icon/icon.css';
-import { manualIcons } from '../../icons.ts';
+import { manualIcons } from '../../../../modules/manual/model.ts';
 
 export function Glyph({ name, size }: { name: string; size?: 'small' | 'large' | 'huge' }) {
   return (

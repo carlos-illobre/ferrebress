@@ -20,6 +20,9 @@ test.describe('en la computadora', () => {
 
   test('lo encontrado al buscar, con lo buscado marcado', async ({ page }) => {
     await ready(page, '/manual');
+    // El cursor arranca en el buscador (00 · R2.2), recién después de dibujarse: antes de eso, con la
+    // máquina cargada, la primera letra se perdía.
+    await expect(page.getByRole('searchbox')).toBeFocused();
     await page.keyboard.type('huella');
     // Lo escrito y lo marcado, enteros: con la máquina cargada, la foto salía a mitad de la palabra.
     await expect(page.getByRole('searchbox')).toHaveValue('huella');

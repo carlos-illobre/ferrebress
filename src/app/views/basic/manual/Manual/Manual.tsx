@@ -4,24 +4,24 @@
 // recorre pasos (data-arrows). No lee la sesión ni pide nada a /api (R6.2, E53). En el ambiente de
 // pruebas lleva el marco y el cartel, como toda pantalla (R10.1).
 import type { Device } from '@ferrebress/shared/contracts/manual';
-import { useNarrow } from '../../../../platform/narrow.ts';
+import { TestEnvironment } from '../../../../modules/frame/index.ts';
+import type { Back, View } from '../../../../modules/manual/model.ts';
+import { type ManualScreen, texts, useManualScreen } from '../../../../modules/manual/model.ts';
+import { useNarrow } from '../../../../platform/view/narrow.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import logo from '../../../../styles/brand/logo-on-light.webp';
-import { TestEnvironment } from '../../../frame/index.ts';
-import type { Back } from '../../place/back.ts';
-import { NeedsInternet } from '../../place/NeedsInternet.tsx';
-import { texts } from '../../texts.ts';
-import { useManual } from '../../useManual.ts';
-import type { View } from '../../view.ts';
 import { AllSteps } from '../AllSteps/AllSteps.tsx';
 import { Glyph } from '../Glyph/Glyph.tsx';
 import { Guide, GuideOffline } from '../Guide/Guide.tsx';
+import { NeedsInternet } from '../place/NeedsInternet.tsx';
 import { Tasks } from '../Tasks/Tasks.tsx';
 import './Manual.css';
 
 function Devices({ view, keys }: { view: View; keys: boolean }) {
-  const options: [Device, string, string, string][] = [
-    ['computer', texts.computer, 'monitor', 'c'],
-    ['phone', texts.phone, 'smartphone', 'l'],
+  const hints = useShortcutHints('manual');
+  const options: [Device, string, string, string | undefined][] = [
+    ['computer', texts.computer, 'monitor', hints.computer],
+    ['phone', texts.phone, 'smartphone', hints.phone],
   ];
   return (
     <fieldset class="manual-devices" aria-label={texts.deviceGroup}>
@@ -30,50 +30,39 @@ function Devices({ view, keys }: { view: View; keys: boolean }) {
           key={device}
           type="button"
           aria-pressed={view.state.device === device}
-          data-key={keys ? key : undefined}
           onClick={() => view.act({ type: 'chooseDevice', device, first: !view.narrow })}
         >
           <Glyph name={icon} size="small" />
           {name}
-          {keys && <kbd>{key.toUpperCase()}</kbd>}
+          {keys && key && <kbd>{key}</kbd>}
         </button>
       ))}
     </fieldset>
   );
 }
 
-// Las hojas abiertas en el celular: «Volver» las cierra antes de salir (cada una es un paso atrás).
-const openSheets = (view: View) =>
-  view.narrow ? Number(view.state.sheet) + Number(view.state.allSteps) : 0;
-
-function Top({ view, back }: { view: View; back: Back }) {
+function Top({ model, view }: { model: ManualScreen; view: View }) {
+  const hints = useShortcutHints('manual');
+  const back = model.back;
   return (
     <header class="manual-top desktop-only">
       <img class="manual-logo" src={logo} alt="Ferrebress" width={94} height={24} />
       <span class="manual-name">{texts.manual}</span>
       <Devices view={view} keys={true} />
-      <button
-        type="button"
-        class="button manual-back"
-        data-key="o"
-        onClick={() => back.go(openSheets(view))}
-      >
+      <button type="button" class="button manual-back" onClick={model.goBack}>
         <Glyph name="arrow-left" />
         <span>{back.long}</span>
-        <kbd>O</kbd>
+        {hints.back && <kbd>{hints.back}</kbd>}
       </button>
     </header>
   );
 }
 
-function Loaded({ view, back }: { view: View; back: Back }) {
+function Loaded({ model, view }: { model: ManualScreen; view: View }) {
+  const back = model.back;
   const ask = (
     <>
-      <button
-        type="button"
-        class="manual-phone-back phone-only"
-        onClick={() => back.go(openSheets(view))}
-      >
+      <button type="button" class="manual-phone-back phone-only" onClick={model.goBack}>
         <Glyph name="chevron-left" size="large" />
         {back.short}
       </button>
@@ -87,7 +76,7 @@ function Loaded({ view, back }: { view: View; back: Back }) {
   );
   return (
     <>
-      <Top view={view} back={back} />
+      <Top model={model} view={view} />
       <div class={view.narrow && view.state.sheet ? 'manual-body in-guide' : 'manual-body'}>
         <Tasks view={view} top={ask} />
         {view.task ? (
@@ -112,15 +101,13 @@ export function Manual({
   testing: boolean;
   back: Back;
 }) {
-  const narrow = useNarrow();
-  const manual = useManual(device, narrow);
-  const { index, state } = manual;
+  const model = useManualScreen(device, useNarrow(), back);
   return (
     <div class="manual-page" data-layer="" data-arrows="">
-      {typeof index === 'object' && state ? (
-        <Loaded view={{ ...manual, index, state, narrow }} back={back} />
+      {model.view ? (
+        <Loaded model={model} view={model.view} />
       ) : (
-        index !== undefined && <NeedsInternet back={back} />
+        model.failed && <NeedsInternet back={back} />
       )}
       {testing && <TestEnvironment />}
     </div>
