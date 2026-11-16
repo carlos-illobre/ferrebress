@@ -3,9 +3,9 @@
 // lee con «Leer el código» o con la cámara del teléfono, y el servidor dice si quedaron vinculados,
 // si hay que preguntar antes de reemplazar, o por qué no.
 import type { PairingView, ReadCodeResponse } from '@ferrebress/shared/contracts/device-link';
-import { clearHash, navigate, route } from '../../platform/router.ts';
-import { api } from '../../platform/server/api.ts';
-import { pendingEntries } from '../sign-in/index.ts';
+import { clearHash, navigate, route } from '../../../platform/router.ts';
+import { api } from '../../../platform/server/api.ts';
+import { pendingEntries } from '../../sign-in/index.ts';
 
 export const pairPath = '/pair';
 

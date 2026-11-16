@@ -47,4 +47,14 @@ export const keymap: Record<string, string> = {
   'manual.step8': 'Alt+8',
   'manual.step9': 'Alt+9',
   'manual-all-steps.close': 'Alt+T',
+  // Lo que abre el indicador del vínculo (03 · R4.2, R1.3, R5).
+  'link-detail.probe': 'Alt+P',
+  'link-detail.pause': 'Alt+D',
+  'link-detail.resume': 'Alt+R',
+  'link-detail.pair': 'Alt+V',
+  'link-detail.unpair': 'Alt+X',
+  'link-detail.close': 'Alt+C',
+  'link-code.back': 'Alt+O',
+  'link-unpair.cancel': 'Alt+C',
+  'link-unpair.unpair': 'Alt+X',
 };

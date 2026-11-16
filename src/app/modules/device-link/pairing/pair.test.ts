@@ -1,9 +1,9 @@
 // Vincular con el botón (R1.3 a R1.7): qué código sirve, lo que contesta el servidor y la dirección
 // que abre la cámara del teléfono.
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { navigate, route } from '../../platform/router.ts';
-import { pc } from '../../testing/pairing.ts';
-import { pendingEntries } from '../sign-in/index.ts';
+import { navigate, route } from '../../../platform/router.ts';
+import { pc } from '../../../testing/pairing.ts';
+import { pendingEntries } from '../../sign-in/index.ts';
 import { acceptTicket, pairCodeOf, pairUrl, readCode, takePairCode } from './pair.ts';
 
 const reply = (status: number, body: unknown) =>

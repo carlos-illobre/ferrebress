@@ -2,14 +2,16 @@
 // celular que lee, con la pregunta de reemplazar y lo que no vincula.
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { PairingState, Runtime } from '../../../modules/device-link/model.ts';
+import {
+  detailOpen,
+  deviceLinkSettings,
+  linkRuntime,
+  reading,
+} from '../../../modules/device-link/model.ts';
 import type { TopicHandler } from '../../../platform/realtime/demand.ts';
 import { createStore } from '../../../platform/store.ts';
 import { pairingView, pc } from '../../../testing/pairing.ts';
-import { linkRuntime } from '../current.ts';
-import { detailOpen, reading } from '../detail.ts';
-import type { PairingState } from '../machine/types.ts';
-import type { Runtime } from '../runtime.ts';
-import { deviceLinkSettings } from '../settings.ts';
 import { Code } from './Code/Code.tsx';
 import { Layer } from './Detail/Over.tsx';
 import { Read } from './Read/Read.tsx';

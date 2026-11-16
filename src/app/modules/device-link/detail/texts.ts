@@ -3,8 +3,8 @@
 // lado, no por el ancho: un celular acostado o una computadora angosta dicen lo de su lado. Se bajan
 // con el detalle, no en el arranque.
 import { addDays, businessDateOf, businessFormat } from '@ferrebress/shared/time/business';
-import { formatTime } from '../../../../platform/time.ts';
-import type { Words } from '../../../../platform/view/words.ts';
+import { formatTime } from '../../../platform/time.ts';
+import type { Words } from '../../../platform/view/words.ts';
 
 const words = (long: string, short: string): Words => ({ long, short });
 

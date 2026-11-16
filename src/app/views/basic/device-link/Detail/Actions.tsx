@@ -1,35 +1,13 @@
 // Los botones del detalle (R4.2), según el estado: la acción principal, naranja y ancha, y las demás en
 // una fila partida (Desconectar · Vincular · Desvincular). Cada uno con su tecla, con Alt.
+
+import type { LinkView } from '../../../../modules/device-link/model.ts';
+import { type Act, choicesOf, detailTexts } from '../../../../modules/device-link/model.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
-import type { IconName } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
-import type { LinkView } from '../../view.ts';
-import { detailTexts } from './texts.ts';
 
-export type Act = 'probe' | 'pause' | 'resume' | 'pair' | 'unpair';
-type Choice = {
-  act: Act;
-  label: string;
-  icon: IconName;
-  key: string;
-  look: 'action' | 'row' | 'danger';
-};
-
-export function choicesOf(view: LinkView, phone: boolean): Choice[] {
-  const t = detailTexts.actions;
-  const pair: Choice = phone
-    ? { act: 'pair', label: t.pairPhone, icon: 'scan-qr-code', key: 'v', look: 'row' }
-    : { act: 'pair', label: t.pairComputer, icon: 'qr-code', key: 'v', look: 'row' };
-  if (view.status === 'unpaired') return [{ ...pair, look: 'action' }];
-  const choices: Choice[] = [];
-  if (view.status === 'relayed')
-    choices.push({ act: 'probe', label: t.probe, icon: 'zap', key: 'p', look: 'action' });
-  if (view.status === 'paused')
-    choices.push({ act: 'resume', label: t.resume, icon: 'plug-zap', key: 'r', look: 'action' });
-  else choices.push({ act: 'pause', label: t.pause, icon: 'unplug', key: 'd', look: 'row' });
-  choices.push(pair, { act: 'unpair', label: t.unpair, icon: 'unlink', key: 'x', look: 'danger' });
-  return choices;
-}
+export type { Act };
 
 export function Actions({
   view,
@@ -44,6 +22,7 @@ export function Actions({
   const main = choices.filter((choice) => choice.look === 'action');
   const rows = choices.filter((choice) => choice.look !== 'action');
   const trying = view.probe === 'trying';
+  const keys = useShortcutHints('link-detail');
   return (
     <div class="link-actions">
       {main.map((choice) => (
@@ -52,7 +31,7 @@ export function Actions({
           look="action"
           size="large"
           icon={choice.icon}
-          shortcut={choice.key}
+          keyHint={keys[choice.act]}
           doing={choice.label}
           disabled={choice.act === 'probe' && trying}
           onPress={() => onAct(choice.act)}
@@ -71,7 +50,7 @@ export function Actions({
               key={choice.act}
               look={choice.look === 'danger' ? 'danger' : 'plain'}
               icon={choice.icon}
-              shortcut={choice.key}
+              keyHint={keys[choice.act]}
               doing={choice.label}
               onPress={() => onAct(choice.act)}
             >

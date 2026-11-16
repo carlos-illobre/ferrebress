@@ -5,14 +5,12 @@
 
 import type { Side } from '@ferrebress/shared/contracts/pairing';
 import type { ComponentChildren } from 'preact';
+import type { LinkView } from '../../../../modules/device-link/model.ts';
+import { detailOpen, texts, useLinkView } from '../../../../modules/device-link/model.ts';
 import { kbPerMinute, useRate } from '../../../../platform/meter.ts';
 import { useStore } from '../../../../platform/store.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say, type Words } from '../../../../ui/say/Say.tsx';
-import { detailOpen } from '../../detail.ts';
-import { texts } from '../../texts.ts';
-import { useLinkView } from '../../use-link.ts';
-import type { LinkView } from '../../view.ts';
 import './Indicator.css';
 
 export function labelOf(view: LinkView): Words {

@@ -1,8 +1,8 @@
 // Los datos del vínculo (R4.2): con qué está vinculado, desde cuándo y hasta cuándo dura sin usarse,
 // con la barra de los días que quedan.
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
+import { day, detailTexts, since } from '../../../../modules/device-link/model.ts';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { day, detailTexts, since } from './texts.ts';
 
 const dayMs = 86_400_000;
 

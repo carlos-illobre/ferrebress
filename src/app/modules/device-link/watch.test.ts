@@ -10,7 +10,7 @@ import { createStore } from '../../platform/store.ts';
 import { pc } from '../../testing/pairing.ts';
 import { person } from '../sign-in/index.ts';
 import { ana } from '../sign-in/sign-in-test-kit.ts';
-import { reading } from './detail.ts';
+import { reading } from './detail/open.ts';
 import { linkRuntime, watchDeviceLink } from './index.ts';
 import type { PairingState } from './machine/types.ts';
 import type { Runtime } from './runtime.ts';

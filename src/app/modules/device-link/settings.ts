@@ -20,4 +20,9 @@ export const deviceLinkSettings = {
   doneMs: 900,
   // Cada cuánto se redibuja la tira del día con el detalle abierto.
   todayEveryMs: minute,
+  // Cada cuánto se vuelve a medir la latencia del directo, con el detalle abierto (R4.2).
+  roundTripEveryMs: 2000,
+  // Cuánto dura el código para vincular (R1.3), y cada cuánto se mueve su cuenta regresiva.
+  codeLastsSeconds: 60,
+  codeTickMs: 1000,
 };

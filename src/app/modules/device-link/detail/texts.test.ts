@@ -19,7 +19,7 @@ describe('las fechas y duraciones del detalle', () => {
 
 describe('las horas de la tira del día', () => {
   it('como mucho cuatro, y ninguna pegada a «Ahora»', async () => {
-    const { hours } = await import('./Today.tsx');
+    const { hours } = await import('./today.ts');
     const at = (h: number, m = 0) => Date.UTC(2026, 10, 2, h, m);
     // Dos horas y media: las dos en punto del medio; la de las 11 queda pegada a «Ahora» (11:20).
     expect(hours(at(8, 50), at(11, 20))).toEqual([at(9), at(10)]);

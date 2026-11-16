@@ -6,7 +6,7 @@ import { createStore } from '../../platform/store.ts';
 import { viewSettings } from '../../platform/view/settings.ts';
 import { pairingView } from '../../testing/pairing.ts';
 import { Toasts } from '../../ui/toast/Toast.tsx';
-import { reading, unpairAsked } from './detail.ts';
+import { reading, unpairAsked } from './detail/open.ts';
 import type { PairingState } from './machine/types.ts';
 import { watchReplaced } from './replaced.ts';
 import type { Runtime } from './runtime.ts';

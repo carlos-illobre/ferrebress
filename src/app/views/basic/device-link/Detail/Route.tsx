@@ -1,12 +1,9 @@
 // La ruta dibujada (R4.2): este dispositivo, el medio por el que se hablan y el otro, con la latencia
 // por el directo (`getStats()`, leída cada 2 s solo con el detalle abierto) o por el servidor.
-import { useEffect, useState } from 'preact/hooks';
-import { useStore } from '../../../../platform/store.ts';
+
+import type { LinkView, Status } from '../../../../modules/device-link/model.ts';
+import { detailTexts, useRoundTrip } from '../../../../modules/device-link/model.ts';
 import { Icon, type IconName } from '../../../../ui/icon/Icon.tsx';
-import { linkRuntime } from '../../current.ts';
-import type { Status } from '../../texts.ts';
-import type { LinkView } from '../../view.ts';
-import { detailTexts } from './texts.ts';
 
 const medium: Record<Status, IconName> = {
   unpaired: 'plus',
@@ -16,20 +13,6 @@ const medium: Record<Status, IconName> = {
   waiting: 'clock',
   offline: 'wifi-off',
 };
-
-function useRoundTrip(on: boolean): number | undefined {
-  const runtime = useStore(linkRuntime);
-  // local: la latencia que mide este dispositivo.
-  const [ms, setMs] = useState<number>();
-  useEffect(() => {
-    if (!on || !runtime) return setMs(undefined);
-    const read = () => void runtime.roundTripMs().then((value) => setMs(value));
-    read();
-    const timer = setInterval(read, 2000);
-    return () => clearInterval(timer);
-  }, [on, runtime]);
-  return ms;
-}
 
 export function Route({ view, phone }: { view: LinkView; phone: boolean }) {
   const roundTrip = useRoundTrip(view.status === 'direct');

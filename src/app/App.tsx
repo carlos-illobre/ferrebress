@@ -12,7 +12,7 @@ import {
   setBusinessTimeZone,
 } from '@ferrebress/shared/time/business';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { frameLink, watchDeviceLink } from './modules/device-link/index.ts';
+import { watchDeviceLink } from './modules/device-link/index.ts';
 import {
   announceUpdate,
   Dialogs,
@@ -53,6 +53,7 @@ import { startParts } from './platform/server/start-parts.ts';
 import { useStore } from './platform/store.ts';
 import { Toasts } from './ui/toast/Toast.tsx';
 import { AdministrationSlot } from './views/basic/administration/Slot.tsx';
+import { frameLink } from './views/basic/device-link/frame-link.tsx';
 import { InstallOffer } from './views/basic/device-settings/InstallOffer.tsx';
 import { Settings } from './views/basic/device-settings/Settings/Settings.tsx';
 import { ManualSlot } from './views/basic/manual/ManualSlot.tsx';

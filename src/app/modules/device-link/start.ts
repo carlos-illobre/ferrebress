@@ -21,14 +21,13 @@ import { onField } from '../../platform/server/fields.ts';
 import { startParts } from '../../platform/server/start-parts.ts';
 import { isMenuPath } from '../frame/index.ts';
 import { person } from '../sign-in/index.ts';
-import { linkOver, linkRuntime, linkStrip } from './current.ts';
-import { reading } from './detail.ts';
+import { linkRuntime, linkStrip } from './current.ts';
+import { reading } from './detail/open.ts';
 import { createJournal, type Journal } from './journal.ts';
-import { takePairCode } from './pair.ts';
+import { takePairCode } from './pairing/pair.ts';
 import { watchReplaced } from './replaced.ts';
 import { pairingShape } from './runtime/topic.ts';
 import { createRuntime } from './runtime.ts';
-import { Layer } from './screens/Detail/Over.tsx';
 import { createStrip, type Strip } from './strip.ts';
 import { createTabs } from './tabs.ts';
 import type { Watched } from './watch.ts';
@@ -84,7 +83,6 @@ export function startDeviceLink(): () => void {
   mirror.onDiscard(noteDiscard(journal));
   const strip = stripOfPerson();
   linkStrip.set({ of: strip });
-  linkOver.set({ Over: Layer });
   const code = takePairCode(who.get() !== undefined);
   if (code) reading.set({ code });
   const runtime = createRuntime({
@@ -121,6 +119,5 @@ export function startDeviceLink(): () => void {
     unguard();
     stopReplaced();
     linkRuntime.set(undefined);
-    linkOver.set(undefined);
   };
 }

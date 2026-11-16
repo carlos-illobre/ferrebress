@@ -3,11 +3,10 @@
 // hablan desde un lado, por el lado.
 import { act, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { detailOpen, linkRuntime } from '../../../modules/device-link/model.ts';
 import { fakeRuntime, narrow } from '../../../testing/link-screens.ts';
 import { pairingView, pc } from '../../../testing/pairing.ts';
 import { Toasts } from '../../../ui/toast/Toast.tsx';
-import { linkRuntime } from '../current.ts';
-import { detailOpen } from '../detail.ts';
 import { Layer as Over } from './Detail/Over.tsx';
 
 beforeEach(() => {

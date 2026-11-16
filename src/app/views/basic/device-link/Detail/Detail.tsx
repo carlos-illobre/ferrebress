@@ -3,19 +3,19 @@
 // datos y los botones. Es una capa del teclado: Alt C o Esc lo cierran (00 · R2.7, R2.10).
 
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
+import { detailTexts, type LinkView, onPhone } from '../../../../modules/device-link/model.ts';
 import { useNarrow } from '../../../../platform/narrow.ts';
 import { serverNow } from '../../../../platform/server/clock.ts';
+import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Say, type Words } from '../../../../ui/say/Say.tsx';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
-import { type LinkView, onPhone } from '../../view.ts';
 import { Code } from '../Code/Code.tsx';
 import { labelOf } from '../Indicator/Indicator.tsx';
 import { type Act, Actions } from './Actions.tsx';
 import { Facts } from './Facts.tsx';
 import { Route } from './Route.tsx';
 import { Today } from './Today.tsx';
-import { detailTexts } from './texts.ts';
 import './Detail.css';
 import './Today.css';
 import './Actions.css';
@@ -117,6 +117,7 @@ export function Detail({ view, onAct, onClose, code }: Props) {
 }
 
 function Page({ view, onAct, onClose, title }: Omit<Props, 'code'> & { title: string }) {
+  const keys = useShortcutHints('link-detail');
   return (
     <>
       <div class="link-head">
@@ -125,7 +126,7 @@ function Page({ view, onAct, onClose, title }: Omit<Props, 'code'> & { title: st
           look="plain"
           size="small"
           icon="x"
-          shortcut="c"
+          keyHint={keys.close}
           closes
           doing={detailTexts.detail.close}
           onPress={onClose}

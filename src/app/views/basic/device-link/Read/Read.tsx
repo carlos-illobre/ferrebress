@@ -2,15 +2,11 @@
 // y, si alguno ya estaba vinculado, la pregunta de reemplazar. Lo que no vincula lo dice en una hoja,
 // sin ofrecer cambiar de cuenta (R1.6); un código vencido ofrece leer el nuevo (E04).
 import type { PairingView } from '@ferrebress/shared/contracts/pairing';
-import { useEffect, useState } from 'preact/hooks';
-import { notify } from '../../../../platform/view/notify.ts';
+import { detailTexts, useReadCode } from '../../../../modules/device-link/model.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Camera } from '../../../../ui/camera/Camera.tsx';
 import { Dialog } from '../../../../ui/dialog/Dialog.tsx';
-import { acceptTicket, pairCodeOf, type Reading, readCode } from '../../pair.ts';
-import { detailTexts } from '../Detail/texts.ts';
 
-type Step = { kind: 'camera' } | { kind: 'asking' } | Exclude<Reading, { kind: 'paired' }>;
 type Props = {
   code: string | undefined;
   onPaired: (pairing: PairingView) => void;
@@ -87,30 +83,19 @@ function Notice({
 }
 
 export function Read({ code, onPaired, onClose }: Props) {
-  // local: la cámara y lo que leyó son del celular.
-  const [step, setStep] = useState<Step>(code ? { kind: 'asking' } : { kind: 'camera' });
-  const settle = (reading: Reading) => {
-    if (reading.kind !== 'paired') return setStep(reading);
-    notify(detailTexts.toast.pairedPhone, 'check');
-    onPaired(reading.pairing);
-  };
-  const read = (value: string) => {
-    setStep({ kind: 'asking' });
-    void readCode(value).then(settle);
-  };
-  useEffect(() => {
-    if (code) read(code);
-  }, []);
+  const reading = useReadCode(code, onPaired);
+  const { step } = reading;
   if (step.kind === 'camera')
-    return <Camera texts={detailTexts.camera} read={pairCodeOf} onCode={read} onClose={onClose} />;
-  if (step.kind === 'asking') return null;
-  if (step.kind === 'replace')
     return (
-      <Replace
-        was={step.was}
-        onNo={onClose}
-        onYes={async () => settle(await acceptTicket(step.ticket))}
+      <Camera
+        texts={detailTexts.camera}
+        read={reading.codeOf}
+        onCode={reading.read}
+        onClose={onClose}
       />
     );
-  return <Notice kind={step.kind} onAgain={() => setStep({ kind: 'camera' })} onClose={onClose} />;
+  if (step.kind === 'asking') return null;
+  if (step.kind === 'replace')
+    return <Replace was={step.was} onNo={onClose} onYes={reading.replace} />;
+  return <Notice kind={step.kind} onAgain={reading.again} onClose={onClose} />;
 }

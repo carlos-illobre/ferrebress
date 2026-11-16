@@ -2,16 +2,19 @@
 // ruta, frase, tira, datos y botones, y desvincular con su confirmación.
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  createStrip,
+  detailOpen,
+  linkRuntime,
+  linkStrip,
+} from '../../../modules/device-link/model.ts';
 import { meter } from '../../../platform/meter.ts';
 import { startParts } from '../../../platform/server/start-parts.ts';
 import { fakeRuntime, inApp, narrow } from '../../../testing/link-screens.ts';
 import { pc, phone } from '../../../testing/pairing.ts';
 import { Toasts } from '../../../ui/toast/Toast.tsx';
-import { linkOver, linkRuntime, linkStrip } from '../current.ts';
-import { detailOpen } from '../detail.ts';
-import { frameLink } from '../frame-link.tsx';
-import { createStrip } from '../strip.ts';
 import { Layer as Over } from './Detail/Over.tsx';
+import { frameLink } from './frame-link.tsx';
 import { PhoneIndicator, SideIndicator } from './Indicator/Indicator.tsx';
 
 const hour = 3_600_000;
@@ -25,17 +28,17 @@ afterEach(() => {
 });
 
 describe('lo que abre el indicador', () => {
-  it('se ve con el detalle abierto, cuando el vínculo ya llegó', () => {
+  it('se ve con el detalle abierto, cuando el vínculo ya llegó', async () => {
     fakeRuntime({ kind: 'unpaired' });
     const { container } = render(<frameLink.Over />);
     expect(container.innerHTML).toBe('');
+    act(() => linkRuntime.set(undefined));
     act(() => detailOpen.set(true));
     expect(container.innerHTML).toBe('');
-    act(() => linkOver.set({ Over }));
-    expect(screen.getByRole('dialog')).toBeTruthy();
+    fakeRuntime({ kind: 'unpaired' });
+    expect(await screen.findByRole('dialog')).toBeTruthy();
     act(() => detailOpen.set(false));
     expect(screen.queryByRole('dialog')).toBeNull();
-    linkOver.set(undefined);
   });
 });
 
