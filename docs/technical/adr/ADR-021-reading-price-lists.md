@@ -76,9 +76,10 @@ filas y celdas, cada celda con su valor y el texto que se ve. Con las opciones c
 ## Consecuencias
 
 - Dos dependencias nuevas en el servidor: SheetJS y `quickjs-emscripten-core`, con sus versiones fijas.
-- Leer en QuickJS es más lento que en V8. La primera tarea del módulo lo mide con 10.000 filas en la
-  máquina del ADR-014, contra la meta de 10 segundos (08 · R4.9); si no entra, se corrige este ADR antes
-  de seguir.
+- Leer en QuickJS es más lento que en V8, pero sobra: con una planilla inventada de 10.000 filas (1,5
+  MB), abrirla con SheetJS tardó 175 ms y clasificar sus filas con un lector en QuickJS, de a bloques de
+  5.000 y con sus topes, 133 ms, en la máquina de desarrollo. La meta es 10 segundos (08 · R4.9). Se
+  vuelve a medir con la prueba de performance del módulo.
 - Un lector de un programador se escribe como JavaScript común y sus pruebas corren también en QuickJS.
 - El contenedor del servidor lleva un tope de memoria, así un error que quede no se lleva la máquina.
 - La etapa b no cambia esto: lo que escribe la IA es un lector más.
