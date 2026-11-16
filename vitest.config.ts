@@ -35,7 +35,9 @@ export default defineConfig({
       // pruebas, fuera de ellas; src/server/db-types.ts escribe o controla los tipos de las tablas con
       // table-types.ts; src/server/platform/storage/audit/thread.ts conecta el hilo de
       // lectura de la auditoría con query.ts, que se prueba en el mismo hilo (y el hilo, en
-      // query.test.ts, sin cobertura: la de otro hilo no se mide); src/app/platform/peer/rtc.ts es el
+      // query.test.ts, sin cobertura: la de otro hilo no se mide); price-lists/reading/process.ts conecta
+      // el proceso lector con job.ts, que se prueba en el mismo proceso (y el proceso, en pool.test.ts,
+      // sin cobertura: la de otro proceso no se mide); src/app/platform/peer/rtc.ts es el
       // adaptador de WebRTC, que solo habla con el navegador: su lógica está en direct.ts, que se
       // prueba con uno de mentira (diseño de 03, § 4.2). Las configuraciones no son código.
       exclude: [
@@ -48,6 +50,7 @@ export default defineConfig({
         'src/app/google-button.ts',
         'src/server/testing/pglite-template.ts',
         'src/server/platform/storage/audit/thread.ts',
+        'src/server/modules/price-lists/reading/process.ts',
         'src/app/platform/peer/rtc.ts',
         '**/*.config.ts',
         '**/*.test.{ts,tsx}',

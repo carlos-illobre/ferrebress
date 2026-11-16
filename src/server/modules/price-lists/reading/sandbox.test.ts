@@ -6,7 +6,8 @@ import { runReader } from './sandbox.ts';
 const limits = { memoryBytes: 16 * 2 ** 20, stackBytes: 256 * 1024, timeMs: 300 };
 const reader = (body: string) =>
   `globalThis.reader = { recognizes(head) { ${body} }, read() { return []; } };`;
-const run = (body: string) => runReader(reader(body), null, 'recognizes', [[]], limits);
+const run = (body: string, timeMs = limits.timeMs) =>
+  runReader(reader(body), null, 'recognizes', [[]], { ...limits, timeMs });
 
 describe('un lector encerrado', () => {
   it('recibe datos y devuelve datos', async () => {
@@ -47,8 +48,9 @@ describe('un lector encerrado', () => {
     const started = Date.now();
     expect(await run('for (;;) {}')).toEqual({ failed: 'timeout' });
     expect(Date.now() - started).toBeLessThan(2000);
-    expect(await run('return "x".repeat(5e7);')).toEqual({ failed: 'memory' });
-    expect(await run('const a = []; for (;;) a.push([1, 2, 3, 4, 5, 6, 7, 8]);')).toEqual({
+    // Con tiempo de sobra, para que corte la memoria y no el reloj.
+    expect(await run('return "x".repeat(5e7);', 10_000)).toEqual({ failed: 'memory' });
+    expect(await run('const a = []; for (;;) a.push([1, 2, 3, 4, 5, 6, 7, 8]);', 10_000)).toEqual({
       failed: 'memory',
     });
     expect(await run('const f = () => f(); f();')).toEqual({ failed: 'error' });

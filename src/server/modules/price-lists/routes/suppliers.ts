@@ -23,7 +23,7 @@ import { permissionsOf } from '../../../platform/permissions.ts';
 import { sessionOf } from '../../../platform/session.ts';
 import type { PriceListsContext } from '../context.ts';
 import { asDb } from '../data/db.ts';
-import { type SupplierRecord, suppliersData } from '../data/suppliers.ts';
+import { suppliersData } from '../data/suppliers.ts';
 import { newSupplierOf, responseOf, rowOf, supplierTarget } from '../rules/suppliers.ts';
 import { priceListsSettings } from '../settings.ts';
 import { registerSupplierStateRoutes } from './supplier-state.ts';
