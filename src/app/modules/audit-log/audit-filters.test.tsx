@@ -4,7 +4,8 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { held } from '../../testing/fake-server.ts';
 import { startKeyboard } from '../../testing/keyboard.ts';
-import { openAuditLog, page, rows } from '../../views/basic/audit-log/audit-test-kit.tsx';
+import { all, one, openAuditLog, page, rows } from '../../views/basic/audit-log/audit-test-kit.tsx';
+import { keyShown } from '../../views/basic/kit.ts';
 
 const chip = (name: RegExp) => screen.getByRole('button', { name }) as HTMLElement;
 
@@ -15,7 +16,7 @@ describe('los filtros de Quién hizo qué', () => {
     const server = openAuditLog();
     await screen.findByText('25 acciones');
     const sent = server.sent.length;
-    const name = rows()[2]?.querySelector('.audit-person') as HTMLElement;
+    const name = one('person', rows()[2] as HTMLElement) as HTMLElement;
     fireEvent.click(name);
     fireEvent.dblClick(name);
     expect(rows()[2]?.getAttribute('aria-selected')).toBe('true');
@@ -69,16 +70,14 @@ describe('los filtros de Quién hizo qué', () => {
       ['F', /Fecha/],
       ['T', /Tipo/],
     ] as const) {
-      expect(chip(name).querySelector('kbd')?.textContent).toBe(letter);
+      expect(keyShown(chip(name))).toBe(letter);
       fireEvent.keyDown(window, { key: letter.toLowerCase(), code: `Key${letter}`, altKey: true });
       expect(chip(name).getAttribute('aria-expanded')).toBe('true');
     }
     stop();
-    const pages = [...document.querySelectorAll<HTMLElement>('[data-page]')].map(
-      (one) => one.dataset.page,
-    );
+    const pages = all('pageButton').map((one) => one.dataset.page);
     expect(pages.sort()).toEqual(['next', 'previous']);
-    expect(document.querySelectorAll('.audit-row[data-mark]')).toHaveLength(5);
+    expect(all('markableRow')).toHaveLength(5);
   });
 
   it('audit-log-E19: anterior y siguiente; en la primera, «anterior» apagado', async () => {
@@ -119,7 +118,7 @@ describe('los filtros de Quién hizo qué', () => {
     await screen.findByText('4 acciones');
     fireEvent.click(screen.getByRole('button', { name: /Sacó o borró/ }));
     await screen.findByText('1 acción');
-    fireEvent.click(document.querySelector('.audit-number') as HTMLElement);
+    fireEvent.click(one('number') as HTMLElement);
     await waitFor(() => expect(server.sent.at(-1)?.path).toBe(today));
   });
 
@@ -184,7 +183,7 @@ describe('los filtros de Quién hizo qué', () => {
     }
     expect(chip(/Hecho por/).textContent).toContain('Todos');
     fireEvent.click(chip(/Fecha/));
-    const form = document.querySelector('.audit-pick-dates') as HTMLFormElement;
+    const form = one('pickDates') as HTMLFormElement;
     const [from, until] = within(form).getAllByDisplayValue('2026-10-28');
     fireEvent.input(from as HTMLElement, { target: { value: '2026-10-20' } });
     fireEvent.input(until as HTMLElement, { target: { value: '2026-10-28' } });

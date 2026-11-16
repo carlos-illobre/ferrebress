@@ -1,8 +1,19 @@
 import { act, fireEvent, screen, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { later } from '../../testing/later.ts';
-import { media, open, withPath } from '../../views/basic/frame/frame-test-kit.tsx';
+import {
+  firstGroupNames,
+  isUrgent,
+  media,
+  moreOpenOnPhone,
+  open,
+  phoneGroups,
+  phoneLight,
+  phoneLogoShown,
+  withPath,
+} from '../../views/basic/frame/frame-test-kit.tsx';
 import { PhoneLight } from '../../views/basic/frame/index.ts';
+import { saysSoon } from '../../views/basic/kit.ts';
 import { moreOptions, type Option, parts } from './menu.ts';
 
 describe('el marco en el celular', () => {
@@ -25,14 +36,14 @@ describe('el marco en el celular', () => {
         .getByRole('button', { name: /Vender/ })
         .hasAttribute('aria-current'),
     ).toBe(false);
-    expect(document.querySelector('.frame')?.classList.contains('more-open')).toBe(true);
+    expect(moreOpenOnPhone()).toBe(true);
     expect(within(screenMore).getByText('Rubén Paredes')).toBeTruthy();
     // Una sola lista, sin grupos (00 · R1.2).
-    expect(screenMore.querySelectorAll('.phone-more-group')).toHaveLength(1);
+    expect(phoneGroups(screenMore)).toHaveLength(1);
     expect(within(screenMore).getByText('Lo que no coincide')).toBeTruthy();
     expect(within(screenMore).getAllByText('Pronto')).toHaveLength(3);
     const anomalies = within(screenMore).getByRole('button', { name: /Anomalías/ });
-    expect(anomalies.querySelector('.phone-more-icon.urgent')).not.toBeNull();
+    expect(isUrgent(anomalies)).toBe(true);
     expect(anomalies.lastElementChild?.className).toBe('coming-soon');
     fireEvent.click(anomalies);
     expect(screen.getByRole('status').textContent).toBe('Anomalías · pronto. Todavía no está.');
@@ -63,11 +74,7 @@ describe('el marco en el celular', () => {
       ),
     );
     const screenMore = screen.getByRole('region', { name: 'Más' });
-    expect(
-      within(screenMore.querySelector('.phone-more-group') as HTMLElement)
-        .getAllByRole('button')
-        .map((button) => button.querySelector('b')?.textContent),
-    ).toEqual([
+    expect(firstGroupNames(screenMore)).toEqual([
       'Anomalías',
       'Procesos',
       'Mejoras y errores',
@@ -83,14 +90,14 @@ describe('el marco en el celular', () => {
     media({ phone: true });
     // Sin cabecera del marco: la pantalla pone la luz debajo de su título.
     open({ screens: { users: () => <PhoneLight /> } });
-    expect(document.querySelector('.phone-logo')).toBeNull();
+    expect(phoneLogoShown()).toBe(false);
     const phoneNav = screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement;
     fireEvent.click(within(phoneNav).getByRole('button', { name: /Catálogo/ }));
     expect(screen.getByRole('status').textContent).toBe('Catálogo · pronto. Todavía no está.');
     fireEvent.click(within(phoneNav).getByRole('button', { name: /Depósito/ }));
     await later(2400);
     expect(screen.queryByRole('status')).toBeNull();
-    fireEvent.click(document.querySelector('.phone-light') as Element);
+    fireEvent.click(phoneLight());
     expect(
       within(screen.getByRole('dialog', { name: 'Lo que está por enviar' })).getByText(
         'Todo enviado',
@@ -149,7 +156,7 @@ describe('el marco en el celular', () => {
       const tickets = within(screen.getByRole('region', { name: 'Más' })).getByRole('button', {
         name: /Mejoras/,
       });
-      expect(tickets.querySelector('.coming-soon')).toBeNull();
+      expect(saysSoon(tickets)).toBe(false);
       fireEvent.click(tickets);
       expect(location.pathname).toBe('/tickets');
     } finally {

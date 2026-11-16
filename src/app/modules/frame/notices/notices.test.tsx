@@ -5,6 +5,7 @@ import { newVersion, updateRequired } from '../../../platform/server/api.ts';
 import { waitBar } from '../../../platform/waiting.ts';
 import { later } from '../../../testing/later.ts';
 import { Dialogs, VersionNotice, WaitNotice } from '../../../views/basic/frame/notices/Notices.tsx';
+import { isShaking, veil } from '../../../views/basic/kit.ts';
 import { Toasts } from '../../../views/basic/ui/toast/Toast.tsx';
 import { crash, forgetReport, reportCrash, watchCrashes } from './crash/crash.ts';
 import { announceUpdate, dismissed, updateOnOpen, watchBackground } from './update/update.ts';
@@ -147,8 +148,8 @@ describe('los avisos del marco', () => {
     act(() => updateRequired.set(true));
     const block = screen.getByRole('alertdialog', { name: 'Hay que actualizar para seguir' });
     expect((document.getElementById('app') as HTMLElement & { inert: boolean }).inert).toBe(true);
-    fireEvent.click(document.querySelector('.veil') as Element);
-    expect(block.classList.contains('shake')).toBe(true);
+    fireEvent.click(veil());
+    expect(isShaking(block)).toBe(true);
     fireEvent.click(within(block).getByRole('button', { name: /Actualizar/ }));
     await waitFor(() => expect(reloaded).toHaveBeenCalledOnce());
   });
@@ -189,12 +190,11 @@ describe('«Algo salió mal»', () => {
     document.body.innerHTML = '';
     const stop = watchCrashes();
     all();
-    document.body.insertAdjacentHTML(
-      'beforeend',
-      '<main class="sign-in"><button aria-label="Cerrar">×</button></main>',
-    );
+    const entrance = Object.assign(document.createElement('main'), { className: 'sign-in' });
+    document.body.append(entrance);
+    entrance.innerHTML = '<button aria-label="Cerrar">×</button>';
     fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }));
-    document.querySelector('.sign-in')?.remove();
+    entrance.remove();
     document.body.insertAdjacentHTML('beforeend', '<button>Otra</button>');
     fireEvent.click(screen.getByRole('button', { name: 'Otra' }));
     await act(() => reportCrash());

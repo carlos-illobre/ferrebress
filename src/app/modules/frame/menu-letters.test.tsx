@@ -4,7 +4,15 @@ import { act, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { startKeyboard } from '../../testing/keyboard.ts';
 import { later } from '../../testing/later.ts';
-import { alt, letter, open, press, toMenu } from '../../views/basic/frame/frame-test-kit.tsx';
+import {
+  alt,
+  letter,
+  open,
+  press,
+  tipLabel,
+  toMenu,
+} from '../../views/basic/frame/frame-test-kit.tsx';
+import { markedIn } from '../../views/basic/kit.ts';
 
 describe('las letras del menú', () => {
   afterEach(() => vi.useRealTimers());
@@ -13,12 +21,12 @@ describe('las letras del menú', () => {
     const stop = startKeyboard();
     const { side } = open();
     act(() => toMenu());
-    const marked = side.querySelector('.marked') as HTMLElement;
+    const marked = markedIn(side) as HTMLElement;
     expect(marked.getAttribute('aria-current')).toBe('page');
     act(() => letter('m'));
     await act(() => new Promise((resolve) => setTimeout(resolve)));
     const panel = screen.getByRole('list', { name: 'Más' });
-    expect(panel.querySelector('.marked')).not.toBeNull();
+    expect(markedIn(panel)).not.toBeNull();
     stop();
   });
 
@@ -39,7 +47,7 @@ describe('las letras del menú', () => {
     act(() => press('ArrowDown'));
     act(() => letter('e'));
     await later(241);
-    expect(document.querySelector('.tip.label')?.textContent).toBe('Agrandar el menú');
+    expect(tipLabel()).toBe('Agrandar el menú');
     stop();
   });
 });

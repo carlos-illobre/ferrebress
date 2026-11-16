@@ -6,10 +6,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
 import { keyboardForEachTest } from '../../testing/keyboard.ts';
 import {
+  all,
   detail,
   events,
   first,
   firstPhone,
+  one,
   openAuditLog,
   page,
   rows,
@@ -30,14 +32,14 @@ describe('Quién hizo qué', () => {
     await screen.findByText('25 acciones');
     expect(server.sent.map((one) => one.path)).toEqual(['/api/audit-log/people', first]);
     expect(rows()).toHaveLength(5);
-    const days = [...document.querySelectorAll('.audit-day h2')].map((one) => one.textContent);
+    const days = all('dayTitle').map((title) => title.textContent);
     expect(days[0]).toMatch(/^Hoy, miércoles,? 28 de octubre4 acciones$/);
     expect(days[1]).toMatch(/^Ayer, martes,? 27 de octubre21 acciones$/);
     expect(rows()[0]?.textContent).toContain('11:52');
     expect(rows()[0]?.textContent).toContain('Le sacó el rol Cajero a Martín (hoy: Martín Sosa)');
     expect(rows()[4]?.textContent).toContain('27/10');
     // Cada tipo con su ícono, que no se repite.
-    const icons = rows().map((row) => row.querySelector('.audit-icon')?.innerHTML);
+    const icons = rows().map((row) => one('icon', row)?.innerHTML);
     expect(new Set(icons).size).toBe(icons.length);
     expect(screen.getByText('25 acciones')).toBeTruthy();
     expect(screen.getByText('página 1 de 2')).toBeTruthy();
@@ -55,10 +57,10 @@ describe('Quién hizo qué', () => {
     ]);
     expect(rows()[3]?.textContent).toContain('08:55');
     // audit-log-E09: la marca de que es la hora del celular, sin confirmar.
-    expect(rows()[3]?.querySelector('.audit-note')?.textContent).toBe(
+    expect(one('note', rows()[3] as HTMLElement)?.textContent).toBe(
       'hora del celular, sin confirmar',
     );
-    expect(rows()[0]?.querySelector('.audit-note')).toBeNull();
+    expect(one('note', rows()[0] as HTMLElement)).toBeNull();
   });
 
   it('audit-log-E38, E08: el texto de afuera se ve como texto; «El sistema» y «Alguien sin entrar»', async () => {
@@ -69,7 +71,7 @@ describe('Quién hizo qué', () => {
     };
     openAuditLog({ [first]: { body: page({ events: [...events, nameless] }) } });
     await screen.findByText('<b>jefe</b>@example.com');
-    expect(document.querySelector('.audit-row b b')).toBeNull();
+    expect(one('nestedBold')).toBeNull();
     expect(rows()[4]?.textContent).toContain(
       'El sistemaTerminó la sesión de Pedro: venció por no usarla',
     );
@@ -115,8 +117,8 @@ describe('Quién hizo qué', () => {
       [first]: { body: page({ total: 0, pages: 1, events: [], days: {}, strip: [] }) },
     });
     await screen.findByText('Todavía no hay nada anotado.');
-    expect(document.querySelector('.audit-strip')).toBeNull();
-    expect(document.querySelector('.audit-pager')).toBeNull();
+    expect(one('strip')).toBeNull();
+    expect(one('pager')).toBeNull();
   });
 
   it('si no se pudieron traer, lo dice y deja reintentar', async () => {
@@ -132,9 +134,9 @@ describe('Quién hizo qué', () => {
     await screen.findByText('25 acciones');
     act(() => online.set(false));
     expect(screen.getByText(/Sin conexión: Quién hizo qué vuelve sola/)).toBeTruthy();
-    expect(document.querySelector('.audit')?.hasAttribute('data-off')).toBe(true);
+    expect(one('screen')?.hasAttribute('data-off')).toBe(true);
     act(() => online.set(true));
-    expect(document.querySelector('.audit')?.hasAttribute('data-off')).toBe(false);
+    expect(one('screen')?.hasAttribute('data-off')).toBe(false);
     expect(server.sent).toHaveLength(2);
   });
 
@@ -142,23 +144,23 @@ describe('Quién hizo qué', () => {
     const server = openAuditLog({}, true);
     await screen.findByText('25 acciones');
     expect(server.sent.at(-1)?.path).toBe(firstPhone);
-    expect(document.querySelector('.audit-strip')).toBeNull();
-    expect(document.querySelector('.audit-detail')).toBeNull();
+    expect(one('strip')).toBeNull();
+    expect(one('detail')).toBeNull();
     fireEvent.click(rows()[0] as HTMLElement);
     expect(detail()).toContain('le sacó el rol Cajero');
     fireEvent.click(screen.getAllByRole('button', { name: /Cerrar/ }).at(-1) as HTMLElement);
     expect(detail()).toBe('');
     fireEvent.click(rows()[0] as HTMLElement);
-    fireEvent.click(document.querySelector('.sheet-scrim') as HTMLElement);
+    fireEvent.click(one('scrim') as HTMLElement);
     expect(detail()).toBe('');
   });
 
   it('seguridad: lo que muestra personas lleva data-private', async () => {
     openAuditLog();
     await screen.findByText('25 acciones');
-    expect(document.querySelector('.audit-detail-body')?.hasAttribute('data-private')).toBe(true);
-    expect(document.querySelector('.audit-person')?.hasAttribute('data-private')).toBe(true);
+    expect(one('detailBody')?.hasAttribute('data-private')).toBe(true);
+    expect(one('person')?.hasAttribute('data-private')).toBe(true);
     expect(events[1]?.actor.kind).toBe('outsider');
-    expect(document.querySelector('.audit-outsider')?.hasAttribute('data-private')).toBe(true);
+    expect(one('outsider')?.hasAttribute('data-private')).toBe(true);
   });
 });

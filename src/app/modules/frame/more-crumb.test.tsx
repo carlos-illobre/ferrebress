@@ -3,7 +3,14 @@
 import { fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate } from '../../platform/router.ts';
-import { media, open } from '../../views/basic/frame/frame-test-kit.tsx';
+import {
+  backToMore,
+  crumbMore,
+  media,
+  moreInMenu,
+  moreOpenOnPhone,
+  open,
+} from '../../views/basic/frame/frame-test-kit.tsx';
 import { MoreCrumb } from '../../views/basic/frame/index.ts';
 
 const Screen = () => <MoreCrumb name="Administración" />;
@@ -19,16 +26,16 @@ describe('la miga de Más', () => {
     navigate('/administration');
     const { side } = open({ screens: { administration: Screen } });
     expect(screen.getByText('Administración', { selector: '.more-crumbs span' })).toBeTruthy();
-    fireEvent.click(document.querySelector('.more-crumbs button') as HTMLElement);
-    expect(side.querySelector('.part.more')?.getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(crumbMore());
+    expect(moreInMenu(side).getAttribute('aria-expanded')).toBe('true');
   });
 
   it('en el celular, «‹ Más» vuelve a Más', () => {
     media({ phone: true });
     navigate('/administration');
     open({ screens: { administration: Screen } });
-    fireEvent.click(document.querySelector('.more-back') as HTMLElement);
-    expect(document.querySelector('.frame')?.classList.contains('more-open')).toBe(true);
+    fireEvent.click(backToMore());
+    expect(moreOpenOnPhone()).toBe(true);
   });
 
   it('fuera del marco no hay nada', () => {

@@ -157,3 +157,49 @@ export const detail = () => document.querySelector('.audit-detail-body')?.textCo
 
 // La lista de acciones, que se desplaza.
 export const ledger = () => document.querySelector('.audit-ledger') as HTMLElement;
+
+// Las partes de la pantalla que las pruebas miran y que no tienen rol ni texto propio: solo este
+// conductor sabe cómo están armadas (ADR-019).
+const parts = {
+  screen: '.audit',
+  strip: '.audit-strip',
+  pager: '.audit-pager',
+  detail: '.audit-detail',
+  detailBody: '.audit-detail-body',
+  dayTitle: '.audit-day h2',
+  icon: '.audit-icon',
+  note: '.audit-note',
+  nestedBold: '.audit-row b b',
+  person: '.audit-person',
+  outsider: '.audit-outsider',
+  newRow: '.audit-row[data-new]',
+  selectedRow: '.audit-row[aria-selected="true"]',
+  markableRow: '.audit-row[data-mark]',
+  number: '.audit-number',
+  newTick: '.audit-tick[data-new]',
+  pageButton: '[data-page]',
+  pickDates: '.audit-pick-dates',
+  scrim: '.sheet-scrim',
+  tape: '.tape',
+  verticalTape: '.tape.vertical',
+  tapeClose: '.tape [data-close]',
+  subtitle: '.tape-subtitle',
+  rail: '.audit-rail',
+  activeLine: '.tape-line.on',
+  lane: '.tape-lane',
+  dot: '.tape-dot',
+  offDot: '.tape-dot.off',
+  board: '.tape-board',
+  track: '.tape-track',
+  tapeDay: '.tape-day',
+} as const;
+type Part = keyof typeof parts;
+
+export const one = (name: Part, root: ParentNode = document) =>
+  root.querySelector<HTMLElement>(parts[name]);
+export const all = (name: Part, root: ParentNode = document) => [
+  ...root.querySelectorAll<HTMLElement>(parts[name]),
+];
+// El renglón de una acción, por su id.
+export const rowById = (id: string) =>
+  document.querySelector<HTMLElement>(`.audit-row[data-id="${CSS.escape(id)}"]`);

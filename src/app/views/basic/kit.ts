@@ -26,3 +26,19 @@ export const formIn = (region: Element) => region.querySelector('form') as HTMLF
 
 // La parte abierta de un menú.
 export const currentIn = (menu: Element) => menu.querySelector('[aria-current="page"]');
+
+// Lo que marca el teclado (00 · R2.5): si un elemento está marcado, y lo marcado dentro de una región.
+export const isMarked = (element: Element) => element.classList.contains('marked');
+export const markedIn = (region: Element) => region.querySelector<HTMLElement>('.marked');
+
+// Si una capa muestra las teclas, mientras Alt está apretado (00 · R2.9).
+export const showsKeys = (layer: Element) => layer.classList.contains('show-keys');
+
+// Si algo dice «Pronto» (todavía no existe).
+export const saysSoon = (element: Element) => element.querySelector('.coming-soon') !== null;
+
+// Si algo se está sacudiendo (lo que no se puede, o tocar afuera de lo que no se cierra).
+export const isShaking = (element: Element) => element.classList.contains('shake');
+
+// El velo de atrás de un diálogo que frena todo.
+export const veil = () => document.querySelector('.veil') as HTMLElement;

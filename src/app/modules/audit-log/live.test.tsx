@@ -7,12 +7,15 @@ import { meter } from '../../platform/meter.ts';
 import { mirror } from '../../platform/mirror/registry.ts';
 import { startKeyboard } from '../../testing/keyboard.ts';
 import {
+  all,
   detail,
   events,
   first,
   firstPhone,
+  one,
   openAuditLog,
   page,
+  rowById,
 } from '../../views/basic/audit-log/audit-test-kit.tsx';
 import { auditLogSettings } from './settings.ts';
 
@@ -71,17 +74,15 @@ describe('Actualizar solo', () => {
     await listening(pc);
     pc.notice();
     await screen.findByText('26 acciones');
-    const marked = document.querySelector('.audit-row[data-new]') as HTMLElement;
+    const marked = one('newRow') as HTMLElement;
     expect(marked.dataset.id).toBe('2026:6');
-    expect(document.querySelectorAll('.audit-row[data-new]')).toHaveLength(1);
-    expect(
-      document.querySelector('.audit-row[aria-selected="true"]')?.getAttribute('data-id'),
-    ).toBe('2026:5');
+    expect(all('newRow')).toHaveLength(1);
+    expect(one('selectedRow')?.getAttribute('data-id')).toBe('2026:5');
     // El resumen y la tira, también al día, con la raya nueva marcada.
-    expect(document.querySelector('.audit-number')?.textContent).toContain('5');
-    expect(document.querySelector('.audit-tick[data-new]')).toBeTruthy();
+    expect(one('number')?.textContent).toContain('5');
+    expect(one('newTick')).toBeTruthy();
     await settle(80);
-    expect(document.querySelector('.audit-row[data-new]')).toBeNull();
+    expect(one('newRow')).toBeNull();
   });
 
   it('la acción elegida sigue en el detalle aunque al ponerse al día haya pasado a la página 2', async () => {
@@ -90,12 +91,12 @@ describe('Actualizar solo', () => {
     const pc = openAuditLog({ [first]: [{ body: page() }, { body: shifted }] });
     await screen.findByText('25 acciones');
     await listening(pc);
-    fireEvent.click(document.querySelector(`.audit-row[data-id="${last.id}"]`) as HTMLElement);
+    fireEvent.click(rowById(last.id) as HTMLElement);
     const before = detail();
     expect(before).not.toBe('');
     pc.notice();
-    await waitFor(() => expect(document.querySelector('.audit-row[data-new]')).toBeTruthy());
-    expect(document.querySelector(`.audit-row[data-id="${last.id}"]`)).toBeNull();
+    await waitFor(() => expect(one('newRow')).toBeTruthy());
+    expect(rowById(last.id)).toBeNull();
     expect(detail()).toBe(before);
   });
 
@@ -114,7 +115,7 @@ describe('Actualizar solo', () => {
     fireEvent.click(button);
     await screen.findByText('26 acciones');
     expect(pc.sent.at(-1)?.path).toBe(first);
-    expect(document.querySelector('.audit-row[data-new]')?.getAttribute('data-id')).toBe('2026:6');
+    expect(one('newRow')?.getAttribute('data-id')).toBe('2026:6');
     expect(screen.queryByRole('button', { name: /nuevas/ })).toBeNull();
   });
 

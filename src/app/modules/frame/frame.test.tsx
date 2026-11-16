@@ -5,12 +5,21 @@ import { startKeyboard } from '../../testing/keyboard.ts';
 import { later } from '../../testing/later.ts';
 import {
   alt,
+  frameElement,
+  isNotHere,
+  isOpen,
+  isSidePanel,
   letter,
   media,
   open,
+  partName,
   press,
+  testBanner,
+  tipLabel,
+  tipShown,
   toMenu,
 } from '../../views/basic/frame/frame-test-kit.tsx';
+import { currentIn, isMarked, saysSoon, showsKeys, testFrameShown } from '../../views/basic/kit.ts';
 import { moreOptions, type Option, parts } from './menu.ts';
 
 describe('el marco', () => {
@@ -23,10 +32,7 @@ describe('el marco', () => {
 
   it('sign-in-E37, app-E01, app-E51: en pruebas, el menú con todo en «Pronto», la luz, la persona y el área en blanco', () => {
     const { side } = open();
-    const names = within(side)
-      .getAllByRole('button')
-      .map((button) => button.querySelector('.part-name')?.textContent)
-      .filter(Boolean);
+    const names = within(side).getAllByRole('button').map(partName).filter(Boolean);
     expect(names).toEqual(['Vender', 'Catálogo', 'Depósito', 'Negocio', 'Más']);
     expect(within(side).getAllByText('Pronto')).toHaveLength(4);
     // Lo primero que existe es Usuarios, en Más (R1.4).
@@ -39,16 +45,14 @@ describe('el marco', () => {
     expect(within(card).getByText('Administrador')).toBeTruthy();
     expect(within(card).getByRole('button', { name: /Salir/ })).toBeTruthy();
     expect(screen.getByRole('main', { name: 'Área de trabajo' }).innerHTML).toBe('');
-    expect(document.querySelector('.test-banner')?.textContent).toBe(
-      'Ambiente de prueba · nada de esto es real',
-    );
+    expect(testBanner()).toBe('Ambiente de prueba · nada de esto es real');
   });
 
   it('app-E02b, app-E52: en producción también está lo que falta, con «Pronto», sin el marco magenta', () => {
     const { side } = open({ testing: false });
     expect(within(side).getAllByText('Pronto')).toHaveLength(4);
-    expect(side.querySelector('[aria-current="page"]')?.textContent).toContain('Más');
-    expect(document.querySelector('.test-frame')).toBeNull();
+    expect(currentIn(side)?.textContent).toContain('Más');
+    expect(testFrameShown()).toBe(false);
   });
 
   it('app-E02: lo que todavía no existe no se abre: se sacude y el globo lo dice, y se va solo', async () => {
@@ -56,7 +60,7 @@ describe('el marco', () => {
     const { side } = open();
     const sell = within(side).getByRole('button', { name: /Vender/ });
     fireEvent.click(sell);
-    expect(sell.classList.contains('not-here')).toBe(true);
+    expect(isNotHere(sell)).toBe(true);
     expect(screen.getByRole('status').textContent).toContain('Vender todavía no está');
     expect(location.pathname).toBe('/');
     await later(2600);
@@ -82,7 +86,7 @@ describe('el marco', () => {
   it('app-E03b: el menú se minimiza a sus íconos y se vuelve a agrandar, con su animación', async () => {
     vi.useFakeTimers();
     open();
-    const frame = document.querySelector('.frame') as HTMLElement;
+    const frame = frameElement();
     const collapse = screen.getByRole('button', { name: 'Minimizar el menú' });
     fireEvent.click(collapse);
     fireEvent.click(collapse);
@@ -100,7 +104,7 @@ describe('el marco', () => {
     media({ reduced: true });
     open();
     fireEvent.click(screen.getByRole('button', { name: 'Minimizar el menú' }));
-    expect(document.querySelector('.frame')?.className).toBe('frame collapsed');
+    expect(frameElement().className).toBe('frame collapsed');
   });
 
   it('app-R1.6: minimizado, cada ícono dice su nombre al pasar el mouse o al llegar con la marca', () => {
@@ -109,28 +113,28 @@ describe('el marco', () => {
     const { side } = open();
     const collapse = screen.getByRole('button', { name: 'Minimizar el menú' });
     fireEvent.pointerEnter(collapse, { pointerType: 'mouse' });
-    expect(document.querySelector('.tip.label')?.textContent).toBe('Minimizar el menú');
+    expect(tipLabel()).toBe('Minimizar el menú');
     fireEvent.pointerLeave(collapse);
     fireEvent.pointerEnter(within(side).getByRole('button', { name: /Vender/ }), {
       pointerType: 'mouse',
     });
-    expect(document.querySelector('.tip')).toBeNull();
+    expect(tipShown()).toBe(false);
     fireEvent.click(collapse);
     fireEvent.pointerEnter(within(side).getByRole('button', { name: /Vender/ }), {
       pointerType: 'touch',
     });
-    expect(document.querySelector('.tip')).toBeNull();
+    expect(tipShown()).toBe(false);
     act(() => press('ArrowDown'));
     act(() => press('ArrowDown'));
-    expect(document.querySelector('.tip.label')?.textContent).toBe('Vender · Pronto');
+    expect(tipLabel()).toBe('Vender · Pronto');
     fireEvent.pointerEnter(screen.getByRole('button', { name: 'Rubén Paredes, Administrador' }), {
       pointerType: 'mouse',
     });
-    expect(document.querySelector('.tip.label')?.textContent).toBe('Rubén Paredes · Administrador');
+    expect(tipLabel()).toBe('Rubén Paredes · Administrador');
     act(() => {
       window.dispatchEvent(new Event('mousemove'));
     });
-    expect(document.querySelector('.tip')).toBeNull();
+    expect(tipShown()).toBe(false);
     stop();
   });
 
@@ -142,18 +146,14 @@ describe('el marco', () => {
     act(() => press('ArrowRight'));
     await act(() => new Promise((resolve) => setTimeout(resolve)));
     const panel = screen.getByRole('list', { name: 'Más' });
-    expect(
-      within(panel)
-        .getByRole('button', { name: /Anomalías/ })
-        .classList.contains('marked'),
-    ).toBe(true);
-    expect(panel.classList.contains('side-panel')).toBe(true);
+    expect(isMarked(within(panel).getByRole('button', { name: /Anomalías/ }))).toBe(true);
+    expect(isSidePanel(panel)).toBe(true);
     act(() => alt('Alt'));
-    expect(panel.classList.contains('show-keys')).toBe(true);
+    expect(showsKeys(panel)).toBe(true);
     act(() => press('Escape'));
     await act(() => new Promise((resolve) => setTimeout(resolve)));
     expect(screen.queryByRole('list', { name: 'Más' })).toBeNull();
-    expect(more.classList.contains('marked')).toBe(true);
+    expect(isMarked(more)).toBe(true);
     stop();
   });
 
@@ -182,13 +182,11 @@ describe('el marco', () => {
     const initials = screen.getByRole('button', { name: 'Rubén Paredes, Administrador' });
     fireEvent.click(initials);
     expect(initials.getAttribute('aria-expanded')).toBe('true');
-    expect(screen.getByRole('region', { name: 'Tu sesión' }).classList.contains('open')).toBe(true);
+    expect(isOpen(screen.getByRole('region', { name: 'Tu sesión' }))).toBe(true);
     act(() => alt('z'));
     expect(screen.queryByRole('dialog')).toBeNull();
     act(() => press('Escape'));
-    expect(screen.getByRole('region', { name: 'Tu sesión' }).classList.contains('open')).toBe(
-      false,
-    );
+    expect(isOpen(screen.getByRole('region', { name: 'Tu sesión' }))).toBe(false);
     // La luz es del menú: con Alt Z no se abre; con Alt 0 y la Z sola, sí (00 · R2.13).
     act(() => alt('z'));
     expect(screen.queryByRole('dialog')).toBeNull();
@@ -209,7 +207,7 @@ describe('el marco', () => {
       const { side } = open({ testing: false });
       const item = within(side).getByRole('button', { name: /Catálogo/ });
       expect(item.getAttribute('aria-current')).toBe('page');
-      expect(item.querySelector('.coming-soon')).toBeNull();
+      expect(saysSoon(item)).toBe(false);
       expect(within(side).getByRole('button', { name: /Vender/ }).textContent).toContain('Pronto');
       fireEvent.click(item);
       expect(location.pathname).toBe('/catalog');

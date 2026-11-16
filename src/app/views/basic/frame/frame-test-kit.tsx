@@ -1,6 +1,6 @@
 // Lo que comparten las pruebas del marco: una persona de ejemplo, el ancho y el movimiento que
 // contesta matchMedia, abrir el marco y las teclas.
-import { render, screen } from '@testing-library/preact';
+import { render, screen, within } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
 import { moreOptions, type Option } from '../../../modules/frame/model.ts';
 import { stubMedia } from '../../../testing/media.ts';
@@ -83,3 +83,34 @@ export function withoutScreens(run: () => void): void {
 
 // Los roles que se ven tachados («Ya no tenés permiso»): los que le sacaron.
 export const goneRoles = (dialog: HTMLElement) => [...dialog.querySelectorAll('.pill-gone')];
+
+// El nombre que muestra cada parte del menú.
+export const partName = (button: Element) => button.querySelector('.part-name')?.textContent;
+// El cartel del ambiente de pruebas.
+export const testBanner = () => document.querySelector('.test-banner')?.textContent;
+// Si una parte del menú dice que no está acá (se sacude y lo dice).
+export const isNotHere = (button: Element) => button.classList.contains('not-here');
+// El marco y sus estados: minimizado, Más abierto en el celular.
+export const frameElement = () => document.querySelector('.frame') as HTMLElement;
+export const moreOpenOnPhone = () => frameElement().classList.contains('more-open');
+// El rótulo o el globo que aparece junto al menú, y si hay alguno.
+export const tipLabel = () => document.querySelector('.tip.label')?.textContent;
+export const tipShown = () => document.querySelector('.tip') !== null;
+// Si lo que sale al costado del menú es un panel, y si está abierto.
+export const isSidePanel = (element: Element) => element.classList.contains('side-panel');
+export const isOpen = (element: Element) => element.classList.contains('open');
+// Más en el celular: sus grupos, los nombres del primero y si una opción está marcada como urgente.
+export const phoneGroups = (more: Element) => [...more.querySelectorAll('.phone-more-group')];
+export const firstGroupNames = (more: Element) =>
+  within(phoneGroups(more)[0] as HTMLElement)
+    .getAllByRole('button')
+    .map((button) => button.querySelector('b')?.textContent);
+export const isUrgent = (option: Element) =>
+  option.querySelector('.phone-more-icon.urgent') !== null;
+// El logotipo y la luz de la conexión, arriba en el celular.
+export const phoneLogoShown = () => document.querySelector('.phone-logo') !== null;
+export const phoneLight = () => document.querySelector('.phone-light') as HTMLElement;
+// El camino de Más en una pantalla: «Más» en la computadora y «‹ Más» en el celular; y Más en el menú.
+export const crumbMore = () => document.querySelector('.more-crumbs button') as HTMLElement;
+export const backToMore = () => document.querySelector('.more-back') as HTMLElement;
+export const moreInMenu = (side: Element) => side.querySelector('.part.more') as HTMLElement;

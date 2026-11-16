@@ -3,7 +3,14 @@
 import type { AuditDay } from '@ferrebress/shared/contracts/audit-log';
 import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { detail, events, openAuditLog, rows } from '../../views/basic/audit-log/audit-test-kit.tsx';
+import {
+  all,
+  detail,
+  events,
+  one,
+  openAuditLog,
+  rows,
+} from '../../views/basic/audit-log/audit-test-kit.tsx';
 import { stepMs } from './tape.ts';
 
 const today = events.slice(0, 4).toReversed();
@@ -21,11 +28,11 @@ const day = (more: Partial<AuditDay> = {}): AuditDay => ({
   ...more,
 });
 const dayPath = (date: string) => `/api/audit-log/day?date=${date}`;
-const subtitle = () => document.querySelector('.tape-subtitle')?.textContent ?? '';
+const subtitle = () => one('subtitle')?.textContent ?? '';
 // Toca la tira en ese punto, de 0 a 1 (con una tira de 1000 px de ancho).
 async function touchStrip(at: number) {
   const strip = await screen.findByRole('button', { name: 'Ver el día como una grabación' });
-  const rail = strip.querySelector('.audit-rail') as HTMLElement;
+  const rail = one('rail', strip) as HTMLElement;
   rail.getBoundingClientRect = () => ({ left: 0, width: 1000 }) as DOMRect;
   fireEvent.click(strip, { clientX: at * 1000, detail: 1 });
 }
@@ -43,9 +50,9 @@ describe('la cinta', () => {
     await waitFor(() => expect(subtitle()).toContain('Ana Gómez le sacó el rol Cajero a Martín'));
     expect(server.sent.at(-1)?.path).toBe(dayPath('2026-10-28'));
     expect(screen.getByRole('dialog', { name: 'El día, como una grabación' })).toBeTruthy();
-    expect(document.querySelector('.tape-line.on')).toBeTruthy();
-    expect(document.querySelectorAll('.tape-lane')).toHaveLength(3);
-    expect(document.querySelector('.tape-lane')?.textContent).toContain('Alguien sin entrar');
+    expect(one('activeLine')).toBeTruthy();
+    expect(all('lane')).toHaveLength(3);
+    expect(one('lane')?.textContent).toContain('Alguien sin entrar');
   });
 
   it('audit-log-E44, E42: ← → de a una, sin pasarse; cerrar vuelve a la lista como estaba', async () => {
@@ -67,7 +74,7 @@ describe('la cinta', () => {
     fireEvent.click(button(/Acción anterior/));
     expect(subtitle()).toContain('intentó entrar con un correo no autorizado');
     // Tocar un punto lleva el cabezal ahí.
-    fireEvent.click(document.querySelector('.tape-dot') as HTMLElement);
+    fireEvent.click(one('dot') as HTMLElement);
     expect(subtitle()).toContain('no se pudo confirmar');
     fireEvent.click(screen.getAllByRole('button', { name: /Cerrar/ })[0] as HTMLElement);
     expect(screen.queryByRole('dialog')).toBeNull();
@@ -91,7 +98,7 @@ describe('la cinta', () => {
     // Tocar el botón no lo detiene (lo hace el botón); tocar cualquier otra cosa, sí.
     fireEvent.pointerDown(button(/Pausar/));
     expect(button(/Pausar/)).toBeTruthy();
-    fireEvent.pointerDown(document.querySelector('.tape-board') as HTMLElement);
+    fireEvent.pointerDown(one('board') as HTMLElement);
     expect(button(/Reproducir el día/)).toBeTruthy();
     // El botón espera a que termine lo que hizo antes de aceptar otro toque.
     await act(async () => undefined);
@@ -122,9 +129,9 @@ describe('la cinta', () => {
     expect(outsider.getAttribute('aria-pressed')).toBe('true');
     expect(subtitle()).toContain('intentó entrar');
     expect(button(/Acción siguiente/).disabled).toBe(true);
-    expect(document.querySelectorAll('.tape-dot.off')).toHaveLength(3);
+    expect(all('offDot')).toHaveLength(3);
     fireEvent.click(outsider);
-    expect(document.querySelectorAll('.tape-dot.off')).toHaveLength(0);
+    expect(all('offDot')).toHaveLength(0);
     // Al aislar a alguien que no está en el cabezal, el cabezal va a su primera acción.
     fireEvent.click(button(/Ver solo a Ana Gómez/));
     expect(subtitle()).toContain('cambió los permisos');
@@ -134,7 +141,7 @@ describe('la cinta', () => {
     openAuditLog({ [dayPath('2026-10-28')]: { body: day() } });
     await touchStrip(0.95);
     await waitFor(() => expect(subtitle()).toContain('le sacó el rol Cajero'));
-    const track = document.querySelector('.tape-track') as HTMLElement;
+    const track = one('track') as HTMLElement;
     track.getBoundingClientRect = () => ({ left: 0, top: 0, width: 1000, height: 400 }) as DOMRect;
     let captured = false;
     track.setPointerCapture = () => {
@@ -154,10 +161,10 @@ describe('la cinta', () => {
     await touchStrip(0.95);
     await waitFor(() => expect(subtitle()).toContain('le sacó'));
     fireEvent.click(button(/Ver solo a Ana Gómez/));
-    const closing = () => document.querySelector<HTMLElement>('.tape [data-close]');
+    const closing = () => one('tapeClose');
     expect(closing()?.getAttribute('aria-label')).toMatch(/Ver solo a Ana Gómez/);
     fireEvent.click(closing() as HTMLElement);
-    expect(document.querySelectorAll('.tape-dot.off')).toHaveLength(0);
+    expect(all('offDot')).toHaveLength(0);
     fireEvent.click(closing() as HTMLElement);
     expect(screen.queryByRole('dialog')).toBeNull();
   });
@@ -168,7 +175,7 @@ describe('la cinta', () => {
     await waitFor(() => expect((see as HTMLButtonElement).disabled).toBe(false));
     fireEvent.click(see);
     await waitFor(() => expect(subtitle()).toContain('no se pudo confirmar'));
-    const tape = document.querySelector('.tape') as HTMLElement;
+    const tape = one('tape') as HTMLElement;
     const swipe = (dx: number) => {
       fireEvent.pointerDown(tape, { clientX: 200, clientY: 300 });
       fireEvent.pointerUp(tape, { clientX: 200 + dx, clientY: 300 });
@@ -183,7 +190,7 @@ describe('la cinta', () => {
     swipe(80);
     expect(subtitle()).toContain('no se pudo confirmar');
     // En el celular el tiempo va hacia abajo: el cabezal se arrastra de arriba abajo.
-    const track = document.querySelector('.tape-track') as HTMLElement;
+    const track = one('track') as HTMLElement;
     track.getBoundingClientRect = () => ({ left: 0, top: 0, width: 300, height: 1000 }) as DOMRect;
     fireEvent.pointerDown(track, { clientX: 0, clientY: 1000, pointerId: 1 });
     expect(subtitle()).toContain('le sacó el rol Cajero');
@@ -208,7 +215,7 @@ describe('la cinta', () => {
     });
     await touchStrip(0.95);
     await waitFor(() => expect(subtitle()).toContain('le sacó'));
-    const days = () => [...document.querySelectorAll<HTMLElement>('.tape-day')];
+    const days = () => all('tapeDay');
     expect(days().at(-1)?.textContent).toContain('Hoy');
     fireEvent.click(days()[5] as HTMLElement);
     await waitFor(() =>
@@ -226,7 +233,7 @@ describe('la cinta', () => {
     await waitFor(() => expect((see as HTMLButtonElement).disabled).toBe(false));
     fireEvent.click(see);
     await waitFor(() => expect(subtitle()).toContain('no se pudo confirmar'));
-    expect(document.querySelector('.tape.vertical')).toBeTruthy();
+    expect(one('verticalTape')).toBeTruthy();
     act(() => {
       window.dispatchEvent(new PopStateEvent('popstate'));
     });
@@ -237,6 +244,6 @@ describe('la cinta', () => {
     openAuditLog({ [dayPath('2026-10-28')]: { status: 500, body: { error: 'unexpected' } } });
     await touchStrip(0.95);
     await waitFor(() => expect(screen.getByRole('dialog')).toBeTruthy());
-    expect(document.querySelector('.tape-board')).toBeNull();
+    expect(one('board')).toBeNull();
   });
 });
