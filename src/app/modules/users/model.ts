@@ -1,5 +1,8 @@
 // Lo que las vistas usan de este módulo (ADR-019): sus modelos, sus textos y las cuentas que
 // muestran. Las vistas no importan nada más del módulo; index.ts es lo que va en el arranque.
+
+// Los íconos de cada permiso y de cada grupo, que son del marco.
+export { groupIcons, permissionIcons } from '../frame/index.ts';
 export {
   activate,
   authorize,

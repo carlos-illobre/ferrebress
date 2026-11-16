@@ -27,6 +27,7 @@ export {
   partsFor,
   unavailable,
 } from './menu.ts';
+export { words as noPermissionWords } from './no-permission-texts.ts';
 export { type Crash, crash, saveReport } from './notices/crash/crash.ts';
 export { dismissed, update } from './notices/update/update.ts';
 export {

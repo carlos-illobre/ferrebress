@@ -9,10 +9,11 @@ import {
   permissions,
 } from '@ferrebress/shared/contracts/permissions';
 import { useState } from 'preact/hooks';
-import { groupIcons, permissionIcons } from '../../../../../modules/frame/index.ts';
 import {
   type Draft,
   type DraftErrors,
+  groupIcons,
+  permissionIcons,
   rolesTexts as t,
   tiedBy,
   toggle,

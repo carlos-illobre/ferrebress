@@ -49,6 +49,33 @@ module.exports = {
       from: { pathNot: ['^src/server/main\\.ts$', '^src/server/adapters/'] },
       to: { path: '^src/server/adapters/' },
     },
+    // La vista separada de la lógica (ADR-019): la lógica no conoce ninguna vista, ni sus piezas.
+    {
+      name: 'la-logica-no-importa-vistas',
+      severity: 'error',
+      from: { path: '^src/app/(modules|platform|shell)/', pathNot: '-kit\\.tsx$' },
+      to: { path: ['^src/app/(views|ui|styles)/', '\\.(tsx|css)$'] },
+    },
+    {
+      name: 'la-vista-solo-usa-el-modelo',
+      severity: 'error',
+      from: { path: '^src/app/views/', pathNot: 'kit\\.tsx$' },
+      to: { path: '^src/app/modules/', pathNot: '^src/app/modules/[^/]+/model\\.ts$' },
+    },
+    {
+      // Mientras dure T134, avisa: lo que la vista usa de la plataforma tiene que pasar a platform/view.
+      name: 'la-vista-solo-usa-el-contrato',
+      severity: 'warn',
+      from: { path: '^src/app/views/', pathNot: 'kit\\.tsx$' },
+      to: { path: '^src/app/platform/', pathNot: '^src/app/platform/view/' },
+    },
+    {
+      // Las capas del teclado se encuentran solas (ADR-020): nadie las importa.
+      name: 'nadie-importa-el-teclado',
+      severity: 'error',
+      from: { path: '^src/app/', pathNot: ['^src/app/keyboard/', '^src/app/testing/'] },
+      to: { path: ['^src/app/keyboard/', '^src/app/modules/[^/]+/shortcuts/'] },
+    },
     {
       name: 'reglas-sin-tecnologia',
       severity: 'error',

@@ -1,5 +1,8 @@
 // Lo que las vistas usan de este módulo (ADR-019): sus modelos, sus textos y las cuentas que
 // muestran. Las vistas no importan nada más del módulo; index.ts es lo que va en el arranque.
+
+// El lugar del vínculo en el marco.
+export type { FrameLink } from '../frame/index.ts';
 export { linkRuntime, linkStrip } from './current.ts';
 export { type Act, choicesOf } from './detail/choices.ts';
 export { detailOpen, reading, unpairAsked } from './detail/open.ts';

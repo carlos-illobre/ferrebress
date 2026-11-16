@@ -7,11 +7,11 @@ import type { HoldersResponse } from '@ferrebress/shared/contracts/roles';
 import type { Option } from '../../../../modules/frame/model.ts';
 import {
   initials,
+  noPermissionWords,
   permissionIcons,
   useFrame,
   useNoPermission,
 } from '../../../../modules/frame/model.ts';
-import { words } from '../../../../modules/frame/no-permission-texts.ts';
 import { Button } from '../../../../ui/button/Button.tsx';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
 import { Say } from '../../../../ui/say/Say.tsx';
@@ -30,27 +30,27 @@ export function NoPermission({
   const { person } = useFrame();
   const { permission, holders, address, copy } = useNoPermission(person, option);
   return (
-    <section class="surface no-permission" aria-label={words.title(option.name)}>
+    <section class="surface no-permission" aria-label={noPermissionWords.title(option.name)}>
       <div class="no-permission-door" aria-hidden="true">
         <Icon name="lock" size="huge" />
       </div>
       <div class="no-permission-body">
-        <h1>{words.title(option.name)}</h1>
-        <p class="no-permission-path">{words.opened(address)}</p>
+        <h1>{noPermissionWords.title(option.name)}</h1>
+        <p class="no-permission-path">{noPermissionWords.opened(address)}</p>
         <div class="no-permission-needs">
           <span class="no-permission-icon">
             <Icon name={permissionIcons[option.permission]} />
           </span>
           <div>
             <b>
-              <Say words={words.needs} /> «{permission.name}»
+              <Say words={noPermissionWords.needs} /> «{permission.name}»
             </b>
             <small>{permission.explanation}</small>
           </div>
         </div>
         {holders && <Holders holders={holders} />}
         <p class="no-permission-yours">
-          {words.yours}
+          {noPermissionWords.yours}
           {person.roles.map((role) => (
             <span key={role.id} class="pill">
               {role.name}
@@ -58,11 +58,17 @@ export function NoPermission({
           ))}
         </p>
         <div class="no-permission-actions">
-          <Button look="action" icon={first.icon} doing={words.going} onPress={go} primary>
-            {words.goTo(first.name)}
+          <Button
+            look="action"
+            icon={first.icon}
+            doing={noPermissionWords.going}
+            onPress={go}
+            primary
+          >
+            {noPermissionWords.goTo(first.name)}
           </Button>
-          <Button icon="copy" doing={words.copying} onPress={copy} shortcut="c">
-            {words.copy}
+          <Button icon="copy" doing={noPermissionWords.copying} onPress={copy} shortcut="c">
+            {noPermissionWords.copy}
           </Button>
         </div>
       </div>
@@ -76,11 +82,11 @@ function Holders({ holders }: { holders: HoldersResponse }) {
   return (
     <>
       <div class="no-permission-head">
-        <span>{words.holders}</span>
-        <span>{words.count(holders.roles.length, people)}</span>
+        <span>{noPermissionWords.holders}</span>
+        <span>{noPermissionWords.count(holders.roles.length, people)}</span>
       </div>
       {holders.roles.length === 0 ? (
-        <p class="no-permission-nobody">{words.nobody}</p>
+        <p class="no-permission-nobody">{noPermissionWords.nobody}</p>
       ) : (
         <ul class="no-permission-roles" data-private="">
           {holders.roles.map((role) => (
@@ -96,14 +102,14 @@ function Holders({ holders }: { holders: HoldersResponse }) {
                   </span>
                 ))}
               </span>
-              <small>{words.people(role.people.length)}</small>
+              <small>{noPermissionWords.people(role.people.length)}</small>
             </li>
           ))}
         </ul>
       )}
       {holders.grantedBy.length > 0 && (
         <p class="no-permission-granted" data-private="">
-          <Say words={words.grantedBy} />{' '}
+          <Say words={noPermissionWords.grantedBy} />{' '}
           {holders.grantedBy.map((name, index) => (
             <span key={name}>
               {index > 0 && (index === holders.grantedBy.length - 1 ? ' o ' : ', ')}

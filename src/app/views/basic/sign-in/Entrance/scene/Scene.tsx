@@ -3,7 +3,6 @@
 // de muestra, el estado de la conexión y los sellos en la computadora; el lema, para qué sirve y
 // la ola en el celular.
 
-import { manualPath } from '../../../../../modules/manual/index.ts';
 import {
   texts,
   useEntrance,

@@ -1,13 +1,13 @@
 // Las piezas del vínculo que el marco pone en su lugar (diseño de 03, § 13): los dos indicadores, en el
 // arranque, y lo que abren (el detalle), que se baja recién cuando el vínculo llegó y algo se abre.
 
+import type { FrameLink } from '../../../modules/device-link/model.ts';
 import {
   detailOpen,
   linkRuntime,
   reading,
   unpairAsked,
 } from '../../../modules/device-link/model.ts';
-import type { FrameLink } from '../../../modules/frame/index.ts';
 import { useLoaded } from '../../../platform/lazy.ts';
 import { useStore } from '../../../platform/store.ts';
 import { PhoneIndicator, SideIndicator } from './Indicator/Indicator.tsx';

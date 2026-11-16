@@ -16,6 +16,7 @@ import { findUnmarkedState } from './checks/local-state.ts';
 import { findLooseTimes } from './checks/loose-times.ts';
 import { findLooseManual } from './checks/manual-code.ts';
 import { findRawHtml } from './checks/raw-html.ts';
+import { findLogicInViews, pendingViews } from './checks/view-logic.ts';
 import { buildManual } from './manual/build.ts';
 
 const root = process.cwd();
@@ -25,6 +26,7 @@ const checks: Record<string, () => string[]> = {
   headers: () => findFilesWithoutHeader(root),
   html: () => [...findRawHtml(root), ...findLooseTimes(root)],
   local: () => findUnmarkedState(root),
+  views: () => findLogicInViews(root, pendingViews),
   manual: () =>
     buildManual(join(root, 'docs/manual'), 'check', new Set(Object.keys(manualIcons))).problems,
   boot: () => {
