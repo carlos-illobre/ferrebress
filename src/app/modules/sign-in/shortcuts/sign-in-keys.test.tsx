@@ -6,10 +6,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeServer } from '../../../testing/fake-server.ts';
 import { startKeyboard } from '../../../testing/keyboard.ts';
 import { later } from '../../../testing/later.ts';
+import { keyShown } from '../../../views/basic/kit.ts';
 import { Entrance } from '../../../views/basic/sign-in/index.ts';
 import { person } from '../session.ts';
 import { signInSettings } from '../settings.ts';
-import { googleFrame, startReply } from '../sign-in-test-kit.ts';
+import { googleFrame, googlePlace, startReply } from '../sign-in-test-kit.ts';
 
 const start = startReply().body as Parameters<typeof Entrance>[0]['start'];
 const alt = (letter: string) =>
@@ -34,7 +35,7 @@ describe('la entrada con los atajos', () => {
     googleFrame();
     render(<Entrance start={start} onScan={vi.fn()} signInFirst={false} onStale={vi.fn()} />);
     const manual = screen.getByRole('button', { name: /Ver el manual/ });
-    expect(manual.querySelector('kbd')?.textContent).toBe('M');
+    expect(keyShown(manual)).toBe('M');
     alt('M');
     expect(location.pathname).toBe('/manual');
   });
@@ -42,13 +43,11 @@ describe('la entrada con los atajos', () => {
   it('app-E12: Google que no cargó muestra «Reintentar» con su tecla, y Alt R lo carga de nuevo', async () => {
     googleFrame();
     render(<Entrance start={start} onScan={vi.fn()} signInFirst={false} onStale={vi.fn()} />);
-    const place = screen
-      .getByRole('region', { name: 'Entrar' })
-      .querySelector('.google') as HTMLElement;
+    const place = googlePlace();
     await later(signInSettings.google.failAfterMs);
     expect(place.dataset.phase).toBe('failed');
     const retry = screen.getByRole('button', { name: /Reintentar/ });
-    expect(retry.querySelector('kbd')?.textContent).toBe('R');
+    expect(keyShown(retry)).toBe('R');
     alt('R');
     expect(place.dataset.phase).toBe('empty');
   });

@@ -7,6 +7,8 @@ import { mirror, type Patch } from '../../platform/mirror/registry.ts';
 import { timeFormat } from '../../platform/time.ts';
 import { stubMedia } from '../../testing/media.ts';
 import {
+  all,
+  one,
   openAdministration,
   option,
   saveOf,
@@ -26,7 +28,7 @@ describe('Administración, los bordes', () => {
       },
     });
     fireEvent.click(await screen.findByRole('tab', { name: /Días del vínculo/ }));
-    expect(document.querySelectorAll('.admin-weeks i')).toHaveLength(26);
+    expect(all('weeks')).toHaveLength(26);
     fireEvent.click(screen.getByRole('button', { name: '7' }));
     expect(
       await screen.findByText('Lo cambió otra persona recién: ahora vale 15 días.'),
@@ -93,7 +95,7 @@ describe('Administración con el teclado y el espejo', () => {
     timeFormat.set('h12');
     openAdministration();
     fireEvent.click(await screen.findByRole('tab', { name: /Zona horaria/ }));
-    expect(document.querySelector('.admin-clock-time')?.textContent).toMatch(/2:30\sp\.\s?m\./);
+    expect(one('clockTime')?.textContent).toMatch(/2:30\sp\.\s?m\./);
     timeFormat.set('h24');
   });
 });
@@ -103,10 +105,10 @@ describe('los días del vínculo, escritos mal', () => {
     openAdministration();
     fireEvent.click(await screen.findByRole('tab', { name: /Días del vínculo/ }));
     const field = screen.getByRole('textbox', { name: 'Días del vínculo' }) as HTMLInputElement;
-    const expires = document.querySelector('.admin-big b')?.textContent;
+    const expires = one('bigNumber')?.textContent;
     fireEvent.input(field, { target: { value: 'abc' } });
     await waitFor(() => expect(field.value).toBe('abc'));
-    expect(document.querySelector('.admin-big b')?.textContent).toBe(expires);
+    expect(one('bigNumber')?.textContent).toBe(expires);
     fireEvent.input(field, { target: { value: '99999999999' } });
     await waitFor(() => expect(field.value).toBe('99999999999'));
     fireEvent.focusOut(field);

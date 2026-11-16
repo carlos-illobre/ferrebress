@@ -38,3 +38,5 @@ export const settle = () => act(async () => {});
 // La barra de arriba de un rol, en el celular, y «‹ Roles».
 export const phoneBar = () => within(document.querySelector('.role-phone-bar') as HTMLElement);
 export const backToRoles = () => document.querySelector('.role-crumbs .role-back') as HTMLElement;
+// El renglón de quien tiene el rol, por su nombre.
+export const holder = (name: string) => within(role().getByText(name).closest('li') as HTMLElement);

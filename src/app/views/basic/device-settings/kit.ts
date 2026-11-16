@@ -10,3 +10,15 @@ export const seenText = () =>
 
 // Los dos botones del formato de la hora: 24 h y 12 h.
 export const formats = () => [...document.querySelectorAll<HTMLElement>('.settings-format')];
+
+// Las partes de «Este dispositivo» y de lo tuyo que las pruebas miran (ADR-019).
+const parts = {
+  shining: '.mine-device.shines',
+  serverOffline: '.mine-server.is-offline',
+  load: '.mine-load',
+  counts: '.mine-counts',
+} as const;
+export const one = (name: keyof typeof parts) => document.querySelector<HTMLElement>(parts[name]);
+// La tarjeta de un dispositivo, por su título, y el recibo de lo que se cortó.
+export const articleOf = (element: Element) => element.closest('article') as HTMLElement;
+export const receiptOf = (element: Element) => element.closest('.mine-receipt') as HTMLElement;

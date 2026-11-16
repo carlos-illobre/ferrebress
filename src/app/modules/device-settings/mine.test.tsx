@@ -10,8 +10,10 @@ import { fakeServer, type Reply } from '../../testing/fake-server.ts';
 import { inApp } from '../../testing/link-screens.ts';
 import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
+import { articleOf, one, receiptOf } from '../../views/basic/device-settings/kit.ts';
 import { Settings } from '../../views/basic/device-settings/Settings/Settings.tsx';
 import { open } from '../../views/basic/frame/frame-test-kit.tsx';
+import { toastText } from '../../views/basic/kit.ts';
 import { person } from '../sign-in/index.ts';
 
 const ana = { userId: 'u1', name: 'Ana Gómez', email: 'ana@example.com', ...administrator };
@@ -65,9 +67,8 @@ function openMine(routes: Record<string, Reply | Reply[]>, phone = false) {
   open({ who: ana, screens: { deviceSettings: Settings } });
   return server;
 }
-const family = (name: string) =>
-  screen.getByRole('heading', { name }).closest('article') as HTMLElement;
-const toast = () => document.querySelector('.toast')?.textContent;
+const family = (name: string) => articleOf(screen.getByRole('heading', { name }));
+const toast = toastText;
 
 describe('lo mío en Configuración', () => {
   afterEach(() => {
@@ -88,7 +89,7 @@ describe('lo mío en Configuración', () => {
     expect(ruben.getByText('Todavía no se usó')).toBeTruthy();
     expect(ruben.getByText('Caja 2')).toBeTruthy();
     expect(within(family('Chrome en Android')).getByText('Sin nombre')).toBeTruthy();
-    expect(document.querySelector('.mine-counts')?.textContent).toContain('Sesiones abiertas3');
+    expect(one('counts')?.textContent).toContain('Sesiones abiertas3');
   });
 
   it('device-settings-E48: «Cerrar» una sin confirmación y «Cerrar todas» después de confirmar', async () => {
@@ -134,7 +135,7 @@ describe('lo mío en Configuración', () => {
     expect(
       ruben.queryByRole('button', { name: /Cerrar la sesión de Chrome en Windows/ }),
     ).toBeNull();
-    expect(document.querySelector('.mine-counts')?.textContent).toContain('Sesiones abiertas1');
+    expect(one('counts')?.textContent).toContain('Sesiones abiertas1');
     act(() => online.set(false));
     expect(screen.getByText('Sin conexión: lo tuyo está en el servidor')).toBeTruthy();
     act(() => online.set(true));
@@ -153,7 +154,7 @@ describe('lo mío en Configuración', () => {
     fireEvent.pointerDown(lost);
     fireEvent.click(lost);
     const receipt = await screen.findByText('Cortaste Celu de Rubén');
-    const box = receipt.closest('.mine-receipt') as HTMLElement;
+    const box = receiptOf(receipt);
     expect(box.textContent).toContain('Su sesión');
     expect(box.textContent).toContain('La sesión de Caja 2, que entró con su código');
     expect(box.textContent).toContain('Su huella');

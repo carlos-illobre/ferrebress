@@ -1,6 +1,6 @@
 // Lo que comparten las pruebas de la entrada: una persona, las respuestas del servidor al entrar y
 // un navegador con huella de mentira (WebAuthn y su JSON).
-import { act } from '@testing-library/preact';
+import { act, screen } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
 import { administrator } from '../../testing/person.ts';
 
@@ -80,3 +80,31 @@ export function googleFrame(): {
 // Si lo de la tarjeta de la entrada quedó inerte debajo de la espera.
 export const cardInert = (card: HTMLElement) =>
   card.querySelector('.card-body')?.hasAttribute('inert') === true;
+
+// Las partes de la entrada que las pruebas miran y que no tienen rol ni texto propio: solo este
+// conductor sabe cómo están armadas (ADR-019).
+const parts = {
+  qr: '.qr',
+  qrDrawn: '.qr svg path',
+  qrRead: '.qr.read',
+  note: '.note',
+  testBanner: '.test-banner',
+  deviceName: '.status-device',
+  google: '.google',
+  googleFrameElement: 'iframe',
+} as const;
+type Part = keyof typeof parts;
+
+export const one = (name: Part, root: ParentNode = document) =>
+  root.querySelector<HTMLElement>(parts[name]);
+// El lugar del botón de Google en la entrada.
+export const googlePlace = () =>
+  one('google', screen.getByRole('region', { name: 'Entrar' })) as HTMLElement;
+// Si el botón de Google llegó después de verse el hilo, y si quedó apagado.
+export const arrivedLate = (place: Element) => place.classList.contains('arrived');
+export const isOff = (place: Element) => place.classList.contains('off');
+// El botón de Google apagado: gris y sin poder tocarse.
+export const googleOff = (card: Element) => {
+  const place = one('google', card) as HTMLElement;
+  return place.hasAttribute('inert') && isOff(place);
+};

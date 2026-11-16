@@ -16,6 +16,7 @@ import { Toasts } from '../ui/toast/Toast.tsx';
 import { Layer as Over } from './Detail/Over.tsx';
 import { frameLink } from './frame-link.tsx';
 import { PhoneIndicator, SideIndicator } from './Indicator/Indicator.tsx';
+import { one } from './kit.tsx';
 
 const hour = 3_600_000;
 beforeEach(() => narrow(false));
@@ -51,9 +52,9 @@ describe('el indicador', () => {
     const runtime = fakeRuntime({ kind: 'direct', pairing: pc, attempt: 'a' });
     const { rerender } = render(<SideIndicator light={light} offline={false} />);
     // La luz va siempre debajo del vínculo, en la misma tarjeta: dice si ya se envió todo.
-    expect(document.querySelector('.link-box > span')?.textContent).toBe('luz');
+    expect(one('boxLabel')?.textContent).toBe('luz');
     rerender(<SideIndicator light={light} offline={true} />);
-    expect(document.querySelector('.link-box[data-offline] > span')?.textContent).toBe('luz');
+    expect(one('offlineBoxLabel')?.textContent).toBe('luz');
     rerender(<SideIndicator light={light} offline={false} />);
     const button = screen.getByRole('button', { name: 'Directo, con otro. Ver el vínculo' });
     expect(button.dataset.tone).toBe('success');
@@ -71,7 +72,7 @@ describe('el indicador', () => {
     render(<PhoneIndicator light={<span>luz</span>} offline={true} />);
     expect(screen.getByText('luz')).toBeTruthy();
     const pill = screen.getByRole('button', { name: /Esperando a la computadora/ });
-    expect(pill.querySelector('.short')?.textContent).toBe('Esperando');
+    expect(one('short', pill)?.textContent).toBe('Esperando');
     fireEvent.click(pill);
     expect(detailOpen.get()).toBe(true);
     linkRuntime.set(undefined);
@@ -81,13 +82,11 @@ describe('el indicador', () => {
     meter.count(2355, ['audit-log.new']);
     fakeRuntime({ kind: 'direct', pairing: pc, attempt: 'a' });
     const side = render(<SideIndicator light={<span>luz</span>} offline={false} />);
-    expect(document.querySelector('.link-box .link-rate')?.textContent).toBe(
-      'Aplicación: 2,3 KB/min',
-    );
+    expect(one('boxRate')?.textContent).toBe('Aplicación: 2,3 KB/min');
     side.unmount();
     fakeRuntime({ kind: 'direct', pairing: phone, attempt: 'a' });
     render(<PhoneIndicator light={<span>luz</span>} offline={false} />);
-    expect(document.querySelector('.link-pill .link-pill-rate')?.textContent).toBe('2,3 KB/min');
+    expect(one('pillRate')?.textContent).toBe('2,3 KB/min');
   });
 
   it('sin nada que mostrar del vínculo, la luz en su lugar; mientras se baja, lo que dijo /api/start', () => {
@@ -194,7 +193,7 @@ describe('el detalle', () => {
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     fireEvent.click(screen.getByRole('button', { name: /Desvincular/ }));
     const dialog = screen.getByRole('alertdialog');
-    fireEvent.click(dialog.querySelector('[data-primary]') as HTMLElement);
+    fireEvent.click(one('primary', dialog) as HTMLElement);
     await waitFor(() =>
       expect(runtime.dispatch).toHaveBeenCalledWith({ type: 'serverSaid', pairing: null }),
     );
@@ -209,7 +208,7 @@ describe('el detalle', () => {
     );
     render(<Over />);
     fireEvent.click(screen.getByRole('button', { name: /Desvincular/ }));
-    fireEvent.click(screen.getByRole('alertdialog').querySelector('[data-primary]') as HTMLElement);
+    fireEvent.click(one('primary', screen.getByRole('alertdialog')) as HTMLElement);
     await new Promise((settled) => setTimeout(settled, 20));
     expect(screen.getByRole('alertdialog')).toBeTruthy();
   });

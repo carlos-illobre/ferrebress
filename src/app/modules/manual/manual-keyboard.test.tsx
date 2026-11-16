@@ -4,10 +4,12 @@ import type { ChapterEntry, Task } from '@ferrebress/shared/contracts/manual';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startKeyboard } from '../../testing/keyboard.ts';
+import { keyShown } from '../../views/basic/kit.ts';
 import {
   chapter,
   index,
   media,
+  one,
   serveManual,
   show,
 } from '../../views/basic/manual/manual-test-kit.tsx';
@@ -32,15 +34,15 @@ describe('el teclado del manual', () => {
     alt('Digit2');
     expect(within(guide()).getByText('Paso 2 de 3')).toBeTruthy();
     alt('KeyV');
-    const first = document.querySelector('video') as HTMLVideoElement;
+    const first = one('video') as HTMLVideoElement;
     fireEvent(first, new Event('ended'));
     alt('KeyV');
     expect(play).toHaveBeenCalledTimes(2);
-    expect(document.querySelector('video')).not.toBe(first);
+    expect(one('video')).not.toBe(first);
     // Alt T abre «Todos los pasos», que muestra su tecla, y Alt T lo cierra.
     alt('KeyT');
     const back = await screen.findByRole('button', { name: /Volver al paso a paso/ });
-    expect(back.querySelector('kbd')?.textContent).toBe('T');
+    expect(keyShown(back)).toBe('T');
     alt('KeyT');
     await waitFor(() =>
       expect(screen.queryByRole('button', { name: /Volver al paso a paso/ })).toBeNull(),

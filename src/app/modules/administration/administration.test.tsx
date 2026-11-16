@@ -5,6 +5,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
 import {
   initial,
+  isOption,
+  one,
   openAdministration,
   option,
   saveOf,
@@ -120,7 +122,7 @@ describe('Administración', () => {
     fireEvent.click(await screen.findByRole('tab', { name: /Zona horaria/ }));
     expect(screen.getByText('Se cambia solo al instalar')).toBeTruthy();
     expect(screen.getByText('Buenos Aires')).toBeTruthy();
-    expect(document.querySelector('.admin-clock-time')?.textContent).toBe('14:30');
+    expect(one('clockTime')?.textContent).toBe('14:30');
   });
 
   it('administration-E32: los tiempos de la sesión, solo de la lista, con lo que harían', async () => {
@@ -129,7 +131,7 @@ describe('Administración', () => {
     expect(
       screen
         .getAllByRole('button')
-        .filter((one) => one.classList.contains('admin-option'))
+        .filter(isOption)
         .map((one) => one.textContent),
     ).toEqual([
       '15 minMás corto',
@@ -159,7 +161,7 @@ describe('Administración', () => {
     });
     fireEvent.click(await screen.findByRole('tab', { name: /Días del vínculo/ }));
     const field = screen.getByRole('textbox', { name: 'Días del vínculo' });
-    const expires = () => document.querySelector('.admin-big b')?.textContent;
+    const expires = () => one('bigNumber')?.textContent;
     const before = expires();
     fireEvent.input(field, { target: { value: '20' } });
     await waitFor(() => expect(expires()).not.toBe(before));

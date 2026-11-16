@@ -10,8 +10,10 @@ import { startKeyboard } from '../../testing/keyboard.ts';
 import { inApp } from '../../testing/link-screens.ts';
 import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
+import { one } from '../../views/basic/device-settings/kit.ts';
 import { Settings } from '../../views/basic/device-settings/Settings/Settings.tsx';
 import { open } from '../../views/basic/frame/frame-test-kit.tsx';
+import { formOf, keyShown, toastText } from '../../views/basic/kit.ts';
 import { person } from '../sign-in/index.ts';
 
 const linking = vi.hoisted(() => ({ result: 'linked' as 'linked' | 'other-account' | undefined }));
@@ -46,7 +48,7 @@ const here = (change: Partial<MyDevicesResponse['here']>): MyDevicesResponse => 
   names: ['Caja'],
 });
 const ok = (body: unknown): Reply => ({ body });
-const toast = () => document.querySelector('.toast')?.textContent;
+const toast = toastText;
 
 function openMine(routes: Record<string, Reply | Reply[]>, phone = true) {
   stubMedia((query) => query.includes('max-width') && phone);
@@ -91,7 +93,7 @@ describe('este dispositivo en Configuración', () => {
       true,
     );
     // Con Enter tampoco se guarda.
-    fireEvent.submit(input().closest('form') as HTMLFormElement);
+    fireEvent.submit(formOf(input()));
     // Esc en la caja lo cancela, por la navegación del teclado.
     const stopKeys = startKeyboard();
     fireEvent.keyDown(input(), { key: 'Escape' });
@@ -104,8 +106,8 @@ describe('este dispositivo en Configuración', () => {
     expect(screen.getByRole('status').textContent).toContain('Otro dispositivo ya se llama así');
     fireEvent.click(screen.getByRole('button', { name: 'Listo' }));
     await waitFor(() => expect(toast()).toBe('Listo: ahora se llama caja'));
-    await waitFor(() => expect(document.querySelector('.mine-device.shines')).toBeTruthy());
-    await waitFor(() => expect(document.querySelector('.mine-device.shines')).toBeNull(), {
+    await waitFor(() => expect(one('shining')).toBeTruthy());
+    await waitFor(() => expect(one('shining')).toBeNull(), {
       timeout: 1500,
     });
     fireEvent.click(await screen.findByRole('button', { name: /Borrar/ }));
@@ -118,12 +120,12 @@ describe('este dispositivo en Configuración', () => {
     const named = { ...here({ isPhone: false, deviceLabel: 'Chrome en Windows' }) };
     openMine({ '/api/me/devices': ok(named) }, false);
     const put = await screen.findByRole('button', { name: /Ponele nombre/ });
-    expect(put.querySelector('kbd')?.textContent).toBe('K');
+    expect(keyShown(put)).toBe('K');
     fireEvent.keyDown(window, { key: 'k', code: 'KeyK', altKey: true });
     await screen.findByRole('textbox');
     const first = screen
       .getAllByRole('button')
-      .find((button) => button.querySelector('kbd')?.textContent === '1') as HTMLElement;
+      .find((button) => keyShown(button) === '1') as HTMLElement;
     fireEvent.keyDown(window, { key: '1', code: 'Digit1', altKey: true });
     expect(`${(input() as HTMLInputElement).value}1`).toBe(first.textContent);
     stop();
@@ -208,7 +210,7 @@ describe('este dispositivo en Configuración', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Listo' }));
     await waitFor(() => expect(toast()).toBe('No se pudo: probá de nuevo'));
     expect(await screen.findByText('Sin conexión: lo tuyo está en el servidor')).toBeTruthy();
-    expect(document.querySelector('.mine-server.is-offline')).toBeTruthy();
+    expect(one('serverOffline')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Reintentar/ }));
     await waitFor(() =>
       expect(screen.queryByText('Sin conexión: lo tuyo está en el servidor')).toBeNull(),
@@ -222,9 +224,7 @@ describe('este dispositivo en Configuración', () => {
     expect(await screen.findByText('Sin conexión: lo tuyo está en el servidor')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Reintentar/ }));
     expect(await screen.findByText('No se pudo traer lo tuyo')).toBeTruthy();
-    fireEvent.click(
-      within(document.querySelector('.mine-load') as HTMLElement).getByRole('button'),
-    );
+    fireEvent.click(within(one('load') as HTMLElement).getByRole('button'));
     expect(
       await screen.findByText('No tenés nada abierto en otro dispositivo. Solo este celular.'),
     ).toBeTruthy();

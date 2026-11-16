@@ -14,6 +14,7 @@ import { createStore } from '../../../platform/store.ts';
 import { pairingView, pc } from '../../../testing/pairing.ts';
 import { Code } from './Code/Code.tsx';
 import { Layer } from './Detail/Over.tsx';
+import { one } from './kit.tsx';
 import { Read } from './Read/Read.tsx';
 
 let topic: TopicHandler | undefined;
@@ -68,7 +69,7 @@ describe('el código de la computadora', () => {
     expect(screen.getByText('Se renueva en 1:00')).toBeTruthy();
     expect(screen.getByText(/Ya está vinculada con Chrome en Android/)).toBeTruthy();
     act(() => topic?.onEvent({ code: 'abc' }));
-    await waitFor(() => expect(document.querySelector('.qr-box > svg path')).toBeTruthy());
+    await waitFor(() => expect(one('qrDrawn')).toBeTruthy());
     act(() => {
       vi.advanceTimersByTime(5000);
     });
@@ -79,7 +80,7 @@ describe('el código de la computadora', () => {
     expect(onPaired).not.toHaveBeenCalled();
     act(() => topic?.onEvent({ paired: pc }));
     expect(onPaired).toHaveBeenCalledWith(pc);
-    expect(document.querySelector('.qr-box.read')).toBeTruthy();
+    expect(one('qrRead')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Volver/ }));
     await waitFor(() => expect(onBack).toHaveBeenCalled());
   });

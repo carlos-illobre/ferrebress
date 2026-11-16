@@ -1,6 +1,17 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { loaded, media, serveManual, show } from '../../views/basic/manual/manual-test-kit.tsx';
+import {
+  headerOf,
+  inGuide,
+  isLast,
+  isOpen,
+  loaded,
+  mainOf,
+  media,
+  one,
+  serveManual,
+  show,
+} from '../../views/basic/manual/manual-test-kit.tsx';
 
 const sheet = () => screen.getByRole('main', { hidden: true }) as HTMLElement;
 const search = () => screen.getByRole('searchbox', { name: 'Buscar en el manual' });
@@ -31,27 +42,27 @@ describe('el manual en el celular', () => {
     serveManual();
     const back = show({ device: 'phone' });
     await loaded();
-    expect(document.querySelector('.manual-body')?.classList.contains('in-guide')).toBe(false);
+    expect(inGuide()).toBe(false);
     fireEvent.click(
       screen.getAllByRole('button', { name: /Entrar sin internet/ })[0] as HTMLElement,
     );
     await waitFor(() => expect(within(sheet()).getByText('Prendé la opción.')).toBeTruthy());
-    expect(document.querySelector('.manual-body')?.classList.contains('in-guide')).toBe(true);
+    expect(inGuide()).toBe(true);
     await waitFor(() => expect((history.state as { step?: string } | null)?.step).toBeDefined());
     // «Volver» con la hoja abierta cierra la hoja y sale: dos pasos atrás.
     fireEvent.click(screen.getByRole('button', { name: /Entrada/ }));
     expect(back.go).toHaveBeenCalledWith(1);
     fireEvent.click(within(sheet()).getByRole('button', { name: 'Cerrar' }));
-    expect(document.querySelector('.manual-body')?.classList.contains('in-guide')).toBe(false);
+    expect(inGuide()).toBe(false);
     // El botón atrás del celular también la cierra.
     fireEvent.click(
       screen.getAllByRole('button', { name: /Entrar sin internet/ })[0] as HTMLElement,
     );
-    await waitFor(() => expect(sheet().classList.contains('open')).toBe(true));
+    await waitFor(() => expect(isOpen(sheet())).toBe(true));
     act(() => {
       dispatchEvent(new PopStateEvent('popstate'));
     });
-    expect(sheet().classList.contains('open')).toBe(false);
+    expect(isOpen(sheet())).toBe(false);
   });
 
   it('al agrandar la ventana, el paso a paso deja de ser una hoja', async () => {
@@ -62,18 +73,20 @@ describe('el manual en el celular', () => {
     expect(screen.queryByRole('button', { name: 'Cerrar' })).toBeNull();
     act(() => width.changeWidth(false));
     // Arriba, la barra de la computadora, con los dispositivos.
-    expect(screen.getAllByRole('button', { name: /Celular/ })[0]?.closest('header')).toBeTruthy();
+    expect(
+      headerOf(screen.getAllByRole('button', { name: /Celular/ })[0] as HTMLElement),
+    ).toBeTruthy();
   });
 
   it('en el celular el consejo va solo en el último paso; «Seguir» pasa de tarea y «Terminé» cierra la hoja', async () => {
     serveManual();
     show({ device: 'phone', at: '/manual?d=phone&c=sign-in&t=offline&p=2' });
     await waitFor(() => expect(within(sheet()).getByText('Poné la huella.')).toBeTruthy());
-    expect(sheet().classList.contains('last')).toBe(true);
+    expect(isLast(sheet())).toBe(true);
     fireEvent.click(within(sheet()).getByRole('button', { name: /Seguir: Entrar con la huella/ }));
     await waitFor(() => expect(within(sheet()).getByText('Poné el dedo.')).toBeTruthy());
     fireEvent.click(within(sheet()).getByRole('button', { name: /Terminé/ }));
-    expect(sheet().classList.contains('open')).toBe(false);
+    expect(isOpen(sheet())).toBe(false);
   });
 
   it('R6.4: «Trabajar sin conexión» lleva a la tarea de «Entrar» de este dispositivo', async () => {
@@ -115,7 +128,7 @@ describe('el buscador del manual', () => {
     fireEvent.input(search(), { target: { value: 'huella' } });
     const found = await screen.findByText('Entrar · 1 encontrada');
     expect(found).toBeTruthy();
-    expect(document.querySelector('.manual-list mark')?.textContent).toBe('huella');
+    expect(one('found')?.textContent).toBe('huella');
     fireEvent.click(screen.getByRole('button', { name: /Entrar con el celular Poné la huella/ }));
     await waitFor(() =>
       expect(within(screen.getByRole('main')).getByText('Paso 3 de 3')).toBeTruthy(),
@@ -172,9 +185,7 @@ describe('el buscador del manual', () => {
       screen.getAllByRole('button', { name: /Entrar sin internet/ })[0] as HTMLElement,
     );
     const empty = await screen.findByRole('heading', { name: 'Sin conexión' });
-    fireEvent.click(
-      within(empty.closest('main') as HTMLElement).getByRole('button', { name: 'Cerrar' }),
-    );
+    fireEvent.click(within(mainOf(empty)).getByRole('button', { name: 'Cerrar' }));
     expect(screen.queryByRole('heading', { name: 'Sin conexión' })).toBeNull();
   });
 });

@@ -8,6 +8,7 @@ import { fakeRuntime, narrow } from '../../../testing/link-screens.ts';
 import { pairingView, pc } from '../../../testing/pairing.ts';
 import { Toasts } from '../ui/toast/Toast.tsx';
 import { Layer as Over } from './Detail/Over.tsx';
+import { one } from './kit.tsx';
 
 beforeEach(() => {
   narrow(false);
@@ -27,7 +28,7 @@ describe('el detalle en cada lado', () => {
     render(<Over />);
     expect(screen.getByRole('dialog', { name: 'Con la computadora' })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Leer el código/ })).toBeTruthy();
-    fireEvent.click(document.querySelector('.sheet-scrim') as HTMLElement);
+    fireEvent.click(one('scrim') as HTMLElement);
     expect(detailOpen.get()).toBe(false);
   });
 
@@ -41,7 +42,7 @@ describe('el detalle en cada lado', () => {
     render(<Over />);
     fireEvent.click(screen.getByRole('button', { name: /Vincular el celular/ }));
     expect(await screen.findByRole('button', { name: /Volver/ })).toBeTruthy();
-    expect(document.querySelector('.link-sheet')).toBeTruthy();
+    expect(one('sheet')).toBeTruthy();
   });
 
   it('9.2: la frase que habla desde un lado se elige por el lado, no por el ancho', () => {

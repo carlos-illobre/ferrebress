@@ -10,6 +10,8 @@ import {
   ana,
   fakePasskeys,
   googleFrame,
+  googleOff,
+  one,
   phone,
   signInReply,
   startReply,
@@ -41,17 +43,16 @@ describe('la entrada en la computadora', () => {
       [codesPath()]: [{ stream: codesStream(['code', { code: 'c1' }], ['read', {}]) }, 'offline'],
     });
     const { card } = open();
-    await waitFor(() => expect(card.querySelector('.qr svg path')).not.toBeNull());
+    await waitFor(() => expect(one('qrDrawn', card)).not.toBeNull());
     expect(
       within(card).getByRole('img', { name: 'Código para entrar con el celular' }),
     ).toBeTruthy();
     expect(within(card).getByText('Apuntá el celular a este código')).toBeTruthy();
-    await waitFor(() => expect(card.querySelector('.qr.read')).not.toBeNull());
+    await waitFor(() => expect(one('qrRead', card)).not.toBeNull());
     await waitFor(() => expect(within(card).getByText(/Cambia en/).textContent).toMatch(/0:5\d/), {
       timeout: 4000,
     });
-    expect(card.querySelector('.note')).not.toBeNull();
-    expect(document.querySelector('.test-banner')).not.toBeNull();
+    expect([one('note', card), one('testBanner')]).not.toContain(null);
     expect(screen.getByText('En línea')).toBeTruthy();
     expect(screen.getByText('Esta computadora')).toBeTruthy();
   });
@@ -60,7 +61,7 @@ describe('la entrada en la computadora', () => {
     googleFrame();
     fakeServer({ '/api/sign-in/codes': 'waiting', [codesPath()]: 'waiting' });
     open({ given: { ...start, deviceName: 'Compu del mostrador' } });
-    expect(document.querySelector('.status-device')?.textContent).toBe('Compu del mostrador');
+    expect(one('deviceName')?.textContent).toBe('Compu del mostrador');
   });
 
   it('app-E32: «Ver el manual» abre el manual sin haber entrado; sin conexión, gris', () => {
@@ -86,7 +87,7 @@ describe('la entrada en la computadora', () => {
       [codesPath()]: { stream: codesStream(['code', { code: 'c1' }]) },
     });
     const { card } = open();
-    await waitFor(() => expect(card.querySelector('.qr svg path')).not.toBeNull());
+    await waitFor(() => expect(one('qrDrawn', card)).not.toBeNull());
     expect(within(card).queryByRole('button', { name: /Entrar con el celular/ })).toBeNull();
     // Aunque la ventana sea angosta, la computadora no ofrece lo del celular (R2.6).
     expect(within(card).queryByRole('button', { name: /Ingresar con huella/ })).toBeNull();
@@ -109,7 +110,7 @@ describe('la entrada en la computadora', () => {
         location.origin,
       ),
     );
-    const place = document.querySelector('.google') as HTMLElement;
+    const place = one('google') as HTMLElement;
     expect(place.hasAttribute('data-drawn')).toBe(false);
     google.drawn();
     expect(place.hasAttribute('data-drawn')).toBe(true);
@@ -204,7 +205,7 @@ describe('la entrada en el celular', () => {
     expect(google.shown).not.toHaveBeenCalled();
     document.body.innerHTML = '';
     const { card, onScan } = open();
-    expect(card.querySelector('.qr')).toBeNull();
+    expect(one('qr', card)).toBeNull();
     fireEvent.click(within(card).getByRole('button', { name: /Escanear código QR/ }));
     expect(onScan).toHaveBeenCalledOnce();
   });
@@ -237,8 +238,7 @@ describe('la entrada en el celular', () => {
     ).toBe(true);
     // El botón de Google, que es un marco, tampoco se alcanza con el teclado, y se ve gris.
     google.drawn();
-    expect(card.querySelector('.google')?.hasAttribute('inert')).toBe(true);
-    expect(card.querySelector('.google')?.classList.contains('off')).toBe(true);
+    expect(googleOff(card)).toBe(true);
   });
 
   it('sign-in-E16b: si leyó el código sin sesión, le dice que entre primero', () => {

@@ -42,3 +42,6 @@ export const isShaking = (element: Element) => element.classList.contains('shake
 
 // El velo de atrás de un diálogo que frena todo.
 export const veil = () => document.querySelector('.veil') as HTMLElement;
+
+// El formulario de una caja.
+export const formOf = (box: Element) => box.closest('form') as HTMLFormElement;

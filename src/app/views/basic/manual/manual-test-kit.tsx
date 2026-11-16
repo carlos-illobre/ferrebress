@@ -204,3 +204,32 @@ export function show({ device = 'computer', testing = true, at = '/manual' } = {
 }
 
 export const loaded = () => screen.findByRole('heading', { name: '¿Qué querés hacer?' });
+
+// Las partes del manual que las pruebas miran y que no tienen rol ni texto propio: solo este
+// conductor sabe cómo están armadas (ADR-019).
+const parts = {
+  ring: '.manual-ring',
+  ringLabel: '.manual-ring-label',
+  capture: '.manual-capture',
+  veil: '.manual-veil:not(.alone)',
+  veilAlone: '.manual-veil.alone',
+  video: 'video',
+  clipImage: '.manual-clip img',
+  flash: '.flash',
+  body: '.manual-body',
+  found: '.manual-list mark',
+  glyphDrawn: 'svg.icon-large circle',
+  glyph: 'svg',
+} as const;
+type Part = keyof typeof parts;
+
+export const one = (name: Part, root: ParentNode = document) =>
+  root.querySelector<HTMLElement>(parts[name]);
+
+// En el celular: si el paso a paso ocupa la pantalla, y la hoja de abajo abierta o en el último paso.
+export const inGuide = () => one('body')?.classList.contains('in-guide');
+export const isOpen = (sheet: Element) => sheet.classList.contains('open');
+export const isLast = (sheet: Element) => sheet.classList.contains('last');
+// Dónde está algo: en la cabecera o en qué pantalla.
+export const headerOf = (element: Element) => element.closest('header');
+export const mainOf = (element: Element) => element.closest('main') as HTMLElement;

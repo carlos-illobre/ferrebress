@@ -4,6 +4,7 @@ import { route } from '../../platform/router.ts';
 import {
   encRow,
   everyone,
+  holder,
   lucia,
   openRoles,
   role,
@@ -15,7 +16,6 @@ import {
 import { person, roleRows, roles, toast } from '../../views/basic/users/users-test-kit.tsx';
 import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
 
-const holder = (name: string) => within(role().getByText(name).closest('li') as HTMLElement);
 const give = async (name: string) => {
   fireEvent.click(role().getByRole('button', { name: /Darle este rol a…/ }));
   const picker = await screen.findByRole('alertdialog', { name: 'Darle este rol a…' });

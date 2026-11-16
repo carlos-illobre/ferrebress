@@ -5,6 +5,7 @@ import {
   index,
   loaded,
   media,
+  one,
   serveManual,
   show,
 } from '../../views/basic/manual/manual-test-kit.tsx';
@@ -66,7 +67,7 @@ describe('el manual en la computadora', () => {
     expect(within(guide()).getByText('Tocá «Escanear».')).toBeTruthy();
     // El paso del otro dispositivo lo aclara (R6.3).
     expect(within(guide()).getByText('En el celular')).toBeTruthy();
-    expect(guide().querySelector('.manual-ring-label')?.className).toContain('to-right to-up');
+    expect(one('ringLabel', guide())?.className).toContain('to-right to-up');
     expect(within(guide()).getByText('Los dos en el mismo Wi-Fi.')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Paso 3' }));
     expect(within(guide()).getByText('Poné la huella.')).toBeTruthy();
@@ -90,25 +91,23 @@ describe('el manual en la computadora', () => {
       dispatchEvent(new Event('online'));
     });
     await waitFor(() =>
-      expect(guide().querySelector('img[alt="Captura: El código"]')).not.toBeNull(),
+      expect(within(guide()).getByRole('img', { name: 'Captura: El código' })).toBeTruthy(),
     );
     expect(asked.filter((path) => path.endsWith('desktop-entrance.webp'))).toHaveLength(1);
-    const ring = guide().querySelector('.manual-ring') as HTMLElement;
+    const ring = one('ring', guide()) as HTMLElement;
     expect(ring.style.getPropertyValue('left')).toBe('70%');
-    expect(guide().querySelector('.manual-ring-label')?.className).toContain('to-left to-down');
+    expect(one('ringLabel', guide())?.className).toContain('to-left to-down');
     // Una captura de la computadora más alta que el lugar se achica entera.
     vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(1000);
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(300);
     act(() => {
       dispatchEvent(new Event('resize'));
     });
-    expect(
-      guide().querySelector<HTMLElement>('.manual-capture')?.style.getPropertyValue('width'),
-    ).toBe('533px');
+    expect(one('capture', guide())?.style.getPropertyValue('width')).toBe('533px');
     // Un rótulo que no entra en el escenario se corre hacia adentro, de un lado o del otro.
     const rect = (left: number, right: number) =>
       ({ left, right, top: 0, width: right - left, height: 0 }) as DOMRect;
-    const label = guide().querySelector('.manual-ring-label') as HTMLElement;
+    const label = one('ringLabel', guide()) as HTMLElement;
     const layer = label.parentElement as HTMLElement;
     vi.spyOn(layer, 'getBoundingClientRect').mockReturnValue(rect(0, 500));
     vi.spyOn(label, 'getBoundingClientRect').mockReturnValue(rect(450, 600));
@@ -128,10 +127,10 @@ describe('el manual en la computadora', () => {
     serveManual();
     show({ at: '/manual?d=computer&c=sign-in&t=phone&p=3' });
     await waitFor(() => expect(within(guide()).getByText('Poné la huella.')).toBeTruthy());
-    expect(guide().querySelector('.manual-veil:not(.alone)')).not.toBeNull();
+    expect(one('veil', guide())).not.toBeNull();
     serveManual();
     show({ at: '/manual?d=computer&c=sign-in&t=google&p=1' });
-    await waitFor(() => expect(document.querySelector('.manual-veil.alone')).not.toBeNull());
+    await waitFor(() => expect(one('veilAlone')).not.toBeNull());
   });
 
   it('app-E38: el clip está quieto y sin sonido hasta que se lo pide; con «reducir movimiento», el último cuadro', async () => {
@@ -140,9 +139,9 @@ describe('el manual en la computadora', () => {
     Object.defineProperty(HTMLMediaElement.prototype, 'play', { configurable: true, value: play });
     show();
     await waitFor(() => expect(screen.getByRole('button', { name: /Ver el clip/ })).toBeTruthy());
-    expect(document.querySelector('video')).toBeNull();
+    expect(one('video')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: /Ver el clip/ }));
-    const video = document.querySelector('video') as HTMLVideoElement;
+    const video = one('video') as HTMLVideoElement;
     expect(video.getAttribute('preload')).toBe('none');
     expect(video.muted).toBe(true);
     expect(video.getAttribute('src')).toBe('/manual/media/phone-to-computer.webm');
@@ -159,10 +158,8 @@ describe('el manual en la computadora', () => {
     media({ still: true });
     fireEvent.click(screen.getByRole('button', { name: 'Paso 1' }));
     fireEvent.click(screen.getByRole('button', { name: /Ver el clip/ }));
-    expect(document.querySelector('video')).toBeNull();
-    expect(document.querySelector('.manual-clip img')?.getAttribute('src')).toBe(
-      '/manual/media/phone-to-computer.end.webp',
-    );
+    expect(one('video')).toBeNull();
+    expect(one('clipImage')?.getAttribute('src')).toBe('/manual/media/phone-to-computer.end.webp');
   });
 
   it('R6.5: «Todos los pasos» muestra el capítulo entero; desde una tarea llega a ella y destella', async () => {
@@ -174,7 +171,7 @@ describe('el manual en la computadora', () => {
     expect(within(all).getByText('Entrás en la computadora.')).toBeTruthy();
     expect(within(all).getByText('La forma más rápida')).toBeTruthy();
     expect(within(all).getAllByRole('listitem').length).toBeGreaterThan(4);
-    expect(all.querySelector('.flash')?.getAttribute('data-task')).toBe('phone');
+    expect(one('flash', all)?.getAttribute('data-task')).toBe('phone');
     fireEvent.click(within(all).getByRole('button', { name: /Volver al paso a paso/ }));
     expect(screen.queryByRole('region', { name: /todos los pasos/ })).toBeNull();
     fireEvent.click(
@@ -182,9 +179,7 @@ describe('el manual en la computadora', () => {
         name: /Todos los pasos El capítulo entero/,
       })[0] as HTMLElement,
     );
-    expect(
-      screen.getByRole('region', { name: /todos los pasos/ }).querySelector('.flash'),
-    ).toBeNull();
+    expect(one('flash', screen.getByRole('region', { name: /todos los pasos/ }))).toBeNull();
   });
 
   it('app-E37: «Volver» dice a dónde y vuelve; sin hojas abiertas, un paso atrás', async () => {

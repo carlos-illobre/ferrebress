@@ -76,3 +76,16 @@ export const option = (name: RegExp) =>
     .getAllByRole('button', { name })
     .find((one) => one.classList.contains('admin-option')) as HTMLElement;
 export const saveOf = (key: string) => `/api/administration/settings/${key}`;
+
+// Las partes de Administración que las pruebas miran (ADR-019).
+const parts = {
+  weeks: '.admin-weeks i',
+  clockTime: '.admin-clock-time',
+  bigNumber: '.admin-big b',
+} as const;
+export const one = (name: keyof typeof parts) => document.querySelector<HTMLElement>(parts[name]);
+export const all = (name: keyof typeof parts) => [
+  ...document.querySelectorAll<HTMLElement>(parts[name]),
+];
+// Si un botón es una de las opciones de un ajuste.
+export const isOption = (button: Element) => button.classList.contains('admin-option');

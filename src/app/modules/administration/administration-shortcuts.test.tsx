@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { online } from '../../platform/server/api.ts';
 import { startKeyboard } from '../../testing/keyboard.ts';
 import { openAdministration, saveOf, tab } from '../../views/basic/administration/kit.tsx';
+import { keyShown } from '../../views/basic/kit.ts';
 
 const alt = (letter: string) =>
   fireEvent.keyDown(window, { key: letter, code: `Key${letter}`, altKey: true });
@@ -30,7 +31,7 @@ describe('Administración con los atajos', () => {
     ] as const) {
       alt(letter);
       await waitFor(() => expect(tab(name).getAttribute('aria-selected')).toBe('true'));
-      expect(tab(name).querySelector('kbd')?.textContent).toBe(letter);
+      expect(keyShown(tab(name))).toBe(letter);
     }
   });
 

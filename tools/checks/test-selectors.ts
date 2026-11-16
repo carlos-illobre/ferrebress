@@ -27,23 +27,6 @@ export function findHtmlInTests(root: string, pending: readonly string[]): strin
   ];
 }
 
-// Las pruebas que todavía buscan por el HTML (T134).
-export const pendingTests = [
-  'src/app/modules/administration/administration-edges.test.tsx',
-  'src/app/modules/administration/administration-shortcuts.test.tsx',
-  'src/app/modules/administration/administration.test.tsx',
-  'src/app/modules/device-settings/mine-here.test.tsx',
-  'src/app/modules/device-settings/mine.test.tsx',
-  'src/app/modules/manual/manual-keyboard.test.tsx',
-  'src/app/modules/manual/manual-phone.test.tsx',
-  'src/app/modules/manual/manual-screen.test.tsx',
-  'src/app/modules/sign-in/entrance.test.tsx',
-  'src/app/modules/sign-in/google-slot.test.tsx',
-  'src/app/modules/sign-in/shortcuts/sign-in-keys.test.tsx',
-  'src/app/modules/users/users-roles-confirm.test.tsx',
-  'src/app/modules/users/users-roles-guard.test.tsx',
-  'src/app/views/basic/device-link/pairing.test.tsx',
-  'src/app/views/basic/device-link/screens.test.tsx',
-  'src/app/views/basic/device-link/sides.test.tsx',
-  'src/app/views/basic/manual/Glyph/glyph.test.tsx',
-];
+// Las pruebas que todavía buscan por el HTML: ninguna. Si alguna vez hace falta pasar varias de a
+// poco, se anotan acá.
+export const pendingTests: string[] = [];
