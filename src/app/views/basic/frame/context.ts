@@ -1,4 +1,4 @@
-// Lo que comparten las piezas del marco: quién entró, si es el ambiente de pruebas, la conexión, lo
+// Lo que comparten las piezas del marco en la vista básica: quién entró, si es el ambiente de pruebas, la conexión, lo
 // abierto, el menú minimizado y los globos. Lo arma Frame una vez; las piezas lo leen con useFrame.
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { type ComponentChildren, type ComponentType, createContext } from 'preact';
@@ -37,12 +37,6 @@ export type FrameLink = {
 export const FrameContext = createContext<FrameState | undefined>(undefined);
 
 export const useFrame = () => useContext(FrameContext) as FrameState;
-
-// Sus roles, como se leen debajo del nombre (02 · R7.5).
-export const roleNames = (person: { roles: { name: string }[] }) =>
-  person.roles.map((role) => role.name).join(', ');
-
-export { initials } from '../../platform/text.ts';
 
 // La sacudida de lo que no está: se saca la clase y se vuelve a poner para que arranque de nuevo.
 export function shake(element: Element): void {

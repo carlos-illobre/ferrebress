@@ -9,12 +9,12 @@ import {
   initials,
   noPermissionWords,
   permissionIcons,
-  useFrame,
   useNoPermission,
 } from '../../../../modules/frame/model.ts';
 import { Button } from '../../ui/button/Button.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { Say } from '../../ui/say/Say.tsx';
+import { useFrame } from '../context.ts';
 import './NoPermission.css';
 
 // `first`: la primera opción que sí puede usar, y cómo ir (las da el marco).

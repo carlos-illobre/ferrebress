@@ -55,7 +55,7 @@ function Row({ event, today }: { event: AuditView; today: string }) {
 // Lo que marca el teclado es lo que muestra el detalle.
 function useMarkSelects() {
   const log = useAuditLogContext();
-  useMarkedId(log.select, [log.select]);
+  useMarkedId(log.select);
 }
 
 // Qué se desplaza: la lista y todo lo que la contiene (en Usuarios se desplaza todo su contenido). Le

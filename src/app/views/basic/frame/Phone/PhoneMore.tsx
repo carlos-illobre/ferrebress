@@ -12,10 +12,10 @@ import {
   roleNames,
   texts,
   unavailable,
-  useFrame,
 } from '../../../../modules/frame/model.ts';
 import { useWaiting } from '../../../../platform/view/waiting.ts';
 import { Icon } from '../../ui/icon/Icon.tsx';
+import { useFrame } from '../context.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './PhoneMore.css';
 import '../../ui/switch/switch.css';

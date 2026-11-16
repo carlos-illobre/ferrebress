@@ -116,12 +116,16 @@ describe('el marco en el celular', () => {
   });
 
   it('se sale de Más tocando la parte abierta o con el botón atrás del celular', () => {
-    // happy-dom no vuelve atrás de verdad: se ve que lo pide y se hace como el navegador.
+    // happy-dom no vuelve atrás de verdad: se ve que lo pide y se hace como el navegador, que deja
+    // el paso de antes y avisa.
     const back = vi.spyOn(history, 'back').mockImplementation(() => {
+      history.replaceState(null, '');
       dispatchEvent(new PopStateEvent('popstate'));
     });
     withPath(parts[0] as Option, '/', () => {
       open();
+      // Lo que dejó pendiente la prueba anterior (happy-dom no vuelve atrás de verdad) no cuenta.
+      back.mockClear();
       const phoneNav = screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement;
       const more = within(phoneNav).getByRole('button', { name: /Más/ });
       fireEvent.click(more);

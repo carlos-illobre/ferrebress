@@ -3,8 +3,6 @@
 
 // Lo que entra y sale por el canal, para el indicador.
 export { useRate } from '../../platform/meter.ts';
-// El lugar del vínculo en el marco.
-export type { FrameLink } from '../frame/index.ts';
 export { linkRuntime, linkStrip } from './current.ts';
 export { type Act, choicesOf } from './detail/choices.ts';
 export { detailOpen, reading, unpairAsked, useDetailToggle, useOverShown } from './detail/open.ts';

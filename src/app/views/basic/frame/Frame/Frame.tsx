@@ -5,22 +5,19 @@ import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { ComponentChildren, ComponentType } from 'preact';
 import { useMemo } from 'preact/hooks';
 import {
-  FrameContext,
-  type FrameLink,
-  type FrameState,
   type Option,
-  shake,
   texts,
-  useCollapse,
   useLostPermission,
   useOpened,
-  usePanels,
-  usePhoneMore,
-  useTip,
   useWork,
 } from '../../../../modules/frame/model.ts';
 import { isNarrow } from '../../../../platform/view/narrow.ts';
 import { notify } from '../../../../platform/view/notify.ts';
+import { useCollapse } from '../behavior/useCollapse.ts';
+import { usePanels } from '../behavior/usePanels.ts';
+import { usePhoneMore } from '../behavior/usePhoneMore.ts';
+import { useTip } from '../behavior/useTip.ts';
+import { FrameContext, type FrameLink, type FrameState, shake } from '../context.ts';
 import { NoPermission } from '../NoPermission/NoPermission.tsx';
 import { PermissionLost } from '../NoPermission/PermissionLost.tsx';
 import { VersionNotice, WaitNotice } from '../notices/Notices.tsx';

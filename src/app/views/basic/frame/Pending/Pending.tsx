@@ -2,9 +2,10 @@
 // que contestó el servidor la última vez y lo que avisa el navegador (R4.3). Hoy no hay nada que
 // se haga sin conexión, así que la lista está siempre vacía; se llena con el módulo 15.
 
-import { texts, useFrame } from '../../../../modules/frame/model.ts';
+import { texts } from '../../../../modules/frame/model.ts';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { Say } from '../../ui/say/Say.tsx';
+import { useFrame } from '../context.ts';
 import './Pending.css';
 
 export function LightText() {

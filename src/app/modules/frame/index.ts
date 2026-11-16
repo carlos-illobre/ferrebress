@@ -1,7 +1,6 @@
 // El módulo del capítulo 00 en la aplicación: lo que hace el marco que rodea cada pantalla y sus
 // avisos (la versión nueva, «Algo salió mal»). Su vista está en views/basic/frame.
 
-export type { FrameLink } from './context.ts';
 export { isMenuPath, moreOptions, parts } from './menu.ts';
 export { forgetReport, watchCrashes } from './notices/crash/crash.ts';
 export {

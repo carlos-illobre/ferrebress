@@ -7,9 +7,9 @@ import {
   openOption,
   texts,
   unavailable,
-  useFrame,
 } from '../../../../modules/frame/model.ts';
 import { Icon } from '../../ui/icon/Icon.tsx';
+import { useFrame } from '../context.ts';
 
 export function MenuItem({ option }: { option: Option }) {
   const frame = useFrame();

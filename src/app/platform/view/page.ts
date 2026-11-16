@@ -2,7 +2,7 @@
 // pantalla, seguir lo que marca el teclado y lo que frena todo encima de la aplicación. Es el único
 // lugar de la vista que toca document.
 import type { RefObject } from 'preact';
-import { useEffect } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 import { isPhone } from '../device/device.ts';
 import { still } from '../motion.ts';
 
@@ -18,17 +18,42 @@ export function showPart(
   });
 }
 
-// Cada vez que la navegación del teclado marca algo con data-id, avisa su id. Sin la capa del
-// teclado nunca avisa.
-export function useMarkedId(follow: (id: string) => void, deps: unknown[]): void {
+// Cada vez que la navegación del teclado marca algo (o lo desmarca), avisa qué. Sin la capa del
+// teclado nunca avisa. Escucha siempre lo de ahora de `follow`.
+export function useMarked(follow: (element: HTMLElement | undefined) => void): void {
+  const now = useRef(follow);
+  now.current = follow;
   useEffect(() => {
-    const listener = (event: Event) => {
-      const id = (event as CustomEvent<HTMLElement | undefined>).detail?.dataset.id;
-      if (id) follow(id);
-    };
+    const listener = (event: Event) =>
+      now.current((event as CustomEvent<HTMLElement | undefined>).detail);
     document.addEventListener('mark', listener);
     return () => document.removeEventListener('mark', listener);
-  }, deps);
+  }, []);
+}
+
+// Lo mismo, con el id (data-id) de lo marcado.
+export function useMarkedId(follow: (id: string) => void): void {
+  useMarked((element) => {
+    const id = element?.dataset.id;
+    if (id) follow(id);
+  });
+}
+
+// Mientras algo está abierto (`active`), tocar afuera de lo que dice `keep` (un selector) o cambiar
+// el tamaño de la ventana lo cierra.
+export function useOutside(active: boolean, keep: string, close: () => void): void {
+  useEffect(() => {
+    if (!active) return undefined;
+    const outside = (event: Event) => {
+      if (!(event.target as Element).closest(keep)) close();
+    };
+    addEventListener('resize', close);
+    document.addEventListener('click', outside);
+    return () => {
+      removeEventListener('resize', close);
+      document.removeEventListener('click', outside);
+    };
+  }, [active]);
 }
 
 // Dónde se dibuja lo que va encima de todo.

@@ -5,15 +5,14 @@
 import { useContext } from 'preact/hooks';
 import {
   exists,
-  FrameContext,
   moreOptions,
   type Option,
   openOption,
   partsFor,
   texts,
-  useFrame,
 } from '../../../../modules/frame/model.ts';
 import { Icon } from '../../ui/icon/Icon.tsx';
+import { FrameContext, useFrame } from '../context.ts';
 import { LightText } from '../Pending/Pending.tsx';
 import './Phone.css';
 

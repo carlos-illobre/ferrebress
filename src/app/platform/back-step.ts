@@ -16,3 +16,21 @@ export function useBackStep(close: () => void): void {
     };
   }, []);
 }
+
+// Lo mismo, pero solo mientras `open`: el paso se suma al abrirse y se saca al cerrarse de otra forma.
+export function useBackStepWhile(open: boolean, close: () => void): void {
+  const current = useCurrent(close);
+  useEffect(() => {
+    if (!open) return undefined;
+    const step = crypto.randomUUID();
+    history.pushState({ step }, '');
+    addEventListener('popstate', current);
+    return () => {
+      removeEventListener('popstate', current);
+      if ((history.state as { step?: string } | null)?.step === step) history.back();
+    };
+  }, [open]);
+}
+
+// Volver como el botón atrás.
+export const goBack = () => history.back();

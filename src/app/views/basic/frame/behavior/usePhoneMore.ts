@@ -1,31 +1,21 @@
 // Más en el celular es una pantalla entera (maqueta del marco): reemplaza la cabecera y el área de
 // trabajo, y el menú de abajo queda a la vista con Más elegida. Abrirla suma un paso al historial,
 // así el botón atrás del celular la cierra y vuelve a donde se estaba.
-import { useEffect, useState } from 'preact/hooks';
-import { type Option, openOption } from '../menu.ts';
+import { useState } from 'preact/hooks';
+import { type Option, openOption } from '../../../../modules/frame/model.ts';
+import { goBack, useBackStepWhile } from '../../../../platform/view/back-step.ts';
 
 export function usePhoneMore() {
-  // local: Más es una pantalla solo del celular, con su paso en el historial de este dispositivo.
+  // vista: Más es una pantalla solo del celular, con su paso en el historial de este dispositivo.
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    if (!open) return;
-    const back = () => setOpen(false);
-    addEventListener('popstate', back);
-    return () => removeEventListener('popstate', back);
-  }, [open]);
+  useBackStepWhile(open, () => setOpen(false));
 
   return {
     open,
-    show() {
-      if (open) return;
-      history.pushState({ more: true }, '');
-      setOpen(true);
-    },
+    show: () => setOpen(true),
     // Solo se llama con Más a la vista: vuelve como el botón atrás.
-    hide() {
-      history.back();
-    },
+    hide: goBack,
     // Abre una opción en lugar de Más: reemplaza su paso del historial.
     leave(option: Option) {
       setOpen(false);

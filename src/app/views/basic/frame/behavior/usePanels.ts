@@ -1,7 +1,8 @@
 // Lo que se abre desde el marco, de a uno por vez: Más, la tarjeta de la persona minimizada y lo
 // pendiente al costado del menú, y la hoja de lo pendiente del celular. Tocar afuera, cambiar el tamaño de la
 // ventana o abrir otro lo cierra.
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
+import { useOutside } from '../../../../platform/view/page.ts';
 
 export type Panel = 'more' | 'person' | 'pending' | 'phonePending';
 
@@ -18,25 +19,13 @@ export function beside(anchor: Element): Place {
 }
 
 export function usePanels() {
-  // local: lo que se abre del marco cambia de forma entre la computadora y el celular (un panel al costado, una hoja); viaja la dirección.
+  // vista: lo que se abre del marco cambia de forma entre la computadora y el celular (un panel al costado, una hoja); viaja la dirección.
   const [open, setOpen] = useState<{ panel: Panel; place?: Place }>();
-  // De dónde sale cada panel, para abrirlo también desde otro lado (el camino de Más).
+  // vista: de dónde sale cada panel, para abrirlo también desde otro lado (el camino de Más).
   const anchors = useRef(new Map<Panel, Element>());
 
-  useEffect(() => {
-    if (!open) return;
-    const close = () => setOpen(undefined);
-    const outside = (event: Event) => {
-      const target = event.target as Element;
-      if (!target.closest('[data-panel], [aria-haspopup]')) close();
-    };
-    addEventListener('resize', close);
-    document.addEventListener('click', outside);
-    return () => {
-      removeEventListener('resize', close);
-      document.removeEventListener('click', outside);
-    };
-  }, [open]);
+  // Tocar afuera de lo abierto (o de lo que abre algo) o cambiar el tamaño de la ventana lo cierra.
+  useOutside(!!open, '[data-panel], [aria-haspopup]', () => setOpen(undefined));
 
   return {
     open: open?.panel,

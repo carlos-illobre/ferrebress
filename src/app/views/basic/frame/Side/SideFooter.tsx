@@ -2,16 +2,11 @@
 // sola tarjeta (pedido de Carlos), y la tarjeta de la persona con «Salir» (01 · R5.1). Minimizado, la
 // luz es un punto y la persona, sus iniciales, que abren la misma tarjeta al costado.
 
-import {
-  initials,
-  type Place,
-  px,
-  roleNames,
-  texts,
-  useFrame,
-} from '../../../../modules/frame/model.ts';
+import { initials, roleNames, texts } from '../../../../modules/frame/model.ts';
 import { Button } from '../../ui/button/Button.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
+import { type Place, px } from '../behavior/usePanels.ts';
+import { useFrame } from '../context.ts';
 import { LightText, Pending } from '../Pending/Pending.tsx';
 import { CloseForKeyboard } from './More.tsx';
 
