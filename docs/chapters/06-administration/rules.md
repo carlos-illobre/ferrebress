@@ -128,6 +128,12 @@ capítulo 08.
   de aplicar** (08 · R6.5): un porcentaje entero de 1 a 100; de arranque, 20 %.
 - **R8.3** **El tamaño máximo del archivo de una lista** (08 · R4.2): de 1 a 100 MB; de arranque,
   30 MB.
+- **R8.5** **Desde cuántas filas se avisa antes de leer una planilla** (08 · R4.12): un entero de
+  1.000 a 10.000.000; de arranque, 200.000. No es un tope: es cuándo se pregunta.
+- **R8.6** **Cuánto pueden ocupar entre todos los archivos de las listas** (08 · R4.4): de 10 MB a
+  100.000 MB; de arranque, 100 MB. Al pasarlo, se borran los más viejos; el más nuevo queda siempre.
+- **R8.7** **A los cuántos días se borra el archivo de una lista que nunca se aplicó** (08 · R4.4): de
+  1 a 3.650; de arranque, 30.
 - **R8.4** **Valen desde la lista siguiente que se sube;** una lista que ya está en espera se vuelve
   a mirar con los valores nuevos.
 
@@ -151,6 +157,16 @@ capítulo 08.
 - **R9.6** **Necesita conexión,** como toda la pantalla (R1.6), y se espeja como cualquiera (R1.7).
 - **R9.7** **Marcar una anomalía como revisada o volver a abrirla va a Quién hizo qué,** con la nota
   (05 · R1.1).
+
+## 10. Los archivos de las listas
+
+- **R10.1** **Más → Administración → Archivos de listas** muestra los archivos que se guardan (08 ·
+  R4.4), del más viejo al más nuevo: de qué proveedor, de qué lista y su estado, cuándo se subió y
+  cuánto ocupa; y arriba, cuánto ocupan entre todos contra el tamaño de R8.6.
+- **R10.2** **Quien tiene «Cambiar los ajustes» puede borrar uno a mano,** con «Deshacer» durante 5
+  segundos (R2.1). El de una lista que se está leyendo o aplicando no se puede borrar. Borrar uno va a
+  Quién hizo qué.
+- **R10.3** **La ve quien tiene «Ver costos»** (08 · R1.2): muestra de qué proveedores son las listas.
 
 ## Escenarios
 
@@ -305,3 +321,10 @@ capítulo 08.
   hay nada para revisar.
 - **E52** **Dado** un dispositivo sin conexión, **cuando** se abre Anomalías, **entonces** se ve gris
   lo último que se vio, con «Reintentar», y no se puede marcar nada.
+- **E53** **Dado** quien tiene «Cambiar los ajustes», **cuando** borra un archivo en Archivos de
+  listas, **entonces** se borra, aparece «Deshacer» y queda en Quién hizo qué; la lista se sigue
+  viendo con «Ya no se guarda el archivo».
+- **E54** **Dado** una lista leyéndose, **cuando** se quiere borrar su archivo, **entonces** no se
+  puede, y se dice por qué.
+- **E55** **Dado** 80 MB de archivos y el tamaño en 100 MB, **cuando** se abre Archivos de listas,
+  **entonces** arriba dice «80 MB de 100 MB».

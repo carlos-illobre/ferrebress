@@ -22,14 +22,16 @@ escribir.
   cuántos costos cambian, o desde la próxima. El costo es lo que se paga por una unidad, sin IVA, con
   los descuentos uno sobre otro; no se redondea y deja ver su cuenta (R3).
 - **Subir una lista:** un archivo Excel o CSV, sin decir nada más; el sistema reconoce de quién es y,
-  deduce el proveedor: si lo reconoce su lector, no pregunta; si lo deduce por el nombre, pregunta si es ese; si no, se elige de la lista (quien carga listas puede dar de alta uno nuevo); varias a la vez, de proveedores distintos, y se pueden cancelar; el archivo se guarda siempre; la fecha es la de la planilla o, si
-  no la dice, la del servidor; completa o de solo cambios; una en espera por proveedor; el avance
+  deduce el proveedor: si lo reconoce su lector, no pregunta; si lo deduce por el nombre, pregunta si es ese; si no, se elige de la lista (quien carga listas puede dar de alta uno nuevo); varias a la vez, de proveedores distintos; se puede cancelar en cualquier momento, también mientras se aplica, sin que quede nada a medias; el archivo se guarda como respaldo y se borra solo (al reemplazarlo una lista aplicada más nueva, a los días fijados si nunca se aplicó, o los más viejos al pasar el tamaño fijado); la fecha es la de la planilla o, si
+  no la dice o es imposible, la del servidor; completa o de solo cambios; una en espera por proveedor, y la que llega mientras otra se aplica espera su turno; sin tope de filas, con un aviso antes de leer una muy grande; el avance
   siempre a la vista (R4).
 - **Los lectores:** uno por cada formato de planilla de cada proveedor; cada uno dice si una
   planilla es suya; si ninguno la reconoce, el lector automático intenta leerla solo y, si lo logra,
   queda guardado; todo resultado se comprueba; si no se puede leer, no se pregunta nada: la lista
   espera a un lector y queda una anomalía; se ven y se desactivan en Administración → Lectores; un
-  lector nuevo vale desde la planilla siguiente, sin reiniciar nada, y corre encerrado (R5).
+  lector nuevo vale desde la planilla siguiente, sin reiniciar nada, y corre encerrado, con un tope por
+  bloque; los de un programador llegan sin proveedor y quedan asociados al primero cuya lista se
+  aplica, o al que se les elija en Lectores (R5).
 - **Ver qué cambia y aplicar:** nada se guarda hasta aplicar; el resumen y el detalle con el costo
   anterior y el nuevo; aparte, los costos que cambian más que un porcentaje; aplicar dice lo que va a
   pasar y avisa si da de baja demasiado; todo o nada; no se aplica dos veces ni se deshace; una lista
@@ -39,8 +41,9 @@ escribir.
   vuelta los que reaparecen, con su margen (R7).
 - **Los productos de un proveedor:** una lista simple con código, descripción, marca y costo, hasta
   que exista el catálogo (R8).
-- **El registro:** cada cambio a Quién hizo qué, con el costo anterior y el nuevo de cada producto;
-  las listas que no se pudieron leer y las filas salteadas, a las anomalías (R9).
+- **El registro:** cada cambio a Quién hizo qué, con el costo anterior y el nuevo de cada producto, y
+  de los datos de contacto del vendedor solo qué cambió; las listas que no se pudieron leer y las
+  filas salteadas, a las anomalías, con el detalle de las filas solo para quien ve costos (R9).
 - **Afuera:** alta y baja de productos a mano, listas escritas en la aplicación, listas que llegan
   solas, el aviso para remarcar, los bultos, el precio sugerido y marcar las columnas a mano.
 

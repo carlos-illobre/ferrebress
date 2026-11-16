@@ -64,8 +64,9 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 ## 2. Los proveedores
 
 - **R2.1** **De un proveedor se guarda:** el nombre (obligatorio y único, sin distinguir acentos ni
-  mayúsculas), el vendedor, el teléfono o WhatsApp, el correo y una nota. Los ve cualquiera con
-  sesión (R1.3).
+  mayúsculas, también entre los dados de baja), el vendedor, el teléfono o WhatsApp, el correo y una
+  nota. Los ve cualquiera con sesión (R1.3). Dar de alta uno con el nombre de un dado de baja dice que
+  ya existe y ofrece «Reactivar».
 - **R2.2** **Se da de alta** con solo el nombre, desde la pantalla o al subir una lista que no es de
   ningún proveedor conocido (R4.3). Lo demás se completa ahí mismo, si se quiere, o después. Al
   subir una lista, lo puede dar de alta quien tiene «Cargar listas», aunque no tenga «Administrar
@@ -91,12 +92,15 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 - **R3.2** **De cada proveedor se configura:**
   - si los precios de su lista **incluyen IVA** o no (de arranque, no);
   - sus **descuentos**, en orden: cada uno con un nombre («General», «Contado»), un porcentaje mayor
-    que 0 y menor que 100, y si vale para todas las marcas o para una sola;
+    que 0 y menor que 100, con hasta dos decimales (2,5 %), y si vale para todas las marcas o para una
+    sola;
   - su **IVA de arranque**: 21 % (de arranque), 10,5 % o 27 %, para los productos cuya lista no dice
     el IVA;
   - **qué pasa con los costos al cambiar cómo cobra** (R3.5): «Recalcular con la última lista» (de
     arranque) o «Desde la próxima lista».
-- **R3.3** **La cuenta del costo:** el precio de lista de una unidad; si incluía IVA, se le quita; y
+- **R3.3** **La cuenta del costo:** el precio de lista de una unidad; si incluía IVA, se le quita el
+  que dice la lista o, si no lo dice, el IVA de arranque del proveedor (el que él cobra, aunque al
+  producto se le haya cambiado el IVA a mano); y
   después cada descuento que le toca al producto, uno sobre el resultado del anterior, en el orden
   en que están. Con precio de lista $ 2.314, general 25 % y contado 5 %: $ 2.314 − 25 % = $ 1.735,50;
   − 5 % = $ 1.648,73.
@@ -135,10 +139,18 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 
   La lectura sigue mientras tanto, para no hacer esperar. Si se cambia el proveedor deducido, la
   planilla se vuelve a leer como del elegido; si no se había deducido ninguno, no hace falta.
-- **R4.4** **El archivo original se guarda siempre,** tal como se subió y con su nombre, también el
-  de una lista que no se pudo leer o que se descartó. Lo baja quien tiene «Ver costos».
+- **R4.4** **El archivo original se guarda como respaldo,** tal como se subió y con su nombre,
+  también el de una lista que no se pudo leer o que se descartó. Lo baja quien tiene «Ver costos». Lo
+  que importa son los productos: los archivos se borran solos para no llenar el disco:
+  - el de una lista aplicada, cuando se aplica otra más nueva de ese proveedor;
+  - el de una lista que nunca se aplicó, a los días que fija un Administrador (06 · R8);
+  - los más viejos, cuando todos juntos pasan el tamaño que fija un Administrador (06 · R8).
+
+  Un Administrador también puede borrar uno a mano (06 · R10). Sin su archivo, la lista se sigue
+  viendo, con «Ya no se guarda el archivo».
 - **R4.5** **La fecha de la lista** es la que dice la planilla o el nombre del archivo. Si no la
-  dice, es la fecha del servidor en el momento de subirla.
+  dice, o dice una posterior a hoy o de más de un año atrás (un error de tipeo bloquearía las listas
+  siguientes, R6.10), es la fecha del servidor en el momento de subirla, en la zona del negocio.
 - **R4.6** **Si no se puede leer** (ningún lector la entiende, R5.5; o el archivo está dañado), se
   dice por qué, la lista queda como «No se pudo leer» con su archivo guardado y se suma una anomalía
   (R9.2). No se pregunta qué columna es qué.
@@ -146,13 +158,18 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
   proveedor («Lista completa», de arranque) o solo una parte («Solo cambios»). Una lista de solo
   cambios nunca da de baja nada (R7.3).
 - **R4.8** **Una lista en espera por proveedor:** subir otra lista del mismo proveedor descarta la
-  que estaba esperando, y se dice. Si la anterior todavía se estaba subiendo o leyendo, se cancela.
+  que estaba esperando, y se dice. Si la anterior todavía se estaba subiendo o leyendo, se cancela. Si
+  se está aplicando, la nueva espera su turno y sigue sola cuando termina.
 - **R4.10** **Se pueden subir varias listas a la vez,** de proveedores distintos: cada una muestra su
   avance y su pregunta, si la tiene, y se sigue trabajando mientras tanto.
-- **R4.11** **Mientras sube o lee, se puede cancelar:** la lista queda descartada y su archivo,
-  guardado (R4.4).
+- **R4.11** **Se puede cancelar en cualquier momento:** mientras sube, no queda nada; mientras lee,
+  la lista queda descartada y su archivo, guardado (R4.4); mientras se aplica, se deshace todo lo que
+  llevaba aplicado y la lista sigue en espera (R6.6).
 - **R4.9** **El avance se ve siempre** (00 · R7.3): al subir, cuánto del archivo; al leer, cuántas
   filas de cuántas. Una lista de 10.000 filas muestra qué cambia en menos de 10 segundos.
+- **R4.12** **No hay tope de filas ni de hojas:** una planilla grande se lee y se aplica de a
+  bloques. Si tiene más filas que las que fija un Administrador (06 · R8), antes de leerla se avisa
+  cuántas son y que puede tardar, y se sigue al confirmar.
 
 ## 5. Los lectores
 
@@ -160,7 +177,11 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
   hojas, las filas y las celdas, y devuelve cada producto con su código, su descripción, su marca, su
   precio de lista por unidad, su IVA y su código de barras, los que la planilla traiga. Cada
   proveedor tiene varios: uno por cada formato que tuvo su planilla. Los formatos cambian sin aviso,
-  así que sumar un lector tiene que ser fácil y no puede frenar al resto.
+  así que sumar un lector tiene que ser fácil y no puede frenar al resto. Uno escrito por un
+  programador llega con la aplicación sin decir de qué proveedor es (los datos de los proveedores no
+  van en el código, constitución VIII): se prueba con todas las planillas y queda asociado al
+  proveedor de la primera lista suya que se aplica, o al que le elija en Lectores quien tiene
+  «Cambiar los ajustes» (R5.8).
 - **R5.2** **Cada lector sabe decir si una planilla es suya.** Al subir un archivo se prueban primero
   los lectores del proveedor, si se sabe cuál es, y después los de los demás. Se usa el primero que
   la reconoce y cuyo resultado pasa la comprobación (R5.4).
@@ -183,9 +204,9 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 - **R5.6** **Un lector no se edita:** un formato nuevo es un lector nuevo, y los anteriores quedan,
   por si el proveedor vuelve a un formato viejo.
 - **R5.7** **La primera lista que lee un lector nuevo** (automático o generado) se marca «Lector
-  nuevo: revisala» en lo que cambia (R6). Si la lista se aplica, el lector queda activo y esa
-  planilla con su resultado queda guardada como su prueba; si se descarta, el lector se descarta con
-  ella.
+  nuevo: revisala» en lo que cambia (R6). Si la lista se aplica, el lector queda activo y el resultado
+  de esa lista queda guardado como su prueba (su archivo, mientras se guarde, R4.4); si se descarta,
+  el lector se descarta con ella.
 - **R5.8** **Más → Administración → Lectores** muestra los lectores de cada proveedor: de dónde salió
   cada uno (escrito por un programador, automático o generado por IA), desde cuándo existe y qué
   lista leyó por última vez. Quien tiene «Cambiar los ajustes» (06 · R1.4) puede desactivar uno que
@@ -193,8 +214,8 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 - **R5.9** **Un lector nuevo o desactivado vale desde la planilla siguiente,** sin reiniciar nada ni
   esperar una versión nueva de la aplicación.
 - **R5.10** **Un lector no puede hacer otra cosa que leer:** corre encerrado, sin acceso a la base, a
-  la red, a los archivos ni a las claves, y con un tope de tiempo y de memoria. Vale para todos,
-  también para los que escribe un programador.
+  la red, a los archivos ni a las claves, y con un tope de tiempo y de memoria para cada bloque de la
+  planilla que lee (R4.12). Vale para todos, también para los que escribe un programador.
 
 ## 6. Ver qué cambia y aplicar
 
@@ -212,8 +233,8 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
   costos, 2 bajas»). Si la lista da de baja más que un porcentaje de los productos del proveedor, el
   aviso lo dice antes y el botón también («Aplicar y dar de baja 812 productos»). Ese porcentaje lo
   fija un Administrador (06 · R8); de arranque, 20 %.
-- **R6.6** **Todo o nada:** si aplicar falla o se corta, no queda nada aplicado a medias y la lista
-  sigue en espera, con el motivo. Una lista de 10.000 filas se aplica en menos de 30 segundos, con
+- **R6.6** **Todo o nada:** si aplicar falla, se corta o se cancela (R4.11), no queda nada aplicado a
+  medias y la lista sigue en espera, con el motivo. Una lista de 10.000 filas se aplica en menos de 30 segundos, con
   el avance a la vista.
 - **R6.7** **Los estados de una lista:** en espera, aplicándose, aplicada, descartada y «no se pudo
   leer». La pantalla del proveedor las muestra todas, de la más nueva a la más vieja, con su fecha,
@@ -258,15 +279,17 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 ## 9. Quién hizo qué y las anomalías
 
 - **R9.1** **A Quién hizo qué** (05 · R1.1) va, con quién y cuándo: dar de alta, cambiar, dar de baja
-  o reactivar un proveedor, con lo anterior y lo nuevo; cambiar cómo cobra, con cuántos costos
+  o reactivar un proveedor, con lo anterior y lo nuevo, salvo los datos de contacto del vendedor
+  (nombre, teléfono, correo), que son datos personales de alguien de afuera: de esos queda qué dato
+  cambió, sin sus valores; cambiar cómo cobra, con cuántos costos
   cambiaron; subir, aplicar o descartar una lista, con sus números; y de cada producto que una lista
   crea, cambia o da de baja, su costo anterior y el nuevo, para poder leer después la historia de su
   costo. También activar o desactivar un lector.
 - **R9.2** **Las anomalías de este capítulo** (06 · R9):
   - **«No se pudo leer la lista»:** con el proveedor si se sabe, el archivo y el motivo. Se cierra
     sola cuando esa lista se lee o cuando el proveedor sube otra que sí se lee.
-  - **«Filas salteadas»:** una por cada lista aplicada que salteó filas, con cada fila, lo que traía
-    y su motivo. Se cierra sola al aplicar la lista siguiente de ese proveedor: lo que siga mal
+  - **«Filas salteadas»:** una por cada lista aplicada que salteó filas, con cuántas y por qué
+    motivos; cada fila, con lo que traía, la ve además quien tiene «Ver costos» (R1.3). Se cierra sola al aplicar la lista siguiente de ese proveedor: lo que siga mal
     vuelve a aparecer con la lista nueva.
 
 ## Escenarios
@@ -301,8 +324,8 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 - **E10** **Dado** un proveedor «Ferretera del Sur», **cuando** se da de alta «ferretera del sur» o
   se le cambia el nombre a otro por ese, **entonces** no se guarda y se dice que ya existe.
 - **E11** **Dado** un proveedor, **cuando** se le cambia el teléfono, **entonces** se guarda sin tocar
-  ningún botón, aparece el aviso con «Deshacer» y queda en Quién hizo qué con el teléfono anterior y
-  el nuevo.
+  ningún botón, aparece el aviso con «Deshacer» y queda en Quién hizo qué que cambió el teléfono, sin
+  el número anterior ni el nuevo.
 - **E12** **Dado** un proveedor con 30 productos, 12 de los cuales solo trae él, **cuando** se lo
   quiere dar de baja, **entonces** se ve que 30 pierden su costo y 12 quedan dados de baja, con «Dar
   de baja con sus 12 productos» y «Cancelar».
@@ -514,3 +537,39 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
   salteadas, **entonces** la anomalía anterior se cierra sola.
 - **E83** **Dado** una lista que salteó filas y se descartó sin aplicar, **cuando** se abren las
   anomalías, **entonces** no hay ninguna de esa lista.
+
+### Lo que se sumó al diseñar
+
+- **E84** **Dado** una planilla cuyo título dice «LISTA 14/8/2062», **cuando** se la sube,
+  **entonces** la fecha de la lista es la del servidor, y se ve que la de la planilla no se tomó.
+- **E85** **Dado** una lista de Bulonera Centro aplicándose, **cuando** se sube otra de Bulonera
+  Centro, **entonces** la nueva espera su turno, se dice, y sigue sola cuando la primera termina.
+- **E86** **Dado** una lista aplicándose, **cuando** se la cancela, **entonces** no queda ningún
+  producto ni costo de esa lista y sigue en espera.
+- **E87** **Dado** un archivo subiéndose, **cuando** se cancela antes de que termine, **entonces** no
+  queda ni la lista ni el archivo.
+- **E88** **Dado** un proveedor con una lista aplicada, **cuando** se aplica otra más nueva suya,
+  **entonces** el archivo de la anterior se borra, y la anterior se sigue viendo con «Ya no se guarda
+  el archivo».
+- **E89** **Dado** el tamaño de los archivos en 100 MB, **cuando** uno nuevo hace que pasen los 100
+  MB, **entonces** se borran los más viejos hasta quedar por debajo.
+- **E90** **Dado** los días para una lista que nunca se aplicó en 30, **cuando** pasan 30 días de una
+  descartada, **entonces** su archivo se borra.
+- **E91** **Dado** el aviso de filas en 200.000, **cuando** se sube una planilla de 350.000 filas,
+  **entonces** antes de leerla se dice que tiene 350.000 filas y que puede tardar; al confirmar, se lee
+  entera, de a bloques.
+- **E92** **Dado** un descuento, **cuando** se escribe 2,5, **entonces** se guarda; con 2,555 se dice
+  que va con hasta dos decimales.
+- **E93** **Dado** un lector de un programador que todavía no está asociado a ningún proveedor,
+  **cuando** reconoce una planilla subida desde «Subir lista», **entonces** se elige de quién es como
+  con cualquier planilla que no se sabe (R4.3), y al aplicarla el lector queda asociado a ese
+  proveedor.
+- **E94** **Dado** un proveedor «Ferretera del Sur» dado de baja, **cuando** se da de alta otro con ese
+  nombre, **entonces** no se crea y se ofrece reactivar el que existe.
+- **E95** **Dado** un proveedor cuyos precios incluyen IVA, una lista que dice 21 % y un producto al
+  que se le cambió el IVA a mano a 10,5 %, **cuando** se aplica la lista, **entonces** al precio se le
+  quita el 21 %.
+
+Los escenarios E12, E13, E74 (un producto con dos proveedores), E28, E72, E76 y E95 (lo cambiado a mano
+en un producto) piden lo que hace el capítulo 07: se prueban cuando exista.
+

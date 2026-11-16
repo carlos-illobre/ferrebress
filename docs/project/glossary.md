@@ -20,14 +20,16 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Comprobación | La revisión de lo que devuelve un lector, antes de darlo por bueno | `check` |
 | Fila salteada | Una fila de la planilla que no se pudo leer como producto, con su motivo | `skippedRow` |
 | Lista completa / solo cambios | Si la lista trae todo lo que vende el proveedor o solo una parte | `scope` (`full`, `partial`) |
-| En espera / aplicada / descartada / no se pudo leer | Los estados de una lista | `status` (`pending`, `applying`, `applied`, `discarded`, `unreadable`) |
+| Leyendo / en espera / aplicándose / aplicada / descartada / no se pudo leer | Los estados de una lista | `status` (`reading`, `pending`, `applying`, `applied`, `discarded`, `unreadable`) |
 | Aplicar / descartar | Guardar lo que trae una lista, o dejarla sin efecto | `apply` / `discard` |
 | Cómo cobra | Lo que se configura de un proveedor para calcular el costo: IVA incluido, descuentos e IVA de arranque | `terms` |
 | Dado de baja | El producto que ya no trae ningún proveedor, o el proveedor que se dio de baja | `discontinued` (producto), `inactive` (proveedor) |
 | Código del proveedor | Cómo identifica un proveedor a un producto | `supplierCode` |
+| Artículo del proveedor | Lo que trae un proveedor con su código: su descripción, su precio de lista y su costo. Cada uno es de un producto; un producto puede venir de varios | `supplierItem` |
+| Archivo de la lista | La planilla tal como se subió, que se guarda como respaldo | `listFile` |
 | Precio de lista | Lo que figura en la lista del proveedor, antes de descuentos | `listPrice` |
 | Descuento | Lo que el proveedor resta al precio de lista | `discount` |
-| Costo | Lo que le cuesta el producto a la ferretería, con descuentos e IVA | `cost` |
+| Costo | Lo que le cuesta una unidad del producto a la ferretería, con los descuentos y sin IVA | `cost` |
 | Margen | El porcentaje que se suma al costo | `margin` |
 | Precio de venta | Costo más margen, redondeado | `salePrice` |
 | Proveedor en uso | El proveedor del que sale el costo de un producto | `preferredSupplier` |
@@ -201,6 +203,7 @@ En el código se escriben en `camelCase` (variables, funciones), `PascalCase` (t
 | Tiempo sin uso | Lo que una sesión aguanta sin pedidos al servidor | `sessionIdle` |
 | Tope de la sesión | Lo que dura una sesión desde que se entró, aunque se use | `sessionMax` |
 | Días del vínculo | Lo que dura un vínculo desde el último espejo | `pairingDays` |
+| Anomalía | Algo que el sistema encontró y alguien tiene que mirar | `anomaly` |
 
 ## Auditoría, mejoras y procesos
 

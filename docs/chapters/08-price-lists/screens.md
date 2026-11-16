@@ -47,7 +47,7 @@ provisoria.
 - Subir la lista de un proveedor en particular, desde su renglón: no se pregunta de quién es (R4.3).
 - Dar de alta un proveedor con solo su nombre, con «Administrar proveedores» (R2.2); al subir una
   lista, también con «Cargar listas». El nombre
-  repetido se rechaza en el lugar (E10).
+  repetido se rechaza en el lugar (E10); el de uno dado de baja ofrece «Reactivar» (E94).
 - Abrir un proveedor (pantalla 4).
 
 **Vacía:** sin proveedores, dice que el primer paso es subir la primera lista (o dar de alta un
@@ -65,9 +65,11 @@ subiendo se sigue viendo mientras se trabaja en otra cosa.
 **El recorrido:**
 
 1. Se elige el archivo (o se suelta). Si no es Excel o CSV, o pasa el tamaño máximo, se rechaza
-   ahí mismo diciendo por qué, sin subirlo (R4.2).
+   ahí mismo diciendo por qué, sin subirlo (R4.2). Si otra lista de ese proveedor se está aplicando,
+   la nueva espera su turno, y se dice (R4.8).
 2. Se ve el avance de la subida y, después, el de la lectura: cuántas filas leyó de cuántas
-   (R4.9).
+   (R4.9). Con una planilla muy grande, antes de leerla se avisa cuántas filas tiene y que puede
+   tardar, con «Leer igual» y «Cancelar» (R4.12).
 3. De quién es (R4.3): si lo reconoció su lector, se ve el proveedor con «Cambiar», sin
    preguntar; si se dedujo por el nombre, «¿Es de Bulonera Centro?», con «Sí» y «No, es de otro».
    Con «No», con «Cambiar» o si no se dedujo ninguno, se elige de una lista con buscador y
@@ -78,8 +80,8 @@ subiendo se sigue viendo mientras se trabaja en otra cosa.
 5. Si el proveedor ya tenía una lista en espera, se avisa que esta la reemplaza (R4.8).
 6. Al terminar de leer, se pasa a ver qué cambia (pantalla 3).
 
-**Se puede:** cancelar mientras sube o lee; la lista queda descartada y su archivo, guardado
-(R4.11). Subir otras listas mientras tanto, de otros proveedores: cada una con su avance (R4.10).
+**Se puede:** cancelar mientras sube (no queda nada) o lee (la lista queda descartada y su archivo,
+guardado) (R4.11). Subir otras listas mientras tanto, de otros proveedores: cada una con su avance (R4.10).
 
 **El avance de la lectura** se muestra como en la escena de lectura de la maqueta «El estante»: la
 planilla que se lee fila por fila, con cuántas filas leyó de cuántas.
@@ -113,7 +115,8 @@ espera» de un proveedor.
   terminar, cuántos productos se crearon, cuántos costos cambiaron y cuántos se dieron de baja
   (R6.6, E60). Si falla, dice por qué y la lista sigue en espera, con «Reintentar».
 - Descartar, con «Cargar listas» (R6.11).
-- Bajar el archivo original.
+- Bajar el archivo original, mientras se guarde; si no, «Ya no se guarda el archivo» (R4.4).
+- Mientras se aplica, cancelar: se deshace todo y la lista sigue en espera (R4.11).
 
 **Teclado (computadora):** un atajo para aplicar y otro para descartar; ↑ ↓ recorren el detalle;
 Enter abre la cuenta del costo elegido.

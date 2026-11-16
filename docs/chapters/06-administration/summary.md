@@ -31,7 +31,11 @@ construyen con el capítulo 08.
 - **Los días del vínculo:** de 1 a 365, 30 de arranque; valen en el momento para todos los vínculos
   (R7).
 - **Las listas de precios:** cuánto cambia un costo para marcarlo «para revisar» (50 % de arranque),
-  cuántas bajas avisa una lista antes de aplicar (20 %) y el tamaño máximo del archivo (30 MB) (R8).
+  cuántas bajas avisa una lista antes de aplicar (20 %), el tamaño máximo del archivo (30 MB), desde
+  cuántas filas se avisa antes de leer (200.000), cuánto ocupan entre todos los archivos (100 MB) y a
+  los cuántos días se borra el de una lista que nunca se aplicó (30) (R8).
+- **Los archivos de las listas:** en Más → Administración → Archivos de listas, cuánto ocupan y
+  cada uno; quien tiene «Cambiar los ajustes» borra uno a mano (R10).
 - **Las anomalías:** lo que el sistema encontró y alguien tiene que mirar, en Más → Administración →
   Anomalías, con el permiso «Revisar las anomalías»; abiertas, revisadas (con nota) o cerradas solas;
   cuántas hay abiertas se ve en el menú; cada capítulo suma las suyas (R9).
