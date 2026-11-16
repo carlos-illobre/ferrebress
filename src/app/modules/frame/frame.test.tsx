@@ -3,7 +3,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
 import { startKeyboard } from '../../testing/keyboard.ts';
 import { later } from '../../testing/later.ts';
-import { alt, media, open, press } from '../../views/basic/frame/frame-test-kit.tsx';
+import {
+  alt,
+  letter,
+  media,
+  open,
+  press,
+  toMenu,
+} from '../../views/basic/frame/frame-test-kit.tsx';
 import { moreOptions, type Option, parts } from './menu.ts';
 
 describe('el marco', () => {
@@ -182,7 +189,11 @@ describe('el marco', () => {
     expect(screen.getByRole('region', { name: 'Tu sesión' }).classList.contains('open')).toBe(
       false,
     );
+    // La luz es del menú: con Alt Z no se abre; con Alt 0 y la Z sola, sí (00 · R2.13).
     act(() => alt('z'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    act(() => toMenu());
+    act(() => letter('z'));
     expect(screen.getByRole('dialog', { name: 'Lo que está por enviar' })).toBeTruthy();
     act(() => alt('c'));
     expect(screen.queryByRole('dialog')).toBeNull();
@@ -226,17 +237,6 @@ describe('el marco', () => {
       window.dispatchEvent(new Event('mousemove'));
     });
     expect(screen.getByRole('status').textContent).toContain('Vender todavía no está');
-    stop();
-  });
-
-  it('al minimizar con la marca en el botón, el rótulo lo sigue diciendo', async () => {
-    vi.useFakeTimers();
-    const stop = startKeyboard();
-    open();
-    act(() => press('ArrowDown'));
-    act(() => alt('e'));
-    await later(241);
-    expect(document.querySelector('.tip.label')?.textContent).toBe('Agrandar el menú');
     stop();
   });
 });

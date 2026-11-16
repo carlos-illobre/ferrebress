@@ -3,5 +3,6 @@
 // nada.
 import { startNavigation } from '@ferrebress/keyboard';
 import { isPhone } from '../../platform/device/device.ts';
+import { navigationKeys } from './keys.ts';
 
-export const start = () => startNavigation({ touchOnly: isPhone() });
+export const start = () => startNavigation({ touchOnly: isPhone(), ...navigationKeys });

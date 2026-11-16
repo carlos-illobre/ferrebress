@@ -40,8 +40,8 @@ ambiente de pruebas.
 ## 2. El teclado
 
 Vale solo en la computadora: en el celular no hay atajos ni marca. La navegación (las flechas,
-Enter y Esc: R2.1 a R2.7) tiene las mismas reglas en toda la aplicación, y Carlos las va ajustando
-al usarla; los atajos (R2.8 a R2.11) son de cada pantalla.
+Enter y Esc: R2.1 a R2.7, y el menú: R2.13) tiene las mismas reglas en toda la aplicación, y Carlos
+las va ajustando al usarla; los atajos (R2.8 a R2.11) son de cada pantalla.
 
 - **R2.1** Hay dos focos: el **cursor**, que se mueve con Tab o con el mouse, y la **marca**, que se
   mueve con las flechas. Las flechas nunca mueven el cursor a otro lugar.
@@ -60,8 +60,9 @@ al usarla; los atajos (R2.8 a R2.11) son de cada pantalla.
 - **R2.7** Esc cierra lo que está encima (una hoja, un menú, un aviso). Si no hay nada encima, saca
   la marca.
 - **R2.8** Todo botón tiene un atajo: Alt más una tecla. La tecla es, de preferencia, una letra de
-  su nombre; si no hay una libre, un número. Sin teclas de función. La única excepción es el botón
-  de Google de la entrada, que dibuja Google en su propio marco (01 · R2.1).
+  su nombre; si no hay una libre, un número. Sin teclas de función. Las excepciones son el botón
+  de Google de la entrada, que dibuja Google en su propio marco (01 · R2.1), y el menú, que tiene
+  sus propias teclas (R2.13).
 - **R2.9** Las teclas de los atajos se ven sobre los botones solo mientras Alt está apretado; al
   soltarlo, desaparecen.
 - **R2.10** Un atajo vale solo en la pantalla que se ve (y en lo que está encima, si hay algo
@@ -70,6 +71,10 @@ al usarla; los atajos (R2.8 a R2.11) son de cada pantalla.
   editar texto.
 - **R2.12** En el celular el cursor nunca arranca en una caja de texto, para que no se abra el
   teclado solo.
+- **R2.13** Alt 0 lleva la marca al menú, a la parte abierta. Con la marca en el menú, o en Más,
+  cada opción se elige con su letra sola, sin Alt, y las letras se ven sobre cada opción mientras
+  la marca está ahí. Con Alt, las letras son todas de la pantalla que se ve: las del menú no las
+  pisan.
 
 ## 3. Los textos
 
@@ -256,6 +261,11 @@ al usarla; los atajos (R2.8 a R2.11) son de cada pantalla.
   o Ctrl+A, **entonces** hacen lo de siempre: ningún atajo los pisa.
 - **E17** **Dado** el celular, **cuando** se abre cualquier pantalla, **entonces** ninguna caja tiene
   el cursor y el teclado del celular no se abre solo.
+- **E17b** **Dado** cualquier pantalla en la computadora, **cuando** se toca Alt 0, **entonces** la
+  marca va a la parte abierta del menú y se ven las letras de sus opciones; **cuando** se toca la
+  letra de una opción, sin Alt, **entonces** se abre como si se la tocara.
+- **E17c** **Dado** una pantalla que usa Alt M para un botón suyo, **cuando** se toca Alt M,
+  **entonces** se hace lo de ese botón y no se abre Más.
 
 ### Los textos
 

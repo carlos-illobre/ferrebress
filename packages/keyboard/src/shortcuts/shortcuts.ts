@@ -4,7 +4,7 @@
 // muestre las teclas. Los botones que todavía dicen su tecla con data-key también andan: Alt más
 // esa tecla los toca, y van primero, porque uno de esos puede estar encima de una pantalla que ya
 // declaró sus comandos.
-import { topLayer, visible } from '../layers.ts';
+import { lettersOf, topLayer, visible } from '../layers.ts';
 import { comboOf, shownKey } from './combo.ts';
 import type { ScreenShortcuts } from './define.ts';
 
@@ -53,11 +53,12 @@ export function hintsOf(keymap: Readonly<Record<string, string>>): ShortcutHints
 }
 
 // Alt más la tecla de un botón con data-key: la letra o el número, sin importar la distribución.
+// Los de una región con letras propias (un menú) no: esos van sin Alt, por la navegación.
 function marked(event: KeyboardEvent): boolean {
   const key = event.code.replace(/^(Key|Digit)/, '').toLowerCase();
   const button = [
     ...topLayer().querySelectorAll<HTMLElement>(`[data-key="${CSS.escape(key)}"]:not([disabled])`),
-  ].find(visible);
+  ].find((one) => visible(one) && !lettersOf(one));
   if (!button) return false;
   event.preventDefault();
   button.click();

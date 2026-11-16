@@ -210,9 +210,9 @@
       transform: translateY(-6px);
     }
   }
-  /* Con Alt, la tecla ocupa el lugar de «Pronto». */
-  .show-keys .part .coming-soon,
-  .show-keys.collapsed .menu > li > .part .coming-soon-mini {
+  /* Con la marca en el menú, la tecla ocupa el lugar de «Pronto» (00 · R2.13). */
+  [data-letters]:has(.marked) .part .coming-soon,
+  .collapsed [data-letters]:has(.marked) .menu > li > .part .coming-soon-mini {
     display: none;
   }
 }

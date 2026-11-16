@@ -15,7 +15,7 @@ import './collapse.css';
 export function Side() {
   const { person } = useFrame();
   return (
-    <nav class="side desktop-only" id="side" aria-label={texts.menu}>
+    <nav class="side desktop-only" id="side" aria-label={texts.menu} data-letters="">
       <div class="side-background" aria-hidden="true" />
       <div class="side-line" aria-hidden="true" />
       <div class="side-brand">

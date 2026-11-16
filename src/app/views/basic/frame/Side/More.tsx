@@ -45,6 +45,7 @@ export function More() {
           aria-label={texts.more}
           data-layer=""
           data-panel=""
+          data-letters=""
           style={{ left: px(place.left), top: px(place.top) }}
         >
           {moreFor(frame.person).map((option) => (

@@ -81,10 +81,13 @@ navegación. Las dos trabajan sobre los modelos, no sobre el HTML, y ninguna sab
   tocar la pantalla ni su lógica. Un comando sin tecla en el mapa no se puede usar con el teclado;
   una tecla del mapa cuyo comando no existe es un error.
 - **Una tecla vale en el contexto de su pantalla:** la misma combinación puede hacer cosas
-  distintas en pantallas distintas. Lo que vale en toda la aplicación (las partes del menú, Más)
-  lleva el contexto `app`. `pnpm check` controla que dentro de un contexto, y entre un contexto y
-  `app`, ninguna combinación se repita, y que no se use una que reserva el navegador (Ctrl+T,
-  Ctrl+W, F5…).
+  distintas en pantallas distintas. Lo que valga en toda la aplicación lleva el contexto `app`.
+  `pnpm check` controla que dentro de un contexto, y entre un contexto y `app`, ninguna combinación
+  se repita, y que no se use una que reserva el navegador (Ctrl+T, Ctrl+W, F5…).
+- **El menú no usa el mapa:** sus teclas son de la navegación (00 · R2.13). Alt 0 lleva la marca al
+  menú y ahí cada opción se elige con su letra sola. Así las pantallas tienen todas las letras con
+  Alt para sus botones, sin que el menú les quite ninguna. La letra de cada opción es un dato del
+  menú; la vista la pone con `data-key` en una región con `data-letters`.
 - **Lo que se ve:** qué atajo tiene cada acción, para mostrarlo con Alt (00 · R2.9), lo da
   `useShortcutHints(<pantalla>)`; sin la capa, devuelve nada.
 

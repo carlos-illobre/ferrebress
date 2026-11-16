@@ -48,6 +48,13 @@ export const alt = (key: string) => {
 export const press = (key: string) => {
   window.dispatchEvent(new KeyboardEvent('keydown', { key }));
 };
+// Alt 0, que lleva la marca al menú, y la letra sola de una opción (00 · R2.13).
+export const toMenu = () => {
+  window.dispatchEvent(new KeyboardEvent('keydown', { key: '0', code: 'Digit0', altKey: true }));
+};
+export const letter = (key: string) => {
+  window.dispatchEvent(new KeyboardEvent('keydown', { key, code: `Key${key.toUpperCase()}` }));
+};
 
 // Una opción del menú que, para la prueba, ya existe (o deja de existir, con `undefined`).
 export function withPath(option: Option, path: string | undefined, run: () => void): void {

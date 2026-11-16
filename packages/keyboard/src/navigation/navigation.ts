@@ -9,9 +9,13 @@
 //                "next", salvo con el cursor en una caja con texto (el manual)
 //   data-slash   la caja a la que lleva / ; data-clear, la que Esc vacía antes de cerrar nada
 //   data-page    los botones de una lista por páginas: RePág toca "previous" y AvPág, "next"
+//   data-letters una región con letras propias, como el menú: con la marca adentro, la letra sola
+//                toca su botón data-key; una combinación (toMenu, Alt+0) lleva la marca ahí, a lo
+//                que tiene aria-current
 // Cada vez que la marca cambia, avisa con el evento «mark» en document, para el rótulo del menú.
 // En el celular no hay atajos ni marca.
-import { layers, topLayer, visible } from '../layers.ts';
+import { layers, lettersOf, topLayer, visible } from '../layers.ts';
+import { comboOf } from '../shortcuts/combo.ts';
 
 const markedClass = 'marked';
 const somethingOnTop = () => layers().length > 1;
@@ -123,6 +127,40 @@ const onArrow = (event: KeyboardEvent) => {
 const onPage = (event: KeyboardEvent) =>
   topLayer().querySelector<HTMLElement>(`[data-page="${pages[event.key]}"]`)?.click();
 
+// La región con letras propias donde está la marca, o la capa de arriba si es una.
+function lettersHere(): Element | undefined {
+  const top = topLayer();
+  if (top.hasAttribute('data-letters')) return top;
+  const current = marked();
+  return current && top.contains(current) ? lettersOf(current) : undefined;
+}
+
+// Una letra o un número sin Alt en una región con letras propias: toca su botón.
+function letter(event: KeyboardEvent): boolean {
+  const region = lettersHere();
+  const key = /^(Key|Digit)(.)$/.exec(event.code)?.[2]?.toLowerCase();
+  // Escribiendo en una caja, las letras son del texto.
+  if (!region || !key || event.ctrlKey || event.metaKey || isTextBox(event.target)) return false;
+  const button = [
+    ...region.querySelectorAll<HTMLElement>(`[data-key="${key}"]:not([disabled])`),
+  ].find(visible);
+  if (!button) return false;
+  event.preventDefault();
+  // Como Enter: la marca queda donde estaba, y lo que abre algo encima marca lo primero de adentro.
+  if (button.getAttribute('aria-expanded') === 'false') open(button);
+  else button.click();
+  return true;
+}
+
+// Lleva la marca a la primera región con letras propias de la capa de arriba (el menú): a lo que
+// está abierto (aria-current) o, si no hay, a lo primero.
+function toLetters(event: KeyboardEvent): void {
+  const region = topLayer().querySelector('[data-letters]');
+  if (!region) return;
+  event.preventDefault();
+  mark(region.querySelector<HTMLElement>('[data-mark][aria-current]') ?? marks(region)[0]);
+}
+
 // Lo que hace cada tecla sin Alt; las demás no hacen nada.
 const actions: Record<string, (event: KeyboardEvent) => void> = {
   ...Object.fromEntries(Object.keys(steps).map((key) => [key, onArrow])),
@@ -132,13 +170,17 @@ const actions: Record<string, (event: KeyboardEvent) => void> = {
   '/': slash,
 };
 
-function onKeyDown(event: KeyboardEvent): void {
-  if (!event.altKey) actions[event.key]?.(event);
-}
-
 // Prende la navegación; devuelve cómo apagarla. Sin teclado físico (un celular), no hace nada.
-export function startNavigation({ touchOnly = false } = {}): () => void {
+// `toMenu`: la combinación que lleva la marca al menú («Alt+0»); sin ella, no hay.
+export function startNavigation({
+  touchOnly = false,
+  toMenu,
+}: { touchOnly?: boolean; toMenu?: string } = {}): () => void {
   if (touchOnly) return () => {};
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (toMenu && comboOf(event) === toMenu) toLetters(event);
+    else if (!(event.altKey || letter(event))) actions[event.key]?.(event);
+  };
   const listeners: [string, EventListener][] = [
     ['keydown', onKeyDown as EventListener],
     ['mousemove', unmark],

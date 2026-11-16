@@ -5,7 +5,7 @@ import { startShortcuts } from './shortcuts/shortcuts.ts';
 
 export function startKeyboard(touchOnly = false): () => void {
   const stops = [
-    startNavigation({ touchOnly }),
+    startNavigation({ touchOnly, toMenu: 'Alt+0' }),
     startShortcuts({
       declared: [],
       keymap: {},
