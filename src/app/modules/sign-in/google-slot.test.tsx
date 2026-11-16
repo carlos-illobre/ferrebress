@@ -5,7 +5,7 @@ import { online } from '../../platform/server/api.ts';
 import { platformSettings } from '../../platform/settings.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { later } from '../../testing/later.ts';
-import { Entrance } from './index.ts';
+import { Entrance } from '../../views/basic/sign-in/index.ts';
 import { person } from './session.ts';
 import { signInSettings } from './settings.ts';
 import { googleFrame, startReply } from './sign-in-test-kit.ts';

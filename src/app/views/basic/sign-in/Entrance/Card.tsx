@@ -2,12 +2,12 @@
 // Google y la nota; en el celular, «Iniciá sesión», Google, la huella y «Escanear», cada uno
 // separado por «o» (la entrada oscura). En la computadora, mientras se abre la sesión, la espera la
 // tapa (R2.11).
+
+import { entering, texts } from '../../../../modules/sign-in/model.ts';
 import { isPhone } from '../../../../platform/device/device.ts';
 import { useStore } from '../../../../platform/store.ts';
 import logo from '../../../../styles/brand/logo-on-light.webp';
 import { Icon } from '../../../../ui/icon/Icon.tsx';
-import { texts } from '../../texts.ts';
-import { entering } from '../../useSignIn.ts';
 import { FingerButton, ScanButton } from './Buttons.tsx';
 import { Entering } from './entering/Entering.tsx';
 import { GoogleButton } from './google/GoogleButton.tsx';

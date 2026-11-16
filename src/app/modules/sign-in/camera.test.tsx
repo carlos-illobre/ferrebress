@@ -1,7 +1,7 @@
 import { act, render } from '@testing-library/preact';
 import { expect, it, vi } from 'vitest';
 import { scan } from '../../platform/camera/scanner.ts';
-import { Camera } from './index.ts';
+import { Camera } from '../../views/basic/sign-in/index.ts';
 
 vi.mock('../../platform/camera/scanner.ts', () => ({ scan: vi.fn() }));
 

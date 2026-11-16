@@ -18,6 +18,9 @@ const linking = vi.hoisted(() => ({ result: 'linked' as 'linked' | 'other-accoun
 vi.mock('../sign-in/index.ts', async (original) => ({
   ...(await original<object>()),
   linkHere: async () => linking.result,
+}));
+vi.mock('../../views/basic/sign-in/index.ts', async (original) => ({
+  ...(await original<object>()),
   // La hoja de confirmar quién es: confirma en cuanto se abre.
   loadConfirmSheet: async () => ({
     ConfirmSheet: ({ onConfirmed, onClose }: { onConfirmed: () => void; onClose: () => void }) => {

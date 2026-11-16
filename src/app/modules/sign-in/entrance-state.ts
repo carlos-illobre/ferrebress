@@ -1,9 +1,7 @@
-// Lo que comparten las piezas de la entrada: si hay conexión, el aviso, cómo intentar entrar y
-// qué está apagado (R2.8: sin conexión, todo; R2.9: con demasiados intentos, Google y la huella).
+// El estado de la entrada que comparten sus piezas y qué está apagado (R2.8: sin conexión, todo;
+// R2.9: con demasiados intentos, Google y la huella).
 import type { StartResponse } from '@ferrebress/shared/contracts/sign-in';
-import { createContext } from 'preact';
-import { useContext } from 'preact/hooks';
-import type { Notice } from '../../notice.ts';
+import type { Notice } from './notice.ts';
 
 export type EntranceState = {
   start: StartResponse;
@@ -18,10 +16,6 @@ export type EntranceState = {
   // Sin conexión, hasta cuándo se puede entrar con la huella (15 · R2.1).
   offlineUntil: Date | undefined;
 };
-
-export const EntranceContext = createContext<EntranceState | undefined>(undefined);
-
-export const useEntrance = () => useContext(EntranceContext) as EntranceState;
 
 export const offline = (state: EntranceState) => !state.online;
 export const limited = (state: EntranceState) => !state.online || state.notice?.kind === 'too-many';

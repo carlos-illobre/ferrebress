@@ -3,11 +3,15 @@
 // en el mismo Wi-Fi. Con demasiados intentos o una cuenta que no puede entrar, lo mismo que la
 // entrada (E03, R2.9). Que la computadora entró no se avisa: se ve en ella (R2.11).
 import type { Person, ReadCodeResponse } from '@ferrebress/shared/contracts/sign-in';
+import type { usePhoneCode } from '../../../../modules/sign-in/model.ts';
+import {
+  minutes,
+  type Notice,
+  person,
+  texts,
+  useNotice,
+} from '../../../../modules/sign-in/model.ts';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
-import type { usePhoneCode } from '../../codes/usePhoneCode.ts';
-import { minutes, type Notice, useNotice } from '../../notice.ts';
-import { person } from '../../session.ts';
-import { texts } from '../../texts.ts';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
 type Code = ReturnType<typeof usePhoneCode>;

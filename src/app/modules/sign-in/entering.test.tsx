@@ -3,7 +3,7 @@ import { fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { later } from '../../testing/later.ts';
-import { Entrance } from './index.ts';
+import { Entrance } from '../../views/basic/sign-in/index.ts';
 import { person } from './session.ts';
 import { fakePasskeys, googleFrame, phone, startReply } from './sign-in-test-kit.ts';
 

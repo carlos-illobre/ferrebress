@@ -10,7 +10,7 @@ import { peopleShapes } from '../../../../ui/icon/people-shapes.tsx';
 import { LoadState } from '../../../../ui/load-state/LoadState.tsx';
 import { Offline } from '../../../../ui/offline/Offline.tsx';
 import { AuditLog as AuditLogTab } from '../../../../views/basic/audit-log/AuditLog.tsx';
-import { loadConfirmSheet } from '../../../sign-in/index.ts';
+import { loadConfirmSheet } from '../../../../views/basic/sign-in/index.ts';
 import { UsersContext, useUsers, useUsersContext } from '../../state.ts';
 import { texts } from '../../texts.ts';
 import { Card } from '../Card/Card.tsx';

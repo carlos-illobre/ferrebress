@@ -3,7 +3,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeServer } from '../../testing/fake-server.ts';
-import { ConfirmSheet } from './screens/Sheets/ConfirmSheet.tsx';
+import { ConfirmSheet } from '../../views/basic/sign-in/Sheets/ConfirmSheet.tsx';
 import { passkeyLinked } from './session.ts';
 import { fakePasskeys, googleFrame, phone, startReply } from './sign-in-test-kit.ts';
 

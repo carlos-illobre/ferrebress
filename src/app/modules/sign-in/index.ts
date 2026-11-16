@@ -1,5 +1,5 @@
-// El módulo de entrar en la aplicación (capítulo 01): la entrada, las hojas del celular, la sesión
-// y salir. Lo usa App, que decide si se ve la entrada o el marco.
+// El módulo de entrar en la aplicación (capítulo 01): la sesión, salir y lo que usan los demás
+// módulos. Lo que usan las vistas está en model.ts (ADR-019); sus pantallas, en cada vista.
 export {
   accessApi,
   accessTexts,
@@ -21,10 +21,6 @@ export { type OfflineRow, useOfflineSetting } from './offline/setting.ts';
 export { watchOffline } from './offline/watch.ts';
 export { type Linked, linkHere } from './passkeys/link.ts';
 export { watchPermissions } from './permissions-watch.ts';
-export { Entrance } from './screens/Entrance/Entrance.tsx';
-export { Camera } from './screens/Sheets/Camera.tsx';
-export { CodeSheet } from './screens/Sheets/CodeSheet.tsx';
-export { OfferSheet } from './screens/Sheets/OfferSheet.tsx';
 export {
   confirmed,
   hasPendingSignOut,
@@ -34,6 +30,3 @@ export {
   signOut,
   unknownToServer,
 } from './session.ts';
-
-// Volver a confirmar quién es (02 · R3.8): la hoja se baja recién cuando hace falta.
-export const loadConfirmSheet = () => import('./screens/Sheets/ConfirmSheet.tsx');

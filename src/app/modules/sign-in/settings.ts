@@ -15,6 +15,10 @@ export const signInSettings = {
     failAfterMs: 8 * second,
     // El nonce vence a los 10 minutos: se pide uno nuevo un minuto antes.
     renewAfterMs: (googleNonceMinutes - 1) * minute,
+    // El ancho más grande que Google deja para su botón, en píxeles.
+    maxWidth: 400,
+    // El ancho del botón en la hoja de volver a confirmar quién es.
+    confirmWidth: 320,
   },
   offline: {
     // Cuánto se puede entrar sin conexión después de la última entrada con internet (15 · R2.2).

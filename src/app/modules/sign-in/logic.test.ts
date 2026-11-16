@@ -2,12 +2,15 @@ import 'fake-indexeddb/auto';
 import { act, renderHook } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { qrPath } from '../../platform/camera/qr-draw.ts';
+import { secondsLeft as left } from '../../platform/countdown.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
 import { later } from '../../testing/later.ts';
 import { codeOf, linkUrl } from './codes/qr.ts';
 import { minutes, noticeOf, useNotice } from './notice.ts';
 import { createPasskey, signWithPasskey } from './passkeys/webauthn.ts';
-import { secondsLeft } from './screens/Entrance/qr/QrBlock.tsx';
+
+const secondsLeft = (now: number, since: number) => left(now, since, 60);
+
 import { hasPasskey, offered, offerPasskey, person } from './session.ts';
 import { ana, fakePasskeys, phone, signInReply } from './sign-in-test-kit.ts';
 import { texts } from './texts.ts';

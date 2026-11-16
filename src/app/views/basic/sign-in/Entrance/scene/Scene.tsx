@@ -3,15 +3,19 @@
 // de muestra, el estado de la conexión y los sellos en la computadora; el lema, para qué sirve y
 // la ola en el celular.
 
+import { manualPath } from '../../../../../modules/manual/index.ts';
+import {
+  texts,
+  useEntrance,
+  useEntranceModelContext,
+} from '../../../../../modules/sign-in/model.ts';
 import { isPhone } from '../../../../../platform/device/device.ts';
 import { navigate } from '../../../../../platform/router.ts';
+import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
 import logoDark from '../../../../../styles/brand/logo-on-dark-large.webp';
 import logoLight from '../../../../../styles/brand/logo-on-light-large.webp';
 import type { IconName } from '../../../../../ui/icon/Icon.tsx';
 import { Icon } from '../../../../../ui/icon/Icon.tsx';
-import { manualPath } from '../../../../manual/index.ts';
-import { texts } from '../../../texts.ts';
-import { useEntrance } from '../context.ts';
 import phone from './phone-selling.webp';
 
 const pointIcons: IconName[] = ['shopping-cart', 'file-text', 'package'];
@@ -71,21 +75,16 @@ export function Brand({ phone }: { phone: boolean }) {
 // «Ver el manual», en la computadora (R7.2, 00 · R6.1): abre el manual sin haber entrado, y «Volver»
 // vuelve acá. En el celular el manual se abre desde Más. Sin conexión, gris (00 · R4.4).
 function ManualButton() {
-  const { online } = useEntrance();
+  const { state, openManual } = useEntranceModelContext();
+  const { online } = state;
+  const keys = useShortcutHints('sign-in');
   if (isPhone()) return null;
   return (
-    <button
-      type="button"
-      class="manual"
-      data-mark=""
-      data-key="m"
-      disabled={!online}
-      onClick={() => navigate(manualPath, { state: { from: 'entrance' } })}
-    >
+    <button type="button" class="manual" data-mark="" disabled={!online} onClick={openManual}>
       <Icon name="book-open" />
       {texts.manual}
       {!online && <span class="manual-soon">{texts.offline}</span>}
-      <kbd>M</kbd>
+      {keys.manual && <kbd>{keys.manual}</kbd>}
     </button>
   );
 }

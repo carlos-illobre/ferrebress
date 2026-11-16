@@ -1,26 +1,15 @@
 // La primera vez que entra con Google en un celular, se le ofrece una sola vez entrar con la huella
 // la próxima (R2.2; E06 a E09). Se muestra encima del marco, al llegar. «Sí» abre directo el lector
 // del celular y, vinculada la huella, la hoja se cierra sin avisar (R2.11).
-import { useState } from 'preact/hooks';
-import { useStore } from '../../../../platform/store.ts';
+
+import { texts, useOffer } from '../../../../modules/sign-in/model.ts';
 import { Sheet } from '../../../../ui/sheet/Sheet.tsx';
-import { linkHere } from '../../passkeys/link.ts';
-import { offered, offerPasskey, person } from '../../session.ts';
-import { texts } from '../../texts.ts';
 import { SheetButton, SheetIcon } from './pieces.tsx';
 
-type Step = 'ask' | 'other-account';
-
 export function OfferSheet() {
-  const open = useStore(offerPasskey);
-  const who = useStore(person);
-  const [step, setStep] = useState<Step>('ask');
-  if (!open || !who) return null;
-  const close = () => {
-    setStep('ask');
-    offered(who.userId);
-    offerPasskey.set(false);
-  };
+  const offer = useOffer();
+  if (!offer.shown) return null;
+  const { step, close } = offer;
   return (
     <Sheet title={texts.offer.title} onClose={close}>
       {step === 'ask' ? (
@@ -28,17 +17,9 @@ export function OfferSheet() {
           <SheetIcon name="fingerprint" />
           <h2>{texts.offer.title}</h2>
           <p class="sheet-sub" data-private="">
-            {texts.offer.detail(who.email)}
+            {texts.offer.detail(offer.email)}
           </p>
-          <SheetButton
-            look="orange"
-            doing={texts.signingIn}
-            onPress={async () => {
-              const linked = await linkHere();
-              if (linked === 'linked') close();
-              else setStep(linked ?? 'ask');
-            }}
-          >
+          <SheetButton look="orange" doing={texts.signingIn} onPress={offer.accept}>
             {texts.offer.yes}
           </SheetButton>
           <SheetButton look="plain" doing={texts.cancel} onPress={close} closes>

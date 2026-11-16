@@ -5,7 +5,7 @@ import { online, sessionClosed } from '../../../platform/server/api.ts';
 import { codesPath } from '../../../testing/codes-stream.ts';
 import { fakeServer } from '../../../testing/fake-server.ts';
 import { Toasts } from '../../../ui/toast/Toast.tsx';
-import { Entrance } from '../index.ts';
+import { Entrance } from '../../../views/basic/sign-in/index.ts';
 import { passkeyLinked, person } from '../session.ts';
 import { startReply } from '../sign-in-test-kit.ts';
 import { eva, fakeFinger, resetOffline } from './offline-kit.ts';

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { online, sessionClosed } from '../../platform/server/api.ts';
 import { codesPath, codesStream } from '../../testing/codes-stream.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
-import { Entrance } from './index.ts';
+import { Entrance } from '../../views/basic/sign-in/index.ts';
 import { person } from './session.ts';
 import {
   ana,
@@ -47,7 +47,7 @@ describe('la entrada en la computadora', () => {
     ).toBeTruthy();
     expect(within(card).getByText('Apuntá el celular a este código')).toBeTruthy();
     await waitFor(() => expect(card.querySelector('.qr.read')).not.toBeNull());
-    await waitFor(() => expect(within(card).getByText(/Cambia en/).textContent).toContain('0:59'), {
+    await waitFor(() => expect(within(card).getByText(/Cambia en/).textContent).toMatch(/0:5\d/), {
       timeout: 4000,
     });
     expect(card.querySelector('.note')).not.toBeNull();

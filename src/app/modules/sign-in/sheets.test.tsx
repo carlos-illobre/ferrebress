@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { scan } from '../../platform/camera/scanner.ts';
 import { store } from '../../platform/device/storage.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
-import { Camera, CodeSheet, OfferSheet, usePhoneCode } from './index.ts';
+import { Camera, CodeSheet, OfferSheet } from '../../views/basic/sign-in/index.ts';
+import { usePhoneCode } from './index.ts';
 import { hasPasskey, offerPasskey, person, wasOffered } from './session.ts';
 import { ana, fakePasskeys } from './sign-in-test-kit.ts';
 

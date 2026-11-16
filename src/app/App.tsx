@@ -24,13 +24,9 @@ import {
 } from './modules/frame/index.ts';
 import { manualPath } from './modules/manual/index.ts';
 import {
-  Camera,
-  CodeSheet,
   confirmed,
-  Entrance,
   hasPendingSignOut,
   linkPath,
-  OfferSheet,
   pendingEntries,
   person,
   rejectedBefore,
@@ -57,6 +53,7 @@ import { frameLink } from './views/basic/device-link/frame-link.tsx';
 import { InstallOffer } from './views/basic/device-settings/InstallOffer.tsx';
 import { Settings } from './views/basic/device-settings/Settings/Settings.tsx';
 import { ManualSlot } from './views/basic/manual/ManualSlot.tsx';
+import { Camera, CodeSheet, Entrance, OfferSheet } from './views/basic/sign-in/index.ts';
 
 // La pantalla de cada opción del menú que ya existe.
 const screens = { users: UsersSlot, deviceSettings: Settings, administration: AdministrationSlot };

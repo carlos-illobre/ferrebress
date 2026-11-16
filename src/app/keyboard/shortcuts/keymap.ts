@@ -66,4 +66,7 @@ export const keymap: Record<string, string> = {
   'audit-log.live': 'Alt+R',
   'audit-log.newOnes': 'Alt+N',
   'audit-tape.play': 'Alt+R',
+  // La entrada (01 · R7.1, R7.2).
+  'sign-in.manual': 'Alt+M',
+  'sign-in.retryGoogle': 'Alt+R',
 };
