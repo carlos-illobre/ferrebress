@@ -22,7 +22,7 @@ export type SignInServerOptions = {
 
 export async function createSignInServer(clock?: Clock, options: SignInServerOptions = {}) {
   const google = await createTestGoogle(testConfig.GOOGLE_CLIENT_ID);
-  const { modules, users, people, administration } = createModules({
+  const { modules, users, people, administration, anomalies, catalog } = createModules({
     googleKeys: google.keys,
     ...options,
   });
@@ -66,6 +66,7 @@ export async function createSignInServer(clock?: Clock, options: SignInServerOpt
   return {
     ...server,
     ...{ users, people: people(), administration, deactivate, google, runJobs, countQueries },
+    ...{ anomalies, catalog },
   };
 }
 

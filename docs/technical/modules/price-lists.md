@@ -226,8 +226,10 @@ ni rutas en esta etapa: solo su fachada, que usa `price-lists` dentro de su tran
 | `summary` | `jsonb`, `not null` | Lo que se muestra: el proveedor, el archivo, el motivo, cuántas filas y por qué motivos. Nunca precios: las filas se piden a `price-lists`, con «Ver costos» (08 · R9.2) |
 | `opened_at`, `reviewed_by`, `reviewed_at`, `note`, `closed_at` | | Cuándo, quién, la nota (hasta 500 letras) |
 
-- **Índices:** `(status, opened_at desc)`; y uno único parcial, `(kind, subject) where status <>
-  'closed'`: una sola abierta por cosa.
+- **Índices:** `(status, id desc)`, porque el identificador es UUID v7 y su orden es el de cuándo se
+  abrió: la página siguiente es `id < after`; y uno único parcial, `(kind, subject) where status <>
+  'closed'`: una sola abierta o revisada por cosa. Encontrar otra vez la misma cosa pone al día lo que
+  muestra la que había y la vuelve a abrir; una cerrada no se toca y lo nuevo es otra.
 
 ### Los ajustes de 06 (sin migración)
 
@@ -368,7 +370,9 @@ programador, el automático y los de la etapa b:
 | `lists.discarded` | «Descartó la lista…» | Por qué: a mano, cancelada o reemplazada |
 | `files.deleted`, `files.restored` | «Borró el archivo…» | Su lista (06 · R10.2) |
 | `readers.activated`, `readers.deactivated`, `readers.assigned` | «Desactivó el lector…» | El proveedor y de dónde salió (E50) |
-| `anomalies.reviewed`, `anomalies.reopened` | «Marcó revisada…» | La nota (06 · R9.7) |
+
+Las de `anomalies` van en el grupo «Administración», que es el capítulo que las describe:
+`anomalies.reviewed` («Marcó revisada…», con la nota) y `anomalies.reopened` (06 · R9.7).
 
 - **Los costos de cada artículo** (R9.1, E71) van dentro de `lists.applied` y `suppliers.terms-changed`:
   un evento por lista, con el costo anterior y el nuevo de cada uno, y cada producto como dato afectado

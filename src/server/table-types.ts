@@ -10,7 +10,10 @@ import { inMemoryUrl, migrate, openDatabase } from './platform/storage/db.ts';
 
 // Lo que la base no sabe y el código sí: los valores que puede tener una columna de texto.
 const overrides = {
-  columns: { 'device_link.pairings.paired_by': "'button' | 'sign-in'" },
+  columns: {
+    'device_link.pairings.paired_by': "'button' | 'sign-in'",
+    'anomalies.anomalies.status': "'open' | 'reviewed' | 'closed'",
+  },
 };
 
 // `bytea` llega como `Uint8Array` en PGlite y como `Buffer` (que lo extiende) en `pg`.

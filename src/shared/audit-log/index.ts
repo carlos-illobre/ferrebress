@@ -2,6 +2,7 @@
 // archivo es del módulo que nombra; este, del código común.
 import type { AuditView, ToneName } from '../contracts/audit-log.ts';
 import { administrationTypes } from './administration.ts';
+import { anomaliesTypes } from './anomalies.ts';
 import { auditLogTypes } from './audit-log.ts';
 import { deviceLinkTypes } from './device-link.ts';
 import { deviceSettingsTypes } from './device-settings.ts';
@@ -23,6 +24,7 @@ export const catalog: Record<string, Entry> = {
   ...deviceLinkTypes,
   ...deviceSettingsTypes,
   ...administrationTypes,
+  ...anomaliesTypes,
   ...platformTypes,
   ...auditLogTypes,
 };

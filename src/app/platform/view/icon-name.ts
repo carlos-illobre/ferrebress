@@ -21,6 +21,8 @@ export type IconName =
   | 'circle-info'
   | 'circle-slash'
   | 'circle-x'
+  | 'clipboard-check'
+  | 'clipboard-list'
   | 'clock'
   | 'clock-history'
   | 'cloud'

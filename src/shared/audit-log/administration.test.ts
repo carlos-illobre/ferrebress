@@ -62,3 +62,30 @@ describe('un ajuste para todos en Quién hizo qué', () => {
     expect(says('__proto__', 1, 2)).toBe('Cambió un ajuste para todos');
   });
 });
+
+describe('una anomalía en Quién hizo qué', () => {
+  const says = (type: string, data: Record<string, unknown>) =>
+    read(
+      entryOf(type).says({
+        ...{ id: '2026:2', at: '2026-11-07T13:00:00.000Z', type, tone: 'plain' },
+        ...{ actor: { kind: 'person', id: 'u-ana' }, targets: [], changes: {}, data },
+      }),
+    );
+
+  it('administration-E48: marcarla revisada, con la nota', () => {
+    expect(entryOf('anomalies.reviewed').group).toBe('administration');
+    expect(says('anomalies.reviewed', { kind: 'price-list-unreadable', note: 'Visto' })).toBe(
+      'Marcó revisada una lista que no se pudo leer: Visto',
+    );
+    expect(says('anomalies.reviewed', { kind: 'price-list-skipped-rows' })).toBe(
+      'Marcó revisada las filas salteadas de una lista',
+    );
+  });
+
+  it('administration-E49: volver a abrirla; un tipo que no conoce se lee igual', () => {
+    expect(says('anomalies.reopened', { kind: 'price-list-unreadable' })).toBe(
+      'Volvió a abrir una lista que no se pudo leer',
+    );
+    expect(says('anomalies.reopened', { kind: 'constructor' })).toBe('Volvió a abrir una anomalía');
+  });
+});
