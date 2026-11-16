@@ -5,7 +5,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { keyboardForEachTest } from '../../testing/keyboard.ts';
 import {
   access,
+  choose,
   inCard,
+  isOff,
   openUsers,
   row,
   ruben,
@@ -13,10 +15,6 @@ import {
 } from '../../views/basic/users/users-test-kit.tsx';
 import { googleFrame, startReply } from '../sign-in/sign-in-test-kit.ts';
 
-const choose = async (name: RegExp) => {
-  await screen.findByText('Rubén Paredes');
-  fireEvent.click(row(name));
-};
 const press = (input: HTMLElement, key: string) => fireEvent.keyDown(input, { key });
 
 describe('los rechazos en la tarjeta', () => {
@@ -84,7 +82,7 @@ describe('los rechazos en la tarjeta', () => {
     await fails('/api/users/pedro/delete', () =>
       fireEvent.click(inCard().getByRole('button', { name: /Borrar el alta/ })),
     );
-    expect(row(/Graciela/).classList.contains('off')).toBe(false);
+    expect(isOff(row(/Graciela/))).toBe(false);
     expect(row(/pedro/)).toBeTruthy();
   });
 

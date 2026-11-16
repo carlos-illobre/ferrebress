@@ -3,8 +3,7 @@
 // hoja en el celular. Sin conexión se ve gris, con lo último que trajo, y sale del gris sin pedir
 // nada al volver (R5.1). La cinta se abre encima (R4.11). «Actualizar solo» va donde estaba
 // «Actualizar» (R4.6).
-import type { AuditPage, AuditView } from '@ferrebress/shared/contracts/audit-log';
-import { useRef } from 'preact/hooks';
+import type { AuditPage } from '@ferrebress/shared/contracts/audit-log';
 import {
   AuditLogContext,
   hasFilters,

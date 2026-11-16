@@ -1,7 +1,7 @@
 // Lo que comparten las pruebas de Usuarios: personas de mentira (correos @example.com), sus
 // sesiones y celulares, y la pantalla montada con un servidor de mentira.
 import type { AccessResponse, PersonRow } from '@ferrebress/shared/contracts/users';
-import { render, screen, within } from '@testing-library/preact';
+import { fireEvent, render, screen, within } from '@testing-library/preact';
 import { person as me } from '../../../modules/sign-in/index.ts';
 import { syncServerTime } from '../../../platform/server/clock.ts';
 import { fakeServer, type Reply } from '../../../testing/fake-server.ts';
@@ -144,3 +144,39 @@ export const row = (name: RegExp) =>
 export const card = () => document.querySelector('.users-card') as HTMLElement;
 export const inCard = () => within(card());
 export const toast = () => document.querySelector('.toast')?.textContent;
+
+// Si el renglón de una persona se ve dado de baja (gris).
+export const isOff = (one: HTMLElement) => one.classList.contains('off');
+// Los botones de las tarjetas de arriba y de los renglones que llevan a una parte, en el celular.
+export const tilesOf = () => within(card().querySelector('.users-tiles') as HTMLElement);
+export const linkRowsOf = () => within(card().querySelector('.users-link-rows') as HTMLElement);
+// Las cantidades de sesiones o celulares que muestra el renglón de una persona.
+export const countsOf = (one: HTMLElement) => one.querySelector('.users-counts')?.textContent;
+// «‹ Usuarios», que en lo angosto vuelve de la tarjeta a la lista.
+export const backToList = () => document.querySelector('.users-back') as HTMLElement;
+// Lo resaltado de lo buscado en los nombres de la lista.
+export const highlighted = () =>
+  [...document.querySelectorAll('.users-row .users-name em')].map((one) => one.textContent);
+// Las cuentas de arriba de la lista.
+export const statsText = () => document.querySelector('.users-stats')?.textContent;
+// El punto de «Buscar usuario» que dice que hay una búsqueda o un filtro puestos.
+export const hasSearchDot = (button: HTMLElement) =>
+  button.querySelector('.users-tool-dot') !== null;
+// Si la pantalla se ve sin conexión (gris).
+export const looksOffline = () => document.querySelector('.users')?.hasAttribute('data-off');
+// Las pastillas de los roles de la tarjeta y lo que va a poder la persona.
+export const roleChips = () => document.querySelector('.users-role-chips') as HTMLElement;
+export const abilitiesText = () =>
+  (document.querySelector('.person-abilities') as HTMLElement).textContent;
+// El pie de los roles de una persona en el celular y lo que pierde.
+export const personFoot = () => document.querySelector('.person-foot') as HTMLElement;
+export const lostIn = (foot: HTMLElement) => foot.querySelector('.gone')?.textContent;
+// El título de un diálogo.
+export const titleOf = (region: HTMLElement) => region.querySelector('h2')?.textContent;
+// El primer botón de la barra de abajo, en el celular.
+export const phoneBarButton = () => document.querySelector('.users-bar button') as HTMLElement;
+// Elegir a una persona de la lista, una vez que la lista llegó.
+export const choose = async (name: RegExp) => {
+  await screen.findByText('Rubén Paredes');
+  fireEvent.click(row(name));
+};

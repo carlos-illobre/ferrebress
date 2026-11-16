@@ -6,7 +6,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/preact'
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
-import { media, open, person } from '../../views/basic/frame/frame-test-kit.tsx';
+import { goneRoles, media, open, person } from '../../views/basic/frame/frame-test-kit.tsx';
 import { Frame } from '../../views/basic/frame/index.ts';
 import { Toasts } from '../../views/basic/ui/toast/Toast.tsx';
 
@@ -160,7 +160,7 @@ describe('el marco con permisos', () => {
     const dialog = await screen.findByRole('alertdialog');
     expect(dialog.textContent).toContain('Cambiaron los permisos de un rol que tenés.');
     expect(dialog.textContent).not.toContain('Graciela');
-    expect(dialog.querySelector('.pill-gone')).toBeNull();
+    expect(goneRoles(dialog)).toEqual([]);
     fireEvent.click(within(dialog).getByRole('button', { name: /Ir a Configuración ahora/ }));
   });
 

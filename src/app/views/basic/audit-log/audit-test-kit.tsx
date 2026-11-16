@@ -154,3 +154,6 @@ export function openAuditLog(routes: Record<string, Reply | Reply[]> = {}, phone
 
 export const rows = () => [...document.querySelectorAll<HTMLElement>('.audit-row')];
 export const detail = () => document.querySelector('.audit-detail-body')?.textContent ?? '';
+
+// La lista de acciones, que se desplaza.
+export const ledger = () => document.querySelector('.audit-ledger') as HTMLElement;

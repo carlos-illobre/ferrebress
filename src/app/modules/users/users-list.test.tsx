@@ -4,11 +4,20 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/preact
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { route } from '../../platform/router.ts';
 import { online } from '../../platform/server/api.ts';
-import { openUsers, roles, row, viewer } from '../../views/basic/users/users-test-kit.tsx';
+import {
+  hasSearchDot,
+  highlighted,
+  isOff,
+  looksOffline,
+  openUsers,
+  roles,
+  row,
+  statsText,
+  viewer,
+} from '../../views/basic/users/users-test-kit.tsx';
 import { person as me, pendingEntries } from '../sign-in/index.ts';
 
-const names = () =>
-  [...document.querySelectorAll('.users-row .users-name em')].map((one) => one.textContent);
+const names = highlighted;
 
 describe('la lista de Usuarios', () => {
   afterEach(() => {
@@ -29,9 +38,9 @@ describe('la lista de Usuarios', () => {
     expect(row(/Graciela/).textContent).toContain('Entró hace 3 días');
     expect(row(/pedro/).textContent).toContain('Todavía no entró');
     expect(row(/pedro/).textContent).toContain('Sin nombre: se ve su correo hasta que entre');
-    expect(row(/Sofía/).classList.contains('off')).toBe(true);
+    expect(isOff(row(/Sofía/))).toBe(true);
     expect(row(/Sofía/).textContent).toContain('Dada de baja');
-    const stats = document.querySelector('.users-stats')?.textContent;
+    const stats = statsText();
     expect(stats).toContain('3Pueden entrar');
     expect(stats).toContain('3Sesiones');
     expect(stats).toContain('1Con huella');
@@ -72,12 +81,12 @@ describe('la lista de Usuarios', () => {
     expect(names()).toEqual(['Sofía Blanco']);
     fireEvent.click(within(dialog).getByRole('button', { name: 'Ver 1 persona' }));
     expect(screen.queryByRole('alertdialog')).toBeNull();
-    expect(open.querySelector('.users-tool-dot')).not.toBeNull();
+    expect(hasSearchDot(open)).toBe(true);
     fireEvent.click(open);
     fireEvent.click(screen.getByRole('button', { name: 'Limpiar' }));
     expect(names()).toHaveLength(4);
     fireEvent.click(screen.getByRole('button', { name: 'Ver 4 personas' }));
-    expect(open.querySelector('.users-tool-dot')).toBeNull();
+    expect(hasSearchDot(open)).toBe(false);
   });
 
   it('si no se pudo traer la lista, lo dice y se reintenta', async () => {
@@ -99,12 +108,10 @@ describe('la lista de Usuarios', () => {
     act(() => online.set(true));
     await screen.findByText('Rubén Paredes');
     act(() => online.set(false));
-    expect(document.querySelector('.users')?.hasAttribute('data-off')).toBe(true);
+    expect(looksOffline()).toBe(true);
     expect(screen.getByText('Rubén Paredes')).toBeTruthy();
     act(() => online.set(true));
-    await waitFor(() =>
-      expect(document.querySelector('.users')?.hasAttribute('data-off')).toBe(false),
-    );
+    await waitFor(() => expect(looksOffline()).toBe(false));
     // La lista y, con «Administrar roles», los roles.
     expect(server.sent.map((one) => one.path)).toEqual(['/api/users', '/api/roles']);
   });

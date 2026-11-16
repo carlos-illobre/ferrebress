@@ -6,9 +6,13 @@ import { keyboardForEachTest } from '../../testing/keyboard.ts';
 import { narrowOnly, stubMedia } from '../../testing/media.ts';
 import {
   access,
+  backToList,
   card,
+  choose,
+  countsOf,
   graciela,
   inCard,
+  isOff,
   openUsers,
   pedro,
   row,
@@ -16,10 +20,6 @@ import {
   toast,
 } from '../../views/basic/users/users-test-kit.tsx';
 
-const choose = async (name: RegExp) => {
-  await screen.findByText('Rubén Paredes');
-  fireEvent.click(row(name));
-};
 const press = (input: HTMLElement, key: string) => fireEvent.keyDown(input, { key });
 
 describe('la tarjeta de una persona', () => {
@@ -72,7 +72,7 @@ describe('la tarjeta de una persona', () => {
     await waitFor(() => expect(toast()).toContain('y se cerró su sesión'));
     expect(inCard().getByText('Sin sesiones abiertas en otros dispositivos.')).toBeTruthy();
     expect(inCard().getByText('No vinculó ningún celular con huella.')).toBeTruthy();
-    expect(row(/Graciela/).querySelector('.users-counts')?.textContent).toBe('');
+    expect(countsOf(row(/Graciela/))).toBe('');
     expect(server.bodies('/api/users/graciela/phones/f1/cut')).toEqual([{ from: 'card' }]);
   });
 
@@ -102,7 +102,7 @@ describe('la tarjeta de una persona', () => {
       '/api/roles',
       '/api/users/graciela/access',
     ]);
-    expect(row(/Graciela/).classList.contains('off')).toBe(false);
+    expect(isOff(row(/Graciela/))).toBe(false);
     expect(card().textContent).toContain('Autorizada el');
   });
 
@@ -215,7 +215,7 @@ describe('la tarjeta de una persona', () => {
     expect(dialog.textContent).toContain('Se quita su 1 celular con huella');
     fireEvent.click(screen.getAllByRole('button', { name: /Dar de baja/ }).at(-1) as HTMLElement);
     await waitFor(() => expect(toast()).toBe('Graciela Benítez quedó dada de baja'));
-    expect(row(/Graciela/).classList.contains('off')).toBe(true);
+    expect(isOff(row(/Graciela/))).toBe(true);
     expect(card().textContent).toContain('No puede entrar');
     expect(card().textContent).toContain('Dada de baja el');
   });
@@ -229,14 +229,14 @@ describe('la tarjeta de una persona', () => {
     await choose(/Sofía/);
     fireEvent.click(inCard().getByRole('button', { name: /Dar de alta/ }));
     await waitFor(() => expect(toast()).toBe('Sofía Blanco puede entrar otra vez'));
-    expect(row(/Sofía/).classList.contains('off')).toBe(false);
+    expect(isOff(row(/Sofía/))).toBe(false);
   });
 
   it('en lo angosto, la tarjeta es un paso atrás: «‹ Usuarios» y el botón atrás vuelven', async () => {
     stubMedia(narrowOnly);
     openUsers({ '/api/users/graciela/access': { body: access } });
     await choose(/Graciela/);
-    fireEvent.click(document.querySelector('.users-back') as HTMLElement);
+    fireEvent.click(backToList());
     expect(card().textContent).toContain('Elegí a alguien');
     fireEvent.click(row(/Graciela/));
     act(() => {

@@ -76,3 +76,7 @@ export function googleFrame(): {
     credential: (credential: string) => say({ type: 'credential', credential }),
   };
 }
+
+// Si lo de la tarjeta de la entrada quedó inerte debajo de la espera.
+export const cardInert = (card: HTMLElement) =>
+  card.querySelector('.card-body')?.hasAttribute('inert') === true;

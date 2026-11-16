@@ -1,6 +1,6 @@
 // Los comandos de los atajos de Configuración (04 · R1.9, R9.2), sobre un modelo de mentira: cuándo
 // se pueden usar y qué hacen.
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { DeviceSettings } from '../useDeviceSettings.ts';
 import { shortcuts } from './device-settings.ts';
 

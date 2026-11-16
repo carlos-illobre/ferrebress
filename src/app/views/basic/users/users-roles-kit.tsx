@@ -35,3 +35,6 @@ export const saveButton = () =>
 export const typeIn = (label: string, value: string) =>
   fireEvent.input(role().getByLabelText(new RegExp(label)), { target: { value } });
 export const settle = () => act(async () => {});
+// La barra de arriba de un rol, en el celular, y «‹ Roles».
+export const phoneBar = () => within(document.querySelector('.role-phone-bar') as HTMLElement);
+export const backToRoles = () => document.querySelector('.role-crumbs .role-back') as HTMLElement;

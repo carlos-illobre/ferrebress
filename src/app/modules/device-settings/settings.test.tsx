@@ -10,6 +10,7 @@ import { fakeServer } from '../../testing/fake-server.ts';
 import { startKeyboard } from '../../testing/keyboard.ts';
 import { stubMedia } from '../../testing/media.ts';
 import { administrator } from '../../testing/person.ts';
+import { formats, seenText, summary } from '../../views/basic/device-settings/kit.ts';
 import { Settings } from '../../views/basic/device-settings/Settings/Settings.tsx';
 import { open } from '../../views/basic/frame/frame-test-kit.tsx';
 import { person } from '../sign-in/index.ts';
@@ -35,7 +36,6 @@ function openSettings({ phone = false, reduced = false, who = juan } = {}) {
 }
 
 const animations = () => screen.getByRole('switch', { name: /Animaciones/ });
-const summary = () => document.querySelector('.settings-chips') as HTMLElement;
 
 describe('Más → Configuración', () => {
   beforeEach(() => {
@@ -94,10 +94,7 @@ describe('Más → Configuración', () => {
   it('device-settings-E16, E17, E18: dos formatos, cada uno con la hora de ahora; elegir cambia toda hora', () => {
     vi.useFakeTimers({ now: Date.UTC(2026, 10, 6, 17, 5), toFake: ['Date'] });
     openSettings();
-    const [h24, h12] = [...document.querySelectorAll<HTMLElement>('.settings-format')] as [
-      HTMLElement,
-      HTMLElement,
-    ];
+    const [h24, h12] = formats() as [HTMLElement, HTMLElement];
     expect(h24.getAttribute('aria-pressed')).toBe('true');
     expect(h24.textContent).toContain('14:05');
     expect(h12.textContent?.replace(/\s/g, ' ')).toContain('2:05 p. m.');
@@ -105,9 +102,7 @@ describe('Más → Configuración', () => {
     expect(timeFormat.get()).toBe('h12');
     expect(h12.getAttribute('aria-pressed')).toBe('true');
     // E18: las horas de la aplicación pasan a a. m./p. m. sin recargar.
-    expect(document.querySelector('.settings-seen')?.textContent?.replace(/\s/g, ' ')).toContain(
-      'Quién hizo qué · 2:05 p. m.',
-    );
+    expect(seenText()).toContain('Quién hizo qué · 2:05 p. m.');
     expect(summary().textContent?.replace(/\s/g, ' ')).toContain('2:05 p. m.');
     vi.useRealTimers();
   });
@@ -207,7 +202,7 @@ describe('Más → Configuración', () => {
     sent.length = 0;
     fetched.mockClear();
     fireEvent.click(animations());
-    fireEvent.click(document.querySelectorAll<HTMLElement>('.settings-format')[1] as HTMLElement);
+    fireEvent.click(formats()[1] as HTMLElement);
     fireEvent.click(screen.getByRole('button', { name: /Volver a como viene/ }));
     expect(sent).toEqual([]);
     expect(fetched).not.toHaveBeenCalled();

@@ -5,7 +5,6 @@
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import {
   type Draft,
-  type DraftErrors,
   initialsOf,
   type PersonError,
   type RoleScreenModel,

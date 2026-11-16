@@ -1,14 +1,16 @@
 // La tarjeta de una persona muestra solo lo de quien está elegido (02 · R5.1): si se elige a otra
 // persona mientras llegaba lo de la anterior, eso no pisa la tarjeta.
-import { fireEvent, screen, waitFor } from '@testing-library/preact';
+import { fireEvent, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { held } from '../../testing/fake-server.ts';
-import { access, inCard, openUsers, row, toast } from '../../views/basic/users/users-test-kit.tsx';
-
-const choose = async (name: RegExp) => {
-  await screen.findByText('Rubén Paredes');
-  fireEvent.click(row(name));
-};
+import {
+  access,
+  choose,
+  inCard,
+  openUsers,
+  row,
+  toast,
+} from '../../views/basic/users/users-test-kit.tsx';
 
 describe('la tarjeta, con respuestas que llegan tarde', () => {
   afterEach(() => vi.unstubAllGlobals());

@@ -2,14 +2,15 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { startKeyboard } from '../../testing/keyboard.ts';
+import { keyShown } from '../../views/basic/kit.ts';
 import {
   access,
+  choose,
   graciela,
   inCard,
   openUsers,
   pedro,
   roles,
-  row,
   sofia,
   toast,
 } from '../../views/basic/users/users-test-kit.tsx';
@@ -46,10 +47,6 @@ describe('las teclas de Usuarios en la computadora (00 · R2.8)', () => {
 
 const altKey = (letter: string) =>
   fireEvent.keyDown(window, { key: letter, code: `Key${letter}`, altKey: true });
-const choose = async (name: RegExp) => {
-  await screen.findByText('Rubén Paredes');
-  fireEvent.click(row(name));
-};
 
 describe('las teclas de la tarjeta de una persona (00 · R2.8)', () => {
   let stop: () => void;
@@ -66,7 +63,7 @@ describe('las teclas de la tarjeta de una persona (00 · R2.8)', () => {
     });
     await choose(/Sofía/);
     const button = await inCard().findByRole('button', { name: /Dar de alta/ });
-    expect(button.querySelector('kbd')?.textContent).toBe('L');
+    expect(keyShown(button)).toBe('L');
     altKey('L');
     await waitFor(() => expect(toast()).toBe('Sofía Blanco puede entrar otra vez'));
   });

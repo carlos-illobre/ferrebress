@@ -8,6 +8,7 @@ import { ana, googleFrame, startReply } from './modules/sign-in/sign-in-test-kit
 import { navigate } from './platform/router.ts';
 import { sessionClosed } from './platform/server/api.ts';
 import { fakeServer } from './testing/fake-server.ts';
+import { behindManual, manualPage } from './views/basic/kit.ts';
 import { chapter, index, media } from './views/basic/manual/manual-test-kit.tsx';
 import { App } from './views/index.ts';
 
@@ -44,10 +45,9 @@ describe('el manual en la aplicación', () => {
     fireEvent.click(await screen.findByRole('button', { name: /Manual/ }));
     expect(location.pathname).toBe('/manual');
     expect(history.state).toEqual({ from: 'users' });
-    const page = (await screen.findByRole('heading', { name: '¿Qué querés hacer?' })).closest(
-      '.manual-page',
-    ) as HTMLElement;
-    const behind = document.querySelector('.behind-manual') as HTMLElement;
+    await screen.findByRole('heading', { name: '¿Qué querés hacer?' });
+    const page = manualPage() as HTMLElement;
+    const behind = behindManual();
     expect(behind.hidden).toBe(true);
     expect(behind.hasAttribute('inert')).toBe(true);
     expect(within(page).queryByText(ana.name)).toBeNull();
@@ -58,7 +58,7 @@ describe('el manual en la aplicación', () => {
     const back = vi.spyOn(history, 'go').mockImplementation(() => navigate('/', { replace: true }));
     fireEvent.click(within(page).getByRole('button', { name: /Volver a Usuarios/ }));
     expect(back).toHaveBeenCalledWith(-1);
-    await waitFor(() => expect(document.querySelector('.manual-page')).toBeNull());
+    await waitFor(() => expect(manualPage()).toBeNull());
     expect(behind.hidden).toBe(false);
   }, 20_000);
 

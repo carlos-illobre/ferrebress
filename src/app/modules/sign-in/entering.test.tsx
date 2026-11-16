@@ -5,7 +5,7 @@ import { fakeServer } from '../../testing/fake-server.ts';
 import { later } from '../../testing/later.ts';
 import { Entrance } from '../../views/basic/sign-in/index.ts';
 import { person } from './session.ts';
-import { fakePasskeys, googleFrame, phone, startReply } from './sign-in-test-kit.ts';
+import { cardInert, fakePasskeys, googleFrame, phone, startReply } from './sign-in-test-kit.ts';
 
 const start = startReply().body as Parameters<typeof Entrance>[0]['start'];
 
@@ -54,7 +54,7 @@ describe('la espera de entrar', () => {
     await vi.waitFor(() => expect(server.bodies('/api/sign-in/google')).toHaveLength(1));
     await later(300);
     expect(within(card).getByText('Conectando tu cuenta de Google')).toBeTruthy();
-    expect(card.querySelector('.card-body')?.hasAttribute('inert')).toBe(true);
+    expect(cardInert(card)).toBe(true);
     vi.useRealTimers();
   });
 });

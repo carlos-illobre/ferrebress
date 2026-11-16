@@ -1,13 +1,8 @@
 // La tarjeta propia en Usuarios (02 · R5.5; 04 · E46): los celulares propios, como en Configuración,
 // con la misma lógica para quitarlos, también el que se tiene en la mano (04 · R6.2).
-import { fireEvent, screen, waitFor } from '@testing-library/preact';
+import { fireEvent, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { inCard, openUsers, row } from '../../views/basic/users/users-test-kit.tsx';
-
-const choose = async (name: RegExp) => {
-  await screen.findByText('Rubén Paredes');
-  fireEvent.click(row(name));
-};
+import { choose, inCard, openUsers } from '../../views/basic/users/users-test-kit.tsx';
 
 describe('la tarjeta propia', () => {
   afterEach(() => vi.unstubAllGlobals());

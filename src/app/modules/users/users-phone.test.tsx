@@ -1,21 +1,20 @@
 // La tarjeta en el celular (referencia de Carlos): los tres botones de arriba y los renglones de
 // abajo, que hacen lo mismo que la tarjeta de la computadora; lo que todavía no está lo dice.
-import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
+import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { motionOff } from '../../platform/motion.ts';
 import {
   access,
-  card,
   inCard,
+  linkRowsOf,
   openUsers,
   row,
+  tilesOf,
   toast,
 } from '../../views/basic/users/users-test-kit.tsx';
 
-const tile = (name: RegExp) =>
-  within(card().querySelector('.users-tiles') as HTMLElement).getByRole('button', { name });
-const linkRow = (name: RegExp) =>
-  within(card().querySelector('.users-link-rows') as HTMLElement).getByRole('button', { name });
+const tile = (name: RegExp) => tilesOf().getByRole('button', { name });
+const linkRow = (name: RegExp) => linkRowsOf().getByRole('button', { name });
 
 describe('la tarjeta en el celular', () => {
   afterEach(() => vi.restoreAllMocks());

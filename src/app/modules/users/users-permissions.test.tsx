@@ -7,11 +7,17 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { keyboardForEachTest } from '../../testing/keyboard.ts';
 import { narrowOnly, stubMedia } from '../../testing/media.ts';
 import {
+  abilitiesText,
   access,
+  backToList,
+  choose,
   graciela,
   inCard,
+  lostIn,
   openUsers,
   person,
+  personFoot,
+  roleChips,
   roleRows,
   roles,
   row,
@@ -27,10 +33,6 @@ const shift = { id: 'enc', name: 'Encargado de turno', description: null };
 const shiftRow = { ...shift, system: false, version: 1, permissions: ['users.view'] };
 const lucia = person({ id: 'lucia', displayName: 'Lucía Fernández', roleIds: ['enc'] });
 const all = { body: { roles: [...roles, shift], people: [ruben, graciela, lucia] } };
-const choose = async (name: RegExp) => {
-  await screen.findByText('Rubén Paredes');
-  fireEvent.click(row(name));
-};
 const as = (permissions: Person['permissions']) => me.set({ ...viewer, permissions });
 
 describe('Usuarios según los permisos', () => {
@@ -44,7 +46,7 @@ describe('Usuarios según los permisos', () => {
   it('users-E54: el filtro por rol muestra solo a quienes lo tienen', async () => {
     openUsers({ '/api/users': all });
     await screen.findByText('Rubén Paredes');
-    const chips = document.querySelector('.users-role-chips') as HTMLElement;
+    const chips = roleChips();
     fireEvent.click(within(chips).getByRole('button', { name: /Encargado de turno 1/ }));
     expect(screen.queryByText('Rubén Paredes')).toBeNull();
     expect(screen.getByText('Lucía Fernández')).toBeTruthy();
@@ -64,8 +66,7 @@ describe('Usuarios según los permisos', () => {
     });
     await choose(/Lucía/);
     const picker = await inCard().findByRole('group', { name: 'Roles de Lucía' });
-    const abilities = () =>
-      (document.querySelector('.person-abilities') as HTMLElement).textContent;
+    const abilities = () => abilitiesText();
     expect(abilities()).toContain('Ver las personasEncargado de turno');
     fireEvent.click(within(picker).getByRole('checkbox', { name: /Encargado/ }));
     fireEvent.click(inCard().getByRole('button', { name: /Guardar los roles/ }));
@@ -164,12 +165,12 @@ describe('Usuarios según los permisos', () => {
     expect(inCard().getByRole('button', { name: /Cambiar el nombre/ })).toBeTruthy();
     expect(inCard().queryByRole('button', { name: /Cerrar todas/ })).toBeNull();
     expect(inCard().queryByRole('button', { name: /Dar de baja/ })).toBeNull();
-    fireEvent.click(document.querySelector('.users-back') as HTMLElement);
+    fireEvent.click(backToList());
     fireEvent.click(row(/Nuevo/));
     expect(inCard().queryByRole('button', { name: /Cambiar el correo/ })).toBeNull();
     // R7.11: tampoco se borra su alta.
     expect(inCard().queryByRole('button', { name: /Borrar/ })).toBeNull();
-    fireEvent.click(document.querySelector('.users-back') as HTMLElement);
+    fireEvent.click(backToList());
     fireEvent.click(row(/De baja/));
     expect(inCard().queryByRole('button', { name: /Dar de alta/ })).toBeNull();
     await act(async () => {});
@@ -193,9 +194,9 @@ describe('Usuarios según los permisos', () => {
     expect(
       within(roles).getByRole('switch', { name: 'Administrador' }).getAttribute('aria-checked'),
     ).toBe('true');
-    const foot = document.querySelector('.person-foot') as HTMLElement;
+    const foot = personFoot();
     expect(foot.textContent).toContain('Darle un rol pide confirmar que sos vos');
-    expect(foot.querySelector('.gone')?.textContent).toBe('Encargado de turno');
+    expect(lostIn(foot)).toBe('Encargado de turno');
     fireEvent.click(within(roles).getByRole('switch', { name: 'Administrador' }));
     fireEvent.click(within(foot).getByRole('button', { name: /^Guardar$/ }));
     expect((await inCard().findByRole('alert')).textContent).toContain('al menos un rol');

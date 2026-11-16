@@ -1,7 +1,16 @@
 // «Se perdió un celular» (02 · R5.7): de quién, cuál y «Cortar».
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
-import { access, openUsers, roles, row, toast } from '../../views/basic/users/users-test-kit.tsx';
+import {
+  access,
+  countsOf,
+  openUsers,
+  phoneBarButton,
+  roles,
+  row,
+  titleOf,
+  toast,
+} from '../../views/basic/users/users-test-kit.tsx';
 
 const dialog = () => screen.getByRole('alertdialog');
 const lost = (phones: object[]) => ({
@@ -42,7 +51,7 @@ describe('«Se perdió un celular» (users-R5.7)', () => {
     fireEvent.click(await screen.findByText('Graciela Benítez', { selector: '.users-name em' }));
     await openLost();
     fireEvent.click(await within(dialog()).findByRole('button', { name: /Graciela Benítez/ }));
-    expect(dialog().querySelector('h2')?.textContent).toBe('¿Cuál celular de Graciela Benítez?');
+    expect(titleOf(dialog())).toBe('¿Cuál celular de Graciela Benítez?');
     const cut = within(dialog()).getByRole('button', { name: /Cortar/ }) as HTMLButtonElement;
     expect(cut.disabled).toBe(true);
     const which = within(dialog()).getByRole('button', { name: /Safari en iPhone/ });
@@ -55,7 +64,7 @@ describe('«Se perdió un celular» (users-R5.7)', () => {
       ),
     );
     expect(server.bodies('/api/users/graciela/phones/s9/cut')).toEqual([{ from: 'lost' }]);
-    expect(row(/Graciela/).querySelector('.users-counts')?.textContent).toBe('1');
+    expect(countsOf(row(/Graciela/))).toBe('1');
   });
 
   it('con un solo celular ya está elegido; si no había nada, lo dice', async () => {
@@ -74,7 +83,7 @@ describe('«Se perdió un celular» (users-R5.7)', () => {
     ]) {
       await openLost();
       fireEvent.click(await within(dialog()).findByRole('button', { name: /Graciela Benítez/ }));
-      expect(dialog().querySelector('h2')?.textContent).toBe('El celular de Graciela Benítez');
+      expect(titleOf(dialog())).toBe('El celular de Graciela Benítez');
       fireEvent.click(within(dialog()).getByRole('button', { name: /Cortar/ }));
       await waitFor(() => expect(toast()).toContain(said));
     }
@@ -91,7 +100,7 @@ describe('«Se perdió un celular» (users-R5.7)', () => {
       },
     });
     await screen.findByText('Rubén Paredes', { selector: '.users-name em' });
-    fireEvent.click(document.querySelector('.users-bar button') as HTMLElement);
+    fireEvent.click(phoneBarButton());
     expect(
       await within(dialog()).findByRole('button', { name: /Rubén Paredes \(vos\)/ }),
     ).toBeTruthy();

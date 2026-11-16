@@ -2,6 +2,7 @@
 // confirmar quién es y «Se perdió un celular»; y sus teclas en la computadora.
 import { fireEvent, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { formIn, labelOf } from '../../views/basic/kit.ts';
 import {
   graciela,
   openUsers,
@@ -60,7 +61,7 @@ describe('autorizar a alguien', () => {
     fireEvent.click(authorizeButton());
     expect((await within(dialog()).findByRole('alert')).textContent).toContain('ya está cargado');
     expect(field(/Nombre/).value).toBe('Nueva');
-    fireEvent.submit(dialog().querySelector('form') as HTMLFormElement);
+    fireEvent.submit(formIn(dialog()));
     await waitFor(() => expect(toast()).toBe('Autorizada. Avisale que entre con Google'));
     expect(screen.queryByRole('alertdialog')).toBeNull();
     expect(row(/Nueva/).getAttribute('aria-current')).toBe('true');
@@ -172,9 +173,7 @@ describe('autorizar a alguien', () => {
     await openAuthorize();
     expect(document.activeElement).toBe(field(/Correo/));
     // Primero el correo, después el nombre, que es opcional (pedido de Carlos).
-    const fields = within(dialog())
-      .getAllByRole('textbox')
-      .map((one) => one.closest('label')?.textContent);
+    const fields = within(dialog()).getAllByRole('textbox').map(labelOf);
     expect(fields[0]).toContain('Correo de Google');
     expect(fields[1]).toContain('Nombre');
     fireEvent.click(within(dialog()).getByRole('button', { name: /Cancelar/ }));

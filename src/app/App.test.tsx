@@ -16,6 +16,7 @@ import { navigate } from './platform/router.ts';
 import { newVersion, sessionClosed } from './platform/server/api.ts';
 import { fakeServer } from './testing/fake-server.ts';
 import { later } from './testing/later.ts';
+import { firstButton, testFrameShown } from './views/basic/kit.ts';
 import { App } from './views/index.ts';
 
 // Estas pruebas son de la aplicación, no de Usuarios (la primera opción del menú): su lugar queda
@@ -59,7 +60,7 @@ describe('la aplicación al abrir', () => {
     });
     render(<App />);
     const card = await screen.findByRole('region', { name: 'Tu sesión' });
-    fireEvent.click(card.querySelector('button') as Element);
+    fireEvent.click(firstButton(card));
     expect(await screen.findByRole('region', { name: 'Entrar' })).toBeTruthy();
     await waitFor(() => expect(server.bodies('/api/start')).toHaveLength(2));
   });
@@ -70,7 +71,7 @@ describe('la aplicación al abrir', () => {
     fakeServer({ '/api/start': 'offline' });
     render(<App />);
     expect(await screen.findByRole('region', { name: 'Tu sesión' })).toBeTruthy();
-    expect(document.querySelector('.test-frame')).not.toBeNull();
+    expect(testFrameShown()).toBe(true);
     vi.useFakeTimers();
     await later(9 * 60 * 60_000);
     vi.useRealTimers();

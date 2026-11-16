@@ -1,7 +1,7 @@
 // La pestaña Quién hizo qué (capítulo 05): la lista, el resumen, los filtros, el detalle y la
 // conexión, en la computadora y en el celular.
 import type { AuditView } from '@ferrebress/shared/contracts/audit-log';
-import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
+import { act, fireEvent, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
 import { keyboardForEachTest } from '../../testing/keyboard.ts';

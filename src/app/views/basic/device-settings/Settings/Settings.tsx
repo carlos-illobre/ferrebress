@@ -49,7 +49,7 @@ function Head({ view }: { view: SettingsView }) {
 
 export function Settings() {
   const model = useDeviceSettings();
-  const { settings: view, mine } = model;
+  const { settings: view } = model;
   return (
     <div class="settings">
       <Head view={view} />

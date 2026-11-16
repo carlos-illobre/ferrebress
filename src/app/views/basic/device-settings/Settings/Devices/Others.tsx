@@ -2,7 +2,7 @@
 // recibo de lo cortado y una tarjeta por dispositivo. Sin conexión, lo último que se vio, gris, con
 // «Reintentar»: no se pide solo al volver la conexión (R10.1).
 import type { MyDevicesResponse } from '@ferrebress/shared/contracts/device-settings';
-import type { DeviceSettings, Mine } from '../../../../../modules/device-settings/model.ts';
+import type { DeviceSettings } from '../../../../../modules/device-settings/model.ts';
 import {
   countsOf,
   type Receipt,

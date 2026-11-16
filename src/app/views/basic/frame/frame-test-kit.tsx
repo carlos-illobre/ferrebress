@@ -80,3 +80,6 @@ export function withoutScreens(run: () => void): void {
     ),
   );
 }
+
+// Los roles que se ven tachados («Ya no tenés permiso»): los que le sacaron.
+export const goneRoles = (dialog: HTMLElement) => [...dialog.querySelectorAll('.pill-gone')];

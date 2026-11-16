@@ -5,7 +5,7 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mirror } from '../../platform/mirror/registry.ts';
 import { held } from '../../testing/fake-server.ts';
-import { first, openAuditLog, page } from '../../views/basic/audit-log/audit-test-kit.tsx';
+import { first, ledger, openAuditLog, page } from '../../views/basic/audit-log/audit-test-kit.tsx';
 import { auditLogSettings } from './settings.ts';
 
 const settle = (ms = 30) => act(() => new Promise((resolve) => setTimeout(resolve, ms)));
@@ -53,8 +53,7 @@ describe('los bordes de Actualizar solo', () => {
     await listening(pc);
     pc.notice();
     await settle(5);
-    const ledger = document.querySelector('.audit-ledger') as HTMLElement;
-    ledger.scrollTop = 200;
+    ledger().scrollTop = 200;
     answer.release();
     await screen.findByRole('button', { name: /Más de 99 nuevas/ });
     expect(screen.getByText('25 acciones')).toBeTruthy();
