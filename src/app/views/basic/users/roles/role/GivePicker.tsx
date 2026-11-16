@@ -1,10 +1,8 @@
 // «Darle este rol a…» (02 · R7.13): elegir a una persona activa que todavía no lo tiene, buscando
 // por nombre o correo. Suma un paso al historial: atrás la cierra sin preguntar por el rol.
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import { useState } from 'preact/hooks';
-import { initialsOf, rolesTexts as t } from '../../../../../modules/users/model.ts';
+import { initialsOf, rolesTexts as t, useGivePicker } from '../../../../../modules/users/model.ts';
 import { useBackStep } from '../../../../../platform/view/back-step.ts';
-import { plain } from '../../../../../platform/view/text.ts';
 import { Button } from '../../../ui/button/Button.tsx';
 import { Dialog } from '../../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../../ui/icon/Icon.tsx';
@@ -13,13 +11,8 @@ import { Search } from '../../../ui/search/Search.tsx';
 type Props = { candidates: PersonRow[]; pick: (id: string) => void; close: () => void };
 
 export function GivePicker({ candidates, pick, close }: Props) {
-  // local: la búsqueda de la hoja de elegir.
-  const [query, setQuery] = useState('');
+  const { query, setQuery, shown } = useGivePicker(candidates);
   useBackStep(close);
-  const wanted = plain(query.trim());
-  const shown = candidates.filter((one) =>
-    plain(`${one.displayName} ${one.email}`).includes(wanted),
-  );
   return (
     <Dialog label={t.pick} className="role-give">
       <h2>{t.pick}</h2>

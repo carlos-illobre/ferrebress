@@ -21,6 +21,7 @@ type Props = { onConfirmed: () => unknown; onClose: () => void; what?: string[] 
 
 // El botón de Google, que lo dibuja Google en su propio marco.
 function GoogleConfirm({ show }: { show: (element: HTMLIFrameElement) => () => void }) {
+  // vista: el marco donde Google dibuja su botón.
   const frame = useRef<HTMLIFrameElement>(null);
   useEffect(() => show(frame.current as HTMLIFrameElement), []);
   return <iframe ref={frame} class="confirm-google" src={googleFramePath} title={texts.google} />;

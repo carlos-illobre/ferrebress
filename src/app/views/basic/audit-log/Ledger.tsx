@@ -78,6 +78,7 @@ function useScroll(list: { current: HTMLElement | null }) {
 
 export function Ledger({ page }: { page: AuditPage }) {
   useMarkSelects();
+  // vista: la lista, para saber si está arriba de todo.
   const list = useRef<HTMLDivElement>(null);
   useScroll(list);
   return (

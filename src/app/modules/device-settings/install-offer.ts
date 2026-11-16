@@ -1,14 +1,17 @@
 // El aviso para instalar (04 · R4.5 a R4.7): cuándo toca. Se ofrece una sola vez por celular, sea
 // quien sea quien entre (instalar es del aparato): queda anotado apenas se muestra, así tampoco
 // vuelve si se cierra la aplicación con el aviso abierto.
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { isPhone } from '../../platform/device/device.ts';
 import { readStored, store } from '../../platform/device/storage.ts';
 import { installState } from '../../platform/install.ts';
 import { useStore } from '../../platform/store.ts';
+import { notify } from '../../platform/view/notify.ts';
 import { offerPasskey, person } from '../sign-in/index.ts';
 import { shouldOffer } from './rules.ts';
 import { deviceSettingsSettings } from './settings.ts';
+import { texts } from './texts.ts';
+import { installHere } from './useSettings.ts';
 
 const offeredKey = 'install-offered';
 
@@ -33,4 +36,33 @@ export function useInstallOffer(testing: boolean): { open: boolean; close: () =>
     return () => clearTimeout(timer);
   }, [due]);
   return { open, close: () => setOpen(false) };
+}
+
+// La hoja para instalar en el celular (04 · R4.5): mientras el navegador pregunta, queda trabada (ni
+// «atrás» la cierra); cerrada sin instalar, de cualquier forma, recuerda dónde está instalar.
+export function useInstallSheet(onClose: () => void) {
+  // local: la pregunta del navegador está abierta en este celular.
+  const [asking, setAsking] = useState(false);
+  // local: lo mismo, leído al instante desde «atrás», antes de que se vuelva a dibujar.
+  const askingNow = useRef(false);
+  const dismiss = () => {
+    onClose();
+    notify(texts.offer.later, 'settings');
+  };
+  return {
+    asking,
+    dismiss,
+    back() {
+      if (!askingNow.current) dismiss();
+    },
+    async install() {
+      askingNow.current = true;
+      setAsking(true);
+      const outcome = await installHere();
+      askingNow.current = false;
+      setAsking(false);
+      if (outcome === 'accepted') onClose();
+      else dismiss();
+    },
+  };
 }

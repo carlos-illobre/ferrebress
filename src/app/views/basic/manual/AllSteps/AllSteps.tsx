@@ -59,6 +59,7 @@ function Parts({ chapter, view }: { chapter: Chapter; view: View }) {
 }
 
 export function AllSteps({ view }: { view: View }) {
+  // vista: el cuerpo de la hoja, para desplazarlo.
   const body = useRef<HTMLDivElement>(null);
   const close = () => view.act({ type: 'closeAllSteps' });
   const hints = useShortcutHints('manual-all-steps');

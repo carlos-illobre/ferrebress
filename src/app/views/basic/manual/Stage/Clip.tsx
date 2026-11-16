@@ -9,8 +9,9 @@ import { Glyph } from '../Glyph/Glyph.tsx';
 import './Clip.css';
 
 export function Clip({ name }: { name: string }) {
+  // vista: el video del paso.
   const video = useRef<HTMLVideoElement>(null);
-  // local: el video corre en cada dispositivo.
+  // vista: el video corre en cada dispositivo.
   const [ended, setEnded] = useState(false);
   const poster = mediaUrl(`${name}.end.webp`);
   const hints = useShortcutHints('manual');

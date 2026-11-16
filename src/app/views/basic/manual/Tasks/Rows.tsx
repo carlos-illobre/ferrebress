@@ -24,6 +24,7 @@ export function Row({
   className?: string;
 }) {
   const classes = ['manual-task', active && 'active', className].filter(Boolean).join(' ');
+  // vista: el renglón, para llevarlo a la vista cuando se elige.
   const button = useRef<HTMLButtonElement>(null);
   // La tarea que se lee se ve en la lista: al pasar con «Siguiente», la lista acompaña (R6.10).
   useEffect(() => {

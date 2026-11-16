@@ -90,7 +90,7 @@ function Slider({ days, locked: off, type, save }: Days) {
 
 export function PairingPanel({ view, settings }: PanelProps) {
   const t = texts.pairing;
-  // local: lo que se escribe o se desliza, hasta guardarlo; lo guardado viaja con el aviso.
+  // vista: lo que se escribe o se desliza, hasta guardarlo; lo guardado viaja con el aviso.
   const [typed, setTyped] = useState<string | undefined>();
   const text = typed ?? String(settings.pairingDays);
   const asNumber = Number(text);

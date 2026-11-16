@@ -51,6 +51,7 @@ export {
   undo,
   validate,
 } from './roles/draft.ts';
+export { useGivePicker } from './roles/give-search.ts';
 export { whatItGives } from './roles/gives.ts';
 export { activeHolders, ids, listPath, type NewState, newPath, rolePath } from './roles/paths.ts';
 export { filterRoles, searchIndex } from './roles/search.ts';

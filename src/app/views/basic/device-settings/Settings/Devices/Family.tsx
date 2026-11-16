@@ -122,8 +122,9 @@ function Chips({ device, mine }: { device: MyDevice; mine: Mine }) {
 // «Se me perdió»: de un toque y sin confirmación (R8.1). En el celular, se corta al soltar el dedo,
 // salvo que se haya movido (un desplazamiento no corta nada).
 function Lost({ cut }: { cut: () => unknown }) {
-  // local: el dedo apoyado es de este celular.
+  // vista: el dedo apoyado es de este celular.
   const [pressing, setPressing] = useState(false);
+  // vista: dónde se apoyó el dedo, para saber si desliza.
   const start = useRef<{ x: number; y: number } | undefined>(undefined);
   const phone = isPhone();
   const moved = (event: PointerEvent) =>

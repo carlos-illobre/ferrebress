@@ -21,6 +21,7 @@ export function Sheet({
   locked?: boolean;
   children: ComponentChildren;
 }) {
+  // vista: dónde empezó a deslizar el dedo, para cerrar la hoja hacia abajo.
   const start = useRef<number>(undefined);
   const extra = className ? ` ${className}` : '';
   const close = () => {

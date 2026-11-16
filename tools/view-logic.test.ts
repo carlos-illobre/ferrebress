@@ -49,4 +49,23 @@ describe('findLogicInViews', () => {
       'src/app/views/basic/a/Gone.tsx: no existe; sacalo de la lista de pendientes',
     ]);
   });
+
+  it('en una vista, cada estado dice con «// vista:» por qué es de cómo se ve', () => {
+    const root = project({
+      'src/app/views/basic/a/A.tsx': [
+        'const [a] = useState(1);',
+        '// vista: el panel abierto',
+        'const b = useRef(null);',
+        'const c = useRef(null);',
+        'const [d] = useState(2); // vista: la animación',
+        'const e = 1;',
+        'const f = useRef(null);',
+      ].join('\n'),
+      'src/app/modules/a/state.ts': 'const [a] = useState(1);',
+    });
+    expect(findLogicInViews(root, [])).toEqual([
+      'src/app/views/basic/a/A.tsx: renglón 1: estado sin «// vista:» que diga por qué (la vista solo muestra, ADR-019)',
+      'src/app/views/basic/a/A.tsx: renglón 7: estado sin «// vista:» que diga por qué (la vista solo muestra, ADR-019)',
+    ]);
+  });
 });

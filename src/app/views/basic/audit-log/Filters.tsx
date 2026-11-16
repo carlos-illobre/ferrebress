@@ -21,9 +21,9 @@ function PickDates({ close }: { close: () => void }) {
   const log = useAuditLogContext();
   // Los filtros se ven con la lista ya traída.
   const today = (log.page as AuditPage).today;
-  // local: el período a medio elegir; viaja al aplicarlo.
+  // vista: el período a medio elegir; viaja al aplicarlo.
   const [from, setFrom] = useState(today);
-  // local: el período a medio elegir; viaja al aplicarlo.
+  // vista: el período a medio elegir; viaja al aplicarlo.
   const [until, setUntil] = useState(today);
   return (
     <form

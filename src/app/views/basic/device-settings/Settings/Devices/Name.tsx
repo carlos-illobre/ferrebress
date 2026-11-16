@@ -12,6 +12,7 @@ import { Say } from '../../../ui/say/Say.tsx';
 type Props = { isPhone: boolean; name: NameModel; disabled: boolean };
 
 function Field({ isPhone, name }: Props) {
+  // vista: la caja del nombre, para elegir lo escrito al abrirla.
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => input.current?.focus(), []);
   return (

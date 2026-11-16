@@ -18,7 +18,9 @@ type Props = {
 };
 
 export function Camera({ texts, read, onCode, onClose }: Props) {
+  // vista: el video donde se ve la cámara.
   const video = useRef<HTMLVideoElement>(null);
+  // vista: si la cámara no se pudo abrir, para decirlo en su lugar.
   const [failed, setFailed] = useState(false);
   useBackStep(onClose);
 

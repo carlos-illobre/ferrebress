@@ -1,6 +1,8 @@
 // Que la vista solo muestre (ADR-019): en views/ no se escuchan teclas ni se usa fetch,
-// temporizadores, localStorage, history ni document; en modules/, tampoco se escuchan teclas. Las
-// teclas son de las capas del teclado; lo demás, de los modelos. Los kits y las pruebas no cuentan.
+// temporizadores, localStorage, history ni document, y cada useState o useRef dice con `// vista:`
+// por qué es de cómo se ve (en el mismo renglón o arriba de los que van seguidos); en modules/,
+// tampoco se escuchan teclas. Las teclas son de las capas del teclado; lo demás, de los modelos.
+// Los kits y las pruebas no cuentan.
 // Mientras dure T134, `pending` dice qué archivos todavía no se separaron: esos no fallan, pero si
 // uno ya quedó limpio hay que sacarlo de la lista, así solo se achica.
 import { existsSync } from 'node:fs';
@@ -12,10 +14,28 @@ const keys = /\bkeydown\b|\bonKeyDown\b/;
 const globals =
   /\bfetch\(|\bsetTimeout\(|\bsetInterval\(|\blocalStorage\b|\bhistory\.|\bdocument\./;
 
+const state = /\buse(State|Ref)\b[(<]/;
+const note = /\/\/ vista:/;
+
+// Los renglones con estado sin su `// vista:`.
+function unmarked(text: string): number[] {
+  const lines = text.split('\n');
+  return lines.flatMap((line, index) => {
+    if (!state.test(line) || note.test(line)) return [];
+    let above = index - 1;
+    while (above >= 0 && state.test(lines[above] as string) && !note.test(lines[above] as string))
+      above -= 1;
+    return note.test(lines[above] ?? '') ? [] : [index + 1];
+  });
+}
+
 const what = (path: string, text: string): string[] => [
   ...(keys.test(text) ? ['escucha teclas'] : []),
   ...(path.includes('/views/') && globals.test(text)
     ? ['usa fetch, temporizadores, localStorage, history o document']
+    : []),
+  ...(path.includes('/views/')
+    ? unmarked(text).map((line) => `renglón ${line}: estado sin «// vista:» que diga por qué`)
     : []),
 ];
 

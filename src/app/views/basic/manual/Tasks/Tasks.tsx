@@ -116,6 +116,7 @@ export function Tasks({ view, top }: { view: View; top: ComponentChildren }) {
   const searching = view.searched.trim().length >= minQuery;
   // Aquí y no en la lista: buscar no se olvida de lo que se plegó.
   const folds = useFolds(view);
+  // vista: el buscador, para llevar el cursor ahí.
   const box = useRef<HTMLInputElement>(null);
   // En la computadora el cursor arranca en el buscador (00 · R2.2); en el celular, nunca (R2.12).
   useEffect(() => {

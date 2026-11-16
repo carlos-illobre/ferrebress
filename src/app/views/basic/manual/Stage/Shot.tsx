@@ -56,6 +56,7 @@ function place(marks: Marks, layer: HTMLElement): void {
 }
 
 export function Shot({ capture, url }: { capture: Capture; url: string | undefined }) {
+  // vista: la captura y las marcas que se dibujan encima de ella.
   const frame = useRef<HTMLDivElement>(null);
   const ring = useRef<HTMLSpanElement>(null);
   const label = useRef<HTMLSpanElement>(null);

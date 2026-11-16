@@ -116,6 +116,7 @@ function Recording({ tape, wide }: { tape: TapeState; wide: boolean }) {
 
 // Deslizar de lado en el celular pasa de a una (R4.11).
 function useSwipe(tape: TapeState) {
+  // vista: dónde se apoyó el dedo, para el deslizar de la cinta.
   const start = useRef<{ x: number; y: number }>(undefined);
   return {
     onPointerDown: (event: PointerEvent) => {
