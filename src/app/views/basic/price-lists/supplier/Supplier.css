@@ -1,0 +1,177 @@
+/* La pantalla de un proveedor: la cabecera, lo que se puede hacer, las partes y cada una. */
+@layer screens {
+  .supplier-screen {
+    display: grid;
+    gap: var(--s3);
+    max-width: 980px;
+    padding: var(--s6) var(--s6) var(--s10);
+  }
+  .supplier-head {
+    display: grid;
+    gap: var(--s2);
+  }
+  .supplier-head h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+  .supplier-link {
+    justify-self: start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--pine-text);
+    font: inherit;
+    font-weight: 650;
+    text-decoration: underline;
+  }
+  .supplier-inactive,
+  .supplier-said {
+    color: var(--urgent-text);
+  }
+  .supplier-said {
+    margin: 0;
+  }
+  .supplier-muted {
+    margin: 0;
+    color: var(--text-2);
+  }
+  .supplier-tabs [aria-selected="true"] {
+    border-color: var(--pine);
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .supplier-state,
+  .supplier-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    align-items: center;
+  }
+  .supplier-confirm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    align-items: center;
+    flex-basis: 100%;
+    padding: var(--s3) var(--s4);
+    border-radius: var(--radius-card);
+    background: var(--urgent-soft);
+  }
+  .supplier-confirm p {
+    flex-basis: 100%;
+    margin: 0;
+  }
+  .supplier-data,
+  .supplier-terms,
+  .supplier-items {
+    display: grid;
+    gap: var(--s3);
+  }
+  .supplier-field {
+    display: grid;
+    gap: 4px;
+    color: var(--text-2);
+  }
+  .supplier-data input,
+  .supplier-data textarea,
+  .supplier-discounts input,
+  .supplier-adding input {
+    min-width: 0;
+    padding: var(--s2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+  }
+  .supplier-terms h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  .supplier-check {
+    display: flex;
+    gap: var(--s2);
+    align-items: center;
+  }
+  .supplier-choice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2) var(--s4);
+    margin: 0;
+    padding: var(--s2) 0 0;
+    border: 0;
+  }
+  .supplier-choice legend {
+    padding: 0;
+    color: var(--text-2);
+  }
+  .supplier-discounts {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding-left: var(--s5, 20px);
+  }
+  .supplier-discounts li,
+  .supplier-adding {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    align-items: center;
+  }
+  .supplier-discount-actions {
+    display: flex;
+    gap: var(--s2);
+  }
+  .supplier-discount-actions button {
+    padding: 4px var(--s2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-small);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+  }
+  .supplier-rows {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .supplier-rows > li {
+    display: grid;
+    gap: 2px;
+    padding: var(--s3) var(--s4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    overflow-wrap: anywhere;
+  }
+  .supplier-rows small {
+    color: var(--text-2);
+  }
+  .supplier-rows > li > button {
+    justify-self: start;
+  }
+  .supplier-stale .supplier-rows > li {
+    opacity: 0.6;
+  }
+  @media (max-width: 899px) {
+    .supplier-screen {
+      padding: var(--s4);
+    }
+  }
+}
+/* Los descuentos: el nombre más ancho, el porcentaje angosto; los botones, a su medida. */
+@layer screens {
+  .supplier-terms > button {
+    justify-self: start;
+  }
+  .supplier-discounts input,
+  .supplier-adding input {
+    width: 12em;
+  }
+  .supplier-discounts input[inputmode="decimal"],
+  .supplier-adding input[inputmode="decimal"] {
+    width: 5em;
+  }
+}

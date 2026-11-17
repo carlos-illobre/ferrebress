@@ -1,0 +1,100 @@
+// Los textos de la pantalla de un proveedor (08 · pantalla 4): largos en la computadora, que explican,
+// y cortos en el celular, que dicen lo mismo (00 · R1.5).
+
+const n = (count: number) => count.toLocaleString('es-AR');
+
+export const supplierTexts = {
+  back: 'Listas',
+  parts: { data: 'Datos', terms: 'Cómo cobra', lists: 'Listas', items: 'Productos' },
+  inactive: 'Dado de baja',
+  // Datos (R2.1): cada uno se guarda al cambiarlo, con «Deshacer» (R1.7).
+  fields: {
+    name: 'Nombre',
+    seller: 'Vendedor',
+    phone: 'Teléfono o WhatsApp',
+    email: 'Correo',
+    note: 'Nota',
+  },
+  saved: (field: string) => `${field}: guardado`,
+  undo: 'Deshacer',
+  invalid: {
+    name: 'El nombre va de 1 a 80 letras.',
+    email: 'No parece un correo.',
+    other: 'Es demasiado largo.',
+  },
+  exists: 'Ya hay un proveedor con ese nombre.',
+  fieldChanged: (value: string) => `Lo cambió otra persona recién: ahora dice «${value}».`,
+  empty: 'vacío',
+  failed: 'No se pudo guardar. Probá de nuevo.',
+  // Cómo cobra (R3.2).
+  vatIncluded: 'Sus precios incluyen IVA',
+  defaultVat: 'IVA de arranque',
+  vats: { 210: '21 %', 105: '10,5 %', 270: '27 %' } as Record<number, string>,
+  onChange: 'Al cambiar cómo cobra',
+  recalculate: 'Recalcular con la última lista',
+  next: 'Desde la próxima lista',
+  discounts: 'Descuentos, en orden',
+  noDiscounts: 'Sin descuentos.',
+  discountName: 'Nombre del descuento',
+  discountPercent: 'Porcentaje',
+  discountBrand: 'Marca (vacío: todas)',
+  allBrands: 'Todas las marcas',
+  onlyBrand: (brand: string) => `Solo ${brand}`,
+  addDiscount: 'Agregar descuento',
+  add: 'Agregar',
+  remove: 'Quitar',
+  up: 'Subir',
+  down: 'Bajar',
+  badDiscount:
+    'Un descuento lleva nombre y un porcentaje mayor que 0 y menor que 100, con hasta dos decimales.',
+  maxDiscounts: 'Llega a 20 descuentos.',
+  // R3.5: si cambian costos, se confirma antes.
+  confirmCosts: (count: number) => `Cambiar ${n(count)} ${count === 1 ? 'costo' : 'costos'}`,
+  confirmCostsSays: (count: number) =>
+    `Con este cambio, ${n(count)} ${count === 1 ? 'costo cambia' : 'costos cambian'} ahora, con la última lista.`,
+  cancel: 'Cancelar',
+  termsChanged: 'Lo cambió otra persona recién: así cobra ahora.',
+  recalcFailed: 'No se pudo recalcular: no cambió nada.',
+  termsSaved: 'Cómo cobra: guardado',
+  applying: 'Una lista de este proveedor se está aplicando: esperá a que termine.',
+  // Listas (R6.7).
+  noLists: 'Todavía no tiene listas.',
+  listOf: (date: string) => `Lista del ${date}`,
+  noDate: 'Sin fecha',
+  uploadedBy: (who: string, when: string) => `La subió ${who} ${when}`,
+  decidedBy: (verb: string, who: string, when: string) => `${verb} ${who} ${when}`,
+  someone: 'alguien',
+  appliedBy: 'La aplicó',
+  discardedBy: 'La descartó',
+  review: 'Ver qué cambia',
+  download: 'Bajar el archivo',
+  more: 'Ver más',
+  // Productos (R8).
+  search: { long: 'Buscar por código, descripción o marca', short: 'Buscar' },
+  current: 'Los que vienen',
+  discontinued: 'Dados de baja',
+  goneSince: (date: string) => `Dejó de venir con la lista del ${date}`,
+  goneWithSupplier: 'Se dio de baja con el proveedor',
+  noItems: 'Ningún producto con eso.',
+  howCost: 'Ver la cuenta',
+  hideCost: 'Ocultar la cuenta',
+  // Dar de baja y reactivar (R2.4, R2.5).
+  deactivate: 'Dar de baja el proveedor',
+  confirmDeactivate: (costs: number) =>
+    `Dar de baja con sus ${n(costs)} ${costs === 1 ? 'producto' : 'productos'}`,
+  deactivateSays: (costs: number, discontinued: number) => ({
+    long: `${n(costs)} ${costs === 1 ? 'producto pierde' : 'productos pierden'} su costo de este proveedor, y ${n(discontinued)} ${discontinued === 1 ? 'queda dado' : 'quedan dados'} de baja porque solo los traía él. No se recupera con «Deshacer».`,
+    short: `${n(costs)} pierden su costo; ${n(discontinued)} quedan de baja.`,
+  }),
+  deactivated: (name: string) => `${name}: dado de baja`,
+  reactivate: 'Reactivar',
+  reactivated: (name: string) => `${name}: reactivado`,
+  upload: 'Subir lista',
+  loading: 'Cargando el proveedor…',
+  loadFailed: 'No se pudo traer el proveedor.',
+  retry: 'Reintentar',
+  offline: (at: string) => ({
+    long: `Sin conexión: es lo último que se vio, a las ${at}. Con conexión se puede cambiar.`,
+    short: `Sin conexión · ${at}`,
+  }),
+};

@@ -2,10 +2,12 @@
 // dispositivo sin esa forma no entra.
 import {
   type FilesPage,
+  type ItemsPage,
   type ListState,
   type ReadersResponse,
   type RowsPage,
   rowsShows,
+  type SupplierResponse,
   type SuppliersResponse,
 } from '@ferrebress/shared/contracts/price-lists';
 import * as z from 'zod/mini';
@@ -26,4 +28,10 @@ export const reviewSchemas = {
   state: objectWith<ListState>('fileName'),
   rows: objectWith<RowsPage>('rows'),
   show: z.nullable(z.enum(rowsShows)),
+};
+
+export const supplierSchemas = {
+  supplier: objectWith<SupplierResponse>('name'),
+  items: objectWith<ItemsPage>('items'),
+  part: z.enum(['data', 'terms', 'lists', 'items']),
 };

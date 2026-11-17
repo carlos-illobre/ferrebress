@@ -1,7 +1,9 @@
 // Las llamadas al servidor de las listas de precios, una sola vez (diseño de 08, § 3). Todas necesitan
 // conexión. Cada pantalla suma las suyas al programarse.
 import type {
+  ChangeSupplierBody,
   FilesPage,
+  ItemsPage,
   ListNumbers,
   ListScope,
   ListState,
@@ -10,8 +12,11 @@ import type {
   ReaderView,
   RowsPage,
   RowsShow,
+  SupplierListsPage,
   SupplierResponse,
   SuppliersResponse,
+  TermsBody,
+  TermsResponse,
 } from '@ferrebress/shared/contracts/price-lists';
 import { api } from '../../platform/server/api.ts';
 import { fetchFile } from '../../platform/server/download.ts';
@@ -39,6 +44,25 @@ export const suppliersApi = {
   inactive: () => api<SuppliersResponse>(`${base}/suppliers/inactive`),
   create: (name: string) => api<SupplierResponse>(`${base}/suppliers`, { name }),
   reactivate: (id: string) => api<{ ok: true }>(`${base}/suppliers/${id}/reactivate`, {}),
+  one: (id: string) => api<SupplierResponse>(`${base}/suppliers/${id}`),
+  change: (id: string, body: ChangeSupplierBody) =>
+    api<SupplierResponse>(`${base}/suppliers/${id}`, body),
+  terms: (id: string, body: TermsBody) => api<TermsResponse>(`${base}/suppliers/${id}/terms`, body),
+  deactivate: (id: string, confirmed?: { costs: number; discontinued: number }) =>
+    api<{ ok: true; costs: number; discontinued: number }>(
+      `${base}/suppliers/${id}/deactivate`,
+      confirmed ? { confirmed } : {},
+    ),
+  lists: (id: string, after: string) =>
+    api<SupplierListsPage>(`${base}/suppliers/${id}/lists?${new URLSearchParams({ after })}`),
+  items: (id: string, params: { q: string; discontinued: boolean; after?: string }) =>
+    api<ItemsPage>(
+      `${base}/suppliers/${id}/items?${new URLSearchParams({
+        ...(params.q && { q: params.q }),
+        discontinued: String(params.discontinued),
+        ...(params.after && { after: params.after }),
+      })}`,
+    ),
 };
 
 const listsBase = `${base}/lists`;

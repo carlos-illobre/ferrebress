@@ -23,6 +23,16 @@ export const keymap: Record<string, string> = {
   'price-lists-suppliers.retry': 'Alt+R',
   'price-lists-suppliers.add': 'Alt+N',
   'price-lists-suppliers.upload': 'Alt+S',
+  // Catálogo → Listas → un proveedor (08 · pantalla 4).
+  'price-lists-supplier.retry': 'Alt+R',
+  'price-lists-supplier.data': 'Alt+1',
+  'price-lists-supplier.terms': 'Alt+2',
+  'price-lists-supplier.lists': 'Alt+3',
+  'price-lists-supplier.items': 'Alt+4',
+  'price-lists-supplier.upload': 'Alt+S',
+  'price-lists-supplier.addDiscount': 'Alt+N',
+  'price-lists-supplier.up': 'Alt+ArrowUp',
+  'price-lists-supplier.down': 'Alt+ArrowDown',
   // Catálogo → Listas → ver qué cambia (08 · pantalla 3).
   'price-lists-review.retry': 'Alt+R',
   'price-lists-review.apply': 'Alt+A',

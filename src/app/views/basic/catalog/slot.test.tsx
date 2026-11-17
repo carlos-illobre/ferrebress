@@ -7,6 +7,7 @@ describe('el lugar de Catálogo', () => {
   afterEach(() => {
     navigate('/', { replace: true });
     vi.doUnmock('../price-lists/review/Review.tsx');
+    vi.doUnmock('../price-lists/supplier/SupplierScreen.tsx');
     vi.doUnmock('../price-lists/Suppliers.tsx');
     vi.restoreAllMocks();
     vi.resetModules();
@@ -28,6 +29,28 @@ describe('el lugar de Catálogo', () => {
     const { CatalogSlot } = await import('./Slot.tsx');
     render(<CatalogSlot />);
     expect(await screen.findByText(`la lista ${listId}`)).toBeTruthy();
+  });
+
+  it('en la dirección de un proveedor, su pantalla; sin red, lo dice', async () => {
+    const supplierId = '0190d000-0000-7000-8000-000000000001';
+    vi.doMock('../price-lists/supplier/SupplierScreen.tsx', () => ({
+      SupplierScreen: ({ supplierId: shown }: { supplierId: string }) => (
+        <p>el proveedor {shown}</p>
+      ),
+    }));
+    navigate(`/catalog/suppliers/${supplierId}`);
+    const { CatalogSlot } = await import('./Slot.tsx');
+    render(<CatalogSlot />);
+    expect(await screen.findByText(`el proveedor ${supplierId}`)).toBeTruthy();
+  });
+
+  it('sin red, tampoco el proveedor', async () => {
+    vi.doMock('../price-lists/supplier/SupplierScreen.tsx', () => Promise.reject(new Error('no')));
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    navigate('/catalog/suppliers/0190d000-0000-7000-8000-000000000001');
+    const { CatalogSlot } = await import('./Slot.tsx');
+    render(<CatalogSlot />);
+    expect((await screen.findByRole('status')).textContent).toContain('Sin conexión');
   });
 
   it('sin red, tampoco ver qué cambia', async () => {

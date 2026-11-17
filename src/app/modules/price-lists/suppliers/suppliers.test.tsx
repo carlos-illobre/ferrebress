@@ -50,6 +50,13 @@ describe('Catálogo → Listas', () => {
     expect(screen.getByText('No se pudo leer: Ningún lector entiende esta planilla')).toBeTruthy();
   });
 
+  it('pantalla 1: tocar un proveedor lo abre', async () => {
+    openSuppliers();
+    fireEvent.click(await screen.findByRole('button', { name: 'Ferretera del Sur' }));
+    expect(route.get().path).toBe(`/catalog/suppliers/${id(1)}`);
+    navigate('/', { replace: true });
+  });
+
   it('pantalla 1: «Ver qué cambia» en uno en espera abre su lista', async () => {
     openSuppliers();
     await screen.findByText('Ferretera del Sur');

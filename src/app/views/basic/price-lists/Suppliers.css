@@ -47,7 +47,15 @@
     justify-self: start;
   }
   .supplier-name {
+    justify-self: start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
     font-size: 17px;
+    font-weight: 700;
+    text-align: left;
   }
   .supplier-contact {
     display: flex;

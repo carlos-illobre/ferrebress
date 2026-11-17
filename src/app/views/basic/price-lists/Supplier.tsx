@@ -29,8 +29,15 @@ function Contact({ supplier }: { supplier: SupplierLines }) {
 
 export function Supplier({ view, supplier }: { view: Suppliers; supplier: SupplierLines }) {
   return (
-    <li class="supplier" data-mark="" tabIndex={-1}>
-      <b class="supplier-name">{supplier.name}</b>
+    <li class="supplier">
+      <button
+        type="button"
+        class="supplier-name"
+        data-mark=""
+        onClick={() => view.open(supplier.id)}
+      >
+        {supplier.name}
+      </button>
       <Contact supplier={supplier} />
       {supplier.last && <p class="supplier-last">{supplier.last}</p>}
       {supplier.pending && (

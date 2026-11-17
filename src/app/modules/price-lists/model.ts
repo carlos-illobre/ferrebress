@@ -18,10 +18,12 @@ export {
 } from './admin/readers.ts';
 export { filesTexts } from './admin/texts-files.ts';
 export { readersTexts } from './admin/texts-readers.ts';
-export { type CatalogPage, openReview, useCatalogPage } from './pages.ts';
+export { type CatalogPage, openReview, openSupplier, useCatalogPage } from './pages.ts';
 export { type Review, useReview } from './review/review.ts';
 export type { RowLines } from './review/rules.ts';
 export { reviewTexts } from './review/texts.ts';
+export { type Part, type Supplier, useSupplier } from './supplier/supplier.ts';
+export { supplierTexts } from './supplier/texts.ts';
 export { type Suppliers, useSuppliers } from './suppliers/suppliers.ts';
 export type { SupplierFilter, SupplierLines } from './suppliers/suppliers-rules.ts';
 export { suppliersTexts } from './suppliers/texts-suppliers.ts';
