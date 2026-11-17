@@ -80,6 +80,12 @@ export const what: Record<SettingKey | 'zone', Words> = {
   },
 };
 
+// Las pantallas que se abren desde Administración (06 · pantalla 1).
+export const pagesTexts = {
+  title: 'También en Administración',
+  readers: { name: 'Lectores', detail: 'Los que entienden la planilla de cada proveedor' },
+};
+
 export const texts = {
   title: 'Administración',
   back: 'Más',

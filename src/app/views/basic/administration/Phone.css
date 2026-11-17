@@ -34,7 +34,8 @@
       border: 1px solid var(--border);
       background: var(--surface);
     }
-    .admin-item svg {
+    .admin-item svg,
+    .admin-page small {
       display: none;
     }
     .admin-item[aria-selected="true"] {

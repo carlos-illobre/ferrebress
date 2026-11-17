@@ -3,7 +3,14 @@
 import type { Settings } from '@ferrebress/shared/contracts/administration';
 import { useEffect } from 'preact/hooks';
 import type { Administration } from '../../../modules/administration/model.ts';
-import { names, type Panel, shown, texts } from '../../../modules/administration/model.ts';
+import {
+  names,
+  openAdminPage,
+  type Panel,
+  pagesTexts,
+  shown,
+  texts,
+} from '../../../modules/administration/model.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { Icon, type IconName } from '../ui/icon/Icon.tsx';
 
@@ -84,28 +91,46 @@ export function List({
     if (view.chosen > 0) focusChosen(view.panel);
   }, [view.chosen]);
   return (
-    <div class="admin-list" role="tablist" aria-label="Ajustes" aria-orientation="vertical">
-      {items.map((group, g) => (
-        <div key={groups[g]} class="admin-list-group">
-          <h2>{groups[g]}</h2>
-          {group.map((item) => (
-            <button
-              key={item.command}
-              type="button"
-              role="tab"
-              class="admin-item"
-              aria-selected={view.panel === item.panel}
-              data-mark=""
-              onClick={() => view.choose(item.panel)}
-            >
-              <Icon name={item.icon} />
-              <span>{item.name}</span>
-              <b>{item.value(settings, clock)}</b>
-              {keys[item.command] && <kbd>{keys[item.command]}</kbd>}
-            </button>
-          ))}
-        </div>
-      ))}
+    <div class="admin-list">
+      <div class="admin-tabs" role="tablist" aria-label="Ajustes" aria-orientation="vertical">
+        {items.map((group, g) => (
+          <div key={groups[g]} class="admin-list-group">
+            <h2>{groups[g]}</h2>
+            {group.map((item) => (
+              <button
+                key={item.command}
+                type="button"
+                role="tab"
+                class="admin-item"
+                aria-selected={view.panel === item.panel}
+                data-mark=""
+                onClick={() => view.choose(item.panel)}
+              >
+                <Icon name={item.icon} />
+                <span>{item.name}</span>
+                <b>{item.value(settings, clock)}</b>
+                {keys[item.command] && <kbd>{keys[item.command]}</kbd>}
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+      <nav class="admin-list-group admin-pages" aria-label={pagesTexts.title}>
+        <h2>{pagesTexts.title}</h2>
+        <button
+          type="button"
+          class="admin-item admin-page"
+          data-mark=""
+          onClick={() => openAdminPage('readers')}
+        >
+          <Icon name="workflow" />
+          <span>
+            {pagesTexts.readers.name}
+            <small>{pagesTexts.readers.detail}</small>
+          </span>
+          <Icon name="chevron-right" size="small" />
+        </button>
+      </nav>
       {view.editable && (
         <p class="admin-hint desktop-only">
           <Icon name="mouse-pointer-2" size="small" />

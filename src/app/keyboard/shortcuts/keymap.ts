@@ -17,6 +17,7 @@ export const keymap: Record<string, string> = {
   'administration-confirm.confirm': 'Alt+P',
   'administration-confirm.cancel': 'Alt+C',
   'administration-confirm.retry': 'Alt+R',
+  'price-lists-readers.retry': 'Alt+R',
   'administration-confirm.later': 'Alt+A',
   // Más → Configuración (04 · R1.9, R9.2).
   'device-settings.animations': 'Alt+D',

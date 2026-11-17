@@ -1,0 +1,94 @@
+/* Lectores: los de cada proveedor, uno por renglón, con su estado y su botón. */
+@layer screens {
+  .readers {
+    display: grid;
+    gap: var(--s4);
+    max-width: 880px;
+    padding: var(--s6) var(--s6) var(--s10);
+  }
+  .readers-head {
+    display: grid;
+    gap: var(--s2);
+  }
+  .readers-head h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+  .readers-about,
+  .readers-permission,
+  .readers-empty {
+    margin: 0;
+    color: var(--text-2);
+  }
+  .readers-group {
+    display: grid;
+    gap: var(--s2);
+    margin-top: var(--s4);
+  }
+  .readers-group h2 {
+    margin: 0;
+    font-size: 17px;
+  }
+  .readers-group ul {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .readers-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: var(--s3);
+    align-items: center;
+    padding: var(--s3) var(--s4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .readers-item div {
+    display: grid;
+    gap: 2px;
+  }
+  .readers-item span {
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .readers-off {
+    background: var(--sunken);
+  }
+  .readers-state {
+    font-weight: 700;
+  }
+  .readers-toggle,
+  .readers-offline button {
+    padding: var(--s2) var(--s3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 700;
+  }
+  .readers-offline {
+    display: flex;
+    gap: var(--s3);
+    align-items: center;
+    margin: 0;
+    color: var(--urgent-text);
+  }
+  .readers-stale .readers-item {
+    opacity: 0.6;
+  }
+  @media (max-width: 899px) {
+    .readers {
+      padding: var(--s4);
+    }
+    .readers-item {
+      grid-template-columns: 1fr auto;
+    }
+    .readers-toggle {
+      grid-column: 1 / -1;
+    }
+  }
+}

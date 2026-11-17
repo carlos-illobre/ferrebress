@@ -38,6 +38,19 @@ describe('la miga de Más', () => {
     expect(moreOpenOnPhone()).toBe(true);
   });
 
+  it('una pantalla abierta desde otra suma ese paso, que vuelve a ella', () => {
+    const back = vi.fn();
+    const Child = () => (
+      <MoreCrumb name="Lectores" parent={{ name: 'Administración', open: back }} />
+    );
+    media();
+    navigate('/administration');
+    open({ screens: { administration: Child } });
+    for (const button of screen.getAllByRole('button', { name: 'Administración' }))
+      fireEvent.click(button);
+    expect(back).toHaveBeenCalledTimes(2);
+  });
+
   it('fuera del marco no hay nada', () => {
     const { container } = render(<Screen />);
     expect(container.innerHTML).toBe('');
