@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { online } from '../../platform/server/api.ts';
 import { startKeyboard } from '../../testing/keyboard.ts';
 import { later } from '../../testing/later.ts';
+import { withoutCatalog } from '../../testing/menu.ts';
 import {
   alt,
   everyone,
@@ -22,6 +23,8 @@ import {
 } from '../../views/basic/frame/frame-test-kit.tsx';
 import { currentIn, isMarked, saysSoon, showsKeys, testFrameShown } from '../../views/basic/kit.ts';
 import { moreOptions, type Option, parts } from './menu.ts';
+
+withoutCatalog();
 
 describe('el marco', () => {
   beforeEach(() => media());

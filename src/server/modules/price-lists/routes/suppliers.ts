@@ -10,6 +10,7 @@ import {
   newSupplierBody,
   privateSupplierFields,
   type SupplierExists,
+  type SupplierPending,
   type SupplierResponse,
   type SuppliersResponse,
   supplierValue,
@@ -78,18 +79,18 @@ function registerSupplierReads(
   const { http, sessions } = ctx.platform;
   http.get('/api/price-lists/suppliers', sessions.require, async (c) => {
     const costs = seesCosts(c);
-    const [records, live] = await Promise.all([
+    const [records, pending] = await Promise.all([
       data.list(false),
-      costs ? data.withLiveList() : new Set<string>(),
+      costs ? data.pending() : new Map<string, SupplierPending>(),
     ]);
     return c.json<SuppliersResponse>({
-      suppliers: records.map((record) => rowOf(record, costs, live.has(record.id))),
+      suppliers: records.map((record) => rowOf(record, costs, pending.get(record.id))),
     });
   });
 
   http.get('/api/price-lists/suppliers/inactive', sessions.require, manage, async (c) =>
     c.json<SuppliersResponse>({
-      suppliers: (await data.list(true)).map((record) => rowOf(record, false, false)),
+      suppliers: (await data.list(true)).map((record) => rowOf(record, false, undefined)),
     }),
   );
 

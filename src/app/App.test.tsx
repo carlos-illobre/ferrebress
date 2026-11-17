@@ -16,14 +16,14 @@ import { navigate } from './platform/router.ts';
 import { newVersion, sessionClosed } from './platform/server/api.ts';
 import { fakeServer } from './testing/fake-server.ts';
 import { later } from './testing/later.ts';
+import { withoutCatalog } from './testing/menu.ts';
 import { firstButton, testFrameShown } from './views/basic/kit.ts';
 import { App } from './views/index.ts';
 
-// Estas pruebas son de la aplicación, no de Usuarios (la primera opción del menú): su lugar queda
-// vacío y no pide nada.
+// Estas pruebas son de la aplicación, no de Usuarios (la primera opción sin Catálogo): no pide nada.
 vi.mock('./views/basic/users/index.ts', () => ({ UsersSlot: () => null }));
-
 vi.mock('./platform/camera/scanner.ts', () => ({ scan: vi.fn() }));
+withoutCatalog();
 
 const reading = {
   secret: 's',

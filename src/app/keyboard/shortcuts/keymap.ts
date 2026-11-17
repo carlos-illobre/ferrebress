@@ -19,6 +19,9 @@ export const keymap: Record<string, string> = {
   'administration-confirm.cancel': 'Alt+C',
   'administration-confirm.retry': 'Alt+R',
   'administration-confirm.later': 'Alt+A',
+  // Catálogo → Listas (08 · pantalla 1).
+  'price-lists-suppliers.retry': 'Alt+R',
+  'price-lists-suppliers.add': 'Alt+N',
   // Más → Administración → Lectores y Archivos de listas (08 · pantalla 5; 06 · pantalla 3).
   'price-lists-readers.retry': 'Alt+R',
   'price-lists-files.retry': 'Alt+R',

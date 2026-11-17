@@ -6,6 +6,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/preact'
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
 import { fakeServer } from '../../testing/fake-server.ts';
+import { withoutCatalog } from '../../testing/menu.ts';
 import { goneRoles, media, open, person } from '../../views/basic/frame/frame-test-kit.tsx';
 import { Frame } from '../../views/basic/frame/index.ts';
 import { Toasts } from '../../views/basic/ui/toast/Toast.tsx';
@@ -22,6 +23,8 @@ const holders = {
   grantedBy: ['Rubén Paredes', 'Graciela Benítez'],
 };
 const users = () => <p>La pantalla de Usuarios</p>;
+
+withoutCatalog();
 
 describe('el marco con permisos', () => {
   afterEach(() => {

@@ -28,7 +28,7 @@ export type Option = {
 
 export const parts: Option[] = [
   { id: 'sell', name: 'Vender', icon: 'shopping-cart', shortcut: 'v' },
-  { id: 'catalog', name: 'Catálogo', icon: 'tags', shortcut: 'c' },
+  { id: 'catalog', name: 'Catálogo', icon: 'tags', shortcut: 'c', path: '/catalog' },
   { id: 'warehouse', name: 'Depósito', icon: 'package', shortcut: 'p' },
   { id: 'business', name: 'Negocio', icon: 'chart-column', shortcut: 'n' },
 ];

@@ -5,6 +5,7 @@ import './styles/base.css';
 import { useApp } from '../../shell/app.ts';
 import { AdministrationSlot } from './administration/Slot.tsx';
 import { AnomaliesSlot } from './anomalies/Slot.tsx';
+import { CatalogSlot } from './catalog/Slot.tsx';
 import { frameLink } from './device-link/frame-link.tsx';
 import { InstallOffer } from './device-settings/InstallOffer.tsx';
 import { Settings } from './device-settings/Settings/Settings.tsx';
@@ -20,6 +21,7 @@ const screens = {
   deviceSettings: Settings,
   administration: AdministrationSlot,
   anomalies: AnomaliesSlot,
+  catalog: CatalogSlot,
 };
 
 export function BasicApp() {

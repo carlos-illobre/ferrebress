@@ -1,0 +1,124 @@
+/* Catálogo → Listas: los números de arriba, el buscador y cada proveedor en su tarjeta. */
+@layer screens {
+  .suppliers {
+    display: grid;
+    gap: var(--s4);
+    max-width: 880px;
+    padding: var(--s6) var(--s6) var(--s10);
+  }
+  .suppliers-head {
+    display: grid;
+    gap: var(--s3);
+  }
+  .suppliers-head h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+  .suppliers-top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    align-items: center;
+  }
+  .suppliers-total {
+    margin-right: var(--s2);
+    font-weight: 700;
+  }
+  .suppliers-filter {
+    padding: 6px var(--s3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-round);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 650;
+  }
+  .suppliers-filter[aria-pressed="true"] {
+    border-color: var(--pine);
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
+  .suppliers-empty {
+    margin: 0;
+    color: var(--text-2);
+  }
+  .suppliers-list {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .supplier {
+    display: grid;
+    gap: 4px;
+    padding: var(--s3) var(--s4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .supplier > button {
+    justify-self: start;
+  }
+  .supplier-name {
+    font-size: 17px;
+  }
+  .supplier-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px var(--s3);
+    margin: 0;
+    color: var(--text-2);
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  .supplier-contact a {
+    color: var(--pine-text);
+  }
+  .supplier-last,
+  .supplier-pending {
+    margin: 0;
+    font-size: 14px;
+  }
+  .supplier-pending {
+    font-weight: 700;
+  }
+  .supplier-problem {
+    color: var(--urgent-text);
+  }
+  .supplier-add {
+    display: grid;
+    gap: var(--s2);
+    padding: var(--s3) var(--s4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .supplier-add label {
+    display: grid;
+    gap: 4px;
+    color: var(--text-2);
+  }
+  .supplier-add input {
+    padding: var(--s2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font: inherit;
+  }
+  .supplier-add-error {
+    margin: 0;
+    color: var(--urgent-text);
+  }
+  .supplier-add-actions {
+    display: flex;
+    gap: var(--s2);
+  }
+  .suppliers-stale .supplier {
+    opacity: 0.6;
+  }
+  @media (max-width: 899px) {
+    .suppliers {
+      padding: var(--s4);
+    }
+  }
+}

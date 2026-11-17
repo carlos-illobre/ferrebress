@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { newVersion } from '../../platform/server/api.ts';
+import { withoutCatalog } from '../../testing/menu.ts';
 import { media, open, person, withoutScreens } from '../../views/basic/frame/frame-test-kit.tsx';
 import { Dialogs } from '../../views/basic/frame/index.ts';
 import { currentIn } from '../../views/basic/kit.ts';
@@ -9,6 +10,8 @@ import { crash, reportCrash } from './notices/crash/crash.ts';
 import { discardWork, halfDone } from './work.ts';
 
 vi.mock('html-to-image', () => ({ toJpeg: vi.fn(async () => 'data:image/jpeg;base64,') }));
+
+withoutCatalog();
 
 describe('lo que el marco cuida', () => {
   afterEach(() => {

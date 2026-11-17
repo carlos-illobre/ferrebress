@@ -8,7 +8,6 @@ import {
   listParts,
   listUnits,
   names,
-  shown,
   texts,
   thousands,
   what,

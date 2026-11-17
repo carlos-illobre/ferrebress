@@ -256,7 +256,7 @@ costos») (R1.2, E03); en «Administración», `anomalies.review` (06 · R9.3).
 
 | Ruta | Qué hace | Permiso | Consultas |
 |---|---|---|---|
-| `GET /api/price-lists/suppliers` | Los activos con sus datos (R1.3); con «Ver costos», la fecha de la última lista y si tiene una viva (R1.1) | Ninguno | 1, o 2 con «Ver costos» |
+| `GET /api/price-lists/suppliers` | Los activos con sus datos (R1.3); con «Ver costos», la fecha de la última lista aplicada y lo pendiente, de la última lista no descartada de cada uno: viva, con su estado, o que no se pudo leer, con su motivo (R1.1) | Ninguno | 1, o 2 con «Ver costos» |
 | `GET /api/price-lists/suppliers/inactive` | Los dados de baja (R2.5) | «Administrar proveedores» | 1 |
 | `GET /api/price-lists/suppliers/:id` | Sus datos; con «Ver costos», cómo cobra y sus últimas 20 listas, con quién las subió y decidió (R2.3, R6.7) | Ninguno o «Ver costos» | 1, o 3 con «Ver costos» (una a `users` por los nombres) |
 | `GET /api/price-lists/suppliers/:id/lists` | `?after=`: las anteriores, de a 20 | «Ver costos» | 2 |

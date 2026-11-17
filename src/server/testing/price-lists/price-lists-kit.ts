@@ -82,6 +82,8 @@ async function addPendingList(
 const lookAt = (db: Kysely<unknown>) => ({
   setListStatus: (listId: string, status: string) =>
     sql`update price_lists.lists set status = ${status} where id = ${listId}`.execute(db),
+  setListReason: (listId: string, reason: string) =>
+    sql`update price_lists.lists set reason = ${reason} where id = ${listId}`.execute(db),
   itemCosts: async (supplierId: string) =>
     (
       await sql<{ code: string; cost: string; discontinued: boolean }>`select supplier_code as code,

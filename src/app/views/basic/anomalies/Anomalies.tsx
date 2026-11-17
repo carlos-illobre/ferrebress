@@ -8,7 +8,7 @@ import {
   useAnomalies,
   type Anomalies as View,
 } from '../../../modules/anomalies/model.ts';
-import { MoreCrumb } from '../frame/index.ts';
+import { MoreCrumb, PhoneLight } from '../frame/index.ts';
 import { Stale } from '../price-lists/Stale.tsx';
 import { deviceSettingsShapes } from '../ui/icon/device-settings-shapes.tsx';
 import { addShapes, Icon } from '../ui/icon/Icon.tsx';
@@ -99,6 +99,7 @@ export function Anomalies() {
       <header class="anomalies-head">
         <MoreCrumb name={texts.title} parent={{ name: texts.parent, open: view.back }} />
         <h1>{texts.title}</h1>
+        <PhoneLight />
         <p class="anomalies-about">
           <Say words={texts.about} />
         </p>

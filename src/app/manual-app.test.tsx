@@ -8,6 +8,7 @@ import { ana, googleFrame, startReply } from './modules/sign-in/sign-in-test-kit
 import { navigate } from './platform/router.ts';
 import { sessionClosed } from './platform/server/api.ts';
 import { fakeServer } from './testing/fake-server.ts';
+import { withoutCatalog } from './testing/menu.ts';
 import { behindManual, manualPage } from './views/basic/kit.ts';
 import { chapter, index, media } from './views/basic/manual/manual-test-kit.tsx';
 import { App } from './views/index.ts';
@@ -16,6 +17,8 @@ const manualFiles = {
   '/manual/index.json': { body: index },
   '/manual/sign-in.json': { body: chapter },
 };
+
+withoutCatalog();
 
 describe('el manual en la aplicación', () => {
   beforeEach(() => {

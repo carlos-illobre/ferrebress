@@ -104,13 +104,19 @@ export type SupplierContact = {
   note?: string;
 };
 
+// Lo pendiente de un proveedor, de su última lista no descartada: viva (en la cola, leyéndose, en
+// espera o aplicándose, R4.8) o que no se pudo leer (R4.6), con su motivo.
+export type SupplierPending =
+  | { listId: string; status: 'queued' | 'reading' | 'pending' | 'applying' }
+  | { listId: string; status: 'unreadable'; reason: ListReason };
+
 // En la lista: lo que ve cualquiera con sesión (R1.3); con «Ver costos», la fecha de su última lista
-// y si tiene una lista viva (R1.1).
+// y lo que tiene pendiente (R1.1).
 export type SupplierRow = SupplierContact & {
   id: string;
   name: string;
   lastListDate?: string;
-  liveList?: true;
+  pending?: SupplierPending;
 };
 export type SuppliersResponse = { suppliers: SupplierRow[] };
 

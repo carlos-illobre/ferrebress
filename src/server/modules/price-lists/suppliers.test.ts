@@ -58,11 +58,35 @@ describe('los proveedores', () => {
     expect(one.body.terms).toBeUndefined();
   });
 
-  it('price-lists-E02 y R1.1: con «Ver costos», cómo cobra y si tiene una lista viva; no cambia nada', async () => {
+  it('price-lists-R1.1: lo pendiente sale de la última lista no descartada: no se pudo leer, con su motivo; aplicada, nada', async () => {
+    const id = await kit.supplier('Ferretera Oeste');
+    const pendingOf = async () =>
+      (
+        (await kit.viewer.device.request('/api/price-lists/suppliers')).body.suppliers as {
+          id: string;
+          pending?: unknown;
+        }[]
+      ).find((one) => one.id === id)?.pending;
+    const first = await kit.pendingList(id, []);
+    await kit.setListStatus(first, 'unreadable');
+    await kit.setListReason(first, 'no-reader');
+    expect(await pendingOf()).toEqual({ listId: first, status: 'unreadable', reason: 'no-reader' });
+    const second = await kit.pendingList(id, []);
+    await kit.setListStatus(second, 'discarded');
+    expect(await pendingOf()).toMatchObject({ listId: first });
+    await kit.setListStatus(first, 'applied');
+    expect(await pendingOf()).toBeUndefined();
+    const seller = (await kit.seller.device.request('/api/price-lists/suppliers')).body.suppliers;
+    expect(seller.find((one: { id: string }) => one.id === id).pending).toBeUndefined();
+  });
+
+  it('price-lists-E02 y R1.1: con «Ver costos», cómo cobra y lo pendiente de su última lista; no cambia nada', async () => {
     const id = await kit.supplier('Corralón Norte');
-    await kit.pendingList(id, []);
+    const listId = await kit.pendingList(id, []);
     const rows = (await kit.viewer.device.request('/api/price-lists/suppliers')).body.suppliers;
-    expect(rows.find((one: { id: string }) => one.id === id)).toMatchObject({ liveList: true });
+    expect(rows.find((one: { id: string }) => one.id === id)).toMatchObject({
+      pending: { listId, status: 'pending' },
+    });
     expect(
       (await kit.viewer.device.request(`/api/price-lists/suppliers/${id}`)).body.terms,
     ).toEqual({

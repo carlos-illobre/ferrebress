@@ -5,6 +5,7 @@ import { act, fireEvent, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { navigate, route } from '../../platform/router.ts';
 import { forgetFields, readFields } from '../../platform/server/fields.ts';
+import { withoutCatalog } from '../../testing/menu.ts';
 import { openAdministration } from '../../views/basic/administration/kit.tsx';
 import { everyone, media, open } from '../../views/basic/frame/frame-test-kit.tsx';
 import { setMenuCount } from '../frame/index.ts';
@@ -12,6 +13,8 @@ import { watchAnomalies } from './index.ts';
 
 const counted = (name: RegExp) =>
   screen.getAllByRole('button', { name }).map((button) => button.textContent);
+
+withoutCatalog();
 
 describe('las anomalías abiertas en el menú', () => {
   afterEach(() => {

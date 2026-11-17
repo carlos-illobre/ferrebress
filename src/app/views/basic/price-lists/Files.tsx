@@ -10,7 +10,7 @@ import {
   useListFiles,
 } from '../../../modules/price-lists/model.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
-import { MoreCrumb } from '../frame/index.ts';
+import { MoreCrumb, PhoneLight } from '../frame/index.ts';
 import { deviceSettingsShapes } from '../ui/icon/device-settings-shapes.tsx';
 import { addShapes, Icon } from '../ui/icon/Icon.tsx';
 import { peopleShapes } from '../ui/icon/people-shapes.tsx';
@@ -124,6 +124,7 @@ export function Files() {
       <header class="files-head">
         <MoreCrumb name={texts.title} parent={{ name: texts.parent, open: view.back }} />
         <h1>{texts.title}</h1>
+        <PhoneLight />
         <p class="files-about">
           <Say words={texts.about} />
         </p>

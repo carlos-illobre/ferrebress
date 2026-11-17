@@ -8,6 +8,7 @@ import { offlineSession, person } from './modules/sign-in/session.ts';
 import { googleFrame, startReply } from './modules/sign-in/sign-in-test-kit.ts';
 import { store } from './platform/device/storage.ts';
 import { fakeServer } from './testing/fake-server.ts';
+import { withoutCatalog } from './testing/menu.ts';
 import { App } from './views/index.ts';
 
 vi.mock('./platform/camera/scanner.ts', () => ({ scan: vi.fn() }));
@@ -30,6 +31,8 @@ function enteredOffline() {
 }
 
 const confirmedReply = { body: { person: eva, sessionId: 's1', offerPasskey: false } };
+
+withoutCatalog();
 
 describe('la aplicación con una entrada sin conexión por confirmar', () => {
   beforeEach(() => {

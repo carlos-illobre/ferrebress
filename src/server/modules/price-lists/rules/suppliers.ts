@@ -2,6 +2,7 @@
 import {
   type NewSupplierBody,
   type SupplierContact,
+  type SupplierPending,
   type SupplierResponse,
   type SupplierRow,
   supplierValue,
@@ -23,13 +24,17 @@ const contactOf = (record: SupplierRecord): SupplierContact => ({
 });
 
 // En la lista: los datos los ve cualquiera (R1.3); la última lista y la viva, con «Ver costos».
-export function rowOf(record: SupplierRecord, costs: boolean, live: boolean): SupplierRow {
+export function rowOf(
+  record: SupplierRecord,
+  costs: boolean,
+  pending: SupplierPending | undefined,
+): SupplierRow {
   return {
     id: record.id,
     name: record.name,
     ...contactOf(record),
     ...(costs && record.lastListDate && { lastListDate: record.lastListDate }),
-    ...(costs && live && { liveList: true as const }),
+    ...(costs && pending && { pending }),
   };
 }
 

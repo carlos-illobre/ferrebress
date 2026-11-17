@@ -9,16 +9,16 @@ import {
   useReaders,
   type Readers as View,
 } from '../../../modules/price-lists/model.ts';
-import { MoreCrumb } from '../frame/index.ts';
-import { addShapes, Icon } from '../ui/icon/Icon.tsx';
+import { MoreCrumb, PhoneLight } from '../frame/index.ts';
+import { addShapes } from '../ui/icon/Icon.tsx';
 import { peopleShapes } from '../ui/icon/people-shapes.tsx';
 import { LoadState } from '../ui/load-state/LoadState.tsx';
 import { Say } from '../ui/say/Say.tsx';
-import { Search } from '../ui/search/Search.tsx';
+import { ScreenSearch } from './ScreenSearch.tsx';
 import { Stale } from './Stale.tsx';
 import './Readers.css';
 
-addShapes({ search: peopleShapes.search, 'chevron-left': peopleShapes['chevron-left'] });
+addShapes({ 'chevron-left': peopleShapes['chevron-left'] });
 
 function Group({ view, group }: { view: View; group: ReaderGroup }) {
   return (
@@ -82,19 +82,11 @@ export function Readers() {
       <header class="readers-head">
         <MoreCrumb name={texts.title} parent={{ name: texts.parent, open: view.back }} />
         <h1>{texts.title}</h1>
+        <PhoneLight />
         <p class="readers-about">
           <Say words={texts.about} />
         </p>
-        <Search
-          look="readers-search"
-          icon={<Icon name="search" size="small" />}
-          placeholder={texts.search}
-          aria-label={texts.search.long}
-          value={view.search}
-          onText={view.setSearch}
-          data-slash=""
-          data-clear=""
-        />
+        <ScreenSearch look="readers-search" words={texts.search} view={view} />
       </header>
       <Body view={view} />
     </div>

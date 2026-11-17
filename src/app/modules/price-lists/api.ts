@@ -5,6 +5,8 @@ import type {
   ReadersResponse,
   ReaderView,
   RowsPage,
+  SupplierResponse,
+  SuppliersResponse,
 } from '@ferrebress/shared/contracts/price-lists';
 import { api } from '../../platform/server/api.ts';
 import { fetchFile } from '../../platform/server/download.ts';
@@ -31,3 +33,10 @@ export const skippedRows = (listId: string, cursor?: string) =>
   api<RowsPage>(
     `${base}/lists/${listId}/rows?${new URLSearchParams({ show: 'skipped', ...(cursor && { after: cursor }) })}`,
   );
+
+export const suppliersApi = {
+  list: () => api<SuppliersResponse>(`${base}/suppliers`),
+  inactive: () => api<SuppliersResponse>(`${base}/suppliers/inactive`),
+  create: (name: string) => api<SupplierResponse>(`${base}/suppliers`, { name }),
+  reactivate: (id: string) => api<{ ok: true }>(`${base}/suppliers/${id}/reactivate`, {}),
+};

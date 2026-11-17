@@ -1,6 +1,11 @@
 // Las consultas de los proveedores (diseño de 08, § 2): cada dato se cambia mirando el que se vio, y
 // cómo cobra va entero, con su versión.
-import type { SupplierField, Terms } from '@ferrebress/shared/contracts/price-lists';
+import type {
+  ListReason,
+  SupplierField,
+  SupplierPending,
+  Terms,
+} from '@ferrebress/shared/contracts/price-lists';
 import { type Db, dateText, jsonOf } from './db.ts';
 
 export type SupplierRecord = {
@@ -50,6 +55,21 @@ const columnOf: Record<SupplierField, SupplierField> = {
   note: 'note',
 };
 
+// La última lista no descartada de cada proveedor, si está viva o no se pudo leer (R1.1).
+async function pendingLists(db: Db): Promise<Map<string, SupplierPending>> {
+  const rows = await db
+    .selectFrom('price_lists.lists')
+    .select(['id', 'supplier_id', 'status', 'reason'])
+    .distinctOn('supplier_id')
+    .where('supplier_id', 'is not', null)
+    .where('status', '!=', 'discarded')
+    .orderBy('supplier_id')
+    .orderBy('uploaded_at', 'desc')
+    .orderBy('id', 'desc')
+    .execute();
+  return new Map(rows.flatMap((row) => pendingOf(row)));
+}
+
 // Leer.
 const reads = (db: Db) => ({
   // Los activos o los dados de baja, por nombre.
@@ -58,18 +78,7 @@ const reads = (db: Db) => ({
       SupplierRecord[]
     >,
 
-  // Los que tienen una lista viva (R1.1): leyéndose, en espera o aplicándose.
-  withLiveList: async (): Promise<Set<string>> =>
-    new Set(
-      (
-        await db
-          .selectFrom('price_lists.lists')
-          .select('supplier_id')
-          .where('status', 'in', ['reading', 'pending', 'applying'])
-          .where('supplier_id', 'is not', null)
-          .execute()
-      ).map((row) => row.supplier_id as string),
-    ),
+  pending: () => pendingLists(db),
 
   one: (id: string, lock = false): Promise<SupplierRecord | undefined> =>
     columns(db)
@@ -159,3 +168,13 @@ const states = (db: Db) => ({
 });
 
 export const suppliersData = (db: Db) => ({ ...reads(db), ...writes(db), ...states(db) });
+
+type LastList = { id: string; supplier_id: string | null; status: string; reason: string | null };
+
+function pendingOf(row: LastList): [string, SupplierPending][] {
+  const supplier = row.supplier_id as string;
+  if (row.status === 'unreadable')
+    return [[supplier, { listId: row.id, status: 'unreadable', reason: row.reason as ListReason }]];
+  if (row.status === 'applied') return [];
+  return [[supplier, { listId: row.id, status: row.status as 'pending' }]];
+}

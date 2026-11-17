@@ -10,5 +10,8 @@ export {
   useListFiles,
 } from './files.ts';
 export { groupsOf, type ReaderGroup, type Readers, readerLines, useReaders } from './readers.ts';
+export { type Suppliers, useSuppliers } from './suppliers.ts';
+export type { SupplierFilter, SupplierLines } from './suppliers-rules.ts';
 export { filesTexts } from './texts-files.ts';
 export { readersTexts } from './texts-readers.ts';
+export { suppliersTexts } from './texts-suppliers.ts';

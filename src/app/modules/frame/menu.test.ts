@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { route } from '../../platform/router.ts';
+import { withoutCatalog } from '../../testing/menu.ts';
 import { person, withoutScreens } from '../../views/basic/frame/frame-test-kit.tsx';
 import { goToFirst, isMenuPath } from './menu.ts';
+
+withoutCatalog();
 
 describe('las direcciones del menú', () => {
   it('el inicio, las opciones y lo de adentro sí; lo demás no (03, § 5.4)', () => {

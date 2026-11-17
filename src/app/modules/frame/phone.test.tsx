@@ -1,6 +1,7 @@
 import { act, fireEvent, screen, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { later } from '../../testing/later.ts';
+import { withoutCatalog } from '../../testing/menu.ts';
 import {
   everyone,
   firstGroupNames,
@@ -16,6 +17,8 @@ import {
 import { PhoneLight } from '../../views/basic/frame/index.ts';
 import { saysSoon } from '../../views/basic/kit.ts';
 import { moreOptions, type Option, parts } from './menu.ts';
+
+withoutCatalog();
 
 describe('el marco en el celular', () => {
   beforeEach(() => media({ phone: true }));
