@@ -29,6 +29,19 @@ de a bloques; no recibe ninguna variable de entorno (la clave de la base no lleg
 filas y celdas, cada celda con su valor y el texto que se ve. Con las opciones cerradas: sin fórmulas
 (se toma el último valor que guardó Excel, E68), sin HTML ni archivos adjuntos.
 
+**Un CSV se lee de a partes, sin SheetJS.** SheetJS abre el archivo entero y arma todas sus celdas:
+con un CSV del tamaño máximo de arranque (30 MB, unas 600.000 filas) el proceso lector se quedaba sin
+memoria. Un CSV es texto, renglón por renglón, así que se recorre como flujo: se cuenta una vez (para el
+aviso de las planillas grandes, 08 · R4.12) y después se entregan los bloques de a uno, cada uno con sus
+filas anteriores. La memoria no crece con el archivo. Se lee en UTF-8 si lo es y, si no, en
+Windows-1252; el separador es el que más aparece al principio; un campo larguísimo (64 KB) no es una
+lista. Cada celda queda como texto, igual que con SheetJS. Un Excel (`.xlsx`, `.xls`) se sigue abriendo
+entero: un `.xls` no pasa de 65.536 filas por hoja; un `.xlsx` grande podría leerse con un lector SAX de
+su XML, si alguna lista real no entra.
+
+**La comprobación de un bloque mira solo lo que vio el lector:** el bloque y sus filas anteriores. Una
+celda señalada fuera de eso no existe.
+
 - **Antes de SheetJS se mira el índice del ZIP** de un `.xlsx`: cuántas partes, que cada una declare su
   tamaño, que la suma no pase un tope razonable frente al tamaño del archivo y que las cabeceras
   coincidan. Con el tamaño declarado, SheetJS descomprime dentro de ese espacio y no crece: un archivo
@@ -79,8 +92,9 @@ filas y celdas, cada celda con su valor y el texto que se ve. Con las opciones c
 - Dos dependencias nuevas en el servidor: SheetJS y `quickjs-emscripten-core`, con sus versiones fijas.
 - Leer en QuickJS es más lento que en V8, pero sobra: con una planilla inventada de 10.000 filas (1,5
   MB), abrirla con SheetJS tardó 175 ms y clasificar sus filas con un lector en QuickJS, de a bloques de
-  5.000 y con sus topes, 133 ms, en la máquina de desarrollo. La meta es 10 segundos (08 · R4.9). Se
-  vuelve a medir con la prueba de performance del módulo.
+  5.000 y con sus topes, 133 ms, en la máquina de desarrollo. La meta es 10 segundos (08 · R4.9). La
+  prueba de performance del módulo (`pnpm perf`) lo vuelve a medir: 10.000 filas en 1,2 s y un CSV de 30
+  MB (623.000 filas) en 35 s, con la memoria del proceso lector sin crecer.
 - Un lector de un programador se escribe como JavaScript común y sus pruebas corren también en QuickJS.
 - El contenedor del servidor lleva un tope de memoria, así un error que quede no se lleva la máquina.
 - La etapa b no cambia esto: lo que escribe la IA es un lector más.

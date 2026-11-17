@@ -1,52 +1,29 @@
-// Leer una lista (08 · R4, R5; diseño de 08, § 1 y § 4), dentro del proceso lector: abrir la planilla,
-// preguntar si es muy grande, deducir la fecha y de quién es, elegir el lector y leer de a bloques,
-// comprobando cada uno. Lo que va pasando lo cuenta con `send`; guardar es del servidor.
-import { readFile } from 'node:fs/promises';
-import {
-  type Block,
-  blockRows,
-  type Head,
-  headRows,
-  lookBack,
-} from '@ferrebress/shared/contracts/price-lists';
+// Leer una lista (08 · R4, R5; diseño de 08, § 1 y § 4), dentro del proceso lector: abrir la planilla
+// (un CSV, de a partes: source.ts), preguntar si es muy grande, deducir la fecha y de quién es, elegir
+// el lector y leer de a bloques, comprobando cada uno. Lo que va pasando lo cuenta con `send`; guardar es del servidor.
+import type { Block, Head } from '@ferrebress/shared/contracts/price-lists';
 import { autoDoubts, detectAuto } from '../rules/auto.ts';
 import { type Checked, checkBlock } from '../rules/check.ts';
 import { listDateOf, supplierByName } from '../rules/deduce.ts';
 import type { ChosenReader, Job, JobMessage, JobReader } from './messages.ts';
 import { runReader } from './sandbox.ts';
-import { openWorkbook, type Sheet } from './workbook.ts';
+import { sourceOf } from './source.ts';
 
 type Send = (message: JobMessage) => void | Promise<void>;
 type Candidate = { reader: ChosenReader; code: string; params: unknown; supplierId: string | null };
 type Reading = { candidate: Candidate; first: Checked; firstBlock: Block };
-
-// Los bloques, de a uno y recién cuando se leen: armarlos todos antes copiaba la planilla entera.
-function* blocksOf(sheets: Sheet[]): Generator<Block> {
-  for (const [index, sheet] of sheets.entries())
-    for (let start = 0; start < sheet.rows.length; start += blockRows)
-      yield {
-        sheet: index,
-        start,
-        rows: sheet.rows.slice(start, start + blockRows),
-        before: sheet.rows.slice(Math.max(0, start - lookBack), start),
-      };
-}
-
-const headOf = (sheets: Sheet[]): Head =>
-  sheets.map((sheet) => ({ name: sheet.name, rows: sheet.rows.slice(0, headRows) }));
 
 // Lee y comprueba un bloque con un lector; `undefined` si no pasa.
 async function readBlock(
   job: Job,
   candidate: Candidate,
   block: Block,
-  sheets: Sheet[],
   head: Head,
   seen: Set<string>,
 ) {
   const ran = await runReader(candidate.code, candidate.params, 'read', [block, head], job.limits);
   if (!('ok' in ran)) return undefined;
-  const checked = checkBlock(block, (sheets[block.sheet] as Sheet).rows, ran.ok, seen);
+  const checked = checkBlock(block, ran.ok, seen);
   return 'problem' in checked ? undefined : checked;
 }
 
@@ -69,12 +46,7 @@ function candidatesOf(job: Job): Candidate[] {
 
 // El primero que reconoce la planilla y pasa la comprobación del primer bloque; si ninguno, el
 // automático, si no duda.
-async function choose(
-  job: Job,
-  sheets: Sheet[],
-  head: Head,
-  first: Block,
-): Promise<Reading | JobMessage> {
+async function choose(job: Job, head: Head, first: Block): Promise<Reading | JobMessage> {
   for (const candidate of candidatesOf(job)) {
     const says = await runReader(
       candidate.code,
@@ -84,18 +56,13 @@ async function choose(
       job.limits,
     );
     if (!('ok' in says) || says.ok !== 'yes') continue;
-    const checked = await readBlock(job, candidate, first, sheets, head, new Set());
+    const checked = await readBlock(job, candidate, first, head, new Set());
     if (checked) return { candidate, first: checked, firstBlock: first };
   }
-  return chooseAuto(job, sheets, head, first);
+  return chooseAuto(job, head, first);
 }
 
-async function chooseAuto(
-  job: Job,
-  sheets: Sheet[],
-  head: Head,
-  first: Block,
-): Promise<Reading | JobMessage> {
+async function chooseAuto(job: Job, head: Head, first: Block): Promise<Reading | JobMessage> {
   const params = detectAuto(head);
   if (params === 'no') return { type: 'failed', reason: 'no-reader' };
   if (params === 'unsure') return { type: 'failed', reason: 'auto-unsure' };
@@ -105,24 +72,24 @@ async function chooseAuto(
     params,
     supplierId: null,
   };
-  const checked = await readBlock(job, candidate, first, sheets, head, new Set());
+  const checked = await readBlock(job, candidate, first, head, new Set());
   if (!checked) return { type: 'failed', reason: 'auto-unsure' };
   return { candidate, first: checked, firstBlock: first };
 }
 
 export async function runJob(job: Job, send: Send): Promise<void> {
-  const opened = openWorkbook(await readFile(job.path));
-  if ('failed' in opened) return send({ type: 'failed', reason: opened.failed });
-  const rows = opened.sheets.reduce((sum, sheet) => sum + sheet.rows.length, 0);
+  const source = await sourceOf(job);
+  if ('failed' in source) return send({ type: 'failed', reason: source.failed });
+  const rows = source.rows;
   if (rows === 0) return send({ type: 'failed', reason: 'empty' });
   if (job.confirmRows !== null && rows > job.confirmRows) return send({ type: 'size', rows });
   send({ type: 'opened', rows });
-  const head = headOf(opened.sheets);
-  const blocks = blocksOf(opened.sheets);
-  const chosen = await choose(job, opened.sheets, head, blocks.next().value as Block);
+  const head = await source.head();
+  const blocks = source.blocks();
+  const chosen = await choose(job, head, (await blocks.next()).value as Block);
   if ('type' in chosen) return send(chosen);
   send(chosenMessage(job, chosen.candidate, head));
-  await readAll(job, opened.sheets, head, blocks, chosen, send);
+  await readAll(job, head, blocks, chosen, send);
 }
 
 function chosenMessage(job: Job, candidate: Candidate, head: Head): JobMessage {
@@ -142,7 +109,7 @@ function chosenMessage(job: Job, candidate: Candidate, head: Head): JobMessage {
   };
 }
 
-function* withFirst(first: Block, rest: Iterable<Block>): Generator<Block> {
+async function* withFirst(first: Block, rest: AsyncIterable<Block>): AsyncGenerator<Block> {
   yield first;
   yield* rest;
 }
@@ -151,19 +118,18 @@ function* withFirst(first: Block, rest: Iterable<Block>): Generator<Block> {
 // además, no puede terminar con casi nada leído (R5.5).
 async function readAll(
   job: Job,
-  sheets: Sheet[],
   head: Head,
-  rest: Iterable<Block>,
+  rest: AsyncIterable<Block>,
   chosen: Reading,
   send: Send,
 ) {
   const seen = new Set<string>();
   let [products, skipped, rowsRead] = [0, 0, 0];
-  for (const block of withFirst(chosen.firstBlock, rest)) {
+  for await (const block of withFirst(chosen.firstBlock, rest)) {
     const checked =
       block === chosen.firstBlock
         ? checkAgain(chosen, seen)
-        : await readBlock(job, chosen.candidate, block, sheets, head, seen);
+        : await readBlock(job, chosen.candidate, block, head, seen);
     if (!checked) return send({ type: 'failed', reason: 'reader-failed' });
     [products, skipped, rowsRead] = [
       products + checked.products.length,

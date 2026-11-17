@@ -9,7 +9,6 @@ import {
   type CellRef,
   type ReaderRow,
   rowKinds,
-  type SheetRows,
   type SkipReason,
   skipReasons,
 } from '@ferrebress/shared/contracts/price-lists';
@@ -67,8 +66,17 @@ export type CheckProblem = 'bad-output' | 'missing-rows' | 'bad-cell';
 
 const cut = (text: string, max: number): string | null => (text === '' ? null : text.slice(0, max));
 
+// Las filas que ve el lector: las anteriores al bloque y las del bloque (ADR-021). Una de afuera no
+// existe: el lector no la vio.
+function rowAt(block: Block, row: number): Cell[] | undefined {
+  const first = block.start - block.before.length;
+  if (row < first) return undefined;
+  return row < block.start ? block.before[row - first] : block.rows[row - block.start];
+}
+
 // Lo que trae una fila salteada, para verla: cada celda como texto. La fila es del bloque: existe.
-const cellsOf = (rows: SheetRows, row: number) => (rows[row] as Cell[]).map((cell) => textOf(cell));
+const cellsOf = (block: Block, row: number) =>
+  (rowAt(block, row) as Cell[]).map((cell) => textOf(cell));
 
 // Cada fila del bloque tiene una sola clase, y ninguna de afuera.
 function byRowOf(block: Block, output: ReaderRow[]): Map<number, ReaderRow> | undefined {
@@ -78,11 +86,10 @@ function byRowOf(block: Block, output: ReaderRow[]): Map<number, ReaderRow> | un
   return byRow.size === block.rows.length && !outside ? byRow : undefined;
 }
 
-// Comprueba un bloque. `rows` son todas las filas de la hoja (una marca puede estar arriba del
-// bloque); `seen`, los códigos de la lista hasta acá, que se suman.
+// Comprueba un bloque. Una celda puede estar en las filas de antes (una marca arriba del bloque);
+// `seen` son los códigos de la lista hasta acá, que se suman.
 export function checkBlock(
   block: Block,
-  rows: SheetRows,
   output: unknown,
   seen: Set<string>,
 ): Checked | { problem: CheckProblem } {
@@ -92,7 +99,7 @@ export function checkBlock(
   if (!byRow) return { problem: 'missing-rows' };
   const checked: Checked = { products: [], skipped: [] };
   for (const one of byRow.values()) {
-    const result = rowOf(block.sheet, rows, one, seen);
+    const result = rowOf(block, one, seen);
     if (result === 'bad-cell') return { problem: 'bad-cell' };
     if (result && 'reason' in result) checked.skipped.push(result);
     else if (result) checked.products.push(result);
@@ -103,55 +110,53 @@ export function checkBlock(
   return checked;
 }
 
-const exists = (rows: SheetRows, [row]: CellRef) => row < rows.length;
-const at = (rows: SheetRows, [row, col]: CellRef) => rows[row]?.[col];
+const exists = (block: Block, [row]: CellRef) => rowAt(block, row) !== undefined;
+const at = (block: Block, [row, col]: CellRef) => rowAt(block, row)?.[col];
 
 type Skip = (reason: SkipReason, code?: string | null, description?: string | null) => SkippedRow;
 
 function rowOf(
-  sheet: number,
-  rows: SheetRows,
+  block: Block,
   one: ReaderRow,
   seen: Set<string>,
 ): ProductRow | SkippedRow | 'bad-cell' | undefined {
   if (one.kind === 'title' || one.kind === 'brand' || one.kind === 'empty') return undefined;
   const skip: Skip = (reason, code = null, description = null) => ({
-    ...{ sheet, row: one.row, reason, code, description },
-    cells: cellsOf(rows, one.row),
+    ...{ sheet: block.sheet, row: one.row, reason, code, description },
+    cells: cellsOf(block, one.row),
   });
   if (one.kind === 'skipped' || !one.at) return skip(one.reason ?? 'no-price');
   const refs = Object.values(one.at) as CellRef[];
-  if (!refs.every((each) => exists(rows, each))) return 'bad-cell';
-  return productOf(sheet, rows, one.row, one.at, seen, skip);
+  if (!refs.every((each) => exists(block, each))) return 'bad-cell';
+  return productOf(block, one.row, one.at, seen, skip);
 }
 
 // Un producto, o la fila salteada con el primer motivo que tenga (R5.4).
 function productOf(
-  sheet: number,
-  rows: SheetRows,
+  block: Block,
   row: number,
   where: NonNullable<ReaderRow['at']>,
   seen: Set<string>,
   skip: Skip,
 ): ProductRow | SkippedRow {
-  const code = textOf(at(rows, where.code));
-  const description = cut(textOf(at(rows, where.description)), rowLimits.description);
+  const code = textOf(at(block, where.code));
+  const description = cut(textOf(at(block, where.description)), rowLimits.description);
   if (code === '' || code.length > rowLimits.code) return skip('no-code', null, description);
   if (!description) return skip('no-description', code);
-  const price = priceOf(at(rows, where.price));
+  const price = priceOf(at(block, where.price));
   if ('skipped' in price) return skip(price.skipped, code, description);
   if (seen.has(code)) return skip('repeated-code', code, description);
   seen.add(code);
-  const brand = where.brand ? cut(textOf(at(rows, where.brand)), rowLimits.brand) : null;
+  const brand = where.brand ? cut(textOf(at(block, where.brand)), rowLimits.brand) : null;
   return {
-    sheet,
+    sheet: block.sheet,
     row,
     code,
     description,
     brand,
-    barcode: where.barcode ? cut(textOf(at(rows, where.barcode)), rowLimits.barcode) : null,
+    barcode: where.barcode ? cut(textOf(at(block, where.barcode)), rowLimits.barcode) : null,
     listPrice: price.price,
-    vat: where.vat ? vatOf(at(rows, where.vat)) : null,
+    vat: where.vat ? vatOf(at(block, where.vat)) : null,
     searchKey: searchKey(`${code} ${description} ${brand ?? ''}`),
   };
 }

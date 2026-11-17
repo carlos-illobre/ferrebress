@@ -431,7 +431,8 @@ datos de vendedores queda en el dispositivo), con «Reintentar» (E07).
 | `rules/check.ts`, `rules/deduce.ts`, `rules/cells.ts`, `rules/auto.ts` | La comprobación, de quién es y de qué fecha, leer un precio o un IVA de una celda y el lector automático (R5.3, sin SheetJS ni QuickJS: se prueba sin el proceso) |
 | `data/*.ts` | Las consultas, en lote, por tabla |
 | `reading/pool.ts` | Los procesos lectores: la cola (de identificadores), cancelar, los topes y reemplazar el que muere |
-| `reading/process.ts` | Lo que corre en el proceso lector: abre la planilla con SheetJS y corre los lectores en QuickJS (ADR-021) |
+| `reading/process.ts` | Lo que corre en el proceso lector: abre la planilla y corre los lectores en QuickJS (ADR-021) |
+| `reading/source.ts`, `reading/csv.ts` | De dónde salen las filas: un CSV, de a partes y sin tenerlo entero; un Excel, con SheetJS. Los bloques, de a uno, con sus filas anteriores (ADR-021) |
 | `readers/*.js` | Los lectores de un programador, por formato, con sus pruebas y planillas de ejemplo inventadas (constitución, VIII), que corren también en QuickJS |
 | `readers/auto-1.js` | La plantilla del lector automático: código fijo que recibe sus datos aparte |
 | `events.ts`, `migrations/`, `tables.generated.ts` | Como todo módulo |

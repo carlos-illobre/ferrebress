@@ -175,6 +175,10 @@ paralelo»).
 
 No se construyen ahora; el diseño no les cierra la puerta.
 
+- [ ] T140 [agente] Leer un `.xlsx` de a partes, con un lector SAX de su XML (ADR-021): los textos
+  compartidos, los formatos de número y fecha para el texto que se ve, y el ZIP descomprimido de a
+  pedazos con el mismo tope. Hoy un `.xlsx` se abre entero con SheetJS; se hace si una lista real no
+  entra en la memoria del proceso lector.
 - [ ] T100 [carlos] Factura electrónica de ARCA.
 - [ ] T101 [carlos] Venta online, con devoluciones.
 - [ ] T102 [carlos] Licencias para otras ferreterías, cada una con su instalación.

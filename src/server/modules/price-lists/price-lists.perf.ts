@@ -146,13 +146,12 @@ describe('el rendimiento de las listas de precios, con 10.000 filas', () => {
     measured['recalcular: segundos'] = (ms / 1000).toFixed(1);
   });
 
-  // Hoy el proceso lector (320 MB de motor, 384 MB en total) lee hasta un CSV de unos 15 MB (320.000
-  // filas); uno de 30 MB, el tamaño máximo de arranque, se queda sin memoria al leerlo.
-  it('un CSV de 15 MB (unas 320.000 filas): pregunta antes y se lee sin cortarse', async () => {
+  // Un CSV se lee de a partes: el del tamaño máximo de arranque entra en la memoria del proceso lector.
+  it('un CSV de 30 MB (unas 620.000 filas): pregunta antes y se lee sin cortarse', async () => {
     kit.later(61_000);
     const body: string[] = ['Código;Descripción;Precio'];
     let length = Buffer.byteLength(body[0] as string);
-    for (let i = 0; length < 15 * 2 ** 20; i++) {
+    for (let i = 0; length < 29.5 * 2 ** 20; i++) {
       const line = `X${i};Artículo de prueba número ${i};${(100 + (i % 900)).toFixed(2).replace('.', ',')}`;
       body.push(line);
       length += Buffer.byteLength(line) + 1;

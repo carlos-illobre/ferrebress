@@ -34,7 +34,7 @@ const output = [
 
 describe('la comprobación', () => {
   it('price-lists-E49: cada fila termina como producto o como salteada con su motivo', () => {
-    const checked = checkBlock(block, rows, output, new Set());
+    const checked = checkBlock(block, output, new Set());
     expect(checked).toEqual({
       products: [
         {
@@ -88,7 +88,7 @@ describe('la comprobación', () => {
   it('un código repetido en otro bloque de la misma lista también se saltea', () => {
     const seen = new Set(['A1']);
     const one: Block = { sheet: 0, start: 1, rows: [rows[1] ?? []], before: [] };
-    expect(checkBlock(one, rows, [product(1)], seen)).toMatchObject({
+    expect(checkBlock(one, [product(1)], seen)).toMatchObject({
       products: [],
       skipped: [{ reason: 'repeated-code' }],
     });
@@ -97,21 +97,32 @@ describe('la comprobación', () => {
   it('una fila que el lector saltea queda con su motivo; sin motivo, sin precio', () => {
     const one: Block = { sheet: 0, start: 1, rows: [rows[1] ?? []], before: [] };
     expect(
-      checkBlock(one, rows, [{ row: 1, kind: 'skipped', reason: 'other-currency' }], new Set()),
+      checkBlock(one, [{ row: 1, kind: 'skipped', reason: 'other-currency' }], new Set()),
     ).toMatchObject({
       skipped: [
         { reason: 'other-currency', cells: ['A1', 'Mecha 6 mm', '$ 1.200,50', '21 %', '7790001'] },
       ],
     });
-    expect(checkBlock(one, rows, [{ row: 1, kind: 'product' }], new Set())).toMatchObject({
+    expect(checkBlock(one, [{ row: 1, kind: 'product' }], new Set())).toMatchObject({
       skipped: [{ reason: 'no-price' }],
+    });
+  });
+
+  it('una celda de las filas de antes del bloque vale (una marca arriba); una más arriba no existe', () => {
+    const later: Block = { sheet: 0, start: 1, rows: [rows[1] ?? []], before: [rows[0] ?? []] };
+    expect(checkBlock(later, [product(1, { brand: [0, 0] })], new Set())).toMatchObject({
+      products: [{ code: 'A1', brand: 'BREMEN' }],
+    });
+    const away: Block = { sheet: 0, start: 2, rows: [rows[2] ?? []], before: [rows[1] ?? []] };
+    expect(checkBlock(away, [product(2, { brand: [0, 0] })], new Set())).toEqual({
+      problem: 'bad-cell',
     });
   });
 
   it('un código, una descripción o una marca muy largos', () => {
     const long: SheetRows = [cells('X'.repeat(61), 'Ok', 1), cells('B', 'D'.repeat(400), 1)];
     const both: Block = { sheet: 0, start: 0, rows: long, before: [] };
-    const checked = checkBlock(both, long, [product(0), product(1)], new Set());
+    const checked = checkBlock(both, [product(0), product(1)], new Set());
     expect(checked).toMatchObject({
       skipped: [{ reason: 'no-code' }],
       products: [{ code: 'B', description: 'D'.repeat(300) }],
@@ -119,19 +130,17 @@ describe('la comprobación', () => {
   });
 
   it('price-lists-E48: lo que no tiene la forma, deja filas sin clase o señala una celda que no existe no pasa', () => {
-    expect(checkBlock(block, rows, 'nada', new Set())).toEqual({ problem: 'bad-output' });
-    expect(checkBlock(block, rows, [{ row: 0, kind: 'otra' }], new Set())).toEqual({
+    expect(checkBlock(block, 'nada', new Set())).toEqual({ problem: 'bad-output' });
+    expect(checkBlock(block, [{ row: 0, kind: 'otra' }], new Set())).toEqual({
       problem: 'bad-output',
     });
-    expect(checkBlock(block, rows, output.slice(1), new Set())).toEqual({
+    expect(checkBlock(block, output.slice(1), new Set())).toEqual({
       problem: 'missing-rows',
     });
-    expect(
-      checkBlock(block, rows, [...output.slice(1), { row: 99, kind: 'empty' }], new Set()),
-    ).toEqual({
+    expect(checkBlock(block, [...output.slice(1), { row: 99, kind: 'empty' }], new Set())).toEqual({
       problem: 'missing-rows',
     });
     const away = [...output.slice(0, 9), product(9, { price: [500, 2] })];
-    expect(checkBlock(block, rows, away, new Set())).toEqual({ problem: 'bad-cell' });
+    expect(checkBlock(block, away, new Set())).toEqual({ problem: 'bad-cell' });
   });
 });
