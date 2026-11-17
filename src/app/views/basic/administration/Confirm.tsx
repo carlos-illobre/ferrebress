@@ -1,9 +1,14 @@
 // La confirmación del redondeo (R3.4, E18): cuántos precios cambian, con «Cambiar N precios» y
 // «Cancelar»; si el recálculo no se pudo, lo dice y deja reintentar (R3.5, E22).
 
-import { roundUp } from '@ferrebress/shared/pricing/rounding';
 import type { Administration, Confirm as Asked } from '../../../modules/administration/model.ts';
-import { pesos, shown, texts, thousands } from '../../../modules/administration/model.ts';
+import {
+  pesos,
+  roundedTo,
+  shown,
+  texts,
+  thousands,
+} from '../../../modules/administration/model.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { Dialog } from '../ui/dialog/Dialog.tsx';
 
@@ -27,12 +32,12 @@ export function Confirm({ view, asked }: { view: Administration; asked: Asked })
             <span>{one.name}</span>
             <b>
               {pesos(
-                roundUp(
+                roundedTo(
                   one.calculated,
                   (view.data as NonNullable<typeof view.data>).settings.roundingStep.value,
                 ),
               )}{' '}
-              → {pesos(roundUp(one.calculated, asked.step))}
+              → {pesos(roundedTo(one.calculated, asked.step))}
             </b>
           </li>
         ))}

@@ -1,11 +1,11 @@
 // El panel del redondeo (R3): el paso, cuántos precios cambian con cada uno y cómo quedan unos
 // ejemplos con el paso que se mira.
-import { roundingSteps } from '@ferrebress/shared/contracts/administration';
-import { roundUp } from '@ferrebress/shared/pricing/rounding';
 import {
   groupOf,
   names,
   pesos,
+  roundedTo,
+  roundingSteps,
   shown,
   texts,
   thousands,
@@ -29,8 +29,8 @@ function Showcase({ view, step, now }: { view: PanelProps['view']; step: number;
       {!view.prices?.examples.length && <p class="admin-detail">{t.noPrices}</p>}
       <ul class="admin-showcase">
         {examples.map((one) => {
-          const after = roundUp(one.calculated, step);
-          const changes = seeing && after !== roundUp(one.calculated, now);
+          const after = roundedTo(one.calculated, step);
+          const changes = seeing && after !== roundedTo(one.calculated, now);
           return (
             <li key={one.name} class={changes ? 'admin-changes' : ''}>
               <span class="admin-showcase-name">{one.name}</span>

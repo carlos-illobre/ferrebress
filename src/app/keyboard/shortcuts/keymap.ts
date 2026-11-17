@@ -23,6 +23,9 @@ export const keymap: Record<string, string> = {
   'price-lists-readers.retry': 'Alt+R',
   'price-lists-files.retry': 'Alt+R',
   'price-lists-files.remove': 'Alt+B',
+  // Más → Anomalías (06 · pantalla 2).
+  'anomalies.retry': 'Alt+R',
+  'anomalies.review': 'Alt+K',
   // Más → Configuración (04 · R1.9, R9.2).
   'device-settings.animations': 'Alt+D',
   'device-settings.otherTimeFormat': 'Alt+H',

@@ -7,10 +7,15 @@ import {
   goneWarnPercentRange,
   maxFileMbRange,
   reviewPercentRange,
+  roundingSteps,
   type SettingKey,
   type Settings,
+  sessionIdleOptions,
+  sessionMaxOptions,
+  settingList,
   unappliedFileDaysRange,
 } from '@ferrebress/shared/contracts/administration';
+import { roundUp } from '@ferrebress/shared/pricing/rounding';
 import { businessFormat } from '@ferrebress/shared/time/business';
 import { texts } from './texts.ts';
 
@@ -47,6 +52,42 @@ export const listSettings = {
   unappliedFileDays: unappliedFileDaysRange,
 } as const;
 export type ListSetting = keyof typeof listSettings;
+
+// El panel de las listas (R8): sus tres partes, en orden, y la unidad de cada número.
+export const listParts: { title: string; keys: ListSetting[] }[] = [
+  { title: texts.lists.review, keys: ['reviewPercent', 'goneWarnPercent'] },
+  { title: texts.lists.upload, keys: ['maxFileMb', 'confirmRows'] },
+  { title: texts.lists.files, keys: ['filesMb', 'unappliedFileDays'] },
+];
+export const listUnits: Record<ListSetting, string> = {
+  reviewPercent: '%',
+  goneWarnPercent: '%',
+  maxFileMb: 'MB',
+  confirmRows: 'filas',
+  filesMb: 'MB',
+  unappliedFileDays: 'días',
+};
+
+// Las opciones de cada ajuste que se elige de una lista (R3, R6).
+export { roundingSteps, sessionIdleOptions, sessionMaxOptions };
+
+// El precio redondeado para arriba con un paso (R3.1).
+export const roundedTo = (price: number, step: number) => roundUp(price, step);
+
+// El costo de ejemplo con el que cada margen rápido dice a cuánto vende (R4, maqueta final).
+export const exampleCost = 4000;
+export const sellsAt = (margin: number, step: number) =>
+  roundUp(exampleCost * (1 + margin / 100), step);
+
+// El valor de arranque de un ajuste, como se escribe («De arranque, 50 %»).
+export const initialOf = (key: ListSetting) => shown(key, settingList[key].initial);
+
+// Lo escrito en una caja, como número: sin los puntos de miles; vacío no es un número (NaN), y lo que
+// no vale lo dice al guardar (R2.2).
+export function typedNumber(text: string): number {
+  const clean = text.replace(/\./g, '').trim();
+  return clean === '' ? Number.NaN : Number(clean);
+}
 export const isListSetting = (key: SettingKey): key is ListSetting => key in listSettings;
 
 // «12:10», sin día: el día de mostrador va de 8:00 a 8:00.

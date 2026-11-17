@@ -12,11 +12,13 @@ import {
   roleNames,
   texts,
   unavailable,
+  useMenuCount,
 } from '../../../../modules/frame/model.ts';
 import { useWaiting } from '../../../../platform/view/waiting.ts';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { useFrame } from '../context.ts';
 import { LightText } from '../Pending/Pending.tsx';
+import { Count } from '../Side/Count.tsx';
 import './PhoneMore.css';
 import '../../ui/switch/switch.css';
 import { privateProps } from '../../../../platform/view/private.ts';
@@ -71,6 +73,7 @@ function MoreOption({ option }: { option: Option }) {
   const { notYet, online, phoneMore } = useFrame();
   const soon = !exists(option);
   const off = unavailable(option, online);
+  const count = useMenuCount(option.id);
   // Una pantalla de trabajo reemplaza a Más (atrás vuelve a donde se estaba antes de Más); el manual
   // se abre encima.
   const open = () => (option.over ? openOption(option, 'more') : phoneMore.leave(option));
@@ -88,6 +91,7 @@ function MoreOption({ option }: { option: Option }) {
         <b>{option.name}</b>
         <small>{option.detail}</small>
       </span>
+      <Count count={count} />
       {soon || off ? (
         <span class="coming-soon">{off ? texts.offlineOption : texts.comingSoon}</span>
       ) : (

@@ -4,6 +4,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import { useApp } from '../../shell/app.ts';
 import { AdministrationSlot } from './administration/Slot.tsx';
+import { AnomaliesSlot } from './anomalies/Slot.tsx';
 import { frameLink } from './device-link/frame-link.tsx';
 import { InstallOffer } from './device-settings/InstallOffer.tsx';
 import { Settings } from './device-settings/Settings/Settings.tsx';
@@ -14,7 +15,12 @@ import { Toasts } from './ui/toast/Toast.tsx';
 import { UsersSlot } from './users/index.ts';
 
 // La pantalla de cada opción del menú que ya existe.
-const screens = { users: UsersSlot, deviceSettings: Settings, administration: AdministrationSlot };
+const screens = {
+  users: UsersSlot,
+  deviceSettings: Settings,
+  administration: AdministrationSlot,
+  anomalies: AnomaliesSlot,
+};
 
 export function BasicApp() {
   const app = useApp();

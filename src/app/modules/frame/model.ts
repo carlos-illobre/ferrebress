@@ -1,6 +1,7 @@
 // Lo que las vistas usan de este módulo (ADR-019): sus modelos, sus textos y las cuentas que
 // muestran. Las vistas no importan nada más del módulo; index.ts es lo que va en el arranque.
 
+export { useMenuCount, useMoreCount } from './counts.ts';
 export {
   allowed,
   exists,

@@ -1,8 +1,9 @@
 // El panel de los márgenes rápidos (R4): las cinco teclas, que se escriben y se guardan al salir.
-import { roundUp } from '@ferrebress/shared/pricing/rounding';
 import {
+  exampleCost,
   groupOf,
   pesos,
+  sellsAt,
   shown,
   texts,
   thousands,
@@ -11,17 +12,8 @@ import {
 import { Heading, Said, Subhead } from './Heading.tsx';
 import { locked, type PanelProps } from './look.ts';
 
-// El costo de ejemplo con el que cada tecla dice a cuánto vende (maqueta final).
-const exampleCost = 4000;
-
 export function MarginsPanel({ view, settings }: PanelProps) {
   const t = texts.margins;
-  // Lo escrito se guarda al salir de la caja o con Enter (diseño de 06, § 7).
-  const write = (index: number, text: string) => {
-    const typed = Number(text.replace(/\./g, ''));
-    const next = settings.quickMargins.map((margin, i) => (i === index ? typed : margin));
-    if (typed !== settings.quickMargins[index]) void view.save('quickMargins', next);
-  };
   return (
     <>
       <Heading
@@ -41,13 +33,12 @@ export function MarginsPanel({ view, settings }: PanelProps) {
               aria-label={t.key(i + 1)}
               defaultValue={thousands(margin)}
               readOnly={locked(view)}
-              onBlur={(event) => write(i, (event.target as HTMLInputElement).value)}
+              onBlur={(event) => view.typeMargin(i, (event.target as HTMLInputElement).value)}
               data-commit=""
             />
             <span>%</span>
             <span class="admin-margin-sells">
-              {t.sells}{' '}
-              <b>{pesos(roundUp(exampleCost * (1 + margin / 100), settings.roundingStep))}</b>
+              {t.sells} <b>{pesos(sellsAt(margin, settings.roundingStep))}</b>
             </span>
           </label>
         ))}

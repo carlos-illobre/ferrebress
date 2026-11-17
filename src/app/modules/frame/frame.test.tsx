@@ -5,6 +5,7 @@ import { startKeyboard } from '../../testing/keyboard.ts';
 import { later } from '../../testing/later.ts';
 import {
   alt,
+  everyone,
   frameElement,
   isNotHere,
   isOpen,
@@ -140,7 +141,7 @@ describe('el marco', () => {
 
   it('app-E14: Más se abre con → al costado; con Alt solo se ven sus teclas, y Esc lo cierra', async () => {
     const stop = startKeyboard();
-    const { side } = open();
+    const { side } = open({ who: everyone });
     const more = within(side).getByRole('button', { name: /Más/ });
     more.classList.add('marked');
     act(() => press('ArrowRight'));

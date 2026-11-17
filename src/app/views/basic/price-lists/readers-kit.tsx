@@ -2,13 +2,9 @@
 // pantalla montada con un servidor de mentira, vista por un Administrador o por quien no tiene «Cambiar
 // los ajustes».
 import type { ReaderView } from '@ferrebress/shared/contracts/price-lists';
-import { render } from '@testing-library/preact';
-import { person as me } from '../../../modules/sign-in/index.ts';
-import { online } from '../../../platform/server/api.ts';
-import { syncServerTime } from '../../../platform/server/clock.ts';
-import { fakeServer, type Reply } from '../../../testing/fake-server.ts';
+import type { Reply } from '../../../testing/fake-server.ts';
 import { administrator } from '../../../testing/person.ts';
-import { Toasts } from '../ui/toast/Toast.tsx';
+import { mountScreen, type Who } from '../screen-kit.tsx';
 import { Readers } from './Readers.tsx';
 
 export const now = Date.parse('2026-11-04T17:30:00Z');
@@ -45,24 +41,12 @@ export const viewer = {
   permissions: ['users.view' as const],
 };
 
-export function openReaders(
-  routes: Record<string, Reply | Reply[]> = {},
-  who: Parameters<typeof me.set>[0] = admin,
-) {
-  syncServerTime(now);
-  online.set(true);
-  me.set(who);
-  const server = fakeServer({ '/api/price-lists/readers': { body: { readers } }, ...routes });
-  render(
-    <>
-      <div id="app" data-layer="">
-        <Readers />
-      </div>
-      <Toasts />
-    </>,
-  );
-  return server;
-}
+export const openReaders = (routes: Record<string, Reply | Reply[]> = {}, who: Who = admin) =>
+  mountScreen(Readers, {
+    routes: { '/api/price-lists/readers': { body: { readers } }, ...routes },
+    who,
+    now: now,
+  });
 
 export const activeOf = (id: string) => `/api/price-lists/readers/${id}/active`;
 export const toast = () => document.querySelector('.toast')?.textContent ?? '';

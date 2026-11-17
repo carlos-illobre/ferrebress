@@ -2,7 +2,7 @@
 // agrupada en precios, negocio y acceso, cada uno con su tecla; en el celular, las tiras de arriba.
 import type { Settings } from '@ferrebress/shared/contracts/administration';
 import { useEffect } from 'preact/hooks';
-import type { Administration } from '../../../modules/administration/model.ts';
+import type { Administration, AdminPage } from '../../../modules/administration/model.ts';
 import {
   names,
   openAdminPage,
@@ -12,8 +12,12 @@ import {
   texts,
   useAdminLinks,
 } from '../../../modules/administration/model.ts';
+import { useMenuCount } from '../../../modules/frame/model.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
+import { Count } from '../frame/index.ts';
 import { Icon, type IconName } from '../ui/icon/Icon.tsx';
+
+type AdminLink = Exclude<AdminPage, 'settings'>;
 
 // command: el atajo que lo elige (modules/administration/shortcuts/administration.ts).
 type Item = {
@@ -89,6 +93,12 @@ const items: Item[][] = [
     },
   ],
 ];
+const pageIcons: Record<AdminLink, IconName> = {
+  anomalies: 'triangle-alert',
+  readers: 'workflow',
+  files: 'file-text',
+};
+
 const groups = ['Precios', 'Listas de precios', 'Negocio', 'Acceso'];
 
 // Con la tecla del ajuste se llega también a sus opciones: el cursor va a la elegida (o a la caja),
@@ -111,6 +121,7 @@ export function List({
 }) {
   const keys = useShortcutHints('administration');
   const links = useAdminLinks();
+  const anomalies = useMenuCount('anomalies');
   // Cada vez que se elige un ajuste (con el mouse, el dedo o su atajo), el cursor va a sus opciones.
   useEffect(() => {
     if (view.chosen > 0) focusChosen(view.panel);
@@ -150,11 +161,12 @@ export function List({
             data-mark=""
             onClick={() => openAdminPage(page)}
           >
-            <Icon name={page === 'readers' ? 'workflow' : 'file-text'} />
+            <Icon name={pageIcons[page]} />
             <span>
               {pagesTexts[page].name}
               <small>{pagesTexts[page].detail}</small>
             </span>
+            {page === 'anomalies' && <Count count={anomalies} />}
             <Icon name="chevron-right" size="small" />
           </button>
         ))}

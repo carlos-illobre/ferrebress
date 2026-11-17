@@ -41,6 +41,9 @@ const business: Option[] = [
     shortcut: 'a',
     detail: 'Lo que no coincide',
     tone: 'urgent',
+    path: '/administration/anomalies',
+    needsInternet: true,
+    permission: 'anomalies.review',
   },
   {
     id: 'processes',

@@ -2,6 +2,7 @@
 // enchufables, la vista elegida y el service worker (platform/offline), que permite instalarla y
 // abrirla sin conexión. En desarrollo no hay sw.js.
 import { h, render } from 'preact';
+import { watchAnomalies } from './modules/anomalies/index.ts';
 import { watchPreferences } from './modules/device-settings/index.ts';
 import { watchInstall } from './platform/install.ts';
 import { watchMotion } from './platform/motion.ts';
@@ -12,6 +13,8 @@ import { App } from './views/index.ts';
 watchMotion();
 watchPreferences();
 watchInstall();
+// Cuántas anomalías hay abiertas, para el menú (06 · R9.5).
+watchAnomalies();
 // Las capas enchufables (ADR-020) se encuentran solas: cada carpeta con un index.ts que exporta start.
 const layers = import.meta.glob<{ start: () => unknown }>('./keyboard/*/index.ts', { eager: true });
 for (const layer of Object.values(layers)) layer.start();

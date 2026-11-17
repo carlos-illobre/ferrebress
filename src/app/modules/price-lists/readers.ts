@@ -4,6 +4,7 @@
 
 import { can } from '@ferrebress/shared/contracts/can';
 import type { ReadersResponse, ReaderView } from '@ferrebress/shared/contracts/price-lists';
+import { useLastSeen } from '../../platform/last-seen.ts';
 import { useMirroredQuery } from '../../platform/mirror/query.ts';
 import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
 import { useScreen } from '../../platform/screens.ts';
@@ -15,7 +16,6 @@ import { notify } from '../../platform/view/notify.ts';
 import { openAdminPage } from '../administration/index.ts';
 import { person as me } from '../sign-in/index.ts';
 import { readersApi } from './api.ts';
-import { useLastSeen } from './last-seen.ts';
 import { schemas, searchText } from './schemas.ts';
 import { priceListsSettings } from './settings.ts';
 import { readersTexts as texts } from './texts-readers.ts';
@@ -44,6 +44,8 @@ export const readerLines = (reader: ReaderView) => ({
         reader.lastList.listDate?.split('-').reverse().join('/'),
       )
     : texts.noList,
+  state: reader.active ? texts.active : texts.inactive,
+  toggle: reader.active ? texts.deactivate : texts.activate,
 });
 
 export function useReaders() {
@@ -80,6 +82,7 @@ export function useReaders() {
     data,
     groups: groupsOf(data?.readers ?? [], search),
     ...{ search, setSearch, canChange, editable, online, toggle },
+    live: online && !!query.data,
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },
     seenAtShown: formatTime(seen?.at as Date),
     back: () => openAdminPage('settings'),

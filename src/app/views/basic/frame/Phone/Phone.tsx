@@ -10,10 +10,12 @@ import {
   openOption,
   partsFor,
   texts,
+  useMoreCount,
 } from '../../../../modules/frame/model.ts';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { FrameContext, useFrame } from '../context.ts';
 import { LightText } from '../Pending/Pending.tsx';
+import { Count } from '../Side/Count.tsx';
 import './Phone.css';
 
 // Debajo del título de cada pantalla del celular: el indicador del vínculo (03 · R4.1) y, solo sin
@@ -46,6 +48,7 @@ export function PhoneNav() {
   const { phoneMore, current, person } = useFrame();
   // Más queda elegida también con una de sus opciones abierta.
   const inMore = phoneMore.open || moreOptions.some((option) => option.id === current);
+  const count = useMoreCount();
   return (
     <nav class="phone-nav phone-only" aria-label={texts.menu}>
       {partsFor(person).map((option) => (
@@ -61,9 +64,13 @@ export function PhoneNav() {
           <Icon name="menu" />
         </span>
         <span class="phone-part-name">{texts.more}</span>
-        <span class="coming-soon empty" aria-hidden="true">
-          ·
-        </span>
+        {count > 0 ? (
+          <Count count={count} />
+        ) : (
+          <span class="coming-soon empty" aria-hidden="true">
+            ·
+          </span>
+        )}
       </button>
     </nav>
   );

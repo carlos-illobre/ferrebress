@@ -3,10 +3,12 @@
 // permiso y sin conexión. Lo que se ve vive en valores con nombre, así el espejo lo copia al otro
 // dispositivo vinculado; lo guardado entra en lo que trajo el servidor, que también viaja, así el
 // otro lo ve también por el servidor (E08).
-import type {
-  AdministrationResponse,
-  SettingKey,
-  SettingState,
+import {
+  type AdministrationResponse,
+  type SettingKey,
+  type SettingState,
+  type Settings,
+  valuesOf,
 } from '@ferrebress/shared/contracts/administration';
 import { can } from '@ferrebress/shared/contracts/can';
 import { useEffect, useRef, useState } from 'preact/hooks';
@@ -26,6 +28,7 @@ import { administrationSettings } from './settings.ts';
 
 export type { Confirm, Note } from './schemas.ts';
 
+import { type ListSetting, typedNumber } from './logic.ts';
 import { type Panel, panels } from './texts.ts';
 
 // Lo último que se vio, de esa persona, en esta sesión de la aplicación (no se guarda en el
@@ -118,6 +121,28 @@ function useChoose(setPanel: Shown['setPanel']) {
   return { chosen, choose };
 }
 
+// Lo escrito en una caja se guarda al salir, si cambió (diseño de 06, § 7): un margen rápido (R4) o
+// un ajuste de las listas (R8).
+// Las cajas se dibujan solo con los valores a la vista: `values` siempre está al escribir.
+function typing(save: ReturnType<typeof useSave>, values: Settings | undefined) {
+  const settings = values as Settings;
+  return {
+    typeSetting: (key: ListSetting, text: string) => {
+      const typed = typedNumber(text);
+      if (typed !== settings[key]) void save(key, typed);
+    },
+    typeMargin: (index: number, text: string) => {
+      const margins = settings.quickMargins;
+      const typed = typedNumber(text);
+      if (typed !== margins[index])
+        void save(
+          'quickMargins',
+          margins.map((margin, i) => (i === index ? typed : margin)),
+        );
+    },
+  };
+}
+
 function useModel() {
   const shown = useShown();
   const { query, preview, panel, setPanel, said, asked, setAsked } = shown;
@@ -129,13 +154,17 @@ function useModel() {
   const editable = canChange && online && !!query.data;
   const save = useSave(shown, editable);
   const seen = useLastSeen(who as object, query.data);
+  const data = query.data ?? (query.failed ? seen?.data : undefined);
+  // Los valores de lo que se ve, sin sus versiones.
+  const values = data && valuesOf(data.settings);
   return {
-    ...{ data: query.data ?? (query.failed ? seen?.data : undefined) },
+    ...{ data, values },
     seenAtShown: formatTime(seen?.at as Date),
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },
     ...{ prices: preview.data, panel, setPanel, said, asked, looking, setLooking },
     ...{ canChange, editable, online, save, clock: useClock(), holders: useHolders(canChange) },
     ...useChoose(setPanel),
+    ...typing(save, values),
     // Un paso nuevo del redondeo: pregunta el servidor si cambian precios (R3.4).
     chooseStep: (step: number) => void save('roundingStep', step),
     cancel: () => setAsked(null),

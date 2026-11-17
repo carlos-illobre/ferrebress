@@ -2,13 +2,13 @@
 // un navegador con huella de mentira (WebAuthn y su JSON).
 import { act, screen } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
-import { administrator } from '../../testing/person.ts';
+import { opensOnUsers } from '../../testing/person.ts';
 
 export const ana = {
   userId: 'u1',
   name: 'Ana Gómez',
   email: 'ana@example.com',
-  ...administrator,
+  ...opensOnUsers,
 };
 export const sessionId = '0190a000-0000-7000-8000-000000000001';
 export const signInReply = (offerPasskey = false) => ({

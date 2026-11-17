@@ -91,6 +91,7 @@ export const what: Record<SettingKey | 'zone', Words> = {
 // Las pantallas que se abren desde Administración (06 · pantalla 1).
 export const pagesTexts = {
   title: 'También en Administración',
+  anomalies: { name: 'Anomalías', detail: 'Lo que alguien tiene que mirar' },
   readers: { name: 'Lectores', detail: 'Los que entienden la planilla de cada proveedor' },
   files: { name: 'Archivos de listas', detail: 'Los originales de las listas subidas' },
 };

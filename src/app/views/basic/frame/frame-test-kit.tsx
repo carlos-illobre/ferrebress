@@ -4,7 +4,7 @@ import { render, screen, within } from '@testing-library/preact';
 import { type Mock, vi } from 'vitest';
 import { moreOptions, type Option } from '../../../modules/frame/model.ts';
 import { stubMedia } from '../../../testing/media.ts';
-import { administrator } from '../../../testing/person.ts';
+import { administrator, opensOnUsers } from '../../../testing/person.ts';
 import { Toasts } from '../ui/toast/Toast.tsx';
 import { Frame, type FrameProps } from './Frame/Frame.tsx';
 
@@ -12,8 +12,10 @@ export const person = {
   userId: 'u1',
   name: 'Rubén Paredes',
   email: 'ruben@example.com',
-  ...administrator,
+  ...opensOnUsers,
 };
+// La misma, con todos los permisos: ve también Anomalías.
+export const everyone = { ...person, ...administrator };
 
 // Lo que contesta matchMedia: el ancho (celular o computadora) y si se pidió reducir movimiento.
 export function media({ phone = false, reduced = false } = {}) {
@@ -71,12 +73,17 @@ export function withPath(option: Option, path: string | undefined, run: () => vo
 
 // Como si ninguna opción tuviera pantalla todavía (ni Usuarios ni Configuración).
 export function withoutScreens(run: () => void): void {
-  const [users, settings, administration] = ['users', 'deviceSettings', 'administration'].map(
-    (id) => moreOptions.find((option) => option.id === id) as Option,
-  );
+  const [users, settings, administration, anomalies] = [
+    'users',
+    'deviceSettings',
+    'administration',
+    'anomalies',
+  ].map((id) => moreOptions.find((option) => option.id === id) as Option);
   withPath(users as Option, undefined, () =>
     withPath(settings as Option, undefined, () =>
-      withPath(administration as Option, undefined, run),
+      withPath(administration as Option, undefined, () =>
+        withPath(anomalies as Option, undefined, run),
+      ),
     ),
   );
 }

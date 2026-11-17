@@ -2,10 +2,11 @@
 // con «Pronto» no entran en el menú angosto. Siempre tiene algo: el manual existe. → lo abre, ← y Esc
 // lo cierran (es una capa).
 
-import { moreFor, moreOptions, texts } from '../../../../modules/frame/model.ts';
+import { moreFor, moreOptions, texts, useMoreCount } from '../../../../modules/frame/model.ts';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { type Place, px } from '../behavior/usePanels.ts';
 import { useFrame } from '../context.ts';
+import { Count } from './Count.tsx';
 import { MenuItem } from './MenuItem.tsx';
 
 export function More() {
@@ -13,6 +14,7 @@ export function More() {
   const open = frame.panels.open === 'more';
   // Lo que se abre desde el menú siempre sabe dónde: lo calcula al tocar Más.
   const place = frame.panels.place as Place;
+  const count = useMoreCount();
   return (
     <li>
       <button
@@ -31,6 +33,7 @@ export function More() {
       >
         <Icon name="ellipsis" />
         <span class="part-name">{texts.more}</span>
+        <Count count={count} />
         <kbd>M</kbd>
         <Icon name="chevron-right" size="small" />
       </button>

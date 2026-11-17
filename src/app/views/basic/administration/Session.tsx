@@ -1,11 +1,12 @@
 // El panel de los tiempos de la sesión (R6): las dos listas y un día en el mostrador con lo que
 // harían.
-import { sessionIdleOptions, sessionMaxOptions } from '@ferrebress/shared/contracts/administration';
 import {
   counterDay,
   groupOf,
   maxEnds,
   names,
+  sessionIdleOptions,
+  sessionMaxOptions,
   texts,
   what,
 } from '../../../modules/administration/model.ts';

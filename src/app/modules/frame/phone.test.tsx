@@ -2,6 +2,7 @@ import { act, fireEvent, screen, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { later } from '../../testing/later.ts';
 import {
+  everyone,
   firstGroupNames,
   isUrgent,
   media,
@@ -25,7 +26,7 @@ describe('el marco en el celular', () => {
 
   it('sign-in-E34: en el celular, «Salir» está en Más, con la persona y las opciones', async () => {
     media({ phone: true });
-    const { onSignOut } = open();
+    const { onSignOut } = open({ who: everyone });
     const phoneNav = screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement;
     const more = within(phoneNav).getByRole('button', { name: /Más/ });
     fireEvent.click(more);
@@ -41,12 +42,12 @@ describe('el marco en el celular', () => {
     // Una sola lista, sin grupos (00 · R1.2).
     expect(phoneGroups(screenMore)).toHaveLength(1);
     expect(within(screenMore).getByText('Lo que no coincide')).toBeTruthy();
-    expect(within(screenMore).getAllByText('Pronto')).toHaveLength(3);
-    const anomalies = within(screenMore).getByRole('button', { name: /Anomalías/ });
-    expect(isUrgent(anomalies)).toBe(true);
-    expect(anomalies.lastElementChild?.className).toBe('coming-soon');
-    fireEvent.click(anomalies);
-    expect(screen.getByRole('status').textContent).toBe('Anomalías · pronto. Todavía no está.');
+    expect(within(screenMore).getAllByText('Pronto')).toHaveLength(2);
+    expect(isUrgent(within(screenMore).getByRole('button', { name: /Anomalías/ }))).toBe(true);
+    const processes = within(screenMore).getByRole('button', { name: /Procesos/ });
+    expect(processes.lastElementChild?.className).toBe('coming-soon');
+    fireEvent.click(processes);
+    expect(screen.getByRole('status').textContent).toBe('Procesos · pronto. Todavía no está.');
     fireEvent.click(within(screenMore).getByRole('button', { name: /Salir/ }));
     await act(async () => {});
     expect(onSignOut).toHaveBeenCalledOnce();
@@ -66,7 +67,7 @@ describe('el marco en el celular', () => {
   });
 
   it('app-E02b: en producción, Más tiene todas sus opciones, en el orden de la computadora', () => {
-    open({ testing: false });
+    open({ testing: false, who: everyone });
     fireEvent.click(
       within(screen.getAllByRole('navigation', { name: 'Menú' })[1] as HTMLElement).getByRole(
         'button',

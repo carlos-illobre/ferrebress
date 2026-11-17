@@ -9,7 +9,6 @@ import {
   useReaders,
   type Readers as View,
 } from '../../../modules/price-lists/model.ts';
-import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { MoreCrumb } from '../frame/index.ts';
 import { addShapes, Icon } from '../ui/icon/Icon.tsx';
 import { peopleShapes } from '../ui/icon/people-shapes.tsx';
@@ -35,7 +34,7 @@ function Group({ view, group }: { view: View; group: ReaderGroup }) {
                 <span>{lines.since}</span>
                 <span>{lines.last}</span>
               </div>
-              <span class="readers-state">{reader.active ? texts.active : texts.inactive}</span>
+              <span class="readers-state">{lines.state}</span>
               {view.editable && (
                 <button
                   type="button"
@@ -43,7 +42,7 @@ function Group({ view, group }: { view: View; group: ReaderGroup }) {
                   data-mark=""
                   onClick={() => void view.toggle(reader)}
                 >
-                  {reader.active ? texts.deactivate : texts.activate}
+                  {lines.toggle}
                 </button>
               )}
             </li>
@@ -55,21 +54,13 @@ function Group({ view, group }: { view: View; group: ReaderGroup }) {
 }
 
 function Body({ view }: { view: View }) {
-  const keys = useShortcutHints('price-lists-readers');
   if (!view.data)
     return (
       <LoadState look="readers-loading" failed={view.failed} texts={texts} retry={view.retry} />
     );
   return (
-    <div class={view.fresh && view.online ? '' : 'readers-stale'}>
-      {!(view.fresh && view.online) && (
-        <Stale
-          words={texts.offline(view.seenAtShown)}
-          retry={view.retry}
-          label={texts.retry}
-          hint={keys.retry}
-        />
-      )}
+    <div class={view.live ? '' : 'readers-stale'}>
+      <Stale screen="price-lists-readers" view={view} texts={texts} />
       {!view.canChange && <p class="readers-permission">{texts.noPermission}</p>}
       {view.data.readers.length === 0 ? (
         <p class="readers-empty">

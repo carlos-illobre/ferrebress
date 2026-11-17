@@ -11,7 +11,14 @@ export const anomalyStatuses = ['open', 'reviewed', 'closed'] as const;
 export type AnomalyStatus = (typeof anomalyStatuses)[number];
 
 // Lo que se muestra de cada una, sin precios (08 · R9.2): lo arma el capítulo que la abre.
-export type AnomalySummary = Record<string, unknown>;
+type SummaryValue =
+  | string
+  | number
+  | boolean
+  | null
+  | SummaryValue[]
+  | { [key: string]: SummaryValue };
+export type AnomalySummary = { [key: string]: SummaryValue };
 
 export type AnomalyView = {
   id: string;

@@ -5,6 +5,7 @@
 import { can } from '@ferrebress/shared/contracts/can';
 import type { FilesPage, ListFileView, ListStatus } from '@ferrebress/shared/contracts/price-lists';
 import { useState } from 'preact/hooks';
+import { useLastSeen } from '../../platform/last-seen.ts';
 import { useMirroredQuery } from '../../platform/mirror/query.ts';
 import { useScreen } from '../../platform/screens.ts';
 import { online as onlineStore } from '../../platform/server/api.ts';
@@ -15,7 +16,6 @@ import { saveFile } from '../../platform/view/save-file.ts';
 import { openAdminPage } from '../administration/index.ts';
 import { person as me } from '../sign-in/index.ts';
 import { filesApi } from './api.ts';
-import { useLastSeen } from './last-seen.ts';
 import { schemas } from './schemas.ts';
 import { priceListsSettings } from './settings.ts';
 import { filesTexts as texts } from './texts-files.ts';
@@ -119,6 +119,9 @@ export function useListFiles() {
     ...{ canChange, canSee, editable, online, live, chosen, choose, more, download },
     remove: (file: ListFileView) => remove(file, mark),
     chosenFile: files.find((file) => file.sha256 === chosen),
+    // Si se puede borrar (R10.2, E54): sí, no porque su lista se lee o se aplica (se dice), o no.
+    removable: (file: ListFileView) =>
+      !editable ? ('no' as const) : inUse(file) ? ('in-use' as const) : ('yes' as const),
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },
     seenAtShown: formatTime(seen?.at as Date),
     back: () => openAdminPage('settings'),

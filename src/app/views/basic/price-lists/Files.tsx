@@ -4,7 +4,6 @@
 // pantalla para los dos anchos. Se baja recién al abrirla (AdministrationSlot).
 import {
   fileLines,
-  inUse,
   type ListFiles,
   type ListFileView,
   filesTexts as texts,
@@ -28,7 +27,7 @@ addShapes({
 
 function Actions({ view, file }: { view: ListFiles; file: ListFileView }) {
   const keys = useShortcutHints('price-lists-files');
-  const blocked = inUse(file);
+  const removable = view.removable(file);
   return (
     <div class="files-actions">
       {view.live && (
@@ -42,7 +41,7 @@ function Actions({ view, file }: { view: ListFiles; file: ListFileView }) {
           {texts.download}
         </button>
       )}
-      {view.editable && !blocked && (
+      {removable === 'yes' && (
         <button
           type="button"
           class="lists-button"
@@ -54,7 +53,7 @@ function Actions({ view, file }: { view: ListFiles; file: ListFileView }) {
           {view.chosen === file.sha256 && keys.remove && <kbd>{keys.remove}</kbd>}
         </button>
       )}
-      {view.editable && blocked && <p class="files-in-use">{texts.inUse}</p>}
+      {removable === 'in-use' && <p class="files-in-use">{texts.inUse}</p>}
     </div>
   );
 }
@@ -85,20 +84,12 @@ function File({ view, file }: { view: ListFiles; file: ListFileView }) {
 }
 
 function Body({ view }: { view: ListFiles }) {
-  const keys = useShortcutHints('price-lists-files');
   if (!view.canSee) return <p class="files-permission">{texts.noCosts}</p>;
   if (!view.data)
     return <LoadState look="files-loading" failed={view.failed} texts={texts} retry={view.retry} />;
   return (
     <div class={view.live ? '' : 'files-stale'}>
-      {!view.live && (
-        <Stale
-          words={texts.offline(view.seenAtShown)}
-          retry={view.retry}
-          label={texts.retry}
-          hint={keys.retry}
-        />
-      )}
+      <Stale screen="price-lists-files" view={view} texts={texts} />
       <p class="files-used">
         {texts.usedLabel} <b>{view.used}</b>
       </p>

@@ -15,9 +15,10 @@ describe('lo que se abre desde Administración', () => {
     navigate('/', { replace: true });
   });
 
-  it('administration-R10.3: sin «Ver costos», Archivos de listas no se ofrece', async () => {
+  it('administration-R10.3 y E45: sin «Ver costos» ni «Revisar las anomalías», Archivos de listas y Anomalías no se ofrecen', async () => {
     openAdministration({}, seller);
     await screen.findByRole('button', { name: /Lectores/ });
     expect(screen.queryByRole('button', { name: /Archivos de listas/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Anomalías/ })).toBeNull();
   });
 });

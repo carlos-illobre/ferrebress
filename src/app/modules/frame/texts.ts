@@ -10,6 +10,8 @@ export const texts = {
   // Lo que sin conexión no puede andar (R4.4).
   offlineOption: 'Sin conexión',
   comingSoon: 'Pronto',
+  // Cuántas cosas esperan en una opción, para el lector de pantalla.
+  waiting: (n: number) => (n === 1 ? '1 para mirar' : `${n} para mirar`),
   collapse: 'Minimizar el menú',
   expand: 'Agrandar el menú',
   notYet: (name: string) =>

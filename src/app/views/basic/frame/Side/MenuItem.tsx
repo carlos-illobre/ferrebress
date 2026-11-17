@@ -7,14 +7,17 @@ import {
   openOption,
   texts,
   unavailable,
+  useMenuCount,
 } from '../../../../modules/frame/model.ts';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { useFrame } from '../context.ts';
+import { Count } from './Count.tsx';
 
 export function MenuItem({ option }: { option: Option }) {
   const frame = useFrame();
   const soon = !exists(option);
   const off = unavailable(option, frame.online);
+  const count = useMenuCount(option.id);
   return (
     <button
       type="button"
@@ -37,6 +40,7 @@ export function MenuItem({ option }: { option: Option }) {
     >
       <Icon name={option.icon} />
       <span class="part-name">{option.name}</span>
+      <Count count={count} />
       {soon && <span class="coming-soon">{texts.comingSoon}</span>}
       {off && <span class="coming-soon">{texts.offlineOption}</span>}
       {soon && (

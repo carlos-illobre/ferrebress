@@ -1,0 +1,17 @@
+/* El número de lo que espera en una opción: ámbar, como lo que avisa. */
+@layer screens {
+  .menu-count {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: var(--radius-round);
+    background: var(--urgent);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1;
+  }
+}

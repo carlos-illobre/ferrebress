@@ -1,0 +1,147 @@
+/* Anomalías: los filtros arriba y cada anomalía en su tarjeta, que se abre en el lugar. */
+@layer screens {
+  .anomalies {
+    display: grid;
+    gap: var(--s4);
+    max-width: 880px;
+    padding: var(--s6) var(--s6) var(--s10);
+  }
+  .anomalies-head {
+    display: grid;
+    gap: var(--s2);
+  }
+  .anomalies-head h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+  .anomalies-about,
+  .anomalies-empty,
+  .anomaly-muted {
+    margin: 0;
+    color: var(--text-2);
+  }
+  .anomalies-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+    margin-top: var(--s2);
+  }
+  .anomalies-filters fieldset {
+    display: flex;
+    min-width: 0;
+    margin: 0;
+    flex-wrap: wrap;
+    gap: var(--s1, 4px);
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--sunken);
+  }
+  .anomalies-filters button {
+    padding: 6px var(--s3);
+    border: 0;
+    border-radius: var(--radius-small);
+    background: transparent;
+    color: var(--text-2);
+    font: inherit;
+    font-weight: 650;
+  }
+  .anomalies-filters button[aria-pressed="true"] {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow-1);
+  }
+  .anomalies-list,
+  .anomaly-rows {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .anomaly {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .anomaly[aria-current] {
+    border-color: var(--pine);
+  }
+  .anomaly-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--s3);
+    align-items: start;
+    width: 100%;
+    padding: var(--s3) var(--s4);
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+  }
+  .anomaly-head > .icon:first-child {
+    color: var(--urgent-text);
+  }
+  .anomaly-text {
+    display: grid;
+    gap: 2px;
+  }
+  .anomaly-text span,
+  .anomaly-text small {
+    color: var(--text-2);
+  }
+  .anomaly-detail {
+    display: grid;
+    gap: var(--s3);
+    padding: 0 var(--s4) var(--s4);
+    border-top: 1px dashed var(--border-strong);
+    padding-top: var(--s3);
+  }
+  .anomaly-rows li {
+    display: grid;
+    gap: 2px;
+    padding: var(--s2) var(--s3);
+    border-radius: var(--radius-small);
+    background: var(--sunken);
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  .anomaly-rows small {
+    color: var(--urgent-text);
+  }
+  .anomaly-note {
+    margin: 0;
+    font-style: italic;
+  }
+  .anomaly-review {
+    display: grid;
+    gap: var(--s2);
+    justify-items: start;
+  }
+  .anomaly-review label {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+    color: var(--text-2);
+  }
+  .anomaly-review textarea {
+    padding: var(--s2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font: inherit;
+    resize: vertical;
+  }
+  .anomaly-more {
+    justify-self: start;
+    margin-top: var(--s3);
+  }
+  .anomalies-stale .anomaly {
+    opacity: 0.6;
+  }
+  @media (max-width: 899px) {
+    .anomalies {
+      padding: var(--s4);
+    }
+  }
+}

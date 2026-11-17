@@ -8,3 +8,10 @@ export const administrator = {
   rolesChangedBy: null,
   rolesChangedAt: null,
 };
+
+// El Administrador sin «Revisar las anomalías»: con el permiso, la aplicación abre en Anomalías, la
+// primera opción de Más (00 · R1.4); sin él, en Usuarios, como suponen las pruebas del marco.
+export const opensOnUsers = {
+  ...administrator,
+  permissions: administrator.permissions.filter((id) => id !== 'anomalies.review'),
+};
