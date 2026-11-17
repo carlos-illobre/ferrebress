@@ -114,6 +114,8 @@ export const linesOf = (upload: Upload, suppliers: readonly SupplierRow[]) => ({
   canCancel: upload.phase === 'sending' || upload.phase === 'reading',
   canClose: upload.phase !== 'sending' && upload.phase !== 'reading',
   canScope: upload.phase === 'sending' || upload.phase === 'reading',
+  // Leída y en espera: se pasa a ver qué cambia (pantalla 3).
+  canReview: upload.phase === 'done' && upload.progress?.status === 'pending',
   failed: upload.phase === 'failed' || upload.progress?.status === 'unreadable',
 });
 export type UploadLines = ReturnType<typeof linesOf>;

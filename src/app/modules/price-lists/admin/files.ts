@@ -12,10 +12,10 @@ import { online as onlineStore } from '../../../platform/server/api.ts';
 import { useStore } from '../../../platform/store.ts';
 import { formatTime, nowMs, sinceOf } from '../../../platform/time.ts';
 import { notify } from '../../../platform/view/notify.ts';
-import { saveFile } from '../../../platform/view/save-file.ts';
 import { openAdminPage } from '../../administration/index.ts';
 import { person as me } from '../../sign-in/index.ts';
 import { filesApi } from '../api.ts';
+import { downloadList } from '../download.ts';
 import { schemas } from '../schemas.ts';
 import { priceListsSettings } from '../settings.ts';
 import { listStatusTexts } from '../texts-status.ts';
@@ -43,17 +43,9 @@ export const fileLines = (file: ListFileView) => ({
   size: megabytes(file.size),
 });
 
-const downloadErrors: Record<string, string> = {
-  'file-gone': texts.fileGone,
-  'too-many-downloads': texts.tooMany,
-};
-
 async function download(file: ListFileView) {
   const list = file.lists[0];
-  if (!list) return;
-  const result = await filesApi.download(list.id, list.fileName);
-  if (result.ok) return saveFile(result.data.blob, result.data.name);
-  notify(downloadErrors[result.error] ?? texts.downloadFailed, 'triangle-alert');
+  if (list) await downloadList(list.id, list.fileName);
 }
 
 type Mark = (sha: string, deleting: boolean) => void;

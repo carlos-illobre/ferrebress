@@ -1,9 +1,12 @@
 // La forma de lo que las listas de precios ponen en valores con nombre (ADR-019): lo que llega del otro
 // dispositivo sin esa forma no entra.
-import type {
-  FilesPage,
-  ReadersResponse,
-  SuppliersResponse,
+import {
+  type FilesPage,
+  type ListState,
+  type ReadersResponse,
+  type RowsPage,
+  rowsShows,
+  type SuppliersResponse,
 } from '@ferrebress/shared/contracts/price-lists';
 import * as z from 'zod/mini';
 
@@ -17,4 +20,10 @@ export const schemas = {
   files: objectWith<FilesPage>('files'),
   suppliers: objectWith<SuppliersResponse>('suppliers'),
   supplierFilter: z.enum(['all', 'waiting', 'unreadable', 'inactive']),
+};
+
+export const reviewSchemas = {
+  state: objectWith<ListState>('fileName'),
+  rows: objectWith<RowsPage>('rows'),
+  show: z.nullable(z.enum(rowsShows)),
 };

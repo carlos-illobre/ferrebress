@@ -31,11 +31,6 @@ export function summaryOf(
 }
 
 // Lo que dice el botón de aplicar (R6.5), y lo que tiene que mandar quien aplica.
-export const numbersOf = (summary: ListSummary): ListNumbers => ({
-  new: summary.new,
-  changed: summary.changed,
-  gone: summary.gone,
-});
 
 export const sameNumbers = (a: ListNumbers, b: ListNumbers) =>
   a.new === b.new && a.changed === b.changed && a.gone === b.gone;

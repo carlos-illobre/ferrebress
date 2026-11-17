@@ -6,6 +6,7 @@ import {
   type ListNumbers,
   type ListState,
   type NumbersChanged,
+  numbersOf,
 } from '@ferrebress/shared/contracts/price-lists';
 import type { Context, MiddlewareHandler } from 'hono';
 import type { Transaction } from 'kysely';
@@ -18,7 +19,7 @@ import { asDb } from '../data/db.ts';
 import { readingData } from '../data/reading.ts';
 import { type SupplierRecord, suppliersData } from '../data/suppliers.ts';
 import { discard } from '../reading/assign.ts';
-import { numbersOf, sameNumbers } from '../rules/review.ts';
+import { sameNumbers } from '../rules/review.ts';
 import { listState, summaryFor } from './state.ts';
 
 type Steps = { load: MiddlewareHandler; id: MiddlewareHandler; limited: MiddlewareHandler };

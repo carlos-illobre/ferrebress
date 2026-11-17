@@ -49,6 +49,16 @@ function Card({ view, upload }: { view: Uploads; upload: UploadLines }) {
       {upload.replaces && <p class="upload-note">{texts.replaces}</p>}
       {upload.canScope && <Scope view={view} upload={upload} />}
       <div class="upload-actions">
+        {upload.canReview && (
+          <button
+            type="button"
+            class="lists-button"
+            data-mark=""
+            onClick={() => view.review(upload.key)}
+          >
+            {texts.review}
+          </button>
+        )}
         {upload.canCancel && (
           <button
             type="button"

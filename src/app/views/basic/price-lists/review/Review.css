@@ -1,0 +1,137 @@
+/* Ver qué cambia: la cabecera con sus datos, los avisos, el botón de aplicar, el resumen que filtra y
+   el detalle, producto por producto. */
+@layer screens {
+  .review {
+    display: grid;
+    gap: var(--s3);
+    max-width: 980px;
+    padding: var(--s6) var(--s6) var(--s10);
+  }
+  .review-head {
+    display: grid;
+    gap: var(--s2);
+  }
+  .review-head h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+  .review-back,
+  .review-facts button,
+  .review-costs button {
+    justify-self: start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--pine-text);
+    font: inherit;
+    font-weight: 650;
+    text-decoration: underline;
+  }
+  .review-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px var(--s3);
+    margin: 0;
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .review-alert,
+  .review-note,
+  .review-said {
+    margin: 0;
+    padding: var(--s2) var(--s3);
+    border-radius: var(--radius);
+  }
+  .review-alert,
+  .review-said {
+    background: var(--urgent-soft);
+    color: var(--urgent-text);
+    font-weight: 650;
+  }
+  .review-note {
+    color: var(--text-2);
+  }
+  .review-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    align-items: center;
+  }
+  .review-apply {
+    border-color: var(--pine);
+    background: var(--pine);
+    color: var(--surface);
+  }
+  .review-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+  }
+  .review-chip-urgent {
+    border-color: var(--urgent);
+    color: var(--urgent-text);
+  }
+  .review-rows {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .review-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--s2) var(--s4);
+    padding: var(--s3) var(--s4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .review-product {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .review-product small {
+    color: var(--text-2);
+  }
+  .review-costs {
+    display: grid;
+    gap: 2px;
+    justify-items: end;
+    font-size: 14px;
+  }
+  .review-variation {
+    font-weight: 700;
+  }
+  .review-skipped {
+    color: var(--urgent-text);
+    font-size: 14px;
+  }
+  .review-steps {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding-left: var(--s5, 20px);
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .review-empty {
+    margin: 0;
+    color: var(--text-2);
+  }
+  .review-stale .review-row {
+    opacity: 0.6;
+  }
+  @media (max-width: 899px) {
+    .review {
+      padding: var(--s4);
+    }
+    .review-row {
+      grid-template-columns: 1fr;
+    }
+    .review-costs {
+      justify-items: start;
+    }
+  }
+}

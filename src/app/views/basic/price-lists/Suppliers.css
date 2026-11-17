@@ -24,20 +24,6 @@
     margin-right: var(--s2);
     font-weight: 700;
   }
-  .suppliers-filter {
-    padding: 6px var(--s3);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-round);
-    background: var(--surface);
-    color: var(--ink);
-    font: inherit;
-    font-weight: 650;
-  }
-  .suppliers-filter[aria-pressed="true"] {
-    border-color: var(--pine);
-    background: var(--pine-soft);
-    color: var(--pine-text);
-  }
   .suppliers-empty {
     margin: 0;
     color: var(--text-2);

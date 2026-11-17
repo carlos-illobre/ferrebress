@@ -20,4 +20,19 @@
     font: inherit;
     font-weight: 700;
   }
+  /* Un número o un filtro que se toca para filtrar, y el elegido. */
+  .lists-chip {
+    padding: 6px var(--s3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-round);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 650;
+  }
+  .lists-chip[aria-pressed="true"] {
+    border-color: var(--pine);
+    background: var(--pine-soft);
+    color: var(--pine-text);
+  }
 }

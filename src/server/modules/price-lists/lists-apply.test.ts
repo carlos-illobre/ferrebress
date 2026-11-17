@@ -42,6 +42,8 @@ describe('aplicar una lista', () => {
     ];
     const sent = await kit.upload(sheet('Lista 14/8/2026', rows), { supplierId });
     const pending = await kit.list(sent.body.id);
+    // R6.2: quién la subió, con su nombre.
+    expect(pending.uploadedBy).toEqual(expect.any(String));
     expect(pending.summary).toEqual({
       ...{ new: 4, changed: 0, same: 0, gone: 0, skipped: 1, reasons: { 'no-price': 1 } },
       ...{ averageChange: null, review: 0, goneWarning: false, tooOld: false },

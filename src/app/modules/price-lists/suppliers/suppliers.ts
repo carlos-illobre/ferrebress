@@ -14,6 +14,7 @@ import { useStore } from '../../../platform/store.ts';
 import { formatTime, nowMs } from '../../../platform/time.ts';
 import { person as me } from '../../sign-in/index.ts';
 import { suppliersApi } from '../api.ts';
+import { openReview } from '../pages.ts';
 import { schemas, searchText } from '../schemas.ts';
 import { startUploads } from '../uploads/actions.ts';
 import { useAddSupplier } from './suppliers-add.ts';
@@ -118,6 +119,7 @@ export function useSuppliers() {
     // Tocar un filtro lo pone; tocarlo de nuevo lo saca (pantalla 1).
     toggleFilter: (next: SupplierFilter) => setFilter(filter === next ? 'all' : next),
     upload: (files: readonly File[], supplierId?: string) => void startUploads(files, supplierId),
+    review: openReview,
     // Cuántas veces se pidió elegir un archivo con el teclado: la vista abre la elección cada vez.
     picks,
     pick: () => setPicks(picks + 1),

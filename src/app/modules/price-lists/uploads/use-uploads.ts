@@ -5,6 +5,7 @@ import type { ListScope } from '@ferrebress/shared/contracts/price-lists';
 import { useState } from 'preact/hooks';
 import { useStore } from '../../../platform/store.ts';
 import { plain } from '../../../platform/text.ts';
+import { openReview } from '../pages.ts';
 import { cancel, choose, close, confirm, readAnyway, scopeOf, supplierOf } from './actions.ts';
 import { linesOf } from './rules.ts';
 import { knownSuppliers, uploads } from './store.ts';
@@ -36,6 +37,11 @@ export function useUploads() {
     createNew: (key: string) => supplierOf(key, { newSupplier: { name: names[key] ?? '' } }),
     ...{ cancel, close, confirm, readAnyway, change: choose },
     setScope: (key: string, scope: ListScope) => scopeOf(key, scope),
+    review: (key: string) => {
+      const listId = all.find((upload) => upload.key === key)?.listId as string;
+      close(key);
+      openReview(listId);
+    },
   };
 }
 

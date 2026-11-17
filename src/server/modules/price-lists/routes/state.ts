@@ -35,7 +35,8 @@ export async function listState(
   const list = await readingData(db).one(listId);
   if (!list) return undefined;
   const supplier = list.supplierId ? await suppliersData(db).one(list.supplierId) : undefined;
-  const state = stateOf(list, supplier?.name);
+  const uploadedBy = await ctx.nameOf(list.uploadedBy);
+  const state = { ...stateOf(list, supplier?.name), ...(uploadedBy && { uploadedBy }) };
   if (list.status === 'pending' && supplier)
     return { ...state, summary: await summaryFor(ctx, db, list, supplier) };
   return list.result ? { ...state, result: list.result } : state;

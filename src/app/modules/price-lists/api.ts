@@ -2,12 +2,14 @@
 // conexión. Cada pantalla suma las suyas al programarse.
 import type {
   FilesPage,
+  ListNumbers,
   ListScope,
   ListState,
   ListSupplierBody,
   ReadersResponse,
   ReaderView,
   RowsPage,
+  RowsShow,
   SupplierResponse,
   SuppliersResponse,
 } from '@ferrebress/shared/contracts/price-lists';
@@ -32,12 +34,6 @@ export const filesApi = {
   download: (listId: string, name: string) => fetchFile(`${base}/lists/${listId}/file`, name),
 };
 
-// Las filas salteadas de una lista (R6.3), con lo que traía cada una: de a 50.
-export const skippedRows = (listId: string, cursor?: string) =>
-  api<RowsPage>(
-    `${base}/lists/${listId}/rows?${new URLSearchParams({ show: 'skipped', ...(cursor && { after: cursor }) })}`,
-  );
-
 export const suppliersApi = {
   list: () => api<SuppliersResponse>(`${base}/suppliers`),
   inactive: () => api<SuppliersResponse>(`${base}/suppliers/inactive`),
@@ -61,9 +57,22 @@ export const listsApi = {
       signal,
     ),
   one: (id: string) => api<ListState>(`${listsBase}/${id}`),
+  rows: (id: string, params: { show?: RowsShow; q?: string; after?: string }) => {
+    const given = Object.entries(params).filter((entry): entry is [string, string] => !!entry[1]);
+    return api<RowsPage>(
+      `${listsBase}/${id}/rows${given.length ? `?${new URLSearchParams(given)}` : ''}`,
+    );
+  },
+  apply: (id: string, expected: ListNumbers) =>
+    api<ListState>(`${listsBase}/${id}/apply`, { expected }),
+  discard: (id: string) => api<ListState>(`${listsBase}/${id}/discard`, {}),
   supplier: (id: string, body: ListSupplierBody) =>
     api<ListState>(`${listsBase}/${id}/supplier`, body),
   scope: (id: string, scope: ListScope) => api<ListState>(`${listsBase}/${id}/scope`, { scope }),
   size: (id: string) => api<ListState>(`${listsBase}/${id}/size`, {}),
   cancel: (id: string) => api<ListState>(`${listsBase}/${id}/cancel`, {}),
 };
+
+// Las filas salteadas de una lista (R6.3), con lo que traía cada una: de a 50.
+export const skippedRows = (listId: string, cursor?: string) =>
+  listsApi.rows(listId, { show: 'skipped', ...(cursor && { after: cursor }) });

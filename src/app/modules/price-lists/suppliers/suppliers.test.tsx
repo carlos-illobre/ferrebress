@@ -3,12 +3,14 @@
 // sin conexión.
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { navigate, route } from '../../../platform/router.ts';
 import { topScreen } from '../../../platform/screens.ts';
 import { online } from '../../../platform/server/api.ts';
 import { startKeyboard } from '../../../testing/keyboard.ts';
 import { toast } from '../../../views/basic/price-lists/readers-kit.tsx';
 import {
   addForm,
+  id,
   inactivePath,
   loaderOnly,
   managerOnly,
@@ -46,6 +48,14 @@ describe('Catálogo → Listas', () => {
     expect(screen.getByText('En espera')).toBeTruthy();
     expect(screen.getByText('Leyéndose')).toBeTruthy();
     expect(screen.getByText('No se pudo leer: Ningún lector entiende esta planilla')).toBeTruthy();
+  });
+
+  it('pantalla 1: «Ver qué cambia» en uno en espera abre su lista', async () => {
+    openSuppliers();
+    await screen.findByText('Ferretera del Sur');
+    fireEvent.click(screen.getByRole('button', { name: 'Ver qué cambia' }));
+    expect(route.get().path).toBe(`/catalog/lists/${id(7)}`);
+    navigate('/', { replace: true });
   });
 
   it('pantalla 1: los en espera y los que no se pudieron leer filtran; tocar de nuevo saca el filtro', async () => {

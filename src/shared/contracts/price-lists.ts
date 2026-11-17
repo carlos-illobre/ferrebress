@@ -200,6 +200,8 @@ export type ListState = ListProgress & {
   dateFrom?: string;
   newReader?: true;
   uploadedAt: string;
+  // Quién la subió (R6.2), si se sabe su nombre.
+  uploadedBy?: string;
   // Si todavía se guarda su archivo (R4.4).
   file: boolean;
   // En espera: el resumen (R6.2); aplicada: lo que hizo (E60).

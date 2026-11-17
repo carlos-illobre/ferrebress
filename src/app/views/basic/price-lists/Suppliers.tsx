@@ -32,7 +32,7 @@ function Top({ view }: { view: View }) {
         <button
           key={option.value}
           type="button"
-          class="suppliers-filter"
+          class="lists-chip"
           data-mark=""
           aria-pressed={option.pressed}
           onClick={() => view.toggleFilter(option.value)}

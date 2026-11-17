@@ -19,6 +19,7 @@ export const suppliersTexts = {
     applying: 'Aplicándose',
   },
   unreadable: (why: string) => `No se pudo leer: ${why}`,
+  review: 'Ver qué cambia',
   phone: 'Llamar',
   whatsapp: 'WhatsApp',
   email: 'Correo',

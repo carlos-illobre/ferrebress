@@ -38,6 +38,16 @@ export function Supplier({ view, supplier }: { view: Suppliers; supplier: Suppli
           {supplier.pending}
         </p>
       )}
+      {supplier.waitingList && (
+        <button
+          type="button"
+          class="lists-button"
+          data-mark=""
+          onClick={() => view.review(supplier.waitingList as string)}
+        >
+          {texts.review}
+        </button>
+      )}
       {view.canUpload && !view.reactivable && (
         <UploadButton onFiles={(files) => view.upload(files, supplier.id)}>
           {uploads.upload}

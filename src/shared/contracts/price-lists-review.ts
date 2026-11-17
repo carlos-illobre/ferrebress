@@ -25,6 +25,13 @@ export type ListSummary = {
 
 export type ListNumbers = { new: number; changed: number; gone: number };
 
+// Los números del botón de aplicar (R6.5): los que vio quien aplica deben ser los de ahora (E64).
+export const numbersOf = (summary: ListSummary): ListNumbers => ({
+  new: summary.new,
+  changed: summary.changed,
+  gone: summary.gone,
+});
+
 // Lo que hizo al aplicarse (E60).
 export type ListResult = { created: number; changed: number; gone: number; restored: number };
 

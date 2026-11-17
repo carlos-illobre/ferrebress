@@ -76,6 +76,8 @@ export const supplierLines = (row: SupplierRow, now: number, costs: boolean) => 
   last: !costs ? undefined : row.lastListDate ? lastListOf(row.lastListDate, now) : texts.noLists,
   pending: pendingOf(row),
   problem: unreadable(row),
+  // En espera: se abre ver qué cambia (pantalla 3).
+  waitingList: row.pending?.status === 'pending' ? row.pending.listId : undefined,
 });
 export type SupplierLines = ReturnType<typeof supplierLines>;
 

@@ -49,6 +49,7 @@ export const uploadsTexts = {
   cancel: 'Cancelar',
   cancelled: 'Cancelada',
   close: 'Cerrar',
+  review: 'Ver qué cambia',
   failed: 'No se pudo subir. Probá de nuevo.',
   saveFailed: 'No se pudo guardar. Probá de nuevo.',
   formats: 'Se aceptan planillas de Excel (.xlsx, .xls) y CSV.',

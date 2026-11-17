@@ -281,7 +281,7 @@ costos») (R1.2, E03); en «Administración», `anomalies.review` (06 · R9.3).
 | Ruta | Qué hace | Permiso | Consultas |
 |---|---|---|---|
 | `POST /api/price-lists/lists` | `?name=&supplierId=&scope=`, con el archivo como cuerpo: crea la lista y la pone a leer (R4.1) | «Cargar listas» | 3 |
-| `GET /api/price-lists/lists/:id` | El estado, lo que espera, de quién es y cómo se supo, el resumen y los números del botón (R6.2, R6.5) | «Ver costos» | 2 |
+| `GET /api/price-lists/lists/:id` | El estado, lo que espera, de quién es y cómo se supo, quién la subió, el resumen y los números del botón (R6.2, R6.5) | «Ver costos» | 2, y 1 a `users` por el nombre de quien la subió |
 | `GET /api/price-lists/lists/:id/rows` | `?show=&q=&after=`: el detalle de a 50, los que cambian primero (R6.3); `show`: lo que se tocó del resumen, `review` (R6.4), `skipped` o `discontinued` | «Ver costos» | 1 |
 | `POST /api/price-lists/lists/:id/supplier` | `{ supplierId }` o `{ newSupplier }`: confirma, cambia o da de alta y fija; si cambia, la vuelve a leer (R4.3, E29c, E31, E31b) | «Cargar listas» | 2 o 3 |
 | `POST /api/price-lists/lists/:id/size` | Sigue leyendo una planilla grande (R4.12, E91) | «Cargar listas» | 1 |
