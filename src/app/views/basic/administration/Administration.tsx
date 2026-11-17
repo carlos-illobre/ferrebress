@@ -15,10 +15,12 @@ import { administrationShapes } from '../ui/icon/administration-shapes.tsx';
 import { auditLogShapes } from '../ui/icon/audit-log-shapes.tsx';
 import { addShapes, Icon } from '../ui/icon/Icon.tsx';
 import { peopleShapes } from '../ui/icon/people-shapes.tsx';
+import { priceListsShapes } from '../ui/icon/price-lists-shapes.tsx';
 import { LoadState } from '../ui/load-state/LoadState.tsx';
 import { Say } from '../ui/say/Say.tsx';
 import { Confirm } from './Confirm.tsx';
 import { List } from './List.tsx';
+import { ListsPanel } from './Lists.tsx';
 import { MarginsPanel } from './Margins.tsx';
 import { PairingPanel } from './Pairing.tsx';
 import { RoundingPanel } from './Rounding.tsx';
@@ -35,6 +37,8 @@ addShapes({
   'chevron-left': peopleShapes['chevron-left'],
   'lock-keyhole': peopleShapes['lock-keyhole'],
   'cloud-off': auditLogShapes['cloud-off'],
+  'file-up': priceListsShapes['file-up'],
+  archive: priceListsShapes.archive,
 });
 
 // Sin el permiso: qué falta y qué roles lo tienen (R1.2, E02).
@@ -53,6 +57,7 @@ function Panel({ view, values, clock }: { view: View; values: Values; clock: str
   const props = { view, settings: values };
   if (view.panel === 'zone') return <ZonePanel view={view} clock={clock} />;
   if (view.panel === 'quickMargins') return <MarginsPanel {...props} />;
+  if (view.panel === 'lists') return <ListsPanel {...props} />;
   if (view.panel === 'session') return <SessionPanel {...props} />;
   if (view.panel === 'pairingDays') return <PairingPanel {...props} />;
   return <RoundingPanel {...props} />;

@@ -4,7 +4,16 @@
 import { serverNow } from '../../platform/server/clock.ts';
 import { expiresOn } from './logic.ts';
 
-export { counterDay, maxEnds, pesos, shown, thousands, weeks } from './logic.ts';
+export {
+  counterDay,
+  type ListSetting,
+  listSettings,
+  maxEnds,
+  pesos,
+  shown,
+  thousands,
+  weeks,
+} from './logic.ts';
 export { type AdminPage, openAdminPage, useAdminLinks, useAdminPage } from './pages.ts';
 export { administrationSettings } from './settings.ts';
 export { groupOf, names, type Panel, pagesTexts, texts, what } from './texts.ts';

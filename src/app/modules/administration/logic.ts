@@ -1,23 +1,53 @@
 // Las cuentas de lo que muestra Administración (diseño de 06, § 7): cómo se escribe cada valor y lo
 // que muestra cada opción antes de tocarla (el día de mostrador, el vencimiento del vínculo). Puras,
 // sin pedidos.
-import type { SettingKey, Settings } from '@ferrebress/shared/contracts/administration';
+import {
+  confirmRowsRange,
+  filesMbRange,
+  goneWarnPercentRange,
+  maxFileMbRange,
+  reviewPercentRange,
+  type SettingKey,
+  type Settings,
+  unappliedFileDaysRange,
+} from '@ferrebress/shared/contracts/administration';
 import { businessFormat } from '@ferrebress/shared/time/business';
 import { texts } from './texts.ts';
 
 const thousands = (n: number) => n.toLocaleString('es-AR');
 export const pesos = (n: number) => `$ ${thousands(n)}`;
 
-export function shown<K extends SettingKey>(key: K, value: Settings[K]): string {
-  const { units } = texts;
-  if (key === 'roundingStep') return value === 0 ? 'Sin redondeo' : pesos(value as number);
-  if (key === 'quickMargins') return `${(value as number[]).join(' · ')} %`;
-  if (key === 'sessionIdle') return units.minutes(value as number);
-  if (key === 'sessionMax') return units.hours(value as number);
-  return units.days(value as number);
-}
+// Cómo se escribe cada valor.
+const formats: Record<SettingKey, (value: never) => string> = {
+  roundingStep: (value: number) => (value === 0 ? 'Sin redondeo' : pesos(value)),
+  quickMargins: (value: number[]) => `${value.join(' · ')} %`,
+  sessionIdle: (value: number) => texts.units.minutes(value),
+  sessionMax: (value: number) => texts.units.hours(value),
+  pairingDays: (value: number) => texts.units.days(value),
+  reviewPercent: (value: number) => texts.units.percent(value),
+  goneWarnPercent: (value: number) => texts.units.percent(value),
+  maxFileMb: (value: number) => texts.units.mb(thousands(value)),
+  confirmRows: (value: number) => texts.units.rows(thousands(value)),
+  filesMb: (value: number) => texts.units.mb(thousands(value)),
+  unappliedFileDays: (value: number) => texts.units.days(value),
+};
+
+export const shown = <K extends SettingKey>(key: K, value: Settings[K]): string =>
+  (formats[key] as (value: Settings[K]) => string)(value);
 
 export { thousands };
+
+// Los ajustes de las listas de precios (R8), en el orden del panel, cada uno con su rango.
+export const listSettings = {
+  reviewPercent: reviewPercentRange,
+  goneWarnPercent: goneWarnPercentRange,
+  maxFileMb: maxFileMbRange,
+  confirmRows: confirmRowsRange,
+  filesMb: filesMbRange,
+  unappliedFileDays: unappliedFileDaysRange,
+} as const;
+export type ListSetting = keyof typeof listSettings;
+export const isListSetting = (key: SettingKey): key is ListSetting => key in listSettings;
 
 // «12:10», sin día: el día de mostrador va de 8:00 a 8:00.
 const clock = (minutes: number) => {

@@ -9,6 +9,7 @@ export const keymap: Record<string, string> = {
   'administration.retry': 'Alt+R',
   'administration.roundingStep': 'Alt+R',
   'administration.quickMargins': 'Alt+M',
+  'administration.lists': 'Alt+L',
   'administration.zone': 'Alt+Z',
   'administration.sessionIdle': 'Alt+S',
   'administration.sessionMax': 'Alt+T',

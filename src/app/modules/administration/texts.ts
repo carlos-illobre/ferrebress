@@ -4,13 +4,21 @@ import type { SettingKey } from '@ferrebress/shared/contracts/administration';
 
 type Words = { long: string; short: string };
 
-export type Panel = 'roundingStep' | 'quickMargins' | 'zone' | 'session' | 'pairingDays';
+export type Panel = 'roundingStep' | 'quickMargins' | 'lists' | 'zone' | 'session' | 'pairingDays';
 
-export const panels: Panel[] = ['roundingStep', 'quickMargins', 'zone', 'session', 'pairingDays'];
+export const panels: Panel[] = [
+  'roundingStep',
+  'quickMargins',
+  'lists',
+  'zone',
+  'session',
+  'pairingDays',
+];
 
 export const groupOf: Record<Panel, string> = {
   roundingStep: 'Precios',
   quickMargins: 'Precios',
+  lists: 'Listas de precios',
   zone: 'Negocio',
   session: 'Acceso',
   pairingDays: 'Acceso',
@@ -113,6 +121,7 @@ export const texts = {
   invalid: {
     quickMargins: 'Va un entero entre 1 y 10.000.',
     pairingDays: 'Entre 1 y 365 días.',
+    range: (min: string, max: string) => `Va un entero entre ${min} y ${max}.`,
   },
   failed: 'No se pudo guardar. Probá de nuevo.',
   rounding: {
@@ -174,6 +183,16 @@ export const texts = {
     endsAfterClosing: (time: string) =>
       `Entró a las 8:00: el tope llega a las ${time}, después de cerrar.`,
   },
+  lists: {
+    title: 'Listas de precios',
+    subtitle:
+      'Valen desde la lista siguiente que se sube; una que ya está en espera se vuelve a mirar con los valores nuevos.',
+    review: 'Al ver qué cambia',
+    upload: 'Al subir una lista',
+    files: 'Los archivos',
+    type: 'Escribí el número; se guarda al salir de la caja',
+    initial: (value: string) => `De arranque, ${value}`,
+  },
   pairing: {
     title: 'Días del vínculo',
     subtitle: 'Vale para todos los vínculos, también los que ya existen.',
@@ -186,6 +205,9 @@ export const texts = {
     minutes: (n: number) => `${n} min`,
     hours: (n: number) => `${n} h`,
     days: (n: number) => `${n} días`,
+    percent: (n: number) => `${n} %`,
+    mb: (n: string) => `${n} MB`,
+    rows: (n: string) => `${n} filas`,
   },
 };
 

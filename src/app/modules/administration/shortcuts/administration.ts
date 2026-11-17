@@ -10,6 +10,7 @@ export const shortcuts = defineShortcuts<Administration>('administration', {
   retry: (model) => stale(model) && model.retry(),
   roundingStep: (model) => !!model.data && model.choose('roundingStep'),
   quickMargins: (model) => !!model.data && model.choose('quickMargins'),
+  lists: (model) => !!model.data && model.choose('lists'),
   zone: (model) => !!model.data && model.choose('zone'),
   sessionIdle: (model) => !!model.data && model.choose('session'),
   sessionMax: (model) => !!model.data && model.choose('session'),

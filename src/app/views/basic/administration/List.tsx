@@ -41,6 +41,29 @@ const items: Item[][] = [
       value: (s) => `${s.quickMargins[0]} a ${s.quickMargins[4]} %`,
     },
   ],
+  [
+    {
+      panel: 'lists',
+      icon: 'file-text',
+      name: names.reviewPercent,
+      command: 'lists',
+      value: (s) => shown('reviewPercent', s.reviewPercent),
+    },
+    {
+      panel: 'lists',
+      icon: 'file-up',
+      name: names.maxFileMb,
+      command: 'lists-upload',
+      value: (s) => shown('maxFileMb', s.maxFileMb),
+    },
+    {
+      panel: 'lists',
+      icon: 'archive',
+      name: names.filesMb,
+      command: 'lists-files',
+      value: (s) => shown('filesMb', s.filesMb),
+    },
+  ],
   [{ panel: 'zone', icon: 'globe', name: names.zone, command: 'zone', value: (_, clock) => clock }],
   [
     {
@@ -66,7 +89,7 @@ const items: Item[][] = [
     },
   ],
 ];
-const groups = ['Precios', 'Negocio', 'Acceso'];
+const groups = ['Precios', 'Listas de precios', 'Negocio', 'Acceso'];
 
 // Con la tecla del ajuste se llega también a sus opciones: el cursor va a la elegida (o a la caja),
 // y desde ahí ← → las recorren (R1.8). Corre después de dibujar el panel nuevo.
