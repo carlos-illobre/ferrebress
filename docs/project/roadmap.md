@@ -165,6 +165,11 @@ paralelo»).
   el tiempo real, en sus tres partes: el protocolo en `src/shared/realtime/`, el hub y el canal sin
   nada de la ferretería, y los temas de cada módulo en su `realtime.ts`.
   Sin cambiar lo que hace la aplicación. Después de T134, que hace lo mismo con el teclado.
+- [ ] T139 [agente] Sacar la lógica que quedó en las vistas de los módulos ya cerrados (constitución,
+  «La vista es intercambiable»): Usuarios y roles (permisos, límites de largo, qué problemas tiene un
+  rol), Quién hizo qué (cómo se arma cada renglón y cada permiso), Configuración (el largo del
+  nombre) y lo que haya en el resto, al revisarlos con el punto «La vista sin lógica» del revisor de
+  código. Cada decisión pasa a su modelo, sin cambiar lo que hace la aplicación. Antes de T135.
 
 ## Tareas futuras
 

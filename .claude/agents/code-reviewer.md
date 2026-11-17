@@ -30,7 +30,21 @@ Buscá, en este orden:
 8. **Documentación que quedó atrás.** Algo que el código hace y que otro agente no podría
    reconstruir leyendo solo `docs/`.
 9. **Pantallas.** Diferencias visibles con la maqueta elegida, en la computadora y en el celular.
-10. **Lo que se podría extraer a una librería** (constitución, «El análisis de librería»). Solo
+10. **La vista sin lógica** (constitución, «La vista es intercambiable»). Mañana habrá otras vistas
+    del mismo modelo, y todo lo que decida una vista lo tendría que repetir la otra. Leé cada archivo
+    de `src/app/views/` que el módulo agregó o cambió y buscá decisiones que no son de dibujo:
+    - comparar estados o permisos para decidir qué se puede hacer o qué se muestra
+      (`status === 'open' && online`, `can(...)`, `kind === ...`), en vez de leer del modelo algo ya
+      resuelto (`view.actionsOf(x).review`, `view.emptyText`);
+    - listas de opciones, agrupaciones, unidades u órdenes que define la vista y no el modelo;
+    - cuentas o reglas del negocio (redondear un precio, aplicar un margen, sumar, filtrar,
+      ordenar) y pasar lo escrito a número o a fecha;
+    - importar algo que no sea un tipo desde `@ferrebress/shared` o desde un módulo que no sea su
+      `model.ts`.
+    Lo que sí es de la vista: el HTML, las clases, los íconos, marcar el renglón elegido, mostrar u
+    ocultar algo según un dato que el modelo ya decidió, y avisarle al modelo lo que tocó la persona.
+    Cada decisión que encuentres va a la lista con la que debería exponer el modelo en su lugar.
+11. **Lo que se podría extraer a una librería** (constitución, «El análisis de librería»). Solo
     informativo: no frena nada ni se arregla. Si el módulo no agregó ni cambió nada no funcional
     (solo negocio sobre lo que ya había), decilo en una línea y listo. Si agregó o cambió algo: de lo
     no funcional que el módulo agregó o cambió
@@ -44,7 +58,7 @@ Buscá, en este orden:
 
 No arregles nada y no toques el código. Escribí `docs/technical/modules/<module>-code-review.md`
 con una lista: cada punto con dónde está (archivo y línea), qué dicen los documentos, qué hace el
-código y qué tan grave es (frena el cierre o es una mejora). El punto 10 va en su propia sección
+código y qué tan grave es (frena el cierre o es una mejora). El punto 11 va en su propia sección
 al final, «Lo que se podría extraer a una librería», sin gravedad. Si no encontrás nada en un punto,
 decilo en una línea. No des por bueno lo que no pudiste comprobar: decí que no lo pudiste
 comprobar. En castellano.

@@ -337,11 +337,12 @@ la documentación funcionen (ADR-016). No se sube nada que no pase los controles
 
 | Qué cambia | Qué se corre |
 |---|---|
-| Solo archivos `.md` fuera de `docs/manual/` | `pnpm links && pnpm secrets` |
-| Archivos `.md` de `docs/manual/` | Lo anterior, más `pnpm manual && pnpm manual:check` |
+| Solo archivos `.md` | `pnpm links && pnpm secrets` |
 | Cualquier otro archivo (código, configuración, `package.json`, `.github/`, imágenes) | `pnpm check` entero |
 
-El resto de `pnpm check` no lee la documentación. GitHub corre `pnpm check` entero en cada subida
+El manual está en pausa: `pnpm check` no lo arma ni compara sus capturas (`pnpm manual`, `pnpm
+manual:check`), y ningún agente saca capturas del manual hasta que Carlos lo pida. El resto de
+`pnpm check` no lee la documentación. GitHub corre `pnpm check` entero en cada subida
 igual. Las pruebas de punta a punta corren antes de cerrar un módulo.
 
 ## Cómo se cambia

@@ -7,7 +7,7 @@
     "node": ">=22.13"
   },
   "scripts": {
-    "check": "pnpm db:types:check && pnpm types && pnpm lint && pnpm imports && pnpm repeated && pnpm secrets && pnpm vulnerable && pnpm sizes && pnpm boot && pnpm headers && pnpm links && pnpm manual && pnpm test && pnpm screens && pnpm manual:check",
+    "check": "pnpm db:types:check && pnpm types && pnpm lint && pnpm imports && pnpm repeated && pnpm secrets && pnpm vulnerable && pnpm sizes && pnpm boot && pnpm headers && pnpm links && pnpm test && pnpm screens",
     "types": "tsc --build",
     "lint": "biome check . && node tools/cli.ts html && node tools/cli.ts local && node tools/cli.ts views",
     "format": "biome check --write .",
