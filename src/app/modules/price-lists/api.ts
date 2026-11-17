@@ -2,6 +2,9 @@
 // conexión. Cada pantalla suma las suyas al programarse.
 import type {
   FilesPage,
+  ListScope,
+  ListState,
+  ListSupplierBody,
   ReadersResponse,
   ReaderView,
   RowsPage,
@@ -10,6 +13,7 @@ import type {
 } from '@ferrebress/shared/contracts/price-lists';
 import { api } from '../../platform/server/api.ts';
 import { fetchFile } from '../../platform/server/download.ts';
+import { type Sent, upload } from '../../platform/server/upload.ts';
 
 const base = '/api/price-lists';
 
@@ -39,4 +43,27 @@ export const suppliersApi = {
   inactive: () => api<SuppliersResponse>(`${base}/suppliers/inactive`),
   create: (name: string) => api<SupplierResponse>(`${base}/suppliers`, { name }),
   reactivate: (id: string) => api<{ ok: true }>(`${base}/suppliers/${id}/reactivate`, {}),
+};
+
+const listsBase = `${base}/lists`;
+
+export const listsApi = {
+  upload: (
+    file: Blob,
+    params: { name: string; supplierId?: string; scope: ListScope },
+    onSent: Sent,
+    signal: AbortSignal,
+  ) =>
+    upload<ListState>(
+      `${listsBase}?${new URLSearchParams({ name: params.name, scope: params.scope, ...(params.supplierId && { supplierId: params.supplierId }) })}`,
+      file,
+      onSent,
+      signal,
+    ),
+  one: (id: string) => api<ListState>(`${listsBase}/${id}`),
+  supplier: (id: string, body: ListSupplierBody) =>
+    api<ListState>(`${listsBase}/${id}/supplier`, body),
+  scope: (id: string, scope: ListScope) => api<ListState>(`${listsBase}/${id}/scope`, { scope }),
+  size: (id: string) => api<ListState>(`${listsBase}/${id}/size`, {}),
+  cancel: (id: string) => api<ListState>(`${listsBase}/${id}/cancel`, {}),
 };

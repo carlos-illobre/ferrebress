@@ -2,10 +2,10 @@
 // borrarlo con «Deshacer», el que no se puede borrar, los permisos, sin conexión y vacía.
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { navigate, route } from '../../platform/router.ts';
-import { topScreen } from '../../platform/screens.ts';
-import { online } from '../../platform/server/api.ts';
-import { startKeyboard } from '../../testing/keyboard.ts';
+import { navigate, route } from '../../../platform/router.ts';
+import { topScreen } from '../../../platform/screens.ts';
+import { online } from '../../../platform/server/api.ts';
+import { startKeyboard } from '../../../testing/keyboard.ts';
 import {
   costsOnly,
   file,
@@ -18,9 +18,9 @@ import {
   removeOf,
   restoreOf,
   seller,
-} from '../../views/basic/price-lists/files-kit.tsx';
-import { toast } from '../../views/basic/price-lists/readers-kit.tsx';
-import { type ListFiles, megabytes } from './model.ts';
+} from '../../../views/basic/price-lists/files-kit.tsx';
+import { toast } from '../../../views/basic/price-lists/readers-kit.tsx';
+import { type ListFiles, megabytes } from '../model.ts';
 
 const model = () => topScreen()?.model() as ListFiles;
 const disposition = `attachment; filename="lista-1.xlsx"; filename*=UTF-8''lista%20%C3%B1.xlsx`;

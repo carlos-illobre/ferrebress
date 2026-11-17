@@ -3,8 +3,8 @@
 // cada uno. Sin pedidos.
 import type { SupplierRow } from '@ferrebress/shared/contracts/price-lists';
 import { businessDateOf } from '@ferrebress/shared/time/business';
-import { plain } from '../../platform/text.ts';
-import { listReasonTexts } from './texts-status.ts';
+import { plain } from '../../../platform/text.ts';
+import { listReasonTexts } from '../texts-status.ts';
 import { suppliersTexts as texts } from './texts-suppliers.ts';
 
 // Todos, los que tienen una lista en espera, los que tienen una que no se pudo leer, o los dados de

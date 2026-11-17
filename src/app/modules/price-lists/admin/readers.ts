@@ -4,20 +4,20 @@
 
 import { can } from '@ferrebress/shared/contracts/can';
 import type { ReadersResponse, ReaderView } from '@ferrebress/shared/contracts/price-lists';
-import { useLastSeen } from '../../platform/last-seen.ts';
-import { useMirroredQuery } from '../../platform/mirror/query.ts';
-import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
-import { useScreen } from '../../platform/screens.ts';
-import { online as onlineStore } from '../../platform/server/api.ts';
-import { useStore } from '../../platform/store.ts';
-import { plain } from '../../platform/text.ts';
-import { dateOf, formatTime, nowMs } from '../../platform/time.ts';
-import { notify } from '../../platform/view/notify.ts';
-import { openAdminPage } from '../administration/index.ts';
-import { person as me } from '../sign-in/index.ts';
-import { readersApi } from './api.ts';
-import { schemas, searchText } from './schemas.ts';
-import { priceListsSettings } from './settings.ts';
+import { useLastSeen } from '../../../platform/last-seen.ts';
+import { useMirroredQuery } from '../../../platform/mirror/query.ts';
+import { useMirrored } from '../../../platform/mirror/use-mirrored.ts';
+import { useScreen } from '../../../platform/screens.ts';
+import { online as onlineStore } from '../../../platform/server/api.ts';
+import { useStore } from '../../../platform/store.ts';
+import { plain } from '../../../platform/text.ts';
+import { dateOf, formatTime, nowMs } from '../../../platform/time.ts';
+import { notify } from '../../../platform/view/notify.ts';
+import { openAdminPage } from '../../administration/index.ts';
+import { person as me } from '../../sign-in/index.ts';
+import { readersApi } from '../api.ts';
+import { schemas, searchText } from '../schemas.ts';
+import { priceListsSettings } from '../settings.ts';
 import { readersTexts as texts } from './texts-readers.ts';
 
 export type ReaderGroup = { supplier: string; readers: ReaderView[] };

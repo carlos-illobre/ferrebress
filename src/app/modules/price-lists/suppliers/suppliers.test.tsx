@@ -3,10 +3,10 @@
 // sin conexión.
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { topScreen } from '../../platform/screens.ts';
-import { online } from '../../platform/server/api.ts';
-import { startKeyboard } from '../../testing/keyboard.ts';
-import { toast } from '../../views/basic/price-lists/readers-kit.tsx';
+import { topScreen } from '../../../platform/screens.ts';
+import { online } from '../../../platform/server/api.ts';
+import { startKeyboard } from '../../../testing/keyboard.ts';
+import { toast } from '../../../views/basic/price-lists/readers-kit.tsx';
 import {
   addForm,
   inactivePath,
@@ -17,8 +17,8 @@ import {
   reactivateOf,
   sellerOnly,
   suppliersPath,
-} from '../../views/basic/price-lists/suppliers-kit.tsx';
-import type { Suppliers } from './model.ts';
+} from '../../../views/basic/price-lists/suppliers-kit.tsx';
+import type { Suppliers } from '../model.ts';
 
 const model = () => topScreen()?.model() as Suppliers;
 const filter = (name: RegExp) => screen.getByRole('button', { name });

@@ -4,16 +4,18 @@
 
 import { can } from '@ferrebress/shared/contracts/can';
 import type { SuppliersResponse } from '@ferrebress/shared/contracts/price-lists';
-import { useLastSeen } from '../../platform/last-seen.ts';
-import { useMirroredQuery } from '../../platform/mirror/query.ts';
-import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
-import { useScreen } from '../../platform/screens.ts';
-import { online as onlineStore } from '../../platform/server/api.ts';
-import { useStore } from '../../platform/store.ts';
-import { formatTime, nowMs } from '../../platform/time.ts';
-import { person as me } from '../sign-in/index.ts';
-import { suppliersApi } from './api.ts';
-import { schemas, searchText } from './schemas.ts';
+import { useState } from 'preact/hooks';
+import { useLastSeen } from '../../../platform/last-seen.ts';
+import { useMirroredQuery } from '../../../platform/mirror/query.ts';
+import { useMirrored } from '../../../platform/mirror/use-mirrored.ts';
+import { useScreen } from '../../../platform/screens.ts';
+import { online as onlineStore } from '../../../platform/server/api.ts';
+import { useStore } from '../../../platform/store.ts';
+import { formatTime, nowMs } from '../../../platform/time.ts';
+import { person as me } from '../../sign-in/index.ts';
+import { suppliersApi } from '../api.ts';
+import { schemas, searchText } from '../schemas.ts';
+import { startUploads } from '../uploads/actions.ts';
 import { useAddSupplier } from './suppliers-add.ts';
 import {
   countsOf,
@@ -81,6 +83,8 @@ function viewOf({ may, rows, search, filter, live }: Seen) {
     nothing: nothingOf({ total: counts.suppliers, shown: shown.length, search, filter }, firstStep),
     suppliers: shown.map((row) => supplierLines(row, nowMs(), may.costs)),
     canAdd: may.manage && live,
+    // Subir una lista, con «Cargar listas» (R1.2): sin decir de quién es o desde su renglón (R4.3).
+    canUpload: may.load && live,
     // Los dados de baja se reactivan desde su filtro (R2.5).
     reactivable: filter === 'inactive' && may.manage && live,
   };
@@ -96,6 +100,7 @@ export function useSuppliers() {
     schemas.supplierFilter,
   );
   const { active, inactive } = useLists(may.manage, filter);
+  const [picks, setPicks] = useState(0); // local: elegir un archivo es de este dispositivo
   const seen = useLastSeen<SuppliersResponse>('suppliers', may.who, active.data);
   const data = active.data ?? (active.failed ? seen?.data : undefined);
   const live = online && !!active.data;
@@ -112,6 +117,10 @@ export function useSuppliers() {
     ...{ search, setSearch, live, online, ...add },
     // Tocar un filtro lo pone; tocarlo de nuevo lo saca (pantalla 1).
     toggleFilter: (next: SupplierFilter) => setFilter(filter === next ? 'all' : next),
+    upload: (files: readonly File[], supplierId?: string) => void startUploads(files, supplierId),
+    // Cuántas veces se pidió elegir un archivo con el teclado: la vista abre la elección cada vez.
+    picks,
+    pick: () => setPicks(picks + 1),
     ...{ fresh: !!active.data, failed: active.failed, retry: active.invalidate },
     seenAtShown: formatTime(seen?.at as Date),
   };

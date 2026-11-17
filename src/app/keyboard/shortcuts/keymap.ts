@@ -22,6 +22,7 @@ export const keymap: Record<string, string> = {
   // Catálogo → Listas (08 · pantalla 1).
   'price-lists-suppliers.retry': 'Alt+R',
   'price-lists-suppliers.add': 'Alt+N',
+  'price-lists-suppliers.upload': 'Alt+S',
   // Más → Administración → Lectores y Archivos de listas (08 · pantalla 5; 06 · pantalla 3).
   'price-lists-readers.retry': 'Alt+R',
   'price-lists-files.retry': 'Alt+R',

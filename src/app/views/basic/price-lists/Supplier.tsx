@@ -2,8 +2,12 @@
 // son personales: se tapan en la captura de «Algo salió mal»), su última lista y lo pendiente; dado de
 // baja, «Reactivar».
 import type { SupplierLines, Suppliers } from '../../../modules/price-lists/model.ts';
-import { suppliersTexts as texts } from '../../../modules/price-lists/model.ts';
+import {
+  suppliersTexts as texts,
+  uploadsTexts as uploads,
+} from '../../../modules/price-lists/model.ts';
 import { privateProps } from '../../../platform/view/private.ts';
+import { UploadButton } from './uploads/UploadButton.tsx';
 
 function Contact({ supplier }: { supplier: SupplierLines }) {
   return (
@@ -33,6 +37,11 @@ export function Supplier({ view, supplier }: { view: Suppliers; supplier: Suppli
         <p class={supplier.problem ? 'supplier-pending supplier-problem' : 'supplier-pending'}>
           {supplier.pending}
         </p>
+      )}
+      {view.canUpload && !view.reactivable && (
+        <UploadButton onFiles={(files) => view.upload(files, supplier.id)}>
+          {uploads.upload}
+        </UploadButton>
       )}
       {view.reactivable && (
         <button

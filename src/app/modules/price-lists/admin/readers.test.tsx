@@ -2,10 +2,10 @@
 // «Deshacer», sin el permiso, sin conexión y vacía.
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { navigate, route } from '../../platform/router.ts';
-import { topScreen } from '../../platform/screens.ts';
-import { online } from '../../platform/server/api.ts';
-import { startKeyboard } from '../../testing/keyboard.ts';
+import { navigate, route } from '../../../platform/router.ts';
+import { topScreen } from '../../../platform/screens.ts';
+import { online } from '../../../platform/server/api.ts';
+import { startKeyboard } from '../../../testing/keyboard.ts';
 import {
   activeOf,
   openReaders,
@@ -13,8 +13,8 @@ import {
   readers,
   toast,
   viewer,
-} from '../../views/basic/price-lists/readers-kit.tsx';
-import { groupsOf, type Readers, readerLines } from './model.ts';
+} from '../../../views/basic/price-lists/readers-kit.tsx';
+import { groupsOf, type Readers, readerLines } from '../model.ts';
 
 const groups = () => screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
 

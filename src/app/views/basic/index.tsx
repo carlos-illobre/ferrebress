@@ -11,6 +11,7 @@ import { InstallOffer } from './device-settings/InstallOffer.tsx';
 import { Settings } from './device-settings/Settings/Settings.tsx';
 import { Dialogs, Frame } from './frame/index.ts';
 import { ManualSlot } from './manual/ManualSlot.tsx';
+import { UploadsSlot } from './price-lists/uploads/Slot.tsx';
 import { Camera, CodeSheet, Entrance, OfferSheet } from './sign-in/index.ts';
 import { Toasts } from './ui/toast/Toast.tsx';
 import { UsersSlot } from './users/index.ts';
@@ -41,6 +42,7 @@ export function BasicApp() {
           />
         </div>
       )}
+      {who && !manual && <UploadsSlot />}
       {app.entrance && (
         <Entrance
           start={start}

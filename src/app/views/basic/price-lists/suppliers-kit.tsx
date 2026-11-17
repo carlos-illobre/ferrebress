@@ -57,3 +57,10 @@ export const names = () =>
 
 // El formulario del alta, para mandarlo con Enter.
 export const addForm = () => document.querySelector('.supplier-add') as HTMLFormElement;
+
+// Las cajas de archivos escondidas de «Subir lista»: la de arriba primero, después la de cada
+// proveedor, en orden.
+export const fileBoxes = () => [
+  ...document.querySelectorAll<HTMLInputElement>('input[type="file"]'),
+];
+export const screenRoot = () => document.querySelector('.suppliers') as HTMLElement;

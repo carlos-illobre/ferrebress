@@ -1,0 +1,109 @@
+/* Las listas que se suben: un panel abajo a la derecha que no tapa la pantalla; en el celular, sobre
+   el menú, a lo ancho. */
+@layer screens {
+  .uploads {
+    position: fixed;
+    right: var(--s4);
+    bottom: var(--s4);
+    z-index: 20;
+    width: min(380px, calc(100vw - 2 * var(--s4)));
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .uploads ul {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .upload {
+    display: grid;
+    gap: var(--s2);
+    padding: var(--s3) var(--s4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-2, var(--shadow-1));
+  }
+  .upload-failed {
+    border-color: var(--urgent);
+  }
+  .upload-name {
+    overflow-wrap: anywhere;
+  }
+  .upload-step,
+  .upload-note,
+  .upload-error,
+  .upload-ask {
+    margin: 0;
+    font-size: 14px;
+  }
+  .upload-error {
+    color: var(--urgent-text);
+  }
+  .upload-ask {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    align-items: center;
+  }
+  .upload-choose {
+    display: grid;
+    gap: var(--s2);
+  }
+  .upload-choose ul {
+    gap: 4px;
+  }
+  .upload-choose li button {
+    width: 100%;
+    padding: 6px var(--s2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-small);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+  }
+  .upload-choose input {
+    padding: 6px var(--s2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font: inherit;
+  }
+  .upload-new {
+    display: flex;
+    gap: var(--s2);
+  }
+  .upload-new input {
+    flex: 1;
+    min-width: 0;
+  }
+  .upload-scope {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px var(--s3);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 14px;
+  }
+  .upload-scope small {
+    flex-basis: 100%;
+    color: var(--text-2);
+  }
+  .upload-actions {
+    display: flex;
+    gap: var(--s2);
+    justify-content: end;
+  }
+  @media (max-width: 899px) {
+    .uploads {
+      right: var(--s2);
+      /* Sobre el menú de abajo del celular (Phone.css). */
+      bottom: calc(92px + env(safe-area-inset-bottom) + var(--s2));
+      max-height: 55vh;
+      width: calc(100vw - 2 * var(--s2));
+    }
+  }
+}

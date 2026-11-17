@@ -1,47 +1,8 @@
 // Subir con su avance (08 · R4.9, R4.11), con un XMLHttpRequest de mentira.
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { FakeRequest } from '../../testing/fake-request.ts';
 import { online } from './api.ts';
 import { upload } from './upload.ts';
-
-class FakeRequest {
-  static last: FakeRequest;
-  headers: Record<string, string> = {};
-  method = '';
-  path = '';
-  body: unknown;
-  status = 0;
-  responseText = '';
-  responseHeaders = '';
-  upload: { onprogress?: (event: { loaded: number; total: number }) => void } = {};
-  onload?: () => void;
-  onerror?: () => void;
-  onabort?: () => void;
-  constructor() {
-    FakeRequest.last = this;
-  }
-  open(method: string, path: string) {
-    this.method = method;
-    this.path = path;
-  }
-  setRequestHeader(name: string, value: string) {
-    this.headers[name] = value;
-  }
-  getAllResponseHeaders() {
-    return this.responseHeaders;
-  }
-  send(body: unknown) {
-    this.body = body;
-  }
-  abort() {
-    this.onabort?.();
-  }
-  answer(status: number, body: unknown, headers = 'content-type: application/json\r\n') {
-    this.status = status;
-    this.responseText = JSON.stringify(body);
-    this.responseHeaders = headers;
-    this.onload?.();
-  }
-}
 
 const file = new Blob(['Código;Precio']);
 

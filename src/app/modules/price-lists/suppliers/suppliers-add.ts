@@ -2,8 +2,8 @@
 // rechaza en el lugar (E10) y el de uno dado de baja ofrece «Reactivar» (E94).
 import type { SupplierExists, SupplierRow } from '@ferrebress/shared/contracts/price-lists';
 import { useState } from 'preact/hooks';
-import { notify } from '../../platform/view/notify.ts';
-import { suppliersApi } from './api.ts';
+import { notify } from '../../../platform/view/notify.ts';
+import { suppliersApi } from '../api.ts';
 import { suppliersTexts as texts } from './texts-suppliers.ts';
 
 export type Adding = { name: string; error?: string; inactiveId?: string };
