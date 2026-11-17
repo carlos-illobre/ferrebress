@@ -54,9 +54,15 @@ export function openWorkbook(file: Buffer): Opened {
   }
   const sheets = book.SheetNames.map((name) => {
     // En modo denso, cada hoja trae sus filas en `!data`, aunque esté vacía; una fila vacía es un hueco.
+    // Cada fila de SheetJS se suelta apenas se copia, y la hoja entera al terminar: así no conviven las
+    // dos copias de una planilla grande en la memoria del proceso lector.
     const data = (book.Sheets[name] as XLSX.WorkSheet)['!data'] as (RawCell[] | undefined)[];
     const rows: SheetRows = [];
-    for (let r = 0; r < data.length; r++) rows.push((data[r] ?? []).map(cellOf));
+    for (let r = 0; r < data.length; r++) {
+      rows.push((data[r] ?? []).map(cellOf));
+      data[r] = undefined;
+    }
+    delete book.Sheets[name];
     return { name, rows };
   });
   return { sheets };

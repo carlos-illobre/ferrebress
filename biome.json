@@ -62,7 +62,7 @@
       }
     },
     {
-      "includes": ["**/*.test.ts", "**/*.test.tsx", "tools/**"],
+      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/*.perf.ts", "tools/**"],
       "linter": {
         "rules": {
           "complexity": {

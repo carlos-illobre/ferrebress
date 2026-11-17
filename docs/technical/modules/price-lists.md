@@ -585,7 +585,8 @@ Los modelos de § 7, con lo que espeja cada uno (ADR-019):
 - **Las planillas de prueba** son inventadas, armadas por las pruebas.
 - **Sin pruebas de punta a punta nuevas:** E08 (el avance en el otro dispositivo) lo cubre la prueba del
   espejo de cualquier valor con nombre; si hiciera falta una, se le justifica a Carlos antes.
-- **La performance** (E39, E67) tiene su prueba con 10.000 filas, aparte de las rápidas (ADR-005).
+- **La performance** (E39, E67) tiene su prueba con 10.000 filas, aparte de las rápidas (ADR-005): `pnpm perf`
+  (`price-lists.perf.ts`), que imprime cada medida. No corre en `pnpm check`.
 
 Las tareas, en orden:
 

@@ -44,7 +44,9 @@ export const job = (path: string, more: Partial<Job> = {}): Job => ({
 });
 export const run = async (input: Job) => {
   const sent: JobMessage[] = [];
-  await runJob(input, (message) => sent.push(message));
+  await runJob(input, (message) => {
+    sent.push(message);
+  });
   return sent;
 };
 export const types = (sent: JobMessage[]) => sent.map((message) => message.type);

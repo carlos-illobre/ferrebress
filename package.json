@@ -20,6 +20,7 @@
     "headers": "node tools/cli.ts headers",
     "links": "node tools/cli.ts links",
     "test": "vitest run --coverage",
+    "perf": "vitest run --config vitest.perf.config.ts",
     "e2e": "playwright test -c tests/e2e/playwright.config.ts",
     "screens": "node tests/screens/run.ts",
     "manual": "node tools/cli.ts manual",

@@ -16,22 +16,21 @@ import type { ChosenReader, Job, JobMessage, JobReader } from './messages.ts';
 import { runReader } from './sandbox.ts';
 import { openWorkbook, type Sheet } from './workbook.ts';
 
-type Send = (message: JobMessage) => void;
+type Send = (message: JobMessage) => void | Promise<void>;
 type Candidate = { reader: ChosenReader; code: string; params: unknown; supplierId: string | null };
 type Reading = { candidate: Candidate; first: Checked; firstBlock: Block };
 
-const blocksOf = (sheets: Sheet[]): Block[] =>
-  sheets.flatMap((sheet, index) =>
-    Array.from({ length: Math.ceil(sheet.rows.length / blockRows) }, (_, i) => {
-      const start = i * blockRows;
-      return {
+// Los bloques, de a uno y recién cuando se leen: armarlos todos antes copiaba la planilla entera.
+function* blocksOf(sheets: Sheet[]): Generator<Block> {
+  for (const [index, sheet] of sheets.entries())
+    for (let start = 0; start < sheet.rows.length; start += blockRows)
+      yield {
         sheet: index,
         start,
         rows: sheet.rows.slice(start, start + blockRows),
         before: sheet.rows.slice(Math.max(0, start - lookBack), start),
       };
-    }),
-  );
+}
 
 const headOf = (sheets: Sheet[]): Head =>
   sheets.map((sheet) => ({ name: sheet.name, rows: sheet.rows.slice(0, headRows) }));
@@ -120,7 +119,7 @@ export async function runJob(job: Job, send: Send): Promise<void> {
   send({ type: 'opened', rows });
   const head = headOf(opened.sheets);
   const blocks = blocksOf(opened.sheets);
-  const chosen = await choose(job, opened.sheets, head, blocks[0] as Block);
+  const chosen = await choose(job, opened.sheets, head, blocks.next().value as Block);
   if ('type' in chosen) return send(chosen);
   send(chosenMessage(job, chosen.candidate, head));
   await readAll(job, opened.sheets, head, blocks, chosen, send);
@@ -143,19 +142,24 @@ function chosenMessage(job: Job, candidate: Candidate, head: Head): JobMessage {
   };
 }
 
+function* withFirst(first: Block, rest: Iterable<Block>): Generator<Block> {
+  yield first;
+  yield* rest;
+}
+
 // Todos los bloques, el primero ya leído. Si uno no pasa, la lista no se lee (R5.4); el automático,
 // además, no puede terminar con casi nada leído (R5.5).
 async function readAll(
   job: Job,
   sheets: Sheet[],
   head: Head,
-  blocks: Block[],
+  rest: Iterable<Block>,
   chosen: Reading,
   send: Send,
 ) {
   const seen = new Set<string>();
   let [products, skipped, rowsRead] = [0, 0, 0];
-  for (const block of blocks) {
+  for (const block of withFirst(chosen.firstBlock, rest)) {
     const checked =
       block === chosen.firstBlock
         ? checkAgain(chosen, seen)
@@ -166,7 +170,7 @@ async function readAll(
       skipped + checked.skipped.length,
       rowsRead + block.rows.length,
     ];
-    send({ type: 'block', ...checked, rowsRead });
+    await send({ type: 'block', ...checked, rowsRead });
   }
   if ('template' in chosen.candidate.reader && autoDoubts(products, skipped))
     return send({ type: 'failed', reason: 'auto-unsure' });

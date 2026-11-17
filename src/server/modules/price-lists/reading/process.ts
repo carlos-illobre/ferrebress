@@ -11,7 +11,12 @@ setInterval(() => {
   if (process.memoryUsage.rss() > limitBytes) process.exit(137);
 }, 100).unref();
 
-const send = (message: JobMessage) => process.send?.(message);
+// Espera a que el mensaje salga antes de seguir: si no, los bloques leídos se juntan en la memoria del
+// proceso mientras el servidor guarda los anteriores.
+const send = (message: JobMessage) =>
+  new Promise<void>((resolve) => {
+    process.send?.(message, undefined, undefined, () => resolve());
+  });
 
 process.on('message', (job: Job) => {
   runJob(job, send).catch(() => send({ type: 'failed', reason: 'damaged' }));

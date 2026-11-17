@@ -54,6 +54,7 @@ export default defineConfig({
         'src/app/platform/peer/rtc.ts',
         '**/*.config.ts',
         '**/*.test.{ts,tsx}',
+        '**/*.perf.ts',
       ],
       thresholds: { lines: 100, branches: 100, functions: 100, statements: 100 },
     },
