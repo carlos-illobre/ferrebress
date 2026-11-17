@@ -24,8 +24,15 @@ function ReadersPage() {
   return screen ? <screen.Readers /> : null;
 }
 
+function FilesPage() {
+  const screen = useLazy(() => import('../price-lists/Files.tsx'));
+  if (screen === 'offline') return <Unloaded />;
+  return screen ? <screen.Files /> : null;
+}
+
 export function AdministrationSlot() {
   const page = useAdminPage();
   if (page === 'readers') return <ReadersPage />;
+  if (page === 'files') return <FilesPage />;
   return <Settings />;
 }

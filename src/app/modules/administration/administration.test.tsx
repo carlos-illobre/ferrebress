@@ -2,7 +2,6 @@
 // choque con otro, el redondeo con su confirmación, el permiso y sin conexión.
 import { fireEvent, screen, waitFor } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { navigate, route } from '../../platform/router.ts';
 import { online } from '../../platform/server/api.ts';
 import {
   initial,
@@ -34,13 +33,6 @@ describe('Administración', () => {
     expect(tab(/Zona horaria.*14:30/)).toBeTruthy();
     expect(screen.getAllByText('Precios').length).toBeGreaterThan(0);
     expect(screen.queryByText(/hace falta «Cambiar los ajustes»/)).toBeNull();
-  });
-
-  it('price-lists-R5.8: desde Administración se abren los Lectores', async () => {
-    openAdministration();
-    fireEvent.click(await screen.findByRole('button', { name: /Lectores/ }));
-    expect(route.get().path).toBe('/administration/readers');
-    navigate('/', { replace: true });
   });
 
   it('administration-E02: sin el permiso, nada se toca y dice qué falta y quién lo tiene', async () => {

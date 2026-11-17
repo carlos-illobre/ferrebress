@@ -1,0 +1,97 @@
+/* Archivos de listas: cuánto ocupan arriba y cada archivo en su tarjeta, con sus listas y sus botones. */
+@layer screens {
+  .files {
+    display: grid;
+    gap: var(--s4);
+    max-width: 880px;
+    padding: var(--s6) var(--s6) var(--s10);
+  }
+  .files-head {
+    display: grid;
+    gap: var(--s2);
+  }
+  .files-head h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+  .files-about,
+  .files-permission,
+  .files-empty,
+  .files-meta,
+  .files-in-use {
+    margin: 0;
+    color: var(--text-2);
+  }
+  .files-used {
+    margin: 0 0 var(--s4);
+    font-size: 17px;
+  }
+  .files-list,
+  .files-lists {
+    display: grid;
+    gap: var(--s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .files-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--s2) var(--s4);
+    align-items: center;
+    padding: var(--s3) var(--s4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .files-item[aria-current] {
+    border-color: var(--pine);
+  }
+  .files-lists li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    align-items: baseline;
+  }
+  .files-status {
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  .files-meta {
+    grid-column: 1;
+    font-size: 14px;
+  }
+  .files-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-items: center;
+    justify-content: end;
+  }
+  .files-in-use {
+    max-width: 220px;
+    font-size: 14px;
+  }
+  .files-more {
+    justify-self: start;
+    margin-top: var(--s4);
+  }
+  .files-stale .files-item {
+    opacity: 0.6;
+  }
+  @media (max-width: 899px) {
+    .files {
+      padding: var(--s4);
+    }
+    .files-item {
+      grid-template-columns: 1fr;
+    }
+    .files-actions {
+      grid-column: 1;
+      grid-row: auto;
+      justify-content: start;
+    }
+  }
+}

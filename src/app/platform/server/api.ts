@@ -114,7 +114,7 @@ export async function settle<T>(response: Response | undefined): Promise<ApiResu
   return { ok: false, ...data };
 }
 
-async function readServerHeader(response: Response): Promise<void> {
+export async function readServerHeader(response: Response): Promise<void> {
   const header = parseServerHeader(response.headers.get(serverHeaderName));
   if (!header) return;
   syncServerTime(header.serverTime);

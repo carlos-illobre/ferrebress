@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 // 'offline': sin conexión; 'waiting': el servidor no contesta nunca; `held`: contesta cuando la prueba
 // lo suelta, para que una respuesta llegue después de otra.
 export type Reply =
-  | { status?: number; body?: unknown; stream?: string }
+  | { status?: number; body?: unknown; stream?: string; headers?: Record<string, string> }
   | { held: Promise<Reply> }
   | 'offline'
   | 'waiting';
@@ -22,7 +22,8 @@ function answer(reply: Reply): Promise<Response> | Response {
   if (reply === 'offline') throw new TypeError('Failed to fetch');
   if (reply === 'waiting') return new Promise<Response>(() => {});
   if ('held' in reply) return reply.held.then(answer);
-  if (reply.stream !== undefined) return new Response(reply.stream);
+  if (reply.stream !== undefined)
+    return new Response(reply.stream, { headers: reply.headers ?? {} });
   return json(reply.status ?? 200, reply.body);
 }
 

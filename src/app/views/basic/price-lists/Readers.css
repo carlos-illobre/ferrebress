@@ -60,23 +60,6 @@
   .readers-state {
     font-weight: 700;
   }
-  .readers-toggle,
-  .readers-offline button {
-    padding: var(--s2) var(--s3);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--ink);
-    font: inherit;
-    font-weight: 700;
-  }
-  .readers-offline {
-    display: flex;
-    gap: var(--s3);
-    align-items: center;
-    margin: 0;
-    color: var(--urgent-text);
-  }
   .readers-stale .readers-item {
     opacity: 0.6;
   }

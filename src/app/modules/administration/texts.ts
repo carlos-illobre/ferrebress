@@ -84,6 +84,7 @@ export const what: Record<SettingKey | 'zone', Words> = {
 export const pagesTexts = {
   title: 'También en Administración',
   readers: { name: 'Lectores', detail: 'Los que entienden la planilla de cada proveedor' },
+  files: { name: 'Archivos de listas', detail: 'Los originales de las listas subidas' },
 };
 
 export const texts = {

@@ -4,12 +4,10 @@
 
 import { can } from '@ferrebress/shared/contracts/can';
 import type { ReadersResponse, ReaderView } from '@ferrebress/shared/contracts/price-lists';
-import { useEffect } from 'preact/hooks';
 import { useMirroredQuery } from '../../platform/mirror/query.ts';
 import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
 import { useScreen } from '../../platform/screens.ts';
 import { online as onlineStore } from '../../platform/server/api.ts';
-import { serverNow } from '../../platform/server/clock.ts';
 import { useStore } from '../../platform/store.ts';
 import { plain } from '../../platform/text.ts';
 import { dateOf, formatTime, nowMs } from '../../platform/time.ts';
@@ -17,14 +15,12 @@ import { notify } from '../../platform/view/notify.ts';
 import { openAdminPage } from '../administration/index.ts';
 import { person as me } from '../sign-in/index.ts';
 import { readersApi } from './api.ts';
+import { useLastSeen } from './last-seen.ts';
 import { schemas, searchText } from './schemas.ts';
 import { priceListsSettings } from './settings.ts';
 import { readersTexts as texts } from './texts-readers.ts';
 
 export type ReaderGroup = { supplier: string; readers: ReaderView[] };
-
-// Lo último que se vio, de esa persona, en esta sesión de la aplicación.
-const lastSeen = new WeakMap<object, { data: ReadersResponse; at: Date }>();
 
 // Por proveedor, en orden; los que no tienen, primero. Lo buscado filtra por el nombre del proveedor.
 export function groupsOf(readers: readonly ReaderView[], search: string): ReaderGroup[] {
@@ -50,13 +46,6 @@ export const readerLines = (reader: ReaderView) => ({
     : texts.noList,
 });
 
-function useLastSeen(who: object, data: ReadersResponse | undefined) {
-  useEffect(() => {
-    if (data) lastSeen.set(who, { data, at: serverNow() as Date });
-  }, [data]);
-  return lastSeen.get(who);
-}
-
 export function useReaders() {
   const query = useMirroredQuery('price-lists.readers', readersApi.list, [], {
     mode: 'forward',
@@ -66,7 +55,7 @@ export function useReaders() {
   const who = useStore(me);
   const online = useStore(onlineStore);
   const canChange = !!who && can(who, 'settings.change');
-  const seen = useLastSeen(who as object, query.data);
+  const seen = useLastSeen<ReadersResponse>('readers', who as object, query.data);
   const data = query.data ?? (query.failed ? seen?.data : undefined);
   const editable = canChange && online && !!query.data;
   const put = (reader: ReaderView) =>

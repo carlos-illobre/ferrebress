@@ -17,8 +17,11 @@ export const keymap: Record<string, string> = {
   'administration-confirm.confirm': 'Alt+P',
   'administration-confirm.cancel': 'Alt+C',
   'administration-confirm.retry': 'Alt+R',
-  'price-lists-readers.retry': 'Alt+R',
   'administration-confirm.later': 'Alt+A',
+  // Más → Administración → Lectores y Archivos de listas (08 · pantalla 5; 06 · pantalla 3).
+  'price-lists-readers.retry': 'Alt+R',
+  'price-lists-files.retry': 'Alt+R',
+  'price-lists-files.remove': 'Alt+B',
   // Más → Configuración (04 · R1.9, R9.2).
   'device-settings.animations': 'Alt+D',
   'device-settings.otherTimeFormat': 'Alt+H',

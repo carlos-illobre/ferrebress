@@ -11,11 +11,15 @@ import {
 } from '../../../modules/price-lists/model.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { MoreCrumb } from '../frame/index.ts';
-import { Icon } from '../ui/icon/Icon.tsx';
+import { addShapes, Icon } from '../ui/icon/Icon.tsx';
+import { peopleShapes } from '../ui/icon/people-shapes.tsx';
 import { LoadState } from '../ui/load-state/LoadState.tsx';
 import { Say } from '../ui/say/Say.tsx';
 import { Search } from '../ui/search/Search.tsx';
+import { Stale } from './Stale.tsx';
 import './Readers.css';
+
+addShapes({ search: peopleShapes.search, 'chevron-left': peopleShapes['chevron-left'] });
 
 function Group({ view, group }: { view: View; group: ReaderGroup }) {
   return (
@@ -35,7 +39,7 @@ function Group({ view, group }: { view: View; group: ReaderGroup }) {
               {view.editable && (
                 <button
                   type="button"
-                  class="readers-toggle"
+                  class="lists-button readers-toggle"
                   data-mark=""
                   onClick={() => void view.toggle(reader)}
                 >
@@ -59,13 +63,12 @@ function Body({ view }: { view: View }) {
   return (
     <div class={view.fresh && view.online ? '' : 'readers-stale'}>
       {!(view.fresh && view.online) && (
-        <p class="readers-offline" role="status">
-          <Say words={texts.offline(view.seenAtShown)} />
-          <button type="button" data-mark="" onClick={view.retry}>
-            {texts.retry}
-            {keys.retry && <kbd>{keys.retry}</kbd>}
-          </button>
-        </p>
+        <Stale
+          words={texts.offline(view.seenAtShown)}
+          retry={view.retry}
+          label={texts.retry}
+          hint={keys.retry}
+        />
       )}
       {!view.canChange && <p class="readers-permission">{texts.noPermission}</p>}
       {view.data.readers.length === 0 ? (

@@ -6,6 +6,7 @@ import { AdministrationSlot } from './Slot.tsx';
 
 vi.mock('./Administration.tsx', () => Promise.reject(new Error('no está')));
 vi.mock('../price-lists/Readers.tsx', () => Promise.reject(new Error('no está')));
+vi.mock('../price-lists/Files.tsx', () => Promise.reject(new Error('no está')));
 
 describe('el lugar de Administración', () => {
   afterEach(() => vi.restoreAllMocks());
@@ -16,9 +17,9 @@ describe('el lugar de Administración', () => {
     expect((await screen.findByRole('status')).textContent).toContain('Sin conexión');
   });
 
-  it('tampoco Lectores', async () => {
+  it.each(['readers', 'files'])('tampoco las que se abren desde ella (%s)', async (page) => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
-    navigate('/administration/readers');
+    navigate(`/administration/${page}`);
     render(<AdministrationSlot />);
     expect((await screen.findByRole('status')).textContent).toContain('Sin conexión');
     navigate('/', { replace: true });

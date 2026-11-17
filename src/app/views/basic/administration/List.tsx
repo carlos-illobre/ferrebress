@@ -10,6 +10,7 @@ import {
   pagesTexts,
   shown,
   texts,
+  useAdminLinks,
 } from '../../../modules/administration/model.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { Icon, type IconName } from '../ui/icon/Icon.tsx';
@@ -86,6 +87,7 @@ export function List({
   clock: string;
 }) {
   const keys = useShortcutHints('administration');
+  const links = useAdminLinks();
   // Cada vez que se elige un ajuste (con el mouse, el dedo o su atajo), el cursor va a sus opciones.
   useEffect(() => {
     if (view.chosen > 0) focusChosen(view.panel);
@@ -117,19 +119,22 @@ export function List({
       </div>
       <nav class="admin-list-group admin-pages" aria-label={pagesTexts.title}>
         <h2>{pagesTexts.title}</h2>
-        <button
-          type="button"
-          class="admin-item admin-page"
-          data-mark=""
-          onClick={() => openAdminPage('readers')}
-        >
-          <Icon name="workflow" />
-          <span>
-            {pagesTexts.readers.name}
-            <small>{pagesTexts.readers.detail}</small>
-          </span>
-          <Icon name="chevron-right" size="small" />
-        </button>
+        {links.map((page) => (
+          <button
+            key={page}
+            type="button"
+            class="admin-item admin-page"
+            data-mark=""
+            onClick={() => openAdminPage(page)}
+          >
+            <Icon name={page === 'readers' ? 'workflow' : 'file-text'} />
+            <span>
+              {pagesTexts[page].name}
+              <small>{pagesTexts[page].detail}</small>
+            </span>
+            <Icon name="chevron-right" size="small" />
+          </button>
+        ))}
       </nav>
       {view.editable && (
         <p class="admin-hint desktop-only">

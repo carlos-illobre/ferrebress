@@ -1,5 +1,5 @@
 // El lugar de Administración baja la pantalla que dice la dirección y la muestra: los ajustes o
-// Lectores.
+// Lectores o Archivos de listas.
 import { render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { navigate } from '../../../platform/router.ts';
@@ -10,6 +10,9 @@ vi.mock('./Administration.tsx', () => ({
 }));
 vi.mock('../price-lists/Readers.tsx', () => ({
   Readers: () => <p>los lectores</p>,
+}));
+vi.mock('../price-lists/Files.tsx', () => ({
+  Files: () => <p>los archivos</p>,
 }));
 
 describe('el lugar de Administración', () => {
@@ -26,5 +29,11 @@ describe('el lugar de Administración', () => {
     navigate('/administration/readers');
     render(<AdministrationSlot />);
     expect(await screen.findByText('los lectores')).toBeTruthy();
+  });
+
+  it('en la suya, Archivos de listas', async () => {
+    navigate('/administration/files');
+    render(<AdministrationSlot />);
+    expect(await screen.findByText('los archivos')).toBeTruthy();
   });
 });
