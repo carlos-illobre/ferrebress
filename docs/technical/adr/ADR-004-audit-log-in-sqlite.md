@@ -11,7 +11,8 @@ se modifica, va a crecer mucho y no necesita garantías de transacción.
 
 Se consulta de cuatro formas: lo último, de a 10; por fecha; por persona y tipo; y por un dato (un
 producto, una venta) a lo largo de los años. Volumen esperado: unos 2.000 eventos por día hoy;
-hasta 30 veces más con 100 personas.
+hasta 30 veces más con 100 personas. Las listas de precios suman, con 20 proveedores de 5.000 artículos por semana,
+unos 1.300 eventos por semana (los costos van de a 80 productos por evento: diseño de 08).
 
 ## Opciones comparadas
 

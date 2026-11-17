@@ -189,6 +189,10 @@ que cada módulo suma a la cabecera y los códigos de 60 segundos que comparten 
 - **PostgreSQL**, una base con un esquema por módulo. Solo el estado actual; lo que deja de valer
   se borra. Cada módulo es dueño de su esquema.
 - **SQLite para la auditoría**, un archivo por año, escrito por tandas (ADR-004).
+- **Los archivos que se suben** (las listas de precios), en un almacén aparte, no en la base: un
+  volumen del servidor (`FILES_PATH`), con cada archivo una vez por contenido (su SHA-256), guardado y
+  leído como flujo, detrás de `platform/storage/files.ts` para poder pasarlo a un bucket sin tocar los
+  módulos. La base guarda de cada uno su tamaño y quién lo usa, y se borran solos (diseño de 08).
 - **En el dispositivo**, solo si habilitó trabajar sin conexión: lo justo para atender y la cola
   de lo pendiente, en IndexedDB (ADR-007). Si no lo habilitó, solo lo que no es del negocio ni
   secreto, en `localStorage`: el identificador del dispositivo, sus preferencias, el nombre y rol de
@@ -207,8 +211,16 @@ Hoy un proceso alcanza de sobra. Si algún día hacen falta varias copias del se
 vive en memoria, sin tocar las reglas: las sesiones (de la memoria a la base), el hub de los canales y
 lo que los módulos guardan en memoria para él, como los vínculos y los códigos de 03 (a `LISTEN/NOTIFY`
 de PostgreSQL y una tabla chica), los nombres de los dispositivos de 04 y los ajustes para todos de 06
-(cada copia los carga al arrancar; un cambio tendría que avisar a las demás) y la auditoría (un solo escritor). El reenvío entre el celular y la
+(cada copia los carga al arrancar; un cambio tendría que avisar a las demás), cuántas anomalías hay
+abiertas (se cuentan al arrancar y se suman o restan al confirmar: con varias copias, se contarían en la
+base o se avisarían entre ellas) y la auditoría (un solo escritor). El reenvío entre el celular y la
 computadora necesita además que los dos caigan en la misma copia (ADR-017).
+
+Las listas de precios se leen fuera del proceso del servidor, en dos procesos lectores que se reusan, cada
+uno con tope de memoria, y de a bloques de 5.000 filas: un CSV se lee como flujo, sin tenerlo entero en
+memoria; un Excel, entero (ADR-021). Con más listas a la vez esperan su turno; si no alcanza, se suman
+procesos lectores, y con varias copias del servidor cada una tiene los suyos. El almacén de archivos
+tendría que ser uno solo para todas (un bucket).
 
 ## Controles en `pnpm check`
 
@@ -220,6 +232,4 @@ computadora necesita además que los dos caigan en la misma copia (ADR-017).
 - Pruebas unitarias con cobertura del 100 % (ADR-005).
 - Los enlaces de `docs/` funcionan.
 - El peso del arranque de la aplicación y que el código del manual vaya aparte (`pnpm boot`).
-- El manual: que se arme sin problemas y dentro de sus topes (`pnpm manual`), y que ninguna captura
-  haya quedado vieja (`pnpm manual:check`).
 - Que la aplicación no arme HTML con texto ni ponga estilos en el HTML (en `pnpm lint`).

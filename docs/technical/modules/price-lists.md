@@ -387,7 +387,7 @@ Las de `anomalies` van en el grupo «Administración», que es el capítulo que 
   pesa como mucho 8 KB, diseño de 05, § 2.2; con 5.000 productos en uno solo, se cortarían): con el costo anterior y el nuevo de cada uno, y cada producto como dato afectado
   (`targets: [{ kind: 'product', id }]`), así la historia del costo de un producto se lee por su
   identificador (T115). Un artículo con el mismo costo no suma nada (E77). Con 20 proveedores de 5.000
-  artículos por semana son, como mucho, unos 1.300 eventos, no 100.000 (corrige el número del ADR-004).
+  artículos por semana son, como mucho, unos 1.300 eventos (anotado en el ADR-004).
 - **Se escriben al confirmar**, con `events.transaction`: lo que se deshace no queda anotado.
 - **Rechazos:** sin permiso, el `permission.denied` de la plataforma (R1.4, E04). Los `409` no se anotan.
 - **Entre módulos:** `price-lists` abre y cierra anomalías por la fachada de `anomalies` dentro de su
