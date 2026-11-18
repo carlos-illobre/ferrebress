@@ -8,7 +8,7 @@ import {
 import { businessTimeZone } from '@ferrebress/shared/time/business';
 import type { Context } from 'hono';
 import { isPhone } from '../../../platform/device.ts';
-import { byAddress, byAddressAndDevice, readBody } from '../../../platform/guards.ts';
+import { byAddress, readBody } from '../../../platform/guards.ts';
 import { fail, Refused } from '../../../platform/http.ts';
 import type { GoogleMatch } from '../../users/index.ts';
 import type { SignInContext } from '../context.ts';
@@ -69,11 +69,8 @@ export function registerGoogleRoutes(ctx: SignInContext): void {
   });
 
   const body = readBody(withProofKey(googleSignInBody));
-  http.post(
-    '/api/sign-in/google',
-    body.step,
-    ctx.limit(byAddressAndDevice('google'), limits.google),
-    (c) => signInWithGoogle(ctx, c, body.of(c).credential, body.of(c).proofKey),
+  http.post('/api/sign-in/google', body.step, ctx.entry.limit('google'), (c) =>
+    signInWithGoogle(ctx, c, body.of(c).credential, body.of(c).proofKey),
   );
 }
 
@@ -88,7 +85,7 @@ function notAuthorized(
   },
 ) {
   const { identity, match, accountKey } = failed;
-  ctx.platform.limiter.hit(accountKey, limits.failedPerAccount);
+  ctx.platform.limiter.hit(accountKey, ctx.entry.failed());
   const data = {
     method: 'google',
     reason: match.reason,
@@ -117,8 +114,9 @@ async function signInWithGoogle(
     return fail(c, 401, 'sign-in-expired');
   }
   const accountKey = `failed:google:${identity.email.toLowerCase()}`;
-  if (ctx.platform.limiter.exceeded(accountKey, limits.failedPerAccount)) {
-    return ctx.throttle(c, [accountKey], limits.failedPerAccount) as Response;
+  const failed = ctx.entry.failed();
+  if (ctx.platform.limiter.exceeded(accountKey, failed)) {
+    return ctx.throttle(c, [accountKey], failed) as Response;
   }
   const match = await ctx.users.matchGoogle(identity.subject, identity.email, identity.name);
   if (match.kind === 'not-authorized')

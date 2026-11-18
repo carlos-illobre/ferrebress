@@ -1,8 +1,10 @@
 // La fachada de entrar (diseño de 01): registra sus rutas, cierra las sesiones de quien se da de
 // baja, escribe por tandas los últimos usos y limpia una vez por día las sesiones viejas.
+import { offlineHoursField } from '@ferrebress/shared/contracts/offline-sign-in';
 import { createRemoteJWKSet, type JWTVerifyGetKey } from 'jose';
 import { sleep } from '../../platform/clock.ts';
-import type { ServerModule } from '../../platform/modules.ts';
+import type { Platform, ServerModule } from '../../platform/modules.ts';
+import type { RequestSession } from '../../platform/session.ts';
 import type { AccessCounts, Users } from '../users/index.ts';
 import { registerConfirmRoutes } from './access/confirm.ts';
 import { countsOf } from './access/counts.ts';
@@ -26,7 +28,7 @@ import { registerLinkRoutes } from './passkeys/link-routes.ts';
 import { registerPasskeySignInRoutes } from './passkeys/sign-in-routes.ts';
 import { requestSession } from './sessions/require.ts';
 import { registerSessionRoutes } from './sessions/routes.ts';
-import { signInSettings } from './settings.ts';
+import { type SignInNow, signInSettings } from './settings.ts';
 
 export type SignInOptions = {
   users: Users;
@@ -34,8 +36,9 @@ export type SignInOptions = {
   googleKeys?: JWTVerifyGetKey;
   // Cómo esperar el próximo código; las pruebas lo manejan a mano.
   wait?: (ms: number) => Promise<void>;
-  // Los dos tiempos de la sesión de ahora, de Administración (01 · R3.2, 06 · R6).
-  sessionTimes: () => { sessionIdle: number; sessionMax: number };
+  // Los ajustes de entrar de ahora, de Administración: los dos tiempos de la sesión (01 · R3.2,
+  // 06 · R6), las horas sin conexión y los intentos (06 · R11).
+  settings: () => SignInNow;
 };
 
 // Lo que avisa Entrar, para quien lo necesite sin que Entrar lo conozca (el vínculo, diseño de 03,
@@ -60,9 +63,9 @@ declare module '../../platform/events.ts' {
 const minute = 60_000;
 
 export function createSignInModule(options: SignInOptions) {
-  const { users, googleKeys, wait = sleep, sessionTimes } = options;
+  const { users, googleKeys, wait = sleep, settings } = options;
   const limits = () => {
-    const { sessionIdle, sessionMax } = sessionTimes();
+    const { sessionIdle, sessionMax } = settings();
     return { idleMs: sessionIdle * minute, maxMs: sessionMax * 60 * minute };
   };
   let ctx: SignInContext;
@@ -84,7 +87,7 @@ export function createSignInModule(options: SignInOptions) {
       const { config } = platform;
       const keys = googleKeys ?? createRemoteJWKSet(new URL(config.GOOGLE_JWKS_URL));
       const google = { clientId: config.GOOGLE_CLIENT_ID, issuer: config.GOOGLE_ISSUER, keys };
-      ctx = createContext(platform, { users, google, wait, limits });
+      ctx = createContext(platform, { users, google, wait, limits, settings });
       platform.sessions.provide(
         (c) => requestSession(ctx, c),
         (id) => ctx.store.isOpen(id),
@@ -92,6 +95,7 @@ export function createSignInModule(options: SignInOptions) {
       await ctx.devices.load();
       platform.devices.provide(ctx.devices.nameOf);
       ctx.store.onUsed(ctx.devices.touch);
+      shareOfflineHours(platform, settings);
       registerRoutes(ctx);
       listenToUsers(ctx);
       scheduleJobs(ctx, registerOfflineRoutes(ctx));
@@ -100,6 +104,15 @@ export function createSignInModule(options: SignInOptions) {
   // Lo que la lista de Usuarios necesita de las sesiones (diseño de 02, § 3).
   const accessCounts: AccessCounts = (userIds, asking) => countsOf(ctx, userIds, asking);
   return { ...module, accessCounts };
+}
+
+// Las horas sin conexión de ahora, a los celulares con sesión, en cada respuesta (06 · R11.4).
+function shareOfflineHours(platform: Platform, settings: () => SignInNow) {
+  platform.header.contribute(offlineHoursField, (c) =>
+    (c.get('session') as RequestSession | undefined)?.isPhone
+      ? String(settings().offlineHours)
+      : undefined,
+  );
 }
 
 function registerRoutes(ctx: SignInContext) {

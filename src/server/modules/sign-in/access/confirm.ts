@@ -4,7 +4,7 @@
 import { confirmGoogleBody, confirmPasskeyBody } from '@ferrebress/shared/contracts/sign-in';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
-import { byAddressAndDevice, bySchema, readBody } from '../../../platform/guards.ts';
+import { bySchema, readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import { sessionOf } from '../../../platform/session.ts';
 import type { SignInContext } from '../context.ts';
@@ -12,8 +12,6 @@ import { verifyGoogle } from '../google/verify.ts';
 import { authenticationOptions, challengeOf, checkAssertion } from '../passkeys/webauthn.ts';
 import { signInSettings } from '../settings.ts';
 import { accessData } from './data.ts';
-
-const { limits } = signInSettings;
 
 export function registerConfirmRoutes(ctx: SignInContext) {
   registerConfirmGoogle(ctx);
@@ -37,7 +35,7 @@ function refused(ctx: SignInContext, c: Context, method: string) {
 // Con Google: un pase con un `nonce` que dio el servidor, de la misma cuenta de Google.
 function registerConfirmGoogle(ctx: SignInContext) {
   const google = readBody(bySchema(confirmGoogleBody));
-  const limit = ctx.limit(byAddressAndDevice('google'), limits.google);
+  const limit = ctx.entry.limit('google');
   const { http, sessions } = ctx.platform;
   http.post('/api/session/confirm/google', sessions.require, google.step, limit, async (c) => {
     const identity = await verifyGoogle(google.of(c).credential, ctx.google);
@@ -52,7 +50,7 @@ function registerConfirmGoogle(ctx: SignInContext) {
 // Con la huella: un desafío dado para esta sesión, firmado con una huella de la misma persona.
 function registerConfirmPasskey(ctx: SignInContext) {
   const { http, sessions } = ctx.platform;
-  const limit = ctx.limit(byAddressAndDevice('passkey'), limits.passkey);
+  const limit = ctx.entry.limit('passkey');
   http.post('/api/session/confirm/passkey/options', sessions.require, limit, async (c) => {
     const challenge = ctx.challenges.issue(c.get('ipAddress'), {
       purpose: 'confirm',

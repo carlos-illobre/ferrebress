@@ -130,10 +130,10 @@ El servidor, en orden, y se queda en el primero que falla:
    **de esa persona** en ese celular (por el índice nuevo; incluye la sesión que abrió una
    confirmación anterior): ni un pedido sin sesión ni la sesión de otra cuenta con el mismo
    identificador de celular lo mueven (revisión de seguridad, 1 y 10). Si esa sesión la cerró otro
-   dispositivo, `revoked-session`. Si la confirmación **llega** más de 24 horas después de ese
-   contacto (con 5 minutos de margen por la escritura por tandas del último uso), `too-late`: para
-   una entrada hecha dentro del plazo es lo mismo, su sesión ya se cortó en el celular a las 24
-   horas (R2.7). Si `signedAt` tiene más de 29 días o está más de un día en el futuro según el reloj
+   dispositivo, `revoked-session`. Si la confirmación **llega** más tarde que las horas de Administración de ahora
+   desde ese contacto (06 · R11.1; con 5 minutos de margen por la escritura por tandas del último
+   uso), `too-late`: si las horas bajaron mientras el celular estaba sin conexión, valen las de ahora
+   (R3.1). Si `signedAt` tiene más de 29 días o está más de un día en el futuro según el reloj
    del servidor, `too-old`.
 9. **Guarda la fila antes de abrir nada:** si otra confirmación de la misma entrada llegó a la vez y
    ganó, esta responde `offline-already-confirmed` sin abrir ninguna sesión (revisión de seguridad,
@@ -218,7 +218,10 @@ puede abrir la sesión con él (§ 4). En la etapa b, cada entrada tendrá la su
   4. Suma la entrada a lo pendiente y entra con la persona guardada
      (`signedInOffline()`, con el `id` de la entrada): directo al marco, sin «Entrando» (R2.6, E07).
      Una versión nueva no se aplica sin conexión: espera a que vuelva.
-- **El corte de las 24 horas** (R2.7, E14) se mira al arrancar la aplicación, cada minuto, y al
+- **Las horas** las manda el servidor en la cabecera `X-Ferrebress` (campo `h`) en cada respuesta a
+  un celular con sesión, y el celular las guarda con su último contacto (diseño de 06, § 5). Un
+  contacto guardado sin horas usa 4, las más cortas de la lista.
+- **El corte de esas horas** (R2.7, E14) se mira al arrancar la aplicación, cada minuto, y al
   volver a la vista (un temporizador largo se atrasa con el celular dormido). Cuenta desde el
   último contacto, aunque se haya apagado la opción, y también corta si el reloj se atrasó (R2.3).
   Cumplido, aparece la entrada encima, sin borrar nada, con todo apagado y el aviso de sin conexión
@@ -231,8 +234,8 @@ puede abrir la sesión con él (§ 4). En la etapa b, cada entrada tendrá la su
 Una sola función, `sendPending()`, que llaman `boot` (al abrir, antes de `/api/start`) y `recheck`
 (al volver la red), manda lo pendiente en orden; nunca corren dos a la vez: la salida pendiente (diseño de 01, § 7) y después
 cada entrada sin conexión. Es la base de la cola de la etapa b. Mientras la sesión abierta sin
-conexión no se confirma, `/api/start` sin persona no la cierra: sigue hasta confirmarse o hasta las
-24 horas. Para cada entrada:
+conexión no se confirma, `/api/start` sin persona no la cierra: sigue hasta confirmarse o hasta que se
+cumplen las horas. Para cada entrada:
 
 - `openSession` es `true` solo para la última, si es la sesión que el celular tiene ahora (no salió
   ni entró otra persona), y va con la firma de la llave de prueba (`openSignature`); si la llave ya
@@ -298,7 +301,8 @@ Nada nuevo de `realtime`.
     b, lo que haya hecho va a anomalías.
   - Android acepta el PIN o el patrón del celular en lugar de la huella. Es así también con
     conexión (diseño de 01, § 13).
-  - Un celular robado entra sin conexión hasta 24 horas desde su último contacto con sesión, y lo
+  - Un celular robado entra sin conexión hasta las horas de Administración (de arranque, 24) desde
+    su último contacto con sesión, y lo
     que mande después no se confirma. Si se da de baja la cuenta o se quita la huella, tampoco.
   - El reloj: atrasarlo más de 5 minutos por debajo de la hora más alta que vio la aplicación no deja
     entrar y corta la sesión sin conexión; dentro de ese margen sí, pero el servidor mide el plazo

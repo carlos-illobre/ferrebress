@@ -7,12 +7,7 @@ import { type ApproveCodeBody, approveCodeBody } from '@ferrebress/shared/contra
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
 import { deviceLabel } from '../../../../platform/device.ts';
-import {
-  byAddressAndDevice,
-  bySchema,
-  provenPerson,
-  readBody,
-} from '../../../../platform/guards.ts';
+import { bySchema, provenPerson, readBody } from '../../../../platform/guards.ts';
 import { fail } from '../../../../platform/http.ts';
 import type { SignInContext } from '../../context.ts';
 import {
@@ -24,7 +19,6 @@ import {
 } from '../../passkeys/webauthn.ts';
 import { openSession, proofKeyOf } from '../../sessions/open.ts';
 import { optionalSession } from '../../sessions/require.ts';
-import { signInSettings } from '../../settings.ts';
 import type { Screen } from '../computer/screens.ts';
 import { sameNetwork } from '../network.ts';
 
@@ -62,7 +56,7 @@ export function registerApproveRoute(ctx: SignInContext): void {
   ctx.platform.http.post(
     '/api/sign-in/codes/approve',
     // Aprobar es un intento con la huella: el mismo límite (R2.9).
-    ctx.limit(byAddressAndDevice('passkey'), signInSettings.limits.passkey),
+    ctx.entry.limit('passkey'),
     body.step,
     (c) => approve(ctx, c, body.of(c)),
   );

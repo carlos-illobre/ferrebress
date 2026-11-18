@@ -82,7 +82,8 @@ export const texts = {
   offlineNotConfirmed: 'No se pudo confirmar tu entrada sin conexión',
   offlineSetting: {
     name: 'Trabajar sin conexión',
-    detail: 'Entrá con la huella aunque no haya internet, hasta 24 horas',
+    detail: (hours: number) => `Entrá con la huella aunque no haya internet, hasta ${hours} horas`,
+    onDetail: (hours: number) => `Entrás con tu huella aunque no haya internet, hasta ${hours} h`,
     needsInternet: 'Para prenderla hace falta internet.',
     // 04 · R5.3: con el permiso, sin la huella de esta persona en este celular.
     needsPasskey: 'Para usarla, primero vinculá tu huella en este celular.',

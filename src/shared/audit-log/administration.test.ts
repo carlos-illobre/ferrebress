@@ -26,6 +26,18 @@ describe('un ajuste para todos en Quién hizo qué', () => {
       'Cambió el tiempo sin uso de la sesión: 60 min → 30 min',
     );
     expect(says('sessionMax', 8, 4)).toBe('Cambió el tope de la sesión: 8 h → 4 h');
+    expect(says('offlineHours', 24, 8)).toBe(
+      'Cambió las horas para entrar sin conexión: 24 h → 8 h',
+    );
+    expect(says('googleAttempts', 10, 3)).toBe(
+      'Cambió los intentos con Google por minuto: 10 por minuto → 3 por minuto',
+    );
+    expect(says('passkeyAttempts', 20, 30)).toBe(
+      'Cambió los intentos con la huella por minuto: 20 por minuto → 30 por minuto',
+    );
+    expect(says('failedAttempts', 20, 5)).toBe(
+      'Cambió los intentos fallidos por hora: 20 por hora → 5 por hora',
+    );
     expect(says('quickMargins', [300, 200, 100, 50, 25], [300, 200, 150, 50, 25])).toBe(
       'Cambió los márgenes rápidos: 300, 200, 100, 50, 25 % → 300, 200, 150, 50, 25 %',
     );

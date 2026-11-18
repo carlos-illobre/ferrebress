@@ -138,15 +138,19 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
     el servidor es quien cierra la sesión. Si la cookie durara el tope de ese momento, subir el tope no
     alargaría las sesiones abiertas (E36).
   - `/api/start` suma `businessTimeZone`.
-  - **La entrada (R11, T132):** los límites `google`, `passkey` y `failedPerAccount` toman su `max` de la
-    fachada en cada intento (`entryLimits()`), así un cambio vale desde el próximo (R11.4); la ventana
-    sigue fija (un minuto, una hora). La ventana de entrar sin conexión del servidor (`offline.windowMs`)
+  - **La entrada (R11):** `sign-in` recibe los ajustes de ahora (`settings()`, que reemplaza a los dos
+    tiempos de la sesión) y arma sus límites en cada intento (`ctx.entry`), así un cambio vale desde el
+    próximo (R11.4); la ventana sigue fija (un minuto, una hora). Cada intento cuenta primero por
+    dirección, con un tope fijo de 60 por minuto (01 · R2.9), y después por dispositivo, con el número de
+    Administración. La ventana de entrar sin conexión del servidor (`offline.windowMs`)
     también sale de ahí, con `offlineHours`, al confirmar una entrada (15 · R3): si bajó mientras el
     celular estaba sin conexión, la confirmación usa la de ahora y una entrada pasada de ese plazo se
     cierra, como cualquier entrada que no se puede confirmar (E57).
-  - **`/api/start` suma `offlineHours`** (una parte de `start.contribute`): el celular la guarda junto
-    a su último contacto y decide con ella si deja entrar sin conexión (15 · R2.2); hasta recibirla, la
-    de arranque. Así llega con el próximo contacto, sin un pedido más (R11.4).
+  - **Las horas sin conexión viajan en la cabecera `X-Ferrebress`** (campo `h`), en cada respuesta a un
+    celular con sesión: así llegan con su próximo pedido, también con la aplicación abierta todo el día
+    (R11.4). El celular las guarda junto a su último contacto, en el mismo momento, y decide con ellas
+    si deja entrar sin conexión (15 · R2.2). Un contacto guardado sin horas usa 4, las más cortas de
+    la lista: es lo más seguro.
 - **`device-link`:**
   - `viewOf`, la limpieza diaria y la comprobación de cada contacto (`pairingOf`, `stillPaired`) leen
     `pairingDays` de la fachada.

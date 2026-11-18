@@ -15,6 +15,16 @@ const shown: Record<SettingKey, { name: string; value: (raw: unknown) => string 
   sessionIdle: { name: 'el tiempo sin uso de la sesión', value: (raw) => `${raw} min` },
   sessionMax: { name: 'el tope de la sesión', value: (raw) => `${raw} h` },
   pairingDays: { name: 'los días del vínculo', value: (raw) => `${raw} días` },
+  offlineHours: { name: 'las horas para entrar sin conexión', value: (raw) => `${raw} h` },
+  googleAttempts: {
+    name: 'los intentos con Google por minuto',
+    value: (raw) => `${raw} por minuto`,
+  },
+  passkeyAttempts: {
+    name: 'los intentos con la huella por minuto',
+    value: (raw) => `${raw} por minuto`,
+  },
+  failedAttempts: { name: 'los intentos fallidos por hora', value: (raw) => `${raw} por hora` },
   reviewPercent: { name: 'cuánto cambia un costo para revisar', value: (raw) => `${raw} %` },
   goneWarnPercent: { name: 'cuántas bajas avisan', value: (raw) => `${raw} %` },
   maxFileMb: { name: 'el tamaño máximo de una lista', value: (raw) => `${raw} MB` },

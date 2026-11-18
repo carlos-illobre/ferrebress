@@ -38,7 +38,7 @@ describe('los límites de intentos con Google', () => {
       .filter((e) => e.type === 'request.throttled' && e.data?.topic === 'sign-in');
     expect(throttled).toHaveLength(1);
     // El tema y por qué se frenó, nunca la clave: lleva la dirección o el dispositivo (05, § 2.2).
-    expect(throttled[0]?.data).toEqual({ topic: 'sign-in', by: 'ip' });
+    expect(throttled[0]?.data).toEqual({ topic: 'sign-in', by: 'device' });
     expect(again).toHaveLength(1);
   });
 

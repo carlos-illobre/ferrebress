@@ -6,7 +6,7 @@ import { vi } from 'vitest';
 import { sessionClosed } from '../../../platform/server/api.ts';
 import { opensOnUsers } from '../../../testing/person.ts';
 import { person } from '../session.ts';
-import { contacted, disableOffline, enableOffline } from './option.ts';
+import { contacted, disableOffline, enableOffline, heardOfflineHours } from './option.ts';
 import { dropEntry, entries } from './pending.ts';
 
 export const eva = {
@@ -64,6 +64,7 @@ export function resetOffline(): void {
     for (const entry of entries()) dropEntry(entry.id);
     person.set(undefined);
     sessionClosed.set(undefined);
+    heardOfflineHours(undefined);
   });
   localStorage.clear();
 }

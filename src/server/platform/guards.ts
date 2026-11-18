@@ -136,7 +136,3 @@ export const bySchema =
 
 // Las claves de siempre: la dirección y, si hay, el dispositivo, con un prefijo por tema.
 export const byAddress = (prefix: string) => (c: Context) => [`${prefix}:ip:${c.get('ipAddress')}`];
-export const byAddressAndDevice = (prefix: string) => (c: Context) => [
-  `${prefix}:ip:${c.get('ipAddress')}`,
-  `${prefix}:device:${c.get('deviceId')}`,
-];

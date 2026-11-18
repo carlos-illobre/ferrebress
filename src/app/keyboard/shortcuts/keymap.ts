@@ -14,6 +14,7 @@ export const keymap: Record<string, string> = {
   'administration.sessionIdle': 'Alt+S',
   'administration.sessionMax': 'Alt+T',
   'administration.pairingDays': 'Alt+V',
+  'administration.entry': 'Alt+E',
   // La confirmación del redondeo (06 · R3.4).
   'administration-confirm.confirm': 'Alt+P',
   'administration-confirm.cancel': 'Alt+C',

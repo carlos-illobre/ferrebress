@@ -12,16 +12,23 @@ const judged = {
   now,
   signedAt: now,
   lastContactAt: ago(60_000),
+  windowMs: 24 * 3_600_000,
 };
 
 describe('las reglas de entrar sin conexión', () => {
   it('se confirma dentro del plazo, con margen por la escritura por tandas', () => {
     expect(rejectionOf(judged)).toBeUndefined();
-    const edge = signInSettings.offline.windowMs + signInSettings.offline.marginMs;
+    const edge = judged.windowMs + signInSettings.offline.marginMs;
     const lastSession = { lastUsedAt: ago(edge), closedReason: null };
     expect(rejectionOf({ ...judged, lastSession })).toBeUndefined();
     const late = { lastUsedAt: ago(edge + 1), closedReason: null };
     expect(rejectionOf({ ...judged, lastSession: late })).toBe('too-late');
+  });
+
+  it('15-R3.1: con las horas de ahora, aunque bajaron mientras el celular estaba sin conexión', () => {
+    const lastSession = { lastUsedAt: ago(5 * 3_600_000), closedReason: null };
+    expect(rejectionOf({ ...judged, lastSession })).toBeUndefined();
+    expect(rejectionOf({ ...judged, lastSession, windowMs: 4 * 3_600_000 })).toBe('too-late');
   });
 
   it('sin el permiso, o sin ninguna sesión de ese celular (se borran a los 30 días), no', () => {

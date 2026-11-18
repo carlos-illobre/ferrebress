@@ -10,7 +10,7 @@ import {
 } from '@ferrebress/shared/contracts/administration';
 import { notify } from '../../platform/view/notify.ts';
 import { administrationApi } from './api.ts';
-import { isListSetting, listSettings, shown, thousands } from './logic.ts';
+import { isNumberSetting, numberSettings, shown, thousands } from './logic.ts';
 import type { Confirm, Note } from './schemas.ts';
 import { administrationSettings } from './settings.ts';
 import { names, texts } from './texts.ts';
@@ -29,8 +29,8 @@ type Refusal = { error: string } & Record<string, unknown>;
 
 // Por qué no vale (R2.2): un margen repetido dice cuál (E27); lo demás, el rango.
 function invalid(key: SettingKey, raw: unknown): string {
-  if (isListSetting(key)) {
-    const { min, max } = listSettings[key];
+  if (isNumberSetting(key)) {
+    const { min, max } = numberSettings[key];
     return texts.invalid.range(thousands(min), thousands(max));
   }
   if (key !== 'quickMargins') return texts.invalid.pairingDays;

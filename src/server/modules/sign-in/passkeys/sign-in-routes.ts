@@ -9,7 +9,7 @@ import {
 } from '@ferrebress/shared/contracts/sign-in';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
-import { byAddressAndDevice, readBody } from '../../../platform/guards.ts';
+import { readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import type { SignInContext } from '../context.ts';
 import { canWorkOffline } from '../offline/rules.ts';
@@ -17,11 +17,9 @@ import { openSession, withProofKey } from '../sessions/open.ts';
 import { signInSettings } from '../settings.ts';
 import { authenticationOptions, challengeOf, checkAssertion } from './webauthn.ts';
 
-const { limits } = signInSettings;
-
 export function registerPasskeySignInRoutes(ctx: SignInContext): void {
   const { http } = ctx.platform;
-  const limited = ctx.limit(byAddressAndDevice('passkey'), limits.passkey);
+  const limited = ctx.entry.limit('passkey');
 
   http.post('/api/sign-in/passkey/options', limited, async (c) => {
     const challenge = ctx.challenges.issue(c.get('ipAddress'), { purpose: 'sign-in' });

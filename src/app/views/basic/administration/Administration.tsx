@@ -18,6 +18,7 @@ import { priceListsShapes } from '../ui/icon/price-lists-shapes.tsx';
 import { LoadState } from '../ui/load-state/LoadState.tsx';
 import { Say } from '../ui/say/Say.tsx';
 import { Confirm } from './Confirm.tsx';
+import { EntryPanel } from './Entry.tsx';
 import { List } from './List.tsx';
 import { ListsPanel } from './Lists.tsx';
 import { MarginsPanel } from './Margins.tsx';
@@ -59,6 +60,7 @@ function Panel({ view, values, clock }: { view: View; values: Values; clock: str
   if (view.panel === 'lists') return <ListsPanel {...props} />;
   if (view.panel === 'session') return <SessionPanel {...props} />;
   if (view.panel === 'pairingDays') return <PairingPanel {...props} />;
+  if (view.panel === 'entry') return <EntryPanel {...props} />;
   return <RoundingPanel {...props} />;
 }
 

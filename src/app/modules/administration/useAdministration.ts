@@ -30,7 +30,7 @@ import { administrationSettings } from './settings.ts';
 export type { Confirm, Note } from './schemas.ts';
 
 import { settingGroups, useAdminLinkRows } from './list-rows.ts';
-import { type ListSetting, typedNumber } from './logic.ts';
+import { type NumberSetting, typedNumber } from './logic.ts';
 import { confirmLines, marginLines, roundingLines } from './panel-lines.ts';
 import { type Panel, panels } from './texts.ts';
 
@@ -130,7 +130,7 @@ function useChoose(setPanel: Shown['setPanel']) {
 function typing(save: ReturnType<typeof useSave>, values: Settings | undefined) {
   const settings = values as Settings;
   return {
-    typeSetting: (key: ListSetting, text: string) => {
+    typeSetting: (key: NumberSetting, text: string) => {
       const typed = typedNumber(text);
       if (typed !== settings[key]) void save(key, typed);
     },

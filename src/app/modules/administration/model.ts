@@ -1,18 +1,21 @@
 // Lo que las vistas usan de Administración (ADR-019): el modelo de la pantalla, sus textos y las
 // cuentas que muestran. Las vistas no importan nada más del módulo; index.ts es lo que va en el
 // arranque.
+import { initialSettings } from '@ferrebress/shared/contracts/administration';
 import { serverNow } from '../../platform/server/clock.ts';
 import { expiresOn } from './logic.ts';
 
 export {
   counterDay,
+  entryAttempts,
   exampleCost,
   initialOf,
-  type ListSetting,
   listParts,
-  listSettings,
-  listUnits,
   maxEnds,
+  type NumberSetting,
+  numberSettings,
+  numberUnits,
+  offlineHoursOptions,
   pesos,
   roundedTo,
   roundingSteps,
@@ -36,3 +39,6 @@ export {
 
 // Hasta cuándo dura un vínculo de tantos días, contando desde ahora en el servidor (R7).
 export const expiresIn = (days: number) => expiresOn(days, (serverNow() as Date).getTime());
+
+// El valor de arranque de cada ajuste («de arranque» en sus opciones).
+export const settingInitials = initialSettings();

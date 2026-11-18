@@ -25,6 +25,7 @@ const settingIcons: Record<string, IconName> = {
   sessionIdle: 'hourglass',
   sessionMax: 'timer',
   pairingDays: 'link',
+  entry: 'fingerprint',
 };
 const pageIcons: Record<AdminLink, IconName> = {
   anomalies: 'triangle-alert',

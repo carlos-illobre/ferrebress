@@ -2,10 +2,13 @@
 // que muestra cada opción antes de tocarla (el día de mostrador, el vencimiento del vínculo). Puras,
 // sin pedidos.
 import {
+  attemptsPerMinuteRange,
   confirmRowsRange,
+  failedPerHourRange,
   filesMbRange,
   goneWarnPercentRange,
   maxFileMbRange,
+  offlineHoursOptions,
   reviewPercentRange,
   roundingSteps,
   type SettingKey,
@@ -29,6 +32,10 @@ const formats: Record<SettingKey, (value: never) => string> = {
   sessionIdle: (value: number) => texts.units.minutes(value),
   sessionMax: (value: number) => texts.units.hours(value),
   pairingDays: (value: number) => texts.units.days(value),
+  offlineHours: (value: number) => texts.units.hours(value),
+  googleAttempts: (value: number) => texts.units.perMinute(value),
+  passkeyAttempts: (value: number) => texts.units.perMinute(value),
+  failedAttempts: (value: number) => texts.units.perHour(value),
   reviewPercent: (value: number) => texts.units.percent(value),
   goneWarnPercent: (value: number) => texts.units.percent(value),
   maxFileMb: (value: number) => texts.units.mb(thousands(value)),
@@ -42,34 +49,48 @@ export const shown = <K extends SettingKey>(key: K, value: Settings[K]): string 
 
 export { thousands };
 
-// Los ajustes de las listas de precios (R8), en el orden del panel, cada uno con su rango.
-export const listSettings = {
+// Los ajustes que se escriben como un número, cada uno con su rango: los de las listas de precios
+// (R8) y los intentos de la entrada (R11).
+export const numberSettings = {
   reviewPercent: reviewPercentRange,
   goneWarnPercent: goneWarnPercentRange,
   maxFileMb: maxFileMbRange,
   confirmRows: confirmRowsRange,
   filesMb: filesMbRange,
   unappliedFileDays: unappliedFileDaysRange,
+  googleAttempts: attemptsPerMinuteRange,
+  passkeyAttempts: attemptsPerMinuteRange,
+  failedAttempts: failedPerHourRange,
 } as const;
-export type ListSetting = keyof typeof listSettings;
+export type NumberSetting = keyof typeof numberSettings;
 
-// El panel de las listas (R8): sus tres partes, en orden, y la unidad de cada número.
-export const listParts: { title: string; keys: ListSetting[] }[] = [
+// El panel de las listas (R8): sus tres partes, en orden.
+export const listParts: { title: string; keys: NumberSetting[] }[] = [
   { title: texts.lists.review, keys: ['reviewPercent', 'goneWarnPercent'] },
   { title: texts.lists.upload, keys: ['maxFileMb', 'confirmRows'] },
   { title: texts.lists.files, keys: ['filesMb', 'unappliedFileDays'] },
 ];
-export const listUnits: Record<ListSetting, string> = {
+// Los intentos del panel de la entrada (R11.2, R11.3).
+export const entryAttempts: NumberSetting[] = [
+  'googleAttempts',
+  'passkeyAttempts',
+  'failedAttempts',
+];
+// La unidad de cada número.
+export const numberUnits: Record<NumberSetting, string> = {
   reviewPercent: '%',
   goneWarnPercent: '%',
   maxFileMb: 'MB',
   confirmRows: 'filas',
   filesMb: 'MB',
   unappliedFileDays: 'días',
+  googleAttempts: 'por minuto',
+  passkeyAttempts: 'por minuto',
+  failedAttempts: 'por hora',
 };
 
-// Las opciones de cada ajuste que se elige de una lista (R3, R6).
-export { roundingSteps, sessionIdleOptions, sessionMaxOptions };
+// Las opciones de cada ajuste que se elige de una lista (R3, R6, R11.1).
+export { offlineHoursOptions, roundingSteps, sessionIdleOptions, sessionMaxOptions };
 
 // El precio redondeado para arriba con un paso (R3.1).
 export const roundedTo = (price: number, step: number) => roundUp(price, step);
@@ -80,7 +101,7 @@ export const sellsAt = (margin: number, step: number) =>
   roundUp(exampleCost * (1 + margin / 100), step);
 
 // El valor de arranque de un ajuste, como se escribe («De arranque, 50 %»).
-export const initialOf = (key: ListSetting) => shown(key, settingList[key].initial);
+export const initialOf = (key: NumberSetting) => shown(key, settingList[key].initial);
 
 // Lo escrito en una caja, como número: sin los puntos de miles; vacío no es un número (NaN), y lo que
 // no vale lo dice al guardar (R2.2).
@@ -88,7 +109,7 @@ export function typedNumber(text: string): number {
   const clean = text.replace(/\./g, '').trim();
   return clean === '' ? Number.NaN : Number(clean);
 }
-export const isListSetting = (key: SettingKey): key is ListSetting => key in listSettings;
+export const isNumberSetting = (key: SettingKey): key is NumberSetting => key in numberSettings;
 
 // «12:10», sin día: el día de mostrador va de 8:00 a 8:00.
 const clock = (minutes: number) => {

@@ -50,7 +50,7 @@ test.describe('en el celular', () => {
       ({ at, person }) => {
         Object.defineProperty(navigator, 'userAgentData', { get: () => ({ mobile: true }) });
         localStorage.setItem('offline-option', JSON.stringify({ person, revoked: false }));
-        localStorage.setItem('offline-contact', JSON.stringify({ at, maxSeenAt: at }));
+        localStorage.setItem('offline-contact', JSON.stringify({ at, maxSeenAt: at, hours: 24 }));
       },
       { at: contact, person },
     );

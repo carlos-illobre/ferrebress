@@ -16,6 +16,10 @@ describe('los ajustes para todos', () => {
       sessionIdle: 60,
       sessionMax: 8,
       pairingDays: 30,
+      offlineHours: 24,
+      googleAttempts: 10,
+      passkeyAttempts: 20,
+      failedAttempts: 20,
       reviewPercent: 50,
       goneWarnPercent: 20,
       maxFileMb: 30,
@@ -24,6 +28,18 @@ describe('los ajustes para todos', () => {
       unappliedFileDays: 30,
     });
     expect(longestSessionHours).toBe(24);
+  });
+
+  it('administration-E59: los intentos, enteros en su rango; las horas sin conexión, de la lista', () => {
+    expect(settingValue('googleAttempts', 3)).toBe(3);
+    expect(settingValue('googleAttempts', 2)).toBeUndefined();
+    expect(settingValue('passkeyAttempts', 61)).toBeUndefined();
+    expect(settingValue('passkeyAttempts', 60)).toBe(60);
+    expect(settingValue('failedAttempts', 4)).toBeUndefined();
+    expect(settingValue('failedAttempts', 101)).toBeUndefined();
+    expect(settingValue('failedAttempts', 100)).toBe(100);
+    expect(settingValue('offlineHours', 48)).toBe(48);
+    expect(settingValue('offlineHours', 36)).toBeUndefined();
   });
 
   it('una clave se busca en la lista, sin lo que hereda un objeto', () => {

@@ -4,7 +4,14 @@ import type { SettingKey } from '@ferrebress/shared/contracts/administration';
 
 type Words = { long: string; short: string };
 
-export type Panel = 'roundingStep' | 'quickMargins' | 'lists' | 'zone' | 'session' | 'pairingDays';
+export type Panel =
+  | 'roundingStep'
+  | 'quickMargins'
+  | 'lists'
+  | 'zone'
+  | 'session'
+  | 'pairingDays'
+  | 'entry';
 
 export const panels: Panel[] = [
   'roundingStep',
@@ -13,6 +20,7 @@ export const panels: Panel[] = [
   'zone',
   'session',
   'pairingDays',
+  'entry',
 ];
 
 export const groupOf: Record<Panel, string> = {
@@ -22,6 +30,7 @@ export const groupOf: Record<Panel, string> = {
   zone: 'Negocio',
   session: 'Acceso',
   pairingDays: 'Acceso',
+  entry: 'Acceso',
 };
 
 export const names: Record<SettingKey | 'zone', string> = {
@@ -31,6 +40,10 @@ export const names: Record<SettingKey | 'zone', string> = {
   sessionIdle: 'Sin uso',
   sessionMax: 'Tope de la sesión',
   pairingDays: 'Días del vínculo',
+  offlineHours: 'Horas sin conexión',
+  googleAttempts: 'Intentos con Google',
+  passkeyAttempts: 'Intentos con la huella',
+  failedAttempts: 'Intentos fallidos',
   reviewPercent: 'Para revisar',
   goneWarnPercent: 'Aviso de bajas',
   maxFileMb: 'Tamaño de una lista',
@@ -39,54 +52,7 @@ export const names: Record<SettingKey | 'zone', string> = {
   unappliedFileDays: 'Listas sin aplicar',
 };
 
-// Qué cambia cada ajuste, en una línea (R1.3).
-export const what: Record<SettingKey | 'zone', Words> = {
-  roundingStep: {
-    long: 'El precio que calcula el sistema sube al múltiplo siguiente',
-    short: 'Al múltiplo siguiente',
-  },
-  quickMargins: {
-    long: 'Los cinco atajos para el margen de un producto, teclas 1 a 5',
-    short: 'Teclas 1 a 5',
-  },
-  zone: {
-    long: 'Se fijó al instalar: el día de las ventas y el cierre de caja',
-    short: 'Se fija al instalar',
-  },
-  sessionIdle: {
-    long: 'Sin usarla, la sesión se cierra pasado esto',
-    short: 'Sin usarla, se cierra',
-  },
-  sessionMax: {
-    long: 'Lo más que dura una sesión desde que se entró',
-    short: 'Desde que se entró',
-  },
-  pairingDays: { long: 'Lo que dura el vínculo sin estar en espejo', short: 'Sin estar en espejo' },
-  reviewPercent: {
-    long: 'Un costo que cambia más que esto se marca para revisar antes de aplicar la lista',
-    short: 'Costo que cambia más que esto',
-  },
-  goneWarnPercent: {
-    long: 'Si una lista da de baja más productos del proveedor que esto, se avisa antes de aplicarla',
-    short: 'Bajas de más se avisan',
-  },
-  maxFileMb: {
-    long: 'El archivo más grande que se acepta como lista de precios',
-    short: 'El archivo más grande',
-  },
-  confirmRows: {
-    long: 'Una planilla con más filas que esto se pregunta antes de leerla; no es un tope',
-    short: 'Más filas se preguntan',
-  },
-  filesMb: {
-    long: 'Lo que ocupan entre todos los archivos de las listas; al pasarlo se borran los más viejos',
-    short: 'Al pasarlo, se borran los viejos',
-  },
-  unappliedFileDays: {
-    long: 'El archivo de una lista que nunca se aplicó se borra pasados estos días',
-    short: 'Se borran pasados los días',
-  },
-};
+export { what } from './what.ts';
 
 // Las pantallas que se abren desde Administración (06 · pantalla 1).
 export const pagesTexts = {
@@ -196,6 +162,12 @@ export const texts = {
     type: 'Escribí el número; se guarda al salir de la caja',
     initial: (value: string) => `De arranque, ${value}`,
   },
+  entry: {
+    title: 'La entrada',
+    subtitle:
+      'Valen desde el próximo intento, sin cortar ninguna sesión; un celular sin conexión sigue con las horas que tenía hasta su próximo pedido.',
+    attempts: 'Los intentos',
+  },
   pairing: {
     title: 'Días del vínculo',
     subtitle: 'Vale para todos los vínculos, también los que ya existen.',
@@ -207,6 +179,8 @@ export const texts = {
   units: {
     minutes: (n: number) => `${n} min`,
     hours: (n: number) => `${n} h`,
+    perMinute: (n: number) => `${n} por minuto`,
+    perHour: (n: number) => `${n} por hora`,
     days: (n: number) => `${n} días`,
     percent: (n: number) => `${n} %`,
     mb: (n: string) => `${n} MB`,

@@ -202,10 +202,10 @@ describe('las llaves de Google', () => {
     const { createUsersModule } = await import('../../users/index.ts');
     const { testConfig } = await import('../../../testing/config.ts');
     const { module, users } = createUsersModule({ accessCounts: async () => new Map() });
-    const sessionTimes = () => ({ sessionIdle: 60, sessionMax: 8 });
+    const { initialSettings } = await import('@ferrebress/shared/contracts/administration');
     const server = await createServer(testConfig, [
       module,
-      createSignInModule({ users, sessionTimes }),
+      createSignInModule({ users, settings: initialSettings }),
     ]);
     const headers = (await import('../../../testing/config.ts')).appHeaders();
     expect((await server.http.request('/api/start', { headers })).status).toBe(200);

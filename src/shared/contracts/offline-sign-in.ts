@@ -58,8 +58,11 @@ const base64urlOf = (bytes: ArrayBuffer): string =>
     .replaceAll('/', '_')
     .replace(/=+$/, '');
 
-// Cuánto se puede entrar sin conexión desde el último contacto con sesión (15 · R2.2).
-export const offlineWindowHours = 24;
+// Las horas para entrar sin conexión de Administración (15 · R2.2, 06 · R11.1) llegan al celular en
+// la cabecera de cada respuesta, con esta letra, así valen desde su próximo pedido (06 · R11.4).
+export const offlineHoursField = 'h';
+// Las horas de un contacto guardado sin ellas: las más cortas de la lista, que es lo más seguro.
+export const fallbackOfflineHours = 4;
 
 // Lo que firma la llave de prueba para que la confirmación abra la sesión.
 export const offlineOpenMessage = (id: string): string => `offline-open:${id}`;

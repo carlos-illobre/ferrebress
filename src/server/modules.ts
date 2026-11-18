@@ -36,7 +36,7 @@ export function createModules(options: ModulesOptions = {}) {
   });
   const signIn = createSignInModule({
     users: users.users,
-    sessionTimes: () => admin.administration.settings(),
+    settings: () => admin.administration.settings(),
     ...options,
   });
   // El vínculo espera con el mismo reloj que la entrada (sus códigos del QR se renuevan igual).

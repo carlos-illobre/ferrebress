@@ -2,13 +2,16 @@
 // § 5): cada pedido con sesión de la persona de la opción que el servidor acepta es un contacto; la
 // sesión cerrada desde otro dispositivo no deja entrar sin conexión hasta el próximo contacto; la
 // baja, o que la persona ya no pueda (perdió el permiso o su huella), apaga la opción. Y una sesión
-// abierta sin conexión se corta a las 24 horas del último contacto (R2.7).
+// abierta sin conexión se corta pasadas las horas de Administración desde el último contacto (R2.7).
+import { offlineHoursField } from '@ferrebress/shared/contracts/offline-sign-in';
 import { lastReply, sessionClosed } from '../../../platform/server/api.ts';
+import { onField } from '../../../platform/server/fields.ts';
 import { offlineSession, person } from '../session.ts';
 import { signInSettings } from '../settings.ts';
 import {
   contacted,
   disableOffline,
+  heardOfflineHours,
   offlineOption,
   offlineSessionOver,
   revokeOffline,
@@ -54,6 +57,7 @@ export function watchOffline(): () => void {
       if (reason === 'deactivated' || reason === 'not-authorized') disableOffline();
     }),
     person.subscribe(checkPerson),
+    onField(offlineHoursField, heardOfflineHours),
   ];
   return () => {
     clearInterval(timer);

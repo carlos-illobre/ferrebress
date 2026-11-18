@@ -19,7 +19,7 @@ async function answerStart(page: Page, body: unknown, at = Date.now()) {
   await page.route('**/api/start', (route) =>
     route.fulfill({
       json: body,
-      headers: { 'X-Ferrebress': `v=screens; t=${at}; e=testing` },
+      headers: { 'X-Ferrebress': `v=screens; t=${at}; e=testing; h=24` },
     }),
   );
 }

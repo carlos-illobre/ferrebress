@@ -15,4 +15,5 @@ export const shortcuts = defineShortcuts<Administration>('administration', {
   sessionIdle: (model) => !!model.data && model.choose('session'),
   sessionMax: (model) => !!model.data && model.choose('session'),
   pairingDays: (model) => !!model.data && model.choose('pairingDays'),
+  entry: (model) => !!model.data && model.choose('entry'),
 });

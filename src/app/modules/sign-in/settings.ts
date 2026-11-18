@@ -1,7 +1,6 @@
 // Los tiempos de la entrada en la aplicación: todos con nombre, en un lugar. Los del servidor, en su
 // `settings.ts`.
 
-import { offlineWindowHours } from '@ferrebress/shared/contracts/offline-sign-in';
 import { googleNonceMinutes } from '@ferrebress/shared/contracts/sign-in';
 
 const second = 1000;
@@ -21,8 +20,8 @@ export const signInSettings = {
     confirmWidth: 320,
   },
   offline: {
-    // Cuánto se puede entrar sin conexión después de la última entrada con internet (15 · R2.2).
-    windowMs: offlineWindowHours * 60 * minute,
+    // Una hora, para contar las horas sin conexión de Administración (15 · R2.2).
+    hourMs: 60 * minute,
     // Lo que se tolera que el reloj del dispositivo esté corrido.
     clockSlackMs: 5 * minute,
     // Cada cuánto se reintenta mandar una entrada sin conexión que no llegó.

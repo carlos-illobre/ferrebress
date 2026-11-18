@@ -4,10 +4,10 @@
 import {
   groupOf,
   initialOf,
-  type ListSetting,
   listParts,
-  listUnits,
+  type NumberSetting,
   names,
+  numberUnits,
   texts,
   thousands,
   what,
@@ -15,7 +15,8 @@ import {
 import { Heading, Said, Subhead } from './Heading.tsx';
 import { locked, type PanelProps } from './look.ts';
 
-function Field({ view, settings, name }: PanelProps & { name: ListSetting }) {
+// Un ajuste que se escribe como un número, con qué cambia y su valor de arranque.
+export function NumberField({ view, settings, name }: PanelProps & { name: NumberSetting }) {
   const now = settings[name];
   return (
     <div class="admin-list-setting">
@@ -30,7 +31,7 @@ function Field({ view, settings, name }: PanelProps & { name: ListSetting }) {
           onBlur={(event) => view.typeSetting(name, (event.target as HTMLInputElement).value)}
           data-commit=""
         />
-        <span>{listUnits[name]}</span>
+        <span>{numberUnits[name]}</span>
       </label>
       <p class="admin-detail">{what[name].long}</p>
       <p class="admin-detail">{texts.lists.initial(initialOf(name))}</p>
@@ -54,7 +55,7 @@ export function ListsPanel({ view, settings }: PanelProps) {
           <Subhead>{part.title}</Subhead>
           <div class="admin-two">
             {part.keys.map((name) => (
-              <Field key={name} view={view} settings={settings} name={name} />
+              <NumberField key={name} view={view} settings={settings} name={name} />
             ))}
           </div>
         </section>

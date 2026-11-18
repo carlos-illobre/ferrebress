@@ -78,7 +78,7 @@ export function OfflineRow({ view }: { view: SettingsView }) {
         <span class="settings-text">
           <b id="settings-offline-name">{row.name}</b>
           <small id="settings-offline-detail">
-            {row.blocked ?? (row.on ? texts.offlineOn : row.detail)}
+            {row.blocked ?? (row.on ? row.onDetail : row.detail)}
           </small>
         </span>
         <span class="switch" aria-hidden="true" />

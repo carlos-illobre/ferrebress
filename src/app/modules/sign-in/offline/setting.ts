@@ -10,12 +10,20 @@ import { useStore } from '../../../platform/store.ts';
 import { notify } from '../../../platform/view/notify.ts';
 import { hasPasskey } from '../session.ts';
 import { texts } from '../texts.ts';
-import { contacted, disableOffline, enableOffline, offlineOption } from './option.ts';
+import {
+  contacted,
+  disableOffline,
+  enableOffline,
+  knownOfflineHours,
+  offlineOption,
+} from './option.ts';
 
 // `blocked`: no se puede prender, y por qué (04 · R5.3).
+// `onDetail`: lo que dice prendida.
 export type OfflineRow = {
   name: string;
   detail: string;
+  onDetail: string;
   on: boolean;
   toggle: () => void;
   blocked?: string;
@@ -28,19 +36,19 @@ export function useOfflineSetting(who: Person | undefined): OfflineRow | undefin
   const online = useStore(onlineStore);
   if (!who || !isPhone() || !can(who, 'offline.work')) return undefined;
   const on = current?.person.userId === who.userId;
+  const hours = knownOfflineHours();
+  const words = { name: t.name, detail: t.detail(hours), onDetail: t.onDetail(hours) };
   // Sin `offline` del servidor no se prende; pero si es suya y está prendida (una sesión abierta sin
   // conexión, que no trae `offline`), la puede apagar igual (15 · R1.5).
   if (!who.offline && !on)
     return {
-      name: t.name,
-      detail: t.detail,
+      ...words,
       on: false,
       toggle: () => undefined,
       blocked: hasPasskey() ? t.otherPasskey : t.needsPasskey,
     };
   return {
-    name: t.name,
-    detail: t.detail,
+    ...words,
     on,
     toggle() {
       if (on) return disableOffline();

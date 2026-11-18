@@ -19,7 +19,7 @@ import { fail } from '../../../platform/http.ts';
 import type { User } from '../../users/index.ts';
 import type { SignInContext } from '../context.ts';
 import type { Session } from '../sessions/store.ts';
-import { linkPasskeyWithinMs, signInSettings } from '../settings.ts';
+import { linkPasskeyWithinMs } from '../settings.ts';
 import type { Passkey } from './data.ts';
 
 const es256 = -7;
@@ -153,7 +153,7 @@ export async function verifyCounted(
   response: AuthenticationResponseJSON,
   challenge: string,
 ): Promise<boolean | Response> {
-  const { failedPerAccount } = signInSettings.limits;
+  const failedPerAccount = ctx.entry.failed();
   const accountKey = `failed:passkey:${passkey.userId}`;
   if (ctx.platform.limiter.exceeded(accountKey, failedPerAccount))
     return ctx.throttle(c, [accountKey], failedPerAccount) as Response;

@@ -7,7 +7,7 @@ para todos** (R1 a R7) y **b. Anomalías** (R9), que se construye con las listas
 con ese capítulo.
 
 **Estado:** etapa a, aprobada y programada; R8 y la etapa b, aprobadas y programadas con el capítulo
-08; R11 (la entrada), aprobada, por programar (T132).
+08; R11 (la entrada), aprobada y programada.
 
 **Lo que no está acá, y por qué:**
 

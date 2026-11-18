@@ -50,7 +50,6 @@ export const texts = {
     ios: 'Tocá Compartir y después Agregar a inicio',
     installedToast: 'Listo: Ferrebress quedó con su ícono',
   },
-  offlineOn: 'Entrás con tu huella aunque no haya internet, hasta 24 h',
   chips: {
     moving: 'Con movimiento',
     still: 'En el acto',

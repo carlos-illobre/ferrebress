@@ -29,17 +29,20 @@ export type Judged = {
   now: Date;
   // La hora del celular cuando puso la huella.
   signedAt: Date;
+  // Las horas sin conexión de ahora, de Administración, en milisegundos: si bajaron mientras el
+  // celular estaba sin conexión, valen las de ahora (06 · R11, 15 · R3.1).
+  windowMs: number;
 };
 
 // Por qué no se confirma, o undefined si se confirma.
 export function rejectionOf(judged: Judged): OfflineReason | undefined {
-  const { user, allowed, lastSession, now, signedAt } = judged;
+  const { user, allowed, lastSession, now, signedAt, windowMs } = judged;
   if (!user.active) return 'deactivated';
   if (!allowed) return 'not-allowed';
   if (!lastSession) return 'too-late';
   if (lastSession.closedReason === 'revoked') return 'revoked-session';
   const since = now.getTime() - lastSession.lastUsedAt.getTime();
-  if (since > signInSettings.offline.windowMs + signInSettings.offline.marginMs) return 'too-late';
+  if (since > windowMs + signInSettings.offline.marginMs) return 'too-late';
   const age = now.getTime() - signedAt.getTime();
   return age > signInSettings.offline.maxAgeMs || -age > signInSettings.offline.maxAheadMs
     ? 'too-old'

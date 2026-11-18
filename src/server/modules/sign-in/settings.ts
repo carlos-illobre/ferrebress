@@ -1,12 +1,22 @@
 // Lo de entrar que es igual en todos los ambientes (diseño de 01, § 8 y § 11): cuánto dura la cookie
 // de la sesión, los plazos de lo que vive en memoria y los límites de intentos. Los dos tiempos de la
 // sesión los fija Administración (06 · R6).
-import { longestSessionHours } from '@ferrebress/shared/contracts/administration';
-import { offlineWindowHours } from '@ferrebress/shared/contracts/offline-sign-in';
+import { longestSessionHours, type Settings } from '@ferrebress/shared/contracts/administration';
 import { codeSeconds, googleNonceMinutes } from '@ferrebress/shared/contracts/sign-in';
 
 const minute = 60_000;
 const hour = 60 * minute;
+
+// Los ajustes de Administración que usa entrar, con su valor de ahora.
+export type SignInNow = Pick<
+  Settings,
+  | 'sessionIdle'
+  | 'sessionMax'
+  | 'offlineHours'
+  | 'googleAttempts'
+  | 'passkeyAttempts'
+  | 'failedAttempts'
+>;
 
 export const signInSettings = {
   // La cookie dura lo que la opción más larga del tope: quien cierra la sesión es el servidor, y así
@@ -31,11 +41,12 @@ export const signInSettings = {
   limits: {
     // Los cambios de acceso desde Usuarios: el mismo límite por sesión que las personas (02, § 9).
     accessChanges: { max: 60, windowMs: minute },
-    // Por dispositivo y por dirección de internet (R2.9).
-    google: { max: 10, windowMs: minute },
-    passkey: { max: 20, windowMs: minute },
-    // Por cuenta y por forma de entrar, solo los fallos que prueban algo de esa cuenta (R2.10).
-    failedPerAccount: { max: 20, windowMs: hour },
+    // Los intentos de entrar por dirección de internet, fijo y más alto que el de cada dispositivo,
+    // que fija Administración (R2.9, 06 · R11.2). Por minuto.
+    entryPerIp: { max: 60, windowMs: minute },
+    entryWindowMs: minute,
+    // Los fallos por cuenta y por forma de entrar, por hora; cuántos, Administración (R2.10).
+    failedWindowMs: hour,
     // Los pedidos sin sesión, por dirección (diseño de 01, § 8): /api/start y las salidas pendientes.
     start: { max: 30, windowMs: minute },
     // Las cookies que no son de ninguna sesión, por dirección: cada una cuesta una consulta (02, § 9).
@@ -52,8 +63,6 @@ export const signInSettings = {
   },
   // Entrar sin conexión (15 · R2.2; diseño de 15, § 4).
   offline: {
-    // Cuánto se puede entrar sin conexión desde el último contacto con sesión (15 · R2.2).
-    windowMs: offlineWindowHours * hour,
     // El último uso de las sesiones se escribe por tandas: un poco de margen.
     marginMs: 5 * minute,
     // Una entrada sin conexión se guarda 30 días; una firma de más de 29 días, o de más de un día en

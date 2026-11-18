@@ -173,10 +173,12 @@ describe('Más → Configuración', () => {
     openSettings({ phone: true, who: { ...juan, offline: true } as typeof juan });
     const row = screen.getByRole('switch', { name: /Trabajar sin conexión/ });
     expect(row.hasAttribute('disabled')).toBe(false);
+    // Las horas que sabe el celular; sin haberlas oído del servidor, las más cortas (06 · R11.1).
+    expect(row.textContent).toContain('aunque no haya internet, hasta 4 horas');
     expect(summary().textContent).toContain('Solo con internet');
     fireEvent.click(row);
     expect(row.getAttribute('aria-checked')).toBe('true');
-    expect(row.textContent).toContain('aunque no haya internet, hasta 24 h');
+    expect(row.textContent).toContain('aunque no haya internet, hasta 4 h');
     expect(summary().textContent).toContain('También sin conexión');
     // E33: «Volver a como viene» deja lo de arranque y no toca «Trabajar sin conexión».
     fireEvent.click(animations());

@@ -13,7 +13,7 @@ import {
 import type { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import type { Context } from 'hono';
 import type { Kysely } from 'kysely';
-import { byAddressAndDevice, provenPerson, readBody } from '../../../platform/guards.ts';
+import { provenPerson, readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import type { User } from '../../users/index.ts';
 import type { SignInContext } from '../context.ts';
@@ -21,22 +21,17 @@ import type { Passkey } from '../passkeys/data.ts';
 import { verifyCounted } from '../passkeys/webauthn.ts';
 import { openSession, withProofKey } from '../sessions/open.ts';
 import { verifyProof } from '../sessions/proof.ts';
-import { signInSettings } from '../settings.ts';
 import { type OfflineSignIn, type OfflineTables, offlineData } from './data.ts';
 import { canWorkOffline, rejectionOf } from './rules.ts';
 
-const { limits } = signInSettings;
 type Data = ReturnType<typeof offlineData>;
 type Confirming = { body: OfflineSignInBody; proof: Uint8Array; data: Data };
 
 export function registerOfflineRoutes(ctx: SignInContext): Data {
   const data = offlineData(ctx.platform.db as Kysely<OfflineTables>);
   const body = readBody(withProofKey(offlineSignInBody));
-  ctx.platform.http.post(
-    '/api/sign-in/offline',
-    body.step,
-    ctx.limit(byAddressAndDevice('passkey'), limits.passkey),
-    (c) => confirm(ctx, c, { body: body.of(c), proof: body.of(c).proofKey, data }),
+  ctx.platform.http.post('/api/sign-in/offline', body.step, ctx.entry.limit('passkey'), (c) =>
+    confirm(ctx, c, { body: body.of(c), proof: body.of(c).proofKey, data }),
   );
   return data;
 }
@@ -95,6 +90,7 @@ async function judge(ctx: SignInContext, c: Context, confirming: Confirming, pas
     lastSession,
     now,
     signedAt: new Date(body.signedAt),
+    windowMs: ctx.entry.offlineMs(),
   });
   const row: OfflineSignIn = {
     id: body.id,

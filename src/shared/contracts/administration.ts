@@ -16,6 +16,10 @@ export const maxFileMbRange = { min: 1, max: 100 } as const;
 export const confirmRowsRange = { min: 1000, max: 10_000_000 } as const;
 export const filesMbRange = { min: 10, max: 100_000 } as const;
 export const unappliedFileDaysRange = { min: 1, max: 3650 } as const;
+// La entrada (R11).
+export const offlineHoursOptions = [4, 8, 12, 24, 48, 72] as const;
+export const attemptsPerMinuteRange = { min: 3, max: 60 } as const;
+export const failedPerHourRange = { min: 5, max: 100 } as const;
 
 const oneOf = (options: readonly number[]) => z.int().check(z.refine((n) => options.includes(n)));
 const between = (range: { min: number; max: number }) =>
@@ -37,6 +41,10 @@ export const settingList = {
   sessionIdle: { group: 'access', initial: 60, schema: oneOf(sessionIdleOptions) },
   sessionMax: { group: 'access', initial: 8, schema: oneOf(sessionMaxOptions) },
   pairingDays: { group: 'access', initial: 30, schema: between(pairingDaysRange) },
+  offlineHours: { group: 'access', initial: 24, schema: oneOf(offlineHoursOptions) },
+  googleAttempts: { group: 'access', initial: 10, schema: between(attemptsPerMinuteRange) },
+  passkeyAttempts: { group: 'access', initial: 20, schema: between(attemptsPerMinuteRange) },
+  failedAttempts: { group: 'access', initial: 20, schema: between(failedPerHourRange) },
   reviewPercent: { group: 'lists', initial: 50, schema: between(reviewPercentRange) },
   goneWarnPercent: { group: 'lists', initial: 20, schema: between(goneWarnPercentRange) },
   maxFileMb: { group: 'lists', initial: 30, schema: between(maxFileMbRange) },
@@ -55,6 +63,10 @@ export type Settings = {
   sessionIdle: number;
   sessionMax: number;
   pairingDays: number;
+  offlineHours: number;
+  googleAttempts: number;
+  passkeyAttempts: number;
+  failedAttempts: number;
   reviewPercent: number;
   goneWarnPercent: number;
   maxFileMb: number;
@@ -75,6 +87,10 @@ export const initialSettings = (): Settings => ({
   sessionIdle: settingList.sessionIdle.initial,
   sessionMax: settingList.sessionMax.initial,
   pairingDays: settingList.pairingDays.initial,
+  offlineHours: settingList.offlineHours.initial,
+  googleAttempts: settingList.googleAttempts.initial,
+  passkeyAttempts: settingList.passkeyAttempts.initial,
+  failedAttempts: settingList.failedAttempts.initial,
   reviewPercent: settingList.reviewPercent.initial,
   goneWarnPercent: settingList.goneWarnPercent.initial,
   maxFileMb: settingList.maxFileMb.initial,

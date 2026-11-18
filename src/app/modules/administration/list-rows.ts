@@ -81,6 +81,12 @@ const groups: { title: string; rows: Row[] }[] = [
         command: 'pairingDays',
         value: (s) => shown('pairingDays', s.pairingDays),
       },
+      {
+        panel: 'entry',
+        name: names.offlineHours,
+        command: 'entry',
+        value: (s) => shown('offlineHours', s.offlineHours),
+      },
     ],
   },
 ];
