@@ -6,8 +6,8 @@ para todos** (R1 a R7) y **b. Anomalías** (R9), que se construye con las listas
 (capítulo 08), el primer capítulo que suma anomalías. Los ajustes de las listas (R8) también llegan
 con ese capítulo.
 
-**Estado:** etapa a, aprobada y programada; R8 y la etapa b, aprobadas, se construyen con el
-capítulo 08.
+**Estado:** etapa a, aprobada y programada; R8 y la etapa b, aprobadas y programadas con el capítulo
+08; R11 (la entrada), aprobada, por programar (T132).
 
 **Lo que no está acá, y por qué:**
 

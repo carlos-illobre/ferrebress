@@ -29,3 +29,4 @@ Cada tecnología elegida tiene su ADR, con las opciones, los pros, los contras y
 | [ADR-019](ADR-019-swappable-views.md) | La vista, aparte e intercambiable | Aceptado |
 | [ADR-020](ADR-020-pluggable-layers.md) | Lo transversal, en capas enchufables | Aceptado |
 | [ADR-021](ADR-021-reading-price-lists.md) | Leer las listas de precios: SheetJS para abrir, lectores encerrados en QuickJS | Aceptado |
+| [ADR-022](ADR-022-catalog-search.md) | Buscar en el catálogo con un índice en la memoria del servidor | Propuesto |

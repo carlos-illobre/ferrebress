@@ -61,6 +61,10 @@ Corregido con sus dos revisiones ([diseño](administration-design-review.md),
 | `sessionIdle` | Minutos | 60 | Uno de 15, 30, 60, 120 (R6.2) |
 | `sessionMax` | Horas | 8 | Uno de 4, 8, 12, 24 (R6.2) |
 | `pairingDays` | Días | 30 | Entero de 1 a 365 (R7.2) |
+| `offlineHours` | Horas para entrar sin conexión | 24 | Uno de 4, 8, 12, 24, 48, 72 (R11.1) |
+| `googleAttempts` | Intentos de entrar con Google por minuto y por dispositivo | 10 | Entero de 3 a 60 (R11.2) |
+| `passkeyAttempts` | Intentos de entrar con la huella por minuto y por dispositivo | 20 | Entero de 3 a 60 (R11.2) |
+| `failedAttempts` | Intentos fallidos por hora y por cuenta | 20 | Entero de 5 a 100 (R11.3) |
 
 **Al arrancar** se leen todas las filas y cada valor se valida con el contrato. Si la lectura falla o un
 valor no es válido (una opción que se sacó del contrato, una fila tocada a mano), **el servidor no
@@ -134,6 +138,15 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
     el servidor es quien cierra la sesión. Si la cookie durara el tope de ese momento, subir el tope no
     alargaría las sesiones abiertas (E36).
   - `/api/start` suma `businessTimeZone`.
+  - **La entrada (R11, T132):** los límites `google`, `passkey` y `failedPerAccount` toman su `max` de la
+    fachada en cada intento (`entryLimits()`), así un cambio vale desde el próximo (R11.4); la ventana
+    sigue fija (un minuto, una hora). La ventana de entrar sin conexión del servidor (`offline.windowMs`)
+    también sale de ahí, con `offlineHours`, al confirmar una entrada (15 · R3): si bajó mientras el
+    celular estaba sin conexión, la confirmación usa la de ahora y una entrada pasada de ese plazo se
+    cierra, como cualquier entrada que no se puede confirmar (E57).
+  - **`/api/start` suma `offlineHours`** (una parte de `start.contribute`): el celular la guarda junto
+    a su último contacto y decide con ella si deja entrar sin conexión (15 · R2.2); hasta recibirla, la
+    de arranque. Así llega con el próximo contacto, sin un pedido más (R11.4).
 - **`device-link`:**
   - `viewOf`, la limpieza diaria y la comprobación de cada contacto (`pairingOf`, `stillPaired`) leen
     `pairingDays` de la fachada.
@@ -186,6 +199,10 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
   que es cuando hay precios para recalcular (§ 12, 2).
 
 ## 7. Pantallas
+
+- **«La entrada»** (R11, T132), en el grupo Acceso: las horas sin conexión, con las opciones como el panel de
+  los tiempos de la sesión, y los tres números de intentos, con su caja y su rango, como los días del
+  vínculo. Sin nada nuevo en la vista: lo arman el modelo y las piezas que ya existen.
 
 - **Lo que viene del servidor** se pide con `useMirroredQuery`. Lo guardado entra en lo que trajo el
   servidor (`update`), que viaja como cualquier valor con nombre, también por el servidor: así el otro
