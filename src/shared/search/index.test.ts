@@ -80,10 +80,48 @@ describe('el índice para buscar productos', () => {
     one.replace([doc('n1', 'Abrazadera'), doc('t2', 'Tenaza')], ['m1']);
     expect(one.search({ text: '' }).ids).toEqual(['n1', 'a1', 'c1', 't2', 't1']);
     expect(one.size()).toBe(5);
-    one.setPriced('t2', true);
-    one.setPriced('nadie', true);
+    one.replace([doc('t2', 'Tenaza', { priced: true })], []);
     expect(one.search({ text: '', noPrice: true }).ids).toEqual([]);
     expect(one.brands()).toEqual(['Fischer']);
+    expect(one.brands()).toBe(one.brands());
+  });
+
+  it('con muchos cambios juntos busca en el de antes mientras arma el nuevo, de a pedazos', async () => {
+    let pauses = 0;
+    const pause = async () => {
+      pauses++;
+    };
+    const one = createSearchIndex([doc('a', 'Alicate')], { changedMax: 2, pause });
+    one.replace([doc('b', 'Broca'), doc('c', 'Cincel'), doc('d', 'Destornillador')], ['a']);
+    // Todavía el de antes.
+    expect(one.search({ text: '' }).ids).toEqual(['a']);
+    // Uno más mientras se arma: entra con lo que cambió mientras tanto.
+    one.replace([doc('e', 'Escuadra')], []);
+    await one.settled();
+    expect(one.search({ text: '' }).ids).toEqual(['b', 'c', 'd', 'e']);
+    expect(pauses).toBeGreaterThan(0);
+    expect(one.search({ text: '' }).total).toBe(4);
+  });
+
+  it('si lo cambiado mientras se armaba también es mucho, se vuelve a armar', async () => {
+    let calls = 0;
+    const one = createSearchIndex([], {
+      changedMax: 1,
+      pause: async () => {
+        calls++;
+        if (calls === 1) one.replace([doc('x', 'Xilografía'), doc('y', 'Yunque')], []);
+      },
+    });
+    one.replace([doc('a', 'Alicate'), doc('b', 'Broca')], []);
+    await one.settled();
+    expect(one.search({ text: '' }).ids).toEqual(['a', 'b', 'x', 'y']);
+  });
+
+  it('sin decir cómo ceder el turno, cede con un temporizador', async () => {
+    const one = createSearchIndex([], { changedMax: 0 });
+    one.replace([doc('a', 'Alicate')], []);
+    await one.settled();
+    expect(one.search({ text: '' }).ids).toEqual(['a']);
   });
 
   it('una palabra repetida, dos con la misma descripción y un código sin letras', () => {
@@ -96,5 +134,20 @@ describe('el índice para buscar productos', () => {
 
   it('como mucho 8 palabras: lo demás no cuenta', () => {
     expect(ids('torn auto 8 x 1 a b c d e f g h i')).toEqual(['t1']);
+  });
+
+  it('con muchos productos, armarlo de a pedazos cede el turno varias veces', async () => {
+    const many = Array.from({ length: 10_001 }, (_, i) => doc(`d${i}`, `Producto ${i}`));
+    let pauses = 0;
+    const one = createSearchIndex([], {
+      changedMax: 0,
+      pause: async () => {
+        pauses++;
+      },
+    });
+    one.replace(many, []);
+    await one.settled();
+    expect(pauses).toBeGreaterThan(4);
+    expect(one.search({ text: 'producto 10000' }).ids[0]).toBe('d10000');
   });
 });

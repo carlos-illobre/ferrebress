@@ -1,216 +1,144 @@
 // El índice para buscar productos (07 · R3; ADR-022), en memoria y sin nada del servidor: en 15b sirve
-// también en el celular sin conexión. Guarda los que no están dados de baja, en orden alfabético por su
-// descripción; cada palabra, con la lista de los que la tienen; y los códigos aparte, para encontrar
-// uno escrito entero. Buscar es recorrer una vez esa lista marcando lo que encontró cada palabra: el
-// resultado sale ya en orden, sin ordenar en cada búsqueda.
+// también en el celular sin conexión. Tiene dos partes: uno armado, grande, que no cambia (built.ts), y
+// otro chico con lo que cambió después; buscar junta lo de los dos, en orden. Cuando lo cambiado crece,
+// el grande se vuelve a armar de a pedazos, sin frenar a quien busca; mientras tanto, con muchos
+// cambios juntos (una lista grande), se busca en el de antes hasta que esté.
 import { searchKey } from '../text/search-key.ts';
-import { codeOf, withinOne, wordsOf } from './words.ts';
+import {
+  type Built,
+  build,
+  buildInSteps,
+  type Hit,
+  type Partial,
+  type Query,
+  type SearchDoc,
+  searchBuilt,
+} from './built.ts';
 
-export type SearchDoc = {
-  id: string;
-  description: string;
-  brand: string | null;
-  // El del proveedor y el de barras.
-  codes: readonly string[];
-  priced: boolean;
-};
+export type { Query, SearchDoc } from './built.ts';
 
-export type Query = { text: string; brand?: string | undefined; noPrice?: boolean };
 // Los encontrados en orden; los números, de todo el catálogo o de la marca elegida (07 · E16).
 export type Found = { ids: string[]; total: number; noPrice: number };
 
-// Un vocabulario ordenado, cada entrada con los productos que la tienen (en orden de la lista), todos
-// en un solo arreglo plano: los del término `i` van de `starts[i]` a `starts[i + 1]`. Así no hay un
-// arreglo por término, que con 100.000 códigos pesa más que lo que guarda.
-type Vocabulary = { terms: string[]; starts: Uint32Array; flat: Uint32Array };
-
-const postingsOf = (vocabulary: Vocabulary, i: number): Uint32Array =>
-  vocabulary.flat.subarray(vocabulary.starts[i], vocabulary.starts[i + 1]);
-
-const maxWords = 8;
-const typoFrom = 4;
-
-const collator = new Intl.Collator('es', { sensitivity: 'base', numeric: true });
-
-function vocabularyOf(entries: Map<string, number[]>): Vocabulary {
-  const terms = [...entries.keys()].sort();
-  const starts = new Uint32Array(terms.length + 1);
-  terms.forEach((term, i) => {
-    starts[i + 1] = (starts[i] as number) + (entries.get(term) as number[]).length;
-  });
-  const flat = new Uint32Array(starts[terms.length] as number);
-  terms.forEach((term, i) => {
-    flat.set(entries.get(term) as number[], starts[i]);
-  });
-  return { terms, starts, flat };
-}
-
-const add = (entries: Map<string, number[]>, term: string, ord: number) => {
-  const list = entries.get(term);
-  if (!list) entries.set(term, [ord]);
-  else if (list.at(-1) !== ord) list.push(ord);
+export type IndexOptions = {
+  // Desde cuántos cambiados se vuelve a armar el grande.
+  changedMax?: number;
+  // Cómo se cede el turno entre pedazos al armarlo.
+  pause?: () => Promise<void>;
 };
 
-// El primer término que no es menor que `term`, por búsqueda binaria.
-function lowerBound(terms: readonly string[], term: string): number {
-  let low = 0;
-  let high = terms.length;
-  while (low < high) {
-    const middle = (low + high) >> 1;
-    if ((terms[middle] as string) < term) low = middle + 1;
-    else high = middle;
+const collator = new Intl.Collator('es', { sensitivity: 'base' });
+const empty = build([]);
+
+// Junta dos listas en orden por su clave.
+function merged(a: Hit[], b: Hit[]): Hit[] {
+  if (b.length === 0) return a;
+  const out: Hit[] = [];
+  let i = 0;
+  let j = 0;
+  while (i < a.length || j < b.length) {
+    const takeA = j >= b.length || (i < a.length && (a[i] as Hit).key < (b[j] as Hit).key);
+    out.push((takeA ? a[i++] : b[j++]) as Hit);
   }
-  return low;
+  return out;
 }
 
-// Los términos que empiezan con `prefix`.
-function* withPrefix(vocabulary: Vocabulary, prefix: string): Generator<Uint32Array> {
-  const { terms } = vocabulary;
-  for (
-    let i = lowerBound(terms, prefix);
-    i < terms.length && (terms[i] as string).startsWith(prefix);
-    i++
-  )
-    yield postingsOf(vocabulary, i);
+const together = (main: Partial, changed: Partial): Found => ({
+  ids: main.groups.flatMap((group, i) =>
+    merged(group, changed.groups[i] as Hit[]).map((h) => h.id),
+  ),
+  total: main.total + changed.total,
+  noPrice: main.noPrice + changed.noPrice,
+});
+
+// Las marcas, una vez cada una, en orden alfabético.
+function brandsOf(docs: Iterable<SearchDoc>): string[] {
+  const names = new Map<string, string>();
+  for (const doc of docs)
+    if (doc.brand !== null && !names.has(searchKey(doc.brand)))
+      names.set(searchKey(doc.brand), doc.brand);
+  return [...names.values()].sort(collator.compare);
 }
 
-// Los que tienen ese término entero.
-function exactly(vocabulary: Vocabulary, term: string): Uint32Array {
-  const i = lowerBound(vocabulary.terms, term);
-  return vocabulary.terms[i] === term ? postingsOf(vocabulary, i) : new Uint32Array();
-}
+// El grande, el chico con lo cambiado y cómo se vuelve a armar el grande.
+function createParts(docs: Map<string, SearchDoc>, changedMax: number, pause: () => Promise<void>) {
+  let main: Built = build([...docs.values()]);
+  // Lo cambiado desde que se armó el grande (`null`, ya no está), y lo cambiado desde que se empezó a
+  // armar el siguiente.
+  let changed = new Map<string, SearchDoc | null>();
+  let sinceRebuild: Map<string, SearchDoc | null> | undefined;
+  let small: Built = empty;
+  let skip: Uint8Array | undefined;
+  let rebuilding: Promise<void> = Promise.resolve();
 
-function build(docs: readonly SearchDoc[]) {
-  const sorted = [...docs].sort(
-    (a, b) => collator.compare(a.description, b.description) || (a.id < b.id ? -1 : 1),
-  );
-  const words = new Map<string, number[]>();
-  const codes = new Map<string, number[]>();
-  sorted.forEach((doc, ord) => {
-    for (const word of wordsOf(`${doc.description} ${doc.brand ?? ''}`)) add(words, word, ord);
-    for (const code of doc.codes.map(codeOf)) if (code) add(codes, code, ord);
-  });
-  const byLength = new Map<number, number[]>();
-  const vocabulary = vocabularyOf(words);
-  vocabulary.terms.forEach((term, i) => {
-    const same = byLength.get(term.length);
-    if (same) same.push(i);
-    else byLength.set(term.length, [i]);
-  });
+  // El chico y qué productos del grande ya no valen, con lo cambiado.
+  const refreshSmall = () => {
+    small = build([...changed.values()].filter((doc) => doc !== null));
+    skip = new Uint8Array(main.ids.length);
+    for (const id of changed.keys()) {
+      const ord = main.ordOf.get(id);
+      if (ord !== undefined) skip[ord] = 1;
+    }
+  };
+  const fresh = () => changed.size <= changedMax;
+  // Mientras lo cambiado mientras se armaba siga siendo mucho, se vuelve a armar.
+  const rebuild = async () => {
+    do {
+      sinceRebuild = new Map();
+      // Lo de quien lo pidió termina primero.
+      await pause();
+      main = await buildInSteps([...docs.values()], pause);
+      changed = sinceRebuild;
+      sinceRebuild = undefined;
+    } while (!fresh());
+    refreshSmall();
+  };
   return {
-    ids: sorted.map((doc) => doc.id),
-    brands: sorted.map((doc) => (doc.brand === null ? '' : searchKey(doc.brand))),
-    priced: Uint8Array.from(sorted, (doc) => (doc.priced ? 1 : 0)),
-    ordOf: new Map(sorted.map((doc, ord) => [doc.id, ord])),
-    words: vocabulary,
-    codes: vocabularyOf(codes),
-    byLength,
+    search: (query: Query): Found =>
+      fresh()
+        ? together(searchBuilt(main, query, skip), searchBuilt(small, query))
+        : together(searchBuilt(main, query), searchBuilt(empty, query)),
+    note(id: string, doc: SearchDoc | null) {
+      changed.set(id, doc);
+      sinceRebuild?.set(id, doc);
+    },
+    // Después de anotar: el chico de nuevo o, con muchos cambios, el grande de a pedazos.
+    noted() {
+      if (fresh()) refreshSmall();
+      else if (!sinceRebuild) rebuilding = rebuild();
+    },
+    settled: (): Promise<void> => rebuilding,
   };
 }
 
-type Built = ReturnType<typeof build>;
-
-const markAll = (marks: Uint8Array, list: Uint32Array, bit: number) => {
-  for (const ord of list) marks[ord] = (marks[ord] as number) | bit;
-};
-
-// Las palabras y los códigos que empiezan con la palabra.
-function markPrefix(built: Built, word: string, bit: number, marks: Uint8Array) {
-  for (const vocabulary of [built.words, built.codes])
-    for (const list of withPrefix(vocabulary, word)) markAll(marks, list, bit);
-}
-
-// Las palabras enteras a una letra de distancia, de su largo ±1 (R3.1).
-function markTypos(built: Built, word: string, bit: number, marks: Uint8Array) {
-  if (word.length < typoFrom) return;
-  for (const length of [word.length - 1, word.length, word.length + 1])
-    for (const t of built.byLength.get(length) ?? [])
-      if (withinOne(word, built.words.terms[t] as string))
-        markAll(marks, postingsOf(built.words, t), bit);
-}
-
-// Marca lo que encontró cada palabra: sin error y empezada en `exact`, con un error en `typo`.
-function mark(built: Built, words: string[]) {
-  const exact = new Uint8Array(built.ids.length);
-  const typo = new Uint8Array(built.ids.length);
-  words.forEach((word, i) => {
-    markPrefix(built, word, 1 << i, exact);
-    markTypos(built, word, 1 << i, typo);
-  });
-  return { exact, typo };
-}
-
-// Las palabras de lo buscado; si no tiene ninguna de 2 letras («8»), lo escrito como código.
-function wordsIn(text: string): string[] {
-  const words = wordsOf(text).slice(0, maxWords);
-  const code = codeOf(text);
-  return words.length === 0 && code ? [code] : words;
-}
-
-// En qué grupo va cada uno (R3.2): el código entero, todas las palabras sin error, alguna con error;
-// o en ninguno.
-function grouper(built: Built, text: string) {
-  const words = wordsIn(text);
-  const all = (1 << words.length) - 1;
-  const { exact, typo } = mark(built, words);
-  const byCode = new Set(exactly(built.codes, codeOf(text)));
-  return (ord: number): number | undefined => {
-    if (byCode.has(ord)) return 0;
-    if (exact[ord] === all) return 1;
-    return ((exact[ord] as number) | (typo[ord] as number)) === all ? 2 : undefined;
-  };
-}
-
-// Los de la marca elegida, o todos.
-function inBrandOf(built: Built, brand: string | undefined) {
-  const key = brand === undefined ? undefined : searchKey(brand);
-  return (ord: number) => key === undefined || built.brands[ord] === key;
-}
-
-function search(built: Built, query: Query): Found {
-  const groupOf = grouper(built, query.text);
-  const inBrand = inBrandOf(built, query.brand);
-  const groups: string[][] = [[], [], []];
-  const counts = { total: 0, noPrice: 0 };
-  for (let ord = 0; ord < built.ids.length; ord++) {
-    if (!inBrand(ord)) continue;
-    const priced = built.priced[ord] === 1;
-    counts.total++;
-    counts.noPrice += priced ? 0 : 1;
-    const group = query.noPrice && priced ? undefined : groupOf(ord);
-    if (group !== undefined) (groups[group] as string[]).push(built.ids[ord] as string);
-  }
-  return { ids: groups.flat(), ...counts };
-}
-
-export function createSearchIndex(initial: readonly SearchDoc[] = []) {
+export function createSearchIndex(initial: readonly SearchDoc[] = [], options: IndexOptions = {}) {
+  const { changedMax = 2000, pause = () => new Promise<void>((done) => setTimeout(done, 0)) } =
+    options;
   const docs = new Map(initial.map((doc) => [doc.id, doc]));
-  let built = build(initial);
+  const parts = createParts(docs, changedMax, pause);
+  let brands: string[] | undefined;
   return {
-    search: (query: Query): Found => search(built, query),
-    // Las marcas, una vez cada una, en orden alfabético.
-    brands(): string[] {
-      const names = new Map<string, string>();
-      for (const doc of docs.values())
-        if (doc.brand !== null && !names.has(searchKey(doc.brand)))
-          names.set(searchKey(doc.brand), doc.brand);
-      return [...names.values()].sort(collator.compare);
+    search: parts.search,
+    brands: (): string[] => {
+      brands ??= brandsOf(docs.values());
+      return brands;
     },
     size: (): number => docs.size,
-    // Productos nuevos o cambiados, y los que ya no están (dados de baja): se arma de nuevo de una vez.
-    replace(changed: readonly SearchDoc[], gone: readonly string[]): void {
-      for (const id of gone) docs.delete(id);
-      for (const doc of changed) docs.set(doc.id, doc);
-      built = build([...docs.values()]);
+    // Productos nuevos o cambiados, y los que ya no están (dados de baja).
+    replace(updated: readonly SearchDoc[], gone: readonly string[]): void {
+      for (const id of gone) {
+        docs.delete(id);
+        parts.note(id, null);
+      }
+      for (const doc of updated) {
+        docs.set(doc.id, doc);
+        parts.note(doc.id, doc);
+      }
+      brands = undefined;
+      parts.noted();
     },
-    // Solo cambió si tiene precio (un margen): sin volver a armar nada.
-    setPriced(id: string, priced: boolean): void {
-      const doc = docs.get(id);
-      const ord = built.ordOf.get(id);
-      if (!doc || ord === undefined) return;
-      docs.set(id, { ...doc, priced });
-      built.priced[ord] = priced ? 1 : 0;
-    },
+    // Espera que termine de armarse el grande, si se está armando.
+    settled: (): Promise<void> => parts.settled(),
   };
 }
 

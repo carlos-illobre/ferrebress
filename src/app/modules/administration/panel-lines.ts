@@ -10,7 +10,7 @@ import { texts } from './texts.ts';
 
 const t = texts.rounding;
 // El precio de ejemplo de la regla, cuando todavía no hay precios (§ 12, 1).
-const example = { name: t.example, calculated: 1_500_100 };
+const example = { name: t.example, calculated: '1500100' };
 
 // `now`, el paso de ahora; `step`, el que se mira (el de ahora si no se mira otro).
 export function roundingLines(prices: RoundingResponse | undefined, now: number, step: number) {
@@ -77,3 +77,7 @@ export const marginLines = (settings: Settings) => ({
 
 // Dónde queda la zona: «America/Argentina/Buenos_Aires», «Buenos Aires».
 export const zonePlace = (zone: string) => (zone.split('/').at(-1) as string).replace(/_/g, ' ');
+
+// Lo que dice cada opción de las horas sin conexión (R11.1): «Ahora» la elegida.
+export const hoursEffect = (now: number) => (value: number) =>
+  value === now ? texts.rounding.current : '';

@@ -7,13 +7,15 @@ import type { Kysely } from 'kysely';
 import { createGuards } from '../../../platform/guards.ts';
 import type { Platform } from '../../../platform/modules.ts';
 import { permissionsOf } from '../../../platform/permissions.ts';
-import type { CatalogTables } from '../data.ts';
+import type { CatalogTables } from '../data/products.ts';
 
 export type CatalogDependencies = {
   platform: Platform;
   db: Kysely<CatalogTables>;
   index: SearchIndex;
   costSourceOf: (productId: string) => Promise<CostSource | undefined>;
+  // Lo que cambió un pedido, para la cola del índice de búsqueda.
+  changed: (ids: string[]) => void;
   // El paso del redondeo de ahora, de Administración: para los decimales del precio.
   roundingStep: () => number;
 };

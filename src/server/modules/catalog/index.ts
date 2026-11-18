@@ -9,24 +9,25 @@ import type { Kysely, Transaction } from 'kysely';
 import type { AfterCommit } from '../../platform/events.ts';
 import type { ServerModule } from '../../platform/modules.ts';
 import type { PriceRecalculator } from '../administration/index.ts';
+import { pagesData } from './data/pages.ts';
+import { pricingData } from './data/pricing.ts';
 import {
   type CatalogTables,
   catalogData,
   type NewProduct,
   type ProductChange,
   type ProductCost,
-  type ProductRow,
-} from './data.ts';
-import { pagesData } from './data-pages.ts';
-import { pricingData } from './data-pricing.ts';
+  type ProductRecord,
+} from './data/products.ts';
 import { refresher } from './indexing.ts';
 import { createProducts } from './migrations/001-products.ts';
 import { addPrices } from './migrations/002-prices.ts';
+import { addBrandKey } from './migrations/003-brand-key.ts';
 import { createRecalculator } from './recalculator.ts';
 import { registerRoutes } from './routes/index.ts';
 import { createWrites } from './writes.ts';
 
-export type { NewProduct, ProductChange, ProductCost, ProductRow } from './data.ts';
+export type { NewProduct, ProductChange, ProductCost, ProductRecord } from './data/products.ts';
 export { CatalogFull } from './writes.ts';
 
 export type Catalog = {
@@ -43,7 +44,7 @@ export type Catalog = {
   committed(trx: Transaction<unknown>): AfterCommit;
   // Espera que el índice de búsqueda esté al día con lo confirmado.
   indexed(): Promise<void>;
-  read(db: Kysely<unknown>, ids: readonly string[]): Promise<ProductRow[]>;
+  read(db: Kysely<unknown>, ids: readonly string[]): Promise<ProductRecord[]>;
 };
 
 export type CatalogOptions = {
@@ -59,18 +60,22 @@ export function createCatalogModule(options: CatalogOptions) {
   const index = createSearchIndex();
   let db: Kysely<CatalogTables>;
   const refresh = refresher(index, () => pagesData(db));
-  const writes = createWrites({ active: index.size, refresh });
+  const writes = createWrites({ refresh });
   const module: ServerModule = {
     name: 'catalog',
     schema: {
       schema: 'catalog',
-      migrations: { '001-products': createProducts, '002-prices': addPrices },
+      migrations: {
+        '001-products': createProducts,
+        '002-prices': addPrices,
+        '003-brand-key': addBrandKey,
+      },
     },
     async register(platform) {
       db = dbOf(platform.db);
       await pricingData(db).start(options.roundingStep());
       index.replace(await pagesData(db).docs(), []);
-      registerRoutes({ platform, db, index, ...options });
+      registerRoutes({ platform, db, index, changed: writes.queue, ...options });
     },
   };
   const catalog: Catalog = {

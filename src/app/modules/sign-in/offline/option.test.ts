@@ -58,6 +58,10 @@ describe('hasta cuándo se puede entrar sin conexión', () => {
     heardOfflineHours(undefined);
     contacted(at);
     expect(knownOfflineHours()).toBe(24);
+    // Unas horas que no son de la lista no se toman.
+    heardOfflineHours('9999');
+    contacted(at);
+    expect(knownOfflineHours()).toBe(24);
   });
 
   it('offline-E09: atrasar el reloj por debajo de la hora más alta que vio no deja entrar', () => {

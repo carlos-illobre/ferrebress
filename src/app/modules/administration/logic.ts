@@ -94,7 +94,7 @@ export const numberUnits: Record<NumberSetting, string> = {
 export { offlineHoursOptions, roundingSteps, sessionIdleOptions, sessionMaxOptions };
 
 // Un precio en centavos, redondeado para arriba con un paso en centavos (R3.1).
-export const roundedTo = (cents: number, stepCents: number) => roundUp(BigInt(cents), stepCents);
+export const roundedTo = (cents: string, stepCents: number) => roundUp(BigInt(cents), stepCents);
 
 // El costo de ejemplo con el que cada margen rápido dice a cuánto vende (R4, maqueta final): $ 4.000,
 // en centavos.

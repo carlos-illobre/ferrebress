@@ -19,7 +19,7 @@ describe('Administración, el redondeo', () => {
         body: {
           total: 3486,
           changes: { 50000: 1650 },
-          examples: [{ name: 'Martillo', calculated: 1_500_100 }],
+          examples: [{ name: 'Martillo', calculated: '1500100' }],
         },
       },
       [saveOf('roundingStep')]: [

@@ -139,14 +139,14 @@ export type AdministrationResponse = {
 
 // Lo que muestra el panel del redondeo: cuántos precios hay, cuántos cambian con cada paso y unos
 // ejemplos. Sin catálogo, no hay precios.
-// `calculated`: el precio sin redondear, en centavos.
-export type RoundingExample = { name: string; calculated: number };
+// `calculated`: el precio sin redondear, en centavos, como texto (un número grande pierde precisión).
+export type RoundingExample = { name: string; calculated: string };
 // Los ejemplos para quien no tiene «Ver costos» (R3.7): inventados, con el precio sin redondear en
 // centavos.
 export const inventedExamples: RoundingExample[] = [
-  { name: 'Un producto de ejemplo', calculated: 1_500_100 },
-  { name: 'Otro de ejemplo', calculated: 843_700 },
-  { name: 'Un tercero', calculated: 1_264_050 },
+  { name: 'Un producto de ejemplo', calculated: '1500100' },
+  { name: 'Otro de ejemplo', calculated: '843700' },
+  { name: 'Un tercero', calculated: '1264050' },
 ];
 export type RoundingResponse = {
   total: number;

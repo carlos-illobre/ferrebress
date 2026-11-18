@@ -39,8 +39,11 @@ productos, con lo que devuelve la fachada del catálogo; si eso falla, se vuelve
 
 - La búsqueda no consulta la base por cada letra: lo único que va a la base es la página.
 - El orden es exactamente el que piden las reglas, sin depender de cómo puntúa una extensión.
-- Unos 42 MB de memoria con 100.000 productos (unos 85 MB con el tope), medidos, y menos de 2 s al
-  arrancar. Las listas de cada palabra van en un solo arreglo plano: una por palabra pesaba más.
+- Unos 67 MB de memoria con 100.000 productos y 134 MB con el tope de 200.000, medidos con
+  descripciones como las de una lista de verdad, y unos 2,5 s al arrancar. Las listas de cada palabra
+  van en un solo arreglo plano: una por palabra pesaba más.
+- Tiene dos partes: uno grande que no cambia y uno chico con lo cambiado. Cuando lo cambiado crece, el
+  grande se vuelve a armar de a pedazos, sin frenar a quien busca más de unos 120 ms.
 - Con varias copias del servidor, cada una tiene su índice y se pone al día con lo que confirma; la
   arquitectura lo suma a «Escala»: un cambio en una copia tendría que avisar a las demás.
 - Si un día la meta no se cumple o la memoria no alcanza, se cambia el índice detrás de la misma

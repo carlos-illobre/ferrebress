@@ -10,7 +10,7 @@ import type {
   Unit,
   Vat,
 } from '@ferrebress/shared/contracts/catalog';
-import type { StoredProduct } from '../data-pages.ts';
+import type { StoredProduct } from '../data/pages.ts';
 
 const stateOf = (stored: StoredProduct): ProductState => {
   if (stored.cost === null) return 'no-cost';

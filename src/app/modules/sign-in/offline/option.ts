@@ -4,6 +4,7 @@
 // R7.9); el contacto, la hora del celular del último pedido con sesión
 // de esa persona que el servidor aceptó, y la hora más alta que vio, para que atrasar el reloj no
 // dé más tiempo (con 5 minutos de margen por los ajustes de hora del celular). Nada es secreto.
+import { offlineHoursOptions } from '@ferrebress/shared/contracts/administration';
 import { fallbackOfflineHours } from '@ferrebress/shared/contracts/offline-sign-in';
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import { forget, readStored, store } from '../../../platform/device/storage.ts';
@@ -49,8 +50,9 @@ const wentBack = (known: Contact, now: number) =>
 // Las horas sin conexión de la última respuesta del servidor; se guardan con el próximo contacto.
 let heardHours: number | undefined;
 export function heardOfflineHours(value: string | undefined): void {
+  // Solo una de las opciones de Administración: otra cosa no se toma.
   const hours = Number(value);
-  heardHours = Number.isInteger(hours) && hours > 0 ? hours : undefined;
+  heardHours = (offlineHoursOptions as readonly number[]).includes(hours) ? hours : undefined;
 }
 
 // Las horas que valen para este celular: las del último contacto, o las que dijo el servidor.

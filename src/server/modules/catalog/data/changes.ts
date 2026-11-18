@@ -1,9 +1,9 @@
 // Cambiar un dato de un producto (07 · R1.4, R2.7): una sentencia, que guarda también el precio nuevo y
 // devuelve el producto como quedó. La fila ya está trabada por quien cambia (`one(id, true)`).
 import { type Kysely, sql } from 'kysely';
-import type { CatalogTables } from './data.ts';
-import { columns, type StoredProduct } from './data-pages.ts';
-import type { ProductWrite } from './rules/changes.ts';
+import type { ProductWrite } from '../rules/changes.ts';
+import { columns, type StoredProduct } from './pages.ts';
+import type { CatalogTables } from './products.ts';
 
 type Prices = { raw: bigint | null; sale: bigint | null };
 

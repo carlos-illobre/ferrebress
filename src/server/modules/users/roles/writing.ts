@@ -150,5 +150,18 @@ export function writingPermissions(db: Db) {
           on conflict do nothing`.execute(db);
       return added;
     },
+
+    // R7.1: cada rol tiene también lo que incluyen sus permisos, aunque la inclusión sea más nueva
+    // que el rol. Devuelve cuántos sumó.
+    addIncluded: async (pairs: readonly (readonly [string, string])[]): Promise<number> => {
+      const { numAffectedRows } = await sql`
+        insert into users.role_permissions (role_id, permission)
+        select distinct rp.role_id, v."to"
+        from users.role_permissions rp
+        join jsonb_to_recordset(${JSON.stringify(pairs.map(([from, to]) => ({ from, to })))}::jsonb)
+          as v("from" text, "to" text) on v."from" = rp.permission
+        on conflict do nothing`.execute(db);
+      return Number(numAffectedRows ?? 0);
+    },
   };
 }

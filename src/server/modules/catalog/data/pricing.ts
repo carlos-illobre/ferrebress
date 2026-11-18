@@ -5,15 +5,15 @@
 import { roundUp } from '@ferrebress/shared/pricing/rounding';
 import { rawCents } from '@ferrebress/shared/pricing/sale';
 import { type Kysely, sql } from 'kysely';
-import type { CatalogTables } from './data.ts';
-import { type Priced, rowsOf } from './data-rows.ts';
+import type { CatalogTables } from './products.ts';
+import { type Priced, rowsOf } from './rows.ts';
 
 type Db = Kysely<CatalogTables>;
 
-export type { Priced } from './data-rows.ts';
+export type { Priced } from './rows.ts';
 
 // El precio sin redondear y el redondeado, o nada sin margen o sin costo (07 · R2.4).
-export const centsOf = (row: Priced, step: number) => {
+export const pricesOf = (row: Priced, step: number) => {
   if (row.cost === null || row.margin === null) return { raw: null, sale: null };
   const raw = rawCents(BigInt(row.cost), row.margin, row.vat);
   return { raw, sale: roundUp(raw, step) };
@@ -36,7 +36,7 @@ export const pricingData = (db: Db) => ({
 
   // Los precios de lo que se escribió, con el paso de ahora.
   async reprice(rows: readonly Priced[], step: number): Promise<void> {
-    const prices = rows.map((row) => ({ id: row.id, ...centsOf(row, step) }));
+    const prices = rows.map((row) => ({ id: row.id, ...pricesOf(row, step) }));
     await sql`
       update catalog.products p set raw_cents = v.raw, sale_cents = v.sale
       from jsonb_to_recordset(${rowsOf(prices)}) as v(id uuid, raw bigint, sale bigint)

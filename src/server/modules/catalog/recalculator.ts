@@ -9,8 +9,8 @@ import {
 } from '@ferrebress/shared/contracts/administration';
 import { type Kysely, sql } from 'kysely';
 import type { PriceRecalculator } from '../administration/index.ts';
-import type { CatalogTables } from './data.ts';
-import { pricingData } from './data-pricing.ts';
+import { pricingData } from './data/pricing.ts';
+import type { CatalogTables } from './data/products.ts';
 
 type Db = Kysely<CatalogTables>;
 
@@ -37,7 +37,7 @@ async function realExamples(db: Db) {
     where raw_cents is not null order by search_key collate "C", id limit ${examplesCount}`.execute(
     db,
   );
-  return rows.map((row) => ({ name: row.name, calculated: Number(row.raw) }));
+  return rows.map((row) => ({ name: row.name, calculated: row.raw }));
 }
 
 export function createRecalculator(dbOf: () => Kysely<unknown>): PriceRecalculator {

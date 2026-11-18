@@ -39,8 +39,9 @@ Lo que Carlos ya confirmó de la etapa c está en el [resumen](summary.md).
   nuevo ya en la pantalla, para que decida de nuevo (como los datos de un proveedor, 08, y los
   ajustes, 06 · R2.3). Si cambian datos distintos, se guardan los dos.
 - **R1.6** **Un producto dado de baja** (08 · R7.4) no aparece en la búsqueda; se ve con el filtro
-  «Dados de baja», con su margen guardado. Si una lista lo vuelve a traer, vuelve solo, con su margen
-  (08 · R7.5).
+  «Dados de baja», con su margen guardado, que busca por palabras empezadas y por marca, sin el error
+  de tipeo de R3.1. Se le pueden cambiar el margen, la unidad y el IVA, para dejarlo listo. Si una
+  lista lo vuelve a traer, vuelve solo, con su margen (08 · R7.5).
 
 ## 2. El margen y el precio
 
@@ -85,7 +86,8 @@ Lo que Carlos ya confirmó de la etapa c está en el [resumen](summary.md).
 
 - **R4.1** **Ver el catálogo y los precios de venta pide solo la sesión.** Con «Ver costos» se ven
   además el margen, el proveedor, el costo y «Así se calcula»; sin él, solo el precio de venta: con el
-  margen y el precio a la vista se podría sacar el costo.
+  margen y el precio a la vista se podría sacar el costo. Por lo mismo, «Ver quién hizo qué» incluye
+  «Ver costos» (05 · R3.1).
 - **R4.2** **El servidor controla cada cambio:** sin el permiso, lo rechaza sin cambiar nada,
   diciendo qué permiso hace falta (02 · R7.6), y queda como intento rechazado en Quién hizo qué
   (05 · R1.2).
@@ -179,3 +181,7 @@ Lo que Carlos ya confirmó de la etapa c está en el [resumen](summary.md).
   **entonces** no se aplica y dice que se pasaría de 200.000.
 - **E26** **Dado** una persona sin sesión, **cuando** pide el catálogo al servidor, **entonces** no
   recibe nada.
+- **E27** **Dado** dos productos dados de baja, «Gancho Bremen» y «Grampa», **cuando** con el filtro
+  «Dados de baja» se busca «ganc» o se elige la marca Bremen, **entonces** aparece solo el gancho.
+- **E28** **Dado** un rol al que se le tilda «Ver quién hizo qué», **cuando** se lo mira, **entonces**
+  «Ver costos» quedó tildado solo y no se puede destildar.

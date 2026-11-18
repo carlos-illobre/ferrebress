@@ -7,11 +7,15 @@ import { button, shown } from './users-scenes.ts';
 
 const settings = {
   settings: {
-    roundingStep: { value: 1000, version: 3 },
+    roundingStep: { value: 100_000, version: 3 },
     quickMargins: { value: [300, 200, 100, 50, 25], version: 1 },
     sessionIdle: { value: 60, version: 0 },
     sessionMax: { value: 8, version: 0 },
     pairingDays: { value: 30, version: 2 },
+    offlineHours: { value: 24, version: 0 },
+    googleAttempts: { value: 10, version: 0 },
+    passkeyAttempts: { value: 20, version: 0 },
+    failedAttempts: { value: 20, version: 0 },
     reviewPercent: { value: 50, version: 0 },
     goneWarnPercent: { value: 20, version: 0 },
     maxFileMb: { value: 30, version: 0 },
@@ -23,12 +27,12 @@ const settings = {
 };
 const rounding = {
   total: 3486,
-  changes: { 0: 3412, 10: 3398, 50: 3120, 100: 2874, 500: 1650, 5000: 3077 },
+  changes: { 1: 3412, 1000: 3398, 5000: 3120, 10000: 2874, 50000: 1650, 500000: 3077 },
   examples: [
-    { name: 'Martillo carpintero 27 mm', calculated: 15_001 },
-    { name: 'Cinta métrica 5 m', calculated: 8437 },
-    { name: 'Pinza universal 8"', calculated: 12_640 },
-    { name: 'Tarugos S8 × 100', calculated: 3215 },
+    { name: 'Martillo carpintero 27 mm', calculated: '1500100' },
+    { name: 'Cinta métrica 5 m', calculated: '843700' },
+    { name: 'Pinza universal 8"', calculated: '1264000' },
+    { name: 'Tarugos S8 × 100', calculated: '321500' },
   ],
 };
 

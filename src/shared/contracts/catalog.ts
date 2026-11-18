@@ -33,8 +33,8 @@ const vat = z.union([z.literal(210), z.literal(105), z.literal(270)]);
 export const vatBody = z.strictObject({
   before: vat,
   value: vat,
-  // «Deshacer» un IVA a mano: vuelve a ser de la lista (R1.4).
-  undo: z.optional(z.boolean()),
+  // «Deshacer» lo deja como estaba (R1.4): si era de la lista o puesto a mano. Sin esto, a mano.
+  manual: z.optional(z.boolean()),
 });
 export type MarginBody = z.infer<typeof marginBody>;
 export type UnitBody = z.infer<typeof unitBody>;

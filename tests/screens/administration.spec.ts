@@ -30,10 +30,10 @@ const rounding = {
   total: 3486,
   changes: { 1: 3412, 1000: 3398, 5000: 3120, 10000: 2874, 50000: 1650, 500000: 3077 },
   examples: [
-    { name: 'Martillo carpintero 27 mm', calculated: 1_500_100 },
-    { name: 'Cinta métrica 5 m', calculated: 843_700 },
-    { name: 'Pinza universal 8"', calculated: 1_264_000 },
-    { name: 'Tarugos S8 × 100', calculated: 321_500 },
+    { name: 'Martillo carpintero 27 mm', calculated: '1500100' },
+    { name: 'Cinta métrica 5 m', calculated: '843700' },
+    { name: 'Pinza universal 8"', calculated: '1264000' },
+    { name: 'Tarugos S8 × 100', calculated: '321500' },
   ],
 };
 

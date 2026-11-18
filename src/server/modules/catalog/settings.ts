@@ -9,10 +9,14 @@ export const catalogSettings = {
   page: 50,
   // Lo que queda de la última búsqueda de cada sesión, para las páginas siguientes.
   searchKeepMs: minute,
+  // Entre todas las búsquedas guardadas, como mucho tantos encontrados (unos 16 MB).
+  searchesKept: 2_000_000,
   // Cuánto espera un cambio a que termine una lista que se aplica antes de rechazarse.
   waitListMs: 5 * second,
   limits: {
+    // Por persona: abrir otra sesión no da más.
     search: { max: 120, windowMs: minute },
+    reads: { max: 120, windowMs: minute },
     changes: { max: 60, windowMs: minute },
   },
 };

@@ -37,8 +37,8 @@ describe('las consultas de cada pedido del catálogo', () => {
     expect(await count(() => kit.product(id))).toBe(2);
   });
 
-  it('un cambio de margen: 4 dentro de la transacción (la espera, el paso, el producto y guardar)', async () => {
-    // Abrir y confirmar la transacción son 2 más.
-    expect(await count(() => kit.setMargin(id, null, 50))).toBe(6);
+  it('un cambio de margen: 4 dentro de la transacción (el paso, la espera, el producto y guardar)', async () => {
+    // Abrir y confirmar la transacción son 2 más, y la búsqueda lo lee al confirmar, 1 más.
+    expect(await count(() => kit.setMargin(id, null, 50))).toBe(7);
   });
 });

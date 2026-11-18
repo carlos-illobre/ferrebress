@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { describe, expect, it } from 'vitest';
 import { createDeviceNames } from './device-names.ts';
-import { createGuards } from './guards.ts';
+import { addressKey, createGuards } from './guards.ts';
 import type { Platform } from './modules.ts';
 import type { RequestSession } from './session.ts';
 import type { AuditEvent } from './storage/audit/event.ts';
@@ -45,5 +45,16 @@ describe('lo que se anota del dispositivo', () => {
       { phone: false, browser: 'chrome', os: 'windows', name: 'Caja' },
       { phone: false, browser: 'chrome', os: 'windows' },
     ]);
+  });
+});
+
+describe('la dirección en un límite', () => {
+  it('una de IPv4 tal cual; una de IPv6, por su red /64', () => {
+    expect(addressKey('190.1.2.3')).toBe('190.1.2.3');
+    expect(addressKey('::ffff:190.1.2.3')).toBe('190.1.2.3');
+    expect(addressKey('2001:db8:0:1:aaaa::1')).toBe('2001:db8:0:1::/64');
+    expect(addressKey('2001:0DB8:0000:0001:ffff:ffff:ffff:ffff')).toBe('2001:db8:0:1::/64');
+    expect(addressKey('2001:db8::7')).toBe('2001:db8:0:0::/64');
+    expect(addressKey('::1')).toBe('0:0:0:0::/64');
   });
 });

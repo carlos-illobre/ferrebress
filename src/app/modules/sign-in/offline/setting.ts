@@ -18,15 +18,14 @@ import {
   offlineOption,
 } from './option.ts';
 
-// `blocked`: no se puede prender, y por qué (04 · R5.3).
-// `onDetail`: lo que dice prendida.
+// `blocked`: no se puede prender; `says` dice por qué (04 · R5.3).
+// `says`: lo que dice debajo del nombre (por qué no se puede, o qué hace, prendida o apagada).
 export type OfflineRow = {
   name: string;
-  detail: string;
-  onDetail: string;
+  says: string;
   on: boolean;
   toggle: () => void;
-  blocked?: string;
+  blocked?: true;
 };
 
 const t = texts.offlineSetting;
@@ -37,18 +36,20 @@ export function useOfflineSetting(who: Person | undefined): OfflineRow | undefin
   if (!who || !isPhone() || !can(who, 'offline.work')) return undefined;
   const on = current?.person.userId === who.userId;
   const hours = knownOfflineHours();
-  const words = { name: t.name, detail: t.detail(hours), onDetail: t.onDetail(hours) };
+  const says = on ? t.onDetail(hours) : t.detail(hours);
   // Sin `offline` del servidor no se prende; pero si es suya y está prendida (una sesión abierta sin
   // conexión, que no trae `offline`), la puede apagar igual (15 · R1.5).
   if (!who.offline && !on)
     return {
-      ...words,
+      name: t.name,
+      says: hasPasskey() ? t.otherPasskey : t.needsPasskey,
       on: false,
       toggle: () => undefined,
-      blocked: hasPasskey() ? t.otherPasskey : t.needsPasskey,
+      blocked: true,
     };
   return {
-    ...words,
+    name: t.name,
+    says,
     on,
     toggle() {
       if (on) return disableOffline();

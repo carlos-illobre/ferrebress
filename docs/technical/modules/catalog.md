@@ -33,7 +33,8 @@ Corregido con la [revisión del diseño](catalog-design-review.md) y la
 - **Buscar y listar salen de un índice en la memoria del servidor** ([ADR-022](../adr/ADR-022-catalog-search.md)),
   con los productos que no están dados de baja: el orden, los filtros y los números salen de ahí, y la
   página de 50 sale de la base con una consulta por clave. Los dados de baja, que pueden crecer con los
-  años, no están en el índice: su filtro sale de la base. El índice vive en `src/shared/search/`, sin
+  años, no están en el índice: su filtro sale de la base, con las palabras empezadas y la marca (R1.6),
+  sin el error de tipeo. El índice vive en `src/shared/search/`, sin
   nada del servidor, para que en 15b sirva también en el celular (R3.3).
 - **Cambiar un dato choca solo con quien cambió el mismo** (R1.5): el pedido manda el valor que vio
   (`before`) y el nuevo; si en la base hay otro, `409` con el de ahora.
@@ -80,7 +81,7 @@ Todas las rutas piden sesión (R4.1, E26): sin ella, `401` sin leer nada.
 | `GET /api/catalog/brands` | Las marcas, para el filtro: salen del índice | Sesión | 0 |
 | `POST /api/catalog/products/:id/margin` | `{ before, value }` (R2.7) | «Cambiar márgenes» | 4, más abrir y confirmar |
 | `POST /api/catalog/products/:id/unit` | `{ before, value }` (R1.4) | «Cambiar los datos de un producto» | 4, más abrir y confirmar |
-| `POST /api/catalog/products/:id/vat` | `{ before, value, undo? }` (R1.4) | «Cambiar los datos de un producto» | 4, más abrir y confirmar |
+| `POST /api/catalog/products/:id/vat` | `{ before, value, manual? }` (R1.4) | «Cambiar los datos de un producto» | 4, más abrir y confirmar |
 
 **Lo que entra** (`src/shared/contracts/catalog.ts`): `q`, hasta 80 letras y 8 palabras (R3.1); `brand`,
 hasta 80 letras; `show`, uno de los dos; `after`, la posición en la lista (un entero) o, con «Dados de
@@ -121,14 +122,17 @@ type Product = ProductRow & {
 - **`total` y `noPrice`** cuentan los que no están dados de baja, con la marca elegida si hay una (E16).
 - **`stepCents`** va en cada página, para mostrar los decimales del paso (R2.3). Sale de la memoria de
   Administración, sin consulta.
-- **Un cambio** se guarda en una transacción: pone la espera de las filas trabadas en 5 s
-  (`lock_timeout`), lee `catalog.pricing` con `for share` y el producto con `for update`, compara
-  `before` y guarda el valor con su precio nuevo, calculado con `salePrice`, en una sentencia; anota en
-  Quién hizo qué al confirmar. Si una lista del proveedor tiene trabado el producto más de 5 s, `409
-  list-applying`. Contesta el producto nuevo; `409 product-changed` con el producto de ahora (R1.5,
-  E04); `400` si no vale (E09); `404` si no existe. El mismo valor que ya tenía no cambia nada.
-- **«Deshacer»** es otro cambio con `before` igual al valor nuevo (R1.4); el del IVA lleva `undo: true`
-  y vuelve a `vat_from_list` con `vat_manual = false` si el valor de antes era el de la lista (E23).
+- **Un cambio** se guarda en una transacción: lee `catalog.pricing` con `for share` (sin tope de
+  espera: un recálculo del redondeo tarda segundos), pone la espera de las filas trabadas en 5 s
+  (`lock_timeout`), traba el producto con `for update`, compara `before` y guarda el valor con su
+  precio nuevo, calculado con `rawCents` y `roundUp`, en una sentencia; anota en Quién hizo qué al
+  confirmar y pone el producto en la cola del índice. Si una lista del proveedor tiene trabado el
+  producto más de 5 s, `409 list-applying`. Contesta el producto nuevo; `409 product-changed` con el
+  producto de ahora (R1.5, E04); `400` si no vale (E09; el rango está en el contrato); `404` si no
+  existe. El mismo valor que ya tenía no cambia nada. Un producto dado de baja también se cambia
+  (R1.6).
+- **«Deshacer»** es otro cambio con `before` igual al valor nuevo (R1.4); el del IVA manda además
+  `manual`, cómo estaba: de la lista o puesto a mano (E23). Sin `manual`, queda a mano.
 - **El margen** acepta `null` (sacarlo): el producto vuelve a «sin precio».
 
 ## 4. El precio y el redondeo
@@ -161,9 +165,15 @@ type Product = ProductRow & {
 
 El índice ([ADR-022](../adr/ADR-022-catalog-search.md)), en `src/shared/search/`:
 
+- **Dos partes** (`index.ts`): uno grande armado de una vez, que no cambia (`built.ts`), y uno chico
+  con lo que cambió después, que se arma de nuevo en cada cambio; buscar recorre los dos y junta lo
+  encontrado por la clave de orden. Cuando lo cambiado pasa de 2.000, el grande se vuelve a armar de a
+  pedazos (de a 5.000 productos), cediendo el turno entre uno y otro: lo más largo sin ceder es de unos
+  120 ms. Mientras tanto, con tantos cambios juntos (una lista grande), se busca en el grande de antes:
+  la lista nueva se ve unos segundos después.
 - **Lo que guarda,** de cada producto que no está dado de baja: un número de orden, su identificador,
-  su clave de orden (la descripción como `searchKey`, comparada con `Intl.Collator('es')` una sola vez al
-  armar), su marca, si tiene precio, y sus palabras y códigos.
+  su clave de orden (la descripción como `searchKey`, comparada letra por letra, igual que los dados de
+  baja en la base con `collate "C"`), su marca, si tiene precio, y sus palabras y códigos.
 - **Las palabras** de la descripción y la marca, como `searchKey`, partidas por espacios y signos; las de
   menos de 2 letras («8», «x») no cuentan como palabra. Van en un vocabulario ordenado (un arreglo de
   palabras únicas); los productos de cada una, en orden, en un solo `Uint32Array` plano con dónde empieza
@@ -185,15 +195,20 @@ El índice ([ADR-022](../adr/ADR-022-catalog-search.md)), en `src/shared/search/
 - **Los filtros** (marca, «Sin precio») se aplican sobre el resultado con lo que guarda cada producto;
   sin nada escrito, el resultado es todos en orden.
 - **Las páginas siguientes** no vuelven a buscar: el resultado de la última búsqueda de cada sesión
-  queda 1 minuto (por sesión, como mucho uno), y `after` es la posición en él.
+  queda 1 minuto (por sesión, como mucho uno), y `after` es la posición en él. Entre todas, como mucho
+  2.000.000 de encontrados (unos 16 MB): pasado eso se olvidan las más viejas.
 - **Al arrancar** se arma con una consulta. **Al confirmar** cada transacción de las listas que cambia
-  productos, quien la abrió corre `catalog.committed(trx)`, que lee de la base los productos que tocó y
-  vuelve a armar el índice de una vez (menos de un segundo con 100.000). Un cambio de margen solo cambia
-  si el producto tiene precio, sin volver a armar nada. Si poner al día falla, el índice se vuelve a
-  armar desde la base.
-- **El tope** (R3.5): 200.000 productos que no están dados de baja. `create` mira cuántos tiene el
-  índice, más lo que ya sumó la transacción y lo que crearía; si se pasa, lanza `CatalogFull` con por
-  cuántos, y la lista vuelve a esperar con el motivo `catalog-full` y ese número (08 · R7.7, E25).
+  productos, quien la abrió corre `catalog.committed(trx)`, que pone los productos que tocó en la cola
+  del índice; un cambio de un producto, también. La cola los lee de la base de a uno y en orden, así
+  ninguno pisa a otro más nuevo; si poner al día falla, el índice se vuelve a armar desde la base, y si
+  eso también falla, se anota y la cola sigue.
+- **El tope** (R3.5): 200.000 productos que no están dados de baja. Lo que suma activos (crear y traer
+  de vuelta) los cuenta en la base la primera vez en la transacción y suma lo suyo; si se pasa, lanza
+  `CatalogFull` con por cuántos, y la lista vuelve a esperar con el motivo `catalog-full` y ese número
+  (08 · R7.7, E25).
+- **El paso, primero:** la primera escritura de cada transacción de una lista lee `catalog.pricing` con
+  `for share` antes de trabar ningún producto. Así una lista y el recálculo del redondeo se esperan en
+  vez de trabarse entre ellos.
 
 ## 6. Eventos y auditoría
 
@@ -222,17 +237,17 @@ El índice ([ADR-022](../adr/ADR-022-catalog-search.md)), en `src/shared/search/
 | `settings.ts` | Páginas de 50, cuánto queda una búsqueda, los límites, la espera de 5 s, el tope de 200.000 |
 | `routes/products.ts`, `routes/changes.ts` | La lista, el producto, las marcas y los tres cambios |
 | `rules/changes.ts`, `rules/views.ts` | Qué vale de cada cambio y qué ve cada uno (R4.1), sin tecnología |
-| `data.ts`, `data-pages.ts`, `data-pricing.ts`, `data-changes.ts` | Las consultas |
+| `data/` | Las consultas: los productos que escriben las listas, las páginas, el precio, los cambios |
 | `recalculator.ts` | El recálculo del redondeo para Administración |
-| `migrations/002-prices.ts` | Las columnas nuevas y `catalog.pricing` |
+| `migrations/002-prices.ts`, `003-brand-key.ts` | Las columnas nuevas, `catalog.pricing`, la marca como clave y el IVA de la lista de los puestos a mano |
 
 ### Código común
 
 - `src/shared/pricing/sale.ts`: el precio de venta y sus pasos (`salePrice`).
 - `src/shared/pricing/rounding.ts`: en centavos.
 - `src/shared/money/`: `priceText(cents, stepCents)`, `centsText` y `stepText`.
-- `src/shared/search/`: el índice y cómo se parte un texto en palabras y códigos (con `searchKey`, sin
-  repetirlo).
+- `src/shared/search/`: el índice (`index.ts`, sus dos partes; `built.ts`, el armado) y cómo se parte
+  un texto en palabras y códigos (`words.ts`, con `searchKey`, sin repetirlo).
 - `src/shared/contracts/catalog.ts`: las rutas, los cuerpos y sus rangos.
 - `src/shared/contracts/server-header.ts`: la versión del contrato sube a 3, porque el paso del redondeo
   cambió de unidad (00 · R5.5).
@@ -246,7 +261,11 @@ El índice ([ADR-022](../adr/ADR-022-catalog-search.md)), en `src/shared/search/
   confirmar. `create` recibe el código del proveedor. La fachada de 08 suma `costSourceOf(productId)`
   (el proveedor y la cuenta del costo), que conecta `server/modules.ts`. Una lista que pasaría el tope
   vuelve a esperar con `catalog-full` y por cuántos (`over`, guardado en su resultado; 08 · R7.7).
-- **`users`:** los dos permisos nuevos con su inclusión.
+- **`users`:** los dos permisos nuevos con su inclusión, y «Ver quién hizo qué» incluye «Ver costos»
+  (05 · R3.1). Al arrancar, cada rol recibe lo que incluyen sus permisos, aunque la inclusión sea más
+  nueva que el rol (`addIncluded`).
+- **`sign-in`:** la dirección de IPv6 se cuenta por su red /64 en los límites; el celular toma solo
+  horas sin conexión de la lista de Administración.
 - **`audit-log`:** los textos de § 6.
 
 ## 8. Conexiones
@@ -261,12 +280,13 @@ El índice ([ADR-022](../adr/ADR-022-catalog-search.md)), en `src/shared/search/
 - **El panel del redondeo** no muestra precios calculados reales sin «Ver costos» (06 · R3.7).
 - **Lo que entra:** § 3, validado con el contrato.
 - **Abuso:**
-  - buscar, 120 por minuto por sesión, sin consulta a la base por cada letra, con como mucho 8 palabras
-    y el error de tipeo solo desde 4 letras;
+  - buscar, 120 por minuto por persona, sin consulta a la base por cada letra, con como mucho 8
+    palabras y el error de tipeo solo desde 4 letras; un producto y las marcas, otros 120;
   - los cambios, 60 por minuto por persona (no por sesión);
-  - el panel y el recálculo del redondeo, 10 por minuto.
-- **Memoria:** el tope de 200.000 productos activos (R3.5); unos 85 MB de índice en ese caso; los dados
-  de baja, fuera del índice.
+  - el panel y el cambio del redondeo, 10 por minuto cada uno.
+- **Memoria:** el tope de 200.000 productos activos (R3.5); unos 135 MB de índice en ese caso, con
+  descripciones como las de una lista de verdad; las búsquedas guardadas, con su tope; los dados de
+  baja, fuera del índice.
 - **Precios enormes:** en centavos entran en un `bigint` (§ 1); el contrato los manda como texto.
 - **Auditoría:** cada cambio, con quién, los dos valores y los dos precios.
 - **Sin datos personales nuevos.**
@@ -275,15 +295,17 @@ El índice ([ADR-022](../adr/ADR-022-catalog-search.md)), en `src/shared/search/
 
 | Qué | Meta | Medido (`pnpm perf`, base de pruebas) |
 |---|---|---|
-| Buscar en 100.000 productos | Menos de 100 ms (R3.3, E15), sin consultar la base para buscar; la página, una consulta por clave | De 1 a 8 ms |
-| La lista sin nada escrito | Del índice, y la página por clave | 5 ms |
-| Un cambio de margen | 4 consultas, menos de 100 ms (R2.7) | 4, más abrir y confirmar |
-| Armar el índice al arrancar | 100.000 productos en menos de 2 s, una consulta | 0,9 s de leer y 0,8 s de armar |
+| Buscar en 100.000 productos | Menos de 100 ms (R3.3, E15), sin consultar la base para buscar; la página, una consulta por clave | De 2 a 15 ms |
+| La lista sin nada escrito | Del índice, y la página por clave | 12 ms |
+| Un cambio de margen | 4 consultas, menos de 100 ms (R2.7) | 4, más abrir y confirmar, y 1 de la cola del índice |
+| Armar el índice al arrancar | 100.000 productos en menos de 2 s, una consulta | 1,1 s de leer y 1,3 s de armar |
+| Poner al día el índice | Sin frenar a nadie | Un producto, al instante; una lista de 10.000, de a pedazos de hasta 120 ms |
 | Contar para el redondeo | Una consulta; recalcular, una sentencia, menos de 5 s con 100.000 | 20 ms y 1 s |
-| Memoria del índice | Menos de 60 MB con 100.000 productos | 42 MB |
+| Memoria del índice | Menos de 150 MB por cada 100.000 productos | 67 MB con 100.000; 134 MB con 200.000 |
 
-La memoria pasó la primera estimación (30 MB) por los productos que guarda para volver a armarse y por
-las listas de cada palabra; con un solo arreglo plano bajó de 55 MB a 42 MB.
+Las descripciones de la prueba tienen de 8 a 12 palabras, con medidas, un modelo y una marca, como las
+de una lista de verdad. La memoria pasó la primera estimación (30 MB) por los productos que guarda para
+volver a armarse y por las palabras distintas de cada uno.
 
 ## 11. Escenarios y pruebas
 
@@ -300,7 +322,9 @@ las listas de cada palabra; con un solo arreglo plano bajó de 55 MB a 42 MB.
 | E17, E18, E19, E26 | Las respuestas sin «Ver costos», la inclusión del permiso, el rechazo, sin sesión | Sí |
 | E20 | El evento de la auditoría | Sí |
 | E21, E22 | El espejo y sin conexión | a2 |
-| E25 | Una lista que pasaría el tope | Sí |
+| E25 | Una lista que pasaría el tope, también trayendo de vuelta dados de baja | Sí |
+| E27 | Buscar entre los dados de baja | Sí |
+| E28 | La inclusión de «Ver costos» en «Ver quién hizo qué», también en un rol de antes | Sí |
 | 08 · E28, E72, E76, E95 | Con una lista sobre productos con datos a mano o dados de baja | Sí |
 | 08 · E12, E13, E74 | Un producto con dos proveedores | 07c |
 

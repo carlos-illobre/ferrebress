@@ -13,7 +13,7 @@ describe('cambiar el redondeo', () => {
     preview: async () => ({
       total: 3486,
       changes: Object.fromEntries(fake.changes),
-      examples: [{ name: 'Martillo carpintero', calculated: 1_500_100 }],
+      examples: [{ name: 'Martillo carpintero', calculated: '1500100' }],
     }),
     changesWith: async (step) => fake.changes.get(step) ?? 0,
     apply: async (step) => {
@@ -36,7 +36,7 @@ describe('cambiar el redondeo', () => {
     expect((await kit.admin.request('/api/administration/rounding')).body).toEqual({
       total: 3486,
       changes: { 50000: 1650 },
-      examples: [{ name: 'Martillo carpintero', calculated: 1_500_100 }],
+      examples: [{ name: 'Martillo carpintero', calculated: '1500100' }],
     });
   });
 
@@ -114,6 +114,30 @@ describe('cambiar el redondeo', () => {
     const applied = fake.applied.length;
     expect((await save({ value: 1000, version: 1 })).status).toBe(409);
     expect(fake.applied).toHaveLength(applied);
+  });
+});
+
+describe('el límite del redondeo', () => {
+  it('10 cambios por minuto, aparte de los de los demás ajustes', async () => {
+    const kit = await createRolesKit();
+    const statuses = [];
+    for (let i = 0; i < 11; i++)
+      statuses.push(
+        (
+          await kit.admin.request('/api/administration/settings/roundingStep', {
+            value: 3,
+            version: 0,
+          })
+        ).status,
+      );
+    expect(statuses.slice(0, 10).every((status) => status === 400)).toBe(true);
+    expect(statuses.at(-1)).toBe(429);
+    const other = await kit.admin.request('/api/administration/settings/pairingDays', {
+      value: 0,
+      version: 0,
+    });
+    expect(other.status).toBe(400);
+    await kit.server.close();
   });
 });
 

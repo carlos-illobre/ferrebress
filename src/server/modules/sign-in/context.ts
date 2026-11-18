@@ -3,7 +3,7 @@
 import type { Person } from '@ferrebress/shared/contracts/sign-in';
 import type { MiddlewareHandler } from 'hono';
 import type { Kysely } from 'kysely';
-import { createGuards, type Guards } from '../../platform/guards.ts';
+import { addressKey, createGuards, type Guards } from '../../platform/guards.ts';
 import { createOneUse } from '../../platform/limits/one-use.ts';
 import type { Window } from '../../platform/limits/rate-limit.ts';
 import { createGuardedMemory } from '../../platform/memory.ts';
@@ -71,7 +71,7 @@ function createEntry(guards: Guards, settings: () => SignInNow) {
     limit:
       (method: EntryMethod): MiddlewareHandler =>
       async (c, next) =>
-        guards.throttle(c, [`${method}:ip:${c.get('ipAddress')}`], entryPerIp) ??
+        guards.throttle(c, [`${method}:ip:${addressKey(c.get('ipAddress'))}`], entryPerIp) ??
         guards.throttle(c, [`${method}:device:${c.get('deviceId')}`], perDevice(method)) ??
         (await next()),
     // Los fallos de una cuenta por hora (01 · R2.10).

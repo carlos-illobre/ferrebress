@@ -4,8 +4,8 @@
 // recalcular el precio (data-pricing.ts).
 import { searchKey } from '@ferrebress/shared/text/search-key';
 import { type Kysely, type RawBuilder, sql } from 'kysely';
-import { type Priced, rowsOf } from './data-rows.ts';
-import type { DB } from './tables.generated.ts';
+import type { DB } from '../tables.generated.ts';
+import { type Priced, rowsOf } from './rows.ts';
 
 export type CatalogTables = DB;
 type Db = Kysely<CatalogTables>;
@@ -36,7 +36,7 @@ export type ProductChange = {
 
 export type ProductCost = { id: string; cost: bigint | null; supplierId: string | null };
 
-export type ProductRow = {
+export type ProductRecord = {
   id: string;
   description: string;
   brand: string | null;
@@ -49,8 +49,13 @@ export type ProductRow = {
   discontinued: boolean;
 };
 
-const keyed = <T extends { description: string }>(rows: readonly T[]) =>
-  rows.map((row) => ({ ...row, key: searchKey(row.description) }));
+// La descripción y la marca como claves, para ordenar y filtrar en la base (los dados de baja).
+const keyed = <T extends { description: string; brand: string | null }>(rows: readonly T[]) =>
+  rows.map((row) => ({
+    ...row,
+    key: searchKey(row.description),
+    brandKey: row.brand === null ? null : searchKey(row.brand),
+  }));
 
 // Crear y poner al día lo que trae una lista.
 const writes = (db: Db) => ({
@@ -58,11 +63,11 @@ const writes = (db: Db) => ({
   async create(products: readonly NewProduct[]): Promise<void> {
     await sql`
       insert into catalog.products (id, supplier_code, description, brand, barcode, vat,
-        vat_from_list, cost, cost_supplier_id, search_key)
-      select id, code, description, brand, barcode, vat, vat, cost, "supplierId", key
+        vat_from_list, cost, cost_supplier_id, search_key, brand_key)
+      select id, code, description, brand, barcode, vat, vat, cost, "supplierId", key, "brandKey"
       from jsonb_to_recordset(${rowsOf(keyed(products))}) as v(
         id uuid, code text, description text, brand text, barcode text, vat smallint, cost bigint,
-        "supplierId" uuid, key text)`.execute(db);
+        "supplierId" uuid, key text, "brandKey" text)`.execute(db);
   },
 
   // Lo que trae el artículo; el IVA, solo si nadie lo cambió a mano (R3.6, R7.3). El de la lista se
@@ -72,9 +77,11 @@ const writes = (db: Db) => ({
       sql<Priced>`
         update catalog.products p
         set description = v.description, brand = v.brand, barcode = v.barcode, search_key = v.key,
-          vat_from_list = v.vat, vat = case when p.vat_manual then p.vat else v.vat end
+          brand_key = v."brandKey", vat_from_list = v.vat,
+          vat = case when p.vat_manual then p.vat else v.vat end
         from jsonb_to_recordset(${rowsOf(keyed(changes))}) as v(
-          id uuid, description text, brand text, barcode text, vat smallint, key text)
+          id uuid, description text, brand text, barcode text, vat smallint, key text,
+          "brandKey" text)
         where p.id = v.id
         returning ${pricedOf}`,
       db,
@@ -104,11 +111,7 @@ const states = (db: Db) => ({
       db,
     ),
 
-  async setDiscontinued(ids: readonly string[], discontinued: boolean): Promise<void> {
-    await db.updateTable('catalog.products').set({ discontinued }).where('id', 'in', ids).execute();
-  },
-
-  read: async (ids: readonly string[]): Promise<ProductRow[]> =>
+  read: async (ids: readonly string[]): Promise<ProductRecord[]> =>
     ids.length === 0
       ? []
       : (
@@ -132,6 +135,27 @@ const states = (db: Db) => ({
         ).map((row) => ({ ...row, cost: row.cost === null ? null : BigInt(row.cost) })),
 });
 
-export const catalogData = (db: Db) => ({ ...writes(db), ...states(db) });
+// La baja y la vuelta, y cuántos activos hay.
+const actives = (db: Db) => ({
+  // Cuántos cambiaron de verdad: uno que ya estaba así no cuenta.
+  async setDiscontinued(ids: readonly string[], discontinued: boolean): Promise<number> {
+    const result = await db
+      .updateTable('catalog.products')
+      .set({ discontinued })
+      .where('id', 'in', ids)
+      .where('discontinued', '<>', discontinued)
+      .executeTakeFirstOrThrow();
+    return Number(result.numUpdatedRows);
+  },
+
+  // Los que no están dados de baja (07 · R3.5).
+  async activeCount(): Promise<number> {
+    const { rows } = await sql<{ count: string }>`
+      select count(*) as count from catalog.products where not discontinued`.execute(db);
+    return Number((rows[0] as { count: string }).count);
+  },
+});
+
+export const catalogData = (db: Db) => ({ ...writes(db), ...states(db), ...actives(db) });
 
 export type CatalogData = ReturnType<typeof catalogData>;

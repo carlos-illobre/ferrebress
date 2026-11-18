@@ -10,21 +10,38 @@ import {
   productsQuery,
 } from '@ferrebress/shared/contracts/catalog';
 import type { Found } from '@ferrebress/shared/search/index';
+import { queryWords } from '@ferrebress/shared/search/words';
+import { searchKey } from '@ferrebress/shared/text/search-key';
 import type { Context } from 'hono';
 import { fail } from '../../../platform/http.ts';
 import { sessionOf } from '../../../platform/session.ts';
-import { pagesData } from '../data-pages.ts';
+import { pagesData } from '../data/pages.ts';
 import { productOf, rowOf } from '../rules/views.ts';
 import { catalogSettings } from '../settings.ts';
 import type { CatalogContext } from './context.ts';
 import { seesCosts } from './context.ts';
 
-// La última búsqueda de cada sesión, para las páginas siguientes sin volver a buscar.
+// La última búsqueda de cada sesión, para las páginas siguientes sin volver a buscar, por un minuto.
+// Entre todas, como mucho `searchesKept` encontrados: pasado eso se olvidan las más viejas.
 function createSearches(ctx: CatalogContext) {
   const kept = new Map<string, { key: string; found: Found; at: number }>();
+  let stored = 0;
+  const forget = (id: string) => {
+    stored -= kept.get(id)?.found.ids.length ?? 0;
+    kept.delete(id);
+  };
+  const keep = (id: string, one: { key: string; found: Found; at: number }) => {
+    forget(id);
+    kept.set(id, one);
+    stored += one.found.ids.length;
+    for (const [oldest] of kept) {
+      if (stored <= catalogSettings.searchesKept || oldest === id) break;
+      forget(oldest);
+    }
+  };
   return (sessionId: string, query: ProductsQuery): Found => {
     const now = ctx.platform.clock.now().getTime();
-    for (const [id, one] of kept) if (now - one.at > catalogSettings.searchKeepMs) kept.delete(id);
+    for (const [id, one] of kept) if (now - one.at > catalogSettings.searchKeepMs) forget(id);
     const key = JSON.stringify([query.q ?? '', query.brand, query.show]);
     const last = kept.get(sessionId);
     const found =
@@ -35,7 +52,7 @@ function createSearches(ctx: CatalogContext) {
             brand: query.brand,
             noPrice: query.show === 'noPrice',
           });
-    kept.set(sessionId, { key, found, at: now });
+    keep(sessionId, { key, found, at: now });
     return found;
   };
 }
@@ -60,9 +77,13 @@ const validAfter = (query: ProductsQuery) =>
 
 // Los dados de baja (R1.6): `after` es la clave y el identificador del último.
 async function discontinued(ctx: CatalogContext, c: Context, query: ProductsQuery) {
-  const after = query.after ? lastOf(query.after) : undefined;
   const { page } = catalogSettings;
-  const rows = await pagesData(ctx.db).discontinued(after, page);
+  const rows = await pagesData(ctx.db).discontinued({
+    after: query.after ? lastOf(query.after) : undefined,
+    words: queryWords(query.q ?? ''),
+    brandKey: query.brand === undefined ? undefined : searchKey(query.brand),
+    limit: page,
+  });
   const shown = rows.slice(0, page);
   const last = shown.at(-1);
   const counts = ctx.index.search({ text: '', brand: query.brand });
@@ -78,9 +99,14 @@ async function discontinued(ctx: CatalogContext, c: Context, query: ProductsQuer
 export function registerProductRoutes(ctx: CatalogContext): void {
   const { http, sessions } = ctx.platform;
   const search = createSearches(ctx);
+  // Por persona, no por sesión (diseño de 07, § 9).
   const limited = ctx.limit(
-    (c) => [`catalog-search:session:${sessionOf(c).id}`],
+    (c) => [`catalog-search:user:${sessionOf(c).userId}`],
     catalogSettings.limits.search,
+  );
+  const reads = ctx.limit(
+    (c) => [`catalog-reads:user:${sessionOf(c).userId}`],
+    catalogSettings.limits.reads,
   );
 
   http.get('/api/catalog/products', sessions.require, limited, async (c) => {
@@ -101,11 +127,11 @@ export function registerProductRoutes(ctx: CatalogContext): void {
     });
   });
 
-  http.get('/api/catalog/brands', sessions.require, (c) =>
+  http.get('/api/catalog/brands', sessions.require, reads, (c) =>
     c.json<BrandsResponse>({ brands: ctx.index.brands() }),
   );
 
-  http.get('/api/catalog/products/:id', sessions.require, async (c) => {
+  http.get('/api/catalog/products/:id', sessions.require, reads, async (c) => {
     const id = c.req.param('id');
     if (!productId.safeParse(id).success) return fail(c, 404, 'not-found');
     const stored = await pagesData(ctx.db).one(id);

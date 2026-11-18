@@ -25,7 +25,7 @@ export {
   weeks,
 } from './logic.ts';
 export { type AdminPage, openAdminPage, useAdminLinks, useAdminPage } from './pages.ts';
-export { zonePlace } from './panel-lines.ts';
+export { hoursEffect, zonePlace } from './panel-lines.ts';
 export { administrationSettings } from './settings.ts';
 export { groupOf, names, type Panel, pagesTexts, texts, what } from './texts.ts';
 export {

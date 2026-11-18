@@ -122,6 +122,58 @@ describe('buscar en el catálogo', () => {
     }
   });
 
+  it('catalog-E27: los dados de baja se buscan por palabras empezadas y por marca', async () => {
+    const lone = await kit.supplier('Proveedor Gancho');
+    await kit.applyList(lone, [
+      ['H1', 'Horquilla doble', 1, 21, 'Bremen'],
+      ['H2', 'Hebilla', 1],
+      ['H3', 'Queda', 1],
+    ]);
+    await kit.applyList(lone, [['H3', 'Queda', 1]]);
+    expect(names(await kit.search({ show: 'discontinued', q: 'horq' }))).toEqual([
+      'Horquilla doble',
+    ]);
+    expect(names(await kit.search({ show: 'discontinued', q: 'dob horq' }))).toEqual([
+      'Horquilla doble',
+    ]);
+    expect(names(await kit.search({ show: 'discontinued', brand: 'BREMEN' }))).toEqual([
+      'Horquilla doble',
+    ]);
+    expect(names(await kit.search({ show: 'discontinued', q: 'h2' }))).toEqual(['Hebilla']);
+    // Sin el error de tipeo.
+    expect(names(await kit.search({ show: 'discontinued', q: 'horquila' }))).toEqual([]);
+  });
+
+  it('lo buscado con signos raros no rompe nada', async () => {
+    for (const q of [
+      '%',
+      "'; drop table catalog.products; --",
+      '(.*)',
+      '\\',
+      '\u0000',
+      '[[',
+      '.*+?',
+    ])
+      expect((await kit.search({ q })).products).toBeDefined();
+    for (const q of ['%', '(.*)', '[[', '.*+?'])
+      expect((await kit.search({ q, show: 'discontinued' })).products).toBeDefined();
+    expect((await kit.search({ brand: '%' })).products).toEqual([]);
+  });
+
+  it('las búsquedas guardadas tienen un tope entre todas: pasado, se olvidan las más viejas', async () => {
+    const { searchesKept } = catalogSettings;
+    catalogSettings.searchesKept = 6;
+    try {
+      const first = await kit.search({}, kit.seller.device);
+      await kit.search({}, kit.viewer.device);
+      // La del vendedor se olvidó: su página siguiente vuelve a buscar, igual que antes.
+      const again = await kit.search({ after: '0' }, kit.seller.device);
+      expect(again.total).toBe(first.total);
+    } finally {
+      catalogSettings.searchesKept = searchesKept;
+    }
+  });
+
   it('catalog-E26: sin sesión, nada', async () => {
     const outsider = createDevice(kit.server);
     for (const path of ['/api/catalog/products', '/api/catalog/brands', '/api/catalog/products/x'])
@@ -147,9 +199,9 @@ describe('buscar en el catálogo', () => {
     ).toBe(404);
   });
 
-  it('el límite de búsquedas por sesión', async () => {
+  it('el límite de búsquedas, por persona', async () => {
     const { max } = catalogSettings.limits.search;
-    const device = kit.viewer.device;
+    const device = kit.margins.device;
     const statuses = [];
     for (let i = 0; i <= max; i++)
       statuses.push((await device.request('/api/catalog/products?q=a')).status);

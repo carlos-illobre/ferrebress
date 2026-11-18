@@ -3,7 +3,7 @@
 // en el índice, de a páginas por su clave de orden.
 import type { SearchDoc } from '@ferrebress/shared/search/index';
 import { type Kysely, sql } from 'kysely';
-import type { CatalogTables } from './data.ts';
+import type { CatalogTables } from './products.ts';
 
 type Db = Kysely<CatalogTables>;
 
@@ -44,6 +44,13 @@ const docOf = ({ code, barcode, discontinued: _, ...doc }: DocRow): SearchDoc =>
 const docColumns = sql`id, description, brand, supplier_code as code, barcode,
   sale_cents is not null as priced, discontinued`;
 
+export type DiscontinuedPage = {
+  after: { key: string; id: string } | undefined;
+  words: readonly string[];
+  brandKey: string | undefined;
+  limit: number;
+};
+
 export const pagesData = (db: Db) => ({
   // Lo que guarda el índice, de los que no están dados de baja.
   async docs(): Promise<SearchDoc[]> {
@@ -71,13 +78,20 @@ export const pagesData = (db: Db) => ({
     return rows.sort((a, b) => (order.get(a.id) as number) - (order.get(b.id) as number));
   },
 
-  // Los dados de baja, de a páginas, por su clave de orden (07 · R1.6). Uno de más dice si hay más.
-  async discontinued(after: { key: string; id: string } | undefined, limit: number) {
+  // Los dados de baja, de a páginas, por su clave de orden (07 · R1.6), con las palabras empezadas en
+  // la descripción, la marca o el código, y la marca. Uno de más dice si hay más.
+  async discontinued(page: DiscontinuedPage) {
+    const { after, words, brandKey, limit } = page;
     const from = after
       ? sql`and (search_key collate "C", id) > (${after.key}, ${after.id}::uuid)`
       : sql``;
+    const text = sql`(search_key || ' ' || coalesce(brand_key, '') || ' ' || lower(supplier_code))`;
+    // Las palabras son solo letras y números (words.ts): van tal cual en la expresión.
+    const each = words.map((word) => sql`and ${text} ~ ${`(^|[^[:alnum:]])${word}`}`);
+    const brand = brandKey === undefined ? sql`` : sql`and brand_key = ${brandKey}`;
     const { rows } = await sql<StoredProduct>`
-      select ${columns} from catalog.products where discontinued ${from}
+      select ${columns} from catalog.products where discontinued ${from} ${sql.join(each, sql` `)}
+        ${brand}
       order by search_key collate "C", id limit ${limit + 1}`.execute(db);
     return rows;
   },

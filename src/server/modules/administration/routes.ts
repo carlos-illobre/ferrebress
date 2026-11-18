@@ -23,6 +23,18 @@ import { type AdministrationTables, administrationData } from './data.ts';
 import { checkChange } from './rules.ts';
 import { administrationSettings } from './settings.ts';
 
+// Cambiar el redondeo recalcula todos los precios: además, su propio límite (diseño de 07, § 9).
+const roundingLimit =
+  (ctx: AdministrationContext): MiddlewareHandler =>
+  async (c, next) =>
+    c.req.param('key') === 'roundingStep'
+      ? (ctx.throttle(
+          c,
+          [`rounding-change:session:${sessionOf(c).id}`],
+          administrationSettings.rounding,
+        ) ?? (await next()))
+      : next();
+
 export function registerRoutes(ctx: AdministrationContext) {
   const { http, sessions, permissions } = ctx.platform;
   const body = readBody(bySchema(saveSettingBody));
@@ -56,6 +68,7 @@ export function registerRoutes(ctx: AdministrationContext) {
     permissions.require('settings.change'),
     knownKey,
     limited,
+    roundingLimit(ctx),
     body.step,
     async (c) =>
       change(ctx, c, settingKeyOf(c.req.param('key') as string) as SettingKey, body.of(c)),

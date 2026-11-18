@@ -16,6 +16,7 @@ export interface CatalogPricing {
 export interface CatalogProducts {
   barcode: string | null;
   brand: string | null;
+  brand_key: string | null;
   cost: Int8 | null;
   cost_supplier_id: string | null;
   description: string;

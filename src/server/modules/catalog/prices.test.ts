@@ -56,7 +56,7 @@ describe('el producto y su precio', () => {
 
   it('06-R3.7: los ejemplos del panel, de verdad solo con «Ver costos»', async () => {
     const real = (await kit.viewer.device.request('/api/administration/rounding')).body;
-    expect(real.examples[0]).toEqual({ name: 'Martillo', calculated: 484_000 });
+    expect(real.examples[0]).toEqual({ name: 'Martillo', calculated: '484000' });
     const invented = (await kit.seller.device.request('/api/administration/rounding')).body;
     expect(invented.total).toBe(real.total);
     expect(invented.examples.map((one: { name: string }) => one.name)).not.toContain('Martillo');
@@ -74,7 +74,7 @@ describe('el producto y su precio', () => {
     await kit.applyList(supplierId, [['V2', 'Tenaza', 1000, 21]], 'partial');
     const id = await kit.idOf(supplierId, 'V2');
     await kit.setVat(id, { before: 210, value: 270 });
-    const undone = await kit.setVat(id, { before: 270, value: 210, undo: true });
+    const undone = await kit.setVat(id, { before: 270, value: 210, manual: false });
     expect(undone.body).toMatchObject({ vat: 210, vatManual: false });
     await kit.applyList(supplierId, [['V2', 'Tenaza', 1000, 10.5]], 'partial');
     expect(await kit.product(id)).toMatchObject({ vat: 105 });

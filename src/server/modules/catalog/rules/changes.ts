@@ -1,8 +1,8 @@
 // Qué hace cada cambio de un producto (07 · R1.4, R1.5, R2.7), sin tecnología: choca solo si el valor
-// que vio quien cambia ya no es el de ahora; un IVA puesto a mano queda a mano, salvo «Deshacer», que
-// lo devuelve a la lista si vuelve al que ella puso.
+// que vio quien cambia ya no es el de ahora; un IVA cambiado queda puesto a mano, salvo «Deshacer», que
+// lo deja como estaba, de la lista o a mano.
 import type { MarginBody, UnitBody, VatBody } from '@ferrebress/shared/contracts/catalog';
-import type { StoredProduct } from '../data-pages.ts';
+import type { StoredProduct } from '../data/pages.ts';
 
 export type ProductWrite =
   | { kind: 'margin'; margin: number | null }
@@ -31,6 +31,5 @@ export function writeOf(stored: StoredProduct, change: Change): ProductWrite | '
   if (change.body.value === change.body.before) return 'same';
   if (change.field === 'margin') return { kind: 'margin', margin: change.body.value };
   if (change.field === 'unit') return { kind: 'unit', unit: change.body.value };
-  const back = change.body.undo === true && change.body.value === stored.vatFromList;
-  return { kind: 'vat', vat: change.body.value, manual: !back };
+  return { kind: 'vat', vat: change.body.value, manual: change.body.manual ?? true };
 }

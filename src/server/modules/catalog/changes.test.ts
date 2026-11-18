@@ -102,6 +102,16 @@ describe('cambiar un producto', () => {
     expect((await kit.search({ q: 'desarmador' })).products).toEqual([]);
   });
 
+  it('catalog-R4.1: sin «Ver costos», ni el cambio ni el choque traen el margen ni el costo', async () => {
+    const unit = await kit.setUnit(id, 'un.', 'kg');
+    const clash = await kit.setUnit(id, 'un.', 'm');
+    for (const product of [unit.body, clash.body.product])
+      for (const hidden of ['margin', 'cost', 'supplier', 'basis', 'raw'])
+        expect(product).not.toHaveProperty(hidden);
+    expect(clash.status).toBe(409);
+    expect((await kit.setVat(id, { before: 105, value: 210 })).body).not.toHaveProperty('cost');
+  });
+
   it('un producto que no existe: 404', async () => {
     const nobody = '0190a000-0000-7000-8000-000000000000';
     expect((await kit.setUnit(nobody, 'un.', 'kg')).status).toBe(404);

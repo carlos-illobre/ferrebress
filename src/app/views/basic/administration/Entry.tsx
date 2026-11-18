@@ -3,6 +3,7 @@
 import {
   entryAttempts,
   groupOf,
+  hoursEffect,
   names,
   offlineHoursOptions,
   settingInitials,
@@ -36,7 +37,7 @@ export function EntryPanel({ view, settings }: PanelProps) {
           initial={settingInitials.offlineHours}
           disabled={locked(view)}
           text={texts.units.hours}
-          effect={(v) => (v === now ? texts.rounding.current : '')}
+          effect={hoursEffect(now)}
           onLook={onLook(view, 'offlineHours')}
           onChoose={(v) => void view.save('offlineHours', v)}
         />

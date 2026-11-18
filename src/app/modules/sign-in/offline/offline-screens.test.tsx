@@ -79,7 +79,8 @@ describe('la opción «Trabajar sin conexión»', () => {
     const { result } = renderHook(() => useOfflineSetting(beto));
     expect(result.current).toMatchObject({
       on: false,
-      blocked: 'Para usarla, primero vinculá tu huella en este celular.',
+      blocked: true,
+      says: 'Para usarla, primero vinculá tu huella en este celular.',
     });
     act(() => result.current?.toggle());
     expect(offlineOption.get()).toBeUndefined();
@@ -87,7 +88,10 @@ describe('la opción «Trabajar sin conexión»', () => {
     passkeyLinked();
     enableOffline(eva);
     const other = renderHook(() => useOfflineSetting(beto)).result;
-    expect(other.current?.blocked).toMatch(/huella de otra persona/);
+    expect(other.current).toMatchObject({
+      blocked: true,
+      says: expect.stringMatching(/huella de otra persona/),
+    });
     act(() => other.current?.toggle());
     expect(offlineOption.get()?.person.userId).toBe(eva.userId);
   });

@@ -134,5 +134,23 @@ export const bySchema =
     return parsed.success ? parsed.data : undefined;
   };
 
-// Las claves de siempre: la dirección y, si hay, el dispositivo, con un prefijo por tema.
-export const byAddress = (prefix: string) => (c: Context) => [`${prefix}:ip:${c.get('ipAddress')}`];
+// La dirección como se cuenta en un límite: una de IPv6, por su red (/64), que es lo que tiene una casa
+// o un local entero; si no, cambiar los últimos números daría intentos nuevos sin fin.
+export function addressKey(ip: string): string {
+  const plain = ip.replace(/^::ffff:/i, '');
+  if (!plain.includes(':')) return plain;
+  const [head = '', tail = ''] = plain.toLowerCase().split('::');
+  const left = head ? head.split(':') : [];
+  const right = tail ? tail.split(':') : [];
+  const zeros = plain.includes('::') ? 8 - left.length - right.length : 0;
+  const groups = [...left, ...Array<string>(zeros).fill('0'), ...right];
+  return `${groups
+    .slice(0, 4)
+    .map((group) => group.replace(/^0+(?=.)/, ''))
+    .join(':')}::/64`;
+}
+
+// Las claves de siempre: la dirección, con un prefijo por tema.
+export const byAddress = (prefix: string) => (c: Context) => [
+  `${prefix}:ip:${addressKey(c.get('ipAddress') as string)}`,
+];

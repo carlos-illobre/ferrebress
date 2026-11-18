@@ -51,8 +51,9 @@ export const permissions = [
     id: 'audit-log.view',
     group: 'users',
     name: 'Ver quién hizo qué',
-    explanation: 'Abrir Quién hizo qué y ver todas las acciones de todos, con su detalle.',
-    includes: ['users.view'],
+    explanation:
+      'Abrir Quién hizo qué y ver todas las acciones de todos, con su detalle. Incluye «Ver las personas» y «Ver costos»: las acciones muestran costos y márgenes.',
+    includes: ['users.view', 'price-lists.costs'],
   },
   {
     id: 'offline.work',

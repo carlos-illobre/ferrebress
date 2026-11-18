@@ -64,8 +64,17 @@ async function setStep(kit: ListsKit, stepCents: number) {
 
 // Los cambios y las consultas como los manda la aplicación.
 function requests(kit: ListsKit, margins: Device, editor: Device) {
-  const change = (field: 'margin' | 'unit' | 'vat', id: string, body: object, device: Device) =>
-    device.request(`/api/catalog/products/${id}/${field}`, body);
+  // Y espera que la búsqueda tenga el cambio.
+  const change = async (
+    field: 'margin' | 'unit' | 'vat',
+    id: string,
+    body: object,
+    device: Device,
+  ) => {
+    const sent = await device.request(`/api/catalog/products/${id}/${field}`, body);
+    await kit.server.catalog.indexed();
+    return sent;
+  };
   return {
     product: async (
       id: string,
@@ -78,7 +87,7 @@ function requests(kit: ListsKit, margins: Device, editor: Device) {
       change('unit', id, { before, value }, device),
     setVat: (
       id: string,
-      body: { before: number; value: number; undo?: boolean },
+      body: { before: number; value: number; manual?: boolean },
       device = editor,
     ) => change('vat', id, body, device),
     search: async (query: Record<string, string> = {}, device: Device = kit.admin) =>

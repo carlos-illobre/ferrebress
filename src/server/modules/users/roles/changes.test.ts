@@ -145,6 +145,17 @@ describe('los cambios de roles', () => {
     expect((await roleOf(other)).permissions).toEqual(['users.view']);
   });
 
+  it('catalog-E28, 02-R7.1: un rol con «Ver quién hizo qué» recibe solo «Ver costos», aunque sea de antes', async () => {
+    const { db } = kit.server.platform;
+    const auditor = await kit.role('Auditor', ['audit-log.view']);
+    expect((await roleOf(auditor)).permissions).toContain('price-lists.costs');
+    // Un rol guardado antes de que la inclusión existiera.
+    await sql`delete from users.role_permissions where role_id = ${auditor}
+      and permission = 'price-lists.costs'`.execute(db);
+    await createAccess(kit.server.platform).addNewPermissions();
+    expect((await roleOf(auditor)).permissions).toContain('price-lists.costs');
+  });
+
   it('users-E30: con una versión vieja trae que cambió; lo que no existe, 404', async () => {
     const id = await kit.role('Viejo', ['users.view']);
     const juan = await kit.person([id]);

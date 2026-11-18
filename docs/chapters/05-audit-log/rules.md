@@ -59,11 +59,13 @@ registro se decide con el plan de copias de la base.
   | Ver quién hizo qué | Abrir Quién hizo qué y ver todas las acciones de todos, con su detalle |
 
   Incluye «Ver las personas» (02 · R7.1): Quién hizo qué es una pestaña de Usuarios, y quien ve
-  todas las acciones ya ve a todas las personas.
+  todas las acciones ya ve a todas las personas. Incluye también «Ver costos» (08 · R1.2): las
+  acciones de las listas y del catálogo muestran costos, márgenes y precios, y con eso se saca el
+  costo (07 · R4.1).
 
   Al instalar lo tiene el rol Administrador, como todo permiso (02 · R7.4).
-- **R3.2** Quien tiene el permiso ve **todo**, también los datos de capítulos que no puede usar
-  (un costo, cuando exista el catálogo). Por eso se da solo a quien puede verlo todo. No se esconde
+- **R3.2** Quien tiene el permiso ve **todo**, también los datos de capítulos que no puede usar.
+  Por eso se da solo a quien puede verlo todo. No se esconde
   parte de una acción: un registro con huecos no sirve para saber qué pasó.
 - **R3.3** Sin el permiso, la pestaña no aparece y el servidor rechaza el pedido (02 · R7.6,
   R7.7). Nadie ve lo suyo sin el permiso: no hay una vista propia.

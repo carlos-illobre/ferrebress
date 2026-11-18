@@ -46,9 +46,8 @@ programada; **a2**, las pantallas, por escribir. Abajo, lo confirmado que no est
 - **La ficha:** en la computadora, al lado de la lista; en el celular, ocupa la pantalla. «Así se
   calcula» muestra la cuenta.
 - **Permisos:** «Cambiar márgenes» y «Cambiar los datos de un producto» (la unidad y el IVA); con
-  «Ver costos» (08 · R1.2) se ven los proveedores, los costos y «Así se calcula», y sin él, el
-  precio de venta y el margen. Ver el catálogo y
-  los precios de venta no pide permiso.
+  «Ver costos» (08 · R1.2) se ven el margen, los proveedores, los costos y «Así se calcula», y sin
+  él, solo el precio de venta (R4.1). Ver el catálogo y los precios de venta pide solo la sesión.
 - **Teclado en la computadora:** ↑ ↓ cambian de producto, Mayús + 1 a 5 eligen el margen y F1
   pliega «Así se calcula».
 

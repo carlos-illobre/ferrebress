@@ -17,10 +17,10 @@ import { type Kysely, sql, type Transaction } from 'kysely';
 import { bySchema, readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import { sessionOf } from '../../../platform/session.ts';
-import type { CatalogTables } from '../data.ts';
-import { changesData } from '../data-changes.ts';
-import { pagesData, type StoredProduct } from '../data-pages.ts';
-import { centsOf, pricingData } from '../data-pricing.ts';
+import { changesData } from '../data/changes.ts';
+import { pagesData, type StoredProduct } from '../data/pages.ts';
+import { pricesOf, pricingData } from '../data/pricing.ts';
+import type { CatalogTables } from '../data/products.ts';
 import { type Change, pricedAfter, writeOf } from '../rules/changes.ts';
 import { rowOf } from '../rules/views.ts';
 import { catalogSettings } from '../settings.ts';
@@ -36,14 +36,16 @@ const lockTimeout = `${catalogSettings.waitListMs}ms`;
 
 async function changeIn(trx: Transaction<unknown>, id: string, change: Change): Promise<Outcome> {
   const db = trx as unknown as Kysely<CatalogTables>;
-  await sql`select set_config('lock_timeout', ${lockTimeout}, true)`.execute(db);
+  // El paso primero, sin tope de espera: un recálculo del redondeo tarda segundos y después sigue.
+  // La espera de 5 s es solo para la fila del producto, que traba una lista que se aplica.
   const step = await pricingData(db).stepForShare();
+  await sql`select set_config('lock_timeout', ${lockTimeout}, true)`.execute(db);
   const stored = await pagesData(db).one(id, true);
   if (!stored) return { refused: 'not-found' };
   const write = writeOf(stored, change);
   if (write === 'changed') return { changed: stored };
   if (write === 'same') return { same: stored };
-  const prices = centsOf(pricedAfter(stored, write), step);
+  const prices = pricesOf(pricedAfter(stored, write), step);
   return { done: { before: stored, after: await changesData(db).write(id, write, prices) } };
 }
 
@@ -100,7 +102,8 @@ async function change(
   if ('same' in outcome) return c.json<ProductRow>(rowOf(outcome.same, sees));
   record(ctx, c, field, outcome.done);
   const { after } = outcome.done;
-  if (!after.discontinued) ctx.index.setPriced(after.id, after.sale !== null);
+  // Si tiene precio, en la búsqueda: por la misma cola que las listas, así ninguna pisa a otra.
+  ctx.changed([after.id]);
   return c.json<ProductRow>(rowOf(after, sees));
 }
 

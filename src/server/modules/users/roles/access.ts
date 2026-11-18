@@ -6,6 +6,7 @@ import {
   isPermission,
   type PermissionId,
   permissionIds,
+  permissions,
 } from '@ferrebress/shared/contracts/permissions';
 import type { HoldersResponse, RoleSummary } from '@ferrebress/shared/contracts/roles';
 import type { Kysely } from 'kysely';
@@ -54,10 +55,20 @@ export function createAccess(platform: Platform) {
 
 // R7.4: los permisos que el sistema todavía no conocía se le suman al Administrador, en una
 // transacción (§ 16); queda anotado.
+// Y cada rol recibe lo que incluyen sus permisos, aunque la inclusión sea más nueva (R7.1).
+const inclusions = permissions.flatMap((one) =>
+  one.includes.map((included) => [one.id, included] as const),
+);
+
 async function addNewPermissions(platform: Platform, memory: { forget: (keys: 'all') => void }) {
-  const added = await platform.db
-    .transaction()
-    .execute((trx) => rolesData(trx as Kysely<RolesTables>).addNewPermissions(permissionIds));
+  const [added, included] = await platform.db.transaction().execute(async (trx) => {
+    const data = rolesData(trx as Kysely<RolesTables>);
+    return [
+      await data.addNewPermissions(permissionIds),
+      await data.addIncluded(inclusions),
+    ] as const;
+  });
+  if (included > 0) memory.forget('all');
   if (added.length === 0) return;
   memory.forget('all');
   platform.audit.record({

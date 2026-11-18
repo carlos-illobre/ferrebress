@@ -12,6 +12,16 @@ export const wordsOf = (text: string): string[] =>
 
 export const codeOf = (code: string): string => searchKey(code).replace(/[^\p{L}\p{N}]/gu, '');
 
+// Como mucho estas palabras de lo buscado; lo demás no cuenta (R3.1).
+export const maxWords = 8;
+
+// Las palabras de lo buscado; si no tiene ninguna de 2 letras («t-8»), lo escrito como código.
+export function queryWords(text: string): string[] {
+  const words = wordsOf(text).slice(0, maxWords);
+  const code = codeOf(text);
+  return words.length === 0 && code ? [code] : words;
+}
+
 // Si dos palabras están a una letra de distancia: una que sobra, falta, cambia o se da vuelta con la
 // de al lado (R3.1). Corta apenas pasa de una diferencia.
 export function withinOne(a: string, b: string): boolean {

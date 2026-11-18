@@ -199,11 +199,11 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 
 ## 6. Conexiones
 
-- **Solo `request`.** Sin campos nuevos en la cabecera ni canales: la pantalla pide los ajustes al abrirse
-  y al guardar recibe el valor nuevo; si otro cambió algo mientras tanto, lo dice el `409` (R2.3). Ningún
-  pedido automático nuevo.
-- **El avance del recálculo** («1.263 de 1.650») usa el canal `temporary` y se programa con el catálogo,
-  que es cuando hay precios para recalcular (§ 12, 2).
+- **Solo `request`.** Sin canales: la pantalla pide los ajustes al abrirse y al guardar recibe el valor
+  nuevo; si otro cambió algo mientras tanto, lo dice el `409` (R2.3). Ningún pedido automático nuevo. El
+  único campo nuevo en la cabecera es `h`, las horas sin conexión, para los celulares (§ 5).
+- **El avance del recálculo** («1.263 de 1.650») no hace falta: recalcular es una sola sentencia, de un
+  segundo con 100.000 precios (diseño de 07, § 4).
 
 ## 7. Pantallas
 
