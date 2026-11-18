@@ -10,6 +10,7 @@ import { route } from '../../platform/router.ts';
 import { useScreen } from '../../platform/screens.ts';
 import { api } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
+import { initials } from '../../platform/text.ts';
 import { notify } from '../../platform/view/notify.ts';
 import { allowed, firstOption, goToFirst, insideAt, type Option } from './menu.ts';
 import { words } from './no-permission-texts.ts';
@@ -81,6 +82,26 @@ export function usePermissionLost(lost: LostPermission, onGo: () => void) {
   };
 }
 
+// Los roles que tienen el permiso, con cuántas personas y sus iniciales (hasta cuatro), y quién lo
+// puede dar, unido como se dice («Ana, Luis o Marta»). Solo nombres (02 · R7.7).
+function holdersLines(holders: HoldersResponse) {
+  const people = new Set(holders.roles.flatMap((role) => role.people)).size;
+  const names = holders.grantedBy;
+  return {
+    count: words.count(holders.roles.length, people),
+    roles: holders.roles.map((role) => ({
+      id: role.id,
+      name: role.name,
+      faces: role.people.slice(0, 4).map((name) => ({ name, initials: initials(name) })),
+      people: words.people(role.people.length),
+    })),
+    grantedBy: names.map((name, index) => ({
+      name,
+      before: index === 0 ? '' : index === names.length - 1 ? ' o ' : ', ',
+    })),
+  };
+}
+
 // «Sin permiso»: qué permiso falta, quiénes lo tienen (lo trae el servidor) y copiar el pedido.
 export function useNoPermission(person: Person, option: Option & { permission: PermissionId }) {
   const permission = permissionOf(option.permission);
@@ -93,7 +114,7 @@ export function useNoPermission(person: Person, option: Option & { permission: P
   }, [option.permission]);
   const model = {
     permission,
-    holders,
+    holders: holders && holdersLines(holders),
     // Por dónde entró, para que se entienda de qué pantalla se habla.
     address: `${location.host}${option.path as string}`,
     async copy() {

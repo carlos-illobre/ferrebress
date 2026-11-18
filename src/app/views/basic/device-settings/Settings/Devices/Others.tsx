@@ -76,7 +76,7 @@ function ReceiptCard({ receipt, done }: { receipt: Receipt; done: () => void }) 
         </button>
       </div>
       <ul>
-        {(receipt.cuts.length > 0 ? receipt.cuts : [t.receipt.nothing]).map((cut) => (
+        {receipt.cuts.map((cut) => (
           <li key={cut}>
             <Icon name="check" size="small" />
             {cut}

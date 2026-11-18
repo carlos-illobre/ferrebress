@@ -165,11 +165,12 @@ paralelo»).
   el tiempo real, en sus tres partes: el protocolo en `src/shared/realtime/`, el hub y el canal sin
   nada de la ferretería, y los temas de cada módulo en su `realtime.ts`.
   Sin cambiar lo que hace la aplicación. Después de T134, que hace lo mismo con el teclado.
-- [ ] T139 [agente] Sacar la lógica que quedó en las vistas de los módulos ya cerrados (constitución,
-  «La vista es intercambiable»): Usuarios y roles (permisos, límites de largo, qué problemas tiene un
-  rol), Quién hizo qué (cómo se arma cada renglón y cada permiso), Configuración (el largo del
-  nombre) y lo que haya en el resto, al revisarlos con el punto «La vista sin lógica» del revisor de
-  código. Cada decisión pasa a su modelo, sin cambiar lo que hace la aplicación. Antes de T135.
+- [x] T139 [agente] Sacar la lógica que quedó en las vistas de los módulos ya cerrados (constitución,
+  «La vista es intercambiable»): Usuarios y roles (lo que se dice de cada persona y cada rol, los
+  permisos, los largos, qué problemas tiene un rol), Quién hizo qué (cada renglón, el detalle, los
+  permisos por su nombre), Configuración (el largo del nombre), Administración (el redondeo, su
+  confirmación, los márgenes, la zona) y «Sin permiso» del marco. Quedan en la vista la geometría de
+  la cinta de Quién hizo qué (dónde va cada marca), que es de ese dibujo, y el manual, en pausa.
 - [x] T141 [agente] Que las pruebas de las listas de precios lleguen a cada estado por la API y no
   escribiendo la base con SQL (revisión del código de 08, M9): una lista «aplicándose» de verdad para
   E15 y E85 (las pruebas retienen aplicar con `beforeApply`), volver a leer con cada motivo producido

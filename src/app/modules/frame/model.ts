@@ -23,6 +23,7 @@ export { dismissed, update } from './notices/update/update.ts';
 export { useCrash, useOpened, useUpdateRequired, useVersionNotice } from './notices-model.ts';
 export {
   type LostPermission,
+  type NoPermissionModel,
   useLostPermission,
   useNoPermission,
   usePermissionLost,

@@ -78,7 +78,8 @@ function actions(
       const done = await cutPhone('me', { key: device.key, how }, then);
       if (!done) return;
       // Si ya no tenía nada (lo cortaron desde otro lado), el recibo lo dice.
-      const cut = done.sessions || done.passkey ? receipt : { ...receipt, cuts: [] };
+      const cut =
+        done.sessions || done.passkey ? receipt : { ...receipt, cuts: [t.receipt.nothing] };
       setReceipts((all) => [cut, ...all.filter((one) => one.key !== device.key)]);
     },
     removeHere: () => removeHere(then),

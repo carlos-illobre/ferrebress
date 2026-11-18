@@ -3,10 +3,9 @@
 // roles lo tienen y quiénes son, quién lo puede dar y los roles propios; lleva a la primera opción que
 // sí puede usar y copia el pedido. Es del marco: vale para cualquier opción.
 import type { PermissionId } from '@ferrebress/shared/contracts/permissions';
-import type { HoldersResponse } from '@ferrebress/shared/contracts/roles';
 import type { Option } from '../../../../modules/frame/model.ts';
 import {
-  initials,
+  type NoPermissionModel,
   noPermissionWords,
   permissionIcons,
   useNoPermission,
@@ -80,13 +79,12 @@ export function NoPermission({
 }
 
 // Los roles que tienen el permiso, con sus personas, y quién lo puede dar. Solo nombres (R7.7).
-function Holders({ holders }: { holders: HoldersResponse }) {
-  const people = new Set(holders.roles.flatMap((role) => role.people)).size;
+function Holders({ holders }: { holders: NonNullable<NoPermissionModel['holders']> }) {
   return (
     <>
       <div class="no-permission-head">
         <span>{noPermissionWords.holders}</span>
-        <span>{noPermissionWords.count(holders.roles.length, people)}</span>
+        <span>{holders.count}</span>
       </div>
       {holders.roles.length === 0 ? (
         <p class="no-permission-nobody">{noPermissionWords.nobody}</p>
@@ -99,13 +97,13 @@ function Holders({ holders }: { holders: HoldersResponse }) {
               </span>
               <b>{role.name}</b>
               <span class="no-permission-faces" aria-hidden="true">
-                {role.people.slice(0, 4).map((name) => (
-                  <span key={name} class="avatar">
-                    {initials(name)}
+                {role.faces.map((face) => (
+                  <span key={face.name} class="avatar">
+                    {face.initials}
                   </span>
                 ))}
               </span>
-              <small>{noPermissionWords.people(role.people.length)}</small>
+              <small>{role.people}</small>
             </li>
           ))}
         </ul>
@@ -113,10 +111,10 @@ function Holders({ holders }: { holders: HoldersResponse }) {
       {holders.grantedBy.length > 0 && (
         <p class="no-permission-granted" {...privateProps()}>
           <Say words={noPermissionWords.grantedBy} />{' '}
-          {holders.grantedBy.map((name, index) => (
-            <span key={name}>
-              {index > 0 && (index === holders.grantedBy.length - 1 ? ' o ' : ', ')}
-              <b>{name}</b>
+          {holders.grantedBy.map((one) => (
+            <span key={one.name}>
+              {one.before}
+              <b>{one.name}</b>
             </span>
           ))}
           .
