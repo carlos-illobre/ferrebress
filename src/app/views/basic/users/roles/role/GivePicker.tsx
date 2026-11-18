@@ -1,7 +1,7 @@
 // «Darle este rol a…» (02 · R7.13): elegir a una persona activa que todavía no lo tiene, buscando
 // por nombre o correo. Suma un paso al historial: atrás la cierra sin preguntar por el rol.
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import { initialsOf, rolesTexts as t, useGivePicker } from '../../../../../modules/users/model.ts';
+import { rolesTexts as t, useGivePicker } from '../../../../../modules/users/model.ts';
 import { useBackStep } from '../../../../../platform/view/back-step.ts';
 import { privateProps } from '../../../../../platform/view/private.ts';
 import { Button } from '../../../ui/button/Button.tsx';
@@ -37,9 +37,9 @@ export function GivePicker({ candidates, pick, close }: Props) {
               onClick={() => pick(one.id)}
               data-mark=""
             >
-              <span class="role-holder-face">{initialsOf(one)}</span>
+              <span class="role-holder-face">{one.initials}</span>
               <span class="role-holder-name">
-                <b>{one.displayName}</b>
+                <b>{one.name}</b>
                 <span>{one.email}</span>
               </span>
               <Icon name="plus" size="small" />

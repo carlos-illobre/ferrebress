@@ -2,49 +2,40 @@
 // por parte de la aplicación, cuántos permisos da, con una marca verde si da alguno o gris si no. Al
 // pie, que se puede cambiar cuando se quiera.
 import {
-  type PermissionGroup,
-  permissionGroups,
-  permissions,
-} from '@ferrebress/shared/contracts/permissions';
-import type { Draft } from '../../../../../modules/users/model.ts';
-import { groupIcons, rolesTexts as t } from '../../../../../modules/users/model.ts';
+  groupIcons,
+  type RoleScreenModel,
+  rolesTexts as t,
+} from '../../../../../modules/users/model.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 
-const groups = Object.keys(permissionGroups) as PermissionGroup[];
-
-export function RolePreview({ draft }: { draft: Draft }) {
-  const name = draft.name.trim() || t.name;
+export function RolePreview({ role }: { role: RoleScreenModel }) {
+  const { preview } = role;
   return (
     <aside class="role-preview desktop-only" aria-label={t.preview}>
       <h3>{t.preview}</h3>
-      <p class="role-preview-lead">{draft.id ? t.previewLead : t.previewLeadNew}</p>
+      <p class="role-preview-lead">{preview.lead}</p>
       <div class="role-preview-card">
         <span class="roles-icon">
-          <Icon name={draft.system ? 'shield-check' : 'users'} />
+          <Icon name={role.draft.system ? 'shield-check' : 'users'} />
         </span>
-        <b>{name}</b>
-        {draft.description.trim() && <span>{draft.description.trim()}</span>}
+        <b>{preview.name}</b>
+        {preview.description && <span>{preview.description}</span>}
       </div>
       <ul class="role-preview-groups">
-        {groups.map((group) => {
-          const count = permissions.filter(
-            (one) => one.group === group && draft.permissions.includes(one.id),
-          ).length;
-          return (
-            <li key={group}>
-              <span class="users-item-icon">
-                <Icon name={groupIcons[group]} size="small" />
-              </span>
-              <span>
-                <b>{permissionGroups[group].name}</b>
-                <small>{count ? t.permissions(count) : t.noPermissions}</small>
-              </span>
-              <span class={count ? 'role-mark on' : 'role-mark'}>
-                <Icon name={count ? 'check' : 'minus'} size="small" stroke={3} />
-              </span>
-            </li>
-          );
-        })}
+        {preview.groups.map((group) => (
+          <li key={group.group}>
+            <span class="users-item-icon">
+              <Icon name={groupIcons[group.group]} size="small" />
+            </span>
+            <span>
+              <b>{group.name}</b>
+              <small>{group.text}</small>
+            </span>
+            <span class={group.on ? 'role-mark on' : 'role-mark'}>
+              <Icon name={group.on ? 'check' : 'minus'} size="small" stroke={3} />
+            </span>
+          </li>
+        ))}
       </ul>
       <p class="role-preview-note">
         <Icon name="info" size="small" />

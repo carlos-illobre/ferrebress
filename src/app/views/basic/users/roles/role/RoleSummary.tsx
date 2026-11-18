@@ -1,12 +1,6 @@
 // El resumen del rol en el celular, adentro de «Información del rol» (pedido de Carlos): cuántos permisos da y
 // cuántas personas lo van a tener, con sus iniciales. Cada pastilla lleva a su paso.
-import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import {
-  type Draft,
-  roleHoldersOf,
-  rolesTexts as t,
-  useUsersContext,
-} from '../../../../../modules/users/model.ts';
+import { type RoleScreenModel, rolesTexts as t } from '../../../../../modules/users/model.ts';
 import { showPart } from '../../../../../platform/view/page.ts';
 import { privateProps } from '../../../../../platform/view/private.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
@@ -14,27 +8,22 @@ import { Faces } from '../list/RoleRow.tsx';
 
 const goTo = (id: string) => () => showPart(id, { smooth: false, block: 'start' });
 
-export function RoleSummary({ draft }: { draft: Draft }) {
-  const people = useUsersContext().people as PersonRow[];
-  const holders = roleHoldersOf(draft).map(
-    (id) => people.find((one) => one.id === id) as PersonRow,
-  );
-  const count = draft.permissions.length;
+export function RoleSummary({ summary }: { summary: RoleScreenModel['summary'] }) {
   return (
     <nav class="role-summary phone-only" aria-label={t.summary}>
       <button type="button" class="roles-stat" onClick={goTo('role-permissions')}>
         <Icon name="key-round" size="small" />
-        <b>{count}</b>
-        <span>{t.permissionsWord(count)}</span>
+        <b>{summary.permissions.count}</b>
+        <span>{summary.permissions.word}</span>
       </button>
       <button type="button" class="roles-stat" onClick={goTo('role-who')} {...privateProps()}>
-        {holders.length > 0 ? (
-          <Faces people={holders} max={2} />
+        {summary.holders.count > 0 ? (
+          <Faces faces={summary.holders} />
         ) : (
           <Icon name="users" size="small" />
         )}
-        <b>{holders.length}</b>
-        <span>{t.peopleWord(holders.length)}</span>
+        <b>{summary.holders.count}</b>
+        <span>{summary.holders.word}</span>
       </button>
     </nav>
   );

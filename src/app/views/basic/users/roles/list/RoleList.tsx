@@ -32,7 +32,7 @@ function SearchBox({ query, setQuery }: { query: string; setQuery: (query: strin
 export function RoleList() {
   const list = useRoleList();
   const keys = useShortcutHints('users-roles');
-  const { query, setQuery, people, shown, wanted, arriving, openNew } = list;
+  const { query, setQuery, rows, wanted, arriving, openNew } = list;
   return (
     <section class="roles-list" aria-label={t.list}>
       <div class="roles-bar">
@@ -48,7 +48,7 @@ export function RoleList() {
           {t.newRole}
         </Button>
       </div>
-      {shown.length === 0 ? (
+      {rows.length === 0 ? (
         <div class="roles-nothing">
           <Icon name="search" size="large" />
           <b {...privateProps()}>{t.nothing(wanted)}</b>
@@ -65,14 +65,13 @@ export function RoleList() {
         </div>
       ) : (
         <ul class="roles-rows">
-          {shown.map((role, index) => (
-            <li key={role.id}>
+          {rows.map((row, index) => (
+            <li key={row.role.id}>
               <RoleRow
-                role={role}
-                people={people}
-                arriving={role.id === arriving}
+                row={row}
+                arriving={row.role.id === arriving}
                 first={index === 0}
-                open={() => list.openRole(role.id)}
+                open={() => list.openRole(row.role.id)}
               />
             </li>
           ))}

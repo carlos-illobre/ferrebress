@@ -12,6 +12,7 @@ import { useStore } from '../../../platform/store.ts';
 import { notify } from '../../../platform/view/notify.ts';
 import { useUsersContext } from '../state.ts';
 import { duplicateOf, emptyDraft, fromRole } from './draft.ts';
+import { roleRowLines } from './lines.ts';
 import { activeHolders, ids, listPath, type NewState, newPath, rolePath } from './paths.ts';
 import { filterRoles, searchIndex } from './search.ts';
 import { rolesTexts as t } from './texts.ts';
@@ -66,12 +67,14 @@ export function useRoleList() {
   const people = users.people as PersonRow[];
   const roles = users.roleRows as RoleRow[];
   const index = useMemo(() => searchIndex(roles, people), [roles, people]);
+  const shown = filterRoles(index, query);
   const model = {
     query,
     setQuery,
     people,
     online: users.online,
-    shown: filterRoles(index, query),
+    shown,
+    rows: shown.map((role) => roleRowLines(role, people)),
     wanted: query.trim(),
     arriving: (useStore(route).state as { arriving?: string } | null)?.arriving,
     openNew: (state: NewState = {}) => navigate(newPath, { state }),

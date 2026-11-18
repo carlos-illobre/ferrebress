@@ -1,46 +1,45 @@
 // Una tarjeta de la lista de roles (02 · R7.12): su ícono, nombre, descripción, cuántos permisos da,
 // cuántas personas lo tienen y sus iniciales. En el celular, los dos números en grande, cada uno en
 // su recuadro, y como mucho dos círculos (pedido de Carlos).
-import type { RoleRow as Row } from '@ferrebress/shared/contracts/roles';
-import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import { activeHolders, initialsOf, rolesTexts as t } from '../../../../../modules/users/model.ts';
+import { type RoleRowLines, rolesTexts as t } from '../../../../../modules/users/model.ts';
+import { privateProps } from '../../../../../platform/view/private.ts';
 import { Icon } from '../../../ui/icon/Icon.tsx';
 import './RoleRow.css';
-import { privateProps } from '../../../../../platform/view/private.ts';
 
 const tones = 5;
 
+type FaceLines = {
+  faces: { id: string; initials: string; index: number }[];
+  more: number | undefined;
+};
+
 // Las iniciales de quienes lo tienen: con más de las que entran, las primeras y «+N».
-export function Faces({ people, max }: { people: PersonRow[]; max: number }) {
-  const room = people.length > max ? max - 1 : max;
+export function Faces({ faces }: { faces: FaceLines }) {
   return (
     <span class="roles-faces" aria-hidden="true">
-      {people.slice(0, room).map((one, index) => (
-        <span key={one.id} class={`roles-face tone-${index % tones}`}>
-          {initialsOf(one)}
+      {faces.faces.map((one) => (
+        <span key={one.id} class={`roles-face tone-${one.index % tones}`}>
+          {one.initials}
         </span>
       ))}
-      {people.length > room && <span class="roles-face more">+{people.length - room}</span>}
+      {faces.more !== undefined && <span class="roles-face more">+{faces.more}</span>}
     </span>
   );
 }
 
 export function RoleRow({
-  role,
-  people,
+  row,
   arriving,
   first,
   open,
 }: {
-  role: Row;
-  people: PersonRow[];
+  row: RoleRowLines;
   arriving: boolean;
   // El primero de la lista: Enter en el buscador lo abre (00 · R2.6).
   first: boolean;
   open: () => void;
 }) {
-  const holders = activeHolders(people, role.id);
-  const count = role.permissions.length;
+  const { role, holders } = row;
   return (
     <button
       type="button"
@@ -60,20 +59,20 @@ export function RoleRow({
       <span class="roles-stats">
         <span class="roles-stat">
           <Icon name="key-round" size="small" />
-          <b>{count}</b>
-          <span>{t.permissionsWord(count)}</span>
+          <b>{row.permissions.count}</b>
+          <span>{row.permissions.word}</span>
         </span>
-        <span class={holders.length ? 'roles-stat' : 'roles-stat empty'} {...privateProps()}>
-          {holders.length > 0 ? (
+        <span class={holders ? 'roles-stat' : 'roles-stat empty'} {...privateProps()}>
+          {holders ? (
             <>
               <span class="desktop-only">
-                <Faces people={holders} max={4} />
-                <span>{t.holders(holders.length)}</span>
+                <Faces faces={holders.wide} />
+                <span>{holders.text}</span>
               </span>
               <span class="phone-only">
-                <Faces people={holders} max={2} />
-                <b>{holders.length}</b>
-                <span>{t.peopleWord(holders.length)}</span>
+                <Faces faces={holders.narrow} />
+                <b>{holders.count}</b>
+                <span>{holders.word}</span>
               </span>
             </>
           ) : (

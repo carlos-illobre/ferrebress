@@ -28,6 +28,14 @@ import {
 } from './draft.ts';
 import { whatItGives } from './gives.ts';
 import { activeHolders, ids, listPath, newPath } from './paths.ts';
+import {
+  holdersLines,
+  infoLines,
+  permissionLines,
+  previewLines,
+  problemsOf,
+  summaryLines,
+} from './role-lines.ts';
 import { rolesTexts as t } from './texts.ts';
 
 // Mientras hay cambios, salir por otro lado pregunta (E64); se saca al desmontar o al descartar.
@@ -169,6 +177,16 @@ function usePicker(draft: Draft, change: (next: Draft) => void) {
   };
 }
 
+// Todo lo que se dice en la pantalla, resuelto (role-lines.ts).
+const linesOf = (draft: Draft, people: PersonRow[], errors: DraftErrors | undefined) => ({
+  problems: problemsOf(errors, people),
+  holders: holdersLines(draft, people, errors),
+  permissionLines: permissionLines(draft, errors),
+  preview: previewLines(draft),
+  summary: summaryLines(draft, people),
+  info: infoLines(draft, errors),
+});
+
 export function useRoleScreen(start: Draft) {
   const users = useUsersContext();
   const [draft, setDraft] = useDraft(start);
@@ -181,11 +199,13 @@ export function useRoleScreen(start: Draft) {
     saving.recheck(next);
   };
   const picker = usePicker(draft, change);
+  const people = users.people as PersonRow[];
   const model = {
     draft,
+    ...linesOf(draft, people, saving.errors),
     dirty,
     online: users.online,
-    people: users.people as PersonRow[],
+    people,
     title: draft.id ? start.name : t.newTitle,
     crumb: draft.id ? start.name : t.newCrumb,
     discardLead: draft.id ? t.discardLead(start.name) : t.discardLeadNew,

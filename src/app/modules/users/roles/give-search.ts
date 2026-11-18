@@ -3,6 +3,7 @@
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import { useState } from 'preact/hooks';
 import { plain } from '../../../platform/text.ts';
+import { initialsOf } from '../logic.ts';
 
 export function useGivePicker(candidates: PersonRow[]) {
   // local: la búsqueda de la hoja de elegir es de quien elige.
@@ -11,6 +12,13 @@ export function useGivePicker(candidates: PersonRow[]) {
   return {
     query,
     setQuery,
-    shown: candidates.filter((one) => plain(`${one.displayName} ${one.email}`).includes(wanted)),
+    shown: candidates
+      .filter((one) => plain(`${one.displayName} ${one.email}`).includes(wanted))
+      .map((one) => ({
+        id: one.id,
+        initials: initialsOf(one),
+        name: one.displayName,
+        email: one.email,
+      })),
   };
 }

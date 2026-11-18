@@ -54,6 +54,7 @@ export {
 } from './roles/draft.ts';
 export { useGivePicker } from './roles/give-search.ts';
 export { whatItGives } from './roles/gives.ts';
+export type { RoleRowLines } from './roles/lines.ts';
 export { activeHolders, ids, listPath, type NewState, newPath, rolePath } from './roles/paths.ts';
 export { filterRoles, searchIndex } from './roles/search.ts';
 export { rolesTexts } from './roles/texts.ts';

@@ -20,7 +20,6 @@ import { RolePreview } from './RolePreview.tsx';
 
 export function RoleScreen({ start }: { start: Draft }) {
   const role = useRoleScreen(start);
-  const { draft, change, errors } = role;
   return (
     <section class="role-screen" aria-label={role.title}>
       <header class="role-head">
@@ -38,14 +37,14 @@ export function RoleScreen({ start }: { start: Draft }) {
         <RoleActions role={role} />
       </header>
       <PhoneBar role={role} />
-      <Problems errors={errors} notice={role.notice} people={role.people} />
+      <Problems problems={role.problems} notice={role.notice} />
       <div class="role-columns">
         <div class="role-steps">
-          <RoleInfo draft={draft} change={change} errors={errors} />
-          <RolePermissions draft={draft} change={change} errors={errors} />
+          <RoleInfo role={role} />
+          <RolePermissions role={role} />
           <RoleHolders role={role} />
         </div>
-        <RolePreview draft={draft} />
+        <RolePreview role={role} />
       </div>
       {role.asking && <Discard role={role} />}
     </section>
