@@ -1,4 +1,4 @@
-// La espera de más de 2 segundos en el marco (00 · R7.3), sin HTML: qué se está haciendo y, al
+// La espera de más de 1 segundo en el marco (00 · R7.3), sin HTML: qué se está haciendo y, al
 // terminar, «Listo» un instante. La espera que ya corría cuando apareció el marco (la de entrar, con la
 // huella o Google) no se muestra: al entrar no hay ningún «Listo».
 import { useEffect, useRef, useState } from 'preact/hooks';

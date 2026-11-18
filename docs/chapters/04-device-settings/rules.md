@@ -225,7 +225,7 @@ permiso. Hace lo mismo en los dos lugares, aunque cada uno lo muestre a su maner
   recargar, cambiar de pantalla, de parte o de pestaña y abrir o cerrar una hoja, una ventana o un
   aviso pasa en el acto, en el celular y en la computadora.
 - **E14** **Dado** las animaciones apagadas, **cuando** algo tarda más de 300 ms, **entonces** la marca de
-  espera se mueve igual, y pasados 2 segundos la barra de avance avanza.
+  espera se mueve igual, y pasado 1 segundo la barra de avance avanza.
 - **E15** **Dado** un dispositivo con «reducir movimiento» pedido en el sistema, **cuando** se abre
   Configuración, **entonces** la opción dice que el dispositivo ya pide no animar, no hay
   animaciones aunque esté prendida y «Así la tenés» dice «En el acto».

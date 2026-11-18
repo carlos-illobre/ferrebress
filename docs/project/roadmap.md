@@ -138,8 +138,8 @@ paralelo»).
   Administración (constitución, XIII): por ejemplo, las 24 horas sin conexión (15) y los topes de
   entradas (01). Primero, la lista completa para que Carlos la vea; cada uno es un cambio de regla
   en su capítulo.
-- [ ] T133 [agente] El avance a la vista pasado 1 segundo, en toda la aplicación (00 · R7.3): hoy
-  aparece a los 2 segundos y solo cuando se sabe cuánto falta.
+- [x] T133 [agente] El avance a la vista pasado 1 segundo, en toda la aplicación (00 · R7.3), también
+  en la entrada con Google (01 · R2.1) y con las animaciones apagadas (04 · E14).
 - [x] T134 [agente] **Antes de programar 08a.** Que la interfaz se pueda rehacer entera sin tocar nada más: en la aplicación, lo
   gráfico (las pantallas, sus estilos, las piezas de `ui/` y los tokens) queda separado de todo lo
   demás (las reglas, los datos, la sesión, sin conexión, el espejo, el teclado), que se usa sin

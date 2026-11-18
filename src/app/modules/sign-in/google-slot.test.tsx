@@ -30,7 +30,7 @@ describe('el lugar del botón de Google mientras carga («El hilo»)', () => {
     online.set(true);
   });
 
-  it('sign-in R2.1, 00 · R7: nada antes de 300 ms, después el hilo, a los 2 s qué hace, y el botón sin saltos', async () => {
+  it('sign-in R2.1, 00 · R7: nada antes de 300 ms, después el hilo, pasado 1 s qué hace, y el botón sin saltos', async () => {
     const google = googleFrame();
     const place = open();
     expect(place.dataset.phase).toBe('empty');

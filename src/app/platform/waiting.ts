@@ -1,5 +1,5 @@
 // Las esperas (00 · R7): lo que tarda menos de 300 ms no muestra nada; pasado ese tiempo, lo que se
-// tocó muestra su marca, y pasados 2 segundos una barra dice qué se está haciendo. Mientras tanto,
+// tocó muestra su marca, y pasado 1 segundo una barra dice qué se está haciendo. Mientras tanto,
 // volver a tocarlo no hace nada, para que nada se mande dos veces.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { platformSettings } from './settings.ts';

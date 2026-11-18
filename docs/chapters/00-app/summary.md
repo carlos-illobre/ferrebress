@@ -22,7 +22,7 @@ Lo que vale para toda la aplicación. Reglas completas en [rules.md](rules.md).
 - **Manual:** desde la entrada de la computadora y desde Más → Manual; selector de dispositivo,
   buscador, capítulos plegables, «pronto» para lo que falta; cada paso con su captura; necesita
   internet (R6).
-- **Esperas:** nada antes de 300 ms, marca de espera después, barra pasados 2 s; búsquedas con 150
+- **Esperas:** nada antes de 300 ms, marca de espera después, qué se está haciendo pasado 1 s; búsquedas con 150
   ms de espera y cancelando la anterior (R7).
 - **Formatos:** «$ 45.500», con los decimales del paso de redondeo (los costos, con centavos); cantidades con su unidad; la hora del
   servidor en la zona del negocio, igual para todos; cada persona elige solo el formato de la hora (R8).

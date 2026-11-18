@@ -10,8 +10,8 @@ export const platformSettings = {
     delaysMs: [2 * second, 4 * second, 8 * second, 16 * second, 32 * second],
     everyMs: minute,
   },
-  // Lo que tarda: la marca de espera a los 300 ms y la barra a los 2 s (00 · R7.2, R7.3).
-  waiting: { markAfterMs: 300, barAfterMs: 2 * second },
+  // Lo que tarda: la marca de espera a los 300 ms y qué se está haciendo pasado 1 s (00 · R7.2, R7.3).
+  waiting: { markAfterMs: 300, barAfterMs: second },
   // Cada cuánto se mueve una cuenta regresiva (countdown.ts).
   countdownTickMs: second,
   // Con un 429 que no dice cuánto esperar, un minuto.

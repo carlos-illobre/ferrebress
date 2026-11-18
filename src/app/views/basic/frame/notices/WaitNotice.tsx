@@ -1,4 +1,4 @@
-// La espera de más de 2 segundos (00 · R7.3), desde su maqueta: una línea arriba del área de
+// La espera de más de 1 segundo (00 · R7.3), desde su maqueta: una línea arriba del área de
 // trabajo y una tarjeta chica abajo que dice qué se está haciendo. Hoy nunca se sabe cuánto falta,
 // así que la barra va y viene. Al terminar dice «Listo» un instante y se va. La espera que ya corría
 // cuando apareció el marco (la de entrar, con la huella o Google) no se muestra: al entrar no hay

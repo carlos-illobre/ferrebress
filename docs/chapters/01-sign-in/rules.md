@@ -32,7 +32,7 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
     00 · R2.8. No tiene atajo con Alt ni lo recorren las flechas; se llega a él con Tab.
   - Mientras Google lo dibuja, su lugar, del mismo tamaño, muestra que está cargando, con las
     esperas de 00 · R7: nada antes de 300 ms; después, una línea fina con un tramo que la recorre;
-    pasados 2 s, «Conectando con Google…». Cuando llega, la línea se completa y el botón aparece
+    pasado 1 s, «Conectando con Google…». Cuando llega, la línea se completa y el botón aparece
     desde ella, sin que nada de la entrada se mueva. Si a los 8 s no llegó, dice «Google no
     responde · Reintentar», y «Reintentar» (Alt R) lo pide de nuevo. Sin conexión dice «Sin
     internet, Google no carga», y al volver la conexión lo pide de nuevo solo.

@@ -463,7 +463,7 @@ como a quién, nunca como quien lo hizo (diseño de 05, § 2.1).
   pantallas no escuchan teclas.
 - **`platform/server/api`:** un `fetch` que pone las cabeceras, lee `X-Ferrebress` y traduce los errores.
 - **`platform/waiting`:** las esperas (00 · R7) de lo que se toca: nada antes de 300 ms, la marca
-  después y la barra a los 2 s, que muestra el marco. El botón de `ui/` la usa sola; mientras
+  después y la barra pasado 1 s, que muestra el marco. El botón de `ui/` la usa sola; mientras
   espera, volver a tocarlo no hace nada. Las búsquedas (R7.4) llegan con la primera que haya.
 - **`platform/router`:** la dirección es un valor compartido, que el menú cambia. Atrás y adelante
   del navegador funcionan. Cada opción del menú tiene su dirección (`frame/menu.ts`); el marco

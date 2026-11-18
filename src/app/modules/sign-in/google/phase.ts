@@ -1,6 +1,6 @@
 // En qué momento está el lugar del botón de Google (01 · R2.1, «El hilo»; docs/design/mockups/
 // sign-in-google-loading/final/), con las esperas de 00 · R7: nada antes de 300 ms; después, el
-// hilo; pasados 2 s, «Conectando con Google…»; a los 8 s sin el botón, «Google no responde ·
+// hilo; pasado 1 s, «Conectando con Google…»; a los 8 s sin el botón, «Google no responde ·
 // Reintentar». Sin conexión, lo dice. Al volver la conexión, o con «Reintentar», se pide de nuevo.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { platformSettings } from '../../../platform/settings.ts';
