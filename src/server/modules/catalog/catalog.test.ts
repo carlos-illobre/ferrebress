@@ -19,6 +19,7 @@ describe('el catálogo', () => {
   const supplier = '0190a000-0000-7000-8000-00000000000a';
   const product = (more: Partial<NewProduct> = {}): NewProduct => ({
     id: `0190a000-0000-7000-8000-${String(++count).padStart(12, '0')}`,
+    code: `C-${count}`,
     description: `Tornillo ${count}`,
     brand: 'Fischer',
     barcode: null,

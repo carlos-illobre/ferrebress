@@ -1,6 +1,6 @@
 // Presentarse, el respaldo y lo que el vínculo suma a cada pedido, en el servidor (diseño de 03, § 3.5,
 // § 4, § 7; capítulo 03, R2.6, R3; E18, E38, E39).
-import { contractVersion } from '@ferrebress/shared/contracts/contract-version';
+import { contractVersion } from '@ferrebress/shared/contracts/server-header';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { listen, settle, signedIn, time } from '../../testing/device-link.ts';
 import { createSignInServer, type SignInServer } from '../../testing/sign-in/sign-in-server.ts';

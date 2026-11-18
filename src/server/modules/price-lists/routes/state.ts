@@ -37,5 +37,6 @@ export async function listState(
   const state = { ...stateOf(list, supplier?.name), ...(uploadedBy && { uploadedBy }) };
   if (list.status === 'pending' && supplier)
     return { ...state, summary: await summaryFor(ctx, db, list, supplier) };
-  return list.result ? { ...state, result: list.result } : state;
+  // Lo que hizo al aplicarse; el tope que se pasaba (R7.7) ya va en `over`.
+  return list.result && !('over' in list.result) ? { ...state, result: list.result } : state;
 }

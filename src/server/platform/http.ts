@@ -3,13 +3,11 @@
 
 import type { IncomingMessage } from 'node:http';
 import { isIP } from 'node:net';
-import {
-  appVersionHeaderName,
-  deviceIdHeaderName,
-} from '@ferrebress/shared/contracts/contract-version';
 import type { ErrorCode } from '@ferrebress/shared/contracts/errors';
 import {
+  appVersionHeaderName,
   automaticHeaderName,
+  deviceIdHeaderName,
   type Environment,
   formatServerHeader,
   serverHeaderName,

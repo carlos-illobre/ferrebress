@@ -56,6 +56,8 @@ export const reviewTexts = {
   alreadyApplied: 'Ya se aplicó.',
   closed: 'Esta lista ya no está en espera.',
   applyFailed: (why: string) => `No se aplicó: ${why}. La lista sigue en espera.`,
+  // Cuántos productos de más (08 · R7.7).
+  byOver: (why: string, over: string) => `${why} por ${over}`,
   failed: 'No se pudo. Probá de nuevo.',
   discard: 'Descartar',
   discarded: 'Lista descartada',

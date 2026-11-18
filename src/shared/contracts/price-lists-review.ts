@@ -34,6 +34,8 @@ export const numbersOf = (summary: ListSummary): ListNumbers => ({
 
 // Lo que hizo al aplicarse (E60).
 export type ListResult = { created: number; changed: number; gone: number; restored: number };
+// En una que no se aplicó porque se pasaría del tope del catálogo, cuántos de más (R7.7).
+export type ListRefusal = { over: number };
 
 export const rowsShows = ['changed', 'new', 'same', 'review', 'skipped', 'gone'] as const;
 export type RowsShow = (typeof rowsShows)[number];

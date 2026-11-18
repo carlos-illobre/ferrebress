@@ -1,4 +1,4 @@
-import { contractVersion } from '@ferrebress/shared/contracts/contract-version';
+import { contractVersion } from '@ferrebress/shared/contracts/server-header';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { api, newVersion, online, permissionsHash, sessionClosed, updateRequired } from './api.ts';
 import { serverNow } from './clock.ts';

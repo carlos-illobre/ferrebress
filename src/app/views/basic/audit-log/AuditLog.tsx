@@ -13,6 +13,7 @@ import {
 } from '../../../modules/audit-log/model.ts';
 import { Button } from '../ui/button/Button.tsx';
 import { auditLogShapes } from '../ui/icon/audit-log-shapes.tsx';
+import { catalogShapes } from '../ui/icon/catalog-shapes.tsx';
 import { addShapes } from '../ui/icon/Icon.tsx';
 import { priceListsShapes } from '../ui/icon/price-lists-shapes.tsx';
 import { LoadState } from '../ui/load-state/LoadState.tsx';
@@ -28,6 +29,7 @@ import './AuditLog.css';
 
 addShapes(auditLogShapes);
 addShapes(priceListsShapes);
+addShapes(catalogShapes);
 
 function Empty() {
   const log = useAuditLogContext();

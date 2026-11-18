@@ -20,6 +20,7 @@ const progress = z.strictObject({
   applied: z.optional(z.int()),
   rowsTotal: z.optional(z.int()),
   reason: z.optional(z.string()),
+  over: z.optional(z.int()),
 });
 
 // A lo sumo un aviso cada `progressMs` por lista: lo que llega en el medio espera y sale el último. Un

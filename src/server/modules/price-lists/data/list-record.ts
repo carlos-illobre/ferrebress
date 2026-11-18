@@ -1,6 +1,7 @@
 // Una lista como la guarda la base, y cómo se la lee.
 import type {
   ListReason,
+  ListRefusal,
   ListResult,
   ListScope,
   ListStatus,
@@ -34,7 +35,8 @@ export type ListRecord = {
   uploadedAt: Date;
   decidedBy: string | null;
   decidedAt: Date | null;
-  result: ListResult | null;
+  // Lo que hizo al aplicarse, o por cuánto se pasaba del tope si no se aplicó.
+  result: ListResult | ListRefusal | null;
 };
 
 export type NewList = {

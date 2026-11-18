@@ -30,9 +30,15 @@ export function createModules(options: ModulesOptions = {}) {
   const users = createUsersModule({
     accessCounts: (userIds, asking) => signIn.accessCounts(userIds, asking),
   });
+  // El catálogo recalcula los precios cuando cambia el redondeo; las pruebas de Administración pasan
+  // uno de mentira. La cuenta del costo de un producto se la dan las listas.
+  const catalog = createCatalogModule({
+    costSourceOf: (productId) => priceLists.priceLists.costSourceOf(productId),
+    roundingStep: () => admin.administration.settings().roundingStep,
+  });
   const admin = createAdministrationModule({
     nameOf: (id) => users.users.nameOf(id),
-    ...(options.recalculator && { recalculator: options.recalculator }),
+    recalculator: options.recalculator ?? catalog.recalculator,
   });
   const signIn = createSignInModule({
     users: users.users,
@@ -45,7 +51,6 @@ export function createModules(options: ModulesOptions = {}) {
     pairingDays: () => admin.administration.settings().pairingDays,
   });
   const anomalies = createAnomaliesModule({ nameOf: (id) => users.users.nameOf(id) });
-  const catalog = createCatalogModule();
   const priceLists = createPriceListsModule(
     {
       catalog: catalog.catalog,

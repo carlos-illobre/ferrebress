@@ -45,10 +45,16 @@ async function addArticles(
     ),
   }));
   const products = rows.map((row) => ({
-    ...{ id: row.productId, description: `Artículo ${row.code}`, brand: row.brand ?? null },
+    ...{ id: row.productId, code: row.code, description: `Artículo ${row.code}` },
+    brand: row.brand ?? null,
     ...{ barcode: null, vat: row.vat ?? 210, cost: row.cost, supplierId },
   }));
-  await db.transaction().execute((trx) => catalog.create(trx, products));
+  const after = await db.transaction().execute(async (trx) => {
+    await catalog.create(trx, products);
+    return catalog.committed(trx);
+  });
+  after();
+  await catalog.indexed();
   for (const row of rows)
     await sql`insert into price_lists.items (supplier_id, supplier_code, product_id, description,
       brand, search_key, vat, cost, basis, list_id) values (${supplierId}, ${row.code},

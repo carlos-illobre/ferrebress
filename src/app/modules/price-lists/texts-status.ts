@@ -26,6 +26,7 @@ export const listReasonTexts: Record<ListReason, string> = {
   'by-hand': 'Se descartó a mano',
   interrupted: 'Se cortó mientras se aplicaba',
   'apply-failed': 'No se pudo aplicar',
+  'catalog-full': 'El catálogo se pasaría de 200.000 productos',
 };
 
 // Por qué se salteó una fila (R5.4).

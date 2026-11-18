@@ -1,4 +1,5 @@
 // Las consultas de los artículos de cada proveedor (diseño de 08, § 2), en lote.
+import type { CostSource } from '@ferrebress/shared/contracts/catalog';
 import type { CostBasis } from '@ferrebress/shared/pricing/basis';
 import { sql } from 'kysely';
 import { bigText, type Db, jsonOf } from './db.ts';
@@ -69,4 +70,18 @@ const deactivation = (db: Db) => ({
   },
 });
 
-export const itemsData = (db: Db) => ({ ...costs(db), ...deactivation(db) });
+// De dónde sale el costo de un producto (07 · R2.6): el artículo que lo trae y su proveedor. En
+// 07a cada producto tiene uno solo.
+const source = (db: Db) => ({
+  async sourceOf(productId: string): Promise<CostSource | undefined> {
+    const { rows } = await sql<{ id: string; name: string; basis: CostBasis }>`
+      select s.id, s.name, i.basis from price_lists.items i
+      join price_lists.suppliers s on s.id = i.supplier_id
+      where i.product_id = ${productId} and not i.discontinued
+      limit 1`.execute(db);
+    const row = rows[0];
+    return row && { supplier: { id: row.id, name: row.name }, basis: row.basis };
+  },
+});
+
+export const itemsData = (db: Db) => ({ ...costs(db), ...deactivation(db), ...source(db) });

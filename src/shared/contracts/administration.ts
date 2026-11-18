@@ -141,6 +141,13 @@ export type AdministrationResponse = {
 // ejemplos. Sin catálogo, no hay precios.
 // `calculated`: el precio sin redondear, en centavos.
 export type RoundingExample = { name: string; calculated: number };
+// Los ejemplos para quien no tiene «Ver costos» (R3.7): inventados, con el precio sin redondear en
+// centavos.
+export const inventedExamples: RoundingExample[] = [
+  { name: 'Un producto de ejemplo', calculated: 1_500_100 },
+  { name: 'Otro de ejemplo', calculated: 843_700 },
+  { name: 'Un tercero', calculated: 1_264_050 },
+];
 export type RoundingResponse = {
   total: number;
   changes: Record<string, number>;

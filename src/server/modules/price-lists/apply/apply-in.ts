@@ -46,6 +46,7 @@ export async function applyIn(
   changes.push(...(await goneOf(ctx, trx, list.scope, supplierId, listId, result)));
   const oldFile = await closeOut(trx, list, supplier, userId, result, ctx.platform.clock.now());
   const after = [
+    ctx.catalog.committed(trx),
     ...(await closeSkipped(ctx, trx, supplier.lastListId)),
     ...(await openSkipped(ctx, trx, list, supplier)),
   ];

@@ -4,6 +4,7 @@ import './icon.css';
 import type { VNode } from 'preact';
 import type { administrationShapes } from './administration-shapes.tsx';
 import type { auditLogShapes } from './audit-log-shapes.tsx';
+import type { catalogShapes } from './catalog-shapes.tsx';
 import type { deviceSettingsShapes } from './device-settings-shapes.tsx';
 import type { linkShapes } from './link-shapes.tsx';
 import { menuShapes } from './menu-shapes.tsx';
@@ -28,7 +29,8 @@ type Drawn =
   | keyof typeof priceListsShapes
   | keyof typeof linkShapes
   | keyof typeof deviceSettingsShapes
-  | keyof typeof administrationShapes;
+  | keyof typeof administrationShapes
+  | keyof typeof catalogShapes;
 export const drawsEveryIcon: [IconName] extends [Drawn]
   ? [Drawn] extends [IconName]
     ? true

@@ -1,6 +1,6 @@
 // El vínculo ya hecho, en el servidor (capítulo 03, R2, R5, R8; E10 a E17, E27 a E30, E38, E39, E41,
 // E42): saber si el otro está, desconectar y reconectar, desvincular, confirmar, y lo que lo termina.
-import { contractVersion } from '@ferrebress/shared/contracts/contract-version';
+import { contractVersion } from '@ferrebress/shared/contracts/server-header';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { listen, settle, signedIn, time } from '../../testing/device-link.ts';
 import { createSignInServer, type SignInServer } from '../../testing/sign-in/sign-in-server.ts';

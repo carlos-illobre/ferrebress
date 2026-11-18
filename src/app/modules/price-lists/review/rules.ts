@@ -116,10 +116,13 @@ export const rowLines = (row: ListRow): RowLines => ({
 });
 
 // Por qué no se aplicó la última vez, si volvió a esperar (R6.6).
-export const failedOf = (state: ListState) =>
-  state.status === 'pending' && state.reason
-    ? texts.applyFailed(listReasonTexts[state.reason])
-    : undefined;
+export function failedOf(state: ListState): string | undefined {
+  if (state.status !== 'pending' || !state.reason) return undefined;
+  const why = listReasonTexts[state.reason];
+  return texts.applyFailed(
+    state.over ? texts.byOver(why, state.over.toLocaleString('es-AR')) : why,
+  );
+}
 
 const statusTexts: Partial<Record<ListState['status'], string>> = texts.statuses;
 

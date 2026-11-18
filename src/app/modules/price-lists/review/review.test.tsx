@@ -180,6 +180,15 @@ describe('ver qué cambia', () => {
     ).toBeTruthy();
   });
 
+  it('price-lists-R7.7: si se pasaría del tope del catálogo, dice por cuántos', async () => {
+    openReview({ [listPath]: { body: pending({ reason: 'catalog-full', over: 1500 }) } });
+    expect(
+      await screen.findByText(
+        'No se aplicó: El catálogo se pasaría de 200.000 productos por 1.500. La lista sigue en espera.',
+      ),
+    ).toBeTruthy();
+  });
+
   it('una lista que ya no espera dice su estado y no ofrece nada; sin archivo, lo dice', async () => {
     openReview({
       [listPath]: {

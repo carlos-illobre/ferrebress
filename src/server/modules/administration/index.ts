@@ -7,17 +7,12 @@ import { type AdministrationDependencies, createAdministrationContext } from './
 import { createMemory } from './memory.ts';
 import { createSettings } from './migrations/001-settings.ts';
 import { stepInCents } from './migrations/002-step-cents.ts';
-import { noPrices, type PriceRecalculator } from './recalculator.ts';
 import { registerRoutes } from './routes.ts';
 
 export type { PriceRecalculator } from './recalculator.ts';
 export type Administration = { settings(): Settings };
 
-export function createAdministrationModule(
-  dependencies: Omit<AdministrationDependencies, 'recalculator'> & {
-    recalculator?: PriceRecalculator;
-  },
-) {
+export function createAdministrationModule(dependencies: AdministrationDependencies) {
   const memory = createMemory();
   const module: ServerModule = {
     name: 'administration',
@@ -26,10 +21,7 @@ export function createAdministrationModule(
       migrations: { '001-settings': createSettings, '002-step-cents': stepInCents },
     },
     async register(platform) {
-      const ctx = createAdministrationContext(platform, memory, {
-        recalculator: noPrices,
-        ...dependencies,
-      });
+      const ctx = createAdministrationContext(platform, memory, dependencies);
       // Si no se pueden leer o no valen, el servidor no arranca (diseño de 06, § 2).
       memory.load(await ctx.data.all());
       registerRoutes(ctx);

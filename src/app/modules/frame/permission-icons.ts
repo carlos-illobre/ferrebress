@@ -15,6 +15,8 @@ export const permissionIcons: Record<PermissionId, IconName> = {
   'price-lists.costs': 'tag',
   'price-lists.suppliers': 'store',
   'price-lists.load': 'package',
+  'catalog.margins': 'badge-percent',
+  'catalog.products': 'ruler',
 };
 
 export const groupIcons: Record<PermissionGroup, IconName> = {

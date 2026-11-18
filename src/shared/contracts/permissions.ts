@@ -5,7 +5,10 @@
 export const permissionGroups = {
   users: { name: 'Usuarios', detail: 'Las personas, sus roles, sesiones y huellas' },
   offline: { name: 'Sin conexión', detail: 'Entrar con la huella sin internet' },
-  catalog: { name: 'Catálogo', detail: 'Los proveedores, sus listas de precios y los costos' },
+  catalog: {
+    name: 'Catálogo',
+    detail: 'Los productos, sus márgenes, los proveedores, sus listas de precios y los costos',
+  },
   administration: { name: 'Administración', detail: 'Los ajustes que valen para todos' },
 } as const;
 
@@ -96,6 +99,21 @@ export const permissions = [
     name: 'Cargar listas',
     explanation: 'Subir una lista de precios, aplicarla y descartarla. Incluye «Ver costos».',
     includes: ['price-lists.costs'],
+  },
+  {
+    id: 'catalog.margins',
+    group: 'catalog',
+    name: 'Cambiar márgenes',
+    explanation:
+      'Elegir el margen de cada producto, que forma su precio de venta. Incluye «Ver costos»: quien elige un margen ve el costo sobre el que lo pone.',
+    includes: ['price-lists.costs'],
+  },
+  {
+    id: 'catalog.products',
+    group: 'catalog',
+    name: 'Cambiar los datos de un producto',
+    explanation: 'Cambiar la unidad y el IVA de un producto.',
+    includes: [],
   },
 ] as const satisfies readonly {
   id: string;

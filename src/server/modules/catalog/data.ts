@@ -1,18 +1,23 @@
-// Las consultas de los productos (diseño de 08, § 1): todo en lote, con una sola sentencia por tanda,
-// dentro de la transacción de quien llama. Las filas viajan como un JSON: un solo parámetro, sea
-// cual sea el tamaño de la tanda.
+// Las consultas que escriben productos (diseño de 08, § 1; de 07, § 2 y § 4): todo en lote, con una
+// sentencia por tanda, dentro de la transacción de quien llama. Las filas viajan como un JSON: un solo
+// parámetro, sea cual sea el tamaño de la tanda. Lo que cambia el costo o el IVA devuelve con qué
+// recalcular el precio (data-pricing.ts).
+import { searchKey } from '@ferrebress/shared/text/search-key';
 import { type Kysely, type RawBuilder, sql } from 'kysely';
+import { type Priced, rowsOf } from './data-rows.ts';
 import type { DB } from './tables.generated.ts';
 
 export type CatalogTables = DB;
 type Db = Kysely<CatalogTables>;
 
-// Los costos, en millonésimos, como texto: en un JSON un número tan grande pierde precisión.
-const rowsOf = (rows: readonly object[]): RawBuilder<unknown> =>
-  sql`${JSON.stringify(rows, (_key, value) => (typeof value === 'bigint' ? String(value) : value))}::jsonb`;
+// Lo que hace falta para calcular el precio de lo que se escribió.
+const pricedOf = sql`p.id, p.cost::text as cost, p.margin, p.vat`;
+const rowsBack = async (query: RawBuilder<Priced>, db: Db) => (await query.execute(db)).rows;
 
 export type NewProduct = {
   id: string;
+  // El código del artículo en la lista de su proveedor (07 · R1.1).
+  code: string;
   description: string;
   brand: string | null;
   barcode: string | null;
@@ -44,52 +49,62 @@ export type ProductRow = {
   discontinued: boolean;
 };
 
-// Crear y poner al día.
+const keyed = <T extends { description: string }>(rows: readonly T[]) =>
+  rows.map((row) => ({ ...row, key: searchKey(row.description) }));
+
+// Crear y poner al día lo que trae una lista.
 const writes = (db: Db) => ({
+  // Un producto nuevo no tiene margen: no tiene precio (08 · R7.2).
   async create(products: readonly NewProduct[]): Promise<void> {
-    if (products.length === 0) return;
     await sql`
-      insert into catalog.products (id, description, brand, barcode, vat, cost, cost_supplier_id)
-      select id, description, brand, barcode, vat, cost, "supplierId"
-      from jsonb_to_recordset(${rowsOf(products)}) as v(
-        id uuid, description text, brand text, barcode text, vat smallint, cost bigint,
-        "supplierId" uuid)`.execute(db);
+      insert into catalog.products (id, supplier_code, description, brand, barcode, vat,
+        vat_from_list, cost, cost_supplier_id, search_key)
+      select id, code, description, brand, barcode, vat, vat, cost, "supplierId", key
+      from jsonb_to_recordset(${rowsOf(keyed(products))}) as v(
+        id uuid, code text, description text, brand text, barcode text, vat smallint, cost bigint,
+        "supplierId" uuid, key text)`.execute(db);
   },
 
-  // Lo que trae el artículo; el IVA, solo si nadie lo cambió a mano (R3.6, R7.3).
-  async update(changes: readonly ProductChange[]): Promise<void> {
-    if (changes.length === 0) return;
-    await sql`
-      update catalog.products p
-      set description = v.description, brand = v.brand, barcode = v.barcode,
-        vat = case when p.vat_manual then p.vat else v.vat end
-      from jsonb_to_recordset(${rowsOf(changes)}) as v(
-        id uuid, description text, brand text, barcode text, vat smallint)
-      where p.id = v.id`.execute(db);
-  },
+  // Lo que trae el artículo; el IVA, solo si nadie lo cambió a mano (R3.6, R7.3). El de la lista se
+  // guarda siempre, para que «Deshacer» un IVA a mano vuelva a él (07 · R1.4).
+  update: (changes: readonly ProductChange[]): Promise<Priced[]> =>
+    rowsBack(
+      sql<Priced>`
+        update catalog.products p
+        set description = v.description, brand = v.brand, barcode = v.barcode, search_key = v.key,
+          vat_from_list = v.vat, vat = case when p.vat_manual then p.vat else v.vat end
+        from jsonb_to_recordset(${rowsOf(keyed(changes))}) as v(
+          id uuid, description text, brand text, barcode text, vat smallint, key text)
+        where p.id = v.id
+        returning ${pricedOf}`,
+      db,
+    ),
 
-  async setCosts(costs: readonly ProductCost[]): Promise<void> {
-    if (costs.length === 0) return;
-    await sql`
-      update catalog.products p set cost = v.cost, cost_supplier_id = v."supplierId"
-      from jsonb_to_recordset(${rowsOf(costs)}) as v(id uuid, cost bigint, "supplierId" uuid)
-      where p.id = v.id`.execute(db);
-  },
+  setCosts: (costs: readonly ProductCost[]): Promise<Priced[]> =>
+    rowsBack(
+      sql<Priced>`
+        update catalog.products p set cost = v.cost, cost_supplier_id = v."supplierId"
+        from jsonb_to_recordset(${rowsOf(costs)}) as v(id uuid, cost bigint, "supplierId" uuid)
+        where p.id = v.id
+        returning ${pricedOf}`,
+      db,
+    ),
 });
 
 // El costo de un proveedor, la baja y leerlos.
 const states = (db: Db) => ({
-  // Sin el costo de ese proveedor (se lo dio de baja, R2.4).
-  async dropSupplier(supplierId: string): Promise<void> {
-    await db
-      .updateTable('catalog.products')
-      .set({ cost: null, cost_supplier_id: null })
-      .where('cost_supplier_id', '=', supplierId)
-      .execute();
-  },
+  // Sin el costo de ese proveedor (se lo dio de baja, R2.4): sin costo, sin precio (07 · R2.4).
+  dropSupplier: (supplierId: string): Promise<Priced[]> =>
+    rowsBack(
+      sql<Priced>`
+        update catalog.products p
+        set cost = null, cost_supplier_id = null, raw_cents = null, sale_cents = null
+        where cost_supplier_id = ${supplierId}
+        returning ${pricedOf}`,
+      db,
+    ),
 
   async setDiscontinued(ids: readonly string[], discontinued: boolean): Promise<void> {
-    if (ids.length === 0) return;
     await db.updateTable('catalog.products').set({ discontinued }).where('id', 'in', ids).execute();
   },
 

@@ -85,4 +85,6 @@ export type ListReason =
   | 'supplier-inactive'
   | 'by-hand'
   | 'interrupted'
-  | 'apply-failed';
+  | 'apply-failed'
+  // Se pasaría del tope de productos del catálogo (R7.7).
+  | 'catalog-full';

@@ -1,9 +1,14 @@
-// La fachada del catálogo (08 · R7; diseño de 08, § 1): crear, poner al día, poner el costo, dar de
-// baja y traer de vuelta productos en lote, dentro de la transacción de quien llama (ADR-001). No
-// conoce a las listas de precios: las listas escriben acá, nunca al revés. En esta etapa no tiene
-// rutas ni pantallas; 07 le suma el margen, el precio, la búsqueda y la ficha.
+// La fachada del catálogo (07; 08 · R7; diseño de 07 y de 08, § 1): lo que hacen las listas con los
+// productos, en lote y dentro de su transacción (ADR-001), que al confirmar pone al día el índice de
+// búsqueda (`committed`); quien recalcula los precios cuando cambia el redondeo, para Administración;
+// y las rutas de buscar, ver y cambiar un producto. No conoce a las listas de precios: la cuenta del
+// costo le llega en `costSourceOf`, que conecta server/modules.ts.
+import type { CostSource } from '@ferrebress/shared/contracts/catalog';
+import { createSearchIndex } from '@ferrebress/shared/search/index';
 import type { Kysely, Transaction } from 'kysely';
+import type { AfterCommit } from '../../platform/events.ts';
 import type { ServerModule } from '../../platform/modules.ts';
+import type { PriceRecalculator } from '../administration/index.ts';
 import {
   type CatalogTables,
   catalogData,
@@ -12,9 +17,17 @@ import {
   type ProductCost,
   type ProductRow,
 } from './data.ts';
+import { pagesData } from './data-pages.ts';
+import { pricingData } from './data-pricing.ts';
+import { refresher } from './indexing.ts';
 import { createProducts } from './migrations/001-products.ts';
+import { addPrices } from './migrations/002-prices.ts';
+import { createRecalculator } from './recalculator.ts';
+import { registerRoutes } from './routes/index.ts';
+import { createWrites } from './writes.ts';
 
 export type { NewProduct, ProductChange, ProductCost, ProductRow } from './data.ts';
+export { CatalogFull } from './writes.ts';
 
 export type Catalog = {
   create(trx: Transaction<unknown>, products: readonly NewProduct[]): Promise<void>;
@@ -26,25 +39,44 @@ export type Catalog = {
   discontinue(trx: Transaction<unknown>, ids: readonly string[]): Promise<void>;
   // Un artículo lo vuelve a traer.
   restore(trx: Transaction<unknown>, ids: readonly string[]): Promise<void>;
+  // Lo que corre al confirmar la transacción: el índice de búsqueda, con lo que tocó.
+  committed(trx: Transaction<unknown>): AfterCommit;
+  // Espera que el índice de búsqueda esté al día con lo confirmado.
+  indexed(): Promise<void>;
   read(db: Kysely<unknown>, ids: readonly string[]): Promise<ProductRow[]>;
 };
 
-const dataIn = (db: Kysely<unknown>) => catalogData(db as Kysely<CatalogTables>);
+export type CatalogOptions = {
+  // De dónde sale el costo de un producto, de las listas de precios (07 · R2.6).
+  costSourceOf: (productId: string) => Promise<CostSource | undefined>;
+  // El paso del redondeo de Administración, para la primera vez.
+  roundingStep: () => number;
+};
 
-export function createCatalogModule() {
+const dbOf = (db: Kysely<unknown>) => db as Kysely<CatalogTables>;
+
+export function createCatalogModule(options: CatalogOptions) {
+  const index = createSearchIndex();
+  let db: Kysely<CatalogTables>;
+  const refresh = refresher(index, () => pagesData(db));
+  const writes = createWrites({ active: index.size, refresh });
   const module: ServerModule = {
     name: 'catalog',
-    schema: { schema: 'catalog', migrations: { '001-products': createProducts } },
-    register() {},
+    schema: {
+      schema: 'catalog',
+      migrations: { '001-products': createProducts, '002-prices': addPrices },
+    },
+    async register(platform) {
+      db = dbOf(platform.db);
+      await pricingData(db).start(options.roundingStep());
+      index.replace(await pagesData(db).docs(), []);
+      registerRoutes({ platform, db, index, ...options });
+    },
   };
   const catalog: Catalog = {
-    create: (trx, products) => dataIn(trx).create(products),
-    update: (trx, changes) => dataIn(trx).update(changes),
-    setCosts: (trx, costs) => dataIn(trx).setCosts(costs),
-    dropSupplier: (trx, supplierId) => dataIn(trx).dropSupplier(supplierId),
-    discontinue: (trx, ids) => dataIn(trx).setDiscontinued(ids, true),
-    restore: (trx, ids) => dataIn(trx).setDiscontinued(ids, false),
-    read: (db, ids) => dataIn(db).read(ids),
+    ...writes,
+    read: (on, ids) => catalogData(dbOf(on)).read(ids),
   };
-  return { module, catalog };
+  const recalculator: PriceRecalculator = createRecalculator(() => db as Kysely<unknown>);
+  return { module, catalog, recalculator };
 }

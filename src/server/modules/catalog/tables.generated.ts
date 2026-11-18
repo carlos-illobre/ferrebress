@@ -8,6 +8,11 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 
 export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
 
+export interface CatalogPricing {
+  id: Generated<boolean>;
+  step_cents: number;
+}
+
 export interface CatalogProducts {
   barcode: string | null;
   brand: string | null;
@@ -16,12 +21,19 @@ export interface CatalogProducts {
   description: string;
   discontinued: Generated<boolean>;
   id: string;
+  margin: number | null;
+  raw_cents: Int8 | null;
+  sale_cents: Int8 | null;
+  search_key: Generated<string>;
+  supplier_code: Generated<string>;
   unit: Generated<string>;
   unit_manual: Generated<boolean>;
   vat: number;
+  vat_from_list: number;
   vat_manual: Generated<boolean>;
 }
 
 export interface DB {
+  "catalog.pricing": CatalogPricing;
   "catalog.products": CatalogProducts;
 }

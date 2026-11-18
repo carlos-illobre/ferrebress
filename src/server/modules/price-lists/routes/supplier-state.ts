@@ -13,6 +13,7 @@ import {
 } from '@ferrebress/shared/contracts/price-lists';
 import type { Context, MiddlewareHandler } from 'hono';
 import type { Transaction } from 'kysely';
+import type { AfterCommit } from '../../../platform/events.ts';
 import { bySchema, readBody } from '../../../platform/guards.ts';
 import { fail } from '../../../platform/http.ts';
 import { sessionOf } from '../../../platform/session.ts';
@@ -97,14 +98,21 @@ type TermsOutcome =
 // confirma (E21).
 async function changeTerms(ctx: PriceListsContext, c: Context, body: TermsBody) {
   const supplierId = c.req.param('id') as string;
+  let after: AfterCommit | undefined;
   const outcome = await ctx.platform.db
     .transaction()
-    .execute((trx) => termsIn(ctx, trx, supplierId, body))
+    .execute(async (trx) => {
+      const out = await termsIn(ctx, trx, supplierId, body);
+      after = ctx.catalog.committed(trx);
+      return out;
+    })
     .catch((error: unknown) => {
       console.error(error);
       return undefined;
     });
   if (outcome === undefined) return fail(c, 503, 'recalc-failed');
+  // Los productos con su costo nuevo, en la búsqueda (diseño de 07, § 5).
+  after?.();
   if ('refused' in outcome) return refuse(c, outcome.refused);
   if ('changed' in outcome)
     return c.json<TermsChanged>({ error: 'terms-changed', ...outcome.changed }, 409);
@@ -199,6 +207,7 @@ async function deactivated(
 ) {
   const supplierId = c.req.param('id') as string;
   const { userId } = sessionOf(c);
+  let after: AfterCommit | undefined;
   const outcome = await ctx.platform.db
     .transaction()
     .execute(async (trx): Promise<DeactivateOutcome> => {
@@ -211,8 +220,10 @@ async function deactivated(
       if (confirmed?.costs !== counts.costs || confirmed.discontinued !== counts.discontinued)
         return { confirm: counts };
       const stopped = await withoutSupplier(ctx, trx, supplierId, discontinued, userId);
+      after = ctx.catalog.committed(trx);
       return { done: { name: now.name, ...counts, stopped } };
     });
+  after?.();
   if ('refused' in outcome) return refuse(c, outcome.refused);
   if ('confirm' in outcome)
     return c.json<ConfirmDeactivate>({ error: 'confirm-deactivate', ...outcome.confirm }, 409);

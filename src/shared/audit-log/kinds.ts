@@ -12,6 +12,7 @@ export const groups = {
   'device-settings': 'Configuración',
   administration: 'Administración',
   'price-lists': 'Listas de precios',
+  catalog: 'Catálogo',
   refused: 'Rechazos',
   other: 'Otros',
 } as const;

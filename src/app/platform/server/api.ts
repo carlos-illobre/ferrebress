@@ -1,13 +1,15 @@
 // El único punto por donde la aplicación habla con el servidor (diseño de 01, § 10): pone las
 // cabeceras, lee la versión, la hora y el ambiente que trae cada respuesta (ADR-003), se entera
 // de si hay conexión sin consultar nada por su cuenta (00 · R4.3) y traduce los errores.
+
+import type { ErrorBody, ErrorCode } from '@ferrebress/shared/contracts/errors';
 import {
   appVersionHeaderName,
   contractVersion,
   deviceIdHeaderName,
-} from '@ferrebress/shared/contracts/contract-version';
-import type { ErrorBody, ErrorCode } from '@ferrebress/shared/contracts/errors';
-import { parseServerHeader, serverHeaderName } from '@ferrebress/shared/contracts/server-header';
+  parseServerHeader,
+  serverHeaderName,
+} from '@ferrebress/shared/contracts/server-header';
 import { deviceId } from '../device/device.ts';
 import { createStore } from '../store.ts';
 import { syncServerTime } from './clock.ts';

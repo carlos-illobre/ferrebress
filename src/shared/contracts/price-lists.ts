@@ -188,6 +188,8 @@ export type ListProgress = {
   applied?: number;
   rowsTotal?: number;
   reason?: ListReason;
+  // Con `catalog-full`, cuántos productos se pasarían del tope (R7.7).
+  over?: number;
 };
 
 // Una lista: su estado, de quién es y cómo se supo, su fecha y su archivo.

@@ -12,6 +12,7 @@ export const progressOf = (list: ListRecord): ListProgress => ({
   ...(list.waitingFor && { waitingFor: list.waitingFor }),
   ...(list.rowsTotal !== null && { rowsTotal: list.rowsTotal }),
   ...(list.reason && { reason: list.reason }),
+  ...(list.result && 'over' in list.result && { over: list.result.over }),
 });
 
 export function stateOf(list: ListRecord, supplierName: string | undefined): ListState {

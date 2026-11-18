@@ -3,7 +3,7 @@ import {
   appVersionHeaderName,
   contractVersion,
   deviceIdHeaderName,
-} from '@ferrebress/shared/contracts/contract-version';
+} from '@ferrebress/shared/contracts/server-header';
 import type { Config } from '../platform/config.ts';
 
 export const testConfig: Config = {

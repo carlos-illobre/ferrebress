@@ -16,6 +16,7 @@ import type { Context, MiddlewareHandler } from 'hono';
 import type { Kysely } from 'kysely';
 import { bySchema, readBody } from '../../platform/guards.ts';
 import { fail, Refused } from '../../platform/http.ts';
+import { permissionsOf } from '../../platform/permissions.ts';
 import { sessionOf } from '../../platform/session.ts';
 import type { AdministrationContext } from './context.ts';
 import { type AdministrationTables, administrationData } from './data.ts';
@@ -40,8 +41,13 @@ export function registerRoutes(ctx: AdministrationContext) {
     }),
   );
 
-  http.get('/api/administration/rounding', sessions.require, async (c) =>
-    c.json(await ctx.recalculator.preview()),
+  // Los ejemplos de verdad, solo para quien ve los costos (R3.7). Con su límite: cuenta en la base.
+  http.get(
+    '/api/administration/rounding',
+    sessions.require,
+    ctx.limit((c) => [`rounding:session:${sessionOf(c).id}`], administrationSettings.rounding),
+    async (c) =>
+      c.json(await ctx.recalculator.preview(permissionsOf(c).includes('price-lists.costs'))),
   );
 
   http.post(

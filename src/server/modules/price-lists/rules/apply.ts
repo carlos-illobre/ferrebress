@@ -11,6 +11,7 @@ export type Batch = {
   items: ItemWrite[];
   created: {
     id: string;
+    code: string;
     description: string;
     brand: string | null;
     barcode: string | null;
@@ -59,7 +60,7 @@ export function batchOf(
     });
     if (had) existing(batch, had, { id: productId, ...fields }, row.cost);
     else {
-      batch.created.push({ id: productId, ...fields, cost });
+      batch.created.push({ id: productId, code: row.code, ...fields, cost });
       batch.changes.push({ productId, before: null, after: row.cost });
     }
   }

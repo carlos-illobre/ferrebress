@@ -4,6 +4,8 @@ const minute = 60_000;
 export const administrationSettings = {
   // Los cambios de una sesión: una pantalla que se toca poco.
   changes: { max: 30, windowMs: minute },
+  // El panel del redondeo: cuenta en la base todos los precios (diseño de 07, § 9).
+  rounding: { max: 10, windowMs: minute },
   // Un rechazo repetido se anota una vez por ventana.
   throttledAudit: { max: 1, windowMs: minute },
 };

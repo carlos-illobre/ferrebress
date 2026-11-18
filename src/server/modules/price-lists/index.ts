@@ -1,9 +1,13 @@
 // La fachada de las listas de precios (capítulo 08; diseño de 08): los proveedores, cómo cobra cada
 // uno, sus listas, sus lectores y sus artículos. Escribe en el catálogo y abre y cierra anomalías por
 // sus fachadas, dentro de su transacción; no conoce a nadie más. Las recibe en server/modules.ts.
+import type { CostSource } from '@ferrebress/shared/contracts/catalog';
+import type { Kysely } from 'kysely';
 import type { Platform, ServerModule } from '../../platform/modules.ts';
 import { type Applying, createApplying } from './apply/service.ts';
 import { createPriceListsContext, type PriceListsDependencies } from './context.ts';
+import { asDb } from './data/db.ts';
+import { itemsData } from './data/items.ts';
 import { cleanUp } from './files/cleanup.ts';
 import { createSuppliers } from './migrations/001-suppliers.ts';
 import { createLists } from './migrations/002-lists.ts';
@@ -69,6 +73,7 @@ export function createPriceListsModule(
   options: PriceListsOptions = {},
 ) {
   let running: Running | undefined;
+  let db: Kysely<unknown>;
   const module: ServerModule = {
     name: 'price-lists',
     schema: {
@@ -81,6 +86,7 @@ export function createPriceListsModule(
       },
     },
     async register(platform) {
+      db = platform.db;
       running = await start(platform, dependencies, options);
     },
   };
@@ -98,6 +104,9 @@ export function createPriceListsModule(
     read: (listId: string): Promise<void> => (running as Running).reading.start(listId),
     // Lo que se hace al arrancar (diseño de 08, § 8): las pruebas lo repiten como si se reiniciara.
     resume: (): Promise<void> => (running as Running).resume(),
+    // De dónde sale el costo de un producto, para «Así se calcula» del catálogo (07 · R2.6).
+    costSourceOf: (productId: string): Promise<CostSource | undefined> =>
+      itemsData(asDb(db)).sourceOf(productId),
   };
   return { module, priceLists };
 }

@@ -58,3 +58,10 @@ export function parseServerHeader(value: string | null): ServerHeader | undefine
     ...(Object.keys(extra).length > 0 && { fields: extra }),
   };
 }
+
+// Sube cuando un contrato de la API cambia de forma incompatible. La aplicación la manda en
+// X-App-Version y el servidor rechaza las menores que la mínima que entiende (00 · R5.5). En 3, el
+// paso del redondeo pasó a centavos (06 · R3.2).
+export const contractVersion = 3;
+export const appVersionHeaderName = 'X-App-Version';
+export const deviceIdHeaderName = 'X-Device-Id';

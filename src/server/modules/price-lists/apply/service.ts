@@ -3,8 +3,9 @@
 // lista vuelve a esperar con el motivo. Al terminar, sigue la que esperaba en la cola (E85).
 import type { ListProgress } from '@ferrebress/shared/contracts/price-lists';
 import type { RecordFields } from '../../../platform/guards.ts';
+import { CatalogFull } from '../../catalog/index.ts';
 import type { PriceListsContext } from '../context.ts';
-import { asDb } from '../data/db.ts';
+import { asDb, jsonOf } from '../data/db.ts';
 import { readingData } from '../data/reading.ts';
 import { discard } from '../reading/assign.ts';
 import type { Reading } from '../reading/service.ts';
@@ -39,13 +40,10 @@ export function createApplying(ctx: PriceListsContext, deps: ApplyingDependencie
     const outcome = await ctx.platform.db
       .transaction()
       .execute((trx) => applyIn(ctx, trx, listId, userId, watch))
-      .catch((error: unknown) => {
-        if (!(error instanceof Cancelled)) console.error(error);
-        return error instanceof Cancelled ? ('cancelled' as const) : ('apply-failed' as const);
-      });
+      .catch(failedOf);
     running.delete(listId);
     cancelled.delete(listId);
-    if (typeof outcome === 'string') await backToPending(ctx, listId, outcome);
+    if ('reason' in outcome) await backToPending(ctx, listId, outcome);
     else await finished(ctx, outcome, record);
     await deps.publish(listId);
     await nextInQueue(ctx, deps.reading, listId);
@@ -69,10 +67,21 @@ export function createApplying(ctx: PriceListsContext, deps: ApplyingDependencie
 
 export type Applying = ReturnType<typeof createApplying>;
 
+type Failed = { reason: 'cancelled' | 'apply-failed' | 'catalog-full'; over?: number };
+
+// Por qué no se aplicó: se canceló, se pasaría del tope del catálogo (R7.7) o falló.
+function failedOf(error: unknown): Failed {
+  if (error instanceof Cancelled) return { reason: 'cancelled' };
+  if (error instanceof CatalogFull) return { reason: 'catalog-full', over: error.over };
+  console.error(error);
+  return { reason: 'apply-failed' };
+}
+
 // Falló o se canceló: vuelve a esperar, con el motivo (R6.6).
-async function backToPending(ctx: PriceListsContext, listId: string, reason: string) {
+async function backToPending(ctx: PriceListsContext, listId: string, { reason, over }: Failed) {
   await readingData(asDb(ctx.platform.db)).set(listId, {
     ...{ status: 'pending', reason, decided_by: null, decided_at: null },
+    result: over === undefined ? null : jsonOf({ over }),
   });
 }
 

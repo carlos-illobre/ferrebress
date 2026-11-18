@@ -75,6 +75,13 @@ const routes: Record<string, Needs> = {
   'GET /api/anomalies': 'anomalies.review',
   'POST /api/anomalies/:id/review': 'anomalies.review',
   'POST /api/anomalies/:id/reopen': 'anomalies.review',
+  // El catálogo (capítulo 07): ver pide la sesión (R4.1); cambiar, su permiso (R4.2).
+  'GET /api/catalog/products': 'session',
+  'GET /api/catalog/products/:id': 'session',
+  'GET /api/catalog/brands': 'session',
+  'POST /api/catalog/products/:id/margin': 'catalog.margins',
+  'POST /api/catalog/products/:id/unit': 'catalog.products',
+  'POST /api/catalog/products/:id/vat': 'catalog.products',
   'GET /api/price-lists/suppliers': 'session',
   'GET /api/price-lists/suppliers/inactive': 'price-lists.suppliers',
   'GET /api/price-lists/suppliers/:id': 'session',

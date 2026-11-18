@@ -3,6 +3,7 @@
 import { catalog, entryOf } from '@ferrebress/shared/audit-log/index';
 import { describe, expect, it } from 'vitest';
 import { auditLogShapes } from '../../views/basic/ui/icon/audit-log-shapes.tsx';
+import { catalogShapes } from '../../views/basic/ui/icon/catalog-shapes.tsx';
 import { menuShapes } from '../../views/basic/ui/icon/menu-shapes.tsx';
 import { peopleShapes } from '../../views/basic/ui/icon/people-shapes.tsx';
 import { priceListsShapes } from '../../views/basic/ui/icon/price-lists-shapes.tsx';
@@ -20,6 +21,7 @@ describe('la pantalla de Quién hizo qué, sin dibujo', () => {
       ...rolesShapes,
       ...auditLogShapes,
       ...priceListsShapes,
+      ...catalogShapes,
     };
     const icons = [...Object.values(catalog), entryOf('nada')].map((entry) => entry.icon);
     expect(icons.filter((icon) => !(icon in drawn))).toEqual([]);
