@@ -21,7 +21,7 @@ const applyLabel = /^Aplicar: 4 nuevos, 31 costos, 2 bajas/;
 describe('ver qué cambia', () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it('price-lists-R6.2 y R6.3: de quién es, el resumen, el botón y el detalle con su cuenta', async () => {
+  it('price-lists-R6.2, R6.3 y E58: de quién es, el resumen, el botón con lo que va a pasar y el detalle con su cuenta', async () => {
     openReview();
     expect(await screen.findByText('Lista de Bulonera Centro')).toBeTruthy();
     expect(screen.getByText('Fecha de la lista: 10/11/2023')).toBeTruthy();
@@ -126,7 +126,7 @@ describe('ver qué cambia', () => {
     expect(server.sent.filter((s) => s.path === listPath).length).toBeGreaterThan(1);
   });
 
-  it('price-lists-R6.5 y R6.10: da de baja de más, o es más vieja: se avisa', async () => {
+  it('price-lists-R6.5, E59 y R6.10: da de baja de más, o es más vieja: se avisa', async () => {
     openReview({
       [listPath]: { body: pending({ summary: { ...summary, goneWarning: true, gone: 812 } }) },
     });
@@ -145,7 +145,7 @@ describe('ver qué cambia', () => {
     expect(button('Descartar')).toBeTruthy();
   });
 
-  it('price-lists-R6.11: descartar la deja descartada y vuelve a Listas', async () => {
+  it('price-lists-R6.11 y E66: descartar la deja descartada y vuelve a Listas', async () => {
     openReview({
       [`${listPath}/discard`]: [
         { status: 500, body: { error: 'unexpected' } },

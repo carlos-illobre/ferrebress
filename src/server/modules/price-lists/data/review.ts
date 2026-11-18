@@ -52,43 +52,47 @@ const showFilter = (show: RowsShow | undefined, reviewPercent: number) => {
   }
 };
 
+type Totals = Omit<Counts, 'reasons'> & { reasons: Counts['reasons'] | null };
+type Gone = { gone: number; active: number };
+
+// Cuántas de cada cosa, con los motivos de las salteadas.
+const countsOf = (listId: string, reviewPercent: number) => sql`
+  with rows as (select * from price_lists.list_rows where list_id = ${listId}),
+  reasons as (select skipped, count(*)::int as count from rows
+    where skipped is not null group by skipped)
+  select count(*) filter (where change = 'new')::int as new,
+    count(*) filter (where change = 'changed')::int as changed,
+    count(*) filter (where change = 'same')::int as same,
+    count(*) filter (where skipped is not null)::int as skipped,
+    avg((cost - previous_cost)::float8 / previous_cost) filter (where change = 'changed') as average,
+    count(*) filter (where change = 'changed' and abs_variation * 100 > ${reviewPercent})::int as review,
+    (select jsonb_object_agg(skipped, count) from reasons) as reasons
+  from rows`;
+
+// Los que el proveedor tiene y la lista no trae (R7.4), y cuántos tiene.
+const goneOf = (listId: string, supplierId: string) => sql`
+  select count(*) filter (where not exists (select 1 from price_lists.list_rows r
+      where r.list_id = ${listId} and r.supplier_code = i.supplier_code))::int as gone,
+    count(*)::int as active
+  from price_lists.items i where i.supplier_id = ${supplierId} and not i.discontinued`;
+
+const withReasons = <T extends Totals>(found: T) => ({ ...found, reasons: found.reasons ?? {} });
+
 // El resumen.
 const totals = (db: Db) => ({
   async counts(listId: string, reviewPercent: number): Promise<Counts> {
-    const totals = await sql<{
-      new: number;
-      changed: number;
-      same: number;
-      skipped: number;
-      average: number | null;
-      review: number;
-    }>`
-      select count(*) filter (where change = 'new')::int as new,
-        count(*) filter (where change = 'changed')::int as changed,
-        count(*) filter (where change = 'same')::int as same,
-        count(*) filter (where skipped is not null)::int as skipped,
-        avg((cost - previous_cost)::float8 / previous_cost) filter (where change = 'changed') as average,
-        count(*) filter (where change = 'changed' and abs_variation * 100 > ${reviewPercent})::int as review
-      from price_lists.list_rows where list_id = ${listId}`.execute(db);
-    const reasons = await sql<{ skipped: SkipReason; count: number }>`
-      select skipped, count(*)::int as count from price_lists.list_rows
-      where list_id = ${listId} and skipped is not null group by skipped`.execute(db);
-    return {
-      ...(totals.rows[0] as Omit<Counts, 'reasons'>),
-      reasons: Object.fromEntries(reasons.rows.map((one) => [one.skipped, one.count])),
-    };
+    const found = await sql<Totals>`${countsOf(listId, reviewPercent)}`.execute(db);
+    return withReasons(found.rows[0] as Totals);
   },
 
-  // Los que el proveedor tiene y la lista no trae (R7.4), y cuántos tiene.
-  async gone(listId: string, supplierId: string): Promise<{ gone: number; active: number }> {
-    const found = await sql<{ gone: number; active: number }>`
-      select count(*) filter (where not exists (select 1 from price_lists.list_rows r
-          where r.list_id = ${listId} and r.supplier_code = i.supplier_code))::int as gone,
-        count(*)::int as active
-      from price_lists.items i where i.supplier_id = ${supplierId} and not i.discontinued`.execute(
+  // Las dos cosas a la vez, para el resumen de una lista en espera: una sola consulta.
+  async summary(listId: string, supplierId: string, reviewPercent: number) {
+    const found = await sql<Totals & Gone>`
+      select * from (${countsOf(listId, reviewPercent)}) c, (${goneOf(listId, supplierId)}) g`.execute(
       db,
     );
-    return found.rows[0] as { gone: number; active: number };
+    const { gone, active, ...counts } = withReasons(found.rows[0] as Totals & Gone);
+    return { counts, gone: { gone, active } };
   },
 });
 

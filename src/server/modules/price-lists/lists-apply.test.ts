@@ -86,7 +86,7 @@ describe('aplicar una lista', () => {
     });
   });
 
-  it('price-lists-E71, E73, E77, E82 y E88: la siguiente cambia costos, da de baja lo que no vino y cierra lo anterior', async () => {
+  it('price-lists-E59, E71, E73, E77, E82 y E88: la siguiente avisa lo que da de baja, cambia costos, da de baja lo que no vino y cierra lo anterior', async () => {
     const supplierId = await kit.supplier('Aceros Sur');
     const first = await kit.upload(
       sheet('Lista 1/8/2026', [

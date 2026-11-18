@@ -32,7 +32,7 @@ describe('lo que no se aplica, el lector y la cola', () => {
     return product;
   };
 
-  it('price-lists-E62, E64, E65 y R6.5: con otros números, ya aplicada o más vieja que la última, no se aplica', async () => {
+  it('price-lists-E62, E64, E65, E66 y R6.5: con otros números, aplicándose, ya aplicada, descartada o más vieja que la última, no se aplica', async () => {
     const supplierId = await kit.supplier('Pinturería Oeste');
     const sent = await kit.upload(sheet('Lista 14/8/2026', [['A1', 'Mecha', 100]]), { supplierId });
     const wrong = await apply(sent.body.id, { new: 2, changed: 0, gone: 0 });

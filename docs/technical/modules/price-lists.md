@@ -260,13 +260,13 @@ costos») (R1.2, E03); en «Administración», `anomalies.review` (06 · R9.3).
 | `GET /api/price-lists/suppliers` | Los activos con sus datos (R1.3); con «Ver costos», la fecha de la última lista aplicada y lo pendiente, de la última lista no descartada de cada uno: viva, con su estado, o que no se pudo leer, con su motivo (R1.1) | Ninguno | 1, o 2 con «Ver costos» |
 | `GET /api/price-lists/suppliers/inactive` | Los dados de baja (R2.5) | «Administrar proveedores» | 1 |
 | `GET /api/price-lists/suppliers/:id` | Sus datos; con «Ver costos», cómo cobra y sus últimas 20 listas, con quién las subió y decidió (R2.3, R6.7) | Ninguno o «Ver costos» | 1, o 3 con «Ver costos» (una a `users` por los nombres) |
-| `GET /api/price-lists/suppliers/:id/lists` | `?after=`: las anteriores, de a 20 | «Ver costos» | 2 |
+| `GET /api/price-lists/suppliers/:id/lists` | `?after=`: las anteriores, de a 20 | «Ver costos» | 3: que existe, la página y los nombres |
 | `POST /api/price-lists/suppliers` | `{ name, seller?, phone?, email?, note? }` (R2.2) | «Administrar proveedores» | 1 |
 | `POST /api/price-lists/suppliers/:id` | `{ field, before, value }` (R1.7) | «Administrar proveedores» | 1 |
 | `POST /api/price-lists/suppliers/:id/terms` | `{ terms, version, confirmed? }` (R3.5) | «Administrar proveedores» | § 10 |
 | `POST /api/price-lists/suppliers/:id/deactivate` | `{ confirmed? }` (R2.4) | «Administrar proveedores» | § 10 |
 | `POST /api/price-lists/suppliers/:id/reactivate` | (R2.5) | «Administrar proveedores» | 1 |
-| `GET /api/price-lists/suppliers/:id/items` | `?q=&discontinued=&after=`: de a 50 (R8) | «Ver costos» | 1 |
+| `GET /api/price-lists/suppliers/:id/items` | `?q=&discontinued=&after=`: de a 50 (R8) | «Ver costos» | 2: que existe y la página |
 
 - **Dar de alta** con un nombre que existe contesta `409 supplier-exists`, y si es de uno dado de baja,
   `409 supplier-inactive` con su identificador, para ofrecer «Reactivar» (E94).
@@ -282,8 +282,8 @@ costos») (R1.2, E03); en «Administración», `anomalies.review` (06 · R9.3).
 | Ruta | Qué hace | Permiso | Consultas |
 |---|---|---|---|
 | `POST /api/price-lists/lists` | `?name=&supplierId=&scope=`, con el archivo como cuerpo: crea la lista y la pone a leer (R4.1) | «Cargar listas» | 3 |
-| `GET /api/price-lists/lists/:id` | El estado, lo que espera, de quién es y cómo se supo, quién la subió, el resumen y los números del botón (R6.2, R6.5) | «Ver costos» | 2, y 1 a `users` por el nombre de quien la subió |
-| `GET /api/price-lists/lists/:id/rows` | `?show=&q=&after=`: el detalle de a 50, los que cambian primero (R6.3); `show`: lo que se tocó del resumen, `review` (R6.4), `skipped` o `discontinued` | «Ver costos» | 1 |
+| `GET /api/price-lists/lists/:id` | El estado, lo que espera, de quién es y cómo se supo, quién la subió, el resumen y los números del botón (R6.2, R6.5) | «Ver costos» | 4: la lista, su proveedor, el resumen (una sola) y 1 a `users` por el nombre de quien la subió |
+| `GET /api/price-lists/lists/:id/rows` | `?show=&q=&after=`: el detalle de a 50, los que cambian primero (R6.3); `show`: lo que se tocó del resumen, `review` (R6.4), `skipped` o `discontinued` | «Ver costos» | 2: la lista y la página |
 | `POST /api/price-lists/lists/:id/supplier` | `{ supplierId }` o `{ newSupplier }`: confirma, cambia o da de alta y fija; si cambia, la vuelve a leer (R4.3, E29c, E31, E31b) | «Cargar listas» | 2 o 3 |
 | `POST /api/price-lists/lists/:id/size` | Sigue leyendo una planilla grande (R4.12, E91) | «Cargar listas» | 1 |
 | `POST /api/price-lists/lists/:id/scope` | `{ scope }` (R4.7) | «Cargar listas» | 1 |
@@ -324,7 +324,7 @@ costos») (R1.2, E03); en «Administración», `anomalies.review` (06 · R9.3).
 
 | Ruta | Qué hace | Permiso | Consultas |
 |---|---|---|---|
-| `GET /api/price-lists/files` | `?after=`: los archivos guardados, del más viejo al más nuevo, de a 50, y cuánto ocupan contra el ajuste (06 · R10.1) | «Ver costos» | 1 |
+| `GET /api/price-lists/files` | `?after=`: los archivos guardados, del más viejo al más nuevo, de a 50, y cuánto ocupan contra el ajuste (06 · R10.1) | «Ver costos» | 2: la página y el total |
 | `POST /api/price-lists/files/:sha256/delete` | Lo marca para borrar, con 5 segundos para deshacer (06 · R10.2); no el de una lista leyéndose o aplicándose | «Cambiar los ajustes» | 1 |
 | `POST /api/price-lists/files/:sha256/restore` | «Deshacer» | «Cambiar los ajustes» | 1 |
 
@@ -597,11 +597,11 @@ Los modelos de § 7, con lo que espeja cada uno (ADR-019):
 | Subir: el pedido | 3 consultas; contesta apenas guarda el archivo, sin tenerlo entero en memoria |
 | Leer 10.000 filas | Lo que cambia, en menos de 10 s (R4.9, E39): abrir la planilla, menos de 4 s; los lectores, menos de 3 s; comprobar y guardar con lo que cambia, en tandas de 1.000, menos de 2 s. La tarea 4 empieza midiéndolo |
 | Probar los lectores | `recognizes` con las primeras 50 filas: menos de 50 ms por lector; con 150 lectores, menos de 3 s |
-| El resumen | 2 consultas, menos de 100 ms con 10.000 filas; pesa menos de 5 KB |
-| Una página del detalle | 1 consulta con índice, 50 filas, menos de 20 KB |
+| El resumen | 1 consulta (con la lista, su proveedor y quién la subió, 4 en todo el pedido), menos de 100 ms con 10.000 filas; pesa menos de 5 KB |
+| Una página del detalle | 1 consulta con índice (y la que mira que la lista existe), 50 filas, menos de 20 KB |
 | Aplicar 10.000 filas | Menos de 30 s (R6.6, E67): tandas de 1.000 con `unnest`, 4 sentencias por tanda |
 | Cambiar cómo cobra con «Recalcular» | Contar: 1 consulta; recalcular los artículos y las filas de su lista viva, en tandas |
-| Los artículos de un proveedor | 1 consulta, 50 filas |
+| Los artículos de un proveedor | 1 consulta (y la que mira que el proveedor existe), 50 filas |
 | Lo que agrega a la cabecera | Un número, solo con el permiso |
 
 ## 12. Pruebas y tareas
@@ -615,6 +615,8 @@ Los modelos de § 7, con lo que espeja cada uno (ADR-019):
 - **Las planillas de prueba** son inventadas, armadas por las pruebas.
 - **Sin pruebas de punta a punta nuevas:** E08 (el avance en el otro dispositivo) lo cubre la prueba del
   espejo de cualquier valor con nombre; si hiciera falta una, se le justifica a Carlos antes.
+- **Las consultas de cada pedido** las cuenta `queries.test.ts`, con los números de § 3: un pedido que
+  empieza a hacer más falla en `pnpm check`.
 - **La performance** (E39, E67) tiene su prueba con 10.000 filas, aparte de las rápidas (ADR-005): `pnpm perf`
   (`price-lists.perf.ts`), que imprime cada medida. No corre en `pnpm check`.
 

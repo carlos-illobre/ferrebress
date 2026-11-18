@@ -134,7 +134,7 @@ describe('la lectura de las listas', () => {
     await kit.server.priceLists.idle();
   });
 
-  it('al arrancar: la que se leía se retoma, la de dos intentos queda sin leer y la que se aplicaba vuelve a esperar', async () => {
+  it('price-lists-E61: al arrancar, la que se leía se retoma, la de dos intentos queda sin leer y la que se aplicaba vuelve a esperar con su motivo', async () => {
     const supplierId = await kit.supplier('Pinturería Oeste');
     const [cut, twice, applying] = [
       await kit.upload(formatA, { supplierId }),

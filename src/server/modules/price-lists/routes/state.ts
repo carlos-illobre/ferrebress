@@ -9,7 +9,7 @@ import { type SupplierRecord, suppliersData } from '../data/suppliers.ts';
 import { stateOf } from '../rules/lists.ts';
 import { summaryOf } from '../rules/review.ts';
 
-// El resumen de una lista leída de un proveedor sabido (2 consultas).
+// El resumen de una lista leída de un proveedor sabido (1 consulta).
 export async function summaryFor(
   ctx: PriceListsContext,
   db: Db,
@@ -17,9 +17,7 @@ export async function summaryFor(
   supplier: SupplierRecord,
 ): Promise<ListSummary> {
   const { reviewPercent, goneWarnPercent } = ctx.settings();
-  const review = reviewData(db);
-  const counts = await review.counts(list.id, reviewPercent);
-  const gone = await review.gone(list.id, supplier.id);
+  const { counts, gone } = await reviewData(db).summary(list.id, supplier.id, reviewPercent);
   const tooOld =
     supplier.lastListDate !== null &&
     list.listDate !== null &&
