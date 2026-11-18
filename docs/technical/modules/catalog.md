@@ -66,8 +66,8 @@ Corregido con la [revisión del diseño](catalog-design-review.md) y la
 `administration.settings` pasa `roundingStep` a centavos: la migración de `administration` multiplica
 por 100 el valor guardado, y 0 («sin redondeo») pasa a 1. Las opciones del contrato son 1, 5, 10, 50,
 100, 500, 1.000, 5.000, 10.000, 50.000, 100.000, 500.000 y 1.000.000 (06 · R3.2). Los cambios viejos del
-redondeo en Quién hizo qué guardaban pesos: el texto de ese evento lee `stepCents` si está y, si no,
-`value` en pesos.
+redondeo en Quién hizo qué guardaban pesos: los nuevos se anotan con `cents: true`, y el texto de los
+que no lo tienen los lee en pesos.
 
 ## 3. API
 

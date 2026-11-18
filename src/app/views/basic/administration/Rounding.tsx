@@ -4,6 +4,7 @@ import {
   groupOf,
   names,
   roundingSteps,
+  settingInitials,
   texts,
   what,
 } from '../../../modules/administration/model.ts';
@@ -48,10 +49,10 @@ export function RoundingPanel({ view }: PanelProps) {
       <Subhead>{t.choose}</Subhead>
       <Options
         label={names.roundingStep}
-        look="admin-options-seven"
+        look="admin-options-steps"
         values={roundingSteps}
         chosen={lines.now}
-        initial={1000}
+        initial={settingInitials.roundingStep}
         disabled={locked(view)}
         text={lines.optionText}
         effect={lines.optionEffect}

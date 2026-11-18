@@ -16,7 +16,7 @@ export const now = Date.parse('2026-11-04T17:30:00Z');
 
 export const initial: AdministrationResponse = {
   settings: {
-    roundingStep: { value: 1000, version: 0 },
+    roundingStep: { value: 100_000, version: 0 },
     quickMargins: { value: [300, 200, 100, 50, 25], version: 0 },
     sessionIdle: { value: 60, version: 0 },
     sessionMax: { value: 8, version: 0 },

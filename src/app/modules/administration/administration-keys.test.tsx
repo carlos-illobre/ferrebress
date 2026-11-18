@@ -27,15 +27,15 @@ describe('Administración con el teclado', () => {
 
   it('R1.8: ← y → recorren las opciones sin elegir', async () => {
     const server = openAdministration();
-    const now = await screen.findByRole('button', { name: /\$ 1\.000/ });
+    const now = await screen.findByRole('button', { name: /\$ 1\.000(?![.,\d])/ });
     now.focus();
     fireEvent.keyDown(now, { key: 'ArrowRight' });
-    expect(document.activeElement).toBe(option(/\$ 5\.000/));
-    fireEvent.keyDown(option(/\$ 5\.000/), { key: 'ArrowRight' });
-    fireEvent.keyDown(option(/\$ 5\.000/), { key: 'ArrowLeft' });
-    fireEvent.keyDown(option(/\$ 1\.000/), { key: 'Tab' });
-    expect(document.activeElement).toBe(option(/\$ 1\.000/));
-    fireEvent.click(option(/\$ 1\.000/));
+    expect(document.activeElement).toBe(option(/\$ 5\.000(?![.,\d])/));
+    fireEvent.keyDown(option(/\$ 5\.000(?![.,\d])/), { key: 'ArrowRight' });
+    fireEvent.keyDown(option(/\$ 5\.000(?![.,\d])/), { key: 'ArrowLeft' });
+    fireEvent.keyDown(option(/\$ 1\.000(?![.,\d])/), { key: 'Tab' });
+    expect(document.activeElement).toBe(option(/\$ 1\.000(?![.,\d])/));
+    fireEvent.click(option(/\$ 1\.000(?![.,\d])/));
     expect(server.bodies(saveOf('roundingStep'))).toEqual([]);
   });
 });

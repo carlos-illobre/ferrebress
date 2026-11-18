@@ -6,6 +6,7 @@ import type { ServerModule } from '../../platform/modules.ts';
 import { type AdministrationDependencies, createAdministrationContext } from './context.ts';
 import { createMemory } from './memory.ts';
 import { createSettings } from './migrations/001-settings.ts';
+import { stepInCents } from './migrations/002-step-cents.ts';
 import { noPrices, type PriceRecalculator } from './recalculator.ts';
 import { registerRoutes } from './routes.ts';
 
@@ -20,7 +21,10 @@ export function createAdministrationModule(
   const memory = createMemory();
   const module: ServerModule = {
     name: 'administration',
-    schema: { schema: 'administration', migrations: { '001-settings': createSettings } },
+    schema: {
+      schema: 'administration',
+      migrations: { '001-settings': createSettings, '002-step-cents': stepInCents },
+    },
     async register(platform) {
       const ctx = createAdministrationContext(platform, memory, {
         recalculator: noPrices,

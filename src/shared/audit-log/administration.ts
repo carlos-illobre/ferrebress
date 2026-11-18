@@ -1,13 +1,23 @@
 // Los tipos de acción de Administración (capítulo 06) en Quién hizo qué.
-import { type SettingKey, settingKeyOf } from '../contracts/administration.ts';
+import { noRounding, type SettingKey, settingKeyOf } from '../contracts/administration.ts';
+import { stepText } from '../money/money.ts';
 import { type Entry, text, thing } from './kinds.ts';
 
 const thousands = (n: number) => n.toLocaleString('es-AR');
-const pesos = (n: number) => (n === 0 ? 'sin redondeo' : `$ ${thousands(n)}`);
+// El paso, en centavos; los cambios anotados antes de contar en centavos lo guardaban en pesos, con 0
+// como «sin redondeo».
+const stepOf = (raw: unknown, inCents: boolean) => {
+  const cents = inCents ? Number(raw) : Number(raw) * 100 || noRounding;
+  return cents === noRounding ? 'sin redondeo' : stepText(cents);
+};
 
 // Cómo se nombra cada ajuste y cómo se escribe su valor.
-const shown: Record<SettingKey, { name: string; value: (raw: unknown) => string }> = {
-  roundingStep: { name: 'el redondeo', value: (raw) => pesos(Number(raw)) },
+// `inCents`: el evento anotó el paso del redondeo en centavos (los de antes, en pesos).
+const shown: Record<
+  SettingKey,
+  { name: string; value: (raw: unknown, inCents: boolean) => string }
+> = {
+  roundingStep: { name: 'el redondeo', value: stepOf },
   quickMargins: {
     name: 'los márgenes rápidos',
     value: (raw) => (Array.isArray(raw) ? `${raw.join(', ')} %` : '—'),
@@ -54,10 +64,13 @@ export const administrationTypes = {
       const key = settingKeyOf(String(e.data.key));
       if (!key) return [text('Cambió un ajuste para todos')];
       const { name, value } = shown[key];
+      const inCents = e.data.cents === true;
       const prices = typeof e.data.prices === 'number' && e.data.prices > 0 ? e.data.prices : 0;
       return [
         text(`Cambió ${name}: `),
-        thing(`${value(e.changes.value?.before)} → ${value(e.changes.value?.after)}`),
+        thing(
+          `${value(e.changes.value?.before, inCents)} → ${value(e.changes.value?.after, inCents)}`,
+        ),
         ...(prices ? [text(` (cambiaron ${thousands(prices)} precios)`)] : []),
       ];
     },

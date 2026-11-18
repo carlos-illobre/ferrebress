@@ -22,7 +22,7 @@ describe('los ajustes para todos', () => {
   it('administration-E01: cualquiera con sesión ve los ajustes con su valor y la zona', async () => {
     expect(await read(seller.device)).toEqual({
       settings: {
-        roundingStep: { value: 1000, version: 0 },
+        roundingStep: { value: 100_000, version: 0 },
         quickMargins: { value: [300, 200, 100, 50, 25], version: 0 },
         sessionIdle: { value: 60, version: 0 },
         sessionMax: { value: 8, version: 0 },
@@ -143,9 +143,9 @@ describe('los ajustes para todos', () => {
   });
 
   it('una versión que no es la de arranque, en un ajuste que nadie cambió, también choca', async () => {
-    expect(await save('roundingStep', { value: 500, version: 7 })).toMatchObject({
+    expect(await save('roundingStep', { value: 50_000, version: 7 })).toMatchObject({
       status: 409,
-      body: { error: 'setting-changed', value: 1000, version: 0, by: '' },
+      body: { error: 'setting-changed', value: 100_000, version: 0, by: '' },
     });
   });
 

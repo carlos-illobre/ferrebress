@@ -11,7 +11,7 @@ import {
 describe('los ajustes para todos', () => {
   it('los valores de arranque', () => {
     expect(initialSettings()).toEqual({
-      roundingStep: 1000,
+      roundingStep: 100_000,
       quickMargins: [300, 200, 100, 50, 25],
       sessionIdle: 60,
       sessionMax: 8,
@@ -49,9 +49,12 @@ describe('los ajustes para todos', () => {
   });
 
   it('administration-E24: el redondeo, solo un paso de la lista', () => {
-    expect(settingValue('roundingStep', 500)).toBe(500);
-    expect(settingValue('roundingStep', 0)).toBe(0);
+    expect(settingValue('roundingStep', 5)).toBe(5);
+    expect(settingValue('roundingStep', 1)).toBe(1);
+    expect(settingValue('roundingStep', 1_000_000)).toBe(1_000_000);
+    expect(settingValue('roundingStep', 0)).toBeUndefined();
     expect(settingValue('roundingStep', 300)).toBeUndefined();
+    expect(settingValue('roundingStep', 2_000_000)).toBeUndefined();
     expect(settingValue('roundingStep', '1000')).toBeUndefined();
   });
 

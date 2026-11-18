@@ -18,24 +18,24 @@ describe('Administración, el redondeo', () => {
       '/api/administration/rounding': {
         body: {
           total: 3486,
-          changes: { 500: 1650 },
-          examples: [{ name: 'Martillo', calculated: 15_001 }],
+          changes: { 50000: 1650 },
+          examples: [{ name: 'Martillo', calculated: 1_500_100 }],
         },
       },
       [saveOf('roundingStep')]: [
         { status: 409, body: { error: 'confirm-prices', prices: 1650 } },
-        ok(500),
+        ok(50_000),
       ],
     });
-    fireEvent.mouseEnter(await screen.findByRole('button', { name: /\$ 500.*1\.650/ }));
+    fireEvent.mouseEnter(await screen.findByRole('button', { name: /\$ 500(?![.,\d]).*1\.650/ }));
     expect(screen.getByText('Cambian 1.650')).toBeTruthy();
-    fireEvent.click(option(/\$ 500/));
+    fireEvent.click(option(/\$ 500(?![.,\d])/));
     const confirm = await screen.findByRole('button', { name: /Cambiar 1\.650 precios/ });
     expect(screen.getByText('1.650 de 3.486 precios cambian')).toBeTruthy();
     fireEvent.click(confirm);
     await waitFor(() => expect(tab(/Redondeo.*\$ 500/)).toBeTruthy());
     expect(server.bodies(saveOf('roundingStep'))[1]).toEqual({
-      value: 500,
+      value: 50_000,
       version: 0,
       confirmed: 1650,
     });
@@ -48,7 +48,7 @@ describe('Administración, el redondeo', () => {
     openAdministration({
       [saveOf('roundingStep')]: { status: 409, body: { error: 'confirm-prices', prices: 12 } },
     });
-    fireEvent.click(await screen.findByRole('button', { name: /\$ 5\.000/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /\$ 5\.000(?![.,\d])/ }));
     fireEvent.click(await screen.findByRole('button', { name: /Cancelar/ }));
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     expect(tab(/Redondeo.*\$ 1\.000/)).toBeTruthy();
@@ -59,7 +59,7 @@ describe('Administración, el redondeo', () => {
       [saveOf('roundingStep')]: [
         { status: 409, body: { error: 'confirm-prices', prices: 12 } },
         { status: 503, body: { error: 'recalc-failed' } },
-        ok(0),
+        ok(1),
       ],
     });
     fireEvent.click(await screen.findByRole('button', { name: /Sin/ }));
@@ -70,11 +70,11 @@ describe('Administración, el redondeo', () => {
   });
 
   it('administration-E21: sin precios, muestra el ejemplo de la regla y guarda sin preguntar', async () => {
-    openAdministration({ [saveOf('roundingStep')]: ok(100) });
+    openAdministration({ [saveOf('roundingStep')]: ok(10_000) });
     expect(await screen.findByText('Todavía no hay precios: este es un ejemplo.')).toBeTruthy();
-    fireEvent.mouseEnter(option(/\$ 50\b/));
+    fireEvent.mouseEnter(option(/\$ 50(?![.,\d])/));
     expect(screen.getByText('$ 15.050')).toBeTruthy();
-    fireEvent.click(option(/\$ 100\b/));
+    fireEvent.click(option(/\$ 100(?![.,\d])/));
     await waitFor(() => expect(tab(/Redondeo.*\$ 100/)).toBeTruthy());
   });
 });

@@ -2,13 +2,15 @@
 // resuelto para cualquier vista: cuántos precios cambian con el paso que se mira, cómo quedan unos
 // ejemplos (sin precios, el de la regla), a cuánto vende cada tecla y dónde queda la zona del negocio.
 import type { RoundingResponse, Settings } from '@ferrebress/shared/contracts/administration';
-import { exampleCost, pesos, roundedTo, sellsAt, shown, thousands } from './logic.ts';
+import { noRounding } from '@ferrebress/shared/contracts/administration';
+import { centsText, priceText, stepText } from '@ferrebress/shared/money/money';
+import { exampleCost, roundedTo, sellsAt, shown, thousands } from './logic.ts';
 import type { Confirm } from './schemas.ts';
 import { texts } from './texts.ts';
 
 const t = texts.rounding;
 // El precio de ejemplo de la regla, cuando todavía no hay precios (§ 12, 1).
-const example = { name: t.example, calculated: 15_001 };
+const example = { name: t.example, calculated: 1_500_100 };
 
 // `now`, el paso de ahora; `step`, el que se mira (el de ahora si no se mira otro).
 export function roundingLines(prices: RoundingResponse | undefined, now: number, step: number) {
@@ -27,7 +29,7 @@ export function roundingLines(prices: RoundingResponse | undefined, now: number,
     },
     now,
     // Cada paso para elegir: cómo se dice y cuántos precios cambian con él.
-    optionText: (value: number) => (value ? pesos(value) : t.none),
+    optionText: (value: number) => (value === noRounding ? t.none : stepText(value)),
     optionEffect: (value: number) => (value === now ? t.current : thousands(changes(value))),
     showcase: {
       title: seeing ? t.showWith(shown('roundingStep', step)) : t.showToday,
@@ -36,8 +38,8 @@ export function roundingLines(prices: RoundingResponse | undefined, now: number,
         const after = roundedTo(one.calculated, step);
         return {
           name: one.name,
-          calculated: t.calculated(pesos(one.calculated)),
-          price: pesos(after),
+          calculated: t.calculated(centsText(BigInt(one.calculated))),
+          price: priceText(after, step),
           changes: seeing && after !== roundedTo(one.calculated, now),
         };
       }),
@@ -56,7 +58,7 @@ export const confirmLines = (
   count: t.changing(thousands(asked.prices), thousands(prices?.total ?? asked.prices)),
   examples: (prices?.examples ?? []).slice(0, 3).map((one) => ({
     name: one.name,
-    change: `${pesos(roundedTo(one.calculated, now))} → ${pesos(roundedTo(one.calculated, asked.step))}`,
+    change: `${priceText(roundedTo(one.calculated, now), now)} → ${priceText(roundedTo(one.calculated, asked.step), asked.step)}`,
   })),
 });
 
@@ -65,9 +67,12 @@ export const marginLines = (settings: Settings) => ({
     number: i + 1,
     label: texts.margins.key(i + 1),
     value: thousands(margin),
-    sells: pesos(sellsAt(margin, settings.roundingStep)),
+    sells: priceText(sellsAt(margin, settings.roundingStep), settings.roundingStep),
   })),
-  example: texts.margins.example(pesos(exampleCost), shown('roundingStep', settings.roundingStep)),
+  example: texts.margins.example(
+    priceText(exampleCost, 100),
+    shown('roundingStep', settings.roundingStep),
+  ),
 });
 
 // Dónde queda la zona: «America/Argentina/Buenos_Aires», «Buenos Aires».

@@ -8,6 +8,7 @@ import {
   filesMbRange,
   goneWarnPercentRange,
   maxFileMbRange,
+  noRounding,
   offlineHoursOptions,
   reviewPercentRange,
   roundingSteps,
@@ -18,16 +19,16 @@ import {
   settingList,
   unappliedFileDaysRange,
 } from '@ferrebress/shared/contracts/administration';
+import { stepText } from '@ferrebress/shared/money/money';
 import { roundUp } from '@ferrebress/shared/pricing/rounding';
 import { businessFormat } from '@ferrebress/shared/time/business';
 import { texts } from './texts.ts';
 
 const thousands = (n: number) => n.toLocaleString('es-AR');
-export const pesos = (n: number) => `$ ${thousands(n)}`;
 
 // Cómo se escribe cada valor.
 const formats: Record<SettingKey, (value: never) => string> = {
-  roundingStep: (value: number) => (value === 0 ? 'Sin redondeo' : pesos(value)),
+  roundingStep: (value: number) => (value === noRounding ? 'Sin redondeo' : stepText(value)),
   quickMargins: (value: number[]) => `${value.join(' · ')} %`,
   sessionIdle: (value: number) => texts.units.minutes(value),
   sessionMax: (value: number) => texts.units.hours(value),
@@ -92,13 +93,14 @@ export const numberUnits: Record<NumberSetting, string> = {
 // Las opciones de cada ajuste que se elige de una lista (R3, R6, R11.1).
 export { offlineHoursOptions, roundingSteps, sessionIdleOptions, sessionMaxOptions };
 
-// El precio redondeado para arriba con un paso (R3.1).
-export const roundedTo = (price: number, step: number) => roundUp(price, step);
+// Un precio en centavos, redondeado para arriba con un paso en centavos (R3.1).
+export const roundedTo = (cents: number, stepCents: number) => roundUp(BigInt(cents), stepCents);
 
-// El costo de ejemplo con el que cada margen rápido dice a cuánto vende (R4, maqueta final).
-export const exampleCost = 4000;
-export const sellsAt = (margin: number, step: number) =>
-  roundUp(exampleCost * (1 + margin / 100), step);
+// El costo de ejemplo con el que cada margen rápido dice a cuánto vende (R4, maqueta final): $ 4.000,
+// en centavos.
+export const exampleCost = 400_000n;
+export const sellsAt = (margin: number, stepCents: number) =>
+  roundUp((exampleCost * BigInt(100 + margin)) / 100n, stepCents);
 
 // El valor de arranque de un ajuste, como se escribe («De arranque, 50 %»).
 export const initialOf = (key: NumberSetting) => shown(key, settingList[key].initial);

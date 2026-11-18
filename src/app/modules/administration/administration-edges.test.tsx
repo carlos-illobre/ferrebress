@@ -66,7 +66,7 @@ describe('Administración, los bordes', () => {
       '/api/administration/rounding': { status: 500, body: { error: 'unexpected' } },
       [saveOf('roundingStep')]: { status: 409, body: { error: 'confirm-prices', prices: 7 } },
     });
-    fireEvent.click(await screen.findByRole('button', { name: /\$ 10\b/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /\$ 10(?![.,\d])/ }));
     expect(await screen.findByText('7 de 7 precios cambian')).toBeTruthy();
   });
 });

@@ -56,16 +56,16 @@ describe('Administración con los atajos', () => {
       [saveOf('roundingStep')]: [
         { status: 409, body: { error: 'confirm-prices', prices: 12 } },
         { status: 409, body: { error: 'confirm-prices', prices: 12 } },
-        ok(5000, 1),
+        ok(500_000, 1),
       ],
     });
-    fireEvent.click(await screen.findByRole('button', { name: /\$ 5\.000/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /\$ 5\.000(?![.,\d])/ }));
     await screen.findByRole('button', { name: /Cambiar 12 precios/ });
     alt('Z');
     expect(tab(/Redondeo/).getAttribute('aria-selected')).toBe('true');
     alt('C');
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
-    fireEvent.click(screen.getByRole('button', { name: /\$ 5\.000/ }));
+    fireEvent.click(screen.getByRole('button', { name: /\$ 5\.000(?![.,\d])/ }));
     await screen.findByRole('button', { name: /Cambiar 12 precios/ });
     alt('P');
     await waitFor(() => expect(server.bodies(saveOf('roundingStep')).length).toBe(3));
@@ -79,7 +79,7 @@ describe('Administración con los atajos', () => {
         { status: 503, body: { error: 'recalc-failed' } },
       ],
     });
-    fireEvent.click(await screen.findByRole('button', { name: /\$ 5\.000/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /\$ 5\.000(?![.,\d])/ }));
     fireEvent.click(await screen.findByRole('button', { name: /Cambiar 12 precios/ }));
     await screen.findByText('No se pudo recalcular: no cambió ningún precio.');
     alt('P');

@@ -7,13 +7,13 @@ const read = (pieces: Piece[]) =>
   pieces
     .map((piece) => ('text' in piece ? piece.text : 'thing' in piece ? piece.thing : ''))
     .join('');
-const says = (key: unknown, before: unknown, after: unknown, prices?: number) => {
+const says = (key: unknown, before: unknown, after: unknown, prices?: number, cents = false) => {
   const view: AuditView = {
     ...{ id: '2026:1', at: '2026-11-07T13:00:00.000Z', type: 'settings.changed', tone: 'plain' },
     actor: { kind: 'person', id: 'u-ana', name: 'Ana' },
     targets: [],
     changes: { value: { before, after } },
-    data: { key, ...(prices !== undefined && { prices }) },
+    data: { key, ...(prices !== undefined && { prices }), ...(cents && { cents }) },
   };
   return read(entryOf('settings.changed').says(view));
 };
@@ -61,6 +61,15 @@ describe('un ajuste para todos en Quién hizo qué', () => {
   });
 
   it('administration-E19: el redondeo, con cuántos precios cambiaron', () => {
+    expect(says('roundingStep', 100_000, 5, 1650, true)).toBe(
+      'Cambió el redondeo: $ 1.000 → $ 0,05 (cambiaron 1.650 precios)',
+    );
+    expect(says('roundingStep', 100_000, 1, 0, true)).toBe(
+      'Cambió el redondeo: $ 1.000 → sin redondeo',
+    );
+  });
+
+  it('administration-T136: un cambio del redondeo anotado en pesos se sigue leyendo bien', () => {
     expect(says('roundingStep', 1000, 500, 1650)).toBe(
       'Cambió el redondeo: $ 1.000 → $ 500 (cambiaron 1.650 precios)',
     );

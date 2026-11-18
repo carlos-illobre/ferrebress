@@ -4,7 +4,12 @@
 // Un capítulo nuevo que trae un ajuste para todos suma su fila (R1.3).
 import * as z from 'zod/mini';
 
-export const roundingSteps = [0, 10, 50, 100, 500, 1000, 5000] as const;
+// Los pasos del redondeo, en centavos: un 1 o un 5 seguido de ceros, de un centavo («sin redondeo») a
+// $ 10.000 (R3.2).
+export const roundingSteps = [
+  1, 5, 10, 50, 100, 500, 1000, 5000, 10_000, 50_000, 100_000, 500_000, 1_000_000,
+] as const;
+export const noRounding = 1;
 export const sessionIdleOptions = [15, 30, 60, 120] as const;
 export const sessionMaxOptions = [4, 8, 12, 24] as const;
 export const quickMarginRange = { min: 1, max: 10_000, count: 5 } as const;
@@ -30,7 +35,7 @@ export type SettingGroup = 'prices' | 'lists' | 'business' | 'access';
 
 // Cada ajuste: su grupo en la pantalla, su valor de arranque y cómo se valida.
 export const settingList = {
-  roundingStep: { group: 'prices', initial: 1000, schema: oneOf(roundingSteps) },
+  roundingStep: { group: 'prices', initial: 100_000, schema: oneOf(roundingSteps) },
   quickMargins: {
     group: 'prices',
     initial: [300, 200, 100, 50, 25],
@@ -134,6 +139,7 @@ export type AdministrationResponse = {
 
 // Lo que muestra el panel del redondeo: cuántos precios hay, cuántos cambian con cada paso y unos
 // ejemplos. Sin catálogo, no hay precios.
+// `calculated`: el precio sin redondear, en centavos.
 export type RoundingExample = { name: string; calculated: number };
 export type RoundingResponse = {
   total: number;

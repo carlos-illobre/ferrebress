@@ -8,7 +8,7 @@ const now = new Date('2026-11-06T17:05:00Z');
 
 const settings = {
   settings: {
-    roundingStep: { value: 1000, version: 0 },
+    roundingStep: { value: 100_000, version: 0 },
     quickMargins: { value: [300, 200, 100, 50, 25], version: 0 },
     sessionIdle: { value: 60, version: 0 },
     sessionMax: { value: 8, version: 0 },
@@ -28,12 +28,12 @@ const settings = {
 };
 const rounding = {
   total: 3486,
-  changes: { 0: 3412, 10: 3398, 50: 3120, 100: 2874, 500: 1650, 5000: 3077 },
+  changes: { 1: 3412, 1000: 3398, 5000: 3120, 10000: 2874, 50000: 1650, 500000: 3077 },
   examples: [
-    { name: 'Martillo carpintero 27 mm', calculated: 15_001 },
-    { name: 'Cinta métrica 5 m', calculated: 8437 },
-    { name: 'Pinza universal 8"', calculated: 12_640 },
-    { name: 'Tarugos S8 × 100', calculated: 3215 },
+    { name: 'Martillo carpintero 27 mm', calculated: 1_500_100 },
+    { name: 'Cinta métrica 5 m', calculated: 843_700 },
+    { name: 'Pinza universal 8"', calculated: 1_264_000 },
+    { name: 'Tarugos S8 × 100', calculated: 321_500 },
   ],
 };
 
@@ -79,7 +79,7 @@ test('administration-E18: la confirmación del redondeo se ve encima y el toque 
   await page.setViewportSize({ width: 1366, height: 768 });
   await signedIn(page);
   await page.goto('/administration');
-  await page.getByRole('button', { name: /\$ 500/ }).click();
+  await page.getByRole('button', { name: /\$ 500(?![.,\d])/ }).click();
   const confirm = page.getByRole('alertdialog');
   await expect(confirm).toBeVisible();
   await expect(page).toHaveScreenshot('administration-confirm-desktop.png');

@@ -40,8 +40,8 @@ describe('Administración', () => {
     expect(
       await screen.findByText(/hace falta «Cambiar los ajustes»: lo tiene Administrador/),
     ).toBeTruthy();
-    expect((option(/\$ 500/) as HTMLButtonElement).disabled).toBe(true);
-    fireEvent.click(option(/\$ 500/));
+    expect((option(/\$ 500(?![.,\d])/) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(option(/\$ 500(?![.,\d])/));
     expect(server.bodies(saveOf('roundingStep'))).toEqual([]);
   });
 
@@ -227,7 +227,7 @@ describe('Administración', () => {
         screen.getByText(/Sin conexión: es lo último que se vio, a las \d+:\d\d/),
       ).toBeTruthy(),
     );
-    expect((option(/\$ 500/) as HTMLButtonElement).disabled).toBe(true);
+    expect((option(/\$ 500(?![.,\d])/) as HTMLButtonElement).disabled).toBe(true);
   });
 
   it('si no se pudieron traer con conexión, lo dice y deja reintentar', async () => {

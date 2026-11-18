@@ -56,7 +56,7 @@ Corregido con sus dos revisiones ([diseño](administration-design-review.md),
 
 | Clave | Valor | Arranque | Valida |
 |---|---|---|---|
-| `roundingStep` | Entero en centavos; 1 es «sin redondeo» | 100000 | Uno de 1, 5, 10, 50, 100, 500, 1.000, 5.000, 10.000, 50.000, 100.000, 500.000, 1.000.000 (R3.2) |
+| `roundingStep` | Entero en centavos; 1 es «sin redondeo» | 100.000 | Uno de 1, 5, 10, 50, 100, 500, 1.000, 5.000, 10.000, 50.000, 100.000, 500.000, 1.000.000 (R3.2) |
 | `quickMargins` | Cinco enteros | [300, 200, 100, 50, 25] | Cinco, de 1 a 10.000, sin repetirse; el servidor los guarda ordenados de mayor a menor (R4.2) |
 | `sessionIdle` | Minutos | 60 | Uno de 15, 30, 60, 120 (R6.2) |
 | `sessionMax` | Horas | 8 | Uno de 4, 8, 12, 24 (R6.2) |
@@ -169,8 +169,8 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 - `src/shared/pricing/rounding.ts`: el redondeo para arriba al paso, en centavos enteros (E15 a E17). Lo
   usan el panel (los ejemplos) y el catálogo.
 - **El paso en centavos** (T136): una migración multiplica por 100 el `roundingStep` guardado y pasa 0 a 1.
-  Los `settings.changed` viejos del redondeo guardaban pesos: su texto lee `stepCents` si está y, si no,
-  `value` en pesos.
+  Los `settings.changed` del redondeo se anotan con `cents: true`; los de antes guardaban pesos, y su
+  texto los lee así.
 - `src/shared/time/business.ts`: la zona deja de estar escrita. `businessTimeZone()` es una función, y los
   formatos se arman la primera vez que se usan con la zona de ese momento. Los archivos que hoy copian la
   zona al cargarse (`app/platform/time.ts`, `sign-in/offline/when.ts`, `audit-log/logic.ts`, el detalle

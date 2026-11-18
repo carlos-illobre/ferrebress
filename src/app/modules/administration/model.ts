@@ -8,7 +8,6 @@ import { expiresOn } from './logic.ts';
 export {
   counterDay,
   entryAttempts,
-  exampleCost,
   initialOf,
   listParts,
   maxEnds,
@@ -16,7 +15,6 @@ export {
   numberSettings,
   numberUnits,
   offlineHoursOptions,
-  pesos,
   roundedTo,
   roundingSteps,
   sellsAt,

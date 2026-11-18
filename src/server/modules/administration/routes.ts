@@ -79,7 +79,8 @@ async function change(
   ctx.memory.put(key, after);
   ctx.record(c, 'settings.changed', {
     changes: { value: { before: before.value, after: after.value } },
-    data: { key, ...(rounding && { prices: changed }) },
+    // El paso se anota en centavos (T136): los anotados antes, en pesos, se leen distinto.
+    data: { key, ...(rounding && { prices: changed, cents: true }) },
   });
   return c.json<SaveSettingResponse>(after);
 }
