@@ -14,6 +14,7 @@ export {
   removePhone,
 } from './actions.ts';
 export { type EditableModel, useEditable } from './editable.ts';
+export type { AccessLines, PersonLines } from './lines.ts';
 export {
   counts,
   dateOf,

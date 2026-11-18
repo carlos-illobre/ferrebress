@@ -25,10 +25,10 @@ import {
 
 export type { Overlay } from './overlay.ts';
 
-import { online as onlineStore } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
-import { pendingEntries } from '../sign-in/index.ts';
 import { usersApi } from './api.ts';
+import { shownOf } from './lines.ts';
+import { useLoad } from './load.ts';
 import { type Filter, visible } from './logic.ts';
 import { useMay } from './may.ts';
 import { listPath } from './roles/paths.ts';
@@ -193,19 +193,11 @@ export function useUsers() {
   const may = useMay();
   const roleRows = useRoleRows(may.roles);
   const card = useCard();
-  const online = useStore(onlineStore);
-  // Una entrada sin conexión que el servidor todavía no confirmó: su sesión todavía no existe allá
-  // y un pedido la daría por cerrada (15 · R3). Se espera a que la confirme.
-  const unconfirmed = useStore(pendingEntries) > 0;
+  const online = useLoad({ list, roleRows }, may.roles);
   const { overlay, setOverlay } = useOverlay(list.people);
   const retrying = useRetry();
   const view = useView();
   useTabClosing(view.tab, may);
-  // Al abrir; sin conexión, cuando vuelve (con la lista que ya tenía no se pide de nuevo).
-  useEffect(() => {
-    if (online && !unconfirmed && !list.people) void list.load();
-    if (online && !unconfirmed && !roleRows.roleRows) void roleRows.loadRoles();
-  }, [online, unconfirmed, may.roles]);
   const shown = list.people ? visible(list.people, view.filter, view.search, view.role) : [];
   useFirstOnWide(shown[0]?.id, card);
   const person = list.people?.find((one) => one.id === card.selected);
@@ -218,6 +210,15 @@ export function useUsers() {
     reload: () => Promise.all([list.load(), roleRows.loadRoles()]),
     online,
     person,
+    ...shownOf({
+      shown,
+      person,
+      roles: list.roles,
+      may,
+      search: view.search,
+      access: card.access,
+      online,
+    }),
     shown,
     overlay,
     open: setOverlay,

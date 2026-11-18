@@ -2,18 +2,14 @@
 // «Quitar», sin confirmación; «Cerrar todas», con confirmación. En la propia no figura la sesión que
 // se usa (R5.2); sus celulares sí, como en Configuración (R5.5). «Cerrar» y «Quitar» no llevan tecla: se recorren con
 // las flechas y se tocan con Enter (R5.8).
-import type { PersonRow, PhoneRow, SessionRow } from '@ferrebress/shared/contracts/users';
+import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import {
+  type AccessLines,
   closeSession,
-  dateOf,
-  deviceOf,
-  nowMs,
   removePhone,
-  sinceOf,
   cardTexts as t,
   texts,
   useUsersContext,
-  wayNames,
 } from '../../../../modules/users/model.ts';
 import { notify } from '../../../../platform/view/notify.ts';
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
@@ -22,24 +18,34 @@ import { Icon } from '../../ui/icon/Icon.tsx';
 import { Say } from '../../ui/say/Say.tsx';
 import './Access.css';
 
-function Session({ person, session }: { person: PersonRow; session: SessionRow }) {
+type Lines = AccessLines;
+
+function Session({
+  person,
+  one,
+  cut,
+}: {
+  person: PersonRow;
+  one: Lines['sessions'][number];
+  cut: boolean;
+}) {
   const users = useUsersContext();
   return (
     <li class="users-item">
       <span class="users-item-icon">
-        <Icon name={session.isPhone ? 'smartphone' : 'monitor'} />
+        <Icon name={one.phone ? 'smartphone' : 'monitor'} />
       </span>
       <span class="users-item-text">
-        <b>{deviceOf(session)}</b>
-        <span>{t.sessionLine(wayNames[session.way], sinceOf(session.createdAt, nowMs()))}</span>
-        <span>{t.usedSession(sinceOf(session.lastUsedAt, nowMs()))}</span>
+        <b>{one.device}</b>
+        <span>{one.line}</span>
+        <span>{one.used}</span>
       </span>
-      {users.may.cutOver(person) && (
+      {cut && (
         <Button
           look="soft"
           size="small"
           doing={t.close}
-          onPress={() => closeSession(users, person, session)}
+          onPress={() => closeSession(users, person, one.session)}
         >
           {t.close}
         </Button>
@@ -48,25 +54,32 @@ function Session({ person, session }: { person: PersonRow; session: SessionRow }
   );
 }
 
-function Phone({ person, phone }: { person: PersonRow; phone: PhoneRow }) {
+function Phone({
+  person,
+  one,
+  cut,
+}: {
+  person: PersonRow;
+  one: Lines['phones'][number];
+  cut: boolean;
+}) {
   const users = useUsersContext();
-  const used = phone.lastUsedAt === null ? undefined : sinceOf(phone.lastUsedAt, nowMs());
   return (
     <li class="users-item">
       <span class="users-item-icon">
         <Icon name="fingerprint" />
       </span>
       <span class="users-item-text">
-        <b>{deviceOf(phone)}</b>
-        <span>{t.linked(dateOf(phone.createdAt, nowMs()))}</span>
-        <span>{t.usedPhone(used)}</span>
+        <b>{one.device}</b>
+        <span>{one.linked}</span>
+        <span>{one.used}</span>
       </span>
-      {users.may.cutOver(person) && (
+      {cut && (
         <Button
           look="soft"
           size="small"
           doing={t.remove}
-          onPress={() => removePhone(users, person, phone)}
+          onPress={() => removePhone(users, person, one.phone)}
         >
           {t.remove}
         </Button>
@@ -84,17 +97,17 @@ function Note({ children }: { children: preact.ComponentChildren }) {
   );
 }
 
-function Sessions({ person, sessions }: { person: PersonRow; sessions: SessionRow[] }) {
+function Sessions({ person, lines }: { person: PersonRow; lines: Lines }) {
   const users = useUsersContext();
   const keys = useShortcutHints('users');
   return (
     <section class="users-section" id="users-sessions">
       <div class="users-section-head">
         <h3>
-          {texts.sessionsCount} <span>{sessions.length}</span>
+          {texts.sessionsCount} <span>{lines.sessions.length}</span>
         </h3>
         <Soon className="users-history phone-only" name={t.history} />
-        {sessions.length > 0 && users.may.cutOver(person) && (
+        {lines.closeAll && (
           <Button
             size="small"
             icon="log-out"
@@ -106,10 +119,10 @@ function Sessions({ person, sessions }: { person: PersonRow; sessions: SessionRo
           </Button>
         )}
       </div>
-      {sessions.length > 0 ? (
+      {lines.sessions.length > 0 ? (
         <ul class="users-items">
-          {sessions.map((session) => (
-            <Session key={session.id} person={person} session={session} />
+          {lines.sessions.map((one) => (
+            <Session key={one.session.id} person={person} one={one} cut={lines.cut} />
           ))}
         </ul>
       ) : (
@@ -124,18 +137,18 @@ function Sessions({ person, sessions }: { person: PersonRow; sessions: SessionRo
   );
 }
 
-function Phones({ person, phones }: { person: PersonRow; phones: PhoneRow[] }) {
+function Phones({ person, lines }: { person: PersonRow; lines: Lines }) {
   return (
     <section class="users-section" id="users-phones">
       <div class="users-section-head">
         <h3>
-          {texts.phonesCount} <span>{phones.length}</span>
+          {texts.phonesCount} <span>{lines.phones.length}</span>
         </h3>
       </div>
-      {phones.length > 0 ? (
+      {lines.phones.length > 0 ? (
         <ul class="users-items">
-          {phones.map((phone) => (
-            <Phone key={phone.id} person={person} phone={phone} />
+          {lines.phones.map((one) => (
+            <Phone key={one.phone.id} person={person} one={one} cut={lines.cut} />
           ))}
         </ul>
       ) : (
@@ -146,8 +159,8 @@ function Phones({ person, phones }: { person: PersonRow; phones: PhoneRow[] }) {
 }
 
 export function Access({ person }: { person: PersonRow }) {
-  const { access } = useUsersContext();
-  if (!access)
+  const { accessLines } = useUsersContext();
+  if (!accessLines)
     return (
       <p class="users-nothing" aria-busy="true">
         {t.loading}
@@ -155,8 +168,8 @@ export function Access({ person }: { person: PersonRow }) {
     );
   return (
     <>
-      <Sessions person={person} sessions={access.sessions} />
-      <Phones person={person} phones={access.phones} />
+      <Sessions person={person} lines={accessLines} />
+      <Phones person={person} lines={accessLines} />
     </>
   );
 }

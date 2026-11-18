@@ -1,11 +1,13 @@
 // Los roles de una persona en su tarjeta y autorizar a alguien, sin HTML (R3.3, R7.5): lo tildado y
 // lo escrito viaja al otro dispositivo; los avisos, no.
-import type { PersonRow } from '@ferrebress/shared/contracts/users';
+import { type PersonRow, personLimits } from '@ferrebress/shared/contracts/users';
 import { useState } from 'preact/hooks';
 import * as z from 'zod/mini';
 import { useMirrored } from '../../platform/mirror/use-mirrored.ts';
 import { authorize } from './actions.ts';
 import { saveRoles } from './person-roles.ts';
+import { personRoleTexts } from './person-roles-texts.ts';
+import { abilitiesOf, diffOf, firstName, picksOf, toggled } from './role-picks.ts';
 import { useUsersContext } from './state.ts';
 import { refusalTexts } from './texts.ts';
 
@@ -23,13 +25,28 @@ export function usePersonRoles(person: PersonRow) {
     ids,
   );
   const [error, setError] = useState<string>(); // local: lo que contestó a este dispositivo
+  const choose = (next: string[]) => {
+    setChosen(next);
+    setError(undefined);
+  };
+  // La lista ya está traída cuando se abre una tarjeta.
+  const others = (users.people as PersonRow[]).filter((one) => one.id !== person.id && one.active);
   return {
     chosen,
     error,
     changed: !same(chosen, person.roleIds),
-    choose: (next: string[]) => {
-      setChosen(next);
-      setError(undefined);
+    choose,
+    title: personRoleTexts.title(firstName(person.displayName)),
+    question: personRoleTexts.question(firstName(person.displayName)),
+    picks: picksOf(users.roles, chosen),
+    toggle: (id: string) => choose(toggled(chosen, id)),
+    abilities: abilitiesOf(users.roleRows, chosen),
+    diff: diffOf(users.roles, person.roleIds, chosen),
+    // «Igual que alguien»: las otras que pueden entrar; elegir una le da sus roles.
+    others: others.map((one) => ({ id: one.id, name: one.displayName })),
+    like: (id: string) => {
+      const found = others.find((one) => one.id === id);
+      if (found) choose(found.roleIds);
     },
     undo: () => setChosen(person.roleIds),
     save: async () => {
@@ -58,6 +75,8 @@ export function useAuthorize() {
   return {
     name,
     email,
+    // Los largos del contrato.
+    limits: personLimits,
     error,
     roles,
     noRoles,
@@ -68,8 +87,9 @@ export function useAuthorize() {
       setEmail(value);
       setError(undefined);
     },
-    chooseRoles(next: string[]) {
-      setRoles(next);
+    picks: picksOf(users.roles, roles),
+    toggleRole(id: string) {
+      setRoles(toggled(roles, id));
       setNoRoles(false);
     },
   };

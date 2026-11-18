@@ -4,7 +4,7 @@ import type { LostPhone, LostPhonesResponse } from '@ferrebress/shared/contracts
 import { useEffect, useState } from 'preact/hooks';
 import { cutPhone } from '../sign-in/index.ts';
 import { usersApi } from './api.ts';
-import { deviceOf } from './logic.ts';
+import { deviceOf, nowMs, sinceOf } from './logic.ts';
 import { refused } from './refusals.ts';
 import type { Users } from './state.ts';
 import { somethingFailed, dialogTexts as t } from './texts.ts';
@@ -53,12 +53,31 @@ export function useLost(users: Users) {
       .lostPhones()
       .then((result) => setPeople(result.ok ? result.data.people : 'failed'));
   }, []);
+  const owners = Array.isArray(people) ? people : [];
   return {
-    people: Array.isArray(people) ? people : [],
+    people: owners,
+    // Cada una con cómo se nombra (la propia, «Vos») y cuántos celulares tiene.
+    owners: owners.map((one) => ({
+      owner: one,
+      name: one.self ? t.lostYou(one.displayName) : one.displayName,
+      phones: t.phonesOf(one.phones.length),
+    })),
     owner,
     chosen,
     title: titleOf(owner),
     lead: owner ? t.lostLead : leadOf(people),
+    // Los celulares de la elegida, cada uno con su nombre y lo que se sabe de él.
+    phones: (owner?.phones ?? []).map((phone) => ({
+      id: phone.id,
+      device: deviceOf(phone),
+      detail: [
+        phone.sessions > 0 && t.openSessions(phone.sessions),
+        phone.passkey && t.withPasskey,
+        phone.lastUsedAt !== null && t.usedAgo(sinceOf(phone.lastUsedAt, nowMs())),
+      ]
+        .filter(Boolean)
+        .join(' · '),
+    })),
     choose(picked: Owner) {
       setOwner(picked);
       setChosen(picked.phones.length === 1 ? picked.phones[0]?.id : undefined);

@@ -6,14 +6,16 @@ import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import {
   activate,
   change,
-  dateOf,
-  footOf,
-  nowMs,
+  type PersonLines,
   remove,
   cardTexts as t,
   texts,
+  type Users,
   useUsersContext,
 } from '../../../../modules/users/model.ts';
+
+type CardLines = NonNullable<Users['cardLines']>;
+
 import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { Button } from '../../ui/button/Button.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
@@ -27,17 +29,17 @@ import { privateProps } from '../../../../platform/view/private.ts';
 
 // El nombre se cambia con «Administrar personas»; el correo, además, si nunca entró y no tiene más
 // permisos que quien mira (R7.11).
-function Who({ person }: { person: PersonRow }) {
+function Who({ person, card }: { person: PersonRow; card: CardLines }) {
   const users = useUsersContext();
   return (
     <div class="users-who" {...privateProps()}>
-      {users.may.manage ? (
+      {card.nameEditable ? (
         <Editable
           className="users-who-name"
           value={person.name ?? ''}
           shown={person.displayName}
           label={t.editName}
-          placeholder={t.namePlaceholder(person.neverSignedIn)}
+          placeholder={card.namePlaceholder}
           save={(value) => change(users, person, 'name', value)}
         />
       ) : (
@@ -45,11 +47,11 @@ function Who({ person }: { person: PersonRow }) {
           <span>{person.displayName}</span>
         </div>
       )}
-      {person.neverSignedIn && !users.may.manageOver(person) ? (
+      {card.email === 'fixed' ? (
         <div class="users-who-email">
           <span>{person.email}</span>
         </div>
-      ) : person.neverSignedIn ? (
+      ) : card.email === 'editable' ? (
         <Editable
           className="users-who-email"
           value={person.email}
@@ -71,38 +73,32 @@ function Who({ person }: { person: PersonRow }) {
   );
 }
 
-function Pills({ person }: { person: PersonRow }) {
-  const authorized = dateOf(person.authorizedAt, nowMs());
-  const when = person.deactivatedAt
-    ? t.deactivatedAt(dateOf(person.deactivatedAt, nowMs()))
-    : person.authorizedBy
-      ? t.authorizedAt(authorized)
-      : t.installed(authorized);
+function Pills({ person, card }: { person: PersonLines; card: CardLines }) {
   return (
     <div class="users-pills">
       {person.self && <span class="users-pill you">{texts.you}</span>}
       <RolePills person={person} />
       {!person.active && <span class="users-pill off">{texts.deactivated}</span>}
       <span class="users-when">
-        <LastSignIn person={person} /> · {when}
+        <LastSignIn person={person} /> · {card.when}
       </span>
     </div>
   );
 }
 
-function Middle({ person }: { person: PersonRow }) {
-  if (!person.active)
+function Middle({ person, card }: { person: PersonRow; card: CardLines }) {
+  if (card.middle === 'off')
     return (
       <p class="users-notice pine">
         <Icon name="info" />
         <span>{t.offHint}</span>
       </p>
     );
-  if (person.neverSignedIn)
+  if (card.middle === 'never')
     return (
       <p class="users-notice urgent" {...privateProps()}>
         <Icon name="info" />
-        <span>{t.neverHint(person.email)}</span>
+        <span>{card.neverHint}</span>
       </p>
     );
   return (
@@ -114,11 +110,10 @@ function Middle({ person }: { person: PersonRow }) {
   );
 }
 
-// Dar de alta, borrar el alta o dar de baja (footOf).
-function Foot({ person }: { person: PersonRow }) {
+// Dar de alta, borrar el alta o dar de baja.
+function Foot({ person, foot }: { person: PersonRow; foot: CardLines['foot'] }) {
   const users = useUsersContext();
   const keys = useShortcutHints('users');
-  const foot = footOf(person, users.may);
   if (foot === 'self') return <Note>{t.selfNote}</Note>;
   if (foot === 'activate')
     return (
@@ -164,7 +159,9 @@ function Foot({ person }: { person: PersonRow }) {
 export function Card() {
   const users = useUsersContext();
   const person = users.person;
-  if (!person)
+  const lines = users.personLines;
+  const card = users.cardLines;
+  if (!person || !lines || !card)
     return (
       <aside class="users-card empty">
         <Icon name="users" size="large" />
@@ -179,14 +176,14 @@ export function Card() {
         {t.back}
       </button>
       <div class="users-card-head">
-        <Avatar person={person} large />
-        <Who person={person} />
+        <Avatar person={lines} large />
+        <Who person={person} card={card} />
       </div>
-      <Pills person={person} />
-      <Middle person={person} />
+      <Pills person={lines} card={card} />
+      <Middle person={person} card={card} />
       {users.may.roles && <PersonRoles person={person} />}
       <div class="users-card-foot">
-        <Foot person={person} />
+        <Foot person={person} foot={card.foot} />
       </div>
     </aside>
   );

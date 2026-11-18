@@ -2,39 +2,29 @@
 // computadora y la 2 en el celular): tildar los que tiene y, debajo, lo que va a poder, de qué rol le
 // viene cada cosa. Se guarda con «Guardar», al menos uno. Solo con «Administrar roles».
 
-import { permissions } from '@ferrebress/shared/contracts/permissions';
 import type { PersonRow } from '@ferrebress/shared/contracts/users';
-import {
-  personRoleTexts as t,
-  usePersonRoles,
-  useUsersContext,
-} from '../../../../modules/users/model.ts';
+import { personRoleTexts as t, usePersonRoles } from '../../../../modules/users/model.ts';
+import { useNarrow } from '../../../../platform/view/narrow.ts';
+import { privateProps } from '../../../../platform/view/private.ts';
 import { Button } from '../../ui/button/Button.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
 import { Problem } from './Problem.tsx';
 import { RolePicker } from './RolePicker.tsx';
 import './PersonRoles.css';
-import { useNarrow } from '../../../../platform/view/narrow.ts';
-import { privateProps } from '../../../../platform/view/private.ts';
 
-const firstName = (person: PersonRow) => person.displayName.split(/[\s@]/)[0] as string;
+type Roles = ReturnType<typeof usePersonRoles>;
 
 // Lo que va a poder con esos roles, y de cuáles le viene cada permiso.
-function Abilities({ chosen }: { chosen: string[] }) {
-  const { roleRows = [] } = useUsersContext();
-  const giving = roleRows.filter((role) => chosen.includes(role.id));
+function Abilities({ abilities }: { abilities: Roles['abilities'] }) {
   return (
     <ul class="person-abilities">
-      {permissions.map((one) => {
-        const from = giving.filter((role) => (role.permissions as string[]).includes(one.id));
-        return (
-          <li key={one.id} class={from.length > 0 ? 'on' : undefined}>
-            <Icon name={from.length > 0 ? 'check' : 'ban'} size="small" />
-            <span>{one.name}</span>
-            <small class="person-from">{from.map((role) => role.name).join(' · ')}</small>
-          </li>
-        );
-      })}
+      {abilities.map((one) => (
+        <li key={one.id} class={one.on ? 'on' : undefined}>
+          <Icon name={one.on ? 'check' : 'ban'} size="small" />
+          <span>{one.name}</span>
+          <small class="person-from">{one.from}</small>
+        </li>
+      ))}
     </ul>
   );
 }
@@ -45,15 +35,13 @@ export function PersonRoles({ person }: { person: PersonRow }) {
 
 // La computadora (variante 1): la lista para tildar y, debajo, lo que va a poder.
 function DesktopRoles({ person }: { person: PersonRow }) {
-  const users = useUsersContext();
   const roles = usePersonRoles(person);
-  const title = t.title(firstName(person));
   return (
-    <section id="users-roles" class="person-roles" aria-label={title}>
+    <section id="users-roles" class="person-roles" aria-label={roles.title}>
       <h3 {...privateProps()}>
-        {title} <small>{t.hint}</small>
+        {roles.title} <small>{t.hint}</small>
       </h3>
-      <RolePicker roles={users.roles} chosen={roles.chosen} label={title} onChange={roles.choose} />
+      <RolePicker picks={roles.picks} label={roles.title} toggle={roles.toggle} />
       <Problem text={roles.error} />
       {roles.changed && (
         <div class="person-roles-save">
@@ -66,7 +54,7 @@ function DesktopRoles({ person }: { person: PersonRow }) {
         </div>
       )}
       <h4>{t.willDo}</h4>
-      <Abilities chosen={roles.chosen} />
+      <Abilities abilities={roles.abilities} />
     </section>
   );
 }
@@ -74,59 +62,37 @@ function DesktopRoles({ person }: { person: PersonRow }) {
 // El celular (variante 2, con interruptores de roles): «¿Qué puede hacer…?», «Igual que alguien»,
 // lo que va a poder y el pie fijo con lo que cambia y «Guardar».
 function PhoneRoles({ person }: { person: PersonRow }) {
-  const users = useUsersContext();
   const roles = usePersonRoles(person);
-  // La tarjeta se abre con la lista ya traída.
-  const others = (users.people as PersonRow[]).filter((one) => one.id !== person.id && one.active);
-  const title = t.question(firstName(person));
   return (
-    <section id="users-roles" class="person-roles phone" aria-label={title}>
-      <h3 {...privateProps()}>{title}</h3>
+    <section id="users-roles" class="person-roles phone" aria-label={roles.question}>
+      <h3 {...privateProps()}>{roles.question}</h3>
       <label class="person-like" {...privateProps()}>
         <span>{t.like}</span>
-        <select
-          value=""
-          onChange={(event) => {
-            const like = others.find((one) => one.id === event.currentTarget.value);
-            if (like) roles.choose(like.roleIds);
-          }}
-        >
+        <select value="" onChange={(event) => roles.like(event.currentTarget.value)}>
           <option value="">{t.likeWho}</option>
-          {others.map((one) => (
+          {roles.others.map((one) => (
             <option key={one.id} value={one.id}>
-              {one.displayName}
+              {one.name}
             </option>
           ))}
         </select>
       </label>
-      <RoleSwitches chosen={roles.chosen} onChange={roles.choose} label={title} />
+      <RoleSwitches roles={roles} />
       <h4>{t.willDo}</h4>
-      <Abilities chosen={roles.chosen} />
+      <Abilities abilities={roles.abilities} />
       <Problem text={roles.error} />
-      {roles.changed && <PhoneFoot person={person} roles={roles} />}
+      {roles.changed && <PhoneFoot roles={roles} />}
     </section>
   );
 }
 
 // Un interruptor por rol, con su descripción.
-function RoleSwitches(props: {
-  chosen: string[];
-  onChange: (next: string[]) => void;
-  label: string;
-}) {
-  const { roles } = useUsersContext();
-  const toggle = (id: string) =>
-    props.onChange(
-      props.chosen.includes(id) ? props.chosen.filter((one) => one !== id) : [...props.chosen, id],
-    );
+function RoleSwitches({ roles }: { roles: Roles }) {
   return (
     <fieldset class="person-switches">
-      <legend class="visually-hidden">{props.label}</legend>
-      {roles.map((role) => (
-        <div
-          key={role.id}
-          class={props.chosen.includes(role.id) ? 'person-switch on' : 'person-switch'}
-        >
+      <legend class="visually-hidden">{roles.question}</legend>
+      {roles.picks.map((role) => (
+        <div key={role.id} class={role.on ? 'person-switch on' : 'person-switch'}>
           <span class="person-switch-icon">
             <Icon name="shield-check" />
           </span>
@@ -138,9 +104,9 @@ function RoleSwitches(props: {
             type="button"
             role="switch"
             class="role-switch"
-            aria-checked={props.chosen.includes(role.id)}
+            aria-checked={role.on}
             aria-label={role.name}
-            onClick={() => toggle(role.id)}
+            onClick={() => roles.toggle(role.id)}
           />
         </div>
       ))}
@@ -149,34 +115,24 @@ function RoleSwitches(props: {
 }
 
 // Lo que cambia («Eso es»: lo que gana y lo que pierde), que dar pide confirmar, y «Guardar».
-function PhoneFoot({
-  person,
-  roles,
-}: {
-  person: PersonRow;
-  roles: ReturnType<typeof usePersonRoles>;
-}) {
-  const users = useUsersContext();
-  const name = (id: string) => users.roles.find((role) => role.id === id)?.name;
-  const added = roles.chosen.filter((id) => !person.roleIds.includes(id));
-  const removed = person.roleIds.filter((id) => !roles.chosen.includes(id));
+function PhoneFoot({ roles }: { roles: Roles }) {
   return (
     <div class="person-foot">
       <p class="person-diff">
         {t.thatIs}
-        {added.map((id) => (
-          <span key={id} class="users-pill pine">
+        {roles.diff.added.map((one) => (
+          <span key={one.id} class="users-pill pine">
             <Icon name="shield-check" size="small" />
-            {name(id)}
+            {one.name}
           </span>
         ))}
-        {removed.map((id) => (
-          <span key={id} class="users-pill gone">
-            {name(id)}
+        {roles.diff.removed.map((one) => (
+          <span key={one.id} class="users-pill gone">
+            {one.name}
           </span>
         ))}
       </p>
-      {added.length > 0 && (
+      {roles.diff.confirm && (
         <p class="person-confirm">
           <Icon name="lock" size="small" />
           {t.confirmHint}

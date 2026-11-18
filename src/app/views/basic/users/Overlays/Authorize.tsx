@@ -2,12 +2,7 @@
 // ninguno tildado de antemano (E42). Un correo sin forma de correo o ya cargado se dice junto al
 // campo, sin perder lo escrito; sin ningún rol, junto a los roles.
 
-import {
-  refusalTexts,
-  dialogTexts as t,
-  useAuthorize,
-  useUsersContext,
-} from '../../../../modules/users/model.ts';
+import { refusalTexts, dialogTexts as t, useAuthorize } from '../../../../modules/users/model.ts';
 import { Button } from '../../ui/button/Button.tsx';
 import { Dialog } from '../../ui/dialog/Dialog.tsx';
 import { Icon } from '../../ui/icon/Icon.tsx';
@@ -16,22 +11,14 @@ import './Overlays.css';
 import { privateProps } from '../../../../platform/view/private.ts';
 
 // Sus roles: ninguno tildado de antemano (E42); sin ninguno, se dice acá.
-function RolesField(props: {
-  chosen: string[];
-  missing: boolean;
-  onChange: (next: string[]) => void;
-}) {
-  const users = useUsersContext();
+type Form = ReturnType<typeof useAuthorize>;
+
+function RolesField({ form }: { form: Form }) {
   return (
     <div class="users-field users-authorize-roles">
       <span>{t.authorizeRoles}</span>
-      <RolePicker
-        roles={users.roles}
-        chosen={props.chosen}
-        label={t.authorizeRoles}
-        onChange={props.onChange}
-      />
-      {props.missing && (
+      <RolePicker picks={form.picks} label={t.authorizeRoles} toggle={form.toggleRole} />
+      {form.noRoles && (
         <small class="users-field-error" role="alert">
           <Icon name="triangle-alert" size="small" />
           {refusalTexts['no-roles']}
@@ -45,6 +32,7 @@ function RolesField(props: {
 function EmailField(props: {
   email: string;
   error: string | undefined;
+  max: number;
   onInput: (value: string) => void;
 }) {
   return (
@@ -58,7 +46,7 @@ function EmailField(props: {
         value={props.email}
         placeholder={t.emailPlaceholder}
         autocomplete="off"
-        maxLength={254}
+        maxLength={props.max}
         data-autofocus=""
         aria-invalid={!!props.error}
         onInput={(event) => props.onInput(event.currentTarget.value)}
@@ -86,18 +74,23 @@ export function Authorize() {
       >
         <h2>{t.authorizeTitle}</h2>
         <p class="users-lead">{t.authorizeLead}</p>
-        <EmailField email={form.email} error={form.error} onInput={form.typeEmail} />
+        <EmailField
+          email={form.email}
+          error={form.error}
+          max={form.limits.email}
+          onInput={form.typeEmail}
+        />
         <label class="users-field users-field-name" {...privateProps()}>
           <span>{t.name}</span>
           <input
             value={form.name}
             autocomplete="off"
-            maxLength={80}
+            maxLength={form.limits.name}
             onInput={(event) => form.typeName(event.currentTarget.value)}
           />
           <small>{t.nameHint}</small>
         </label>
-        <RolesField chosen={form.roles} missing={form.noRoles} onChange={form.chooseRoles} />
+        <RolesField form={form} />
         <div class="users-dialog-foot">
           <Button look="plain" doing={t.cancel} onPress={form.close} closes>
             {t.cancel}

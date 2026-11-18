@@ -2,7 +2,7 @@
 // sesiones, quitar su huella y cambiar sus roles, que lleva a «Roles de…») y tres renglones abajo (su
 // huella, sus dispositivos y su historial, que llega con la Auditoría). Hacen lo mismo que la tarjeta
 // de la computadora: no hay ninguna acción nueva.
-import type { PersonRow, PhoneRow } from '@ferrebress/shared/contracts/users';
+import type { PersonRow } from '@ferrebress/shared/contracts/users';
 import type { ComponentChildren } from 'preact';
 import { removePhone, cardTexts as t, useUsersContext } from '../../../../modules/users/model.ts';
 import { notify } from '../../../../platform/view/notify.ts';
@@ -36,29 +36,24 @@ function TileButton({ tile }: { tile: Tile }) {
 
 export function Tiles({ person }: { person: PersonRow }) {
   const users = useUsersContext();
-  const sessions = users.access?.sessions ?? [];
-  const phones = users.access?.phones ?? [];
+  const lines = users.accessLines;
   // Con un solo celular, «Quitar huella» lo quita; con más, lleva a la lista para elegir cuál.
   const removeOne = () =>
-    phones.length === 1
-      ? removePhone(users, person, phones[0] as PhoneRow)
-      : showPart('users-phones');
+    lines?.onlyPhone ? removePhone(users, person, lines.onlyPhone) : showPart('users-phones');
   const tiles: Tile[] = [
     {
       icon: 'lock',
       name: t.cutSessions,
       tone: 'red',
       act: () => users.open({ kind: 'close-all', person }),
-      off: sessions.length === 0 || !users.online,
-      allowed: users.may.cutOver(person),
+      ...(lines?.tiles.cut ?? { allowed: false, off: true }),
     },
     {
       icon: 'fingerprint',
       name: t.removePasskey,
       tone: 'orange',
       act: removeOne,
-      off: phones.length === 0 || !users.online,
-      allowed: users.may.cutOver(person),
+      ...(lines?.tiles.passkey ?? { allowed: false, off: true }),
     },
     {
       icon: 'user-check',

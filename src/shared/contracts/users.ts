@@ -3,12 +3,15 @@
 import * as z from 'zod/mini';
 import { type RoleSummary, roleIds } from './roles.ts';
 
+// Los largos de una persona: el correo y el nombre que escribe quien la autoriza.
+export const personLimits = { email: 254, name: 80 } as const;
+
 const version = z.int().check(z.minimum(1), z.maximum(2 ** 31 - 1));
-const name = z.nullable(z.string().check(z.maxLength(80)));
+const name = z.nullable(z.string().check(z.maxLength(personLimits.name)));
 
 // Autorizar pide al menos un rol, elegido a mano (R3.3).
 export const authorizeBody = z.strictObject({
-  email: z.email().check(z.maxLength(254)),
+  email: z.email().check(z.maxLength(personLimits.email)),
   name: z.optional(name),
   roles: roleIds,
 });
@@ -17,7 +20,7 @@ export const authorizeBody = z.strictObject({
 export const changeBody = z.object({
   version,
   name: z.optional(name),
-  email: z.optional(z.email().check(z.maxLength(254))),
+  email: z.optional(z.email().check(z.maxLength(personLimits.email))),
 });
 
 export const versionBody = z.object({ version });

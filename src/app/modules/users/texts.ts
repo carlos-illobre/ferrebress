@@ -173,5 +173,6 @@ export const dialogTexts = {
   phonesOf: (n: number) => plural(n, 'celular', 'celulares'),
   openSessions: (n: number) => (n === 1 ? 'sesión abierta' : `${n} sesiones abiertas`),
   withPasskey: 'con huella',
+  usedAgo: (since: string) => `usado ${since}`,
   cut: 'Cortar',
 };
