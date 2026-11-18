@@ -27,7 +27,7 @@ capítulo 08.
 - **R1.3** **Cada ajuste dice en una línea qué cambia**, y la pantalla dice arriba que lo que se fija
   acá vale para todos. Los ajustes se agrupan por tema: los precios (el redondeo y los márgenes
   rápidos), las listas de precios (R8), el negocio (la zona horaria) y el acceso (los tiempos de la
-  sesión y los días del vínculo). Cada capítulo que trae un ajuste para todos lo suma acá, en su grupo, con las mismas
+  sesión, los días del vínculo y la entrada, R11). Cada capítulo que trae un ajuste para todos lo suma acá, en su grupo, con las mismas
   reglas.
 - **R1.4** **Un solo permiso:** «Cambiar los ajustes», en el grupo «Administración», que deja
   cambiar cualquier ajuste de esta pantalla. Como todo permiso nuevo, se le suma solo al rol
@@ -167,6 +167,20 @@ capítulo 08.
   segundos (R2.1). El de una lista que se está leyendo o aplicando no se puede borrar. Borrar uno va a
   Quién hizo qué.
 - **R10.3** **La ve quien tiene «Ver costos»** (08 · R1.2): muestra de qué proveedores son las listas.
+
+## 11. La entrada
+
+- **R11.1** **Las horas para entrar sin conexión** (15 · R2.2): cuánto tiempo después del último
+  contacto con el servidor se puede entrar con la huella sin internet. Se eligen de una lista: 4, 8,
+  12, 24, 48 o 72 horas; de arranque, 24. Más horas es más tiempo en que un celular perdido se abre
+  sin que el servidor se entere.
+- **R11.2** **Los intentos de entrar por minuto, por dispositivo** (01 · R2.9): uno para Google y otro
+  para la huella, enteros de 3 a 60; de arranque, 10 y 20.
+- **R11.3** **Los intentos fallidos por hora, por cuenta** (01 · R2.10): un entero de 5 a 100; de
+  arranque, 20.
+- **R11.4** **Valen desde el próximo intento,** sin cortar ninguna sesión abierta. Las horas sin
+  conexión las recibe cada celular con su próximo pedido al servidor (R2.4): uno sin conexión sigue
+  con las que tenía.
 
 ## Escenarios
 
@@ -328,3 +342,17 @@ capítulo 08.
   puede, y se dice por qué.
 - **E55** **Dado** 80 MB de archivos y el tamaño en 100 MB, **cuando** se abre Archivos de listas,
   **entonces** arriba dice «80 MB de 100 MB».
+
+### La entrada
+
+- **E56** **Dado** las horas sin conexión en 8 y un celular que habló con el servidor hace 10 horas,
+  **cuando** se abre la entrada sin conexión, **entonces** todo está apagado y dice «Para entrar
+  hace falta internet».
+- **E57** **Dado** las horas sin conexión en 24 y un celular sin conexión desde hace 2 horas,
+  **cuando** alguien con conexión las pasa a 4, **entonces** ese celular sigue con 24 hasta su
+  próximo pedido al servidor.
+- **E58** **Dado** los intentos con Google en 3 por minuto, **cuando** alguien prueba entrar 4 veces en
+  un minuto desde el mismo dispositivo, **entonces** el cuarto no se intenta y la entrada dice cuánto
+  falta.
+- **E59** **Dado** quien tiene el permiso, **cuando** escribe 2 o 61 en los intentos por minuto, o 4 o
+  101 en los fallidos por hora, **entonces** no se guarda y se dice el rango.

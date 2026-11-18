@@ -82,9 +82,11 @@ la conexión, los formatos) están en el [capítulo 00](../00-app/rules.md).
   con la huella (capítulo 15). Cuando vuelve la conexión, los botones se prenden solos: si el navegador dice
   que hay red pero un pedido falló, la entrada a la vista vuelve a probar sola (a los 2, 4, 8, 16 y
   32 segundos, y después cada minuto) hasta que uno llegue.
-- **R2.9** Como mucho 10 intentos por minuto con Google y 20 con la huella, por dispositivo. Pasado
-  eso, la entrada dice cuánto falta para volver a intentar.
-- **R2.10** Además, como mucho 20 intentos fallidos por hora por cuenta, desde cualquier
+- **R2.9** Como mucho los intentos por minuto que fija Administración (06 · R11.2), por dispositivo:
+  de arranque, 10 con Google y 20 con la huella. Pasado eso, la entrada dice cuánto falta para volver
+  a intentar.
+- **R2.10** Además, como mucho los intentos fallidos por hora por cuenta que fija Administración
+  (06 · R11.3; de arranque, 20), desde cualquier
   dispositivo, contados aparte para Google y para la huella. Pasado eso, esa cuenta espera hasta que
   se cumpla la hora solo con esa forma de entrar: si se pasó con la huella, igual puede entrar con
   Google. Queda anotado para la auditoría.

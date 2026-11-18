@@ -37,7 +37,8 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
   R2.2).
 - **R2.2** Entra solo la cuenta vinculada a ese celular (01 · R2.3), y solo si:
   - en el último contacto con el servidor, la cuenta estaba activa y con el permiso;
-  - pasaron menos de **24 horas** desde ese contacto. Cuenta como contacto cualquier pedido con la
+  - pasaron menos de las **horas que fija Administración** desde ese contacto (06 · R11.1; de
+    arranque, 24). Cuenta como contacto cualquier pedido con la
     sesión abierta que el servidor aceptó: después de «Salir», cuenta desde el último uso de la
     sesión;
   - la última sesión de ese celular no la cerró otro dispositivo (01 · R3.5): alguien la cerró a
