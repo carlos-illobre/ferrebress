@@ -17,9 +17,15 @@ export type FileStore = {
   // Dónde está en el disco, para el proceso lector; null en la memoria.
   pathOf(sha256: string): string | null;
   remove(sha256: string): Promise<void>;
-  // Los que están guardados, para borrar los que quedaron sin fila.
-  list(): Promise<string[]>;
+  // Los que están guardados desde hace más de una hora, para borrar los que quedaron sin fila: uno
+  // más nuevo puede ser de una subida que todavía no creó su fila. De paso borra los temporales de más
+  // de una hora, que dejó una subida cortada por un reinicio.
+  // `minAgeMs`, para las pruebas. En la memoria no hay subidas a medias: devuelve todos.
+  list(minAgeMs?: number): Promise<string[]>;
 };
+
+// Lo que tarda como mucho una subida en crear su fila después de guardar el archivo.
+const settled = 60 * 60_000;
 
 const hexOnly = /^[0-9a-f]{64}$/;
 const checked = (sha256: string) => {
@@ -67,14 +73,21 @@ export function diskFiles(dir: string): FileStore {
     read: (sha256) => createReadStream(pathOf(sha256), { highWaterMark: 1024 * 1024 }),
     pathOf,
     remove: async (sha256) => rm(pathOf(sha256), { force: true }),
-    async list() {
+    async list(minAgeMs = settled) {
+      const before = Date.now() - minAgeMs;
+      const temporary = join(dir, 'tmp');
+      for (const name of await readdir(temporary).catch(() => []))
+        if ((await stat(join(temporary, name))).mtimeMs < before)
+          await rm(join(temporary, name), { force: true });
       const names = await readdir(dir).catch(() => []);
       const files = await Promise.all(
         names
           .filter((name) => hexOnly.test(name))
           .map(async (name) => ({ name, info: await stat(join(dir, name)) })),
       );
-      return files.filter((file) => file.info.isFile()).map((file) => file.name);
+      return files
+        .filter((file) => file.info.isFile() && file.info.mtimeMs < before)
+        .map((file) => file.name);
     },
   };
 }

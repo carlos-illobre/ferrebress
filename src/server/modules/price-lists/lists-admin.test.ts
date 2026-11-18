@@ -23,11 +23,11 @@ describe('lectores y archivos', () => {
     await kit.server.priceLists.idle();
   };
   // Bajar un archivo sin leerlo todavía: la respuesta tal cual.
-  const fetchFile = (listId: string, device = kit.viewer.device) => {
+  const fetchFile = (listId: string, device = kit.viewer.device, method = 'GET') => {
     const { id, cookie } = device as unknown as { id: string; cookie: string };
     return kit.server.http.request(
       `/api/price-lists/lists/${listId}/file`,
-      { headers: { ...appHeaders(id), Cookie: cookie } },
+      { method, headers: { ...appHeaders(id), Cookie: cookie } },
       { incoming: { socket: { remoteAddress: testConfig.TRUSTED_PROXY } } },
     );
   };
@@ -37,11 +37,15 @@ describe('lectores y archivos', () => {
     const format = (n: number) => sheet('Lista', [['A1', 'Mecha', n]]);
     const first = await kit.upload(format(10), { supplierId });
     await apply(first.body.id, { new: 1, changed: 0, gone: 0 });
-    const readers = (await kit.seller.device.request('/api/price-lists/readers')).body.readers;
-    const reader = readers.find(
-      (one: { supplier?: { id: string } }) => one.supplier?.id === supplierId,
-    );
-    expect(reader).toMatchObject({
+    const ofSupplier = async (device: typeof kit.seller.device) =>
+      (await device.request('/api/price-lists/readers')).body.readers.find(
+        (one: { supplier?: { id: string } }) => one.supplier?.id === supplierId,
+      );
+    // Sin «Ver costos», el lector sin su última lista (R1.3).
+    const reader = await ofSupplier(kit.seller.device);
+    expect(reader).toMatchObject({ origin: 'auto', supplier: { name: 'Bulonera Centro' } });
+    expect(reader).not.toHaveProperty('lastList');
+    expect(await ofSupplier(kit.viewer.device)).toMatchObject({
       origin: 'auto',
       active: true,
       supplier: { name: 'Bulonera Centro' },
@@ -131,12 +135,23 @@ describe('lectores y archivos', () => {
         })
       ).status,
     ).toBe(404);
+    // Uno automático ya es de su proveedor: no se asocia a otro (R5.1).
+    const auto = (await kit.admin.request('/api/price-lists/readers')).body.readers.find(
+      (one: { origin: string; supplier?: object }) => one.origin === 'auto' && one.supplier,
+    );
+    expect(
+      (await kit.admin.request(`/api/price-lists/readers/${auto.id}/supplier`, { supplierId }))
+        .status,
+    ).toBe(404);
   });
 
   it('price-lists-E40 y administration-E53 a E55: bajar el original; borrarlo a mano con «Deshacer»; el de una que se lee, no', async () => {
     const supplierId = await kit.supplier('Corralón Norte');
     const file = sheet('Lista', [['A1', 'Mecha', 77]]);
     const sent = await kit.upload(file, { supplierId, name: 'Lista Ñandú.xlsx' });
+    // Un HEAD no lee el archivo ni cuenta como descarga: después se baja igual.
+    for (const _ of [1, 2, 3])
+      expect((await fetchFile(sent.body.id, kit.viewer.device, 'HEAD')).status).toBe(200);
     const got = await fetchFile(sent.body.id);
     expect(Buffer.from(await got.arrayBuffer()).equals(Buffer.from(file))).toBe(true);
     expect(got.headers.get('Content-Disposition')).toContain(
@@ -171,7 +186,7 @@ describe('lectores y archivos', () => {
     kit.later(10_000);
     await kit.server.runJobs();
     await new Promise((resolve) => setTimeout(resolve, 300));
-    expect(await kit.server.platform.files.list()).not.toContain(mine.sha256);
+    expect(await kit.server.platform.files.list(-1)).not.toContain(mine.sha256);
     expect(kit.audited('files.deleted').length).toBeGreaterThan(0);
     expect(kit.audited('files.restored')).toHaveLength(1);
     const waiting = await kit.upload(

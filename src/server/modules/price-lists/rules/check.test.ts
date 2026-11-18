@@ -108,6 +108,18 @@ describe('la comprobación', () => {
     });
   });
 
+  it('una fila salteada viaja con lo que alcanza para mostrarla: 50 celdas de 200 letras', () => {
+    const wide = Array.from({ length: 10_000 }, () => ({
+      v: 'x'.repeat(60_000),
+      t: 'x'.repeat(60_000),
+    }));
+    const one: Block = { sheet: 0, start: 1, rows: [wide], before: [] };
+    const checked = checkBlock(one, [{ row: 1, kind: 'skipped', reason: 'no-price' }], new Set());
+    const cells = 'skipped' in checked ? (checked.skipped[0]?.cells ?? []) : [];
+    expect(cells).toHaveLength(50);
+    expect(cells.every((cell) => cell.length === 200)).toBe(true);
+  });
+
   it('una celda de las filas de antes del bloque vale (una marca arriba); una más arriba no existe', () => {
     const later: Block = { sheet: 0, start: 1, rows: [rows[1] ?? []], before: [rows[0] ?? []] };
     expect(checkBlock(later, [product(1, { brand: [0, 0] })], new Set())).toMatchObject({

@@ -64,6 +64,24 @@ async function fresh(ctx: PriceListsContext, listId: string): Promise<ListRecord
   return readingData(db).start(listId);
 }
 
+// Los mensajes del proceso, de a uno y en orden. Si uno falla, se corta el proceso y la lista queda
+// dañada; lo que llega después ya no la encuentra leyéndose en ese intento.
+function inOrder(run: (message: JobMessage) => Promise<void>, cut: () => void) {
+  let chain = Promise.resolve();
+  return {
+    push(message: JobMessage) {
+      chain = chain
+        .then(() => run(message))
+        .catch((error) => {
+          console.error(error);
+          cut();
+          return run({ type: 'failed', reason: 'damaged' }).catch(console.error);
+        });
+    },
+    done: () => chain,
+  };
+}
+
 export function createReading(ctx: PriceListsContext, deps: ReadingDependencies) {
   const running = new Map<string, { cancel(): void; done: Promise<void> }>();
 
@@ -76,18 +94,19 @@ export function createReading(ctx: PriceListsContext, deps: ReadingDependencies)
     await deps.publish(list.id);
   };
 
-  // Empieza a leerla de cero: un intento más, sin las filas ni el lector nuevo de antes.
+  // Empieza a leerla de cero: un intento más, sin las filas ni el lector nuevo de antes. Un paso que no
+  // se pudo guardar corta la lectura: la lista no se pudo leer, nunca queda a medias.
   const start = async (listId: string): Promise<void> => {
     stop(listId);
     const list = await fresh(ctx, listId);
     if (!list) return;
-    let chain = Promise.resolve();
-    const task = deps.pool().read(await jobOf(ctx, list), (message) => {
-      chain = chain
-        .then(() => handle({ id: listId, attempt: list.attempts }, message))
-        .catch(console.error);
-    });
-    const done = task.finished.then(() => chain);
+    const at = { id: listId, attempt: list.attempts };
+    const steps = inOrder(
+      (message) => handle(at, message),
+      () => stop(listId),
+    );
+    const task = deps.pool().read(await jobOf(ctx, list), steps.push);
+    const done = task.finished.then(() => steps.done());
     running.set(listId, { cancel: task.cancel, done });
     void done.then(() => {
       if (running.get(listId)?.done === done) running.delete(listId);

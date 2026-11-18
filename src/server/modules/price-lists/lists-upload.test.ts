@@ -89,7 +89,7 @@ describe('subir una lista', () => {
     expect(big.status).toBe(413);
     expect(big.body).toEqual({ error: 'file-too-large', maxMb: 1 });
     await kit.setting('maxFileMb', 30);
-    expect(await kit.server.platform.files.list()).not.toContain(expect.stringMatching(/^4141/));
+    expect(await kit.server.platform.files.list(-1)).not.toContain(expect.stringMatching(/^4141/));
   });
 
   it('price-lists-E37: un archivo dañado queda «No se pudo leer», con su archivo y una anomalía', async () => {
@@ -130,9 +130,22 @@ describe('subir una lista', () => {
     });
   });
 
+  it('a lo sumo 10 subidas por minuto por persona; la siguiente espera', async () => {
+    const answers: number[] = [];
+    for (let i = 0; i < 11; i++)
+      answers.push(
+        (await kit.upload(Buffer.from(`Código;Precio\nL${i};1`), { name: 'l.csv' })).status,
+      );
+    expect(answers.slice(0, 10).every((status) => status === 201 || status === 200)).toBe(true);
+    expect(answers[10]).toBe(429);
+  });
+
   it('price-lists-E04 y E05: sin «Cargar listas» no se sube; sin «Ver costos» no se ve; una que no existe, 404', async () => {
-    const refused = await kit.upload(plain(), {}, kit.viewer.device);
+    const before = await kit.server.platform.files.list(-1);
+    const refused = await kit.upload(Buffer.from('Código;Precio\nNO1;5'), {}, kit.viewer.device);
     expect(refused.body).toMatchObject({ error: 'forbidden', permission: 'price-lists.load' });
+    // Sin permiso, el archivo ni se lee: no queda guardado.
+    expect(await kit.server.platform.files.list(-1)).toEqual(before);
     const sent = await kit.upload(plain());
     expect((await kit.seller.device.request(`/api/price-lists/lists/${sent.body.id}`)).status).toBe(
       403,

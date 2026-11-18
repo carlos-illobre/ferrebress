@@ -132,11 +132,14 @@ const restart = (db: Db) => ({
       .execute()) as ListRecord[],
 
   // Las que no se pudieron leer y vuelven a la cola porque cambió el juego de lectores (R5.5): de
-  // cada proveedor, la última, si después no subió otra; las de ninguno, todas.
+  // cada proveedor, la última, si después no subió otra; las de ninguno, todas. Solo las que no
+  // entendió ningún lector: un archivo dañado, vacío, muy grande o que tumbó el proceso sale igual.
   async rereadable(): Promise<string[]> {
     const rows = await sql<{ id: string }>`
       update price_lists.lists l set status = 'reading', reason = null, attempts = 0
-      where l.status = 'unreadable' and not exists (
+      where l.status = 'unreadable'
+        and l.reason in ('no-reader', 'auto-unsure', 'reader-failed')
+        and not exists (
         select 1 from price_lists.lists o
         where o.supplier_id = l.supplier_id and o.uploaded_at > l.uploaded_at
           and o.status <> 'discarded')

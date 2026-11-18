@@ -2,7 +2,8 @@
 // armado para hacer daño dice que trae poco y se infla al descomprimirlo. Se mira el índice: cuántas
 // partes, que cada una declare su tamaño, que la suma no pase un tope frente al tamaño del archivo y
 // que la cabecera de cada parte coincida con el índice. Con el tamaño declarado, SheetJS descomprime
-// dentro de ese espacio.
+// dentro de ese espacio: es el tope real de un Excel, porque mientras SheetJS lo abre el proceso no
+// mira su memoria (process.ts).
 
 export const zipLimits = { parts: 2000, totalBytes: 300 * 2 ** 20, ratio: 100 };
 
@@ -40,11 +41,13 @@ function partsOf(file: Buffer, end: number): Part[] | undefined {
   return parts;
 }
 
-// La cabecera de la parte dice lo mismo que el índice; una sin tamaño declarado (bit 3) no trae datos.
+// La cabecera de la parte dice lo mismo que el índice, que es la que usa SheetJS. Una parte sin tamaño
+// en la cabecera (bit 3: va después de los datos) no se acepta: Excel no la usa y SheetJS la
+// descomprime sin tope. Tampoco una que trae datos y dice que no tiene nada.
 function agrees(file: Buffer, part: Part): boolean {
   if (part.local + 30 > file.length || file.readUInt32LE(part.local) !== localSignature)
     return false;
-  if (part.flags & 0x08) return part.compressed === 0 && part.size === 0;
+  if (part.flags & 0x08 || (part.compressed > 0 && part.size === 0)) return false;
   return (
     file.readUInt32LE(part.local + 18) === part.compressed &&
     file.readUInt32LE(part.local + 22) === part.size &&

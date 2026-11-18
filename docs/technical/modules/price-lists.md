@@ -110,7 +110,7 @@ puede tener varios artículos y guarda lo cambiado a mano), y sus pruebas se esc
 | `deleting_at` | `timestamptz` | Borrado a mano y esperando el «Deshacer» de 06 · R10.2 |
 
 - **Escribir:** el archivo va primero al almacén (con un nombre de paso y renombrado al terminar) y
-  después la fila. Si la transacción falla, queda un archivo sin fila, que una limpieza diaria borra.
+  después la fila. Si la transacción falla, queda un archivo sin fila, que la limpieza de cada hora borra.
 - **Cuánto ocupan entre todos** se cuenta con una consulta (una fila por archivo: son pocas), para la
   cabecera de Archivos de listas y para decidir qué borrar; así no puede desfasarse.
 - **Borrar uno a mano** lo marca (`deleting_at`): desde ese momento las listas lo muestran como que ya no
@@ -289,7 +289,7 @@ costos») (R1.2, E03); en «Administración», `anomalies.review` (06 · R9.3).
 | `POST /api/price-lists/lists/:id/cancel` | Mientras se lee, la descarta; mientras se aplica, la deshace (R4.11) | «Cargar listas» | 1 |
 | `POST /api/price-lists/lists/:id/apply` | `{ expected }` (R6.5, R6.6): contesta `202` y sigue por el tema | «Cargar listas» | § 10 |
 | `POST /api/price-lists/lists/:id/discard` | (R6.11) | «Cargar listas» | 2 |
-| `GET /api/price-lists/lists/:id/file` | El archivo original (R4.4, E40); `410 file-gone` si ya no se guarda | «Ver costos» | 1 |
+| `GET /api/price-lists/lists/:id/file` | El archivo original (R4.4, E40); `410 file-gone` si ya no se guarda. Un `HEAD`, solo las cabeceras: no abre el archivo ni cuenta como descarga | «Ver costos» | 1 |
 
 - **Subir** usa una excepción con nombre de la plataforma, `http.upload(ruta, …)`: el único camino que
   acepta un cuerpo que no es JSON (`application/octet-stream`) y más grande que 64 KB. Lo demás sigue igual
@@ -315,9 +315,9 @@ costos») (R1.2, E03); en «Administración», `anomalies.review` (06 · R9.3).
 
 | Ruta | Qué hace | Permiso | Consultas |
 |---|---|---|---|
-| `GET /api/price-lists/readers` | Los lectores con su proveedor, sin su código (R5.8) | Ninguno | 1 |
+| `GET /api/price-lists/readers` | Los lectores con su proveedor, sin su código (R5.8); con «Ver costos», la última lista que leyó cada uno (R1.3) | Ninguno | 1 |
 | `POST /api/price-lists/readers/:id/active` | `{ active }` (E50); uno con `pending_list_id` no se puede activar | «Cambiar los ajustes» | 1 |
-| `POST /api/price-lists/readers/:id/supplier` | `{ supplierId }`: asocia uno de un programador (R5.1) | «Cambiar los ajustes» | 1 |
+| `POST /api/price-lists/readers/:id/supplier` | `{ supplierId }`: asocia uno de un programador (R5.1); uno automático ya es de su proveedor, `404` | «Cambiar los ajustes» | 1 |
 
 ### Los archivos (Más → Administración → Archivos de listas)
 
@@ -489,20 +489,25 @@ Las vistas, en `src/app/views/basic/price-lists/` y `anomalies/` (ADR-019).
   anomalía, sin abrir el archivo (así un archivo que tumba el proceso no lo hace en cada arranque). Una
   «aplicándose» vuelve a «en espera» con el motivo `interrupted` (E61): su transacción ya se deshizo.
 - **Volver a leer una que no se pudo** (R5.5, E47) pasa solo cuando cambió el juego de lectores (uno de un
-  programador nuevo o cambiado al arrancar, o uno que quedó activo), y solo con la última lista de cada
-  proveedor que no tenga después una leída: las anteriores quedan como están (su anomalía se cierra con
+  programador nuevo o cambiado al arrancar, o uno que quedó activo), solo con las que no entendió ningún
+  lector (`no-reader`, `auto-unsure`, `reader-failed`: una dañada, vacía, muy grande o que tumbó el
+  proceso saldría igual), y solo con la última lista de cada proveedor que no tenga después una leída: las anteriores quedan como están (su anomalía se cierra con
   la siguiente que se lee, R9.2). Entra a la cola como cualquiera.
 - **Mientras se lee,** las filas se guardan de a bloques; si ya se sabe de quién es la lista, con su
   costo y el que tenía su artículo. Una lista sin proveedor sigue leyéndose y espera la respuesta con
   `waiting_for = 'supplier'`; al elegirlo se les pone el costo a todas, sin volver a leer.
 - **Un proceso que se cuelga o muere** deja la lista con un intento más: se reintenta una vez y, al
   segundo, queda «No se pudo leer» con `crashed`.
+- **Un bloque que no se puede guardar** corta la lectura: la lista queda «No se pudo leer» con
+  `damaged`. Una lista leída pasa a esperar solo si se guardaron todas sus filas: aplicar una con filas
+  de menos daría de baja lo que faltó.
 - **Una lectura vieja no pisa a una nueva:** cada corrida lleva su número de intento, y el resultado de
   un bloque se guarda solo si la lista sigue en ese intento y «leyendo».
 - **Los archivos** se borran: al aplicar una lista, el de la aplicada anterior del mismo proveedor (si
   ninguna otra lista usa ese contenido); una vez por hora, los de listas que nunca se aplicaron con más
-  días que el ajuste (06 · R8.7), los marcados a mano con el «Deshacer» vencido y los que quedaron sin
-  fila; y al guardar uno nuevo, si entre todos pasan el ajuste (06 · R8.6), los más viejos hasta quedar
+  días que el ajuste (06 · R8.7), los marcados a mano con el «Deshacer» vencido, los que quedaron sin
+  fila desde hace más de una hora (uno más nuevo puede ser de una subida que todavía no creó la suya) y
+  los temporales de más de una hora de una subida cortada; y al guardar uno nuevo, si entre todos pasan el ajuste (06 · R8.6), los más viejos hasta quedar
   debajo, salvo el más nuevo y los de listas leyéndose o aplicándose.
 
 ## 9. Pantallas
@@ -535,21 +540,31 @@ Los modelos de § 7, con lo que espeja cada uno (ADR-019):
   por identificador se busca y da `404` si no existe.
 - **Lo que entra de afuera:**
   - **El archivo:** § 3, «Subir». Antes de SheetJS, el proceso lector mira el índice del ZIP de un
-    `.xlsx`: como mucho 2.000 partes, ninguna sin tamaño declarado que traiga datos, la suma de lo que
+    `.xlsx`: como mucho 2.000 partes, todas con su tamaño en la cabecera (sin el bit 3) y ninguna que
+    traiga datos y diga que no tiene nada, la suma de lo que
     declaran como mucho 300 MB y 100 veces el archivo, y los tamaños de cada cabecera iguales a los del
     índice; si no, «No se pudo leer» con `too-big`. Con el tamaño declarado, SheetJS descomprime dentro de
     ese espacio y no crece (revisión de seguridad, 1). SheetJS, con las opciones cerradas (sin fórmulas,
-    sin HTML, sin archivos adjuntos) y solo los tres formatos. Las fórmulas no se calculan.
+    sin HTML, sin archivos adjuntos) y solo los tres formatos: lo que abrió tiene que ser uno de ellos
+    (un `.ods` o un SYLK con otro nombre, `damaged`). Las fórmulas no se calculan.
   - **El proceso lector** (ADR-021) tiene tope de memoria del sistema, no solo de V8, y entorno vacío
     (sin la clave de la base); si muere, se lo reemplaza y la lista sigue lo de § 8. El contenedor del
-    servidor tiene `mem_limit`, así un error que quede no se lleva la máquina.
+    servidor tiene `mem_limit`, así un error que quede no se lleva la máquina, y el proceso lector es el
+    primero que muere si se llega (`oom_score_adj`). Un error de QuickJS mismo (uno que aborta al liberar)
+    es un lector que no sirve: se prueba el siguiente y la corrida siguiente usa un módulo nuevo.
   - **Los lectores:** encerrados en QuickJS, un contexto nuevo por corrida, sin ninguna función del
     servidor, con tope de memoria, de pila y de tiempo por bloque (R5.10, E52, E53). Devuelven
     posiciones, que se validan con el contrato y se comprueban (§ 4, E48). Los datos del lector automático
     van aparte de su código: un encabezado armado no puede volverse código.
   - **Las celdas:** se guardan y se muestran como texto, con su largo máximo (§ 2), sin armar HTML (E68).
     Nada de una celda se usa como nombre de archivo, ruta o consulta. Un precio de más de $ 1 billón es
-    una fila salteada (`not-a-number`).
+    una fila salteada (`not-a-number`). Sin mitades sueltas de UTF-16, que la base no guarda. Una fila
+    salteada viaja con lo que alcanza para mostrarla: como mucho 50 celdas de 200 letras.
+  - **Lo que se busca:** `%` y `_` se buscan tal cual, no como comodines.
+  - **Un archivo con otro formato** se borra apenas llega (E33), si ninguna lista usa ese contenido. Si el
+    mismo contenido llega a la vez como una lista con el nombre correcto, y se borra entre que esa
+    guarda el archivo y crea su fila, la lista queda sin archivo y «No se pudo leer». Hace falta subir el
+    mismo archivo dos veces a la vez con distinta extensión: es un riesgo aceptado.
   - **Los datos de los proveedores:** con sus largos; el correo con forma de correo.
 - **Secretos:** ninguno en esta etapa (la clave de la IA es de la etapa b).
 - **Abuso:** 10 subidas por minuto por persona (la clave sale de la sesión, no de una cabecera que elige

@@ -62,8 +62,11 @@ const block: Step<'block'> = async (_ctx, trx, list, { products, skipped, rowsRe
 };
 
 // Leída entera: espera de quién es o queda en espera de aplicarse (R6.1). Si antes no se pudo leer,
-// su anomalía se cierra, y también las de otras suyas que no se pudieron leer (R9.2).
+// su anomalía se cierra, y también las de otras suyas que no se pudieron leer (R9.2). Si faltan filas
+// (un bloque que no se pudo guardar), no se pudo leer: aplicarla daría de baja lo que faltó.
 const done: Step<'done'> = async (ctx, trx, list, _message, later) => {
+  if (list.rowsRead !== list.rowsTotal)
+    return failed(ctx, trx, list, { type: 'failed', reason: 'damaged' }, later);
   const known = list.supplierId !== null && list.supplierConfirmed;
   await readingData(asDb(trx)).set(list.id, {
     read_at: ctx.platform.clock.now(),

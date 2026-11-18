@@ -1,6 +1,7 @@
 // Leer una lista en el proceso lector (08 · R4.2, R4.12): los formatos, lo dañado y el aviso de las
 // planillas grandes.
 
+import { deflateRawSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import * as XLSX from 'xlsx';
 import { job, nextName, run, saved, types, xlsx } from '../../../testing/price-lists/sheets.ts';
@@ -17,6 +18,21 @@ describe('leer una lista: los formatos y los avisos', () => {
     const broken = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x72, 0x6f, 0x74, 0x6f]);
     expect(await run(job(saved(broken)))).toEqual([{ type: 'failed', reason: 'too-big' }]);
     expect(await run(job(saved(xlsx([]))))).toEqual([{ type: 'failed', reason: 'empty' }]);
+  });
+
+  it('una bomba ZIP sin tamaño en la cabecera (bit 3) no se abre ni infla la memoria', async () => {
+    const before = process.memoryUsage.rss();
+    expect(await run(job(saved(bomb())))).toEqual([{ type: 'failed', reason: 'too-big' }]);
+    expect(process.memoryUsage.rss() - before).toBeLessThan(100 * 2 ** 20);
+  });
+
+  it('un formato que SheetJS abre pero no es una lista que se espera (.ods, .xlsb, SYLK) no se lee', async () => {
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet(formatA), 'Hoja');
+    for (const bookType of ['ods', 'xlsb', 'sylk'] as const) {
+      const file = XLSX.write(book, { type: 'buffer', bookType }) as Buffer;
+      expect(await run(job(saved(file)))).toEqual([{ type: 'failed', reason: 'damaged' }]);
+    }
   });
 
   it('una lista en CSV se lee igual, en UTF-8 o como la guarda Excel', async () => {
@@ -104,3 +120,28 @@ describe('leer una lista: los formatos y los avisos', () => {
     expect(await run({ ...csv('a\nb\nc'), confirmRows: 2 })).toEqual([{ type: 'size', rows: 3 }]);
   });
 });
+
+// Un .xlsx de unos 200 KB con una parte de 200 MB de ceros, con el bit 3 y los tamaños en 0: el índice
+// dice que no trae nada.
+function bomb(): Buffer {
+  const name = Buffer.from('xl/workbook.xml');
+  const data = deflateRawSync(Buffer.alloc(200 * 2 ** 20));
+  const local = Buffer.alloc(30);
+  local.writeUInt32LE(0x04034b50, 0);
+  local.writeUInt16LE(0x08, 6);
+  local.writeUInt16LE(8, 8);
+  local.writeUInt16LE(name.length, 26);
+  const central = Buffer.alloc(46);
+  central.writeUInt32LE(0x02014b50, 0);
+  central.writeUInt16LE(0x08, 8);
+  central.writeUInt16LE(8, 10);
+  central.writeUInt16LE(name.length, 28);
+  const body = Buffer.concat([local, name, data]);
+  const end = Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50, 0);
+  end.writeUInt16LE(1, 8);
+  end.writeUInt16LE(1, 10);
+  end.writeUInt32LE(central.length + name.length, 12);
+  end.writeUInt32LE(body.length, 16);
+  return Buffer.concat([body, central, name, end]);
+}

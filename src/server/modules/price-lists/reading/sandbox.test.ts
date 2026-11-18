@@ -56,6 +56,16 @@ describe('un lector encerrado', () => {
     expect(await run('const f = () => f(); f();')).toEqual({ failed: 'error' });
   });
 
+  it('un lector que deja a QuickJS abortado al liberar es un error, y el siguiente corre bien', async () => {
+    const deep =
+      'const o = {}; let x = o; for (let i = 0; i < 1e5; i++) { x.a = {}; x = x.a; } return JSON.stringify(o);';
+    expect(await run(deep)).toEqual({ failed: 'error' });
+    expect(await run('return JSON.parse("[".repeat(1e5) + "]".repeat(1e5));')).toEqual({
+      failed: 'error',
+    });
+    expect(await run('return "yes";')).toEqual({ ok: 'yes' });
+  });
+
   it('un lector que no deja `reader` o que falla es un error', async () => {
     expect(await runReader('1 +', null, 'read', [], limits)).toEqual({ failed: 'error' });
     expect(await runReader('globalThis.reader = {};', null, 'read', [], limits)).toEqual({

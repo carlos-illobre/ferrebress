@@ -17,9 +17,21 @@ const quickJS = () => {
   return engine;
 };
 
+type Run = Parameters<typeof runOnce>;
+
 // Corre `code` (que deja `globalThis.reader`) y llama a `reader[call](...args)`. `params`, los datos
-// del lector automático.
-export async function runReader(
+// del lector automático. Nunca lanza: si QuickJS mismo falla (una recursión sin fin puede dejarlo
+// abortado al liberar), el lector no sirve y la próxima corrida usa un módulo nuevo.
+export async function runReader(...run: Run): Promise<SandboxResult> {
+  try {
+    return await runOnce(...run);
+  } catch {
+    engine = undefined;
+    return { failed: 'error' };
+  }
+}
+
+async function runOnce(
   code: string,
   params: unknown,
   call: 'recognizes' | 'read',

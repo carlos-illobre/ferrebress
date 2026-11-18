@@ -87,6 +87,9 @@ describe('el detalle de una lista y los productos de un proveedor', () => {
 
   it('price-lists-R6.3: se busca; las salteadas con lo que traían; los que ya no vienen', async () => {
     expect((await rows('?q=TARUGO')).rows.map((one: { code: string }) => one.code)).toEqual(['A2']);
+    // `%` y `_` se buscan tal cual, no como comodines.
+    expect((await rows('?q=%25')).rows).toEqual([]);
+    expect((await rows('?q=_')).rows).toEqual([]);
     expect((await rows('?show=skipped')).rows).toEqual([
       { code: 'X1', description: 'Roto', skipped: 'not-a-number', cells: ['X1', 'Roto', 'x'] },
     ]);

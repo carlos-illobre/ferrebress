@@ -3,7 +3,7 @@
 import type { RowsShow, SkipReason } from '@ferrebress/shared/contracts/price-lists';
 import type { CostBasis } from '@ferrebress/shared/pricing/basis';
 import { sql } from 'kysely';
-import type { Db } from './db.ts';
+import { containing, type Db } from './db.ts';
 
 export type Counts = {
   new: number;
@@ -113,7 +113,7 @@ const detail = (db: Db) => ({
         basis, skipped, cells, ${position}::float8 as at, sheet, row
       from price_lists.list_rows
       where list_id = ${listId} and ${showFilter(query.show, reviewPercent)}
-        ${query.key ? sql`and search_key like ${`%${query.key}%`}` : sql``}
+        ${query.key ? sql`and search_key like ${containing(query.key)}` : sql``}
         ${after ? sql`and (${position} < ${after[0]} or (${position} = ${after[0]} and (sheet, row) > (${after[1]}, ${after[2]})))` : sql``}
       order by ${position} desc, sheet, row
       limit ${size + 1}`.execute(db);
@@ -141,7 +141,7 @@ const detail = (db: Db) => ({
         where i.supplier_id = ${supplierId} and not i.discontinued
           and not exists (select 1 from price_lists.list_rows r
             where r.list_id = ${listId} and r.supplier_code = i.supplier_code)
-          ${key ? sql`and i.search_key like ${`%${key}%`}` : sql``}
+          ${key ? sql`and i.search_key like ${containing(key)}` : sql``}
           ${after !== undefined ? sql`and i.supplier_code > ${after}` : sql``}
         order by i.supplier_code limit ${size + 1}`.execute(db)
     ).rows,

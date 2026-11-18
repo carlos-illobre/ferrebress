@@ -17,3 +17,7 @@ export const dateText = (column: string) => sql<string | null>`${sql.ref(column)
 // Un `bigint` como texto: `pg` lo da así, pero PGlite lo da como número y pierde precisión pasado
 // 2^53. Los millonésimos de $ 1 billón ya lo pasan.
 export const bigText = (column: string) => sql<string>`${sql.ref(column)}::text`;
+
+// Lo que contiene un texto, para `like`: `%`, `_` y `\` de quien busca se buscan tal cual, no como
+// comodines (diseño de 08, § 10).
+export const containing = (text: string): string => `%${text.replace(/[\\%_]/g, '\\$&')}%`;

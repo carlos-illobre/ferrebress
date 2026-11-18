@@ -32,6 +32,8 @@ function cellOf(raw: RawCell): Cell {
   return { v, t: raw.w as string };
 }
 
+const expected = new Set(['xlsx', 'xlml', 'html']);
+
 export function openWorkbook(file: Buffer): Opened {
   if (isZip(file) && !zipFits(file)) return { failed: 'too-big' };
   let book: XLSX.WorkBook;
@@ -52,6 +54,10 @@ export function openWorkbook(file: Buffer): Opened {
   } catch {
     return { failed: 'damaged' };
   }
+  // Solo los formatos que se esperan: SheetJS abre muchos más (un .ods, un SYLK) y cada uno es más
+  // superficie para una falla suya. Un .xls o un texto no dicen cuál son.
+  const type = book.bookType as string | undefined;
+  if (type !== undefined && !expected.has(type)) return { failed: 'damaged' };
   const sheets = book.SheetNames.map((name) => {
     // En modo denso, cada hoja trae sus filas en `!data`, aunque esté vacía; una fila vacía es un hueco.
     // Cada fila de SheetJS se suelta apenas se copia, y la hoja entera al terminar: así no conviven las

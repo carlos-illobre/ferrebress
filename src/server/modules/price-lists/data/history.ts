@@ -3,7 +3,7 @@
 import type { ListReason, ListResult, ListStatus } from '@ferrebress/shared/contracts/price-lists';
 import type { CostBasis } from '@ferrebress/shared/pricing/basis';
 import { sql } from 'kysely';
-import type { Db } from './db.ts';
+import { containing, type Db } from './db.ts';
 
 export type ListLine = {
   id: string;
@@ -67,7 +67,7 @@ export const historyData = (db: Db) => ({
         from price_lists.items i
         left join price_lists.lists l on l.id = i.discontinued_list_id
         where i.supplier_id = ${supplierId} and i.discontinued = ${query.discontinued}
-          ${query.key ? sql`and i.search_key like ${`%${query.key}%`}` : sql``}
+          ${query.key ? sql`and i.search_key like ${containing(query.key)}` : sql``}
           ${query.after ? sql`and (i.search_key, i.supplier_code) > (${query.after[0]}, ${query.after[1]})` : sql``}
         order by i.search_key, i.supplier_code limit ${limit + 1}`.execute(db)
     ).rows,

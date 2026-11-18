@@ -75,8 +75,13 @@ function rowAt(block: Block, row: number): Cell[] | undefined {
 }
 
 // Lo que trae una fila salteada, para verla: cada celda como texto. La fila es del bloque: existe.
+// Lo que alcanza para mostrar una fila salteada (R9.2): como mucho 50 celdas de 200 letras, así una
+// fila armada con miles de celdas largas no viaja entera al servidor.
+export const skippedLimits = { cells: 50, chars: 200 };
 const cellsOf = (block: Block, row: number) =>
-  (rowAt(block, row) as Cell[]).map((cell) => textOf(cell));
+  (rowAt(block, row) as Cell[])
+    .slice(0, skippedLimits.cells)
+    .map((cell) => [...textOf(cell)].slice(0, skippedLimits.chars).join(''));
 
 // Cada fila del bloque tiene una sola clase, y ninguna de afuera.
 function byRowOf(block: Block, output: ReaderRow[]): Map<number, ReaderRow> | undefined {

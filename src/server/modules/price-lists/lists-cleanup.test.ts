@@ -1,6 +1,7 @@
 // Lo que se borra solo (08 · R4.4; 06 · R8.6, R8.7; diseño de 08, § 8): el archivo de la aplicada
 // anterior, los de listas que nunca se aplicaron, los más viejos al pasar el tamaño, los que quedaron sin
 // fila y las filas leídas viejas.
+import { utimes } from 'node:fs/promises';
 import { sql } from 'kysely';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createListsKit, type ListsKit } from '../../testing/price-lists/lists-kit.ts';
@@ -37,12 +38,20 @@ describe('lo que se borra solo', () => {
     expect(
       (await kit.loader.device.request(`/api/price-lists/lists/${old.body.id}/discard`, {})).body,
     ).toMatchObject({ status: 'discarded' });
-    await kit.server.platform.files.save(
+    const orphan = await kit.server.platform.files.save(
       (async function* () {
         yield new TextEncoder().encode('huérfano');
       })(),
       100,
     );
+    // Los archivos sin fila se borran pasada una hora: antes pueden ser de una subida en curso.
+    const files = kit.server.platform.files;
+    const aged = new Date(Date.now() - 2 * 60 * 60_000);
+    for (const sha of await files.list(-1)) {
+      const path = files.pathOf(sha);
+      if (path) await utimes(path, aged, aged);
+    }
+    expect(orphan).not.toBe('too-big');
     // Como si hubiera pasado más de un mes: la descartada, subida hace 40 días; las aplicadas, hace 2.
     const db = kit.server.platform.db;
     const ago = (days: number) => new Date(kit.server.platform.clock.now().getTime() - days * day);
@@ -63,7 +72,7 @@ describe('lo que se borra solo', () => {
     expect(rows.rows.map((one) => one.list_id).sort()).toEqual(
       [first.body.id, third.body.id].sort(),
     );
-    const stored = await kit.server.platform.files.list();
+    const stored = await kit.server.platform.files.list(-1);
     const known = (await kit.viewer.device.request('/api/price-lists/files')).body.files.map(
       (one: { sha256: string }) => one.sha256,
     );

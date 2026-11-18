@@ -89,11 +89,15 @@ async function restore(ctx: PriceListsContext, c: Context) {
   return c.json({ ok: true });
 }
 
+async function* nothing(): AsyncGenerator<Uint8Array> {}
+
 // El original, tal como se subió y con su nombre (E40); si ya no se guarda, 410.
 async function fileOf(ctx: PriceListsContext, c: Context, downloading: Map<string, number>) {
   const list = await readingData(asDb(ctx.platform.db)).one(c.req.param('id') as string);
   if (!list) return fail(c, 404, 'not-found');
   if (list.fileSha === null || list.fileDeleting) return fail(c, 410, 'file-gone');
+  // Un HEAD no lee el cuerpo: no cuenta como descarga ni abre el archivo.
+  if (c.req.method === 'HEAD') return download(nothing(), list.fileName);
   const { userId } = sessionOf(c);
   const now = downloading.get(userId) ?? 0;
   if (now >= maxDownloads) return fail(c, 429, 'too-many-downloads');

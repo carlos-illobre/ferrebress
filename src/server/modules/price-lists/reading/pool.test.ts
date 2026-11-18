@@ -58,6 +58,19 @@ describe('los procesos lectores', () => {
     expect((await read(job())).at(-1)).toEqual({ type: 'done' });
   });
 
+  it('un proceso que pasa su tope de memoria muere, y la lista queda cortada', async () => {
+    // Con 1 MB, cualquier proceso lo pasa en la primera mirada, que llega mientras lee un CSV de a
+    // partes.
+    const big = join(dir, 'grande.csv');
+    const lines = Array.from({ length: 200_000 }, (_, i) => `C${i};Mecha;${i}`);
+    writeFileSync(big, ['Código;Descripción;Precio', ...lines].join('\n'));
+    const tight = createReadingPool({ processes: 1, memoryMb: 1, heapMb: 256, stallMs: 5000 });
+    const sent: JobMessage[] = [];
+    await tight.read(job({ path: big, fileName: 'grande.csv' }), (m) => sent.push(m)).finished;
+    await tight.close();
+    expect(sent.at(-1)).toEqual({ type: 'failed', reason: 'crashed' });
+  });
+
   it('price-lists-E31e: cancelar una que se lee la corta sin que diga nada más; una en la cola, no empieza', async () => {
     const sent: JobMessage[] = [];
     const reading = pool.read(job({ readers: [stuck] }), (message) => sent.push(message));

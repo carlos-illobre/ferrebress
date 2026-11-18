@@ -3,8 +3,9 @@
 // se toman siempre como texto, sin armar nada con él (E68).
 import type { Cell, SkipReason } from '@ferrebress/shared/contracts/price-lists';
 
-// Sin caracteres de control ni los que dan vuelta el texto, y sin espacios de más.
-const unsafe = /[\p{Cc}\p{Bidi_Control}]/gu;
+// Sin caracteres de control, ni los que dan vuelta el texto, ni mitades sueltas (la base no las
+// guarda), y sin espacios de más.
+const unsafe = /[\p{Cc}\p{Bidi_Control}\p{Cs}]/gu;
 export const textOf = (cell: Cell | undefined): string =>
   cell ? cell.t.replace(unsafe, ' ').replace(/\s+/g, ' ').trim() : '';
 

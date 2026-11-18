@@ -58,9 +58,12 @@ describe('el índice de un .xlsx', () => {
   it('una cabecera que no coincide con el índice, o una parte sin tamaño que trae datos, no pasa', () => {
     expect(zipFits(zipOf([part('a.xml', { local: 3 })]))).toBe(false);
     expect(zipFits(zipOf([part('a.xml', { flags: 0x08 })]))).toBe(false);
+    // Sin tamaño en la cabecera, aunque el índice diga 0 y 0: SheetJS la infla sin tope.
     expect(zipFits(zipOf([part('a.xml', { flags: 0x08, data: Buffer.alloc(0), size: 0 })]))).toBe(
-      true,
+      false,
     );
+    // Trae datos y dice que no tiene nada.
+    expect(zipFits(zipOf([part('a.xml', { size: 0, local: 0 })]))).toBe(false);
   });
 
   it('demasiadas partes, ninguna, o un índice roto o que falta, no pasa', () => {

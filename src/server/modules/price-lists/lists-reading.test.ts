@@ -24,6 +24,48 @@ describe('la lectura de las listas', () => {
   afterAll(() => kit.server.close());
   beforeEach(() => kit.later(61_000));
 
+  it('un bloque que no se puede guardar deja la lista «No se pudo leer», nunca con filas de menos', async () => {
+    const db = kit.server.platform.db;
+    await sql`alter table price_lists.list_rows add constraint boom check (supplier_code <> 'BOOM')`.execute(
+      db,
+    );
+    const rows = [
+      ['Código', 'Descripción', 'Precio'],
+      ...Array.from({ length: 6000 }, (_, i) => [i === 5500 ? 'BOOM' : `C${i}`, 'x', 1]),
+    ];
+    const sent = await kit.upload(xlsx(rows), {
+      supplierId: await kit.supplier('Bulonera Rota'),
+    });
+    await kit.server.priceLists.idle();
+    await sql`alter table price_lists.list_rows drop constraint boom`.execute(db);
+    expect(await kit.list(sent.body.id)).toMatchObject({ status: 'unreadable', reason: 'damaged' });
+  });
+
+  it('una lista que termina con menos filas leídas que las que tiene no queda para aplicar', async () => {
+    const db = kit.server.platform.db;
+    // Como si se hubiera perdido un bloque: la base dice una fila más de las que llegan.
+    await sql`create function price_lists.one_more() returns trigger language plpgsql as $$
+      begin new.rows_total := new.rows_total + 1; return new; end $$`.execute(db);
+    await sql`create trigger one_more before update of rows_total on price_lists.lists
+      for each row when (new.file_name = 'corta.xlsx') execute function price_lists.one_more()`.execute(
+      db,
+    );
+    const sent = await kit.upload(
+      xlsx([
+        ['Código', 'Descripción', 'Precio'],
+        ['A1', 'x', 1],
+      ]),
+      {
+        supplierId: await kit.supplier('Bulonera Corta'),
+        name: 'corta.xlsx',
+      },
+    );
+    await kit.server.priceLists.idle();
+    await sql`drop trigger one_more on price_lists.lists`.execute(db);
+    await sql`drop function price_lists.one_more`.execute(db);
+    expect(await kit.list(sent.body.id)).toMatchObject({ status: 'unreadable', reason: 'damaged' });
+  });
+
   it('price-lists-E39 y E08: el avance llega por el canal, a quien tiene «Ver costos»', async () => {
     await kit.setting('confirmRows', 1000);
     const rows = [

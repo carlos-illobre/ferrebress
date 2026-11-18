@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdtemp, readdir } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -29,7 +29,7 @@ for (const [name, make] of [
       expect(first).toEqual({ sha256: sha('Código;Precio'), size: 14 });
       expect(again).toEqual(first);
       expect(await readAll(store, sha('Código;Precio'))).toBe('Código;Precio');
-      expect(await store.list()).toEqual([sha('Código;Precio')]);
+      expect(await store.list(-1)).toEqual([sha('Código;Precio')]);
     });
 
     it('08 · E34: pasado el tope mientras llega, no guarda nada', async () => {
@@ -70,6 +70,25 @@ describe('el almacén según la configuración', () => {
     await expect(diskFiles(dir).save(broken(), 10)).rejects.toThrow('se cortó');
     await expect(memoryFiles().save(broken(), 10)).rejects.toThrow('se cortó');
     expect(await readdir(join(dir, 'tmp'))).toEqual([]);
+  });
+
+  it('un archivo guardado hace menos de una hora no se lista; un temporal de más de una hora se borra', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'ferrebress-files-'));
+    const store = diskFiles(dir);
+    await store.save(parts('nuevo'), 10);
+    expect(await store.list()).toEqual([]);
+    const old = new Date(Date.now() - 2 * 60 * 60_000);
+    await utimes(join(dir, sha('nuevo')), old, old);
+    await mkdir(join(dir, 'tmp'), { recursive: true });
+    for (const [name, at] of [
+      ['viejo', old],
+      ['en-curso', new Date()],
+    ] as const) {
+      await writeFile(join(dir, 'tmp', name), 'x');
+      await utimes(join(dir, 'tmp', name), at, at);
+    }
+    expect(await store.list()).toEqual([sha('nuevo')]);
+    expect(await readdir(join(dir, 'tmp'))).toEqual(['en-curso']);
   });
 
   it('lo que no está: no se lee nada y una carpeta que no existe no tiene archivos', async () => {

@@ -23,11 +23,19 @@ mantiene dos procesos lectores vivos, los reusa y reemplaza el que muere. Un hil
 no alcanza: su tope de memoria (`resourceLimits`) no cuenta los `Buffer`, que es donde un ZIP se
 descomprime, y un hilo que se queda sin memoria se lleva al proceso entero (revisión de seguridad de 08,
 punto 1). El proceso recibe el identificador de la lista, lee el archivo del almacén y devuelve lo leído
-de a bloques; no recibe ninguna variable de entorno (la clave de la base no llega).
+de a bloques; no recibe ninguna variable de entorno (la clave de la base no llega). El tope de memoria
+del proceso se mira entre una cosa y otra, no mientras SheetJS abre un Excel ni mientras corre un lector,
+que son llamadas que no ceden el turno: ahí el tope es el índice del ZIP y el del lector. Si igual el
+contenedor se queda sin memoria, el proceso lector es el que muere primero (`oom_score_adj`). Corre con
+el mismo usuario que el servidor: una falla de SheetJS que corriera código leería lo del servidor. Es un
+riesgo aceptado mientras no haya una falla conocida; cerrarlo es un contenedor aparte para leer, sin red y
+con los archivos solo para leer.
 
 **Abrir el archivo con SheetJS (Community Edition).** Convierte los tres formatos en lo mismo: hojas,
 filas y celdas, cada celda con su valor y el texto que se ve. Con las opciones cerradas: sin fórmulas
-(se toma el último valor que guardó Excel, E68), sin HTML ni archivos adjuntos.
+(se toma el último valor que guardó Excel, E68), sin HTML ni archivos adjuntos. Lo que SheetJS dice que
+abrió tiene que ser uno de los formatos que se esperan: abre muchos más (`.ods`, `.xlsb`, SYLK), y cada
+uno es más superficie para una falla suya.
 
 **Un CSV se lee de a partes, sin SheetJS.** SheetJS abre el archivo entero y arma todas sus celdas:
 con un CSV del tamaño máximo de arranque (30 MB, unas 600.000 filas) el proceso lector se quedaba sin
@@ -43,8 +51,8 @@ su XML, si alguna lista real no entra.
 celda señalada fuera de eso no existe.
 
 - **Antes de SheetJS se mira el índice del ZIP** de un `.xlsx`: cuántas partes, que cada una declare su
-  tamaño, que la suma no pase un tope razonable frente al tamaño del archivo y que las cabeceras
-  coincidan. Con el tamaño declarado, SheetJS descomprime dentro de ese espacio y no crece: un archivo
+  tamaño en la cabecera (sin el bit 3, que Excel no usa y que SheetJS descomprime sin tope), que la suma
+  no pase un tope razonable frente al tamaño del archivo y que las cabeceras coincidan. Con el tamaño declarado, SheetJS descomprime dentro de ese espacio y no crece: un archivo
   que miente no consigue más memoria.
 - **Se baja del sitio de SheetJS y se guarda en el repositorio** (`src/server/vendor/`), con la
   versión fija y su suma de comprobación en el `pnpm-lock.yaml` (instalado desde una dirección, el

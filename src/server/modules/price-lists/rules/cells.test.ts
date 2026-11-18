@@ -44,5 +44,7 @@ describe('leer una celda', () => {
     const [nul, reverse] = [String.fromCharCode(0), String.fromCharCode(0x202e)];
     expect(textOf(text(`  Tornillo${nul} ${reverse}10\tmm  `))).toBe('Tornillo 10 mm');
     expect(textOf(null)).toBe('');
+    // Una mitad suelta (&#xD800; en el XML): la base no la guarda y se perdería el bloque.
+    expect(textOf(text(`Tornillo ${String.fromCharCode(0xd800)}10`))).toBe('Tornillo 10');
   });
 });
