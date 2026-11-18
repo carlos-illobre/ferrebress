@@ -415,9 +415,11 @@ Las de `anomalies` van en el grupo «Administración», que es el capítulo que 
   la planilla, antes de saber cuántas filas tiene, manda `opening` (E39). Su fila, en
   [mobile-data.md](../mobile-data.md).
 - **El espejo** (R1.6, E08): las listas que se están subiendo, la elegida y lo abierto son valores con
-  nombre; el otro dispositivo escucha el mismo tema y pide el mismo resumen. Cada dispositivo pone las
-  que sube en el suyo (`price-lists.uploads.computer` o `.phone`: el archivo, el avance de a 10 % y la
-  lista cuando existe), desde que arranca la aplicación, porque el panel vive fuera de las pantallas. El
+  nombre; el otro dispositivo escucha el mismo tema y pide el mismo resumen. Las que se suben se espejan
+  con `mirrorByOwner` (arquitectura): cada dispositivo comparte las suyas (`price-lists.uploads.computer`
+  o `.phone`: el archivo, el avance de a 10 % y la lista cuando existe), desde que arranca la aplicación,
+  porque el panel vive fuera de las pantallas; `uploads/mirror.ts` dice solo qué se comparte y qué hace
+  el otro con lo que llega. El
   archivo lo elige y lo sube solo el dispositivo que lo tiene, y solo él corta la subida o elige su
   alcance mientras sube; el otro ve «Subiendo en la computadora» hasta que la lista existe en el
   servidor, y desde ahí la sigue como suya: su estado, el tema y lo que pregunta.

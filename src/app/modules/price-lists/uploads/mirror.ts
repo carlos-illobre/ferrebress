@@ -1,10 +1,11 @@
-// El espejo de las listas que se suben (08 · R1.6, E08; diseño de 08, § 6): cada dispositivo pone las
-// suyas en su valor con nombre, y el otro las ve. Mientras el archivo sube, el otro dice «Subiendo en
+// El espejo de las listas que se suben (08 · R1.6, E08; diseño de 08, § 6): lo que es de las listas.
+// Cómo viaja lo resuelve la plataforma (mirrorByOwner): cada dispositivo comparte las suyas y el otro
+// las ve. Mientras el archivo sube, el otro dice «Subiendo en
 // la computadora» con su avance; cuando la lista ya existe en el servidor, la sigue como si fuera
 // suya (su estado y el tema), así cualquiera de los dos responde lo que pregunta.
 import * as z from 'zod/mini';
 import { isPhone } from '../../../platform/device/device.ts';
-import { mirror } from '../../../platform/mirror/registry.ts';
+import { mirrorByOwner } from '../../../platform/mirror/by-owner.ts';
 import { listsApi } from '../api.ts';
 import type { Side, Upload } from './rules.ts';
 import { find, listen, patch, stateArrived, uploads } from './store.ts';
@@ -59,22 +60,19 @@ async function follow(key: string, listId: string) {
   listen(key, listId);
 }
 
-const sides: Record<string, [Side, Side]> = {
-  true: ['phone', 'computer'],
-  false: ['computer', 'phone'],
+const sides: Record<string, { mine: Side; other: Side }> = {
+  true: { mine: 'phone', other: 'computer' },
+  false: { mine: 'computer', other: 'phone' },
 };
 
-// Al arrancar: cada lado escribe el suyo y escucha el del otro.
-export function watchUploads(phone = isPhone()) {
-  const [side, other] = sides[String(phone)] as [Side, Side];
-  const mine = mirror.register(`price-lists.uploads.${side}`, [] as Shared, shared);
-  const theirs = mirror.register(`price-lists.uploads.${other}`, [] as Shared, shared);
-  let last = '';
-  uploads.subscribe((all) => {
-    const now = ownOf(all);
-    if (JSON.stringify(now) === last) return;
-    last = JSON.stringify(now);
-    mine.set(now);
+// Al arrancar: cada lado comparte las suyas y recibe las del otro (platform/mirror/by-owner.ts).
+export const watchUploads = (phone = isPhone()) =>
+  mirrorByOwner({
+    key: 'price-lists.uploads',
+    sides: sides[String(phone)] as { mine: Side; other: Side },
+    schema: shared,
+    nothing: [],
+    source: uploads,
+    share: ownOf,
+    receive: (others, from) => void arrived(others, from as Side),
   });
-  theirs.subscribe((others) => void arrived(others, other));
-}

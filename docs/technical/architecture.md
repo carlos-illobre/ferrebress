@@ -161,7 +161,11 @@ mostrar no van en estado local de la pantalla: van en valores con nombre de `pla
 (`useMirrored`, y `useMirroredQuery` para lo que se pide al servidor), dentro del modelo. Sin vínculo se comportan como
 valores comunes; con el celular y la computadora vinculados, el espejo los copia al otro dispositivo sin
 que la pantalla lo sepa (ADR-003, ADR-017). Lo que es solo del dispositivo (el menú minimizado, dónde
-está el cursor, la cámara abierta) queda local, con un comentario que dice por qué. El teclado son
+está el cursor, la cámara abierta) queda local, con un comentario que dice por qué. Lo que vive fuera de
+las pantallas y tiene un dueño (lo que sube un dispositivo, que solo él puede cambiar) se espeja con
+`mirrorByOwner`: cada lado comparte lo suyo en su propio valor y recibe lo del otro, así ninguno pisa al
+otro. El módulo solo dice qué comparte y qué hace con lo que llega; la pieza no sabe de qué negocio es,
+ni cuáles son los lados, y sirve igual en otro proyecto. El teclado son
 dos capas aparte (`keyboard/`, ADR-019) y la cola sin conexión guarda comandos (ADR-007).
 
 ## Las conexiones
