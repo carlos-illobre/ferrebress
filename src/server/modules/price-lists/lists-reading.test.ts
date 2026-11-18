@@ -141,6 +141,8 @@ describe('la lectura de las listas', () => {
       await kit.upload(formatA),
       await kit.upload(formatA, { supplierId: await kit.supplier('Sanitarios Este') }),
     ];
+    // La base como la deja un servidor que se cortó a mitad: un arranque de verdad necesitaría otro
+    // servidor sobre la misma base, que en un mismo proceso no se puede (el primero seguiría leyendo).
     const db = kit.server.platform.db;
     await sql`update price_lists.lists set status = 'reading', read_at = null, attempts = 1 where id = ${cut.body.id}`.execute(
       db,

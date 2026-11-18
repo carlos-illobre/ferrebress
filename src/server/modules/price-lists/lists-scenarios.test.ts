@@ -43,6 +43,26 @@ describe('escenarios de las listas', () => {
     expect(await productOf(supplierId, 'C1')).toMatchObject({ vat: 105 });
   });
 
+  it('price-lists-E15: con una lista aplicándose, el proveedor no se da de baja ni cambia cómo cobra', async () => {
+    const supplierId = await kit.supplier('Corralón Ocupado');
+    const sent = await kit.upload(sheet([['O1', 'Ocupado', 10]]), { supplierId });
+    const release = kit.holdApply();
+    await kit.loader.device.request(`/api/price-lists/lists/${sent.body.id}/apply`, {
+      expected: { new: 1, changed: 0, gone: 0 },
+    });
+    const base = `/api/price-lists/suppliers/${supplierId}`;
+    expect((await kit.admin.request(`${base}/deactivate`, {})).body).toEqual({
+      error: 'list-applying',
+    });
+    const terms = { vatIncluded: true, discounts: [], defaultVat: 210, onChange: 'recalculate' };
+    expect((await kit.admin.request(`${base}/terms`, { terms, version: 1 })).body).toEqual({
+      error: 'list-applying',
+    });
+    release();
+    await kit.server.priceLists.idle();
+    expect(await kit.list(sent.body.id)).toMatchObject({ status: 'applied' });
+  });
+
   it('price-lists-E70: el mismo código en dos proveedores son dos productos', async () => {
     const [one, two] = [await kit.supplier('Bulonera Uno'), await kit.supplier('Bulonera Dos')];
     for (const supplierId of [one, two]) {

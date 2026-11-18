@@ -1,6 +1,8 @@
 // Más caminos de una lista (08 · R4.2, R4.8, R9.2): subir por partes, la cola detrás de una que se
 // aplica, una deducida que resulta más vieja que otra del mismo proveedor y las anomalías de las que
 // no se pudieron leer, que se cierran con una que sí.
+import type { ListSummary } from '@ferrebress/shared/contracts/price-lists';
+import { numbersOf } from '@ferrebress/shared/contracts/price-lists-review';
 import { sql } from 'kysely';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { listen, settle } from '../../testing/device-link.ts';
@@ -59,19 +61,25 @@ describe('más caminos de una lista', () => {
   it('price-lists-E85: con una lista del proveedor aplicándose, la nueva espera en la cola', async () => {
     const supplierId = await kit.supplier('Bulonera Centro');
     const first = await kit.upload(plain, { supplierId });
-    await sql`update price_lists.lists set status = 'applying' where id = ${first.body.id}`.execute(
-      kit.server.platform.db,
+    const release = kit.holdApply();
+    const summary = (await kit.list(first.body.id)).summary as ListSummary;
+    await kit.loader.device.request(`/api/price-lists/lists/${first.body.id}/apply`, {
+      expected: numbersOf(summary),
+    });
+    const second = await kit.loader.device.request(
+      `/api/price-lists/lists?name=lista.xlsx&supplierId=${supplierId}`,
+      plain,
+      { 'Content-Type': 'application/octet-stream' },
     );
-    const second = await kit.upload(plain, { supplierId });
     expect(await kit.list(second.body.id)).toMatchObject({ status: 'queued', rowsRead: 0 });
     const cancelled = await kit.loader.device.request(
       `/api/price-lists/lists/${second.body.id}/cancel`,
       {},
     );
     expect(cancelled.body).toMatchObject({ status: 'discarded', reason: 'cancelled' });
-    await sql`update price_lists.lists set status = 'pending' where id = ${first.body.id}`.execute(
-      kit.server.platform.db,
-    );
+    release();
+    await kit.server.priceLists.idle();
+    expect(await kit.list(first.body.id)).toMatchObject({ status: 'applied' });
   });
 
   it('price-lists-R4.8: elegir el proveedor de una lista más vieja que la que ya espera la descarta', async () => {

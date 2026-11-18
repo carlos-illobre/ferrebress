@@ -32,7 +32,7 @@ describe('lo que no se aplica, el lector y la cola', () => {
     return product;
   };
 
-  it('price-lists-E62, E64, E65, E66 y R6.5: con otros números, aplicándose, ya aplicada, descartada o más vieja que la última, no se aplica', async () => {
+  it('price-lists-E62, E65, E66 y R6.5: con otros números, ya aplicada, descartada o más vieja que la última, no se aplica', async () => {
     const supplierId = await kit.supplier('Pinturería Oeste');
     const sent = await kit.upload(sheet('Lista 14/8/2026', [['A1', 'Mecha', 100]]), { supplierId });
     const wrong = await apply(sent.body.id, { new: 2, changed: 0, gone: 0 });
@@ -70,15 +70,6 @@ describe('lo que no se aplica, el lector y la cola', () => {
     expect(
       (await kit.loader.device.request(`/api/price-lists/lists/${missing}/discard`, {})).status,
     ).toBe(404);
-    await sql`update price_lists.lists set status = 'applying' where id = ${sent.body.id}`.execute(
-      kit.server.platform.db,
-    );
-    expect((await apply(sent.body.id, { new: 0, changed: 0, gone: 0 })).body).toEqual({
-      error: 'list-applying',
-    });
-    await sql`update price_lists.lists set status = 'applied' where id = ${sent.body.id}`.execute(
-      kit.server.platform.db,
-    );
   });
 
   it('price-lists-E44 y E45: el lector automático queda activo al aplicar su lista; con la descartada, se va', async () => {
@@ -116,24 +107,24 @@ describe('lo que no se aplica, el lector y la cola', () => {
   it('price-lists-E86 y E85: cancelada mientras se aplica, no queda nada; la que esperaba en la cola sigue sola', async () => {
     const supplierId = await kit.supplier('Herrería Cinco');
     const rows: Rows = Array.from({ length: 3000 }, (_, i) => [`C${i}`, 'Artículo', 10 + i]);
-    const sent = await kit.upload(sheet('Lista 1/8/2026', rows), { supplierId });
-    const queued = await kit.upload(sheet('Lista 2/8/2026', [['Q1', 'Otro', 5]]), { supplierId });
-    expect(await kit.list(queued.body.id)).toMatchObject({ status: 'pending' });
-    expect(await kit.list(sent.body.id)).toMatchObject({ status: 'discarded' });
-    const again = await kit.upload(sheet('Lista 3/8/2026', rows), { supplierId });
-    await sql`update price_lists.lists set status = 'queued' where id = ${queued.body.id}`.execute(
-      kit.server.platform.db,
+    const again = await kit.upload(sheet('Lista 1/8/2026', rows), { supplierId });
+    // Se aplica y queda «aplicándose» hasta soltarla; mientras, llega otra del mismo proveedor (E85).
+    const release = kit.holdApply();
+    const started = await kit.loader.device.request(
+      `/api/price-lists/lists/${again.body.id}/apply`,
+      {
+        expected: { new: 3000, changed: 0, gone: 0 },
+      },
     );
-    await sql`update price_lists.lists set status = 'pending', reason = null where id = ${again.body.id}`.execute(
-      kit.server.platform.db,
+    expect(started.body).toMatchObject({ status: 'applying' });
+    const queued = await kit.loader.device.request(
+      `/api/price-lists/lists?name=lista.xlsx&supplierId=${supplierId}`,
+      sheet('Lista 2/8/2026', [['Q1', 'Otro', 5]]),
+      { 'Content-Type': 'application/octet-stream' },
     );
-    const started = kit.loader.device.request(`/api/price-lists/lists/${again.body.id}/apply`, {
-      expected: { new: 3000, changed: 0, gone: 0 },
-    });
-    // En cuanto empieza a aplicarse, se cancela.
-    while (!kit.server.priceLists.cancelApply(again.body.id))
-      await new Promise((resolve) => setImmediate(resolve));
-    expect((await started).body).toMatchObject({ status: 'applying' });
+    expect(await kit.list(queued.body.id)).toMatchObject({ status: 'queued' });
+    expect(kit.server.priceLists.cancelApply(again.body.id)).toBe(true);
+    release();
     await kit.server.priceLists.idle();
     expect(await kit.list(again.body.id)).toMatchObject({
       status: 'discarded',

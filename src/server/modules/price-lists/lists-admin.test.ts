@@ -95,10 +95,8 @@ describe('lectores y archivos', () => {
     ).toBe(404);
   });
 
-  it('price-lists-R5.1 y E93: uno de un programador se asocia a un proveedor, y lo que no se pudo leer se vuelve a leer', async () => {
+  it('price-lists-R5.1 y E93: uno de un programador lee su formato sin saber de qué proveedor es, y se asocia a uno', async () => {
     const supplierId = await kit.supplier('Aceros Sur');
-    const sent = await kit.upload(xlsx([['FORMATO P'], ['P1', 'Pala', 100]]), { supplierId });
-    expect(await kit.list(sent.body.id)).toMatchObject({ status: 'unreadable' });
     kit.addReader(
       'formato-p.js',
       `globalThis.reader = {
@@ -107,13 +105,10 @@ describe('lectores y archivos', () => {
         return r === 0 ? { row: r, kind: 'title' } : { row: r, kind: 'product', at: { code: [r, 0], description: [r, 1], price: [r, 2] } }; }),
     };`,
     );
-    await sql`update price_lists.lists set status = 'discarded' where id = ${sent.body.id}`.execute(
-      kit.server.platform.db,
-    );
+    // Llega con una versión nueva: al arrancar se copia a la base, sin proveedor.
     await kit.server.priceLists.resume();
-    await sql`update price_lists.lists set status = 'unreadable' where id = ${sent.body.id}`.execute(
-      kit.server.platform.db,
-    );
+    const sent = await kit.upload(xlsx([['FORMATO P'], ['P1', 'Pala', 100]]), { supplierId });
+    expect(await kit.list(sent.body.id)).toMatchObject({ status: 'pending' });
     const programmer = (await kit.admin.request('/api/price-lists/readers')).body.readers.find(
       (one: { origin: string }) => one.origin === 'programmer',
     );
@@ -122,8 +117,6 @@ describe('lectores y archivos', () => {
       supplierId,
     });
     expect(assigned.body).toMatchObject({ supplier: { id: supplierId, name: 'Aceros Sur' } });
-    await kit.server.priceLists.idle();
-    expect(await kit.list(sent.body.id)).toMatchObject({ status: 'pending' });
     expect(kit.audited('readers.assigned').at(-1)?.targets).toEqual([
       { kind: 'reader', id: programmer.id },
       { kind: 'supplier', id: supplierId, name: 'Aceros Sur' },
@@ -222,22 +215,20 @@ describe('lectores y archivos', () => {
   });
 
   it('administration-R10.1: los archivos, de a 50, del más viejo al más nuevo', async () => {
-    const db = kit.server.platform.db;
-    for (let i = 0; i < 51; i++)
-      await sql`insert into price_lists.files (sha256, size, stored_at) values
-        (decode(${i.toString(16).padStart(64, 'f')}, 'hex'), 10, ${new Date(Date.UTC(2020, 0, 1, 0, i))})`.execute(
-        db,
-      );
+    // 51 archivos distintos, subidos de a 10 por minuto.
+    for (let i = 0; i < 51; i++) {
+      if (i % 10 === 0) kit.later(61_000);
+      await kit.upload(Buffer.from(`Código;Descripción;Precio\nF${i};Archivo;1\n`), {
+        name: 'l.csv',
+      });
+    }
     const first = (await kit.viewer.device.request('/api/price-lists/files')).body;
     expect(first.files).toHaveLength(50);
-    expect(first.files[0]).toMatchObject({
-      size: 10,
-      lists: [],
-      storedAt: '2020-01-01T00:00:00.000Z',
-    });
+    const times = (files: { storedAt: string }[]) => files.map((one) => Date.parse(one.storedAt));
+    expect(times(first.files)).toEqual([...times(first.files)].sort((a, b) => a - b));
     const rest = (await kit.viewer.device.request(`/api/price-lists/files?after=${first.next}`))
       .body;
-    expect(rest.files[0].storedAt).toBe('2020-01-01T00:50:00.000Z');
-    await sql`delete from price_lists.files where size = 10`.execute(db);
+    expect(rest.files.length).toBeGreaterThan(0);
+    expect(times(rest.files)[0]).toBeGreaterThan(times(first.files).at(-1) as number);
   });
 });

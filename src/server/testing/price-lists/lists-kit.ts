@@ -64,15 +64,29 @@ export async function createListsKit(pool: Partial<PoolOptions> = {}) {
   // Los procesos lectores de este archivo de pruebas.
   Object.assign(priceListsSettings.pool, { stallMs: 20_000, ...pool });
   const readersDir = mkdtempSync(join(tmpdir(), 'lectores-'));
+  // Aplicar espera a que la prueba lo suelte, mientras haya una retenida (`holdApply`).
+  let held: Promise<void> | undefined;
   const kit = await createPriceListsKit({
     filesPath: mkdtempSync(join(tmpdir(), 'archivos-')),
     priceLists: {
       readersDir: pathToFileURL(`${readersDir}/`),
+      beforeApply: async () => held,
     },
   });
   return {
     ...kit,
     readersDir,
+    // Lo que se aplique desde ahora queda «aplicándose» hasta soltarlo: así se mira de verdad.
+    holdApply() {
+      let release!: () => void;
+      held = new Promise<void>((resolve) => {
+        release = () => {
+          held = undefined;
+          resolve();
+        };
+      });
+      return release;
+    },
     // Sube una planilla y espera que termine de leerse.
     // Cada una, un segundo después de la anterior: la más nueva es la que vale (R4.8).
     async upload(file: Uint8Array, query: Query = {}, device: Device = kit.loader.device) {

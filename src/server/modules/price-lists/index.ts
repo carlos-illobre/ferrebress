@@ -25,6 +25,9 @@ export type { PriceListsDependencies } from './context.ts';
 export type PriceListsOptions = {
   // Dónde están los lectores de un programador; las pruebas pasan la suya.
   readersDir?: URL;
+  // Lo que se espera antes de empezar a aplicar una lista que ya quedó «aplicándose»: las pruebas lo
+  // usan para mirar una lista aplicándose de verdad.
+  beforeApply?: (listId: string) => Promise<void>;
 };
 
 type Running = { reading: Reading; applying: Applying; resume: () => Promise<void> };
@@ -46,7 +49,7 @@ async function start(
     },
     publish: topic.publish,
   });
-  const applying = createApplying(ctx, { reading, ...topic });
+  const applying = createApplying(ctx, { reading, ...topic, before: options.beforeApply });
   platform.onClose(async () => pool?.close());
   registerSupplierRoutes(ctx, reading);
   registerListRoutes(ctx, reading, applying);

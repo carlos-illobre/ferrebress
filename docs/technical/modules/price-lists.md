@@ -625,6 +625,9 @@ Los modelos de § 7, con lo que espeja cada uno (ADR-019):
   quedan «No se pudo leer» sin que suba la memoria del servidor. Los lectores de `readers/` se prueban
   también corriendo en QuickJS.
 - **Las planillas de prueba** son inventadas, armadas por las pruebas.
+- **Una lista aplicándose de verdad:** aplicar espera, antes de empezar, lo que le pasen en
+  `beforeApply` (una opción del módulo, como `readersDir`); las pruebas la retienen ahí y miran lo que
+  pasa mientras tanto (E15, E85, R4.11). Sin la opción, no espera nada.
 - **Sin pruebas de punta a punta nuevas:** E08 (el avance en el otro dispositivo) lo cubre la prueba del
   espejo de cualquier valor con nombre; si hiciera falta una, se le justifica a Carlos antes.
 - **Las consultas de cada pedido** las cuenta `queries.test.ts`, con los números de § 3: un pedido que

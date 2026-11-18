@@ -20,6 +20,8 @@ export type ApplyingDependencies = {
   publish: (listId: string) => Promise<void>;
   // El avance mientras se aplica, sin consultar la base (la tiene la transacción).
   progress: (listId: string, progress: ListProgress) => void;
+  // Lo que se espera antes de empezar (las pruebas).
+  before?: ((listId: string) => Promise<void>) | undefined;
 };
 
 export function createApplying(ctx: PriceListsContext, deps: ApplyingDependencies) {
@@ -28,6 +30,7 @@ export function createApplying(ctx: PriceListsContext, deps: ApplyingDependencie
   const cancelled = new Set<string>();
 
   const run = async (listId: string, userId: string, record: Record, rows: number) => {
+    await deps.before?.(listId);
     const watch = {
       cancelled: () => cancelled.has(listId),
       progress: (applied: number) =>

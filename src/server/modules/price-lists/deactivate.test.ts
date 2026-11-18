@@ -99,21 +99,6 @@ describe('dar de baja y reactivar un proveedor', () => {
     expect((await deactivate(id, { costs: 0, discontinued: 0 })).status).toBe(404);
   });
 
-  it('price-lists-E15: con una lista aplicándose, no se lo da de baja ni se cambia cómo cobra', async () => {
-    const id = await kit.supplier('Corralón Norte');
-    const listId = await kit.pendingList(id, []);
-    await kit.setListStatus(listId, 'applying');
-    expect((await deactivate(id, { costs: 0, discontinued: 0 })).body).toEqual({
-      error: 'list-applying',
-    });
-    const terms1 = await kit.admin.request(`/api/price-lists/suppliers/${id}/terms`, {
-      terms: terms(),
-      version: 1,
-    });
-    expect(terms1.body).toEqual({ error: 'list-applying' });
-    expect(await listed(id)).toBe(true);
-  });
-
   it('ver los dados de baja y dar de baja piden «Administrar proveedores»', async () => {
     expect((await kit.viewer.device.request('/api/price-lists/suppliers/inactive')).status).toBe(
       403,
