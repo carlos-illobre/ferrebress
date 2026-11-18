@@ -3,7 +3,11 @@
 // y el brillo al guardar. Lo escrito es de este dispositivo: el otro, en espejo, muestra el suyo
 // (R1.6).
 import type { MyDevicesResponse } from '@ferrebress/shared/contracts/device-settings';
-import { cleanDeviceName, isRepeated } from '@ferrebress/shared/contracts/device-settings';
+import {
+  cleanDeviceName,
+  deviceNameMax,
+  isRepeated,
+} from '@ferrebress/shared/contracts/device-settings';
 import { cleanText, lettersIn } from '@ferrebress/shared/text/clean';
 import { useState } from 'preact/hooks';
 import { useStore } from '../../../platform/store.ts';
@@ -30,16 +34,24 @@ export function useName(mine: Mine, here: Here | undefined) {
     setShines(true);
     setTimeout(() => setShines(false), deviceSettingsSettings.shineMs);
   };
+  const letters = lettersIn(cleanText(draft ?? '', Number.POSITIVE_INFINITY) ?? '');
+  const ideas = t.name.ideas(here?.isPhone ?? false, who?.name.split(' ')[0] ?? '');
   return {
     current: here?.deviceName,
     // Lo que muestra el dibujo: lo que se escribe, letra por letra, o el nombre guardado.
     shown: draft === undefined ? here?.deviceName : draft.trim(),
     draft,
     // Contadas como las cuenta la limpieza: lo que se va a guardar.
-    letters: lettersIn(cleanText(draft ?? '', Number.POSITIVE_INFINITY) ?? ''),
+    letters,
+    // La cuenta que se ve, si pasó el largo y cuánto se deja escribir (el doble: lo que sobra se dice
+    // con la cuenta, no se corta mientras se escribe).
+    count: `${letters}/${deviceNameMax}`,
+    full: letters > deviceNameMax,
+    maxTyped: deviceNameMax * 2,
+    placeholder: t.name.example(ideas[0] as string),
     canSave: clean !== undefined,
     repeated: !!clean && isRepeated(clean, names),
-    ideas: t.name.ideas(here?.isPhone ?? false, who?.name.split(' ')[0] ?? ''),
+    ideas,
     shines,
     edit: () => setDraft(here?.deviceName ?? ''),
     type: (text: string) => setDraft(text),

@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { useLatest } from '../../platform/latest.ts';
 import { useScreen } from '../../platform/screens.ts';
 import { auditApi } from './api.ts';
+import { detailLines } from './detail-lines.ts';
 import { stepMs, visibleOf } from './tape.ts';
 
 function useDay(first: { date: string; at?: string }) {
@@ -78,6 +79,8 @@ function useTape(wide: boolean, first: { date: string; at?: string }) {
     index,
     isolated,
     current: events.find((event) => event.id === at),
+    // Lo que se dice de la que está en el cabezal, resuelto.
+    currentDetail: currentOf(events, at, day?.today),
     move: setAt,
     // En los extremos no hace nada: los botones se apagan y deslizar no se pasa.
     go(step: 1 | -1) {
@@ -95,6 +98,12 @@ function useTape(wide: boolean, first: { date: string; at?: string }) {
 }
 
 // La cinta como pantalla: se anuncia mientras está abierta.
+// La del cabezal, con lo que se dice de ella.
+function currentOf(events: AuditView[], at: string | undefined, today: string | undefined) {
+  const found = events.find((event) => event.id === at);
+  return found && today ? detailLines(found, today) : undefined;
+}
+
 export function useTapeScreen(wide: boolean, first: { date: string; at?: string }) {
   const tape = useTape(wide, first);
   useScreen('audit-tape', tape);

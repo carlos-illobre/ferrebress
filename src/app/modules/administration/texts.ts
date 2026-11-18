@@ -133,6 +133,7 @@ export const texts = {
     prices: (n: string) => `${n} precios`,
     change: (n: string) => `Cambian ${n}`,
     noChange: 'No cambia ninguno',
+    none: 'Sin',
     choose: 'Elegí el paso · debajo, cuántos precios cambian',
     initial: 'de arranque',
     current: 'Ahora',
@@ -159,6 +160,7 @@ export const texts = {
     touch: 'Tocá un número para cambiarlo',
     key: (n: number) => `Margen de la tecla ${n}`,
     sells: 'Vende a',
+    unit: '%',
     // Un costo de ejemplo, para ver a cuánto vende cada tecla con el redondeo de ahora.
     example: (cost: string, step: string) => `Con un costo de ${cost} y el redondeo de ${step}`,
   },

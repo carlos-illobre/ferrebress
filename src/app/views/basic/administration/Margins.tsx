@@ -1,19 +1,11 @@
 // El panel de los márgenes rápidos (R4): las cinco teclas, que se escriben y se guardan al salir.
-import {
-  exampleCost,
-  groupOf,
-  pesos,
-  sellsAt,
-  shown,
-  texts,
-  thousands,
-  what,
-} from '../../../modules/administration/model.ts';
+import { groupOf, texts, what } from '../../../modules/administration/model.ts';
 import { Heading, Said, Subhead } from './Heading.tsx';
 import { locked, type PanelProps } from './look.ts';
 
-export function MarginsPanel({ view, settings }: PanelProps) {
+export function MarginsPanel({ view }: PanelProps) {
   const t = texts.margins;
+  const lines = view.margins as NonNullable<PanelProps['view']['margins']>;
   return (
     <>
       <Heading
@@ -25,27 +17,25 @@ export function MarginsPanel({ view, settings }: PanelProps) {
       />
       <Subhead>{t.touch}</Subhead>
       <div class="admin-margins">
-        {settings.quickMargins.map((margin, i) => (
-          <label key={`${i}-${margin}`} class="admin-margin">
-            <span class="admin-margin-key">{i + 1}</span>
+        {lines.keys.map((one, i) => (
+          <label key={`${i}-${one.value}`} class="admin-margin">
+            <span class="admin-margin-key">{one.number}</span>
             <input
               inputMode="numeric"
-              aria-label={t.key(i + 1)}
-              defaultValue={thousands(margin)}
+              aria-label={one.label}
+              defaultValue={one.value}
               readOnly={locked(view)}
               onBlur={(event) => view.typeMargin(i, (event.target as HTMLInputElement).value)}
               data-commit=""
             />
-            <span>%</span>
+            <span>{t.unit}</span>
             <span class="admin-margin-sells">
-              {t.sells} <b>{pesos(sellsAt(margin, settings.roundingStep))}</b>
+              {t.sells} <b>{one.sells}</b>
             </span>
           </label>
         ))}
       </div>
-      <p class="admin-detail">
-        {t.example(pesos(exampleCost), shown('roundingStep', settings.roundingStep))}
-      </p>
+      <p class="admin-detail">{lines.example}</p>
       <Said note={view.said} keys={['quickMargins']} />
     </>
   );

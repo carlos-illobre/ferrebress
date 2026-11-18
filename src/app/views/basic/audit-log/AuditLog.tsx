@@ -3,7 +3,6 @@
 // hoja en el celular. Sin conexión se ve gris, con lo último que trajo, y sale del gris sin pedir
 // nada al volver (R5.1). La cinta se abre encima (R4.11). «Actualizar solo» va donde estaba
 // «Actualizar» (R4.6).
-import type { AuditPage } from '@ferrebress/shared/contracts/audit-log';
 import {
   AuditLogContext,
   hasFilters,
@@ -49,14 +48,13 @@ function Empty() {
   );
 }
 
-function Detail({ page }: { page: AuditPage }) {
+function Detail() {
   const log = useAuditLogContext();
-  const event = log.chosen;
-  const today = page.today;
+  const event = log.chosenDetail;
   if (!log.wide)
     return event ? (
       <Sheet title={texts.title} onClose={() => log.select(undefined)} className="audit-sheet">
-        <DetailBody event={event} today={today} />
+        <DetailBody lines={event} />
         <Button closes doing={texts.close} onPress={() => log.select(undefined)}>
           {texts.close}
         </Button>
@@ -64,11 +62,7 @@ function Detail({ page }: { page: AuditPage }) {
     ) : null;
   return (
     <aside class="surface audit-detail" aria-label={texts.title}>
-      {event ? (
-        <DetailBody event={event} today={today} />
-      ) : (
-        <p class="audit-note">{texts.pickOne}</p>
-      )}
+      {event ? <DetailBody lines={event} /> : <p class="audit-note">{texts.pickOne}</p>}
     </aside>
   );
 }
@@ -86,11 +80,11 @@ function Body() {
         <Filters />
         <div class="surface audit-list">
           <NewOnes />
-          {log.page.total === 0 ? <Empty /> : <Ledger page={log.page} />}
+          {log.page.total === 0 ? <Empty /> : <Ledger />}
           <Pager />
         </div>
       </div>
-      <Detail page={log.page} />
+      <Detail />
     </div>
   );
 }

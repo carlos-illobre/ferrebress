@@ -19,6 +19,7 @@ import { useScreen } from '../../platform/screens.ts';
 import { online as onlineStore } from '../../platform/server/api.ts';
 import { useStore } from '../../platform/store.ts';
 import { auditApi } from './api.ts';
+import { detailLines } from './detail-lines.ts';
 import type { Which } from './filter-options.ts';
 import { useLive } from './live.ts';
 import {
@@ -33,6 +34,7 @@ import {
   useFresh,
 } from './loading.ts';
 import { type Dates, type Filters, noFilters, paramsOf } from './logic.ts';
+import { ledgerDays, pagerOf } from './row-lines.ts';
 
 // Lo que trajo el servidor, de este dispositivo: la página, el resumen y la tira, y «3 nuevas».
 function useShown() {
@@ -160,6 +162,14 @@ function usePeople() {
   return people;
 }
 
+// La lista por días, la paginación y la elegida con su detalle, resueltos.
+const shownOf = (page: AuditPage | undefined, chosen: AuditView | undefined) => ({
+  days: page ? ledgerDays(page) : [],
+  pager: pagerOf(page),
+  chosen,
+  chosenDetail: chosen && page ? detailLines(chosen, page.today) : undefined,
+});
+
 function useAuditLogModel() {
   const [wide] = useState(() => !isNarrow()); // local: el ancho de este dispositivo, al abrir
   const people = usePeople();
@@ -175,11 +185,12 @@ function useAuditLogModel() {
     lost: () => void auditApi.permissionCheck(),
   });
   const online = useStore(onlineStore);
+  const chosen = useChosen(page, loaded.selected);
   const datesChanged = (next: Filters) =>
     JSON.stringify(next.dates) !== JSON.stringify(filters.dates);
   return {
     ...loaded,
-    chosen: useChosen(page, loaded.selected),
+    ...shownOf(page, chosen),
     ...useOpenFilter(),
     live,
     wide,

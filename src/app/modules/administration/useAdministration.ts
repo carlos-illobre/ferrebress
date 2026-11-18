@@ -5,6 +5,7 @@
 // otro lo ve también por el servidor (E08).
 import {
   type AdministrationResponse,
+  type RoundingResponse,
   type SettingKey,
   type SettingState,
   type Settings,
@@ -30,6 +31,7 @@ export type { Confirm, Note } from './schemas.ts';
 
 import { settingGroups, useAdminLinkRows } from './list-rows.ts';
 import { type ListSetting, typedNumber } from './logic.ts';
+import { confirmLines, marginLines, roundingLines } from './panel-lines.ts';
 import { type Panel, panels } from './texts.ts';
 
 // Lo último que se vio, de esa persona, en esta sesión de la aplicación (no se guarda en el
@@ -144,6 +146,23 @@ function typing(save: ReturnType<typeof useSave>, values: Settings | undefined) 
   };
 }
 
+// Los paneles del redondeo, su confirmación y los márgenes, resueltos (panel-lines.ts).
+function panelsOf(seen: {
+  values: Settings | undefined;
+  prices: RoundingResponse | undefined;
+  looking: { key: SettingKey; value: number } | undefined;
+  asked: Confirm | null;
+  now: number | undefined;
+}) {
+  const { values, prices, looking, asked } = seen;
+  const step = looking?.key === 'roundingStep' ? looking.value : values?.roundingStep;
+  return {
+    rounding: values && roundingLines(prices, values.roundingStep, step as number),
+    confirm: asked && seen.now !== undefined ? confirmLines(prices, seen.now, asked) : undefined,
+    margins: values && marginLines(values),
+  };
+}
+
 function useModel() {
   const shown = useShown();
   const { query, preview, panel, setPanel, said, asked, setAsked } = shown;
@@ -163,6 +182,13 @@ function useModel() {
     ...{ data, values },
     // La lista de la izquierda, resuelta: los ajustes en grupos y las páginas de abajo.
     groups: values ? settingGroups(values, clock) : [],
+    ...panelsOf({
+      values,
+      prices: preview.data,
+      looking,
+      asked,
+      now: data?.settings.roundingStep.value,
+    }),
     links: useAdminLinkRows(),
     seenAtShown: formatTime(seen?.at as Date),
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },

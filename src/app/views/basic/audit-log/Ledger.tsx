@@ -1,17 +1,12 @@
 // La lista (R4.2 a R4.4): de la más nueva a la más vieja, agrupada por día con su cantidad; cada
 // acción con el ícono de su tipo, la hora (y la fecha si no es de hoy), quién, qué pasó y el
 // dispositivo, con su color; la hora del celular, con su marca (E09). En la computadora, recorrerla con el teclado cambia el detalle (E35d).
-import type { AuditPage, AuditView } from '@ferrebress/shared/contracts/audit-log';
 import { useEffect, useRef } from 'preact/hooks';
 import {
   auditLogSettings,
-  businessDay,
-  byDay,
-  dayTitle,
   ledgerScroll,
-  shortDateOf,
+  type RowLines,
   texts,
-  timeOf,
   useAuditLogContext,
 } from '../../../modules/audit-log/model.ts';
 import { useMarkedId } from '../../../platform/view/page.ts';
@@ -19,9 +14,9 @@ import { Icon } from '../ui/icon/Icon.tsx';
 import { ActionIcon, Actor, Said } from './Pieces.tsx';
 import './Ledger.css';
 
-function Row({ event, today }: { event: AuditView; today: string }) {
+function Row({ row }: { row: RowLines }) {
   const log = useAuditLogContext();
-  const other = businessDay(event.at) !== today;
+  const { event } = row;
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: Espacio y Enter sobre el renglón los maneja la navegación del teclado (ADR-019), no la vista.
     <div
@@ -34,18 +29,18 @@ function Row({ event, today }: { event: AuditView; today: string }) {
       data-new={log.fresh.has(event.id) ? '' : undefined}
       onClick={() => log.select(event.id)}
     >
-      <ActionIcon event={event} />
+      <ActionIcon event={event} icon={row.icon} />
       <span class="audit-time">
-        {timeOf(event.deviceTime ?? event.at)}
-        {other && <small>{shortDateOf(event.at)}</small>}
+        {row.time}
+        {row.date && <small>{row.date}</small>}
       </span>
       <span class="audit-by">
         <Actor actor={event.actor} />
       </span>
-      <Said event={event} note={event.deviceTime && texts.deviceTime} />
-      {event.device && (
-        <span class="audit-device" title={event.device.phone ? texts.phone : texts.computer}>
-          <Icon name={event.device.phone ? 'smartphone' : 'monitor'} size="small" />
+      <Said said={row.said} note={row.note} />
+      {row.device && (
+        <span class="audit-device" title={row.device.title}>
+          <Icon name={row.device.phone ? 'smartphone' : 'monitor'} size="small" />
         </span>
       )}
     </div>
@@ -76,21 +71,22 @@ function useScroll(list: { current: HTMLElement | null }) {
   }, []);
 }
 
-export function Ledger({ page }: { page: AuditPage }) {
+export function Ledger() {
+  const log = useAuditLogContext();
   useMarkSelects();
   // vista: la lista, para saber si está arriba de todo.
   const list = useRef<HTMLDivElement>(null);
   useScroll(list);
   return (
     <div class="audit-ledger" role="listbox" aria-label={texts.title} ref={list}>
-      {byDay(page.events).map((day) => (
+      {log.days.map((day) => (
         <section key={day.date} class="audit-day">
           <h2>
-            <span>{dayTitle(day.date, page.today)}</span>
-            <small>{texts.actions(page.days[day.date] as number)}</small>
+            <span>{day.title}</span>
+            <small>{day.count}</small>
           </h2>
-          {day.events.map((event) => (
-            <Row key={event.id} event={event} today={page.today} />
+          {day.rows.map((row) => (
+            <Row key={row.event.id} row={row} />
           ))}
         </section>
       ))}
@@ -101,29 +97,29 @@ export function Ledger({ page }: { page: AuditPage }) {
 // «45 acciones · página 1 de 3», con anterior y siguiente; RePág y AvPág en la computadora.
 export function Pager() {
   const log = useAuditLogContext();
-  const page = log.page;
-  if (!page || page.total === 0) return null;
+  const pager = log.pager;
+  if (!pager) return null;
   return (
-    <nav class="audit-pager" aria-label={texts.pageOf(page.page, page.pages)}>
-      <span class="audit-total">{texts.actions(page.total)}</span>
+    <nav class="audit-pager" aria-label={pager.of}>
+      <span class="audit-total">{pager.total}</span>
       <button
         type="button"
         class="audit-page-button"
         aria-label={texts.previous}
         data-page="previous"
-        disabled={page.page === 1}
-        onClick={() => log.goTo(page.page - 1)}
+        disabled={pager.first}
+        onClick={() => log.goTo(pager.page - 1)}
       >
         <Icon name="chevron-left" />
       </button>
-      <span class="audit-page">{texts.pageOf(page.page, page.pages)}</span>
+      <span class="audit-page">{pager.of}</span>
       <button
         type="button"
         class="audit-page-button"
         aria-label={texts.next}
         data-page="next"
-        disabled={page.page === page.pages}
-        onClick={() => log.goTo(page.page + 1)}
+        disabled={pager.last}
+        onClick={() => log.goTo(pager.page + 1)}
       >
         <Icon name="chevron-right" />
       </button>

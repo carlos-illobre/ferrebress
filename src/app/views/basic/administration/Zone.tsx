@@ -1,7 +1,7 @@
 // El panel de la zona horaria (R5): se ve, con la hora del negocio, y no se toca.
 
 import type { Administration } from '../../../modules/administration/model.ts';
-import { groupOf, texts } from '../../../modules/administration/model.ts';
+import { groupOf, texts, zonePlace } from '../../../modules/administration/model.ts';
 import { Heading } from './Heading.tsx';
 
 export function ZonePanel({ view, clock }: { view: Administration; clock: string }) {
@@ -13,7 +13,7 @@ export function ZonePanel({ view, clock }: { view: Administration; clock: string
       <div class="admin-clock">
         <span class="admin-detail">{t.nowIn}</span>
         <b class="admin-clock-time">{clock}</b>
-        <span>{zone.split('/').at(-1)?.replace(/_/g, ' ')}</span>
+        <span>{zonePlace(zone)}</span>
         <p class="admin-detail">{t.says}</p>
         <span class="admin-locked">{t.locked}</span>
       </div>

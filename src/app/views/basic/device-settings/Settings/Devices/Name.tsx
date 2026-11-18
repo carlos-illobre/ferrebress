@@ -1,7 +1,6 @@
 // El nombre de este dispositivo (04 · R9.2, R9.3): «Ponele nombre» o «Cambiar el nombre» abre el
 // campo, con la cuenta de letras, las ideas y el aviso si otro se llama igual mientras se escribe;
 // «Borrar» vuelve al navegador. El dibujo muestra lo que se escribe, letra por letra.
-import { deviceNameMax } from '@ferrebress/shared/contracts/device-settings';
 import { useEffect, useRef } from 'preact/hooks';
 import { type NameModel, mineTexts as t } from '../../../../../modules/device-settings/model.ts';
 import { useShortcutHints } from '../../../../../platform/view/shortcut-hints.ts';
@@ -28,14 +27,12 @@ function Field({ isPhone, name }: Props) {
         <input
           ref={input}
           value={name.draft}
-          maxLength={deviceNameMax * 2}
-          placeholder={t.name.example(name.ideas[0] as string)}
+          maxLength={name.maxTyped}
+          placeholder={name.placeholder}
           aria-label={t.name.label(isPhone)}
           onInput={(event) => name.type(event.currentTarget.value)}
         />
-        <span class={name.letters > deviceNameMax ? 'mine-count full' : 'mine-count'}>
-          {name.letters}/{deviceNameMax}
-        </span>
+        <span class={name.full ? 'mine-count full' : 'mine-count'}>{name.count}</span>
         <button type="submit" class="button button-action button-small" disabled={!name.canSave}>
           {t.name.done}
         </button>

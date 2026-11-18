@@ -2,20 +2,14 @@
 // «Cancelar»; si el recálculo no se pudo, lo dice y deja reintentar (R3.5, E22).
 
 import type { Administration, Confirm as Asked } from '../../../modules/administration/model.ts';
-import {
-  pesos,
-  roundedTo,
-  shown,
-  texts,
-  thousands,
-} from '../../../modules/administration/model.ts';
+import { texts } from '../../../modules/administration/model.ts';
 import { useShortcutHints } from '../../../platform/view/shortcut-hints.ts';
 import { Dialog } from '../ui/dialog/Dialog.tsx';
 
 export function Confirm({ view, asked }: { view: Administration; asked: Asked }) {
   const t = texts.rounding;
-  const title = t.confirmTitle(shown('roundingStep', asked.step));
-  const prices = thousands(asked.prices);
+  const lines = view.confirm as NonNullable<Administration['confirm']>;
+  const { title, prices } = lines;
   const keys = useShortcutHints('administration-confirm');
   const cancelKey = asked.failed ? keys.later : keys.cancel;
   const doKey = asked.failed ? keys.retry : keys.confirm;
@@ -23,22 +17,12 @@ export function Confirm({ view, asked }: { view: Administration; asked: Asked })
     <Dialog label={title} className="admin-confirm">
       <h2>{title}</h2>
       <p class="admin-detail">{t.confirmDetail}</p>
-      <p class="admin-confirm-count">
-        {t.changing(prices, thousands(view.prices?.total ?? asked.prices))}
-      </p>
+      <p class="admin-confirm-count">{lines.count}</p>
       <ul class="admin-confirm-examples">
-        {(view.prices?.examples ?? []).slice(0, 3).map((one) => (
+        {lines.examples.map((one) => (
           <li key={one.name}>
             <span>{one.name}</span>
-            <b>
-              {pesos(
-                roundedTo(
-                  one.calculated,
-                  (view.data as NonNullable<typeof view.data>).settings.roundingStep.value,
-                ),
-              )}{' '}
-              → {pesos(roundedTo(one.calculated, asked.step))}
-            </b>
+            <b>{one.change}</b>
           </li>
         ))}
       </ul>

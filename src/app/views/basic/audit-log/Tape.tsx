@@ -105,9 +105,9 @@ function Recording({ tape, wide }: { tape: TapeState; wide: boolean }) {
         vertical={!wide}
       />
       <Controls tape={tape} />
-      {current && (
+      {tape.currentDetail && (
         <div class="tape-subtitle" aria-live="polite">
-          <DetailBody event={current} today={day.today} />
+          <DetailBody lines={tape.currentDetail} />
         </div>
       )}
     </>
