@@ -83,6 +83,9 @@ con ese capítulo.
   decimales («$ 16.000»); con $ 0,10 o $ 0,50, con un decimal; con $ 0,05 o sin redondeo, con dos
   («$ 1.201,37»). Los costos y la cuenta de un precio («Así se calcula») muestran siempre sus
   centavos, para que la cuenta cierre. No hay otro ajuste para ver los importes con decimales.
+- **R3.7** **Los ejemplos del panel:** con «Ver costos» (08 · R1.2), unos productos del catálogo con su
+  precio calculado y cómo queda con el paso que se mira; sin él, ejemplos inventados, porque con el
+  precio calculado y el margen se podría sacar el costo.
 
 ## 4. Los márgenes rápidos
 

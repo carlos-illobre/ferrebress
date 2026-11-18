@@ -273,6 +273,9 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
 - **R7.6** **Al cambiar el costo cambia el precio de venta,** con el margen guardado del producto
   (capítulo 07), sin que nadie haga nada.
 
+- **R7.7** **Una lista que haría pasar el tope de productos del catálogo** (07 · R3.5) no se aplica:
+  queda en espera y dice cuántos productos se pasarían, como cuando falla (R6.6).
+
 ## 8. Los productos de un proveedor
 
 - **R8.1** **La pantalla de un proveedor muestra sus productos,** para quien tiene «Ver costos»: el

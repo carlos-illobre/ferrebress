@@ -33,7 +33,7 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
 
 - **R2.1** Sin conexión, en un celular con la opción prendida y que cumple R2.2, la entrada deja
   prendida la huella; Google y «Escanear código QR» siguen apagados. Dice «Sin conexión: podés
-  entrar con la huella hasta el martes 09:40» (el día y la hora en que se cumplen las 24 horas de
+  entrar con la huella hasta el martes 09:40» (el día y la hora en que se cumplen las horas de
   R2.2).
 - **R2.2** Entra solo la cuenta vinculada a ese celular (01 · R2.3), y solo si:
   - en el último contacto con el servidor, la cuenta estaba activa y con el permiso;
@@ -55,7 +55,7 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
 - **R2.6** Al entrar se llega directo al marco, sin la espera «Entrando» (la huella se verifica en
   el celular, al instante), igual que con conexión (01 · R6), con la luz en «Sin conexión». La aplicación abre aunque no haya internet desde que se prendió el celular.
 - **R2.7** La sesión que se abrió sin conexión dura hasta que vuelve la conexión (R3) o hasta que se
-  cumplen las 24 horas de R2.2. Ahí aparece la entrada encima de lo que había, sin borrarlo
+  cumplen las horas de R2.2. Ahí aparece la entrada encima de lo que había, sin borrarlo
   (01 · R3.4), con «Para entrar hace falta internet».
 
 ## 3. Al volver la conexión
@@ -63,7 +63,9 @@ se cierra (y, desde la etapa b, lo hecho va a la revisión de un Administrador).
 - **R3.1** Con el primer pedido que llega, el celular manda la prueba de la huella. El servidor
   revisa que la firma sea de la huella vinculada a esa persona en ese celular, que la cuenta siga
   activa y con el permiso, que la prueba no se haya usado antes y que llegue antes de que se
-  cumplan 24 horas desde el último contacto con sesión de ese celular, que el servidor sabe. Si todo pasa, abre la sesión y
+  cumplan las horas que fija Administración (06 · R11.1) desde el último contacto con sesión de ese
+  celular, que el servidor sabe. Valen las horas de ese momento: si bajaron mientras el celular estaba
+  sin internet, una entrada que se pasó de las nuevas no se confirma (R3.2). Si todo pasa, abre la sesión y
   la persona sigue sin volver a entrar. Los tiempos de la sesión (01 · R3.1) cuentan desde ahí.
 - **R3.2** Si algo no pasa, aparece la entrada encima de lo que había, sin borrarlo, con «No se
   pudo confirmar tu entrada sin conexión» y debajo «Entrá de nuevo para seguir donde estabas.».

@@ -32,7 +32,8 @@ Lo que Carlos ya confirmó de la etapa c está en el [resumen](summary.md).
 - **R1.3** **El IVA:** 21 %, 10,5 % o 27 %, el que dice la lista o el de arranque del proveedor
   (08 · R3.6). No hay productos exentos. Cambiado a mano, ninguna lista lo vuelve a tocar (08 · R7.3).
 - **R1.4** **Cambiar la unidad o el IVA** pide «Cambiar los datos de un producto». Se guarda al
-  cambiarlo, sin botón «Guardar», con «Deshacer» durante 5 segundos (como 06 · R2.1).
+  cambiarlo, sin botón «Guardar», con «Deshacer» durante 5 segundos (como 06 · R2.1). «Deshacer» lo
+  deja como estaba: un IVA que ponía la lista vuelve a ser de la lista, que lo sigue poniendo.
 - **R1.5** **Si dos personas cambian el mismo dato a la vez,** la segunda no pisa a la primera: su
   cambio no se guarda y se le dice «Lo cambió otra persona recién: ahora dice <valor>», con el valor
   nuevo ya en la pantalla, para que decida de nuevo (como los datos de un proveedor, 08, y los
@@ -65,20 +66,26 @@ Lo que Carlos ya confirmó de la etapa c está en el [resumen](summary.md).
 ## 3. Buscar
 
 - **R3.1** **Se busca por palabras:** en cualquier orden, sin acentos ni mayúsculas, con palabras
-  empezadas («torn» encuentra «tornillo») y con un error de tipeo, en el código, la descripción y la
-  marca.
+  empezadas («torn» encuentra «tornillo»), en el código, la descripción y la marca; hasta 8 palabras.
+  Una palabra de 4 letras o más, escrita entera, puede tener un error de tipeo («tornilo» encuentra
+  «tornillo»); una a medio escribir, no («torni» con un error no encuentra nada).
 - **R3.2** **Un código escrito entero va primero:** el del proveedor o el de barras, aunque tenga
   signos («A-1.2» encuentra «A12»).
 - **R3.3** **Necesita conexión:** el catálogo vive en el servidor y se baja de a partes. Con hasta
-  100.000 productos, contesta en menos de 100 ms.
+  100.000 productos, contesta en menos de 100 ms. Buscar sin conexión llega con la etapa b de Sin
+  conexión (capítulo 15), junto con vender sin conexión (constitución, IV).
+- **R3.5** **Como mucho 200.000 productos que no están dados de baja,** el doble de los que se
+  esperan: una lista que haría pasar ese número no se aplica, y lo dice (08 · R7.7). Los dados de baja
+  no cuentan.
 - **R3.4** **Sin nada escrito,** en orden alfabético (hasta que exista Vender, que puede ordenar por lo
   más vendido). Se filtra por marca, por «Sin precio» y por «Dados de baja». Arriba se ve cuántos
   productos hay y cuántos están sin precio.
 
 ## 4. Quién ve qué
 
-- **R4.1** **Ver el catálogo y los precios de venta no pide permiso.** Con «Ver costos» se ven además
-  el proveedor, el costo y «Así se calcula»; sin él, el precio de venta y el margen.
+- **R4.1** **Ver el catálogo y los precios de venta pide solo la sesión.** Con «Ver costos» se ven
+  además el margen, el proveedor, el costo y «Así se calcula»; sin él, solo el precio de venta: con el
+  margen y el precio a la vista se podría sacar el costo.
 - **R4.2** **El servidor controla cada cambio:** sin el permiso, lo rechaza sin cambiar nada,
   diciendo qué permiso hace falta (02 · R7.6), y queda como intento rechazado en Quién hizo qué
   (05 · R1.2).
@@ -147,7 +154,7 @@ Lo que Carlos ya confirmó de la etapa c está en el [resumen](summary.md).
 ### Quién ve qué
 
 - **E17** **Dado** una persona sin ningún permiso del catálogo, **cuando** mira un producto, **entonces**
-  ve su precio de venta y su margen, y no su costo, su proveedor ni «Así se calcula».
+  ve su precio de venta, y no su margen, su costo, su proveedor ni «Así se calcula».
 - **E18** **Dado** un rol al que se le tilda «Cambiar márgenes», **cuando** se lo mira, **entonces**
   «Ver costos» quedó tildado solo y no se puede destildar.
 - **E19** **Dado** una persona sin «Cambiar márgenes», **cuando** le manda al servidor un margen,
@@ -161,3 +168,14 @@ Lo que Carlos ya confirmó de la etapa c está en el [resumen](summary.md).
   elige un producto, **entonces** el celular muestra lo mismo.
 - **E22** **Dado** el catálogo abierto, **cuando** se corta la conexión, **entonces** se ve en gris lo
   último que se vio, con «Reintentar», y no se puede cambiar el margen.
+
+### Lo que se sumó al revisar el diseño
+
+- **E23** **Dado** un producto con el IVA de su lista en 21 %, **cuando** se lo pasa a 27 % y se toca
+  «Deshacer», **entonces** vuelve a 21 % y la próxima lista que diga 10,5 % se lo cambia.
+- **E24** **Dado** un producto «Tornillo», **cuando** se busca «tornilo», **entonces** aparece; **y
+  cuando** se busca «tornu», **entonces** no.
+- **E25** **Dado** 199.990 productos activos, **cuando** se aplica una lista que crearía 20 más,
+  **entonces** no se aplica y dice que se pasaría de 200.000.
+- **E26** **Dado** una persona sin sesión, **cuando** pide el catálogo al servidor, **entonces** no
+  recibe nada.

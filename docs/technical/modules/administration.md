@@ -22,10 +22,10 @@ Corregido con sus dos revisiones ([diseño](administration-design-review.md),
 - **`administration` no conoce a quien lo usa.** `sign-in` y `device-link` reciben su fachada al
   registrarse, en `server/modules.ts`, como reciben hoy la de otros módulos. `administration` no importa
   a ninguno de los dos.
-- **El redondeo recalcula precios que son del catálogo**, que todavía no existe. `administration` define
-  la forma de quien recalcula (`PriceRecalculator`: contar cuántos precios cambian, dar ejemplos y aplicar
-  dentro de una transacción) y el catálogo se la pasa al crearse. Hasta 07 no hay nadie: no hay precios,
-  no cambia ninguno y se guarda sin preguntar (E21). Las pruebas de E18 a E22 usan uno de mentira.
+- **El redondeo recalcula precios que son del catálogo.** `administration` define la forma de quien
+  recalcula (`PriceRecalculator`: contar cuántos precios cambian, dar ejemplos y aplicar dentro de una
+  transacción) y el catálogo se la pasa al crearse ([diseño de 07](catalog.md), § 4). Sin precios, no
+  cambia ninguno y se guarda sin preguntar (E21). Las pruebas de E18 a E22 usan uno de mentira.
 - **La zona horaria sale de la configuración del servidor** (`BUSINESS_TIME_ZONE`, R5), fijada en el
   compose junto a `TRUSTED_PROXY`: es la misma en pruebas y en producción, así que no va en el `.env`
   (constitución, VIII). La aplicación la recibe en `/api/start` y la guarda en el dispositivo para
@@ -56,7 +56,7 @@ Corregido con sus dos revisiones ([diseño](administration-design-review.md),
 
 | Clave | Valor | Arranque | Valida |
 |---|---|---|---|
-| `roundingStep` | Entero en pesos; 0 es «sin redondeo» | 1000 | Uno de 0, 10, 50, 100, 500, 1000, 5000 (R3.2) |
+| `roundingStep` | Entero en centavos; 1 es «sin redondeo» | 100000 | Uno de 1, 5, 10, 50, 100, 500, 1.000, 5.000, 10.000, 50.000, 100.000, 500.000, 1.000.000 (R3.2) |
 | `quickMargins` | Cinco enteros | [300, 200, 100, 50, 25] | Cinco, de 1 a 10.000, sin repetirse; el servidor los guarda ordenados de mayor a menor (R4.2) |
 | `sessionIdle` | Minutos | 60 | Uno de 15, 30, 60, 120 (R6.2) |
 | `sessionMax` | Horas | 8 | Uno de 4, 8, 12, 24 (R6.2) |
@@ -78,7 +78,7 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 | Ruta | Qué hace | Permiso | Consultas |
 |---|---|---|---|
 | `GET /api/administration` | Los ajustes con su valor y su versión, y la zona horaria del negocio | Ninguno (R1.2) | 0: salen de la memoria |
-| `GET /api/administration/rounding` | Para el panel del redondeo: cuántos precios hay, cuántos cambian con cada paso y hasta cinco ejemplos | Ninguno | Las de quien recalcula; hoy, 0 |
+| `GET /api/administration/rounding` | Para el panel del redondeo: cuántos precios hay, cuántos cambian con cada paso y hasta cinco ejemplos; sin «Ver costos», los ejemplos son inventados (R3.7) | Sesión; 10 por minuto | Las de quien recalcula (`preview(seesCosts)`) |
 | `POST /api/administration/settings/:key` | `{ value, version, confirmed? }`. Cambia un ajuste | «Cambiar los ajustes» | Ver § 9 |
 
 - **El orden del `POST`:** sesión, permiso, clave, cuerpo. La clave se busca en un `Map` de la lista del
@@ -162,8 +162,11 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
 - `src/shared/contracts/permissions.ts`: el grupo `administration` y el permiso `settings.change`,
   «Cambiar los ajustes».
 - `src/shared/audit-log/administration.ts`: cómo se ve `settings.changed` en Quién hizo qué.
-- `src/shared/pricing/rounding.ts`: el redondeo para arriba al paso (E15 a E17). Lo usan el panel (los
-  ejemplos) y, con 07, el catálogo.
+- `src/shared/pricing/rounding.ts`: el redondeo para arriba al paso, en centavos enteros (E15 a E17). Lo
+  usan el panel (los ejemplos) y el catálogo.
+- **El paso en centavos** (T136): una migración multiplica por 100 el `roundingStep` guardado y pasa 0 a 1.
+  Los `settings.changed` viejos del redondeo guardaban pesos: su texto lee `stepCents` si está y, si no,
+  `value` en pesos.
 - `src/shared/time/business.ts`: la zona deja de estar escrita. `businessTimeZone()` es una función, y los
   formatos se arman la primera vez que se usan con la zona de ese momento. Los archivos que hoy copian la
   zona al cargarse (`app/platform/time.ts`, `sign-in/offline/when.ts`, `audit-log/logic.ts`, el detalle
@@ -225,7 +228,7 @@ Formas y errores en `src/shared/contracts/administration.ts`. Todas piden sesió
   pantalla se pone así con los permisos nuevos.
 - **Sin conexión** (R1.6): gris con lo último que se vio en esta sesión de la aplicación, con
   «Reintentar»; sin nada visto, «Hace falta conexión» (E06, E07). No se guarda nada en el dispositivo.
-- **Sin precios** (hasta el catálogo): el panel del redondeo muestra el ejemplo de la regla
+- **Sin precios:** el panel del redondeo muestra el ejemplo de la regla
   ($ 15.001 con el paso elegido) y «Todavía no hay precios» (§ 12, 1).
 
 ## 8. Seguridad
