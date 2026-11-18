@@ -129,7 +129,6 @@ export function viewOf(state: ListState, progress: ListProgress | undefined, sho
   return {
     header: headerOf(state),
     chips: summary ? chipsOf(summary, show, state.scope === 'partial') : [],
-    applyLabel: summary ? applyLabelOf(summary) : undefined,
     goneWarning: summary?.goneWarning ? texts.goneWarning(summary.gone) : undefined,
     tooOld: !!summary?.tooOld,
     reviewing: show === 'review',

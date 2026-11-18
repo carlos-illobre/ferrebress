@@ -30,6 +30,9 @@ export const texts = {
   closedAt: (since: string) => `Se cerró sola ${since}`,
   open: 'Ver el detalle',
   close: 'Cerrar el detalle',
+  // El nombre accesible de cada una: su tipo y qué hace tocarla.
+  headLabel: (kind: string, open: boolean) =>
+    `${kind}: ${open ? 'Cerrar el detalle' : 'Ver el detalle'}`,
   rows: 'Las filas salteadas',
   rowsNeedCosts: 'Lo que traía cada fila lo ve quien tiene «Ver costos».',
   rowsFailed: 'No se pudieron traer las filas.',

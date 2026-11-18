@@ -1,7 +1,7 @@
 // Los productos de un proveedor (R8): los que vienen o los dados de baja (con desde cuándo), con un
 // buscador, de a 50, cada costo con su cuenta.
 import { type Supplier, supplierTexts as texts } from '../../../../modules/price-lists/model.ts';
-import { ScreenSearch } from '../ScreenSearch.tsx';
+import { ScreenSearch } from '../../ui/screen-search/ScreenSearch.tsx';
 
 export function Items({ view }: { view: Supplier }) {
   const items = view.items;
@@ -28,8 +28,8 @@ export function Items({ view }: { view: Supplier }) {
         </button>
       </div>
       <ScreenSearch look="supplier-search" words={texts.search} view={items} />
-      {items.shown.length === 0 ? (
-        <p class="supplier-muted">{texts.noItems}</p>
+      {items.empty ? (
+        <p class="supplier-muted">{items.empty}</p>
       ) : (
         <ul class="supplier-rows">
           {items.shown.map((item, index) => (

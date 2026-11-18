@@ -55,7 +55,7 @@ export function Supplier({ view, supplier }: { view: Suppliers; supplier: Suppli
           {texts.review}
         </button>
       )}
-      {view.canUpload && !view.reactivable && (
+      {view.rowUpload && (
         <UploadButton onFiles={(files) => view.upload(files, supplier.id)}>
           {uploads.upload}
         </UploadButton>

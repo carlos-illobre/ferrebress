@@ -3,9 +3,7 @@
 // estado, cuándo se subió y cuánto ocupa; bajarlo y, con «Cambiar los ajustes», borrarlo. Una sola
 // pantalla para los dos anchos. Se baja recién al abrirla (AdministrationSlot).
 import {
-  fileLines,
   type ListFiles,
-  type ListFileView,
   filesTexts as texts,
   useListFiles,
 } from '../../../modules/price-lists/model.ts';
@@ -16,7 +14,7 @@ import { addShapes, Icon } from '../ui/icon/Icon.tsx';
 import { peopleShapes } from '../ui/icon/people-shapes.tsx';
 import { LoadState } from '../ui/load-state/LoadState.tsx';
 import { Say } from '../ui/say/Say.tsx';
-import { Stale } from './Stale.tsx';
+import { Stale } from '../ui/stale/Stale.tsx';
 import './Files.css';
 
 addShapes({
@@ -25,12 +23,14 @@ addShapes({
   'chevron-left': peopleShapes['chevron-left'],
 });
 
-function Actions({ view, file }: { view: ListFiles; file: ListFileView }) {
+type Row = ListFiles['rows'][number];
+
+function Actions({ view, row }: { view: ListFiles; row: Row }) {
   const keys = useShortcutHints('price-lists-files');
-  const removable = view.removable(file);
+  const { file, removable } = row;
   return (
     <div class="files-actions">
-      {view.live && (
+      {view.canDownload && (
         <button
           type="button"
           class="lists-button"
@@ -58,8 +58,8 @@ function Actions({ view, file }: { view: ListFiles; file: ListFileView }) {
   );
 }
 
-function File({ view, file }: { view: ListFiles; file: ListFileView }) {
-  const lines = fileLines(file);
+function File({ view, row }: { view: ListFiles; row: Row }) {
+  const { file, lines } = row;
   return (
     <li
       class="files-item"
@@ -78,7 +78,7 @@ function File({ view, file }: { view: ListFiles; file: ListFileView }) {
       <p class="files-meta">
         {lines.stored} · {lines.size}
       </p>
-      <Actions view={view} file={file} />
+      <Actions view={view} row={row} />
     </li>
   );
 }
@@ -94,16 +94,16 @@ function Body({ view }: { view: ListFiles }) {
         {texts.usedLabel} <b>{view.used}</b>
       </p>
       {!view.canChange && <p class="files-permission">{texts.noPermission}</p>}
-      {view.files.length === 0 ? (
-        <p class="files-empty">{texts.empty}</p>
+      {view.empty ? (
+        <p class="files-empty">{view.empty}</p>
       ) : (
         <ul class="files-list">
-          {view.files.map((file) => (
-            <File key={file.sha256} view={view} file={file} />
+          {view.rows.map((row) => (
+            <File key={row.file.sha256} view={view} row={row} />
           ))}
         </ul>
       )}
-      {view.data.next && view.live && (
+      {view.hasMore && (
         <button
           type="button"
           class="lists-button files-more"

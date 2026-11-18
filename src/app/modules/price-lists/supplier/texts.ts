@@ -35,6 +35,7 @@ export const supplierTexts = {
   next: 'Desde la próxima lista',
   discounts: 'Descuentos, en orden',
   noDiscounts: 'Sin descuentos.',
+  percentUnit: '%',
   discountName: 'Nombre del descuento',
   discountPercent: 'Porcentaje',
   discountBrand: 'Marca (vacío: todas)',

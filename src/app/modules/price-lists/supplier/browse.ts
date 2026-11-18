@@ -25,7 +25,12 @@ export function useLists(id: string, first: SupplierListsPage | undefined) {
     if (!result.ok) return notify(texts.failed, 'triangle-alert');
     setOlder({ ...result.data, lists: [...(older?.lists ?? []), ...result.data.lists] });
   };
-  return { lists: lists.map(listLines), hasMoreLists: !!next, moreLists: more };
+  return {
+    lists: lists.map(listLines),
+    listsEmpty: lists.length === 0 ? texts.noLists : undefined,
+    hasMoreLists: !!next,
+    moreLists: more,
+  };
 }
 
 export function useItems(id: string, wanted: boolean) {
@@ -52,6 +57,7 @@ export function useItems(id: string, wanted: boolean) {
   };
   return {
     shown: (query.data?.items ?? []).map(itemLines),
+    empty: (query.data?.items ?? []).length === 0 ? texts.noItems : undefined,
     hasMore: !!query.data?.next,
     ...{ search, setSearch, discontinued, setDiscontinued, more },
     isOpen: (index: number) => opened === index,

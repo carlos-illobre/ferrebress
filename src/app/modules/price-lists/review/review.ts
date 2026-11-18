@@ -14,9 +14,17 @@ import { person as me } from '../../sign-in/index.ts';
 import { downloadList } from '../download.ts';
 import { openSuppliers } from '../pages.ts';
 import { apply, cancelApply, discard } from './actions.ts';
-import { rowLines, type Show, viewOf } from './rules.ts';
+import { applyLabelOf, rowLines, type Show, viewOf } from './rules.ts';
 import { reviewTexts as texts } from './texts.ts';
 import { useApplying, useListData } from './use-review.ts';
+
+const canApplyOf = (may: boolean, state: ListState | undefined) =>
+  may && state?.status === 'pending' && !!state.summary && !state.summary.tooOld;
+
+const applyLabelFor = (may: boolean, state: ListState | undefined) =>
+  canApplyOf(may, state)
+    ? applyLabelOf(state?.summary as NonNullable<ListState['summary']>)
+    : undefined;
 
 function usePerson(state: ListState | undefined) {
   const person = useStore(me);
@@ -45,6 +53,8 @@ export function useReview(listId: string) {
   const model = {
     state,
     view: state && viewOf(state, progress, data.show),
+    // El botón de aplicar, con lo que va a pasar, solo cuando se puede (R6.5).
+    applyLabel: applyLabelFor(may, state),
     rows: (data.rows.data?.rows ?? []).map(rowLines),
     hasMore: !!data.rows.data?.next,
     flagged: (data.flagged?.data?.rows ?? []).map(rowLines),
@@ -56,7 +66,7 @@ export function useReview(listId: string) {
     isOpen: (key: string) => opened === key,
     costLabel: (key: string) => (opened === key ? texts.hideCost : texts.howCost),
     toggleCost: (key: string) => setOpened(opened === key ? undefined : key),
-    canApply: may && state?.status === 'pending' && !!state.summary && !state.summary.tooOld,
+    canApply: canApplyOf(may, state),
     canDiscard: may && state?.status === 'pending',
     canCancel: may && state?.status === 'applying',
     apply: () => apply(deps, state?.summary as NonNullable<ListState['summary']>),

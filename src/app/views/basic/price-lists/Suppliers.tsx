@@ -14,9 +14,9 @@ import { priceListsShapes } from '../ui/icon/price-lists-shapes.tsx';
 import { rolesShapes } from '../ui/icon/roles-shapes.tsx';
 import { LoadState } from '../ui/load-state/LoadState.tsx';
 import { Say } from '../ui/say/Say.tsx';
+import { ScreenSearch } from '../ui/screen-search/ScreenSearch.tsx';
+import { Stale } from '../ui/stale/Stale.tsx';
 import { AddSupplier } from './AddSupplier.tsx';
-import { ScreenSearch } from './ScreenSearch.tsx';
-import { Stale } from './Stale.tsx';
 import { Supplier } from './Supplier.tsx';
 import { UploadButton } from './uploads/UploadButton.tsx';
 import './Suppliers.css';
@@ -47,7 +47,7 @@ function Top({ view }: { view: View }) {
           {keys.upload && <kbd>{keys.upload}</kbd>}
         </UploadButton>
       )}
-      {view.canAdd && !view.adding && (
+      {view.showAdd && (
         <button type="button" class="lists-button" data-mark="" onClick={view.startAdding}>
           <Icon name="plus" size="small" />
           {texts.add}
@@ -91,7 +91,6 @@ export function Suppliers() {
       class="suppliers"
       onDragOver={(event) => view.canUpload && event.preventDefault()}
       onDrop={(event) => {
-        if (!view.canUpload) return;
         event.preventDefault();
         view.upload([...(event.dataTransfer?.files ?? [])]);
       }}

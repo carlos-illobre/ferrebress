@@ -28,6 +28,7 @@ export { type Suppliers, useSuppliers } from './suppliers/suppliers.ts';
 export type { SupplierFilter, SupplierLines } from './suppliers/suppliers-rules.ts';
 export { suppliersTexts } from './suppliers/texts-suppliers.ts';
 export type { UploadLines } from './uploads/rules.ts';
+export { listAccept } from './uploads/rules.ts';
 export { useAnyUpload } from './uploads/store.ts';
 export { uploadsTexts } from './uploads/texts.ts';
 export { type Uploads, useUploads } from './uploads/use-uploads.ts';

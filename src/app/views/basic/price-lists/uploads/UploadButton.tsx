@@ -2,6 +2,7 @@
 // y CSV (R4.2), varias a la vez (R4.10).
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
+import { listAccept } from '../../../../modules/price-lists/model.ts';
 
 type Props = {
   children: ComponentChildren;
@@ -24,7 +25,7 @@ export function UploadButton({ children, onFiles, look = 'lists-button', opens =
       <input
         ref={input}
         type="file"
-        accept=".xlsx,.xls,.csv"
+        accept={listAccept}
         multiple
         hidden
         onChange={(event) => {

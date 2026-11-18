@@ -12,13 +12,13 @@ import { PhoneLight } from '../../frame/index.ts';
 import { Button } from '../../ui/button/Button.tsx';
 import { LoadState } from '../../ui/load-state/LoadState.tsx';
 import { Say } from '../../ui/say/Say.tsx';
-import { Stale } from '../Stale.tsx';
+import { Stale } from '../../ui/stale/Stale.tsx';
 import { UploadButton } from '../uploads/UploadButton.tsx';
 import { Data } from './Data.tsx';
 import { Items } from './Items.tsx';
 import { Lists } from './Lists.tsx';
 import { Terms } from './Terms.tsx';
-import '../Parts.css';
+import '../../ui/parts/parts.css';
 import './Supplier.css';
 
 const bodies: Record<Part, (props: { view: Supplier }) => preact.JSX.Element | null> = {
@@ -60,7 +60,7 @@ function State({ view }: { view: Supplier }) {
           {keys.upload && <kbd>{keys.upload}</kbd>}
         </UploadButton>
       )}
-      {view.editable && !view.dropping && (
+      {view.canDeactivate && (
         <Button doing={texts.deactivate} onPress={view.deactivate}>
           {texts.deactivate}
         </Button>
@@ -109,7 +109,7 @@ export function SupplierScreen({ supplierId }: { supplierId: string }) {
         </button>
         <h1>{view.supplier.name}</h1>
         <PhoneLight />
-        {view.supplier.inactive && <b class="supplier-inactive">{texts.inactive}</b>}
+        {view.inactive && <b class="supplier-inactive">{texts.inactive}</b>}
       </header>
       <Stale screen="price-lists-supplier" view={view} texts={texts} />
       <State view={view} />

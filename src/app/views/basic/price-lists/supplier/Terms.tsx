@@ -28,7 +28,7 @@ function Discount({ view, discount }: { view: Supplier; discount: Line }) {
         readOnly={!view.editable}
         onBlur={edit('percent')}
       />
-      <span>%</span>
+      <span>{texts.percentUnit}</span>
       <input
         aria-label={texts.discountBrand}
         placeholder={texts.allBrands}

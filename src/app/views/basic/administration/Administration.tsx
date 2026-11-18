@@ -96,7 +96,7 @@ function Body({ view }: { view: View }) {
           <Retry view={view} />
         </p>
       )}
-      <List view={view} settings={values} clock={clock} />
+      <List view={view} />
       <section class="admin-panel" role="tabpanel" data-panel={view.panel}>
         <Panel view={view} values={values} clock={clock} />
       </section>

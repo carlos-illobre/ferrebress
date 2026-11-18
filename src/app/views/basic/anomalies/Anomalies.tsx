@@ -1,21 +1,15 @@
 // Más → Administración → Anomalías (06 · pantalla 2, R9): las del filtro, de la más nueva a la más
 // vieja, cada una con su tipo, cuándo pasó y de qué se trata; Enter o un toque abre su detalle. Una
 // sola pantalla para los dos anchos. Se baja recién al abrirla (AnomaliesSlot).
-import {
-  type AnomalyView,
-  linesOf,
-  texts,
-  useAnomalies,
-  type Anomalies as View,
-} from '../../../modules/anomalies/model.ts';
+import { texts, useAnomalies, type Anomalies as View } from '../../../modules/anomalies/model.ts';
 import { MoreCrumb, PhoneLight } from '../frame/index.ts';
-import { Stale } from '../price-lists/Stale.tsx';
 import { deviceSettingsShapes } from '../ui/icon/device-settings-shapes.tsx';
 import { addShapes, Icon } from '../ui/icon/Icon.tsx';
 import { peopleShapes } from '../ui/icon/people-shapes.tsx';
 import { rolesShapes } from '../ui/icon/roles-shapes.tsx';
 import { LoadState } from '../ui/load-state/LoadState.tsx';
 import { Say } from '../ui/say/Say.tsx';
+import { Stale } from '../ui/stale/Stale.tsx';
 import { Detail } from './Detail.tsx';
 import { Filters } from './Filters.tsx';
 import './Anomalies.css';
@@ -27,9 +21,8 @@ addShapes({
   'rotate-ccw': deviceSettingsShapes['rotate-ccw'],
 });
 
-function Item({ view, anomaly }: { view: View; anomaly: AnomalyView }) {
-  const lines = linesOf(anomaly);
-  const open = view.isOpen(anomaly);
+function Item({ view, item }: { view: View; item: View['items'][number] }) {
+  const { anomaly, lines, open } = item;
   return (
     <li
       class="anomaly"
@@ -41,16 +34,13 @@ function Item({ view, anomaly }: { view: View; anomaly: AnomalyView }) {
         class="anomaly-head"
         data-mark=""
         aria-expanded={open}
-        aria-label={`${lines.kind}: ${open ? texts.close : texts.open}`}
+        aria-label={item.label}
         onClick={() => view.toggle(anomaly.id)}
       >
         <Icon name="triangle-alert" />
         <span class="anomaly-text">
           <b>{lines.kind}</b>
-          <span>
-            {lines.supplier}
-            {lines.file && ` · ${lines.file}`}
-          </span>
+          <span>{lines.subject}</span>
           {lines.detail && <span>{lines.detail}</span>}
           <small>{lines.state ?? lines.when}</small>
         </span>
@@ -69,16 +59,16 @@ function Body({ view }: { view: View }) {
   return (
     <div class={view.live ? '' : 'anomalies-stale'}>
       <Stale screen="anomalies" view={view} texts={texts} />
-      {view.anomalies.length === 0 ? (
-        <p class="anomalies-empty">{view.emptyText}</p>
+      {view.empty ? (
+        <p class="anomalies-empty">{view.empty}</p>
       ) : (
         <ul class="anomalies-list">
-          {view.anomalies.map((anomaly) => (
-            <Item key={anomaly.id} view={view} anomaly={anomaly} />
+          {view.items.map((item) => (
+            <Item key={item.anomaly.id} view={view} item={item} />
           ))}
         </ul>
       )}
-      {view.data.next && view.live && (
+      {view.hasMore && (
         <button
           type="button"
           class="lists-button anomaly-more"

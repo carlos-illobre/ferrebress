@@ -2,7 +2,11 @@
 // abiertas), de la más nueva a la más vieja, de a 30; el detalle de la elegida; marcarla revisada con
 // una nota o volver a abrirla, con conexión. El filtro y la abierta se espejan; la nota es de quien
 // la escribe.
-import type { AnomaliesPage, AnomalyView } from '@ferrebress/shared/contracts/anomalies';
+import {
+  type AnomaliesPage,
+  type AnomalyView,
+  anomalyNoteMax,
+} from '@ferrebress/shared/contracts/anomalies';
 import { can } from '@ferrebress/shared/contracts/can';
 import { useState } from 'preact/hooks';
 import { useLastSeen } from '../../platform/last-seen.ts';
@@ -19,6 +23,7 @@ import { anomaliesApi } from './api.ts';
 import { reopen, review } from './changes.ts';
 import { useSkippedRows } from './rows.ts';
 import { type Filter, filterSchema, openedSchema, pageSchema } from './schemas.ts';
+import { linesOf } from './summary.ts';
 import { texts } from './texts.ts';
 import { actionsOf, emptyTextOf, filtersOf } from './view-rules.ts';
 
@@ -62,6 +67,14 @@ function usePage(who: object) {
   return { filter, setFilter, query, seen, put, more };
 }
 
+// Cada una con lo que se dice de ella y si está abierta, ya resuelto.
+const itemsOf = (anomalies: readonly AnomalyView[], opened: AnomalyView | undefined) =>
+  anomalies.map((anomaly) => {
+    const lines = linesOf(anomaly);
+    const open = opened?.id === anomaly.id;
+    return { anomaly, lines, open, label: texts.headLabel(lines.kind, open) };
+  });
+
 export function useAnomalies() {
   const who = useStore(me);
   const online = useStore(onlineStore);
@@ -77,13 +90,15 @@ export function useAnomalies() {
   const model = {
     data,
     anomalies,
+    items: itemsOf(anomalies, openedOne),
     filter,
     ...{ live, online, opened: openedOne, chosen, choose, more, canSeeRows },
     rows: useSkippedRows(openedOne, canSeeRows),
+    noteMax: anomalyNoteMax,
     filters: filtersOf(filter),
-    emptyText: emptyTextOf(filter),
+    empty: anomalies.length === 0 ? emptyTextOf(filter) : undefined,
+    hasMore: !!data?.next && live,
     actionsOf: (anomaly: AnomalyView) => actionsOf(anomaly, live, canSeeRows),
-    isOpen: (anomaly: AnomalyView) => openedOne?.id === anomaly.id,
     filterBy: (next: Partial<Filter>) => {
       setOpened(null);
       setFilter({ ...filter, ...next });

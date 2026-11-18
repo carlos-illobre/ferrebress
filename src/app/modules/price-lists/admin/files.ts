@@ -104,16 +104,22 @@ export function useListFiles() {
   const live = online && !!query.data;
   const editable = canChange && live;
   const files = (data?.files ?? []).filter((file) => !file.deleting);
+  // Si se puede borrar (R10.2, E54): sí, no porque su lista se lee o se aplica (se dice), o no.
+  const removable = (file: ListFileView) =>
+    !editable ? ('no' as const) : inUse(file) ? ('in-use' as const) : ('yes' as const);
   const model = {
     data,
     files,
+    // Cada archivo con lo que se dice de él y si se puede borrar, ya resuelto.
+    rows: files.map((file) => ({ file, lines: fileLines(file), removable: removable(file) })),
+    empty: files.length === 0 ? texts.empty : undefined,
+    canDownload: live,
+    hasMore: !!data?.next && live,
     used: data && texts.used(megabytes(data.totalBytes), megabytes(data.limitBytes)),
     ...{ canChange, canSee, editable, online, live, chosen, choose, more, download },
     remove: (file: ListFileView) => remove(file, mark),
     chosenFile: files.find((file) => file.sha256 === chosen),
-    // Si se puede borrar (R10.2, E54): sí, no porque su lista se lee o se aplica (se dice), o no.
-    removable: (file: ListFileView) =>
-      !editable ? ('no' as const) : inUse(file) ? ('in-use' as const) : ('yes' as const),
+    removable,
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },
     seenAtShown: formatTime(seen?.at as Date),
     back: () => openAdminPage('settings'),

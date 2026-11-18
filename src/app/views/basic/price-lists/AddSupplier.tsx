@@ -18,7 +18,7 @@ export function AddSupplier({ view }: { view: Suppliers }) {
         {texts.name}
         <input
           value={adding.name}
-          maxLength={80}
+          maxLength={view.nameMax}
           // biome-ignore lint/a11y/noAutofocus: se abre para escribir el nombre
           autoFocus
           onInput={(event) => view.typeName((event.target as HTMLInputElement).value)}

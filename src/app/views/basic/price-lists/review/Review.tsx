@@ -10,9 +10,9 @@ import { useShortcutHints } from '../../../../platform/view/shortcut-hints.ts';
 import { PhoneLight } from '../../frame/index.ts';
 import { LoadState } from '../../ui/load-state/LoadState.tsx';
 import { Say } from '../../ui/say/Say.tsx';
-import { ScreenSearch } from '../ScreenSearch.tsx';
-import '../Parts.css';
-import { Stale } from '../Stale.tsx';
+import { ScreenSearch } from '../../ui/screen-search/ScreenSearch.tsx';
+import '../../ui/parts/parts.css';
+import { Stale } from '../../ui/stale/Stale.tsx';
 import { Rows } from './Rows.tsx';
 import './Review.css';
 
@@ -84,14 +84,14 @@ function Actions({ view, seen }: { view: View; seen: Seen }) {
           {view.said}
         </p>
       )}
-      {view.canApply && seen.applyLabel && (
+      {view.applyLabel && (
         <button
           type="button"
           class="lists-button review-apply"
           data-mark=""
           onClick={() => void view.apply()}
         >
-          {seen.applyLabel}
+          {view.applyLabel}
           {keys.apply && <kbd>{keys.apply}</kbd>}
         </button>
       )}

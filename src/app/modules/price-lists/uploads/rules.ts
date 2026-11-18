@@ -40,6 +40,9 @@ export type Upload = {
 const thousands = (n: number) => n.toLocaleString('es-AR');
 
 // R4.2: lo que no es una planilla o pasa el tamaño se rechaza sin subirlo.
+// Lo que ofrece elegir la caja de archivos: los formatos de R4.2.
+export const listAccept = listExtensions.join(',');
+
 export function refusalOf(file: { name: string; size: number }, maxMb: number | undefined) {
   const name = file.name.toLowerCase();
   if (!listExtensions.some((extension) => name.endsWith(extension)))

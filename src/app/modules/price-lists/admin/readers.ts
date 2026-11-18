@@ -21,6 +21,7 @@ import { priceListsSettings } from '../settings.ts';
 import { readersTexts as texts } from './texts-readers.ts';
 
 export type ReaderGroup = { supplier: string; readers: ReaderView[] };
+const say = (text: string) => ({ long: text, short: text });
 
 // Por proveedor, en orden; los que no tienen, primero. Lo buscado filtra por el nombre del proveedor.
 export function groupsOf(readers: readonly ReaderView[], search: string): ReaderGroup[] {
@@ -47,6 +48,19 @@ export const readerLines = (reader: ReaderView) => ({
   state: reader.active ? texts.active : texts.inactive,
   toggle: reader.active ? texts.deactivate : texts.activate,
 });
+
+// Cada grupo con sus lectores y lo que se dice de cada uno, ya resuelto; y qué se dice sin ninguno, o
+// sin ninguno con lo buscado.
+function shownOf(all: readonly ReaderView[], search: string) {
+  const groups = groupsOf(all, search);
+  return {
+    groups: groups.map((group) => ({
+      supplier: group.supplier,
+      readers: group.readers.map((reader) => ({ reader, lines: readerLines(reader) })),
+    })),
+    empty: all.length === 0 ? texts.empty : groups.length === 0 ? say(texts.noMatch) : undefined,
+  };
+}
 
 export function useReaders() {
   const query = useMirroredQuery('price-lists.readers', readersApi.list, [], {
@@ -80,7 +94,7 @@ export function useReaders() {
   };
   const model = {
     data,
-    groups: groupsOf(data?.readers ?? [], search),
+    ...shownOf(data?.readers ?? [], search),
     ...{ search, setSearch, canChange, editable, online, toggle },
     live: online && !!query.data,
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },

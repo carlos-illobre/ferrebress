@@ -4,7 +4,7 @@
 import { type Supplier, supplierTexts as texts } from '../../../../modules/price-lists/model.ts';
 
 export function Lists({ view }: { view: Supplier }) {
-  if (view.lists.length === 0) return <p class="supplier-muted">{texts.noLists}</p>;
+  if (view.listsEmpty) return <p class="supplier-muted">{view.listsEmpty}</p>;
   return (
     <>
       <ul class="supplier-rows">

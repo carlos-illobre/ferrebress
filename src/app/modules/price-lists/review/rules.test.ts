@@ -2,7 +2,7 @@
 // cambios, de a uno, una variación que baja y aplicándose sin avance todavía.
 import type { ListState, ListSummary } from '@ferrebress/shared/contracts/price-lists';
 import { describe, expect, it } from 'vitest';
-import { chipsOf, headerOf, rowLines, stepsLines, viewOf } from './rules.ts';
+import { applyLabelOf, chipsOf, headerOf, rowLines, stepsLines, viewOf } from './rules.ts';
 
 const one: ListSummary = {
   ...{ new: 1, changed: 1, same: 1, gone: 1, skipped: 1, reasons: {} },
@@ -43,12 +43,9 @@ describe('ver qué cambia, en los bordes', () => {
   it('aplicándose sin avance todavía, sin resumen; aplicar de a uno en singular', () => {
     expect(viewOf(bare, undefined, null)).toMatchObject({
       chips: [],
-      applyLabel: undefined,
       applying: 'Aplicando: 0 filas',
     });
-    expect(viewOf({ ...bare, status: 'pending', summary: one }, undefined, null).applyLabel).toBe(
-      'Aplicar: 1 nuevo, 1 costo, 1 baja',
-    );
+    expect(applyLabelOf(one)).toBe('Aplicar: 1 nuevo, 1 costo, 1 baja');
     expect(
       viewOf(
         { ...bare, status: 'applied', result: { created: 1, changed: 1, gone: 1, restored: 0 } },

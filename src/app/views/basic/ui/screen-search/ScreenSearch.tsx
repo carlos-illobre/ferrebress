@@ -1,9 +1,9 @@
-// El buscador de una pantalla de las listas de precios: filtra mientras se escribe, se alcanza con
+// El buscador de una pantalla: filtra mientras se escribe, se alcanza con
 // «/» y se borra con Esc. Igual en Catálogo → Listas y en Lectores.
-import type { Words } from '../../../platform/view/words.ts';
-import { addShapes, Icon } from '../ui/icon/Icon.tsx';
-import { peopleShapes } from '../ui/icon/people-shapes.tsx';
-import { Search } from '../ui/search/Search.tsx';
+import type { Words } from '../../../../platform/view/words.ts';
+import { addShapes, Icon } from '../icon/Icon.tsx';
+import { peopleShapes } from '../icon/people-shapes.tsx';
+import { Search } from '../search/Search.tsx';
 
 addShapes({ search: peopleShapes.search });
 

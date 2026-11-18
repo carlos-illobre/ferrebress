@@ -81,31 +81,47 @@ function useDropping(deps: Omit<StateDeps, 'say' | 'ask'>) {
   };
 }
 
+// Lo de ahora, también para «Deshacer» y lo que termina después de otro dibujo, y cómo ponerlo.
+function useCurrent(query: {
+  data: SupplierResponse | undefined;
+  update: (change: (now: SupplierResponse) => SupplierResponse) => void;
+}) {
+  const latest = useRef(query.data);
+  latest.current = query.data;
+  return {
+    now: () => latest.current,
+    put: (next: SupplierResponse) => query.update(() => next),
+  };
+}
+
 export function useSupplier(id: string) {
   const may = useAccess();
   const { query, seen, part, setPart, supplier } = useShown(id, may.who);
-  // Lo de ahora, también para «Deshacer» y lo que termina después de otro dibujo.
-  const latest = useRef(query.data);
-  latest.current = query.data;
-  const now = () => latest.current;
-  const put = (next: SupplierResponse) => query.update(() => next);
+  const { now, put } = useCurrent(query);
   const live = may.online && !!query.data;
   const [chosenDiscount, chooseDiscount] = useState<string>(); // local: el descuento elegido
   const [picks, setPicks] = useState(0); // local: elegir un archivo es de este dispositivo
   const parts = may.costs ? allParts : allParts.slice(0, 1);
+  const editable = may.manage && live && !supplier?.inactive;
+  const drop = useDropping({
+    id,
+    name: () => (now() as SupplierResponse).name,
+    reload: query.invalidate,
+  });
   const model = {
     supplier,
+    inactive: !!supplier?.inactive,
     // La parte que se mira, si se puede ver (la del otro dispositivo puede pedir más permisos).
     part: parts.includes(part) ? part : 'data',
     ...{ live, parts, choose: setPart },
-    editable: may.manage && live && !supplier?.inactive,
+    editable,
+    canDeactivate: editable && !drop.dropping,
     fields: supplier ? fieldsOf(supplier) : [],
     ...useFields({ id, now, put }),
     terms: supplier?.terms ? termsLines(supplier.terms.value) : undefined,
     ...useTerms(id, now, put),
     // El descuento que tiene el cursor: Alt ↑ ↓ lo mueven (pantalla 4).
-    chosenDiscount,
-    chooseDiscount,
+    ...{ chosenDiscount, chooseDiscount },
     ...useLists(id, supplier?.lists),
     items: useItems(id, may.costs && part === 'items'),
     canUpload: may.load && live && !supplier?.inactive,
@@ -114,7 +130,7 @@ export function useSupplier(id: string) {
     picks,
     pick: () => setPicks(picks + 1),
     canReactivate: may.manage && live && !!supplier?.inactive,
-    ...useDropping({ id, name: () => (now() as SupplierResponse).name, reload: query.invalidate }),
+    ...drop,
     ...{ review: openReview, back: openSuppliers, download: downloadList },
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },
     seenAtShown: formatTime(seen?.at as Date),

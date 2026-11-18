@@ -4,7 +4,8 @@ import type { AnomalyView } from '@ferrebress/shared/contracts/anomalies';
 import type { ListRow } from '@ferrebress/shared/contracts/price-lists';
 import { useEffect, useState } from 'preact/hooks';
 import { skippedRows } from '../price-lists/index.ts';
-import { listOf } from './summary.ts';
+import { cellsOf, listOf, skipText } from './summary.ts';
+import { texts } from './texts.ts';
 
 export type Rows = { rows: ListRow[]; next?: string | undefined; failed: boolean; gone: boolean };
 
@@ -33,5 +34,16 @@ export function useSkippedRows(anomaly: AnomalyView | undefined, canSee: boolean
     setRows(undefined);
     void load();
   }, [list]);
-  return { list, rows, more: () => void load(rows?.next) };
+  return {
+    list,
+    rows,
+    // Cada fila con lo que traía y por qué se salteó, ya resuelto.
+    lines: (rows?.rows ?? []).map((row, index) => ({
+      key: `${index}-${row.code}`,
+      cells: cellsOf(row),
+      reason: row.skipped && texts.rowReason(skipText(row.skipped)),
+    })),
+    hasMore: !!rows?.next && !rows.failed,
+    more: () => void load(rows?.next),
+  };
 }

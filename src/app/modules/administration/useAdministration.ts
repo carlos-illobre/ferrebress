@@ -28,6 +28,7 @@ import { administrationSettings } from './settings.ts';
 
 export type { Confirm, Note } from './schemas.ts';
 
+import { settingGroups, useAdminLinkRows } from './list-rows.ts';
 import { type ListSetting, typedNumber } from './logic.ts';
 import { type Panel, panels } from './texts.ts';
 
@@ -157,12 +158,16 @@ function useModel() {
   const data = query.data ?? (query.failed ? seen?.data : undefined);
   // Los valores de lo que se ve, sin sus versiones.
   const values = data && valuesOf(data.settings);
+  const clock = useClock();
   return {
     ...{ data, values },
+    // La lista de la izquierda, resuelta: los ajustes en grupos y las páginas de abajo.
+    groups: values ? settingGroups(values, clock) : [],
+    links: useAdminLinkRows(),
     seenAtShown: formatTime(seen?.at as Date),
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },
     ...{ prices: preview.data, panel, setPanel, said, asked, looking, setLooking },
-    ...{ canChange, editable, online, save, clock: useClock(), holders: useHolders(canChange) },
+    ...{ canChange, editable, online, save, clock, holders: useHolders(canChange) },
     ...useChoose(setPanel),
     ...typing(save, values),
     // Un paso nuevo del redondeo: pregunta el servidor si cambian precios (R3.4).

@@ -1,4 +1,5 @@
-/* Lo que comparten las pantallas de las listas de precios: el aviso de sin conexión y sus botones. */
+/* Lo que comparten las pantallas de las listas de precios y Anomalías: el aviso de sin conexión, sus
+   botones y los filtros que se tocan. */
 @layer screens {
   .lists-stale {
     display: flex;

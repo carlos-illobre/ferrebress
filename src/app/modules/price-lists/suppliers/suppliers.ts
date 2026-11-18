@@ -3,7 +3,7 @@
 // alta con solo el nombre. Sin conexión, lo último que se vio, en gris (R1.5, E07).
 
 import { can } from '@ferrebress/shared/contracts/can';
-import type { SuppliersResponse } from '@ferrebress/shared/contracts/price-lists';
+import { type SuppliersResponse, supplierLimits } from '@ferrebress/shared/contracts/price-lists';
 import { useState } from 'preact/hooks';
 import { useLastSeen } from '../../../platform/last-seen.ts';
 import { useMirroredQuery } from '../../../platform/mirror/query.ts';
@@ -86,8 +86,9 @@ function viewOf({ may, rows, search, filter, live }: Seen) {
     canAdd: may.manage && live,
     // Subir una lista, con «Cargar listas» (R1.2): sin decir de quién es o desde su renglón (R4.3).
     canUpload: may.load && live,
-    // Los dados de baja se reactivan desde su filtro (R2.5).
+    // Los dados de baja se reactivan desde su filtro (R2.5); a uno dado de baja no se le sube.
     reactivable: filter === 'inactive' && may.manage && live,
+    rowUpload: may.load && live && filter !== 'inactive',
   };
 }
 
@@ -112,15 +113,20 @@ export function useSuppliers() {
       inactive.invalidate();
     },
   );
+  const rows = { active: data, inactive: inactive.data };
+  const shown = viewOf({ may, rows, search, filter, live });
   const model = {
-    ...viewOf({ may, rows: { active: data, inactive: inactive.data }, search, filter, live }),
+    ...shown,
     data,
     ...{ search, setSearch, live, online, ...add },
     // Tocar un filtro lo pone; tocarlo de nuevo lo saca (pantalla 1).
     toggleFilter: (next: SupplierFilter) => setFilter(filter === next ? 'all' : next),
-    upload: (files: readonly File[], supplierId?: string) => void startUploads(files, supplierId),
-    review: openReview,
-    open: openSupplier,
+    // Subir sin permiso o sin conexión no hace nada: ninguna vista tiene que mirarlo.
+    upload: (files: readonly File[], supplierId?: string) => {
+      if (shown.canUpload) void startUploads(files, supplierId);
+    },
+    ...{ showAdd: shown.canAdd && !add.adding, nameMax: supplierLimits.name },
+    ...{ review: openReview, open: openSupplier },
     // Cuántas veces se pidió elegir un archivo con el teclado: la vista abre la elección cada vez.
     picks,
     pick: () => setPicks(picks + 1),

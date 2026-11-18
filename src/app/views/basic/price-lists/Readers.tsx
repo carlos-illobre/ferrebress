@@ -3,8 +3,6 @@
 // ajustes», desactivarlo o volver a activarlo. Una sola pantalla para los dos anchos. Se baja recién al
 // abrirla (AdministrationSlot).
 import {
-  type ReaderGroup,
-  readerLines,
   readersTexts as texts,
   useReaders,
   type Readers as View,
@@ -14,19 +12,18 @@ import { addShapes } from '../ui/icon/Icon.tsx';
 import { peopleShapes } from '../ui/icon/people-shapes.tsx';
 import { LoadState } from '../ui/load-state/LoadState.tsx';
 import { Say } from '../ui/say/Say.tsx';
-import { ScreenSearch } from './ScreenSearch.tsx';
-import { Stale } from './Stale.tsx';
+import { ScreenSearch } from '../ui/screen-search/ScreenSearch.tsx';
+import { Stale } from '../ui/stale/Stale.tsx';
 import './Readers.css';
 
 addShapes({ 'chevron-left': peopleShapes['chevron-left'] });
 
-function Group({ view, group }: { view: View; group: ReaderGroup }) {
+function Group({ view, group }: { view: View; group: View['groups'][number] }) {
   return (
     <section class="readers-group" aria-label={group.supplier}>
       <h2>{group.supplier}</h2>
       <ul>
-        {group.readers.map((reader) => {
-          const lines = readerLines(reader);
+        {group.readers.map(({ reader, lines }) => {
           return (
             <li key={reader.id} class={`readers-item ${reader.active ? '' : 'readers-off'}`}>
               <div>
@@ -62,12 +59,10 @@ function Body({ view }: { view: View }) {
     <div class={view.live ? '' : 'readers-stale'}>
       <Stale screen="price-lists-readers" view={view} texts={texts} />
       {!view.canChange && <p class="readers-permission">{texts.noPermission}</p>}
-      {view.data.readers.length === 0 ? (
+      {view.empty ? (
         <p class="readers-empty">
-          <Say words={texts.empty} />
+          <Say words={view.empty} />
         </p>
-      ) : view.groups.length === 0 ? (
-        <p class="readers-empty">{texts.noMatch}</p>
       ) : (
         view.groups.map((group) => <Group key={group.supplier} view={view} group={group} />)
       )}

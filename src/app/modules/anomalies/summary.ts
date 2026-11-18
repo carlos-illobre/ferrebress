@@ -46,6 +46,8 @@ export function linesOf(anomaly: AnomalyView) {
     state: stateOf(anomaly),
     supplier: summary.supplier?.name ?? texts.noSupplier,
     file: summary.file,
+    // De qué se trata: el proveedor y el archivo.
+    subject: [summary.supplier?.name ?? texts.noSupplier, summary.file].filter(Boolean).join(' · '),
     detail: anomaly.kind === 'price-list-skipped-rows' ? skippedLine(summary) : reason,
   };
 }
