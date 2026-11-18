@@ -16,4 +16,14 @@ export const priceListsSettings = {
   reader: { memoryBytes: 64 * 2 ** 20, stackBytes: 2 ** 20, timeMs: 5000 },
   // Los procesos lectores (ADR-021): cuántos, su tope de memoria y cuánto pueden callar.
   pool: { processes: 2, memoryMb: 384, heapMb: 320, stallMs: 60_000 },
+  // El avance de una lista, a lo sumo cuatro veces por segundo (diseño de 08, § 6); un cambio de estado,
+  // enseguida.
+  progressMs: 250,
+  // Los costos de cada artículo, en Quién hizo qué, de a esta cantidad de productos por evento.
+  auditChunk: 80,
+  // El «Deshacer» de un archivo borrado a mano (06 · R10.2), cuánto esperan las filas leídas de una
+  // aplicada para borrarse, y cada cuánto se limpia.
+  undoMs: 5000,
+  rowsKeepMs: 24 * 60 * minute,
+  cleanupEveryMs: 60 * minute,
 };

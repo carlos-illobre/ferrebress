@@ -37,6 +37,7 @@ export const keymap: Record<string, string> = {
   'price-lists-review.retry': 'Alt+R',
   'price-lists-review.apply': 'Alt+A',
   'price-lists-review.discard': 'Alt+D',
+  'price-lists-review.cancel': 'Alt+C',
   // Más → Administración → Lectores y Archivos de listas (08 · pantalla 5; 06 · pantalla 3).
   'price-lists-readers.retry': 'Alt+R',
   'price-lists-files.retry': 'Alt+R',

@@ -65,9 +65,7 @@ describe('Anomalías', () => {
     });
     await screen.findByText('Bulonera Centro · lista.xlsx');
     openDetail(/Filas salteadas: Ver el detalle/);
-    expect(
-      await screen.findByText('120 · Tornillo'.split(' · ').reverse().join(' · ')),
-    ).toBeTruthy();
+    expect(await screen.findByText('Tornillo · 120')).toBeTruthy();
     expect(screen.getByText('Salteada: sin código')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Ver más' }));
     expect(await screen.findByText('No se pudieron traer las filas.')).toBeTruthy();

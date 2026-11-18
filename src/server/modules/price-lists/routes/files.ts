@@ -78,7 +78,12 @@ async function remove(ctx: PriceListsContext, c: Context) {
   const marked = await filesData(asDb(ctx.platform.db)).mark(sha, ctx.platform.clock.now());
   if (marked === 'not-found') return fail(c, 404, 'not-found');
   if (marked === 'in-use') return fail(c, 409, 'file-in-use');
-  ctx.record(c, 'files.deleted', { targets: [{ kind: 'file', id: sha }] });
+  ctx.record(c, 'files.deleted', {
+    targets: [
+      { kind: 'file', id: sha },
+      { kind: 'list', ...marked.list },
+    ],
+  });
   return c.json({ ok: true });
 }
 

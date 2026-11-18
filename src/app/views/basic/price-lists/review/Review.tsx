@@ -104,6 +104,7 @@ function Actions({ view, seen }: { view: View; seen: Seen }) {
       {view.canCancel && (
         <button type="button" class="lists-button" data-mark="" onClick={() => void view.cancel()}>
           {texts.cancel}
+          {keys.cancel && <kbd>{keys.cancel}</kbd>}
         </button>
       )}
     </div>

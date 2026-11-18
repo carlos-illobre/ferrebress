@@ -9,6 +9,7 @@ import { readersData } from '../data/readers.ts';
 import { type ListRecord, readingData } from '../data/reading.ts';
 import { rowsData } from '../data/rows.ts';
 import { suppliersData } from '../data/suppliers.ts';
+import { subjectOf } from '../rules/lists.ts';
 import { assign } from './assign.ts';
 import type { JobMessage } from './messages.ts';
 import { priceRows, toPrice } from './pricing.ts';
@@ -22,8 +23,6 @@ type Step<T extends JobMessage['type']> = (
   message: Extract<JobMessage, { type: T }>,
   later: Later,
 ) => Promise<void>;
-
-const subjectOf = (listId: string) => `price-lists:list:${listId}`;
 
 const opened: Step<'opened'> = async (_ctx, trx, list, { rows }) =>
   readingData(asDb(trx)).set(list.id, { rows_total: rows, waiting_for: null });

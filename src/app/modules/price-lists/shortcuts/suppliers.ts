@@ -1,7 +1,6 @@
 // Los atajos de Catálogo → Listas (08 · pantalla 1): subir una lista, dar de alta un proveedor y
-// reintentar sin
-// conexión. El buscador se alcanza con «/» y los proveedores se recorren con las flechas (la
-// navegación).
+// reintentar sin conexión. El buscador se alcanza con «/» y los proveedores se recorren con las
+// flechas (la navegación).
 import { defineShortcuts } from '@ferrebress/keyboard';
 import type { Suppliers } from '../suppliers/suppliers.ts';
 

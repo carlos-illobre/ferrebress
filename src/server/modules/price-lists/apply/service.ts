@@ -8,8 +8,9 @@ import { asDb } from '../data/db.ts';
 import { readingData } from '../data/reading.ts';
 import { discard } from '../reading/assign.ts';
 import type { Reading } from '../reading/service.ts';
-import { auditChunk, chunksOf } from '../rules/apply.ts';
+import { chunksOf } from '../rules/apply.ts';
 import { supplierTarget } from '../rules/suppliers.ts';
+import { priceListsSettings } from '../settings.ts';
 import { type Applied, applyIn, Cancelled } from './apply-in.ts';
 
 type Record = (type: string, fields: RecordFields) => void;
@@ -81,7 +82,7 @@ async function finished(ctx: PriceListsContext, applied: Applied, record: Record
     targets: [{ kind: 'list', id: list.id, name: list.fileName }, supplierTarget(supplier)],
     data: { ...result, ...(list.listDate && { listDate: list.listDate }) },
   });
-  for (const chunk of chunksOf(applied.changes, auditChunk))
+  for (const chunk of chunksOf(applied.changes, priceListsSettings.auditChunk))
     record('lists.costs', {
       targets: chunk.map((one) => ({ kind: 'product', id: one.productId })),
       data: { listId: list.id, costs: chunk.map((one) => [one.before, one.after]) },

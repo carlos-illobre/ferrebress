@@ -54,7 +54,7 @@ async function start(
   registerReaderRoutes(ctx, reading);
   registerFileRoutes(ctx);
   // Lo que se borra solo, una vez por hora.
-  platform.every(60 * 60_000, () => cleanUp(ctx));
+  platform.every(priceListsSettings.cleanupEveryMs, () => cleanUp(ctx));
   const dir = options.readersDir ?? new URL('./readers/', import.meta.url);
   const resumeNow = () => resume(ctx, reading, programmerReaders(dir));
   await resumeNow();

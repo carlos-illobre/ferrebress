@@ -170,6 +170,11 @@ paralelo»).
   rol), Quién hizo qué (cómo se arma cada renglón y cada permiso), Configuración (el largo del
   nombre) y lo que haya en el resto, al revisarlos con el punto «La vista sin lógica» del revisor de
   código. Cada decisión pasa a su modelo, sin cambiar lo que hace la aplicación. Antes de T135.
+- [ ] T141 [agente] Que las pruebas de las listas de precios lleguen a cada estado por la API y no
+  escribiendo la base con SQL (revisión del código de 08, M9): una lista «aplicándose» de verdad para
+  E15 y E85, el arranque con una que se leía, y los pasos de la lectura probados por lo que se ve, no
+  por dentro. Hoy un cambio de nombre de una columna o de un estado rompe pruebas que no tendrían que
+  saberlo.
 
 ## Tareas futuras
 

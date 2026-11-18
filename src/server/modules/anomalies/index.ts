@@ -30,11 +30,11 @@ export function createAnomaliesModule(dependencies: AnomaliesDependencies) {
   const count = createOpenCount();
   // El reloj del servidor: la fachada se usa recién con el servidor armado, ya registrada.
   let clock = undefined as unknown as Clock;
-  // Lo que queda contado dentro de la transacción vale al confirmarla.
-  const counted = async (data: ReturnType<typeof anomaliesData>): Promise<AfterCommit> => {
-    const open = await data.openCount();
-    return () => count.set(open);
-  };
+  // Al confirmar se cuentan de nuevo, ya fuera de la transacción: con dos a la vez, contar adentro
+  // podía dejar el número de la que confirmó primero.
+  // Lo pone el registro, antes de que nadie abra o cierre una.
+  let refresh: () => Promise<void>;
+  const counted: AfterCommit = () => void refresh();
   const dataIn = (trx: Transaction<unknown>) => anomaliesData(trx as Kysely<AnomaliesTables>);
 
   const module: ServerModule = {
@@ -43,6 +43,7 @@ export function createAnomaliesModule(dependencies: AnomaliesDependencies) {
     async register(given) {
       clock = given.clock;
       const ctx = createAnomaliesContext(given, count, dependencies);
+      refresh = ctx.refresh;
       await ctx.refresh();
       given.header.contribute(openAnomaliesField, (c) =>
         count.get() > 0 && permissionsOf(c).includes('anomalies.review')
@@ -57,12 +58,12 @@ export function createAnomaliesModule(dependencies: AnomaliesDependencies) {
     async open(trx, { kind, subject, summary }) {
       const data = dataIn(trx);
       await data.open(newId(clock), kind, subject, summary, clock.now());
-      return counted(data);
+      return counted;
     },
     async close(trx, subject, kind) {
       const data = dataIn(trx);
       await data.close(subject, clock.now(), kind);
-      return counted(data);
+      return counted;
     },
   };
   return { module, anomalies };

@@ -187,7 +187,11 @@ describe('lectores y archivos', () => {
     await kit.server.runJobs();
     await new Promise((resolve) => setTimeout(resolve, 300));
     expect(await kit.server.platform.files.list(-1)).not.toContain(mine.sha256);
-    expect(kit.audited('files.deleted').length).toBeGreaterThan(0);
+    // Quién hizo qué dice el archivo y de qué lista era (diseño de 08, § 5).
+    expect(kit.audited('files.deleted').at(-1)?.targets).toEqual([
+      { kind: 'file', id: mine.sha256 },
+      { kind: 'list', id: sent.body.id, name: 'Lista Ñandú.xlsx' },
+    ]);
     expect(kit.audited('files.restored')).toHaveLength(1);
     const waiting = await kit.upload(
       xlsx([['Lista'], ['Artículo', 'Detalle', 'Lista'], ['X1', 'Pala', 1]]),

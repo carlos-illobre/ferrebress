@@ -23,16 +23,14 @@ import { listsData } from '../data/lists.ts';
 import { type SupplierRecord, suppliersData } from '../data/suppliers.ts';
 import { discard } from '../reading/assign.ts';
 import type { Reading } from '../reading/service.ts';
+import { chunksOf } from '../rules/apply.ts';
 import { supplierTarget } from '../rules/suppliers.ts';
 import { changesCosts, recalculatedItems, recalculatedRows } from '../rules/terms.ts';
 import { priceListsSettings } from '../settings.ts';
 
 type Steps = { manage: MiddlewareHandler; id: MiddlewareHandler; limited: MiddlewareHandler };
 
-const chunks = <T>(list: readonly T[]): T[][] =>
-  Array.from({ length: Math.ceil(list.length / priceListsSettings.batch) }, (_, i) =>
-    list.slice(i * priceListsSettings.batch, (i + 1) * priceListsSettings.batch),
-  );
+const chunks = <T>(list: readonly T[]): T[][] => chunksOf(list, priceListsSettings.batch);
 
 const dataIn = (trx: Transaction<unknown>) => ({
   suppliers: suppliersData(asDb(trx)),

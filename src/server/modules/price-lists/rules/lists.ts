@@ -37,3 +37,6 @@ export function stateOf(list: ListRecord, supplierName: string | undefined): Lis
     file: list.fileSha !== null && !list.fileDeleting,
   };
 }
+
+// De qué lista es una anomalía (06 · R9): el mismo nombre al abrirla y al cerrarla.
+export const subjectOf = (listId: string) => `price-lists:list:${listId}`;

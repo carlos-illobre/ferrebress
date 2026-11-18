@@ -76,9 +76,8 @@ function existing(batch: Batch, had: KnownItem, product: Batch['updated'][number
     batch.changes.push({ productId: product.id, before: had.cost, after: cost });
 }
 
-// Lo que va a Quién hizo qué, de a tandas que entran en un evento (diseño de 05, § 2.2): cada
-// producto como dato afectado y, en el mismo orden, su costo anterior y el nuevo.
-export const auditChunk = 80;
+// Partir una lista en tandas: lo que va a Quién hizo qué, de a tandas que entran en un evento (diseño
+// de 05, § 2.2), y lo que se cambia en la base de a tandas.
 export const chunksOf = <T>(list: readonly T[], size: number): T[][] =>
   Array.from({ length: Math.ceil(list.length / size) }, (_, i) =>
     list.slice(i * size, (i + 1) * size),

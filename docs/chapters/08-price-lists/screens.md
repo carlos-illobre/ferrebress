@@ -118,7 +118,7 @@ espera» de un proveedor.
 - Bajar el archivo original, mientras se guarde; si no, «Ya no se guarda el archivo» (R4.4).
 - Mientras se aplica, cancelar: se deshace todo y la lista sigue en espera (R4.11).
 
-**Teclado (computadora):** un atajo para aplicar y otro para descartar; ↑ ↓ recorren el detalle;
+**Teclado (computadora):** un atajo para aplicar, otro para descartar y, mientras se aplica, otro para cancelar; ↑ ↓ recorren el detalle;
 Enter abre la cuenta del costo elegido.
 
 ## 4. El proveedor

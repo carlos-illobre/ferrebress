@@ -14,6 +14,8 @@ export type FileLine = {
 
 const hex = (sha: string) => Buffer.from(sha, 'hex');
 // Los de una lista que se lee, se aplica o espera su turno no se borran: los necesita.
+type Owner = { id: string; name: string };
+
 const busy = sql`exists (select 1 from price_lists.lists l where l.file_sha256 = f.sha256
   and l.status in ('queued', 'reading', 'applying'))`;
 
@@ -57,17 +59,22 @@ const listing = (db: Db) => ({
 // Borrar uno a mano y deshacerlo.
 const byHand = (db: Db) => ({
   // Lo marca para borrar (R10.2), si no lo necesita una lista; devuelve si se pudo.
-  async mark(sha: string, at: Date): Promise<'marked' | 'in-use' | 'not-found'> {
-    const found = await sql<{ busy: boolean }>`select ${busy} as busy from price_lists.files f
-      where f.sha256 = ${hex(sha)}`.execute(db);
-    if (!found.rows[0]) return 'not-found';
-    if (found.rows[0].busy) return 'in-use';
+  // Lo marca para borrar; devuelve la lista más nueva que lo usaba, para Quién hizo qué.
+  async mark(sha: string, at: Date): Promise<{ list: Owner } | 'in-use' | 'not-found'> {
+    // Un archivo guardado es siempre de alguna lista: las listas no se borran.
+    const found = await sql<{ busy: boolean; list: Owner }>`select ${busy} as busy,
+        (select json_build_object('id', l.id, 'name', l.file_name) from price_lists.lists l
+          where l.file_sha256 = f.sha256 order by l.uploaded_at desc limit 1) as list
+      from price_lists.files f where f.sha256 = ${hex(sha)}`.execute(db);
+    const row = found.rows[0];
+    if (!row) return 'not-found';
+    if (row.busy) return 'in-use';
     await db
       .updateTable('price_lists.files')
       .set({ deleting_at: at })
       .where('sha256', '=', hex(sha))
       .execute();
-    return 'marked';
+    return { list: row.list };
   },
 
   restore: async (sha: string): Promise<boolean> =>

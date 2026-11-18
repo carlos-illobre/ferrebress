@@ -437,26 +437,33 @@ datos de vendedores queda en el dispositivo), con «Reintentar» (E07).
 
 | Archivo | Qué hace |
 |---|---|
-| `index.ts` | La fachada y el registro: rutas, permisos, el campo de la cabecera de nadie (es de `anomalies`), al arrancar copia los lectores del repositorio que cambiaron y retoma lo cortado (§ 8) |
-| `settings.ts` | Lo fijo del módulo: bloques de 5.000 filas, tandas de 1.000, páginas de 50, el tope por bloque de los lectores (5 s, 64 MB), los procesos lectores (2), las subidas por minuto, el día de espera para borrar filas |
-| `realtime.ts` | El tema del avance (ADR-020) |
-| `routes/suppliers.ts`, `routes/lists.ts`, `routes/readers.ts`, `routes/files.ts` | La entrada HTTP de cada parte |
-| `rules/suppliers.ts`, `rules/terms.ts`, `rules/assign.ts`, `rules/review.ts`, `rules/apply.ts`, `rules/files.ts` | Los proveedores, cómo cobra, fijar el proveedor de una lista (§ 2), el resumen, aplicar y qué archivos borrar |
-| `rules/check.ts`, `rules/deduce.ts`, `rules/cells.ts`, `rules/auto.ts` | La comprobación, de quién es y de qué fecha, leer un precio o un IVA de una celda y el lector automático (R5.3, sin SheetJS ni QuickJS: se prueba sin el proceso) |
+| `index.ts` | La fachada y el registro: rutas, permisos, el campo de la cabecera de nadie (es de `anomalies`), al arrancar copia los lectores del repositorio que cambiaron y retoma lo cortado (§ 8), y la limpieza de cada hora |
+| `context.ts` | Lo que cada parte recibe del servidor y de los otros módulos |
+| `settings.ts` | Lo fijo del módulo: tandas de 1.000, el tope por bloque de los lectores (5 s, 64 MB), los procesos lectores (2), las subidas y los cambios por minuto, el avance a lo sumo cada 250 ms, los costos de a 80 en Quién hizo qué, el «Deshacer» de un archivo, el día que esperan las filas y cada cuánto se limpia |
+| `realtime.ts` | El tema del avance (ADR-020), a lo sumo cuatro avisos por segundo por lista |
+| `routes/suppliers.ts`, `routes/supplier-state.ts` | Los proveedores: verlos, darlos de alta, cambiarlos, cómo cobran, darlos de baja y reactivarlos |
+| `routes/upload.ts`, `routes/upload-list.ts`, `routes/lists.ts`, `routes/list-supplier.ts`, `routes/state.ts`, `routes/rows.ts`, `routes/apply.ts` | Las listas: subir (el cuerpo como flujo), su estado y su resumen, de quién es, el detalle, aplicar, cancelar y descartar |
+| `routes/history.ts`, `routes/readers.ts`, `routes/files.ts` | Las listas y los artículos de un proveedor, Lectores y Archivos de listas |
+| `rules/suppliers.ts`, `rules/terms.ts`, `rules/review.ts`, `rules/apply.ts`, `rules/lists.ts`, `rules/pricing.ts`, `rules/format.ts` | Los proveedores, cómo cobra, el resumen, aplicar, cómo se muestra una lista, el costo de una fila y el formato del archivo |
+| `rules/check.ts`, `rules/deduce.ts`, `rules/cells.ts`, `rules/auto.ts`, `rules/auto-content.ts` | La comprobación, de quién es y de qué fecha, leer un precio o un IVA de una celda y el lector automático, por los nombres y por lo que hay en cada columna (R5.3, sin SheetJS ni QuickJS: se prueba sin el proceso) |
 | `data/*.ts` | Las consultas, en lote, por tabla |
 | `reading/pool.ts` | Los procesos lectores: la cola (de identificadores), cancelar, los topes y reemplazar el que muere |
-| `reading/process.ts` | Lo que corre en el proceso lector: abre la planilla y corre los lectores en QuickJS (ADR-021) |
-| `reading/source.ts`, `reading/csv.ts` | De dónde salen las filas: un CSV, de a partes y sin tenerlo entero; un Excel, con SheetJS. Los bloques, de a uno, con sus filas anteriores (ADR-021) |
-| `readers/*.js` | Los lectores de un programador, por formato, con sus pruebas y planillas de ejemplo inventadas (constitución, VIII), que corren también en QuickJS |
-| `readers/auto-1.js` | La plantilla del lector automático: código fijo que recibe sus datos aparte |
-| `events.ts`, `migrations/`, `tables.generated.ts` | Como todo módulo |
+| `reading/process.ts`, `reading/job.ts`, `reading/messages.ts` | Lo que corre en el proceso lector: abre la planilla, elige el lector, lo corre de a bloques y cuenta lo que pasa (ADR-021) |
+| `reading/source.ts`, `reading/csv.ts`, `reading/workbook.ts`, `reading/zip.ts` | De dónde salen las filas: un CSV, de a partes y sin tenerlo entero; un Excel, con SheetJS, después de mirar el índice del ZIP. Los bloques, de a uno, con sus filas anteriores |
+| `reading/sandbox.ts` | Correr un lector encerrado en QuickJS, con sus topes |
+| `reading/service.ts`, `reading/steps.ts`, `reading/assign.ts`, `reading/pricing.ts`, `reading/resume.ts` | Del lado del servidor: lo que hace con cada cosa que cuenta el proceso, fijar el proveedor, el costo de cada fila y retomar lo cortado |
+| `apply/service.ts`, `apply/apply-in.ts`, `apply/anomalies.ts` | Aplicar de a tandas en una transacción, la cola de cada proveedor y la anomalía de las salteadas |
+| `files/cleanup.ts` | Lo que se borra solo (§ 8) |
+| `readers/auto-1.js` | La plantilla del lector automático: código fijo que recibe sus datos aparte. Los lectores de un programador van en esta carpeta, por formato, con sus pruebas y planillas de ejemplo inventadas (constitución, VIII) |
+| `migrations/`, `tables.generated.ts` | Como todo módulo |
 
 ### `catalog` y `anomalies`
 
 - **`src/server/modules/catalog/`:** `index.ts` (la fachada: crear, actualizar, poner el costo, quitar el
   costo de un proveedor, dar de baja y traer de vuelta productos en lote, dentro de una transacción ajena), `data.ts` y su migración.
-- **`src/server/modules/anomalies/`:** `index.ts` (la fachada `open` y `close`, y el campo de la cabecera),
-  `routes.ts`, `rules.ts`, `data.ts`, `events.ts` y su migración.
+- **`src/server/modules/anomalies/`:** `index.ts` (la fachada `open` y `close`, y el campo de la cabecera,
+  que se cuenta de nuevo al confirmar), `context.ts`, `routes.ts`, `rules.ts`, `data.ts`, `settings.ts` y
+  su migración.
 
 ### Lo que cambia en otros módulos
 
@@ -466,35 +473,38 @@ datos de vendedores queda en el dispositivo), con «Reintentar» (E07).
 - **`audit-log` (05):** el grupo «Listas de precios», los textos de § 5 y mostrar los cambios de cada
   artículo dentro del evento de la lista.
 
-### Código común (una tarea propia, primero)
+### Código común
 
-- `src/shared/pricing/cost.ts`: la cuenta del costo y sus pasos (R3.3, R3.4), en `BigInt`.
+- `src/shared/pricing/cost.ts` y `basis.ts`: la cuenta del costo y sus pasos (R3.3, R3.4), en `BigInt`, y
+  la base que guarda cada artículo.
 - `src/shared/money/`: mostrar millonésimos redondeados al centavo, la mitad para arriba.
-- `src/shared/text/searchKey.ts`: el texto sin acentos, sin mayúsculas y sin espacios de más, para
+- `src/shared/text/search-key.ts`: el texto sin acentos, sin mayúsculas y sin espacios de más, para
   guardarlo y buscarlo.
-- `src/server/platform/files.ts`: el almacén de archivos por contenido (guardar como flujo, leer de a
-  partes, borrar), en un volumen; mañana, un bucket.
+- `src/server/platform/storage/files.ts`: el almacén de archivos por contenido (guardar como flujo, leer
+  de a partes, borrar, los temporales viejos), en un volumen; mañana, un bucket.
 - `src/server/platform/http.ts`: `http.upload`, la excepción con nombre para subir.
 - `src/server/platform/download.ts`: devolver un archivo para bajar con las cabeceras de § 3.
-- `src/app/platform/server/upload.ts`: subir con su avance (`XMLHttpRequest`), usando lo de `api.ts` para
-  las cabeceras, la respuesta y los errores, y el punto de enganche del medidor de datos.
+- `src/app/platform/server/upload.ts` y `download.ts`: subir con su avance (`XMLHttpRequest`) y bajar,
+  usando lo de `api.ts` para las cabeceras, la respuesta y los errores.
 - `deploy/`: el volumen de los archivos, `mem_limit` del contenedor del servidor y el camino de 100 MB en
   Caddy.
 
 ### La aplicación, `src/app/modules/price-lists/` y `anomalies/`
 
-| Archivo | Qué hace |
+| Carpeta o archivo | Qué hace |
 |---|---|
-| `api.ts` | Las llamadas de § 3 |
-| `useSuppliers.ts` | Catálogo → Listas (screens.md, 1) |
-| `uploads.ts`, `useUploads.ts` | Las listas que se suben y se leen, cada una con su avance y su pregunta (R4.10): viven en un almacén del módulo, fuera de cualquier pantalla, así siguen mientras se trabaja en otra cosa; la vista básica pone su panel en su composición (el shell no sabe de listas) |
-| `useListReview.ts` | Ver qué cambia y aplicar (screens.md, 3) |
-| `useSupplier.ts` | La pantalla de un proveedor, en partes (screens.md, 4) |
-| `useReaders.ts`, `useFiles.ts` | Administración → Lectores y Archivos de listas |
-| `anomalies/useAnomalies.ts` | Administración → Anomalías (06 · R9) |
-| `texts.ts`, `shortcuts/*.ts` | Los textos y los atajos de cada pantalla |
+| `api.ts`, `schemas.ts`, `pages.ts`, `download.ts` | Las llamadas de § 3, la forma de lo que se espeja, qué pantalla del catálogo está abierta y bajar un archivo |
+| `suppliers/` | Catálogo → Listas (screens.md, 1) |
+| `uploads/` | Las listas que se suben y se leen, cada una con su avance y su pregunta (R4.10): viven en un almacén del módulo, fuera de cualquier pantalla, así siguen mientras se trabaja en otra cosa, y se espejan con el otro dispositivo (`mirror.ts`); la vista básica pone su panel en su composición (el shell no sabe de listas) |
+| `review/` | Ver qué cambia y aplicar (screens.md, 3) |
+| `supplier/` | La pantalla de un proveedor, en partes (screens.md, 4) |
+| `admin/` | Administración → Lectores y Archivos de listas |
+| `shortcuts/`, `settings.ts`, `texts-status.ts` | Los atajos de cada pantalla, lo fijo y cómo se dicen los estados y los motivos |
+| `model.ts` | Lo que usan las vistas (ADR-019) |
+| `anomalies/` | Administración → Anomalías (06 · R9), y el número del menú (`watch.ts`) |
 
-Las vistas, en `src/app/views/basic/price-lists/` y `anomalies/` (ADR-019).
+Las vistas, en `src/app/views/basic/price-lists/` y `anomalies/` (ADR-019); el aviso de sin conexión, el
+buscador y los botones que comparten, en `views/basic/ui/`.
 
 ## 8. Lo cortado, lo que vuelve a leerse y lo que se borra solo
 
@@ -582,7 +592,7 @@ Los modelos de § 7, con lo que espeja cada uno (ADR-019):
   - **Los datos de los proveedores:** con sus largos; el correo con forma de correo.
 - **Secretos:** ninguno en esta etapa (la clave de la IA es de la etapa b).
 - **Abuso:** 10 subidas por minuto por persona (la clave sale de la sesión, no de una cabecera que elige
-  quien manda); la cola guarda identificadores; 2 procesos lectores para todo el servidor; aplicar, de a
+  quien manda); 60 cambios por minuto por sesión en los proveedores, las listas y los lectores; la cola guarda identificadores; 2 procesos lectores para todo el servidor; aplicar, de a
   una lista a la vez en todo el servidor; bajar archivos, 2 a la vez por persona; el disco, con los
   ajustes de 06 · R8.6 y R8.7.
 - **Dependencias:** SheetJS 0.20.3 bajado de su sitio y guardado en `src/server/vendor/`, con su suma de comprobación en el `pnpm-lock.yaml`

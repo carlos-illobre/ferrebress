@@ -8,6 +8,7 @@ import type { RequestSession } from '../../platform/session.ts';
 import { asDb } from './data/db.ts';
 import { type ListRecord, readingData } from './data/reading.ts';
 import { progressOf } from './rules/lists.ts';
+import { priceListsSettings } from './settings.ts';
 
 export const listTopic = 'price-lists.list';
 const permission = 'price-lists.costs';
@@ -20,6 +21,28 @@ const progress = z.strictObject({
   rowsTotal: z.optional(z.int()),
   reason: z.optional(z.string()),
 });
+
+// A lo sumo un aviso cada `progressMs` por lista: lo que llega en el medio espera y sale el último. Un
+// cambio de estado o de lo que espera sale enseguida.
+function throttled(publish: (listId: string, progress: ListProgress) => void) {
+  const last = new Map<string, { at: number; progress: ListProgress; timer?: NodeJS.Timeout }>();
+  const now = (listId: string, progress: ListProgress) => {
+    clearTimeout(last.get(listId)?.timer);
+    last.set(listId, { at: Date.now(), progress });
+    publish(listId, progress);
+  };
+  return (listId: string, progress: ListProgress) => {
+    const before = last.get(listId);
+    const changed =
+      !before ||
+      before.progress.status !== progress.status ||
+      before.progress.waitingFor !== progress.waitingFor;
+    const wait = before ? before.at + priceListsSettings.progressMs - Date.now() : 0;
+    if (changed || wait <= 0) return now(listId, progress);
+    clearTimeout(before.timer);
+    before.timer = setTimeout(() => now(listId, progress), wait);
+  };
+}
 
 export function registerListTopic(platform: Platform) {
   const { realtime, permissions } = platform;
@@ -40,14 +63,14 @@ export function registerListTopic(platform: Platform) {
     },
     recheckOn: ['users.permissions-changed'],
   });
+  const send = throttled((listId, now) => realtime.publish(listTopic, listId, now));
   return {
     // Avisa el avance de una lista a quien la mira. Las listas no se borran: la que se avisa existe.
     publish: async (listId: string) => {
       const list = (await data.one(listId)) as ListRecord;
-      realtime.publish(listTopic, listId, progressOf(list));
+      send(listId, progressOf(list));
     },
     // Mientras se aplica, sin consultar la base (la tiene la transacción que aplica).
-    progress: (listId: string, progress: ListProgress) =>
-      realtime.publish(listTopic, listId, progress),
+    progress: (listId: string, progress: ListProgress) => send(listId, progress),
   };
 }

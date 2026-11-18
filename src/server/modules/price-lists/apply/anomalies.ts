@@ -7,8 +7,7 @@ import { asDb } from '../data/db.ts';
 import type { ListRecord } from '../data/reading.ts';
 import { reviewData } from '../data/review.ts';
 import type { SupplierRecord } from '../data/suppliers.ts';
-
-const subjectOf = (listId: string) => `price-lists:list:${listId}`;
+import { subjectOf } from '../rules/lists.ts';
 
 export async function closeSkipped(
   ctx: PriceListsContext,

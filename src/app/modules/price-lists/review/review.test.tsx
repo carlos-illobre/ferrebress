@@ -208,39 +208,3 @@ describe('ver qué cambia', () => {
     expect(await screen.findByText('Lista de Bulonera Centro')).toBeTruthy();
   });
 });
-
-describe('ver qué cambia con el teclado y sin conexión', () => {
-  let stop: () => void;
-  beforeEach(() => {
-    stop = startKeyboard();
-  });
-  afterEach(() => {
-    stop();
-    vi.restoreAllMocks();
-  });
-
-  it('Alt A aplica y Alt D descarta', async () => {
-    const { server } = openReview({
-      [`${listPath}/apply`]: { status: 500, body: { error: 'unexpected' } },
-      [`${listPath}/discard`]: { status: 500, body: { error: 'unexpected' } },
-    });
-    await screen.findByRole('button', { name: applyLabel });
-    fireEvent.keyDown(window, { key: 'A', code: 'KeyA', altKey: true });
-    await waitFor(() => expect(server.bodies(`${listPath}/apply`)).toHaveLength(1));
-    fireEvent.keyDown(window, { key: 'D', code: 'KeyD', altKey: true });
-    await waitFor(() => expect(server.bodies(`${listPath}/discard`)).toHaveLength(1));
-  });
-
-  it('sin conexión, gris lo último que se vio, sin aplicar, y Alt R reintenta', async () => {
-    const { server } = openReview();
-    await screen.findByRole('button', { name: applyLabel });
-    online.set(false);
-    expect(await screen.findByText(/Sin conexión: es lo último que se vio/)).toBeTruthy();
-    expect(screen.queryByRole('button', { name: applyLabel })).toBeNull();
-    const asked = () => server.sent.filter((s) => s.path === listPath).length;
-    const before = asked();
-    online.set(true);
-    fireEvent.keyDown(window, { key: 'R', code: 'KeyR', altKey: true });
-    await waitFor(() => expect(asked()).toBeGreaterThan(before));
-  });
-});

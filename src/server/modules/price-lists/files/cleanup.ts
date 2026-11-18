@@ -6,9 +6,9 @@ import type { PriceListsContext } from '../context.ts';
 import { asDb } from '../data/db.ts';
 import { filesData } from '../data/files.ts';
 
+import { priceListsSettings } from '../settings.ts';
+
 const day = 24 * 60 * 60_000;
-// Lo que dura el «Deshacer» de un archivo borrado a mano (06 · R10.2).
-export const undoMs = 5000;
 
 // Cada uno: las listas dicen que ya no se guarda y sale del almacén.
 async function remove(ctx: PriceListsContext, shas: readonly string[]) {
@@ -29,10 +29,11 @@ export async function cleanUp(ctx: PriceListsContext) {
   const now = ctx.platform.clock.now().getTime();
   const data = filesData(asDb(ctx.platform.db));
   const days = ctx.settings().unappliedFileDays;
+  const { undoMs, rowsKeepMs } = priceListsSettings;
   await remove(ctx, await data.due(new Date(now - undoMs), new Date(now - days * day)));
   await keepUnderLimit(ctx);
   const known = await data.known();
   for (const sha of await ctx.platform.files.list())
     if (!known.has(sha)) await ctx.platform.files.remove(sha);
-  await data.dropOldRows(new Date(now - day));
+  await data.dropOldRows(new Date(now - rowsKeepMs));
 }
