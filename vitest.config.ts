@@ -55,6 +55,8 @@ export default defineConfig({
         '**/*.config.ts',
         '**/*.test.{ts,tsx}',
         '**/*.perf.ts',
+        // Lo usan solo las pruebas de rendimiento, que no cuentan para la cobertura.
+        'src/server/testing/perf.ts',
       ],
       thresholds: { lines: 100, branches: 100, functions: 100, statements: 100 },
     },

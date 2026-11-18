@@ -79,7 +79,11 @@ async function change(
     return c.json<ConfirmPrices & { error: string }>({ error: 'confirm-prices', prices }, 409);
   if (check.kind === 'same') return c.json<SaveSettingResponse>(before);
   const { userId } = sessionOf(c);
-  const { saved, changed } = await saveIn(ctx, key, check.value, version, userId);
+  const { saved, changed } = await saveIn(
+    ctx,
+    { key, value: check.value, version, prices },
+    userId,
+  );
   if (saved === undefined) return changedBy(ctx, c, key);
   const after = { value: check.value, version: saved };
   ctx.memory.put(key, after);
@@ -92,15 +96,15 @@ async function change(
 }
 
 // Guarda con la versión que se vio y, en el redondeo, recalcula en la misma transacción: si el
-// recálculo falla, la transacción se deshace y no cambia nada (R3.5, E22). Devuelve también cuántos
-// precios cambiaron de verdad, para Quién hizo qué.
+// recálculo falla, la transacción se deshace y no cambia nada (R3.5, E22); si cambiaron otros precios
+// que los que se confirmaron (alguien cambió costos en el medio), también, y se vuelve a preguntar
+// con el número de ahora (R3.4, E41). Devuelve cuántos cambiaron de verdad, para Quién hizo qué.
 function saveIn(
   ctx: AdministrationContext,
-  key: SettingKey,
-  value: unknown,
-  version: number,
+  change: { key: SettingKey; value: unknown; version: number; prices: number },
   userId: string,
 ): Promise<{ saved: number | undefined; changed: number }> {
+  const { key, value, version, prices } = change;
   return ctx.platform.db.transaction().execute(async (trx) => {
     const data = administrationData(trx as Kysely<AdministrationTables>);
     const saved = await data.save(key, value, version, userId);
@@ -109,6 +113,7 @@ function saveIn(
       console.error(error);
       throw new Refused(503, 'recalc-failed');
     });
+    if (changed !== prices) throw new Refused(409, 'confirm-prices', { prices: changed });
     return { saved, changed };
   });
 }

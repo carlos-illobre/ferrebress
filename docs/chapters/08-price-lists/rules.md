@@ -579,6 +579,7 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
   que se le cambió el IVA a mano a 10,5 %, **cuando** se aplica la lista, **entonces** al precio se le
   quita el 21 %.
 
-Los escenarios E12, E13, E74 (un producto con dos proveedores), E28, E72, E76 y E95 (lo cambiado a mano
-en un producto) piden lo que hace el capítulo 07: se prueban cuando exista.
+Los escenarios E12, E13 y E74 (un producto con dos proveedores) piden lo que hace la etapa c del capítulo
+07: se prueban con ella. E28, E72, E76 y E95 (lo cambiado a mano en un producto) se prueban con el
+catálogo.
 

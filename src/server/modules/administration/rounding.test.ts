@@ -72,6 +72,20 @@ describe('cambiar el redondeo', () => {
     fake.fail = false;
   });
 
+  it('administration-E41: si al recalcular cambian otros que los confirmados, no guarda y vuelve a preguntar', async () => {
+    const real = recalculator.apply;
+    recalculator.apply = async () => 1701;
+    try {
+      expect(await save({ value: 50_000, version: 0, confirmed: 1700 })).toMatchObject({
+        status: 409,
+        body: { error: 'confirm-prices', prices: 1701 },
+      });
+      expect(step()).toBe(100_000);
+    } finally {
+      recalculator.apply = real;
+    }
+  });
+
   it('administration-E19: confirmado, recalcula y queda con cuántos precios cambiaron', async () => {
     const saved = await save({ value: 50_000, version: 0, confirmed: 1700 });
     expect(saved).toMatchObject({ status: 200, body: { value: 50_000, version: 1 } });

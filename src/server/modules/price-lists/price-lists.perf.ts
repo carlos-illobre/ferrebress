@@ -2,7 +2,9 @@
 // leer, el resumen, una página del detalle, aplicar, los artículos de un proveedor y recalcular. Las
 // metas de tiempo son las del diseño; la base de pruebas (PGlite) es más lenta que PostgreSQL, así que
 // lo que pasa acá pasa con más margen en el servidor. Imprime cada medida para anotarla.
+
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { createTimer } from '../../testing/perf.ts';
 import { createListsKit, type ListsKit } from '../../testing/price-lists/lists-kit.ts';
 import { xlsx } from '../../testing/price-lists/sheets.ts';
 
@@ -19,14 +21,7 @@ const sheet = (offset: number) =>
     ]),
   ]);
 
-const measured: Record<string, string> = {};
-const timed = async <T>(name: string, run: () => Promise<T>) => {
-  const started = performance.now();
-  const value = await run();
-  const ms = performance.now() - started;
-  measured[name] = `${Math.round(ms)} ms`;
-  return { value, ms };
-};
+const { measured, timed } = createTimer();
 
 describe('el rendimiento de las listas de precios, con 10.000 filas', () => {
   let kit: ListsKit;

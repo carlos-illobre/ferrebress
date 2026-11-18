@@ -19,8 +19,13 @@ export type Query = { text: string; brand?: string | undefined; noPrice?: boolea
 // Los encontrados en orden; los números, de todo el catálogo o de la marca elegida (07 · E16).
 export type Found = { ids: string[]; total: number; noPrice: number };
 
-// Un vocabulario ordenado, cada entrada con los productos que la tienen (en orden de la lista).
-type Vocabulary = { terms: string[]; postings: number[][] };
+// Un vocabulario ordenado, cada entrada con los productos que la tienen (en orden de la lista), todos
+// en un solo arreglo plano: los del término `i` van de `starts[i]` a `starts[i + 1]`. Así no hay un
+// arreglo por término, que con 100.000 códigos pesa más que lo que guarda.
+type Vocabulary = { terms: string[]; starts: Uint32Array; flat: Uint32Array };
+
+const postingsOf = (vocabulary: Vocabulary, i: number): Uint32Array =>
+  vocabulary.flat.subarray(vocabulary.starts[i], vocabulary.starts[i + 1]);
 
 const maxWords = 8;
 const typoFrom = 4;
@@ -29,7 +34,15 @@ const collator = new Intl.Collator('es', { sensitivity: 'base', numeric: true })
 
 function vocabularyOf(entries: Map<string, number[]>): Vocabulary {
   const terms = [...entries.keys()].sort();
-  return { terms, postings: terms.map((term) => entries.get(term) as number[]) };
+  const starts = new Uint32Array(terms.length + 1);
+  terms.forEach((term, i) => {
+    starts[i + 1] = (starts[i] as number) + (entries.get(term) as number[]).length;
+  });
+  const flat = new Uint32Array(starts[terms.length] as number);
+  terms.forEach((term, i) => {
+    flat.set(entries.get(term) as number[], starts[i]);
+  });
+  return { terms, starts, flat };
 }
 
 const add = (entries: Map<string, number[]>, term: string, ord: number) => {
@@ -38,18 +51,33 @@ const add = (entries: Map<string, number[]>, term: string, ord: number) => {
   else if (list.at(-1) !== ord) list.push(ord);
 };
 
-// Los términos que empiezan con `prefix`, por búsqueda binaria.
-function* withPrefix(vocabulary: Vocabulary, prefix: string): Generator<number[]> {
-  const { terms } = vocabulary;
+// El primer término que no es menor que `term`, por búsqueda binaria.
+function lowerBound(terms: readonly string[], term: string): number {
   let low = 0;
   let high = terms.length;
   while (low < high) {
     const middle = (low + high) >> 1;
-    if ((terms[middle] as string) < prefix) low = middle + 1;
+    if ((terms[middle] as string) < term) low = middle + 1;
     else high = middle;
   }
-  for (let i = low; i < terms.length && (terms[i] as string).startsWith(prefix); i++)
-    yield vocabulary.postings[i] as number[];
+  return low;
+}
+
+// Los términos que empiezan con `prefix`.
+function* withPrefix(vocabulary: Vocabulary, prefix: string): Generator<Uint32Array> {
+  const { terms } = vocabulary;
+  for (
+    let i = lowerBound(terms, prefix);
+    i < terms.length && (terms[i] as string).startsWith(prefix);
+    i++
+  )
+    yield postingsOf(vocabulary, i);
+}
+
+// Los que tienen ese término entero.
+function exactly(vocabulary: Vocabulary, term: string): Uint32Array {
+  const i = lowerBound(vocabulary.terms, term);
+  return vocabulary.terms[i] === term ? postingsOf(vocabulary, i) : new Uint32Array();
 }
 
 function build(docs: readonly SearchDoc[]) {
@@ -76,14 +104,13 @@ function build(docs: readonly SearchDoc[]) {
     ordOf: new Map(sorted.map((doc, ord) => [doc.id, ord])),
     words: vocabulary,
     codes: vocabularyOf(codes),
-    exactCodes: codes,
     byLength,
   };
 }
 
 type Built = ReturnType<typeof build>;
 
-const markAll = (marks: Uint8Array, list: readonly number[], bit: number) => {
+const markAll = (marks: Uint8Array, list: Uint32Array, bit: number) => {
   for (const ord of list) marks[ord] = (marks[ord] as number) | bit;
 };
 
@@ -99,7 +126,7 @@ function markTypos(built: Built, word: string, bit: number, marks: Uint8Array) {
   for (const length of [word.length - 1, word.length, word.length + 1])
     for (const t of built.byLength.get(length) ?? [])
       if (withinOne(word, built.words.terms[t] as string))
-        markAll(marks, built.words.postings[t] as number[], bit);
+        markAll(marks, postingsOf(built.words, t), bit);
 }
 
 // Marca lo que encontró cada palabra: sin error y empezada en `exact`, con un error en `typo`.
@@ -126,7 +153,7 @@ function grouper(built: Built, text: string) {
   const words = wordsIn(text);
   const all = (1 << words.length) - 1;
   const { exact, typo } = mark(built, words);
-  const byCode = new Set(built.exactCodes.get(codeOf(text)) ?? []);
+  const byCode = new Set(exactly(built.codes, codeOf(text)));
   return (ord: number): number | undefined => {
     if (byCode.has(ord)) return 0;
     if (exact[ord] === all) return 1;

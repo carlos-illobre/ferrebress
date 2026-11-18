@@ -3,8 +3,9 @@
 Productos, proveedores, costo, margen, precio, búsqueda y la ficha del producto, en tres etapas:
 **a. catálogo base**, **b. código y foto** (con 03b) y **c. duplicados e historia** (después de 08a).
 
-**Estado:** etapa a, en el paso 1, en dos partes: **a1**, el servidor y buscar, y **a2**, las pantallas.
-Las reglas todavía no están escritas; abajo, lo que Carlos ya confirmó.
+**Estado:** etapa a, en dos partes: **a1**, el servidor y buscar, con sus [reglas](rules.md) aprobadas y
+programada; **a2**, las pantallas, por escribir. Abajo, lo confirmado que no está en las reglas de a1
+(sobre todo, de la etapa c).
 
 ## Lo confirmado
 

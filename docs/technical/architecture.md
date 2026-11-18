@@ -217,7 +217,8 @@ lo que los módulos guardan en memoria para él, como los vínculos y los códig
 de PostgreSQL y una tabla chica), los nombres de los dispositivos de 04 y los ajustes para todos de 06
 (cada copia los carga al arrancar; un cambio tendría que avisar a las demás), cuántas anomalías hay
 abiertas (se cuentan al arrancar y se suman o restan al confirmar: con varias copias, se contarían en la
-base o se avisarían entre ellas) y la auditoría (un solo escritor). El reenvío entre el celular y la
+base o se avisarían entre ellas) la auditoría (un solo escritor) y el índice para buscar productos de 07 (cada copia arma el suyo al
+arrancar; un cambio confirmado en una tendría que avisar a las demás, ADR-022). El reenvío entre el celular y la
 computadora necesita además que los dos caigan en la misma copia (ADR-017).
 
 Las listas de precios se leen fuera del proceso del servidor, en dos procesos lectores que se reusan, cada

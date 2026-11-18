@@ -1,6 +1,6 @@
 # ADR-022: Buscar en el catálogo con un índice en la memoria del servidor
 
-**Estado:** propuesto
+**Estado:** aceptado
 
 ## Contexto
 
@@ -39,7 +39,8 @@ productos, con lo que devuelve la fachada del catálogo; si eso falla, se vuelve
 
 - La búsqueda no consulta la base por cada letra: lo único que va a la base es la página.
 - El orden es exactamente el que piden las reglas, sin depender de cómo puntúa una extensión.
-- Unos 30 MB de memoria con 100.000 productos (60 MB con el tope) y unos 2 s al arrancar.
+- Unos 42 MB de memoria con 100.000 productos (unos 85 MB con el tope), medidos, y menos de 2 s al
+  arrancar. Las listas de cada palabra van en un solo arreglo plano: una por palabra pesaba más.
 - Con varias copias del servidor, cada una tiene su índice y se pone al día con lo que confirma; la
   arquitectura lo suma a «Escala»: un cambio en una copia tendría que avisar a las demás.
 - Si un día la meta no se cumple o la memoria no alcanza, se cambia el índice detrás de la misma

@@ -9,7 +9,7 @@ buscar** (este documento) y **a2. las pantallas** (la lista, la ficha y el tecla
 `screens.md`); **b. Código y foto**; y **c. Duplicados e historia**, que se escriben cuando les toque.
 Lo que Carlos ya confirmó de la etapa c está en el [resumen](summary.md).
 
-**Estado:** a1, reglas aprobadas; a2, b y c, por escribir.
+**Estado:** a1, reglas aprobadas y programadas; a2, b y c, por escribir.
 
 **Lo que no está acá, y por qué:**
 
