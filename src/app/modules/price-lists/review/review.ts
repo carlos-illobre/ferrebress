@@ -32,7 +32,7 @@ export function useReview(listId: string) {
   const data = useListData(listId);
   const { online, canLoad, seen } = usePerson(data.state.data);
   const [said, say] = useState<string>(); // local: lo que pasó al intentar algo
-  const [opened, setOpened] = useState<number>(); // local: la cuenta que se mira
+  const [opened, setOpened] = useState<string>(); // local: la cuenta que se mira
   const reload = () => {
     data.state.invalidate();
     data.rows.invalidate();
@@ -47,11 +47,15 @@ export function useReview(listId: string) {
     view: state && viewOf(state, progress, data.show),
     rows: (data.rows.data?.rows ?? []).map(rowLines),
     hasMore: !!data.rows.data?.next,
+    flagged: (data.flagged?.data?.rows ?? []).map(rowLines),
+    // Si hay más para revisar que los que se ven arriba, se ven todos con su filtro.
+    moreFlagged: !!data.flagged?.data?.next,
+    allFlagged: () => data.setShow('review'),
     ...{ said, live, search: data.search, setSearch: data.setSearch, more: data.more },
     toggleShow: (value: Show) => data.setShow(data.show === value ? null : value),
-    isOpen: (index: number) => opened === index,
-    costLabel: (index: number) => (opened === index ? texts.hideCost : texts.howCost),
-    toggleCost: (index: number) => setOpened(opened === index ? undefined : index),
+    isOpen: (key: string) => opened === key,
+    costLabel: (key: string) => (opened === key ? texts.hideCost : texts.howCost),
+    toggleCost: (key: string) => setOpened(opened === key ? undefined : key),
     canApply: may && state?.status === 'pending' && !!state.summary && !state.summary.tooOld,
     canDiscard: may && state?.status === 'pending',
     canCancel: may && state?.status === 'applying',

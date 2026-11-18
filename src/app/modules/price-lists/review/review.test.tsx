@@ -39,14 +39,15 @@ describe('ver qué cambia', () => {
     expect(screen.getByText('Salteada: sin código')).toBeTruthy();
     expect(screen.getByText('Sin código · 100')).toBeTruthy();
     fireEvent.click(button('Ver la cuenta'));
-    expect(screen.getByText('Precio de lista: $ 1.210,00')).toBeTruthy();
-    expect(screen.getByText('Sin IVA (21 %): $ 1.000,00')).toBeTruthy();
-    expect(screen.getByText('Pronto pago (2,5 %): $ 975,00')).toBeTruthy();
+    expect(screen.getByText('Precio de lista $ 1.210,00')).toBeTruthy();
+    expect(screen.getByText('− 21 % IVA = $ 1.000,00')).toBeTruthy();
+    expect(screen.getByText('− 2,5 % Pronto pago = $ 975,00')).toBeTruthy();
+    expect(screen.getByText('De la lista del 10/11/2023')).toBeTruthy();
     // Bajar el archivo original (R4.4): si ya no se guarda, se dice.
     fireEvent.click(button('Bajar el archivo'));
     await waitFor(() => expect(toast()).not.toBe(''));
     fireEvent.click(button('Ocultar la cuenta'));
-    expect(screen.queryByText('Precio de lista: $ 1.210,00')).toBeNull();
+    expect(screen.queryByText('Precio de lista $ 1.210,00')).toBeNull();
   });
 
   it('price-lists-R6.4: cada número filtra el detalle; «para revisar» explica por qué; tocar de nuevo lo saca', async () => {

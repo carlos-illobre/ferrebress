@@ -4,6 +4,7 @@
 import type { SupplierRow } from '@ferrebress/shared/contracts/price-lists';
 import { businessDateOf } from '@ferrebress/shared/time/business';
 import { plain } from '../../../platform/text.ts';
+import { shownDate } from '../../../platform/time.ts';
 import { listReasonTexts } from '../texts-status.ts';
 import { suppliersTexts as texts } from './texts-suppliers.ts';
 
@@ -36,13 +37,12 @@ export function shownOf(rows: readonly SupplierRow[], search: string, filter: Su
 }
 
 const day = 24 * 60 * 60_000;
-const ddmmyyyy = (date: string) => date.split('-').reverse().join('/');
 
 // La fecha de la última lista aplicada y hace cuántos días, en días del negocio.
 function lastListOf(date: string, now: number): string {
   const today = businessDateOf(new Date(now));
   const days = Math.max(0, Math.round((Date.parse(today) - Date.parse(date)) / day));
-  return texts.lastList(ddmmyyyy(date), texts.daysAgo(days));
+  return texts.lastList(shownDate(date), texts.daysAgo(days));
 }
 
 function pendingOf(row: SupplierRow): string | undefined {

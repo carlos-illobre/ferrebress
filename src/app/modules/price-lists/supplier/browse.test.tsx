@@ -56,6 +56,11 @@ describe('un proveedor: listas y productos', () => {
     expect(screen.getByText(/La aplicó Marta/)).toBeTruthy();
     expect(screen.getByText(/La descartó alguien/)).toBeTruthy();
     expect(screen.getByText('Descartada · Se descartó a mano')).toBeTruthy();
+    // Cada una con su archivo para bajar, o que ya no se guarda (R6.7, R4.4).
+    expect(screen.getAllByRole('button', { name: 'Bajar el archivo' })).toHaveLength(1);
+    expect(screen.getAllByText('Ya no se guarda el archivo')).toHaveLength(2);
+    fireEvent.click(screen.getByRole('button', { name: 'Bajar el archivo' }));
+    await waitFor(() => expect(toast()).not.toBe(''));
     fireEvent.click(screen.getByRole('button', { name: 'Ver más' }));
     await waitFor(() => expect(toast()).toContain('No se pudo guardar'));
     fireEvent.click(screen.getByRole('button', { name: 'Ver más' }));
@@ -92,7 +97,7 @@ describe('un proveedor: listas y productos', () => {
     expect(await screen.findByText('Artículo A1')).toBeTruthy();
     expect(screen.getByText('$ 750,00')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Ver la cuenta' }));
-    expect(screen.getByText('General (25 %): $ 750,00')).toBeTruthy();
+    expect(screen.getByText('− 25 % General = $ 750,00')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Ocultar la cuenta' }));
     fireEvent.click(screen.getByRole('button', { name: 'Ver más' }));
     await waitFor(() => expect(toast()).toContain('No se pudo guardar'));

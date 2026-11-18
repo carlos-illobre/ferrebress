@@ -11,7 +11,7 @@ import { useScreen } from '../../../platform/screens.ts';
 import { online as onlineStore } from '../../../platform/server/api.ts';
 import { useStore } from '../../../platform/store.ts';
 import { plain } from '../../../platform/text.ts';
-import { dateOf, formatTime, nowMs } from '../../../platform/time.ts';
+import { dateOf, formatTime, nowMs, shownDate } from '../../../platform/time.ts';
 import { notify } from '../../../platform/view/notify.ts';
 import { openAdminPage } from '../../administration/index.ts';
 import { person as me } from '../../sign-in/index.ts';
@@ -41,7 +41,7 @@ export const readerLines = (reader: ReaderView) => ({
   last: reader.lastList
     ? texts.lastList(
         reader.lastList.fileName,
-        reader.lastList.listDate?.split('-').reverse().join('/'),
+        reader.lastList.listDate && shownDate(reader.lastList.listDate),
       )
     : texts.noList,
   state: reader.active ? texts.active : texts.inactive,

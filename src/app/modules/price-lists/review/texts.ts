@@ -67,13 +67,18 @@ export const reviewTexts = {
   newCost: (amount: string) => `Ahora ${amount}`,
   noPrevious: 'Nuevo',
   gone: 'Ya no viene',
+  flaggedTitle: 'Para revisar',
+  allTitle: 'Todos',
+  allFlagged: 'Ver todos los para revisar',
   howCost: 'Ver la cuenta',
   hideCost: 'Ocultar la cuenta',
+  // Como en E17: «Precio de lista $ 2.314,00», «− 25 % General = $ 1.735,50».
   steps: {
-    list: (amount: string) => `Precio de lista: ${amount}`,
-    vat: (vat: string, amount: string) => `Sin IVA (${vat} %): ${amount}`,
+    list: (amount: string) => `Precio de lista ${amount}`,
+    vat: (vat: string, amount: string) => `− ${vat} % IVA = ${amount}`,
     discount: (name: string, percent: string, amount: string) =>
-      `${name} (${percent} %): ${amount}`,
+      `− ${percent} % ${name} = ${amount}`,
+    date: (date: string) => `De la lista del ${date}`,
   },
   skippedRow: (why: string) => `Salteada: ${why}`,
   more: 'Ver más',

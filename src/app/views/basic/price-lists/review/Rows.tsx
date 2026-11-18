@@ -6,8 +6,8 @@ import {
   reviewTexts as texts,
 } from '../../../../modules/price-lists/model.ts';
 
-function Row({ view, row, index }: { view: Review; row: RowLines; index: number }) {
-  const open = view.isOpen(index);
+function Row({ view, row, at }: { view: Review; row: RowLines; at: string }) {
+  const open = view.isOpen(at);
   return (
     <li class="review-row">
       <div class="review-product">
@@ -24,8 +24,8 @@ function Row({ view, row, index }: { view: Review; row: RowLines; index: number 
           <b>{row.cost}</b>
           {row.variation && <span class="review-variation">{row.variation}</span>}
           {row.steps && (
-            <button type="button" data-mark="" onClick={() => view.toggleCost(index)}>
-              {view.costLabel(index)}
+            <button type="button" data-mark="" onClick={() => view.toggleCost(at)}>
+              {view.costLabel(at)}
             </button>
           )}
         </div>
@@ -41,13 +41,35 @@ function Row({ view, row, index }: { view: Review; row: RowLines; index: number 
   );
 }
 
+// «Para revisar», aparte y arriba de todo (R6.4, E57).
+function Flagged({ view }: { view: Review }) {
+  if (view.flagged.length === 0) return null;
+  return (
+    <section class="review-flagged">
+      <h3>{texts.flaggedTitle}</h3>
+      <ul class="review-rows">
+        {view.flagged.map((row, index) => (
+          <Row key={`f${index}-${row.code}`} view={view} row={row} at={`f${index}`} />
+        ))}
+      </ul>
+      {view.moreFlagged && (
+        <button type="button" class="lists-button" data-mark="" onClick={view.allFlagged}>
+          {texts.allFlagged}
+        </button>
+      )}
+      <h3>{texts.allTitle}</h3>
+    </section>
+  );
+}
+
 export function Rows({ view }: { view: Review }) {
   if (view.rows.length === 0) return <p class="review-empty">{texts.empty}</p>;
   return (
     <>
+      <Flagged view={view} />
       <ul class="review-rows">
         {view.rows.map((row, index) => (
-          <Row key={`${index}-${row.code}`} view={view} row={row} index={index} />
+          <Row key={`${index}-${row.code}`} view={view} row={row} at={String(index)} />
         ))}
       </ul>
       {view.hasMore && (

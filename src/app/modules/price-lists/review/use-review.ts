@@ -37,8 +37,27 @@ export function useListData(listId: string) {
     if (!result.ok) return notify(texts.rowsFailed, 'triangle-alert');
     rows.update((now: RowsPage) => ({ ...result.data, rows: [...now.rows, ...result.data.rows] }));
   };
-  return { state, show, setShow, search, setSearch, rows, more };
+  // «Para revisar», aparte y arriba de todo (R6.4, E57): sin filtro ni búsqueda, si hay alguno.
+  const flagging = !show && !search.trim() && (state.data?.summary?.review ?? 0) > 0;
+  const flagged = useMirroredQuery(
+    'price-lists.review.flagged',
+    () => (flagging ? listsApi.rows(listId, { show: 'review', q: '' }) : noRows()),
+    [listId, flagging],
+    { mode: 'forward', schema: reviewSchemas.rows },
+  );
+  return {
+    state,
+    show,
+    setShow,
+    search,
+    setSearch,
+    rows,
+    more,
+    flagged: flagging ? flagged : undefined,
+  };
 }
+
+const noRows = async () => ({ ok: true as const, data: { rows: [] } });
 
 // Mientras se aplica, el avance por el tema; cuando deja de aplicarse, se trae el estado entero (con
 // lo que hizo, o el motivo si volvió a esperar).

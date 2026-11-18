@@ -15,6 +15,7 @@ import { useStore } from '../../../platform/store.ts';
 import { formatTime } from '../../../platform/time.ts';
 import { person as me } from '../../sign-in/index.ts';
 import { suppliersApi } from '../api.ts';
+import { downloadList } from '../download.ts';
 import { openReview, openSuppliers } from '../pages.ts';
 import { supplierSchemas } from '../schemas.ts';
 import { startUploads } from '../uploads/actions.ts';
@@ -114,7 +115,7 @@ export function useSupplier(id: string) {
     pick: () => setPicks(picks + 1),
     canReactivate: may.manage && live && !!supplier?.inactive,
     ...useDropping({ id, name: () => (now() as SupplierResponse).name, reload: query.invalidate }),
-    ...{ review: openReview, back: openSuppliers },
+    ...{ review: openReview, back: openSuppliers, download: downloadList },
     ...{ fresh: !!query.data, failed: query.failed, retry: query.invalidate },
     seenAtShown: formatTime(seen?.at as Date),
   };

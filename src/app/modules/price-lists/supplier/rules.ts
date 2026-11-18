@@ -9,13 +9,12 @@ import {
   type Terms,
 } from '@ferrebress/shared/contracts/price-lists';
 import { formatPesos } from '@ferrebress/shared/money/money';
-import { nowMs, sinceOf } from '../../../platform/time.ts';
+import { nowMs, shownDate, sinceOf } from '../../../platform/time.ts';
 import { stepsLines } from '../review/rules.ts';
 import { listReasonTexts, listStatusTexts } from '../texts-status.ts';
 import { percentText } from './terms-rules.ts';
 import { supplierTexts as texts } from './texts.ts';
 
-const ddmmyyyy = (date: string) => date.split('-').reverse().join('/');
 const since = (at: string) => sinceOf(Date.parse(at), nowMs());
 
 // Sus datos (R2.1), cada uno con su nombre y lo que tiene.
@@ -66,7 +65,7 @@ export function listLines(list: SupplierList) {
     );
   return {
     id: list.id,
-    title: list.listDate ? texts.listOf(ddmmyyyy(list.listDate)) : texts.noDate,
+    title: list.listDate ? texts.listOf(shownDate(list.listDate)) : texts.noDate,
     status: listStatusTexts[list.status],
     reason: list.reason ? listReasonTexts[list.reason] : undefined,
     uploaded: texts.uploadedBy(list.uploadedBy ?? texts.someone, since(list.uploadedAt)),
@@ -81,7 +80,7 @@ export function listLines(list: SupplierList) {
 function goneOf(gone: SupplierItem['goneSince']) {
   if (!gone) return undefined;
   if (!gone.listId) return texts.goneWithSupplier;
-  return texts.goneSince(gone.listDate ? ddmmyyyy(gone.listDate) : texts.noDate);
+  return texts.goneSince(gone.listDate ? shownDate(gone.listDate) : texts.noDate);
 }
 
 // Un producto (R8.1, R8.2): su costo con su cuenta y, dado de baja, desde cuándo.

@@ -2,7 +2,7 @@
 // cambios, de a uno, una variación que baja y aplicándose sin avance todavía.
 import type { ListState, ListSummary } from '@ferrebress/shared/contracts/price-lists';
 import { describe, expect, it } from 'vitest';
-import { chipsOf, headerOf, rowLines, viewOf } from './rules.ts';
+import { chipsOf, headerOf, rowLines, stepsLines, viewOf } from './rules.ts';
 
 const one: ListSummary = {
   ...{ new: 1, changed: 1, same: 1, gone: 1, skipped: 1, reasons: {} },
@@ -73,5 +73,23 @@ describe('ver qué cambia, en los bordes', () => {
       variation: '-50 %',
     });
     expect(rowLines({ code: 'x', description: 'y', skipped: 'no-price' }).cells).toBe('');
+  });
+
+  it('price-lists-E17: la cuenta, paso a paso; sin fecha de la lista, sin su renglón', () => {
+    const basis = {
+      ...{ listPrice: '2314000000', vatIncluded: false, vat: 210, brand: null, listId: 'l' },
+      discounts: [
+        { name: 'General', percent: 2500 },
+        { name: 'Contado', percent: 500 },
+      ],
+    };
+    expect(stepsLines({ ...basis, listDate: null })).toEqual([
+      'Precio de lista $ 2.314,00',
+      '− 25 % General = $ 1.735,50',
+      '− 5 % Contado = $ 1.648,73',
+    ]);
+    expect(stepsLines({ ...basis, listDate: '2026-08-01' }).at(-1)).toBe(
+      'De la lista del 01/08/2026',
+    );
   });
 });

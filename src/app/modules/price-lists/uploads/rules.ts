@@ -6,12 +6,18 @@ import {
   type ListScope,
   type ListState,
   listExtensions,
+  type NewSupplierBody,
+  type SupplierField,
   type SupplierRow,
+  supplierFields,
+  supplierLimits,
 } from '@ferrebress/shared/contracts/price-lists';
+import { supplierTexts } from '../supplier/texts.ts';
 import { listReasonTexts } from '../texts-status.ts';
 import { uploadsTexts as texts } from './texts.ts';
 
 export type Phase = 'sending' | 'reading' | 'done' | 'failed' | 'cancelled';
+export type Side = 'phone' | 'computer';
 
 export type Upload = {
   key: string;
@@ -27,6 +33,8 @@ export type Upload = {
   // Quien sube eligió cambiar el proveedor: se ve la lista para elegir (R4.3).
   choosing?: boolean;
   error?: string | undefined;
+  // La sube el otro dispositivo (R1.6): acá se ve su avance y, cuando existe, se sigue igual.
+  from?: Side;
 };
 
 const thousands = (n: number) => n.toLocaleString('es-AR');
@@ -43,13 +51,16 @@ export function refusalOf(file: { name: string; size: number }, maxMb: number | 
 type Words = { long: string; short: string };
 const say = (text: string): Words => ({ long: text, short: text });
 
+// Cuánto subió, acá o en el otro dispositivo (R1.6).
+function sendingOf(upload: Upload) {
+  const percent = Math.min(100, Math.round((upload.sent / Math.max(upload.bytes, 1)) * 100));
+  return upload.from ? texts.sendingOn[upload.from](percent) : texts.sending(percent);
+}
+
 // En qué va (R4.9).
 function stepOf(upload: Upload): Words | undefined {
   const progress = upload.progress;
-  if (upload.phase === 'sending')
-    return say(
-      texts.sending(Math.min(100, Math.round((upload.sent / Math.max(upload.bytes, 1)) * 100))),
-    );
+  if (upload.phase === 'sending') return say(sendingOf(upload));
   if (upload.phase === 'cancelled') return say(texts.cancelled);
   if (!progress) return undefined;
   if (progress.status === 'unreadable')
@@ -110,12 +121,38 @@ export const linesOf = (upload: Upload, suppliers: readonly SupplierRow[]) => ({
   })),
   partial: upload.scope === 'partial',
   replaces: replacesOther(upload, suppliers),
-  // Cancelar mientras sube o lee (R4.11); cerrar lo que terminó.
-  canCancel: upload.phase === 'sending' || upload.phase === 'reading',
+  // Cancelar mientras sube o lee (R4.11); cerrar lo que terminó. La subida la corta y elige su
+  // alcance solo el dispositivo que tiene el archivo.
+  canCancel: upload.phase === 'reading' || (upload.phase === 'sending' && !upload.from),
   canClose: upload.phase !== 'sending' && upload.phase !== 'reading',
-  canScope: upload.phase === 'sending' || upload.phase === 'reading',
+  canScope: upload.phase === 'reading' || (upload.phase === 'sending' && !upload.from),
   // Leída y en espera: se pasa a ver qué cambia (pantalla 3).
   canReview: upload.phase === 'done' && upload.progress?.status === 'pending',
   failed: upload.phase === 'failed' || upload.progress?.status === 'unreadable',
 });
 export type UploadLines = ReturnType<typeof linesOf>;
+
+// Proveedor nuevo al subir (R2.2): lo escrito de cada dato.
+export type Draft = Partial<Record<SupplierField, string>>;
+
+// Los datos para escribir: el nombre siempre; los demás, si se abrieron. Cada uno con su nombre, su
+// largo máximo y si va en varias líneas.
+export const newFieldsOf = (draft: Draft, more: boolean) =>
+  supplierFields
+    .filter((field) => more || field === 'name')
+    .map((field) => ({
+      field,
+      label: field === 'name' ? texts.newName : supplierTexts.fields[field],
+      placeholder: field === 'name' ? texts.newSupplier : supplierTexts.fields[field],
+      value: draft[field] ?? '',
+      max: supplierLimits[field],
+      multiline: field === 'note',
+    }));
+
+// Lo que se manda: el nombre y los demás datos escritos.
+export function newSupplierOf(draft: Draft): NewSupplierBody {
+  const others = supplierFields
+    .filter((field) => field !== 'name' && (draft[field] ?? '').trim() !== '')
+    .map((field) => [field, (draft[field] as string).trim()]);
+  return { name: draft.name ?? '', ...Object.fromEntries(others) };
+}

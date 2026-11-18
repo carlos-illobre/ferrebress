@@ -3,3 +3,4 @@
 // model.ts (ADR-019), y sus pantallas, en cada vista (views/<view>/price-lists/).
 export { skippedRows } from './api.ts';
 export { listReasonTexts, skipReasonTexts } from './texts-status.ts';
+export { watchUploads } from './uploads/mirror.ts';

@@ -73,10 +73,12 @@
   }
   .upload-new {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--s2);
   }
-  .upload-new input {
-    flex: 1;
+  .upload-new input,
+  .upload-new textarea {
+    flex: 1 1 100%;
     min-width: 0;
   }
   .upload-scope {

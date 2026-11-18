@@ -112,8 +112,8 @@ export const readAnyway = (key: string) => change(key, listsApi.size(find(key)?.
 const supplierErrors: Record<string, string> = {
   'supplier-exists': texts.exists,
   'supplier-inactive': texts.existsInactive,
-  'invalid-field': texts.invalidName,
 };
+const invalidTexts: Record<string, string> = { name: texts.invalidName, email: texts.invalidEmail };
 
 // De quién es (R4.3): uno que existe, o uno nuevo (R2.2).
 export async function supplierOf(key: string, body: ListSupplierBody) {
@@ -122,7 +122,10 @@ export async function supplierOf(key: string, body: ListSupplierBody) {
     stateArrived(key, result.data);
     return patch(key, { choosing: false, error: undefined });
   }
-  patch(key, { error: supplierErrors[result.error] ?? texts.saveFailed });
+  const invalid =
+    result.error === 'invalid-field' &&
+    (invalidTexts[result.field as string] ?? texts.invalidOther);
+  patch(key, { error: invalid || (supplierErrors[result.error] ?? texts.saveFailed) });
 }
 
 export const confirm = (key: string) =>

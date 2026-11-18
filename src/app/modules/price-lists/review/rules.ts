@@ -11,7 +11,7 @@ import {
 } from '@ferrebress/shared/contracts/price-lists';
 import { formatPesos } from '@ferrebress/shared/money/money';
 import { type CostBasis, stepsOf } from '@ferrebress/shared/pricing/basis';
-import { nowMs, sinceOf } from '../../../platform/time.ts';
+import { nowMs, shownDate, sinceOf } from '../../../platform/time.ts';
 import { listReasonTexts, skipReasonTexts } from '../texts-status.ts';
 import { reviewTexts as texts } from './texts.ts';
 
@@ -23,7 +23,7 @@ const pesos = (micro: string) => formatPesos(BigInt(micro));
 export function headerOf(state: ListState) {
   return {
     supplier: state.supplier ? texts.of(state.supplier.name) : texts.noSupplier,
-    date: state.listDate ? texts.date(state.listDate.split('-').reverse().join('/')) : texts.noDate,
+    date: state.listDate ? texts.date(shownDate(state.listDate)) : texts.noDate,
     scope: state.scope === 'full' ? texts.full : texts.partial,
     uploaded: texts.uploaded(
       state.uploadedBy ?? texts.someone,
@@ -65,14 +65,16 @@ export function chipsOf(summary: ListSummary, show: Show, partial: boolean) {
 export const applyLabelOf = (summary: ListSummary) =>
   summary.goneWarning ? texts.applyAndDrop(summary.gone) : texts.apply(numbersOf(summary));
 
-// La cuenta de un costo (R3.4): precio de lista, sin IVA y cada descuento.
-export const stepsLines = (basis: CostBasis) =>
-  stepsOf(basis).map((step) => {
+// La cuenta de un costo (R3.4, E17): precio de lista, sin IVA, cada descuento y de qué lista salió.
+export const stepsLines = (basis: CostBasis) => [
+  ...stepsOf(basis).map((step) => {
     const amount = formatPesos(step.amount);
     if (step.kind === 'list') return texts.steps.list(amount);
     if (step.kind === 'vat') return texts.steps.vat(decimal(step.vat / 10), amount);
     return texts.steps.discount(step.name, decimal(step.percent / 100), amount);
-  });
+  }),
+  ...(basis.listDate ? [texts.steps.date(shownDate(basis.listDate))] : []),
+];
 
 // El costo de antes, el nuevo y cuánto cambia; uno nuevo no tenía, uno que ya no viene no tiene.
 function costsOf(row: ListRow) {

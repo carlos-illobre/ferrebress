@@ -36,13 +36,30 @@ function Choose({ view, upload }: Props) {
           void view.createNew(key);
         }}
       >
-        <input
-          aria-label={texts.newName}
-          placeholder={texts.newSupplier}
-          maxLength={80}
-          value={view.newNameOf(key)}
-          onInput={(event) => view.typeNewName(key, (event.target as HTMLInputElement).value)}
-        />
+        {view.newFieldsOf(key).map((one) => {
+          const type = (event: Event) =>
+            view.typeNew(key, one.field, (event.target as HTMLInputElement).value);
+          const shared = {
+            'aria-label': one.label,
+            placeholder: one.placeholder,
+            maxLength: one.max,
+            value: one.value,
+            onInput: type,
+          };
+          return one.multiline ? (
+            <textarea key={one.field} {...shared} />
+          ) : (
+            <input key={one.field} {...shared} />
+          );
+        })}
+        <button
+          type="button"
+          class="lists-button"
+          data-mark=""
+          onClick={() => view.toggleMore(key)}
+        >
+          {view.moreLabelOf(key)}
+        </button>
         <button type="submit" class="lists-button">
           {texts.createAndUse}
         </button>

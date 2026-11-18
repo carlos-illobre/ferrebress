@@ -9,6 +9,10 @@ export const uploadsTexts = {
   notSheet: (name: string) => `${name}: no es una planilla de Excel ni un CSV.`,
   tooBig: (name: string, mb: number) => `${name}: pasa el tamaño máximo de ${mb} MB.`,
   sending: (percent: number) => `Subiendo… ${percent} %`,
+  sendingOn: {
+    computer: (percent: number) => `Subiendo en la computadora… ${percent} %`,
+    phone: (percent: number) => `Subiendo en el celular… ${percent} %`,
+  },
   queued: 'Esperando su turno para leerse',
   applyingFirst: 'Otra lista de este proveedor se está aplicando: esta espera su turno.',
   reading: (read: string, total?: string) =>
@@ -31,9 +35,13 @@ export const uploadsTexts = {
   newSupplier: 'Proveedor nuevo',
   newName: 'Nombre del proveedor nuevo',
   createAndUse: 'Dar de alta y usar',
+  moreData: 'Agregar más datos',
+  lessData: 'Solo el nombre',
   exists: 'Ya hay un proveedor con ese nombre.',
   existsInactive: 'Ese proveedor está dado de baja: reactivalo desde Listas.',
   invalidName: 'El nombre va de 1 a 80 letras.',
+  invalidEmail: 'El correo no parece un correo.',
+  invalidOther: 'Un dato es demasiado largo.',
   // R4.7.
   full: 'Lista completa',
   partial: 'Solo cambios',

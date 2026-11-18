@@ -68,6 +68,7 @@ export const supplierTexts = {
   discardedBy: 'La descartó',
   review: 'Ver qué cambia',
   download: 'Bajar el archivo',
+  noFile: 'Ya no se guarda el archivo',
   more: 'Ver más',
   // Productos (R8).
   search: { long: 'Buscar por código, descripción o marca', short: 'Buscar' },

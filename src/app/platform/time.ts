@@ -98,3 +98,6 @@ export function sinceOf(at: number, now: number): string {
   if (days < 7) return `hace ${days} días`;
   return `el ${dateOf(at, now)}`;
 }
+
+// Una fecha de un día, sin hora («2026-08-01»), como se lee: «01/08/2026».
+export const shownDate = (date: string) => date.split('-').reverse().join('/');

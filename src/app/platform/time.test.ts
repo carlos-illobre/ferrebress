@@ -5,6 +5,7 @@ import {
   formatHourOfDay,
   formatTime,
   formatTimeAs,
+  shownDate,
   timeFormat,
 } from './time.ts';
 
@@ -38,5 +39,9 @@ describe('cómo se escribe una hora', () => {
   it('device-settings R6.1: la fecha con el mes en letras, con el año si no es el de ahora', () => {
     expect(dayMonthOf(Date.UTC(2026, 8, 12, 15), afternoon)).toBe('12 sep.');
     expect(dayMonthOf(Date.UTC(2025, 2, 3, 15), afternoon)).toBe('3 mar. 2025');
+  });
+
+  it('una fecha de un día, como se lee', () => {
+    expect(shownDate('2026-08-01')).toBe('01/08/2026');
   });
 });

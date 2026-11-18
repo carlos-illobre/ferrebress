@@ -85,6 +85,8 @@ describe('subir una lista', () => {
         { status: 409, body: { error: 'supplier-inactive', id: 'x' } },
         { status: 400, body: { error: 'invalid-field', field: 'name' } },
         { status: 500, body: { error: 'unexpected' } },
+        { status: 400, body: { error: 'invalid-field', field: 'email' } },
+        { status: 400, body: { error: 'invalid-field', field: 'note' } },
         { body: state(bulonera('chosen')) },
       ],
     });
@@ -108,10 +110,23 @@ describe('subir una lista', () => {
       fireEvent.click(button('Dar de alta y usar'));
       expect(await screen.findByText(said)).toBeTruthy();
     }
+    // Los demás datos, si se quiere (R2.2, E31b): los vacíos no van.
+    expect(screen.queryByLabelText('Teléfono o WhatsApp')).toBeNull();
+    fireEvent.click(button('Agregar más datos'));
+    fireEvent.click(button('Solo el nombre'));
+    fireEvent.click(button('Agregar más datos'));
+    fireEvent.input(screen.getByLabelText('Teléfono o WhatsApp'), {
+      target: { value: ' 11 5555 ' },
+    });
+    fireEvent.input(screen.getByLabelText('Nota'), { target: { value: '   ' } });
+    for (const said of ['El correo no parece un correo.', 'Un dato es demasiado largo.']) {
+      fireEvent.click(button('Dar de alta y usar'));
+      expect(await screen.findByText(said)).toBeTruthy();
+    }
     fireEvent.click(button('Dar de alta y usar'));
     expect(await screen.findByText('De Bulonera Centro')).toBeTruthy();
     expect(server.bodies(`${listPath}/supplier`).at(-1)).toEqual({
-      newSupplier: { name: 'Nueva' },
+      newSupplier: { name: 'Nueva', phone: '11 5555' },
     });
   });
 

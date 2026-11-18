@@ -71,6 +71,20 @@
     border-color: var(--urgent);
     color: var(--urgent-text);
   }
+  .review-flagged {
+    display: grid;
+    gap: var(--s2);
+  }
+
+  .review-flagged h3 {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .review-flagged h3:first-child {
+    color: var(--urgent-text);
+  }
+
   .review-rows {
     display: grid;
     gap: var(--s2);

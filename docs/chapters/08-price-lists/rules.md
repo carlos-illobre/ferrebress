@@ -182,12 +182,16 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
   van en el código, constitución VIII): se prueba con todas las planillas y queda asociado al
   proveedor de la primera lista suya que se aplica, o al que le elija en Lectores quien tiene
   «Cambiar los ajustes» (R5.8).
-- **R5.2** **Cada lector sabe decir si una planilla es suya.** Al subir un archivo se prueban primero
-  los lectores del proveedor, si se sabe cuál es, y después los de los demás. Se usa el primero que
-  la reconoce y cuyo resultado pasa la comprobación (R5.4).
+- **R5.2** **Cada lector sabe decir si una planilla es suya.** Si se sabe de quién es la lista, se
+  prueban los lectores de ese proveedor y después los de un programador que todavía no tienen
+  proveedor; los de otros proveedores no, así una lista no se lee con el formato de otro. Si no se
+  sabe, se prueban todos. Se usa el primero que la reconoce y cuyo resultado pasa la comprobación
+  (R5.4).
 - **R5.3** **El lector automático:** si ningún lector la reconoce, el sistema intenta leerla solo.
   Busca la fila del encabezado por los nombres de siempre (código, artículo, descripción, detalle,
-  precio, lista, marca, IVA) y por lo que hay en cada columna, y toma como marca o grupo los
+  precio, lista, marca, IVA) y por lo que hay en cada columna: si el encabezado nombra dos de los tres
+  datos que hacen falta (código, descripción y precio), el tercero es la única columna sin nombre que
+  lo parece en las filas de abajo (códigos sin espacios, textos con palabras, números). Toma como marca o grupo los
   renglones sueltos que hay entre los productos. Si lo logra sin dudas y pasa la comprobación,
   queda guardado como un lector nuevo de ese proveedor, y la próxima planilla con ese formato entra
   directo.
@@ -198,7 +202,9 @@ que Carlos ya confirmó de la etapa b está en el [resumen](summary.md).
   repetido en la misma lista, o en otra moneda. Los títulos, los renglones de marca y las filas
   vacías no son filas salteadas.
 - **R5.5** **Si el lector automático duda o no pasa la comprobación** (por ejemplo, hay dos columnas
-  de precio y no se sabe cuál es la de lista), la lista no se lee (R4.6). Queda guardada, y se lee
+  de precio y no se sabe cuál es la de lista, o dos columnas sin nombre parecen la que falta), la lista
+  no se lee (R4.6). También duda si al terminar no leyó ningún producto o salteó más filas que los
+  productos que leyó: es una columna mal tomada. Queda guardada, y se lee
   sola cuando exista un lector que la entienda: uno escrito por un programador, que llega con una
   versión nueva de la aplicación, o uno generado por IA (etapa b).
 - **R5.6** **Un lector no se edita:** un formato nuevo es un lector nuevo, y los anteriores quedan,

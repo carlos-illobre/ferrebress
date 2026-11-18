@@ -168,8 +168,9 @@ Lo que trajo cada fila de una lista leída y lo que le pasa, para mostrarla y ap
 
 - **Índices:** `(list_id, change, abs_variation desc)` (la variación, calculada), para «los que cambian
   primero» de a 50; `(list_id, supplier_code)`, para cruzar con los artículos.
-- **Se borran al día siguiente** de aplicar o descartar la lista, salvo las de la lista que es la prueba
-  de un lector (R5.7) y mientras su anomalía de filas salteadas esté abierta (aprobado por Carlos).
+- **Se borran al día siguiente de aplicar la lista**, salvo las de la lista que es la prueba de un lector
+  (R5.7) y mientras su anomalía de filas salteadas esté abierta (aprobado por Carlos). Las de una lista
+  descartada se borran en el momento: ya no se ven en ningún lado.
 
 ### `price_lists.items` (migración `003-items`)
 
@@ -359,9 +360,16 @@ programador, el automático y los de la etapa b:
 - **La comprobación** (`rules/check.ts`): cada fila del bloque tiene su clase; un producto, código,
   descripción y un precio mayor que cero; lo que no cumple pasa a fila salteada con su motivo. Si un
   lector deja filas sin clase, señala una celda que no existe o no pasa el primer bloque, no se usa.
-- **El orden** (R5.2, E41): los del proveedor, del más nuevo al más viejo; después los de los demás y los
-  de un programador sin proveedor. Un lector de **otro** proveedor que la reconoce no decide: deja la
-  pregunta (R4.3). Los de un proveedor dado de baja no se prueban.
+- **El orden** (R5.2, E41): si se sabe de quién es, los del proveedor, del más nuevo al más viejo, y
+  después los de un programador sin proveedor; los de otros proveedores no se prueban. Si no se sabe,
+  todos, los de un programador sin proveedor al final; el primero que la reconoce y pasa dice de quién es
+  (R4.3). Los de un proveedor dado de baja no se prueban.
+- **El automático** (`rules/auto.ts`, R5.3): una fila es el encabezado si nombra los tres datos que hacen
+  falta (código, descripción y precio) o dos de ellos y el tercero es la única columna sin nombre que lo
+  parece en las 30 filas de abajo (`rules/auto-content.ts`: el 80 % de lo que tiene, un código sin
+  espacios de hasta 20 letras, un texto con palabras o un precio). Dos nombres para un mismo dato, o dos
+  columnas que parecen el que falta, dudan. Al terminar, duda también si no leyó ningún producto o salteó
+  más filas que productos (R5.5).
 
 ## 5. Eventos y auditoría
 
@@ -388,7 +396,10 @@ Las de `anomalies` van en el grupo «Administración», que es el capítulo que 
   (`targets: [{ kind: 'product', id }]`), así la historia del costo de un producto se lee por su
   identificador (T115). Un artículo con el mismo costo no suma nada (E77). Con 20 proveedores de 5.000
   artículos por semana son, como mucho, unos 1.300 eventos (anotado en el ADR-004).
-- **Se escriben al confirmar**, con `events.transaction`: lo que se deshace no queda anotado.
+- **Se escriben al confirmar**, recién después de que la transacción se confirma: lo que se deshace no
+  queda anotado. La auditoría está en SQLite y se escribe por tandas, una vez por segundo (ADR-004): no
+  puede ir en la misma transacción de PostgreSQL, y si el servidor se cae justo después de confirmar se
+  pierde lo de ese último segundo, como cualquier otra anotación del sistema.
 - **Rechazos:** sin permiso, el `permission.denied` de la plataforma (R1.4, E04). Los `409` no se anotan.
 - **Entre módulos:** `price-lists` abre y cierra anomalías por la fachada de `anomalies` dentro de su
   transacción (R9.2, E82); el tema del avance vuelve a mirar quién escucha con
@@ -404,9 +415,12 @@ Las de `anomalies` van en el grupo «Administración», que es el capítulo que 
   la planilla, antes de saber cuántas filas tiene, manda `opening` (E39). Su fila, en
   [mobile-data.md](../mobile-data.md).
 - **El espejo** (R1.6, E08): las listas que se están subiendo, la elegida y lo abierto son valores con
-  nombre; el otro dispositivo escucha el mismo tema y pide el mismo resumen. El archivo lo elige y lo
-  sube solo el dispositivo que lo tiene; el otro ve «Subiendo en la computadora» hasta que la lista existe
-  en el servidor.
+  nombre; el otro dispositivo escucha el mismo tema y pide el mismo resumen. Cada dispositivo pone las
+  que sube en el suyo (`price-lists.uploads.computer` o `.phone`: el archivo, el avance de a 10 % y la
+  lista cuando existe), desde que arranca la aplicación, porque el panel vive fuera de las pantallas. El
+  archivo lo elige y lo sube solo el dispositivo que lo tiene, y solo él corta la subida o elige su
+  alcance mientras sube; el otro ve «Subiendo en la computadora» hasta que la lista existe en el
+  servidor, y desde ahí la sigue como suya: su estado, el tema y lo que pregunta.
 - **Cuántas anomalías hay abiertas** (06 · R9.5): un campo de la cabecera `X-Ferrebress`, en la forma
   `piggyback`, de la memoria del servidor (se cuentan al arrancar y se suman o restan al confirmar),
   solo para quien tiene el permiso.
@@ -636,8 +650,8 @@ Las tareas, en orden:
 - **Sin tope de filas, hojas ni listas a la vez:** de a bloques, con un aviso antes de leer una planilla
   muy grande (R4.12, 06 · R8.5); el tope de tiempo y memoria del lector vale por bloque (R5.10).
 - **Un nombre de un proveedor dado de baja** ofrece reactivarlo (R2.1, E94).
-- **Las filas leídas** se borran al día siguiente, salvo las de la prueba de un lector y con su anomalía
-  abierta.
+- **Las filas leídas** de una lista aplicada se borran al día siguiente, salvo las de la prueba de un
+  lector y con su anomalía abierta; las de una descartada, en el momento.
 - **De los datos de contacto del vendedor**, Quién hizo qué guarda solo qué cambió (R9.1, E11).
 - **Los archivos son un respaldo** y se borran solos: al reemplazarse por una lista aplicada más nueva,
   a los días fijados si nunca se aplicó, y los más viejos al pasar el tamaño fijado; también a mano, en
