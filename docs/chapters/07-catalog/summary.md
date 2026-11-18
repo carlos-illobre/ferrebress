@@ -3,9 +3,8 @@
 Productos, proveedores, costo, margen, precio, búsqueda y la ficha del producto, en tres etapas:
 **a. catálogo base**, **b. código y foto** (con 03b) y **c. duplicados e historia** (después de 08a).
 
-**Estado:** etapa a, en pausa en el paso 1. Espera a las listas de precios (capítulo 08, etapa a), porque
-los productos salen solo de las listas: sin ellas no hay nada que probar. Las reglas todavía no
-están escritas; abajo, lo que Carlos ya confirmó y lo que falta preguntarle al retomarla.
+**Estado:** etapa a, en el paso 1, en dos partes: **a1**, el servidor y buscar, y **a2**, las pantallas.
+Las reglas todavía no están escritas; abajo, lo que Carlos ya confirmó.
 
 ## Lo confirmado
 
@@ -23,9 +22,11 @@ están escritas; abajo, lo que Carlos ya confirmó y lo que falta preguntarle al
   necesita para sus listas.
 - **El código del proveedor** es único dentro de cada proveedor; dos proveedores pueden usar el
   mismo.
-- **El proveedor en uso:** el costo sale del más barato, salvo que alguien haya elegido otro a
-  mano; entonces se respeta y la ficha avisa que hay uno más barato, con un toque para pasarse.
-  Cuántos días tiene que tener un costo para dejar de contar como el más barato se decide con 08.
+- **El proveedor en uso** (etapa c, cuando un producto tiene más de un proveedor): el costo sale del
+  más barato, salvo que alguien haya elegido otro a mano; entonces se respeta y la ficha avisa que
+  hay uno más barato, con un toque para pasarse. Un costo de más de 90 días no cuenta para elegir el
+  más barato. En la etapa a cada producto tiene un solo proveedor: el mismo código en dos
+  proveedores son dos productos (08 · R7.1).
 - **El precio de venta:** costo × (1 + margen) × (1 + IVA), con el margen sobre el costo sin IVA,
   redondeado para arriba al múltiplo del paso de Administración. Con costo $ 1.500, margen 100 % e
   IVA 21 %: $ 3.630, que con el paso de $ 1.000 se cobra $ 4.000.
